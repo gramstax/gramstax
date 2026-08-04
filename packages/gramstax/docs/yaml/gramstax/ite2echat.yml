@@ -3,7 +3,7 @@ name: ITE2eChat
 uid: gramstax!ITE2eChat:type
 package: gramstax!
 fullName: ITE2eChat
-summary: ''
+summary: Simulated chat object for E2E updates.
 remarks: ''
 example: []
 isPreview: false

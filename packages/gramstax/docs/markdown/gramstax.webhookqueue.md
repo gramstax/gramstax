@@ -71,6 +71,27 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[isClosed](./gramstax.webhookqueue.isclosed.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+Whether the queue has been closed.
+
+
+</td></tr>
+<tr><td>
+
 [length](./gramstax.webhookqueue.length.md)
 
 
@@ -112,6 +133,20 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[close()](./gramstax.webhookqueue.close.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Close the queue and release all waiting consumers and producers.
+
+
+</td></tr>
+<tr><td>
+
 [dequeue()](./gramstax.webhookqueue.dequeue.md)
 
 
@@ -126,7 +161,7 @@ Dequeue a value, blocking when the queue is empty.
 </td></tr>
 <tr><td>
 
-[enqueue(value)](./gramstax.webhookqueue.enqueue.md)
+[enqueue(value, signal)](./gramstax.webhookqueue.enqueue.md)
 
 
 </td><td>

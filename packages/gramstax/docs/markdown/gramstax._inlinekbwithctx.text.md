@@ -6,10 +6,12 @@
 
 Add a callback button. `text` and/or `data` can be a page (class/instance) or string. A page passed as `text` resolves to its `intentText` label; a page passed as `data` resolves to its `callbackQueryData()`<!-- -->.
 
+When `data` is a callback data object (`Page.data.callbackQueryData(...)`<!-- -->), the destination page must define `handleCallbackQueryData` (no args) or `handleArgsCallbackQueryData` (with args) — enforced at compile time.
+
 **Signature:**
 
 ```typescript
-text(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | _KbPageLike): this;
+text<D extends _KbCallbackData<typeof Ctx, Array<string | undefined>>>(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data: D & _KbCallbackDataCheck<D>): this;
 ```
 
 ## Parameters
@@ -53,12 +55,12 @@ data
 
 </td><td>
 
-Parameters&lt;InlineKeyboard\[\`text\`\]&gt;\[1\] \| [\_KbPageLike](./gramstax._kbpagelike.md)
+D &amp; \_KbCallbackDataCheck&lt;D&gt;
 
 
 </td><td>
 
-_(Optional)_ string callback\_data, grammY button object, or class Page
+string callback\_data, grammY button object, class Page, or callback data object from `page.data.callbackQueryData(...)`
 
 
 </td></tr>

@@ -4,6 +4,7 @@
 
 ## ITE2eMediaOptions type
 
+E2E options for media messages (caption support).
 
 **Signature:**
 

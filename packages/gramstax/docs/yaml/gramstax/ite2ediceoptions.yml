@@ -3,7 +3,7 @@ name: ITE2eDiceOptions
 uid: gramstax!ITE2eDiceOptions:type
 package: gramstax!
 fullName: ITE2eDiceOptions
-summary: ''
+summary: E2E options for dice messages.
 remarks: ''
 example: []
 isPreview: false

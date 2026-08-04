@@ -19,6 +19,19 @@ syntax: |-
       cacheKeyboard?: Map<string, unknown>;
       templateManager?: TemplateManager;
       autoRetry?: boolean;
+      autoRetryOptions?: {
+          maxRetryAttempts?: number;
+          retryOnInternalServerErrors?: boolean;
+      };
+      updateTimeoutMs?: number;
+      skipDuplicateUpdate?: boolean;
+      webhookSecretToken?: string;
+      maxTextLength?: number;
+      onUpdateError?: (event: ITUpdateErrorEvent) => void;
+      statusServerPort?: number;
+      statusServerHostname?: string;
+      pollingMaxRetries?: number;
+      onUpdate?: (event: ITUpdateSuccessEvent) => void;
       optionsPage?: {
           shortCallbackQueryData?: boolean;
       };

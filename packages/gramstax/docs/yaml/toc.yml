@@ -11,6 +11,8 @@ items:
             uid: gramstax!_InlineKbWithCtx:interface
           - name: _KbButtonWithPageText
             uid: gramstax!_KbButtonWithPageText:type
+          - name: _KbCallbackData
+            uid: gramstax!_KbCallbackData:type
           - name: _KbPageLike
             uid: gramstax!_KbPageLike:type
           - name: BlockKeyboard
@@ -139,12 +141,18 @@ items:
             uid: gramstax!ITTemp:type
           - name: ITTemplateOptions
             uid: gramstax!ITTemplateOptions:type
+          - name: ITUpdateErrorEvent
+            uid: gramstax!ITUpdateErrorEvent:type
+          - name: ITUpdateSuccessEvent
+            uid: gramstax!ITUpdateSuccessEvent:type
           - name: ITWebhookQueueConfig
             uid: gramstax!ITWebhookQueueConfig:type
           - name: LabelKeyboard
             uid: gramstax!LabelKeyboard:class
           - name: LoggingHelper
             uid: gramstax!LoggingHelper:class
+          - name: MetricsStore
+            uid: gramstax!MetricsStore:class
           - name: MockTelegramServer
             uid: gramstax!MockTelegramServer:class
           - name: PageManager

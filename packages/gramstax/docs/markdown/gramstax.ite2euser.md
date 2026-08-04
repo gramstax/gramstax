@@ -4,6 +4,7 @@
 
 ## ITE2eUser type
 
+E2E testing helper types for Gramstax bots.
 
 **Signature:**
 
@@ -17,3 +18,8 @@ type ITE2eUser = {
     is_bot?: boolean;
 };
 ```
+
+## Remarks
+
+Types for the in-process E2E test helper that simulates Telegram updates without an HTTP server. Mirrors the relevant subset of the Telegram Bot API Update object for constructing mock messages, callback queries, and other update types in tests.
+

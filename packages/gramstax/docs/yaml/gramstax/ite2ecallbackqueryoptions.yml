@@ -3,7 +3,7 @@ name: ITE2eCallbackQueryOptions
 uid: gramstax!ITE2eCallbackQueryOptions:type
 package: gramstax!
 fullName: ITE2eCallbackQueryOptions
-summary: ''
+summary: E2E options for callback query updates.
 remarks: ''
 example: []
 isPreview: false

@@ -3,7 +3,7 @@ name: ITE2eUpdateOptions
 uid: gramstax!ITE2eUpdateOptions:type
 package: gramstax!
 fullName: ITE2eUpdateOptions
-summary: ''
+summary: Base update options for E2E updates.
 remarks: ''
 example: []
 isPreview: false

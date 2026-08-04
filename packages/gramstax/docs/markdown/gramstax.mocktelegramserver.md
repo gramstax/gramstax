@@ -328,6 +328,20 @@ Clear the captured outbound Bot API request log.
 </td></tr>
 <tr><td>
 
+[clearUpdates()](./gramstax.mocktelegramserver.clearupdates.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Clear the captured inbound update log.
+
+
+</td></tr>
+<tr><td>
+
 [lastRequest(method)](./gramstax.mocktelegramserver.lastrequest.md)
 
 

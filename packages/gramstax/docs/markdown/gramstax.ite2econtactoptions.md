@@ -4,6 +4,7 @@
 
 ## ITE2eContactOptions type
 
+E2E options for contact messages.
 
 **Signature:**
 

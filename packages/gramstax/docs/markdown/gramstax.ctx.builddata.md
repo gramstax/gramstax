@@ -4,7 +4,7 @@
 
 ## Ctx.buildData() method
 
-Creates page routing data configuration.
+Creates page routing data configuration with a callback function.
 
 **Signature:**
 
@@ -53,27 +53,4 @@ A function that returns arg values as an array.
 [ITPageData](./gramstax.itpagedata.md)<!-- -->&lt;Parameters&lt;C&gt;&gt;
 
 The page data configuration object.
-
-## Remarks
-
-This method has multiple overloads: - `buildData()` - Returns default page data with no args. - `buildData(callbackQueryData)` - Returns intentCallbackQueryData + args. - `buildData(options)` - Returns page data with custom options.
-
-The callback must return an array of arg values that will be joined with the intent using colon separators.
-
-## Example
-
-
-```typescript
-class MyPage extends Ctx {
-  // Simple callback arg
-  static data = this.buildData((id: string) => [id])
-
-  // With custom intents
-  static data = this.buildData({
-    callbackQueryData: (action: string) => [action],
-    intentText: "my_page",
-    intentCommandText: "mycommand"
-  })
-}
-```
 

@@ -4,6 +4,7 @@
 
 ## ITE2eCallbackQueryOptions type
 
+E2E options for callback query updates.
 
 **Signature:**
 

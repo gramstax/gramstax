@@ -10,14 +10,16 @@ Page routing data configuration.
 
 ```typescript
 type ITPageData<T extends Array<string | undefined> = string[]> = ITPageDataBase & {
-    callbackQueryData(...args: T): string;
+    callbackQueryData<P extends Ctx = Ctx>(...args: T): _KbCallbackData<_CtorOf<P>, T>;
 };
 ```
-**References:** [ITPageDataBase](./gramstax.itpagedatabase.md)
+**References:** [ITPageDataBase](./gramstax.itpagedatabase.md)<!-- -->, [Ctx](./gramstax.ctx.md)<!-- -->, [\_KbCallbackData](./gramstax._kbcallbackdata.md)
 
 ## Remarks
 
 Full page data with typed `callbackQueryData` according to the args configured via `buildData`<!-- -->. Every page SHOULD define `static data` via `buildData(...)` to enable callback query routing.
 
-- `buildData()` (no args) → `callbackQueryData(): string` — 0 args only - `buildData((a: string, b: string) => ...)` → `callbackQueryData(a, b): string` - `buildData((a?: string) => ...)` → `callbackQueryData(a?): string`
+- `buildData()` (no args) → `callbackQueryData(): {result, page, args: []}` — 0 args only - `buildData((a: string, b: string) => ...)` → `callbackQueryData(a, b): {result, page, args: [a, b]}` - `buildData((a?: string) => ...)` → `callbackQueryData(a?): {result, page, args}` (optional still supported)
+
+The page class is NOT carried by `static data` (TS cannot infer it without a circular annotation) — pass it explicitly when you want route validation: `Page.data.callbackQueryData<Page>("42")` is compile-error checked against `handleArgsCallbackQueryData`<!-- -->; without the type argument the object is accepted as-is and the route is only resolved at runtime.
 

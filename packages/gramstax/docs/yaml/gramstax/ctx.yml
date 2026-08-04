@@ -1064,29 +1064,9 @@ methods:
     uid: gramstax!Ctx.buildData:member(1)
     package: gramstax!
     fullName: buildData(callbackQueryData)
-    summary: Creates page routing data configuration.
-    remarks: >-
-      This method has multiple overloads: - `buildData()` - Returns default page data with no args. -
-      `buildData(callbackQueryData)` - Returns intentCallbackQueryData + args. - `buildData(options)` - Returns page
-      data with custom options.
-
-
-      The callback must return an array of arg values that will be joined with the intent using colon separators.
-    example:
-      - |-
-        ```typescript
-        class MyPage extends Ctx {
-          // Simple callback arg
-          static data = this.buildData((id: string) => [id])
-
-          // With custom intents
-          static data = this.buildData({
-            callbackQueryData: (action: string) => [action],
-            intentText: "my_page",
-            intentCommandText: "mycommand"
-          })
-        }
-        ```
+    summary: Creates page routing data configuration with a callback function.
+    remarks: ''
+    example: []
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1126,7 +1106,7 @@ methods:
     uid: gramstax!Ctx.buildData:member(3)
     package: gramstax!
     fullName: buildData(options)
-    summary: Creates page routing data configuration with options (no type inference).
+    summary: Creates page routing data configuration without a callback arg.
     remarks: ''
     example: []
     isPreview: false
@@ -1136,7 +1116,7 @@ methods:
       parameters:
         - id: options
           description: >-
-            Configuration options (or null to use defaults). See
+            Configuration options without `callbackQueryData` (or null to use defaults). See
             [ITBuildDataOptions](xref:gramstax!ITBuildDataOptions:type) for details.
           type: <xref uid="gramstax!ITBuildDataOptions:type" /> | null
       return:
@@ -4792,6 +4772,306 @@ methods:
       return:
         type: string
         description: ''
+  - name: methodSessionFreeBusinessConnection(name)
+    uid: gramstax!Ctx#methodSessionFreeBusinessConnection:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeBusinessConnection(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeBusinessConnection(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeBusinessMessage(name)
+    uid: gramstax!Ctx#methodSessionFreeBusinessMessage:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeBusinessMessage(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeBusinessMessage(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeChannelChatCreated(name)
+    uid: gramstax!Ctx#methodSessionFreeChannelChatCreated:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeChannelChatCreated(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeChannelChatCreated(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeChannelPost(name)
+    uid: gramstax!Ctx#methodSessionFreeChannelPost:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeChannelPost(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeChannelPost(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeChatBackgroundSet(name)
+    uid: gramstax!Ctx#methodSessionFreeChatBackgroundSet:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeChatBackgroundSet(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeChatBackgroundSet(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeChatBoost(name)
+    uid: gramstax!Ctx#methodSessionFreeChatBoost:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeChatBoost(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeChatBoost(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeChatJoinRequest(name)
+    uid: gramstax!Ctx#methodSessionFreeChatJoinRequest:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeChatJoinRequest(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeChatJoinRequest(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeChatShared(name)
+    uid: gramstax!Ctx#methodSessionFreeChatShared:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeChatShared(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeChatShared(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeChosenInlineResult(name)
+    uid: gramstax!Ctx#methodSessionFreeChosenInlineResult:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeChosenInlineResult(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeChosenInlineResult(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeConnectedWebsite(name)
+    uid: gramstax!Ctx#methodSessionFreeConnectedWebsite:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeConnectedWebsite(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeConnectedWebsite(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
   - name: methodSessionFreeContact(name)
     uid: gramstax!Ctx#methodSessionFreeContact:member(1)
     package: gramstax!
@@ -4815,6 +5095,66 @@ methods:
     isDeprecated: false
     syntax:
       content: 'methodSessionFreeContact(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeDeleteChatPhoto(name)
+    uid: gramstax!Ctx#methodSessionFreeDeleteChatPhoto:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeDeleteChatPhoto(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeDeleteChatPhoto(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeDeletedBusinessMessages(name)
+    uid: gramstax!Ctx#methodSessionFreeDeletedBusinessMessages:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeDeletedBusinessMessages(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeDeletedBusinessMessages(name?: string): string;'
       parameters:
         - id: name
           description: ''
@@ -4852,6 +5192,486 @@ methods:
       return:
         type: string
         description: ''
+  - name: methodSessionFreeEdit(name)
+    uid: gramstax!Ctx#methodSessionFreeEdit:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeEdit(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeEdit(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeEditChannelPost(name)
+    uid: gramstax!Ctx#methodSessionFreeEditChannelPost:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeEditChannelPost(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeEditChannelPost(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeEditedBusinessMessage(name)
+    uid: gramstax!Ctx#methodSessionFreeEditedBusinessMessage:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeEditedBusinessMessage(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeEditedBusinessMessage(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeForumTopicClosed(name)
+    uid: gramstax!Ctx#methodSessionFreeForumTopicClosed:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeForumTopicClosed(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeForumTopicClosed(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeForumTopicCreated(name)
+    uid: gramstax!Ctx#methodSessionFreeForumTopicCreated:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeForumTopicCreated(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeForumTopicCreated(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeForumTopicEdited(name)
+    uid: gramstax!Ctx#methodSessionFreeForumTopicEdited:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeForumTopicEdited(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeForumTopicEdited(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeForumTopicReopened(name)
+    uid: gramstax!Ctx#methodSessionFreeForumTopicReopened:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeForumTopicReopened(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeForumTopicReopened(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeGeneralForumTopicHidden(name)
+    uid: gramstax!Ctx#methodSessionFreeGeneralForumTopicHidden:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeGeneralForumTopicHidden(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeGeneralForumTopicHidden(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeGeneralForumTopicUnhidden(name)
+    uid: gramstax!Ctx#methodSessionFreeGeneralForumTopicUnhidden:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeGeneralForumTopicUnhidden(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeGeneralForumTopicUnhidden(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeGiveaway(name)
+    uid: gramstax!Ctx#methodSessionFreeGiveaway:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeGiveaway(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeGiveaway(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeGiveawayCompleted(name)
+    uid: gramstax!Ctx#methodSessionFreeGiveawayCompleted:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeGiveawayCompleted(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeGiveawayCompleted(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeGiveawayCreated(name)
+    uid: gramstax!Ctx#methodSessionFreeGiveawayCreated:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeGiveawayCreated(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeGiveawayCreated(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeGiveawayWinners(name)
+    uid: gramstax!Ctx#methodSessionFreeGiveawayWinners:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeGiveawayWinners(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeGiveawayWinners(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeGroupChatCreated(name)
+    uid: gramstax!Ctx#methodSessionFreeGroupChatCreated:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeGroupChatCreated(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeGroupChatCreated(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeInlineQuery(name)
+    uid: gramstax!Ctx#methodSessionFreeInlineQuery:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeInlineQuery(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeInlineQuery(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeLeftChatMember(name)
+    uid: gramstax!Ctx#methodSessionFreeLeftChatMember:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeLeftChatMember(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeLeftChatMember(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
   - name: methodSessionFreeLocation(name)
     uid: gramstax!Ctx#methodSessionFreeLocation:member(1)
     package: gramstax!
@@ -4875,6 +5695,186 @@ methods:
     isDeprecated: false
     syntax:
       content: 'methodSessionFreeLocation(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeMessageAutoDeleteTimerChanged(name)
+    uid: gramstax!Ctx#methodSessionFreeMessageAutoDeleteTimerChanged:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeMessageAutoDeleteTimerChanged(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeMessageAutoDeleteTimerChanged(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeMessageReactionCount(name)
+    uid: gramstax!Ctx#methodSessionFreeMessageReactionCount:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeMessageReactionCount(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeMessageReactionCount(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeNewChatMembers(name)
+    uid: gramstax!Ctx#methodSessionFreeNewChatMembers:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeNewChatMembers(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeNewChatMembers(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeNewChatPhoto(name)
+    uid: gramstax!Ctx#methodSessionFreeNewChatPhoto:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeNewChatPhoto(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeNewChatPhoto(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeNewChatTitle(name)
+    uid: gramstax!Ctx#methodSessionFreeNewChatTitle:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeNewChatTitle(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeNewChatTitle(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreePassportData(name)
+    uid: gramstax!Ctx#methodSessionFreePassportData:member(1)
+    package: gramstax!
+    fullName: methodSessionFreePassportData(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreePassportData(name?: string): string;'
       parameters:
         - id: name
           description: ''
@@ -4912,6 +5912,276 @@ methods:
       return:
         type: string
         description: ''
+  - name: methodSessionFreePinMessage(name)
+    uid: gramstax!Ctx#methodSessionFreePinMessage:member(1)
+    package: gramstax!
+    fullName: methodSessionFreePinMessage(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreePinMessage(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreePoll(name)
+    uid: gramstax!Ctx#methodSessionFreePoll:member(1)
+    package: gramstax!
+    fullName: methodSessionFreePoll(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreePoll(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreePollAnswer(name)
+    uid: gramstax!Ctx#methodSessionFreePollAnswer:member(1)
+    package: gramstax!
+    fullName: methodSessionFreePollAnswer(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreePollAnswer(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreePreCheckoutQuery(name)
+    uid: gramstax!Ctx#methodSessionFreePreCheckoutQuery:member(1)
+    package: gramstax!
+    fullName: methodSessionFreePreCheckoutQuery(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreePreCheckoutQuery(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeProximityAlertTriggered(name)
+    uid: gramstax!Ctx#methodSessionFreeProximityAlertTriggered:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeProximityAlertTriggered(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeProximityAlertTriggered(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeReaction(name)
+    uid: gramstax!Ctx#methodSessionFreeReaction:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeReaction(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeReaction(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeRefundedPayment(name)
+    uid: gramstax!Ctx#methodSessionFreeRefundedPayment:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeRefundedPayment(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeRefundedPayment(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeRemovedChatBoost(name)
+    uid: gramstax!Ctx#methodSessionFreeRemovedChatBoost:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeRemovedChatBoost(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeRemovedChatBoost(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeShippingQuery(name)
+    uid: gramstax!Ctx#methodSessionFreeShippingQuery:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeShippingQuery(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeShippingQuery(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
   - name: methodSessionFreeSticker(name)
     uid: gramstax!Ctx#methodSessionFreeSticker:member(1)
     package: gramstax!
@@ -4935,6 +6205,66 @@ methods:
     isDeprecated: false
     syntax:
       content: 'methodSessionFreeSticker(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeSuccessfulPayment(name)
+    uid: gramstax!Ctx#methodSessionFreeSuccessfulPayment:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeSuccessfulPayment(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeSuccessfulPayment(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeSupergroupChatCreated(name)
+    uid: gramstax!Ctx#methodSessionFreeSupergroupChatCreated:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeSupergroupChatCreated(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeSupergroupChatCreated(name?: string): string;'
       parameters:
         - id: name
           description: ''
@@ -4972,6 +6302,36 @@ methods:
       return:
         type: string
         description: ''
+  - name: methodSessionFreeUserShared(name)
+    uid: gramstax!Ctx#methodSessionFreeUserShared:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeUserShared(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeUserShared(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
   - name: methodSessionFreeVideo(name)
     uid: gramstax!Ctx#methodSessionFreeVideo:member(1)
     package: gramstax!
@@ -4995,6 +6355,126 @@ methods:
     isDeprecated: false
     syntax:
       content: 'methodSessionFreeVideo(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeVideoChatEnded(name)
+    uid: gramstax!Ctx#methodSessionFreeVideoChatEnded:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeVideoChatEnded(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeVideoChatEnded(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeVideoChatParticipantsInvited(name)
+    uid: gramstax!Ctx#methodSessionFreeVideoChatParticipantsInvited:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeVideoChatParticipantsInvited(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeVideoChatParticipantsInvited(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeVideoChatScheduled(name)
+    uid: gramstax!Ctx#methodSessionFreeVideoChatScheduled:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeVideoChatScheduled(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeVideoChatScheduled(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeVideoChatStarted(name)
+    uid: gramstax!Ctx#methodSessionFreeVideoChatStarted:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeVideoChatStarted(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeVideoChatStarted(name?: string): string;'
       parameters:
         - id: name
           description: ''
@@ -5055,6 +6535,66 @@ methods:
     isDeprecated: false
     syntax:
       content: 'methodSessionFreeVoice(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeWebAppData(name)
+    uid: gramstax!Ctx#methodSessionFreeWebAppData:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeWebAppData(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeWebAppData(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionFreeWriteAccessAllowed(name)
+    uid: gramstax!Ctx#methodSessionFreeWriteAccessAllowed:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeWriteAccessAllowed(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeWriteAccessAllowed(name?: string): string;'
       parameters:
         - id: name
           description: ''
@@ -5621,10 +7161,14 @@ methods:
                   entities: <xref uid="@grammyjs/types!MessageEntity:type" />[];
               }&gt;) | undefined&gt;
         description: The sent or edited message object.
-  - name: renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError)
+  - name: >-
+      renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs,
+      excludeIds)
     uid: gramstax!Ctx#renderBroadcast:member(1)
     package: gramstax!
-    fullName: renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError)
+    fullName: >-
+      renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs,
+      excludeIds)
     summary: Sends a message to multiple users in bulk.
     remarks: >-
       Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language
@@ -5643,10 +7187,12 @@ methods:
     syntax:
       content: >-
         renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null,
-        AGBaseId?: string | null, options?: ITOptReply | null, throwError?: boolean | null): Promise<{
+        AGBaseId?: string | null, options?: ITOptReply | null, throwError?: boolean | null, chunkSize?: number | null,
+        chunkDelayMs?: number | null, excludeIds?: number[] | null): Promise<{
                 successCount: number;
                 failedCount: number;
                 totalCount: number;
+                skippedCount: number;
             }>;
       parameters:
         - id: ids
@@ -5670,18 +7216,32 @@ methods:
         - id: throwError
           description: If true, throws errors instead of swallowing them (or null to use false).
           type: boolean | null
+        - id: chunkSize
+          description: ''
+          type: number | null
+        - id: chunkDelayMs
+          description: ''
+          type: number | null
+        - id: excludeIds
+          description: ''
+          type: number[] | null
       return:
         type: |-
           Promise&lt;{
                   successCount: number;
                   failedCount: number;
                   totalCount: number;
+                  skippedCount: number;
               }&gt;
         description: ''
-  - name: renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError)
+  - name: >-
+      renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs,
+      excludeIds)
     uid: gramstax!Ctx#renderBroadcastMedia:member(1)
     package: gramstax!
-    fullName: renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError)
+    fullName: >-
+      renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs,
+      excludeIds)
     summary: Sends a media message to multiple users in bulk.
     remarks: >-
       Media type and arg are inferred from the template `<g-media>` block. If a supported media type (`photo`<!-- -->,
@@ -5705,10 +7265,12 @@ methods:
         renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null,
         AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument |
         ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation |
-        ITOptReplyContact | null, throwError?: boolean | null): Promise<{
+        ITOptReplyContact | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null,
+        excludeIds?: number[] | null): Promise<{
                 successCount: number;
                 failedCount: number;
                 totalCount: number;
+                skippedCount: number;
             }>;
       parameters:
         - id: ids
@@ -5737,12 +7299,22 @@ methods:
         - id: throwError
           description: If true, throws errors instead of swallowing them (or null to use false).
           type: boolean | null
+        - id: chunkSize
+          description: ''
+          type: number | null
+        - id: chunkDelayMs
+          description: ''
+          type: number | null
+        - id: excludeIds
+          description: ''
+          type: number[] | null
       return:
         type: |-
           Promise&lt;{
                   successCount: number;
                   failedCount: number;
                   totalCount: number;
+                  skippedCount: number;
               }&gt;
         description: ''
   - name: renderContact(keyboard, data, AGBaseId, options)
@@ -5942,11 +7514,10 @@ methods:
       content: >-
         renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null,
         options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true |
-        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
-        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
-        | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage |
-        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
+        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
+        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
@@ -5967,11 +7538,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -5997,8 +7565,7 @@ methods:
       content: >-
         renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
         ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage
-        | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
         grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
         grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
         grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
@@ -6022,11 +7589,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6086,12 +7650,10 @@ methods:
       content: >-
         renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
         ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6108,11 +7670,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6138,11 +7697,10 @@ methods:
       content: >-
         renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null,
         options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true |
-        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
-        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
-        | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage |
-        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
+        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
+        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
@@ -6163,11 +7721,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6227,12 +7782,10 @@ methods:
       content: >-
         renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
         ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6249,11 +7802,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6285,12 +7835,10 @@ methods:
         `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ?
         ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?:
         ITOptEditMedia2 | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: type
           description: The media type.
@@ -6321,11 +7869,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6404,8 +7949,7 @@ methods:
       content: >-
         renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
         ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage
-        | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
         grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
         grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
         grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
@@ -6429,11 +7973,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6560,12 +8101,10 @@ methods:
       content: >-
         renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
         ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6582,11 +8121,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6612,8 +8148,7 @@ methods:
       content: >-
         renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
         ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage
-        | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
         grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
         grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
         grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
@@ -6637,11 +8172,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6701,12 +8233,10 @@ methods:
       content: >-
         renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null,
         options?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6723,11 +8253,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6747,12 +8274,10 @@ methods:
       content: >-
         renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
         ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6769,11 +8294,8 @@ methods:
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -8402,6 +9924,296 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
+  - name: setSessionFreeBusinessConnection(this, params)
+    uid: gramstax!Ctx#setSessionFreeBusinessConnection:member(1)
+    package: gramstax!
+    fullName: setSessionFreeBusinessConnection(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeBusinessConnection(this: Ctx & {
+                handleSessionFreeBusinessConnection: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeBusinessConnection: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeBusinessMessage(this, params)
+    uid: gramstax!Ctx#setSessionFreeBusinessMessage:member(1)
+    package: gramstax!
+    fullName: setSessionFreeBusinessMessage(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeBusinessMessage(this: Ctx & {
+                handleSessionFreeBusinessMessage: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeBusinessMessage: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeChannelChatCreated(this, params)
+    uid: gramstax!Ctx#setSessionFreeChannelChatCreated:member(1)
+    package: gramstax!
+    fullName: setSessionFreeChannelChatCreated(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeChannelChatCreated(this: Ctx & {
+                handleSessionFreeChannelChatCreated: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeChannelChatCreated: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeChannelPost(this, params)
+    uid: gramstax!Ctx#setSessionFreeChannelPost:member(1)
+    package: gramstax!
+    fullName: setSessionFreeChannelPost(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeChannelPost(this: Ctx & {
+                handleSessionFreeChannelPost: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeChannelPost: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeChatBackgroundSet(this, params)
+    uid: gramstax!Ctx#setSessionFreeChatBackgroundSet:member(1)
+    package: gramstax!
+    fullName: setSessionFreeChatBackgroundSet(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeChatBackgroundSet(this: Ctx & {
+                handleSessionFreeChatBackgroundSet: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeChatBackgroundSet: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeChatBoost(this, params)
+    uid: gramstax!Ctx#setSessionFreeChatBoost:member(1)
+    package: gramstax!
+    fullName: setSessionFreeChatBoost(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeChatBoost(this: Ctx & {
+                handleSessionFreeChatBoost: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeChatBoost: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeChatJoinRequest(this, params)
+    uid: gramstax!Ctx#setSessionFreeChatJoinRequest:member(1)
+    package: gramstax!
+    fullName: setSessionFreeChatJoinRequest(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeChatJoinRequest(this: Ctx & {
+                handleSessionFreeChatJoinRequest: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeChatJoinRequest: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeChatShared(this, params)
+    uid: gramstax!Ctx#setSessionFreeChatShared:member(1)
+    package: gramstax!
+    fullName: setSessionFreeChatShared(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeChatShared(this: Ctx & {
+                handleSessionFreeChatShared: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeChatShared: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeChosenInlineResult(this, params)
+    uid: gramstax!Ctx#setSessionFreeChosenInlineResult:member(1)
+    package: gramstax!
+    fullName: setSessionFreeChosenInlineResult(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeChosenInlineResult(this: Ctx & {
+                handleSessionFreeChosenInlineResult: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeChosenInlineResult: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeConnectedWebsite(this, params)
+    uid: gramstax!Ctx#setSessionFreeConnectedWebsite:member(1)
+    package: gramstax!
+    fullName: setSessionFreeConnectedWebsite(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeConnectedWebsite(this: Ctx & {
+                handleSessionFreeConnectedWebsite: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeConnectedWebsite: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
   - name: setSessionFreeContact(this, params)
     uid: gramstax!Ctx#setSessionFreeContact:member(1)
     package: gramstax!
@@ -8424,6 +10236,64 @@ methods:
           type: |-
             <xref uid="gramstax!Ctx:class" /> & {
                     handleSessionFreeContact: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeDeleteChatPhoto(this, params)
+    uid: gramstax!Ctx#setSessionFreeDeleteChatPhoto:member(1)
+    package: gramstax!
+    fullName: setSessionFreeDeleteChatPhoto(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeDeleteChatPhoto(this: Ctx & {
+                handleSessionFreeDeleteChatPhoto: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeDeleteChatPhoto: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeDeletedBusinessMessages(this, params)
+    uid: gramstax!Ctx#setSessionFreeDeletedBusinessMessages:member(1)
+    package: gramstax!
+    fullName: setSessionFreeDeletedBusinessMessages(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeDeletedBusinessMessages(this: Ctx & {
+                handleSessionFreeDeletedBusinessMessages: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeDeletedBusinessMessages: (...args: unknown[]) =&gt; unknown;
                 }
         - id: params
           description: ''
@@ -8460,6 +10330,470 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
+  - name: setSessionFreeEdit(this, params)
+    uid: gramstax!Ctx#setSessionFreeEdit:member(1)
+    package: gramstax!
+    fullName: setSessionFreeEdit(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeEdit(this: Ctx & {
+                handleSessionFreeEdit: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeEdit: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeEditChannelPost(this, params)
+    uid: gramstax!Ctx#setSessionFreeEditChannelPost:member(1)
+    package: gramstax!
+    fullName: setSessionFreeEditChannelPost(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeEditChannelPost(this: Ctx & {
+                handleSessionFreeEditChannelPost: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeEditChannelPost: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeEditedBusinessMessage(this, params)
+    uid: gramstax!Ctx#setSessionFreeEditedBusinessMessage:member(1)
+    package: gramstax!
+    fullName: setSessionFreeEditedBusinessMessage(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeEditedBusinessMessage(this: Ctx & {
+                handleSessionFreeEditedBusinessMessage: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeEditedBusinessMessage: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeForumTopicClosed(this, params)
+    uid: gramstax!Ctx#setSessionFreeForumTopicClosed:member(1)
+    package: gramstax!
+    fullName: setSessionFreeForumTopicClosed(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeForumTopicClosed(this: Ctx & {
+                handleSessionFreeForumTopicClosed: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeForumTopicClosed: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeForumTopicCreated(this, params)
+    uid: gramstax!Ctx#setSessionFreeForumTopicCreated:member(1)
+    package: gramstax!
+    fullName: setSessionFreeForumTopicCreated(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeForumTopicCreated(this: Ctx & {
+                handleSessionFreeForumTopicCreated: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeForumTopicCreated: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeForumTopicEdited(this, params)
+    uid: gramstax!Ctx#setSessionFreeForumTopicEdited:member(1)
+    package: gramstax!
+    fullName: setSessionFreeForumTopicEdited(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeForumTopicEdited(this: Ctx & {
+                handleSessionFreeForumTopicEdited: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeForumTopicEdited: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeForumTopicReopened(this, params)
+    uid: gramstax!Ctx#setSessionFreeForumTopicReopened:member(1)
+    package: gramstax!
+    fullName: setSessionFreeForumTopicReopened(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeForumTopicReopened(this: Ctx & {
+                handleSessionFreeForumTopicReopened: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeForumTopicReopened: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeGeneralForumTopicHidden(this, params)
+    uid: gramstax!Ctx#setSessionFreeGeneralForumTopicHidden:member(1)
+    package: gramstax!
+    fullName: setSessionFreeGeneralForumTopicHidden(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeGeneralForumTopicHidden(this: Ctx & {
+                handleSessionFreeGeneralForumTopicHidden: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeGeneralForumTopicHidden: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeGeneralForumTopicUnhidden(this, params)
+    uid: gramstax!Ctx#setSessionFreeGeneralForumTopicUnhidden:member(1)
+    package: gramstax!
+    fullName: setSessionFreeGeneralForumTopicUnhidden(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeGeneralForumTopicUnhidden(this: Ctx & {
+                handleSessionFreeGeneralForumTopicUnhidden: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeGeneralForumTopicUnhidden: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeGiveaway(this, params)
+    uid: gramstax!Ctx#setSessionFreeGiveaway:member(1)
+    package: gramstax!
+    fullName: setSessionFreeGiveaway(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeGiveaway(this: Ctx & {
+                handleSessionFreeGiveaway: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeGiveaway: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeGiveawayCompleted(this, params)
+    uid: gramstax!Ctx#setSessionFreeGiveawayCompleted:member(1)
+    package: gramstax!
+    fullName: setSessionFreeGiveawayCompleted(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeGiveawayCompleted(this: Ctx & {
+                handleSessionFreeGiveawayCompleted: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeGiveawayCompleted: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeGiveawayCreated(this, params)
+    uid: gramstax!Ctx#setSessionFreeGiveawayCreated:member(1)
+    package: gramstax!
+    fullName: setSessionFreeGiveawayCreated(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeGiveawayCreated(this: Ctx & {
+                handleSessionFreeGiveawayCreated: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeGiveawayCreated: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeGiveawayWinners(this, params)
+    uid: gramstax!Ctx#setSessionFreeGiveawayWinners:member(1)
+    package: gramstax!
+    fullName: setSessionFreeGiveawayWinners(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeGiveawayWinners(this: Ctx & {
+                handleSessionFreeGiveawayWinners: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeGiveawayWinners: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeGroupChatCreated(this, params)
+    uid: gramstax!Ctx#setSessionFreeGroupChatCreated:member(1)
+    package: gramstax!
+    fullName: setSessionFreeGroupChatCreated(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeGroupChatCreated(this: Ctx & {
+                handleSessionFreeGroupChatCreated: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeGroupChatCreated: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeInlineQuery(this, params)
+    uid: gramstax!Ctx#setSessionFreeInlineQuery:member(1)
+    package: gramstax!
+    fullName: setSessionFreeInlineQuery(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeInlineQuery(this: Ctx & {
+                handleSessionFreeInlineQuery: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeInlineQuery: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeLeftChatMember(this, params)
+    uid: gramstax!Ctx#setSessionFreeLeftChatMember:member(1)
+    package: gramstax!
+    fullName: setSessionFreeLeftChatMember(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeLeftChatMember(this: Ctx & {
+                handleSessionFreeLeftChatMember: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeLeftChatMember: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
   - name: setSessionFreeLocation(this, params)
     uid: gramstax!Ctx#setSessionFreeLocation:member(1)
     package: gramstax!
@@ -8482,6 +10816,180 @@ methods:
           type: |-
             <xref uid="gramstax!Ctx:class" /> & {
                     handleSessionFreeLocation: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeMessageAutoDeleteTimerChanged(this, params)
+    uid: gramstax!Ctx#setSessionFreeMessageAutoDeleteTimerChanged:member(1)
+    package: gramstax!
+    fullName: setSessionFreeMessageAutoDeleteTimerChanged(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeMessageAutoDeleteTimerChanged(this: Ctx & {
+                handleSessionFreeMessageAutoDeleteTimerChanged: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeMessageAutoDeleteTimerChanged: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeMessageReactionCount(this, params)
+    uid: gramstax!Ctx#setSessionFreeMessageReactionCount:member(1)
+    package: gramstax!
+    fullName: setSessionFreeMessageReactionCount(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeMessageReactionCount(this: Ctx & {
+                handleSessionFreeMessageReactionCount: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeMessageReactionCount: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeNewChatMembers(this, params)
+    uid: gramstax!Ctx#setSessionFreeNewChatMembers:member(1)
+    package: gramstax!
+    fullName: setSessionFreeNewChatMembers(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeNewChatMembers(this: Ctx & {
+                handleSessionFreeNewChatMembers: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeNewChatMembers: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeNewChatPhoto(this, params)
+    uid: gramstax!Ctx#setSessionFreeNewChatPhoto:member(1)
+    package: gramstax!
+    fullName: setSessionFreeNewChatPhoto(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeNewChatPhoto(this: Ctx & {
+                handleSessionFreeNewChatPhoto: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeNewChatPhoto: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeNewChatTitle(this, params)
+    uid: gramstax!Ctx#setSessionFreeNewChatTitle:member(1)
+    package: gramstax!
+    fullName: setSessionFreeNewChatTitle(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeNewChatTitle(this: Ctx & {
+                handleSessionFreeNewChatTitle: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeNewChatTitle: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreePassportData(this, params)
+    uid: gramstax!Ctx#setSessionFreePassportData:member(1)
+    package: gramstax!
+    fullName: setSessionFreePassportData(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreePassportData(this: Ctx & {
+                handleSessionFreePassportData: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreePassportData: (...args: unknown[]) =&gt; unknown;
                 }
         - id: params
           description: ''
@@ -8518,6 +11026,267 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
+  - name: setSessionFreePinMessage(this, params)
+    uid: gramstax!Ctx#setSessionFreePinMessage:member(1)
+    package: gramstax!
+    fullName: setSessionFreePinMessage(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreePinMessage(this: Ctx & {
+                handleSessionFreePinMessage: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreePinMessage: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreePoll(this, params)
+    uid: gramstax!Ctx#setSessionFreePoll:member(1)
+    package: gramstax!
+    fullName: setSessionFreePoll(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreePoll(this: Ctx & {
+                handleSessionFreePoll: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreePoll: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreePollAnswer(this, params)
+    uid: gramstax!Ctx#setSessionFreePollAnswer:member(1)
+    package: gramstax!
+    fullName: setSessionFreePollAnswer(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreePollAnswer(this: Ctx & {
+                handleSessionFreePollAnswer: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreePollAnswer: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreePreCheckoutQuery(this, params)
+    uid: gramstax!Ctx#setSessionFreePreCheckoutQuery:member(1)
+    package: gramstax!
+    fullName: setSessionFreePreCheckoutQuery(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreePreCheckoutQuery(this: Ctx & {
+                handleSessionFreePreCheckoutQuery: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreePreCheckoutQuery: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeProximityAlertTriggered(this, params)
+    uid: gramstax!Ctx#setSessionFreeProximityAlertTriggered:member(1)
+    package: gramstax!
+    fullName: setSessionFreeProximityAlertTriggered(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeProximityAlertTriggered(this: Ctx & {
+                handleSessionFreeProximityAlertTriggered: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeProximityAlertTriggered: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeReaction(this, params)
+    uid: gramstax!Ctx#setSessionFreeReaction:member(1)
+    package: gramstax!
+    fullName: setSessionFreeReaction(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeReaction(this: Ctx & {
+                handleSessionFreeReaction: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeReaction: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeRefundedPayment(this, params)
+    uid: gramstax!Ctx#setSessionFreeRefundedPayment:member(1)
+    package: gramstax!
+    fullName: setSessionFreeRefundedPayment(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeRefundedPayment(this: Ctx & {
+                handleSessionFreeRefundedPayment: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeRefundedPayment: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeRemovedChatBoost(this, params)
+    uid: gramstax!Ctx#setSessionFreeRemovedChatBoost:member(1)
+    package: gramstax!
+    fullName: setSessionFreeRemovedChatBoost(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeRemovedChatBoost(this: Ctx & {
+                handleSessionFreeRemovedChatBoost: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeRemovedChatBoost: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeShippingQuery(this, params)
+    uid: gramstax!Ctx#setSessionFreeShippingQuery:member(1)
+    package: gramstax!
+    fullName: setSessionFreeShippingQuery(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeShippingQuery(this: Ctx & {
+                handleSessionFreeShippingQuery: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeShippingQuery: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
   - name: setSessionFreeSticker(this, params)
     uid: gramstax!Ctx#setSessionFreeSticker:member(1)
     package: gramstax!
@@ -8540,6 +11309,64 @@ methods:
           type: |-
             <xref uid="gramstax!Ctx:class" /> & {
                     handleSessionFreeSticker: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeSuccessfulPayment(this, params)
+    uid: gramstax!Ctx#setSessionFreeSuccessfulPayment:member(1)
+    package: gramstax!
+    fullName: setSessionFreeSuccessfulPayment(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeSuccessfulPayment(this: Ctx & {
+                handleSessionFreeSuccessfulPayment: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeSuccessfulPayment: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeSupergroupChatCreated(this, params)
+    uid: gramstax!Ctx#setSessionFreeSupergroupChatCreated:member(1)
+    package: gramstax!
+    fullName: setSessionFreeSupergroupChatCreated(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeSupergroupChatCreated(this: Ctx & {
+                handleSessionFreeSupergroupChatCreated: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeSupergroupChatCreated: (...args: unknown[]) =&gt; unknown;
                 }
         - id: params
           description: ''
@@ -8576,6 +11403,35 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
+  - name: setSessionFreeUserShared(this, params)
+    uid: gramstax!Ctx#setSessionFreeUserShared:member(1)
+    package: gramstax!
+    fullName: setSessionFreeUserShared(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeUserShared(this: Ctx & {
+                handleSessionFreeUserShared: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeUserShared: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
   - name: setSessionFreeVideo(this, params)
     uid: gramstax!Ctx#setSessionFreeVideo:member(1)
     package: gramstax!
@@ -8598,6 +11454,122 @@ methods:
           type: |-
             <xref uid="gramstax!Ctx:class" /> & {
                     handleSessionFreeVideo: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeVideoChatEnded(this, params)
+    uid: gramstax!Ctx#setSessionFreeVideoChatEnded:member(1)
+    package: gramstax!
+    fullName: setSessionFreeVideoChatEnded(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeVideoChatEnded(this: Ctx & {
+                handleSessionFreeVideoChatEnded: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeVideoChatEnded: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeVideoChatParticipantsInvited(this, params)
+    uid: gramstax!Ctx#setSessionFreeVideoChatParticipantsInvited:member(1)
+    package: gramstax!
+    fullName: setSessionFreeVideoChatParticipantsInvited(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeVideoChatParticipantsInvited(this: Ctx & {
+                handleSessionFreeVideoChatParticipantsInvited: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeVideoChatParticipantsInvited: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeVideoChatScheduled(this, params)
+    uid: gramstax!Ctx#setSessionFreeVideoChatScheduled:member(1)
+    package: gramstax!
+    fullName: setSessionFreeVideoChatScheduled(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeVideoChatScheduled(this: Ctx & {
+                handleSessionFreeVideoChatScheduled: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeVideoChatScheduled: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeVideoChatStarted(this, params)
+    uid: gramstax!Ctx#setSessionFreeVideoChatStarted:member(1)
+    package: gramstax!
+    fullName: setSessionFreeVideoChatStarted(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeVideoChatStarted(this: Ctx & {
+                handleSessionFreeVideoChatStarted: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeVideoChatStarted: (...args: unknown[]) =&gt; unknown;
                 }
         - id: params
           description: ''
@@ -8656,6 +11628,64 @@ methods:
           type: |-
             <xref uid="gramstax!Ctx:class" /> & {
                     handleSessionFreeVoice: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeWebAppData(this, params)
+    uid: gramstax!Ctx#setSessionFreeWebAppData:member(1)
+    package: gramstax!
+    fullName: setSessionFreeWebAppData(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeWebAppData(this: Ctx & {
+                handleSessionFreeWebAppData: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeWebAppData: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeWriteAccessAllowed(this, params)
+    uid: gramstax!Ctx#setSessionFreeWriteAccessAllowed:member(1)
+    package: gramstax!
+    fullName: setSessionFreeWriteAccessAllowed(this, params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeWriteAccessAllowed(this: Ctx & {
+                handleSessionFreeWriteAccessAllowed: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeWriteAccessAllowed: (...args: unknown[]) =&gt; unknown;
                 }
         - id: params
           description: ''

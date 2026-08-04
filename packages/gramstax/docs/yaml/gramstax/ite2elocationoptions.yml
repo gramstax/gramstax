@@ -3,7 +3,7 @@ name: ITE2eLocationOptions
 uid: gramstax!ITE2eLocationOptions:type
 package: gramstax!
 fullName: ITE2eLocationOptions
-summary: ''
+summary: E2E options for location messages.
 remarks: ''
 example: []
 isPreview: false

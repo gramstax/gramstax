@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: ITUpdateErrorEvent
+uid: gramstax!ITUpdateErrorEvent:type
+package: gramstax!
+fullName: ITUpdateErrorEvent
+summary: Structured error event emitted by `onUpdateError`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITUpdateErrorEvent = {
+      traceId: string;
+      listenerName: string;
+      state: `error` | `timeout` | `blocked` | `no-handler` | `validation`;
+      error: unknown;
+      durationMs: number;
+      isEdit: boolean;
+  };

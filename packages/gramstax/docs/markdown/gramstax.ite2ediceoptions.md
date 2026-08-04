@@ -4,6 +4,7 @@
 
 ## ITE2eDiceOptions type
 
+E2E options for dice messages.
 
 **Signature:**
 

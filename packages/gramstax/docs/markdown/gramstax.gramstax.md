@@ -240,6 +240,27 @@ Logger instance for debugging and info output.
 </td></tr>
 <tr><td>
 
+[metrics](./gramstax.gramstax.metrics.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+[MetricsStore](./gramstax.metricsstore.md)
+
+
+</td><td>
+
+Runtime metrics snapshot source (observability).
+
+
+</td></tr>
+<tr><td>
+
 [optionsPage](./gramstax.gramstax.optionspage.md)
 
 

@@ -3,7 +3,7 @@ name: ITE2eMediaOptions
 uid: gramstax!ITE2eMediaOptions:type
 package: gramstax!
 fullName: ITE2eMediaOptions
-summary: ''
+summary: E2E options for media messages (caption support).
 remarks: ''
 example: []
 isPreview: false

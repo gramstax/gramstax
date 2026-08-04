@@ -9,10 +9,11 @@ Sends a media message to multiple users in bulk.
 **Signature:**
 
 ```typescript
-renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact | null, throwError?: boolean | null): Promise<{
+renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null): Promise<{
         successCount: number;
         failedCount: number;
         totalCount: number;
+        skippedCount: number;
     }>;
 ```
 
@@ -146,11 +147,59 @@ _(Optional)_ If true, throws errors instead of swallowing them (or null to use f
 
 
 </td></tr>
+<tr><td>
+
+chunkSize
+
+
+</td><td>
+
+number \| null
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+chunkDelayMs
+
+
+</td><td>
+
+number \| null
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+excludeIds
+
+
+</td><td>
+
+number\[\] \| null
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
 
-Promise&lt;{ successCount: number; failedCount: number; totalCount: number; }&gt;
+Promise&lt;{ successCount: number; failedCount: number; totalCount: number; skippedCount: number; }&gt;
 
 ## Remarks
 

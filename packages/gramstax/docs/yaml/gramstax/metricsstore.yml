@@ -1,0 +1,158 @@
+### YamlMime:TSType
+name: MetricsStore
+uid: gramstax!MetricsStore:class
+package: gramstax!
+fullName: MetricsStore
+summary: Lightweight in-process metrics store for runtime observability.
+remarks: >-
+  Tracks update-level counters, per-listener hits, and latency percentiles in a plain object (no dependencies). Consumed
+  by the `GET /stats` endpoint and by `onUpdateError`<!-- -->/log hooks. Not intended as a permanent telemetry backend —
+  export the snapshot to your favorite metrics system instead.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+properties:
+  - name: byListener
+    uid: gramstax!MetricsStore#byListener:member
+    package: gramstax!
+    fullName: byListener
+    summary: Total update count per listener name (e.g. text, callbackquerydata).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly byListener: Record<string, number>;'
+      return:
+        type: Record&lt;string, number&gt;
+  - name: counts
+    uid: gramstax!MetricsStore#counts:member
+    package: gramstax!
+    fullName: counts
+    summary: Lifetime counters for every update outcome.
+    remarks: >-
+      Includes: `updatesTotal`<!-- -->, `updatesFailed`<!-- -->, `matched`<!-- -->, `noMatch`<!-- -->, `noHandler`<!--
+      -->, `blocked`<!-- -->, `timeouts`<!-- -->, `skippedDuplicate`<!-- -->, `skippedValidation`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        readonly counts: {
+                updatesTotal: number;
+                updatesFailed: number;
+                matched: number;
+                noMatch: number;
+                noHandler: number;
+                blocked: number;
+                timeouts: number;
+                skippedDuplicate: number;
+                skippedValidation: number;
+            };
+      return:
+        type: |-
+          {
+                  updatesTotal: number;
+                  updatesFailed: number;
+                  matched: number;
+                  noMatch: number;
+                  noHandler: number;
+                  blocked: number;
+                  timeouts: number;
+                  skippedDuplicate: number;
+                  skippedValidation: number;
+              }
+  - name: startedAt
+    uid: gramstax!MetricsStore#startedAt:member
+    package: gramstax!
+    fullName: startedAt
+    summary: Epoch milliseconds when this store was created (uptime reference).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly startedAt: number;'
+      return:
+        type: number
+methods:
+  - name: recordUpdate(listenerName, durationMs)
+    uid: gramstax!MetricsStore#recordUpdate:member(1)
+    package: gramstax!
+    fullName: recordUpdate(listenerName, durationMs)
+    summary: Record one routed update.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'recordUpdate(listenerName: string, durationMs: number): void;'
+      parameters:
+        - id: listenerName
+          description: Listener that triggered the update.
+          type: string
+        - id: durationMs
+          description: Handler wall time in milliseconds.
+          type: number
+      return:
+        type: void
+        description: ''
+  - name: snapshot()
+    uid: gramstax!MetricsStore#snapshot:member(1)
+    package: gramstax!
+    fullName: snapshot()
+    summary: Create a frozen snapshot of the current counters.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        snapshot(): {
+                uptimeSeconds: number;
+                counts: {
+                    updatesTotal: number;
+                    updatesFailed: number;
+                    matched: number;
+                    noMatch: number;
+                    noHandler: number;
+                    blocked: number;
+                    timeouts: number;
+                    skippedDuplicate: number;
+                    skippedValidation: number;
+                };
+                byListener: {
+                    [x: string]: number;
+                };
+                latency: {
+                    count: number;
+                    avgMs: number;
+                    maxMs: number;
+                };
+            };
+      return:
+        type: |-
+          {
+                  uptimeSeconds: number;
+                  counts: {
+                      updatesTotal: number;
+                      updatesFailed: number;
+                      matched: number;
+                      noMatch: number;
+                      noHandler: number;
+                      blocked: number;
+                      timeouts: number;
+                      skippedDuplicate: number;
+                      skippedValidation: number;
+                  };
+                  byListener: {
+                      [x: string]: number;
+                  };
+                  latency: {
+                      count: number;
+                      avgMs: number;
+                      maxMs: number;
+                  };
+              }
+        description: A plain JSON-serializable object.

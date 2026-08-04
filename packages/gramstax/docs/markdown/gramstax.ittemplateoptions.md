@@ -13,6 +13,7 @@ type ITTemplateOptions = {
     path: string[];
     enableWatch?: boolean;
     watchOptions?: ChokidarOptions;
+    onReload?: () => void;
 };
 ```
 

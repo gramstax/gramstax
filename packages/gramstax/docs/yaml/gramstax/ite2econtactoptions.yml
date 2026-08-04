@@ -3,7 +3,7 @@ name: ITE2eContactOptions
 uid: gramstax!ITE2eContactOptions:type
 package: gramstax!
 fullName: ITE2eContactOptions
-summary: ''
+summary: E2E options for contact messages.
 remarks: ''
 example: []
 isPreview: false

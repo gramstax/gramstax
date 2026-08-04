@@ -19,10 +19,23 @@ type ITGramstaxParams = {
     cacheKeyboard?: Map<string, unknown>;
     templateManager?: TemplateManager;
     autoRetry?: boolean;
+    autoRetryOptions?: {
+        maxRetryAttempts?: number;
+        retryOnInternalServerErrors?: boolean;
+    };
+    updateTimeoutMs?: number;
+    skipDuplicateUpdate?: boolean;
+    webhookSecretToken?: string;
+    maxTextLength?: number;
+    onUpdateError?: (event: ITUpdateErrorEvent) => void;
+    statusServerPort?: number;
+    statusServerHostname?: string;
+    pollingMaxRetries?: number;
+    onUpdate?: (event: ITUpdateSuccessEvent) => void;
     optionsPage?: {
         shortCallbackQueryData?: boolean;
     };
 };
 ```
-**References:** [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)
+**References:** [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)<!-- -->, [ITUpdateErrorEvent](./gramstax.itupdateerrorevent.md)<!-- -->, [ITUpdateSuccessEvent](./gramstax.itupdatesuccessevent.md)
 

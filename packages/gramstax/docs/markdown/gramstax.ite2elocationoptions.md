@@ -4,6 +4,7 @@
 
 ## ITE2eLocationOptions type
 
+E2E options for location messages.
 
 **Signature:**
 

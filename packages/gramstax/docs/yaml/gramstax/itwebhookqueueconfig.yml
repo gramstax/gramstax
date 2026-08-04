@@ -27,4 +27,5 @@ syntax: |-
       workerCount?: number;
       perChatConcurrency?: number;
       blockWhenFull?: boolean;
+      enqueueTimeoutMs?: number;
   };

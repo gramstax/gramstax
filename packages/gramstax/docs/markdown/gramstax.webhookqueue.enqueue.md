@@ -9,7 +9,7 @@ Enqueue a value, blocking when the queue is full.
 **Signature:**
 
 ```typescript
-enqueue(value: T): Promise<void>;
+enqueue(value: T, signal?: AbortSignal): Promise<void>;
 ```
 
 ## Parameters
@@ -46,6 +46,22 @@ Value to enqueue.
 
 
 </td></tr>
+<tr><td>
+
+signal
+
+
+</td><td>
+
+AbortSignal
+
+
+</td><td>
+
+_(Optional)_ Optional AbortSignal to cancel a blocked enqueue.
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
@@ -53,4 +69,8 @@ Value to enqueue.
 Promise&lt;void&gt;
 
 Promise resolved when enqueued.
+
+## Exceptions
+
+Error if the queue is closed or enqueue is aborted.
 

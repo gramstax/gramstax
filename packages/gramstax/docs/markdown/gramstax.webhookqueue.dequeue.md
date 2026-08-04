@@ -15,5 +15,5 @@ dequeue(): Promise<T>;
 
 Promise&lt;T&gt;
 
-Promise resolved with the next value.
+Promise resolved with the next value, or `undefined` when closed and empty.
 

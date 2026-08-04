@@ -10,4 +10,6 @@ remarks: Pages that don't override `handleCallbackQueryData` will cause a compil
 example: []
 isPreview: false
 isDeprecated: false
-syntax: type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]) | string;
+syntax: >-
+  type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]) | string |
+  _KbCallbackData<typeof Ctx, Array<string | undefined>>;

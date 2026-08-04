@@ -43,6 +43,17 @@ Description
 
 Add a callback button. `text` and/or `data` can be a page (class/instance) or string. A page passed as `text` resolves to its `intentText` label; a page passed as `data` resolves to its `callbackQueryData()`<!-- -->.
 
+When `data` is a callback data object (`Page.data.callbackQueryData(...)`<!-- -->), the destination page must define `handleCallbackQueryData` (no args) or `handleArgsCallbackQueryData` (with args) — enforced at compile time.
+
+
+</td></tr>
+<tr><td>
+
+[text(text, data)](./gramstax._inlinekbwithctx.text_1.md)
+
+
+</td><td>
+
 
 </td></tr>
 </tbody></table>

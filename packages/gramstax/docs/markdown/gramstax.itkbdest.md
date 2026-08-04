@@ -9,9 +9,9 @@ Destination for an inline keyboard button — a page (class or instance) that de
 **Signature:**
 
 ```typescript
-type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]) | string;
+type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]) | string | _KbCallbackData<typeof Ctx, Array<string | undefined>>;
 ```
-**References:** [Ctx](./gramstax.ctx.md)
+**References:** [Ctx](./gramstax.ctx.md)<!-- -->, [\_KbCallbackData](./gramstax._kbcallbackdata.md)
 
 ## Remarks
 

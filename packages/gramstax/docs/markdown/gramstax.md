@@ -96,6 +96,17 @@ Extends [LoggingPretty](https://www.npmjs.com/package/logging-pretty) to provide
 </td></tr>
 <tr><td>
 
+[MetricsStore](./gramstax.metricsstore.md)
+
+
+</td><td>
+
+Lightweight in-process metrics store for runtime observability.
+
+
+</td></tr>
+<tr><td>
+
 [MockTelegramServer](./gramstax.mocktelegramserver.md)
 
 
@@ -240,6 +251,17 @@ grammY button object whose `text` may also be a page class/instance.
 </td></tr>
 <tr><td>
 
+[\_KbCallbackData](./gramstax._kbcallbackdata.md)
+
+
+</td><td>
+
+Callback data produced by `Page.data.callbackQueryData(...)`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [\_KbPageLike](./gramstax._kbpagelike.md)
 
 
@@ -377,6 +399,7 @@ Captured outbound Bot API call record.
 
 </td><td>
 
+E2E options for callback query updates.
 
 
 </td></tr>
@@ -387,6 +410,7 @@ Captured outbound Bot API call record.
 
 </td><td>
 
+Simulated chat object for E2E updates.
 
 
 </td></tr>
@@ -408,6 +432,7 @@ Options for simulating a chat member status transition update.
 
 </td><td>
 
+E2E options for contact messages.
 
 
 </td></tr>
@@ -418,6 +443,7 @@ Options for simulating a chat member status transition update.
 
 </td><td>
 
+E2E options for dice messages.
 
 
 </td></tr>
@@ -428,6 +454,7 @@ Options for simulating a chat member status transition update.
 
 </td><td>
 
+E2E options for location messages.
 
 
 </td></tr>
@@ -438,6 +465,7 @@ Options for simulating a chat member status transition update.
 
 </td><td>
 
+E2E options for media messages (caption support).
 
 
 </td></tr>
@@ -448,6 +476,7 @@ Options for simulating a chat member status transition update.
 
 </td><td>
 
+Base update options for E2E updates.
 
 
 </td></tr>
@@ -458,6 +487,7 @@ Options for simulating a chat member status transition update.
 
 </td><td>
 
+E2E testing helper types for Gramstax bots.
 
 
 </td></tr>
@@ -876,6 +906,28 @@ Temporary state for flow page
 </td><td>
 
 Configuration options for TemplateManager initialization.
+
+
+</td></tr>
+<tr><td>
+
+[ITUpdateErrorEvent](./gramstax.itupdateerrorevent.md)
+
+
+</td><td>
+
+Structured error event emitted by `onUpdateError`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[ITUpdateSuccessEvent](./gramstax.itupdatesuccessevent.md)
+
+
+</td><td>
+
+Structured success event emitted by `onUpdate`<!-- -->.
 
 
 </td></tr>

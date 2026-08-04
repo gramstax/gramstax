@@ -57,5 +57,5 @@ void
 
 Adds a route entry to `this.pages.routeCustom` for dispatch at stage id=6 in \_pageRoutes. The route fires when: 1. listenerName matches entry.listenerName, AND 2. entry.filter(ctx) returns true
 
-Automatically calls this.bot.on(entry.event, ...) to subscribe the grammY listener.
+For events with a built-in listener, the route is dispatched by the existing built-in subscription (the listenerName must match the built-in one). For any other event, a grammY listener is subscribed automatically via this.bot.on(entry.event, ...).
 

@@ -1235,7 +1235,7 @@ Creates a bottom keyboard with template-based text buttons.
 
 </td><td>
 
-Creates page routing data configuration.
+Creates page routing data configuration with a callback function.
 
 
 </td></tr>
@@ -1267,7 +1267,7 @@ Creates page routing data configuration with options.
 
 </td><td>
 
-Creates page routing data configuration with options (no type inference).
+Creates page routing data configuration without a callback arg.
 
 
 </td></tr>
@@ -3151,7 +3151,175 @@ Helper method to arrange keyboard buttons in a grid layout.
 </td></tr>
 <tr><td>
 
+[methodSessionFreeBusinessConnection(name)](./gramstax.ctx.methodsessionfreebusinessconnection.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeBusinessMessage(name)](./gramstax.ctx.methodsessionfreebusinessmessage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeChannelChatCreated(name)](./gramstax.ctx.methodsessionfreechannelchatcreated.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeChannelPost(name)](./gramstax.ctx.methodsessionfreechannelpost.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeChatBackgroundSet(name)](./gramstax.ctx.methodsessionfreechatbackgroundset.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeChatBoost(name)](./gramstax.ctx.methodsessionfreechatboost.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeChatJoinRequest(name)](./gramstax.ctx.methodsessionfreechatjoinrequest.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeChatShared(name)](./gramstax.ctx.methodsessionfreechatshared.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeChosenInlineResult(name)](./gramstax.ctx.methodsessionfreechoseninlineresult.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeConnectedWebsite(name)](./gramstax.ctx.methodsessionfreeconnectedwebsite.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
 [methodSessionFreeContact(name)](./gramstax.ctx.methodsessionfreecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeDeleteChatPhoto(name)](./gramstax.ctx.methodsessionfreedeletechatphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeDeletedBusinessMessages(name)](./gramstax.ctx.methodsessionfreedeletedbusinessmessages.md)
 
 
 </td><td>
@@ -3179,7 +3347,315 @@ Helper method to arrange keyboard buttons in a grid layout.
 </td></tr>
 <tr><td>
 
+[methodSessionFreeEdit(name)](./gramstax.ctx.methodsessionfreeedit.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeEditChannelPost(name)](./gramstax.ctx.methodsessionfreeeditchannelpost.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeEditedBusinessMessage(name)](./gramstax.ctx.methodsessionfreeeditedbusinessmessage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeForumTopicClosed(name)](./gramstax.ctx.methodsessionfreeforumtopicclosed.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeForumTopicCreated(name)](./gramstax.ctx.methodsessionfreeforumtopiccreated.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeForumTopicEdited(name)](./gramstax.ctx.methodsessionfreeforumtopicedited.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeForumTopicReopened(name)](./gramstax.ctx.methodsessionfreeforumtopicreopened.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeGeneralForumTopicHidden(name)](./gramstax.ctx.methodsessionfreegeneralforumtopichidden.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeGeneralForumTopicUnhidden(name)](./gramstax.ctx.methodsessionfreegeneralforumtopicunhidden.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeGiveaway(name)](./gramstax.ctx.methodsessionfreegiveaway.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeGiveawayCompleted(name)](./gramstax.ctx.methodsessionfreegiveawaycompleted.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeGiveawayCreated(name)](./gramstax.ctx.methodsessionfreegiveawaycreated.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeGiveawayWinners(name)](./gramstax.ctx.methodsessionfreegiveawaywinners.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeGroupChatCreated(name)](./gramstax.ctx.methodsessionfreegroupchatcreated.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeInlineQuery(name)](./gramstax.ctx.methodsessionfreeinlinequery.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeLeftChatMember(name)](./gramstax.ctx.methodsessionfreeleftchatmember.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
 [methodSessionFreeLocation(name)](./gramstax.ctx.methodsessionfreelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeMessageAutoDeleteTimerChanged(name)](./gramstax.ctx.methodsessionfreemessageautodeletetimerchanged.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeMessageReactionCount(name)](./gramstax.ctx.methodsessionfreemessagereactioncount.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeNewChatMembers(name)](./gramstax.ctx.methodsessionfreenewchatmembers.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeNewChatPhoto(name)](./gramstax.ctx.methodsessionfreenewchatphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeNewChatTitle(name)](./gramstax.ctx.methodsessionfreenewchattitle.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreePassportData(name)](./gramstax.ctx.methodsessionfreepassportdata.md)
 
 
 </td><td>
@@ -3207,7 +3683,161 @@ Helper method to arrange keyboard buttons in a grid layout.
 </td></tr>
 <tr><td>
 
+[methodSessionFreePinMessage(name)](./gramstax.ctx.methodsessionfreepinmessage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreePoll(name)](./gramstax.ctx.methodsessionfreepoll.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreePollAnswer(name)](./gramstax.ctx.methodsessionfreepollanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreePreCheckoutQuery(name)](./gramstax.ctx.methodsessionfreeprecheckoutquery.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeProximityAlertTriggered(name)](./gramstax.ctx.methodsessionfreeproximityalerttriggered.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeReaction(name)](./gramstax.ctx.methodsessionfreereaction.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeRefundedPayment(name)](./gramstax.ctx.methodsessionfreerefundedpayment.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeRemovedChatBoost(name)](./gramstax.ctx.methodsessionfreeremovedchatboost.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeShippingQuery(name)](./gramstax.ctx.methodsessionfreeshippingquery.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
 [methodSessionFreeSticker(name)](./gramstax.ctx.methodsessionfreesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeSuccessfulPayment(name)](./gramstax.ctx.methodsessionfreesuccessfulpayment.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeSupergroupChatCreated(name)](./gramstax.ctx.methodsessionfreesupergroupchatcreated.md)
 
 
 </td><td>
@@ -3235,7 +3865,77 @@ Helper method to arrange keyboard buttons in a grid layout.
 </td></tr>
 <tr><td>
 
+[methodSessionFreeUserShared(name)](./gramstax.ctx.methodsessionfreeusershared.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
 [methodSessionFreeVideo(name)](./gramstax.ctx.methodsessionfreevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeVideoChatEnded(name)](./gramstax.ctx.methodsessionfreevideochatended.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeVideoChatParticipantsInvited(name)](./gramstax.ctx.methodsessionfreevideochatparticipantsinvited.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeVideoChatScheduled(name)](./gramstax.ctx.methodsessionfreevideochatscheduled.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeVideoChatStarted(name)](./gramstax.ctx.methodsessionfreevideochatstarted.md)
 
 
 </td><td>
@@ -3264,6 +3964,34 @@ Helper method to arrange keyboard buttons in a grid layout.
 <tr><td>
 
 [methodSessionFreeVoice(name)](./gramstax.ctx.methodsessionfreevoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeWebAppData(name)](./gramstax.ctx.methodsessionfreewebappdata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeWriteAccessAllowed(name)](./gramstax.ctx.methodsessionfreewriteaccessallowed.md)
 
 
 </td><td>
@@ -3459,7 +4187,7 @@ Sends or edits a rich message using the page template, auto-selecting between [C
 </td></tr>
 <tr><td>
 
-[renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError)](./gramstax.ctx.renderbroadcast.md)
+[renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs, excludeIds)](./gramstax.ctx.renderbroadcast.md)
 
 
 </td><td>
@@ -3473,7 +4201,7 @@ Sends a message to multiple users in bulk.
 </td></tr>
 <tr><td>
 
-[renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError)](./gramstax.ctx.renderbroadcastmedia.md)
+[renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs, excludeIds)](./gramstax.ctx.renderbroadcastmedia.md)
 
 
 </td><td>
@@ -4439,7 +5167,175 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
+[setSessionFreeBusinessConnection(this, params)](./gramstax.ctx.setsessionfreebusinessconnection.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeBusinessMessage(this, params)](./gramstax.ctx.setsessionfreebusinessmessage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeChannelChatCreated(this, params)](./gramstax.ctx.setsessionfreechannelchatcreated.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeChannelPost(this, params)](./gramstax.ctx.setsessionfreechannelpost.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeChatBackgroundSet(this, params)](./gramstax.ctx.setsessionfreechatbackgroundset.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeChatBoost(this, params)](./gramstax.ctx.setsessionfreechatboost.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeChatJoinRequest(this, params)](./gramstax.ctx.setsessionfreechatjoinrequest.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeChatShared(this, params)](./gramstax.ctx.setsessionfreechatshared.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeChosenInlineResult(this, params)](./gramstax.ctx.setsessionfreechoseninlineresult.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeConnectedWebsite(this, params)](./gramstax.ctx.setsessionfreeconnectedwebsite.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
 [setSessionFreeContact(this, params)](./gramstax.ctx.setsessionfreecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeDeleteChatPhoto(this, params)](./gramstax.ctx.setsessionfreedeletechatphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeDeletedBusinessMessages(this, params)](./gramstax.ctx.setsessionfreedeletedbusinessmessages.md)
 
 
 </td><td>
@@ -4467,7 +5363,315 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
+[setSessionFreeEdit(this, params)](./gramstax.ctx.setsessionfreeedit.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeEditChannelPost(this, params)](./gramstax.ctx.setsessionfreeeditchannelpost.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeEditedBusinessMessage(this, params)](./gramstax.ctx.setsessionfreeeditedbusinessmessage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeForumTopicClosed(this, params)](./gramstax.ctx.setsessionfreeforumtopicclosed.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeForumTopicCreated(this, params)](./gramstax.ctx.setsessionfreeforumtopiccreated.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeForumTopicEdited(this, params)](./gramstax.ctx.setsessionfreeforumtopicedited.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeForumTopicReopened(this, params)](./gramstax.ctx.setsessionfreeforumtopicreopened.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeGeneralForumTopicHidden(this, params)](./gramstax.ctx.setsessionfreegeneralforumtopichidden.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeGeneralForumTopicUnhidden(this, params)](./gramstax.ctx.setsessionfreegeneralforumtopicunhidden.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeGiveaway(this, params)](./gramstax.ctx.setsessionfreegiveaway.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeGiveawayCompleted(this, params)](./gramstax.ctx.setsessionfreegiveawaycompleted.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeGiveawayCreated(this, params)](./gramstax.ctx.setsessionfreegiveawaycreated.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeGiveawayWinners(this, params)](./gramstax.ctx.setsessionfreegiveawaywinners.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeGroupChatCreated(this, params)](./gramstax.ctx.setsessionfreegroupchatcreated.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeInlineQuery(this, params)](./gramstax.ctx.setsessionfreeinlinequery.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeLeftChatMember(this, params)](./gramstax.ctx.setsessionfreeleftchatmember.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
 [setSessionFreeLocation(this, params)](./gramstax.ctx.setsessionfreelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeMessageAutoDeleteTimerChanged(this, params)](./gramstax.ctx.setsessionfreemessageautodeletetimerchanged.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeMessageReactionCount(this, params)](./gramstax.ctx.setsessionfreemessagereactioncount.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeNewChatMembers(this, params)](./gramstax.ctx.setsessionfreenewchatmembers.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeNewChatPhoto(this, params)](./gramstax.ctx.setsessionfreenewchatphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeNewChatTitle(this, params)](./gramstax.ctx.setsessionfreenewchattitle.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreePassportData(this, params)](./gramstax.ctx.setsessionfreepassportdata.md)
 
 
 </td><td>
@@ -4495,7 +5699,161 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
+[setSessionFreePinMessage(this, params)](./gramstax.ctx.setsessionfreepinmessage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreePoll(this, params)](./gramstax.ctx.setsessionfreepoll.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreePollAnswer(this, params)](./gramstax.ctx.setsessionfreepollanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreePreCheckoutQuery(this, params)](./gramstax.ctx.setsessionfreeprecheckoutquery.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeProximityAlertTriggered(this, params)](./gramstax.ctx.setsessionfreeproximityalerttriggered.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeReaction(this, params)](./gramstax.ctx.setsessionfreereaction.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeRefundedPayment(this, params)](./gramstax.ctx.setsessionfreerefundedpayment.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeRemovedChatBoost(this, params)](./gramstax.ctx.setsessionfreeremovedchatboost.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeShippingQuery(this, params)](./gramstax.ctx.setsessionfreeshippingquery.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
 [setSessionFreeSticker(this, params)](./gramstax.ctx.setsessionfreesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeSuccessfulPayment(this, params)](./gramstax.ctx.setsessionfreesuccessfulpayment.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeSupergroupChatCreated(this, params)](./gramstax.ctx.setsessionfreesupergroupchatcreated.md)
 
 
 </td><td>
@@ -4523,7 +5881,77 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
+[setSessionFreeUserShared(this, params)](./gramstax.ctx.setsessionfreeusershared.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
 [setSessionFreeVideo(this, params)](./gramstax.ctx.setsessionfreevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeVideoChatEnded(this, params)](./gramstax.ctx.setsessionfreevideochatended.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeVideoChatParticipantsInvited(this, params)](./gramstax.ctx.setsessionfreevideochatparticipantsinvited.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeVideoChatScheduled(this, params)](./gramstax.ctx.setsessionfreevideochatscheduled.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeVideoChatStarted(this, params)](./gramstax.ctx.setsessionfreevideochatstarted.md)
 
 
 </td><td>
@@ -4552,6 +5980,34 @@ Session set helper methods.
 <tr><td>
 
 [setSessionFreeVoice(this, params)](./gramstax.ctx.setsessionfreevoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeWebAppData(this, params)](./gramstax.ctx.setsessionfreewebappdata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeWriteAccessAllowed(this, params)](./gramstax.ctx.setsessionfreewriteaccessallowed.md)
 
 
 </td><td>

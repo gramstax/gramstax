@@ -4,6 +4,7 @@
 
 ## ITE2eChat type
 
+Simulated chat object for E2E updates.
 
 **Signature:**
 

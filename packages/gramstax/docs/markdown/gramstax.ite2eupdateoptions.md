@@ -4,6 +4,7 @@
 
 ## ITE2eUpdateOptions type
 
+Base update options for E2E updates.
 
 **Signature:**
 

@@ -4,7 +4,7 @@
 
 ## Ctx.buildData() method
 
-Creates page routing data configuration with options (no type inference).
+Creates page routing data configuration without a callback arg.
 
 **Signature:**
 
@@ -42,7 +42,7 @@ options
 
 </td><td>
 
-Configuration options (or null to use defaults). See [ITBuildDataOptions](./gramstax.itbuilddataoptions.md) for details.
+Configuration options without `callbackQueryData` (or null to use defaults). See [ITBuildDataOptions](./gramstax.itbuilddataoptions.md) for details.
 
 
 </td></tr>
