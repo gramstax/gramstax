@@ -31,6 +31,11 @@ let giveawayCalled = false
 let webAppDataCalled = false
 let userSharedCalled = false
 let pinMessageCalled = false
+let forumTopicCreatedCalled = false
+let proximityAlertCalled = false
+let newChatTitleCalled = false
+let customRouteCalled = false
+let sessionNicheCalled = false
 
 beforeEach(() => {
   channelPostCalled = false
@@ -42,6 +47,11 @@ beforeEach(() => {
   webAppDataCalled = false
   userSharedCalled = false
   pinMessageCalled = false
+  forumTopicCreatedCalled = false
+  proximityAlertCalled = false
+  newChatTitleCalled = false
+  customRouteCalled = false
+  sessionNicheCalled = false
 })
 
 class ChannelPage extends Ctx {
@@ -149,6 +159,91 @@ class PinMessagePage extends Ctx {
   }
 }
 
+class NichePage extends Ctx {
+  static data = {name: `nicheHandler`} as any
+
+  async handleFreeForumTopicCreated() {
+    forumTopicCreatedCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeForumTopicEdited() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeForumTopicClosed() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeForumTopicReopened() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeGeneralForumTopicHidden() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeGeneralForumTopicUnhidden() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeProximityAlertTriggered() {
+    proximityAlertCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeConnectedWebsite() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreePassportData() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeMessageAutoDeleteTimerChanged() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeChatBackgroundSet() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeNewChatTitle() {
+    newChatTitleCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeNewChatPhoto() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeDeleteChatPhoto() {
+    ;(this as any).temp.isAnswer = true
+  }
+
+  async handleFreeWriteAccessAllowed() {
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class CustomRoutePage extends Ctx {
+  static data = {name: `customRouteHandler`} as any
+
+  async handleCustomInlineQuery() {
+    customRouteCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class SessionNichePage extends Ctx {
+  static data = {name: `sessionNicheHandler`} as any
+
+  async handleSessionFreeNewChatTitle() {
+    sessionNicheCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
 // ── Test subclass ──────────────────────────────────────────────────
 
 class TestBot extends Gramstax {
@@ -207,6 +302,12 @@ function createBot(pagesList: Array<{name: string; page: typeof Ctx}>): TestBot 
 
   bot.pages = pages as any
   return bot
+}
+
+function expectRegistered(bot: TestBot, key: string) {
+  const dyn = (bot.pages.routeDynamicSpesific as any)[key]
+  expect(dyn).toBeDefined()
+  expect(dyn.length).toBe(1)
 }
 
 // ── help: build dummy updates ────────────────────────────────────
@@ -337,6 +438,58 @@ function buildPinMessage(): Record<string, unknown> {
         date: Math.floor(Date.now() / 1000),
         text: `pinned content`
       }
+    }
+  }
+}
+
+function buildForumTopicCreated(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    message: {
+      message_id: 1,
+      chat: {id: -1001234567890, type: `supergroup`, title: `Forum Group`},
+      date: Math.floor(Date.now() / 1000),
+      forum_topic_created: {name: `New Topic`, icon_color: 0x6fb9f0}
+    }
+  }
+}
+
+function buildProximityAlert(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    message: {
+      message_id: 1,
+      chat: {id: -1001234567890, type: `supergroup`, title: `Proximity Group`},
+      date: Math.floor(Date.now() / 1000),
+      proximity_alert_triggered: {
+        traveler: {id: 111, is_bot: false, first_name: `Traveler`},
+        watcher: {id: 222, is_bot: false, first_name: `Watcher`},
+        distance: 50
+      }
+    }
+  }
+}
+
+function buildNewChatTitle(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    message: {
+      message_id: 1,
+      chat: {id: -1001234567890, type: `group`, title: `Old Title`},
+      date: Math.floor(Date.now() / 1000),
+      new_chat_title: `New Title`
+    }
+  }
+}
+
+function buildInlineQuery(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    inline_query: {
+      id: `iq-1`,
+      from: {id: 123456789, is_bot: false, first_name: `Query User`},
+      query: `test`,
+      offset: ``
     }
   }
 }
@@ -512,5 +665,204 @@ describe(`Gramstax non-message free routing`, () => {
     const update = buildPinMessage()
     await bot.bot.handleUpdate(update as any)
     expect(pinMessageCalled).toBe(true)
+  })
+})
+
+// ── niche service-message routing ────────────────────────────────
+
+describe(`Gramstax niche service-message routing`, () => {
+  it(`should register handleFreeForumTopicCreated in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `forumtopiccreated`)
+  })
+
+  it(`should register handleFreeForumTopicEdited in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `forumtopicedited`)
+  })
+
+  it(`should register handleFreeForumTopicClosed in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `forumtopicclosed`)
+  })
+
+  it(`should register handleFreeForumTopicReopened in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `forumtopicreopened`)
+  })
+
+  it(`should register handleFreeGeneralForumTopicHidden in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `generalforumtopichidden`)
+  })
+
+  it(`should register handleFreeGeneralForumTopicUnhidden in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `generalforumtopicunhidden`)
+  })
+
+  it(`should register handleFreeProximityAlertTriggered in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `proximityalerttriggered`)
+  })
+
+  it(`should register handleFreeConnectedWebsite in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `connectedwebsite`)
+  })
+
+  it(`should register handleFreePassportData in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `passportdata`)
+  })
+
+  it(`should register handleFreeMessageAutoDeleteTimerChanged in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `messageautodeletetimerchanged`)
+  })
+
+  it(`should register handleFreeChatBackgroundSet in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `chatbackgroundset`)
+  })
+
+  it(`should register handleFreeNewChatTitle in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `newchattitle`)
+  })
+
+  it(`should register handleFreeNewChatPhoto in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `newchatphoto`)
+  })
+
+  it(`should register handleFreeDeleteChatPhoto in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `deletechatphoto`)
+  })
+
+  it(`should register handleFreeWriteAccessAllowed in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    expectRegistered(bot, `writeaccessallowed`)
+  })
+
+  it(`should dispatch handleFreeForumTopicCreated on forum_topic_created`, async () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    await bot.bot.handleUpdate(buildForumTopicCreated() as any)
+    expect(forumTopicCreatedCalled).toBe(true)
+  })
+
+  it(`should dispatch handleFreeProximityAlertTriggered on proximity_alert_triggered`, async () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    await bot.bot.handleUpdate(buildProximityAlert() as any)
+    expect(proximityAlertCalled).toBe(true)
+  })
+
+  it(`should dispatch handleFreeNewChatTitle on new_chat_title`, async () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    await bot.bot.handleUpdate(buildNewChatTitle() as any)
+    expect(newChatTitleCalled).toBe(true)
+  })
+
+  it(`should register handleSessionFreeForumTopicCreated in routeStaticSession`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    const ss = (bot.pages.routeStaticSession as any).handleSessionFreeForumTopicCreated
+    expect(ss).toBeDefined()
+  })
+
+  it(`should register handleSessionFreeProximityAlertTriggered in routeStaticSession`, () => {
+    const bot = createBot([{name: `nicheHandler`, page: NichePage}])
+    const ss = (bot.pages.routeStaticSession as any).handleSessionFreeProximityAlertTriggered
+    expect(ss).toBeDefined()
+  })
+})
+
+// ── registerCustomRoute contract ─────────────────────────────────
+
+describe(`Gramstax registerCustomRoute`, () => {
+  it(`should dispatch a custom route on its registered event`, async () => {
+    const bot = createBot([{name: `customRouteHandler`, page: CustomRoutePage}])
+    bot.registerCustomRoute({
+      name: `customRouteHandler`,
+      routeName: `handleCustomInlineQuery`,
+      listenerName: `inlinequery`,
+      event: `inline_query`,
+      filter: () => true
+    } as any)
+    await bot.bot.handleUpdate(buildInlineQuery() as any)
+    expect(customRouteCalled).toBe(true)
+  })
+
+  it(`should be idempotent when the same routeName is registered twice`, () => {
+    const bot = createBot([{name: `customRouteHandler`, page: CustomRoutePage}])
+    const entry = {
+      name: `customRouteHandler`,
+      routeName: `handleCustomInlineQuery`,
+      listenerName: `inlinequery`,
+      event: `inline_query`,
+      filter: () => true
+    } as any
+    bot.registerCustomRoute(entry)
+    bot.registerCustomRoute(entry)
+    expect(bot.pages.routeCustom.length).toBe(1)
+  })
+
+  it(`should throw when routeName does not start with 'handle'`, () => {
+    const bot = createBot([{name: `customRouteHandler`, page: CustomRoutePage}])
+    expect(() =>
+      bot.registerCustomRoute({
+        name: `customRouteHandler`,
+        routeName: `customInlineQuery`,
+        listenerName: `inlinequery`,
+        event: `inline_query`,
+        filter: () => true
+      } as any)
+    ).toThrow()
+  })
+
+  it(`should throw when listenerName does not match the built-in listener for the event`, () => {
+    const bot = createBot([{name: `customRouteHandler`, page: CustomRoutePage}])
+    expect(() =>
+      bot.registerCustomRoute({
+        name: `customRouteHandler`,
+        routeName: `handleCustomInlineQuery`,
+        listenerName: `custominlinequery`,
+        event: `inline_query`,
+        filter: () => true
+      } as any)
+    ).toThrow()
+  })
+})
+
+// ── session triune (handleSession* ↔ setSession* ↔ methodSession*) ──
+
+describe(`Gramstax session triune`, () => {
+  it(`every handleSessionFree* has a matching methodSessionFree* on Ctx`, () => {
+    const bot = createBot([])
+    const proto = Ctx.prototype as any
+    for (const routeName of bot.pages.listRouteStaticSession) {
+      const normalized = routeName.replace(`handle`, ``).replace(/^Session/, ``)
+      expect(typeof proto[`methodSession${normalized}`]).toBe(`function`)
+    }
+  })
+
+  it(`methodSessionFree* produces unique session keys`, () => {
+    const bot = createBot([])
+    const proto = Ctx.prototype as any
+    const seen = new Set<string>()
+    for (const routeName of bot.pages.listRouteStaticSession) {
+      const normalized = routeName.replace(`handle`, ``).replace(/^Session/, ``)
+      const key = proto[`methodSession${normalized}`](`P`) as string
+      expect(seen.has(key)).toBe(false)
+      seen.add(key)
+    }
+  })
+
+  it(`dispatches handleSessionFreeNewChatTitle when session method is active`, async () => {
+    const bot = createBot([{name: `sessionNicheHandler`, page: SessionNichePage}])
+    const method = (Ctx.prototype as any).methodSessionFreeNewChatTitle(`sessionNicheHandler`) as string
+    await bot.cacheSession.set(`-1001234567890`, {method, params: {}})
+    await bot.bot.handleUpdate(buildNewChatTitle() as any)
+    expect(sessionNicheCalled).toBe(true)
   })
 })
