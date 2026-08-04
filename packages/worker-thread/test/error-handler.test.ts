@@ -41,4 +41,14 @@ describe(`default error handler`, () => {
       await client.destroy()
     }
   }, 15_000)
+
+  it(`a throwing default error handler never crashes the transport`, () => {
+    const seen: unknown[] = []
+    setDefaultErrorHandler((err) => {
+      seen.push(err)
+      throw new Error(`handler exploded`)
+    })
+    expect(() => reportError(new Error(`transport error`))).not.toThrow()
+    expect(seen).toHaveLength(1)
+  })
 })

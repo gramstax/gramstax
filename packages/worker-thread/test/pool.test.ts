@@ -246,4 +246,38 @@ describe(`WorkerThreadPool`, () => {
       expect(w2.timeoutCalls).toEqual([555])
     })
   })
+
+  describe(`cursor consistency (regression)`, () => {
+    it(`round-robin cursor stays consistent after mid-rotation removal`, async () => {
+      const calls: Record<number, number> = {1: 0, 2: 0, 3: 0}
+      const makeMock = (id: number) => {
+        const handlers: Array<() => void> = []
+        return {
+          threadId: id,
+          kill() {},
+          async request() {
+            calls[id] = (calls[id] ?? 0) + 1
+            return `${id}`
+          },
+          on(event: string, cb: () => void) {
+            if (event === `exit`) handlers.push(cb)
+            return this
+          },
+          emitExit() {
+            for (const cb of handlers) cb()
+          }
+        } as unknown as WorkerThreadLaunch & {emitExit: () => void}
+      }
+      const w1 = makeMock(1)
+      const w2 = makeMock(2)
+      const w3 = makeMock(3)
+      const pool = new WorkerThreadPool([w1, w2, w3])
+      await pool.execute(`m`, []) // w1, cursor 1
+      ;(w2 as unknown as {emitExit: () => void}).emitExit() // remove w2 mid-rotation
+      await pool.execute(`m`, []) // w3 (index 1), cursor 2
+      await pool.execute(`m`, []) // cursor 2 >= 2 → reset 0 → w1
+      expect(pool.threadCount).toBe(2)
+      expect(calls).toEqual({1: 2, 2: 0, 3: 1})
+    })
+  })
 })

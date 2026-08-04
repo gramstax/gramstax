@@ -8,6 +8,8 @@
 import {describe, expect, it } from "bun:test"
 import {WorkerThreadExport} from "../src/export"
 import {WorkerThreadInit} from "../src/init"
+import {sleep, withTimeout } from "./helpers"
+import {LifecycleWorker} from "./fixtures/lifecycle-worker"
 
 class StubWorker extends WorkerThreadInit {
   mtdAdd(a: number, b: number) {
@@ -136,4 +138,40 @@ describe(`WorkerThreadExport.init (main-thread path)`, () => {
     })
     expect(() => (Job as any).launchGatewayClient()).toThrow(/requires a gateway server path/)
   })
+})
+
+describe(`WorkerThreadExport Job proxy (real worker threads)`, () => {
+  const LIFECYCLE_FIXTURE = `${import.meta.dir}/fixtures/lifecycle-worker.ts`
+  const CRASH_FIXTURE = `${import.meta.dir}/fixtures/crash-worker.ts`
+
+  it(`launchWorker can be called multiple times — each worker stays independent`, async () => {
+    const Job = WorkerThreadExport.init({path: LIFECYCLE_FIXTURE, WTInit: LifecycleWorker})
+    const w1 = await withTimeout(Job.launchWorker(), 10_000, `first launch`)
+    const w2 = await withTimeout(Job.launchWorker(), 10_000, `second launch`)
+    // both workers must be alive and independent — launching the same Job
+    // multiple times is the intended way to scale out
+    expect(w2.threadId).not.toBe(w1.threadId)
+    expect(await withTimeout(w1.request(`mtdAdd`, [2, 3]), 10_000, `w1 request`)).toBe(5)
+    expect(await withTimeout(w2.request(`mtdAdd`, [4, 5]), 10_000, `w2 request`)).toBe(9)
+    await withTimeout(w1.shutdown(5_000), 10_000, `w1 cleanup`)
+    await withTimeout(w2.shutdown(5_000), 10_000, `w2 cleanup`)
+  }, 30_000)
+
+  it(`Job.shutdown() terminates the worker (lifecycle passthrough)`, async () => {
+    const Job = WorkerThreadExport.init({path: LIFECYCLE_FIXTURE, WTInit: LifecycleWorker})
+    await withTimeout(Job.launchWorker(), 10_000, `launch`)
+    // the Job proxy must expose shutdown() as a lifecycle passthrough that
+    // TERMINATES the worker — not an RPC to the worker's drain method
+    await withTimeout((Job as any).shutdown(5_000), 10_000, `job shutdown`)
+    await sleep(300)
+    const err = await withTimeout((Job as any).mtdAdd(1, 2).catch((e: unknown) => e), 5_000, `method after shutdown`)
+    expect(err).toBeInstanceOf(Error)
+  }, 25_000)
+
+  it(`job methods reject cleanly after a failed launch (worker crashed at boot)`, async () => {
+    const Job = WorkerThreadExport.init({path: CRASH_FIXTURE, WTInit: LifecycleWorker})
+    await withTimeout(Job.launchWorker().catch(() => {}), 10_000, `launch`)
+    const err = await withTimeout((Job as any).mtdAdd(1, 2).catch((e: unknown) => e), 5_000, `method after failed launch`)
+    expect(err).toBeInstanceOf(Error)
+  }, 20_000)
 })

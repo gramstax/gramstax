@@ -12,6 +12,7 @@
  * assertions resolve the promise first, then assert on the error.
  */
 import {describe, expect, it } from "bun:test"
+import {WorkerThreadExport} from "../src/export"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
 import {normalizeGatewayPath} from "../src/gateway-path"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
@@ -173,5 +174,272 @@ describe(`WorkerThreadGatewayServer/Client integration (real sockets)`, () => {
       await worker.gatewayClientLatest?.close()
       await worker.gatewayServer?.close()
     }
+  }, 20_000)
+})
+
+describe(`gateway client lifecycle guards (regression)`, () => {
+  it(`connect() called twice rejects instead of hanging`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
+      await withTimeout(client.connect(path), 10_000, `first connect`)
+      const err = await withTimeout(client.connect(path).catch((e: unknown) => e), 10_000, `second connect`)
+      expect(err).toBeInstanceOf(Error)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+
+  it(`concurrent connect() calls settle: one resolves, one rejects`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
+      const results = await withTimeout(
+        Promise.allSettled([client.connect(path), client.connect(path)]),
+        10_000,
+        `concurrent connects`
+      )
+      expect(results.filter((r) => r.status === `fulfilled`).length).toBe(1)
+      expect(results.filter((r) => r.status === `rejected`).length).toBe(1)
+      expect(await withTimeout(client.request(`ping`, []), 10_000, `ping`)).toBe(`pong`)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 25_000)
+
+  it(`close() rejects in-flight pending requests`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {hang: () => new Promise(() => {})}), 10_000, `server start`)
+      await withTimeout(client.connect(path), 10_000, `connect`)
+      const pending = client.request(`hang`, [])
+      await sleep(100) // let the request reach the server
+      await withTimeout(client.close(), 10_000, `close`)
+      const err = await withTimeout(pending.catch((e: unknown) => e), 5_000, `pending rejection`)
+      expect(err).toBeInstanceOf(Error)
+      expect((err as Error).message).toMatch(/closed/)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+
+  it(`request() after close() rejects immediately instead of hanging`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
+      await withTimeout(client.connect(path), 10_000, `connect`)
+      await withTimeout(client.close(), 10_000, `close`)
+      const err = await withTimeout(client.request(`ping`, []).catch((e: unknown) => e), 3_000, `request after close`)
+      expect(err).toBeInstanceOf(Error)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+
+  it(`request() rejects when the transport dies, instead of hanging`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
+      // reconnect disabled so the send fails immediately once the server dies
+      await withTimeout(client.connect(path, {reconnect: false}), 10_000, `connect`)
+      expect(await withTimeout(client.request(`ping`, []), 10_000, `ping`)).toBe(`pong`)
+
+      // kill the server abruptly (no graceful END) — the client's socket dies
+      await withTimeout(server.server.close(true), 10_000, `server close`)
+      await sleep(500)
+
+      const err = await withTimeout(client.request(`ping`, []).catch((e: unknown) => e), 5_000, `request after death`)
+      expect(err).toBeInstanceOf(Error)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 25_000)
+
+  it(`gateway client request with timeout rejects when server never answers`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {hang: () => new Promise(() => {})}), 10_000, `server start`)
+      await withTimeout(client.connect(path), 10_000, `connect`)
+      const err = await withTimeout(client.request(`hang`, [], true, undefined, 300).catch((e: unknown) => e), 5_000, `hang request`)
+      expect((err as Error).message).toMatch(/timeout/)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+
+  it(`status events are forwarded (including READY)`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    const statuses: number[] = []
+    client.on(`status`, (s: number) => statuses.push(s))
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
+      await withTimeout(client.connect(path), 10_000, `connect`)
+      // 3 = READY per net-ipc's ClientStatus enum
+      expect(statuses).toContain(3)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+})
+
+describe(`gateway server restart & allow-list (regression)`, () => {
+  it(`a gateway server instance can be restarted after close()`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `first start`)
+      await withTimeout(server.close(), 10_000, `close`)
+      await withTimeout(server.start(path, {ping: () => `pong-v2`}), 10_000, `second start`)
+      await withTimeout(client.connect(path), 10_000, `connect`)
+      expect(await withTimeout(client.request(`ping`, []), 10_000, `ping`)).toBe(`pong-v2`)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+
+  it(`allowedMethods does not break methods that read instance state`, async () => {
+    const path = uniquePath()
+    class StatefulWorker extends WorkerThreadInit {
+      count = 5
+
+      mtdGetCount() {
+        return this.count
+      }
+
+      mtdBump() {
+        this.count += 1
+        return this.count
+      }
+    }
+    const worker = new StatefulWorker()
+    try {
+      await withTimeout(worker.createGatewayServer(path, undefined, {token: `tok`, allowedMethods: [`mtdGetCount`]}), 10_000, `createGatewayServer`)
+      const client = await withTimeout(worker.createGatewayClient(path, {token: `tok`}), 10_000, `createGatewayClient`)
+      // the allowed method must see the real instance state, not a proxy
+      expect(await withTimeout(client.request(`mtdGetCount`, []), 10_000, `mtdGetCount`)).toBe(5)
+      // disallowed methods stay blocked
+      const err = await withTimeout(client.request(`mtdBump`, []).catch((e: unknown) => e), 10_000, `mtdBump`)
+      expect((err as {message?: string})?.message).toMatch(/not allowed/)
+      // instance state must be intact after the blocked call
+      expect(worker.count).toBe(5)
+    } finally {
+      await worker.gatewayClientLatest?.close()
+      await worker.gatewayServer?.close()
+    }
+  }, 20_000)
+
+  it(`user middleware runs before the allow-list check`, async () => {
+    const path = uniquePath()
+    class GuardWorker extends WorkerThreadInit {
+      calls: string[] = []
+
+      mtdAlpha() {
+        this.calls.push(`alpha`)
+        return `A`
+      }
+    }
+    const worker = new GuardWorker()
+    try {
+      await withTimeout(worker.createGatewayServer(path, undefined, {token: `tok`, allowedMethods: [`mtdAlpha`]}), 10_000, `createGatewayServer`)
+      const client = await withTimeout(worker.createGatewayClient(path, {token: `tok`}), 10_000, `createGatewayClient`)
+      expect(await withTimeout(client.request(`mtdAlpha`, []), 10_000, `mtdAlpha`)).toBe(`A`)
+      // the method must run against the real instance (this.calls updated)
+      expect(worker.calls).toEqual([`alpha`])
+    } finally {
+      await worker.gatewayClientLatest?.close()
+      await worker.gatewayServer?.close()
+    }
+  }, 20_000)
+
+  it(`allow-list reports 'not allowed' (not 'not found') for absent methods`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}, {allowedMethods: [`ping`]}), 10_000, `server start`)
+      await withTimeout(client.connect(path), 10_000, `connect`)
+      const err = await withTimeout(client.request(`missing`, []).catch((e: unknown) => e), 10_000, `missing`)
+      expect((err as {message?: string})?.message).toMatch(/not allowed/)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+})
+
+describe(`WorkerThreadInit + export proxy gateway lifecycle (regression)`, () => {
+  it(`recreates a closed client instead of reusing it forever`, async () => {
+    const path = uniquePath()
+    class W extends WorkerThreadInit {
+      mtdHello(from: string) {
+        return `Hello ${from}`
+      }
+    }
+    const worker = new W()
+    try {
+      await withTimeout(worker.createGatewayServer(path, {hello: (from: string) => `Hello ${from}`}), 10_000, `createGatewayServer`)
+      const proxy = WorkerThreadExport.launchGatewayClient<W>(path)
+      expect(await withTimeout((proxy as any).hello(worker, `A`) as Promise<unknown>, 10_000, `first hello`)).toBe(`Hello A`)
+      const first = worker.gatewayClientLatest!
+      await withTimeout(first.close(), 10_000, `close first client`)
+      // the cached client is closed — the proxy must recreate it
+      expect(await withTimeout((proxy as any).hello(worker, `B`) as Promise<unknown>, 10_000, `hello after close`)).toBe(`Hello B`)
+    } finally {
+      await worker.gatewayClientLatest?.close()
+      await worker.gatewayServer?.close()
+    }
+  }, 25_000)
+
+  it(`createGatewayClient for the same path closes the previous client`, async () => {
+    const path = uniquePath()
+    class W extends WorkerThreadInit {}
+    const worker = new W()
+    try {
+      await withTimeout(worker.createGatewayServer(path, {ping: () => `pong`}), 10_000, `createGatewayServer`)
+      const c1 = await withTimeout(worker.createGatewayClient(path), 10_000, `first client`)
+      const c2 = await withTimeout(worker.createGatewayClient(path), 10_000, `second client`)
+      expect(worker.gatewayClients.get(path)).toBe(c2)
+      expect(c1.isClosed()).toBe(true)
+    } finally {
+      await worker.gatewayClientLatest?.close()
+      await worker.gatewayServer?.close()
+    }
+  }, 20_000)
+
+  it(`createGatewayServer twice closes the previous server`, async () => {
+    class W extends WorkerThreadInit {}
+    const worker = new W()
+    const path1 = `${uniquePath()}-a`
+    const path2 = `${uniquePath()}-b`
+    await withTimeout(worker.createGatewayServer(path1, {ping: () => `pong`}), 10_000, `first server`)
+    const first = worker.gatewayServer!
+    await withTimeout(worker.createGatewayServer(path2, {ping: () => `pong`}), 10_000, `second server`)
+    expect(worker.gatewayServer).not.toBe(first)
+    // net-ipc nulls the raw server after close — the old socket must be released
+    expect((first as any).server.server).toBeNull()
+    await worker.gatewayServer?.close()
   }, 20_000)
 })

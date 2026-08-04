@@ -8,6 +8,7 @@
 import {beforeEach, describe, expect, it } from "bun:test"
 import type {ITMapRpc} from "../src/rpc"
 import {WorkerThreadRpc} from "../src/rpc"
+import {withTimeout } from "./helpers"
 
 describe(`WorkerThreadRpc`, () => {
   let sentMessages: any[]
@@ -266,6 +267,85 @@ describe(`WorkerThreadRpc`, () => {
       rpc.context = {traceId: `trace-123`}
       rpc.makeRequest(`add`, [1, 2], true, {traceId: `override`})
       expect(sentMessages[0]).toMatchObject({traceId: `override`})
+    })
+  })
+
+  describe(`envelope integrity (regression)`, () => {
+    it(`_others cannot override the reserved id/method/params fields`, () => {
+      rpc.makeRequest(`add`, [1, 2], true, {id: 999, method: `evil`, params: [`x`]})
+      expect(sentMessages[0]!.method).toBe(`add`)
+      expect(sentMessages[0]!.params).toEqual([1, 2])
+      expect(sentMessages[0]!.id).not.toBe(999)
+    })
+
+    it(`context cannot override the reserved id/method/params fields`, () => {
+      rpc.context = {id: 777, method: `hijack`}
+      rpc.makeRequest(`add`, [1, 2])
+      expect(sentMessages[0]!.method).toBe(`add`)
+      expect(sentMessages[0]!.id).not.toBe(777)
+    })
+  })
+
+  describe(`undefined result handling (regression)`, () => {
+    it(`response carries null instead of undefined so the caller never hangs`, async () => {
+      const sent: any[] = []
+      const undefRpc = new WorkerThreadRpc((data) => sent.push(data), {returnsUndefined: () => undefined})
+      const promise = undefRpc.makeRequest(`returnsUndefined`, []) as Promise<unknown>
+      await undefRpc.make({id: sent[0]!.id, method: `returnsUndefined`, params: []})
+      // the wire cannot carry undefined — the response must carry null
+      expect(sent[1]).toMatchObject({id: sent[0]!.id, result: null})
+      await undefRpc.make(sent[1]!)
+      expect(await withTimeout(promise, 2000, `undefined result`)).toBe(null)
+    })
+
+    it(`short-circuited middleware without a result resolves instead of hanging`, async () => {
+      const sent: any[] = []
+      const shortRpc = new WorkerThreadRpc((data) => sent.push(data), {})
+      shortRpc.use(async (ctx) => {
+        ctx.result = undefined // short-circuit, forget to set a result
+      })
+      await shortRpc.make({id: 1, method: `whatever`, params: []})
+      expect(sent[0]).toMatchObject({id: 1, result: null})
+    })
+  })
+
+  describe(`malformed inbound payloads (regression)`, () => {
+    it(`make() tolerates malformed payloads without crashing`, async () => {
+      await rpc.make({} as any)
+      await rpc.make({method: `x`} as any)
+      await rpc.make({result: 5} as any)
+      await rpc.make({id: `str`, result: 5} as any)
+      await rpc.make({method: 123 as any, params: []} as any)
+      await rpc.make({method: `x`, params: null} as any)
+      await rpc.make({id: 1, method: `add`, params: [2, 3]})
+      // invalid requests produced error responses; the valid one produced a result
+      const errors = sentMessages.filter((m) => m?.error !== undefined)
+      expect(errors.length).toBeGreaterThanOrEqual(2)
+      expect(sentMessages.some((m) => m?.result === 5)).toBe(true)
+    })
+
+    it(`make() with non-array params responds with an error, not a hang`, async () => {
+      await rpc.make({id: 1, method: `add`, params: `oops`} as any)
+      expect(sentMessages[0]!.id).toBe(1)
+      expect(sentMessages[0]!.error).toBeDefined()
+    })
+
+    it(`make() rejects a non-string method with an error envelope`, async () => {
+      await rpc.make({id: 2, method: 123 as any, params: []} as any)
+      const errMsg = sentMessages.find((m) => m?.id === 2)?.error
+      expect(errMsg).toBeDefined()
+    })
+
+    it(`make() rejects non-array params with an error envelope on every runtime`, async () => {
+      await rpc.make({id: 3, method: `add`, params: `oops`} as any)
+      await rpc.make({id: 4, method: `add`, params: {a: 1, b: 2} as any} as any)
+      const errors = sentMessages.filter((m) => m?.error !== undefined)
+      expect(errors.map((m) => m?.id).sort()).toEqual([3, 4])
+    })
+
+    it(`make() handles id 0 correctly`, async () => {
+      await rpc.make({id: 0, method: `add`, params: [1, 2]})
+      expect(sentMessages[0]).toMatchObject({id: 0, result: 3})
     })
   })
 })

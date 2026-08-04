@@ -9,6 +9,7 @@ import {describe, expect, it } from "bun:test"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import {WorkerThreadRpc} from "../src/rpc"
+import {withTimeout } from "./helpers"
 
 describe(`WorkerThreadGatewayServer`, () => {
   it(`register defaults to an empty object`, () => {
@@ -64,10 +65,12 @@ describe(`WorkerThreadGatewayClient`, () => {
 
   it(`request forwards to rpc.makeRequest and returns a promise`, () => {
     const client = new WorkerThreadGatewayClient()
+    const sent: any[] = []
+    client.rpc.send = (data) => sent.push(data)
     const promise = client.request(`ping`, [])
-    // Without a real connection, no message is actually sent over the wire
-    // But the request should be tracked in rpc.map as a pending request
+    // The request is tracked in rpc.map as a pending request
     expect(client.rpc.map.size).toBeGreaterThanOrEqual(1)
+    expect(sent[0]).toMatchObject({method: `ping`, params: []})
     // Clean up — resolve the pending promise to avoid lingering state
     const entries = Array.from(client.rpc.map.entries())
     for (const [id, handlers] of entries) {
@@ -79,22 +82,44 @@ describe(`WorkerThreadGatewayClient`, () => {
 
   it(`request with _wait=false does not track pending entry in map`, () => {
     const client = new WorkerThreadGatewayClient()
-    try {
-      client.request(`ping`, [], false)
-    } catch {
-      // sync throw is acceptable — still no pending entry
-    }
+    const sent: any[] = []
+    client.rpc.send = (data) => sent.push(data)
+    client.request(`ping`, [], false)
     expect(client.rpc.map.size).toBe(0)
+    expect(sent).toHaveLength(1)
   })
 
   it(`request merges _others into the rpc payload`, () => {
     const client = new WorkerThreadGatewayClient()
+    const sent: any[] = []
+    client.rpc.send = (data) => sent.push(data)
     const promise = client.request(`echo`, [1], true, {traceId: `abc`})
+    expect(sent[0]).toMatchObject({method: `echo`, params: [1], traceId: `abc`})
     const entries = Array.from(client.rpc.map.entries())
     expect(entries.length).toBe(1)
     const [id, handlers] = entries[0]!
     handlers.resolve(`ok`)
     client.rpc.map.delete(id)
     return promise
+  })
+
+  describe(`state guards (regression)`, () => {
+    it(`connect() after close() rejects instead of half-connecting`, async () => {
+      const client = new WorkerThreadGatewayClient()
+      await withTimeout(client.close(), 5_000, `close`)
+      const err = await withTimeout(client.connect(`dead-${process.pid}`).catch((e: unknown) => e), 5_000, `connect after close`)
+      expect(err).toBeInstanceOf(Error)
+    }, 15_000)
+
+    it(`isClosed() reflects the client lifecycle`, async () => {
+      const client = new WorkerThreadGatewayClient()
+      expect(client.isClosed()).toBe(false)
+      await withTimeout(client.close(), 5_000, `close`)
+      expect(client.isClosed()).toBe(true)
+
+      const client2 = new WorkerThreadGatewayClient()
+      client2.destroy()
+      expect(client2.isClosed()).toBe(true)
+    }, 10_000)
   })
 })
