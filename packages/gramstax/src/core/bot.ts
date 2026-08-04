@@ -44,6 +44,88 @@ type ITCustomRouteEntry = {
  */
 class UpdateTimeoutError extends Error {}
 
+/**
+ * Maps every built-in grammY event subscription (constructor) to its listenerName.
+ *
+ * @remarks
+ * Used by `registerCustomRoute` to detect events that already have a built-in
+ * listener. Those events must NOT get a second `bot.on` subscription: built-in
+ * listeners do not call grammY `next()`, so a later subscription on the same
+ * event would never run (the first matching listener consumes the update and
+ * terminates the chain). Instead the custom route is dispatched by the built-in
+ * subscription through routing id=6 (custom routes).
+ *
+ * Keep this in sync with the constructor registration block.
+ */
+const _BUILT_IN_LISTENERS = new Map<string, string>([
+  [`callback_query:data`, `callbackquerydata`],
+  [`message:text`, `text`],
+  [`message:photo`, `photo`],
+  [`message:video`, `video`],
+  [`message:audio`, `audio`],
+  [`message:document`, `document`],
+  [`message:animation`, `animation`],
+  [`message:voice`, `voice`],
+  [`message:video_note`, `videonote`],
+  [`message:sticker`, `sticker`],
+  [`message:location`, `location`],
+  [`message:contact`, `contact`],
+  [`chat_member`, `chatmember`],
+  [`my_chat_member`, `mychatmember`],
+  [`channel_post`, `channelpost`],
+  [`edited_channel_post`, `editchannelpost`],
+  [`edited_message`, `edit`],
+  [`message_reaction`, `reaction`],
+  [`inline_query`, `inlinequery`],
+  [`chosen_inline_result`, `choseninlineresult`],
+  [`pre_checkout_query`, `precheckoutquery`],
+  [`shipping_query`, `shippingquery`],
+  [`chat_join_request`, `chatjoinrequest`],
+  [`poll`, `poll`],
+  [`poll_answer`, `pollanswer`],
+  [`message:new_chat_members`, `newchatmembers`],
+  [`message:left_chat_member`, `leftchatmember`],
+  [`business_connection`, `businessconnection`],
+  [`business_message`, `businessmessage`],
+  [`edited_business_message`, `editedbusinessmessage`],
+  [`deleted_business_messages`, `deletedbusinessmessages`],
+  [`message_reaction_count`, `messagereactioncount`],
+  [`chat_boost`, `chatboost`],
+  [`removed_chat_boost`, `removedchatboost`],
+  [`message:successful_payment`, `successfulpayment`],
+  [`message:refunded_payment`, `refundedpayment`],
+  [`message:group_chat_created`, `groupchatcreated`],
+  [`message:supergroup_chat_created`, `supergroupchatcreated`],
+  [`message:channel_chat_created`, `channelchatcreated`],
+  [`message:video_chat_started`, `videochatstarted`],
+  [`message:video_chat_scheduled`, `videochatscheduled`],
+  [`message:video_chat_ended`, `videochatended`],
+  [`message:video_chat_participants_invited`, `videochatparticipantsinvited`],
+  [`message:users_shared`, `usershared`],
+  [`message:chat_shared`, `chatshared`],
+  [`message:web_app_data`, `webappdata`],
+  [`message:giveaway`, `giveaway`],
+  [`message:giveaway_created`, `giveawaycreated`],
+  [`message:giveaway_winners`, `giveawaywinners`],
+  [`message:giveaway_completed`, `giveawaycompleted`],
+  [`message:pinned_message`, `pinmessage`],
+  [`message:forum_topic_created`, `forumtopiccreated`],
+  [`message:forum_topic_edited`, `forumtopicedited`],
+  [`message:forum_topic_closed`, `forumtopicclosed`],
+  [`message:forum_topic_reopened`, `forumtopicreopened`],
+  [`message:general_forum_topic_hidden`, `generalforumtopichidden`],
+  [`message:general_forum_topic_unhidden`, `generalforumtopicunhidden`],
+  [`message:proximity_alert_triggered`, `proximityalerttriggered`],
+  [`message:connected_website`, `connectedwebsite`],
+  [`message:passport_data`, `passportdata`],
+  [`message:message_auto_delete_timer_changed`, `messageautodeletetimerchanged`],
+  [`message:chat_background_set`, `chatbackgroundset`],
+  [`message:new_chat_title`, `newchattitle`],
+  [`message:new_chat_photo`, `newchatphoto`],
+  [`message:delete_chat_photo`, `deletechatphoto`],
+  [`message:write_access_allowed`, `writeaccessallowed`]
+])
+
 const __dirname = dirname(
   (() => {
     try {
@@ -2310,8 +2392,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * 1. listenerName matches entry.listenerName, AND
    * 2. entry.filter(ctx) returns true
    *
-   * Automatically calls this.bot.on(entry.event, ...) to subscribe
-   * the grammY listener.
+   * For events with a built-in listener, the route is dispatched by the existing
+   * built-in subscription (the listenerName must match the built-in one). For any
+   * other event, a grammY listener is subscribed automatically via
+   * this.bot.on(entry.event, ...).
    *
    * @param entry - The custom route entry. See ITCustomRouteEntry.
    *
@@ -2329,6 +2413,21 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     this.pages.routeCustom.push(entry)
     this.pages.all[entry.name] ??= undefined as unknown as typeof Ctx
+
+    // Events with a built-in listener must NOT get a second subscription here:
+    // built-in listeners do not call grammY `next()`, so a second `bot.on` on the
+    // same event would never run. The built-in subscription's `_onHandle` already
+    // reaches routing id=6 (custom routes), so only the listenerName needs to match.
+    const builtInListenerName = _BUILT_IN_LISTENERS.get(entry.event as string)
+    if (builtInListenerName !== undefined) {
+      if (entry.listenerName !== builtInListenerName) {
+        throw new Error(
+          `registerCustomRoute: listenerName "${entry.listenerName}" does not match the built-in listener "${builtInListenerName}" for event "${entry.event}". Use "${builtInListenerName}" so the built-in subscription dispatches this route.`
+        )
+      }
+      return
+    }
+
     this.bot.on(entry.event, (ctx) => this._onHandle(ctx, entry.listenerName, entry.shouldCheckNotFound ?? true))
 
     // Also populate routeDynamicSpesific so free handlers can match
