@@ -21,10 +21,24 @@
 - `rules/`: rule sets for generated Gramstax projects (`main`, `ctx-pages`, `ctx-db`, `ctx-e2e`).
 - `docs/`: documentation and API reference.
 - `docs/AGENTS.md`: API reference; not repo-wide agent guidance.
+- `real-projects/`: standalone (non-workspace) sample apps — currently `vip-content-bot` (own `bun.lock`, eslint-based).
+- `plans/`: numbered implementation plans (`001-` through `007-`, each a `plan.md`).
+- `prompts/`: AI agent prompt templates (`PROMPT.md`, `PROMPT_WITH_VALUE.md`) — consume `rules/_INDEX.md`.
+- `scripts/`: root e2e-mirror tooling (`generate-e2e-structure.ts`, `check-e2e-mirror.ts`); mirrored into create-gramstax templates.
 - `biome.json`, `tsconfig.json`, `nx.json`: global tooling config.
 - `bunfig.toml`: Bun runtime config.
-- `security-poc/`: standalone numbered security PoC scripts.
-- `skill/`: custom tooling scripts (some deprecated).
+- `security-poc/`: standalone numbered security PoC scripts (template-engine breakout/injection/RCE).
+- `skill/`: legacy custom tooling scripts (some deprecated).
+
+## AGENTS.md Hierarchy
+
+Deep per-area guidance lives in child files — read the one matching your task in addition to this root:
+
+- `packages/gramstax/AGENTS.md`, `packages/lmdb/AGENTS.md`, `packages/worker-thread/AGENTS.md`, `packages/create-gramstax/AGENTS.md` — package internals, patterns, build/test commands, anti-patterns.
+- `example/AGENTS.md` — sample projects: didactic progression, shared `src/` skeleton, e2e harness, build-before-run rule.
+- `rules/AGENTS.md` — rule sets governing generated Gramstax projects (pages, e2e, db).
+- `real-projects/AGENTS.md` — standalone, non-workspace sample apps.
+- `docs/AGENTS.md` — API reference (production params, endpoints, lifecycle).
 
 ## Toolchain
 
@@ -234,7 +248,7 @@ To add a new PAGE value validator: extend `_PAGE_ATTR_VALUE_VALIDATORS[tagName]`
 ## Template Project (create-gramstax)
 
 - `packages/create-gramstax/src/templates` holds files copied into generated projects.
-- Template directory has its own `.prettierrc` and `tsconfig.json`.
+- Template directory has its own standalone `tsconfig.json` + `biome.json` (`root: true`). Biome-only — no ESLint/Prettier configs are shipped.
 - When editing templates, keep formatting consistent with template rules.
 - Updates to templates should be mirrored in CLI behavior if needed.
 
@@ -249,7 +263,7 @@ To add a new PAGE value validator: extend `_PAGE_ATTR_VALUE_VALIDATORS[tagName]`
 
 The repo has a broader scope than a typical 2-package Bun/Nx monorepo:
 
-- **Extra top-level dirs**: `rules/` (agent rules), `security-poc/` (numbered PoCs), `skill/` (tooling, some deprecated), `.omo/` (tool metadata), `real/` (empty).
+- **Extra top-level dirs**: `rules/` (agent rules), `security-poc/` (numbered PoCs), `skill/` (tooling, some deprecated), `.omo/` (tool metadata), `plans/` (numbered implementation plans), `prompts/` (agent prompt templates), `scripts/` (e2e-mirror tooling), `z-experiment/` (empty scratch), `real-projects/` (standalone apps, not workspace members).
 - **Extra packages**: `lmdb/` and `worker-thread/` are independently published npm packages.
 - **Example workspaces**: `example/1-complex` through `example/10-http-request` are ordinally named and included in the root workspace.
 - **Checked-in artifacts**: `tsconfig.tsbuildinfo`, API-extractor temp output, and generated docs/yaml/markdown trees are versioned.
