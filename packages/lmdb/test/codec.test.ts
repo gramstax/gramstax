@@ -6,7 +6,7 @@
  * repository.test.ts. The codec itself only matters when a LmdbRepository
  * defines `static codec` for custom transforms (e.g. `Date → number`).
  */
-import {describe, expect, it } from "bun:test"
+import {describe, expect, it} from "bun:test"
 import {LmdbCodec, resolveCodec} from "../src/codec"
 import {LmdbRepository} from "../src/repository"
 import type {ICodec} from "../src/types"
@@ -23,7 +23,10 @@ describe(`LmdbCodec (abstract base)`, () => {
   })
 
   it(`create() returns an instance of LmdbCodec`, () => {
-    const codec = LmdbCodec.create<number, string>((n) => String(n), (s) => Number(s))
+    const codec = LmdbCodec.create<number, string>(
+      (n) => String(n),
+      (s) => Number(s)
+    )
     expect(codec).toBeInstanceOf(LmdbCodec)
   })
 })
@@ -73,5 +76,13 @@ describe(`resolveCodec`, () => {
     const codec = resolveCodec(OnlySerialize) as ICodec<number>
     expect(codec!.serialize(5)).toBe(10)
     expect(codec!.deserialize(99)).toBe(99)
+  })
+
+  it(`returns the same wrapper instance for repeated calls (L6 memo)`, () => {
+    class Memoized extends LmdbRepository {}
+    ;(Memoized as any).dbName = `memoized-codec-test`
+    ;(Memoized as any).serialize = (v: number) => `s:${v}`
+    ;(Memoized as any).deserialize = (r: string) => parseInt(r.slice(2), 10)
+    expect(resolveCodec(Memoized)).toBe(resolveCodec(Memoized))
   })
 })

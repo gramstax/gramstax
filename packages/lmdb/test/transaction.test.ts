@@ -212,6 +212,45 @@ describe(`env.transaction with async callbacks`, () => {
     }
     expect(await userRepo.get(`u2`)).toBeUndefined()
   })
+
+  it(`async tx.abort() returns the callback's value (same as sync, B6)`, async () => {
+    const result = await env.transaction(async (tx) => {
+      tx.abort()
+      return 42
+    })
+    expect(result).toBe(42)
+  })
+})
+
+describe(`env.transaction serialization (concurrent)`, () => {
+  it(`an aborting transaction cannot roll back another transaction's committed write`, async () => {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+    await Promise.all([
+      env.transaction(async (tx) => {
+        await sleep(30)
+        await userRepo.set(`u1`, {id: `u1`, name: `A`}, tx)
+        tx.abort()
+      }),
+      env.transaction(async () => {
+        await sleep(10)
+        await sessionRepo.set(`s1`, {id: `s1`, userId: `u1`})
+      })
+    ])
+
+    expect(await sessionRepo.get(`s1`)).toEqual({id: `s1`, userId: `u1`})
+    expect(await userRepo.get(`u1`)).toBeUndefined()
+  })
+
+  it(`nested transaction() inside a synchronous callback still works (no deadlock)`, async () => {
+    const result = await env.transaction(async () => {
+      await userRepo.set(`u1`, {id: `u1`, name: `A`})
+      await userRepo.update(`u1`, (cur) => ({id: cur?.id ?? `u1`, name: `A-prime`}))
+      return `ok`
+    })
+    expect(result).toBe(`ok`)
+    expect(await userRepo.get(`u1`)).toEqual({id: `u1`, name: `A-prime`})
+  })
 })
 
 describe(`env.readTransaction`, () => {
@@ -230,7 +269,8 @@ describe(`env.readTransaction`, () => {
       return tx
     })
     expect(tx.done).toBe(true)
-    expect(tx.isAborted).toBe(true)
+    expect(tx.isAborted).toBe(false)
+    expect(tx.lifecycle).toBe(`released`)
   })
 
   it(`read transaction sees writes committed before env.readTransaction started`, async () => {
@@ -255,6 +295,31 @@ describe(`env.readTransaction`, () => {
     }
     expect(captured?.done).toBe(true)
   })
+
+  it(`two sequential readTransactions in the same tick both succeed (L1)`, async () => {
+    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    // No setTimeout between — the shared-readTxn EINVAL regression fires here.
+    const first = await env.readTransaction(async (t) => userRepo.get(`u1`, t))
+    const second = await env.readTransaction(async (t) => userRepo.get(`u1`, t))
+    expect(first).toEqual({id: `u1`, name: `A`})
+    expect(second).toEqual({id: `u1`, name: `A`})
+  })
+
+  it(`concurrent readTransactions all succeed (L1)`, async () => {
+    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    const results = await Promise.all(Array.from({length: 10}, () => env.readTransaction(async (t) => userRepo.get(`u1`, t))))
+    for (const r of results) {
+      expect(r).toEqual({id: `u1`, name: `A`})
+    }
+  })
+
+  it(`a plain get() right after readTransaction works (L1)`, async () => {
+    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    await env.readTransaction(async (t) => userRepo.get(`u1`, t))
+    // Same tick, no setTimeout — previously the shared readTxn was left dead
+    // until the next macrotask, so this get() hit EINVAL.
+    expect(userRepo.get(`u1`)).toEqual({id: `u1`, name: `A`})
+  })
 })
 
 describe(`env.readTransaction raw txn release`, () => {
@@ -266,8 +331,10 @@ describe(`env.readTransaction raw txn release`, () => {
       tx.commit()
     })
     await new Promise((resolve) => setTimeout(resolve, 20))
+    // done() keeps the env's shared read txn alive (renewed on the next
+    // event turn) — the slot count must stay bounded, not grow per call.
     const after = env.readerList().split(`\n`).filter(Boolean).length
-    expect(after).toBe(before)
+    expect(after).toBeLessThanOrEqual(before + 1)
   })
 
   it(`tx.abort() inside readTransaction still releases exactly once`, async () => {
@@ -279,7 +346,23 @@ describe(`env.readTransaction raw txn release`, () => {
       tx.abort()
     })
     await new Promise((resolve) => setTimeout(resolve, 20))
-    expect(env.readerList().split(`\n`).filter(Boolean).length).toBe(before)
+    const after = env.readerList().split(`\n`).filter(Boolean).length
+    expect(after).toBeLessThanOrEqual(before + 1)
+  })
+
+  it(`repeated readTransactions do not grow the reader-slot count`, async () => {
+    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    const first = env.readerList().split(`\n`).filter(Boolean).length
+    for (let i = 0; i < 20; i++) {
+      await env.readTransaction(async (tx) => {
+        await userRepo.get(`u1`, tx)
+      })
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    const after = env.readerList().split(`\n`).filter(Boolean).length
+    // 20 sequential transactions may reuse at most one additional shared
+    // slot (the env's readTxn); any more indicates a per-call leak.
+    expect(after).toBeLessThanOrEqual(first + 1)
   })
 })
 

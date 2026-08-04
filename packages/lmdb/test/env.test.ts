@@ -7,13 +7,17 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {existsSync} from "node:fs"
-import {join} from "node:path"
+import {basename, extname, join} from "node:path"
+import * as lmdbNs from "lmdb"
 import {createTestDir} from "./test-helpers"
 
 import {LmdbEnv} from "../src/env"
 import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError} from "../src/errors"
 import {LmdbRepository} from "../src/repository"
 import {rmWithRetry} from "./test-helpers"
+
+// `allDbs` is a runtime-only export of lmdb-js (absent from its d.ts).
+const allDbs = (lmdbNs as unknown as {allDbs: Map<string, unknown>}).allDbs
 
 interface User {
   id: string
@@ -233,6 +237,82 @@ describe(`LmdbEnv operations after close`, () => {
 
   it(`backup throws LmdbEnvClosedError`, async () => {
     await expect(env.backup(`somewhere`)).rejects.toThrow(LmdbEnvClosedError)
+  })
+
+  it(`env-level data ops throw LmdbEnvClosedError (B2)`, () => {
+    expect(() => env.get(`k`)).toThrow(LmdbEnvClosedError)
+    expect(() => env.getRange()).toThrow(LmdbEnvClosedError)
+    expect(() => env.getCount()).toThrow(LmdbEnvClosedError)
+    expect(() => env.doesExist(`k`)).toThrow(LmdbEnvClosedError)
+    expect(() => env.getKeys()).toThrow(LmdbEnvClosedError)
+    expect(() => env.openDB(`x`)).toThrow(LmdbEnvClosedError)
+  })
+
+  it(`transaction on a closed read-only env throws LmdbEnvClosedError, not LmdbReadOnlyError (B9)`, async () => {
+    const roEnv = new LmdbEnv({path: env.path, maxDbs: 5, readOnly: true})
+    await roEnv.close()
+    await expect(roEnv.transaction(() => {})).rejects.toThrow(LmdbEnvClosedError)
+  })
+})
+
+describe(`LmdbEnv.close resource cleanup`, () => {
+  it(`L2: close() removes this env's keys from lmdb-js allDbs`, async () => {
+    const dir = createTestDir(`lmdb-env-alldbs-`)
+    const e = new LmdbEnv({path: dir, maxDbs: 5})
+    e.register(UserRepo)
+    e.register(SessionRepo)
+    const key = basename(dir, extname(dir))
+    const before = Array.from(allDbs.keys()).filter((n) => n.startsWith(key))
+    expect(before.length).toBe(3) // root + user + session sub-DB stores
+
+    await e.close()
+    const after = Array.from(allDbs.keys()).filter((n) => n.startsWith(key))
+    expect(after.length).toBe(0)
+  })
+
+  it(`L3: getDb returns the same handle for repeated calls (same name+encoding)`, () => {
+    const db1 = env.getDb(`audit-user`)
+    const db2 = env.getDb(`audit-user`)
+    expect(db1).toBe(db2)
+  })
+
+  it(`L3: getDb caches per encoding — different encodings get distinct handles`, () => {
+    const db1 = env.getDb(`audit-user`)
+    const db2 = env.getDb(`audit-user`, `json`)
+    expect(db1).not.toBe(db2)
+  })
+
+  it(`L5: off() stops a previously attached commit listener`, async () => {
+    let calls = 0
+    const cb = () => {
+      calls++
+    }
+    env.on(`beforecommit`, cb as any)
+    env.off(`beforecommit`, cb as any)
+    const users = env.register(UserRepo)
+    await users.set(`u1`, {id: `u1`, name: `A`})
+    await env.committed
+    expect(calls).toBe(0)
+  })
+
+  it(`L5: listener attached and not removed still fires`, async () => {
+    let calls = 0
+    const cb = () => {
+      calls++
+    }
+    env.on(`beforecommit`, cb as any)
+    const users = env.register(UserRepo)
+    await users.set(`u1`, {id: `u1`, name: `A`})
+    await env.committed
+    expect(calls).toBeGreaterThan(0)
+  })
+})
+
+describe(`LmdbEnv.put with options`, () => {
+  it(`put(id, value, {noOverwrite}) works and respects noOverwrite`, async () => {
+    expect(await env.put(`k`, {v: 1})).toBe(true)
+    expect(await env.put(`k`, {v: 2}, {noOverwrite: true} as any)).toBe(false)
+    expect(await env.get(`k`)).toEqual({v: 1})
   })
 })
 

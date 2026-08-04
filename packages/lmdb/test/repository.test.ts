@@ -9,8 +9,9 @@ import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {createTestDir} from "./test-helpers"
 import {LmdbCodec} from "../src/codec"
 import {LmdbEnv} from "../src/env"
-import {LmdbKeyNotFoundError, LmdbReadOnlyError} from "../src/errors"
+import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbKeyNotFoundError, LmdbReadOnlyError} from "../src/errors"
 import {LmdbRepository} from "../src/repository"
+import {LmdbTransaction} from "../src/transaction"
 import {rmWithRetry} from "./test-helpers"
 
 interface User {
@@ -29,6 +30,10 @@ interface Counter {
 
 class CounterRepo extends LmdbRepository<Counter, number> {
   static dbName = `counter-repo-test`
+}
+
+class BufferKeyRepo extends LmdbRepository<User, Buffer> {
+  static dbName = `buffer-key-repo-test`
 }
 
 class NoCodecRepo extends LmdbRepository<string, string> {
@@ -674,5 +679,104 @@ describe(`LmdbRepository.drop (sub-DB removal)`, () => {
     } finally {
       await roEnv.close()
     }
+  })
+})
+
+describe(`LmdbRepository operations after close`, () => {
+  it(`get throws LmdbEnvClosedError, not a raw native error`, async () => {
+    await users.set(`u1`, {id: `u1`, name: `A`, age: 1})
+    await env.close()
+    expect(() => users.get(`u1`)).toThrow(LmdbEnvClosedError)
+  })
+
+  it(`set after close rejects with LmdbEnvClosedError`, async () => {
+    await env.close()
+    await expect(users.set(`u1`, {id: `u1`, name: `A`, age: 1})).rejects.toBeInstanceOf(LmdbEnvClosedError)
+  })
+
+  it(`has and count after close throw LmdbEnvClosedError`, async () => {
+    await env.close()
+    expect(() => users.has(`u1`)).toThrow(LmdbEnvClosedError)
+    expect(() => users.count()).toThrow(LmdbEnvClosedError)
+  })
+})
+
+describe(`LmdbRepository tx argument validation`, () => {
+  it(`set with an already-aborted LmdbTransaction rejects`, async () => {
+    const tx = new LmdbTransaction()
+    tx.abort()
+    await expect(users.set(`u1`, {id: `u1`, name: `X`, age: 1}, tx)).rejects.toThrow()
+    expect(users.get(`u1`)).toBeUndefined()
+  })
+
+  it(`set with a tx outside an active transaction rejects`, async () => {
+    const tx = new LmdbTransaction()
+    await expect(users.set(`u1`, {id: `u1`, name: `X`, age: 1}, tx)).rejects.toBeInstanceOf(Error)
+    expect(users.get(`u1`)).toBeUndefined()
+  })
+
+  it(`delete with a done tx rejects`, async () => {
+    await users.set(`u1`, {id: `u1`, name: `A`, age: 1})
+    const tx = new LmdbTransaction()
+    tx.commit()
+    await expect(users.delete(`u1`, tx)).rejects.toThrow()
+    expect(users.has(`u1`)).toBe(true)
+  })
+})
+
+describe(`LmdbRepository key-type aware prefix helpers`, () => {
+  it(`like() on a Buffer-keyed repo uses full-scan, never bounded wrong`, async () => {
+    const buf = env.register(BufferKeyRepo)
+    await buf.set(Buffer.from(`user_a`), {id: `a`, name: `A`, age: 1})
+    await buf.set(Buffer.from(`other`), {id: `o`, name: `O`, age: 2})
+    const found = await buf.like(`user_*`)
+    expect(found.map(([k]) => k.toString())).toEqual([`user_a`])
+  })
+
+  it(`countByPrefix with a Buffer prefix on a Buffer-keyed repo works`, async () => {
+    const buf = env.register(BufferKeyRepo)
+    await buf.set(Buffer.from(`a`), {id: `a`, name: `A`, age: 1})
+    await buf.set(Buffer.from(`b`), {id: `b`, name: `B`, age: 2})
+    expect(await buf.countByPrefix(Buffer.from(`a`))).toBe(1)
+  })
+
+  it(`deleteByPrefix('') on a Buffer-keyed repo is rejected, not a silent no-op`, async () => {
+    const buf = env.register(BufferKeyRepo)
+    await buf.set(Buffer.from(`a`), {id: `a`, name: `A`, age: 1})
+    await expect(buf.deleteByPrefix(`` as any)).rejects.toBeInstanceOf(LmdbEmptyPrefixError)
+    expect(await buf.count()).toBe(1)
+  })
+})
+
+describe(`LmdbRepository.deleteByPrefix empty-prefix guard`, () => {
+  it(`rejects empty string prefix`, async () => {
+    await users.set(`u1`, {id: `u1`, name: `A`, age: 1})
+    await expect(users.deleteByPrefix(``)).rejects.toBeInstanceOf(LmdbEmptyPrefixError)
+    expect(users.has(`u1`)).toBe(true)
+  })
+
+  it(`rejects zero-length Buffer prefix`, async () => {
+    const buf = env.register(BufferKeyRepo)
+    await expect(buf.deleteByPrefix(Buffer.alloc(0))).rejects.toBeInstanceOf(LmdbEmptyPrefixError)
+  })
+})
+
+describe(`LmdbRepository.countByPrefix async contract`, () => {
+  it(`returns a Promise even for string keys (no split-brain typing)`, async () => {
+    await users.set(`user:1`, {id: `u1`, name: `Alice`, age: 30})
+    const count = users.countByPrefix(`user:`)
+    expect(count instanceof Promise).toBe(true)
+    expect(await count).toBe(1)
+  })
+})
+
+describe(`LmdbRepository pattern cache eviction`, () => {
+  it(`does not grow beyond the cap after many distinct patterns`, async () => {
+    await users.set(`u1`, {id: `u1`, name: `A`, age: 1})
+    for (let i = 0; i < 300; i++) {
+      await users.like(`p${i}:*`, {limit: 1})
+    }
+    const cache = (users as unknown as {_patternCache: Map<string, unknown>})._patternCache
+    expect(cache.size).toBeLessThanOrEqual(250)
   })
 })

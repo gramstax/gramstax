@@ -4,15 +4,16 @@
  * Pure logic — no LMDB required. Validates the `instanceof` chain, error
  * names, and contextual messages for every exported error class.
  */
-import {describe, expect, it } from "bun:test"
+import {describe, expect, it} from "bun:test"
 import {
   LmdbDuplicateDbNameError,
+  LmdbEmptyPrefixError,
   LmdbEnvClosedError,
   LmdbEnvNotOpenError,
   LmdbError,
   LmdbKeyNotFoundError,
   LmdbMissingDbNameError,
-  LmdbReadOnlyError, 
+  LmdbReadOnlyError,
   LmdbRepositoryAlreadyRegisteredError,
   LmdbRepositoryNotRegisteredError,
   LmdbTransactionDoneError,
@@ -31,7 +32,8 @@ describe(`error hierarchy`, () => {
       new LmdbKeyNotFoundError(`db`, `key1`),
       new LmdbTransactionError(`msg`),
       new LmdbTransactionDoneError(),
-      new LmdbReadOnlyError(`set`)
+      new LmdbReadOnlyError(`set`),
+      new LmdbEmptyPrefixError()
     ]
     for (const e of all) {
       expect(e).toBeInstanceOf(LmdbError)
@@ -50,6 +52,7 @@ describe(`error hierarchy`, () => {
     expect(new LmdbTransactionError(`msg`).name).toBe(`LmdbTransactionError`)
     expect(new LmdbTransactionDoneError().name).toBe(`LmdbTransactionDoneError`)
     expect(new LmdbReadOnlyError(`set`).name).toBe(`LmdbReadOnlyError`)
+    expect(new LmdbEmptyPrefixError().name).toBe(`LmdbEmptyPrefixError`)
   })
 })
 
@@ -90,6 +93,10 @@ describe(`error messages`, () => {
 
   it(`LmdbReadOnlyError includes the operation name`, () => {
     expect(new LmdbReadOnlyError(`set`).message).toContain(`set`)
+  })
+
+  it(`LmdbEmptyPrefixError mentions clear() as the alternative`, () => {
+    expect(new LmdbEmptyPrefixError().message).toMatch(/clear\(\)/)
   })
 })
 
