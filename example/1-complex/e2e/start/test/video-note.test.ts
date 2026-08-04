@@ -12,14 +12,14 @@ describe(`E2E: TestVideoNotePage`, () => {
 
     await e2e.sendCallbackQuery(intent)
 
-    const sendVoiceReq = e2e.lastCall(`sendVoice`)
-    expect(sendVoiceReq).toBeDefined()
-    expect(sendVoiceReq!.body?.voice).toBe(e2e.gmedia(intent, `default`, {}).src)
+    const sendVideoNoteReq = e2e.lastCall(`sendVideoNote`)
+    expect(sendVideoNoteReq).toBeDefined()
+    expect(sendVideoNoteReq!.body?.video_note).toBe(e2e.gmedia(intent, `default`, {}).src)
 
     e2e.clearCalls()
     await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
-    const sendVoiceIdReq = e2e.lastCall(`sendVoice`)
-    expect(sendVoiceIdReq).toBeDefined()
-    expect(sendVoiceIdReq!.body?.voice).toBe(e2e.gmedia(intent, `default`, {}, `id`).src)
+    const sendVideoNoteIdReq = e2e.lastCall(`sendVideoNote`)
+    expect(sendVideoNoteIdReq).toBeDefined()
+    expect(sendVideoNoteIdReq!.body?.video_note).toBe(e2e.gmedia(intent, `default`, {}, `id`).src)
   })
 })
