@@ -467,6 +467,21 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.on(`message:giveaway_winners`, (ctx) => this._onHandle(ctx, `giveawaywinners`, false))
     this.bot.on(`message:giveaway_completed`, (ctx) => this._onHandle(ctx, `giveawaycompleted`, false))
     this.bot.filter((ctx) => ctx.message?.pinned_message !== undefined, (ctx) => this._onHandle(ctx, `pinmessage`, false))
+    this.bot.on(`message:forum_topic_created`, (ctx) => this._onHandle(ctx, `forumtopiccreated`, false))
+    this.bot.on(`message:forum_topic_edited`, (ctx) => this._onHandle(ctx, `forumtopicedited`, false))
+    this.bot.on(`message:forum_topic_closed`, (ctx) => this._onHandle(ctx, `forumtopicclosed`, false))
+    this.bot.on(`message:forum_topic_reopened`, (ctx) => this._onHandle(ctx, `forumtopicreopened`, false))
+    this.bot.on(`message:general_forum_topic_hidden`, (ctx) => this._onHandle(ctx, `generalforumtopichidden`, false))
+    this.bot.on(`message:general_forum_topic_unhidden`, (ctx) => this._onHandle(ctx, `generalforumtopicunhidden`, false))
+    this.bot.on(`message:proximity_alert_triggered`, (ctx) => this._onHandle(ctx, `proximityalerttriggered`, false))
+    this.bot.on(`message:connected_website`, (ctx) => this._onHandle(ctx, `connectedwebsite`, false))
+    this.bot.on(`message:passport_data`, (ctx) => this._onHandle(ctx, `passportdata`, false))
+    this.bot.on(`message:message_auto_delete_timer_changed`, (ctx) => this._onHandle(ctx, `messageautodeletetimerchanged`, false))
+    this.bot.on(`message:chat_background_set`, (ctx) => this._onHandle(ctx, `chatbackgroundset`, false))
+    this.bot.on(`message:new_chat_title`, (ctx) => this._onHandle(ctx, `newchattitle`, false))
+    this.bot.on(`message:new_chat_photo`, (ctx) => this._onHandle(ctx, `newchatphoto`, false))
+    this.bot.on(`message:delete_chat_photo`, (ctx) => this._onHandle(ctx, `deletechatphoto`, false))
+    this.bot.on(`message:write_access_allowed`, (ctx) => this._onHandle(ctx, `writeaccessallowed`, false))
 
     // Load pages AFTER templateManager is initialized
     this.pages = this._pageLoads(this.templateManager._path?.[0])
@@ -1382,9 +1397,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     for (const routeName of pages.listRouteDynamicSpesific) {
       if (Object.hasOwn(proto, routeName) && typeof (proto as unknown as Record<string, unknown>)[routeName] === `function`) {
         const pureName = routeName.replace(partHandle, ``).replace(partArgs, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``).toLowerCase()
-        const alreadyExists = pds[pureName as keyof typeof pds]?.some((item) => item.name === name)
-        if (!alreadyExists) {
-          pds[pureName as keyof typeof pds].push({name, routeName})
+        const bucket = pds[pureName as keyof typeof pds]
+        const alreadyExists = bucket?.some((item) => item.name === name)
+        if (!alreadyExists && bucket) {
+          bucket.push({name, routeName})
         }
       }
     }
@@ -1612,7 +1628,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `handleSessionFreeGiveawayCreated`,
       `handleSessionFreeGiveawayWinners`,
       `handleSessionFreeGiveawayCompleted`,
-      `handleSessionFreePinMessage`
+      `handleSessionFreePinMessage`,
+      `handleSessionFreeForumTopicCreated`,
+      `handleSessionFreeForumTopicEdited`,
+      `handleSessionFreeForumTopicClosed`,
+      `handleSessionFreeForumTopicReopened`,
+      `handleSessionFreeGeneralForumTopicHidden`,
+      `handleSessionFreeGeneralForumTopicUnhidden`,
+      `handleSessionFreeProximityAlertTriggered`,
+      `handleSessionFreeConnectedWebsite`,
+      `handleSessionFreePassportData`,
+      `handleSessionFreeMessageAutoDeleteTimerChanged`,
+      `handleSessionFreeChatBackgroundSet`,
+      `handleSessionFreeNewChatTitle`,
+      `handleSessionFreeNewChatPhoto`,
+      `handleSessionFreeDeleteChatPhoto`,
+      `handleSessionFreeWriteAccessAllowed`
     ] as const
     const listRouteDynamicSpesific = [
       `handleFreeText`,
@@ -1662,13 +1693,29 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `handleFreeGiveawayCreated`,
       `handleFreeGiveawayWinners`,
       `handleFreeGiveawayCompleted`,
-      `handleFreePinMessage`
+      `handleFreePinMessage`,
+      `handleFreeForumTopicCreated`,
+      `handleFreeForumTopicEdited`,
+      `handleFreeForumTopicClosed`,
+      `handleFreeForumTopicReopened`,
+      `handleFreeGeneralForumTopicHidden`,
+      `handleFreeGeneralForumTopicUnhidden`,
+      `handleFreeProximityAlertTriggered`,
+      `handleFreeConnectedWebsite`,
+      `handleFreePassportData`,
+      `handleFreeMessageAutoDeleteTimerChanged`,
+      `handleFreeChatBackgroundSet`,
+      `handleFreeNewChatTitle`,
+      `handleFreeNewChatPhoto`,
+      `handleFreeDeleteChatPhoto`,
+      `handleFreeWriteAccessAllowed`
     ] as const
 
     // Pre-bucket route names by listener suffix for O(1) per-update lookups
+    const toListenerKey = (routeName: string) => routeName.replace(`handle`, ``).replace(`Args`, ``).replace(`Command`, ``).replace(`Caption`, ``).replace(`Free`, ``).toLowerCase()
     const listenerCandidates = new Set<string>([`callbackquerydata`, `chatmember`, `mychatmember`])
     for (const routeName of listRouteDynamicSpesific) {
-      listenerCandidates.add(routeName.replace(`handle`, ``).replace(`Args`, ``).replace(`Command`, ``).replace(`Caption`, ``).replace(`Free`, ``).toLowerCase())
+      listenerCandidates.add(toListenerKey(routeName))
     }
     const routesByListener: Record<string, {static: string[]; staticIntent: string[]; staticSession: string[]}> = {}
     const bucketFor = (routeName: string, kind: `static` | `staticIntent` | `staticSession`) => {
@@ -1692,56 +1739,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       all: {} as Record<string, typeof Ctx>, // [page.data.name]: Classes Page
       routeDynamic: [] as string[], // [Page]{ handleFree: (...) => ... }
       // <method>: Array<{name: Page.data.name, routeName:routeFunctionName}>
-      routeDynamicSpesific: {
-        text: initDynamicSpesific(),
-        photo: initDynamicSpesific(),
-        video: initDynamicSpesific(),
-        audio: initDynamicSpesific(),
-        document: initDynamicSpesific(),
-        animation: initDynamicSpesific(),
-        voice: initDynamicSpesific(),
-        videonote: initDynamicSpesific(),
-        sticker: initDynamicSpesific(),
-        location: initDynamicSpesific(),
-        contact: initDynamicSpesific(),
-        channelpost: initDynamicSpesific(),
-        editchannelpost: initDynamicSpesific(),
-        edit: initDynamicSpesific(),
-        reaction: initDynamicSpesific(),
-        inlinequery: initDynamicSpesific(),
-        choseninlineresult: initDynamicSpesific(),
-        precheckoutquery: initDynamicSpesific(),
-        shippingquery: initDynamicSpesific(),
-        chatjoinrequest: initDynamicSpesific(),
-        poll: initDynamicSpesific(),
-        pollanswer: initDynamicSpesific(),
-        newchatmembers: initDynamicSpesific(),
-        leftchatmember: initDynamicSpesific(),
-        businessconnection: initDynamicSpesific(),
-        businessmessage: initDynamicSpesific(),
-        editedbusinessmessage: initDynamicSpesific(),
-        deletedbusinessmessages: initDynamicSpesific(),
-        messagereactioncount: initDynamicSpesific(),
-        chatboost: initDynamicSpesific(),
-        removedchatboost: initDynamicSpesific(),
-        successfulpayment: initDynamicSpesific(),
-        refundedpayment: initDynamicSpesific(),
-        groupchatcreated: initDynamicSpesific(),
-        supergroupchatcreated: initDynamicSpesific(),
-        channelchatcreated: initDynamicSpesific(),
-        videochatstarted: initDynamicSpesific(),
-        videochatscheduled: initDynamicSpesific(),
-        videochatended: initDynamicSpesific(),
-        videochatparticipantsinvited: initDynamicSpesific(),
-        usershared: initDynamicSpesific(),
-        chatshared: initDynamicSpesific(),
-        webappdata: initDynamicSpesific(),
-        giveaway: initDynamicSpesific(),
-        giveawaycreated: initDynamicSpesific(),
-        giveawaywinners: initDynamicSpesific(),
-        giveawaycompleted: initDynamicSpesific(),
-        pinmessage: initDynamicSpesific()
-      },
+      // Derived from listRouteDynamicSpesific so every handleFree* listener gets a bucket automatically (single source of truth)
+      routeDynamicSpesific: Object.fromEntries(listRouteDynamicSpesific.map((routeName) => [toListenerKey(routeName), initDynamicSpesific()])) as Record<string, {name: string; routeName: string}[]>,
       routeStatic: makeObject(listRouteStatic, () => ({}) as Record<string, {name: string; routeName: string}>), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
       routeStaticIntent: makeObject(listRouteStaticIntent, () => ({}) as Record<string, {name: string; routeName: string}>), // [routeName]: {name: Page.data.name, routeName: routeFunctionName}
       routeStaticSession: makeObject(listRouteStaticSession, () => ({}) as Record<string, {name: string; routeName: string}>), // [session.method]: {name: Page.data.name, routeName: routeFunctionName}
