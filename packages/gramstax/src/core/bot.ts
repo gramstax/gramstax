@@ -19,9 +19,10 @@ import {API_CONSTANTS, Bot, type BotConfig, type BotError, type Context, type Mi
 import type {BotCommandScope, LanguageCode, Update, UserFromGetMe} from "grammy/types"
 import {CacheExternal, type ITCacheRpc} from "~/cache/external"
 import {type LoggingHelper, log} from "~/helpers/log"
+import {MetricsStore} from "~/helpers/metrics"
 import {PageManager} from "~/page/manager"
 import {TemplateManager} from "~/template/manager"
-import type {ITGramstaxParams, ITWebhookQueueConfig} from "~/types/t.bot"
+import type {ITGramstaxParams, ITUpdateErrorEvent, ITUpdateSuccessEvent, ITWebhookQueueConfig} from "~/types/t.bot"
 import type {ITCt, ITCtMiddleware} from "~/types/t.ctx"
 import {WebhookQueue} from "~/webhook/queue"
 import {E2eHelper} from "../e2e/helper"
@@ -35,6 +36,13 @@ type ITCustomRouteEntry = {
   filter: (ctx: Ctx) => boolean
   shouldCheckNotFound?: boolean
 }
+
+/**
+ * Internal sentinel thrown when an update exceeds `updateTimeoutMs`.
+ *
+ * @internal
+ */
+class UpdateTimeoutError extends Error {}
 
 const __dirname = dirname(
   (() => {
@@ -161,6 +169,55 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @internal
    */
   protected webhookServer?: {stop: () => void}
+
+  /**
+   * SIGINT handler for graceful shutdown.
+   * @internal
+   */
+  protected _onSigint?: () => void
+
+  /**
+   * SIGTERM handler for graceful shutdown.
+   * @internal
+   */
+  protected _onSigterm?: () => void
+
+  /**
+   * Runtime metrics snapshot source (observability).
+   * @public
+   */
+  readonly metrics = new MetricsStore()
+
+  /** Max time (ms) an update handler may run before being treated as timed out. @internal */
+  protected _updateTimeoutMs = 30_000
+  /** Skip updates with a previously seen `update_id`. @internal */
+  protected _skipDuplicateUpdate = false
+  /** Webhook secret token checked on POST requests. @internal */
+  protected _webhookSecretToken?: string
+  /** Max accepted `message.text`/`caption` length (0 = unlimited). @internal */
+  protected _maxTextLength = 0
+  /** Structured error hook (log sink / alerting). @internal */
+  protected _onUpdateError?: (event: ITUpdateErrorEvent) => void
+  /** Structured success hook (audit trail). @internal */
+  protected _onUpdate?: (event: ITUpdateSuccessEvent) => void
+  /** Max consecutive polling failures before giving up (-1 = infinite). @internal */
+  protected _pollingMaxRetries = 5
+  /** Hostname for the status/health server. @internal */
+  protected _statusServerHostname = `127.0.0.1`
+  /** Optional HTTP port for `/health` and `/stats`. @internal */
+  protected _statusServerPort?: number
+
+  /** Bounded LRU of seen update ids (idempotency). @internal */
+  private _seenUpdates = new Map<number, number>()
+  private _seenUpdatesMax = 1024
+  /** Local sequence for trace ids when `update_id` is missing. @internal */
+  private _traceSeq = 0
+
+  /**
+   * Optional status/health HTTP server (any deploy mode).
+   * @internal
+   */
+  protected statusServer?: {stop: () => void}
 
   /**
    * Handler function for processing bot updates.
@@ -296,14 +353,24 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.log = params.log === true ? log : !params.log ? undefined : params.log
     this.log?.info?.(`Gramstax v${__PKG_VERSION__}`)
 
-    this.cacheSession = params.cacheSession || new CacheExternal(`memory`)
+    this.cacheSession = params.cacheSession || new CacheExternal(`memory`, 86_400_000)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.botConfig = params.botConfig
     this.webhookQueue = params.webhookQueue
+    this._updateTimeoutMs = params.updateTimeoutMs ?? 30_000
+    this._skipDuplicateUpdate = params.skipDuplicateUpdate === true
+    this._webhookSecretToken = params.webhookSecretToken
+    this._maxTextLength = params.maxTextLength ?? 0
+    this._onUpdateError = params.onUpdateError
+    this._onUpdate = params.onUpdate
+    this._statusServerPort = params.statusServerPort
+    this._statusServerHostname = params.statusServerHostname ?? `127.0.0.1`
+    this._pollingMaxRetries = params.pollingMaxRetries ?? 5
+    this._validateConfig(params)
 
     this.bot = this.createBot(params.token)
     if (params.autoRetry !== false) {
-      this.bot.api.config.use(autoRetry())
+      this.bot.api.config.use(autoRetry(params.autoRetryOptions ?? {}))
     }
     this.bot.use(stream() as Middleware<Context>)
     this.bot.catch(this._onCatch)
@@ -313,8 +380,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.handlerBotUpdate = this.bot.handleUpdate as unknown as (...args: unknown[]) => Promise<unknown>
 
     // Graceful shutdown (all modes)
-    process.once(`SIGINT`, () => this.stop())
-    process.once(`SIGTERM`, () => this.stop())
+    this._onSigint = () => { void this.stop() }
+    this._onSigterm = () => { void this.stop() }
+    process.once(`SIGINT`, this._onSigint)
+    process.once(`SIGTERM`, this._onSigterm)
 
     // ── RAW MODE ──────────────────────────────────────────────────────────
     // Bare bot: no TemplateManager, no page loading, no Gramstax
@@ -338,7 +407,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.templateManager =
       params.templateManager ||
       new TemplateManager({
-        path: [join(process.cwd(), `src`, `pages`)]
+        path: [join(process.cwd(), `src`, `pages`)],
+        onReload: () => void this.cacheKeyboard?.clear()
       })
 
     // Register built-in event listeners (inline — no separate overridable methods)
@@ -372,6 +442,32 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.on(`message:new_chat_members`, (ctx) => this._onHandle(ctx, `newchatmembers`, false))
     this.bot.on(`message:left_chat_member`, (ctx) => this._onHandle(ctx, `leftchatmember`, false))
 
+    // Business, payments, boosts, and other production event listeners
+    this.bot.on(`business_connection`, (ctx) => this._onHandle(ctx, `businessconnection`, false))
+    this.bot.on(`business_message`, (ctx) => this._onHandle(ctx, `businessmessage`, false))
+    this.bot.on(`edited_business_message`, (ctx) => this._onHandle(ctx, `editedbusinessmessage`, false))
+    this.bot.on(`deleted_business_messages`, (ctx) => this._onHandle(ctx, `deletedbusinessmessages`, false))
+    this.bot.on(`message_reaction_count`, (ctx) => this._onHandle(ctx, `messagereactioncount`, false))
+    this.bot.on(`chat_boost`, (ctx) => this._onHandle(ctx, `chatboost`, false))
+    this.bot.on(`removed_chat_boost`, (ctx) => this._onHandle(ctx, `removedchatboost`, false))
+    this.bot.on(`message:successful_payment`, (ctx) => this._onHandle(ctx, `successfulpayment`, false))
+    this.bot.on(`message:refunded_payment`, (ctx) => this._onHandle(ctx, `refundedpayment`, false))
+    this.bot.on(`message:group_chat_created`, (ctx) => this._onHandle(ctx, `groupchatcreated`, false))
+    this.bot.on(`message:supergroup_chat_created`, (ctx) => this._onHandle(ctx, `supergroupchatcreated`, false))
+    this.bot.filter((ctx) => ctx.message?.channel_chat_created !== undefined, (ctx) => this._onHandle(ctx, `channelchatcreated`, false))
+    this.bot.on(`message:video_chat_started`, (ctx) => this._onHandle(ctx, `videochatstarted`, false))
+    this.bot.on(`message:video_chat_scheduled`, (ctx) => this._onHandle(ctx, `videochatscheduled`, false))
+    this.bot.on(`message:video_chat_ended`, (ctx) => this._onHandle(ctx, `videochatended`, false))
+    this.bot.on(`message:video_chat_participants_invited`, (ctx) => this._onHandle(ctx, `videochatparticipantsinvited`, false))
+    this.bot.filter((ctx) => ctx.message?.users_shared !== undefined, (ctx) => this._onHandle(ctx, `usershared`, false))
+    this.bot.on(`message:chat_shared`, (ctx) => this._onHandle(ctx, `chatshared`, false))
+    this.bot.on(`message:web_app_data`, (ctx) => this._onHandle(ctx, `webappdata`, false))
+    this.bot.on(`message:giveaway`, (ctx) => this._onHandle(ctx, `giveaway`, false))
+    this.bot.on(`message:giveaway_created`, (ctx) => this._onHandle(ctx, `giveawaycreated`, false))
+    this.bot.on(`message:giveaway_winners`, (ctx) => this._onHandle(ctx, `giveawaywinners`, false))
+    this.bot.on(`message:giveaway_completed`, (ctx) => this._onHandle(ctx, `giveawaycompleted`, false))
+    this.bot.filter((ctx) => ctx.message?.pinned_message !== undefined, (ctx) => this._onHandle(ctx, `pinmessage`, false))
+
     // Load pages AFTER templateManager is initialized
     this.pages = this._pageLoads(this.templateManager._path?.[0])
 
@@ -390,11 +486,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     } else if (params.deploy.startsWith(`webhook:`)) {
       this.deployType = `webhook`
       this.hookBeforeStart?.()
-      this._runWebhook(params.deploy.split(`webhook:`)[1] as string)
+      void this._runWebhook(params.deploy.split(`webhook:`)[1] as string).catch((error) => this._onStartupError(error))
     } else if (params.deploy.startsWith(`serverless:`)) {
       this.deployType = `serverless`
       this.hookBeforeStart?.()
-      this._runServerless(params.deploy.split(`serverless:`)[1] as string)
+      void this._runServerless(params.deploy.split(`serverless:`)[1] as string).catch((error) => this._onStartupError(error))
     } else if (params.deploy.startsWith(`test`)) {
       this.deployType = `test`
       this.hookBeforeStart?.()
@@ -404,6 +500,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     } else {
       throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>, raw`)
     }
+
+    this._startStatusServer()
   }
 
   /**
@@ -412,10 +510,126 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   async stop() {
+    if (this._onSigint) {
+      process.removeListener(`SIGINT`, this._onSigint)
+    }
+    if (this._onSigterm) {
+      process.removeListener(`SIGTERM`, this._onSigterm)
+    }
     await this.bot.stop()
+    this.webhookQueueInstance?.close()
+    await this.templateManager?.destroy()
+    this.cacheKeyboard?.clear()
     if (this.deployType === `webhook`) {
       await this.webhookServer?.stop()
       this.webhookServer = undefined
+    }
+    this.statusServer?.stop()
+    this.statusServer = undefined
+  }
+
+  /**
+   * Validates startup configuration, throwing with a clear message otherwise.
+   *
+   * @param params - Constructor parameters.
+   * @internal
+   */
+  protected _validateConfig(params: ITGramstaxParams): void {
+    if (params.updateTimeoutMs !== undefined && (!Number.isFinite(params.updateTimeoutMs) || params.updateTimeoutMs < 0)) {
+      throw new Error(`updateTimeoutMs must be a non-negative number`)
+    }
+    if (params.maxTextLength !== undefined && (!Number.isFinite(params.maxTextLength) || params.maxTextLength < 0)) {
+      throw new Error(`maxTextLength must be a non-negative number`)
+    }
+    if (params.statusServerPort !== undefined && (params.statusServerPort < 0 || params.statusServerPort > 65535)) {
+      throw new Error(`statusServerPort must be between 0 and 65535`)
+    }
+    if (params.pollingMaxRetries !== undefined && (!Number.isFinite(params.pollingMaxRetries) || params.pollingMaxRetries < -1)) {
+      throw new Error(`pollingMaxRetries must be -1 or a non-negative number`)
+    }
+    if (params.webhookQueue?.maxQueueSize !== undefined && (!Number.isFinite(params.webhookQueue.maxQueueSize) || params.webhookQueue.maxQueueSize <= 0)) {
+      throw new Error(`webhookQueue.maxQueueSize must be a positive number`)
+    }
+    if (params.webhookQueue?.workerCount !== undefined && (!Number.isFinite(params.webhookQueue.workerCount) || params.webhookQueue.workerCount < 1)) {
+      throw new Error(`webhookQueue.workerCount must be a positive number`)
+    }
+    if (params.webhookQueue?.enqueueTimeoutMs !== undefined && (!Number.isFinite(params.webhookQueue.enqueueTimeoutMs) || params.webhookQueue.enqueueTimeoutMs < 0)) {
+      throw new Error(`webhookQueue.enqueueTimeoutMs must be a non-negative number`)
+    }
+    if (params.deploy.startsWith(`webhook:`)) {
+      let parsed: URL
+      try {
+        parsed = new URL(params.deploy.split(`webhook:`)[1] as string)
+      } catch {
+        throw new Error(`deploy webhook URL is not valid: "${params.deploy}"`)
+      }
+      if (parsed.protocol !== `https:` && parsed.protocol !== `http:`) {
+        throw new Error(`deploy webhook URL must use http(s): "${params.deploy}"`)
+      }
+    }
+  }
+
+  /**
+   * Handles a startup failure (webhook/serverless init) with a clear log,
+   * a structured error event, and a clean shutdown.
+   *
+   * @param error - The startup error.
+   * @internal
+   */
+  protected _onStartupError(error: unknown): void {
+    this.metrics.counts.updatesFailed += 1
+    this._emitUpdateError({traceId: `startup`, listenerName: `startup`, state: `error`, error, durationMs: 0, isEdit: false})
+    this.log?.error?.(`[Gramstax] startup failed: ${String(error)}`)
+    void this.stop()
+  }
+
+  /**
+   * Starts a small HTTP server exposing `GET /health` and `GET /stats`
+   * (any deploy mode). No-op when the webhook server already serves them.
+   *
+   * @internal
+   */
+  protected _startStatusServer(): void {
+    if (this.statusServer || this._statusServerPort === undefined) {
+      return
+    }
+    const port = this._statusServerPort
+    const hostname = this._statusServerHostname
+    void import(`bun`)
+      .then(({serve}) => {
+        this.statusServer = serve({
+          port,
+          hostname,
+          fetch: (req) => {
+            const {pathname} = new URL(req.url)
+            if (pathname === `/health`) {
+              return new Response(JSON.stringify({status: `ok`}), {status: 200, headers: {"Content-Type": `application/json`}})
+            }
+            if (pathname === `/stats`) {
+              return new Response(JSON.stringify(this.metrics.snapshot()), {status: 200, headers: {"Content-Type": `application/json`}})
+            }
+            return new Response(`Not found`, {status: 404})
+          }
+        })
+      })
+      .catch((error) => {
+        this.log?.error?.(`Failed to start status server: ${String(error)}`)
+      })
+  }
+
+  /** Replaces the bot token with `***` so it never leaks into logs. @internal */
+  protected _redactToken(value: string): string {
+    const token = this.bot?.token
+    if (!token) return value
+    return value.split(token).join(`***`)
+  }
+
+  /** Emits a structured update error event via metrics + `onUpdateError`. @internal */
+  protected _emitUpdateError(event: ITUpdateErrorEvent): void {
+    try {
+      this._onUpdateError?.(event)
+    } catch (error) {
+      this.log?.error?.(`onUpdateError hook failed: ${String(error)}`)
     }
   }
 
@@ -427,12 +641,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   _onCatch(error: BotError<ITCt>) {
+    this.metrics.counts.updatesFailed += 1
+    const traceId = String(error.ctx?.update?.update_id ?? ``)
     if (this.log?.errorMake) {
       this.log.errorMake(error, `Bot`, `catch`)
     } else {
-      const err = JSON.stringify(error, null, 2)
+      const err = this._redactToken(JSON.stringify(error, null, 2))
       this.log?.error?.(`[Bot.catch]: ${err}`)
     }
+    this._emitUpdateError({traceId, listenerName: `catch`, state: `error`, error, durationMs: 0, isEdit: false})
   }
 
   /**
@@ -585,7 +802,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  async hookAfterRoute?(ctx: ICtx, data?: {listenerName: string; state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `notfound`; isEdit: boolean}): Promise<void>
+  async hookAfterRoute?(ctx: ICtx, data?: {listenerName: string; state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` | `notfound`; isEdit: boolean}): Promise<void>
 
   /**
    * Hook called when a page handler throws an error.
@@ -688,7 +905,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    */
   _runPolling(): void {
     const opts: Record<string, unknown> = {
-      drop_pending_updates: true,
       onStart: (botInfo: UserFromGetMe) => {
         this._onStart(botInfo, `polling`, null)
       }
@@ -696,7 +912,39 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // Request all update types to receive channel posts, inline queries,
     // reactions, poll updates, join requests, etc.
     opts.allowed_updates = API_CONSTANTS.ALL_UPDATE_TYPES
-    this.bot.start(opts)
+    void this._startPollingLoop(opts, 0)
+  }
+
+  /**
+   * Runs the polling loop with exponential-backoff retries on transient
+   * failures. Gives up (logs + `onUpdateError` + `stop()`) after
+   * `_pollingMaxRetries` consecutive failures, or retries forever when `-1`.
+   *
+   * @remarks
+   * `drop_pending_updates` is only set on the first attempt — retries keep
+   * `false` so updates received during an outage are not discarded.
+   *
+   * @param opts - grammY `bot.start` options.
+   * @param attempt - Current retry attempt (0 = first run).
+   * @internal
+   */
+  protected async _startPollingLoop(opts: Record<string, unknown>, attempt: number): Promise<void> {
+    opts.drop_pending_updates = attempt === 0
+    try {
+      await this.bot.start(opts)
+    } catch (error) {
+      this.metrics.counts.updatesFailed += 1
+      this._emitUpdateError({traceId: `polling`, listenerName: `polling`, state: `error`, error, durationMs: 0, isEdit: false})
+      if (this._pollingMaxRetries >= 0 && attempt >= this._pollingMaxRetries) {
+        this.log?.error?.(`[Polling] stopped after ${attempt + 1} attempts: ${String(error)}`)
+        await this.stop()
+        return
+      }
+      const delay = Math.min(60_000, 1000 * 2 ** attempt)
+      this.log?.error?.(`[Polling] attempt ${attempt + 1} failed, retrying in ${delay}ms: ${String(error)}`)
+      await new Promise((resolve) => setTimeout(resolve, delay))
+      await this._startPollingLoop(opts, attempt + 1)
+    }
   }
 
   /**
@@ -744,21 +992,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       const key = String(chatId)
-      const current = activeChats.get(key) || 0
-      if (current < perChatConcurrency) {
-        activeChats.set(key, current + 1)
-        return () => this._releaseWebhookChat(key, activeChats, waitChats)
+      while (true) {
+        const current = activeChats.get(key) || 0
+        if (current < perChatConcurrency) {
+          activeChats.set(key, current + 1)
+          return () => this._releaseWebhookChat(key, activeChats, waitChats)
+        }
+
+        await new Promise<void>((resolve) => {
+          const waiters = waitChats.get(key) || []
+          waiters.push(resolve)
+          waitChats.set(key, waiters)
+        })
       }
-
-      await new Promise<void>((resolve) => {
-        const waiters = waitChats.get(key) || []
-        waiters.push(resolve)
-        waitChats.set(key, waiters)
-      })
-
-      const next = (activeChats.get(key) || 0) + 1
-      activeChats.set(key, next)
-      return () => this._releaseWebhookChat(key, activeChats, waitChats)
     }
 
     if (queueEnabled && queue) {
@@ -774,11 +1020,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const logger = this.log
     const statsPath = `/stats_queue`
     this.webhookServer?.stop()
+    const self = this
     const server = serve({
       port,
       async fetch(req) {
         const {pathname} = new URL(req.url)
+        if (req.method === `GET` && (pathname === `/health` || pathname === `/stats`)) {
+          if (pathname === `/health`) {
+            return new Response(JSON.stringify({status: `ok`}), {status: 200, headers: {"Content-Type": `application/json`}})
+          }
+          const stats = queue?.getStats() || {length: 0, maxSize: queueConfig?.maxQueueSize ?? 5000, waitingEnqueue: 0, waitingDequeue: 0}
+          return new Response(
+            JSON.stringify({
+              ...self.metrics.snapshot(),
+              queue: {enabled: queueEnabled, ...stats, workerCount, perChatConcurrency, blockWhenFull, activeChats: activeChats.size}
+            }),
+            {status: 200, headers: {"Content-Type": `application/json`}}
+          )
+        }
         if (req.method === `POST` && pathname === pathUrl) {
+          if (self._webhookSecretToken) {
+            const secret = req.headers.get(`X-Telegram-Bot-Api-Secret-Token`)
+            if (secret !== self._webhookSecretToken) {
+              return new Response(`Unauthorized`, {status: 401})
+            }
+          }
           if (!queueEnabled || !queue) {
             return handleUpdate(req)
           }
@@ -789,9 +1055,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
           try {
             const update = await req.json()
-            await queue.enqueue(update as Update)
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), queueConfig?.enqueueTimeoutMs ?? 10_000)
+            timeoutId.unref?.()
+            try {
+              await queue.enqueue(update as Update, controller.signal)
+            } finally {
+              clearTimeout(timeoutId)
+            }
             return new Response(`OK`, {status: 200})
           } catch (error) {
+            if (error instanceof Error && error.message === `WebhookQueue enqueue aborted`) {
+              return new Response(`Queue full`, {status: 429})
+            }
             logger?.error?.(`Webhook queue error: ${String(error)}`)
             return new Response(`Bad Request`, {status: 400})
           }
@@ -847,6 +1123,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const run = async () => {
       while (true) {
         const update = await queue.dequeue()
+        if (update === undefined) return // queue closed
         const release = await acquireChat(getChatId(update))
         try {
           await this.bot.handleUpdate(update)
@@ -1093,7 +1370,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const normalized = hidePartReplace.startsWith(`Session`) ? hidePartReplace.slice(7) : hidePartReplace
         const methodName = `methodSession${normalized}`
         const methodKey = (proto as unknown as Record<string, (name: string) => string>)[methodName]?.(name)
-        pss[methodKey!] = value
+        if (methodKey !== undefined) {
+          pss[methodKey] = value
+        }
       }
     }
 
@@ -1309,7 +1588,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `handleSessionFreePoll`,
       `handleSessionFreePollAnswer`,
       `handleSessionFreeNewChatMembers`,
-      `handleSessionFreeLeftChatMember`
+      `handleSessionFreeLeftChatMember`,
+      `handleSessionFreeBusinessConnection`,
+      `handleSessionFreeBusinessMessage`,
+      `handleSessionFreeEditedBusinessMessage`,
+      `handleSessionFreeDeletedBusinessMessages`,
+      `handleSessionFreeMessageReactionCount`,
+      `handleSessionFreeChatBoost`,
+      `handleSessionFreeRemovedChatBoost`,
+      `handleSessionFreeSuccessfulPayment`,
+      `handleSessionFreeRefundedPayment`,
+      `handleSessionFreeGroupChatCreated`,
+      `handleSessionFreeSupergroupChatCreated`,
+      `handleSessionFreeChannelChatCreated`,
+      `handleSessionFreeVideoChatStarted`,
+      `handleSessionFreeVideoChatScheduled`,
+      `handleSessionFreeVideoChatEnded`,
+      `handleSessionFreeVideoChatParticipantsInvited`,
+      `handleSessionFreeUserShared`,
+      `handleSessionFreeChatShared`,
+      `handleSessionFreeWebAppData`,
+      `handleSessionFreeGiveaway`,
+      `handleSessionFreeGiveawayCreated`,
+      `handleSessionFreeGiveawayWinners`,
+      `handleSessionFreeGiveawayCompleted`,
+      `handleSessionFreePinMessage`
     ] as const
     const listRouteDynamicSpesific = [
       `handleFreeText`,
@@ -1335,8 +1638,51 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `handleFreePoll`,
       `handleFreePollAnswer`,
       `handleFreeNewChatMembers`,
-      `handleFreeLeftChatMember`
+      `handleFreeLeftChatMember`,
+      `handleFreeBusinessConnection`,
+      `handleFreeBusinessMessage`,
+      `handleFreeEditedBusinessMessage`,
+      `handleFreeDeletedBusinessMessages`,
+      `handleFreeMessageReactionCount`,
+      `handleFreeChatBoost`,
+      `handleFreeRemovedChatBoost`,
+      `handleFreeSuccessfulPayment`,
+      `handleFreeRefundedPayment`,
+      `handleFreeGroupChatCreated`,
+      `handleFreeSupergroupChatCreated`,
+      `handleFreeChannelChatCreated`,
+      `handleFreeVideoChatStarted`,
+      `handleFreeVideoChatScheduled`,
+      `handleFreeVideoChatEnded`,
+      `handleFreeVideoChatParticipantsInvited`,
+      `handleFreeUserShared`,
+      `handleFreeChatShared`,
+      `handleFreeWebAppData`,
+      `handleFreeGiveaway`,
+      `handleFreeGiveawayCreated`,
+      `handleFreeGiveawayWinners`,
+      `handleFreeGiveawayCompleted`,
+      `handleFreePinMessage`
     ] as const
+
+    // Pre-bucket route names by listener suffix for O(1) per-update lookups
+    const listenerCandidates = new Set<string>([`callbackquerydata`, `chatmember`, `mychatmember`])
+    for (const routeName of listRouteDynamicSpesific) {
+      listenerCandidates.add(routeName.replace(`handle`, ``).replace(`Args`, ``).replace(`Command`, ``).replace(`Caption`, ``).replace(`Free`, ``).toLowerCase())
+    }
+    const routesByListener: Record<string, {static: string[]; staticIntent: string[]; staticSession: string[]}> = {}
+    const bucketFor = (routeName: string, kind: `static` | `staticIntent` | `staticSession`) => {
+      const lc = routeName.toLowerCase()
+      for (const listener of listenerCandidates) {
+        if (lc.endsWith(listener)) {
+          const bucket = (routesByListener[listener] ??= {static: [], staticIntent: [], staticSession: []})
+          bucket[kind].push(routeName)
+        }
+      }
+    }
+    for (const routeName of listRouteStatic) bucketFor(routeName, `static`)
+    for (const routeName of listRouteStaticIntent) bucketFor(routeName, `staticIntent`)
+    for (const routeName of listRouteStaticSession) bucketFor(routeName, `staticSession`)
 
     const makeObject = <const T extends readonly string[], V extends () => unknown>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as {[K in T[number]]: ReturnType<V>}
     const initDynamicSpesific = () => [] as {name: string; routeName: string}[] // [0]{name: Page.data.name, routeName: routeFunctionName}
@@ -1370,7 +1716,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         poll: initDynamicSpesific(),
         pollanswer: initDynamicSpesific(),
         newchatmembers: initDynamicSpesific(),
-        leftchatmember: initDynamicSpesific()
+        leftchatmember: initDynamicSpesific(),
+        businessconnection: initDynamicSpesific(),
+        businessmessage: initDynamicSpesific(),
+        editedbusinessmessage: initDynamicSpesific(),
+        deletedbusinessmessages: initDynamicSpesific(),
+        messagereactioncount: initDynamicSpesific(),
+        chatboost: initDynamicSpesific(),
+        removedchatboost: initDynamicSpesific(),
+        successfulpayment: initDynamicSpesific(),
+        refundedpayment: initDynamicSpesific(),
+        groupchatcreated: initDynamicSpesific(),
+        supergroupchatcreated: initDynamicSpesific(),
+        channelchatcreated: initDynamicSpesific(),
+        videochatstarted: initDynamicSpesific(),
+        videochatscheduled: initDynamicSpesific(),
+        videochatended: initDynamicSpesific(),
+        videochatparticipantsinvited: initDynamicSpesific(),
+        usershared: initDynamicSpesific(),
+        chatshared: initDynamicSpesific(),
+        webappdata: initDynamicSpesific(),
+        giveaway: initDynamicSpesific(),
+        giveawaycreated: initDynamicSpesific(),
+        giveawaywinners: initDynamicSpesific(),
+        giveawaycompleted: initDynamicSpesific(),
+        pinmessage: initDynamicSpesific()
       },
       routeStatic: makeObject(listRouteStatic, () => ({}) as Record<string, {name: string; routeName: string}>), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
       routeStaticIntent: makeObject(listRouteStaticIntent, () => ({}) as Record<string, {name: string; routeName: string}>), // [routeName]: {name: Page.data.name, routeName: routeFunctionName}
@@ -1392,6 +1762,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       listRouteStaticLC: listRouteStatic.map((r) => r.toLowerCase()),
       listRouteStaticIntentLC: listRouteStaticIntent.map((r) => r.toLowerCase()),
       listRouteStaticSessionLC: listRouteStaticSession.map((r) => r.toLowerCase()),
+      routesByListener,
       lenListRouteStatic: listRouteStatic.length,
       lenListRouteStaticIntent: listRouteStaticIntent.length,
       lenListRouteStaticSession: listRouteStaticSession.length,
@@ -1536,14 +1907,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         if (route.filter(ctx)) {
           const ChatPage = this.pages.all[route.name]
           if (ChatPage && typeof ChatPage.prototype[route.routeName as keyof typeof ChatPage.prototype] === `function`) {
-            const initPage = new ChatPage({
-              ...ctx,
-              ct: ctx as unknown as ITCt,
-              cacheSession: ctx.cacheSession,
-              cacheKeyboard: ctx.cacheKeyboard,
-              templateManager: this.templateManager,
-              temp: ctx.temp
-            })
+            const initPage = new ChatPage(ctx)
             if ((await initPage.hookBeforeRoute?.()) !== false) {
               await (initPage as unknown as Record<string, () => unknown>)[route.routeName]!()
               await initPage.hookAfterRoute?.()
@@ -1568,26 +1932,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      *              Falls through to id=2 when no session exists or no session route matches.
      */
     if (Page === undefined) {
-      const session = await ctx.getSession()
-      if (session) {
-        const mtd = session.method
-        const pStaticSession = this.pages.routeStaticSession
-        const methods = Array.isArray(mtd) ? mtd : [mtd]
-        const lcList = this.pages.listRouteStaticSessionLC
+      const sessionRoutes = (this.pages.routesByListener[fromListener as keyof typeof this.pages.routesByListener] ?? {static: [], staticIntent: [], staticSession: []}).staticSession
+      if (sessionRoutes.length > 0) {
+        const session = await ctx.getSession()
+        if (session) {
+          const mtd = session.method
+          const pStaticSession = this.pages.routeStaticSession
+          const methods = Array.isArray(mtd) ? mtd : [mtd]
 
-        for (let index = 0; index < this.pages.lenListRouteStaticSession; index++) {
-          const routeName = this.pages.listRouteStaticSession[index] as `handleSessionCaptionAnimation`
-          if (lcList[index]!.endsWith(fromListener)) {
+          for (const routeName of sessionRoutes) {
             for (const m of methods) {
-              res = pStaticSession[routeName][m]
+              res = pStaticSession[routeName as keyof typeof pStaticSession]?.[m]
               if (res) break
             }
+            if (res) break
           }
-          if (res) break
-        }
 
-        if (res !== undefined) {
-          Page = this.pages.all[res.name]
+          if (res !== undefined) {
+            Page = this.pages.all[res.name]
+          }
         }
       }
     }
@@ -1605,22 +1968,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const mc = ctx.msg?.caption
       const rawText = cd || mt || mc || ``
       const pStatic = this.pages.routeStatic
-      const lcList = this.pages.listRouteStaticLC
+      const staticRoutes = (this.pages.routesByListener[fromListener as keyof typeof this.pages.routesByListener] ?? {static: [], staticIntent: [], staticSession: []}).static
 
-      for (let index = 0; index < this.pages.lenListRouteStatic; index++) {
-        const routeName = this.pages.listRouteStatic[index] as `handleCaptionAnimation`
-        if (lcList[index]!.endsWith(fromListener)) {
-          // Try exact match first (for callback data, command names)
-          res = pStatic[routeName][rawText]
+      for (const routeName of staticRoutes) {
+        // Try exact match first (for callback data, command names)
+        res = pStatic[routeName as keyof typeof pStatic][rawText]
 
-          // For text intents, try language-prefixed lookup
-          const rn = routeName as string
-          if (!res && (rn === `handleText` || rn === `handleArgsText`)) {
-            const lang = ctx.from?.language_code ?? `default`
-            res = pStatic[routeName][`${lang}:${rawText}`]
-            if (!res && lang !== `default`) {
-              res = pStatic[routeName][`default:${rawText}`]
-            }
+        // For text intents, try language-prefixed lookup
+        const rn = routeName as string
+        if (!res && (rn === `handleText` || rn === `handleArgsText`)) {
+          const lang = ctx.from?.language_code ?? `default`
+          res = pStatic[routeName as keyof typeof pStatic][`${lang}:${rawText}`]
+          if (!res && lang !== `default`) {
+            res = pStatic[routeName as keyof typeof pStatic][`default:${rawText}`]
           }
         }
 
@@ -1648,18 +2008,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const haveArgs = ctx.haveArgs(data, seperatorMethod)
 
       if (data && haveArgs) {
-        const intent1 = ctx.getIntent(data, seperatorMethod, 1)
-        const intent2 = !isCallback ? ctx.getIntent(data, `space`, 2) : ``
+        const tag = ctx.getSeperatorTag(seperatorMethod)
+        const parts = data.split(tag)
+        const intent1 = parts[0] ?? ``
+        const intent2 = !isCallback ? parts.slice(0, 2).join(` `) : ``
         const lang = ctx.from?.language_code ?? `default`
-        const lcList = this.pages.listRouteStaticIntentLC
+        const intentRoutes = (this.pages.routesByListener[fromListener as keyof typeof this.pages.routesByListener] ?? {static: [], staticIntent: [], staticSession: []}).staticIntent
 
-        for (let index = 0; index < this.pages.lenListRouteStaticIntent; index++) {
-          const routeName = this.pages.listRouteStaticIntent[index] as `handleArgsText`
-          if (!lcList[index]!.endsWith(fromListener)) {
-            continue
-          }
-
-          const bucket = pStaticIntent[routeName]
+        for (const routeName of intentRoutes) {
+          const bucket = pStaticIntent[routeName as keyof typeof pStaticIntent]
           const rn = routeName as string
           const isTextIntent = rn === `handleArgsText` || rn === `handleCommandArgsText`
 
@@ -1700,14 +2057,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return {state: `no-handler`}
       }
 
-      const initPage = new Page({
-        ...ctx,
-        ct: ctx as unknown as ITCt,
-        cacheSession: ctx.cacheSession,
-        cacheKeyboard: ctx.cacheKeyboard,
-        templateManager: this.templateManager,
-        temp: ctx.temp
-      }) as unknown as Ctx
+      const initPage = new Page(ctx) as unknown as Ctx
       if ((await initPage.hookBeforeRoute?.()) !== false) {
         await (initPage as unknown as Record<string, () => unknown>)[res.routeName]?.()
         await initPage.hookAfterRoute?.()
@@ -1739,14 +2089,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] === `function`) {
-        const initPage = new Page({
-          ...ctx,
-          ct: ctx as unknown as ITCt,
-          cacheSession: ctx.cacheSession,
-          cacheKeyboard: ctx.cacheKeyboard,
-          templateManager: this.templateManager,
-          temp: ctx.temp
-        }) as unknown as ICtx
+        const initPage = new Page(ctx) as unknown as ICtx
         if ((await initPage.hookBeforeRoute?.()) !== false) {
           await (initPage as unknown as Record<string, () => unknown>)[value.routeName]!()
           await initPage.hookAfterRoute?.()
@@ -1773,14 +2116,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       if (typeof Page.prototype.handleFree === `function`) {
-        const initPage = new Page({
-          ...ctx,
-          ct: ctx as unknown as ITCt,
-          cacheSession: ctx.cacheSession,
-          cacheKeyboard: ctx.cacheKeyboard,
-          templateManager: this.templateManager,
-          temp: ctx.temp
-        })
+        const initPage = new Page(ctx)
         if ((await initPage.hookBeforeRoute?.()) !== false) {
           await initPage.handleFree!()
           await initPage.hookAfterRoute?.()
@@ -1814,14 +2150,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         continue
       }
 
-      const initPage = new Page({
-        ...ctx,
-        ct: ctx as unknown as ITCt,
-        cacheSession: ctx.cacheSession,
-        cacheKeyboard: ctx.cacheKeyboard,
-        templateManager: this.templateManager,
-        temp: ctx.temp
-      }) as unknown as Ctx
+      const initPage = new Page(ctx) as unknown as Ctx
       if ((await initPage.hookBeforeRoute?.()) !== false) {
         await (initPage as unknown as Record<string, () => unknown>)[route.routeName]!()
         await initPage.hookAfterRoute?.()
@@ -1834,27 +2163,87 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   async _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
-    let state: `matched` | `no-match` | `no-handler` | `blocked` | `error`
-    const ctx = this.createCtx(ct)
+    const startedAt = Date.now()
+    const updateId = ct.update?.update_id
+    const traceId = updateId !== undefined ? `u${updateId}` : `c${++this._traceSeq}`
+    let state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` = `no-match`
     const isEdit = listenerName === `callbackquerydata`
+
+    // Idempotency: skip updates already processed (webhook retries).
+    if (this._skipDuplicateUpdate && updateId !== undefined) {
+      if (this._seenUpdates.has(updateId)) {
+        this.metrics.counts.skippedDuplicate += 1
+        return
+      }
+      this._seenUpdates.set(updateId, startedAt)
+      if (this._seenUpdates.size > this._seenUpdatesMax) {
+        const oldest = this._seenUpdates.keys().next().value
+        if (oldest !== undefined) {
+          this._seenUpdates.delete(oldest)
+        }
+      }
+    }
+
+    // Allow-list: reject oversized text/caption payloads.
+    const rawText = ct.message?.text ?? ct.message?.caption
+    if (this._maxTextLength > 0 && rawText !== undefined && rawText !== null && rawText.length > this._maxTextLength) {
+      this.metrics.counts.skippedValidation += 1
+      this._emitUpdateError({traceId, listenerName, state: `validation`, error: new Error(`Text exceeds maxTextLength (${this._maxTextLength})`), durationMs: Date.now() - startedAt, isEdit})
+      return
+    }
+
+    const ctx = this.createCtx(ct)
     const before = await this.hookBeforeRoute?.(ctx, {listenerName, isEdit})
     if (before === false) {
+      this.metrics.counts.blocked += 1
       return
     }
 
     try {
-      const routeResult = await this._pageRoutes(ctx, listenerName)
-      state = routeResult.state
-      if (routeResult.state === `no-match`) {
-        if (shouldCheckNotFound) {
-          await this.hookNotFoundPage?.(ctx, {listenerName, isEdit})
+      const runRoute = async () => {
+        const routeResult = await this._pageRoutes(ctx, listenerName)
+        state = routeResult.state
+        if (routeResult.state === `no-match`) {
+          if (shouldCheckNotFound) {
+            await this.hookNotFoundPage?.(ctx, {listenerName, isEdit})
+          }
         }
       }
+      if (this._updateTimeoutMs > 0) {
+        let timer: ReturnType<typeof setTimeout> | undefined
+        const timeoutPromise = new Promise<never>((_resolve, reject) => {
+          timer = setTimeout(() => reject(new UpdateTimeoutError(`Update listener "${listenerName}" exceeded ${this._updateTimeoutMs}ms`)), this._updateTimeoutMs)
+        })
+        try {
+          await Promise.race([runRoute(), timeoutPromise])
+        } finally {
+          clearTimeout(timer)
+        }
+      } else {
+        await runRoute()
+      }
     } catch (error) {
-      state = `error`
-      await this.hookErrorPage?.(ctx, {listenerName, error, isEdit})
+      if (error instanceof UpdateTimeoutError) {
+        state = `timeout`
+        this.metrics.counts.timeouts += 1
+        this._emitUpdateError({traceId, listenerName, state: `timeout`, error, durationMs: Date.now() - startedAt, isEdit})
+      } else {
+        state = `error`
+        this.metrics.counts.updatesFailed += 1
+        await this.hookErrorPage?.(ctx, {listenerName, error, isEdit})
+        this._emitUpdateError({traceId, listenerName, state: `error`, error, durationMs: Date.now() - startedAt, isEdit})
+      }
     }
     await this.hookAfterRoute?.(ctx, {listenerName, state, isEdit})
+    const durationMs = Date.now() - startedAt
+    this.metrics.recordUpdate(listenerName, durationMs)
+    if (state !== `error` && state !== `timeout`) {
+      try {
+        this._onUpdate?.({traceId, listenerName, state, durationMs, isEdit})
+      } catch (error) {
+        this.log?.error?.(`onUpdate hook failed: ${String(error)}`)
+      }
+    }
   }
 
   /**
@@ -1935,6 +2324,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       throw new Error(`routeName must be start with 'handle'`)
     }
 
+    if (this.pages.routeCustom.some((r) => r.routeName === entry.routeName)) {
+      return // idempotent: skip duplicate registration
+    }
+
     this.pages.routeCustom.push(entry)
     this.pages.all[entry.name] ??= undefined as unknown as typeof Ctx
     this.bot.on(entry.event, (ctx) => this._onHandle(ctx, entry.listenerName, entry.shouldCheckNotFound ?? true))
@@ -1945,14 +2338,21 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       dyn.push({name: entry.name, routeName: entry.routeName})
     }
 
-    // Populate routeStaticSession so session-based routing (id=1) can match
+    // Populate routeStaticSession so session-based routing (id=1) can match.
+    // Only register when the page exposes the matching methodSession* key so the
+    // entry is reachable via session.method (e.g. "7-PageName") — otherwise the
+    // route would never fire (and could crash id=1 lookups).
     const sessionRouteName = `handleSessionFree${entry.listenerName.charAt(0).toUpperCase() + entry.listenerName.slice(1)}`
     const pss = (this.pages.routeStaticSession as Record<string, Record<string, {name: string; routeName: string}>>)[sessionRouteName]
-    if (pss) {
-      pss[entry.listenerName] = {name: entry.name, routeName: entry.routeName}
+    const methodSessionName = `methodSessionFree${entry.listenerName.charAt(0).toUpperCase() + entry.listenerName.slice(1)}`
+    const methodKey = (this.pages.all[entry.name] as unknown as Record<string, (name: string) => string> | undefined)?.[methodSessionName]?.(entry.name)
+    if (pss && methodKey !== undefined) {
+      pss[methodKey] = {name: entry.name, routeName: entry.routeName}
+      ;(this.pages as unknown as {listRouteStaticSession: string[]}).listRouteStaticSession.push(sessionRouteName)
+      ;(this.pages as unknown as {listRouteStaticSessionLC: string[]}).listRouteStaticSessionLC.push(sessionRouteName.toLowerCase())
+      this.pages.lenListRouteStaticSession++
+      const bucket = (this.pages.routesByListener[entry.listenerName] ??= {static: [], staticIntent: [], staticSession: []})
+      bucket.staticSession.push(sessionRouteName)
     }
-    ;(this.pages as unknown as {listRouteStaticSession: string[]}).listRouteStaticSession.push(sessionRouteName)
-    ;(this.pages as unknown as {listRouteStaticSessionLC: string[]}).listRouteStaticSessionLC.push(sessionRouteName.toLowerCase())
-    this.pages.lenListRouteStaticSession++
   }
 }

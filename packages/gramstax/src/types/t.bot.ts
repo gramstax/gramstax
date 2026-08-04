@@ -146,6 +146,13 @@ export type ITWebhookQueueConfig = {
    * ```
    */
   blockWhenFull?: boolean
+  /**
+   * Max milliseconds a webhook request waits for a free queue slot before being
+   * rejected with HTTP 429 (only when `blockWhenFull` is true).
+   *
+   * @defaultValue `10000`
+   */
+  enqueueTimeoutMs?: number
 }
 
 /**
@@ -253,6 +260,94 @@ export type ITGramstaxParams = {
   autoRetry?: boolean
 
   /**
+   * Forwarded options for the auto-retry plugin (backoff / retry policy).
+   *
+   * @remarks
+   * Only applies when `autoRetry !== false`. See `@grammyjs/auto-retry`.
+   */
+  autoRetryOptions?: {maxRetryAttempts?: number; retryOnInternalServerErrors?: boolean}
+
+  /**
+   * Max time (milliseconds) allowed for a single update handler before the
+   * update is treated as timed out (watchdog — the page keeps running but the
+   * failure is recorded via `onUpdateError` and metrics).
+   *
+   * @defaultValue `30000`
+   */
+  updateTimeoutMs?: number
+
+  /**
+   * Skip updates whose `update_id` was already processed (idempotency).
+   *
+   * @remarks
+   * Uses a bounded LRU of recent update ids. Handy for webhook retries /
+   * at-least-once delivery where a duplicate should not be handled twice.
+   *
+   * @defaultValue `false`
+   */
+  skipDuplicateUpdate?: boolean
+
+  /**
+   * Secret token sent by Telegram in the `X-Telegram-Bot-Api-Secret-Token`
+   * header on webhook requests. Mismatching requests return `401`.
+   */
+  webhookSecretToken?: string
+
+  /**
+   * Max length of incoming `message.text` / `message.caption`. Updates longer
+   * than this are skipped (counted as invalid). `0` disables the check.
+   *
+   * @defaultValue `0` (unlimited)
+   */
+  maxTextLength?: number
+
+  /**
+   * Hook invoked with a structured error event for every update failure
+   * (errors, timeouts, blocked). Use for log sinks / alerting (Sentry, etc.).
+   */
+  onUpdateError?: (event: ITUpdateErrorEvent) => void
+
+  /**
+   * Optional HTTP port that serves `GET /health` (liveness) and `GET /stats`
+   * (metrics) in any deploy mode. When unset, these routes are only available
+   * on the webhook server (if deployed via `webhook:`).
+   */
+  statusServerPort?: number
+
+  /**
+   * Hostname the status/health server binds to.
+   *
+   * @remarks
+   * Defaults to `127.0.0.1` so metrics are not exposed to the network. Set to
+   * `0.0.0.0` only when the endpoint is intentionally public.
+   *
+   * @defaultValue `"127.0.0.1"`
+   */
+  statusServerHostname?: string
+
+  /**
+   * Max consecutive polling failures before giving up and stopping the bot.
+   *
+   * @remarks
+   * After a transient failure (network blip, 409 conflict) the bot retries with
+   * exponential backoff (1s → 2s → 4s … capped at 60s). After this many retries
+   * the bot logs the failure, emits `onUpdateError` and calls `stop()`.
+   * `-1` retries forever.
+   *
+   * @defaultValue `5`
+   */
+  pollingMaxRetries?: number
+
+  /**
+   * Hook invoked with a structured success event after every routed update.
+   *
+   * @remarks
+   * Audit trail counterpart of `onUpdateError`. Fires for matched, no-match,
+   * no-handler and blocked states (not for errors/timeouts).
+   */
+  onUpdate?: (event: ITUpdateSuccessEvent) => void
+
+  /**
    * Page routing configuration options.
    */
   optionsPage?: {
@@ -267,4 +362,31 @@ export type ITGramstaxParams = {
      */
     shortCallbackQueryData?: boolean
   }
+}
+
+/**
+ * Structured error event emitted by `onUpdateError`.
+ *
+ * @public
+ */
+export type ITUpdateErrorEvent = {
+  traceId: string
+  listenerName: string
+  state: `error` | `timeout` | `blocked` | `no-handler` | `validation`
+  error: unknown
+  durationMs: number
+  isEdit: boolean
+}
+
+/**
+ * Structured success event emitted by `onUpdate`.
+ *
+ * @public
+ */
+export type ITUpdateSuccessEvent = {
+  traceId: string
+  listenerName: string
+  state: `matched` | `no-match` | `no-handler` | `blocked`
+  durationMs: number
+  isEdit: boolean
 }
