@@ -68,6 +68,9 @@ export class WorkerThreadGatewayClient extends EventEmitter {
 
   private closed = false
 
+  /** Raw connection that already has our error-routing listener attached. */
+  private guardedConnection: unknown = null
+
   /**
    * Creates a new gateway client instance.
    *
@@ -96,9 +99,22 @@ export class WorkerThreadGatewayClient extends EventEmitter {
       this.rpc.make(data).catch((err: unknown) => this.safeEmitError(err))
     })
 
-    // Always handle transport errors — an unhandled 'error' event can kill the
-    // worker process when the peer dies mid-write.
-    this.client.on(`error`, (err: unknown) => this.safeEmitError(err))
+    // Route raw socket errors through the default handler. net-ipc attaches
+    // its own 'error' listener one line after socket creation, which can miss
+    // a synchronous connect-phase error (e.g. ENOENT dead pipe on some
+    // runtimes) — that error would surface as unhandled. Wrap the instance
+    // connect so the raw socket is guarded the moment it exists, for every
+    // connect attempt (including net-ipc's internal reconnects).
+    const rawConnect = this.client.connect.bind(this.client)
+    this.client.connect = (payload?: unknown) => {
+      const result = rawConnect(payload)
+      const conn = this.client.connection
+      if (conn && conn !== this.guardedConnection) {
+        this.guardedConnection = conn
+        conn.on(`error`, (err: unknown) => this.safeEmitError(err))
+      }
+      return result
+    }
 
     this.client.on(`status`, (status: number) => {
       this.emit(`status`, status)
@@ -189,6 +205,10 @@ export class WorkerThreadGatewayClient extends EventEmitter {
       this.client.once(`close`, onClose)
       this.client.connect(payload).catch((err: unknown) => {
         cleanup()
+        // a synchronous connect-phase failure may never reach the raw socket
+        // listener above (it fires before the listener can be attached) —
+        // route it deterministically so the default handler still sees it
+        this.safeEmitError(err instanceof Error ? err : new Error(String(err)))
         reject(err instanceof Error ? err : new Error(String(err)))
       })
     })

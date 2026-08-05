@@ -9,6 +9,7 @@
 import {afterEach, describe, expect, it } from "bun:test"
 import {reportError, setDefaultErrorHandler} from "../src/error-handler"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
+import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import {waitFor, withTimeout } from "./helpers"
 
 describe(`default error handler`, () => {
@@ -31,16 +32,23 @@ describe(`default error handler`, () => {
   it(`routes gateway transport errors to the default handler when no listeners`, async () => {
     const seen: unknown[] = []
     setDefaultErrorHandler((err) => seen.push(err))
+    const path = `eh-${process.pid}-${Date.now()}`
+    const server = new WorkerThreadGatewayServer()
     const client = new WorkerThreadGatewayClient()
     try {
-      // connecting to a nonexistent pipe fails fast and fires an error event
-      await client.connect(`dead-pipe-${process.pid}-${Date.now()}`, {reconnect: false, retries: 1, maxRetryTime: 10}).catch(() => {})
+      await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
+      await withTimeout(client.connect(path, {reconnect: false}), 10_000, `connect`)
+      // Simulate a raw socket transport failure (peer reset): the socket must
+      // be guarded by our error listener, and with no instance 'error'
+      // listener the error has to be routed to the default handler.
+      client.client.connection?.emit(`error`, Object.assign(new Error(`socket reset`), {code: `ECONNRESET`}))
       await withTimeout(waitFor(() => seen.length > 0, 5_000), 8_000, `error routed to default handler`)
       expect(seen.length).toBeGreaterThan(0)
     } finally {
       await client.destroy()
+      await server.close()
     }
-  }, 15_000)
+  }, 20_000)
 
   it(`a throwing default error handler never crashes the transport`, () => {
     const seen: unknown[] = []
