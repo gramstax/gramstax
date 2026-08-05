@@ -3903,51 +3903,16 @@ export class Ctx extends Context {
 
   // =============== handleSession* route function (session-aware)
   /**
-   * Session-aware route handler for callback queries without args.
+   * Optional `handleSessionCallbackQueryData` route handler declaration.
    *
    * @remarks
-   * Mirrors the corresponding `handle*` method. Dispatched automatically by
-   * `_pageRoutes` id=1 (session routing) when:
-   *   1. The user has an active session (`session.method` is set)
-   *   2. `session.method` matches the method key registered for this route
-   *      (computed by the corresponding `methodSession*()`)
-   *   3. The route name ends with `fromListener` — ensuring only the correct
-   *      update type triggers it (callback queries match `*CallbackQueryData` only;
-   *      text matches `*Text` only; etc.)
+   * Executed on `callbackquerydata` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCallbackQueryData} which wires
+   * {@link Ctx.methodSessionCallbackQueryData} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCallbackQueryData} instead.
    *
-   * Define `handleSession*` to handle session flows separately from normal
-   * flows. The regular `handle*` will only be called for non-session flows
-   * because id=1 dispatches before id=2 ever runs.
-   *
-   * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text,
-   * CommandText, FreeText, CaptionPhoto, etc.
-   *
-   * @example
-   * ```typescript
-   * // handle* — invoked via id=2 (static) when no session matches in id=1
-   * async handleCallbackQueryData() {
-   *   await this.editMessageText(`normal flow: ${this.callbackQueryData}`)
-   * }
-   *
-   * // handleSession* — invoked via id=1 (session) when session.method matches
-   * async handleSessionCallbackQueryData() {
-   *   const {inputText} = this.temp.session.params
-   *   await this.editMessageText(`session-active: ${inputText}`)
-   * }
-   * ```
-
-   * @example
-   * ```typescript
-   * async handleArgsCallbackQueryData() {
-   *   await this.editMessageText(`normal: ${this.callbackQueryData}`)
-   * }
-   * async handleSessionArgsCallbackQueryData() {
-   *   const {inputText} = this.temp.session.params
-   *   await this.editMessageText(`session: ${this.callbackQueryData}, params: ${inputText}`)
-   * }
-   * ```
-   *
-   * @virtual
    * @public
    */
   async handleSessionCallbackQueryData?(): Promise<unknown>
@@ -3955,8 +3920,12 @@ export class Ctx extends Context {
    * Optional `handleSessionArgsCallbackQueryData` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionArgsCallbackQueryData` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `callbackquerydata` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionArgsCallbackQueryData} which wires
+   * {@link Ctx.methodSessionArgsCallbackQueryData} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleArgsCallbackQueryData} instead.
    *
    * @public
    */
@@ -3965,8 +3934,12 @@ export class Ctx extends Context {
    * Optional `handleSessionText` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionText` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `text` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionText} which wires
+   * {@link Ctx.methodSessionText} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleText} instead.
    *
    * @public
    */
@@ -3975,8 +3948,12 @@ export class Ctx extends Context {
    * Optional `handleSessionArgsText` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionArgsText` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `text` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionArgsText} which wires
+   * {@link Ctx.methodSessionArgsText} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleArgsText} instead.
    *
    * @public
    */
@@ -3985,8 +3962,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandText` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandText` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `text` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandText} which wires
+   * {@link Ctx.methodSessionCommandText} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandText} instead.
    *
    * @public
    */
@@ -3995,8 +3976,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandArgsText` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandArgsText` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `text` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandArgsText} which wires
+   * {@link Ctx.methodSessionCommandArgsText} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandArgsText} instead.
    *
    * @public
    */
@@ -4005,8 +3990,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeText` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeText` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `text` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeText} which wires
+   * {@link Ctx.methodSessionFreeText} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeText} instead.
    *
    * @public
    */
@@ -4015,8 +4004,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionPhoto` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionPhoto` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `photo` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionPhoto} which wires
+   * {@link Ctx.methodSessionCaptionPhoto} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionPhoto} instead.
    *
    * @public
    */
@@ -4025,8 +4018,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionArgsPhoto` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionArgsPhoto` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `photo` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionArgsPhoto} which wires
+   * {@link Ctx.methodSessionCaptionArgsPhoto} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionArgsPhoto} instead.
    *
    * @public
    */
@@ -4035,8 +4032,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionPhoto` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionPhoto` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `photo` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionPhoto} which wires
+   * {@link Ctx.methodSessionCommandCaptionPhoto} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionPhoto} instead.
    *
    * @public
    */
@@ -4045,8 +4046,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionArgsPhoto` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionArgsPhoto` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `photo` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionArgsPhoto} which wires
+   * {@link Ctx.methodSessionCommandCaptionArgsPhoto} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionArgsPhoto} instead.
    *
    * @public
    */
@@ -4055,8 +4060,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreePhoto` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreePhoto` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `photo` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreePhoto} which wires
+   * {@link Ctx.methodSessionFreePhoto} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreePhoto} instead.
    *
    * @public
    */
@@ -4065,8 +4074,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionVideo` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionVideo` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `video` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionVideo} which wires
+   * {@link Ctx.methodSessionCaptionVideo} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionVideo} instead.
    *
    * @public
    */
@@ -4075,8 +4088,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionArgsVideo` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionArgsVideo` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `video` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionArgsVideo} which wires
+   * {@link Ctx.methodSessionCaptionArgsVideo} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionArgsVideo} instead.
    *
    * @public
    */
@@ -4085,8 +4102,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionVideo` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionVideo` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `video` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionVideo} which wires
+   * {@link Ctx.methodSessionCommandCaptionVideo} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionVideo} instead.
    *
    * @public
    */
@@ -4095,8 +4116,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionArgsVideo` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionArgsVideo` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `video` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionArgsVideo} which wires
+   * {@link Ctx.methodSessionCommandCaptionArgsVideo} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionArgsVideo} instead.
    *
    * @public
    */
@@ -4105,8 +4130,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeVideo` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeVideo` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `video` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeVideo} which wires
+   * {@link Ctx.methodSessionFreeVideo} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeVideo} instead.
    *
    * @public
    */
@@ -4115,8 +4144,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionAudio` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionAudio` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `audio` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionAudio} which wires
+   * {@link Ctx.methodSessionCaptionAudio} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionAudio} instead.
    *
    * @public
    */
@@ -4125,8 +4158,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionArgsAudio` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionArgsAudio` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `audio` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionArgsAudio} which wires
+   * {@link Ctx.methodSessionCaptionArgsAudio} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionArgsAudio} instead.
    *
    * @public
    */
@@ -4135,8 +4172,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionAudio` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionAudio` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `audio` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionAudio} which wires
+   * {@link Ctx.methodSessionCommandCaptionAudio} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionAudio} instead.
    *
    * @public
    */
@@ -4145,8 +4186,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionArgsAudio` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionArgsAudio` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `audio` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionArgsAudio} which wires
+   * {@link Ctx.methodSessionCommandCaptionArgsAudio} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionArgsAudio} instead.
    *
    * @public
    */
@@ -4155,8 +4200,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeAudio` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeAudio` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `audio` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeAudio} which wires
+   * {@link Ctx.methodSessionFreeAudio} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeAudio} instead.
    *
    * @public
    */
@@ -4165,8 +4214,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionDocument` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionDocument` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `document` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionDocument} which wires
+   * {@link Ctx.methodSessionCaptionDocument} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionDocument} instead.
    *
    * @public
    */
@@ -4175,8 +4228,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionArgsDocument` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionArgsDocument` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `document` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionArgsDocument} which wires
+   * {@link Ctx.methodSessionCaptionArgsDocument} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionArgsDocument} instead.
    *
    * @public
    */
@@ -4185,8 +4242,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionDocument` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionDocument` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `document` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionDocument} which wires
+   * {@link Ctx.methodSessionCommandCaptionDocument} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionDocument} instead.
    *
    * @public
    */
@@ -4195,8 +4256,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionArgsDocument` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionArgsDocument` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `document` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionArgsDocument} which wires
+   * {@link Ctx.methodSessionCommandCaptionArgsDocument} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionArgsDocument} instead.
    *
    * @public
    */
@@ -4205,8 +4270,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeDocument` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeDocument` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `document` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeDocument} which wires
+   * {@link Ctx.methodSessionFreeDocument} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeDocument} instead.
    *
    * @public
    */
@@ -4215,8 +4284,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionAnimation` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionAnimation` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `animation` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionAnimation} which wires
+   * {@link Ctx.methodSessionCaptionAnimation} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionAnimation} instead.
    *
    * @public
    */
@@ -4225,8 +4298,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionArgsAnimation` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionArgsAnimation` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `animation` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionArgsAnimation} which wires
+   * {@link Ctx.methodSessionCaptionArgsAnimation} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionArgsAnimation} instead.
    *
    * @public
    */
@@ -4235,8 +4312,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionAnimation` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionAnimation` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `animation` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionAnimation} which wires
+   * {@link Ctx.methodSessionCommandCaptionAnimation} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionAnimation} instead.
    *
    * @public
    */
@@ -4245,8 +4326,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionArgsAnimation` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionArgsAnimation` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `animation` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionArgsAnimation} which wires
+   * {@link Ctx.methodSessionCommandCaptionArgsAnimation} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionArgsAnimation} instead.
    *
    * @public
    */
@@ -4255,8 +4340,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeAnimation` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeAnimation` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `animation` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeAnimation} which wires
+   * {@link Ctx.methodSessionFreeAnimation} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeAnimation} instead.
    *
    * @public
    */
@@ -4265,8 +4354,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionVoice` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionVoice` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `voice` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionVoice} which wires
+   * {@link Ctx.methodSessionCaptionVoice} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionVoice} instead.
    *
    * @public
    */
@@ -4275,8 +4368,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCaptionArgsVoice` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCaptionArgsVoice` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `voice` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCaptionArgsVoice} which wires
+   * {@link Ctx.methodSessionCaptionArgsVoice} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCaptionArgsVoice} instead.
    *
    * @public
    */
@@ -4285,8 +4382,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionVoice` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionVoice` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `voice` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionVoice} which wires
+   * {@link Ctx.methodSessionCommandCaptionVoice} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionVoice} instead.
    *
    * @public
    */
@@ -4295,8 +4396,12 @@ export class Ctx extends Context {
    * Optional `handleSessionCommandCaptionArgsVoice` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionCommandCaptionArgsVoice` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `voice` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionCommandCaptionArgsVoice} which wires
+   * {@link Ctx.methodSessionCommandCaptionArgsVoice} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleCommandCaptionArgsVoice} instead.
    *
    * @public
    */
@@ -4305,8 +4410,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeVoice` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeVoice` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `voice` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeVoice} which wires
+   * {@link Ctx.methodSessionFreeVoice} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeVoice} instead.
    *
    * @public
    */
@@ -4315,8 +4424,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeVideoNote` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeVideoNote` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `videonote` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeVideoNote} which wires
+   * {@link Ctx.methodSessionFreeVideoNote} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeVideoNote} instead.
    *
    * @public
    */
@@ -4325,8 +4438,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeSticker` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeSticker` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `sticker` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeSticker} which wires
+   * {@link Ctx.methodSessionFreeSticker} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeSticker} instead.
    *
    * @public
    */
@@ -4335,8 +4452,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeLocation` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeLocation` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `location` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeLocation} which wires
+   * {@link Ctx.methodSessionFreeLocation} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeLocation} instead.
    *
    * @public
    */
@@ -4345,8 +4466,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFreeContact` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFreeContact` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed on `contact` updates while the session is active. Routing id=1
+   * (session) runs BEFORE static/intent matching (id=2-3): it reads
+   * `ctx.getSession().method` — set via {@link Ctx.setSessionFreeContact} which wires
+   * {@link Ctx.methodSessionFreeContact} — and dispatches this handler through
+   * `new Page(ctx)`. When no session is active, the same update falls through
+   * to the non-session route {@link Ctx.handleFreeContact} instead.
    *
    * @public
    */
@@ -4355,8 +4480,12 @@ export class Ctx extends Context {
    * Optional `handleSessionFree` route handler declaration.
    *
    * @remarks
-   * Declared on `Ctx` so `setSessionFree` type-checks and the triune
-   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   * Executed for updates not matched by a specific `handleSession*` route while
+   * the session is active. Routing id=1 (session) runs BEFORE static/intent
+   * matching (id=2-3): it reads `ctx.getSession().method` — activated via the
+   * matching `setSession*` helper which wires the `methodSession*` key — and
+   * dispatches this handler through `new Page(ctx)`. When no session is active,
+   * updates fall through to the non-session fallback {@link Ctx.handleFree}.
    *
    * @public
    */
