@@ -2039,7 +2039,7 @@ _(Optional)_ Optional `handleSessionArgsText` route handler declaration.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCallbackQueryData` route handler declaration.
 
 
 </td></tr>

@@ -17,5 +17,5 @@ Promise&lt;unknown&gt;
 
 ## Remarks
 
-Declared on `Ctx` so `setSessionCommandText` type-checks and the triune (handler / setter / method key) stays in sync. Pages implement the handler.
+Executed on `text` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via [Ctx.setSessionCommandText()](./gramstax.ctx.setsessioncommandtext.md) which wires [Ctx.methodSessionCommandText()](./gramstax.ctx.methodsessioncommandtext.md) — and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route [Ctx.handleCommandText()](./gramstax.ctx.handlecommandtext.md) instead.
 

@@ -17,5 +17,5 @@ Promise&lt;unknown&gt;
 
 ## Remarks
 
-Declared on `Ctx` so `setSessionFreeAudio` type-checks and the triune (handler / setter / method key) stays in sync. Pages implement the handler.
+Executed on `audio` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via [Ctx.setSessionFreeAudio()](./gramstax.ctx.setsessionfreeaudio.md) which wires [Ctx.methodSessionFreeAudio()](./gramstax.ctx.methodsessionfreeaudio.md) — and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route [Ctx.handleFreeAudio()](./gramstax.ctx.handlefreeaudio.md) instead.
 

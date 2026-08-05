@@ -4,12 +4,11 @@
 
 ## Ctx.handleSessionCallbackQueryData() method
 
-Session-aware route handler for callback queries without args.
+Optional `handleSessionCallbackQueryData` route handler declaration.
 
 **Signature:**
 
 ```typescript
-/** @virtual */
 handleSessionCallbackQueryData?(): Promise<unknown>;
 ```
 **Returns:**
@@ -18,38 +17,5 @@ Promise&lt;unknown&gt;
 
 ## Remarks
 
-Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`<!-- -->) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)
-
-Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.
-
-Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.
-
-## Example 1
-
-
-```typescript
-// handle* — invoked via id=2 (static) when no session matches in id=1
-async handleCallbackQueryData() {
-  await this.editMessageText(`normal flow: ${this.callbackQueryData}`)
-}
-
-// handleSession* — invoked via id=1 (session) when session.method matches
-async handleSessionCallbackQueryData() {
-  const {inputText} = this.temp.session.params
-  await this.editMessageText(`session-active: ${inputText}`)
-}
-```
-
-## Example 2
-
-
-```typescript
-async handleArgsCallbackQueryData() {
-  await this.editMessageText(`normal: ${this.callbackQueryData}`)
-}
-async handleSessionArgsCallbackQueryData() {
-  const {inputText} = this.temp.session.params
-  await this.editMessageText(`session: ${this.callbackQueryData}, params: ${inputText}`)
-}
-```
+Executed on `callbackquerydata` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via [Ctx.setSessionCallbackQueryData()](./gramstax.ctx.setsessioncallbackquerydata.md) which wires [Ctx.methodSessionCallbackQueryData()](./gramstax.ctx.methodsessioncallbackquerydata.md) — and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route [Ctx.handleCallbackQueryData()](./gramstax.ctx.handlecallbackquerydata.md) instead.
 

@@ -17,5 +17,5 @@ Promise&lt;unknown&gt;
 
 ## Remarks
 
-Declared on `Ctx` so `setSessionCommandCaptionVoice` type-checks and the triune (handler / setter / method key) stays in sync. Pages implement the handler.
+Executed on `voice` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via [Ctx.setSessionCommandCaptionVoice()](./gramstax.ctx.setsessioncommandcaptionvoice.md) which wires [Ctx.methodSessionCommandCaptionVoice()](./gramstax.ctx.methodsessioncommandcaptionvoice.md) — and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route [Ctx.handleCommandCaptionVoice()](./gramstax.ctx.handlecommandcaptionvoice.md) instead.
 

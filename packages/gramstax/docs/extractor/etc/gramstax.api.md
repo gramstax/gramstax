@@ -188,7 +188,6 @@ export class Ctx extends Context {
     handleMyChatMemberRegularAdmin?(): Promise<void>;
     handleSessionArgsCallbackQueryData?(): Promise<unknown>;
     handleSessionArgsText?(): Promise<unknown>;
-    // @virtual
     handleSessionCallbackQueryData?(): Promise<unknown>;
     handleSessionCaptionAnimation?(): Promise<unknown>;
     handleSessionCaptionArgsAnimation?(): Promise<unknown>;
@@ -2856,8 +2855,8 @@ export class WebhookQueue<T = unknown> {
 //
 // dist/src/index.d.ts:1369:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
 // dist/src/index.d.ts:3229:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
-// dist/src/index.d.ts:12312:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:13234:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:12441:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:13363:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

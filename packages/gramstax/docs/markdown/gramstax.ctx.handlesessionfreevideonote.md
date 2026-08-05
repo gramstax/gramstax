@@ -17,5 +17,5 @@ Promise&lt;unknown&gt;
 
 ## Remarks
 
-Declared on `Ctx` so `setSessionFreeVideoNote` type-checks and the triune (handler / setter / method key) stays in sync. Pages implement the handler.
+Executed on `videonote` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via [Ctx.setSessionFreeVideoNote()](./gramstax.ctx.setsessionfreevideonote.md) which wires [Ctx.methodSessionFreeVideoNote()](./gramstax.ctx.methodsessionfreevideonote.md) — and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route [Ctx.handleFreeVideoNote()](./gramstax.ctx.handlefreevideonote.md) instead.
 

@@ -2374,8 +2374,13 @@ methods:
     fullName: handleSessionArgsCallbackQueryData()
     summary: Optional `handleSessionArgsCallbackQueryData` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionArgsCallbackQueryData` type-checks and the triune (handler / setter / method key)
-      stays in sync. Pages implement the handler.
+      Executed on `callbackquerydata` updates while the session is active. Routing id=1 (session) runs BEFORE
+      static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionArgsCallbackQueryData()](xref:gramstax!Ctx%23setSessionArgsCallbackQueryData:member(1)) which wires
+      [Ctx.methodSessionArgsCallbackQueryData()](xref:gramstax!Ctx%23methodSessionArgsCallbackQueryData:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route
+      [Ctx.handleArgsCallbackQueryData()](xref:gramstax!Ctx%23handleArgsCallbackQueryData:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2390,8 +2395,12 @@ methods:
     fullName: handleSessionArgsText()
     summary: Optional `handleSessionArgsText` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionArgsText` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `text` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionArgsText()](xref:gramstax!Ctx%23setSessionArgsText:member(1)) which wires
+      [Ctx.methodSessionArgsText()](xref:gramstax!Ctx%23methodSessionArgsText:member(1)) — and dispatches this handler
+      through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route
+      [Ctx.handleArgsText()](xref:gramstax!Ctx%23handleArgsText:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2404,51 +2413,20 @@ methods:
     uid: gramstax!Ctx#handleSessionCallbackQueryData:member(1)
     package: gramstax!
     fullName: handleSessionCallbackQueryData()
-    summary: Session-aware route handler for callback queries without args.
+    summary: Optional `handleSessionCallbackQueryData` route handler declaration.
     remarks: >-
-      Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when:
-      1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered
-      for this route (computed by the corresponding `methodSession*()`<!-- -->) 3. The route name ends with
-      `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData`
-      only; text matches `*Text` only; etc.)
-
-
-      Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows because id=1 dispatches before id=2 ever runs.
-
-
-      Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto,
-      etc.
-    example:
-      - |-
-        ```typescript
-        // handle* — invoked via id=2 (static) when no session matches in id=1
-        async handleCallbackQueryData() {
-          await this.editMessageText(`normal flow: ${this.callbackQueryData}`)
-        }
-
-        // handleSession* — invoked via id=1 (session) when session.method matches
-        async handleSessionCallbackQueryData() {
-          const {inputText} = this.temp.session.params
-          await this.editMessageText(`session-active: ${inputText}`)
-        }
-        ```
-      - |-
-        ```typescript
-        async handleArgsCallbackQueryData() {
-          await this.editMessageText(`normal: ${this.callbackQueryData}`)
-        }
-        async handleSessionArgsCallbackQueryData() {
-          const {inputText} = this.temp.session.params
-          await this.editMessageText(`session: ${this.callbackQueryData}, params: ${inputText}`)
-        }
-        ```
+      Executed on `callbackquerydata` updates while the session is active. Routing id=1 (session) runs BEFORE
+      static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCallbackQueryData()](xref:gramstax!Ctx%23setSessionCallbackQueryData:member(1)) which wires
+      [Ctx.methodSessionCallbackQueryData()](xref:gramstax!Ctx%23methodSessionCallbackQueryData:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route [Ctx.handleCallbackQueryData()](xref:gramstax!Ctx%23handleCallbackQueryData:member(1))
+      instead.
+    example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: |-
-        /** @virtual */
-        handleSessionCallbackQueryData?(): Promise<unknown>;
+      content: 'handleSessionCallbackQueryData?(): Promise<unknown>;'
       return:
         type: Promise&lt;unknown&gt;
         description: ''
@@ -2458,8 +2436,13 @@ methods:
     fullName: handleSessionCaptionAnimation()
     summary: Optional `handleSessionCaptionAnimation` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionAnimation` type-checks and the triune (handler / setter / method key) stays
-      in sync. Pages implement the handler.
+      Executed on `animation` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionAnimation()](xref:gramstax!Ctx%23setSessionCaptionAnimation:member(1)) which wires
+      [Ctx.methodSessionCaptionAnimation()](xref:gramstax!Ctx%23methodSessionCaptionAnimation:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route [Ctx.handleCaptionAnimation()](xref:gramstax!Ctx%23handleCaptionAnimation:member(1))
+      instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2474,8 +2457,13 @@ methods:
     fullName: handleSessionCaptionArgsAnimation()
     summary: Optional `handleSessionCaptionArgsAnimation` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionArgsAnimation` type-checks and the triune (handler / setter / method key)
-      stays in sync. Pages implement the handler.
+      Executed on `animation` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionArgsAnimation()](xref:gramstax!Ctx%23setSessionCaptionArgsAnimation:member(1)) which wires
+      [Ctx.methodSessionCaptionArgsAnimation()](xref:gramstax!Ctx%23methodSessionCaptionArgsAnimation:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route
+      [Ctx.handleCaptionArgsAnimation()](xref:gramstax!Ctx%23handleCaptionArgsAnimation:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2490,8 +2478,13 @@ methods:
     fullName: handleSessionCaptionArgsAudio()
     summary: Optional `handleSessionCaptionArgsAudio` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionArgsAudio` type-checks and the triune (handler / setter / method key) stays
-      in sync. Pages implement the handler.
+      Executed on `audio` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionArgsAudio()](xref:gramstax!Ctx%23setSessionCaptionArgsAudio:member(1)) which wires
+      [Ctx.methodSessionCaptionArgsAudio()](xref:gramstax!Ctx%23methodSessionCaptionArgsAudio:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route [Ctx.handleCaptionArgsAudio()](xref:gramstax!Ctx%23handleCaptionArgsAudio:member(1))
+      instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2506,8 +2499,13 @@ methods:
     fullName: handleSessionCaptionArgsDocument()
     summary: Optional `handleSessionCaptionArgsDocument` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionArgsDocument` type-checks and the triune (handler / setter / method key)
-      stays in sync. Pages implement the handler.
+      Executed on `document` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionArgsDocument()](xref:gramstax!Ctx%23setSessionCaptionArgsDocument:member(1)) which wires
+      [Ctx.methodSessionCaptionArgsDocument()](xref:gramstax!Ctx%23methodSessionCaptionArgsDocument:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route
+      [Ctx.handleCaptionArgsDocument()](xref:gramstax!Ctx%23handleCaptionArgsDocument:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2522,8 +2520,13 @@ methods:
     fullName: handleSessionCaptionArgsPhoto()
     summary: Optional `handleSessionCaptionArgsPhoto` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionArgsPhoto` type-checks and the triune (handler / setter / method key) stays
-      in sync. Pages implement the handler.
+      Executed on `photo` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionArgsPhoto()](xref:gramstax!Ctx%23setSessionCaptionArgsPhoto:member(1)) which wires
+      [Ctx.methodSessionCaptionArgsPhoto()](xref:gramstax!Ctx%23methodSessionCaptionArgsPhoto:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route [Ctx.handleCaptionArgsPhoto()](xref:gramstax!Ctx%23handleCaptionArgsPhoto:member(1))
+      instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2538,8 +2541,13 @@ methods:
     fullName: handleSessionCaptionArgsVideo()
     summary: Optional `handleSessionCaptionArgsVideo` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionArgsVideo` type-checks and the triune (handler / setter / method key) stays
-      in sync. Pages implement the handler.
+      Executed on `video` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionArgsVideo()](xref:gramstax!Ctx%23setSessionCaptionArgsVideo:member(1)) which wires
+      [Ctx.methodSessionCaptionArgsVideo()](xref:gramstax!Ctx%23methodSessionCaptionArgsVideo:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route [Ctx.handleCaptionArgsVideo()](xref:gramstax!Ctx%23handleCaptionArgsVideo:member(1))
+      instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2554,8 +2562,13 @@ methods:
     fullName: handleSessionCaptionArgsVoice()
     summary: Optional `handleSessionCaptionArgsVoice` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionArgsVoice` type-checks and the triune (handler / setter / method key) stays
-      in sync. Pages implement the handler.
+      Executed on `voice` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionArgsVoice()](xref:gramstax!Ctx%23setSessionCaptionArgsVoice:member(1)) which wires
+      [Ctx.methodSessionCaptionArgsVoice()](xref:gramstax!Ctx%23methodSessionCaptionArgsVoice:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route [Ctx.handleCaptionArgsVoice()](xref:gramstax!Ctx%23handleCaptionArgsVoice:member(1))
+      instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2570,8 +2583,12 @@ methods:
     fullName: handleSessionCaptionAudio()
     summary: Optional `handleSessionCaptionAudio` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionAudio` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `audio` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionAudio()](xref:gramstax!Ctx%23setSessionCaptionAudio:member(1)) which wires
+      [Ctx.methodSessionCaptionAudio()](xref:gramstax!Ctx%23methodSessionCaptionAudio:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleCaptionAudio()](xref:gramstax!Ctx%23handleCaptionAudio:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2586,8 +2603,12 @@ methods:
     fullName: handleSessionCaptionDocument()
     summary: Optional `handleSessionCaptionDocument` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionDocument` type-checks and the triune (handler / setter / method key) stays
-      in sync. Pages implement the handler.
+      Executed on `document` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionDocument()](xref:gramstax!Ctx%23setSessionCaptionDocument:member(1)) which wires
+      [Ctx.methodSessionCaptionDocument()](xref:gramstax!Ctx%23methodSessionCaptionDocument:member(1)) — and dispatches
+      this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleCaptionDocument()](xref:gramstax!Ctx%23handleCaptionDocument:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2602,8 +2623,12 @@ methods:
     fullName: handleSessionCaptionPhoto()
     summary: Optional `handleSessionCaptionPhoto` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionPhoto` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `photo` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionPhoto()](xref:gramstax!Ctx%23setSessionCaptionPhoto:member(1)) which wires
+      [Ctx.methodSessionCaptionPhoto()](xref:gramstax!Ctx%23methodSessionCaptionPhoto:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleCaptionPhoto()](xref:gramstax!Ctx%23handleCaptionPhoto:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2618,8 +2643,12 @@ methods:
     fullName: handleSessionCaptionVideo()
     summary: Optional `handleSessionCaptionVideo` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionVideo` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `video` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionVideo()](xref:gramstax!Ctx%23setSessionCaptionVideo:member(1)) which wires
+      [Ctx.methodSessionCaptionVideo()](xref:gramstax!Ctx%23methodSessionCaptionVideo:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleCaptionVideo()](xref:gramstax!Ctx%23handleCaptionVideo:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2634,8 +2663,12 @@ methods:
     fullName: handleSessionCaptionVoice()
     summary: Optional `handleSessionCaptionVoice` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCaptionVoice` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `voice` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCaptionVoice()](xref:gramstax!Ctx%23setSessionCaptionVoice:member(1)) which wires
+      [Ctx.methodSessionCaptionVoice()](xref:gramstax!Ctx%23methodSessionCaptionVoice:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleCaptionVoice()](xref:gramstax!Ctx%23handleCaptionVoice:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2650,8 +2683,12 @@ methods:
     fullName: handleSessionCommandArgsText()
     summary: Optional `handleSessionCommandArgsText` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandArgsText` type-checks and the triune (handler / setter / method key) stays
-      in sync. Pages implement the handler.
+      Executed on `text` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandArgsText()](xref:gramstax!Ctx%23setSessionCommandArgsText:member(1)) which wires
+      [Ctx.methodSessionCommandArgsText()](xref:gramstax!Ctx%23methodSessionCommandArgsText:member(1)) — and dispatches
+      this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleCommandArgsText()](xref:gramstax!Ctx%23handleCommandArgsText:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2666,8 +2703,14 @@ methods:
     fullName: handleSessionCommandCaptionAnimation()
     summary: Optional `handleSessionCommandCaptionAnimation` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionAnimation` type-checks and the triune (handler / setter / method
-      key) stays in sync. Pages implement the handler.
+      Executed on `animation` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionAnimation()](xref:gramstax!Ctx%23setSessionCommandCaptionAnimation:member(1)) which
+      wires
+      [Ctx.methodSessionCommandCaptionAnimation()](xref:gramstax!Ctx%23methodSessionCommandCaptionAnimation:member(1)) —
+      and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls
+      through to the non-session route
+      [Ctx.handleCommandCaptionAnimation()](xref:gramstax!Ctx%23handleCommandCaptionAnimation:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2682,8 +2725,15 @@ methods:
     fullName: handleSessionCommandCaptionArgsAnimation()
     summary: Optional `handleSessionCommandCaptionArgsAnimation` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionArgsAnimation` type-checks and the triune (handler / setter / method
-      key) stays in sync. Pages implement the handler.
+      Executed on `animation` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionArgsAnimation()](xref:gramstax!Ctx%23setSessionCommandCaptionArgsAnimation:member(1))
+      which wires
+      [Ctx.methodSessionCommandCaptionArgsAnimation()](xref:gramstax!Ctx%23methodSessionCommandCaptionArgsAnimation:member(1))
+      — and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls
+      through to the non-session route
+      [Ctx.handleCommandCaptionArgsAnimation()](xref:gramstax!Ctx%23handleCommandCaptionArgsAnimation:member(1))
+      instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2698,8 +2748,14 @@ methods:
     fullName: handleSessionCommandCaptionArgsAudio()
     summary: Optional `handleSessionCommandCaptionArgsAudio` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionArgsAudio` type-checks and the triune (handler / setter / method
-      key) stays in sync. Pages implement the handler.
+      Executed on `audio` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionArgsAudio()](xref:gramstax!Ctx%23setSessionCommandCaptionArgsAudio:member(1)) which
+      wires
+      [Ctx.methodSessionCommandCaptionArgsAudio()](xref:gramstax!Ctx%23methodSessionCommandCaptionArgsAudio:member(1)) —
+      and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls
+      through to the non-session route
+      [Ctx.handleCommandCaptionArgsAudio()](xref:gramstax!Ctx%23handleCommandCaptionArgsAudio:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2714,8 +2770,14 @@ methods:
     fullName: handleSessionCommandCaptionArgsDocument()
     summary: Optional `handleSessionCommandCaptionArgsDocument` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionArgsDocument` type-checks and the triune (handler / setter / method
-      key) stays in sync. Pages implement the handler.
+      Executed on `document` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionArgsDocument()](xref:gramstax!Ctx%23setSessionCommandCaptionArgsDocument:member(1))
+      which wires
+      [Ctx.methodSessionCommandCaptionArgsDocument()](xref:gramstax!Ctx%23methodSessionCommandCaptionArgsDocument:member(1))
+      — and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls
+      through to the non-session route
+      [Ctx.handleCommandCaptionArgsDocument()](xref:gramstax!Ctx%23handleCommandCaptionArgsDocument:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2730,8 +2792,14 @@ methods:
     fullName: handleSessionCommandCaptionArgsPhoto()
     summary: Optional `handleSessionCommandCaptionArgsPhoto` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionArgsPhoto` type-checks and the triune (handler / setter / method
-      key) stays in sync. Pages implement the handler.
+      Executed on `photo` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionArgsPhoto()](xref:gramstax!Ctx%23setSessionCommandCaptionArgsPhoto:member(1)) which
+      wires
+      [Ctx.methodSessionCommandCaptionArgsPhoto()](xref:gramstax!Ctx%23methodSessionCommandCaptionArgsPhoto:member(1)) —
+      and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls
+      through to the non-session route
+      [Ctx.handleCommandCaptionArgsPhoto()](xref:gramstax!Ctx%23handleCommandCaptionArgsPhoto:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2746,8 +2814,14 @@ methods:
     fullName: handleSessionCommandCaptionArgsVideo()
     summary: Optional `handleSessionCommandCaptionArgsVideo` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionArgsVideo` type-checks and the triune (handler / setter / method
-      key) stays in sync. Pages implement the handler.
+      Executed on `video` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionArgsVideo()](xref:gramstax!Ctx%23setSessionCommandCaptionArgsVideo:member(1)) which
+      wires
+      [Ctx.methodSessionCommandCaptionArgsVideo()](xref:gramstax!Ctx%23methodSessionCommandCaptionArgsVideo:member(1)) —
+      and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls
+      through to the non-session route
+      [Ctx.handleCommandCaptionArgsVideo()](xref:gramstax!Ctx%23handleCommandCaptionArgsVideo:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2762,8 +2836,14 @@ methods:
     fullName: handleSessionCommandCaptionArgsVoice()
     summary: Optional `handleSessionCommandCaptionArgsVoice` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionArgsVoice` type-checks and the triune (handler / setter / method
-      key) stays in sync. Pages implement the handler.
+      Executed on `voice` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionArgsVoice()](xref:gramstax!Ctx%23setSessionCommandCaptionArgsVoice:member(1)) which
+      wires
+      [Ctx.methodSessionCommandCaptionArgsVoice()](xref:gramstax!Ctx%23methodSessionCommandCaptionArgsVoice:member(1)) —
+      and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls
+      through to the non-session route
+      [Ctx.handleCommandCaptionArgsVoice()](xref:gramstax!Ctx%23handleCommandCaptionArgsVoice:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2778,8 +2858,13 @@ methods:
     fullName: handleSessionCommandCaptionAudio()
     summary: Optional `handleSessionCommandCaptionAudio` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionAudio` type-checks and the triune (handler / setter / method key)
-      stays in sync. Pages implement the handler.
+      Executed on `audio` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionAudio()](xref:gramstax!Ctx%23setSessionCommandCaptionAudio:member(1)) which wires
+      [Ctx.methodSessionCommandCaptionAudio()](xref:gramstax!Ctx%23methodSessionCommandCaptionAudio:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route
+      [Ctx.handleCommandCaptionAudio()](xref:gramstax!Ctx%23handleCommandCaptionAudio:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2794,8 +2879,14 @@ methods:
     fullName: handleSessionCommandCaptionDocument()
     summary: Optional `handleSessionCommandCaptionDocument` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionDocument` type-checks and the triune (handler / setter / method key)
-      stays in sync. Pages implement the handler.
+      Executed on `document` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionDocument()](xref:gramstax!Ctx%23setSessionCommandCaptionDocument:member(1)) which
+      wires
+      [Ctx.methodSessionCommandCaptionDocument()](xref:gramstax!Ctx%23methodSessionCommandCaptionDocument:member(1)) —
+      and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls
+      through to the non-session route
+      [Ctx.handleCommandCaptionDocument()](xref:gramstax!Ctx%23handleCommandCaptionDocument:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2810,8 +2901,13 @@ methods:
     fullName: handleSessionCommandCaptionPhoto()
     summary: Optional `handleSessionCommandCaptionPhoto` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionPhoto` type-checks and the triune (handler / setter / method key)
-      stays in sync. Pages implement the handler.
+      Executed on `photo` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionPhoto()](xref:gramstax!Ctx%23setSessionCommandCaptionPhoto:member(1)) which wires
+      [Ctx.methodSessionCommandCaptionPhoto()](xref:gramstax!Ctx%23methodSessionCommandCaptionPhoto:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route
+      [Ctx.handleCommandCaptionPhoto()](xref:gramstax!Ctx%23handleCommandCaptionPhoto:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2826,8 +2922,13 @@ methods:
     fullName: handleSessionCommandCaptionVideo()
     summary: Optional `handleSessionCommandCaptionVideo` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionVideo` type-checks and the triune (handler / setter / method key)
-      stays in sync. Pages implement the handler.
+      Executed on `video` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionVideo()](xref:gramstax!Ctx%23setSessionCommandCaptionVideo:member(1)) which wires
+      [Ctx.methodSessionCommandCaptionVideo()](xref:gramstax!Ctx%23methodSessionCommandCaptionVideo:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route
+      [Ctx.handleCommandCaptionVideo()](xref:gramstax!Ctx%23handleCommandCaptionVideo:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2842,8 +2943,13 @@ methods:
     fullName: handleSessionCommandCaptionVoice()
     summary: Optional `handleSessionCommandCaptionVoice` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandCaptionVoice` type-checks and the triune (handler / setter / method key)
-      stays in sync. Pages implement the handler.
+      Executed on `voice` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandCaptionVoice()](xref:gramstax!Ctx%23setSessionCommandCaptionVoice:member(1)) which wires
+      [Ctx.methodSessionCommandCaptionVoice()](xref:gramstax!Ctx%23methodSessionCommandCaptionVoice:member(1)) — and
+      dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through
+      to the non-session route
+      [Ctx.handleCommandCaptionVoice()](xref:gramstax!Ctx%23handleCommandCaptionVoice:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2858,8 +2964,12 @@ methods:
     fullName: handleSessionCommandText()
     summary: Optional `handleSessionCommandText` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionCommandText` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `text` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionCommandText()](xref:gramstax!Ctx%23setSessionCommandText:member(1)) which wires
+      [Ctx.methodSessionCommandText()](xref:gramstax!Ctx%23methodSessionCommandText:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleCommandText()](xref:gramstax!Ctx%23handleCommandText:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2874,8 +2984,11 @@ methods:
     fullName: handleSessionFree()
     summary: Optional `handleSessionFree` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFree` type-checks and the triune (handler / setter / method key) stays in sync.
-      Pages implement the handler.
+      Executed for updates not matched by a specific `handleSession*` route while the session is active. Routing id=1
+      (session) runs BEFORE static/intent matching (id=2-3): it reads `ctx.getSession().method` — activated via the
+      matching `setSession*` helper which wires the `methodSession*` key — and dispatches this handler through `new
+      Page(ctx)`<!-- -->. When no session is active, updates fall through to the non-session fallback
+      [Ctx.handleFree()](xref:gramstax!Ctx%23handleFree:member(1))<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2890,8 +3003,12 @@ methods:
     fullName: handleSessionFreeAnimation()
     summary: Optional `handleSessionFreeAnimation` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeAnimation` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `animation` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeAnimation()](xref:gramstax!Ctx%23setSessionFreeAnimation:member(1)) which wires
+      [Ctx.methodSessionFreeAnimation()](xref:gramstax!Ctx%23methodSessionFreeAnimation:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleFreeAnimation()](xref:gramstax!Ctx%23handleFreeAnimation:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2906,8 +3023,12 @@ methods:
     fullName: handleSessionFreeAudio()
     summary: Optional `handleSessionFreeAudio` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeAudio` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `audio` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeAudio()](xref:gramstax!Ctx%23setSessionFreeAudio:member(1)) which wires
+      [Ctx.methodSessionFreeAudio()](xref:gramstax!Ctx%23methodSessionFreeAudio:member(1)) — and dispatches this handler
+      through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route
+      [Ctx.handleFreeAudio()](xref:gramstax!Ctx%23handleFreeAudio:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2922,8 +3043,12 @@ methods:
     fullName: handleSessionFreeContact()
     summary: Optional `handleSessionFreeContact` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeContact` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `contact` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeContact()](xref:gramstax!Ctx%23setSessionFreeContact:member(1)) which wires
+      [Ctx.methodSessionFreeContact()](xref:gramstax!Ctx%23methodSessionFreeContact:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleFreeContact()](xref:gramstax!Ctx%23handleFreeContact:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2938,8 +3063,12 @@ methods:
     fullName: handleSessionFreeDocument()
     summary: Optional `handleSessionFreeDocument` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeDocument` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `document` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeDocument()](xref:gramstax!Ctx%23setSessionFreeDocument:member(1)) which wires
+      [Ctx.methodSessionFreeDocument()](xref:gramstax!Ctx%23methodSessionFreeDocument:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleFreeDocument()](xref:gramstax!Ctx%23handleFreeDocument:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2954,8 +3083,12 @@ methods:
     fullName: handleSessionFreeLocation()
     summary: Optional `handleSessionFreeLocation` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeLocation` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `location` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeLocation()](xref:gramstax!Ctx%23setSessionFreeLocation:member(1)) which wires
+      [Ctx.methodSessionFreeLocation()](xref:gramstax!Ctx%23methodSessionFreeLocation:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleFreeLocation()](xref:gramstax!Ctx%23handleFreeLocation:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2970,8 +3103,12 @@ methods:
     fullName: handleSessionFreePhoto()
     summary: Optional `handleSessionFreePhoto` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreePhoto` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `photo` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreePhoto()](xref:gramstax!Ctx%23setSessionFreePhoto:member(1)) which wires
+      [Ctx.methodSessionFreePhoto()](xref:gramstax!Ctx%23methodSessionFreePhoto:member(1)) — and dispatches this handler
+      through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route
+      [Ctx.handleFreePhoto()](xref:gramstax!Ctx%23handleFreePhoto:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2986,8 +3123,12 @@ methods:
     fullName: handleSessionFreeSticker()
     summary: Optional `handleSessionFreeSticker` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeSticker` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `sticker` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeSticker()](xref:gramstax!Ctx%23setSessionFreeSticker:member(1)) which wires
+      [Ctx.methodSessionFreeSticker()](xref:gramstax!Ctx%23methodSessionFreeSticker:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleFreeSticker()](xref:gramstax!Ctx%23handleFreeSticker:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3002,8 +3143,12 @@ methods:
     fullName: handleSessionFreeText()
     summary: Optional `handleSessionFreeText` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeText` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `text` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) which wires
+      [Ctx.methodSessionFreeText()](xref:gramstax!Ctx%23methodSessionFreeText:member(1)) — and dispatches this handler
+      through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route
+      [Ctx.handleFreeText()](xref:gramstax!Ctx%23handleFreeText:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3018,8 +3163,12 @@ methods:
     fullName: handleSessionFreeVideo()
     summary: Optional `handleSessionFreeVideo` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeVideo` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `video` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeVideo()](xref:gramstax!Ctx%23setSessionFreeVideo:member(1)) which wires
+      [Ctx.methodSessionFreeVideo()](xref:gramstax!Ctx%23methodSessionFreeVideo:member(1)) — and dispatches this handler
+      through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route
+      [Ctx.handleFreeVideo()](xref:gramstax!Ctx%23handleFreeVideo:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3034,8 +3183,12 @@ methods:
     fullName: handleSessionFreeVideoNote()
     summary: Optional `handleSessionFreeVideoNote` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeVideoNote` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `videonote` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent
+      matching (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeVideoNote()](xref:gramstax!Ctx%23setSessionFreeVideoNote:member(1)) which wires
+      [Ctx.methodSessionFreeVideoNote()](xref:gramstax!Ctx%23methodSessionFreeVideoNote:member(1)) — and dispatches this
+      handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the
+      non-session route [Ctx.handleFreeVideoNote()](xref:gramstax!Ctx%23handleFreeVideoNote:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3050,8 +3203,12 @@ methods:
     fullName: handleSessionFreeVoice()
     summary: Optional `handleSessionFreeVoice` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionFreeVoice` type-checks and the triune (handler / setter / method key) stays in
-      sync. Pages implement the handler.
+      Executed on `voice` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionFreeVoice()](xref:gramstax!Ctx%23setSessionFreeVoice:member(1)) which wires
+      [Ctx.methodSessionFreeVoice()](xref:gramstax!Ctx%23methodSessionFreeVoice:member(1)) — and dispatches this handler
+      through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route
+      [Ctx.handleFreeVoice()](xref:gramstax!Ctx%23handleFreeVoice:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3066,8 +3223,12 @@ methods:
     fullName: handleSessionText()
     summary: Optional `handleSessionText` route handler declaration.
     remarks: >-
-      Declared on `Ctx` so `setSessionText` type-checks and the triune (handler / setter / method key) stays in sync.
-      Pages implement the handler.
+      Executed on `text` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching
+      (id=2-3): it reads `ctx.getSession().method` — set via
+      [Ctx.setSessionText()](xref:gramstax!Ctx%23setSessionText:member(1)) which wires
+      [Ctx.methodSessionText()](xref:gramstax!Ctx%23methodSessionText:member(1)) — and dispatches this handler through
+      `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route
+      [Ctx.handleText()](xref:gramstax!Ctx%23handleText:member(1)) instead.
     example: []
     isPreview: false
     isDeprecated: false

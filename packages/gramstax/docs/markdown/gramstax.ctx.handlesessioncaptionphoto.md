@@ -17,5 +17,5 @@ Promise&lt;unknown&gt;
 
 ## Remarks
 
-Declared on `Ctx` so `setSessionCaptionPhoto` type-checks and the triune (handler / setter / method key) stays in sync. Pages implement the handler.
+Executed on `photo` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via [Ctx.setSessionCaptionPhoto()](./gramstax.ctx.setsessioncaptionphoto.md) which wires [Ctx.methodSessionCaptionPhoto()](./gramstax.ctx.methodsessioncaptionphoto.md) — and dispatches this handler through `new Page(ctx)`<!-- -->. When no session is active, the same update falls through to the non-session route [Ctx.handleCaptionPhoto()](./gramstax.ctx.handlecaptionphoto.md) instead.
 
