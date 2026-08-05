@@ -3951,87 +3951,415 @@ export class Ctx extends Context {
    * @public
    */
   async handleSessionCallbackQueryData?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionArgsCallbackQueryData` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionArgsCallbackQueryData` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionArgsCallbackQueryData?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionText` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionText` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionText?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionArgsText` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionArgsText` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionArgsText?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandText` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandText` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandText?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandArgsText` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandArgsText` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandArgsText?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeText` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeText` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeText?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionPhoto` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionPhoto` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionPhoto?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionArgsPhoto` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionArgsPhoto` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionArgsPhoto?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionPhoto` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionPhoto` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionPhoto?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionArgsPhoto` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionArgsPhoto` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionArgsPhoto?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreePhoto` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreePhoto` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreePhoto?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionVideo` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionVideo` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionVideo?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionArgsVideo` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionArgsVideo` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionArgsVideo?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionVideo` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionVideo` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionVideo?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionArgsVideo` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionArgsVideo` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionArgsVideo?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeVideo` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeVideo` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeVideo?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionAudio` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionAudio` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionAudio?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionArgsAudio` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionArgsAudio` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionArgsAudio?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionAudio` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionAudio` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionAudio?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionArgsAudio` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionArgsAudio` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionArgsAudio?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeAudio` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeAudio` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeAudio?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionDocument` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionDocument` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionDocument?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionArgsDocument` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionArgsDocument` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionArgsDocument?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionDocument` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionDocument` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionDocument?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionArgsDocument` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionArgsDocument` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionArgsDocument?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeDocument` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeDocument` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeDocument?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionAnimation` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionAnimation` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionAnimation?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionArgsAnimation` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionArgsAnimation` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionArgsAnimation?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionAnimation` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionAnimation` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionAnimation?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionArgsAnimation` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionArgsAnimation` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionArgsAnimation?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeAnimation` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeAnimation` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeAnimation?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionVoice` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionVoice` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionVoice?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCaptionArgsVoice` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCaptionArgsVoice` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCaptionArgsVoice?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionVoice` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionVoice` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionVoice?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionCommandCaptionArgsVoice` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionCommandCaptionArgsVoice` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionCommandCaptionArgsVoice?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeVoice` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeVoice` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeVoice?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeVideoNote` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeVideoNote` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeVideoNote?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeSticker` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeSticker` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeSticker?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeLocation` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeLocation` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeLocation?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFreeContact` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFreeContact` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFreeContact?(): Promise<unknown>
-  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  /**
+   * Optional `handleSessionFree` route handler declaration.
+   *
+   * @remarks
+   * Declared on `Ctx` so `setSessionFree` type-checks and the triune
+   * (handler / setter / method key) stays in sync. Pages implement the handler.
+   *
+   * @public
+   */
   async handleSessionFree?(): Promise<unknown>
 
   // callback
@@ -4056,405 +4384,1569 @@ export class Ctx extends Context {
   setSessionCallbackQueryData(this: Ctx & {handleSessionCallbackQueryData: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCallbackQueryData(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionArgsCallbackQueryData` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionArgsCallbackQueryData} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionArgsCallbackQueryData` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionArgsCallbackQueryData(this: Ctx & {handleSessionArgsCallbackQueryData: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionArgsCallbackQueryData(), params)
   }
   // text
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionText` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionText} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionText` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionText(this: Ctx & {handleSessionText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionText(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionArgsText` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionArgsText} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionArgsText` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionArgsText(this: Ctx & {handleSessionArgsText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionArgsText(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandText` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandText} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandText` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandText(this: Ctx & {handleSessionCommandText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandText(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandArgsText` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandArgsText} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandArgsText` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandArgsText(this: Ctx & {handleSessionCommandArgsText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandArgsText(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeText` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeText} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeText` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeText(this: Ctx & {handleSessionFreeText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeText(), params)
   }
   // photo
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionPhoto` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionPhoto} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionPhoto` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionPhoto(this: Ctx & {handleSessionCaptionPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionArgsPhoto` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionArgsPhoto} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionArgsPhoto` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionArgsPhoto(this: Ctx & {handleSessionCaptionArgsPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionPhoto` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionPhoto} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionPhoto` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionPhoto(this: Ctx & {handleSessionCommandCaptionPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionArgsPhoto` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionArgsPhoto} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionArgsPhoto` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionArgsPhoto(this: Ctx & {handleSessionCommandCaptionArgsPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreePhoto` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreePhoto} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreePhoto` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreePhoto(this: Ctx & {handleSessionFreePhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreePhoto(), params)
   }
   // video
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionVideo` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionVideo} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionVideo` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionVideo(this: Ctx & {handleSessionCaptionVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionVideo(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionArgsVideo` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionArgsVideo} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionArgsVideo` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionArgsVideo(this: Ctx & {handleSessionCaptionArgsVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsVideo(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionVideo` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionVideo} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionVideo` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionVideo(this: Ctx & {handleSessionCommandCaptionVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionVideo(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionArgsVideo` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionArgsVideo} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionArgsVideo` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionArgsVideo(this: Ctx & {handleSessionCommandCaptionArgsVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsVideo(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeVideo` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeVideo} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeVideo` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeVideo(this: Ctx & {handleSessionFreeVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVideo(), params)
   }
   // audio
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionAudio` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionAudio} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionAudio` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionAudio(this: Ctx & {handleSessionCaptionAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionAudio(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionArgsAudio` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionArgsAudio} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionArgsAudio` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionArgsAudio(this: Ctx & {handleSessionCaptionArgsAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsAudio(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionAudio` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionAudio} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionAudio` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionAudio(this: Ctx & {handleSessionCommandCaptionAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionAudio(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionArgsAudio` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionArgsAudio} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionArgsAudio` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionArgsAudio(this: Ctx & {handleSessionCommandCaptionArgsAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsAudio(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeAudio` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeAudio} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeAudio` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeAudio(this: Ctx & {handleSessionFreeAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeAudio(), params)
   }
   // document
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionDocument` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionDocument} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionDocument` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionDocument(this: Ctx & {handleSessionCaptionDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionDocument(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionArgsDocument` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionArgsDocument} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionArgsDocument` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionArgsDocument(this: Ctx & {handleSessionCaptionArgsDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsDocument(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionDocument` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionDocument} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionDocument` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionDocument(this: Ctx & {handleSessionCommandCaptionDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionDocument(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionArgsDocument` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionArgsDocument} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionArgsDocument` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionArgsDocument(this: Ctx & {handleSessionCommandCaptionArgsDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsDocument(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeDocument` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeDocument} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeDocument` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeDocument(this: Ctx & {handleSessionFreeDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeDocument(), params)
   }
   // animation
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionAnimation` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionAnimation} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionAnimation` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionAnimation(this: Ctx & {handleSessionCaptionAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionAnimation(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionArgsAnimation` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionArgsAnimation} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionArgsAnimation` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionArgsAnimation(this: Ctx & {handleSessionCaptionArgsAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsAnimation(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionAnimation` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionAnimation} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionAnimation` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionAnimation(this: Ctx & {handleSessionCommandCaptionAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionAnimation(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionArgsAnimation` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionArgsAnimation} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionArgsAnimation` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionArgsAnimation(this: Ctx & {handleSessionCommandCaptionArgsAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsAnimation(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeAnimation` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeAnimation} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeAnimation` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeAnimation(this: Ctx & {handleSessionFreeAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeAnimation(), params)
   }
   // voice
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionVoice` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionVoice} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionVoice` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionVoice(this: Ctx & {handleSessionCaptionVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionVoice(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCaptionArgsVoice` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCaptionArgsVoice} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCaptionArgsVoice` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCaptionArgsVoice(this: Ctx & {handleSessionCaptionArgsVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsVoice(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionVoice` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionVoice} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionVoice` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionVoice(this: Ctx & {handleSessionCommandCaptionVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionVoice(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionCommandCaptionArgsVoice` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionCommandCaptionArgsVoice} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionCommandCaptionArgsVoice` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionCommandCaptionArgsVoice(this: Ctx & {handleSessionCommandCaptionArgsVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsVoice(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeVoice` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeVoice} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeVoice` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeVoice(this: Ctx & {handleSessionFreeVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVoice(), params)
   }
   // video note
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeVideoNote` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeVideoNote} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeVideoNote` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeVideoNote(this: Ctx & {handleSessionFreeVideoNote: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVideoNote(), params)
   }
   // sticker
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeSticker` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeSticker} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeSticker` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeSticker(this: Ctx & {handleSessionFreeSticker: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeSticker(), params)
   }
   // location
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeLocation` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeLocation} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeLocation` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeLocation(this: Ctx & {handleSessionFreeLocation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeLocation(), params)
   }
   // contact
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeContact` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeContact} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeContact` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeContact(this: Ctx & {handleSessionFreeContact: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeContact(), params)
   }
 
   // chat member
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionChatMemberOutIn` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionChatMemberOutIn} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionChatMemberOutIn` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionChatMemberOutIn(this: Ctx & {handleSessionChatMemberOutIn: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionChatMemberOutIn(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionMyChatMemberOutRegular` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionMyChatMemberOutRegular} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionMyChatMemberOutRegular` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionMyChatMemberOutRegular(this: Ctx & {handleSessionMyChatMemberOutRegular: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionMyChatMemberOutRegular(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionMyChatMemberOutAdmin` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionMyChatMemberOutAdmin} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionMyChatMemberOutAdmin` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionMyChatMemberOutAdmin(this: Ctx & {handleSessionMyChatMemberOutAdmin: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionMyChatMemberOutAdmin(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionMyChatMemberRegularAdmin` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionMyChatMemberRegularAdmin} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionMyChatMemberRegularAdmin` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionMyChatMemberRegularAdmin(this: Ctx & {handleSessionMyChatMemberRegularAdmin: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionMyChatMemberRegularAdmin(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionMyChatMemberAdminRegular` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionMyChatMemberAdminRegular} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionMyChatMemberAdminRegular` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionMyChatMemberAdminRegular(this: Ctx & {handleSessionMyChatMemberAdminRegular: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionMyChatMemberAdminRegular(), params)
   }
 
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeChannelPost` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeChannelPost} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeChannelPost` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeChannelPost(this: Ctx & {handleSessionFreeChannelPost: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeChannelPost(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeEditChannelPost` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeEditChannelPost} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeEditChannelPost` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeEditChannelPost(this: Ctx & {handleSessionFreeEditChannelPost: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeEditChannelPost(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeEdit` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeEdit} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeEdit` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeEdit(this: Ctx & {handleSessionFreeEdit: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeEdit(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeReaction` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeReaction} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeReaction` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeReaction(this: Ctx & {handleSessionFreeReaction: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeReaction(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeInlineQuery` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeInlineQuery} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeInlineQuery` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeInlineQuery(this: Ctx & {handleSessionFreeInlineQuery: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeInlineQuery(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeChosenInlineResult` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeChosenInlineResult} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeChosenInlineResult` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeChosenInlineResult(this: Ctx & {handleSessionFreeChosenInlineResult: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeChosenInlineResult(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreePreCheckoutQuery` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreePreCheckoutQuery} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreePreCheckoutQuery` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreePreCheckoutQuery(this: Ctx & {handleSessionFreePreCheckoutQuery: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreePreCheckoutQuery(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeShippingQuery` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeShippingQuery} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeShippingQuery` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeShippingQuery(this: Ctx & {handleSessionFreeShippingQuery: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeShippingQuery(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeChatJoinRequest` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeChatJoinRequest} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeChatJoinRequest` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeChatJoinRequest(this: Ctx & {handleSessionFreeChatJoinRequest: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeChatJoinRequest(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreePoll` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreePoll} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreePoll` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreePoll(this: Ctx & {handleSessionFreePoll: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreePoll(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreePollAnswer` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreePollAnswer} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreePollAnswer` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreePollAnswer(this: Ctx & {handleSessionFreePollAnswer: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreePollAnswer(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeNewChatMembers` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeNewChatMembers} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeNewChatMembers` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeNewChatMembers(this: Ctx & {handleSessionFreeNewChatMembers: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeNewChatMembers(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeLeftChatMember` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeLeftChatMember} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeLeftChatMember` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeLeftChatMember(this: Ctx & {handleSessionFreeLeftChatMember: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeLeftChatMember(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeBusinessConnection` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeBusinessConnection} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeBusinessConnection` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeBusinessConnection(this: Ctx & {handleSessionFreeBusinessConnection: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeBusinessConnection(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeBusinessMessage` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeBusinessMessage} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeBusinessMessage` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeBusinessMessage(this: Ctx & {handleSessionFreeBusinessMessage: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeBusinessMessage(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeEditedBusinessMessage` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeEditedBusinessMessage} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeEditedBusinessMessage` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeEditedBusinessMessage(this: Ctx & {handleSessionFreeEditedBusinessMessage: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeEditedBusinessMessage(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeDeletedBusinessMessages` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeDeletedBusinessMessages} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeDeletedBusinessMessages` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeDeletedBusinessMessages(this: Ctx & {handleSessionFreeDeletedBusinessMessages: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeDeletedBusinessMessages(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeMessageReactionCount` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeMessageReactionCount} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeMessageReactionCount` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeMessageReactionCount(this: Ctx & {handleSessionFreeMessageReactionCount: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeMessageReactionCount(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeChatBoost` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeChatBoost} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeChatBoost` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeChatBoost(this: Ctx & {handleSessionFreeChatBoost: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeChatBoost(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeRemovedChatBoost` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeRemovedChatBoost} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeRemovedChatBoost` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeRemovedChatBoost(this: Ctx & {handleSessionFreeRemovedChatBoost: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeRemovedChatBoost(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeSuccessfulPayment` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeSuccessfulPayment} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeSuccessfulPayment` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeSuccessfulPayment(this: Ctx & {handleSessionFreeSuccessfulPayment: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeSuccessfulPayment(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeRefundedPayment` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeRefundedPayment} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeRefundedPayment` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeRefundedPayment(this: Ctx & {handleSessionFreeRefundedPayment: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeRefundedPayment(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeGroupChatCreated` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeGroupChatCreated} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeGroupChatCreated` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeGroupChatCreated(this: Ctx & {handleSessionFreeGroupChatCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeGroupChatCreated(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeSupergroupChatCreated` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeSupergroupChatCreated} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeSupergroupChatCreated` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeSupergroupChatCreated(this: Ctx & {handleSessionFreeSupergroupChatCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeSupergroupChatCreated(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeChannelChatCreated` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeChannelChatCreated} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeChannelChatCreated` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeChannelChatCreated(this: Ctx & {handleSessionFreeChannelChatCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeChannelChatCreated(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeVideoChatStarted` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeVideoChatStarted} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeVideoChatStarted` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeVideoChatStarted(this: Ctx & {handleSessionFreeVideoChatStarted: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVideoChatStarted(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeVideoChatScheduled` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeVideoChatScheduled} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeVideoChatScheduled` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeVideoChatScheduled(this: Ctx & {handleSessionFreeVideoChatScheduled: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVideoChatScheduled(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeVideoChatEnded` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeVideoChatEnded} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeVideoChatEnded` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeVideoChatEnded(this: Ctx & {handleSessionFreeVideoChatEnded: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVideoChatEnded(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeVideoChatParticipantsInvited` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeVideoChatParticipantsInvited} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeVideoChatParticipantsInvited` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeVideoChatParticipantsInvited(this: Ctx & {handleSessionFreeVideoChatParticipantsInvited: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVideoChatParticipantsInvited(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeUserShared` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeUserShared} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeUserShared` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeUserShared(this: Ctx & {handleSessionFreeUserShared: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeUserShared(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeChatShared` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeChatShared} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeChatShared` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeChatShared(this: Ctx & {handleSessionFreeChatShared: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeChatShared(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeWebAppData` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeWebAppData} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeWebAppData` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeWebAppData(this: Ctx & {handleSessionFreeWebAppData: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeWebAppData(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeGiveaway` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeGiveaway} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeGiveaway` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeGiveaway(this: Ctx & {handleSessionFreeGiveaway: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeGiveaway(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeGiveawayCreated` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeGiveawayCreated} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeGiveawayCreated` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeGiveawayCreated(this: Ctx & {handleSessionFreeGiveawayCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeGiveawayCreated(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeGiveawayWinners` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeGiveawayWinners} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeGiveawayWinners` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeGiveawayWinners(this: Ctx & {handleSessionFreeGiveawayWinners: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeGiveawayWinners(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeGiveawayCompleted` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeGiveawayCompleted} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeGiveawayCompleted` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeGiveawayCompleted(this: Ctx & {handleSessionFreeGiveawayCompleted: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeGiveawayCompleted(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreePinMessage` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreePinMessage} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreePinMessage` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreePinMessage(this: Ctx & {handleSessionFreePinMessage: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreePinMessage(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeForumTopicCreated` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeForumTopicCreated} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeForumTopicCreated` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeForumTopicCreated(this: Ctx & {handleSessionFreeForumTopicCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeForumTopicCreated(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeForumTopicEdited` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeForumTopicEdited} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeForumTopicEdited` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeForumTopicEdited(this: Ctx & {handleSessionFreeForumTopicEdited: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeForumTopicEdited(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeForumTopicClosed` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeForumTopicClosed} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeForumTopicClosed` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeForumTopicClosed(this: Ctx & {handleSessionFreeForumTopicClosed: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeForumTopicClosed(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeForumTopicReopened` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeForumTopicReopened} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeForumTopicReopened` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeForumTopicReopened(this: Ctx & {handleSessionFreeForumTopicReopened: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeForumTopicReopened(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeGeneralForumTopicHidden` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeGeneralForumTopicHidden} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeGeneralForumTopicHidden` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeGeneralForumTopicHidden(this: Ctx & {handleSessionFreeGeneralForumTopicHidden: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeGeneralForumTopicHidden(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeGeneralForumTopicUnhidden` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeGeneralForumTopicUnhidden} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeGeneralForumTopicUnhidden` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeGeneralForumTopicUnhidden(this: Ctx & {handleSessionFreeGeneralForumTopicUnhidden: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeGeneralForumTopicUnhidden(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeProximityAlertTriggered` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeProximityAlertTriggered} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeProximityAlertTriggered` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeProximityAlertTriggered(this: Ctx & {handleSessionFreeProximityAlertTriggered: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeProximityAlertTriggered(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeConnectedWebsite` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeConnectedWebsite} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeConnectedWebsite` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeConnectedWebsite(this: Ctx & {handleSessionFreeConnectedWebsite: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeConnectedWebsite(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreePassportData` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreePassportData} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreePassportData` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreePassportData(this: Ctx & {handleSessionFreePassportData: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreePassportData(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeMessageAutoDeleteTimerChanged` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeMessageAutoDeleteTimerChanged} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeMessageAutoDeleteTimerChanged` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeMessageAutoDeleteTimerChanged(this: Ctx & {handleSessionFreeMessageAutoDeleteTimerChanged: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeMessageAutoDeleteTimerChanged(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeChatBackgroundSet` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeChatBackgroundSet} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeChatBackgroundSet` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeChatBackgroundSet(this: Ctx & {handleSessionFreeChatBackgroundSet: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeChatBackgroundSet(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeNewChatTitle` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeNewChatTitle} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeNewChatTitle` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeNewChatTitle(this: Ctx & {handleSessionFreeNewChatTitle: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeNewChatTitle(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeNewChatPhoto` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeNewChatPhoto} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeNewChatPhoto` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeNewChatPhoto(this: Ctx & {handleSessionFreeNewChatPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeNewChatPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeDeleteChatPhoto` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeDeleteChatPhoto} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeDeleteChatPhoto` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeDeleteChatPhoto(this: Ctx & {handleSessionFreeDeleteChatPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeDeleteChatPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  /**
+   * Set the session method for `handleSessionFreeWriteAccessAllowed` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeWriteAccessAllowed} via {@link Ctx.setSession}.
+   * Subsequent updates of the matching listener type dispatch to the page's
+   * `handleSessionFreeWriteAccessAllowed` handler (routing id=1) until the session is cleared.
+   *
+   * @param params - Optional session parameters stored alongside the method.
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   *
+   * @public
+   */
   setSessionFreeWriteAccessAllowed(this: Ctx & {handleSessionFreeWriteAccessAllowed: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeWriteAccessAllowed(), params)
   }
@@ -4487,409 +5979,1487 @@ export class Ctx extends Context {
   methodSession(prefix: string, name: string | undefined) {
     return `${prefix}-${name || this.data.name}`
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCallbackQueryData`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCallbackQueryData} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCallbackQueryData`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCallbackQueryData(name?: string) {
     return this.methodSession(`1`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionArgsCallbackQueryData`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionArgsCallbackQueryData} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionArgsCallbackQueryData`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionArgsCallbackQueryData(name?: string) {
     return this.methodSession(`2`, name)
   }
   // text method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionText`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionText} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionText`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionText(name?: string) {
     return this.methodSession(`3`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionArgsText`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionArgsText} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionArgsText`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionArgsText(name?: string) {
     return this.methodSession(`4`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandText`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandText} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandText`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandText(name?: string) {
     return this.methodSession(`5`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandArgsText`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandArgsText} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandArgsText`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandArgsText(name?: string) {
     return this.methodSession(`6`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeText`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeText} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeText`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeText(name?: string) {
     return this.methodSession(`7`, name)
   }
   // photo method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionPhoto`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionPhoto} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionPhoto`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionPhoto(name?: string) {
     return this.methodSession(`8`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionArgsPhoto`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionArgsPhoto} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionArgsPhoto`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionArgsPhoto(name?: string) {
     return this.methodSession(`9`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionPhoto`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionPhoto} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionPhoto`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionPhoto(name?: string) {
     return this.methodSession(`10`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionArgsPhoto`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionArgsPhoto} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionArgsPhoto`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionArgsPhoto(name?: string) {
     return this.methodSession(`11`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreePhoto`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreePhoto} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreePhoto`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreePhoto(name?: string) {
     return this.methodSession(`12`, name)
   }
   // video method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionVideo`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionVideo} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionVideo`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionVideo(name?: string) {
     return this.methodSession(`13`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionArgsVideo`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionArgsVideo} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionArgsVideo`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionArgsVideo(name?: string) {
     return this.methodSession(`14`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionVideo`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionVideo} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionVideo`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionVideo(name?: string) {
     return this.methodSession(`15`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionArgsVideo`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionArgsVideo} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionArgsVideo`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionArgsVideo(name?: string) {
     return this.methodSession(`16`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeVideo`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeVideo} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeVideo`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeVideo(name?: string) {
     return this.methodSession(`17`, name)
   }
   // audio method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionAudio`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionAudio} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionAudio`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionAudio(name?: string) {
     return this.methodSession(`18`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionArgsAudio`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionArgsAudio} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionArgsAudio`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionArgsAudio(name?: string) {
     return this.methodSession(`19`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionAudio`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionAudio} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionAudio`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionAudio(name?: string) {
     return this.methodSession(`20`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionArgsAudio`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionArgsAudio} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionArgsAudio`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionArgsAudio(name?: string) {
     return this.methodSession(`21`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeAudio`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeAudio} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeAudio`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeAudio(name?: string) {
     return this.methodSession(`22`, name)
   }
   // document method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionDocument`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionDocument} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionDocument`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionDocument(name?: string) {
     return this.methodSession(`23`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionArgsDocument`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionArgsDocument} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionArgsDocument`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionArgsDocument(name?: string) {
     return this.methodSession(`24`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionDocument`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionDocument} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionDocument`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionDocument(name?: string) {
     return this.methodSession(`25`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionArgsDocument`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionArgsDocument} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionArgsDocument`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionArgsDocument(name?: string) {
     return this.methodSession(`26`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeDocument`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeDocument} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeDocument`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeDocument(name?: string) {
     return this.methodSession(`27`, name)
   }
   // animation method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionAnimation`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionAnimation} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionAnimation`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionAnimation(name?: string) {
     return this.methodSession(`28`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionArgsAnimation`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionArgsAnimation} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionArgsAnimation`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionArgsAnimation(name?: string) {
     return this.methodSession(`29`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionAnimation`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionAnimation} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionAnimation`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionAnimation(name?: string) {
     return this.methodSession(`30`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionArgsAnimation`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionArgsAnimation} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionArgsAnimation`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionArgsAnimation(name?: string) {
     return this.methodSession(`31`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeAnimation`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeAnimation} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeAnimation`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeAnimation(name?: string) {
     return this.methodSession(`32`, name)
   }
   // voice method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionVoice`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionVoice} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionVoice`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionVoice(name?: string) {
     return this.methodSession(`33`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCaptionArgsVoice`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCaptionArgsVoice} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCaptionArgsVoice`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCaptionArgsVoice(name?: string) {
     return this.methodSession(`34`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionVoice`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionVoice} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionVoice`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionVoice(name?: string) {
     return this.methodSession(`35`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionCommandCaptionArgsVoice`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionCommandCaptionArgsVoice} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionCommandCaptionArgsVoice`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionCommandCaptionArgsVoice(name?: string) {
     return this.methodSession(`36`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeVoice`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeVoice} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeVoice`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeVoice(name?: string) {
     return this.methodSession(`37`, name)
   }
   // video note method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeVideoNote`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeVideoNote} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeVideoNote`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeVideoNote(name?: string) {
     return this.methodSession(`38`, name)
   }
   // sticker method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeSticker`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeSticker} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeSticker`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeSticker(name?: string) {
     return this.methodSession(`39`, name)
   }
   // location method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeLocation`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeLocation} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeLocation`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeLocation(name?: string) {
     return this.methodSession(`40`, name)
   }
   // contact method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeContact`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeContact} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeContact`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeContact(name?: string) {
     return this.methodSession(`41`, name)
   }
 
   // chat member method
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionChatMemberOutIn`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionChatMemberOutIn} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionChatMemberOutIn`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionChatMemberOutIn(name?: string) {
     return this.methodSession(`42`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionMyChatMemberOutRegular`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionMyChatMemberOutRegular} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionMyChatMemberOutRegular`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionMyChatMemberOutRegular(name?: string) {
     return this.methodSession(`43`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionMyChatMemberOutAdmin`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionMyChatMemberOutAdmin} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionMyChatMemberOutAdmin`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionMyChatMemberOutAdmin(name?: string) {
     return this.methodSession(`44`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionMyChatMemberRegularAdmin`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionMyChatMemberRegularAdmin} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionMyChatMemberRegularAdmin`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionMyChatMemberRegularAdmin(name?: string) {
     return this.methodSession(`45`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionMyChatMemberAdminRegular`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionMyChatMemberAdminRegular} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionMyChatMemberAdminRegular`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionMyChatMemberAdminRegular(name?: string) {
     return this.methodSession(`46`, name)
   }
 
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeChannelPost`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeChannelPost} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeChannelPost`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeChannelPost(name?: string) {
     return this.methodSession(`47`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeEditChannelPost`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeEditChannelPost} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeEditChannelPost`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeEditChannelPost(name?: string) {
     return this.methodSession(`48`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeEdit`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeEdit} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeEdit`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeEdit(name?: string) {
     return this.methodSession(`49`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeReaction`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeReaction} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeReaction`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeReaction(name?: string) {
     return this.methodSession(`50`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeInlineQuery`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeInlineQuery} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeInlineQuery`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeInlineQuery(name?: string) {
     return this.methodSession(`51`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeChosenInlineResult`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeChosenInlineResult} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeChosenInlineResult`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeChosenInlineResult(name?: string) {
     return this.methodSession(`52`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreePreCheckoutQuery`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreePreCheckoutQuery} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreePreCheckoutQuery`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreePreCheckoutQuery(name?: string) {
     return this.methodSession(`53`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeShippingQuery`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeShippingQuery} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeShippingQuery`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeShippingQuery(name?: string) {
     return this.methodSession(`54`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeChatJoinRequest`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeChatJoinRequest} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeChatJoinRequest`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeChatJoinRequest(name?: string) {
     return this.methodSession(`55`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreePoll`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreePoll} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreePoll`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreePoll(name?: string) {
     return this.methodSession(`56`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreePollAnswer`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreePollAnswer} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreePollAnswer`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreePollAnswer(name?: string) {
     return this.methodSession(`57`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeNewChatMembers`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeNewChatMembers} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeNewChatMembers`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeNewChatMembers(name?: string) {
     return this.methodSession(`58`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeLeftChatMember`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeLeftChatMember} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeLeftChatMember`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeLeftChatMember(name?: string) {
     return this.methodSession(`59`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeBusinessConnection`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeBusinessConnection} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeBusinessConnection`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeBusinessConnection(name?: string) {
     return this.methodSession(`60`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeBusinessMessage`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeBusinessMessage} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeBusinessMessage`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeBusinessMessage(name?: string) {
     return this.methodSession(`61`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeEditedBusinessMessage`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeEditedBusinessMessage} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeEditedBusinessMessage`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeEditedBusinessMessage(name?: string) {
     return this.methodSession(`62`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeDeletedBusinessMessages`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeDeletedBusinessMessages} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeDeletedBusinessMessages`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeDeletedBusinessMessages(name?: string) {
     return this.methodSession(`63`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeMessageReactionCount`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeMessageReactionCount} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeMessageReactionCount`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeMessageReactionCount(name?: string) {
     return this.methodSession(`64`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeChatBoost`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeChatBoost} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeChatBoost`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeChatBoost(name?: string) {
     return this.methodSession(`65`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeRemovedChatBoost`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeRemovedChatBoost} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeRemovedChatBoost`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeRemovedChatBoost(name?: string) {
     return this.methodSession(`66`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeSuccessfulPayment`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeSuccessfulPayment} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeSuccessfulPayment`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeSuccessfulPayment(name?: string) {
     return this.methodSession(`67`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeRefundedPayment`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeRefundedPayment} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeRefundedPayment`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeRefundedPayment(name?: string) {
     return this.methodSession(`68`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeGroupChatCreated`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeGroupChatCreated} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeGroupChatCreated`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeGroupChatCreated(name?: string) {
     return this.methodSession(`69`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeSupergroupChatCreated`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeSupergroupChatCreated} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeSupergroupChatCreated`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeSupergroupChatCreated(name?: string) {
     return this.methodSession(`70`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeChannelChatCreated`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeChannelChatCreated} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeChannelChatCreated`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeChannelChatCreated(name?: string) {
     return this.methodSession(`71`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeVideoChatStarted`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeVideoChatStarted} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeVideoChatStarted`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeVideoChatStarted(name?: string) {
     return this.methodSession(`72`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeVideoChatScheduled`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeVideoChatScheduled} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeVideoChatScheduled`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeVideoChatScheduled(name?: string) {
     return this.methodSession(`73`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeVideoChatEnded`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeVideoChatEnded} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeVideoChatEnded`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeVideoChatEnded(name?: string) {
     return this.methodSession(`74`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeVideoChatParticipantsInvited`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeVideoChatParticipantsInvited} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeVideoChatParticipantsInvited`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeVideoChatParticipantsInvited(name?: string) {
     return this.methodSession(`75`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeUserShared`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeUserShared} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeUserShared`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeUserShared(name?: string) {
     return this.methodSession(`76`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeChatShared`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeChatShared} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeChatShared`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeChatShared(name?: string) {
     return this.methodSession(`77`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeWebAppData`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeWebAppData} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeWebAppData`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeWebAppData(name?: string) {
     return this.methodSession(`78`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeGiveaway`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeGiveaway} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeGiveaway`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeGiveaway(name?: string) {
     return this.methodSession(`79`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeGiveawayCreated`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeGiveawayCreated} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeGiveawayCreated`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeGiveawayCreated(name?: string) {
     return this.methodSession(`80`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeGiveawayWinners`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeGiveawayWinners} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeGiveawayWinners`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeGiveawayWinners(name?: string) {
     return this.methodSession(`81`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeGiveawayCompleted`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeGiveawayCompleted} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeGiveawayCompleted`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeGiveawayCompleted(name?: string) {
     return this.methodSession(`82`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreePinMessage`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreePinMessage} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreePinMessage`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreePinMessage(name?: string) {
     return this.methodSession(`83`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeForumTopicCreated`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeForumTopicCreated} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeForumTopicCreated`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeForumTopicCreated(name?: string) {
     return this.methodSession(`84`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeForumTopicEdited`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeForumTopicEdited} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeForumTopicEdited`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeForumTopicEdited(name?: string) {
     return this.methodSession(`85`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeForumTopicClosed`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeForumTopicClosed} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeForumTopicClosed`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeForumTopicClosed(name?: string) {
     return this.methodSession(`86`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeForumTopicReopened`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeForumTopicReopened} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeForumTopicReopened`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeForumTopicReopened(name?: string) {
     return this.methodSession(`87`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeGeneralForumTopicHidden`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeGeneralForumTopicHidden} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeGeneralForumTopicHidden`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeGeneralForumTopicHidden(name?: string) {
     return this.methodSession(`88`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeGeneralForumTopicUnhidden`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeGeneralForumTopicUnhidden} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeGeneralForumTopicUnhidden`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeGeneralForumTopicUnhidden(name?: string) {
     return this.methodSession(`89`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeProximityAlertTriggered`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeProximityAlertTriggered} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeProximityAlertTriggered`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeProximityAlertTriggered(name?: string) {
     return this.methodSession(`90`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeConnectedWebsite`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeConnectedWebsite} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeConnectedWebsite`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeConnectedWebsite(name?: string) {
     return this.methodSession(`91`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreePassportData`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreePassportData} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreePassportData`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreePassportData(name?: string) {
     return this.methodSession(`92`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeMessageAutoDeleteTimerChanged`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeMessageAutoDeleteTimerChanged} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeMessageAutoDeleteTimerChanged`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeMessageAutoDeleteTimerChanged(name?: string) {
     return this.methodSession(`93`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeChatBackgroundSet`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeChatBackgroundSet} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeChatBackgroundSet`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeChatBackgroundSet(name?: string) {
     return this.methodSession(`94`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeNewChatTitle`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeNewChatTitle} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeNewChatTitle`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeNewChatTitle(name?: string) {
     return this.methodSession(`95`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeNewChatPhoto`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeNewChatPhoto} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeNewChatPhoto`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeNewChatPhoto(name?: string) {
     return this.methodSession(`96`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeDeleteChatPhoto`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeDeleteChatPhoto} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeDeleteChatPhoto`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeDeleteChatPhoto(name?: string) {
     return this.methodSession(`97`, name)
   }
-  /** {@inheritDoc Ctx.methodSession} */
+  /**
+   * Session method key builder for `handleSessionFreeWriteAccessAllowed`.
+   *
+   * @remarks
+   * Low-level: prefer the typed {@link Ctx.setSessionFreeWriteAccessAllowed} helper. Used by
+   * session routing (id=1) to look up the active page for `handleSessionFreeWriteAccessAllowed`.
+   *
+   * @param name - Optional page name override (defaults to the page data name).
+   * @returns The prefixed session method key (e.g. `1-PageName`).
+   *
+   * @public
+   */
   methodSessionFreeWriteAccessAllowed(name?: string) {
     return this.methodSession(`98`, name)
   }
