@@ -244,6 +244,10 @@ class SessionNichePage extends Ctx {
   }
 }
 
+class SessionProbePage extends Ctx {
+  static data = {name: `sessionProbeHandler`} as any
+}
+
 // ── Test subclass ──────────────────────────────────────────────────
 
 class TestBot extends Gramstax {
@@ -864,5 +868,54 @@ describe(`Gramstax session triune`, () => {
     await bot.cacheSession.set(`-1001234567890`, {method, params: {}})
     await bot.bot.handleUpdate(buildNewChatTitle() as any)
     expect(sessionNicheCalled).toBe(true)
+  })
+
+  it(`executes every handleSessionFree* through its setSessionFree* + methodSessionFree*`, async () => {
+    const executed = new Set<string>()
+    const probe = createBot([])
+    const proto = SessionProbePage.prototype as any
+    for (const sessionRoute of probe.pages.listRouteStaticSession) {
+      proto[sessionRoute] = async function (this: Ctx) {
+        executed.add(sessionRoute)
+        ;(this as any).temp.isAnswer = true
+      }
+    }
+
+    const bot = createBot([{name: `sessionProbeHandler`, page: SessionProbePage}])
+    const cn = {id: 123456789, is_bot: false, first_name: `Probe`}
+    const ct = {
+      update: {
+        update_id: 1,
+        message: {message_id: 1, date: 1, chat: {id: 123456789, type: `private`}, from: cn, text: `x`},
+        from: cn,
+        chat: {id: 123456789, type: `private`}
+      },
+      from: cn,
+      chat: {id: 123456789, type: `private`}
+    } as any
+    const allPairs = [...bot.pages.listRouteStatic, ...bot.pages.listRouteStaticIntent, ...bot.pages.listRouteDynamicSpesific] as readonly string[]
+
+    for (const sessionRoute of probe.pages.listRouteStaticSession) {
+      const rest = sessionRoute.slice(`handleSession`.length)
+      const pairRoute = `handle${rest}`
+      if (!allPairs.includes(pairRoute)) {
+        throw new Error(`no pair for ${sessionRoute} (expected ${pairRoute})`)
+      }
+      const listenerName = pairRoute.replace(`handle`, ``).replace(`Args`, ``).replace(`Command`, ``).replace(`Caption`, ``).replace(`Free`, ``).toLowerCase()
+
+      const ctx = new SessionProbePage({
+        ct: ct as any,
+        cacheSession: (bot as any).cacheSession,
+        cacheKeyboard: (bot as any).cacheKeyboard,
+        templateManager: (bot as any).templateManager,
+        temp: {isAnswer: false, session: {}, data: {}}
+      }) as unknown as Ctx
+      await (ctx as any)[`setSession${rest}`]({probe: sessionRoute})
+      const res = await bot._pageRoutes(ctx, listenerName)
+      if (res.state !== `matched`) {
+        throw new Error(`sessionRoute=${sessionRoute} listener=${listenerName} setter=setSession${rest} got ${res.state}`)
+      }
+      expect(executed.has(sessionRoute)).toBe(true)
+    }
   })
 })
