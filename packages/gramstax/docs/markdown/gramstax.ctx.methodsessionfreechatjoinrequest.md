@@ -4,7 +4,7 @@
 
 ## Ctx.methodSessionFreeChatJoinRequest() method
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeChatJoinRequest`<!-- -->.
 
 **Signature:**
 
@@ -42,7 +42,7 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional page name override (defaults to the page data name).
 
 
 </td></tr>
@@ -52,11 +52,9 @@ _(Optional)_
 
 string
 
+The prefixed session method key (e.g. `1-PageName`<!-- -->).
+
 ## Remarks
 
-Low-level API. You rarely need to call these directly — the [Ctx.setSessionFreeText()](./gramstax.ctx.setsessionfreetext.md) (and siblings) already wire them internally.
-
-These methods generate unique session method identifiers used by [Ctx.setSession()](./gramstax.ctx.setsession.md) and validation methods. Each `methodSession*` returns a prefixed string like `"1-PageName"`<!-- -->.
-
-When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers — never hardcode the prefix:
+Low-level: prefer the typed [Ctx.setSessionFreeChatJoinRequest()](./gramstax.ctx.setsessionfreechatjoinrequest.md) helper. Used by session routing (id=1) to look up the active page for `handleSessionFreeChatJoinRequest`<!-- -->.
 

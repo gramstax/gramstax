@@ -4,7 +4,7 @@
 
 ## Ctx.setSessionFreeBusinessConnection() method
 
-Session set helper methods.
+Set the session method for `handleSessionFreeBusinessConnection` routing.
 
 **Signature:**
 
@@ -58,7 +58,7 @@ Record&lt;string, unknown&gt;
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional session parameters stored alongside the method.
 
 
 </td></tr>
@@ -68,7 +68,9 @@ _(Optional)_
 
 Promise&lt;boolean \| null&gt;
 
+The `setSession` result, or null when no user/chat id is available.
+
 ## Remarks
 
-These methods are shortcuts for [Ctx.setSession()](./gramstax.ctx.setsession.md) with pre-built method names. Each `session*` method sets the session for the corresponding route handler.
+Stores the key from [Ctx.methodSessionFreeBusinessConnection()](./gramstax.ctx.methodsessionfreebusinessconnection.md) via [Ctx.setSession()](./gramstax.ctx.setsession.md)<!-- -->. Subsequent updates of the matching listener type dispatch to the page's `handleSessionFreeBusinessConnection` handler (routing id=1) until the session is cleared.
 

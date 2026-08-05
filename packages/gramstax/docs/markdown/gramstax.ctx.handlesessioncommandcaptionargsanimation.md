@@ -4,7 +4,7 @@
 
 ## Ctx.handleSessionCommandCaptionArgsAnimation() method
 
-Session-aware route handler for callback queries without args.
+Optional `handleSessionCommandCaptionArgsAnimation` route handler declaration.
 
 **Signature:**
 
@@ -17,9 +17,5 @@ Promise&lt;unknown&gt;
 
 ## Remarks
 
-Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`<!-- -->) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)
-
-Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.
-
-Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.
+Declared on `Ctx` so `setSessionCommandCaptionArgsAnimation` type-checks and the triune (handler / setter / method key) stays in sync. Pages implement the handler.
 

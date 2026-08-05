@@ -2011,7 +2011,7 @@ _(Optional)_ Bot is promoted to administrator.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionArgsCallbackQueryData` route handler declaration.
 
 
 </td></tr>
@@ -2025,7 +2025,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionArgsText` route handler declaration.
 
 
 </td></tr>
@@ -2053,7 +2053,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionAnimation` route handler declaration.
 
 
 </td></tr>
@@ -2067,7 +2067,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionArgsAnimation` route handler declaration.
 
 
 </td></tr>
@@ -2081,7 +2081,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionArgsAudio` route handler declaration.
 
 
 </td></tr>
@@ -2095,7 +2095,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionArgsDocument` route handler declaration.
 
 
 </td></tr>
@@ -2109,7 +2109,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionArgsPhoto` route handler declaration.
 
 
 </td></tr>
@@ -2123,7 +2123,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionArgsVideo` route handler declaration.
 
 
 </td></tr>
@@ -2137,7 +2137,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionArgsVoice` route handler declaration.
 
 
 </td></tr>
@@ -2151,7 +2151,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionAudio` route handler declaration.
 
 
 </td></tr>
@@ -2165,7 +2165,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionDocument` route handler declaration.
 
 
 </td></tr>
@@ -2179,7 +2179,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionPhoto` route handler declaration.
 
 
 </td></tr>
@@ -2193,7 +2193,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionVideo` route handler declaration.
 
 
 </td></tr>
@@ -2207,7 +2207,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCaptionVoice` route handler declaration.
 
 
 </td></tr>
@@ -2221,7 +2221,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandArgsText` route handler declaration.
 
 
 </td></tr>
@@ -2235,7 +2235,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionAnimation` route handler declaration.
 
 
 </td></tr>
@@ -2249,7 +2249,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionArgsAnimation` route handler declaration.
 
 
 </td></tr>
@@ -2263,7 +2263,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionArgsAudio` route handler declaration.
 
 
 </td></tr>
@@ -2277,7 +2277,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionArgsDocument` route handler declaration.
 
 
 </td></tr>
@@ -2291,7 +2291,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionArgsPhoto` route handler declaration.
 
 
 </td></tr>
@@ -2305,7 +2305,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionArgsVideo` route handler declaration.
 
 
 </td></tr>
@@ -2319,7 +2319,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionArgsVoice` route handler declaration.
 
 
 </td></tr>
@@ -2333,7 +2333,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionAudio` route handler declaration.
 
 
 </td></tr>
@@ -2347,7 +2347,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionDocument` route handler declaration.
 
 
 </td></tr>
@@ -2361,7 +2361,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionPhoto` route handler declaration.
 
 
 </td></tr>
@@ -2375,7 +2375,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionVideo` route handler declaration.
 
 
 </td></tr>
@@ -2389,7 +2389,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandCaptionVoice` route handler declaration.
 
 
 </td></tr>
@@ -2403,7 +2403,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionCommandText` route handler declaration.
 
 
 </td></tr>
@@ -2417,7 +2417,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFree` route handler declaration.
 
 
 </td></tr>
@@ -2431,7 +2431,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeAnimation` route handler declaration.
 
 
 </td></tr>
@@ -2445,7 +2445,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeAudio` route handler declaration.
 
 
 </td></tr>
@@ -2459,7 +2459,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeContact` route handler declaration.
 
 
 </td></tr>
@@ -2473,7 +2473,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeDocument` route handler declaration.
 
 
 </td></tr>
@@ -2487,7 +2487,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeLocation` route handler declaration.
 
 
 </td></tr>
@@ -2501,7 +2501,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreePhoto` route handler declaration.
 
 
 </td></tr>
@@ -2515,7 +2515,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeSticker` route handler declaration.
 
 
 </td></tr>
@@ -2529,7 +2529,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeText` route handler declaration.
 
 
 </td></tr>
@@ -2543,7 +2543,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeVideo` route handler declaration.
 
 
 </td></tr>
@@ -2557,7 +2557,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeVideoNote` route handler declaration.
 
 
 </td></tr>
@@ -2571,7 +2571,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionFreeVoice` route handler declaration.
 
 
 </td></tr>
@@ -2585,7 +2585,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 
 </td><td>
 
-_(Optional)_ Session-aware route handler for callback queries without args.
+_(Optional)_ Optional `handleSessionText` route handler declaration.
 
 
 </td></tr>
@@ -2711,7 +2711,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionArgsCallbackQueryData`<!-- -->.
 
 
 </td></tr>
@@ -2725,7 +2725,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionArgsText`<!-- -->.
 
 
 </td></tr>
@@ -2739,7 +2739,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCallbackQueryData`<!-- -->.
 
 
 </td></tr>
@@ -2753,7 +2753,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionAnimation`<!-- -->.
 
 
 </td></tr>
@@ -2767,7 +2767,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionArgsAnimation`<!-- -->.
 
 
 </td></tr>
@@ -2781,7 +2781,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionArgsAudio`<!-- -->.
 
 
 </td></tr>
@@ -2795,7 +2795,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionArgsDocument`<!-- -->.
 
 
 </td></tr>
@@ -2809,7 +2809,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionArgsPhoto`<!-- -->.
 
 
 </td></tr>
@@ -2823,7 +2823,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionArgsVideo`<!-- -->.
 
 
 </td></tr>
@@ -2837,7 +2837,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionArgsVoice`<!-- -->.
 
 
 </td></tr>
@@ -2851,7 +2851,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionAudio`<!-- -->.
 
 
 </td></tr>
@@ -2865,7 +2865,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionDocument`<!-- -->.
 
 
 </td></tr>
@@ -2879,7 +2879,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionPhoto`<!-- -->.
 
 
 </td></tr>
@@ -2893,7 +2893,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionVideo`<!-- -->.
 
 
 </td></tr>
@@ -2907,7 +2907,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCaptionVoice`<!-- -->.
 
 
 </td></tr>
@@ -2921,7 +2921,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionChatMemberOutIn`<!-- -->.
 
 
 </td></tr>
@@ -2935,7 +2935,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandArgsText`<!-- -->.
 
 
 </td></tr>
@@ -2949,7 +2949,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionAnimation`<!-- -->.
 
 
 </td></tr>
@@ -2963,7 +2963,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionArgsAnimation`<!-- -->.
 
 
 </td></tr>
@@ -2977,7 +2977,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionArgsAudio`<!-- -->.
 
 
 </td></tr>
@@ -2991,7 +2991,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionArgsDocument`<!-- -->.
 
 
 </td></tr>
@@ -3005,7 +3005,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionArgsPhoto`<!-- -->.
 
 
 </td></tr>
@@ -3019,7 +3019,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionArgsVideo`<!-- -->.
 
 
 </td></tr>
@@ -3033,7 +3033,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionArgsVoice`<!-- -->.
 
 
 </td></tr>
@@ -3047,7 +3047,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionAudio`<!-- -->.
 
 
 </td></tr>
@@ -3061,7 +3061,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionDocument`<!-- -->.
 
 
 </td></tr>
@@ -3075,7 +3075,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionPhoto`<!-- -->.
 
 
 </td></tr>
@@ -3089,7 +3089,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionVideo`<!-- -->.
 
 
 </td></tr>
@@ -3103,7 +3103,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandCaptionVoice`<!-- -->.
 
 
 </td></tr>
@@ -3117,7 +3117,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionCommandText`<!-- -->.
 
 
 </td></tr>
@@ -3131,7 +3131,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeAnimation`<!-- -->.
 
 
 </td></tr>
@@ -3145,7 +3145,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeAudio`<!-- -->.
 
 
 </td></tr>
@@ -3159,7 +3159,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeBusinessConnection`<!-- -->.
 
 
 </td></tr>
@@ -3173,7 +3173,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeBusinessMessage`<!-- -->.
 
 
 </td></tr>
@@ -3187,7 +3187,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeChannelChatCreated`<!-- -->.
 
 
 </td></tr>
@@ -3201,7 +3201,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeChannelPost`<!-- -->.
 
 
 </td></tr>
@@ -3215,7 +3215,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeChatBackgroundSet`<!-- -->.
 
 
 </td></tr>
@@ -3229,7 +3229,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeChatBoost`<!-- -->.
 
 
 </td></tr>
@@ -3243,7 +3243,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeChatJoinRequest`<!-- -->.
 
 
 </td></tr>
@@ -3257,7 +3257,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeChatShared`<!-- -->.
 
 
 </td></tr>
@@ -3271,7 +3271,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeChosenInlineResult`<!-- -->.
 
 
 </td></tr>
@@ -3285,7 +3285,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeConnectedWebsite`<!-- -->.
 
 
 </td></tr>
@@ -3299,7 +3299,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeContact`<!-- -->.
 
 
 </td></tr>
@@ -3313,7 +3313,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeDeleteChatPhoto`<!-- -->.
 
 
 </td></tr>
@@ -3327,7 +3327,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeDeletedBusinessMessages`<!-- -->.
 
 
 </td></tr>
@@ -3341,7 +3341,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeDocument`<!-- -->.
 
 
 </td></tr>
@@ -3355,7 +3355,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeEdit`<!-- -->.
 
 
 </td></tr>
@@ -3369,7 +3369,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeEditChannelPost`<!-- -->.
 
 
 </td></tr>
@@ -3383,7 +3383,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeEditedBusinessMessage`<!-- -->.
 
 
 </td></tr>
@@ -3397,7 +3397,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeForumTopicClosed`<!-- -->.
 
 
 </td></tr>
@@ -3411,7 +3411,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeForumTopicCreated`<!-- -->.
 
 
 </td></tr>
@@ -3425,7 +3425,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeForumTopicEdited`<!-- -->.
 
 
 </td></tr>
@@ -3439,7 +3439,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeForumTopicReopened`<!-- -->.
 
 
 </td></tr>
@@ -3453,7 +3453,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeGeneralForumTopicHidden`<!-- -->.
 
 
 </td></tr>
@@ -3467,7 +3467,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeGeneralForumTopicUnhidden`<!-- -->.
 
 
 </td></tr>
@@ -3481,7 +3481,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeGiveaway`<!-- -->.
 
 
 </td></tr>
@@ -3495,7 +3495,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeGiveawayCompleted`<!-- -->.
 
 
 </td></tr>
@@ -3509,7 +3509,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeGiveawayCreated`<!-- -->.
 
 
 </td></tr>
@@ -3523,7 +3523,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeGiveawayWinners`<!-- -->.
 
 
 </td></tr>
@@ -3537,7 +3537,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeGroupChatCreated`<!-- -->.
 
 
 </td></tr>
@@ -3551,7 +3551,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeInlineQuery`<!-- -->.
 
 
 </td></tr>
@@ -3565,7 +3565,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeLeftChatMember`<!-- -->.
 
 
 </td></tr>
@@ -3579,7 +3579,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeLocation`<!-- -->.
 
 
 </td></tr>
@@ -3593,7 +3593,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeMessageAutoDeleteTimerChanged`<!-- -->.
 
 
 </td></tr>
@@ -3607,7 +3607,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeMessageReactionCount`<!-- -->.
 
 
 </td></tr>
@@ -3621,7 +3621,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeNewChatMembers`<!-- -->.
 
 
 </td></tr>
@@ -3635,7 +3635,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeNewChatPhoto`<!-- -->.
 
 
 </td></tr>
@@ -3649,7 +3649,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeNewChatTitle`<!-- -->.
 
 
 </td></tr>
@@ -3663,7 +3663,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreePassportData`<!-- -->.
 
 
 </td></tr>
@@ -3677,7 +3677,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreePhoto`<!-- -->.
 
 
 </td></tr>
@@ -3691,7 +3691,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreePinMessage`<!-- -->.
 
 
 </td></tr>
@@ -3705,7 +3705,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreePoll`<!-- -->.
 
 
 </td></tr>
@@ -3719,7 +3719,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreePollAnswer`<!-- -->.
 
 
 </td></tr>
@@ -3733,7 +3733,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreePreCheckoutQuery`<!-- -->.
 
 
 </td></tr>
@@ -3747,7 +3747,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeProximityAlertTriggered`<!-- -->.
 
 
 </td></tr>
@@ -3761,7 +3761,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeReaction`<!-- -->.
 
 
 </td></tr>
@@ -3775,7 +3775,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeRefundedPayment`<!-- -->.
 
 
 </td></tr>
@@ -3789,7 +3789,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeRemovedChatBoost`<!-- -->.
 
 
 </td></tr>
@@ -3803,7 +3803,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeShippingQuery`<!-- -->.
 
 
 </td></tr>
@@ -3817,7 +3817,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeSticker`<!-- -->.
 
 
 </td></tr>
@@ -3831,7 +3831,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeSuccessfulPayment`<!-- -->.
 
 
 </td></tr>
@@ -3845,7 +3845,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeSupergroupChatCreated`<!-- -->.
 
 
 </td></tr>
@@ -3859,7 +3859,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeText`<!-- -->.
 
 
 </td></tr>
@@ -3873,7 +3873,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeUserShared`<!-- -->.
 
 
 </td></tr>
@@ -3887,7 +3887,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeVideo`<!-- -->.
 
 
 </td></tr>
@@ -3901,7 +3901,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeVideoChatEnded`<!-- -->.
 
 
 </td></tr>
@@ -3915,7 +3915,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeVideoChatParticipantsInvited`<!-- -->.
 
 
 </td></tr>
@@ -3929,7 +3929,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeVideoChatScheduled`<!-- -->.
 
 
 </td></tr>
@@ -3943,7 +3943,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeVideoChatStarted`<!-- -->.
 
 
 </td></tr>
@@ -3957,7 +3957,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeVideoNote`<!-- -->.
 
 
 </td></tr>
@@ -3971,7 +3971,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeVoice`<!-- -->.
 
 
 </td></tr>
@@ -3985,7 +3985,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeWebAppData`<!-- -->.
 
 
 </td></tr>
@@ -3999,7 +3999,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionFreeWriteAccessAllowed`<!-- -->.
 
 
 </td></tr>
@@ -4013,7 +4013,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionMyChatMemberAdminRegular`<!-- -->.
 
 
 </td></tr>
@@ -4027,7 +4027,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionMyChatMemberOutAdmin`<!-- -->.
 
 
 </td></tr>
@@ -4041,7 +4041,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionMyChatMemberOutRegular`<!-- -->.
 
 
 </td></tr>
@@ -4055,7 +4055,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionMyChatMemberRegularAdmin`<!-- -->.
 
 
 </td></tr>
@@ -4069,7 +4069,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-\[LOW-LEVEL\] Session method name builders.
+Session method key builder for `handleSessionText`<!-- -->.
 
 
 </td></tr>
@@ -4727,7 +4727,7 @@ Streams an iterator of message pieces to the current chat, making text appear pr
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionArgsCallbackQueryData` routing.
 
 
 </td></tr>
@@ -4741,7 +4741,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionArgsText` routing.
 
 
 </td></tr>
@@ -4769,7 +4769,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionAnimation` routing.
 
 
 </td></tr>
@@ -4783,7 +4783,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionArgsAnimation` routing.
 
 
 </td></tr>
@@ -4797,7 +4797,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionArgsAudio` routing.
 
 
 </td></tr>
@@ -4811,7 +4811,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionArgsDocument` routing.
 
 
 </td></tr>
@@ -4825,7 +4825,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionArgsPhoto` routing.
 
 
 </td></tr>
@@ -4839,7 +4839,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionArgsVideo` routing.
 
 
 </td></tr>
@@ -4853,7 +4853,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionArgsVoice` routing.
 
 
 </td></tr>
@@ -4867,7 +4867,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionAudio` routing.
 
 
 </td></tr>
@@ -4881,7 +4881,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionDocument` routing.
 
 
 </td></tr>
@@ -4895,7 +4895,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionPhoto` routing.
 
 
 </td></tr>
@@ -4909,7 +4909,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionVideo` routing.
 
 
 </td></tr>
@@ -4923,7 +4923,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCaptionVoice` routing.
 
 
 </td></tr>
@@ -4937,7 +4937,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionChatMemberOutIn` routing.
 
 
 </td></tr>
@@ -4951,7 +4951,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandArgsText` routing.
 
 
 </td></tr>
@@ -4965,7 +4965,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionAnimation` routing.
 
 
 </td></tr>
@@ -4979,7 +4979,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionArgsAnimation` routing.
 
 
 </td></tr>
@@ -4993,7 +4993,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionArgsAudio` routing.
 
 
 </td></tr>
@@ -5007,7 +5007,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionArgsDocument` routing.
 
 
 </td></tr>
@@ -5021,7 +5021,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionArgsPhoto` routing.
 
 
 </td></tr>
@@ -5035,7 +5035,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionArgsVideo` routing.
 
 
 </td></tr>
@@ -5049,7 +5049,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionArgsVoice` routing.
 
 
 </td></tr>
@@ -5063,7 +5063,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionAudio` routing.
 
 
 </td></tr>
@@ -5077,7 +5077,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionDocument` routing.
 
 
 </td></tr>
@@ -5091,7 +5091,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionPhoto` routing.
 
 
 </td></tr>
@@ -5105,7 +5105,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionVideo` routing.
 
 
 </td></tr>
@@ -5119,7 +5119,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandCaptionVoice` routing.
 
 
 </td></tr>
@@ -5133,7 +5133,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionCommandText` routing.
 
 
 </td></tr>
@@ -5147,7 +5147,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeAnimation` routing.
 
 
 </td></tr>
@@ -5161,7 +5161,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeAudio` routing.
 
 
 </td></tr>
@@ -5175,7 +5175,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeBusinessConnection` routing.
 
 
 </td></tr>
@@ -5189,7 +5189,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeBusinessMessage` routing.
 
 
 </td></tr>
@@ -5203,7 +5203,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeChannelChatCreated` routing.
 
 
 </td></tr>
@@ -5217,7 +5217,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeChannelPost` routing.
 
 
 </td></tr>
@@ -5231,7 +5231,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeChatBackgroundSet` routing.
 
 
 </td></tr>
@@ -5245,7 +5245,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeChatBoost` routing.
 
 
 </td></tr>
@@ -5259,7 +5259,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeChatJoinRequest` routing.
 
 
 </td></tr>
@@ -5273,7 +5273,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeChatShared` routing.
 
 
 </td></tr>
@@ -5287,7 +5287,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeChosenInlineResult` routing.
 
 
 </td></tr>
@@ -5301,7 +5301,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeConnectedWebsite` routing.
 
 
 </td></tr>
@@ -5315,7 +5315,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeContact` routing.
 
 
 </td></tr>
@@ -5329,7 +5329,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeDeleteChatPhoto` routing.
 
 
 </td></tr>
@@ -5343,7 +5343,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeDeletedBusinessMessages` routing.
 
 
 </td></tr>
@@ -5357,7 +5357,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeDocument` routing.
 
 
 </td></tr>
@@ -5371,7 +5371,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeEdit` routing.
 
 
 </td></tr>
@@ -5385,7 +5385,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeEditChannelPost` routing.
 
 
 </td></tr>
@@ -5399,7 +5399,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeEditedBusinessMessage` routing.
 
 
 </td></tr>
@@ -5413,7 +5413,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeForumTopicClosed` routing.
 
 
 </td></tr>
@@ -5427,7 +5427,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeForumTopicCreated` routing.
 
 
 </td></tr>
@@ -5441,7 +5441,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeForumTopicEdited` routing.
 
 
 </td></tr>
@@ -5455,7 +5455,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeForumTopicReopened` routing.
 
 
 </td></tr>
@@ -5469,7 +5469,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeGeneralForumTopicHidden` routing.
 
 
 </td></tr>
@@ -5483,7 +5483,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeGeneralForumTopicUnhidden` routing.
 
 
 </td></tr>
@@ -5497,7 +5497,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeGiveaway` routing.
 
 
 </td></tr>
@@ -5511,7 +5511,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeGiveawayCompleted` routing.
 
 
 </td></tr>
@@ -5525,7 +5525,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeGiveawayCreated` routing.
 
 
 </td></tr>
@@ -5539,7 +5539,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeGiveawayWinners` routing.
 
 
 </td></tr>
@@ -5553,7 +5553,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeGroupChatCreated` routing.
 
 
 </td></tr>
@@ -5567,7 +5567,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeInlineQuery` routing.
 
 
 </td></tr>
@@ -5581,7 +5581,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeLeftChatMember` routing.
 
 
 </td></tr>
@@ -5595,7 +5595,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeLocation` routing.
 
 
 </td></tr>
@@ -5609,7 +5609,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeMessageAutoDeleteTimerChanged` routing.
 
 
 </td></tr>
@@ -5623,7 +5623,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeMessageReactionCount` routing.
 
 
 </td></tr>
@@ -5637,7 +5637,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeNewChatMembers` routing.
 
 
 </td></tr>
@@ -5651,7 +5651,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeNewChatPhoto` routing.
 
 
 </td></tr>
@@ -5665,7 +5665,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeNewChatTitle` routing.
 
 
 </td></tr>
@@ -5679,7 +5679,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreePassportData` routing.
 
 
 </td></tr>
@@ -5693,7 +5693,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreePhoto` routing.
 
 
 </td></tr>
@@ -5707,7 +5707,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreePinMessage` routing.
 
 
 </td></tr>
@@ -5721,7 +5721,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreePoll` routing.
 
 
 </td></tr>
@@ -5735,7 +5735,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreePollAnswer` routing.
 
 
 </td></tr>
@@ -5749,7 +5749,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreePreCheckoutQuery` routing.
 
 
 </td></tr>
@@ -5763,7 +5763,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeProximityAlertTriggered` routing.
 
 
 </td></tr>
@@ -5777,7 +5777,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeReaction` routing.
 
 
 </td></tr>
@@ -5791,7 +5791,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeRefundedPayment` routing.
 
 
 </td></tr>
@@ -5805,7 +5805,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeRemovedChatBoost` routing.
 
 
 </td></tr>
@@ -5819,7 +5819,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeShippingQuery` routing.
 
 
 </td></tr>
@@ -5833,7 +5833,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeSticker` routing.
 
 
 </td></tr>
@@ -5847,7 +5847,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeSuccessfulPayment` routing.
 
 
 </td></tr>
@@ -5861,7 +5861,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeSupergroupChatCreated` routing.
 
 
 </td></tr>
@@ -5875,7 +5875,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeText` routing.
 
 
 </td></tr>
@@ -5889,7 +5889,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeUserShared` routing.
 
 
 </td></tr>
@@ -5903,7 +5903,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeVideo` routing.
 
 
 </td></tr>
@@ -5917,7 +5917,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeVideoChatEnded` routing.
 
 
 </td></tr>
@@ -5931,7 +5931,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeVideoChatParticipantsInvited` routing.
 
 
 </td></tr>
@@ -5945,7 +5945,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeVideoChatScheduled` routing.
 
 
 </td></tr>
@@ -5959,7 +5959,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeVideoChatStarted` routing.
 
 
 </td></tr>
@@ -5973,7 +5973,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeVideoNote` routing.
 
 
 </td></tr>
@@ -5987,7 +5987,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeVoice` routing.
 
 
 </td></tr>
@@ -6001,7 +6001,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeWebAppData` routing.
 
 
 </td></tr>
@@ -6015,7 +6015,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionFreeWriteAccessAllowed` routing.
 
 
 </td></tr>
@@ -6029,7 +6029,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionMyChatMemberAdminRegular` routing.
 
 
 </td></tr>
@@ -6043,7 +6043,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionMyChatMemberOutAdmin` routing.
 
 
 </td></tr>
@@ -6057,7 +6057,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionMyChatMemberOutRegular` routing.
 
 
 </td></tr>
@@ -6071,7 +6071,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionMyChatMemberRegularAdmin` routing.
 
 
 </td></tr>
@@ -6085,7 +6085,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
+Set the session method for `handleSessionText` routing.
 
 
 </td></tr>
