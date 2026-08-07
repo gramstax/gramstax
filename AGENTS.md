@@ -188,10 +188,10 @@ Deep per-area guidance lives in child files — read the one matching your task 
 
 ## Telegram Rich HTML
 
-Templates support 53 HTML/tg-\* tags passed through to the message `html` field, in 5 categories:
+Templates support 54 HTML/tg-\* tags passed through to the message `html` field, in 5 categories:
 
 - _Inline (15):_ `a`, `b`, `code`, `del`, `em`, `i`, `ins`, `mark`, `s`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`, `u`
-- _Block/structural (23):_ `aside`, `blockquote`, `blockquote expandable`, `br`, `details`, `footer`, `h1`-`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul`
+- _Block/structural (24):_ `aside`, `blockquote`, `blockquote expandable`, `br`, `caption`, `details`, `footer`, `h1`-`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul`
 - _Telegram-specific (8):_ `tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`
 - _Media (6):_ `audio`, `cite`, `figcaption`, `figure`, `img`, `video`
 - _Forms (1):_ `input`
@@ -201,12 +201,13 @@ Templates support 53 HTML/tg-\* tags passed through to the message `html` field,
 - Void elements must be self-closing: `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>`. Content tags are not format-checked (both `<b>x</b>` and `<b/>` accepted).
 - Enforced by `validateFormatBlock` in the same way as `<g-space/>` and `<g-import/>`.
 
-**Attribute validation** (two layers, both wired into `validateTemplate` as steps 5 and 6):
+**Attribute validation** (three layers, all wired into `validateTemplate` as steps 5–7):
 
 - **Required attributes** — `TemplateEngine._TELEGRAM_REQUIRED_ATTRS` + `validateTelegramAttributesBlock`: e.g. `<a>` needs `href` or `name`; `<img>`/`<video>`/`<audio>` need `src`; `<tg-emoji>` needs `emoji-id`; `<tg-time>` needs `unix` (`format` is optional); `<tg-map>` needs `lat` + `long` + `zoom`; `<tg-reference>` needs `name`; `<input>` needs `type`.
-- **Value formats** — `TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS` + `validateTelegramAttributeValuesBlock`: e.g. `<tg-time unix>` must be a positive integer, `<tg-time format>` must match `r|w?[dD]?[tT]?`; `<tg-map lat>` ∈ [-90, 90], `<tg-map long>` ∈ [-180, 180], `<tg-map zoom>` ∈ [13, 19]; `<tg-emoji emoji-id>` must be numeric; media `src` (`img`/`video`/`audio`) must be `http(s)://`; `<a href>` must use `http(s)://`, `mailto:`, `tel:`, `tg://user?id=`, or `#` scheme; `<input type>` must be `checkbox` (the only Telegram-supported input); block attrs: `<ol start/type>` (int / `1|a|A|i|I`), `<li value/type>` (int / `1|a|A|i|I|checkbox`), `<td colspan/rowspan/align/valign>`, `<th colspan/rowspan>`, `<blockquote cite>`/`<aside cite>` (http(s)), `<code class>` (`language-*`). Boolean attrs (`reversed`, `bordered`, `striped`, `expandable`, `open`, `checked`, `tg-spoiler`) are presence-validated via `() => null` entries.
+- **Value formats** — `TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS` + `validateTelegramAttributeValuesBlock`: e.g. `<tg-time unix>` must be a positive integer, `<tg-time format>` must match `r|w?[dD]?[tT]?`; `<tg-map lat>` ∈ [-90, 90], `<tg-map long>` ∈ [-180, 180], `<tg-map zoom>` ∈ [13, 19]; `<tg-emoji emoji-id>` must be numeric; media `src` (`img`/`video`/`audio`) must be `http(s)://` or a `tg://emoji|photo|video|audio?id=` reference; `<a href>` must use `http(s)://`, `mailto:`, `tel:`, `tg://user?id=`, or `#` scheme; `<input type>` must be `checkbox` (the only Telegram-supported input); block attrs: `<ol start/type>` (int / `1|a|A|i|I`), `<li value/type>` (int / `1|a|A|i|I|checkbox`), `<td colspan/rowspan/align/valign>`, `<th colspan/rowspan/align/valign>`, `<blockquote cite>`/`<aside cite>` (http(s)), `<code class>` (`language-*`). Boolean attrs (`reversed`, `bordered`, `striped`, `expandable`, `open`, `checked`, `tg-spoiler`) are presence-validated via `() => null` entries.
+- **Unknown attributes** — `TemplateEngine._TELEGRAM_ALLOWED_ATTRS` (per-tag allowlist, 54 tags) + `validateTelegramUnknownAttributesBlock`: any attribute name outside the tag's allowlist is rejected (`<table ngasal="x">` → error listing allowed attrs). Tags with an empty allowlist (`b`, `i`, `br`, …) reject every attribute; `{{placeholder}}` is valid as a VALUE but rejected as an attribute NAME.
 
-Validation follows the Telegram Bot API 10.2 Rich Message Formatting Options spec (`TemplateEngine.BOT_API_VERSION` = `10.2`). `{{placeholder}}` attribute values skip value validation. Coverage is locked by `packages/gramstax/test/telegram-rich-coverage.test.ts` (guard iterating all 53 tags — fails when any tag lacks a validator) and `packages/gramstax/test/telegram-rich-matrix.test.ts` (exhaustive tag × attribute valid/invalid matrix). Text passthrough patterns (`#hashtag`, `$USD`, `+phone`, `card:`, `https://`, `t.me`, `a@t.me`, `/command`, `@username`) need no markup and are not in the tag list.
+Validation follows the Telegram Bot API 10.2 Rich Message Formatting Options spec (`TemplateEngine.BOT_API_VERSION` = `10.2`). `{{placeholder}}` attribute values skip value validation. Coverage is locked by `packages/gramstax/test/telegram-rich-coverage.test.ts` (guard iterating all 54 tags — fails when any tag lacks a validator or registry entry) and `packages/gramstax/test/telegram-rich-matrix.test.ts` (exhaustive tag × attribute valid/invalid matrix, plus per-tag unknown-attribute rejection). Text passthrough patterns (`#hashtag`, `$USD`, `+phone`, `card:`, `https://`, `t.me`, `a@t.me`, `/command`, `@username`) need no markup and are not in the tag list.
 
 ## PAGE Attribute Validation
 

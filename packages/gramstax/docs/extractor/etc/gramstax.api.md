@@ -2593,6 +2593,7 @@ export class TemplateEngine {
     static _splitKeyboardLabels(content: string): string[];
     // (undocumented)
     static _splitMediaSrcList(src: string): string[];
+    static _TELEGRAM_ALLOWED_ATTRS: Record<string, readonly string[]>;
     static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;
     static _TELEGRAM_REQUIRED_ATTRS: Record<string, string[] | {
         oneOf: string[][];
@@ -2782,6 +2783,17 @@ export class TemplateEngine {
         line: number;
         message: string;
     }>;
+    static _validateTelegramTagUnknownAttributes(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
+    static validateTelegramUnknownAttributesBlock(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
     static validateTemplate(template: string): {
         valid: boolean;
         errors: Array<{
@@ -2853,10 +2865,10 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:1370:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:3230:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
-// dist/src/index.d.ts:12442:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:13364:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:1395:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:3318:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
+// dist/src/index.d.ts:12530:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:13452:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -105,6 +105,27 @@ Required-attribute specification for `<g-*>` PAGE blocks.
 </td></tr>
 <tr><td>
 
+[\_TELEGRAM\_ALLOWED\_ATTRS](./gramstax.templateengine._telegram_allowed_attrs.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Record&lt;string, readonly string\[\]&gt;
+
+
+</td><td>
+
+Per-tag allowlist of attribute names for Telegram Rich HTML tags.
+
+
+</td></tr>
+<tr><td>
+
 [\_TELEGRAM\_ATTR\_VALUE\_VALIDATORS](./gramstax.templateengine._telegram_attr_value_validators.md)
 
 
@@ -693,6 +714,22 @@ Scans a template for Telegram Rich HTML tags whose attribute values fail format 
 </td></tr>
 <tr><td>
 
+[\_validateTelegramTagUnknownAttributes(template)](./gramstax.templateengine._validatetelegramtagunknownattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Scans a template for Telegram Rich HTML tags carrying attribute names outside their per-tag allowlist.
+
+
+</td></tr>
+<tr><td>
+
 [compileBlockGDescription(template, gBaseBlocks)](./gramstax.templateengine.compileblockgdescription.md)
 
 
@@ -1136,6 +1173,22 @@ Validates that Telegram Rich HTML tags in the template carry their required attr
 </td><td>
 
 Validates that Telegram Rich HTML tag attribute values match their expected formats.
+
+
+</td></tr>
+<tr><td>
+
+[validateTelegramUnknownAttributesBlock(template)](./gramstax.templateengine.validatetelegramunknownattributesblock.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates that Telegram Rich HTML tags carry only their allowed attributes.
 
 
 </td></tr>

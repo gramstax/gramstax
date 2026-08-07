@@ -66,13 +66,59 @@ describe(`telegram rich tag coverage guard (Bot API 10.2)`, () => {
       const tagName = normalize(tagLiteral)
       const hasRequired = tagName in TemplateEngine._TELEGRAM_REQUIRED_ATTRS
       const hasValues = tagName in TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS
-      const covered = hasRequired || hasValues || NO_ATTRIBUTE_TAGS.has(tagName)
+      const hasRegistry = tagName in TemplateEngine._TELEGRAM_ALLOWED_ATTRS
+      const covered = hasRequired || hasValues || hasRegistry || NO_ATTRIBUTE_TAGS.has(tagName)
       expect(covered, `tag ${tagLiteral} (${tagName}) has no validator spec — coverage gap`).toBe(true)
     })
   }
 
-  it(`counts exactly 53 supported tags`, () => {
-    expect(allTags.length).toBe(53)
+  it(`counts exactly 54 supported tags`, () => {
+    expect(allTags.length).toBe(54)
+  })
+
+  it(`registers every telegram tag in the allowed-attr registry`, () => {
+    for (const tagLiteral of allTags) {
+      const tagName = normalize(tagLiteral)
+      expect(
+        tagName in TemplateEngine._TELEGRAM_ALLOWED_ATTRS,
+        `tag ${tagLiteral} (${tagName}) missing from _TELEGRAM_ALLOWED_ATTRS — registry gap`
+      ).toBe(true)
+    }
+  })
+
+  it(`keeps value-validated attributes inside the allowed registry`, () => {
+    for (const [tag, validators] of Object.entries(TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS)) {
+      const allowed = TemplateEngine._TELEGRAM_ALLOWED_ATTRS[tag] ?? []
+      const allowedSet = new Set(allowed)
+      for (const attr of Object.keys(validators)) {
+        expect(allowedSet.has(attr), `validator for ${tag}.${attr} not in allowed registry`).toBe(true)
+      }
+    }
+  })
+
+  it(`keeps required attributes inside the allowed registry`, () => {
+    for (const [tag, spec] of Object.entries(TemplateEngine._TELEGRAM_REQUIRED_ATTRS)) {
+      const allowedSet = new Set(TemplateEngine._TELEGRAM_ALLOWED_ATTRS[tag] ?? [])
+      const required = Array.isArray(spec) ? spec : spec.oneOf.flat()
+      for (const attr of required) {
+        expect(allowedSet.has(attr), `required attr ${tag}.${attr} not in allowed registry`).toBe(true)
+      }
+    }
+  })
+
+  it(`keeps the registry in sync with the official spec (no invented attributes)`, () => {
+    const registryTags = Object.keys(TemplateEngine._TELEGRAM_ALLOWED_ATTRS).sort()
+    const telegramTags = [...new Set(allTags.map(normalize))].sort()
+    expect(registryTags).toEqual(telegramTags)
+  })
+
+  it(`guard fails when a tag is added without registry coverage (efficacy)`, () => {
+    const missing = [...allTags, `<tg-future/>`].filter((literal) => {
+      const tagName = normalize(literal)
+      return !(tagName in TemplateEngine._TELEGRAM_ALLOWED_ATTRS)
+    })
+    expect(missing.length).toBeGreaterThan(0)
+    expect(missing.map(normalize)).toContain(`tg-future`)
   })
 
   it(`covers every officially documented attribute with a validator`, () => {

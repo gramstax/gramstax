@@ -159,6 +159,7 @@ export class TemplateEngine {
     `<p>`,
     `<summary>`,
     `<table>`,
+    `<caption>`,
     `<td>`,
     `<th>`,
     `<tr>`,
@@ -216,7 +217,7 @@ export class TemplateEngine {
    *
    * **Telegram Rich HTML (passed through to `html` field):**
    * - *Inline:* `a`, `b`, `code`, `del`, `em`, `i`, `ins`, `mark`, `s`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`, `u`
-   * - *Block/structural:* `aside`, `blockquote`, `blockquote expandable`, `br`, `details`, `footer`, `h1`-`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul`
+   * - *Block/structural:* `aside`, `blockquote`, `blockquote expandable`, `br`, `caption`, `details`, `footer`, `h1`-`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul`
    * - *Telegram-specific:* `tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`
    * - *Media:* `audio`, `cite`, `figcaption`, `figure`, `img`, `video`
    * - *Forms:* `input`
@@ -338,17 +339,21 @@ export class TemplateEngine {
       name: (v) => (v.length > 0 ? null : `name must not be empty`)
     },
     img: {
-      src: (v) => (/^https?:\/\//i.test(v) ? null : `src must be an http(s) URL (got "${v}")`)
+      src: (v) => (/^(https?:\/\/|tg:\/\/emoji\?id=\d+|tg:\/\/photo\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL, or a tg://emoji/photo reference (got "${v}")`),
+      alt: (v) => (v.length > 0 ? null : `alt must not be empty`),
+      "tg-spoiler": () => null
     },
     video: {
-      src: (v) => (/^https?:\/\//i.test(v) ? null : `src must be an http(s) URL (got "${v}")`)
+      src: (v) => (/^(https?:\/\/|tg:\/\/video\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL or a tg://video reference (got "${v}")`),
+      "tg-spoiler": () => null
     },
     audio: {
-      src: (v) => (/^https?:\/\//i.test(v) ? null : `src must be an http(s) URL (got "${v}")`)
+      src: (v) => (/^(https?:\/\/|tg:\/\/audio\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL or a tg://audio reference (got "${v}")`)
     },
     input: {
       // Bot API 10.2 rich messages: only <input type="checkbox"> is supported (checklists)
-      type: (v) => (v === `checkbox` ? null : `type must be "checkbox" (got "${v}")`)
+      type: (v) => (v === `checkbox` ? null : `type must be "checkbox" (got "${v}")`),
+      checked: () => null
     },
     ol: {
       start: (v) => (/^\d+$/.test(v) ? null : `start must be a non-negative integer (got "${v}")`),
@@ -373,7 +378,9 @@ export class TemplateEngine {
     },
     th: {
       colspan: (v) => (/^\d+$/.test(v) && Number(v) >= 1 ? null : `colspan must be a positive integer (got "${v}")`),
-      rowspan: (v) => (/^\d+$/.test(v) && Number(v) >= 1 ? null : `rowspan must be a positive integer (got "${v}")`)
+      rowspan: (v) => (/^\d+$/.test(v) && Number(v) >= 1 ? null : `rowspan must be a positive integer (got "${v}")`),
+      align: (v) => ([`left`, `center`, `right`].includes(v) ? null : `align must be left, center or right (got "${v}")`),
+      valign: (v) => ([`top`, `middle`, `bottom`].includes(v) ? null : `valign must be top, middle or bottom (got "${v}")`)
     },
     blockquote: {
       cite: (v) => (/^https?:\/\//i.test(v) ? null : `cite must be an http(s) URL (got "${v}")`),
@@ -391,6 +398,85 @@ export class TemplateEngine {
     code: {
       class: (v) => (/^language-[\w+-]+$/.test(v) ? null : `class must be a language-* token (got "${v}")`)
     }
+  }
+  /**
+   * Per-tag allowlist of attribute names for Telegram Rich HTML tags.
+   *
+   * @remarks
+   * Single source of truth for the unknown-attribute validation pass
+   * ({@link TemplateEngine._validateTelegramTagUnknownAttributes}). Built from
+   * the official Telegram Bot API 10.2 rich HTML style examples
+   * (core.telegram.org/bots/api#rich-html-style) unioned with legacy
+   * parse_mode HTML attributes still tolerated (blockquote expandable,
+   * cite attributes, li checkbox/checked). Tags with an empty array allow
+   * NO attributes — any attribute on them is an error.
+   *
+   * `{{placeholder}}` is only valid as an attribute VALUE, never as a name.
+   * Generic HTML attributes (style, id, data-*) are not supported by the
+   * spec and are NOT whitelisted.
+   *
+   * @example
+   * ```typescript
+   * TemplateEngine._TELEGRAM_ALLOWED_ATTRS["table"] // => ["bordered", "striped"]
+   * TemplateEngine._TELEGRAM_ALLOWED_ATTRS["b"]     // => [] (no attributes)
+   * ```
+   *
+   * @public
+   */
+  static _TELEGRAM_ALLOWED_ATTRS: Record<string, readonly string[]> = {
+    a: [`href`, `name`],
+    b: [],
+    code: [`class`],
+    del: [],
+    em: [],
+    i: [],
+    ins: [],
+    mark: [],
+    s: [],
+    strike: [],
+    strong: [],
+    sub: [],
+    sup: [],
+    "tg-spoiler": [],
+    u: [],
+    aside: [`cite`],
+    blockquote: [`cite`, `expandable`],
+    br: [],
+    details: [`open`],
+    footer: [],
+    h1: [],
+    h2: [],
+    h3: [],
+    h4: [],
+    h5: [],
+    h6: [],
+    hr: [],
+    li: [`value`, `type`, `checkbox`, `checked`],
+    ol: [`start`, `type`, `reversed`],
+    p: [],
+    pre: [],
+    summary: [],
+    table: [`bordered`, `striped`],
+    td: [`colspan`, `rowspan`, `align`, `valign`],
+    th: [`colspan`, `rowspan`, `align`, `valign`],
+    tr: [],
+    ul: [],
+    "tg-collage": [],
+    "tg-emoji": [`emoji-id`],
+    "tg-map": [`lat`, `long`, `zoom`],
+    "tg-math": [],
+    "tg-math-block": [],
+    "tg-reference": [`name`],
+    "tg-slideshow": [],
+    "tg-time": [`unix`, `format`],
+    audio: [`src`],
+    cite: [],
+    figcaption: [],
+    figure: [],
+    img: [`src`, `alt`, `tg-spoiler`],
+    video: [`src`, `tg-spoiler`],
+    input: [`type`, `checked`],
+    caption: []
   }
   /**
    * Required-attribute specification for `<g-*>` PAGE blocks.
@@ -2550,6 +2636,101 @@ export class TemplateEngine {
   }
 
   /**
+   * Scans a template for Telegram Rich HTML tags carrying attribute names
+   * outside their per-tag allowlist.
+   *
+   * @remarks
+   * For every Telegram rich tag (see {@link TemplateEngine._TELEGRAM_ALLOWED_ATTRS}),
+   * each attribute name present is checked against the allowlist. Unknown
+   * attribute names — including `{{placeholder}}` used as a NAME — produce
+   * errors. Tags with an empty allowlist reject every attribute. Attribute
+   * VALUES (including `{{placeholder}}` values) are NOT checked here — that is
+   * {@link TemplateEngine._validateTelegramTagAttributeValues}'s job.
+   *
+   * @param template - The raw template string to scan
+   * @returns Array of `{line, message}` errors (empty if all attributes are known)
+   *
+   * @example
+   * ```typescript
+   * const errors = TemplateEngine._validateTelegramTagUnknownAttributes(`
+   *   <table ngasal="x"><tr><td>a</td></tr></table>
+   *   <b class="y">bold</b>
+   * `);
+   * // => [
+   * //   {line: 2, message: '<table> has unknown attribute(s): ngasal (allowed: bordered, striped)'},
+   * //   {line: 3, message: '<b> does not support any attributes'}
+   * // ]
+   * ```
+   *
+   * @public
+   */
+  static _validateTelegramTagUnknownAttributes(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const tagRegex = /<(\w[\w-]*)([^>]*?)\/?>/g
+    let match: RegExpExecArray | null
+
+    while ((match = tagRegex.exec(template)) !== null) {
+      const tagName = match[1]!.toLowerCase()
+      const attrsStr = match[2] ?? ``
+      const tagDisplay = match[0]!.endsWith(`/>`) ? `<${tagName}/>` : `<${tagName}>`
+
+      const allowed = this._TELEGRAM_ALLOWED_ATTRS[tagName]
+      if (!allowed) continue // not a Telegram rich tag — g-* blocks handled elsewhere
+
+      // Extract attribute names: `name="v"`, `name='v'`, `name=v`, boolean `name`,
+      // and `{{placeholder}}` used as a full attribute name.
+      const attrNames: string[] = []
+      const attrRegex = /([\w-]+)(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?|\{\{\s*[\w-]+\s*\}\}(?:\s*=\s*[^\s>]+)?/g
+      let am: RegExpExecArray | null
+      while ((am = attrRegex.exec(attrsStr)) !== null) {
+        // Group 1 = literal name; otherwise the whole match is a {{placeholder}} name
+        attrNames.push(am[1] ?? am[0])
+      }
+
+      if (attrNames.length === 0) continue
+
+      const allowedSet = new Set(allowed)
+      const unknown = attrNames.filter((name) => !allowedSet.has(name))
+      if (unknown.length === 0) continue
+
+      const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+      const message =
+        allowed.length === 0
+          ? `${tagDisplay} does not support any attributes`
+          : `${tagDisplay} has unknown attribute(s): ${unknown.join(`, `)} (allowed: ${allowed.join(`, `)})`
+      errors.push({line, message})
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates that Telegram Rich HTML tags carry only their allowed attributes.
+   *
+   * @remarks
+   * Runs after {@link TemplateEngine.validateTelegramAttributeValuesBlock} as a
+   * dedicated unknown-attribute pass. Rejects attribute names outside the
+   * per-tag allowlist {@link TemplateEngine._TELEGRAM_ALLOWED_ATTRS} — including
+   * `{{placeholder}}` used as a name, and ANY attribute on no-attribute tags.
+   * `<g-*>` PAGE blocks are unaffected (validated by `validateBlockG*Attributes`).
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateTelegramUnknownAttributesBlock(`<table ngasal="x"></table>`);
+   * // Result: { valid: false, errors: [{ line: 1, message: '<table> has unknown attribute(s): ngasal (allowed: bordered, striped)' }] }
+   * ```
+   *
+   * @public
+   */
+  static validateTelegramUnknownAttributesBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateTelegramTagUnknownAttributes(template)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
    * Scans a template for Telegram Rich HTML tags whose attribute values fail format checks.
    *
    * @remarks
@@ -3207,22 +3388,23 @@ export class TemplateEngine {
    * 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules
    * 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags
    * 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes
-   * 7. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes
-   * 8. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
-   * 9. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
-   * 10. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
-   * 11. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
-   * 12. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
-   * 13. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
-   * 14. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
-   * 15. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
-   * 16. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
-   * 17. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
-   * 18. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
-   * 19. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
-   * 20. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
-   * 21. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-   * 22. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   * 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags
+   * 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes
+   * 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
+   * 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
+   * 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
+   * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
+   * 13. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
+   * 14. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
+   * 15. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
+   * 16. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
+   * 17. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
+   * 18. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
+   * 19. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
+   * 20. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
+   * 21. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
+   * 22. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 23. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -3349,22 +3531,23 @@ export class TemplateEngine {
    * 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules
    * 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags
    * 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes
-   * 7. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes
-   * 8. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
-   * 9. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
-   * 10. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
-   * 11. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
-   * 12. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
-   * 13. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
-   * 14. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
-   * 15. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
-   * 16. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
-   * 17. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
-   * 18. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
-   * 19. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
-   * 20. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
-   * 21. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-   * 22. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   * 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags
+   * 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes
+   * 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
+   * 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
+   * 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
+   * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
+   * 13. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
+   * 14. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
+   * 15. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
+   * 16. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
+   * 17. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
+   * 18. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
+   * 19. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
+   * 20. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
+   * 21. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
+   * 22. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 23. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -3391,6 +3574,7 @@ export class TemplateEngine {
     const positionsResult = this.validatePositionsBlock(template)
     const telegramAttrResult = this.validateTelegramAttributesBlock(template)
     const telegramValueResult = this.validateTelegramAttributeValuesBlock(template)
+    const telegramUnknownResult = this.validateTelegramUnknownAttributesBlock(template)
     const baseAttrResult = this.validateBlockGBaseAttributes(template)
     const messageAttrResult = this.validateBlockGMessageAttributes(template)
     const keyboardAttrResult = this.validateBlockGKeyboardAttributes(template)
@@ -3418,6 +3602,7 @@ export class TemplateEngine {
       ...positionsResult.errors,
       ...telegramAttrResult.errors,
       ...telegramValueResult.errors,
+      ...telegramUnknownResult.errors,
       ...baseAttrResult.errors,
       ...messageAttrResult.errors,
       ...keyboardAttrResult.errors,
