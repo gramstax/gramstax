@@ -1398,7 +1398,7 @@ export class Ctx extends Context {
    * quotations, collapsible blocks, footnotes, and formulas.
    *
    * The page template's `<g-message>` HTML content is passed as the `html` field
-   * of `InputRichMessage`. Use the Bot API 10.1 Rich HTML tags in your template
+   * of `InputRichMessage`. Use the Bot API 10.2 Rich HTML tags in your template
    * (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by
    * {@link TemplateEngine.validateBlockGMessageRich}.
    *

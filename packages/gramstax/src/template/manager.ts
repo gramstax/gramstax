@@ -631,7 +631,8 @@ export class TemplateManager {
       const baseInfo = this._getGBaseAtLine(template, err.line)
       const basePrefix = baseInfo?.hasId ? ` on base "${baseInfo.AGBaseId}"` : ``
       const fileRef = `${filename}, line ${err.line}`
-      throw new Error(`Template${basePrefix} (${fileRef}): ${err.message}`)
+      const details = result.errors.map((e) => `line ${e.line}: ${e.message}`).join(`; `)
+      throw new Error(`Template${basePrefix} (${fileRef}): ${details}`)
     }
   }
 

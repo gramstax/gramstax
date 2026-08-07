@@ -122,7 +122,7 @@ The sent message object.
 
 Uses `replyWithRichMessage` (Telegram Bot API [TemplateEngine.BOT\_API\_VERSION](./gramstax.templateengine.bot_api_version.md)<!-- -->) to send structured rich text with headings, lists, tables, media, block quotations, collapsible blocks, footnotes, and formulas.
 
-The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`<!-- -->. Use the Bot API 10.1 Rich HTML tags in your template (e.g. `<h1>`<!-- -->, `<table>`<!-- -->, `<blockquote>`<!-- -->) — they are validated by [TemplateEngine.validateBlockGMessageRich()](./gramstax.templateengine.validateblockgmessagerich.md)<!-- -->.
+The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`<!-- -->. Use the Bot API 10.2 Rich HTML tags in your template (e.g. `<h1>`<!-- -->, `<table>`<!-- -->, `<blockquote>`<!-- -->) — they are validated by [TemplateEngine.validateBlockGMessageRich()](./gramstax.templateengine.validateblockgmessagerich.md)<!-- -->.
 
 Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns
 

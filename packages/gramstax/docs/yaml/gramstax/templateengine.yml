@@ -110,8 +110,8 @@ properties:
       -->.
 
 
-      Validators are intentionally lenient — they catch obvious bugs (wrong type, invalid scheme) but do not enforce
-      every Telegram-side constraint.
+      Value rules follow the Telegram Bot API 10.2 Rich Message Formatting Options spec (see `BOT_API_VERSION`<!-- -->).
+      `{{placeholder}}` values and boolean attributes (no `=value`<!-- -->) are skipped by the caller.
     example:
       - >-
         ```typescript
@@ -141,10 +141,14 @@ properties:
 
       Tags not listed here have no required attributes.
     example:
-      - |-
+      - >-
         ```typescript
+
         TemplateEngine._TELEGRAM_REQUIRED_ATTRS["a"]       // => { oneOf: [["href"], ["name"]] }
-        TemplateEngine._TELEGRAM_REQUIRED_ATTRS["tg-time"] // => ["unix", "format"]
+
+        TemplateEngine._TELEGRAM_REQUIRED_ATTRS["tg-time"] // => ["unix"]  (format is optional, value-validated when
+        present)
+
         ```
     isPreview: false
     isDeprecated: false

@@ -25,6 +25,6 @@ Tags not listed here have no required attributes.
 
 ```typescript
 TemplateEngine._TELEGRAM_REQUIRED_ATTRS["a"]       // => { oneOf: [["href"], ["name"]] }
-TemplateEngine._TELEGRAM_REQUIRED_ATTRS["tg-time"] // => ["unix", "format"]
+TemplateEngine._TELEGRAM_REQUIRED_ATTRS["tg-time"] // => ["unix"]  (format is optional, value-validated when present)
 ```
 

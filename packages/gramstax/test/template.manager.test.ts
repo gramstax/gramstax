@@ -235,6 +235,14 @@ describe(`TemplateManager`, () => {
 
       expect(() => manager._compile(`main`, `<g-base><g-import src="partial" block="message" /></g-base>`)).toThrow(/Unsupported template block: <unknown>/)
     })
+
+    it(`should surface ALL validation errors, not just the first`, async () => {
+      const manager = new TemplateManager({path: [TEST_DIR]})
+      const template = `<g-base><g-message><a>x</a><input type="text"/></g-message></g-base>`
+
+      expect(() => manager._compile(`main`, template)).toThrow(/<a> must have one of/)
+      expect(() => manager._compile(`main`, template)).toThrow(/type must be "checkbox"/)
+    })
   })
 
   describe(`_processGMapBlocks`, () => {

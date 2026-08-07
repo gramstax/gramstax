@@ -1738,10 +1738,10 @@ describe(`TemplateEngine`, () => {
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for <tg-time> with only unix`, () => {
+    it(`should return valid for <tg-time> with only unix (format is optional per Bot API 10.2)`, () => {
       const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-time unix="1647531900">x</tg-time>`)
-      expect(result.valid).toBe(false)
-      expect(result.errors[0]?.message).toBe(`<tg-time> is missing required attribute(s): format`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
     })
 
     it(`should return invalid for <tg-time> with only format`, () => {
@@ -1968,7 +1968,18 @@ describe(`TemplateEngine`, () => {
     it(`<tg-time format> rejects empty value`, () => {
       const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-time unix="1" format="">x</tg-time>`)
       expect(result.valid).toBe(false)
-      expect(result.errors[0]?.message).toContain(`format must not be empty`)
+      expect(result.errors[0]?.message).toContain(`format must match r, or an optional weekday/date/time combo like wDT`)
+    })
+
+    it(`<tg-time format> accepts valid r|w?[dD]?[tT]? formats`, () => {
+      for (const f of [`r`, `w`, `d`, `D`, `t`, `T`, `wD`, `wdt`, `wDT`]) {
+        expect(TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-time unix="1" format="${f}">x</tg-time>`).valid).toBe(true)
+      }
+    })
+
+    it(`<tg-time format> rejects unknown format token`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-time unix="1" format="X">x</tg-time>`)
+      expect(result.valid).toBe(false)
     })
 
     it(`<tg-map lat> accepts valid number in range`, () => {
@@ -1989,35 +2000,35 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`<tg-map long> accepts boundary values -180 and 180`, () => {
-      const result1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="-180" zoom="0"/>`)
-      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="180" zoom="0"/>`)
+      const result1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="-180" zoom="14"/>`)
+      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="180" zoom="14"/>`)
       expect(result1.valid).toBe(true)
       expect(result2.valid).toBe(true)
     })
 
     it(`<tg-map long> rejects out-of-range value`, () => {
-      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="181" zoom="0"/>`)
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="181" zoom="14"/>`)
       expect(result.valid).toBe(false)
       expect(result.errors[0]?.message).toContain(`long must be a number between -180 and 180`)
     })
 
-    it(`<tg-map zoom> accepts 0 and 24`, () => {
-      const result1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="0"/>`)
-      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="24"/>`)
+    it(`<tg-map zoom> accepts 13 and 19`, () => {
+      const result1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="13"/>`)
+      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="19"/>`)
       expect(result1.valid).toBe(true)
       expect(result2.valid).toBe(true)
     })
 
-    it(`<tg-map zoom> rejects value > 24`, () => {
-      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="25"/>`)
-      expect(result.valid).toBe(false)
-      expect(result.errors[0]?.message).toContain(`zoom must be a non-negative integer ≤ 24`)
+    it(`<tg-map zoom> rejects values outside 13..19`, () => {
+      for (const z of [`0`, `12`, `20`, `24`, `25`]) {
+        expect(TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="${z}"/>`).valid).toBe(false)
+      }
     })
 
     it(`<tg-map zoom> rejects non-integer value`, () => {
       const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="1.5"/>`)
       expect(result.valid).toBe(false)
-      expect(result.errors[0]?.message).toContain(`zoom must be a non-negative integer ≤ 24`)
+      expect(result.errors[0]?.message).toContain(`zoom must be an integer between 13 and 19`)
     })
 
     it(`<tg-emoji emoji-id> accepts valid numeric string`, () => {
@@ -2047,23 +2058,128 @@ describe(`TemplateEngine`, () => {
       expect(result3.valid).toBe(false)
     })
 
-    it(`<input type> accepts known HTML input types`, () => {
-      const cases = [`checkbox`, `text`, `number`, `email`, `password`, `submit`, `radio`, `hidden`, `tel`, `url`]
-      for (const t of cases) {
-        expect(TemplateEngine.validateTelegramAttributeValuesBlock(`<input type="${t}"/>`).valid).toBe(true)
+    it(`<a name> must not be empty`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<a name="">x</a>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`name must not be empty`)
+    })
+
+    it(`<img src> requires an http(s) URL`, () => {
+      const ok1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<img src="https://example.com/a.jpg"/>`)
+      const ok2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<img src="http://example.com/a.jpg"/>`)
+      const bad1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<img src="ftp://example.com/a.jpg"/>`)
+      const bad2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<img src="relative/a.jpg"/>`)
+      expect(ok1.valid).toBe(true)
+      expect(ok2.valid).toBe(true)
+      expect(bad1.valid).toBe(false)
+      expect(bad2.valid).toBe(false)
+    })
+
+    it(`<video> and <audio> src require an http(s) URL`, () => {
+      const okV = TemplateEngine.validateTelegramAttributeValuesBlock(`<video src="https://example.com/a.mp4">x</video>`)
+      const okA = TemplateEngine.validateTelegramAttributeValuesBlock(`<audio src="https://example.com/a.mp3">x</audio>`)
+      const badV = TemplateEngine.validateTelegramAttributeValuesBlock(`<video src="file:///a.mp4">x</video>`)
+      expect(okV.valid).toBe(true)
+      expect(okA.valid).toBe(true)
+      expect(badV.valid).toBe(false)
+    })
+
+    it(`<input type> accepts only checkbox (per Bot API 10.2 rich spec)`, () => {
+      const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<input type="checkbox"/>`)
+      expect(ok.valid).toBe(true)
+      for (const t of [`text`, `number`, `email`, `password`, `submit`, `radio`, `hidden`, `tel`, `url`]) {
+        expect(TemplateEngine.validateTelegramAttributeValuesBlock(`<input type="${t}"/>`).valid).toBe(false)
       }
     })
 
     it(`<input type> rejects unknown input type`, () => {
       const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<input type="foobar"/>`)
       expect(result.valid).toBe(false)
-      expect(result.errors[0]?.message).toContain(`type must be one of`)
+      expect(result.errors[0]?.message).toContain(`type must be "checkbox"`)
     })
 
     it(`boolean attributes are skipped (not validated as values)`, () => {
       // <input type="checkbox" checked> — checked is boolean, no value
       const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<input type="checkbox" checked>`)
       expect(result.valid).toBe(true)
+    })
+
+    it(`{{placeholder}} attribute values skip value validation`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-emoji emoji-id="{{thumbsEmojiId}}">👍</tg-emoji>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<ol start/type/reversed> validates`, () => {
+      const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<ol start="3" type="A" reversed><li>a</li></ol>`)
+      expect(ok.valid).toBe(true)
+      const badStart = TemplateEngine.validateTelegramAttributeValuesBlock(`<ol start="x">x</ol>`)
+      const badType = TemplateEngine.validateTelegramAttributeValuesBlock(`<ol type="Z">x</ol>`)
+      expect(badStart.valid).toBe(false)
+      expect(badType.valid).toBe(false)
+    })
+
+    it(`<li value/type/checkbox> validates`, () => {
+      const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<ul><li type="checkbox" checked>a</li></ul>`)
+      expect(ok.valid).toBe(true)
+      const badValue = TemplateEngine.validateTelegramAttributeValuesBlock(`<ul><li value="x">a</li></ul>`)
+      const badType = TemplateEngine.validateTelegramAttributeValuesBlock(`<ul><li type="z">a</li></ul>`)
+      expect(badValue.valid).toBe(false)
+      expect(badType.valid).toBe(false)
+    })
+
+    it(`<table bordered/striped> and <td colspan/align> validate`, () => {
+      const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<table bordered><tr><td colspan="2" align="center">x</td></tr></table>`)
+      expect(ok.valid).toBe(true)
+      const badColspan = TemplateEngine.validateTelegramAttributeValuesBlock(`<table striped><tr><td colspan="0">x</td></tr></table>`)
+      const badAlign = TemplateEngine.validateTelegramAttributeValuesBlock(`<table><tr><td align="middle">x</td></tr></table>`)
+      const badValign = TemplateEngine.validateTelegramAttributeValuesBlock(`<table><tr><td valign="center">x</td></tr></table>`)
+      expect(badColspan.valid).toBe(false)
+      expect(badAlign.valid).toBe(false)
+      expect(badValign.valid).toBe(false)
+    })
+
+    it(`<th colspan/rowspan> validate`, () => {
+      const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<table><tr><th colspan="2" rowspan="3">h</th></tr></table>`)
+      expect(ok.valid).toBe(true)
+      const bad = TemplateEngine.validateTelegramAttributeValuesBlock(`<table><tr><th colspan="0">h</th></tr></table>`)
+      expect(bad.valid).toBe(false)
+    })
+
+    it(`<blockquote cite expandable> validates`, () => {
+      const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<blockquote expandable cite="https://example.com">q</blockquote>`)
+      expect(ok.valid).toBe(true)
+      const bad = TemplateEngine.validateTelegramAttributeValuesBlock(`<blockquote cite="x.com">q</blockquote>`)
+      expect(bad.valid).toBe(false)
+    })
+
+    it(`<aside cite> validates`, () => {
+      const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<aside cite="https://example.com">q</aside>`)
+      expect(ok.valid).toBe(true)
+      const bad = TemplateEngine.validateTelegramAttributeValuesBlock(`<aside cite="x.com">q</aside>`)
+      expect(bad.valid).toBe(false)
+    })
+
+    it(`<details open> boolean validates`, () => {
+      const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<details open><summary>s</summary>d</details>`)
+      expect(ok.valid).toBe(true)
+    })
+
+    it(`<tg-reference name> must not be empty`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-reference name="">x</tg-reference>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`name must not be empty`)
+    })
+
+    it(`<tg-reference name> accepts a non-empty name`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-reference name="note-1">x</tg-reference>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<code class="language-x"> validates inside pre`, () => {
+      const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<pre><code class="language-ts">const x = 1</code></pre>`)
+      expect(ok.valid).toBe(true)
+      const bad = TemplateEngine.validateTelegramAttributeValuesBlock(`<code class="foo">x</code>`)
+      expect(bad.valid).toBe(false)
     })
 
     it(`tags without value validators are skipped`, () => {

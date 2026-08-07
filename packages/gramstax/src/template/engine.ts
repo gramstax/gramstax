@@ -116,7 +116,7 @@ export class TemplateEngine {
    * Updated with each gramstax release to reflect the latest supported
    * Telegram Bot API version.
    */
-  static BOT_API_VERSION = `10.1`
+  static BOT_API_VERSION = `10.2`
   static ALLOWED_BLOCKS_TELEGRAM_LEGACY = [
     // Original Telegram HTML mode tags (parse_mode="HTML", pre-Rich spec)
     `<b>`,
@@ -274,7 +274,7 @@ export class TemplateEngine {
    * @example
    * ```typescript
    * TemplateEngine._TELEGRAM_REQUIRED_ATTRS["a"]       // => { oneOf: [["href"], ["name"]] }
-   * TemplateEngine._TELEGRAM_REQUIRED_ATTRS["tg-time"] // => ["unix", "format"]
+   * TemplateEngine._TELEGRAM_REQUIRED_ATTRS["tg-time"] // => ["unix"]  (format is optional, value-validated when present)
    * ```
    *
    * @public
@@ -285,7 +285,7 @@ export class TemplateEngine {
     video: [`src`],
     audio: [`src`],
     "tg-emoji": [`emoji-id`],
-    "tg-time": [`unix`, `format`],
+    "tg-time": [`unix`],
     "tg-map": [`lat`, `long`, `zoom`],
     "tg-reference": [`name`],
     input: [`type`]
@@ -300,8 +300,9 @@ export class TemplateEngine {
    * the required-attribute check, so missing attributes are reported
    * separately by {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}.
    *
-   * Validators are intentionally lenient — they catch obvious bugs (wrong
-   * type, invalid scheme) but do not enforce every Telegram-side constraint.
+   * Value rules follow the Telegram Bot API 10.2 Rich Message Formatting
+   * Options spec (see `BOT_API_VERSION`). `{{placeholder}}` values and
+   * boolean attributes (no `=value`) are skipped by the caller.
    *
    * @example
    * ```typescript
@@ -313,8 +314,9 @@ export class TemplateEngine {
    */
   static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>> = {
     "tg-time": {
-      unix: (v) => (/^\d+$/.test(v) ? null : `unix must be a positive integer (got "${v}")`),
-      format: (v) => (v.length > 0 ? null : `format must not be empty`)
+      unix: (v) => (/^[1-9]\d*$/.test(v) ? null : `unix must be a positive integer (got "${v}")`),
+      // format is optional (not in REQUIRED_ATTRS); when present must match r|w?[dD]?[tT]? (e.g. t, r, wDT)
+      format: (v) => (v.length > 0 && /^(r|w?[dD]?[tT]?)$/.test(v) ? null : `format must match r, or an optional weekday/date/time combo like wDT (got "${v}")`)
     },
     "tg-map": {
       lat: (v) => {
@@ -325,19 +327,69 @@ export class TemplateEngine {
         const n = Number(v)
         return !Number.isNaN(n) && n >= -180 && n <= 180 ? null : `long must be a number between -180 and 180 (got "${v}")`
       },
-      zoom: (v) => (/^\d+$/.test(v) && Number(v) <= 24 ? null : `zoom must be a non-negative integer ≤ 24 (got "${v}")`)
+      // Bot API 10.2 rich map zoom range (13-19; SDK variance up to 20 flagged in plan)
+      zoom: (v) => (/^\d+$/.test(v) && Number(v) >= 13 && Number(v) <= 19 ? null : `zoom must be an integer between 13 and 19 (got "${v}")`)
     },
     "tg-emoji": {
       "emoji-id": (v) => (/^\d+$/.test(v) ? null : `emoji-id must be a numeric string (got "${v}")`)
     },
     a: {
-      href: (v) => (/^(https?:\/\/|mailto:|tel:|tg:\/\/|#)/i.test(v) ? null : `href must use http(s)://, mailto:, tel:, tg://, or # scheme (got "${v}")`)
+      href: (v) => (/^(https?:\/\/|mailto:|tel:|tg:\/\/user\?id=|#)/i.test(v) ? null : `href must use http(s)://, mailto:, tel:, tg://user?id=, or # scheme (got "${v}")`),
+      name: (v) => (v.length > 0 ? null : `name must not be empty`)
+    },
+    img: {
+      src: (v) => (/^https?:\/\//i.test(v) ? null : `src must be an http(s) URL (got "${v}")`)
+    },
+    video: {
+      src: (v) => (/^https?:\/\//i.test(v) ? null : `src must be an http(s) URL (got "${v}")`)
+    },
+    audio: {
+      src: (v) => (/^https?:\/\//i.test(v) ? null : `src must be an http(s) URL (got "${v}")`)
     },
     input: {
-      type: (v) => {
-        const allowed = [`checkbox`, `text`, `number`, `email`, `password`, `submit`, `radio`, `hidden`, `tel`, `url`]
-        return allowed.includes(v.toLowerCase()) ? null : `type must be one of: ${allowed.join(`, `)} (got "${v}")`
-      }
+      // Bot API 10.2 rich messages: only <input type="checkbox"> is supported (checklists)
+      type: (v) => (v === `checkbox` ? null : `type must be "checkbox" (got "${v}")`)
+    },
+    ol: {
+      start: (v) => (/^\d+$/.test(v) ? null : `start must be a non-negative integer (got "${v}")`),
+      type: (v) => ([`1`, `a`, `A`, `i`, `I`].includes(v) ? null : `type must be one of: 1, a, A, i, I (got "${v}")`),
+      reversed: () => null
+    },
+    li: {
+      value: (v) => (/^\d+$/.test(v) ? null : `value must be a non-negative integer (got "${v}")`),
+      type: (v) => ([`1`, `a`, `A`, `i`, `I`, `checkbox`].includes(v) ? null : `type must be one of: 1, a, A, i, I, checkbox (got "${v}")`),
+      checkbox: () => null,
+      checked: () => null
+    },
+    table: {
+      bordered: () => null,
+      striped: () => null
+    },
+    td: {
+      colspan: (v) => (/^\d+$/.test(v) && Number(v) >= 1 ? null : `colspan must be a positive integer (got "${v}")`),
+      rowspan: (v) => (/^\d+$/.test(v) && Number(v) >= 1 ? null : `rowspan must be a positive integer (got "${v}")`),
+      align: (v) => ([`left`, `center`, `right`].includes(v) ? null : `align must be left, center or right (got "${v}")`),
+      valign: (v) => ([`top`, `middle`, `bottom`].includes(v) ? null : `valign must be top, middle or bottom (got "${v}")`)
+    },
+    th: {
+      colspan: (v) => (/^\d+$/.test(v) && Number(v) >= 1 ? null : `colspan must be a positive integer (got "${v}")`),
+      rowspan: (v) => (/^\d+$/.test(v) && Number(v) >= 1 ? null : `rowspan must be a positive integer (got "${v}")`)
+    },
+    blockquote: {
+      cite: (v) => (/^https?:\/\//i.test(v) ? null : `cite must be an http(s) URL (got "${v}")`),
+      expandable: () => null
+    },
+    aside: {
+      cite: (v) => (/^https?:\/\//i.test(v) ? null : `cite must be an http(s) URL (got "${v}")`)
+    },
+    details: {
+      open: () => null
+    },
+    "tg-reference": {
+      name: (v) => (v.length > 0 ? null : `name must not be empty`)
+    },
+    code: {
+      class: (v) => (/^language-[\w+-]+$/.test(v) ? null : `class must be a language-* token (got "${v}")`)
     }
   }
   /**
