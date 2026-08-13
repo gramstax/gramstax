@@ -178,3 +178,19 @@ export class LmdbEmptyPrefixError extends LmdbError {
     this.name = `LmdbEmptyPrefixError`
   }
 }
+
+/**
+ * Thrown when a {@link LmdbRepository.like} pattern has too many wildcards,
+ * risking ReDoS (catastrophic backtracking) in the compiled regex.
+ *
+ * @public
+ */
+export class LmdbLikePatternError extends LmdbError {
+  /** Maximum wildcards allowed in a `like()` pattern. */
+  static readonly MAX_WILDCARDS = 10
+
+  constructor(wildcardCount: number) {
+    super(`Pattern has ${wildcardCount} wildcards — limit is ${LmdbLikePatternError.MAX_WILDCARDS}. Too many wildcards risk ReDoS (catastrophic backtracking).`)
+    this.name = `LmdbLikePatternError`
+  }
+}

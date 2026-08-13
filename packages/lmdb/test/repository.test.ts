@@ -9,7 +9,7 @@ import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {createTestDir} from "./test-helpers"
 import {LmdbCodec} from "../src/codec"
 import {LmdbEnv} from "../src/env"
-import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbKeyNotFoundError, LmdbReadOnlyError} from "../src/errors"
+import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbKeyNotFoundError, LmdbLikePatternError, LmdbReadOnlyError} from "../src/errors"
 import {LmdbRepository} from "../src/repository"
 import {LmdbTransaction} from "../src/transaction"
 import {rmWithRetry} from "./test-helpers"
@@ -778,5 +778,17 @@ describe(`LmdbRepository pattern cache eviction`, () => {
     }
     const cache = (users as unknown as {_patternCache: Map<string, unknown>})._patternCache
     expect(cache.size).toBeLessThanOrEqual(250)
+  })
+})
+
+describe(`LmdbRepository.like ReDoS guard`, () => {
+  it(`rejects patterns with too many wildcards`, async () => {
+    await expect(users.like(`a*a*a*a*a*a*a*a*a*a*a*x`)).rejects.toBeInstanceOf(LmdbLikePatternError)
+  })
+
+  it(`allows patterns up to the wildcard limit`, async () => {
+    await users.set(`user:1`, {id: `u1`, name: `Alice`, age: 30})
+    const found = await users.like(`u?er:1*`)
+    expect(found.length).toBe(1)
   })
 })

@@ -28,7 +28,7 @@
 import type {GetOptions, Key, RangeOptions} from "lmdb"
 import {resolveCodec} from "./codec"
 import type {IEnvForRepo} from "./env"
-import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbKeyNotFoundError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbTransactionDoneError, LmdbTransactionError} from "./errors"
+import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbKeyNotFoundError, LmdbLikePatternError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbTransactionDoneError, LmdbTransactionError} from "./errors"
 import type {LmdbTransaction} from "./transaction"
 import type {ICodec, ILmdbKey, IRangeOptions} from "./types"
 
@@ -780,6 +780,10 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   like(pattern: string, options?: IRangeOptions): Promise<Array<[K, T]>> {
     const closed = this._rejectClosed<Array<[K, T]>>()
     if (closed) return closed
+    const wildcardCount = (pattern.match(/[*?]/g) || []).length
+    if (wildcardCount > LmdbLikePatternError.MAX_WILDCARDS) {
+      return Promise.reject(new LmdbLikePatternError(wildcardCount))
+    }
     const stringsOnly = this._keysAreStrings()
     const prefix = stringsOnly ? this._extractPrefixLikePattern(pattern) : null
     if (prefix !== null) {
