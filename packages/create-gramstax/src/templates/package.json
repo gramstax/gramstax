@@ -28,8 +28,7 @@
   },
   "dependencies": {
     "@gramstax/lmdb": "workspace:*",
-    "gramstax": "workspace:*",
-    "dayjs": "^1.11.13"
+    "gramstax": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "6.0.3"

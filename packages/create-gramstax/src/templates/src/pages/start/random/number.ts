@@ -5,14 +5,14 @@ export class StartRandomNumberPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(true)
+    await this.bdefault.show()
   }
 
   bdefault = {
-    show: async (isEdit = true) => {
+    show: async () => {
       const kb = this.inlineKeyboardT([this, StartRandomPage], `2`)
       const da = {result: Math.random() * 10 ** 18}
-      await this.renderAuto(kb, da, null, null, isEdit)
+      await this.renderAuto(kb, da)
     }
   }
 

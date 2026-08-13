@@ -7,19 +7,19 @@ export class StartPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(true)
+    await this.bdefault.show()
   }
 
   async handleCommandText() {
-    await this.bdefault.show(false)
+    await this.bdefault.show()
   }
 
   bdefault = {
-    show: async (isEdit = true) => {
+    show: async () => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([StartRandomPage, SumNumberPage, HelpPage], `2`)
       const da = {userName: this.from?.username}
-      await this.renderAutoRich(kb, da, null, null, null, isEdit)
+      await this.renderAutoRich(kb, da)
     }
   }
 

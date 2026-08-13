@@ -5,9 +5,9 @@ export class UserNameNotFoundPage extends PageBase {
   static data = this.buildData()
 
   bdefault = {
-    show: async (isEdit = true) => {
+    show: async () => {
       const kb = this.inlineKeyboardT([HelpPage])
-      await this.renderAuto(kb, {}, null, null, isEdit)
+      await this.renderAuto(kb)
     }
   }
 

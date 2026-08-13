@@ -21,11 +21,11 @@ export class SumNumberPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bleft.show(true)
+    await this.bleft.show()
   }
 
   async handleCommandText() {
-    await this.bleft.show(false)
+    await this.bleft.show()
   }
 
   async handleSessionFreeText() {
@@ -40,15 +40,15 @@ export class SumNumberPage extends PageBase {
   }
 
   bleft = {
-    show: async (isEdit: boolean) => {
+    show: async () => {
       const bi = Base.left
       const kb = Helper.kb(this, bi)
       await this.setSessionFreeText({step: bi})
-      await this.renderAuto(kb, null, bi, null, isEdit)
+      await this.renderAuto(kb, {}, bi)
     },
     process: async (left: number) => {
       if (!Number.isFinite(left)) {
-        await this.bleft.show(false)
+        await this.bleft.show()
       } else {
         await this.bright.show(left)
       }
@@ -60,7 +60,7 @@ export class SumNumberPage extends PageBase {
       const bi = Base.right
       const kb = Helper.kb(this, bi)
       await this.setSessionFreeText({step: bi, left})
-      await this.render(kb, null, bi)
+      await this.renderAuto(kb, {}, bi)
     },
     process: async (value: number, left: number) => {
       if (!Number.isFinite(value)) {
@@ -77,7 +77,7 @@ export class SumNumberPage extends PageBase {
       const bi = Base.success
       const kb = Helper.kb(this, bi)
       const da = {result: left + right}
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
 
