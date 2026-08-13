@@ -296,3 +296,17 @@ The repo has a broader scope than a typical 2-package Bun/Nx monorepo:
 ## Cursor/Copilot Rules
 
 - No `.cursor/rules`, `.cursorrules`, or `.github/copilot-instructions.md` found.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live as GitHub issues (github.com/gramstax/gramstax) via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Multi-context: root `CONTEXT-MAP.md` → per-context `CONTEXT.md` (gramstax, lmdb, worker-thread, create-gramstax); ADRs in `docs/adr/` (system-wide) + `packages/*/docs/adr/` (per-context). See `docs/agents/domain.md`.

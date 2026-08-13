@@ -79,6 +79,20 @@ bun test packages/gramstax/test/
 bun test --filter "TemplateEngine"
 ```
 
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live as GitHub issues (github.com/gramstax/gramstax) via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Context docs: `CONTEXT.md` + ADRs in `packages/gramstax/docs/adr/`; map + consumer rules in root `CONTEXT-MAP.md` / `docs/agents/domain.md`.
+
 ## Anti-Patterns
 
 - Do not add `@ts-ignore` / `@ts-expect-error` for hide error you must be fix it!.

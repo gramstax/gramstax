@@ -21,7 +21,6 @@ packages/create-gramstax/src/
 │   │   ├── core/ctx.ts        Ctx wrapper (extends gramstax Ctx)
 │   │   ├── blocks/keyboard.ts Keyboard block template
 │   │   ├── helpers/log.ts     Logger re-export
-│   │   ├── helpers/time.ts    Time utility
 │   │   ├── guards/user.ts     User guard template
 │   │   ├── db/db.ts           LmdbEnv subclass (only when LMDB enabled)
 │   │   ├── db/repositories/user.ts

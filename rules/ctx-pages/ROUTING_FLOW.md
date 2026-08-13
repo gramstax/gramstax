@@ -22,9 +22,12 @@ Gramstax is built for high-conversion, interactive bot experiences.
 
 ### Callback Query Response Pattern
 
-- **EDIT OVER REPLY**: When the handler is triggered by an inline keyboard callback (i.e., inside `handleCallbackQueryData` or any method called from a callback query), always use `ctx.edit()` or `ctx.editMessageText()` to update the existing message in place. Do **not** use `ctx.reply()`, `ctx.replyWithHTML()`, or other `reply*` methods for callback-initiated responses.
-- **REPLY IS FOR FREE TEXT**: Reserve `ctx.reply()` and similar `reply*` methods for handlers triggered by user text input (e.g., `handleSessionFreeText`, `process{NameBase}`), where sending a new message is appropriate. Note that `process{NameBase}` is optional and only defined when the paired `show{NameBase}` expects an answer.
-- **RATIONALE**: Editing the existing message keeps the conversation contextual and avoids message sprawl. Replying to a callback query with a new message creates duplicate or orphaned messages that confuse users.
+- **PREFER `renderAuto`**: For any page render, use the `renderAuto*` family — `renderAuto()`, `renderAutoRich()`, `renderAutoMedia()`, `renderAutoMediaGroup()` — unless an explicit forced send or forced edit is required. `renderAuto*` auto-detects the correct behavior from `!!this.callbackQuery`: it edits the existing message in place when triggered by an inline keyboard callback, and sends a new message otherwise.
+- **MANUAL METHODS ARE THE EXCEPTION**: Use `render`/`renderEdit` (and their `renderMedia*`/`renderEditMedia*` variants) only when you explicitly need to force one behavior regardless of update type — e.g. always send a fresh message, or always edit even without a callback query.
+- **FALLBACK EDIT**: `renderAuto*` and `renderEdit*` accept a `fallbackEdit` parameter that controls what happens when the edit fails: `delete-reply` (default — deletes the original message and sends a new one, so it looks like an in-place edit), `reply` (sends a new message without deleting), or `disable` (rethrows the error).
+- **NO MANUAL BRANCHING**: Do not write `if (this.callbackQuery) { renderEdit() } else { render() }` yourself — that is exactly what `renderAuto*` already does. Manual branching duplicates framework logic and drifts when the framework evolves.
+- **REPLY IS FOR FREE TEXT**: Reserve `ctx.reply()` and similar low-level `reply*` methods for handlers triggered by user text input (e.g., `handleSessionFreeText`, `process{NameBase}`), where sending a new message is appropriate. Note that `process{NameBase}` is optional and only defined when the paired `show{NameBase}` expects an answer.
+- **RATIONALE**: Editing the existing message keeps the conversation contextual and avoids message sprawl. Replying to a callback query with a new message creates duplicate or orphaned messages that confuse users. `renderAuto*` gives you this behavior for free without forcing you to reason about update types.
 
 ### Method Placement
 
