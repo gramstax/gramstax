@@ -95,7 +95,9 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `Ctx` class
+Creates a new Ctx instance.
+
+\*\*note:\*\* For most pages do not define a constructor
 
 
 </td></tr>
@@ -125,6 +127,23 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_sessionValue](./gramstax.ctx._sessionvalue.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[ITCacheRpc](./gramstax.itcacherpc.md) \| null
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 [ANSWER\_API\_METHODS](./gramstax.ctx.answer_api_methods.md)
 
@@ -427,29 +446,6 @@ NonNullable&lt;Context\[\`chosenInlineResult\`\]&gt;
 The full [Ctx.chosenInlineResult](./gramstax.ctx.choseninlineresult.md) object from Telegram (non-nullable).
 
 Alias for `ctx.update.chosen_inline_result`<!-- -->.
-
-
-</td></tr>
-<tr><td>
-
-[ct](./gramstax.ctx.ct.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-Context &amp; StreamContextExtension &amp; { \[key: string\]: unknown; }
-
-
-</td><td>
-
-The underlying grammy context object. For new code this is the same as `this` (since [Ctx](./gramstax.ctx.md) extends `Context`<!-- -->), but it is exposed here so that a `Ctx` instance structurally satisfies [ITCtxParams](./gramstax.itctxparams.md) — allowing `new SomePage(this)` to compile without a type assertion.
-
-The `& {[key: string]: any}` widening covers runtime-added methods (e.g. `\@grammyjs/stream` plugin) that TypeScript cannot know statically.
 
 
 </td></tr>
@@ -1170,6 +1166,20 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_sessionKey()](./gramstax.ctx._sessionkey.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Sets session data for the current user.
+
+
+</td></tr>
+<tr><td>
 
 [addArgs(str, mtd, pld)](./gramstax.ctx.addargs.md)
 
@@ -4131,7 +4141,7 @@ Sends an audio media group using pipe-delimited `src` values from the page templ
 </td></tr>
 <tr><td>
 
-[renderAuto(keyboard, data, AGBaseId, options, isEdit, fallbackReply)](./gramstax.ctx.renderauto.md)
+[renderAuto(keyboard, data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.renderauto.md)
 
 
 </td><td>
@@ -4139,13 +4149,13 @@ Sends an audio media group using pipe-delimited `src` values from the page templ
 
 </td><td>
 
-Sends or edits a message using the page template, auto-selecting between [Ctx.render()](./gramstax.ctx.render.md) and [Ctx.renderEdit()](./gramstax.ctx.renderedit.md) based on the `isEdit` flag.
+Sends or edits a message using the page template, auto-selecting between [Ctx.render()](./gramstax.ctx.render.md) and [Ctx.renderEdit()](./gramstax.ctx.renderedit.md) based on `!!this.callbackQuery`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[renderAutoMedia(type, keyboard, data, AGBaseId, options1, options2, isEdit, fallbackReply)](./gramstax.ctx.renderautomedia.md)
+[renderAutoMedia(type, keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.renderautomedia.md)
 
 
 </td><td>
@@ -4153,13 +4163,13 @@ Sends or edits a message using the page template, auto-selecting between [Ctx.re
 
 </td><td>
 
-Sends or edits a media message using the page template, auto-selecting between [Ctx.renderMedia()](./gramstax.ctx.rendermedia.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on the `isEdit` flag.
+Sends or edits a media message using the page template, auto-selecting between [Ctx.renderMedia()](./gramstax.ctx.rendermedia.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[renderAutoMediaGroup(type, data, AGBaseId, options, isEdit, \_fallbackReply)](./gramstax.ctx.renderautomediagroup.md)
+[renderAutoMediaGroup(type, data, AGBaseId, options)](./gramstax.ctx.renderautomediagroup.md)
 
 
 </td><td>
@@ -4167,13 +4177,13 @@ Sends or edits a media message using the page template, auto-selecting between [
 
 </td><td>
 
-Sends or edits a media group message using the page template, auto-selecting between [Ctx.renderMediaGroup()](./gramstax.ctx.rendermediagroup.md) and [Ctx.renderEditMediaGroup()](./gramstax.ctx.rendereditmediagroup.md) based on the `isEdit` flag.
+Sends or edits a media group message using the page template, auto-selecting between [Ctx.renderMediaGroup()](./gramstax.ctx.rendermediagroup.md) and [Ctx.renderEditMediaGroup()](./gramstax.ctx.rendereditmediagroup.md) based on `!!this.callbackQuery`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[renderAutoRich(keyboard, data, AGBaseId, options1, options2, isEdit, fallbackReply)](./gramstax.ctx.renderautorich.md)
+[renderAutoRich(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.renderautorich.md)
 
 
 </td><td>
@@ -4181,7 +4191,7 @@ Sends or edits a media group message using the page template, auto-selecting bet
 
 </td><td>
 
-Sends or edits a rich message using the page template, auto-selecting between [Ctx.renderRich()](./gramstax.ctx.renderrich.md) and [Ctx.renderEditRich()](./gramstax.ctx.rendereditrich.md) based on the `isEdit` flag.
+Sends or edits a rich message using the page template, auto-selecting between [Ctx.renderRich()](./gramstax.ctx.renderrich.md) and [Ctx.renderEditRich()](./gramstax.ctx.rendereditrich.md)<!-- -->, auto-detected from `!!this.callbackQuery`<!-- -->.
 
 
 </td></tr>
@@ -4257,7 +4267,7 @@ Sends a document media group using pipe-delimited `src` values from the page tem
 </td></tr>
 <tr><td>
 
-[renderEdit(keyboardInline, data, AGBaseId, options, fallbackReply)](./gramstax.ctx.renderedit.md)
+[renderEdit(keyboardInline, data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.renderedit.md)
 
 
 </td><td>
@@ -4271,7 +4281,7 @@ Edits an existing message text using the page template.
 </td></tr>
 <tr><td>
 
-[renderEditAnimation(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditanimation.md)
+[renderEditAnimation(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendereditanimation.md)
 
 
 </td><td>
@@ -4285,7 +4295,7 @@ Edits an existing message to show an animation.
 </td></tr>
 <tr><td>
 
-[renderEditAudio(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditaudio.md)
+[renderEditAudio(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendereditaudio.md)
 
 
 </td><td>
@@ -4313,7 +4323,7 @@ Replaces the current message with an audio media group.
 </td></tr>
 <tr><td>
 
-[renderEditContact(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditcontact.md)
+[renderEditContact(keyboardInline, data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditcontact.md)
 
 
 </td><td>
@@ -4327,7 +4337,7 @@ Replaces the current message with a contact.
 </td></tr>
 <tr><td>
 
-[renderEditDocument(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditdocument.md)
+[renderEditDocument(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendereditdocument.md)
 
 
 </td><td>
@@ -4355,7 +4365,7 @@ Replaces the current message with a document media group.
 </td></tr>
 <tr><td>
 
-[renderEditLocation(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditlocation.md)
+[renderEditLocation(keyboardInline, data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditlocation.md)
 
 
 </td><td>
@@ -4369,7 +4379,7 @@ Replaces the current message with a location.
 </td></tr>
 <tr><td>
 
-[renderEditMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackReply)](./gramstax.ctx.rendereditmedia.md)
+[renderEditMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendereditmedia.md)
 
 
 </td><td>
@@ -4397,7 +4407,7 @@ Replaces the current message with a media group filtered by the given type.
 </td></tr>
 <tr><td>
 
-[renderEditPhoto(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditphoto.md)
+[renderEditPhoto(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendereditphoto.md)
 
 
 </td><td>
@@ -4425,7 +4435,7 @@ Replaces the current message with a photo media group.
 </td></tr>
 <tr><td>
 
-[renderEditRich(keyboardInline, data, AGBaseId, options1, options2, fallbackReply)](./gramstax.ctx.rendereditrich.md)
+[renderEditRich(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendereditrich.md)
 
 
 </td><td>
@@ -4439,7 +4449,7 @@ Edits an existing message with rich content using the page template.
 </td></tr>
 <tr><td>
 
-[renderEditSticker(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditsticker.md)
+[renderEditSticker(keyboardInline, data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditsticker.md)
 
 
 </td><td>
@@ -4453,7 +4463,7 @@ Replaces the current message with a sticker.
 </td></tr>
 <tr><td>
 
-[renderEditVideo(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditvideo.md)
+[renderEditVideo(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendereditvideo.md)
 
 
 </td><td>
@@ -4481,7 +4491,7 @@ Replaces the current message with a video media group.
 </td></tr>
 <tr><td>
 
-[renderEditVideoNote(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditvideonote.md)
+[renderEditVideoNote(keyboardInline, data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditvideonote.md)
 
 
 </td><td>
@@ -4495,7 +4505,7 @@ Replaces the current message with a video note.
 </td></tr>
 <tr><td>
 
-[renderEditVoice(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditvoice.md)
+[renderEditVoice(keyboardInline, data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditvoice.md)
 
 
 </td><td>
@@ -4712,8 +4722,6 @@ Streams an iterator of message pieces to the current chat, making text appear pr
 
 
 </td><td>
-
-\[LOW-LEVEL\] Sets session data for the current user.
 
 
 </td></tr>

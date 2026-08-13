@@ -4,12 +4,12 @@
 
 ## Ctx.renderAutoMedia() method
 
-Sends or edits a media message using the page template, auto-selecting between [Ctx.renderMedia()](./gramstax.ctx.rendermedia.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on the `isEdit` flag.
+Sends or edits a media message using the page template, auto-selecting between [Ctx.renderMedia()](./gramstax.ctx.rendermedia.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
 **Signature:**
 
 ```typescript
-renderAutoMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null, options2?: ITOptEditMedia2 | null, isEdit?: boolean | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+renderAutoMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
 ```
 
 ## Parameters
@@ -128,33 +128,17 @@ _(Optional)_ Additional edit options (or null to omit, send-only).
 </td></tr>
 <tr><td>
 
-isEdit
+fallbackEdit
 
 
 </td><td>
 
-boolean \| null
+[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
 
 
 </td><td>
 
-_(Optional)_ If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).
-
-
-</td></tr>
-<tr><td>
-
-fallbackReply
-
-
-</td><td>
-
-boolean \| null
-
-
-</td><td>
-
-_(Optional)_ If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).
+_(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
 
 
 </td></tr>

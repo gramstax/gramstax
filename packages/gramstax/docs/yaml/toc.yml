@@ -107,6 +107,8 @@ items:
             uid: gramstax!ITOptEditMedia1:type
           - name: ITOptEditMedia2
             uid: gramstax!ITOptEditMedia2:type
+          - name: ITOptFallbackEdit
+            uid: gramstax!ITOptFallbackEdit:type
           - name: ITOptReply
             uid: gramstax!ITOptReply:type
           - name: ITOptReplyAnimation

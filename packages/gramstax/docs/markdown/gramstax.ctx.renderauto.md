@@ -4,14 +4,14 @@
 
 ## Ctx.renderAuto() method
 
-Sends or edits a message using the page template, auto-selecting between [Ctx.render()](./gramstax.ctx.render.md) and [Ctx.renderEdit()](./gramstax.ctx.renderedit.md) based on the `isEdit` flag.
+Sends or edits a message using the page template, auto-selecting between [Ctx.render()](./gramstax.ctx.render.md) and [Ctx.renderEdit()](./gramstax.ctx.renderedit.md) based on `!!this.callbackQuery`<!-- -->.
 
 **Signature:**
 
 ```typescript
-renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         rich_message: grammy_types.RichMessage;
-    }) | undefined>;
+    })>;
 ```
 
 ## Parameters
@@ -98,33 +98,17 @@ _(Optional)_ Optional reply/edit options (or null to omit).
 </td></tr>
 <tr><td>
 
-isEdit
+fallbackEdit
 
 
 </td><td>
 
-boolean \| null
+[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
 
 
 </td><td>
 
-_(Optional)_ If `true`<!-- -->, edits the existing message; if `false`<!-- -->, sends a new one. Defaults to `!!this.callbackQuery` (auto-detected).
-
-
-</td></tr>
-<tr><td>
-
-fallbackReply
-
-
-</td><td>
-
-boolean \| null
-
-
-</td><td>
-
-_(Optional)_ If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).
+_(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
 
 
 </td></tr>
@@ -132,13 +116,13 @@ _(Optional)_ If true, sends a new reply when edit fails (only when `isEdit` is t
 
 **Returns:**
 
-Promise&lt;true \| grammy\_types.Message.TextMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { rich\_message: grammy\_types.RichMessage; }) \| undefined&gt;
+Promise&lt;true \| grammy\_types.Message.TextMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { rich\_message: grammy\_types.RichMessage; })&gt;
 
 The sent or edited message object.
 
 ## Remarks
 
-When `isEdit` is `true`<!-- -->, delegates to `renderEdit` (inline keyboard only). When `false`<!-- -->, delegates to `render` (inline or bottom keyboard).
+When a callback query is present, delegates to `renderEdit` (inline keyboard only). Otherwise, delegates to `render` (inline or bottom keyboard).
 
 ## Example
 

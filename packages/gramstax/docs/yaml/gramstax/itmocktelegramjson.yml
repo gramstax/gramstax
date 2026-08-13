@@ -17,5 +17,6 @@ isDeprecated: false
 syntax: |-
   type ITMockTelegramJson = {
       ok: boolean;
-      result: unknown;
+      result?: unknown;
+      description?: string;
   };

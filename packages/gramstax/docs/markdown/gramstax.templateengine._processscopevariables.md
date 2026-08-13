@@ -56,13 +56,13 @@ The processed template with placeholders converted to `${data["key"]}` syntax
 
 ## Remarks
 
-This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation. Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined.
+This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation. `{{key}}` is HTML-escaped at runtime; `{{{key}}}` is inserted raw. Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined.
 
 ## Example
 
 
 ```typescript
-const processed = TemplateEngine._processVariables('Hello {{name}}!');
-// Result: 'Hello ${(data && data["name"]) ?? ""}!'
+const processed = TemplateEngine._processScopeVariables('Hello {{name}}!');
+// Result: 'Hello ${__esc((data && data["name"]) ?? "")}!'
 ```
 

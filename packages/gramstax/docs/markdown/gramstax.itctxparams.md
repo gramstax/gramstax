@@ -10,7 +10,7 @@ Parameters for Ctx instance initialization.
 
 ```typescript
 type ITCtxParams = {
-    ct: ITCt;
+    ct?: ITCt;
     cacheSession: CacheExternal;
     cacheKeyboard: Map<string, unknown>;
     templateManager: TemplateManager;

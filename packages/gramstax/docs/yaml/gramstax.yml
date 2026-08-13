@@ -51,6 +51,7 @@ typeAliases:
   - gramstax!ITOptEdit:type
   - gramstax!ITOptEditMedia1:type
   - gramstax!ITOptEditMedia2:type
+  - gramstax!ITOptFallbackEdit:type
   - gramstax!ITOptReply:type
   - gramstax!ITOptReplyAnimation:type
   - gramstax!ITOptReplyAudio:type

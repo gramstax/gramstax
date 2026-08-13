@@ -724,6 +724,17 @@ Options parameter for editing message media.
 </td></tr>
 <tr><td>
 
+[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+
+
+</td><td>
+
+Fallback behavior when an edit operation fails.
+
+
+</td></tr>
+<tr><td>
+
 [ITOptReply](./gramstax.itoptreply.md)
 
 

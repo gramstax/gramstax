@@ -380,6 +380,22 @@ Escapes special characters in a string for safe use in template literals.
 </td></tr>
 <tr><td>
 
+[\_escapeData(value)](./gramstax.templateengine._escapedata.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+HTML-escapes a runtime value for safe interpolation into rich-HTML messages.
+
+
+</td></tr>
+<tr><td>
+
 [\_extractBlock(content, blocks, AGBaseId, section, lang)](./gramstax.templateengine._extractblock.md)
 
 

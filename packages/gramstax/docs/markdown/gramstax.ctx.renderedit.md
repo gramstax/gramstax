@@ -9,13 +9,9 @@ Edits an existing message text using the page template.
 **Signature:**
 
 ```typescript
-renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | null, fallbackReply?: boolean | null): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
-        text: string;
-    } & Partial<{
-        entities: grammy_types.MessageEntity[];
-    }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         rich_message: grammy_types.RichMessage;
-    }) | undefined>;
+    })>;
 ```
 
 ## Parameters
@@ -102,17 +98,17 @@ _(Optional)_ Optional edit options (or null to omit).
 </td></tr>
 <tr><td>
 
-fallbackReply
+fallbackEdit
 
 
 </td><td>
 
-boolean \| null
+[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
 
 
 </td><td>
 
-_(Optional)_ If true, sends a reply if edit fails. Default: false.
+_(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
 
 
 </td></tr>
@@ -120,13 +116,13 @@ _(Optional)_ If true, sends a reply if edit fails. Default: false.
 
 **Returns:**
 
-Promise&lt;true \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { text: string; } &amp; Partial&lt;{ entities: grammy\_types.MessageEntity\[\]; }&gt;) \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { rich\_message: grammy\_types.RichMessage; }) \| undefined&gt;
+Promise&lt;true \| grammy\_types.Message.TextMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { rich\_message: grammy\_types.RichMessage; })&gt;
 
 The edited message object.
 
 ## Remarks
 
-If editing fails (e.g., message too old), falls back to sending a new reply unless `fallbackReply` is set to false.
+If editing fails (e.g., message too old), the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`<!-- -->: deletes the original message and sends a new one — the result looks like an in-place edit).
 
 ## Example
 
@@ -134,7 +130,7 @@ If editing fails (e.g., message too old), falls back to sending a new reply unle
 ```typescript
 async handleArgsCallback() {
   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-  await this.renderEdit(kb, {status: "updated"})
+  await this.renderEdit(kb, {status: "updated"}) // will edit message
 }
 ```
 

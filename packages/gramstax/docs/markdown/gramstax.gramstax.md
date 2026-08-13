@@ -88,6 +88,23 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_seenUpdatesMax](./gramstax.gramstax._seenupdatesmax.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [bot](./gramstax.gramstax.bot.md)
 
 
@@ -359,20 +376,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_onCatch(error)](./gramstax.gramstax._oncatch.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Global error handler for bot errors.
-
-
-</td></tr>
-<tr><td>
-
 [\_onHandle(ct, listenerName, shouldCheckNotFound)](./gramstax.gramstax._onhandle.md)
 
 
@@ -380,48 +383,6 @@ Global error handler for bot errors.
 
 
 </td><td>
-
-
-</td></tr>
-<tr><td>
-
-[\_onStart(botInfo, method, data)](./gramstax.gramstax._onstart.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Called when the bot successfully starts.
-
-
-</td></tr>
-<tr><td>
-
-[\_pageBuildData(Page, filePath, routeName)](./gramstax.gramstax._pagebuilddata.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Builds page data configuration for a page class.
-
-
-</td></tr>
-<tr><td>
-
-[\_pageLoads(pagesPath)](./gramstax.gramstax._pageloads.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Loads all page classes and builds routing tables.
 
 
 </td></tr>
@@ -436,62 +397,6 @@ Loads all page classes and builds routing tables.
 </td><td>
 
 Routes an incoming update to the appropriate page handler.
-
-
-</td></tr>
-<tr><td>
-
-[\_pageSorts(Page, pages, indexPage)](./gramstax.gramstax._pagesorts.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Sorts and categorizes page routes into routing tables.
-
-
-</td></tr>
-<tr><td>
-
-[\_runPolling()](./gramstax.gramstax._runpolling.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Starts the bot in long polling mode.
-
-
-</td></tr>
-<tr><td>
-
-[\_runServerless(adapter)](./gramstax.gramstax._runserverless.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Starts the bot in serverless mode.
-
-
-</td></tr>
-<tr><td>
-
-[\_runWebhook(fullUrl)](./gramstax.gramstax._runwebhook.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Starts the bot in webhook mode.
 
 
 </td></tr>

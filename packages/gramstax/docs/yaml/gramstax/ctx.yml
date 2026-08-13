@@ -64,7 +64,10 @@ constructors:
     uid: gramstax!Ctx:constructor(1)
     package: gramstax!
     fullName: (constructor)(params)
-    summary: Constructs a new instance of the `Ctx` class
+    summary: |-
+      Creates a new Ctx instance.
+
+      \*\*note:\*\* For most pages do not define a constructor
     remarks: ''
     example: []
     isPreview: false
@@ -73,9 +76,22 @@ constructors:
       content: 'constructor(params: ITCtxParams);'
       parameters:
         - id: params
-          description: ''
+          description: The initialization parameters. See [ITCtxParams](xref:gramstax!ITCtxParams:type) for details.
           type: <xref uid="gramstax!ITCtxParams:type" />
 properties:
+  - name: _sessionValue
+    uid: gramstax!Ctx#_sessionValue:member
+    package: gramstax!
+    fullName: _sessionValue
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_sessionValue: ITCacheRpc | null;'
+      return:
+        type: <xref uid="gramstax!ITCacheRpc:type" /> | null
   - name: ANSWER_API_METHODS
     uid: gramstax!Ctx.ANSWER_API_METHODS:member
     package: gramstax!
@@ -300,33 +316,6 @@ properties:
       content: 'get chosenInlineResult(): NonNullable<Context[`chosenInlineResult`]>;'
       return:
         type: NonNullable&lt;<xref uid="grammy!Context:class" />[`chosenInlineResult`]&gt;
-  - name: ct
-    uid: gramstax!Ctx#ct:member
-    package: gramstax!
-    fullName: ct
-    summary: >-
-      The underlying grammy context object. For new code this is the same as `this` (since
-      [Ctx](xref:gramstax!Ctx:class) extends `Context`<!-- -->), but it is exposed here so that a `Ctx` instance
-      structurally satisfies [ITCtxParams](xref:gramstax!ITCtxParams:type) — allowing `new SomePage(this)` to compile
-      without a type assertion.
-
-
-      The `& {[key: string]: any}` widening covers runtime-added methods (e.g. `\@grammyjs/stream` plugin) that
-      TypeScript cannot know statically.
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: |-
-        readonly ct: Context & StreamContextExtension & {
-                [key: string]: unknown;
-            };
-      return:
-        type: |-
-          <xref uid="grammy!Context:class" /> & <xref uid="@grammyjs/stream!StreamContextExtension:interface" /> & {
-                  [key: string]: unknown;
-              }
   - name: data
     uid: gramstax!Ctx#data:member
     package: gramstax!
@@ -933,6 +922,39 @@ properties:
       return:
         type: <xref uid="gramstax!TemplateManager:class" />
 methods:
+  - name: _sessionKey()
+    uid: gramstax!Ctx#_sessionKey:member(1)
+    package: gramstax!
+    fullName: _sessionKey()
+    summary: \[LOW-LEVEL\] Sets session data for the current user.
+    remarks: >-
+      Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g.
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1))<!-- -->,
+      [Ctx.setSessionCallbackQueryData()](xref:gramstax!Ctx%23setSessionCallbackQueryData:member(1))<!-- -->).
+
+
+      This method is only needed when: - \*\*Multi-session\*\* — binding the same params to multiple route handlers at
+      once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* —
+      method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.
+    example:
+      - |-
+        ```typescript
+        // ❌ Avoid — use setSessionFreeText({...}) instead
+        await this.setSession(this.methodSessionFreeText(), {step: "awaiting_name"})
+
+        // ✅ Multi-session — bind one payload to two listeners
+        await this.setSession(
+          [this.methodSessionFreeVideo(), this.methodSessionFreeText()],
+          {mediaId: "abc123"}
+        )
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_sessionKey(): string;'
+      return:
+        type: string
+        description: True if the session was set successfully, or null on error.
   - name: addArgs(str, mtd, pld)
     uid: gramstax!Ctx#addArgs:member(1)
     package: gramstax!
@@ -5712,7 +5734,13 @@ methods:
     fullName: renderAudioGroup(data, AGBaseId, options)
     summary: Sends an audio media group using pipe-delimited `src` values from the page template.
     remarks: ''
-    example: []
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.renderAudioGroup()
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -5723,13 +5751,13 @@ methods:
         grammy_types.Message.LivePhotoMessage)[]>;
       parameters:
         - id: data
-          description: ''
+          description: Optional template interpolation data (or null to omit).
           type: <xref uid="gramstax!ITData:type" /> | null
         - id: AGBaseId
-          description: ''
+          description: Optional template g-base ID position for block media type audio (or null to use default).
           type: string | null
         - id: options
-          description: ''
+          description: Optional audio-specific options (or null to omit).
           type: <xref uid="gramstax!ITOptReplyAudio:type" /> | null
       return:
         type: >-
@@ -5737,18 +5765,18 @@ methods:
           uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
-        description: ''
-  - name: renderAuto(keyboard, data, AGBaseId, options, isEdit, fallbackReply)
+        description: The sent media group messages.
+  - name: renderAuto(keyboard, data, AGBaseId, options, fallbackEdit)
     uid: gramstax!Ctx#renderAuto:member(1)
     package: gramstax!
-    fullName: renderAuto(keyboard, data, AGBaseId, options, isEdit, fallbackReply)
+    fullName: renderAuto(keyboard, data, AGBaseId, options, fallbackEdit)
     summary: >-
       Sends or edits a message using the page template, auto-selecting between
       [Ctx.render()](xref:gramstax!Ctx%23render:member(1)) and
-      [Ctx.renderEdit()](xref:gramstax!Ctx%23renderEdit:member(1)) based on the `isEdit` flag.
+      [Ctx.renderEdit()](xref:gramstax!Ctx%23renderEdit:member(1)) based on `!!this.callbackQuery`<!-- -->.
     remarks: >-
-      When `isEdit` is `true`<!-- -->, delegates to `renderEdit` (inline keyboard only). When `false`<!-- -->, delegates
-      to `render` (inline or bottom keyboard).
+      When a callback query is present, delegates to `renderEdit` (inline keyboard only). Otherwise, delegates to
+      `render` (inline or bottom keyboard).
     example:
       - |-
         ```typescript
@@ -5763,10 +5791,10 @@ methods:
     syntax:
       content: >-
         renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit |
-        ITOptReply | null, isEdit?: boolean | null, fallbackReply?: boolean | null): Promise<true |
-        grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        ITOptReply | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage |
+        (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
                 rich_message: grammy_types.RichMessage;
-            }) | undefined>;
+            })>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
@@ -5780,30 +5808,27 @@ methods:
         - id: options
           description: Optional reply/edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEdit:type" /> | <xref uid="gramstax!ITOptReply:type" /> | null
-        - id: isEdit
+        - id: fallbackEdit
           description: >-
-            If `true`<!-- -->, edits the existing message; if `false`<!-- -->, sends a new one. Defaults to
-            `!!this.callbackQuery` (auto-detected).
-          type: boolean | null
-        - id: fallbackReply
-          description: If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).
-          type: boolean | null
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
+            `reply` sends without deleting; `disable` rethrows.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.TextMessage:type" /> | (<xref
           uid="@grammyjs/types!Update.Edited:interface" /> & <xref uid="@grammyjs/types!Message.CommonMessage:interface"
           /> & {
                   rich_message: <xref uid="@grammyjs/types!RichMessage:interface" />;
-              }) | undefined&gt;
+              })&gt;
         description: The sent or edited message object.
-  - name: renderAutoMedia(type, keyboard, data, AGBaseId, options1, options2, isEdit, fallbackReply)
+  - name: renderAutoMedia(type, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
     uid: gramstax!Ctx#renderAutoMedia:member(1)
     package: gramstax!
-    fullName: renderAutoMedia(type, keyboard, data, AGBaseId, options1, options2, isEdit, fallbackReply)
+    fullName: renderAutoMedia(type, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
     summary: >-
       Sends or edits a media message using the page template, auto-selecting between
       [Ctx.renderMedia()](xref:gramstax!Ctx%23renderMedia:member(1)) and
-      [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on the `isEdit` flag.
+      [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
     remarks: ''
     example: []
     isPreview: false
@@ -5815,14 +5840,13 @@ methods:
         ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends
         `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ?
         ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T
-        extends `contact` ? ITOptReplyContact : undefined) | null, options2?: ITOptEditMedia2 | null, isEdit?: boolean |
-        null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        extends `contact` ? ITOptReplyContact : undefined) | null, options2?: ITOptEditMedia2 | null, fallbackEdit?:
+        ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: type
           description: The media type.
@@ -5850,12 +5874,11 @@ methods:
         - id: options2
           description: Additional edit options (or null to omit, send-only).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
-        - id: isEdit
-          description: If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).
-          type: boolean | null
-        - id: fallbackReply
-          description: If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).
-          type: boolean | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
+            `reply` sends without deleting; `disable` rethrows.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -5870,14 +5893,15 @@ methods:
           uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
           /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent or edited message object.
-  - name: renderAutoMediaGroup(type, data, AGBaseId, options, isEdit, _fallbackReply)
+  - name: renderAutoMediaGroup(type, data, AGBaseId, options)
     uid: gramstax!Ctx#renderAutoMediaGroup:member(1)
     package: gramstax!
-    fullName: renderAutoMediaGroup(type, data, AGBaseId, options, isEdit, _fallbackReply)
+    fullName: renderAutoMediaGroup(type, data, AGBaseId, options)
     summary: >-
       Sends or edits a media group message using the page template, auto-selecting between
       [Ctx.renderMediaGroup()](xref:gramstax!Ctx%23renderMediaGroup:member(1)) and
-      [Ctx.renderEditMediaGroup()](xref:gramstax!Ctx%23renderEditMediaGroup:member(1)) based on the `isEdit` flag.
+      [Ctx.renderEditMediaGroup()](xref:gramstax!Ctx%23renderEditMediaGroup:member(1)) based on
+      `!!this.callbackQuery`<!-- -->.
     remarks: ''
     example: []
     isPreview: false
@@ -5885,9 +5909,9 @@ methods:
     syntax:
       content: >-
         renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, isEdit?: boolean | null,
-        _fallbackReply?: boolean | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage
-        | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.LivePhotoMessage)[]>;
       parameters:
         - id: type
@@ -5904,14 +5928,6 @@ methods:
           type: >-
             <xref uid="gramstax!ITOptReplyPhoto:type" /> | <xref uid="gramstax!ITOptReplyVideo:type" /> | <xref
             uid="gramstax!ITOptReplyAudio:type" /> | <xref uid="gramstax!ITOptReplyDocument:type" /> | null
-        - id: isEdit
-          description: >-
-            If true, deletes existing message and sends new group; if false, sends new. Defaults to
-            `!!this.callbackQuery` (auto-detected).
-          type: boolean | null
-        - id: _fallbackReply
-          description: ''
-          type: boolean | null
       return:
         type: >-
           Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
@@ -5919,14 +5935,15 @@ methods:
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
         description: The sent media group messages.
-  - name: renderAutoRich(keyboard, data, AGBaseId, options1, options2, isEdit, fallbackReply)
+  - name: renderAutoRich(keyboard, data, AGBaseId, options1, options2, fallbackEdit)
     uid: gramstax!Ctx#renderAutoRich:member(1)
     package: gramstax!
-    fullName: renderAutoRich(keyboard, data, AGBaseId, options1, options2, isEdit, fallbackReply)
+    fullName: renderAutoRich(keyboard, data, AGBaseId, options1, options2, fallbackEdit)
     summary: >-
       Sends or edits a rich message using the page template, auto-selecting between
       [Ctx.renderRich()](xref:gramstax!Ctx%23renderRich:member(1)) and
-      [Ctx.renderEditRich()](xref:gramstax!Ctx%23renderEditRich:member(1)) based on the `isEdit` flag.
+      [Ctx.renderEditRich()](xref:gramstax!Ctx%23renderEditRich:member(1))<!-- -->, auto-detected from
+      `!!this.callbackQuery`<!-- -->.
     remarks: ''
     example:
       - |-
@@ -5940,13 +5957,13 @@ methods:
     syntax:
       content: >-
         renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null,
-        fallbackReply?: boolean | null): Promise<true | grammy_types.Message.RichMessageMessage |
-        (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit):
+        Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited &
+        grammy_types.Message.CommonMessage & {
                 text: string;
             } & Partial<{
                 entities: grammy_types.MessageEntity[];
-            }>) | undefined>;
+            }>)>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
@@ -5963,12 +5980,11 @@ methods:
         - id: options2
           description: Optional send/edit options (or null to omit).
           type: <xref uid="gramstax!ITOptReplyRich:type" />[1] | <xref uid="gramstax!ITOptEdit:type" /> | null
-        - id: isEdit
-          description: If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).
-          type: boolean | null
-        - id: fallbackReply
-          description: If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).
-          type: boolean | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
+            `reply` sends without deleting; `disable` rethrows.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.RichMessageMessage:type" /> | (<xref
@@ -5977,7 +5993,7 @@ methods:
                   text: string;
               } & Partial&lt;{
                   entities: <xref uid="@grammyjs/types!MessageEntity:type" />[];
-              }&gt;) | undefined&gt;
+              }&gt;)&gt;
         description: The sent or edited message object.
   - name: >-
       renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs,
@@ -6231,7 +6247,13 @@ methods:
     fullName: renderDocumentGroup(data, AGBaseId, options)
     summary: Sends a document media group using pipe-delimited `src` values from the page template.
     remarks: ''
-    example: []
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.renderDocumentGroup()
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6242,13 +6264,13 @@ methods:
         grammy_types.Message.LivePhotoMessage)[]>;
       parameters:
         - id: data
-          description: ''
+          description: Optional template interpolation data (or null to omit).
           type: <xref uid="gramstax!ITData:type" /> | null
         - id: AGBaseId
-          description: ''
+          description: Optional template g-base ID position for block media type document (or null to use default).
           type: string | null
         - id: options
-          description: ''
+          description: Optional document-specific options (or null to omit).
           type: <xref uid="gramstax!ITOptReplyDocument:type" /> | null
       return:
         type: >-
@@ -6256,21 +6278,22 @@ methods:
           uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
-        description: ''
-  - name: renderEdit(keyboardInline, data, AGBaseId, options, fallbackReply)
+        description: The sent media group messages.
+  - name: renderEdit(keyboardInline, data, AGBaseId, options, fallbackEdit)
     uid: gramstax!Ctx#renderEdit:member(1)
     package: gramstax!
-    fullName: renderEdit(keyboardInline, data, AGBaseId, options, fallbackReply)
+    fullName: renderEdit(keyboardInline, data, AGBaseId, options, fallbackEdit)
     summary: Edits an existing message text using the page template.
     remarks: >-
-      If editing fails (e.g., message too old), falls back to sending a new reply unless `fallbackReply` is set to
-      false.
+      If editing fails (e.g., message too old), the fallback behavior is controlled by `fallbackEdit` (default
+      `delete-reply`<!-- -->: deletes the original message and sends a new one — the result looks like an in-place
+      edit).
     example:
       - |-
         ```typescript
         async handleArgsCallback() {
           const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-          await this.renderEdit(kb, {status: "updated"})
+          await this.renderEdit(kb, {status: "updated"}) // will edit message
         }
         ```
     isPreview: false
@@ -6278,14 +6301,10 @@ methods:
     syntax:
       content: >-
         renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEdit | null, fallbackReply?: boolean | null): Promise<true | (grammy_types.Update.Edited &
-        grammy_types.Message.CommonMessage & {
-                text: string;
-            } & Partial<{
-                entities: grammy_types.MessageEntity[];
-            }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage |
+        (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
                 rich_message: grammy_types.RichMessage;
-            }) | undefined>;
+            })>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6299,24 +6318,23 @@ methods:
         - id: options
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEdit:type" /> | null
-        - id: fallbackReply
-          description: 'If true, sends a reply if edit fails. Default: false.'
-          type: boolean | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
-          Promise&lt;true | (<xref uid="@grammyjs/types!Update.Edited:interface" /> & <xref
-          uid="@grammyjs/types!Message.CommonMessage:interface" /> & {
-                  text: string;
-              } & Partial&lt;{
-                  entities: <xref uid="@grammyjs/types!MessageEntity:type" />[];
-              }&gt;) | (<xref uid="@grammyjs/types!Update.Edited:interface" /> & <xref uid="@grammyjs/types!Message.CommonMessage:interface" /> & {
+          Promise&lt;true | <xref uid="@grammyjs/types!Message.TextMessage:type" /> | (<xref
+          uid="@grammyjs/types!Update.Edited:interface" /> & <xref uid="@grammyjs/types!Message.CommonMessage:interface"
+          /> & {
                   rich_message: <xref uid="@grammyjs/types!RichMessage:interface" />;
-              }) | undefined&gt;
+              })&gt;
         description: The edited message object.
-  - name: renderEditAnimation(keyboardInline, data, AGBaseId, options1, options2)
+  - name: renderEditAnimation(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     uid: gramstax!Ctx#renderEditAnimation:member(1)
     package: gramstax!
-    fullName: renderEditAnimation(keyboardInline, data, AGBaseId, options1, options2)
+    fullName: renderEditAnimation(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     summary: Edits an existing message to show an animation.
     remarks: ''
     example:
@@ -6331,12 +6349,13 @@ methods:
     syntax:
       content: >-
         renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null,
-        options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true |
-        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
+        Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6353,21 +6372,29 @@ methods:
         - id: options2
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
           uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
           /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The edited message object.
-  - name: renderEditAudio(keyboardInline, data, AGBaseId, options1, options2)
+  - name: renderEditAudio(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     uid: gramstax!Ctx#renderEditAudio:member(1)
     package: gramstax!
-    fullName: renderEditAudio(keyboardInline, data, AGBaseId, options1, options2)
+    fullName: renderEditAudio(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     summary: Edits an existing message to show an audio.
     remarks: ''
     example:
@@ -6382,11 +6409,12 @@ methods:
     syntax:
       content: >-
         renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage
-        | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true |
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
@@ -6404,11 +6432,19 @@ methods:
         - id: options2
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6455,10 +6491,10 @@ methods:
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
         description: The sent media group message object.
-  - name: renderEditContact(keyboardInline, data, AGBaseId, options)
+  - name: renderEditContact(keyboardInline, data, AGBaseId, options, fallbackEdit)
     uid: gramstax!Ctx#renderEditContact:member(1)
     package: gramstax!
-    fullName: renderEditContact(keyboardInline, data, AGBaseId, options)
+    fullName: renderEditContact(keyboardInline, data, AGBaseId, options, fallbackEdit)
     summary: Replaces the current message with a contact.
     remarks: Contacts cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
@@ -6467,11 +6503,13 @@ methods:
     syntax:
       content: >-
         renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
-        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
-        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage |
+        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
+        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6485,21 +6523,29 @@ methods:
         - id: options
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
           uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
           /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent message object.
-  - name: renderEditDocument(keyboardInline, data, AGBaseId, options1, options2)
+  - name: renderEditDocument(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     uid: gramstax!Ctx#renderEditDocument:member(1)
     package: gramstax!
-    fullName: renderEditDocument(keyboardInline, data, AGBaseId, options1, options2)
+    fullName: renderEditDocument(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     summary: Edits an existing message to show a document.
     remarks: ''
     example:
@@ -6514,12 +6560,13 @@ methods:
     syntax:
       content: >-
         renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null,
-        options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true |
-        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
+        Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6536,11 +6583,19 @@ methods:
         - id: options2
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6587,10 +6642,10 @@ methods:
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
         description: The sent media group message object.
-  - name: renderEditLocation(keyboardInline, data, AGBaseId, options)
+  - name: renderEditLocation(keyboardInline, data, AGBaseId, options, fallbackEdit)
     uid: gramstax!Ctx#renderEditLocation:member(1)
     package: gramstax!
-    fullName: renderEditLocation(keyboardInline, data, AGBaseId, options)
+    fullName: renderEditLocation(keyboardInline, data, AGBaseId, options, fallbackEdit)
     summary: Replaces the current message with a location.
     remarks: Locations cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
@@ -6599,11 +6654,13 @@ methods:
     syntax:
       content: >-
         renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
-        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
-        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage |
+        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
+        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6617,26 +6674,38 @@ methods:
         - id: options
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
           uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
           /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent message object.
-  - name: renderEditMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackReply)
+  - name: renderEditMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     uid: gramstax!Ctx#renderEditMedia:member(1)
     package: gramstax!
-    fullName: renderEditMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackReply)
+    fullName: renderEditMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     summary: Edits an existing media message with dynamic type selection.
     remarks: >-
       For media types that cannot be edited (voice, video\_note, sticker, location, contact), the original message is
       deleted and a new one is sent. Multi-src media groups cannot replace a single message, so supported pipe-delimited
       media groups also delete the original message and send a new media group.
+
+
+      If the edit itself fails, the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`<!-- -->:
+      deletes the original message and re-sends the same media — the result looks like an in-place edit).
     example:
       - |-
         ```typescript
@@ -6652,11 +6721,13 @@ methods:
         data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? ITOptReplyVoice : T extends
         `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ?
         ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?:
-        ITOptEditMedia2 | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
-        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
-        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage |
+        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
+        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: type
           description: The media type.
@@ -6681,14 +6752,19 @@ methods:
         - id: options2
           description: Additional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
-        - id: fallbackReply
-          description: 'If true, sends a reply if edit fails. Default: false.'
-          type: boolean | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then re-sends the media;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6748,10 +6824,10 @@ methods:
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
         description: The sent media group messages.
-  - name: renderEditPhoto(keyboardInline, data, AGBaseId, options1, options2)
+  - name: renderEditPhoto(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     uid: gramstax!Ctx#renderEditPhoto:member(1)
     package: gramstax!
-    fullName: renderEditPhoto(keyboardInline, data, AGBaseId, options1, options2)
+    fullName: renderEditPhoto(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     summary: Edits an existing message to show a photo.
     remarks: ''
     example:
@@ -6766,11 +6842,12 @@ methods:
     syntax:
       content: >-
         renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage
-        | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true |
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
@@ -6788,11 +6865,19 @@ methods:
         - id: options2
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -6839,10 +6924,10 @@ methods:
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
         description: The sent media group message object.
-  - name: renderEditRich(keyboardInline, data, AGBaseId, options1, options2, fallbackReply)
+  - name: renderEditRich(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     uid: gramstax!Ctx#renderEditRich:member(1)
     package: gramstax!
-    fullName: renderEditRich(keyboardInline, data, AGBaseId, options1, options2, fallbackReply)
+    fullName: renderEditRich(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     summary: Edits an existing message with rich content using the page template.
     remarks: >-
       Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API
@@ -6850,7 +6935,9 @@ methods:
       edit both text and rich messages — pass a rich HTML template and it will be sent as structured rich content.
 
 
-      If editing fails (e.g. message too old) and `fallbackReply` is true, a new rich message reply is sent instead.
+      If editing fails (e.g. message too old), the fallback behavior is controlled by `fallbackEdit` (default
+      `delete-reply`<!-- -->: deletes the original message and sends a new rich reply — the result looks like an
+      in-place edit).
 
 
       Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table
@@ -6868,14 +6955,12 @@ methods:
     syntax:
       content: >-
         renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackReply?: boolean | null): Promise<true |
-        (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true |
+        grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
                 text: string;
             } & Partial<{
                 entities: grammy_types.MessageEntity[];
-            }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
-                rich_message: grammy_types.RichMessage;
-            }) | undefined>;
+            }>)>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6892,24 +6977,25 @@ methods:
         - id: options2
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEdit:type" /> | null
-        - id: fallbackReply
-          description: 'If true, sends a rich reply if edit fails. Default: false.'
-          type: boolean | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
-          Promise&lt;true | (<xref uid="@grammyjs/types!Update.Edited:interface" /> & <xref
-          uid="@grammyjs/types!Message.CommonMessage:interface" /> & {
+          Promise&lt;true | <xref uid="@grammyjs/types!Message.RichMessageMessage:type" /> | (<xref
+          uid="@grammyjs/types!Update.Edited:interface" /> & <xref uid="@grammyjs/types!Message.CommonMessage:interface"
+          /> & {
                   text: string;
               } & Partial&lt;{
                   entities: <xref uid="@grammyjs/types!MessageEntity:type" />[];
-              }&gt;) | (<xref uid="@grammyjs/types!Update.Edited:interface" /> & <xref uid="@grammyjs/types!Message.CommonMessage:interface" /> & {
-                  rich_message: <xref uid="@grammyjs/types!RichMessage:interface" />;
-              }) | undefined&gt;
+              }&gt;)&gt;
         description: The edited message object.
-  - name: renderEditSticker(keyboardInline, data, AGBaseId, options)
+  - name: renderEditSticker(keyboardInline, data, AGBaseId, options, fallbackEdit)
     uid: gramstax!Ctx#renderEditSticker:member(1)
     package: gramstax!
-    fullName: renderEditSticker(keyboardInline, data, AGBaseId, options)
+    fullName: renderEditSticker(keyboardInline, data, AGBaseId, options, fallbackEdit)
     summary: Replaces the current message with a sticker.
     remarks: Stickers cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
@@ -6918,11 +7004,13 @@ methods:
     syntax:
       content: >-
         renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
-        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
-        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage |
+        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
+        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -6936,21 +7024,29 @@ methods:
         - id: options
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
           uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
           /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent message object.
-  - name: renderEditVideo(keyboardInline, data, AGBaseId, options1, options2)
+  - name: renderEditVideo(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     uid: gramstax!Ctx#renderEditVideo:member(1)
     package: gramstax!
-    fullName: renderEditVideo(keyboardInline, data, AGBaseId, options1, options2)
+    fullName: renderEditVideo(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
     summary: Edits an existing message to show a video.
     remarks: ''
     example:
@@ -6965,11 +7061,12 @@ methods:
     syntax:
       content: >-
         renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage
-        | grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage |
-        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
-        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true |
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
@@ -6987,11 +7084,19 @@ methods:
         - id: options2
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -7038,10 +7143,10 @@ methods:
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
         description: The sent media group message object.
-  - name: renderEditVideoNote(keyboardInline, data, AGBaseId, options)
+  - name: renderEditVideoNote(keyboardInline, data, AGBaseId, options, fallbackEdit)
     uid: gramstax!Ctx#renderEditVideoNote:member(1)
     package: gramstax!
-    fullName: renderEditVideoNote(keyboardInline, data, AGBaseId, options)
+    fullName: renderEditVideoNote(keyboardInline, data, AGBaseId, options, fallbackEdit)
     summary: Replaces the current message with a video note.
     remarks: Video notes cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
@@ -7050,11 +7155,13 @@ methods:
     syntax:
       content: >-
         renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null,
-        options?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
-        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
-        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true |
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -7068,21 +7175,29 @@ methods:
         - id: options
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
           uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
           /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent message object.
-  - name: renderEditVoice(keyboardInline, data, AGBaseId, options)
+  - name: renderEditVoice(keyboardInline, data, AGBaseId, options, fallbackEdit)
     uid: gramstax!Ctx#renderEditVoice:member(1)
     package: gramstax!
-    fullName: renderEditVoice(keyboardInline, data, AGBaseId, options)
+    fullName: renderEditVoice(keyboardInline, data, AGBaseId, options, fallbackEdit)
     summary: Replaces the current message with a voice message.
     remarks: Voice messages cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
@@ -7091,11 +7206,13 @@ methods:
     syntax:
       content: >-
         renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage |
-        grammy_types.Message.ContactMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
-        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
-        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage |
+        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
+        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
@@ -7109,11 +7226,19 @@ methods:
         - id: options
           description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
-          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type"
-          /> | <xref uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.ContactMessage:type" /> | <xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
           & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
           /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
@@ -7243,7 +7368,8 @@ methods:
       - |-
         ```typescript
         async handleCallbackQueryData() {
-          await this.renderMediaGroup("photo")
+          await this.renderMediaGroup("photo") // only send photo
+          await this.renderMediaGroup() // send all media group
         }
         ```
     isPreview: false
@@ -7330,7 +7456,13 @@ methods:
     fullName: renderPhotoGroup(data, AGBaseId, options)
     summary: Sends a photo media group using pipe-delimited `src` values from the page template.
     remarks: ''
-    example: []
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.renderPhotoGroup()
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -7341,13 +7473,13 @@ methods:
         grammy_types.Message.LivePhotoMessage)[]>;
       parameters:
         - id: data
-          description: ''
+          description: Optional template interpolation data (or null to omit).
           type: <xref uid="gramstax!ITData:type" /> | null
         - id: AGBaseId
-          description: ''
+          description: Optional template g-base ID position for block media type photo (or null to use default).
           type: string | null
         - id: options
-          description: ''
+          description: Optional photo-specific options (or null to omit).
           type: <xref uid="gramstax!ITOptReplyPhoto:type" /> | null
       return:
         type: >-
@@ -7355,7 +7487,7 @@ methods:
           uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
-        description: ''
+        description: The sent media group messages.
   - name: renderRich(keyboard, data, AGBaseId, options1, options2)
     uid: gramstax!Ctx#renderRich:member(1)
     package: gramstax!
@@ -7513,7 +7645,13 @@ methods:
     fullName: renderVideoGroup(data, AGBaseId, options)
     summary: Sends a video media group using pipe-delimited `src` values from the page template.
     remarks: ''
-    example: []
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.renderVideoGroup()
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -7524,13 +7662,13 @@ methods:
         grammy_types.Message.LivePhotoMessage)[]>;
       parameters:
         - id: data
-          description: ''
+          description: Optional template interpolation data (or null to omit).
           type: <xref uid="gramstax!ITData:type" /> | null
         - id: AGBaseId
-          description: ''
+          description: Optional template g-base ID position for block media type video (or null to use default).
           type: string | null
         - id: options
-          description: ''
+          description: Optional video-specific options (or null to omit).
           type: <xref uid="gramstax!ITOptReplyVideo:type" /> | null
       return:
         type: >-
@@ -7538,7 +7676,7 @@ methods:
           uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
-        description: ''
+        description: The sent media group messages.
   - name: renderVideoNote(keyboard, data, AGBaseId, options)
     uid: gramstax!Ctx#renderVideoNote:member(1)
     package: gramstax!
@@ -7765,28 +7903,9 @@ methods:
     uid: gramstax!Ctx#setSession:member(1)
     package: gramstax!
     fullName: setSession(method, params, moreRoot)
-    summary: \[LOW-LEVEL\] Sets session data for the current user.
-    remarks: >-
-      Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g.
-      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1))<!-- -->,
-      [Ctx.setSessionCallbackQueryData()](xref:gramstax!Ctx%23setSessionCallbackQueryData:member(1))<!-- -->).
-
-
-      This method is only needed when: - \*\*Multi-session\*\* — binding the same params to multiple route handlers at
-      once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* —
-      method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.
-    example:
-      - |-
-        ```typescript
-        // ❌ Avoid — use setSessionFreeText({...}) instead
-        await this.setSession(this.methodSessionFreeText(), {step: "awaiting_name"})
-
-        // ✅ Multi-session — bind one payload to two listeners
-        await this.setSession(
-          [this.methodSessionFreeVideo(), this.methodSessionFreeText()],
-          {mediaId: "abc123"}
-        )
-        ```
+    summary: ''
+    remarks: ''
+    example: []
     isPreview: false
     isDeprecated: false
     syntax:
@@ -7795,17 +7914,17 @@ methods:
         Promise<boolean | null>;
       parameters:
         - id: method
-          description: Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.
+          description: ''
           type: string | string[]
         - id: params
-          description: The session parameters to store.
+          description: ''
           type: Record&lt;string, unknown&gt;
         - id: moreRoot
-          description: Additional root-level properties to merge.
+          description: ''
           type: Record&lt;string, unknown&gt;
       return:
         type: Promise&lt;boolean | null&gt;
-        description: True if the session was set successfully, or null on error.
+        description: ''
   - name: setSessionArgsCallbackQueryData(this, params)
     uid: gramstax!Ctx#setSessionArgsCallbackQueryData:member(1)
     package: gramstax!

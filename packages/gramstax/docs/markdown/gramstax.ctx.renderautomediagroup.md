@@ -4,12 +4,12 @@
 
 ## Ctx.renderAutoMediaGroup() method
 
-Sends or edits a media group message using the page template, auto-selecting between [Ctx.renderMediaGroup()](./gramstax.ctx.rendermediagroup.md) and [Ctx.renderEditMediaGroup()](./gramstax.ctx.rendereditmediagroup.md) based on the `isEdit` flag.
+Sends or edits a media group message using the page template, auto-selecting between [Ctx.renderMediaGroup()](./gramstax.ctx.rendermediagroup.md) and [Ctx.renderEditMediaGroup()](./gramstax.ctx.rendereditmediagroup.md) based on `!!this.callbackQuery`<!-- -->.
 
 **Signature:**
 
 ```typescript
-renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, isEdit?: boolean | null, _fallbackReply?: boolean | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
 ```
 
 ## Parameters
@@ -91,38 +91,6 @@ options
 </td><td>
 
 _(Optional)_ Optional media-group send options (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-isEdit
-
-
-</td><td>
-
-boolean \| null
-
-
-</td><td>
-
-_(Optional)_ If true, deletes existing message and sends new group; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).
-
-
-</td></tr>
-<tr><td>
-
-\_fallbackReply
-
-
-</td><td>
-
-boolean \| null
-
-
-</td><td>
-
-_(Optional)_
 
 
 </td></tr>

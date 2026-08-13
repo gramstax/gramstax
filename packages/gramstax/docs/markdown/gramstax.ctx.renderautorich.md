@@ -4,16 +4,16 @@
 
 ## Ctx.renderAutoRich() method
 
-Sends or edits a rich message using the page template, auto-selecting between [Ctx.renderRich()](./gramstax.ctx.renderrich.md) and [Ctx.renderEditRich()](./gramstax.ctx.rendereditrich.md) based on the `isEdit` flag.
+Sends or edits a rich message using the page template, auto-selecting between [Ctx.renderRich()](./gramstax.ctx.renderrich.md) and [Ctx.renderEditRich()](./gramstax.ctx.rendereditrich.md)<!-- -->, auto-detected from `!!this.callbackQuery`<!-- -->.
 
 **Signature:**
 
 ```typescript
-renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
-    }>) | undefined>;
+    }>)>;
 ```
 
 ## Parameters
@@ -116,33 +116,17 @@ _(Optional)_ Optional send/edit options (or null to omit).
 </td></tr>
 <tr><td>
 
-isEdit
+fallbackEdit
 
 
 </td><td>
 
-boolean \| null
+[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
 
 
 </td><td>
 
-_(Optional)_ If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).
-
-
-</td></tr>
-<tr><td>
-
-fallbackReply
-
-
-</td><td>
-
-boolean \| null
-
-
-</td><td>
-
-_(Optional)_ If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).
+_(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
 
 
 </td></tr>
@@ -150,7 +134,7 @@ _(Optional)_ If true, sends a new reply when edit fails (only when `isEdit` is t
 
 **Returns:**
 
-Promise&lt;true \| grammy\_types.Message.RichMessageMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { text: string; } &amp; Partial&lt;{ entities: grammy\_types.MessageEntity\[\]; }&gt;) \| undefined&gt;
+Promise&lt;true \| grammy\_types.Message.RichMessageMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { text: string; } &amp; Partial&lt;{ entities: grammy\_types.MessageEntity\[\]; }&gt;)&gt;
 
 The sent or edited message object.
 

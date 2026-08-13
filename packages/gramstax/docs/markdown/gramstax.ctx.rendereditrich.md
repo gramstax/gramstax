@@ -9,13 +9,11 @@ Edits an existing message with rich content using the page template.
 **Signature:**
 
 ```typescript
-renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackReply?: boolean | null): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
-    }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
-        rich_message: grammy_types.RichMessage;
-    }) | undefined>;
+    }>)>;
 ```
 
 ## Parameters
@@ -118,17 +116,17 @@ _(Optional)_ Optional edit options (or null to omit).
 </td></tr>
 <tr><td>
 
-fallbackReply
+fallbackEdit
 
 
 </td><td>
 
-boolean \| null
+[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
 
 
 </td><td>
 
-_(Optional)_ If true, sends a rich reply if edit fails. Default: false.
+_(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
 
 
 </td></tr>
@@ -136,7 +134,7 @@ _(Optional)_ If true, sends a rich reply if edit fails. Default: false.
 
 **Returns:**
 
-Promise&lt;true \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { text: string; } &amp; Partial&lt;{ entities: grammy\_types.MessageEntity\[\]; }&gt;) \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { rich\_message: grammy\_types.RichMessage; }) \| undefined&gt;
+Promise&lt;true \| grammy\_types.Message.RichMessageMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { text: string; } &amp; Partial&lt;{ entities: grammy\_types.MessageEntity\[\]; }&gt;)&gt;
 
 The edited message object.
 
@@ -144,7 +142,7 @@ The edited message object.
 
 Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API [TemplateEngine.BOT\_API\_VERSION](./gramstax.templateengine.bot_api_version.md)<!-- -->). This method can edit both text and rich messages — pass a rich HTML template and it will be sent as structured rich content.
 
-If editing fails (e.g. message too old) and `fallbackReply` is true, a new rich message reply is sent instead.
+If editing fails (e.g. message too old), the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`<!-- -->: deletes the original message and sends a new rich reply — the result looks like an in-place edit).
 
 Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns
 

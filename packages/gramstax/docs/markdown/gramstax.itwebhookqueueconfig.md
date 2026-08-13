@@ -16,6 +16,7 @@ type ITWebhookQueueConfig = {
     perChatConcurrency?: number;
     blockWhenFull?: boolean;
     enqueueTimeoutMs?: number;
+    waiterTimeoutMs?: number;
 };
 ```
 

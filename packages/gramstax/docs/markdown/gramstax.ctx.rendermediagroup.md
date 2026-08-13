@@ -111,7 +111,8 @@ Only `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, and `document` support T
 
 ```typescript
 async handleCallbackQueryData() {
-  await this.renderMediaGroup("photo")
+  await this.renderMediaGroup("photo") // only send photo
+  await this.renderMediaGroup() // send all media group
 }
 ```
 

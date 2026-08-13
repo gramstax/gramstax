@@ -1209,9 +1209,75 @@
           "preserveMemberOrder": false,
           "members": [
             {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#_sessionKey:member(1)",
+              "docComment": "/**\n * [LOW-LEVEL] Sets session data for the current user.\n *\n * @remarks\n *\n * Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g. {@link (Ctx:class).setSessionFreeText}, {@link (Ctx:class).setSessionCallbackQueryData}).\n *\n * This method is only needed when: - **Multi-session** — binding the same params to multiple route handlers at once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - **Dynamic method name** — method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.\n *\n * @param method - Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.\n *\n * @param params - The session parameters to store.\n *\n * @param moreRoot - Additional root-level properties to merge.\n *\n * @returns True if the session was set successfully, or null on error.\n *\n * @example\n * ```typescript\n * // ❌ Avoid — use setSessionFreeText({...}) instead\n * await this.setSession(this.methodSessionFreeText(), {step: \"awaiting_name\"})\n *\n * // ✅ Multi-session — bind one payload to two listeners\n * await this.setSession(\n *   [this.methodSessionFreeVideo(), this.methodSessionFreeText()],\n *   {mediaId: \"abc123\"}\n * )\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "_sessionKey(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_sessionKey"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx#_sessionValue:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "_sessionValue: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITCacheRpc",
+                  "canonicalReference": "gramstax!ITCacheRpc:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "_sessionValue",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
               "kind": "Constructor",
               "canonicalReference": "gramstax!Ctx:constructor(1)",
-              "docComment": "/**\n * Constructs a new instance of the `Ctx` class\n */\n",
+              "docComment": "/**\n * Creates a new Ctx instance.\n *\n * **note:** For most pages do not define a constructor\n *\n * @param params - The initialization parameters. See {@link ITCtxParams} for details.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2507,50 +2573,6 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "clearSession"
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!Ctx#ct:member",
-              "docComment": "/**\n * The underlying grammy context object. For new code this is the same as `this` (since {@link Ctx} extends `Context`), but it is exposed here so that a `Ctx` instance structurally satisfies {@link ITCtxParams} — allowing `new SomePage(this)` to compile without a type assertion.\n *\n * The `& {[key: string]: any}` widening covers runtime-added methods (e.g. `\\@grammyjs/stream` plugin) that TypeScript cannot know statically.\n *\n * @readonly @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "readonly ct: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Context",
-                  "canonicalReference": "grammy!Context:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": " & "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "StreamContextExtension",
-                  "canonicalReference": "@grammyjs/stream!StreamContextExtension:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " & {\n        [key: string]: unknown;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": true,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "ct",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 5
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
             },
             {
               "kind": "Property",
@@ -12858,7 +12880,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderAudioGroup:member(1)",
-              "docComment": "/**\n * Sends an audio media group using pipe-delimited `src` values from the page template.\n */\n",
+              "docComment": "/**\n * Sends an audio media group using pipe-delimited `src` values from the page template.\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).\n *\n * @param options - Optional audio-specific options (or null to omit).\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderAudioGroup()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -12998,7 +13020,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderAuto:member(1)",
-              "docComment": "/**\n * Sends or edits a message using the page template, auto-selecting between {@link (Ctx:class).render} and {@link (Ctx:class).renderEdit} based on the `isEdit` flag.\n *\n * @remarks\n *\n * When `isEdit` is `true`, delegates to `renderEdit` (inline keyboard only). When `false`, delegates to `render` (inline or bottom keyboard).\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options - Optional reply/edit options (or null to omit).\n *\n * @param isEdit - If `true`, edits the existing message; if `false`, sends a new one. Defaults to `!!this.callbackQuery` (auto-detected).\n *\n * @param fallbackReply - If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).\n *\n * @returns The sent or edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   // Auto-detect: callbackQuery exists → renderEdit\n *   await this.renderAuto(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a message using the page template, auto-selecting between {@link (Ctx:class).render} and {@link (Ctx:class).renderEdit} based on `!!this.callbackQuery`.\n *\n * @remarks\n *\n * When a callback query is present, delegates to `renderEdit` (inline keyboard only). Otherwise, delegates to `render` (inline or bottom keyboard).\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options - Optional reply/edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.\n *\n * @returns The sent or edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   // Auto-detect: callbackQuery exists → renderEdit\n *   await this.renderAuto(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13058,19 +13080,12 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", isEdit?: "
+                  "text": ", fallbackEdit?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "boolean | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", fallbackReply?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean | null"
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
                 },
                 {
                   "kind": "Content",
@@ -13119,7 +13134,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n    }) | undefined>"
+                  "text": ";\n    })>"
                 },
                 {
                   "kind": "Content",
@@ -13128,8 +13143,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 18,
-                "endIndex": 28
+                "startIndex": 16,
+                "endIndex": 26
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -13168,18 +13183,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "isEdit",
+                  "parameterName": "fallbackEdit",
                   "parameterTypeTokenRange": {
                     "startIndex": 14,
                     "endIndex": 15
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "fallbackReply",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 16,
-                    "endIndex": 17
                   },
                   "isOptional": true
                 }
@@ -13191,7 +13198,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderAutoMedia:member(1)",
-              "docComment": "/**\n * Sends or edits a media message using the page template, auto-selecting between {@link (Ctx:class).renderMedia} and {@link (Ctx:class).renderEditMedia} based on the `isEdit` flag.\n *\n * @param type - The media type.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options1 - Type-specific media options (or null to omit).\n *\n * @param options2 - Additional edit options (or null to omit, send-only).\n *\n * @param isEdit - If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).\n *\n * @param fallbackReply - If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).\n *\n * @typeParam T - The media type (photo, video, audio, etc.)\n *\n * @returns The sent or edited message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a media message using the page template, auto-selecting between {@link (Ctx:class).renderMedia} and {@link (Ctx:class).renderEditMedia} based on `!!this.callbackQuery`.\n *\n * @param type - The media type.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options1 - Type-specific media options (or null to omit).\n *\n * @param options2 - Additional edit options (or null to omit, send-only).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.\n *\n * @typeParam T - The media type (photo, video, audio, etc.)\n *\n * @returns The sent or edited message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13370,19 +13377,12 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", isEdit?: "
+                  "text": ", fallbackEdit?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "boolean | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", fallbackReply?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean | null"
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
                 },
                 {
                   "kind": "Content",
@@ -13561,8 +13561,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 45,
-                "endIndex": 79
+                "startIndex": 43,
+                "endIndex": 77
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -13617,18 +13617,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "isEdit",
+                  "parameterName": "fallbackEdit",
                   "parameterTypeTokenRange": {
                     "startIndex": 41,
                     "endIndex": 42
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "fallbackReply",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 43,
-                    "endIndex": 44
                   },
                   "isOptional": true
                 }
@@ -13640,7 +13632,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderAutoMediaGroup:member(1)",
-              "docComment": "/**\n * Sends or edits a media group message using the page template, auto-selecting between {@link (Ctx:class).renderMediaGroup} and {@link (Ctx:class).renderEditMediaGroup} based on the `isEdit` flag.\n *\n * @param type - Optional media group type (or null for all items in `<g-media-group>`).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options - Optional media-group send options (or null to omit).\n *\n * @param isEdit - If true, deletes existing message and sends new group; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).\n *\n * @returns The sent media group messages.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a media group message using the page template, auto-selecting between {@link (Ctx:class).renderMediaGroup} and {@link (Ctx:class).renderEditMediaGroup} based on `!!this.callbackQuery`.\n *\n * @param type - Optional media group type (or null for all items in `<g-media-group>`).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options - Optional media-group send options (or null to omit).\n *\n * @returns The sent media group messages.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13718,22 +13710,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", isEdit?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", _fallbackReply?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean | null"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -13797,8 +13773,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 22,
-                "endIndex": 34
+                "startIndex": 18,
+                "endIndex": 30
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -13835,22 +13811,6 @@
                     "endIndex": 17
                   },
                   "isOptional": true
-                },
-                {
-                  "parameterName": "isEdit",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 18,
-                    "endIndex": 19
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "_fallbackReply",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 20,
-                    "endIndex": 21
-                  },
-                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -13860,7 +13820,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderAutoRich:member(1)",
-              "docComment": "/**\n * Sends or edits a rich message using the page template, auto-selecting between {@link (Ctx:class).renderRich} and {@link (Ctx:class).renderEditRich} based on the `isEdit` flag.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (or null to omit).\n *\n * @param options2 - Optional send/edit options (or null to omit).\n *\n * @param isEdit - If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).\n *\n * @param fallbackReply - If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).\n *\n * @returns The sent or edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderAutoRich()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a rich message using the page template, auto-selecting between {@link (Ctx:class).renderRich} and {@link (Ctx:class).renderEditRich}, auto-detected from `!!this.callbackQuery`.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (or null to omit).\n *\n * @param options2 - Optional send/edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.\n *\n * @returns The sent or edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderAutoRich()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13933,19 +13893,12 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", isEdit?: "
+                  "text": ", fallbackEdit?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "boolean | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", fallbackReply?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean | null"
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
                 },
                 {
                   "kind": "Content",
@@ -14003,7 +13956,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "[];\n    }>) | undefined>"
+                  "text": "[];\n    }>)>"
                 },
                 {
                   "kind": "Content",
@@ -14012,8 +13965,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 21,
-                "endIndex": 33
+                "startIndex": 19,
+                "endIndex": 31
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14060,18 +14013,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "isEdit",
+                  "parameterName": "fallbackEdit",
                   "parameterTypeTokenRange": {
                     "startIndex": 17,
                     "endIndex": 18
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "fallbackReply",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 19,
-                    "endIndex": 20
                   },
                   "isOptional": true
                 }
@@ -14982,7 +14927,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderDocumentGroup:member(1)",
-              "docComment": "/**\n * Sends a document media group using pipe-delimited `src` values from the page template.\n */\n",
+              "docComment": "/**\n * Sends a document media group using pipe-delimited `src` values from the page template.\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).\n *\n * @param options - Optional document-specific options (or null to omit).\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderDocumentGroup()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15122,7 +15067,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEdit:member(1)",
-              "docComment": "/**\n * Edits an existing message text using the page template.\n *\n * @remarks\n *\n * If editing fails (e.g., message too old), falls back to sending a new reply unless `fallbackReply` is set to false.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: false.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderEdit(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message text using the page template.\n *\n * @remarks\n *\n * If editing fails (e.g., message too old), the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`: deletes the original message and sends a new one — the result looks like an in-place edit).\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderEdit(kb, {status: \"updated\"}) // will edit message\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15173,11 +15118,12 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", fallbackReply?: "
+                  "text": ", fallbackEdit?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "boolean | null"
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
                 },
                 {
                   "kind": "Content",
@@ -15190,43 +15136,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<true | ("
+                  "text": "<true | "
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Update.Edited",
-                  "canonicalReference": "@grammyjs/types!Update.Edited:interface"
+                  "text": "grammy_types.Message.TextMessage",
+                  "canonicalReference": "@grammyjs/types!Message.TextMessage:type"
                 },
                 {
                   "kind": "Content",
-                  "text": " & "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.CommonMessage",
-                  "canonicalReference": "@grammyjs/types!Message.CommonMessage:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " & {\n        text: string;\n    } & "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Partial",
-                  "canonicalReference": "!Partial:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<{\n        entities: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.MessageEntity",
-                  "canonicalReference": "@grammyjs/types!MessageEntity:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[];\n    }>) | ("
+                  "text": " | ("
                 },
                 {
                   "kind": "Reference",
@@ -15253,7 +15172,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n    }) | undefined>"
+                  "text": ";\n    })>"
                 },
                 {
                   "kind": "Content",
@@ -15263,7 +15182,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 14,
-                "endIndex": 30
+                "endIndex": 24
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15302,7 +15221,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "fallbackReply",
+                  "parameterName": "fallbackEdit",
                   "parameterTypeTokenRange": {
                     "startIndex": 12,
                     "endIndex": 13
@@ -15317,7 +15236,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditAnimation:member(1)",
-              "docComment": "/**\n * Edits an existing message to show an animation.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditAnimation()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show an animation.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditAnimation()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15381,6 +15300,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15405,6 +15333,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -15507,8 +15471,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 15,
-                "endIndex": 41
+                "startIndex": 17,
+                "endIndex": 51
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15553,6 +15517,14 @@
                     "endIndex": 14
                   },
                   "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 15,
+                    "endIndex": 16
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -15562,7 +15534,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditAudio:member(1)",
-              "docComment": "/**\n * Edits an existing message to show an audio.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditAudio()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show an audio.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditAudio()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15626,6 +15598,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15650,6 +15631,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -15752,8 +15769,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 15,
-                "endIndex": 41
+                "startIndex": 17,
+                "endIndex": 51
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15796,6 +15813,14 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 12,
                     "endIndex": 14
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 15,
+                    "endIndex": 16
                   },
                   "isOptional": true
                 }
@@ -15947,7 +15972,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditContact:member(1)",
-              "docComment": "/**\n * Replaces the current message with a contact.\n *\n * @remarks\n *\n * Contacts cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a contact.\n *\n * @remarks\n *\n * Contacts cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15998,6 +16023,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16022,6 +16056,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -16124,8 +16194,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 12,
-                "endIndex": 38
+                "startIndex": 14,
+                "endIndex": 48
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16162,6 +16232,14 @@
                     "endIndex": 11
                   },
                   "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 12,
+                    "endIndex": 13
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -16171,7 +16249,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditDocument:member(1)",
-              "docComment": "/**\n * Edits an existing message to show a document.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditDocument()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show a document.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditDocument()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16235,6 +16313,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16259,6 +16346,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -16361,8 +16484,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 15,
-                "endIndex": 41
+                "startIndex": 17,
+                "endIndex": 51
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16405,6 +16528,14 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 12,
                     "endIndex": 14
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 15,
+                    "endIndex": 16
                   },
                   "isOptional": true
                 }
@@ -16556,7 +16687,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditLocation:member(1)",
-              "docComment": "/**\n * Replaces the current message with a location.\n *\n * @remarks\n *\n * Locations cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a location.\n *\n * @remarks\n *\n * Locations cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16607,6 +16738,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16631,6 +16771,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -16733,8 +16909,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 12,
-                "endIndex": 38
+                "startIndex": 14,
+                "endIndex": 48
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16771,6 +16947,14 @@
                     "endIndex": 11
                   },
                   "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 12,
+                    "endIndex": 13
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -16780,7 +16964,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditMedia:member(1)",
-              "docComment": "/**\n * Edits an existing media message with dynamic type selection.\n *\n * @remarks\n *\n * For media types that cannot be edited (voice, video_note, sticker, location, contact), the original message is deleted and a new one is sent. Multi-src media groups cannot replace a single message, so supported pipe-delimited media groups also delete the original message and send a new media group.\n *\n * @param type - The media type.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options1 - Type-specific media options (or null to omit).\n *\n * @param options2 - Additional edit options (or null to omit).\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: false.\n *\n * @typeParam T - The media type to edit to.\n *\n * @returns The edited/sent message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditMedia(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing media message with dynamic type selection.\n *\n * @remarks\n *\n * For media types that cannot be edited (voice, video_note, sticker, location, contact), the original message is deleted and a new one is sent. Multi-src media groups cannot replace a single message, so supported pipe-delimited media groups also delete the original message and send a new media group.\n *\n * If the edit itself fails, the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`: deletes the original message and re-sends the same media — the result looks like an in-place edit).\n *\n * @param type - The media type.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options1 - Type-specific media options (or null to omit).\n *\n * @param options2 - Additional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then re-sends the media; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @typeParam T - The media type to edit to.\n *\n * @returns The edited/sent message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditMedia(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16923,11 +17107,12 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", fallbackReply?: "
+                  "text": ", fallbackEdit?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "boolean | null"
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
                 },
                 {
                   "kind": "Content",
@@ -16955,6 +17140,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -17071,7 +17292,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 35,
-                "endIndex": 61
+                "endIndex": 69
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -17126,7 +17347,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "fallbackReply",
+                  "parameterName": "fallbackEdit",
                   "parameterTypeTokenRange": {
                     "startIndex": 33,
                     "endIndex": 34
@@ -17329,7 +17550,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditPhoto:member(1)",
-              "docComment": "/**\n * Edits an existing message to show a photo.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditPhoto()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show a photo.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditPhoto()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17393,6 +17614,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -17417,6 +17647,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -17519,8 +17785,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 15,
-                "endIndex": 41
+                "startIndex": 17,
+                "endIndex": 51
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -17563,6 +17829,14 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 12,
                     "endIndex": 14
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 15,
+                    "endIndex": 16
                   },
                   "isOptional": true
                 }
@@ -17714,7 +17988,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditRich:member(1)",
-              "docComment": "/**\n * Edits an existing message with rich content using the page template.\n *\n * @remarks\n *\n * Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}). This method can edit both text and rich messages — pass a rich HTML template and it will be sent as structured rich content.\n *\n * If editing fails (e.g. message too old) and `fallbackReply` is true, a new rich message reply is sent instead.\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @param fallbackReply - If true, sends a rich reply if edit fails. Default: false.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderEditRich(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message with rich content using the page template.\n *\n * @remarks\n *\n * Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}). This method can edit both text and rich messages — pass a rich HTML template and it will be sent as structured rich content.\n *\n * If editing fails (e.g. message too old), the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`: deletes the original message and sends a new rich reply — the result looks like an in-place edit).\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderEditRich(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17778,11 +18052,12 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", fallbackReply?: "
+                  "text": ", fallbackEdit?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "boolean | null"
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
                 },
                 {
                   "kind": "Content",
@@ -17795,7 +18070,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<true | ("
+                  "text": "<true | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.RichMessageMessage",
+                  "canonicalReference": "@grammyjs/types!Message.RichMessageMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | ("
                 },
                 {
                   "kind": "Reference",
@@ -17831,34 +18115,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "[];\n    }>) | ("
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Update.Edited",
-                  "canonicalReference": "@grammyjs/types!Update.Edited:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " & "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.CommonMessage",
-                  "canonicalReference": "@grammyjs/types!Message.CommonMessage:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " & {\n        rich_message: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.RichMessage",
-                  "canonicalReference": "@grammyjs/types!RichMessage:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";\n    }) | undefined>"
+                  "text": "[];\n    }>)>"
                 },
                 {
                   "kind": "Content",
@@ -17868,7 +18125,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 17,
-                "endIndex": 33
+                "endIndex": 29
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -17915,7 +18172,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "fallbackReply",
+                  "parameterName": "fallbackEdit",
                   "parameterTypeTokenRange": {
                     "startIndex": 15,
                     "endIndex": 16
@@ -17930,7 +18187,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditSticker:member(1)",
-              "docComment": "/**\n * Replaces the current message with a sticker.\n *\n * @remarks\n *\n * Stickers cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a sticker.\n *\n * @remarks\n *\n * Stickers cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17981,6 +18238,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -18005,6 +18271,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -18107,8 +18409,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 12,
-                "endIndex": 38
+                "startIndex": 14,
+                "endIndex": 48
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -18145,6 +18447,14 @@
                     "endIndex": 11
                   },
                   "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 12,
+                    "endIndex": 13
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -18154,7 +18464,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditVideo:member(1)",
-              "docComment": "/**\n * Edits an existing message to show a video.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditVideo()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show a video.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).\n *\n * @param options1 - Optional media options (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditVideo()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18218,6 +18528,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -18242,6 +18561,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -18344,8 +18699,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 15,
-                "endIndex": 41
+                "startIndex": 17,
+                "endIndex": 51
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -18388,6 +18743,14 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 12,
                     "endIndex": 14
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 15,
+                    "endIndex": 16
                   },
                   "isOptional": true
                 }
@@ -18539,7 +18902,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditVideoNote:member(1)",
-              "docComment": "/**\n * Replaces the current message with a video note.\n *\n * @remarks\n *\n * Video notes cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a video note.\n *\n * @remarks\n *\n * Video notes cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18590,6 +18953,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -18614,6 +18986,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -18716,8 +19124,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 12,
-                "endIndex": 38
+                "startIndex": 14,
+                "endIndex": 48
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -18754,6 +19162,14 @@
                     "endIndex": 11
                   },
                   "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 12,
+                    "endIndex": 13
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -18763,7 +19179,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditVoice:member(1)",
-              "docComment": "/**\n * Replaces the current message with a voice message.\n *\n * @remarks\n *\n * Voice messages cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a voice message.\n *\n * @remarks\n *\n * Voice messages cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18814,6 +19230,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", fallbackEdit?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptFallbackEdit",
+                  "canonicalReference": "gramstax!ITOptFallbackEdit:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -18838,6 +19263,42 @@
                   "kind": "Reference",
                   "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
                   "kind": "Content",
@@ -18940,8 +19401,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 12,
-                "endIndex": 38
+                "startIndex": 14,
+                "endIndex": 48
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -18976,6 +19437,14 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 9,
                     "endIndex": 11
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackEdit",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 12,
+                    "endIndex": 13
                   },
                   "isOptional": true
                 }
@@ -19517,7 +19986,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderMediaGroup:member(1)",
-              "docComment": "/**\n * Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.\n *\n * @remarks\n *\n * Only `photo`, `video`, `audio`, and `document` support Telegram media groups. Omit `type` when the template uses `<g-media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media.\n *\n * @param type - Supported media group type. When the template uses `<g-media-group>` (or null to include all items). only items matching this type are included. When omitted, all items are sent.\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options - Optional media-group send options (or null to omit).\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderMediaGroup(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.\n *\n * @remarks\n *\n * Only `photo`, `video`, `audio`, and `document` support Telegram media groups. Omit `type` when the template uses `<g-media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media.\n *\n * @param type - Supported media group type. When the template uses `<g-media-group>` (or null to include all items). only items matching this type are included. When omitted, all items are sent.\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options - Optional media-group send options (or null to omit).\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderMediaGroup(\"photo\") // only send photo\n *   await this.renderMediaGroup() // send all media group\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19902,7 +20371,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderPhotoGroup:member(1)",
-              "docComment": "/**\n * Sends a photo media group using pipe-delimited `src` values from the page template.\n */\n",
+              "docComment": "/**\n * Sends a photo media group using pipe-delimited `src` values from the page template.\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).\n *\n * @param options - Optional photo-specific options (or null to omit).\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderPhotoGroup()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -20582,7 +21051,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderVideoGroup:member(1)",
-              "docComment": "/**\n * Sends a video media group using pipe-delimited `src` values from the page template.\n */\n",
+              "docComment": "/**\n * Sends a video media group using pipe-delimited `src` values from the page template.\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).\n *\n * @param options - Optional video-specific options (or null to omit).\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderVideoGroup()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -21116,7 +21585,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyWithHtmlStream:member(1)",
-              "docComment": "/**\n * Streams an iterator of HTML strings to the current chat as a single rich message that updates progressively.\n *\n * @remarks\n *\n * Provided at runtime by the `\\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.\n *\n * Uses `sendRichMessageDraft` for intermediate updates and `sendRichMessage` for the final message. The draft identifier is derived from the current `update_id`.\n *\n * @param stream - An iterable of HTML string chunks.\n *\n * @param otherRichMessageDraft - Optional remaining parameters for `sendRichMessageDraft`.\n *\n * @param otherRichMessage - Optional remaining parameters for `sendRichMessage`.\n *\n * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.\n *\n * @param signal - Optional `AbortSignal` to cancel streaming.\n *\n * @returns The sent rich message object.\n */\n",
+              "docComment": "/**\n * Streams an iterator of HTML strings to the current chat as a single rich message that updates progressively.\n *\n * @remarks\n *\n * Provided at runtime by the `\\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.\n *\n * Uses `sendRichMessageDraft` for intermediate updates and `sendRichMessage` for the final message. The draft identifier is derived from the current `update_id`.\n *\n * @param stream - An iterable of HTML string chunks.\n *\n * @param otherRichMessageDraft - Optional remaining parameters for `sendRichMessageDraft`.\n *\n * @param otherRichMessage - Optional remaining parameters for `sendRichMessage`.\n *\n * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.\n *\n * @param signal - Optional `AbortSignal` to cancel streaming.\n *\n * @returns The sent rich message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -21303,7 +21772,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyWithMarkdownStream:member(1)",
-              "docComment": "/**\n * Streams an iterator of markdown strings to the current chat as a single rich message that updates progressively.\n *\n * @remarks\n *\n * Provided at runtime by the `\\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.\n *\n * Uses `sendRichMessageDraft` for intermediate updates and `sendRichMessage` for the final message. The draft identifier is derived from the current `update_id`.\n *\n * @param stream - An iterable of markdown string chunks.\n *\n * @param otherRichMessageDraft - Optional remaining parameters for `sendRichMessageDraft`.\n *\n * @param otherRichMessage - Optional remaining parameters for `sendRichMessage`.\n *\n * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.\n *\n * @param signal - Optional `AbortSignal` to cancel streaming.\n *\n * @returns The sent rich message object.\n */\n",
+              "docComment": "/**\n * Streams an iterator of markdown strings to the current chat as a single rich message that updates progressively.\n *\n * @remarks\n *\n * Provided at runtime by the `\\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.\n *\n * Uses `sendRichMessageDraft` for intermediate updates and `sendRichMessage` for the final message. The draft identifier is derived from the current `update_id`.\n *\n * @param stream - An iterable of markdown string chunks.\n *\n * @param otherRichMessageDraft - Optional remaining parameters for `sendRichMessageDraft`.\n *\n * @param otherRichMessage - Optional remaining parameters for `sendRichMessage`.\n *\n * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.\n *\n * @param signal - Optional `AbortSignal` to cancel streaming.\n *\n * @returns The sent rich message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -21490,7 +21959,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyWithStream:member(1)",
-              "docComment": "/**\n * Streams an iterator of message pieces to the current chat, making text appear progressively as editing message drafts.\n *\n * @remarks\n *\n * Provided at runtime by the `\\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.\n *\n * Each `MessageDraftPiece` is either a plain string or an object `{text, entities?, draft_id?}`. Chunks with the same `draft_id` belong to the same draft; the first chunk crossing 4096 chars is split into a new message. Entities offsets are relative to the entire stream, not per-chunk.\n *\n * @param stream - An iterable of text chunks that make up the message.\n *\n * @param otherMessageDraft - Optional remaining parameters forwarded to `sendMessageDraft`.\n *\n * @param otherMessage - Optional remaining parameters forwarded to `sendMessage`.\n *\n * @param signal - Optional `AbortSignal` to cancel streaming.\n *\n * @returns Array of sent text messages.\n */\n",
+              "docComment": "/**\n * Streams an iterator of message pieces to the current chat, making text appear progressively as editing message drafts.\n *\n * @remarks\n *\n * Provided at runtime by the `\\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.\n *\n * Each `MessageDraftPiece` is either a plain string or an object `{text, entities?, draft_id?}`. Chunks with the same `draft_id` belong to the same draft; the first chunk crossing 4096 chars is split into a new message. Entities offsets are relative to the entire stream, not per-chunk.\n *\n * @param stream - An iterable of text chunks that make up the message.\n *\n * @param otherMessageDraft - Optional remaining parameters forwarded to `sendMessageDraft`.\n *\n * @param otherMessage - Optional remaining parameters forwarded to `sendMessage`.\n *\n * @param signal - Optional `AbortSignal` to cancel streaming.\n *\n * @returns Array of sent text messages.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -21709,7 +22178,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSession:member(1)",
-              "docComment": "/**\n * [LOW-LEVEL] Sets session data for the current user.\n *\n * @remarks\n *\n * Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g. {@link (Ctx:class).setSessionFreeText}, {@link (Ctx:class).setSessionCallbackQueryData}).\n *\n * This method is only needed when: - **Multi-session** — binding the same params to multiple route handlers at once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - **Dynamic method name** — method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.\n *\n * @param method - Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.\n *\n * @param params - The session parameters to store.\n *\n * @param moreRoot - Additional root-level properties to merge.\n *\n * @returns True if the session was set successfully, or null on error.\n *\n * @example\n * ```typescript\n * // ❌ Avoid — use setSessionFreeText({...}) instead\n * await this.setSession(this.methodSessionFreeText(), {step: \"awaiting_name\"})\n *\n * // ✅ Multi-session — bind one payload to two listeners\n * await this.setSession(\n *   [this.methodSessionFreeVideo(), this.methodSessionFreeText()],\n *   {mediaId: \"abc123\"}\n * )\n * ```\n *\n * @public\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -31885,68 +32354,6 @@
           "members": [
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_onCatch:member(1)",
-              "docComment": "/**\n * Global error handler for bot errors.\n *\n * @param error - The bot error object.\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_onCatch(error: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "BotError",
-                  "canonicalReference": "grammy!BotError:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITCt",
-                  "canonicalReference": "gramstax!ITCt:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 6,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "error",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 5
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_onCatch"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#_onHandle:member(1)",
               "docComment": "",
               "excerptTokens": [
@@ -32047,1404 +32454,6 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_onStart:member(1)",
-              "docComment": "/**\n * Called when the bot successfully starts.\n *\n * @param botInfo - Information about the bot from Telegram.\n *\n * @param method - The deployment method used.\n *\n * @param data - Additional data (URL for webhook/serverless).\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_onStart(botInfo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "UserFromGetMe",
-                  "canonicalReference": "@grammyjs/types!UserFromGetMe:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", method: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "`polling` | `webhook` | `serverless`"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", data: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<void>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 7,
-                "endIndex": 9
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "botInfo",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "data",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 5,
-                    "endIndex": 6
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_onStart"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_pageBuildData:member(1)",
-              "docComment": "/**\n * Builds page data configuration for a page class.\n *\n * @remarks\n *\n * Initializes `Page.data` if undefined and sets default intent values based on the file name.\n *\n * @param Page - The page class.\n *\n * @param filePath - The file path of the page.\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_pageBuildData(Page: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "typeof "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Ctx",
-                  "canonicalReference": "gramstax!Ctx:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", filePath: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", routeName?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 8,
-                "endIndex": 9
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "Page",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "filePath",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "routeName",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 7
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_pageBuildData"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_pageLoads:member(1)",
-              "docComment": "/**\n * Loads all page classes and builds routing tables.\n *\n * @remarks\n *\n * Scans the pages directory, processes each page class, and builds optimized routing tables for O(1) lookups.\n *\n * @param pagesPath - Optional path to the pages directory. When omitted, falls back to `PageManager.getFilePath()` which defaults to `process.cwd() + \"/src/pages\"`. The Gramstax constructor passes `this.templateManager._path[0]` so that custom template paths are respected without requiring `process.chdir()`.\n *\n * @returns The pages routing structure.\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_pageLoads(pagesPath?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        all: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, typeof "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Ctx",
-                  "canonicalReference": "gramstax!Ctx:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">;\n        routeDynamic: string[];\n        routeDynamicSpesific: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n            name: string;\n            routeName: string;\n        }[]>;\n        routeStatic: {\n            handleCallbackQueryData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n        };\n        routeStaticIntent: {\n            handleArgsCallbackQueryData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleArgsText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandArgsText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n        };\n        routeStaticSession: {\n            handleSessionCallbackQueryData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionArgsCallbackQueryData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionArgsText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandArgsText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoNote: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeSticker: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeLocation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeContact: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChannelPost: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeEditChannelPost: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeEdit: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeReaction: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeInlineQuery: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChosenInlineResult: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePreCheckoutQuery: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeShippingQuery: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatJoinRequest: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePoll: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePollAnswer: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeNewChatMembers: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeLeftChatMember: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeBusinessConnection: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeBusinessMessage: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeEditedBusinessMessage: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeDeletedBusinessMessages: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeMessageReactionCount: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatBoost: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeRemovedChatBoost: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeSuccessfulPayment: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeRefundedPayment: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGroupChatCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeSupergroupChatCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChannelChatCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatStarted: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatScheduled: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatEnded: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatParticipantsInvited: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeUserShared: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatShared: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeWebAppData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveaway: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveawayCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveawayWinners: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveawayCompleted: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePinMessage: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeForumTopicCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeForumTopicEdited: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeForumTopicClosed: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeForumTopicReopened: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGeneralForumTopicHidden: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGeneralForumTopicUnhidden: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeProximityAlertTriggered: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeConnectedWebsite: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePassportData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeMessageAutoDeleteTimerChanged: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatBackgroundSet: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeNewChatTitle: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeNewChatPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeDeleteChatPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeWriteAccessAllowed: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n        };\n        routeChatMember: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Array",
-                  "canonicalReference": "!Array:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<{\n            name: string;\n            routeName: string;\n            type: `chatMember` | `myChatMember`;\n            oldStatus: string;\n            newStatus: string;\n            filter: (ctx: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Ctx",
-                  "canonicalReference": "gramstax!Ctx:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": ") => boolean;\n        }>;\n        customRoutes: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITCustomRouteEntry",
-                  "canonicalReference": "gramstax!~ITCustomRouteEntry_2:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[];\n        routeCustom: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITCustomRouteEntry",
-                  "canonicalReference": "gramstax!~ITCustomRouteEntry_2:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[];\n        listRouteStatic: readonly [\"handleCallbackQueryData\", \"handleText\", \"handleCommandText\", \"handleCaptionPhoto\", \"handleCommandCaptionPhoto\", \"handleCaptionVideo\", \"handleCommandCaptionVideo\", \"handleCaptionAudio\", \"handleCommandCaptionAudio\", \"handleCaptionDocument\", \"handleCommandCaptionDocument\", \"handleCaptionAnimation\", \"handleCommandCaptionAnimation\", \"handleCaptionVoice\", \"handleCommandCaptionVoice\"];\n        listRouteStaticIntent: readonly [\"handleArgsCallbackQueryData\", \"handleArgsText\", \"handleCommandArgsText\", \"handleCaptionArgsPhoto\", \"handleCommandCaptionArgsPhoto\", \"handleCaptionArgsVideo\", \"handleCommandCaptionArgsVideo\", \"handleCaptionArgsAudio\", \"handleCommandCaptionArgsAudio\", \"handleCaptionArgsDocument\", \"handleCommandCaptionArgsDocument\", \"handleCaptionArgsAnimation\", \"handleCommandCaptionArgsAnimation\", \"handleCaptionArgsVoice\", \"handleCommandCaptionArgsVoice\"];\n        listRouteStaticSession: readonly [...(\"handleSessionCallbackQueryData\" | \"handleSessionText\" | \"handleSessionCommandText\" | \"handleSessionCaptionPhoto\" | \"handleSessionCommandCaptionPhoto\" | \"handleSessionCaptionVideo\" | \"handleSessionCommandCaptionVideo\" | \"handleSessionCaptionAudio\" | \"handleSessionCommandCaptionAudio\" | \"handleSessionCaptionDocument\" | \"handleSessionCommandCaptionDocument\" | \"handleSessionCaptionAnimation\" | \"handleSessionCommandCaptionAnimation\" | \"handleSessionCaptionVoice\" | \"handleSessionCommandCaptionVoice\" | \"handleSessionArgsCallbackQueryData\" | \"handleSessionArgsText\" | \"handleSessionCommandArgsText\" | \"handleSessionCaptionArgsPhoto\" | \"handleSessionCommandCaptionArgsPhoto\" | \"handleSessionCaptionArgsVideo\" | \"handleSessionCommandCaptionArgsVideo\" | \"handleSessionCaptionArgsAudio\" | \"handleSessionCommandCaptionArgsAudio\" | \"handleSessionCaptionArgsDocument\" | \"handleSessionCommandCaptionArgsDocument\" | \"handleSessionCaptionArgsAnimation\" | \"handleSessionCommandCaptionArgsAnimation\" | \"handleSessionCaptionArgsVoice\" | \"handleSessionCommandCaptionArgsVoice\")[], \"handleSessionFreeText\", \"handleSessionFreePhoto\", \"handleSessionFreeVideo\", \"handleSessionFreeAudio\", \"handleSessionFreeDocument\", \"handleSessionFreeAnimation\", \"handleSessionFreeVoice\", \"handleSessionFreeVideoNote\", \"handleSessionFreeSticker\", \"handleSessionFreeLocation\", \"handleSessionFreeContact\", \"handleSessionFreeChannelPost\", \"handleSessionFreeEditChannelPost\", \"handleSessionFreeEdit\", \"handleSessionFreeReaction\", \"handleSessionFreeInlineQuery\", \"handleSessionFreeChosenInlineResult\", \"handleSessionFreePreCheckoutQuery\", \"handleSessionFreeShippingQuery\", \"handleSessionFreeChatJoinRequest\", \"handleSessionFreePoll\", \"handleSessionFreePollAnswer\", \"handleSessionFreeNewChatMembers\", \"handleSessionFreeLeftChatMember\", \"handleSessionFreeBusinessConnection\", \"handleSessionFreeBusinessMessage\", \"handleSessionFreeEditedBusinessMessage\", \"handleSessionFreeDeletedBusinessMessages\", \"handleSessionFreeMessageReactionCount\", \"handleSessionFreeChatBoost\", \"handleSessionFreeRemovedChatBoost\", \"handleSessionFreeSuccessfulPayment\", \"handleSessionFreeRefundedPayment\", \"handleSessionFreeGroupChatCreated\", \"handleSessionFreeSupergroupChatCreated\", \"handleSessionFreeChannelChatCreated\", \"handleSessionFreeVideoChatStarted\", \"handleSessionFreeVideoChatScheduled\", \"handleSessionFreeVideoChatEnded\", \"handleSessionFreeVideoChatParticipantsInvited\", \"handleSessionFreeUserShared\", \"handleSessionFreeChatShared\", \"handleSessionFreeWebAppData\", \"handleSessionFreeGiveaway\", \"handleSessionFreeGiveawayCreated\", \"handleSessionFreeGiveawayWinners\", \"handleSessionFreeGiveawayCompleted\", \"handleSessionFreePinMessage\", \"handleSessionFreeForumTopicCreated\", \"handleSessionFreeForumTopicEdited\", \"handleSessionFreeForumTopicClosed\", \"handleSessionFreeForumTopicReopened\", \"handleSessionFreeGeneralForumTopicHidden\", \"handleSessionFreeGeneralForumTopicUnhidden\", \"handleSessionFreeProximityAlertTriggered\", \"handleSessionFreeConnectedWebsite\", \"handleSessionFreePassportData\", \"handleSessionFreeMessageAutoDeleteTimerChanged\", \"handleSessionFreeChatBackgroundSet\", \"handleSessionFreeNewChatTitle\", \"handleSessionFreeNewChatPhoto\", \"handleSessionFreeDeleteChatPhoto\", \"handleSessionFreeWriteAccessAllowed\"];\n        listRouteDynamicSpesific: readonly [\"handleFreeText\", \"handleFreePhoto\", \"handleFreeVideo\", \"handleFreeAudio\", \"handleFreeDocument\", \"handleFreeAnimation\", \"handleFreeVoice\", \"handleFreeVideoNote\", \"handleFreeSticker\", \"handleFreeLocation\", \"handleFreeContact\", \"handleFreeChannelPost\", \"handleFreeEditChannelPost\", \"handleFreeEdit\", \"handleFreeReaction\", \"handleFreeInlineQuery\", \"handleFreeChosenInlineResult\", \"handleFreePreCheckoutQuery\", \"handleFreeShippingQuery\", \"handleFreeChatJoinRequest\", \"handleFreePoll\", \"handleFreePollAnswer\", \"handleFreeNewChatMembers\", \"handleFreeLeftChatMember\", \"handleFreeBusinessConnection\", \"handleFreeBusinessMessage\", \"handleFreeEditedBusinessMessage\", \"handleFreeDeletedBusinessMessages\", \"handleFreeMessageReactionCount\", \"handleFreeChatBoost\", \"handleFreeRemovedChatBoost\", \"handleFreeSuccessfulPayment\", \"handleFreeRefundedPayment\", \"handleFreeGroupChatCreated\", \"handleFreeSupergroupChatCreated\", \"handleFreeChannelChatCreated\", \"handleFreeVideoChatStarted\", \"handleFreeVideoChatScheduled\", \"handleFreeVideoChatEnded\", \"handleFreeVideoChatParticipantsInvited\", \"handleFreeUserShared\", \"handleFreeChatShared\", \"handleFreeWebAppData\", \"handleFreeGiveaway\", \"handleFreeGiveawayCreated\", \"handleFreeGiveawayWinners\", \"handleFreeGiveawayCompleted\", \"handleFreePinMessage\", \"handleFreeForumTopicCreated\", \"handleFreeForumTopicEdited\", \"handleFreeForumTopicClosed\", \"handleFreeForumTopicReopened\", \"handleFreeGeneralForumTopicHidden\", \"handleFreeGeneralForumTopicUnhidden\", \"handleFreeProximityAlertTriggered\", \"handleFreeConnectedWebsite\", \"handleFreePassportData\", \"handleFreeMessageAutoDeleteTimerChanged\", \"handleFreeChatBackgroundSet\", \"handleFreeNewChatTitle\", \"handleFreeNewChatPhoto\", \"handleFreeDeleteChatPhoto\", \"handleFreeWriteAccessAllowed\"];\n        listRouteStaticLC: string[];\n        listRouteStaticIntentLC: string[];\n        listRouteStaticSessionLC: string[];\n        routesByListener: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n            static: string[];\n            staticIntent: string[];\n            staticSession: string[];\n        }>;\n        lenListRouteStatic: 15;\n        lenListRouteStaticIntent: 15;\n        lenListRouteStaticSession: number;\n        lenListRouteDynamicSpesific: 63;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 266
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "pagesPath",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_pageLoads"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#_pageRoutes:member(1)",
               "docComment": "/**\n * Routes an incoming update to the appropriate page handler.\n *\n * @remarks\n *\n * The routing follows a strict **priority hierarchy**. When a match is found at any level, the method executes the handler and returns immediately. If no match is found, it falls through to the next level.\n *\n * **Routing Priority (executed in order):**\n *\n * 1. **staticSession** — Session-aware routes, filtered by input type (O(n) lookup) - Only runs when the user has an active session (`session.method` is set) - Iterates `routeStaticSession` and matches by `session.method` value - **Filtered by input type**: only routes whose name ends with `fromListener` are checked (e.g., callback queries only match `*CallbackQueryData` session routes, text only matches `*Text`, photo captions only match `*CaptionPhoto`, etc.) - This prevents cross-type handler misdispatch (e.g., a callback query accidentally matching `handleSessionFreeText`) - Example: session with method \"7-mypage\" → finds `handleSessionFreeText[\"7-mypage\"]` when `fromListener = \"text\"`\n *\n * 2. **static** — Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents - Example: \"start\" → `handleText()`, \"/help\" → `handleCommandText()`\n *\n * 3. **staticIntent** — Intent with args routes (O(1) lookup) - Matches intent prefix when args are present - Example: \"start:123\" → `handleArgsCallbackQueryData()`, \"/add item\" → `handleCommandArgsText()`\n *\n * 4. **dynamicSpesific** — Non-session free handlers (O(n) iteration) - Runs all `handleFree*` handlers (defined directly on the page, not inherited) - `handleSessionFree*` variants are NOT dispatched here — they go through id=1 - Example: `handleFreeText()`, `handleFreePhoto()` - **All matching handlers are executed** (no early return)\n *\n * 5. **dynamic** — Global fallback handlers (O(n) iteration) - Runs all `handleFree()` handlers from pages that define them - Last resort when nothing else matches - **All matching handlers are executed** (no early return)\n *\n * @param ctx - The context instance.\n *\n * @param fromListener - The listener type that triggered the route.\n *\n * @returns A `PageRouteResult` with `state` indicating what happened\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -33513,39 +32522,13 @@
               "name": "_pageRoutes"
             },
             {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_pageSorts:member(1)",
-              "docComment": "/**\n * Sorts and categorizes page routes into routing tables.\n *\n * @remarks\n *\n * Registration happens in 3 phases:\n *\n * **Phase 1 — Non-session static/intent routes** (id=2, id=3): Iterates `listRouteStatic` and `listRouteStaticIntent`. Registers exact-match routes (`handleCallbackQueryData`, `handleText`, `handleCommandText`, `handleCaption*`, `handleCommandCaption*`) into `routeStatic` — and intent-with-args variants (`handleArgs*`, `handleCommandArgs*`, `handleCaptionArgs*`, `handleCommandCaptionArgs*`) into `routeStaticIntent`. Routes are keyed by `intentCommandText` (prefixed with `/`), `intentCallbackQueryData`, `intentText`, or `Page.data.name`.\n *\n * **Phase 2 — Session routes** (id=1): Iterates `listRouteStaticSession`. Registers session-aware variants of all static and free routes (`handleSession*`) into `routeStaticSession`. Keyed by the return value of the corresponding `methodSession*()` method (e.g., `methodSessionFreeText(PageName)` → session method string).\n *\n * **Phase 3 — Non-session free handlers** (id=4): Scans for `handleFree*` methods defined directly on the page (via `Object.hasOwn(proto, routeName)`). Excludes inherited `handleSessionFree*` variants — those are dispatched exclusively via session routing (id=1).\n *\n * Also populates: - `routeDynamic[Page.data.name]` — global fallback `handleFree()` handler - `all[Page.data.name]` — page class reference\n *\n * @param Page - The page class.\n *\n * @param pages - The pages routing structure.\n *\n * @param indexPage - The page index (used for shortCallbackQueryData).\n *\n * @public\n */\n",
+              "kind": "Property",
+              "canonicalReference": "gramstax!Gramstax#_seenUpdatesMax:member",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "_pageSorts(Page: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "typeof "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Ctx",
-                  "canonicalReference": "gramstax!Ctx:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", pages: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "typeof "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Gramstax.prototype.pages",
-                  "canonicalReference": "gramstax!Gramstax#pages:member"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", indexPage: "
+                  "text": "_seenUpdatesMax: "
                 },
                 {
                   "kind": "Content",
@@ -33553,191 +32536,20 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
                   "text": ";"
                 }
               ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 10
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "Page",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "pages",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 6
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "indexPage",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
-                  },
-                  "isOptional": false
-                }
-              ],
+              "isReadonly": false,
               "isOptional": false,
-              "isAbstract": false,
-              "name": "_pageSorts"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_runPolling:member(1)",
-              "docComment": "/**\n * Starts the bot in long polling mode.\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_runPolling(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
+              "releaseTag": "Public",
+              "name": "_seenUpdatesMax",
+              "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
               },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_runPolling"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_runServerless:member(1)",
-              "docComment": "/**\n * Starts the bot in serverless mode.\n *\n * @remarks\n *\n * Configures the handler for serverless adapters (e.g., AWS Lambda, Cloudflare Workers).\n *\n * @param adapter - The adapter name (e.g., \"std/http\", \"aws-lambda\").\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_runServerless(adapter: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<void>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
               "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
               "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "adapter",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_runServerless"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_runWebhook:member(1)",
-              "docComment": "/**\n * Starts the bot in webhook mode.\n *\n * @remarks\n *\n * Uses Bun's built-in HTTP server. Automatically sets the webhook URL if needed.\n *\n * @param fullUrl - The full public URL for the webhook.\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_runWebhook(fullUrl: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<void>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "fullUrl",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_runWebhook"
+              "isAbstract": false
             },
             {
               "kind": "Constructor",
@@ -35317,7 +34129,7 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    ct: "
+              "text": "{\n    ct?: "
             },
             {
               "kind": "Reference",
@@ -36281,7 +35093,7 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    ok: boolean;\n    result: unknown;\n}"
+              "text": "{\n    ok: boolean;\n    result?: unknown;\n    description?: string;\n}"
             },
             {
               "kind": "Content",
@@ -36643,6 +35455,32 @@
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 5
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITOptFallbackEdit:type",
+          "docComment": "/**\n * Fallback behavior when an edit operation fails.\n *\n * @remarks\n *\n * - `delete-reply` (default): deletes the original message, then sends a new one — the result looks like an in-place edit. - `reply`: sends a new message without deleting the original. - `disable`: rethrows the edit error (no fallback).\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITOptFallbackEdit = "
+            },
+            {
+              "kind": "Content",
+              "text": "`delete-reply` | `reply` | `disable`"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITOptFallbackEdit",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
           }
         },
         {
@@ -37470,7 +36308,7 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    enabled?: boolean;\n    maxQueueSize?: number;\n    workerCount?: number;\n    perChatConcurrency?: number;\n    blockWhenFull?: boolean;\n    enqueueTimeoutMs?: number;\n}"
+              "text": "{\n    enabled?: boolean;\n    maxQueueSize?: number;\n    workerCount?: number;\n    perChatConcurrency?: number;\n    blockWhenFull?: boolean;\n    enqueueTimeoutMs?: number;\n    waiterTimeoutMs?: number;\n}"
             },
             {
               "kind": "Content",
@@ -40262,6 +39100,54 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine._escapeData:member(1)",
+              "docComment": "/**\n * HTML-escapes a runtime value for safe interpolation into rich-HTML messages.\n *\n * @remarks\n *\n * Non-string values are stringified; `null`/`undefined` become empty string. Escaped code points: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`.\n *\n * @param value - The runtime value to escape.\n *\n * @returns The escaped string.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static _escapeData(value: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "unknown"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "value",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_escapeData"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._extractBlock:member(1)",
               "docComment": "/**\n * Extracts specific blocks from template content with optional filtering.\n *\n * @remarks\n *\n * This internal method extracts content from templates based on base ID, block type, language, and section mode. It supports scoped extraction with indentation normalization for clean output.\n *\n * @param content - The template content to extract from\n *\n * @param blocks - Block type(s) to extract, or `\"all\"` for all blocks\n *\n * @param AGBaseId - The base ID to extract from (defaults to `\"default\"`)\n *\n * @param section - Whether to return the full block (`\"all\"`) or just inner content (`\"value\"`)\n *\n * @param lang - Optional language filter for blocks\n *\n * @returns The extracted content as a string\n *\n * @example\n * ```typescript\n * const template = `\n *   <g-base id=\"main\">\n *     <g-message>Hello</g-message>\n *     <g-keyboard>Yes, No</g-keyboard>\n *   </g-base>\n * `;\n * const result = TemplateEngine._extractBlock(template, 'message', 'main', 'value');\n * // Result: 'Hello'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -41149,7 +40035,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processScopeVariables:member(1)",
-              "docComment": "/**\n * Scope: `{{}}` Converts `{{variable}}` placeholders to JavaScript template literal expressions.\n *\n * @remarks\n *\n * This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation. Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined.\n *\n * @param template - The template string containing `{{variable}}` placeholders\n *\n * @returns The processed template with placeholders converted to `${data[\"key\"]}` syntax\n *\n * @example\n * ```typescript\n * const processed = TemplateEngine._processVariables('Hello {{name}}!');\n * // Result: 'Hello ${(data && data[\"name\"]) ?? \"\"}!'\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Scope: `{{}}` Converts `{{variable}}` placeholders to JavaScript template literal expressions.\n *\n * @remarks\n *\n * This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation. `{{key}}` is HTML-escaped at runtime; `{{{key}}}` is inserted raw. Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined.\n *\n * @param template - The template string containing `{{variable}}` placeholders\n *\n * @returns The processed template with placeholders converted to `${data[\"key\"]}` syntax\n *\n * @example\n * ```typescript\n * const processed = TemplateEngine._processScopeVariables('Hello {{name}}!');\n * // Result: 'Hello ${__esc((data && data[\"name\"]) ?? \"\")}!'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

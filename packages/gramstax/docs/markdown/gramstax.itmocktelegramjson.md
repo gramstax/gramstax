@@ -11,7 +11,8 @@ Telegram JSON response shape for mock server responses.
 ```typescript
 type ITMockTelegramJson = {
     ok: boolean;
-    result: unknown;
+    result?: unknown;
+    description?: string;
 };
 ```
 

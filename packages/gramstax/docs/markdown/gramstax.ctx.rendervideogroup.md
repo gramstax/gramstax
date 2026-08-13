@@ -42,7 +42,7 @@ data
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional template interpolation data (or null to omit).
 
 
 </td></tr>
@@ -58,7 +58,7 @@ string \| null
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional template g-base ID position for block media type video (or null to use default).
 
 
 </td></tr>
@@ -74,7 +74,7 @@ options
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional video-specific options (or null to omit).
 
 
 </td></tr>
@@ -83,4 +83,15 @@ _(Optional)_
 **Returns:**
 
 Promise&lt;(grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.LivePhotoMessage)\[\]&gt;
+
+The sent media group messages.
+
+## Example
+
+
+```typescript
+async handleArgsCallback() {
+  await this.renderVideoGroup()
+}
+```
 
