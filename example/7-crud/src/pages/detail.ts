@@ -43,7 +43,7 @@ export class DetailPage extends PageBase {
       const bi = Base.index
       const kb = Helper.buildHomeKeyboard(this, bi)
       await this.setSessionFreeText()
-      await this.renderEdit(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     }
   }
   bsuccess = {
@@ -62,7 +62,7 @@ export class DetailPage extends PageBase {
         createdAt,
         updatedAt
       }
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   binfoNotFound = {
@@ -71,14 +71,14 @@ export class DetailPage extends PageBase {
       const bi = Base.infoNotFound
       const kb = Helper.buildHomeKeyboard(this, bi)
       const da = {id}
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bwarnInvalid = {
     show: async () => {
       const bi = Base.warnInvalid
       const kb = Helper.buildHomeKeyboard(this, bi)
-      await this.render(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     }
   }
 

@@ -14,7 +14,7 @@ export class StatsPage extends PageBase {
       const subscribed = await this.db.subs.isSubscribed(this.from!.id)
       const kb = this.inlineKeyboardT([StartPage])
       const da = {count, subscribed}
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     }
   }
 

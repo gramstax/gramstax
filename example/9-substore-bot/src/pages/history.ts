@@ -7,22 +7,22 @@ export class HistoryPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(true)
+    await this.bdefault.show()
   }
 
   async handleCommandText() {
-    await this.bdefault.show(false)
+    await this.bdefault.show()
   }
 
   bdefault = {
-    show: async (isEdit = true) => {
+    show: async () => {
       const raw = ((await this.cacheState.get(`${this.from!.id}:orders`)) ?? []) as OrderRecord[]
       const history = OrderHistoryStore.refreshStatuses(raw)
       await this.cacheState.set(`${this.from!.id}:orders`, history)
 
       const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`)
       const da = {history: OrderHistoryStore.formatHistory(history)}
-      await this.renderAuto(kb, da, null, null, isEdit)
+      await this.renderAuto(kb, da)
     }
   }
 

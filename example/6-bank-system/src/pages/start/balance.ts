@@ -15,7 +15,7 @@ export class StartBalancePage extends PageBase {
       const formatted = this.bankStore.formatAmount(balance)
       const da = {balance: formatted}
       const kb = this.inlineKeyboardT([StartPage])
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     }
   }
 

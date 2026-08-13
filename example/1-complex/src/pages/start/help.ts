@@ -10,7 +10,7 @@ export class StartHelpPage extends PageBase {
 
   bdefault = {
     show: async () => {
-      await this.renderEdit(this.inlineKeyboardT([StartPage]))
+      await this.renderAuto(this.inlineKeyboardT([StartPage]))
     }
   }
 

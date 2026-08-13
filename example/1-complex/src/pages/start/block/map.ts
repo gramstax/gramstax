@@ -17,7 +17,7 @@ export class StartBlockMapPage extends PageBase {
         e: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`,
         i: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`
       }
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     }
   }
 

@@ -21,7 +21,7 @@ export class StartCounterThreadPage extends PageBase {
       const count = await IncrementJob.mtdGetCount() // difference thread
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(`1`), StartPage])
       const da = {count, timestamp: Date.now()}
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     },
     process: async () => {
       await this.bdefault.show()

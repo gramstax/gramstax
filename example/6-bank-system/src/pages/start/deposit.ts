@@ -31,7 +31,7 @@ export class StartDepositPage extends PageBase {
       await this.setSessionFreeText()
       const bi = Base.index
       const kb = Helper.kb(this, bi)
-      await this.renderEdit(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     },
     process: async (amountInput: string) => {
       if (!amountInput) {
@@ -65,7 +65,7 @@ export class StartDepositPage extends PageBase {
         balance: this.bankStore.formatAmount(next)
       }
       const kb = Helper.kb(this, bi)
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bwarnInvalid = {
@@ -73,7 +73,7 @@ export class StartDepositPage extends PageBase {
       const bi = Base.warnInvalid
       const kb = Helper.kb(this, bi)
       const da = {amount}
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
 

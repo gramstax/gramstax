@@ -11,11 +11,11 @@ export class StartCategoryPage extends PageBase {
   })
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(true)
+    await this.bdefault.show()
   }
 
   async handleText() {
-    await this.bdefault.show(false)
+    await this.bdefault.show()
   }
 
   async handleArgsCallbackQueryData() {
@@ -24,7 +24,7 @@ export class StartCategoryPage extends PageBase {
   }
 
   bdefault = {
-    show: async (isEdit = true) => {
+    show: async () => {
       const kb = this.inlineKeyboard((k, l) => {
         CatalogData.list.forEach((category, index) => {
           k.text(category.name, this.data.callbackQueryData(category.id))
@@ -34,12 +34,12 @@ export class StartCategoryPage extends PageBase {
         })
         return k.row().text(l[0]!, StartPage)
       })
-      await this.renderAuto(kb, null, null, null, isEdit)
+      await this.renderAuto(kb)
     },
     process: async (categoryId: string) => {
       await this.cacheState.set(`${this.from!.id}:category`, categoryId)
       await this.cacheState.set(`${this.from!.id}:page`, 0)
-      await new StartItemListPage(this).bdefault.show(categoryId, 0, true)
+      await new StartItemListPage(this).bdefault.show(categoryId, 0)
     }
   }
 

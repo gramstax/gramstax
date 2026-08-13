@@ -8,22 +8,22 @@ export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
   async handleCommandText() {
-    await this.bdefault.show(false)
+    await this.bdefault.show()
   }
 
   async handleText() {
-    await this.bdefault.show(false)
+    await this.bdefault.show()
   }
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(true)
+    await this.bdefault.show()
   }
 
   bdefault = {
-    show: async (isEdit = false) => {
+    show: async () => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([CatalogPage, CartPage, HistoryPage, HelpPage], `2`)
-      await this.renderAuto(kb, null, null, null, isEdit)
+      await this.renderAuto(kb)
     }
   }
 

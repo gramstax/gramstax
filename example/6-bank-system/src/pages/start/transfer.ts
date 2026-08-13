@@ -46,7 +46,7 @@ export class StartTransferPage extends PageBase {
     show: async () => {
       const bi = Base.index
       const kb = Helper.kb(this, bi)
-      await this.renderEdit(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     },
     process: async (input: string) => {
       const [amountInput, targetInput] = input.trim().split(/\s+/)
@@ -103,7 +103,7 @@ export class StartTransferPage extends PageBase {
       const bi = Base.warnInvalid
       const kb = Helper.kb(this, bi)
       const da = {amount}
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bwarnUnknownUser = {
@@ -111,14 +111,14 @@ export class StartTransferPage extends PageBase {
       const bi = Base.warnUnknownUser
       const kb = Helper.kb(this, bi)
       const da = {target}
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bwarnSelf = {
     show: async () => {
       const bi = Base.warnSelf
       const kb = Helper.kb(this, bi)
-      await this.render(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     }
   }
   bwarnInsufficient = {
@@ -126,7 +126,7 @@ export class StartTransferPage extends PageBase {
       const bi = Base.warnInsufficient
       const kb = Helper.kb(this, bi)
       const da = {balance}
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bsuccess = {
@@ -135,7 +135,7 @@ export class StartTransferPage extends PageBase {
       const bi = Base.success
       const kb = Helper.kb(this, bi)
       const da = {amount, balance, target}
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
 

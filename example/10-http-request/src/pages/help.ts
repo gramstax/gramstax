@@ -6,17 +6,17 @@ export class HelpPage extends PageBase {
   static data = this.buildData()
 
   async handleCommandText() {
-    await this.bdefault.show(false)
+    await this.bdefault.show()
   }
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(true)
+    await this.bdefault.show()
   }
 
   bdefault = {
-    show: async (isEdit = true) => {
+    show: async () => {
       const kb = this.inlineKeyboardT([StartPage])
-      await this.renderAuto(kb, {}, null, null, isEdit)
+      await this.renderAuto(kb)
     }
   }
 

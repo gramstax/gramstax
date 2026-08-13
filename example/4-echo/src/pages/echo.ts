@@ -79,7 +79,7 @@ export class EchoPage extends PageBase {
       const bi = Base.index
       const kb = Helper.kbIndex(this)
       const da = {}
-      await this.renderEdit(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bftext = {
@@ -92,7 +92,7 @@ export class EchoPage extends PageBase {
       const kb = Helper.kbIndex(this)
       const da = {text}
       const bi = Base.ftext
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bfphoto = {

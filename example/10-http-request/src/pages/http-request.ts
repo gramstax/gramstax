@@ -122,18 +122,18 @@ export class HttpRequestPage extends PageBase {
   bmethod = {
     show: async () => {
       await this.clearSession()
-      await this.renderEdit(Helper.buildMethodKeyboard(this), {}, Base.method)
+      await this.renderAuto(Helper.buildMethodKeyboard(this), {}, Base.method)
     }
   }
 
   burl = {
     show: async (method: string) => {
       await this.setSessionFreeText({httpStep: `url`, httpMethod: method})
-      await this.renderEdit(Helper.buildUrlKeyboard(this), {method}, Base.url)
+      await this.renderAuto(Helper.buildUrlKeyboard(this), {method}, Base.url)
     },
     process: async (input: string, method: string, showToken = false) => {
       if (!HttpService.isValidUrl(input)) {
-        await this.renderEdit(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(input)}, Base.warnInvalid)
+        await this.renderAuto(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(input)}, Base.warnInvalid)
         return
       }
 
@@ -158,7 +158,7 @@ export class HttpRequestPage extends PageBase {
   btoken = {
     show: async (method: string, url: string) => {
       await this.setSessionFreeText({httpStep: `token`, httpMethod: method, httpUrl: url})
-      await this.renderEdit(Helper.buildTokenKeyboard(this), {method, url: Helper.escapeHtml(url)}, Base.token)
+      await this.renderAuto(Helper.buildTokenKeyboard(this), {method, url: Helper.escapeHtml(url)}, Base.token)
     },
     process: async (token: string | null) => {
       const session = await this.getSession()
@@ -180,11 +180,11 @@ export class HttpRequestPage extends PageBase {
         try {
           const result = await HttpService.request(method, url, undefined, headers)
           await this.setSessionFreeText({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
-          await this.bsuccess.show(result, `formatted`, true)
+          await this.bsuccess.show(result, `formatted`)
         } catch (error) {
           await this.clearSession()
           const msg = error instanceof Error ? error.message : String(error)
-          await this.bwarnNetwork.show(url, msg, true)
+          await this.bwarnNetwork.show(url, msg)
         }
       }
     }
@@ -194,7 +194,7 @@ export class HttpRequestPage extends PageBase {
     show: async (method: string, url: string) => {
       await this.setSessionFreeText({httpStep: `body`, httpMethod: method, httpUrl: url})
       const da = {method, url: Helper.escapeHtml(url)}
-      await this.renderEdit(Helper.buildBodyKeyboard(this), da, Base.body)
+      await this.renderAuto(Helper.buildBodyKeyboard(this), da, Base.body)
     },
     process: async (body: string) => {
       const session = await this.getSession()
@@ -223,7 +223,7 @@ export class HttpRequestPage extends PageBase {
   }
 
   bsuccess = {
-    show: async (result: IHttpResponse, viewMode = `formatted`, isEdit = false) => {
+    show: async (result: IHttpResponse, viewMode = `formatted`) => {
       const kb = Helper.buildSuccessKeyboard(this, viewMode)
       const emoji = result.status >= 200 && result.status < 300 ? `✅` : result.status >= 400 ? `❌` : `⚠️`
       const headersText = Helper.formatHeaders(result.headers)
@@ -237,7 +237,7 @@ export class HttpRequestPage extends PageBase {
         headersText,
         bodyPreview
       }
-      await this.renderAuto(kb, da, Base.success, null, isEdit)
+      await this.renderAuto(kb, da, Base.success)
     },
     process: async () => {
       const session = await this.getSession()
@@ -246,25 +246,21 @@ export class HttpRequestPage extends PageBase {
       const currentView = (session?.params?.httpViewMode as string) || `formatted`
       const newView = currentView === `formatted` ? `raw` : `formatted`
       await this.setSessionFreeText({...session?.params, httpViewMode: newView})
-      await this.bsuccess.show(result, newView, true)
+      await this.bsuccess.show(result, newView)
     }
   }
 
   bwarnInvalid = {
     show: async (url: string) => {
-      await this.renderEdit(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(url)}, Base.warnInvalid)
+      await this.renderAuto(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(url)}, Base.warnInvalid)
     }
   }
 
   bwarnNetwork = {
-    show: async (url: string, errorMessage: string, edit = false) => {
+    show: async (url: string, errorMessage: string) => {
       const kb = Helper.buildHomeKeyboard(this)
       const da = {url: Helper.escapeHtml(url), errorMessage: Helper.escapeHtml(errorMessage)}
-      if (edit) {
-        await this.renderEdit(kb, da, Base.warnNetwork)
-      } else {
-        await this.render(kb, da, Base.warnNetwork)
-      }
+      await this.renderAuto(kb, da, Base.warnNetwork)
     }
   }
 

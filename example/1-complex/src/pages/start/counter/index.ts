@@ -24,7 +24,7 @@ export class StartCounterPage extends PageBase {
       const count = (await this.cacheData.get(key)) || `0`
       const kb = Helper.kb(this)
       const da = {count}
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     },
     process: async () => {
       const exe = this.callbackQueryDataArg
@@ -42,7 +42,7 @@ export class StartCounterPage extends PageBase {
       await this.cacheData.set(key, count)
       const kb = Helper.kb(this)
       const da = {count}
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     }
   }
 

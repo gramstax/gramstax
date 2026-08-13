@@ -42,7 +42,7 @@ export class ProductPage extends PageBase {
         benefits: product.benefits.map((benefit) => `• ${benefit}`).join(`\n`),
         delivery: product.deliveryEstimate
       }
-      await this.renderEdit(kb, da, Base.index)
+      await this.renderAuto(kb, da, Base.index)
     },
     process: async (action?: string, productId?: string) => {
       if (!productId) {
@@ -75,7 +75,7 @@ export class ProductPage extends PageBase {
       const product = ProductCatalog.getById(productId)
       const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.infoAdded)
       const da = {name: product?.name ?? `Selected product`}
-      await this.renderEdit(kb, da, Base.infoAdded)
+      await this.renderAuto(kb, da, Base.infoAdded)
     }
   }
 
@@ -84,14 +84,14 @@ export class ProductPage extends PageBase {
       const product = ProductCatalog.getById(productId)
       const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnStock)
       const da = {name: product?.name ?? `This product`}
-      await this.renderEdit(kb, da, Base.warnStock)
+      await this.renderAuto(kb, da, Base.warnStock)
     }
   }
 
   bwarnMissing = {
     show: async () => {
       const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnMissing)
-      await this.renderEdit(kb, {}, Base.warnMissing)
+      await this.renderAuto(kb, {}, Base.warnMissing)
     }
   }
 

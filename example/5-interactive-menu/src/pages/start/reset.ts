@@ -6,21 +6,21 @@ export class StartResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(true)
+    await this.bdefault.show()
   }
 
   async handleText() {
-    await this.bdefault.show(false)
+    await this.bdefault.show()
   }
 
   bdefault = {
-    show: async (isEdit = false) => {
+    show: async () => {
       await this.clearSession()
       await this.cacheState.delete(`${this.from!.id}:category`)
       await this.cacheState.delete(`${this.from!.id}:page`)
 
       const kb = this.inlineKeyboardT([StartPage])
-      await this.renderAuto(kb, null, null, null, isEdit)
+      await this.renderAuto(kb)
     }
   }
 

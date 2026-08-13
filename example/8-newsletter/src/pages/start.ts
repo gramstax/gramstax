@@ -6,7 +6,7 @@ export class StartPage extends PageBase {
   static data = this.buildData((action?: string) => [action])
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(true)
+    await this.bdefault.show()
   }
 
   async handleArgsCallbackQueryData() {
@@ -15,16 +15,16 @@ export class StartPage extends PageBase {
   }
 
   async handleCommandText() {
-    await this.bdefault.show(false)
+    await this.bdefault.show()
   }
 
   bdefault = {
-    show: async (isEdit = true) => {
+    show: async () => {
       await this.clearSession()
       const subscribed = await this.db.subs.isSubscribed(this.from!.id)
       const da = {subscribed}
       const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`switch`), StatsPage, HelpPage], `2`, null, da)
-      await this.renderAuto(kb, da, null, null, isEdit)
+      await this.renderAuto(kb, da)
     },
     process: async (action: string) => {
       if (action === `switch`) {
@@ -38,7 +38,7 @@ export class StartPage extends PageBase {
             language: this.from?.language_code
           })
         }
-        await this.bdefault.show(true)
+        await this.bdefault.show()
       }
     }
   }

@@ -15,22 +15,23 @@ export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
   async handleCommandText() {
-    await this.bindex.show(false)
+    await this.bindex.show()
   }
 
   async handleText() {
-    await this.bindex.show(false)
+    await this.bindex.show()
   }
 
   async handleCallbackQueryData() {
-    await this.bindex.show(true)
+    await this.bindex.show()
   }
 
   bindex = {
-    show: async (isEdit = false) => {
+    show: async () => {
       const bi = Base.index
       const ikb = this.inlineKeyboardT([StartCategoryPage, StartInlineWithRangePage, StartInlineWithoutRangePage, StartHelpPage, StartResetPage], `2`)
-      await this.renderAuto(ikb, {}, bi, null, isEdit)
+      const isEdit = !!this.callbackQuery
+      await this.renderAuto(ikb, {}, bi)
       if (!isEdit) {
         {
           const bi = Base.infoQuick

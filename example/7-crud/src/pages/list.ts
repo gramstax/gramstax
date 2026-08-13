@@ -65,7 +65,7 @@ export class ListPage extends PageBase {
       const bi = Base.index
       const da = {items: list, pageNo: safePage + 1, totalPages}
       const kb = Helper.buildKeyboard(this, safePage, totalPages)
-      await this.renderEdit(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     },
     process: async (pageNo: string) => {
       const nextPage = Number(pageNo)
@@ -77,7 +77,7 @@ export class ListPage extends PageBase {
     show: async () => {
       const bi = Base.infoEmpty
       const kb = Helper.buildHomeKeyboard(this, bi)
-      await this.renderEdit(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     }
   }
 

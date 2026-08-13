@@ -17,7 +17,7 @@ export class StartBlockSwitchPage extends PageBase {
     show: async (status: string) => {
       const da = {status}
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(status === `1` ? `0` : `1`), StartPage], `1`, null, da)
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     }
   }
 

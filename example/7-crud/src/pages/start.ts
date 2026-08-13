@@ -11,18 +11,18 @@ export class StartPage extends PageBase {
   static data = this.buildData()
 
   async handleCommandText() {
-    await this.gdefault.show(false)
+    await this.gdefault.show()
   }
 
   async handleCallbackQueryData() {
-    await this.gdefault.show(true)
+    await this.gdefault.show()
   }
 
   gdefault = {
-    show: async (isEdit: boolean) => {
+    show: async () => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
-      await this.renderAuto(kb, null, null, null, isEdit)
+      await this.renderAuto(kb)
     }
   }
 

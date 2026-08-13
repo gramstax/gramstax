@@ -5,7 +5,7 @@ import {StatusPage} from "../pages/status.js"
 export class BotCore extends Gramstax {
   // Centralized error handling for page failures.
   async hookErrorPage(ctx, data) {
-    await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
+    await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error)
   }
 
   // Fallback when no route matches.

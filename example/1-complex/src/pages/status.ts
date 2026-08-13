@@ -3,6 +3,7 @@ import {LogHe} from "~/helpers/log"
 import {StartPage} from "~/pages/start"
 
 class Base {
+  static error = `e`
   static notFound = `nf`
 }
 
@@ -16,24 +17,24 @@ export class StatusPage extends PageBase {
   }
 
   berror = {
-    show: async (funcName: string, error: Error | unknown, isEdit = true) => {
+    show: async (funcName: string, error: Error | unknown) => {
       LogHe.errorMake(error, this.constructorName, funcName)
 
       await this.clearSession()
-      const kb = this.inlineKeyboardT([StartPage])
-      await this.renderAuto(kb, null, null, null, isEdit)
+      const kb = this.inlineKeyboardT([StartPage], `1`, Base.error)
+      await this.renderAuto(kb, {}, Base.error)
     }
   }
 
   bnotFound = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage], `1`, Base.notFound)
-      await this.render(kb, {}, Base.notFound)
+      await this.renderAuto(kb, {}, Base.notFound)
     }
   }
 
   static template = `
-    <g-base>
+    <g-base id="${Base.error}">
       ${this.kbk.home()}
       <g-message>
         ❌ Something went wrong

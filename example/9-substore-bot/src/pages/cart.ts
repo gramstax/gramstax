@@ -14,7 +14,7 @@ export class CartPage extends PageBase {
   static data = this.buildData((step?: string, action?: string, productId?: string) => [step, action, productId])
 
   async handleCallbackQueryData() {
-    await this.bindex.show(true)
+    await this.bindex.show()
   }
 
   async handleArgsCallbackQueryData() {
@@ -25,7 +25,7 @@ export class CartPage extends PageBase {
   }
 
   bindex = {
-    show: async (isEdit = true) => {
+    show: async () => {
       const cart = ((await this.cacheState.get(`${this.from!.id}:cart`)) ?? {}) as CartState
       const summary = CartStore.getSummary(cart)
       if (summary.isEmpty) {
@@ -56,7 +56,7 @@ export class CartPage extends PageBase {
         subtotal: ProductCatalog.formatPrice(summary.subtotal)
       }
 
-      await this.renderAuto(kb, da, bi, null, isEdit)
+      await this.renderAuto(kb, da, bi)
     },
     process: async (action?: string, productId?: string) => {
       const cart = ((await this.cacheState.get(`${this.from!.id}:cart`)) ?? {}) as CartState
@@ -75,21 +75,21 @@ export class CartPage extends PageBase {
       }
 
       await this.cacheState.set(`${this.from!.id}:cart`, next)
-      await this.bindex.show(true)
+      await this.bindex.show()
     }
   }
 
   bempty = {
     show: async () => {
       const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.empty)
-      await this.renderEdit(kb, {}, Base.empty)
+      await this.renderAuto(kb, {}, Base.empty)
     }
   }
 
   binfoCleared = {
     show: async () => {
       const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.infoCleared)
-      await this.renderEdit(kb, {}, Base.infoCleared)
+      await this.renderAuto(kb, {}, Base.infoCleared)
     }
   }
 

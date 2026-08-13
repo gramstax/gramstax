@@ -17,20 +17,20 @@ export class StatusPage extends PageBase {
   }
 
   berror = {
-    show: async (funcName: string, error: Error | unknown, isEdit = true) => {
+    show: async (funcName: string, error: Error | unknown) => {
       LogHe.errorMake(error, this.constructorName, funcName)
 
       const bi = Base.error
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       await this.clearSession()
-      await this.renderAuto(kb, null, bi, null, isEdit)
+      await this.renderAuto(kb, {}, bi)
     }
   }
   bnotFound = {
     show: async () => {
       const bi = Base.notFound
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.render(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     }
   }
 

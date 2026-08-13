@@ -42,7 +42,7 @@ export class StartLanguagePage extends PageBase {
   bdefault = {
     show: async () => {
       const kb = Helper.kb(this)
-      await this.renderEdit(kb)
+      await this.renderAuto(kb)
     },
     process: async () => {
       const language = this.callbackQueryDataArg.toLowerCase().split(` `)[1] as string

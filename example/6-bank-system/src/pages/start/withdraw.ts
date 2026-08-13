@@ -32,7 +32,7 @@ export class StartWithdrawPage extends PageBase {
       await this.setSessionFreeText()
       const bi = Base.index
       const kb = Helper.kb(this, bi)
-      await this.renderEdit(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     },
     process: async (amountInput: string) => {
       if (!amountInput) {
@@ -69,7 +69,7 @@ export class StartWithdrawPage extends PageBase {
         amount: this.bankStore.formatAmount(amount),
         balance: this.bankStore.formatAmount(next)
       }
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bwarnInsufficient = {
@@ -77,7 +77,7 @@ export class StartWithdrawPage extends PageBase {
       const bi = Base.warnInsufficient
       const kb = Helper.kb(this, bi)
       const da = {balance: this.bankStore.formatAmount(current)}
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bwarnInvalid = {
@@ -85,7 +85,7 @@ export class StartWithdrawPage extends PageBase {
       const bi = Base.warnInvalid
       const kb = Helper.kb(this, bi)
       const da = {amount}
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
 

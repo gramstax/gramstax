@@ -109,7 +109,7 @@ export class CheckoutPage extends PageBase {
         items: OrderStore.formatCart(summary),
         subtotal: ProductCatalog.formatPrice(summary.subtotal)
       }
-      await this.renderEdit(kb, da, Base.index)
+      await this.renderAuto(kb, da, Base.index)
     },
     process: async () => {
       const {position} = Helper.getSession(this)
@@ -137,7 +137,7 @@ export class CheckoutPage extends PageBase {
     show: async (items: string, subtotal: string, contact: string, notes: string) => {
       const kb = Helper.kbConfirm(this, Base.confirm)
       const da = {items, subtotal, contact, notes}
-      await this.render(kb, da, Base.confirm)
+      await this.renderAuto(kb, da, Base.confirm)
     },
     process: async () => {
       const cart = await Helper.getCart(this)
@@ -193,7 +193,7 @@ export class CheckoutPage extends PageBase {
   bwarnEmpty = {
     show: async () => {
       const kb = Helper.kbCart(this, Base.warnEmpty)
-      await this.renderEdit(kb, {}, Base.warnEmpty)
+      await this.renderAuto(kb, {}, Base.warnEmpty)
     }
   }
 
@@ -202,7 +202,7 @@ export class CheckoutPage extends PageBase {
       await this.setSessionFreeText({position: `contact`})
       const kb = Helper.kbCart(this, Base.warnInvalid)
       const da = {contact}
-      await this.render(kb, da, Base.warnInvalid)
+      await this.renderAuto(kb, da, Base.warnInvalid)
     }
   }
 
@@ -210,14 +210,14 @@ export class CheckoutPage extends PageBase {
     show: async () => {
       await this.clearSession()
       const kb = Helper.kbHome(this, Base.infoCancel)
-      await this.renderEdit(kb, {}, Base.infoCancel)
+      await this.renderAuto(kb, {}, Base.infoCancel)
     }
   }
 
   binfoMissing = {
     show: async () => {
       const kb = Helper.kbHome(this, Base.infoMissing)
-      await this.renderEdit(kb, {}, Base.infoMissing)
+      await this.renderAuto(kb, {}, Base.infoMissing)
     }
   }
 

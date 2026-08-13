@@ -38,11 +38,11 @@ export class BroadcastPage extends PageBase {
   }
 
   async handleCallbackQueryData() {
-    await this.bindex.show(`-`, false, true)
+    await this.bindex.show(`-`, false)
   }
 
   async handleCommandText() {
-    await this.bindex.show(`-`, false, false)
+    await this.bindex.show(`-`, false)
   }
 
   async handleSessionArgsCallbackQueryData() {
@@ -92,11 +92,11 @@ export class BroadcastPage extends PageBase {
   }
 
   bindex = {
-    show: async (draftText: string, isEmpty = false, isEdit = true) => {
+    show: async (draftText: string, isEmpty = false) => {
       await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto(), this.methodSessionFreeVideo(), this.methodSessionFreeAnimation()], {position: `form`})
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(Base.index, `hybrid`), this.data.callbackQueryData(Base.index, `cancel`), StartPage], `1-2`, Base.index)
       const da = {draftText, isEmpty}
-      await this.renderAuto(kb, da, Base.index, null, isEdit)
+      await this.renderAuto(kb, da, Base.index)
     },
     process: async (action: string) => {
       const {position, draftText, mediaType, fileId, caption} = (this.temp.session?.params as IBroadcastSession) ?? {}
@@ -105,16 +105,15 @@ export class BroadcastPage extends PageBase {
       }
 
       if (action === `edit`) {
-        await this.bindex.show(mediaType ? `-` : draftText || `-`, false, true)
+        await this.bindex.show(mediaType ? `-` : draftText || `-`, false)
       } else if (action === `send`) {
         if (!draftText && !mediaType) {
-          return await this.bindex.show(`-`, true, true)
+          return await this.bindex.show(`-`, true)
         }
 
         const subscribers = await this.db.subs.list()
         if (subscribers.length === 0) {
-          await this.binfoEmptySubs.show()
-          return
+          return await this.binfoEmptySubs.show()
         }
 
         const ids = subscribers.map((item) => item.id)
@@ -145,21 +144,21 @@ export class BroadcastPage extends PageBase {
     show: async () => {
       await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto(), this.methodSessionFreeVideo(), this.methodSessionFreeAnimation()], {position: `form`})
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(Base.index, `cancel`), StartPage], `2`, Base.infoHybridMedia)
-      await this.renderEdit(kb, {}, Base.infoHybridMedia)
+      await this.renderAuto(kb, {}, Base.infoHybridMedia)
     }
   }
 
   binfoHybridMediaNotAvailable = {
     show: async () => {
       await this.clearSession()
-      await this.renderEdit(this.bkbHome.show(), {}, Base.infoHybridMediaNotAvailable)
+      await this.renderAuto(this.bkbHome.show(), {}, Base.infoHybridMediaNotAvailable)
     }
   }
 
   binfoConfirmText = {
     show: async (draftText: string) => {
       await this.setSessionArgsCallbackQueryData({position: `confirm`, draftText})
-      await this.render(this.bkbConfirm.show(), {draftText}, Base.infoConfirmText)
+      await this.renderAuto(this.bkbConfirm.show(), {draftText}, Base.infoConfirmText)
     }
   }
 
@@ -187,21 +186,21 @@ export class BroadcastPage extends PageBase {
   bsuccess = {
     show: async (successCount: number, totalCount: number) => {
       await this.clearSession()
-      await this.renderEdit(this.bkbHome.show(), {successCount, totalCount}, Base.success)
+      await this.renderAuto(this.bkbHome.show(), {successCount, totalCount}, Base.success)
     }
   }
 
   binfoEmptySubs = {
     show: async () => {
       await this.clearSession()
-      await this.renderEdit(this.bkbHome.show(), {}, Base.infoEmptySubs)
+      await this.renderAuto(this.bkbHome.show(), {}, Base.infoEmptySubs)
     }
   }
 
   binfoCancel = {
     show: async () => {
       await this.clearSession()
-      await this.renderEdit(this.bkbHome.show(), {}, Base.infoCancel)
+      await this.renderAuto(this.bkbHome.show(), {}, Base.infoCancel)
     }
   }
 

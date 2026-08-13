@@ -8,10 +8,10 @@ class Base {
 }
 
 class Helper {
-  static async built(ctx: StatusPage, isEdit = true) {
+  static async built(ctx: StatusPage) {
     const bi = Base.error
     const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
-    await ctx.renderAuto(kb, null, bi, null, isEdit)
+    await ctx.renderAuto(kb, {}, bi)
   }
 }
 
@@ -25,16 +25,16 @@ export class StatusPage extends PageBase {
   }
 
   berror = {
-    show: async (funcName: string, error: Error | unknown, isEdit = true) => {
+    show: async (funcName: string, error: Error | unknown) => {
       LogHe.errorMake(error, this.constructorName, funcName)
       await this.clearSession()
-      await Helper.built(this, isEdit)
+      await Helper.built(this)
     }
   }
   bnotFound = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage], `1`, Base.notFound)
-      await this.render(kb, {}, Base.notFound)
+      await this.renderAuto(kb, {}, Base.notFound)
     }
   }
 

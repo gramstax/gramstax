@@ -45,7 +45,7 @@ export class CreatePage extends PageBase {
       const bi = Base.title
       const kb = Helper.buildHomeKeyboard(this, bi)
       await this.setSessionFreeText({step: bi})
-      await this.renderEdit(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     }
   }
   bnotes = {
@@ -54,7 +54,7 @@ export class CreatePage extends PageBase {
       const kb = Helper.buildHomeKeyboard(this, bi)
       const da = {title}
       await this.setSessionFreeText({step: bi, title})
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   bsuccess = {
@@ -69,7 +69,7 @@ export class CreatePage extends PageBase {
         description: item.description,
         status: item.status
       }
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
 

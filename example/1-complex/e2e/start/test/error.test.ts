@@ -19,7 +19,7 @@ describe(`E2E: TestErrorPage`, () => {
     const replyId = responsesId[0]!
     expect(reply).toBeDefined()
     expect(replyId).toBeDefined()
-    expect(reply.body?.text).toBe(e2e.gmsg(`status`, `default`))
-    expect(replyId.body?.text).toBe(e2e.gmsg(`status`, `default`, {}, `id`))
+    expect(reply.body?.text).toBe(e2e.gmsg(`status`, `e`))
+    expect(replyId.body?.text).toBe(e2e.gmsg(`status`, `e`, {}, `id`))
   })
 })

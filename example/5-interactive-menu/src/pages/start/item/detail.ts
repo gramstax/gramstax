@@ -24,7 +24,7 @@ export class StartItemDetailPage extends PageBase {
         name: item?.name,
         description: item?.description
       }
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     }
   }
 

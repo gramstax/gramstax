@@ -59,7 +59,7 @@ export class UpdatePage extends PageBase {
   static data = this.buildData((step?: string, arg1?: string, arg2?: string) => [step, arg1, arg2])
 
   async handleCallbackQueryData() {
-    await this.gselectItem.show(0, true)
+    await this.gselectItem.show(0)
   }
 
   async handleArgsCallbackQueryData() {
@@ -72,7 +72,7 @@ export class UpdatePage extends PageBase {
   }
 
   gselectItem = {
-    show: async (pageNo = 0, isEdit = true) => {
+    show: async (pageNo = 0) => {
       const allItems = await this.db.items.list(this.from!.id)
       const totalPages = Math.max(Math.ceil(allItems.length / Helper.PAGE_SIZE), 1)
       const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
@@ -80,13 +80,13 @@ export class UpdatePage extends PageBase {
       const end = start + Helper.PAGE_SIZE
       const items = allItems.slice(start, end)
       if (items.length === 0) {
-        return await this.ginfoEmpty.show(isEdit)
+        return await this.ginfoEmpty.show()
       }
 
       const bi = Base.selectItem
       const da = {count: allItems.length, pageNo: safePage + 1, totalPages}
       const kb = await Helper.buildSItemKb(this, safePage, items)
-      await this.renderAuto(kb, da, bi, null, isEdit)
+      await this.renderAuto(kb, da, bi)
     },
     process: async (type: string, idOrPage: string) => {
       if (type === `page`) {
@@ -106,19 +106,19 @@ export class UpdatePage extends PageBase {
       const bi = Base.selectStatus
       const kb = Helper.buildSStatusKb(this, item.id)
       const da = {id: item.id, title: item.title, status: item.status}
-      await this.renderEdit(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     },
     process: async (status: IVItem[`status`], id: string) => {
       const item = await this.db.items.fetch(this.from!.id, id)
       if (!item) {
-        return await this.gselectItem.show(0, true)
+        return await this.gselectItem.show(0)
       }
 
       const updated = await this.db.items.edit(this.from!.id, id, item.title, item.description, status)
       if (updated) {
         await this.gsuccess.show(id, status)
       } else {
-        await this.gselectItem.show(0, true)
+        await this.gselectItem.show(0)
       }
     }
   }
@@ -127,14 +127,14 @@ export class UpdatePage extends PageBase {
       const bi = Base.infoNotFound
       const kb = Helper.buildHomeKb(this, bi)
       const da = {id}
-      await this.renderEdit(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
   ginfoEmpty = {
-    show: async (isEdit = true) => {
+    show: async () => {
       const bi = Base.infoEmpty
       const kb = Helper.buildHomeKb(this, bi)
-      await this.renderAuto(kb, {}, bi, null, isEdit)
+      await this.renderAuto(kb, {}, bi)
     }
   }
   gsuccess = {
@@ -142,7 +142,7 @@ export class UpdatePage extends PageBase {
       const bi = Base.success
       const kb = Helper.buildHomeKb(this, bi)
       const da = {id, status}
-      await this.renderEdit(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
 

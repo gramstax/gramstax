@@ -12,7 +12,7 @@ export class StartBlockImportPage extends PageBase {
     show: async () => {
       const kb = this.inlineKeyboardT([this, StartPage], `1`)
       const da = {number: Math.random()}
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     }
   }
 

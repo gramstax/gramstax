@@ -51,7 +51,7 @@ export class DeletePage extends PageBase {
   async handleArgsCallbackQueryData() {
     const [step, id] = this.callbackQueryDataArgs
     if (step === Base.index) {
-      await this.bindex.process(id!, true)
+      await this.bindex.process(id!)
     }
   }
 
@@ -59,7 +59,7 @@ export class DeletePage extends PageBase {
     const {step} = this.temp.session.params ?? {}
     const input = this.msg!.text!.trim()
     if (step === Base.index) {
-      await this.bindex.process(input, false)
+      await this.bindex.process(input)
     }
   }
 
@@ -69,26 +69,26 @@ export class DeletePage extends PageBase {
       const kb = Helper.buildListKeyboard(this, items)
       const da = {count: items.length}
       await this.setSessionFreeText({step: bi})
-      await this.renderEdit(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     },
-    process: async (id: string, isEdit = false) => {
+    process: async (id: string) => {
       if (!id) {
         const bi = Base.warnInvalid
         const kb = Helper.buildHomeKeyboard(this, bi)
-        await this.renderAuto(kb, {}, bi, null, isEdit)
+        await this.renderAuto(kb, {}, bi)
       } else {
         const deleted = await this.db.items.remove(this.from!.id, id)
         if (!deleted) {
           const bi = Base.errorNotFound
           const da = {id}
           const kb = Helper.buildHomeKeyboard(this, bi)
-          await this.renderAuto(kb, da, bi, null, isEdit)
+          await this.renderAuto(kb, da, bi)
         } else {
           await this.clearSession()
           const bi = Base.success
           const da = {id}
           const kb = Helper.buildHomeKeyboard(this, bi)
-          await this.renderAuto(kb, da, bi, null, isEdit)
+          await this.renderAuto(kb, da, bi)
         }
       }
     }
@@ -97,7 +97,7 @@ export class DeletePage extends PageBase {
     show: async () => {
       const bi = Base.infoEmpty
       const kb = Helper.buildHomeKeyboard(this, bi)
-      await this.renderEdit(kb, {}, bi)
+      await this.renderAuto(kb, {}, bi)
     }
   }
 

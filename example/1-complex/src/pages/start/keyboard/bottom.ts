@@ -24,7 +24,7 @@ class Helper {
         }
       }
     )
-    await ctx.render(kb, {}, AGBaseId)
+    await ctx.renderAuto(kb, {}, AGBaseId)
   }
 }
 
@@ -76,7 +76,7 @@ export class StartKeyboardBottomPage extends PageBase {
   bdelete = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage], `1`, Base.index)
-      await this.render(kb, {}, Base.delete, {
+      await this.renderAuto(kb, {}, Base.delete, {
         reply_markup: {
           remove_keyboard: true
         }

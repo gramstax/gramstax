@@ -47,7 +47,7 @@ export class StartHistoryPage extends PageBase {
       const history = Helper.formatHistory(this)
       const kb = this.inlineKeyboardT([StartPage])
       const da = {history}
-      await this.renderEdit(kb, da)
+      await this.renderAuto(kb, da)
     }
   }
 

@@ -45,7 +45,7 @@ export class StartItemListPage extends PageBase {
   }
 
   bdefault = {
-    show: async (categoryId: string, pageNo = 0, isEdit = true) => {
+    show: async (categoryId: string, pageNo = 0) => {
       await this.cacheState.set(`${this.from!.id}:category`, categoryId)
       await this.cacheState.set(`${this.from!.id}:page`, pageNo)
       const category = CatalogData.getCategoryById(categoryId)
@@ -53,14 +53,14 @@ export class StartItemListPage extends PageBase {
 
       const da = {category: categoryName}
       const kb = Helper.kb(this, categoryId, pageNo, category)
-      await this.renderAuto(kb, da, null, null, isEdit)
+      await this.renderAuto(kb, da)
     },
     process: async (pageNo: string) => {
       const categoryId = await this.cacheState.get(`${this.from!.id}:category`)
       if (!categoryId) {
-        await new StartCategoryPage(this).bdefault.show(true)
+        await new StartCategoryPage(this).bdefault.show()
       } else {
-        await this.bdefault.show(categoryId as string, Number(pageNo), true)
+        await this.bdefault.show(categoryId as string, Number(pageNo))
       }
     }
   }

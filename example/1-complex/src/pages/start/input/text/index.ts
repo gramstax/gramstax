@@ -16,11 +16,11 @@ export class StartInputTextPage extends PageBase {
   static data = this.buildData({intentCommandText: `input_text`})
 
   async handleCallbackQueryData() {
-    await this.bindex.show(true)
+    await this.bindex.show()
   }
 
   async handleCommandText() {
-    await this.bindex.show(false)
+    await this.bindex.show()
   }
 
   async handleSessionFreeText() {
@@ -31,11 +31,11 @@ export class StartInputTextPage extends PageBase {
   }
 
   bindex = {
-    show: async (isEdit = true) => {
+    show: async () => {
       const bi = Base.index
       const kb = Helper.kb(this, bi)
       await this.setSessionFreeText({step: bi})
-      await this.renderAuto(kb, {}, bi, null, isEdit)
+      await this.renderAuto(kb, {}, bi)
     },
     process: async () => {
       await this.bsuccess.show()
@@ -47,7 +47,7 @@ export class StartInputTextPage extends PageBase {
       const bi = Base.success
       const da = {res: this.msg?.text}
       const kb = Helper.kb(this, bi)
-      await this.render(kb, da, bi)
+      await this.renderAuto(kb, da, bi)
     }
   }
 
