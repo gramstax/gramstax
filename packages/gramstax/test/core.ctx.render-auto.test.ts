@@ -9,8 +9,8 @@ class TestPage extends Ctx {
   static data = this.buildData({name: `render-auto-test`})
 
   bdefault = {
-    show: async (isEdit?: boolean) => {
-      await this.renderAuto(null, null, null, null, isEdit)
+    show: async () => {
+      await this.renderAuto(null, null, null, null)
     }
   }
 }
@@ -89,34 +89,6 @@ describe(`Ctx.renderAuto`, () => {
     expect(renderSpy).not.toHaveBeenCalled()
   })
 
-  // ── Explicit isEdit override ────────────────────────────────────
-
-  it(`should call renderEdit when isEdit=true even without callbackQuery`, async () => {
-    const {ctx} = createTestCtx(false)
-    const renderSpy = mock(() => Promise.resolve({message_id: 1} as any))
-    const renderEditSpy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.render = renderSpy as any
-    ctx.renderEdit = renderEditSpy as any
-
-    await ctx.renderAuto(null, null, null, null, true)
-
-    expect(renderEditSpy).toHaveBeenCalledTimes(1)
-    expect(renderSpy).not.toHaveBeenCalled()
-  })
-
-  it(`should call render when isEdit=false even with callbackQuery`, async () => {
-    const {ctx} = createTestCtx(true)
-    const renderSpy = mock(() => Promise.resolve({message_id: 1} as any))
-    const renderEditSpy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.render = renderSpy as any
-    ctx.renderEdit = renderEditSpy as any
-
-    await ctx.renderAuto(null, null, null, null, false)
-
-    expect(renderSpy).toHaveBeenCalledTimes(1)
-    expect(renderEditSpy).not.toHaveBeenCalled()
-  })
-
   // ── Forwards keyboard & data arguments ─────────────────────────
 
   it(`should forward keyboard and data to render`, async () => {
@@ -133,16 +105,16 @@ describe(`Ctx.renderAuto`, () => {
   })
 
   it(`should forward keyboard and data to renderEdit`, async () => {
-    const {ctx} = createTestCtx(false)
+    const {ctx} = createTestCtx(true)
     const kb = new InlineKeyboard().text(`OK`, `ok`)
     const da = {msg: `hello`}
     const renderEditSpy = mock(() => Promise.resolve({message_id: 1} as any))
     ctx.renderEdit = renderEditSpy as any
 
-    await ctx.renderAuto(kb, da, null, null, true)
+    await ctx.renderAuto(kb, da, null, null)
 
     expect(renderEditSpy).toHaveBeenCalledTimes(1)
-    expect(renderEditSpy).toHaveBeenCalledWith(kb, da, null, null, false)
+    expect(renderEditSpy).toHaveBeenCalledWith(kb, da, null, null, `delete-reply`)
   })
 
   // ── Direct page pattern: new TestPage(this).bdefault.show() ────
@@ -173,19 +145,5 @@ describe(`Ctx.renderAuto`, () => {
 
     expect(renderEditSpy).toHaveBeenCalledTimes(1)
     expect(renderSpy).not.toHaveBeenCalled()
-  })
-
-  it(`should forward explicit isEdit through page show() pattern`, async () => {
-    const {ctx} = createTestCtx(true)
-    const renderSpy = mock(() => Promise.resolve({message_id: 1} as any))
-    const renderEditSpy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.render = renderSpy as any
-    ctx.renderEdit = renderEditSpy as any
-
-    // Explicit isEdit=false overrides callbackQuery presence
-    await ctx.bdefault.show(false)
-
-    expect(renderSpy).toHaveBeenCalledTimes(1)
-    expect(renderEditSpy).not.toHaveBeenCalled()
   })
 })

@@ -596,22 +596,44 @@ export class TemplateEngine {
    *
    * @remarks
    * This internal method transforms Mustache-like variable syntax into JavaScript
-   * template literal interpolation. Variables are accessed from the `data` object,
-   * with nullish coalescing to empty string when undefined.
+   * template literal interpolation. `{{key}}` is HTML-escaped at runtime; `{{{key}}}`
+   * is inserted raw. Variables are accessed from the `data` object, with nullish
+   * coalescing to empty string when undefined.
    *
    * @param template - The template string containing `{{variable}}` placeholders
    * @returns The processed template with placeholders converted to `${data["key"]}` syntax
    *
    * @example
    * ```typescript
-   * const processed = TemplateEngine._processVariables('Hello {{name}}!');
-   * // Result: 'Hello ${(data && data["name"]) ?? ""}!'
+   * const processed = TemplateEngine._processScopeVariables('Hello {{name}}!');
+   * // Result: 'Hello ${__esc((data && data["name"]) ?? "")}!'
    * ```
    *
    * @public
    */
   static _processScopeVariables(template: string) {
-    return template.replace(/\{\{(\w+)\}\}/g, (_, key) => `\${(data && data["${key}"]) ?? ""}`)
+    return template
+      .replace(/\{\{\{(\w+)\}\}\}/g, (_, key) => `\${(data && data["${key}"]) ?? ""}`)
+      .replace(/\{\{(\w+)\}\}/g, (_, key) => `\${__esc((data && data["${key}"]) ?? "")}`)
+  }
+
+  /**
+   * HTML-escapes a runtime value for safe interpolation into rich-HTML messages.
+   *
+   * @remarks
+   * Non-string values are stringified; `null`/`undefined` become empty string.
+   * Escaped code points: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`.
+   *
+   * @param value - The runtime value to escape.
+   * @returns The escaped string.
+   *
+   * @public
+   */
+  static _escapeData(value: unknown): string {
+    if (typeof value !== `string`) {
+      return value === null || value === undefined ? `` : String(value)
+    }
+    return value.replace(/&/g, `&amp;`).replace(/</g, `&lt;`).replace(/>/g, `&gt;`)
   }
 
   /**
@@ -947,8 +969,9 @@ export class TemplateEngine {
         // {{e}} / {{e.prop}}  →  current depth's element (e, e2, e3...)
         // {{e2}} / {{e2.prop}} → explicit depth element
         // {{i}} / {{i2}}       → current/explicit depth index
+        // {{{e}}}/{{{e.prop}}} → raw (no escaping)
         // Everything else passes through for _processScopeVariables.
-        processed = processed.replace(/\{\{([\w.]+)\}\}/g, (_m: string, inner: string) => {
+        processed = processed.replace(/\{\{\{([\w.]+)\}\}\}/g, (_m: string, inner: string) => {
           const eMatch = inner.match(/^(e(\d*))(?:\.(.+))?$/)
           if (eMatch) {
             const requested = eMatch[2] === `` ? depth : Number(eMatch[2])
@@ -956,6 +979,24 @@ export class TemplateEngine {
             const varSuffix = clamped === 1 ? `` : String(clamped)
             const prop = eMatch[3]
             return prop ? `\${e${varSuffix}.${prop}}` : `\${e${varSuffix}}`
+          }
+          const iMatch = inner.match(/^i(\d*)$/)
+          if (iMatch) {
+            const requestedI = iMatch[1] === `` ? depth : Number(iMatch[1])
+            const clampedI = Number.isNaN(requestedI) ? depth : Math.min(requestedI, depth)
+            const varSuffixI = clampedI === 1 ? `` : String(clampedI)
+            return `\${i${varSuffixI}}`
+          }
+          return _m
+        })
+        processed = processed.replace(/\{\{([\w.]+)\}\}/g, (_m: string, inner: string) => {
+          const eMatch = inner.match(/^(e(\d*))(?:\.(.+))?$/)
+          if (eMatch) {
+            const requested = eMatch[2] === `` ? depth : Number(eMatch[2])
+            const clamped = Number.isNaN(requested) ? depth : Math.min(requested, depth)
+            const varSuffix = clamped === 1 ? `` : String(clamped)
+            const prop = eMatch[3]
+            return prop ? `\${__esc(e${varSuffix}.${prop})}` : `\${__esc(e${varSuffix})}`
           }
           const iMatch = inner.match(/^i(\d*)$/)
           if (iMatch) {
@@ -1426,10 +1467,12 @@ export class TemplateEngine {
 
     if (isArray) {
       const functionBody = `return [${processed}]`
-      return new Function(`data`, functionBody) as unknown as ITTemplateRenderer<T>
+      const fn = new Function(`data`, `__esc`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string) => string[]
+      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData)) as unknown as ITTemplateRenderer<T>
     } else {
       const functionBody = `return ${processed}`
-      return new Function(`data`, functionBody) as unknown as ITTemplateRenderer<T>
+      const fn = new Function(`data`, `__esc`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string) => string
+      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData)) as unknown as ITTemplateRenderer<T>
     }
   }
 

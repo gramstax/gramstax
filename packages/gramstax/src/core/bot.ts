@@ -9,6 +9,7 @@
  * @public
  */
 
+import {timingSafeEqual} from "node:crypto"
 import {readFileSync} from "node:fs"
 import {dirname, join, parse} from "node:path"
 import {fileURLToPath} from "node:url"
@@ -244,25 +245,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Active webhook queue instance.
    * @internal
    */
-  protected webhookQueueInstance?: WebhookQueue<Update>
+  webhookQueueInstance?: WebhookQueue<Update>
 
   /**
    * Active webhook server instance.
    * @internal
    */
-  protected webhookServer?: {stop: () => void}
+  webhookServer?: {stop: () => void}
 
   /**
    * SIGINT handler for graceful shutdown.
    * @internal
    */
-  protected _onSigint?: () => void
+  _onSigint?: () => void
 
   /**
    * SIGTERM handler for graceful shutdown.
    * @internal
    */
-  protected _onSigterm?: () => void
+  _onSigterm?: () => void
 
   /**
    * Runtime metrics snapshot source (observability).
@@ -271,35 +272,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   readonly metrics = new MetricsStore()
 
   /** Max time (ms) an update handler may run before being treated as timed out. @internal */
-  protected _updateTimeoutMs = 30_000
+  _updateTimeoutMs = 30_000
   /** Skip updates with a previously seen `update_id`. @internal */
-  protected _skipDuplicateUpdate = false
+  _skipDuplicateUpdate = false
   /** Webhook secret token checked on POST requests. @internal */
-  protected _webhookSecretToken?: string
+  _webhookSecretToken?: string
   /** Max accepted `message.text`/`caption` length (0 = unlimited). @internal */
-  protected _maxTextLength = 0
+  _maxTextLength = 0
   /** Structured error hook (log sink / alerting). @internal */
-  protected _onUpdateError?: (event: ITUpdateErrorEvent) => void
+  _onUpdateError?: (event: ITUpdateErrorEvent) => void
   /** Structured success hook (audit trail). @internal */
-  protected _onUpdate?: (event: ITUpdateSuccessEvent) => void
+  _onUpdate?: (event: ITUpdateSuccessEvent) => void
   /** Max consecutive polling failures before giving up (-1 = infinite). @internal */
-  protected _pollingMaxRetries = 5
+  _pollingMaxRetries = 5
   /** Hostname for the status/health server. @internal */
-  protected _statusServerHostname = `127.0.0.1`
+  _statusServerHostname = `127.0.0.1`
   /** Optional HTTP port for `/health` and `/stats`. @internal */
-  protected _statusServerPort?: number
+  _statusServerPort?: number
 
   /** Bounded LRU of seen update ids (idempotency). @internal */
-  private _seenUpdates = new Map<number, number>()
-  private _seenUpdatesMax = 1024
+  _seenUpdates = new Map<number, number>()
+  _seenUpdatesMax = 1024
   /** Local sequence for trace ids when `update_id` is missing. @internal */
-  private _traceSeq = 0
-
-  /**
-   * Optional status/health HTTP server (any deploy mode).
-   * @internal
-   */
-  protected statusServer?: {stop: () => void}
+  _traceSeq = 0
+  /** Optional status/health HTTP server (any deploy mode). @internal */
+  _statusServer?: {stop: () => void}
 
   /**
    * Handler function for processing bot updates.
@@ -462,8 +459,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.handlerBotUpdate = this.bot.handleUpdate as unknown as (...args: unknown[]) => Promise<unknown>
 
     // Graceful shutdown (all modes)
-    this._onSigint = () => { void this.stop() }
-    this._onSigterm = () => { void this.stop() }
+    this._onSigint = () => {
+      void this.stop()
+    }
+    this._onSigterm = () => {
+      void this.stop()
+    }
     process.once(`SIGINT`, this._onSigint)
     process.once(`SIGTERM`, this._onSigterm)
 
@@ -536,19 +537,28 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.on(`message:refunded_payment`, (ctx) => this._onHandle(ctx, `refundedpayment`, false))
     this.bot.on(`message:group_chat_created`, (ctx) => this._onHandle(ctx, `groupchatcreated`, false))
     this.bot.on(`message:supergroup_chat_created`, (ctx) => this._onHandle(ctx, `supergroupchatcreated`, false))
-    this.bot.filter((ctx) => ctx.message?.channel_chat_created !== undefined, (ctx) => this._onHandle(ctx, `channelchatcreated`, false))
+    this.bot.filter(
+      (ctx) => ctx.message?.channel_chat_created !== undefined,
+      (ctx) => this._onHandle(ctx, `channelchatcreated`, false)
+    )
     this.bot.on(`message:video_chat_started`, (ctx) => this._onHandle(ctx, `videochatstarted`, false))
     this.bot.on(`message:video_chat_scheduled`, (ctx) => this._onHandle(ctx, `videochatscheduled`, false))
     this.bot.on(`message:video_chat_ended`, (ctx) => this._onHandle(ctx, `videochatended`, false))
     this.bot.on(`message:video_chat_participants_invited`, (ctx) => this._onHandle(ctx, `videochatparticipantsinvited`, false))
-    this.bot.filter((ctx) => ctx.message?.users_shared !== undefined, (ctx) => this._onHandle(ctx, `usershared`, false))
+    this.bot.filter(
+      (ctx) => ctx.message?.users_shared !== undefined,
+      (ctx) => this._onHandle(ctx, `usershared`, false)
+    )
     this.bot.on(`message:chat_shared`, (ctx) => this._onHandle(ctx, `chatshared`, false))
     this.bot.on(`message:web_app_data`, (ctx) => this._onHandle(ctx, `webappdata`, false))
     this.bot.on(`message:giveaway`, (ctx) => this._onHandle(ctx, `giveaway`, false))
     this.bot.on(`message:giveaway_created`, (ctx) => this._onHandle(ctx, `giveawaycreated`, false))
     this.bot.on(`message:giveaway_winners`, (ctx) => this._onHandle(ctx, `giveawaywinners`, false))
     this.bot.on(`message:giveaway_completed`, (ctx) => this._onHandle(ctx, `giveawaycompleted`, false))
-    this.bot.filter((ctx) => ctx.message?.pinned_message !== undefined, (ctx) => this._onHandle(ctx, `pinmessage`, false))
+    this.bot.filter(
+      (ctx) => ctx.message?.pinned_message !== undefined,
+      (ctx) => this._onHandle(ctx, `pinmessage`, false)
+    )
     this.bot.on(`message:forum_topic_created`, (ctx) => this._onHandle(ctx, `forumtopiccreated`, false))
     this.bot.on(`message:forum_topic_edited`, (ctx) => this._onHandle(ctx, `forumtopicedited`, false))
     this.bot.on(`message:forum_topic_closed`, (ctx) => this._onHandle(ctx, `forumtopicclosed`, false))
@@ -621,8 +631,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       await this.webhookServer?.stop()
       this.webhookServer = undefined
     }
-    this.statusServer?.stop()
-    this.statusServer = undefined
+    this._statusServer?.stop()
+    this._statusServer = undefined
   }
 
   /**
@@ -631,7 +641,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param params - Constructor parameters.
    * @internal
    */
-  protected _validateConfig(params: ITGramstaxParams): void {
+  _validateConfig(params: ITGramstaxParams): void {
     if (params.updateTimeoutMs !== undefined && (!Number.isFinite(params.updateTimeoutMs) || params.updateTimeoutMs < 0)) {
       throw new Error(`updateTimeoutMs must be a non-negative number`)
     }
@@ -673,10 +683,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param error - The startup error.
    * @internal
    */
-  protected _onStartupError(error: unknown): void {
+  _onStartupError(error: unknown): void {
     this.metrics.counts.updatesFailed += 1
     this._emitUpdateError({traceId: `startup`, listenerName: `startup`, state: `error`, error, durationMs: 0, isEdit: false})
-    this.log?.error?.(`[Gramstax] startup failed: ${String(error)}`)
+    this.log?.error?.(`startup failed: ${String(error)}`)
     void this.stop()
   }
 
@@ -686,15 +696,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  protected _startStatusServer(): void {
-    if (this.statusServer || this._statusServerPort === undefined) {
+  _startStatusServer(): void {
+    if (this._statusServer || this._statusServerPort === undefined) {
       return
     }
     const port = this._statusServerPort
     const hostname = this._statusServerHostname
     void import(`bun`)
       .then(({serve}) => {
-        this.statusServer = serve({
+        this._statusServer = serve({
           port,
           hostname,
           fetch: (req) => {
@@ -715,14 +725,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /** Replaces the bot token with `***` so it never leaks into logs. @internal */
-  protected _redactToken(value: string): string {
+  _redactToken(value: string): string {
     const token = this.bot?.token
     if (!token) return value
     return value.split(token).join(`***`)
   }
 
   /** Emits a structured update error event via metrics + `onUpdateError`. @internal */
-  protected _emitUpdateError(event: ITUpdateErrorEvent): void {
+  _emitUpdateError(event: ITUpdateErrorEvent): void {
     try {
       this._onUpdateError?.(event)
     } catch (error) {
@@ -735,7 +745,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param error - The bot error object.
    *
-   * @public
+   * @internal
    */
   _onCatch(error: BotError<ITCt>) {
     this.metrics.counts.updatesFailed += 1
@@ -756,7 +766,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param method - The deployment method used.
    * @param data - Additional data (URL for webhook/serverless).
    *
-   * @public
+   * @internal
    */
   async _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
     await this.executeSyncBlocksDescription(this.pages)
@@ -998,7 +1008,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   /**
    * Starts the bot in long polling mode.
    *
-   * @public
+   * @internal
    */
   _runPolling(): void {
     const opts: Record<string, unknown> = {
@@ -1025,7 +1035,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param attempt - Current retry attempt (0 = first run).
    * @internal
    */
-  protected async _startPollingLoop(opts: Record<string, unknown>, attempt: number): Promise<void> {
+  async _startPollingLoop(opts: Record<string, unknown>, attempt: number): Promise<void> {
     opts.drop_pending_updates = attempt === 0
     try {
       await this.bot.start(opts)
@@ -1052,7 +1062,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param fullUrl - The full public URL for the webhook.
    *
-   * @public
+   * @internal
    */
   async _runWebhook(fullUrl: string): Promise<void> {
     const {serve} = await import(`bun`) // <==== import in this because this package support node/bun (default use bun)
@@ -1066,7 +1076,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const perChatConcurrency = queueConfig?.perChatConcurrency ?? 1
     const blockWhenFull = queueConfig?.blockWhenFull !== false
     const activeChats = new Map<string, number>()
-    const waitChats = new Map<string, Array<() => void>>()
+    const waitChats = new Map<string, Array<(bypass?: boolean) => void>>()
 
     this.webhookQueueInstance = queue
 
@@ -1089,6 +1099,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       const key = String(chatId)
+      const waiterTimeoutMs = queueConfig?.waiterTimeoutMs ?? 30_000
       while (true) {
         const current = activeChats.get(key) || 0
         if (current < perChatConcurrency) {
@@ -1096,11 +1107,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           return () => this._releaseWebhookChat(key, activeChats, waitChats)
         }
 
-        await new Promise<void>((resolve) => {
+        const bypassed = await new Promise<boolean>((resolve) => {
           const waiters = waitChats.get(key) || []
-          waiters.push(resolve)
+          let settled = false
+          let timeoutId: ReturnType<typeof setTimeout> | undefined
+          const done: (bypass?: boolean) => void = (bypass = false) => {
+            if (settled) return
+            settled = true
+            if (timeoutId) clearTimeout(timeoutId)
+            const idx = waiters.indexOf(done)
+            if (idx >= 0) waiters.splice(idx, 1)
+            if (waiters.length === 0) {
+              waitChats.delete(key)
+            }
+            resolve(bypass)
+          }
+          waiters.push(done)
           waitChats.set(key, waiters)
+          timeoutId = setTimeout(() => done(true), waiterTimeoutMs)
+          timeoutId.unref?.()
         })
+
+        if (bypassed) {
+          // Proceed without holding a slot instead of waiting forever.
+          return () => {}
+        }
       }
     }
 
@@ -1121,6 +1152,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const server = serve({
       port,
       async fetch(req) {
+        if (self._webhookSecretToken) {
+          const secret = req.headers.get(`X-Telegram-Bot-Api-Secret-Token`)
+          if (
+            secret === null ||
+            secret.length !== self._webhookSecretToken.length ||
+            !timingSafeEqual(Buffer.from(secret), Buffer.from(self._webhookSecretToken))
+          ) {
+            return new Response(`Unauthorized`, {status: 401})
+          }
+        }
         const {pathname} = new URL(req.url)
         if (req.method === `GET` && (pathname === `/health` || pathname === `/stats`)) {
           if (pathname === `/health`) {
@@ -1136,12 +1177,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           )
         }
         if (req.method === `POST` && pathname === pathUrl) {
-          if (self._webhookSecretToken) {
-            const secret = req.headers.get(`X-Telegram-Bot-Api-Secret-Token`)
-            if (secret !== self._webhookSecretToken) {
-              return new Response(`Unauthorized`, {status: 401})
-            }
-          }
           if (!queueEnabled || !queue) {
             return handleUpdate(req)
           }
@@ -1201,7 +1236,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const data = await this.bot.api.getWebhookInfo()
     if (data.url !== fullUrl) {
-      await this.bot.api.setWebhook(fullUrl)
+      if (self._webhookSecretToken) {
+        await this.bot.api.setWebhook(fullUrl, {secret_token: self._webhookSecretToken})
+      } else {
+        await this.bot.api.setWebhook(fullUrl)
+      }
     }
 
     const botInfo = await this.bot.api.getMe()
@@ -1243,7 +1282,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param waitChats - Waiting callbacks by chat ID.
    * @internal
    */
-  _releaseWebhookChat(key: string, activeChats: Map<string, number>, waitChats: Map<string, Array<() => void>>) {
+  _releaseWebhookChat(key: string, activeChats: Map<string, number>, waitChats: Map<string, Array<(bypass?: boolean) => void>>) {
     const current = activeChats.get(key) || 0
     const next = Math.max(0, current - 1)
     if (next === 0) {
@@ -1297,7 +1336,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param adapter - The adapter name (e.g., "std/http", "aws-lambda").
    *
-   * @public
+   * @internal
    */
   async _runServerless(adapter: string): Promise<void> {
     this.handlerBotUpdate = webhookCallback(this.bot, adapter as string as Parameters<typeof webhookCallback>[1])
@@ -1315,7 +1354,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param Page - The page class.
    * @param filePath - The file path of the page.
    *
-   * @public
+   * @internal
    */
   _pageBuildData(Page: typeof Ctx, filePath: string, routeName?: string): void {
     if (Page?.data === undefined) {
@@ -1370,7 +1409,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param pages - The pages routing structure.
    * @param indexPage - The page index (used for shortCallbackQueryData).
    *
-   * @public
+   * @internal
    */
   _pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void {
     const d = Page.data!
@@ -1594,7 +1633,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  protected _buildEmptyPages() {
+  _buildEmptyPages() {
     // Helper to keep map result as literal types (prevents widening to string[])
     const toSession = <T extends string>(route: T): `handleSession${T extends `handle${infer R}` ? R : T}` => {
       return `handleSession${route.startsWith(`handle`) ? route.slice(6) : route}` as unknown as `handleSession${T extends `handle${infer R}` ? R : T}`
@@ -1866,7 +1905,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @returns The pages routing structure.
    *
-   * @public
+   * @internal
    */
   _pageLoads(pagesPath?: string) {
     this.log?.info?.(`Load pages..`)
@@ -2421,9 +2460,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const builtInListenerName = _BUILT_IN_LISTENERS.get(entry.event as string)
     if (builtInListenerName !== undefined) {
       if (entry.listenerName !== builtInListenerName) {
-        throw new Error(
-          `registerCustomRoute: listenerName "${entry.listenerName}" does not match the built-in listener "${builtInListenerName}" for event "${entry.event}". Use "${builtInListenerName}" so the built-in subscription dispatches this route.`
-        )
+        throw new Error(`registerCustomRoute: listenerName "${entry.listenerName}" does not match the built-in listener "${builtInListenerName}" for event "${entry.event}". Use "${builtInListenerName}" so the built-in subscription dispatches this route.`)
       }
       return
     }

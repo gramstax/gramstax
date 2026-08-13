@@ -111,6 +111,24 @@ describe(`MockTelegramServer`, () => {
     expect(server.botToken).toBe(botToken)
   })
 
+  it(`rejects setWebhook with a non-loopback host`, async () => {
+    const server = await startServer(new MockTelegramServer())
+
+    const setResponse = await fetch(`${server.apiRoot}/bot${botToken}/setWebhook`, {
+      method: `POST`,
+      headers: {"Content-Type": `application/json`},
+      body: JSON.stringify({url: `http://evil.example.com/webhook`})
+    })
+    const setData = (await setResponse.json()) as {ok: boolean; description?: string}
+
+    expect(setData.ok).toBe(false)
+    expect(server.webhookUrl).toBe(``)
+
+    const infoResponse = await fetch(`${server.apiRoot}/bot${botToken}/getWebhookInfo`, {method: `POST`})
+    const infoData = await infoResponse.json()
+    expect(infoData).toEqual({ok: true, result: {url: ``}})
+  })
+
   it(`records outbound Bot API requests and returns the latest request by method`, async () => {
     const server = await startServer(new MockTelegramServer())
 

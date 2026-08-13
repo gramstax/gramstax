@@ -10,7 +10,7 @@
  */
 
 import {existsSync, readdirSync, readFileSync, statSync, writeFileSync} from "node:fs"
-import {basename, extname, join} from "node:path"
+import {basename, extname, join, resolve} from "node:path"
 import {type FSWatcher, watch} from "chokidar"
 import {PageManager} from "~/page/manager"
 import type {ITCompiledTemplate, ITTemplateOptions} from "~/types/t.template"
@@ -481,37 +481,39 @@ export class TemplateManager {
    */
   _readTemplateFile(filename: string): string | null {
     for (const importPath of this._path) {
+      const rootPath = resolve(importPath)
       // 1. Check if filename has extension
       const ext = extname(filename).toLowerCase()
       if (ext) {
         // If has extension, just try to read it directly
-        const fullPath = join(importPath, filename)
-        if (existsSync(fullPath) && statSync(fullPath).isFile()) {
-          if (ext === `.html`) {
-            return readFileSync(fullPath, `utf8`)
-          } else if (ext === `.ts` || ext === `.js`) {
-            try {
-              const Page = PageManager.getFileSync(fullPath)
-              return Page?.template ?? null
-            } catch {
-              return null
-            }
+        const fullPath = resolve(importPath, filename)
+        if (!fullPath.startsWith(rootPath) || !existsSync(fullPath) || !statSync(fullPath).isFile()) {
+          continue
+        }
+        if (ext === `.html`) {
+          return readFileSync(fullPath, `utf8`)
+        } else if (ext === `.ts` || ext === `.js`) {
+          try {
+            const Page = PageManager.getFileSync(fullPath)
+            return Page?.template ?? null
+          } catch {
+            return null
           }
         }
         continue
       }
 
       // 2. If no extension, try .ts / .js then .html
-      const tsPath = join(importPath, `${filename}.ts`)
-      const jsPath = join(importPath, `${filename}.js`)
-      if (existsSync(tsPath) && statSync(tsPath).isFile()) {
+      const tsPath = resolve(importPath, `${filename}.ts`)
+      const jsPath = resolve(importPath, `${filename}.js`)
+      if (tsPath.startsWith(rootPath) && existsSync(tsPath) && statSync(tsPath).isFile()) {
         try {
           const Page = PageManager.getFileSync(tsPath)
           return Page?.template ?? null
         } catch {
           // If failed to load TS, continue to check HTML
         }
-      } else if (existsSync(jsPath) && statSync(jsPath).isFile()) {
+      } else if (jsPath.startsWith(rootPath) && existsSync(jsPath) && statSync(jsPath).isFile()) {
         try {
           const Page = PageManager.getFileSync(jsPath)
           return Page?.template ?? null
@@ -520,8 +522,8 @@ export class TemplateManager {
         }
       }
 
-      const htmlPath = join(importPath, `${filename}.html`)
-      if (existsSync(htmlPath) && statSync(htmlPath).isFile()) {
+      const htmlPath = resolve(importPath, `${filename}.html`)
+      if (htmlPath.startsWith(rootPath) && existsSync(htmlPath) && statSync(htmlPath).isFile()) {
         return readFileSync(htmlPath, `utf8`)
       }
     }
@@ -964,12 +966,14 @@ export class TemplateManager {
       return null
     }
 
+    const safeName = basename(filename)
     for (let index = 0; index < this._path.length; index++) {
-      const filepath = join(this._path[index] as string, filename)
+      const rootPath = resolve(this._path[index] as string)
+      const filepath = resolve(rootPath, safeName)
       const exists = existsSync(filepath)
       if (exists) {
         writeFileSync(filepath, template, `utf8`)
-        this._loadFile(filename)
+        this._loadFile(safeName)
         return true
       }
     }

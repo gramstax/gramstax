@@ -1,120 +1,4 @@
 /**
- * Extended `InlineKeyboard` — overrides `.text()` so the `data` parameter
- * accepts a page class or instance directly (besides a plain string).
- *
- * @example
- * ```ts
- * const kb = new GramstaxInlineKeyboard()
- *   .text("Open Settings", SettingsPage)                // callback from SettingsPage.data.callbackQueryData()
- *   .text("Help", HelpPage.data.callbackQueryData())    // [not recomended for types check] string works too
- * ```
- */
-class GramstaxInlineKeyboard extends InlineKeyboard {
-  /**
-   * Add a callback button.
-   *
-   * @param text - Button label. Pass a **page class/instance** to
-   *   automatically resolve `page.data.intentText` as the label, or a
-   *   plain `string`/grammY button object for the default behavior.
-   * @param data - Callback data. Pass a **page class/instance** to
-   *   automatically use `page.data.callbackQueryData()`, or pass a
-   *   plain `string` for the default behavior.
-   * @returns `this` for chaining.
-   */
-  override text(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | _KbPageLike): this {
-    let label: Parameters<InlineKeyboard[`text`]>[0] = text as Parameters<InlineKeyboard[`text`]>[0]
-    if (typeof label === `function` || label instanceof Ctx) {
-      const PageClass = (typeof label === `function` ? label : label.constructor) as typeof Ctx
-      _ensurePageHasCallback(PageClass)
-      label = _resolvePageText(PageClass)
-    } else if (typeof label === `object` && label !== null) {
-      const btn = label as {text?: unknown}
-      if (typeof btn.text === `function` || btn.text instanceof Ctx) {
-        const PageClass = (typeof btn.text === `function` ? btn.text : btn.text.constructor) as typeof Ctx
-        _ensurePageHasCallback(PageClass)
-        label = {...btn, text: _resolvePageText(PageClass)} as Parameters<InlineKeyboard[`text`]>[0]
-      }
-    }
-    if (data !== undefined && typeof data !== `string`) {
-      if (`result` in data && `page` in data && `args` in data) {
-        const cb = data as unknown as _KbCallbackData
-        return super.text(label, cb.result)
-      }
-      const PageClass = (typeof data === `function` ? data : data.constructor) as typeof Ctx
-      _ensurePageHasCallback(PageClass)
-      const cb = (PageClass.data as unknown as {callbackQueryData: () => _KbCallbackData<typeof Ctx, []>}).callbackQueryData()
-      return super.text(label, cb.result)
-    }
-    return super.text(label, data as Parameters<InlineKeyboard[`text`]>[1])
-  }
-}
-
-/**
- * Extended `Keyboard` (reply keyboard) — overrides `.text()` so the `text`
- * parameter accepts a page class/instance (besides a plain string). When a
- * page is passed the button label resolves to the page's `intentText`.
- *
- * @example
- * ```ts
- * const kb = new GramstaxKeyboard()
- *   .text(BalancePage)          // label → BalancePage.data.intentText
- *   .row()
- *   .text("Manual Label")       // string works too
- * ```
- */
-class GramstaxKeyboard extends Keyboard {
-  /**
-   * Add a text button for the reply keyboard.
-   *
-   * @param text - Button label. Pass a **page class/instance** to
-   *   automatically resolve `page.data.intentText` as the label
-   *   (or a plain `string` for the default behavior).
-   * @param options - Optional styling (see grammY `Keyboard.text`).
-   * @returns `this` for chaining.
-   */
-  override text(text: string | typeof Ctx | Ctx, options?: Parameters<Keyboard[`text`]>[1]): this {
-    if (typeof text !== `string`) {
-      const PageClass = (typeof text === `function` ? text : text.constructor) as typeof Ctx
-      text = PageClass.data?.intentText ?? ``
-    }
-    return super.text(text, options)
-  }
-}
-
-/**
- * Resolve a page class/instance to its default intent text (no language).
- */
-function _resolvePageText(page: typeof Ctx | Ctx): string {
-  const PageClass = (typeof page === `function` ? page : page.constructor) as typeof Ctx
-  return PageClass.data?.intentText ?? PageClass.data?.name ?? ``
-}
-
-/**
- * Ensure a page class defines the `handleCallbackQueryData` route.
- */
-function _ensurePageHasCallback(PageClass: typeof Ctx) {
-  const hasCallback = typeof (PageClass.prototype as unknown as Record<string, unknown>).handleCallbackQueryData === `function`
-  if (!hasCallback) {
-    const pageName = (PageClass.data as {name?: string} | undefined)?.name ?? (PageClass as unknown as {name?: string}).name ?? `unknown`
-    throw new Error(`Page "${pageName}" referenced in inline keyboard does not define handleCallbackQueryData. The button would have no registered handler. Add "async handleCallbackQueryData()" to the page class.`)
-  }
-}
-
-/**
- * Resolve a page class/instance to its language-specific intent text.
- */
-function _resolvePageTextLang(page: typeof Ctx | Ctx, lang?: string): string {
-  const PageClass = (typeof page === `function` ? page : page.constructor) as typeof Ctx
-  const map = PageClass.data?.intentTextMap
-  if (map) {
-    if (lang && map[lang]) return map[lang]
-    if (map.default) return map.default
-  }
-  // Fallback to intentText (already set from map.default or plain string)
-  return PageClass.data?.intentText ?? PageClass.data?.name ?? ``
-}
-
-/**
  * Extended context — adds Gramstax features to the base bot context.
  *
  * @remarks
@@ -140,6 +24,7 @@ import type {
   ITBottomKb,
   ITBottomKbParams,
   ITBuildDataOptions,
+  ITCt,
   ITCtxParams,
   ITData,
   ITInBoKb,
@@ -150,6 +35,7 @@ import type {
   ITOptEdit,
   ITOptEditMedia1,
   ITOptEditMedia2,
+  ITOptFallbackEdit,
   ITOptReply,
   ITOptReplyAnimation,
   ITOptReplyAudio,
@@ -171,13 +57,107 @@ type ITMediaGroupType = Extract<ITMediaBlock[`type`], `photo` | `video` | `audio
 type ITMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
 type ITMediaGroupItem = NonNullable<ITMediaBlock[`mediaGroup`]>[number]
 
-class Dynamic {
-  static MEDIA_GROUP_TYPES = new Set<ITMediaBlock[`type`]>([`photo`, `video`, `audio`, `document`])
+/**
+ * Extended `InlineKeyboard` — overrides `.text()` so the `data` parameter
+ * accepts a page class or instance directly (besides a plain string).
+ *
+ * @example
+ * ```ts
+ * const kb = new GramstaxInlineKeyboard()
+ *   .text("Open Settings", SettingsPage)                // callback from SettingsPage.data.callbackQueryData()
+ *   .text("Help", HelpPage.data.callbackQueryData())    // [not recomended for types check] string works too
+ * ```
+ *
+ * @internal
+ */
+class GramstaxInlineKeyboard extends InlineKeyboard {
+  /**
+   * Add a callback button.
+   *
+   * @param text - Button label. Pass a **page class/instance** to
+   *   automatically resolve `page.data.intentText` as the label, or a
+   *   plain `string`/grammY button object for the default behavior.
+   * @param data - Callback data. Pass a **page class/instance** to
+   *   automatically use `page.data.callbackQueryData()`, or pass a
+   *   plain `string` for the default behavior.
+   * @returns `this` for chaining.
+   *
+   * @internal
+   */
+  override text(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | _KbPageLike): this {
+    let label: Parameters<InlineKeyboard[`text`]>[0] = text as Parameters<InlineKeyboard[`text`]>[0]
+    if (typeof label === `function` || label instanceof Ctx) {
+      const PageClass = (typeof label === `function` ? label : label.constructor) as typeof Ctx
+      Helper.ensurePageHasCallback(PageClass)
+      label = Helper.resolvePageText(PageClass)
+    } else if (typeof label === `object` && label !== null) {
+      const btn = label as {text?: unknown}
+      if (typeof btn.text === `function` || btn.text instanceof Ctx) {
+        const PageClass = (typeof btn.text === `function` ? btn.text : btn.text.constructor) as typeof Ctx
+        Helper.ensurePageHasCallback(PageClass)
+        label = {...btn, text: Helper.resolvePageText(PageClass)} as Parameters<InlineKeyboard[`text`]>[0]
+      }
+    }
+    if (data !== undefined && typeof data !== `string`) {
+      if (`result` in data && `page` in data && `args` in data) {
+        const cb = data as unknown as _KbCallbackData
+        return super.text(label, cb.result)
+      }
+      const PageClass = (typeof data === `function` ? data : data.constructor) as typeof Ctx
+      Helper.ensurePageHasCallback(PageClass)
+      const cb = (PageClass.data as unknown as {callbackQueryData: () => _KbCallbackData<typeof Ctx, []>}).callbackQueryData()
+      return super.text(label, cb.result)
+    }
+    return super.text(label, data as Parameters<InlineKeyboard[`text`]>[1])
+  }
 }
 
+/**
+ * Extended `Keyboard` (reply keyboard) — overrides `.text()` so the `text`
+ * parameter accepts a page class/instance (besides a plain string). When a
+ * page is passed the button label resolves to the page's `intentText`.
+ *
+ * @example
+ * ```ts
+ * const kb = new GramstaxKeyboard()
+ *   .text(BalancePage)          // label → BalancePage.data.intentText
+ *   .row()
+ *   .text("Manual Label")       // string works too
+ * ```
+ *
+ * @internal
+ */
+class GramstaxKeyboard extends Keyboard {
+  /**
+   * Add a text button for the reply keyboard.
+   *
+   * @param text - Button label. Pass a **page class/instance** to
+   *   automatically resolve `page.data.intentText` as the label
+   *   (or a plain `string` for the default behavior).
+   * @param options - Optional styling (see grammY `Keyboard.text`).
+   * @returns `this` for chaining.
+   *
+   * @internal
+   */
+  override text(text: string | typeof Ctx | Ctx, options?: Parameters<Keyboard[`text`]>[1]): this {
+    if (typeof text !== `string`) {
+      const PageClass = (typeof text === `function` ? text : text.constructor) as typeof Ctx
+      text = PageClass.data?.intentText ?? ``
+    }
+    return super.text(text, options)
+  }
+}
+
+/**
+ * Internal helper methods for media-group construction and page-keyboard
+ * button resolution. Not part of the public API surface.
+ *
+ * @internal
+ */
 class Helper {
+  static MEDIA_GROUP_TYPES = new Set<ITMediaBlock[`type`]>([`photo`, `video`, `audio`, `document`])
   static isMediaGroupType(type: ITMediaBlock[`type`]): type is ITMediaGroupType {
-    return Dynamic.MEDIA_GROUP_TYPES.has(type)
+    return Helper.MEDIA_GROUP_TYPES.has(type)
   }
 
   static buildMediaGroupOptions(options: Record<string, unknown>) {
@@ -206,6 +186,55 @@ class Helper {
       if (type === `audio`) return InputMediaBuilder.audio(media, opts)
       return InputMediaBuilder.document(media, opts)
     })
+  }
+
+  /**
+   * Resolve a page class/instance to its default intent text (no language).
+   *
+   * @param page - Page class or instance.
+   * @returns The resolved button label.
+   *
+   * @internal
+   */
+  static resolvePageText(page: typeof Ctx | Ctx): string {
+    const PageClass = (typeof page === `function` ? page : page.constructor) as typeof Ctx
+    return PageClass.data?.intentText ?? PageClass.data?.name ?? ``
+  }
+
+  /**
+   * Ensure a page class defines the `handleCallbackQueryData` route.
+   *
+   * @param PageClass - Page class referenced in an inline keyboard.
+   * @throws Error when the page lacks a `handleCallbackQueryData` handler.
+   *
+   * @internal
+   */
+  static ensurePageHasCallback(PageClass: typeof Ctx) {
+    const hasCallback = typeof (PageClass.prototype as unknown as Record<string, unknown>).handleCallbackQueryData === `function`
+    if (!hasCallback) {
+      const pageName = (PageClass.data as {name?: string} | undefined)?.name ?? (PageClass as unknown as {name?: string}).name ?? `unknown`
+      throw new Error(`Page "${pageName}" referenced in inline keyboard does not define handleCallbackQueryData. The button would have no registered handler. Add "async handleCallbackQueryData()" to the page class.`)
+    }
+  }
+
+  /**
+   * Resolve a page class/instance to its language-specific intent text.
+   *
+   * @param page - Page class or instance.
+   * @param lang - Optional language code; falls back to `intentText`.
+   * @returns The resolved button label.
+   *
+   * @internal
+   */
+  static resolvePageTextLang(page: typeof Ctx | Ctx, lang?: string): string {
+    const PageClass = (typeof page === `function` ? page : page.constructor) as typeof Ctx
+    const map = PageClass.data?.intentTextMap
+    if (map) {
+      if (lang && map[lang]) return map[lang]
+      if (map.default) return map.default
+    }
+    // Fallback to intentText (already set from map.default or plain string)
+    return PageClass.data?.intentText ?? PageClass.data?.name ?? ``
   }
 }
 
@@ -442,14 +471,23 @@ export class Ctx extends Context {
    * @param otherMessage - Optional remaining parameters forwarded to `sendMessage`.
    * @param signal - Optional `AbortSignal` to cancel streaming.
    * @returns Array of sent text messages.
+   *
+   * @public
    */
-  replyWithStream(
+  async replyWithStream(
     stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>,
     otherMessageDraft?: Parameters<StreamContextExtension[`replyWithStream`]>[1],
     otherMessage?: Parameters<StreamContextExtension[`replyWithStream`]>[2],
     signal?: Parameters<StreamContextExtension[`replyWithStream`]>[3]
   ): Promise<unknown> {
-    return this.ct.replyWithStream(stream, otherMessageDraft, otherMessage, signal)
+    const api = this.api as unknown as StreamContextExtension[`api`]
+    const chatId = this.chatId
+    if (chatId === undefined) {
+      throw new Error(`This update does not belong to a chat, so you cannot call 'streamMessage'`)
+    }
+    const msg = this.msg
+    const messageThreadId = msg?.is_topic_message ? {message_thread_id: msg.message_thread_id} : {}
+    return api.streamMessage(chatId, 256 * this.update.update_id, stream, {...messageThreadId, ...otherMessageDraft}, {...messageThreadId, ...otherMessage}, signal)
   }
 
   /**
@@ -471,15 +509,24 @@ export class Ctx extends Context {
    * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.
    * @param signal - Optional `AbortSignal` to cancel streaming.
    * @returns The sent rich message object.
+   *
+   * @public
    */
-  replyWithMarkdownStream(
+  async replyWithMarkdownStream(
     stream: Iterable<string> | AsyncIterable<string>,
     otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[1],
     otherRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[2],
     baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[3],
     signal?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[4]
   ): Promise<unknown> {
-    return this.ct.replyWithMarkdownStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+    const api = this.api as unknown as StreamContextExtension[`api`]
+    const chatId = this.chatId
+    if (chatId === undefined) {
+      throw new Error(`This update does not belong to a chat, so you cannot call 'streamMarkdown'`)
+    }
+    const msg = this.msg
+    const messageThreadId = msg?.is_topic_message ? {message_thread_id: msg.message_thread_id} : {}
+    return api.streamMarkdown(chatId, this.update.update_id, stream, {...messageThreadId, ...otherRichMessageDraft}, {...messageThreadId, ...otherRichMessage}, baseInputRichMessage, signal)
   }
 
   /**
@@ -501,15 +548,24 @@ export class Ctx extends Context {
    * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.
    * @param signal - Optional `AbortSignal` to cancel streaming.
    * @returns The sent rich message object.
+   *
+   * @public
    */
-  replyWithHtmlStream(
+  async replyWithHtmlStream(
     stream: Iterable<string> | AsyncIterable<string>,
     otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[1],
     otherRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[2],
     baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[3],
     signal?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[4]
   ): Promise<unknown> {
-    return this.ct.replyWithHtmlStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+    const api = this.api as unknown as StreamContextExtension[`api`]
+    const chatId = this.chatId
+    if (chatId === undefined) {
+      throw new Error(`This update does not belong to a chat, so you cannot call 'streamHtml'`)
+    }
+    const msg = this.msg
+    const messageThreadId = msg?.is_topic_message ? {message_thread_id: msg.message_thread_id} : {}
+    return api.streamHtml(chatId, this.update.update_id, stream, {...messageThreadId, ...otherRichMessageDraft}, {...messageThreadId, ...otherRichMessage}, baseInputRichMessage, signal)
   }
 
   /**
@@ -1065,8 +1121,14 @@ export class Ctx extends Context {
    * Per-request session fetch cache (memoization for getSession).
    * @internal
    */
-  private _sessionLoaded = false
-  private _sessionValue: ITCacheRpc | null = null
+  _sessionLoaded = false
+  _sessionValue: ITCacheRpc | null = null
+
+  /**
+   * Tracks per-request Api instances where the answer guard transformer has already been installed
+   * @internal
+   */
+  static readonly _answerApiGuard = new WeakSet<object>()
 
   /**
    * Creates a new Ctx instance.
@@ -1078,27 +1140,9 @@ export class Ctx extends Context {
    *
    * @public
    */
-  /** Tracks per-request Api instances where the answer guard transformer has already been installed */
-  private static readonly _answerApiGuard = new WeakSet<object>()
-
-  /**
-   * The underlying grammy context object.  For new code this is the same as
-   * `this` (since {@link Ctx} extends `Context`), but it is exposed here so
-   * that a `Ctx` instance structurally satisfies {@link ITCtxParams} — allowing
-   * `new SomePage(this)` to compile without a type assertion.
-   *
-   * The `& {[key: string]: any}` widening covers runtime-added methods
-   * (e.g. `\@grammyjs/stream` plugin) that TypeScript cannot know statically.
-   *
-   * @readonly
-   * @public
-   */
-  readonly ct: Context & StreamContextExtension & {[key: string]: unknown}
-
   constructor(params: ITCtxParams) {
-    const ct = params.ct ?? params
+    const ct: ITCt = params.ct ?? (params as unknown as ITCt)
     super(ct.update, ct.api, ct.me)
-    this.ct = ct as Context & StreamContextExtension & {[key: string]: unknown}
     if (this.api?.config?.use && !Ctx._answerApiGuard.has(this.api)) {
       Ctx._answerApiGuard.add(this.api)
       this.api.config.use((prev, method, payload, signal) => {
@@ -1218,7 +1262,18 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError: boolean | null = false, chunkSize: number | null = null, chunkDelayMs: number | null = null, excludeIds: number[] | null = null) {
+  async renderBroadcast(
+    ids: number[],
+    languageCode: string[],
+    keyboard?: ITInBoKb | null,
+    data?: ITData | null,
+    AGBaseId?: string | null,
+    options?: ITOptReply | null,
+    throwError: boolean | null = false,
+    chunkSize: number | null = null,
+    chunkDelayMs: number | null = null,
+    excludeIds: number[] | null = null
+  ) {
     const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0}
     res.totalCount = ids.length
     const limitFree = 30
@@ -1442,18 +1497,16 @@ export class Ctx extends Context {
 
   /**
    * Sends or edits a rich message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderRich} and {@link (Ctx:class).renderEditRich} based on
-   * the `isEdit` flag.
+   * between {@link (Ctx:class).renderRich} and {@link (Ctx:class).renderEditRich},
+   * auto-detected from `!!this.callbackQuery`.
    *
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID (or null to use default).
    * @param options1 - Optional `InputRichMessage` fields (or null to omit).
    * @param options2 - Optional send/edit options (or null to omit).
-   * @param isEdit - If true, edits existing message; if false, sends new.
-   *                 Defaults to `!!this.callbackQuery` (auto-detected).
-   * @param fallbackReply - If true, sends a new reply when edit fails (only when `isEdit` is true).
-   *                        Defaults to `null` (no fallback).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
    * @returns The sent or edited message object.
    *
    * @example
@@ -1465,10 +1518,10 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null, fallbackReply?: boolean | null) {
-    const edit = isEdit ?? !!this.callbackQuery
+  async renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    const edit = !!this.callbackQuery
     if (edit) {
-      return await this.renderEditRich(keyboard as ITInlineKb, data, AGBaseId, options1, options2 as unknown as ITOptEdit, fallbackReply ?? false)
+      return await this.renderEditRich(keyboard as ITInlineKb, data, AGBaseId, options1, options2 as unknown as ITOptEdit, fallbackEdit)
     }
     return await this.renderRich(keyboard, data, AGBaseId, options1, options2 as ITOptReplyRich[1])
   }
@@ -1482,8 +1535,9 @@ export class Ctx extends Context {
    * rich messages — pass a rich HTML template and it will be sent as structured
    * rich content.
    *
-   * If editing fails (e.g. message too old) and `fallbackReply` is true,
-   * a new rich message reply is sent instead.
+   * If editing fails (e.g. message too old), the fallback behavior is controlled
+   * by `fallbackEdit` (default `delete-reply`: deletes the original message and
+   * sends a new rich reply — the result looks like an in-place edit).
    *
    * Rich message limits:
    * - Up to 32,768 UTF-8 characters
@@ -1496,7 +1550,9 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template base ID position for block message (or null to use default).
    * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).
    * @param options2 - Optional edit options (or null to omit).
-   * @param fallbackReply - If true, sends a rich reply if edit fails. Default: false.
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
@@ -1509,7 +1565,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackReply: boolean | null = false) {
+  async renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
       return await this.editMessageText(
@@ -1520,11 +1576,17 @@ export class Ctx extends Context {
         }
       )
     } catch (error) {
-      if (fallbackReply) {
-        await this.renderRich(keyboardInline, data, AGBaseId, options1, options2)
-      } else {
+      if (fallbackEdit === `disable`) {
         throw error
       }
+      if (fallbackEdit === `delete-reply`) {
+        try {
+          await this.deleteMessage()
+        } catch {
+          // delete failure (e.g. already deleted) must not block the fallback reply
+        }
+      }
+      return await this.renderRich(keyboardInline, data, AGBaseId, options1, options2)
     }
   }
 
@@ -1615,7 +1677,8 @@ export class Ctx extends Context {
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
-   *   await this.renderMediaGroup("photo")
+   *   await this.renderMediaGroup("photo") // only send photo
+   *   await this.renderMediaGroup() // send all media group
    * }
    * ```
    *
@@ -1660,7 +1723,23 @@ export class Ctx extends Context {
     return this.renderMedia(`photo`, keyboard, data, AGBaseId, options)
   }
 
-  /** Sends a photo media group using pipe-delimited `src` values from the page template. */
+  /**
+   * Sends a photo media group using pipe-delimited `src` values from the page template.
+   *
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
+   * @param options - Optional photo-specific options (or null to omit).
+   * @returns The sent media group messages.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.renderPhotoGroup()
+   * }
+   * ```
+   *
+   * @public
+   */
   async renderPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null) {
     return this.renderMediaGroup(`photo`, data, AGBaseId, options)
   }
@@ -1687,7 +1766,23 @@ export class Ctx extends Context {
     return this.renderMedia(`video`, keyboard, data, AGBaseId, options)
   }
 
-  /** Sends a video media group using pipe-delimited `src` values from the page template. */
+  /**
+   * Sends a video media group using pipe-delimited `src` values from the page template.
+   *
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
+   * @param options - Optional video-specific options (or null to omit).
+   * @returns The sent media group messages.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.renderVideoGroup()
+   * }
+   * ```
+   *
+   * @public
+   */
   async renderVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null) {
     return this.renderMediaGroup(`video`, data, AGBaseId, options)
   }
@@ -1714,7 +1809,23 @@ export class Ctx extends Context {
     return this.renderMedia(`audio`, keyboard, data, AGBaseId, options)
   }
 
-  /** Sends an audio media group using pipe-delimited `src` values from the page template. */
+  /**
+   * Sends an audio media group using pipe-delimited `src` values from the page template.
+   *
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
+   * @param options - Optional audio-specific options (or null to omit).
+   * @returns The sent media group messages.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.renderAudioGroup()
+   * }
+   * ```
+   *
+   * @public
+   */
   async renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null) {
     return this.renderMediaGroup(`audio`, data, AGBaseId, options)
   }
@@ -1741,7 +1852,23 @@ export class Ctx extends Context {
     return this.renderMedia(`document`, keyboard, data, AGBaseId, options)
   }
 
-  /** Sends a document media group using pipe-delimited `src` values from the page template. */
+  /**
+   * Sends a document media group using pipe-delimited `src` values from the page template.
+   *
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
+   * @param options - Optional document-specific options (or null to omit).
+   * @returns The sent media group messages.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.renderDocumentGroup()
+   * }
+   * ```
+   *
+   * @public
+   */
   async renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null) {
     return this.renderMediaGroup(`document`, data, AGBaseId, options)
   }
@@ -1880,21 +2007,19 @@ export class Ctx extends Context {
 
   /**
    * Sends or edits a message using the page template, auto-selecting
-   * between {@link (Ctx:class).render} and {@link (Ctx:class).renderEdit} based on the
-   * `isEdit` flag.
+   * between {@link (Ctx:class).render} and {@link (Ctx:class).renderEdit} based on
+   * `!!this.callbackQuery`.
    *
    * @remarks
-   * When `isEdit` is `true`, delegates to `renderEdit` (inline keyboard only).
-   * When `false`, delegates to `render` (inline or bottom keyboard).
+   * When a callback query is present, delegates to `renderEdit` (inline keyboard only).
+   * Otherwise, delegates to `render` (inline or bottom keyboard).
    *
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID position for block message (or null to use default).
    * @param options - Optional reply/edit options (or null to omit).
-   * @param isEdit - If `true`, edits the existing message; if `false`, sends a new one.
-   *                 Defaults to `!!this.callbackQuery` (auto-detected).
-   * @param fallbackReply - If true, sends a new reply when edit fails (only when `isEdit` is true).
-   *                        Defaults to `null` (no fallback).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
    * @returns The sent or edited message object.
    *
    * @example
@@ -1908,10 +2033,10 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null, fallbackReply?: boolean | null) {
-    const edit = isEdit ?? !!this.callbackQuery
+  async renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    const edit = !!this.callbackQuery
     if (edit) {
-      return await this.renderEdit(keyboard as ITInlineKb, data, AGBaseId, options as ITOptEdit, fallbackReply ?? false)
+      return await this.renderEdit(keyboard as ITInlineKb, data, AGBaseId, options as ITOptEdit, fallbackEdit)
     }
     return await this.render(keyboard, data, AGBaseId, options as ITOptReply)
   }
@@ -1919,7 +2044,7 @@ export class Ctx extends Context {
   /**
    * Sends or edits a media message using the page template, auto-selecting
    * between {@link (Ctx:class).renderMedia} and {@link (Ctx:class).renderEditMedia} based on
-   * the `isEdit` flag.
+   * `!!this.callbackQuery`.
    *
    * @typeParam T - The media type (photo, video, audio, etc.)
    * @param type - The media type.
@@ -1928,10 +2053,8 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
    * @param options1 - Type-specific media options (or null to omit).
    * @param options2 - Additional edit options (or null to omit, send-only).
-   * @param isEdit - If true, edits existing message; if false, sends new.
-   *                 Defaults to `!!this.callbackQuery` (auto-detected).
-   * @param fallbackReply - If true, sends a new reply when edit fails (only when `isEdit` is true).
-   *                        Defaults to `null` (no fallback).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
    * @returns The sent or edited message object.
    *
    * @public
@@ -1965,12 +2088,11 @@ export class Ctx extends Context {
                             : undefined)
       | null,
     options2?: ITOptEditMedia2 | null,
-    isEdit?: boolean | null,
-    fallbackReply?: boolean | null
+    fallbackEdit: ITOptFallbackEdit = `delete-reply`
   ) {
-    const edit = isEdit ?? !!this.callbackQuery
+    const edit = !!this.callbackQuery
     if (edit) {
-      return await this.renderEditMedia(type, keyboard as ITInlineKb, data, AGBaseId, options1 as never, options2, fallbackReply ?? false)
+      return await this.renderEditMedia(type, keyboard as ITInlineKb, data, AGBaseId, options1 as never, options2, fallbackEdit)
     }
     return await this.renderMedia(type, keyboard, data, AGBaseId, options1)
   }
@@ -1978,20 +2100,18 @@ export class Ctx extends Context {
   /**
    * Sends or edits a media group message using the page template, auto-selecting
    * between {@link (Ctx:class).renderMediaGroup} and {@link (Ctx:class).renderEditMediaGroup} based on
-   * the `isEdit` flag.
+   * `!!this.callbackQuery`.
    *
    * @param type - Optional media group type (or null for all items in `<g-media-group>`).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
    * @param options - Optional media-group send options (or null to omit).
-   * @param isEdit - If true, deletes existing message and sends new group; if false, sends new.
-   *                 Defaults to `!!this.callbackQuery` (auto-detected).
    * @returns The sent media group messages.
    *
    * @public
    */
-  async renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, isEdit?: boolean | null, _fallbackReply?: boolean | null) {
-    const edit = isEdit ?? !!this.callbackQuery
+  async renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null) {
+    const edit = !!this.callbackQuery
     if (edit) {
       return await this.renderEditMediaGroup(type, data, AGBaseId, options)
     }
@@ -2002,27 +2122,30 @@ export class Ctx extends Context {
    * Edits an existing message text using the page template.
    *
    * @remarks
-   * If editing fails (e.g., message too old), falls back to sending a new reply
-   * unless `fallbackReply` is set to false.
+   * If editing fails (e.g., message too old), the fallback behavior is controlled
+   * by `fallbackEdit` (default `delete-reply`: deletes the original message and
+   * sends a new one — the result looks like an in-place edit).
    *
    * @param keyboardInline - Optional inline keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).
    * @param options - Optional edit options (or null to omit).
-   * @param fallbackReply - If true, sends a reply if edit fails. Default: false.
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.renderEdit(kb, {status: "updated"})
+   *   await this.renderEdit(kb, {status: "updated"}) // will edit message
    * }
    * ```
    *
    * @public
    */
-  async renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | null, fallbackReply: boolean | null = false) {
+  async renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
       return await this.editMessageText(msg, {
@@ -2031,11 +2154,17 @@ export class Ctx extends Context {
         ...(options ?? {})
       })
     } catch (error) {
-      if (fallbackReply) {
-        await this.render(keyboardInline, data, AGBaseId, options)
-      } else {
+      if (fallbackEdit === `disable`) {
         throw error
       }
+      if (fallbackEdit === `delete-reply`) {
+        try {
+          await this.deleteMessage()
+        } catch {
+          // delete failure (e.g. already deleted) must not block the fallback reply
+        }
+      }
+      return await this.render(keyboardInline, data, AGBaseId, options)
     }
   }
 
@@ -2048,6 +2177,10 @@ export class Ctx extends Context {
    * replace a single message, so supported pipe-delimited media groups also delete the
    * original message and send a new media group.
    *
+   * If the edit itself fails, the fallback behavior is controlled by `fallbackEdit`
+   * (default `delete-reply`: deletes the original message and re-sends the same media —
+   * the result looks like an in-place edit).
+   *
    * @typeParam T - The media type to edit to.
    * @param type - The media type.
    * @param keyboardInline - Optional inline keyboard markup (or null to omit).
@@ -2055,7 +2188,9 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
    * @param options1 - Type-specific media options (or null to omit).
    * @param options2 - Additional edit options (or null to omit).
-   * @param fallbackReply - If true, sends a reply if edit fails. Default: false.
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then re-sends the media; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The edited/sent message object.
    *
    * @example
@@ -2087,7 +2222,7 @@ export class Ctx extends Context {
                     ITOptEditMedia1)
       | null,
     options2?: ITOptEditMedia2 | null,
-    fallbackReply: boolean | null = false
+    fallbackEdit: ITOptFallbackEdit = `delete-reply`
   ) {
     try {
       const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
@@ -2129,11 +2264,17 @@ export class Ctx extends Context {
         {reply_markup: keyboardInline ?? undefined, ...(options2 ?? {})}
       )
     } catch (error) {
-      if (fallbackReply === true) {
-        await this.render(keyboardInline, data, AGBaseId, options2)
-      } else {
+      if (fallbackEdit === `disable`) {
         throw error
       }
+      if (fallbackEdit === `delete-reply`) {
+        try {
+          await this.deleteMessage()
+        } catch {
+          // delete failure (e.g. already deleted) must not block the fallback reply
+        }
+      }
+      return await this.renderMedia(type, keyboardInline, data, AGBaseId)
     }
   }
 
@@ -2145,6 +2286,9 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
    * @param options1 - Optional media options (or null to omit).
    * @param options2 - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
@@ -2156,8 +2300,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`photo`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`photo`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
   /**
@@ -2168,6 +2312,9 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
    * @param options1 - Optional media options (or null to omit).
    * @param options2 - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
@@ -2179,8 +2326,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`video`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`video`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
   /**
@@ -2191,6 +2338,9 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
    * @param options1 - Optional media options (or null to omit).
    * @param options2 - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
@@ -2202,8 +2352,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`audio`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`audio`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
   /**
@@ -2214,6 +2364,9 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
    * @param options1 - Optional media options (or null to omit).
    * @param options2 - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
@@ -2225,8 +2378,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`document`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`document`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
   /**
@@ -2259,7 +2412,11 @@ export class Ctx extends Context {
    * @public
    */
   async renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null) {
-    await this.deleteMessage()
+    try {
+      await this.deleteMessage()
+    } catch {
+      // delete failure (e.g. already deleted) must not block sending the media group
+    }
     return await this.renderMediaGroup(type, data, AGBaseId, options)
   }
 
@@ -2371,6 +2528,9 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).
    * @param options1 - Optional media options (or null to omit).
    * @param options2 - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
@@ -2382,8 +2542,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`animation`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`animation`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
   /**
@@ -2396,12 +2556,15 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).
    * @param options - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent message object.
    *
    * @public
    */
-  async renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`voice`, keyboardInline, data, AGBaseId, options)
+  async renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`voice`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
   /**
@@ -2414,12 +2577,15 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).
    * @param options - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent message object.
    *
    * @public
    */
-  async renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`video_note`, keyboardInline, data, AGBaseId, options)
+  async renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`video_note`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
   /**
@@ -2432,12 +2598,15 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).
    * @param options - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent message object.
    *
    * @public
    */
-  async renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`sticker`, keyboardInline, data, AGBaseId, options)
+  async renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`sticker`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
   /**
@@ -2450,12 +2619,15 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).
    * @param options - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent message object.
    *
    * @public
    */
-  async renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`location`, keyboardInline, data, AGBaseId, options)
+  async renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`location`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
   /**
@@ -2468,12 +2640,15 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).
    * @param options - Optional edit options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent message object.
    *
    * @public
    */
-  async renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
-    return await this.renderEditMedia(`contact`, keyboardInline, data, AGBaseId, options)
+  async renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return await this.renderEditMedia(`contact`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
   /**
@@ -2507,12 +2682,18 @@ export class Ctx extends Context {
    * )
    * ```
    *
-   * @public
-   */
+* @public
+    */
+  _sessionKey(): string {
+    const userId = this.from?.id
+    const chatId = this.chat?.id
+    if (userId === undefined || userId === null) return `:${chatId ?? ``}`
+    return `${userId}:${chatId ?? ``}`
+  }
+
   async setSession(method: string | string[], params?: Record<string, unknown>, moreRoot?: Record<string, unknown>) {
     try {
-      const id = this.from?.id ?? this.chat?.id
-      if (id === undefined || id === null) return null
+      const id = this._sessionKey()
       const value = {method, params, ...moreRoot}
       const result = await this.cacheSession.set(`${id}`, value)
       if (result) {
@@ -2548,8 +2729,7 @@ export class Ctx extends Context {
     if (this._sessionLoaded) return this._sessionValue
     this._sessionLoaded = true
     try {
-      const id = this.from?.id ?? this.chat?.id
-      if (id === undefined || id === null) return null
+      const id = this._sessionKey()
       const result = await this.cacheSession.get(`${id}`)
       this._sessionValue = result || null
       if (result) this.temp.session = result
@@ -2793,7 +2973,7 @@ export class Ctx extends Context {
                 const cb = page as unknown as _KbCallbackData
                 k.text(cb.result)
               } else {
-                k.text(_resolvePageTextLang(page, lang))
+                k.text(Helper.resolvePageTextLang(page, lang))
               }
             } else {
               k.text(page)
@@ -2854,7 +3034,7 @@ export class Ctx extends Context {
               return
             }
             const PageClass = typeof page === `function` ? page : (page.constructor as typeof Ctx)
-            _ensurePageHasCallback(PageClass)
+            Helper.ensurePageHasCallback(PageClass)
             const cb = (PageClass.data as unknown as {callbackQueryData: () => _KbCallbackData<typeof Ctx, []>}).callbackQueryData()
             k.text(e, cb.result)
             return

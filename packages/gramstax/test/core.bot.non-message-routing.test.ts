@@ -865,7 +865,7 @@ describe(`Gramstax session triune`, () => {
   it(`dispatches handleSessionFreeNewChatTitle when session method is active`, async () => {
     const bot = createBot([{name: `sessionNicheHandler`, page: SessionNichePage}])
     const method = (Ctx.prototype as any).methodSessionFreeNewChatTitle(`sessionNicheHandler`) as string
-    await bot.cacheSession.set(`-1001234567890`, {method, params: {}})
+    await bot.cacheSession.set(`:-1001234567890`, {method, params: {}})
     await bot.bot.handleUpdate(buildNewChatTitle() as any)
     expect(sessionNicheCalled).toBe(true)
   })

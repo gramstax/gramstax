@@ -29,7 +29,9 @@ export type ITMockTelegramJson = {
   /** Indicates whether the mock request is successful. */
   ok: boolean
   /** Result payload returned by the mock method. */
-  result: unknown
+  result?: unknown
+  /** Error description when the request fails. */
+  description?: string
 }
 
 /**
@@ -428,6 +430,15 @@ export class MockTelegramServer {
     this.updates.length = 0
   }
 
+  private _isLoopbackUrl(url: string): boolean {
+    try {
+      const host = new URL(url).hostname
+      return host === `127.0.0.1` || host === `localhost` || host === `[::1]` || host === `::1`
+    } catch {
+      return false
+    }
+  }
+
   private _defaultResponse(method: string, body?: unknown): ITMockTelegramJson {
     if (method === `getMe`) {
       return {
@@ -456,6 +467,10 @@ export class MockTelegramServer {
     if (method === `setWebhook`) {
       const data = this._bodyRecord(body)
       const url = typeof data?.url === `string` ? data.url : ``
+      if (!this._isLoopbackUrl(url)) {
+        this.log?.error?.(`Mock Telegram webhook rejected: host must be loopback (got: ${url})`)
+        return {ok: false, description: `Mock Telegram webhook URL host must be 127.0.0.1 or localhost`}
+      }
       this.webhookUrl = url
       this.log?.info?.(`Mock Telegram webhook set: ${url}`)
       return {ok: true, result: true}

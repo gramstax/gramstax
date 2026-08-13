@@ -22,6 +22,7 @@ export * from "./mock/telegram-server"
 export * from "./page/manager"
 export * from "./template/engine"
 export * from "./template/manager"
+export {InputMediaBuilder} from "grammy"
 // type
 export * from "./types/t.bot"
 export * from "./types/t.ctx"

@@ -153,6 +153,16 @@ export type ITWebhookQueueConfig = {
    * @defaultValue `10000`
    */
   enqueueTimeoutMs?: number
+  /**
+   * Max milliseconds a worker waits for a per-chat slot before bypassing the
+   * concurrency gate and processing the update anyway.
+   *
+   * @remarks
+   * Prevents a hung handler from stalling all updates for that chat forever.
+   *
+   * @defaultValue `30000`
+   */
+  waiterTimeoutMs?: number
 }
 
 /**

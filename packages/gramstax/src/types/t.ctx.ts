@@ -703,18 +703,36 @@ export type ITPageData<T extends Array<string | undefined> = string[]> = ITPageD
 export type ITTemp = {isAnswer: boolean; session: Partial<ITCacheRpc>; data: Partial<ITPageData>; [key: string]: unknown}
 
 /**
+ * Fallback behavior when an edit operation fails.
+ *
+ * @remarks
+ * - `delete-reply` (default): deletes the original message, then sends a new
+ *   one — the result looks like an in-place edit.
+ * - `reply`: sends a new message without deleting the original.
+ * - `disable`: rethrows the edit error (no fallback).
+ *
+ * @public
+ */
+export type ITOptFallbackEdit = `delete-reply` | `reply` | `disable`
+
+/**
  * Parameters for Ctx instance initialization.
  *
  * @public
  */
 export type ITCtxParams = {
   /**
-   * The context object.
+   * The underlying grammy context object.
    *
    * @remarks
+   * Optional: when constructing a `Ctx` from another `Ctx` (the
+   * `new SomePage(this)` pattern), this may be omitted — the page
+   * instance itself is used as the context since it extends `Context`,
+   * and the stream API methods are read from `this.api`.
+   *
    * See {@link ITCt} for the context type definition.
    */
-  ct: ITCt
+  ct?: ITCt
 
   /**
    * External session cache.
