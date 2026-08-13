@@ -13,7 +13,7 @@ import {EventEmitter} from "node:events"
 import {type Connection, Server} from "net-ipc"
 import {reportError} from "./error-handler"
 import {normalizeGatewayPath} from "./gateway-path"
-import {WorkerThreadRpc} from "./rpc"
+import {WorkerThreadRpc, DEFAULT_MAX_MESSAGE_SIZE} from "./rpc"
 
 /**
  * Options for starting a gateway server.
@@ -29,6 +29,8 @@ export type GatewayServerOptions = {
   allowedMethods?: string[]
   /** Maximum number of concurrent connections. */
   maxConnections?: number
+  /** Estimated maximum size in bytes of a single incoming message. Defaults to {@link DEFAULT_MAX_MESSAGE_SIZE}. */
+  maxMessageSize?: number
 }
 
 /**
@@ -78,6 +80,9 @@ export class WorkerThreadGatewayServer extends EventEmitter {
 
   private allowedMethods?: Set<string>
 
+  /** Estimation cap for a single incoming message; read per-connection when `start` is called. */
+  private maxMessageSize = DEFAULT_MAX_MESSAGE_SIZE
+
   /**
    * Creates a new gateway server instance.
    *
@@ -95,7 +100,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
       }
       const rpc = new WorkerThreadRpc((data) => {
         return connection.send(data)
-      }, this.register)
+      }, this.register, {maxMessageSize: this.maxMessageSize})
 
       if (this.allowedMethods) {
         const allow = this.allowedMethods
@@ -179,7 +184,10 @@ export class WorkerThreadGatewayServer extends EventEmitter {
       this.register = register
     }
     this.authToken = options?.token
-    this.allowedMethods = options?.allowedMethods && options.allowedMethods.length > 0 ? new Set(options.allowedMethods) : undefined
+    // an explicitly empty allow-list denies everything; only omitting the
+    // option leaves the register fully callable
+    this.allowedMethods = options && Array.isArray(options.allowedMethods) ? new Set(options.allowedMethods) : undefined
+    this.maxMessageSize = options?.maxMessageSize ?? DEFAULT_MAX_MESSAGE_SIZE
     if (options?.maxConnections !== undefined) {
       this.server.options.max = options.maxConnections
     }

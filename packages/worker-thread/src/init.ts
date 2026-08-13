@@ -227,16 +227,26 @@ export class WorkerThreadInit {
    * @param options - Gateway server options (auth token, method allow-list, connection cap).
    * @returns Promise that resolves to `true` when gateway is ready.
    *
+   * @remarks
+   * **Security:** when `register` is omitted the server exposes the entire
+   * worker instance (`this`) to every socket client, so a non-empty
+   * `allowedMethods` list is **required** in that case — otherwise the call
+   * throws instead of silently opening every `mtd*` method to any process
+   * that can reach the socket. Supply an explicit `register` object, a
+   * non-empty `allowedMethods`, or both.
+   *
    * @example
    * ```typescript
-   * // Custom object and path
+   * // Custom object and path (explicit register — no allow-list needed)
    * await this.createGatewayServer(
    *   "/tmp/my-worker.sock",
    *   { ping: () => "pong" }
    * );
    *
-   * // Expose `this` at the given path
-   * await this.createGatewayServer("/tmp/my-worker.sock");
+   * // Expose `this` at the given path — allowedMethods is mandatory here
+   * await this.createGatewayServer("/tmp/my-worker.sock", undefined, {
+   *   allowedMethods: ["mtdPing"],
+   * });
    * ```
    * @public
    */
@@ -244,6 +254,12 @@ export class WorkerThreadInit {
     if (this.gatewayServer) {
       // replace (and close) any previous server so its socket is never leaked
       await this.gatewayServer.close()
+    }
+    // register defaults to this — refusing to expose the whole instance without an allow-list
+    if (register === undefined && !(options?.allowedMethods && options.allowedMethods.length > 0)) {
+      throw new Error(
+        `createGatewayServer requires a non-empty 'allowedMethods' list when 'register' is omitted (the worker instance would be exposed to every socket client)`
+      )
     }
     const reg = register ?? (this as unknown as Record<string, (...args: never[]) => unknown>)
     this.gatewayServer = new WorkerThreadGatewayServer()

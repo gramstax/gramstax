@@ -443,3 +443,157 @@ describe(`WorkerThreadInit + export proxy gateway lifecycle (regression)`, () =>
     await worker.gatewayServer?.close()
   }, 20_000)
 })
+
+describe(`gateway default-open hardening (SEC-1)`, () => {
+  it(`createGatewayServer without register and without allowedMethods throws`, async () => {
+    class W extends WorkerThreadInit {
+      mtdSecret() {
+        return `classified`
+      }
+    }
+    const worker = new W()
+    try {
+      const err = await worker.createGatewayServer(`gtest-sec1-${uniquePath()}`).catch((e: unknown) => e)
+      expect((err as Error).message).toMatch(/allowedMethods/)
+    } finally {
+      await worker.gatewayServer?.close()
+    }
+  }, 20_000)
+
+  it(`createGatewayServer with token but no allowedMethods still throws`, async () => {
+    class W extends WorkerThreadInit {
+      mtdSecret() {
+        return `classified`
+      }
+    }
+    const worker = new W()
+    try {
+      const err = await worker.createGatewayServer(`gtest-sec1-${uniquePath()}`, undefined, {token: `tok`}).catch((e: unknown) => e)
+      expect((err as Error).message).toMatch(/allowedMethods/)
+    } finally {
+      await worker.gatewayServer?.close()
+    }
+  }, 20_000)
+
+  it(`createGatewayServer with an explicitly empty allowedMethods throws`, async () => {
+    class W extends WorkerThreadInit {
+      mtdSecret() {
+        return `classified`
+      }
+    }
+    const worker = new W()
+    try {
+      const err = await worker.createGatewayServer(`gtest-sec1-${uniquePath()}`, undefined, {allowedMethods: [] as string[]}).catch((e: unknown) => e)
+      expect((err as Error).message).toMatch(/allowedMethods/)
+    } finally {
+      await worker.gatewayServer?.close()
+    }
+  }, 20_000)
+
+  it(`explicit register without allowedMethods still starts (no worker exposure)`, async () => {
+    class W extends WorkerThreadInit {}
+    const worker = new W()
+    try {
+      await withTimeout(worker.createGatewayServer(`gtest-sec1-${uniquePath()}`, {ping: () => `pong`}), 10_000, `createGatewayServer`)
+      expect(worker.gatewayServer).toBeDefined()
+    } finally {
+      await worker.gatewayServer?.close()
+    }
+  }, 20_000)
+
+  it(`server.start with empty allowedMethods denies all methods instead of opening them`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}, {allowedMethods: [] as string[]}), 10_000, `server start`)
+      await withTimeout(client.connect(path), 10_000, `client connect`)
+      const err = await withTimeout(client.request(`ping`, []).catch((e: unknown) => e), 10_000, `ping`)
+      expect((err as {message?: string}).message).toMatch(/not allowed/)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+})
+
+describe(`gateway message-size limit (SEC-2)`, () => {
+  it(`server rejects an oversized request with a controlled error instead of dispatching`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    let dispatched = false
+    try {
+      await withTimeout(
+        server.start(
+          path,
+          {
+            echo: (v: unknown) => {
+              dispatched = true
+              return v
+            },
+          },
+          {maxMessageSize: 1024}
+        ),
+        10_000,
+        `server start`
+      )
+      await withTimeout(client.connect(path), 10_000, `client connect`)
+      const big = `A`.repeat(64 * 1024)
+      const err = await withTimeout(client.request(`echo`, [big]).catch((e: unknown) => e), 10_000, `big echo`)
+      expect((err as {message?: string}).message).toMatch(/maxMessageSize/)
+      expect(dispatched).toBe(false)
+      // a small request still works after the rejection
+      expect(await withTimeout(client.request(`echo`, [`ok`]), 10_000, `small echo`)).toBe(`ok`)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+
+  it(`client enforces maxMessageSize on incoming responses`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {big: () => `B`.repeat(64 * 1024)}), 10_000, `server start`)
+      await withTimeout(client.connect(path, {maxMessageSize: 1024}), 10_000, `client connect`)
+      const err = await withTimeout(client.request(`big`, []).catch((e: unknown) => e), 10_000, `big result`)
+      expect((err as {message?: string}).message).toMatch(/maxMessageSize/)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+
+  it(`default limit applies when maxMessageSize is omitted`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {echo: (v: unknown) => v}), 10_000, `server start`)
+      await withTimeout(client.connect(path), 10_000, `client connect`)
+      const big = `A`.repeat((10 * 1024 * 1024) + 1)
+      const err = await withTimeout(client.request(`echo`, [big]).catch((e: unknown) => e), 15_000, `oversized echo`)
+      expect((err as {message?: string}).message).toMatch(/maxMessageSize/)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 25_000)
+
+  it(`messages under the limit pass unchanged`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {echo: (v: unknown) => v}, {maxMessageSize: 4096}), 10_000, `server start`)
+      await withTimeout(client.connect(path), 10_000, `client connect`)
+      const payload = {text: `x`.repeat(512), n: 42, nested: {ok: true}}
+      expect(await withTimeout(client.request(`echo`, [payload]), 10_000, `echo`)).toEqual(payload)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 20_000)
+})

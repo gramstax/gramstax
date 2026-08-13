@@ -13,7 +13,7 @@ import {EventEmitter} from "node:events"
 import {Client} from "net-ipc"
 import {reportError} from "./error-handler"
 import {normalizeGatewayPath} from "./gateway-path"
-import {WorkerThreadRpc} from "./rpc"
+import {WorkerThreadRpc, DEFAULT_MAX_MESSAGE_SIZE} from "./rpc"
 
 /**
  * Options for connecting a gateway client.
@@ -33,6 +33,8 @@ export type GatewayClientOptions = {
   retries?: number
   /** Upper bound (ms) for the exponential reconnect backoff. */
   maxRetryTime?: number
+  /** Estimated maximum size in bytes of a single incoming message. Defaults to {@link DEFAULT_MAX_MESSAGE_SIZE}. */
+  maxMessageSize?: number
   /** Use msgpackr binary encoding — preserves `Date`, `BigInt`, `undefined` and typed arrays. */
   messagepack?: boolean
 }
@@ -185,6 +187,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
       this.client.options.maxRetryTime = options.maxRetryTime
     }
     this.client.options.messagepack = Boolean(options.messagepack)
+    this.rpc.maxMessageSize = options.maxMessageSize ?? DEFAULT_MAX_MESSAGE_SIZE
     const payload = options.token !== undefined ? {auth: options.token} : undefined
     return new Promise((resolve, reject) => {
       const onReady = () => {

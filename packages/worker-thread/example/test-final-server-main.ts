@@ -13,7 +13,7 @@ class Worker extends WorkerThreadInit {
   }
 
   async mtdStart() {
-    return await this.createGatewayServer(`gateway-final`, undefined, {token: `final-token`})
+    return await this.createGatewayServer(`gateway-final`, undefined, {token: `final-token`, allowedMethods: [`mtdHello`]})
   }
 
   async onBeforeExit() {

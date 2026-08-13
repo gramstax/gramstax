@@ -164,6 +164,8 @@ console.log(await Client.mtdCallServer());  // "Hello ClientWorker!"
 
 - **`token`** — the server closes any connection that does not present the matching token (`connect(path, { token })` / `launchGatewayClient(path, { token })`).
 - **`allowedMethods`** — only the listed methods are remotely callable; anything else is rejected with a clear error.
+- **Required when exposing the worker** — calling `createGatewayServer(path)` without a `register` object (so the whole worker instance would be callable) **throws** unless a non-empty `allowedMethods` list is supplied. Pass the list explicitly; an empty list denies every method (never opens them).
+- **`maxMessageSize`** — estimated cap in bytes for a single incoming RPC message (default 10 MB, `DEFAULT_MAX_MESSAGE_SIZE`). Oversized messages are rejected with a controlled error instead of being dispatched, so a gateway peer cannot exhaust worker memory with one framed payload. Available on both `createGatewayServer`/`GatewayServer.start` and `connect`/`createGatewayClient` options.
 
 ### Reconnect & resilience
 

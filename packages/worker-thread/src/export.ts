@@ -136,9 +136,11 @@ function requireGatewayPath(serverPath?: string): string {
   *     return `Hello ${from}!`;
   *   }
   *
-  *   async mtdStartServer() {
-  *     return await this.createGatewayServer("/tmp/server.sock");
-  *   }
+*   async mtdStartServer() {
+   *     return await this.createGatewayServer("/tmp/server.sock", undefined, {
+   *       allowedMethods: ["mtdHello"],
+   *     });
+   *   }
   * }
   *
   * export const WorkerServer = WorkerThreadExport.init({

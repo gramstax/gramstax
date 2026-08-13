@@ -43,6 +43,62 @@ export type RpcContext = {
 export type RpcMiddleware = (ctx: RpcContext, next: () => Promise<void>) => Promise<void>
 
 /**
+ * Default cap on the estimated in-memory size of a single RPC message
+ * received over the gateway. Prevents an oversized (or maliciously framed)
+ * payload from exhausting worker memory. The parentPort channel is trusted
+ * and intentionally not capped.
+ * @public
+ */
+export const DEFAULT_MAX_MESSAGE_SIZE = 10 * 1024 * 1024
+
+/**
+ * Estimate the in-memory footprint of a structured value.
+ *
+ * @remarks
+ * Recursive walker that counts strings, numbers, buffer bytes and keys with
+ * bounded double-count-avoidance. It deliberately does not serialize
+ * (`JSON.stringify` throws on `BigInt`, which messagepack payloads can
+ * contain), so we approximate the size the value occupies after decode.
+ */
+export function estimatePayloadSize(value: unknown): number {
+  const seen = new Set<unknown>()
+  let size = 0
+  const walk = (v: unknown): void => {
+    if (v === null || v === undefined || typeof v === `boolean`) return
+    if (typeof v === `number` || typeof v === `bigint`) {
+      size += 8
+      return
+    }
+    if (typeof v === `string`) {
+      size += v.length * 2
+      return
+    }
+    if (typeof v === `symbol` || typeof v === `function`) return
+    if (v instanceof Date) {
+      size += 8
+      return
+    }
+    if (v instanceof ArrayBuffer || (typeof ArrayBuffer !== `undefined` && ArrayBuffer.isView(v))) {
+      size += v.byteLength
+      return
+    }
+    if (typeof v !== `object` || seen.has(v)) return
+    seen.add(v)
+    if (Array.isArray(v)) {
+      for (const item of v) walk(item)
+      return
+    }
+    const record = v as Record<string, unknown>
+    for (const key of Object.keys(record)) {
+      size += key.length * 2
+      walk(record[key])
+    }
+  }
+  walk(value)
+  return size
+}
+
+/**
  * [LOW-LEVEL] Handles JSON-RPC style communication between threads.
  *
  * @remarks
@@ -73,6 +129,13 @@ export class WorkerThreadRpc {
    */
   context: Record<string, unknown> = {}
 
+  /**
+   * Enforced cap on the estimated size of incoming messages. `undefined`
+   * disables the limit (the default for the trusted parentPort channel).
+   * @public
+   */
+  maxMessageSize?: number
+
   private _middlewares: RpcMiddleware[] = []
 
   /**
@@ -80,11 +143,15 @@ export class WorkerThreadRpc {
    *
    * @param send - Function to send data. Called with RPC payload.
    * @param register - Object with callable methods. Exposed RPC method map.
+   * @param options - Optional settings (message-size cap).
    */
   constructor(
     public send: (data: Record<string, unknown>) => unknown,
-    public register: Record<string, (...args: never[]) => unknown>
-  ) {}
+    public register: Record<string, (...args: never[]) => unknown>,
+    options?: {maxMessageSize?: number}
+  ) {
+    this.maxMessageSize = options?.maxMessageSize
+  }
 
   /**
    * Register middleware for incoming requests.
@@ -135,6 +202,35 @@ export class WorkerThreadRpc {
     const map = this.map
     const send = this.send
     const {id, method, params, result, error} = data
+
+    // Reject oversized messages before any dispatch or pending-map write —
+    // a gateway peer can otherwise exhaust memory or grow the pending map
+    // with a single framed message.
+    if (this.maxMessageSize !== undefined && estimatePayloadSize(data) > this.maxMessageSize) {
+      if (method !== undefined) {
+        // request-type: answer with a controlled error so the caller
+        // rejects instead of hanging on a missing response
+        try {
+          const p = send({id, error: {message: `message exceeds maxMessageSize=${this.maxMessageSize}`, name: `Error`}})
+          if (p && typeof (p as Promise<unknown>).then === `function`) {
+            ;(p as Promise<unknown>).catch(() => {
+              // intentionally ignored
+            })
+          }
+        } catch {
+          // intentionally ignored
+        }
+      } else if (id !== undefined) {
+        // response-type: reject the pending request it belongs to
+        const data = map.get(id)
+        if (data) {
+          if (data.timer) clearTimeout(data.timer)
+          data.reject(new Error(`message exceeds maxMessageSize=${this.maxMessageSize}`))
+          map.delete(id)
+        }
+      }
+      return
+    }
 
     if (method !== undefined) {
       // Handle request
