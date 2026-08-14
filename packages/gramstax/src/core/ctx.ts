@@ -1122,7 +1122,7 @@ export class Ctx extends Context {
    * @internal
    */
   _sessionLoaded = false
-  _sessionValue: ITCacheRpc | null = null
+  _session: ITCacheRpc | null = null
 
   /**
    * Tracks per-request Api instances where the answer guard transformer has already been installed
@@ -2682,8 +2682,8 @@ export class Ctx extends Context {
    * )
    * ```
    *
-* @public
-    */
+   * @public
+   */
   _sessionKey(): string {
     const userId = this.from?.id
     const chatId = this.chat?.id
@@ -2699,7 +2699,7 @@ export class Ctx extends Context {
       if (result) {
         this.temp.session = value
         this._sessionLoaded = true
-        this._sessionValue = value as ITCacheRpc
+        this._session = value as ITCacheRpc
       }
       return result
     } catch {
@@ -2726,14 +2726,14 @@ export class Ctx extends Context {
    * @public
    */
   async getSession(): Promise<ITCacheRpc | null> {
-    if (this._sessionLoaded) return this._sessionValue
+    if (this._sessionLoaded) return this._session
     this._sessionLoaded = true
     try {
       const id = this._sessionKey()
       const result = await this.cacheSession.get(`${id}`)
-      this._sessionValue = result || null
+      this._session = result || null
       if (result) this.temp.session = result
-      return this._sessionValue
+      return this._session
     } catch {
       return null
     }
@@ -2764,7 +2764,7 @@ export class Ctx extends Context {
       const result = await this.cacheSession.delete(`${id}`)
       if (result) this.temp.session = {}
       this._sessionLoaded = false
-      this._sessionValue = null
+      this._session = null
       return result
     } catch {
       return null
