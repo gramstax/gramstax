@@ -79,19 +79,6 @@ constructors:
           description: The initialization parameters. See [ITCtxParams](xref:gramstax!ITCtxParams:type) for details.
           type: <xref uid="gramstax!ITCtxParams:type" />
 properties:
-  - name: _sessionValue
-    uid: gramstax!Ctx#_sessionValue:member
-    package: gramstax!
-    fullName: _sessionValue
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_sessionValue: ITCacheRpc | null;'
-      return:
-        type: <xref uid="gramstax!ITCacheRpc:type" /> | null
   - name: ANSWER_API_METHODS
     uid: gramstax!Ctx.ANSWER_API_METHODS:member
     package: gramstax!
@@ -922,39 +909,6 @@ properties:
       return:
         type: <xref uid="gramstax!TemplateManager:class" />
 methods:
-  - name: _sessionKey()
-    uid: gramstax!Ctx#_sessionKey:member(1)
-    package: gramstax!
-    fullName: _sessionKey()
-    summary: \[LOW-LEVEL\] Sets session data for the current user.
-    remarks: >-
-      Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g.
-      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1))<!-- -->,
-      [Ctx.setSessionCallbackQueryData()](xref:gramstax!Ctx%23setSessionCallbackQueryData:member(1))<!-- -->).
-
-
-      This method is only needed when: - \*\*Multi-session\*\* — binding the same params to multiple route handlers at
-      once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* —
-      method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.
-    example:
-      - |-
-        ```typescript
-        // ❌ Avoid — use setSessionFreeText({...}) instead
-        await this.setSession(this.methodSessionFreeText(), {step: "awaiting_name"})
-
-        // ✅ Multi-session — bind one payload to two listeners
-        await this.setSession(
-          [this.methodSessionFreeVideo(), this.methodSessionFreeText()],
-          {mediaId: "abc123"}
-        )
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_sessionKey(): string;'
-      return:
-        type: string
-        description: True if the session was set successfully, or null on error.
   - name: addArgs(str, mtd, pld)
     uid: gramstax!Ctx#addArgs:member(1)
     package: gramstax!
@@ -1163,7 +1117,11 @@ methods:
     package: gramstax!
     fullName: clearSession()
     summary: Clears session data for the current user.
-    remarks: Removes the session from external cache and resets the local session property.
+    remarks: >-
+      Removes the session from external cache and resets the local session property. Uses the scoped `sessionKey()`
+      (`user:chat`<!-- -->), matching `setSession`<!-- -->/`getSession`<!-- -->. Sets `memoization.sessionLoaded` to
+      `true` so a subsequent `getSession()` within the same request returns `null` without re-hitting the external
+      cache.
     example:
       - |-
         ```typescript
@@ -7899,13 +7857,46 @@ methods:
       return:
         type: Promise&lt;unknown&gt;
         description: Array of sent text messages.
+  - name: sessionKey()
+    uid: gramstax!Ctx#sessionKey:member(1)
+    package: gramstax!
+    fullName: sessionKey()
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sessionKey(): string;'
+      return:
+        type: string
+        description: ''
   - name: setSession(method, params, moreRoot)
     uid: gramstax!Ctx#setSession:member(1)
     package: gramstax!
     fullName: setSession(method, params, moreRoot)
-    summary: ''
-    remarks: ''
-    example: []
+    summary: \[LOW-LEVEL\] Sets session data for the current user.
+    remarks: >-
+      Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g.
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1))<!-- -->,
+      [Ctx.setSessionCallbackQueryData()](xref:gramstax!Ctx%23setSessionCallbackQueryData:member(1))<!-- -->).
+
+
+      This method is only needed when: - \*\*Multi-session\*\* — binding the same params to multiple route handlers at
+      once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* —
+      method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.
+    example:
+      - |-
+        ```typescript
+        // ❌ Avoid — use setSessionFreeText({...}) instead
+        await this.setSession(this.methodSessionFreeText(), {step: "awaiting_name"})
+
+        // ✅ Multi-session — bind one payload to two listeners
+        await this.setSession(
+          [this.methodSessionFreeVideo(), this.methodSessionFreeText()],
+          {mediaId: "abc123"}
+        )
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -7914,17 +7905,17 @@ methods:
         Promise<boolean | null>;
       parameters:
         - id: method
-          description: ''
+          description: Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.
           type: string | string[]
         - id: params
-          description: ''
+          description: The session parameters to store.
           type: Record&lt;string, unknown&gt;
         - id: moreRoot
-          description: ''
+          description: Additional root-level properties to merge.
           type: Record&lt;string, unknown&gt;
       return:
         type: Promise&lt;boolean | null&gt;
-        description: ''
+        description: True if the session was set successfully, or null on error.
   - name: setSessionArgsCallbackQueryData(this, params)
     uid: gramstax!Ctx#setSessionArgsCallbackQueryData:member(1)
     package: gramstax!

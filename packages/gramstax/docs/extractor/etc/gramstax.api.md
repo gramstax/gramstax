@@ -241,6 +241,11 @@ export class Ctx extends Context {
     keyboardCols<T = unknown>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => unknown): T;
     log: LoggingHelper | null | undefined;
     get managedBot(): NonNullable<Context[`managedBot`]>;
+    // @internal
+    memoization: {
+        sessionLoaded: boolean;
+        sessionValue: ITCacheRpc | null;
+    };
     get message(): NonNullable<Context[`message`]>;
     get messageReaction(): NonNullable<Context[`messageReaction`]>;
     methodSession(prefix: string, name: string | undefined): string;
@@ -425,12 +430,8 @@ export class Ctx extends Context {
     replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[1], otherRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[2], baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[3], signal?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[4]): Promise<unknown>;
     replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Parameters<StreamContextExtension[`replyWithStream`]>[1], otherMessage?: Parameters<StreamContextExtension[`replyWithStream`]>[2], signal?: Parameters<StreamContextExtension[`replyWithStream`]>[3]): Promise<unknown>;
     get senderChat(): NonNullable<Context[`senderChat`]>;
-    _sessionKey(): string;
-    // @internal
-    _sessionLoaded: boolean;
     // (undocumented)
-    _sessionValue: ITCacheRpc | null;
-    // (undocumented)
+    sessionKey(): string;
     setSession(method: string | string[], params?: Record<string, unknown>, moreRoot?: Record<string, unknown>): Promise<boolean | null>;
     setSessionArgsCallbackQueryData(this: Ctx & {
         handleSessionArgsCallbackQueryData: (...args: unknown[]) => unknown;
@@ -1306,9 +1307,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         lenListRouteStaticIntent: 15;
         lenListRouteStaticSession: number;
         lenListRouteDynamicSpesific: 63;
+        hasSessionRoutes: boolean;
     };
     cacheKeyboard: Map<string, unknown>;
     cacheSession: CacheExternal<ITCacheRpc>;
+    // @internal
+    _clearSessionOnNonSession(ctx: Ctx): Promise<void>;
     createBot(token: string): Bot<ITCt>;
     createCtx(ct: ITCt): ICtx;
     deployType: `polling` | `webhook` | `serverless` | `test` | `raw`;
@@ -1912,6 +1916,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         lenListRouteStaticIntent: 15;
         lenListRouteStaticSession: number;
         lenListRouteDynamicSpesific: 63;
+        hasSessionRoutes: boolean;
     };
     _pageRoutes(ctx: ICtx, fromListener: string): Promise<{
         state: `matched` | `no-match` | `no-handler` | `blocked`;
@@ -2889,8 +2894,8 @@ export class WebhookQueue<T = unknown> {
 //
 // dist/src/index.d.ts:1410:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
 // dist/src/index.d.ts:3333:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
-// dist/src/index.d.ts:12657:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:13581:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:12674:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:13618:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

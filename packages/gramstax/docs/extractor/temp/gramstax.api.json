@@ -1209,72 +1209,6 @@
           "preserveMemberOrder": false,
           "members": [
             {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#_sessionKey:member(1)",
-              "docComment": "/**\n * [LOW-LEVEL] Sets session data for the current user.\n *\n * @remarks\n *\n * Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g. {@link (Ctx:class).setSessionFreeText}, {@link (Ctx:class).setSessionCallbackQueryData}).\n *\n * This method is only needed when: - **Multi-session** — binding the same params to multiple route handlers at once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - **Dynamic method name** — method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.\n *\n * @param method - Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.\n *\n * @param params - The session parameters to store.\n *\n * @param moreRoot - Additional root-level properties to merge.\n *\n * @returns True if the session was set successfully, or null on error.\n *\n * @example\n * ```typescript\n * // ❌ Avoid — use setSessionFreeText({...}) instead\n * await this.setSession(this.methodSessionFreeText(), {step: \"awaiting_name\"})\n *\n * // ✅ Multi-session — bind one payload to two listeners\n * await this.setSession(\n *   [this.methodSessionFreeVideo(), this.methodSessionFreeText()],\n *   {mediaId: \"abc123\"}\n * )\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_sessionKey(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_sessionKey"
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!Ctx#_sessionValue:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_sessionValue: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITCacheRpc",
-                  "canonicalReference": "gramstax!ITCacheRpc:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_sessionValue",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 3
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
               "kind": "Constructor",
               "canonicalReference": "gramstax!Ctx:constructor(1)",
               "docComment": "/**\n * Creates a new Ctx instance.\n *\n * **note:** For most pages do not define a constructor\n *\n * @param params - The initialization parameters. See {@link ITCtxParams} for details.\n *\n * @public\n */\n",
@@ -2541,7 +2475,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#clearSession:member(1)",
-              "docComment": "/**\n * Clears session data for the current user.\n *\n * @remarks\n *\n * Removes the session from external cache and resets the local session property.\n *\n * @returns True if the session was cleared, or null on error.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.clearSession()\n *   await this.render()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Clears session data for the current user.\n *\n * @remarks\n *\n * Removes the session from external cache and resets the local session property. Uses the scoped `sessionKey()` (`user:chat`), matching `setSession`/`getSession`. Sets `memoization.sessionLoaded` to `true` so a subsequent `getSession()` within the same request returns `null` without re-hitting the external cache.\n *\n * @returns True if the session was cleared, or null on error.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.clearSession()\n *   await this.render()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22177,8 +22111,39 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#setSession:member(1)",
+              "canonicalReference": "gramstax!Ctx#sessionKey:member(1)",
               "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sessionKey(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sessionKey"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSession:member(1)",
+              "docComment": "/**\n * [LOW-LEVEL] Sets session data for the current user.\n *\n * @remarks\n *\n * Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g. {@link (Ctx:class).setSessionFreeText}, {@link (Ctx:class).setSessionCallbackQueryData}).\n *\n * This method is only needed when: - **Multi-session** — binding the same params to multiple route handlers at once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - **Dynamic method name** — method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.\n *\n * @param method - Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.\n *\n * @param params - The session parameters to store.\n *\n * @param moreRoot - Additional root-level properties to merge.\n *\n * @returns True if the session was set successfully, or null on error.\n *\n * @example\n * ```typescript\n * // ❌ Avoid — use setSessionFreeText({...}) instead\n * await this.setSession(this.methodSessionFreeText(), {step: \"awaiting_name\"})\n *\n * // ✅ Multi-session — bind one payload to two listeners\n * await this.setSession(\n *   [this.methodSessionFreeVideo(), this.methodSessionFreeText()],\n *   {mediaId: \"abc123\"}\n * )\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

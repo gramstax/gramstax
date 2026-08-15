@@ -128,23 +128,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_sessionValue](./gramstax.ctx._sessionvalue.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[ITCacheRpc](./gramstax.itcacherpc.md) \| null
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [ANSWER\_API\_METHODS](./gramstax.ctx.answer_api_methods.md)
 
 
@@ -1166,20 +1149,6 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
-
-[\_sessionKey()](./gramstax.ctx._sessionkey.md)
-
-
-</td><td>
-
-
-</td><td>
-
-\[LOW-LEVEL\] Sets session data for the current user.
-
-
-</td></tr>
-<tr><td>
 
 [addArgs(str, mtd, pld)](./gramstax.ctx.addargs.md)
 
@@ -4715,6 +4684,18 @@ Streams an iterator of message pieces to the current chat, making text appear pr
 </td></tr>
 <tr><td>
 
+[sessionKey()](./gramstax.ctx.sessionkey.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [setSession(method, params, moreRoot)](./gramstax.ctx.setsession.md)
 
 
@@ -4722,6 +4703,8 @@ Streams an iterator of message pieces to the current chat, making text appear pr
 
 
 </td><td>
+
+\[LOW-LEVEL\] Sets session data for the current user.
 
 
 </td></tr>

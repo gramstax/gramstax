@@ -19,7 +19,7 @@ True if the session was cleared, or null on error.
 
 ## Remarks
 
-Removes the session from external cache and resets the local session property.
+Removes the session from external cache and resets the local session property. Uses the scoped `sessionKey()` (`user:chat`<!-- -->), matching `setSession`<!-- -->/`getSession`<!-- -->. Sets `memoization.sessionLoaded` to `true` so a subsequent `getSession()` within the same request returns `null` without re-hitting the external cache.
 
 ## Example
 
