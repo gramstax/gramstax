@@ -175,7 +175,6 @@ export class HttpRequestPage extends PageBase {
       const method = session?.params?.httpMethod as string
       const url = session?.params?.httpUrl as string
       if (!method || !url) {
-        await this.clearSession()
         return await this.bmethod.show()
       }
 
@@ -212,7 +211,6 @@ export class HttpRequestPage extends PageBase {
       const url = session?.params?.httpUrl as string
       const token = session?.params?.httpToken as string | undefined
       if (!url) {
-        await this.clearSession()
         return await this.bmethod.show()
       }
 
