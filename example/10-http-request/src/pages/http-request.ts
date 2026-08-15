@@ -81,13 +81,20 @@ class Helper {
 export class HttpRequestPage extends PageBase {
   static data = this.buildData((action: string) => [action])
 
+  // Binds the flow to both session listeners (text + callback args) so that
+  // continuation callbacks (skip_token, toggle_view, _back) route through
+  // session routing (id=1) — the auto session-clear on non-session handlers
+  // never wipes the in-flight flow state.
+  private _setFlowSession(params: Record<string, unknown>) {
+    return this.setSession([this.methodSessionFreeText(), this.methodSessionArgsCallbackQueryData()], params)
+  }
+
   async handleCallbackQueryData() {
     await this.bmethod.show()
   }
 
   async handleArgsCallbackQueryData() {
-    const args = this.callbackQueryDataArgs
-    const action = args[0]
+    const [action] = this.callbackQueryDataArgs
     if (!action) return
     if (action === `_back`) {
       await this.bmethod.show()
@@ -100,23 +107,26 @@ export class HttpRequestPage extends PageBase {
     }
   }
 
-  async handleFreeText() {
+  // Session twin of handleArgsCallbackQueryData: while a flow session is
+  // active, callback args arrive here via session routing (id=1) so the
+  // pending session survives for btoken/bsuccess to read it.
+  async handleSessionArgsCallbackQueryData() {
+    await this.handleArgsCallbackQueryData()
+  }
+
+  async handleSessionFreeText() {
     const input = this.msg!.text!.trim()
-    const session = await this.getSession()
-    const step = session?.params?.httpStep as string | undefined
+    const sparams = this.temp.session?.params
+    const step = sparams?.httpStep as string | undefined
     if (!step || step === `method` || step === `done`) {
       await this.burl.process(input, `GET`)
     } else if (step === `url`) {
-      await this.burl.process(input, session?.params?.httpMethod as string, true)
+      await this.burl.process(input, sparams?.httpMethod as string, true)
     } else if (step === `token`) {
       await this.btoken.process(input)
     } else if (step === `body`) {
       await this.bbody.process(input)
     }
-  }
-
-  async handleSessionFreeText() {
-    return this.handleFreeText()
   }
 
   bmethod = {
@@ -128,7 +138,7 @@ export class HttpRequestPage extends PageBase {
 
   burl = {
     show: async (method: string) => {
-      await this.setSessionFreeText({httpStep: `url`, httpMethod: method})
+      await this._setFlowSession({httpStep: `url`, httpMethod: method})
       await this.renderAuto(Helper.buildUrlKeyboard(this), {method}, Base.url)
     },
     process: async (input: string, method: string, showToken = false) => {
@@ -144,7 +154,7 @@ export class HttpRequestPage extends PageBase {
       } else {
         try {
           const result = await HttpService.request(method, input)
-          await this.setSessionFreeText({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
+          await this._setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
           await this.bsuccess.show(result, `formatted`)
         } catch (error) {
           await this.clearSession()
@@ -157,7 +167,7 @@ export class HttpRequestPage extends PageBase {
 
   btoken = {
     show: async (method: string, url: string) => {
-      await this.setSessionFreeText({httpStep: `token`, httpMethod: method, httpUrl: url})
+      await this._setFlowSession({httpStep: `token`, httpMethod: method, httpUrl: url})
       await this.renderAuto(Helper.buildTokenKeyboard(this), {method, url: Helper.escapeHtml(url)}, Base.token)
     },
     process: async (token: string | null) => {
@@ -170,7 +180,7 @@ export class HttpRequestPage extends PageBase {
       }
 
       if (HttpService.needsBody(method)) {
-        await this.setSessionFreeText({httpStep: `body`, httpMethod: method, httpUrl: url, httpToken: token})
+        await this._setFlowSession({httpStep: `body`, httpMethod: method, httpUrl: url, httpToken: token})
         await this.bbody.show(method, url)
       } else {
         const headers: Record<string, string> = {}
@@ -179,7 +189,7 @@ export class HttpRequestPage extends PageBase {
         }
         try {
           const result = await HttpService.request(method, url, undefined, headers)
-          await this.setSessionFreeText({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
+          await this._setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
           await this.bsuccess.show(result, `formatted`)
         } catch (error) {
           await this.clearSession()
@@ -192,7 +202,7 @@ export class HttpRequestPage extends PageBase {
 
   bbody = {
     show: async (method: string, url: string) => {
-      await this.setSessionFreeText({httpStep: `body`, httpMethod: method, httpUrl: url})
+      await this._setFlowSession({httpStep: `body`, httpMethod: method, httpUrl: url})
       const da = {method, url: Helper.escapeHtml(url)}
       await this.renderAuto(Helper.buildBodyKeyboard(this), da, Base.body)
     },
@@ -212,7 +222,7 @@ export class HttpRequestPage extends PageBase {
       }
       try {
         const result = await HttpService.request(method, url, body, headers)
-        await this.setSessionFreeText({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
+        await this._setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
         await this.bsuccess.show(result, `formatted`)
       } catch (error) {
         await this.clearSession()
@@ -245,7 +255,7 @@ export class HttpRequestPage extends PageBase {
       if (!result) return
       const currentView = (session?.params?.httpViewMode as string) || `formatted`
       const newView = currentView === `formatted` ? `raw` : `formatted`
-      await this.setSessionFreeText({...session?.params, httpViewMode: newView})
+      await this._setFlowSession({...session?.params, httpViewMode: newView})
       await this.bsuccess.show(result, newView)
     }
   }
@@ -279,6 +289,7 @@ export class HttpRequestPage extends PageBase {
         Pilih metode HTTP:
       </g-message>
     </g-base>
+
     <g-base id="${Base.url}">
       <g-keyboard type="inline">⬅️ Back, ✖️ Cancel</g-keyboard>
       <g-keyboard type="inline" lang="id">⬅️ Kembali, ✖️ Batal</g-keyboard>
@@ -297,6 +308,7 @@ export class HttpRequestPage extends PageBase {
         Contoh: https://jsonplaceholder.typicode.com/posts/1
       </g-message>
     </g-base>
+
     <g-base id="${Base.token}">
       <g-keyboard type="inline">⏭️ Skip, ✖️ Cancel</g-keyboard>
       <g-keyboard type="inline" lang="id">⏭️ Lewati, ✖️ Batal</g-keyboard>
@@ -317,6 +329,7 @@ export class HttpRequestPage extends PageBase {
         Kirim token Bearer, atau ketuk Lewati untuk melanjutkan tanpa token.
       </g-message>
     </g-base>
+
     <g-base id="${Base.body}">
       <g-keyboard type="inline">⬅️ Back, ✖️ Cancel</g-keyboard>
       <g-keyboard type="inline" lang="id">⬅️ Kembali, ✖️ Batal</g-keyboard>
@@ -335,6 +348,7 @@ export class HttpRequestPage extends PageBase {
         Kirim isi permintaan sebagai JSON:
       </g-message>
     </g-base>
+
     <g-base id="${Base.success}">
       <g-keyboard type="inline">{{toggleLabel}}, 🏠 Home</g-keyboard>
       <g-keyboard type="inline" lang="id">{{toggleLabel}}, 🏠 Beranda</g-keyboard>
@@ -347,7 +361,7 @@ export class HttpRequestPage extends PageBase {
         {{headersText}}
 
         📄 Body:
-        <pre>{{bodyPreview}}</pre>
+        <pre>{{{bodyPreview}}}</pre>
       </g-message>
       <g-message lang="id">
         {{emoji}} [{{method}}] {{status}} {{statusText}}
@@ -358,9 +372,10 @@ export class HttpRequestPage extends PageBase {
         {{headersText}}
 
         📄 Isi:
-        <pre>{{bodyPreview}}</pre>
+        <pre>{{{bodyPreview}}}</pre>
       </g-message>
     </g-base>
+
     <g-base id="${Base.warnInvalid}">
       <g-keyboard type="inline">⬅️ Back, ✖️ Cancel</g-keyboard>
       <g-keyboard type="inline" lang="id">⬅️ Kembali, ✖️ Batal</g-keyboard>
@@ -379,6 +394,7 @@ export class HttpRequestPage extends PageBase {
         Anda mengirim: <code>{{url}}</code>
       </g-message>
     </g-base>
+    
     <g-base id="${Base.warnNetwork}">
       ${this.kbk.home()}
       <g-message>
