@@ -1508,6 +1508,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const methodKey = (proto as unknown as Record<string, (name: string) => string>)[methodName]?.(name)
         if (methodKey !== undefined) {
           pss[methodKey] = value
+          pages.hasSessionRoutes = true
         }
       }
     }
@@ -1886,7 +1887,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       lenListRouteStatic: listRouteStatic.length,
       lenListRouteStaticIntent: listRouteStaticIntent.length,
       lenListRouteStaticSession: listRouteStaticSession.length,
-      lenListRouteDynamicSpesific: listRouteDynamicSpesific.length
+      lenListRouteDynamicSpesific: listRouteDynamicSpesific.length,
+      // true once at least one staticSession route is registered (id=1 reachable).
+      // Gates the auto session-clear on non-session dispatch so apps without
+      // sessions never pay an external cache read.
+      hasSessionRoutes: false
     }
   }
 
@@ -1962,6 +1967,30 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
+   * Auto-clears a pending session before a non-session handler runs.
+   *
+   * @remarks
+   * Implements the "interruption cancels the pending flow" rule: when the
+   * user interacts with anything other than the awaited session input
+   * (callback, command, free text, etc.), the pending session is cleared.
+   *
+   * Guards:
+   * - Skips entirely when the app registers no session routes (`hasSessionRoutes`),
+   *   so session-less apps never pay an external cache read.
+   * - `getSession()` is memoized per request, so at most one external read
+   *   happens per update; `clearSession()` (one external write) only runs
+   *   when a session actually exists.
+   *
+   * @internal
+   */
+  async _clearSessionOnNonSession(ctx: Ctx) {
+    if (!this.pages.hasSessionRoutes) return
+    if (await ctx.getSession()) {
+      await ctx.clearSession()
+    }
+  }
+
+  /**
    * Routes an incoming update to the appropriate page handler.
    *
    * @remarks
@@ -2011,6 +2040,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
+    // true when the matched route is a non-session handler (id=2/3). Session
+    // routes (id=1) never auto-clear; free handlers (id=4/5) are handled in-loop.
+    let isNonSession = false
 
     /**
      * id = 0
@@ -2053,7 +2085,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      */
     if (Page === undefined) {
       const sessionRoutes = (this.pages.routesByListener[fromListener as keyof typeof this.pages.routesByListener] ?? {static: [], staticIntent: [], staticSession: []}).staticSession
-      if (sessionRoutes.length > 0) {
+      // hasSessionRoutes gate: no session route is registered anywhere, so
+      // session.method can never match — skip the external cache read entirely.
+      if (sessionRoutes.length > 0 && this.pages.hasSessionRoutes) {
         const session = await ctx.getSession()
         if (session) {
           const mtd = session.method
@@ -2109,6 +2143,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
       if (res !== undefined) {
         Page = this.pages.all[res.name]
+        isNonSession = true
       }
     }
 
@@ -2168,6 +2203,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
       if (res !== undefined) {
         Page = this.pages.all[res.name]
+        isNonSession = true
       }
     }
 
@@ -2179,6 +2215,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
       const initPage = new Page(ctx) as unknown as Ctx
       if ((await initPage.hookBeforeRoute?.()) !== false) {
+        if (isNonSession) {
+          await this._clearSessionOnNonSession(ctx)
+        }
         await (initPage as unknown as Record<string, () => unknown>)[res.routeName]?.()
         await initPage.hookAfterRoute?.()
         return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
@@ -2211,6 +2250,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] === `function`) {
         const initPage = new Page(ctx) as unknown as ICtx
         if ((await initPage.hookBeforeRoute?.()) !== false) {
+          await this._clearSessionOnNonSession(ctx)
           await (initPage as unknown as Record<string, () => unknown>)[value.routeName]!()
           await initPage.hookAfterRoute?.()
         }
@@ -2238,6 +2278,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       if (typeof Page.prototype.handleFree === `function`) {
         const initPage = new Page(ctx)
         if ((await initPage.hookBeforeRoute?.()) !== false) {
+          await this._clearSessionOnNonSession(ctx)
           await initPage.handleFree!()
           await initPage.hookAfterRoute?.()
         }
@@ -2483,6 +2524,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const methodKey = (this.pages.all[entry.name] as unknown as Record<string, (name: string) => string> | undefined)?.[methodSessionName]?.(entry.name)
     if (pss && methodKey !== undefined) {
       pss[methodKey] = {name: entry.name, routeName: entry.routeName}
+      this.pages.hasSessionRoutes = true
       ;(this.pages as unknown as {listRouteStaticSession: string[]}).listRouteStaticSession.push(sessionRouteName)
       ;(this.pages as unknown as {listRouteStaticSessionLC: string[]}).listRouteStaticSessionLC.push(sessionRouteName.toLowerCase())
       this.pages.lenListRouteStaticSession++
