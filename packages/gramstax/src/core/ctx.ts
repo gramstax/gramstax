@@ -1118,11 +1118,22 @@ export class Ctx extends Context {
   temp: ITTemp
 
   /**
-   * Per-request session fetch cache (memoization for getSession).
+   * Per-request session fetch memoization.
+   *
+   * @remarks
+   * Caches the result of `getSession()` for the lifetime of the current
+   * request so repeated calls within one update do not hit the external
+   * session cache (Redis/SaaS) again.
+   *
+   * - `sessionLoaded` — `true` once the session has been read or written in
+   *   this request. When `true`, `getSession()` returns `sessionValue`
+   *   without contacting the external cache.
+   * - `sessionValue` — the memoized session payload, or `null` when no
+   *   session exists for the current user/chat.
+   *
    * @internal
    */
-  _sessionLoaded = false
-  _session: ITCacheRpc | null = null
+  memoization: {sessionLoaded: boolean; sessionValue: ITCacheRpc | null} = {sessionLoaded: false, sessionValue: null}
 
   /**
    * Tracks per-request Api instances where the answer guard transformer has already been installed
@@ -2651,6 +2662,13 @@ export class Ctx extends Context {
     return await this.renderEditMedia(`contact`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
+  sessionKey(): string {
+    const userId = this.from?.id
+    const chatId = this.chat?.id
+    if (userId === undefined || userId === null) return `:${chatId ?? ``}`
+    return `${userId}:${chatId ?? ``}`
+  }
+
   /**
    * [LOW-LEVEL] Sets session data for the current user.
    *
@@ -2684,22 +2702,15 @@ export class Ctx extends Context {
    *
    * @public
    */
-  _sessionKey(): string {
-    const userId = this.from?.id
-    const chatId = this.chat?.id
-    if (userId === undefined || userId === null) return `:${chatId ?? ``}`
-    return `${userId}:${chatId ?? ``}`
-  }
-
   async setSession(method: string | string[], params?: Record<string, unknown>, moreRoot?: Record<string, unknown>) {
     try {
-      const id = this._sessionKey()
+      const id = this.sessionKey()
       const value = {method, params, ...moreRoot}
       const result = await this.cacheSession.set(`${id}`, value)
       if (result) {
         this.temp.session = value
-        this._sessionLoaded = true
-        this._session = value as ITCacheRpc
+        this.memoization.sessionLoaded = true
+        this.memoization.sessionValue = value as ITCacheRpc
       }
       return result
     } catch {
@@ -2726,14 +2737,14 @@ export class Ctx extends Context {
    * @public
    */
   async getSession(): Promise<ITCacheRpc | null> {
-    if (this._sessionLoaded) return this._session
-    this._sessionLoaded = true
+    if (this.memoization.sessionLoaded) return this.memoization.sessionValue
+    this.memoization.sessionLoaded = true
     try {
-      const id = this._sessionKey()
+      const id = this.sessionKey()
       const result = await this.cacheSession.get(`${id}`)
-      this._session = result || null
+      this.memoization.sessionValue = result || null
       if (result) this.temp.session = result
-      return this._session
+      return this.memoization.sessionValue
     } catch {
       return null
     }
@@ -2744,6 +2755,9 @@ export class Ctx extends Context {
    *
    * @remarks
    * Removes the session from external cache and resets the local session property.
+   * Uses the scoped `sessionKey()` (`user:chat`), matching `setSession`/`getSession`.
+   * Sets `memoization.sessionLoaded` to `true` so a subsequent `getSession()`
+   * within the same request returns `null` without re-hitting the external cache.
    *
    * @returns True if the session was cleared, or null on error.
    *
@@ -2759,12 +2773,13 @@ export class Ctx extends Context {
    */
   async clearSession() {
     try {
-      const id = this.from?.id ?? this.chat?.id
-      if (id === undefined || id === null) return null
-      const result = await this.cacheSession.delete(`${id}`)
+      const userId = this.from?.id
+      const chatId = this.chat?.id
+      if (userId === undefined && chatId === undefined) return null
+      const result = await this.cacheSession.delete(this.sessionKey())
       if (result) this.temp.session = {}
-      this._sessionLoaded = false
-      this._session = null
+      this.memoization.sessionLoaded = true
+      this.memoization.sessionValue = null
       return result
     } catch {
       return null
