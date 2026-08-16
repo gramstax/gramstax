@@ -612,9 +612,10 @@ export class TemplateEngine {
    * @public
    */
   static _processScopeVariables(template: string) {
+    const toAccess = (key: string) => key.split(`.`).map((k: string) => `?.${k}`).join(``)
     return template
-      .replace(/\{\{\{(\w+)\}\}\}/g, (_, key) => `\${(data && data["${key}"]) ?? ""}`)
-      .replace(/\{\{(\w+)\}\}/g, (_, key) => `\${__esc((data && data["${key}"]) ?? "")}`)
+      .replace(/\{\{\{([\w.]+)\}\}\}/g, (_, key) => `\${(data${toAccess(key)}) ?? ""}`)
+      .replace(/\{\{([\w.]+)\}\}/g, (_, key) => `\${__esc((data${toAccess(key)}) ?? "")}`)
   }
 
   /**

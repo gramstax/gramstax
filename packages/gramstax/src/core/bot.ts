@@ -588,15 +588,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     if (params.deploy.startsWith(`polling`)) {
       this.deployType = `polling`
-      this.hookBeforeStart?.()
-      this._runPolling()
+      void this._runPolling()
     } else if (params.deploy.startsWith(`webhook:`)) {
       this.deployType = `webhook`
-      this.hookBeforeStart?.()
       void this._runWebhook(params.deploy.split(`webhook:`)[1] as string).catch((error) => this._onStartupError(error))
     } else if (params.deploy.startsWith(`serverless:`)) {
       this.deployType = `serverless`
-      this.hookBeforeStart?.()
       void this._runServerless(params.deploy.split(`serverless:`)[1] as string).catch((error) => this._onStartupError(error))
     } else if (params.deploy.startsWith(`test`)) {
       this.deployType = `test`
@@ -773,7 +770,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const {username} = botInfo
     this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method === `webhook` || method === `serverless` ? `(${data})` : ``}`)
-    this.hookAfterStart?.()
+    await this.hookAfterStart?.()
   }
 
   /**
@@ -1010,7 +1007,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  _runPolling(): void {
+  async _runPolling(): Promise<void> {
+    await this.hookBeforeStart?.()
     const opts: Record<string, unknown> = {
       onStart: (botInfo: UserFromGetMe) => {
         this._onStart(botInfo, `polling`, null)
@@ -1065,6 +1063,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @internal
    */
   async _runWebhook(fullUrl: string): Promise<void> {
+    await this.hookBeforeStart?.()
     const {serve} = await import(`bun`) // <==== import in this because this package support node/bun (default use bun)
     const handleUpdate = webhookCallback(this.bot, `bun`)
     const queueConfig = this.webhookQueue
@@ -1339,6 +1338,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @internal
    */
   async _runServerless(adapter: string): Promise<void> {
+    await this.hookBeforeStart?.()
     this.handlerBotUpdate = webhookCallback(this.bot, adapter as string as Parameters<typeof webhookCallback>[1])
     const botInfo = await this.bot.api.getMe()
     await this._onStart(botInfo, `serverless`, adapter)
