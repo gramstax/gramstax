@@ -1935,7 +1935,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // @internal
     _releaseWebhookChat(key: string, activeChats: Map<string, number>, waitChats: Map<string, Array<(bypass?: boolean) => void>>): void;
     // @internal
-    _runPolling(): void;
+    _runPolling(): Promise<void>;
     // @internal
     _runServerless(adapter: string): Promise<void>;
     // @internal
