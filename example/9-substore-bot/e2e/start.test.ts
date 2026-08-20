@@ -1,15 +1,15 @@
-import {beforeEach, describe, expect, it } from "bun:test"
-import {e2e} from "./setup"
+import {beforeEach, describe, expect, it} from "bun:test"
+import {e2e, enUser, idUser} from "./setup"
 
 beforeEach(() => e2e.clearCalls())
 describe(`E2E: StartPage`, () => {
   it(`respond to /start with store menu`, async () => {
-    const res = await e2e.sendText(`/start`)
+    const res = await e2e.sendText(`/start`, enUser)
     expect(res.length).toBeGreaterThan(0)
     expect(res[0]!.body?.text).toContain(`SubStore Bot`)
   })
   it(`show ID variant`, async () => {
-    const res = await e2e.sendText(`/start`, {user: {language_code: `id`}})
+    const res = await e2e.sendText(`/start`, idUser)
     expect(res.length).toBeGreaterThan(0)
     expect(res[0]!.body?.text).toContain(`Bot SubStore`)
   })

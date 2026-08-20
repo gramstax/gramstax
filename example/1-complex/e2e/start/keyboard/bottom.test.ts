@@ -1,15 +1,14 @@
-import {beforeEach, describe, expect, it } from "bun:test"
-import {e2e} from "../../setup"
+import {beforeEach, describe, expect, it} from "bun:test"
+import {e2e, enUser, idUser} from "../../setup"
 
 const intent = `start/keyboard/bottom`
-const asUser = {user: {id: 2001}, chat: {id: 2001}}
 beforeEach(() => {
   e2e.clearCalls()
 })
 describe(`E2E: KeyboardBottomPage`, () => {
   it(`show bottom keyboard via /keyboard_bottom command`, async () => {
-    const responses = await e2e.sendText(`/keyboard_bottom`, asUser)
-    const responsesId = await e2e.sendText(`/keyboard_bottom`, {user: {id: 6001, language_code: `id`}, chat: {id: 6001}})
+    const responses = await e2e.sendText(`/keyboard_bottom`, enUser)
+    const responsesId = await e2e.sendText(`/keyboard_bottom`, idUser)
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)

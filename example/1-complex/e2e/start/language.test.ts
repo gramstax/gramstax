@@ -1,5 +1,5 @@
-import {beforeEach, describe, expect, it } from "bun:test"
-import {e2e} from "../setup"
+import {beforeEach, describe, expect, it} from "bun:test"
+import {e2e, enUser, idUser} from "../setup"
 
 const intent = `start/language`
 beforeEach(() => {
@@ -7,11 +7,12 @@ beforeEach(() => {
 })
 describe(`E2E: LanguagePage`, () => {
   it(`show language selection menu with language options`, async () => {
-    await e2e.sendText(`/start`)
+    await e2e.sendText(`/start`, enUser)
+    await e2e.sendText(`/start`, idUser)
     e2e.clearCalls()
 
-    const responses = await e2e.sendCallbackQuery(intent)
-    const responsesId = await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
+    const responses = await e2e.sendCallbackQuery(intent, enUser)
+    const responsesId = await e2e.sendCallbackQuery(intent, idUser)
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)

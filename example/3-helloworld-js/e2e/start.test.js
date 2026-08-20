@@ -1,5 +1,5 @@
-import {beforeEach, describe, expect, it } from "bun:test"
-import {e2e} from "./setup"
+import {beforeEach, describe, expect, it} from "bun:test"
+import {e2e, enUser, idUser} from "./setup"
 
 beforeEach(() => {
   e2e.clearCalls()
@@ -7,8 +7,8 @@ beforeEach(() => {
 
 describe(`E2E: StartPage`, () => {
   it(`respond to /start command with Hello World message`, async () => {
-    const responses = await e2e.sendText(`/start`)
-    const responsesId = await e2e.sendText(`/start`, {user: {language_code: `id`}})
+    const responses = await e2e.sendText(`/start`, enUser)
+    const responsesId = await e2e.sendText(`/start`, idUser)
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
@@ -23,11 +23,11 @@ describe(`E2E: StartPage`, () => {
   })
 
   it(`respond to callback query with edited message`, async () => {
-    await e2e.sendText(`/start`)
+    await e2e.sendText(`/start`, enUser)
     e2e.clearCalls()
 
-    const responses = await e2e.sendCallbackQuery(`start`)
-    const responsesId = await e2e.sendCallbackQuery(`start`, {user: {language_code: `id`}})
+    const responses = await e2e.sendCallbackQuery(`start`, enUser)
+    const responsesId = await e2e.sendCallbackQuery(`start`, idUser)
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
@@ -36,26 +36,34 @@ describe(`E2E: StartPage`, () => {
   })
 
   it(`capture outbound requests`, async () => {
-    await e2e.sendText(`/start`)
+    const resEn = await e2e.sendText(`/start`, enUser)
+    const resId = await e2e.sendText(`/start`, idUser)
 
     const sendMessageReq = e2e.lastCall(`sendMessage`)
     expect(sendMessageReq).toBeDefined()
-    expect(sendMessageReq.body?.text).toContain(`Hello World!`)
+    expect(resEn[0]?.body?.text).toContain(`Hello World!`)
+    expect(resId[0]?.body?.text).toContain(`Halo Dunia!`)
   })
 
   it(`handle multiple sequential interactions`, async () => {
-    const res1 = await e2e.sendText(`/start`)
+    const res1 = await e2e.sendText(`/start`, enUser)
+    const res1Id = await e2e.sendText(`/start`, idUser)
     expect(res1[0]?.body?.text).toContain(`Hello World!`)
+    expect(res1Id[0]?.body?.text).toContain(`Halo Dunia!`)
 
     e2e.clearCalls()
 
-    const res2 = await e2e.sendCallbackQuery(`start`)
+    const res2 = await e2e.sendCallbackQuery(`start`, enUser)
+    const res2Id = await e2e.sendCallbackQuery(`start`, idUser)
     expect(res2[0]?.body?.text).toContain(`Hello World!`)
+    expect(res2Id[0]?.body?.text).toContain(`Halo Dunia!`)
 
     e2e.clearCalls()
 
-    const res3 = await e2e.sendText(`gibberish`)
+    const res3 = await e2e.sendText(`gibberish`, enUser)
+    const res3Id = await e2e.sendText(`gibberish`, idUser)
     expect(res3[0]?.body?.text).toBe(e2e.gmsg(`status`, `nf`))
+    expect(res3Id[0]?.body?.text).toBe(e2e.gmsg(`status`, `nf`, {}, `id`))
   })
 
   it(`support custom user and chat options`, async () => {

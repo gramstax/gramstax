@@ -62,3 +62,10 @@ export const bot = new BotCore({
   })
 })
 export const e2e = bot.e2e!
+export const enUser = {user: {id: 4001, language_code: `en`}, chat: {id: 4001}}
+export const idUser = {user: {id: 5001, language_code: `id`}, chat: {id: 5001}}
+// Dedicated users for the http-request flow tests: their free-text session
+// (URL/token/body input) would otherwise hijack `/start` from other test files
+// running in parallel on the shared enUser/idUser.
+export const flowUser = {user: {id: 4101, language_code: `en`}, chat: {id: 4101}}
+export const flowUserId = {user: {id: 5101, language_code: `id`}, chat: {id: 5101}}

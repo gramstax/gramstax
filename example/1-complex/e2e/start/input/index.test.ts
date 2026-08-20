@@ -1,9 +1,8 @@
-import {describe, expect, it } from "bun:test"
+import {describe, expect, it} from "bun:test"
 import {bot} from "../../setup"
 
 describe(`E2E: InputPage`, () => {
   it(`load as a registered page in the bot`, () => {
-    const allPages = bot.pages.all
-    expect(allPages[`start/input`]).toBeDefined()
+    expect(bot.pages.all[`start/input`]).toBeDefined()
   })
 })

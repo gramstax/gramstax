@@ -1,5 +1,5 @@
-import {beforeEach, describe, expect, it } from "bun:test"
-import {e2e} from "./setup"
+import {beforeEach, describe, expect, it} from "bun:test"
+import {e2e, enUser, idUser} from "./setup"
 
 const intent = `stats`
 
@@ -9,7 +9,9 @@ beforeEach(() => {
 
 describe(`E2E: StatsPage`, () => {
   it(`show stats`, async () => {
-    const res = await e2e.sendCallbackQuery(intent)
+    const res = await e2e.sendCallbackQuery(intent, enUser)
+    const resId = await e2e.sendCallbackQuery(intent, idUser)
     expect(res.length).toBeGreaterThan(0)
+    expect(resId.length).toBeGreaterThan(0)
   })
 })

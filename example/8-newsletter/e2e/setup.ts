@@ -1,5 +1,5 @@
 import {join} from "node:path"
-import {CacheExternal, TemplateManager } from "gramstax"
+import {CacheExternal, TemplateManager} from "gramstax"
 import {BotCore} from "../src/core/bot"
 
 export type {ITE2eApiCall, ITE2eUpdateOptions} from "gramstax"
@@ -18,9 +18,10 @@ export const bot = new BotCore({
 })
 
 export const e2e = bot.e2e!
+export const enUser = {user: {id: 4001, language_code: `en`}, chat: {id: 4001}}
+export const idUser = {user: {id: 5001, language_code: `id`}, chat: {id: 5001}}
 export async function resetEnv() {
   e2e.clearCalls()
   await bot.cacheSession.clear()
   await bot.db.init()
 }
-

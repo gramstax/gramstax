@@ -1,5 +1,5 @@
-import {beforeEach, describe, expect, it } from "bun:test"
-import {e2e} from "../../setup"
+import {beforeEach, describe, expect, it} from "bun:test"
+import {e2e, enUser, idUser} from "../../setup"
 
 const intent = `start/test/animation`
 beforeEach(() => {
@@ -7,21 +7,20 @@ beforeEach(() => {
 })
 describe(`E2E: TestAnimationPage`, () => {
   it(`return an animation media response`, async () => {
-    await e2e.sendText(`/start`)
+    await e2e.sendText(`/start`, enUser)
+    await e2e.sendText(`/start`, idUser)
     e2e.clearCalls()
 
-    await e2e.sendCallbackQuery(intent)
+    const responses = await e2e.sendCallbackQuery(intent, enUser)
+    const responsesId = await e2e.sendCallbackQuery(intent, idUser)
 
-    const editMediaReq = e2e.lastCall(`editMessageMedia`)
-    expect(editMediaReq).toBeDefined()
-    expect(editMediaReq!.body?.media?.type).toBe(`animation`)
-    expect(editMediaReq!.body?.media?.media).toBe(e2e.gmedia(intent, `i`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `i`, {}).caption)
-
-    e2e.clearCalls()
-    await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
-    const editMediaIdReq = e2e.lastCall(`editMessageMedia`)
-    expect(editMediaIdReq).toBeDefined()
-    expect(editMediaIdReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `i`, {}, `id`).caption)
+    expect(responses[0]).toBeDefined()
+    expect(responsesId[0]).toBeDefined()
+    expect(responses[0]!.body?.media?.type).toBe(`animation`)
+    expect(responsesId[0]!.body?.media?.type).toBe(`animation`)
+    expect(responses[0]!.body?.media?.media).toBe(e2e.gmedia(intent, `i`, {}).src)
+    expect(responsesId[0]!.body?.media?.media).toBe(e2e.gmedia(intent, `i`, {}, `id`).src)
+    expect(responses[0]!.body?.media?.caption).toBe(e2e.gmedia(intent, `i`, {}).caption)
+    expect(responsesId[0]!.body?.media?.caption).toBe(e2e.gmedia(intent, `i`, {}, `id`).caption)
   })
 })

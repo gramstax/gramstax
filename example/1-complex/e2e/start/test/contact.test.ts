@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it } from "bun:test"
-import {e2e} from "../../setup"
+import {e2e, enUser} from "../../setup"
 
 const intent = `start/test/contact`
 beforeEach(() => {
@@ -7,10 +7,10 @@ beforeEach(() => {
 })
 describe(`E2E: TestContactPage`, () => {
   it(`return a contact response with phone and name`, async () => {
-    await e2e.sendText(`/start`)
+    await e2e.sendText(`/start`, enUser)
     e2e.clearCalls()
 
-    await e2e.sendCallbackQuery(intent)
+    await e2e.sendCallbackQuery(intent, enUser)
 
     const sendContactReq = e2e.lastCall(`sendContact`)
     expect(sendContactReq).toBeDefined()

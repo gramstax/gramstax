@@ -1,21 +1,26 @@
 import {beforeEach, describe, expect, it} from "bun:test"
-import {ADMIN_CHAT, ADMIN_USER, e2e, resetEnv} from "./setup"
+import {ADMIN_CHAT, ADMIN_USER, e2e, enUser, resetEnv} from "./setup"
 
 const intent = `broadcast`
-const regularUser = {user: {id: 1001, language_code: `en`}, chat: {id: 1001}}
 const adminUser = {user: ADMIN_USER, chat: ADMIN_CHAT}
+const adminUserId = {user: {...ADMIN_USER, language_code: `id`}, chat: ADMIN_CHAT}
 beforeEach(async () => {
   await resetEnv()
 })
 describe(`E2E: BroadcastPage`, () => {
   it(`blocks non-admin`, async () => {
-    const res = await e2e.sendCallbackQuery(intent, regularUser)
+    const res = await e2e.sendCallbackQuery(intent, enUser)
     expect(res.length).toBe(0)
   })
   it(`admin accesses form`, async () => {
     const res = await e2e.sendCallbackQuery(intent, adminUser)
     expect(res.length).toBeGreaterThan(0)
     expect(res[0]!.body?.text).toContain(`Broadcast Message`)
+  })
+  it(`admin accesses form ID variant`, async () => {
+    const res = await e2e.sendCallbackQuery(intent, adminUserId)
+    expect(res.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toContain(`Pesan Siaran`)
   })
   it(`admin sends draft and confirms`, async () => {
     await e2e.sendCallbackQuery(intent, adminUser)

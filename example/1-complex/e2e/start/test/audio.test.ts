@@ -1,5 +1,5 @@
-import {beforeEach, describe, expect, it } from "bun:test"
-import {e2e} from "../../setup"
+import {beforeEach, describe, expect, it} from "bun:test"
+import {e2e, enUser, idUser} from "../../setup"
 
 const intent = `start/test/audio`
 beforeEach(() => {
@@ -7,10 +7,11 @@ beforeEach(() => {
 })
 describe(`E2E: TestAudioPage`, () => {
   it(`return an audio media response`, async () => {
-    await e2e.sendText(`/start`)
+    await e2e.sendText(`/start`, enUser)
+    await e2e.sendText(`/start`, idUser)
     e2e.clearCalls()
 
-    await e2e.sendCallbackQuery(intent)
+    await e2e.sendCallbackQuery(intent, enUser)
 
     const editMediaReq = e2e.lastCall(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
@@ -19,7 +20,7 @@ describe(`E2E: TestAudioPage`, () => {
     expect(editMediaReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `default`, {}).caption)
 
     e2e.clearCalls()
-    await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
+    await e2e.sendCallbackQuery(intent, idUser)
     const editMediaIdReq = e2e.lastCall(`editMessageMedia`)
     expect(editMediaIdReq).toBeDefined()
     expect(editMediaIdReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `default`, {}, `id`).caption)
