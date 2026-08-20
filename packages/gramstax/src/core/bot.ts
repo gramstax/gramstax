@@ -15,6 +15,7 @@ import {dirname, join, parse} from "node:path"
 import {fileURLToPath} from "node:url"
 import {autoRetry} from "@grammyjs/auto-retry"
 import {chatMemberFilter, myChatMemberFilter} from "@grammyjs/chat-members"
+import {limit} from "@grammyjs/ratelimiter"
 import {stream} from "@grammyjs/stream"
 import {API_CONSTANTS, Bot, type BotConfig, type BotError, type Context, type Middleware, webhookCallback} from "grammy"
 import type {BotCommandScope, LanguageCode, Update, UserFromGetMe} from "grammy/types"
@@ -452,6 +453,20 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       this.bot.api.config.use(autoRetry(params.autoRetryOptions ?? {}))
     }
     this.bot.use(stream() as Middleware<Context>)
+    if (params.rateLimit) {
+      const {windowMs, max} = params.rateLimit
+      this.bot.use(
+        limit({
+          timeFrame: windowMs,
+          limit: max,
+          keyGenerator: (ctx) =>
+            this.hookKeyGenerator ? this.hookKeyGenerator(this.createCtx(ctx as unknown as ITCt)) : ctx.from?.id?.toString(),
+          onLimitExceeded: (ctx) => {
+            void this.hookRateLimited?.(this.createCtx(ctx as unknown as ITCt))
+          }
+        })
+      )
+    }
     this.bot.catch(this._onCatch)
     this.registerLowPlugin?.()?.forEach((func) => void this.bot.use(func)) // Handle middleware ct
 
@@ -966,6 +981,53 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   async hookNotFoundPage?(ctx: ICtx, data?: {listenerName: string; isEdit: boolean}): Promise<void>
+
+  /**
+   * Hook called when a user exceeds the configured `rateLimit` window.
+   *
+   * @remarks
+   * Optional class override. Default: no reply (the update is silently
+   * ignored). The context is a fully constructed page context, so the
+   * override may render a "please wait" page via `ctx.render`.
+   *
+   * @param ctx - The page context instance for the blocked update.
+   *
+   * @example
+   * ```typescript
+   * async hookRateLimited(ctx: Ctx) {
+   *   await ctx.render(`please-wait`)
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  async hookRateLimited?(ctx: ICtx): Promise<void>
+
+  /**
+   * Hook called to produce the per-update rate-limit key.
+   *
+   * @remarks
+   * Optional class override. Default: the sender's user id. Override to
+   * group updates differently — e.g. per chat, per session, or a shared
+   * global bucket. Must be synchronous (the ratelimiter middleware reads
+   * the key before the update is dispatched). The context is a fully
+   * constructed page context.
+   *
+   * @param ctx - The page context instance for the update.
+   * @returns The rate-limit key, or `undefined` to fall back to the default.
+   *
+   * @example
+   * ```typescript
+   * hookKeyGenerator(ctx: Ctx) {
+   *   return `global`
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  hookKeyGenerator?(ctx: ICtx): string | undefined
 
   /**
    * Creates the Bot instance.

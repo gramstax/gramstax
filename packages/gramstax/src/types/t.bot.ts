@@ -166,6 +166,27 @@ export type ITWebhookQueueConfig = {
 }
 
 /**
+ * Rate-limit configuration for incoming updates (`@grammyjs/ratelimiter`).
+ *
+ * @remarks
+ * Configuration only — the rate-limit key and the behavior when the limit
+ * is exceeded are provided by overriding the {@link Gramstax.hookKeyGenerator}
+ * and {@link Gramstax.hookRateLimited} class hooks.
+ *
+ * @public
+ */
+export type ITRateLimitOptions = {
+  /**
+   * Length of the fixed time window in milliseconds.
+   */
+  windowMs: number
+  /**
+   * Maximum number of updates a key may send within `windowMs`.
+   */
+  max: number
+}
+
+/**
  * Configuration options for Gramstax bot instance.
  *
  * @public
@@ -276,6 +297,19 @@ export type ITGramstaxParams = {
    * Only applies when `autoRetry !== false`. See `@grammyjs/auto-retry`.
    */
   autoRetryOptions?: {maxRetryAttempts?: number; retryOnInternalServerErrors?: boolean}
+
+  /**
+   * Per-user rate limiting for incoming updates.
+   *
+   * @remarks
+   * When provided, the official `@grammyjs/ratelimiter` middleware is mounted
+   * with a fixed window of `windowMs` and a `max` update count per key.
+   * Updates that exceed the limit are silently dropped (unless the
+   * `hookRateLimited` class hook is overridden to reply).
+   *
+   * @defaultValue `undefined` (no rate limiting)
+   */
+  rateLimit?: ITRateLimitOptions
 
   /**
    * Max time (milliseconds) allowed for a single update handler before the
