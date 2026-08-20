@@ -73,6 +73,48 @@ type ITTemplateData = Record<string, unknown>
 type ITTemplateRenderer<T extends boolean> = T extends true ? (data?: ITTemplateData) => string[] : (data?: ITTemplateData) => string
 
 /**
+ * A whitelisted post-processing function applied to a `{{var|filter:arg}}` expression.
+ *
+ * @remarks
+ * Filters are pure functions: the first argument is the resolved value, the
+ * remaining arguments are compile-time string constants from the template.
+ *
+ * @public
+ */
+type ITTemplateFilter = (value: unknown, ...args: string[]) => unknown
+
+/**
+ * Built-in `{{var|filter}}` pipes. Unknown filter names render empty and
+ * log a one-time warning at compile time (whitelist enforced — templates
+ * cannot execute arbitrary code through filters).
+ *
+ * @public
+ */
+const DEFAULT_FILTERS: Record<string, ITTemplateFilter> = {
+  upper: (value) => String(value ?? ``).toUpperCase(),
+  lower: (value) => String(value ?? ``).toLowerCase(),
+  number: (value, decimals) => Number(value ?? 0).toFixed(decimals === undefined ? 0 : Number(decimals)),
+  date: (value, format) => {
+    const d = new Date(String(value))
+    if (Number.isNaN(d.getTime())) {
+      return ``
+    }
+    const f = format ?? `YYYY-MM-DD`
+    return f
+      .replace(/YYYY/g, String(d.getUTCFullYear()))
+      .replace(/MM/g, String(d.getUTCMonth() + 1).padStart(2, `0`))
+      .replace(/DD/g, String(d.getUTCDate()).padStart(2, `0`))
+      .replace(/HH/g, String(d.getUTCHours()).padStart(2, `0`))
+      .replace(/mm/g, String(d.getUTCMinutes()).padStart(2, `0`))
+      .replace(/ss/g, String(d.getUTCSeconds()).padStart(2, `0`))
+  },
+  plural: (value, one, many) => (Number(value) === 1 ? (one ?? ``) : (many ?? ``)),
+  default: (value, fallback) => (value === undefined || value === null || value === `` ? (fallback ?? ``) : value)
+}
+
+const warnedUnknownFilters = new Set<string>()
+
+/**
  * Static utility class for parsing and compiling HTML-like templates.
  *
  * @remarks
@@ -613,9 +655,27 @@ export class TemplateEngine {
    */
   static _processScopeVariables(template: string) {
     const toAccess = (key: string) => key.split(`.`).map((k: string) => `?.${k}`).join(``)
+    const toFilterChain = (expr: string): string => {
+      const segments = expr.split(`|`)
+      const path = segments.shift() as string
+      let access = `(data${toAccess(path)})`
+      for (const segment of segments) {
+        const [name = ``, ...args] = segment.split(`:`)
+        if (DEFAULT_FILTERS[name] === undefined) {
+          if (!warnedUnknownFilters.has(name)) {
+            warnedUnknownFilters.add(name)
+            console.warn(`Unknown template filter "${name}" in {{${expr}}} — renders empty`)
+          }
+          return `""`
+        }
+        const argList = args.map((a) => `\`${a}\``).join(`, `)
+        access = `FILTERS.${name}(${access}${argList ? `, ${argList}` : ``})`
+      }
+      return access
+    }
     return template
-      .replace(/\{\{\{([\w.]+)\}\}\}/g, (_, key) => `\${(data${toAccess(key)}) ?? ""}`)
-      .replace(/\{\{([\w.]+)\}\}/g, (_, key) => `\${__esc((data${toAccess(key)}) ?? "")}`)
+      .replace(/\{\{\{([^{}\s]+)\}\}\}/g, (_, expr) => `\${${toFilterChain(expr)} ?? ""}`)
+      .replace(/\{\{([^{}\s]+)\}\}/g, (_, expr) => `\${__esc(${toFilterChain(expr)} ?? "")}`)
   }
 
   /**
@@ -1468,12 +1528,20 @@ export class TemplateEngine {
 
     if (isArray) {
       const functionBody = `return [${processed}]`
-      const fn = new Function(`data`, `__esc`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string) => string[]
-      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData)) as unknown as ITTemplateRenderer<T>
+      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (
+        data: Record<string, unknown> | undefined,
+        esc: (value: unknown) => string,
+        filters: Record<string, ITTemplateFilter>
+      ) => string[]
+      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData, DEFAULT_FILTERS)) as unknown as ITTemplateRenderer<T>
     } else {
       const functionBody = `return ${processed}`
-      const fn = new Function(`data`, `__esc`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string) => string
-      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData)) as unknown as ITTemplateRenderer<T>
+      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (
+        data: Record<string, unknown> | undefined,
+        esc: (value: unknown) => string,
+        filters: Record<string, ITTemplateFilter>
+      ) => string
+      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData, DEFAULT_FILTERS)) as unknown as ITTemplateRenderer<T>
     }
   }
 
