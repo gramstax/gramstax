@@ -15,6 +15,7 @@ import {dirname, join, parse} from "node:path"
 import {fileURLToPath} from "node:url"
 import {autoRetry} from "@grammyjs/auto-retry"
 import {chatMemberFilter, myChatMemberFilter} from "@grammyjs/chat-members"
+import {hydrateFiles} from "@grammyjs/files"
 import {limit} from "@grammyjs/ratelimiter"
 import {apiThrottler} from "@grammyjs/transformer-throttler"
 import {stream} from "@grammyjs/stream"
@@ -471,6 +472,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (params.throttle) {
       this.bot.api.config.use(apiThrottler(params.throttle))
     }
+    this.bot.api.config.use(hydrateFiles(this.bot.token))
     this.bot.catch(this._onCatch)
     this.registerLowPlugin?.()?.forEach((func) => void this.bot.use(func)) // Handle middleware ct
 

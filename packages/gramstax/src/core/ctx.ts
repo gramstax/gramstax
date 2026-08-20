@@ -10,6 +10,7 @@
  */
 
 import {setTimeout} from "node:timers/promises"
+import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"
 import type {InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
@@ -1453,6 +1454,25 @@ export class Ctx extends Context {
       reply_markup: keyboard ?? undefined,
       ...(options ?? {})
     })
+  }
+
+  /**
+   * Downloads the file attached to the current message.
+   *
+   * @remarks
+   * Requires the `@grammyjs/files` plugin (`hydrateFiles` — mounted by
+   * default in Gramstax). Without a path, the file is saved to a
+   * temporary location and its path is returned; with a path, the file
+   * is written there.
+   *
+   * @param path - Optional destination file path.
+   * @returns The saved file path.
+   *
+   * @public
+   */
+  async download(path?: string) {
+    const file = await (this as unknown as FileFlavor<Ctx>).getFile()
+    return file.download(path)
   }
 
   /**
