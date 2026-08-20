@@ -25,11 +25,17 @@ type ITGramstaxParams = {
     };
     rateLimit?: ITRateLimitOptions;
     throttle?: APIThrottlerOptions;
+    sessionLock?: ITSessionLockOptions;
     updateTimeoutMs?: number;
     skipDuplicateUpdate?: boolean;
     webhookSecretToken?: string;
     maxTextLength?: number;
     onUpdateError?: (event: ITUpdateErrorEvent) => void;
+    onTrace?: (span: {
+        name: string;
+        durationMs: number;
+        attributes: Record<string, unknown>;
+    }) => void;
     statusServerPort?: number;
     statusServerHostname?: string;
     pollingMaxRetries?: number;
@@ -39,5 +45,5 @@ type ITGramstaxParams = {
     };
 };
 ```
-**References:** [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)<!-- -->, [ITRateLimitOptions](./gramstax.itratelimitoptions.md)<!-- -->, [ITUpdateErrorEvent](./gramstax.itupdateerrorevent.md)<!-- -->, [ITUpdateSuccessEvent](./gramstax.itupdatesuccessevent.md)
+**References:** [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)<!-- -->, [ITRateLimitOptions](./gramstax.itratelimitoptions.md)<!-- -->, [ITSessionLockOptions](./gramstax.itsessionlockoptions.md)<!-- -->, [ITUpdateErrorEvent](./gramstax.itupdateerrorevent.md)<!-- -->, [ITUpdateSuccessEvent](./gramstax.itupdatesuccessevent.md)
 

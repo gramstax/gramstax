@@ -25,6 +25,8 @@ items:
             uid: gramstax!E2eHelper:class
           - name: Gramstax
             uid: gramstax!Gramstax:class
+          - name: IRedisLockClient
+            uid: gramstax!IRedisLockClient:type
           - name: ITBottomKb
             uid: gramstax!ITBottomKb:type
           - name: ITBottomKbParams
@@ -79,6 +81,8 @@ items:
             uid: gramstax!ITKbDest:type
           - name: ITMediaBlock
             uid: gramstax!ITMediaBlock:type
+          - name: ITMetricsQueueStats
+            uid: gramstax!ITMetricsQueueStats:type
           - name: ITMockTelegramCallbackQueryOptions
             uid: gramstax!ITMockTelegramCallbackQueryOptions:type
           - name: ITMockTelegramChat
@@ -141,6 +145,10 @@ items:
             uid: gramstax!ITRateLimitOptions:type
           - name: ITReplyAction
             uid: gramstax!ITReplyAction:type
+          - name: ITSessionLockOnContended
+            uid: gramstax!ITSessionLockOnContended:type
+          - name: ITSessionLockOptions
+            uid: gramstax!ITSessionLockOptions:type
           - name: ITTemp
             uid: gramstax!ITTemp:type
           - name: ITTemplateOptions
@@ -161,6 +169,8 @@ items:
             uid: gramstax!MockTelegramServer:class
           - name: PageManager
             uid: gramstax!PageManager:class
+          - name: SessionLock
+            uid: gramstax!SessionLock:class
           - name: TemplateEngine
             uid: gramstax!TemplateEngine:class
           - name: TemplateManager

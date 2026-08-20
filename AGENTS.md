@@ -203,6 +203,11 @@ The `{{}}` scope supports post-processing pipes compiled at compile-time into ch
 - **Outgoing throttling (out)** — `throttle: {global?, group?, out?}` param mounts `@grammyjs/transformer-throttler` (`apiThrottler`, Bottleneck buckets) via `api.config.use`, composing with `autoRetry`.
 - **File download** — `@grammyjs/files` (`hydrateFiles`) mounted by default; `ctx.download(path?)` saves the current message's file (temp path when omitted).
 
+## Runtime Features (Tier 3)
+
+- **Prometheus metrics** — `GET /metrics` on the status/webhook server returns Prometheus exposition text (per-listener counters, cumulative totals, latency avg/max, uptime, optional queue stats). Optional `onTrace` param fires an OTel-style span after every routed update.
+- **Distributed session lock (Redis-only)** — `sessionLock` param (default off) acquires an atomic `SET NX PX` lease on the session key via the `@keyv/redis` store's underlying client. The lock is held for the entire update dispatch (handler-level, not per cache op) — actually serializes concurrent updates for the same user across instances. Memory store → auto-disabled with warning. Contention modes: `skip` (drop, counted in `metrics.blocked`), `wait` (retry), `serialize` (queue per key).
+
 ## Telegram Rich HTML
 
 Templates support 54 HTML/tg-\* tags passed through to the message `html` field, in 5 categories:

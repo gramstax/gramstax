@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ITSessionLockOnContended
+uid: gramstax!ITSessionLockOnContended:type
+package: gramstax!
+fullName: ITSessionLockOnContended
+summary: Contention policy when the session lease cannot be acquired.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITSessionLockOnContended = `skip` | `wait` | `serialize`;

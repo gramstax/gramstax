@@ -10,6 +10,7 @@ typeAliases:
   - gramstax!_KbButtonWithPageText:type
   - gramstax!_KbCallbackData:type
   - gramstax!_KbPageLike:type
+  - gramstax!IRedisLockClient:type
   - gramstax!ITBottomKb:type
   - gramstax!ITBottomKbParams:type
   - gramstax!ITBuildDataOptions:type
@@ -37,6 +38,7 @@ typeAliases:
   - gramstax!ITKbCols:type
   - gramstax!ITKbDest:type
   - gramstax!ITMediaBlock:type
+  - gramstax!ITMetricsQueueStats:type
   - gramstax!ITMockTelegramCallbackQueryOptions:type
   - gramstax!ITMockTelegramChat:type
   - gramstax!ITMockTelegramContactOptions:type
@@ -68,6 +70,8 @@ typeAliases:
   - gramstax!ITPageDataBase:type
   - gramstax!ITRateLimitOptions:type
   - gramstax!ITReplyAction:type
+  - gramstax!ITSessionLockOnContended:type
+  - gramstax!ITSessionLockOptions:type
   - gramstax!ITTemp:type
   - gramstax!ITTemplateOptions:type
   - gramstax!ITUpdateErrorEvent:type
@@ -84,6 +88,32 @@ classes:
   - gramstax!MetricsStore:class
   - gramstax!MockTelegramServer:class
   - gramstax!PageManager:class
+  - gramstax!SessionLock:class
   - gramstax!TemplateEngine:class
   - gramstax!TemplateManager:class
   - gramstax!WebhookQueue:class
+functions:
+  - name: metricsToPrometheus(snapshot, queueStats)
+    uid: gramstax!metricsToPrometheus:function(1)
+    package: gramstax!
+    summary: Serializes a [MetricsStore](xref:gramstax!MetricsStore:class) snapshot into Prometheus text format.
+    remarks: >-
+      Emits `# HELP`<!-- -->/`# TYPE` headers, per-listener counters, per-counter cumulative totals, latency avg/max
+      gauges, uptime, and optional queue stats. Zero-valued counters are skipped. Ends with a trailing newline.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        declare function metricsToPrometheus(snapshot: ReturnType<MetricsStore[`snapshot`]>, queueStats?:
+        ITMetricsQueueStats | null): string;
+      parameters:
+        - id: snapshot
+          description: A `MetricsStore` snapshot (see `MetricsStore.snapshot`<!-- -->).
+          type: ReturnType&lt;<xref uid="gramstax!MetricsStore:class" />[`snapshot`]&gt;
+        - id: queueStats
+          description: Optional webhook queue statistics.
+          type: <xref uid="gramstax!ITMetricsQueueStats:type" /> | null
+      return:
+        type: string
+        description: Prometheus exposition text.

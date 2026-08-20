@@ -1,0 +1,103 @@
+### YamlMime:TSType
+name: SessionLock
+uid: gramstax!SessionLock:class
+package: gramstax!
+fullName: SessionLock
+summary: Distributed session lock using atomic Redis leases.
+remarks: >-
+  Acquires a `SET NX PX` lease on the session key (auto-expiring after `leaseMs`<!-- -->) so concurrent updates for the
+  same user/chat are serialized or skipped across instances. Release is atomic via Lua (owned-release).
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(redis, options)
+    uid: gramstax!SessionLock:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(redis, options)
+    summary: Constructs a new instance of the `SessionLock` class
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        constructor(redis: IRedisLockClient, options: {
+                leaseMs: number;
+                onContended: ITSessionLockOnContended;
+            });
+      parameters:
+        - id: redis
+          description: ''
+          type: <xref uid="gramstax!IRedisLockClient:type" />
+        - id: options
+          description: ''
+          type: |-
+            {
+                    leaseMs: number;
+                    onContended: <xref uid="gramstax!ITSessionLockOnContended:type" />;
+                }
+methods:
+  - name: acquire(sessionKey)
+    uid: gramstax!SessionLock#acquire:member(1)
+    package: gramstax!
+    fullName: acquire(sessionKey)
+    summary: Try to acquire a lease for the given session key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'acquire(sessionKey: string): Promise<string | null>;'
+      parameters:
+        - id: sessionKey
+          description: The session key to lock.
+          type: string
+      return:
+        type: Promise&lt;string | null&gt;
+        description: A token string on success, or `null` if the key is already held.
+  - name: release(sessionKey, token)
+    uid: gramstax!SessionLock#release:member(1)
+    package: gramstax!
+    fullName: release(sessionKey, token)
+    summary: Release a lease. Atomic Lua — only deletes when the stored token matches.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'release(sessionKey: string, token: string): Promise<void>;'
+      parameters:
+        - id: sessionKey
+          description: The session key to unlock.
+          type: string
+        - id: token
+          description: The token returned by `acquire`<!-- -->.
+          type: string
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: withLock(sessionKey, fn)
+    uid: gramstax!SessionLock#withLock:member(1)
+    package: gramstax!
+    fullName: withLock(sessionKey, fn)
+    summary: Acquire a lease, run `fn`<!-- -->, and release.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'withLock<T>(sessionKey: string, fn: () => Promise<T>): Promise<T | null>;'
+      parameters:
+        - id: sessionKey
+          description: The session key to lock.
+          type: string
+        - id: fn
+          description: The work to perform under the lock.
+          type: () =&gt; Promise&lt;T&gt;
+      return:
+        type: Promise&lt;T | null&gt;
+        description: >-
+          The return value of `fn`<!-- -->, or `null` when the lock could not be acquired and the contention policy is
+          `skip`<!-- -->.

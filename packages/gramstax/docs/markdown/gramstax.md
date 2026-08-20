@@ -129,6 +129,17 @@ Provides static utilities for loading and managing page modules dynamically.
 </td></tr>
 <tr><td>
 
+[SessionLock](./gramstax.sessionlock.md)
+
+
+</td><td>
+
+Distributed session lock using atomic Redis leases.
+
+
+</td></tr>
+<tr><td>
+
 [TemplateEngine](./gramstax.templateengine.md)
 
 
@@ -157,6 +168,32 @@ Manages template loading, compilation, caching, and hot-reloading from page file
 </td><td>
 
 In-memory bounded queue for webhook updates.
+
+
+</td></tr>
+</tbody></table>
+
+## Functions
+
+<table><thead><tr><th>
+
+Function
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[metricsToPrometheus(snapshot, queueStats)](./gramstax.metricstoprometheus.md)
+
+
+</td><td>
+
+Serializes a [MetricsStore](./gramstax.metricsstore.md) snapshot into Prometheus text format.
 
 
 </td></tr>
@@ -268,6 +305,17 @@ Callback data produced by `Page.data.callbackQueryData(...)`<!-- -->.
 </td><td>
 
 Page class/instance that defines `handleCallbackQueryData`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRedisLockClient](./gramstax.iredislockclient.md)
+
+
+</td><td>
+
+Minimal Redis client surface used by [SessionLock](./gramstax.sessionlock.md)<!-- -->.
 
 
 </td></tr>
@@ -565,6 +613,17 @@ Destination for an inline keyboard button — a page (class or instance) that de
 </td><td>
 
 Represents a media block configuration for Telegram messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITMetricsQueueStats](./gramstax.itmetricsqueuestats.md)
+
+
+</td><td>
+
+Queue statistics accepted by [metricsToPrometheus()](./gramstax.metricstoprometheus.md)<!-- -->.
 
 
 </td></tr>
@@ -906,6 +965,28 @@ Rate-limit configuration for incoming updates (`@grammyjs/ratelimiter`<!-- -->).
 </td><td>
 
 Type of chat action to send.
+
+
+</td></tr>
+<tr><td>
+
+[ITSessionLockOnContended](./gramstax.itsessionlockoncontended.md)
+
+
+</td><td>
+
+Contention policy when the session lease cannot be acquired.
+
+
+</td></tr>
+<tr><td>
+
+[ITSessionLockOptions](./gramstax.itsessionlockoptions.md)
+
+
+</td><td>
+
+Configuration for the distributed session lock.
 
 
 </td></tr>

@@ -49,7 +49,7 @@ Barrel (`src/index.ts`) re-exports all public symbols. No default exports. Add n
 - **TemplateEngine** (`template/engine.ts`) — template parser/compiler/validator for Telegram Rich HTML + PAGE blocks.
 - **TemplateManager** (`template/manager.ts`) — template file watcher, loader, compiler integration.
 - **PageManager** (`page/manager.ts`) — auto-discovers page modules; loads first named export (no default exports).
-- **TemplateConfig** — `ITGramstaxParams` (not `GramstaxConfig`). Includes `token`, `deploy`, `log`, `botConfig`, `webhookQueue`, `cacheSession`, `cacheKeyboard`, `templateManager`, `optionsPage`, `rateLimit`, `throttle`.
+- **TemplateConfig** — `ITGramstaxParams` (not `GramstaxConfig`). Includes `token`, `deploy`, `log`, `botConfig`, `webhookQueue`, `cacheSession`, `cacheKeyboard`, `templateManager`, `optionsPage`, `rateLimit`, `throttle`, `sessionLock`, `onTrace`.
 
 ## Patterns
 

@@ -33864,6 +33864,50 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IRedisLockClient:type",
+          "docComment": "/**\n * Minimal Redis client surface used by {@link SessionLock}.\n *\n * @remarks\n *\n * Structurally compatible with the official `@redis/client` (`RedisClientType`) that backs the `@keyv/redis` store — only `set` (with `NX`/`PX`) and `eval` are required. Keeping a minimal structural type decouples the lock from concrete Redis client versions.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRedisLockClient = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    set(key: string, value: string, options?: {\n        PX?: number;\n        NX?: boolean;\n    }): "
+            },
+            {
+              "kind": "Reference",
+              "text": "Promise",
+              "canonicalReference": "!Promise:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<string | null>;\n    eval(script: string, options: {\n        keys: string[];\n        arguments: string[];\n    }): "
+            },
+            {
+              "kind": "Reference",
+              "text": "Promise",
+              "canonicalReference": "!Promise:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<unknown>;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRedisLockClient",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 6
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITBottomKb:type",
           "docComment": "/**\n * Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to `page.data.intentText` automatically.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -34792,6 +34836,15 @@
             },
             {
               "kind": "Content",
+              "text": ";\n    sessionLock?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITSessionLockOptions",
+              "canonicalReference": "gramstax!ITSessionLockOptions:type"
+            },
+            {
+              "kind": "Content",
               "text": ";\n    updateTimeoutMs?: number;\n    skipDuplicateUpdate?: boolean;\n    webhookSecretToken?: string;\n    maxTextLength?: number;\n    onUpdateError?: (event: "
             },
             {
@@ -34801,7 +34854,16 @@
             },
             {
               "kind": "Content",
-              "text": ") => void;\n    statusServerPort?: number;\n    statusServerHostname?: string;\n    pollingMaxRetries?: number;\n    onUpdate?: (event: "
+              "text": ") => void;\n    onTrace?: (span: {\n        name: string;\n        durationMs: number;\n        attributes: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, unknown>;\n    }) => void;\n    statusServerPort?: number;\n    statusServerHostname?: string;\n    pollingMaxRetries?: number;\n    onUpdate?: (event: "
             },
             {
               "kind": "Reference",
@@ -34822,7 +34884,7 @@
           "name": "ITGramstaxParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 24
+            "endIndex": 28
           }
         },
         {
@@ -35071,6 +35133,32 @@
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 4
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMetricsQueueStats:type",
+          "docComment": "/**\n * Queue statistics accepted by {@link metricsToPrometheus}.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMetricsQueueStats = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    length?: number;\n    maxSize?: number;\n    waitingEnqueue?: number;\n    waitingDequeue?: number;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMetricsQueueStats",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
           }
         },
         {
@@ -36313,6 +36401,76 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITSessionLockOnContended:type",
+          "docComment": "/**\n * Contention policy when the session lease cannot be acquired.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITSessionLockOnContended = "
+            },
+            {
+              "kind": "Content",
+              "text": "`skip` | `wait` | `serialize`"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITSessionLockOnContended",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITSessionLockOptions:type",
+          "docComment": "/**\n * Configuration for the distributed session lock.\n *\n * @remarks\n *\n * Redis-only: the lock uses atomic `SET NX PX` leases on the session key so concurrent updates for the same user/chat are serialized or skipped across instances. When the bot's cache is NOT Redis-backed, the feature is auto-disabled with a warning (single-instance deployments do not need it).\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITSessionLockOptions = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    enabled?: boolean;\n    leaseMs?: number;\n    onContended?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITSessionLockOnContended",
+              "canonicalReference": "gramstax!ITSessionLockOnContended:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    key?: (ctx: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Ctx",
+              "canonicalReference": "gramstax!Ctx:class"
+            },
+            {
+              "kind": "Content",
+              "text": ") => string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITSessionLockOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 6
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITTemp:type",
           "docComment": "/**\n * Temporary state for flow page\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -37315,6 +37473,86 @@
             }
           ],
           "implementsTokenRanges": []
+        },
+        {
+          "kind": "Function",
+          "canonicalReference": "gramstax!metricsToPrometheus:function(1)",
+          "docComment": "/**\n * Serializes a {@link MetricsStore} snapshot into Prometheus text format.\n *\n * @remarks\n *\n * Emits `# HELP`/`# TYPE` headers, per-listener counters, per-counter cumulative totals, latency avg/max gauges, uptime, and optional queue stats. Zero-valued counters are skipped. Ends with a trailing newline.\n *\n * @param snapshot - A `MetricsStore` snapshot (see `MetricsStore.snapshot`).\n *\n * @param queueStats - Optional webhook queue statistics.\n *\n * @returns Prometheus exposition text.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare function metricsToPrometheus(snapshot: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReturnType",
+              "canonicalReference": "!ReturnType:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "MetricsStore",
+              "canonicalReference": "gramstax!MetricsStore:class"
+            },
+            {
+              "kind": "Content",
+              "text": "[`snapshot`]>"
+            },
+            {
+              "kind": "Content",
+              "text": ", queueStats?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMetricsQueueStats",
+              "canonicalReference": "gramstax!ITMetricsQueueStats:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 9,
+            "endIndex": 10
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "snapshot",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "isOptional": false
+            },
+            {
+              "parameterName": "queueStats",
+              "parameterTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 8
+              },
+              "isOptional": true
+            }
+          ],
+          "name": "metricsToPrometheus"
         },
         {
           "kind": "Class",
@@ -39103,6 +39341,296 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "getFileSync"
+            }
+          ],
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "gramstax!SessionLock:class",
+          "docComment": "/**\n * Distributed session lock using atomic Redis leases.\n *\n * @remarks\n *\n * Acquires a `SET NX PX` lease on the session key (auto-expiring after `leaseMs`) so concurrent updates for the same user/chat are serialized or skipped across instances. Release is atomic via Lua (owned-release).\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare class SessionLock "
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "SessionLock",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Constructor",
+              "canonicalReference": "gramstax!SessionLock:constructor(1)",
+              "docComment": "/**\n * Constructs a new instance of the `SessionLock` class\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor(redis: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IRedisLockClient",
+                  "canonicalReference": "gramstax!IRedisLockClient:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        leaseMs: number;\n        onContended: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITSessionLockOnContended",
+                  "canonicalReference": "gramstax!ITSessionLockOnContended:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ");"
+                }
+              ],
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "redis",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 6
+                  },
+                  "isOptional": false
+                }
+              ]
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!SessionLock#acquire:member(1)",
+              "docComment": "/**\n * Try to acquire a lease for the given session key.\n *\n * @param sessionKey - The session key to lock.\n *\n * @returns A token string on success, or `null` if the key is already held.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "acquire(sessionKey: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "sessionKey",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "acquire"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!SessionLock#release:member(1)",
+              "docComment": "/**\n * Release a lease. Atomic Lua — only deletes when the stored token matches.\n *\n * @param sessionKey - The session key to unlock.\n *\n * @param token - The token returned by `acquire`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "release(sessionKey: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", token: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "sessionKey",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "token",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "release"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!SessionLock#withLock:member(1)",
+              "docComment": "/**\n * Acquire a lease, run `fn`, and release.\n *\n * @param sessionKey - The session key to lock.\n *\n * @param fn - The work to perform under the lock.\n *\n * @returns The return value of `fn`, or `null` when the lock could not be acquired and the contention policy is `skip`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "withLock<T>(sessionKey: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", fn: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "() => "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<T>"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<T | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "typeParameters": [
+                {
+                  "typeParameterName": "T",
+                  "constraintTokenRange": {
+                    "startIndex": 0,
+                    "endIndex": 0
+                  },
+                  "defaultTypeTokenRange": {
+                    "startIndex": 0,
+                    "endIndex": 0
+                  }
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "sessionKey",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "fn",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 6
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "withLock"
             }
           ],
           "implementsTokenRanges": []

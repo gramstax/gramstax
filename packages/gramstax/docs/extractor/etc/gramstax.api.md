@@ -1382,6 +1382,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // @internal
     _onStartupError(error: unknown): void;
     // @internal
+    _onTrace?: (span: {
+        name: string;
+        durationMs: number;
+        attributes: Record<string, unknown>;
+    }) => void;
+    // @internal
     _onUpdate?: (event: ITUpdateSuccessEvent) => void;
     // @internal
     _onUpdateError?: (event: ITUpdateErrorEvent) => void;
@@ -1951,6 +1957,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // (undocumented)
     _seenUpdatesMax: number;
     // @internal
+    _sessionLock?: SessionLock;
+    // @internal
+    _sessionLockKey?: (ctx: Ctx) => string;
+    // @internal
     _skipDuplicateUpdate: boolean;
     // @internal
     _startPollingLoop(opts: Record<string, unknown>, attempt: number): Promise<void>;
@@ -1994,6 +2004,18 @@ export interface _InlineKbWithCtx extends InlineKeyboard {
 }
 
 export { InputMediaBuilder }
+
+// @public
+export type IRedisLockClient = {
+    set(key: string, value: string, options?: {
+        PX?: number;
+        NX?: boolean;
+    }): Promise<string | null>;
+    eval(script: string, options: {
+        keys: string[];
+        arguments: string[];
+    }): Promise<unknown>;
+};
 
 // @public
 export type ITBottomKb = _BottomKbWithCtx;
@@ -2148,11 +2170,17 @@ export type ITGramstaxParams = {
     };
     rateLimit?: ITRateLimitOptions;
     throttle?: APIThrottlerOptions;
+    sessionLock?: ITSessionLockOptions;
     updateTimeoutMs?: number;
     skipDuplicateUpdate?: boolean;
     webhookSecretToken?: string;
     maxTextLength?: number;
     onUpdateError?: (event: ITUpdateErrorEvent) => void;
+    onTrace?: (span: {
+        name: string;
+        durationMs: number;
+        attributes: Record<string, unknown>;
+    }) => void;
     statusServerPort?: number;
     statusServerHostname?: string;
     pollingMaxRetries?: number;
@@ -2200,6 +2228,14 @@ export type ITMediaBlock = {
     first_name?: string;
     last_name?: string;
     vcard?: string;
+};
+
+// @public
+export type ITMetricsQueueStats = {
+    length?: number;
+    maxSize?: number;
+    waitingEnqueue?: number;
+    waitingDequeue?: number;
 };
 
 // @public
@@ -2361,6 +2397,17 @@ export type ITRateLimitOptions = {
 export type ITReplyAction = Parameters<Context[`replyWithChatAction`]>[0];
 
 // @public
+export type ITSessionLockOnContended = `skip` | `wait` | `serialize`;
+
+// @public
+export type ITSessionLockOptions = {
+    enabled?: boolean;
+    leaseMs?: number;
+    onContended?: ITSessionLockOnContended;
+    key?: (ctx: Ctx) => string;
+};
+
+// @public
 export type ITTemp = {
     isAnswer: boolean;
     session: Partial<ITCacheRpc>;
@@ -2488,6 +2535,9 @@ export class MetricsStore {
 }
 
 // @public
+export function metricsToPrometheus(snapshot: ReturnType<MetricsStore[`snapshot`]>, queueStats?: ITMetricsQueueStats | null): string;
+
+// @public
 export class MockTelegramServer {
     constructor(options?: ITMockTelegramServerOptions);
     apiRoot: string;
@@ -2535,6 +2585,17 @@ export class PageManager {
     }[];
     static getFilePath(): string;
     static getFileSync(path?: string, positionModule?: number): typeof Ctx;
+}
+
+// @public
+export class SessionLock {
+    constructor(redis: IRedisLockClient, options: {
+        leaseMs: number;
+        onContended: ITSessionLockOnContended;
+    });
+    acquire(sessionKey: string): Promise<string | null>;
+    release(sessionKey: string, token: string): Promise<void>;
+    withLock<T>(sessionKey: string, fn: () => Promise<T>): Promise<T | null>;
 }
 
 export { StreamFlavor }
@@ -2906,10 +2967,10 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:1411:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:3334:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
-// dist/src/index.d.ts:12779:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:13723:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:1437:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:4169:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
+// dist/src/index.d.ts:12952:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:13897:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
