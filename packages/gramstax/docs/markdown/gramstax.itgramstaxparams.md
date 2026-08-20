@@ -23,6 +23,8 @@ type ITGramstaxParams = {
         maxRetryAttempts?: number;
         retryOnInternalServerErrors?: boolean;
     };
+    rateLimit?: ITRateLimitOptions;
+    throttle?: APIThrottlerOptions;
     updateTimeoutMs?: number;
     skipDuplicateUpdate?: boolean;
     webhookSecretToken?: string;
@@ -37,5 +39,5 @@ type ITGramstaxParams = {
     };
 };
 ```
-**References:** [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)<!-- -->, [ITUpdateErrorEvent](./gramstax.itupdateerrorevent.md)<!-- -->, [ITUpdateSuccessEvent](./gramstax.itupdatesuccessevent.md)
+**References:** [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)<!-- -->, [ITRateLimitOptions](./gramstax.itratelimitoptions.md)<!-- -->, [ITUpdateErrorEvent](./gramstax.itupdateerrorevent.md)<!-- -->, [ITUpdateSuccessEvent](./gramstax.itupdatesuccessevent.md)
 

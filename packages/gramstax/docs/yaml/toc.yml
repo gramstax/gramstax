@@ -137,6 +137,8 @@ items:
             uid: gramstax!ITPageData:type
           - name: ITPageDataBase
             uid: gramstax!ITPageDataBase:type
+          - name: ITRateLimitOptions
+            uid: gramstax!ITRateLimitOptions:type
           - name: ITReplyAction
             uid: gramstax!ITReplyAction:type
           - name: ITTemp

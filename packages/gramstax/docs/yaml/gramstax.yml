@@ -66,6 +66,7 @@ typeAliases:
   - gramstax!ITOptReplyVoice:type
   - gramstax!ITPageData:type
   - gramstax!ITPageDataBase:type
+  - gramstax!ITRateLimitOptions:type
   - gramstax!ITReplyAction:type
   - gramstax!ITTemp:type
   - gramstax!ITTemplateOptions:type

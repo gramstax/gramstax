@@ -4,6 +4,7 @@
 
 ```ts
 
+import { APIThrottlerOptions } from '@grammyjs/transformer-throttler';
 import { Bot } from 'grammy';
 import { BotConfig } from 'grammy';
 import { BotError } from 'grammy';
@@ -84,6 +85,7 @@ export class Ctx extends Context {
     static data?: ITPageDataBase;
     data: ITPageData;
     get deletedBusinessMessages(): NonNullable<Context[`deletedBusinessMessages`]>;
+    download(path?: string): Promise<string>;
     get editedBusinessMessage(): NonNullable<Context[`editedBusinessMessage`]>;
     get editedChannelPost(): NonNullable<Context[`editedChannelPost`]>;
     get editedMessage(): NonNullable<Context[`editedMessage`]>;
@@ -1355,10 +1357,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         isEdit: boolean;
     }): Promise<void>;
     // @virtual
+    hookKeyGenerator?(ctx: ICtx): string | undefined;
+    // @virtual
     hookNotFoundPage?(ctx: ICtx, data?: {
         listenerName: string;
         isEdit: boolean;
     }): Promise<void>;
+    // @virtual
+    hookRateLimited?(ctx: ICtx): Promise<void>;
     log: LoggingHelper | undefined;
     // @internal
     _maxTextLength: number;
@@ -2140,6 +2146,8 @@ export type ITGramstaxParams = {
         maxRetryAttempts?: number;
         retryOnInternalServerErrors?: boolean;
     };
+    rateLimit?: ITRateLimitOptions;
+    throttle?: APIThrottlerOptions;
     updateTimeoutMs?: number;
     skipDuplicateUpdate?: boolean;
     webhookSecretToken?: string;
@@ -2341,6 +2349,12 @@ export type ITPageDataBase = {
     intentCallbackQueryData: string;
     intentTextMap?: Record<string, string>;
     intentCommandTextMap?: Record<string, string>;
+};
+
+// @public
+export type ITRateLimitOptions = {
+    windowMs: number;
+    max: number;
 };
 
 // @public
@@ -2892,10 +2906,10 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:1410:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:3333:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
-// dist/src/index.d.ts:12674:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:13618:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:1411:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:3334:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
+// dist/src/index.d.ts:12779:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:13723:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

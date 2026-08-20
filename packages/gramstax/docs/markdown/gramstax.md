@@ -889,6 +889,17 @@ Base page routing data — core properties only, no callbackQueryData.
 </td></tr>
 <tr><td>
 
+[ITRateLimitOptions](./gramstax.itratelimitoptions.md)
+
+
+</td><td>
+
+Rate-limit configuration for incoming updates (`@grammyjs/ratelimiter`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
 [ITReplyAction](./gramstax.itreplyaction.md)
 
 

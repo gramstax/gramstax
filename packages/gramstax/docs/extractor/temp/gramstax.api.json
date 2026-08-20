@@ -2615,6 +2615,59 @@
               "isAbstract": false
             },
             {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#download:member(1)",
+              "docComment": "/**\n * Downloads the file attached to the current message.\n *\n * @remarks\n *\n * Requires the `@grammyjs/files` plugin (`hydrateFiles` — mounted by default in Gramstax). Without a path, the file is saved to a temporary location and its path is returned; with a path, the file is written there.\n *\n * @param path - Optional destination file path.\n *\n * @returns The saved file path.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "download(path?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "path",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "download"
+            },
+            {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#editedBusinessMessage:member",
               "docComment": "/**\n * The full {@link (Ctx:class).editedBusinessMessage} object from Telegram (non-nullable).\n *\n * Alias for `ctx.update.edited_business_message`.\n *\n * @readonly @public\n */\n",
@@ -33297,6 +33350,54 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Gramstax#hookKeyGenerator:member(1)",
+              "docComment": "/**\n * Hook called to produce the per-update rate-limit key.\n *\n * @remarks\n *\n * Optional class override. Default: the sender's user id. Override to group updates differently — e.g. per chat, per session, or a shared global bucket. Must be synchronous (the ratelimiter middleware reads the key before the update is dispatched). The context is a fully constructed page context.\n *\n * @param ctx - The page context instance for the update.\n *\n * @returns The rate-limit key, or `undefined` to fall back to the default.\n *\n * @example\n * ```typescript\n * hookKeyGenerator(ctx: Ctx) {\n *   return `global`\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "hookKeyGenerator?(ctx: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "ICtx"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "ctx",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "hookKeyGenerator"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#hookNotFoundPage:member(1)",
               "docComment": "/**\n * Hook called when no page handler matches the input.\n *\n * @remarks\n *\n * Override this method to send a \"command not found\" message or redirect to a help page.\n *\n * @param ctx - The context instance.\n *\n * @example\n *\n * Simple\n * ```typescript\n * async hookNotFoundPage(ctx: Ctx) {\n *   await new StatusPage(ctx).bnotFound.show()\n * }\n * ```\n *\n * @example\n *\n * Advanced\n * ```typescript\n * async hookNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookNotFoundPage`]>>[1]>) {\n *   await new StatusPage(ctx).bnotFound.show()\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
@@ -33363,6 +33464,59 @@
               "isOptional": true,
               "isAbstract": false,
               "name": "hookNotFoundPage"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Gramstax#hookRateLimited:member(1)",
+              "docComment": "/**\n * Hook called when a user exceeds the configured `rateLimit` window.\n *\n * @remarks\n *\n * Optional class override. Default: no reply (the update is silently ignored). The context is a fully constructed page context, so the override may render a \"please wait\" page via `ctx.render`.\n *\n * @param ctx - The page context instance for the blocked update.\n *\n * @example\n * ```typescript\n * async hookRateLimited(ctx: Ctx) {\n *   await ctx.render(`please-wait`)\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "hookRateLimited?(ctx: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "ICtx"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "ctx",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "hookRateLimited"
             },
             {
               "kind": "Property",
@@ -34620,7 +34774,25 @@
             },
             {
               "kind": "Content",
-              "text": ";\n    autoRetry?: boolean;\n    autoRetryOptions?: {\n        maxRetryAttempts?: number;\n        retryOnInternalServerErrors?: boolean;\n    };\n    updateTimeoutMs?: number;\n    skipDuplicateUpdate?: boolean;\n    webhookSecretToken?: string;\n    maxTextLength?: number;\n    onUpdateError?: (event: "
+              "text": ";\n    autoRetry?: boolean;\n    autoRetryOptions?: {\n        maxRetryAttempts?: number;\n        retryOnInternalServerErrors?: boolean;\n    };\n    rateLimit?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITRateLimitOptions",
+              "canonicalReference": "gramstax!ITRateLimitOptions:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    throttle?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "APIThrottlerOptions",
+              "canonicalReference": "@grammyjs/transformer-throttler!APIThrottlerOptions:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    updateTimeoutMs?: number;\n    skipDuplicateUpdate?: boolean;\n    webhookSecretToken?: string;\n    maxTextLength?: number;\n    onUpdateError?: (event: "
             },
             {
               "kind": "Reference",
@@ -34650,7 +34822,7 @@
           "name": "ITGramstaxParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 20
+            "endIndex": 24
           }
         },
         {
@@ -36071,6 +36243,32 @@
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 6
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITRateLimitOptions:type",
+          "docComment": "/**\n * Rate-limit configuration for incoming updates (`@grammyjs/ratelimiter`).\n *\n * @remarks\n *\n * Configuration only — the rate-limit key and the behavior when the limit is exceeded are provided by overriding the {@link Gramstax.hookKeyGenerator} and {@link Gramstax.hookRateLimited} class hooks.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITRateLimitOptions = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    windowMs: number;\n    max: number;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITRateLimitOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
           }
         },
         {

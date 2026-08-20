@@ -186,6 +186,23 @@ Deep per-area guidance lives in child files — read the one matching your task 
 - When multiple `<g-base>` blocks share identical `<g-keyboard>` content, define it once in the default `<g-base>` (no `id`) and omit duplicates in other bases.
 - Reuse the default keyboard by calling the inline/bottom keyboard builder without a `AGBaseId`.
 
+## Template Filter Pipes
+
+The `{{}}` scope supports post-processing pipes compiled at compile-time into chained calls (zero per-render parsing; unknown filters render empty + one-time `console.warn` — whitelist only, no arbitrary code execution):
+
+- `{{name|upper}}`, `{{name|lower}}`
+- `{{price|number:2}}` — decimal places (default 0)
+- `{{createdAt|date:YYYY-MM-DD}}` — UTC tokens `YYYY MM DD HH mm ss`
+- `{{count|plural:item:items}}` — `1` → first arg, else second
+- `{{name|upper|default:N/A}}` — chained left-to-right; `default` applies when the value is undefined/null/empty
+- Works with dotted paths (`{{user.name|upper}}`) and the raw scope (`{{{var|filter}}}`, no HTML escaping); escaping still applies after filters in `{{}}`.
+
+## Runtime Features (Tier 2)
+
+- **Rate limiting (in)** — `rateLimit: {windowMs, max}` param mounts `@grammyjs/ratelimiter` (`timeFrame` in ms). Behavior via class hooks: `hookRateLimited(ctx)` (default: update silently dropped; receives a full page context, `ctx.render` works) and `hookKeyGenerator(ctx)` (default: sender user id; must be synchronous).
+- **Outgoing throttling (out)** — `throttle: {global?, group?, out?}` param mounts `@grammyjs/transformer-throttler` (`apiThrottler`, Bottleneck buckets) via `api.config.use`, composing with `autoRetry`.
+- **File download** — `@grammyjs/files` (`hydrateFiles`) mounted by default; `ctx.download(path?)` saves the current message's file (temp path when omitted).
+
 ## Telegram Rich HTML
 
 Templates support 54 HTML/tg-\* tags passed through to the message `html` field, in 5 categories:

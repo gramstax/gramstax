@@ -721,6 +721,35 @@ methods:
       return:
         type: Promise&lt;void&gt;
         description: ''
+  - name: hookKeyGenerator(ctx)
+    uid: gramstax!Gramstax#hookKeyGenerator:member(1)
+    package: gramstax!
+    fullName: hookKeyGenerator(ctx)
+    summary: Hook called to produce the per-update rate-limit key.
+    remarks: >-
+      Optional class override. Default: the sender's user id. Override to group updates differently — e.g. per chat, per
+      session, or a shared global bucket. Must be synchronous (the ratelimiter middleware reads the key before the
+      update is dispatched). The context is a fully constructed page context.
+    example:
+      - |-
+        ```typescript
+        hookKeyGenerator(ctx: Ctx) {
+          return `global`
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookKeyGenerator?(ctx: ICtx): string | undefined;
+      parameters:
+        - id: ctx
+          description: The page context instance for the update.
+          type: ICtx
+      return:
+        type: string | undefined
+        description: The rate-limit key, or `undefined` to fall back to the default.
   - name: hookNotFoundPage(ctx, data)
     uid: gramstax!Gramstax#hookNotFoundPage:member(1)
     package: gramstax!
@@ -764,6 +793,34 @@ methods:
                     listenerName: string;
                     isEdit: boolean;
                 }
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: hookRateLimited(ctx)
+    uid: gramstax!Gramstax#hookRateLimited:member(1)
+    package: gramstax!
+    fullName: hookRateLimited(ctx)
+    summary: Hook called when a user exceeds the configured `rateLimit` window.
+    remarks: >-
+      Optional class override. Default: no reply (the update is silently ignored). The context is a fully constructed
+      page context, so the override may render a "please wait" page via `ctx.render`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        async hookRateLimited(ctx: Ctx) {
+          await ctx.render(`please-wait`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookRateLimited?(ctx: ICtx): Promise<void>;
+      parameters:
+        - id: ctx
+          description: The page context instance for the blocked update.
+          type: ICtx
       return:
         type: Promise&lt;void&gt;
         description: ''

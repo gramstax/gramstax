@@ -1282,6 +1282,20 @@ Clears session data for the current user.
 </td></tr>
 <tr><td>
 
+[download(path)](./gramstax.ctx.download.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Downloads the file attached to the current message.
+
+
+</td></tr>
+<tr><td>
+
 [getArgs(str, mtd, positionStart)](./gramstax.ctx.getargs.md)
 
 

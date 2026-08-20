@@ -1137,6 +1137,26 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: True if the session was cleared, or null on error.
+  - name: download(path)
+    uid: gramstax!Ctx#download:member(1)
+    package: gramstax!
+    fullName: download(path)
+    summary: Downloads the file attached to the current message.
+    remarks: >-
+      Requires the `@grammyjs/files` plugin (`hydrateFiles` — mounted by default in Gramstax). Without a path, the file
+      is saved to a temporary location and its path is returned; with a path, the file is written there.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'download(path?: string): Promise<string>;'
+      parameters:
+        - id: path
+          description: Optional destination file path.
+          type: string
+      return:
+        type: Promise&lt;string&gt;
+        description: The saved file path.
   - name: getArgs(str, mtd, positionStart)
     uid: gramstax!Ctx#getArgs:member(1)
     package: gramstax!

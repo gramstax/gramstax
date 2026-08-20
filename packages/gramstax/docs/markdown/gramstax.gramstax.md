@@ -526,6 +526,20 @@ _(Optional)_ Hook called when a page handler throws an error.
 </td></tr>
 <tr><td>
 
+[hookKeyGenerator(ctx)?](./gramstax.gramstax.hookkeygenerator.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Hook called to produce the per-update rate-limit key.
+
+
+</td></tr>
+<tr><td>
+
 [hookNotFoundPage(ctx, data)?](./gramstax.gramstax.hooknotfoundpage.md)
 
 
@@ -535,6 +549,20 @@ _(Optional)_ Hook called when a page handler throws an error.
 </td><td>
 
 _(Optional)_ Hook called when no page handler matches the input.
+
+
+</td></tr>
+<tr><td>
+
+[hookRateLimited(ctx)?](./gramstax.gramstax.hookratelimited.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Hook called when a user exceeds the configured `rateLimit` window.
 
 
 </td></tr>
