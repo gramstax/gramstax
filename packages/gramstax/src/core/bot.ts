@@ -19,12 +19,14 @@ import {hydrateFiles} from "@grammyjs/files"
 import {limit} from "@grammyjs/ratelimiter"
 import {apiThrottler} from "@grammyjs/transformer-throttler"
 import {stream} from "@grammyjs/stream"
+import KeyvRedis from "@keyv/redis"
 import {API_CONSTANTS, Bot, type BotConfig, type BotError, type Context, type Middleware, webhookCallback} from "grammy"
 import type {BotCommandScope, LanguageCode, Update, UserFromGetMe} from "grammy/types"
 import {CacheExternal, type ITCacheRpc} from "~/cache/external"
 import {type LoggingHelper, log} from "~/helpers/log"
-import {MetricsStore} from "~/helpers/metrics"
+import {MetricsStore, metricsToPrometheus} from "~/helpers/metrics"
 import {PageManager} from "~/page/manager"
+import {type IRedisLockClient, SessionLock} from "~/core/session-lock"
 import {TemplateManager} from "~/template/manager"
 import type {ITGramstaxParams, ITUpdateErrorEvent, ITUpdateSuccessEvent, ITWebhookQueueConfig} from "~/types/t.bot"
 import type {ITCt, ITCtMiddleware} from "~/types/t.ctx"
@@ -280,12 +282,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   _skipDuplicateUpdate = false
   /** Webhook secret token checked on POST requests. @internal */
   _webhookSecretToken?: string
+  /** Distributed session lock (opt-in via `sessionLock` param). @internal */
+  _sessionLock?: SessionLock
+  /** Custom session lock key factory (defaults to `ctx.sessionKey()`). @internal */
+  _sessionLockKey?: (ctx: Ctx) => string
   /** Max accepted `message.text`/`caption` length (0 = unlimited). @internal */
   _maxTextLength = 0
   /** Structured error hook (log sink / alerting). @internal */
   _onUpdateError?: (event: ITUpdateErrorEvent) => void
   /** Structured success hook (audit trail). @internal */
   _onUpdate?: (event: ITUpdateSuccessEvent) => void
+  /** Optional OTel-style trace export hook (fire-and-forget). @internal */
+  _onTrace?: (span: {name: string; durationMs: number; attributes: Record<string, unknown>}) => void
   /** Max consecutive polling failures before giving up (-1 = infinite). @internal */
   _pollingMaxRetries = 5
   /** Hostname for the status/health server. @internal */
@@ -442,9 +450,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this._updateTimeoutMs = params.updateTimeoutMs ?? 30_000
     this._skipDuplicateUpdate = params.skipDuplicateUpdate === true
     this._webhookSecretToken = params.webhookSecretToken
+    if (params.sessionLock?.enabled !== false && params.sessionLock) {
+      const store = (this.cacheSession as unknown as {store: unknown}).store
+      if (store instanceof KeyvRedis) {
+        this._sessionLock = new SessionLock(store.client as unknown as IRedisLockClient, {
+          leaseMs: params.sessionLock.leaseMs ?? 5000,
+          onContended: params.sessionLock.onContended ?? `skip`
+        })
+        this._sessionLockKey = params.sessionLock.key
+      } else {
+        this.log?.info?.(`sessionLock requires a Redis cache backend (got memory store) — session lock disabled`)
+      }
+    }
     this._maxTextLength = params.maxTextLength ?? 0
     this._onUpdateError = params.onUpdateError
     this._onUpdate = params.onUpdate
+    this._onTrace = params.onTrace
     this._statusServerPort = params.statusServerPort
     this._statusServerHostname = params.statusServerHostname ?? `127.0.0.1`
     this._pollingMaxRetries = params.pollingMaxRetries ?? 5
@@ -732,6 +753,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             }
             if (pathname === `/stats`) {
               return new Response(JSON.stringify(this.metrics.snapshot()), {status: 200, headers: {"Content-Type": `application/json`}})
+            }
+            if (pathname === `/metrics`) {
+              return new Response(metricsToPrometheus(this.metrics.snapshot(), this.webhookQueueInstance?.getStats?.() ?? null), {
+                status: 200,
+                headers: {"Content-Type": `text/plain; version=0.0.4`}
+              })
             }
             return new Response(`Not found`, {status: 404})
           }
@@ -2395,7 +2422,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const startedAt = Date.now()
     const updateId = ct.update?.update_id
     const traceId = updateId !== undefined ? `u${updateId}` : `c${++this._traceSeq}`
-    let state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` = `no-match`
     const isEdit = listenerName === `callbackquerydata`
 
     // Idempotency: skip updates already processed (webhook retries).
@@ -2422,6 +2448,29 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
 
     const ctx = this.createCtx(ct)
+    if (!this._sessionLock) {
+      await this._handleCtx(ctx, listenerName, shouldCheckNotFound)
+      return
+    }
+    // Updates without a user/chat owner have no session to protect — skip locking.
+    if (ctx.from?.id === undefined && ctx.chat?.id === undefined) {
+      await this._handleCtx(ctx, listenerName, shouldCheckNotFound)
+      return
+    }
+    const lockKey = this._sessionLockKey ? this._sessionLockKey(ctx) : ctx.sessionKey()
+    const handled = await this._sessionLock.withLock(lockKey, () => this._handleCtx(ctx, listenerName, shouldCheckNotFound))
+    if (handled === null) {
+      this.metrics.counts.blocked += 1
+    }
+  }
+
+  private async _handleCtx(ctx: ICtx, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean): Promise<void> {
+    const startedAt = Date.now()
+    const updateId = ctx.update?.update_id
+    const traceId = updateId !== undefined ? `u${updateId}` : `c${++this._traceSeq}`
+    let state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` = `no-match`
+    const isEdit = listenerName === `callbackquerydata`
+
     const before = await this.hookBeforeRoute?.(ctx, {listenerName, isEdit})
     if (before === false) {
       this.metrics.counts.blocked += 1
@@ -2466,6 +2515,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     await this.hookAfterRoute?.(ctx, {listenerName, state, isEdit})
     const durationMs = Date.now() - startedAt
     this.metrics.recordUpdate(listenerName, durationMs)
+    if (this._onTrace) {
+      try {
+        this._onTrace({name: listenerName, durationMs, attributes: {state, isEdit}})
+      } catch (error) {
+        this.log?.error?.(`onTrace hook failed: ${String(error)}`)
+      }
+    }
     if (state !== `error` && state !== `timeout`) {
       try {
         this._onUpdate?.({traceId, listenerName, state, durationMs, isEdit})

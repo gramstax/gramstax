@@ -82,3 +82,57 @@ export class MetricsStore {
     }
   }
 }
+
+/**
+ * Queue statistics accepted by {@link metricsToPrometheus}.
+ *
+ * @public
+ */
+export type ITMetricsQueueStats = {
+  length?: number
+  maxSize?: number
+  waitingEnqueue?: number
+  waitingDequeue?: number
+}
+
+/**
+ * Serializes a {@link MetricsStore} snapshot into Prometheus text format.
+ *
+ * @remarks
+ * Emits `# HELP`/`# TYPE` headers, per-listener counters, per-counter
+ * cumulative totals, latency avg/max gauges, uptime, and optional queue
+ * stats. Zero-valued counters are skipped. Ends with a trailing newline.
+ *
+ * @param snapshot - A `MetricsStore` snapshot (see `MetricsStore.snapshot`).
+ * @param queueStats - Optional webhook queue statistics.
+ * @returns Prometheus exposition text.
+ *
+ * @public
+ */
+export function metricsToPrometheus(snapshot: ReturnType<MetricsStore[`snapshot`]>, queueStats?: ITMetricsQueueStats | null): string {
+  const lines: string[] = []
+  lines.push(`# HELP gramstax_updates_total Total updates processed`)
+  lines.push(`# TYPE gramstax_updates_total counter`)
+  for (const [listener, count] of Object.entries(snapshot.byListener)) {
+    lines.push(`gramstax_updates_total{listener="${listener}"} ${count}`)
+  }
+  for (const [key, value] of Object.entries(snapshot.counts)) {
+    if (value > 0) {
+      lines.push(`gramstax_updates_${key}_total ${value}`)
+    }
+  }
+  if (snapshot.latency.count > 0) {
+    lines.push(`# HELP gramstax_update_duration_ms Update handler duration in milliseconds`)
+    lines.push(`# TYPE gramstax_update_duration_ms gauge`)
+    lines.push(`gramstax_update_duration_ms{quantile="avg"} ${snapshot.latency.avgMs}`)
+    lines.push(`gramstax_update_duration_ms{quantile="max"} ${snapshot.latency.maxMs}`)
+  }
+  lines.push(`gramstax_uptime_seconds ${snapshot.uptimeSeconds}`)
+  if (queueStats) {
+    if (queueStats.length !== undefined) lines.push(`gramstax_queue_length ${queueStats.length}`)
+    if (queueStats.maxSize !== undefined) lines.push(`gramstax_queue_max_size ${queueStats.maxSize}`)
+    if (queueStats.waitingEnqueue !== undefined) lines.push(`gramstax_queue_waiting_enqueue ${queueStats.waitingEnqueue}`)
+    if (queueStats.waitingDequeue !== undefined) lines.push(`gramstax_queue_waiting_dequeue ${queueStats.waitingDequeue}`)
+  }
+  return `${lines.join(`\n`)}\n`
+}

@@ -2,6 +2,7 @@ import type {BotConfig, Context, FilterQuery} from "grammy"
 import type {APIThrottlerOptions} from "@grammyjs/transformer-throttler"
 import type {CacheExternal} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
+import type {ITSessionLockOptions} from "~/core/session-lock"
 import type {LoggingHelper} from "~/helpers/log"
 import type {TemplateManager} from "~/template/manager"
 
@@ -326,6 +327,19 @@ export type ITGramstaxParams = {
   throttle?: APIThrottlerOptions
 
   /**
+   * Distributed session lock for multi-instance deployments.
+   *
+   * @remarks
+   * When provided (and not `{enabled: false}`), `getSession`/`setSession`/
+   * `clearSession` acquire a short lease on the session key so concurrent
+   * updates for the same user/chat are serialized or skipped across
+   * instances. Lease auto-expires (`leaseMs`, default 5000).
+   *
+   * @defaultValue `undefined` (no session locking)
+   */
+  sessionLock?: ITSessionLockOptions
+
+  /**
    * Max time (milliseconds) allowed for a single update handler before the
    * update is treated as timed out (watchdog — the page keeps running but the
    * failure is recorded via `onUpdateError` and metrics).
@@ -364,6 +378,18 @@ export type ITGramstaxParams = {
    * (errors, timeouts, blocked). Use for log sinks / alerting (Sentry, etc.).
    */
   onUpdateError?: (event: ITUpdateErrorEvent) => void
+
+  /**
+   * Optional OTel-style trace export hook.
+   *
+   * @remarks
+   * Called after every routed update with the listener name, duration, and
+   * outcome. Fire-and-forget — the hook is not awaited. Use to export traces
+   * to your observability backend.
+   *
+   * @defaultValue `undefined` (no trace export)
+   */
+  onTrace?: (span: {name: string; durationMs: number; attributes: Record<string, unknown>}) => void
 
   /**
    * Optional HTTP port that serves `GET /health` (liveness) and `GET /stats`
