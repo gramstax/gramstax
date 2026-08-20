@@ -16,6 +16,7 @@ import {fileURLToPath} from "node:url"
 import {autoRetry} from "@grammyjs/auto-retry"
 import {chatMemberFilter, myChatMemberFilter} from "@grammyjs/chat-members"
 import {limit} from "@grammyjs/ratelimiter"
+import {apiThrottler} from "@grammyjs/transformer-throttler"
 import {stream} from "@grammyjs/stream"
 import {API_CONSTANTS, Bot, type BotConfig, type BotError, type Context, type Middleware, webhookCallback} from "grammy"
 import type {BotCommandScope, LanguageCode, Update, UserFromGetMe} from "grammy/types"
@@ -466,6 +467,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           }
         })
       )
+    }
+    if (params.throttle) {
+      this.bot.api.config.use(apiThrottler(params.throttle))
     }
     this.bot.catch(this._onCatch)
     this.registerLowPlugin?.()?.forEach((func) => void this.bot.use(func)) // Handle middleware ct

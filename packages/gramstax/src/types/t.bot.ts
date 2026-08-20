@@ -1,4 +1,5 @@
 import type {BotConfig, Context, FilterQuery} from "grammy"
+import type {APIThrottlerOptions} from "@grammyjs/transformer-throttler"
 import type {CacheExternal} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
 import type {LoggingHelper} from "~/helpers/log"
@@ -310,6 +311,19 @@ export type ITGramstaxParams = {
    * @defaultValue `undefined` (no rate limiting)
    */
   rateLimit?: ITRateLimitOptions
+
+  /**
+   * Outgoing API-call throttling via `@grammyjs/transformer-throttler`.
+   *
+   * @remarks
+   * When provided, the `apiThrottler` transformer is mounted on the bot's
+   * API client (composing with `autoRetry`), throttling ALL outgoing
+   * Telegram API calls with the given Bottleneck buckets (`global`,
+   * `group`, `out`).
+   *
+   * @defaultValue `undefined` (no outgoing throttling)
+   */
+  throttle?: APIThrottlerOptions
 
   /**
    * Max time (milliseconds) allowed for a single update handler before the
