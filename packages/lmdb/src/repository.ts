@@ -33,6 +33,45 @@ import type {LmdbTransaction} from "./transaction"
 import type {ICodec, ILmdbKey, IRangeOptions} from "./types"
 
 /**
+ * Linear-time iterative glob match used by {@link LmdbRepository.like}.
+ *
+ * @remarks
+ * Semantics: `*` = any sequence (incl. empty), `?` = exactly one char,
+ * every other character literal. Replaces anchored-RegExp compilation —
+ * chained/separated `.*` quantifiers backtrack exponentially on
+ * non-matching keys (CWE-1333; measured >14s on a 40-char key while still
+ * inside MAX_WILDCARDS=10). A single backtrack point per star bounds work
+ * at O(len(key) * len(pattern)).
+ *
+ * @param key - Key to test.
+ * @param pattern - Glob pattern using `*` and `?`.
+ * @returns Whether the entire key matches the pattern.
+ */
+function globMatch(key: string, pattern: string): boolean {
+  let k = 0
+  let p = 0
+  let starP = -1
+  let starK = 0
+  while (k < key.length) {
+    if (p < pattern.length && (pattern[p] === `?` || pattern[p] === key[k])) {
+      k++
+      p++
+    } else if (p < pattern.length && pattern[p] === `*`) {
+      starP = p
+      p++
+      starK = k
+    } else if (starP !== -1) {
+      p = starP + 1
+      k = ++starK
+    } else {
+      return false
+    }
+  }
+  while (p < pattern.length && pattern[p] === `*`) p++
+  return p === pattern.length
+}
+
+/**
  * Base class for typed repositories over LMDB.
  *
  * @typeParam T - Value type stored in this repository.
@@ -102,12 +141,6 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
 
   /** @internal Pre-resolved decode closure (plan 007 P4). */
   protected readonly _decode: (raw: unknown) => T
-
-  /** @internal Cache of compiled LIKE regexes — avoids O(N) recompile per call. */
-  protected readonly _patternCache = new Map<string, RegExp>()
-
-  /** @internal FIFO cap for {@link _patternCache} (plan 007 L4). */
-  private static readonly _PATTERN_CACHE_MAX = 250
 
   /** @internal Cached key-type probe result — set after the first non-empty probe (plan 007 P1). */
   private _keyType: `string` | `buffer` | `number` | `empty` | undefined
@@ -604,47 +637,6 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   // ──────────────────────────────────────────────────────────────────
 
   /**
-   * Compile a LIKE-style glob pattern to a regex.
-   *
-   * @remarks
-   * Pattern syntax (KV-friendly):
-   * - `*` matches any sequence of characters (SQL `%`)
-   * - `?` matches any single character (SQL `_`)
-   * - All other characters are literal; regex metacharacters are auto-escaped.
-   *
-   * @param pattern - Glob pattern using `*` and `?` wildcards.
-   * @returns Anchored regex matching the entire key string.
-   * @internal
-   */
-  private _patternToRegex(pattern: string): RegExp {
-    const cached = this._patternCache.get(pattern)
-    if (cached) return cached
-    const specials = new Set([`.`, `+`, `^`, `$`, `{`, `}`, `(`, `)`, `|`, `[`, `]`, `\\`])
-    let body = `^`
-    for (const ch of pattern) {
-      if (ch === `*`) {
-        body += `.*`
-      } else if (ch === `?`) {
-        body += `.`
-      } else if (specials.has(ch)) {
-        body += `\\${ch}`
-      } else {
-        body += ch
-      }
-    }
-    body += `$`
-    const regex = new RegExp(body)
-    // FIFO eviction: cap the cache so a long-lived repo fed many distinct
-    // user-supplied patterns cannot grow the Map without bound (plan 007 L4).
-    if (this._patternCache.size >= LmdbRepository._PATTERN_CACHE_MAX) {
-      const oldest = this._patternCache.keys().next().value
-      if (oldest !== undefined) this._patternCache.delete(oldest)
-    }
-    this._patternCache.set(pattern, regex)
-    return regex
-  }
-
-  /**
    * Extract a leading literal prefix from a LIKE pattern.
    *
    * @remarks
@@ -802,9 +794,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
         ).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
       }
     }
-    const regex = this._patternToRegex(pattern)
     // Bound the scan by a literal prefix anchor so we don't full-scan the
-    // sub-DB; the regex still filters on top, so results are unchanged.
+    // sub-DB; the glob filter still applies on top, so results are unchanged.
     const inferred = stringsOnly ? this._inferRangeFromPrefix(pattern) : null
     const rangeOpts: IRangeOptions = {...options}
     if (inferred) {
@@ -813,7 +804,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
         rangeOpts.end = inferred.end
       }
     }
-    return Promise.resolve(this.env.getRange(rangeOpts).filter(({key}: {key: Key}) => regex.test(String(key))).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
+    return Promise.resolve(this.env.getRange(rangeOpts).filter(({key}: {key: Key}) => globMatch(String(key), pattern)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
   }
 
   /**

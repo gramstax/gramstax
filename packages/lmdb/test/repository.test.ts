@@ -6,13 +6,12 @@
  * access through {@link LmdbTransaction}.
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
-import {createTestDir} from "./test-helpers"
 import {LmdbCodec} from "../src/codec"
 import {LmdbEnv} from "../src/env"
 import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbKeyNotFoundError, LmdbLikePatternError, LmdbReadOnlyError} from "../src/errors"
 import {LmdbRepository} from "../src/repository"
 import {LmdbTransaction} from "../src/transaction"
-import {rmWithRetry} from "./test-helpers"
+import {createTestDir, rmWithRetry} from "./test-helpers"
 
 interface User {
   id: string
@@ -767,17 +766,6 @@ describe(`LmdbRepository.countByPrefix async contract`, () => {
     const count = users.countByPrefix(`user:`)
     expect(count instanceof Promise).toBe(true)
     expect(await count).toBe(1)
-  })
-})
-
-describe(`LmdbRepository pattern cache eviction`, () => {
-  it(`does not grow beyond the cap after many distinct patterns`, async () => {
-    await users.set(`u1`, {id: `u1`, name: `A`, age: 1})
-    for (let i = 0; i < 300; i++) {
-      await users.like(`p${i}:*`, {limit: 1})
-    }
-    const cache = (users as unknown as {_patternCache: Map<string, unknown>})._patternCache
-    expect(cache.size).toBeLessThanOrEqual(250)
   })
 })
 
