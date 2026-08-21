@@ -17,11 +17,11 @@
  * @public
  */
 
-import type {Database, DatabaseOptions, GetOptions, Key, PutOptions, RangeIterable, RangeOptions, RootDatabase, RootDatabaseOptionsWithPath, Transaction, TransactionFlags} from "lmdb"
-import {ABORT, open} from "lmdb"
-import * as lmdbModule from "lmdb"
 import {basename, extname} from "node:path"
-import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError, LmdbTransactionError} from "./errors"
+import type {Database, DatabaseOptions, GetOptions, Key, PutOptions, RangeIterable, RangeOptions, RootDatabase, RootDatabaseOptionsWithPath, Transaction, TransactionFlags} from "lmdb"
+import * as lmdbModule from "lmdb"
+import {ABORT, open} from "lmdb"
+import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError, LmdbTransactionError} from "./errors"
 import type {LmdbRepository} from "./repository"
 import {LmdbTransaction} from "./transaction"
 import type {ILmdbEncoding, ILmdbEnvOptions, ILmdbEnvState, ILmdbKey} from "./types"
@@ -30,6 +30,24 @@ import type {ILmdbEncoding, ILmdbEnvOptions, ILmdbEnvState, ILmdbKey} from "./ty
 // absent from its d.ts). It never deletes entries — this wrapper purges its
 // own keys on close (plan 007 L2).
 const allDbsFromLmdb = (lmdbModule as unknown as {allDbs?: Map<string, unknown>}).allDbs ?? new Map<string, unknown>()
+
+/**
+ * A single schema migration step.
+ *
+ * @public
+ */
+export interface LmdbMigration {
+  /** Monotonic version number — must be unique across the array passed to {@link LmdbEnv.migrate}. */
+  version: number
+  /** Human-readable name for logging / history. */
+  name: string
+  /**
+   * Migration logic — receives the owning {@link LmdbEnv} so it can use
+   * registered repositories. The runner executes each `up` inside its own
+   * writer transaction and bumps the stored version only on success.
+   */
+  up: (env: LmdbEnv) => Promise<void> | void
+}
 
 type LmdbRepositoryInstance = LmdbRepository<unknown, ILmdbKey>
 type LmdbRepositoryClass<T extends LmdbRepositoryInstance = LmdbRepositoryInstance> = new (rootEnv: IEnvForRepo, dbName?: string) => T
@@ -93,6 +111,9 @@ export class LmdbEnv {
   /** Default LMDB value encoding for all sub-DBs (mirrors {@link ILmdbEnvOptions.encoding}). */
   readonly encoding: ILmdbEncoding | undefined
 
+  /** Whether record versioning is enabled (mirrors {@link ILmdbEnvOptions.useVersions}). */
+  readonly useVersions: boolean
+
   /** @internal Sub-DB options extracted from env options — forwarded to every openDB call. */
   private readonly _dbOpts: DatabaseOptions
 
@@ -142,9 +163,9 @@ export class LmdbEnv {
    */
   constructor(options: ILmdbEnvOptions) {
     const opts: RootDatabaseOptionsWithPath = {
-      ...options,
+      ...(options as unknown as RootDatabaseOptionsWithPath),
       sharedStructuresKey: Symbol.for(`global-structure`)
-    }
+    } as unknown as RootDatabaseOptionsWithPath
     // Per-instance root store. Each env calls open() independently so
     // sub-database handle caches are naturally isolated across envs.
     this._root = open(opts) as unknown as LmdbRootStore
@@ -152,18 +173,19 @@ export class LmdbEnv {
     this.maxDbs = options.maxDbs ?? 10
     this.readOnly = options.readOnly ?? false
     this.encoding = options.encoding
+    this.useVersions = options.useVersions ?? false
 
     // Extract sub-DB options that lmdb does NOT inherit from the root env.
     // These must be forwarded explicitly to every openDB() call.
     this._dbOpts = {
       ...(options.compression !== undefined && {compression: options.compression}),
       ...(options.cache !== undefined && {cache: options.cache}),
-      ...(options.encoding !== undefined && {encoding: options.encoding}),
+      ...(options.encoding !== undefined && {encoding: options.encoding as unknown as DatabaseOptions[`encoding`]}),
       ...(options.useVersions !== undefined && {useVersions: options.useVersions}),
       ...(options.keyEncoding !== undefined && {keyEncoding: options.keyEncoding}),
       ...(options.dupSort !== undefined && {dupSort: options.dupSort}),
       ...(options.strictAsyncOrder !== undefined && {strictAsyncOrder: options.strictAsyncOrder})
-    }
+    } as DatabaseOptions
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -284,20 +306,21 @@ export class LmdbEnv {
    *
    * @internal
    */
-  getDb(name: string, overrideEncoding?: ILmdbEncoding): Database<unknown, Key> {
+  getDb(name: string, overrides?: ILmdbEncoding | DatabaseOptions): Database<unknown, Key> {
     this._assertOpen()
-    // Cache per (name, encoding): repeated openDB() calls would otherwise
-    // create a fresh LMDBStore wrapper each time, accumulating entries in
-    // lmdb-js's module-level allDbs map (plan 007 L3).
-    const cacheKey = `${name}\u0000${overrideEncoding ?? this.encoding ?? ``}`
+    const overridesObj: DatabaseOptions = (typeof overrides === `string` ? {encoding: overrides} : ((overrides ?? {}) as DatabaseOptions)) as DatabaseOptions
+    const encoding = (overridesObj.encoding as ILmdbEncoding | undefined) ?? this.encoding
+    const dupSort = overridesObj.dupSort as boolean | undefined
+    // Cache per (name, encoding, dupSort)
+    const cacheKey = `${name}\u0000${encoding ?? ``}\u0000${dupSort ? `dupSort` : ``}`
     const cached = this._subDbCache.get(cacheKey)
     if (cached) return cached
     // Forward all env-level sub-DB options. lmdb does NOT inherit
     // compression/cache/encoding/etc. from the root env — each openDB()
     // must receive them explicitly for production correctness.
-    const encoding = overrideEncoding ?? this.encoding
-    const openOpts: DatabaseOptions = {...this._dbOpts}
-    if (encoding) openOpts.encoding = encoding
+    const openOpts: DatabaseOptions = {...this._dbOpts, ...(overridesObj as DatabaseOptions)}
+    if (encoding) (openOpts as unknown as {encoding: ILmdbEncoding}).encoding = encoding
+    if (dupSort !== undefined) openOpts.dupSort = dupSort
     const db = this._root.openDB(name, openOpts)
     this._subDbCache.set(cacheKey, db)
     this._subDbNames.set(name, db)
@@ -1055,6 +1078,83 @@ export class LmdbEnv {
     return this._root.sync(callback)
   }
 
+  // ──────────────────────────────────────────────────────────────────
+  // Migrations
+  // ──────────────────────────────────────────────────────────────────
+
+  private static readonly _MIGRATIONS_DB = `__migrations`
+  private static readonly _VERSION_KEY = `__version`
+
+  /**
+   * Current schema version as recorded by {@link migrate}.
+   *
+   * @returns The highest applied migration version, or `0` if none have run.
+   *
+   * @public
+   */
+  getMigrationVersion(): number {
+    this._assertOpen()
+    const db = this.getDb(LmdbEnv._MIGRATIONS_DB)
+    const v = db.get(LmdbEnv._VERSION_KEY) as number | undefined
+    return typeof v === `number` ? v : 0
+  }
+
+  /**
+   * Apply pending schema migrations.
+   *
+   * @remarks
+   * Each migration's `up` runs inside its own writer transaction and the
+   * stored version is bumped only on success. Concurrent callers are
+   * serialized via LMDB's single-writer lock — the second caller re-checks
+   * the version inside the transaction and skips already-applied steps.
+   *
+   * @param migrations - Array of migrations with unique monotonic `version`.
+   * @returns The list of actually applied migrations and the current version.
+   *
+   * @throws {@link LmdbError} for duplicate versions.
+   *
+   * @public
+   */
+  async migrate(migrations: LmdbMigration[]): Promise<{applied: LmdbMigration[]; currentVersion: number}> {
+    this._assertOpen()
+    if (!Array.isArray(migrations)) throw new LmdbError(`migrations must be an array`)
+    const seen = new Set<number>()
+    for (const m of migrations) {
+      if (typeof m.version !== `number` || !Number.isInteger(m.version)) {
+        throw new LmdbError(`migration version must be an integer: ${String(m.version)}`)
+      }
+      if (seen.has(m.version)) throw new LmdbError(`duplicate migration version ${m.version}`)
+      seen.add(m.version)
+    }
+    const sorted = [...migrations].sort((a, b) => a.version - b.version)
+    const applied: LmdbMigration[] = []
+    for (const m of sorted) {
+      if (this.getMigrationVersion() >= m.version) continue
+      try {
+        await this.transaction(async () => {
+          const meta = this.getDb(LmdbEnv._MIGRATIONS_DB)
+          const insideRaw = meta.get(LmdbEnv._VERSION_KEY) as number | undefined
+          const inside = typeof insideRaw === `number` ? insideRaw : 0
+          if (inside >= m.version) return
+          await m.up(this)
+          const putSync = (meta as unknown as {putSync: (k: Key, v: unknown) => void}).putSync
+          if (typeof putSync === `function` && this._txInProgress) {
+            putSync.call(meta, LmdbEnv._VERSION_KEY, m.version)
+          } else {
+            await (meta as unknown as {put: (k: Key, v: unknown) => Promise<void>}).put(LmdbEnv._VERSION_KEY, m.version)
+          }
+        })
+      } catch (err) {
+        if (err instanceof LmdbTransactionError && (err as unknown as {cause?: unknown}).cause) {
+          throw (err as unknown as {cause: unknown}).cause
+        }
+        throw err
+      }
+      if (this.getMigrationVersion() >= m.version) applied.push(m)
+    }
+    return {applied, currentVersion: this.getMigrationVersion()}
+  }
+
   /**
    * Check whether the database is operational (open).
    * @public
@@ -1099,4 +1199,11 @@ export type IEnvForRepo = Pick<
   | `getRepository`
   | `assertOpen`
   | `getWriteTxnId`
+  | `getBinary`
+  | `getBinaryFast`
+  | `getValues`
+  | `getValuesCount`
+  | `ifVersion`
+  | `ifNoExists`
+  | `useVersions`
 >

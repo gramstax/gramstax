@@ -1,0 +1,51 @@
+/**
+ * F4 — CBOR encoding support.
+ *
+ * Upstream lmdb@3.5.6 supports `encoding: 'cbor'` via optional `cbor-x`.
+ * Wrapper's ILmdbEncoding previously omitted it.
+ */
+import {afterEach, beforeEach, describe, expect, it} from "bun:test"
+import {LmdbEnv} from "../src/env"
+import {LmdbRepository} from "../src/repository"
+import {createTestDir, rmWithRetry} from "./test-helpers"
+
+interface Doc {
+  id: string
+  n: number
+  flag: boolean
+}
+
+class DocRepo extends LmdbRepository<Doc, string> {
+  static dbName = `cbor-doc-test`
+}
+
+let tmpDir: string
+let env: LmdbEnv
+let docs: DocRepo
+
+beforeEach(async () => {
+  tmpDir = createTestDir(`lmdb-cbor-test-`)
+  // This line is the type-level RED: 'cbor' must be in ILmdbEncoding
+  env = new LmdbEnv({path: tmpDir, maxDbs: 5, encoding: `cbor`})
+  docs = env.register(DocRepo)
+})
+
+afterEach(async () => {
+  await env.close()
+  await rmWithRetry(tmpDir)
+})
+
+describe(`LmdbRepository cbor encoding`, () => {
+  it(`stores and retrieves a document with cbor encoding`, async () => {
+    const doc: Doc = {id: `d1`, n: 42, flag: true}
+    await docs.set(`d1`, doc)
+    expect(await docs.get(`d1`)).toEqual(doc)
+  })
+
+  it(`handles nested structures with cbor`, async () => {
+    const doc: Doc = {id: `d2`, n: 0, flag: false}
+    await docs.set(`d2`, doc)
+    await docs.set(`d2`, {...doc, n: 99})
+    expect((await docs.get(`d2`))!.n).toBe(99)
+  })
+})

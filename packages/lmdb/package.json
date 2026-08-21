@@ -54,10 +54,17 @@
   ],
   "devDependencies": {
     "@types/bun": "latest",
+    "cbor-x": "^1.6.5",
     "tsup": "^8.5.1"
   },
   "peerDependencies": {
+    "cbor-x": "^1.6.5",
     "typescript": "^6.0.3"
+  },
+  "peerDependenciesMeta": {
+    "cbor-x": {
+      "optional": true
+    }
   },
   "dependencies": {
     "lmdb": "^3.5.6"

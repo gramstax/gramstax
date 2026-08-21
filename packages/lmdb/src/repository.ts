@@ -26,9 +26,10 @@
  */
 
 import type {GetOptions, Key, RangeOptions} from "lmdb"
+import {asBinary} from "lmdb"
 import {resolveCodec} from "./codec"
 import type {IEnvForRepo} from "./env"
-import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbKeyNotFoundError, LmdbLikePatternError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbTransactionDoneError, LmdbTransactionError} from "./errors"
+import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbKeyNotFoundError, LmdbLikePatternError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbTransactionDoneError, LmdbTransactionError, LmdbUseVersionsRequiredError} from "./errors"
 import type {LmdbTransaction} from "./transaction"
 import type {ICodec, ILmdbKey, IRangeOptions} from "./types"
 
@@ -91,6 +92,20 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   static dbName: string
+
+  /**
+   * Whether this repository's sub-DB allows duplicate values per key.
+   *
+   * @remarks
+   * Enables {@link addValue} / {@link getValues} / {@link removeValue} /
+   * {@link getValuesCount}. The underlying LMDB sub-DB is opened with
+   * `dupSort: true`. Env-level `dupSort` must NOT be used — it would make
+   * the root DB dupSort and LMDB refuses to open named DBs after that.
+   *
+   * @virtual
+   * @public
+   */
+  static dupSort?: boolean
 
   /**
    * Optional custom codec for this repository.
@@ -162,7 +177,15 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
     }
     // Build a combined object: data operations go to the sub-DB handle,
     // root-env methods (transaction, getRepository, readOnly) come from rootEnv.
-    const subDb = rootEnv.getDb(resolved)
+    const ctor = this.constructor as typeof LmdbRepository & {dupSort?: boolean; encoding?: string}
+    const dbOverrides: Record<string, unknown> =
+      ctor.dupSort !== undefined || (ctor as unknown as {encoding?: unknown}).encoding !== undefined
+        ? {
+            ...(ctor.dupSort !== undefined ? {dupSort: ctor.dupSort} : {}),
+            ...((ctor as unknown as {encoding?: unknown}).encoding !== undefined ? {encoding: (ctor as unknown as {encoding: string}).encoding} : {})
+          }
+        : {}
+    const subDb = Object.keys(dbOverrides).length ? rootEnv.getDb(resolved, dbOverrides as never) : rootEnv.getDb(resolved)
     const combined = Object.create(subDb) as IEnvForRepo
     combined.transaction = rootEnv.transaction.bind(rootEnv) as IEnvForRepo[`transaction`]
     combined.readTransaction = rootEnv.readTransaction.bind(rootEnv) as IEnvForRepo[`readTransaction`]
@@ -1007,5 +1030,310 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
       this.set(key, next)
       return next
     })
+  }
+
+  /**
+   * Store a value only if the key is absent.
+   *
+   * @remarks
+   * **SQL equivalent**: `INSERT ... ON CONFLICT DO NOTHING`.
+   *
+   * Atomic via LMDB's native `ifNoExists` — safe against concurrent writers
+   * in other processes targeting the same key.
+   *
+   * @param key - Key to write under.
+   * @param value - Value to serialize and store.
+   * @returns `true` if the value was written, `false` if the key already existed.
+   *
+   * @throws {@link LmdbReadOnlyError} if the env is read-only.
+   *
+   * @public
+   */
+  setIfNotExists(key: K, value: T): Promise<boolean> {
+    const closed = this._rejectClosed<boolean>()
+    if (closed) return closed
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`setIfNotExists`))
+    const encoded = this._codec ? this._codec.serialize(value) : value
+    return this.env.ifNoExists(key, () => {
+      void this.env.put(key, encoded)
+    })
+  }
+
+  /**
+   * Overwrite a value only if the record's current version matches.
+   *
+   * @remarks
+   * **SQL equivalent**: optimistic `UPDATE ... WHERE key = ? AND version = ?`.
+   *
+   * Requires the env to be opened with `useVersions: true`. Atomic via LMDB's
+   * native `ifVersion` — the version check and write commit together, so two
+   * processes racing on the same key cannot both succeed.
+   *
+   * @param key - Key to overwrite.
+   * @param expectedVersion - Version the record must currently have. A missing
+   * key never matches, so CAS cannot resurrect deleted records.
+   * @param value - New value to store.
+   * @param nextVersion - Version to assign after the write
+   * (defaults to `expectedVersion + 1`).
+   * @returns `true` if the write happened, `false` if the version did not match.
+   *
+   * @throws {@link LmdbUseVersionsRequiredError} if the env lacks `useVersions`.
+   * @throws {@link LmdbReadOnlyError} if the env is read-only.
+   *
+   * @public
+   */
+  compareAndSet(key: K, expectedVersion: number, value: T, nextVersion?: number): Promise<boolean> {
+    const closed = this._rejectClosed<boolean>()
+    if (closed) return closed
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`compareAndSet`))
+    if (!this.env.useVersions) return Promise.reject(new LmdbUseVersionsRequiredError(`compareAndSet`))
+    const encoded = this._codec ? this._codec.serialize(value) : value
+    return this.env.ifVersion(key, expectedVersion, () => {
+      void this.env.put(key, encoded, nextVersion ?? expectedVersion + 1)
+    })
+  }
+
+  /**
+   * Atomically increment a numeric value.
+   *
+   * @remarks
+   * **SQL equivalent**: `UPDATE ... SET value = COALESCE(value, 0) + {delta} WHERE key = ?`
+   * wrapped in a transaction.
+   *
+   * Reads and writes inside a single LMDB writer transaction, so concurrent
+   * `increment()` calls on the same key — even from different processes —
+   * cannot interleave and lose updates.
+   *
+   * @param key - Key holding the counter. Absent keys are treated as `0`.
+   * @param delta - Amount to add (defaults to `1`). Negative values decrement.
+   * @returns The value after the increment.
+   *
+   * @throws TypeError if the existing value is not a number.
+   * @throws {@link LmdbReadOnlyError} if the env is read-only.
+   *
+   * @public
+   */
+  increment(key: K, delta = 1): Promise<number> {
+    const closed = this._rejectClosed<number>()
+    if (closed) return closed
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`increment`))
+    if (typeof delta !== `number` || !Number.isFinite(delta)) {
+      return Promise.reject(new TypeError(`delta must be a finite number`))
+    }
+    return this.env.transaction(() => {
+      const current = this.get(key) as unknown as number | undefined
+      if (current !== undefined && typeof current !== `number`) {
+        throw new TypeError(`Cannot increment non-numeric value for key '${String(key)}'`)
+      }
+      const next = (current ?? 0) + delta
+      this.set(key, next as unknown as T)
+      return next
+    })
+  }
+
+  /**
+   * Add a duplicate value for a key (dupSort databases only).
+   *
+   * @remarks
+   * Requires the repository to be opened with `dupSort: true`
+   * (`static dupSort = true` on the class). Thin delegation to the native
+   * `getValues`/`put` dupSort API — values are ordered.
+   *
+   * @param key - Key under which to store the duplicate.
+   * @param value - Duplicate value to add.
+   *
+   * @throws {@link LmdbReadOnlyError} if the env is read-only.
+   *
+   * @public
+   */
+  addValue(key: K, value: T): Promise<void> {
+    const closed = this._rejectClosed<void>()
+    if (closed) return closed
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`addValue`))
+    const encoded = this._codec ? this._codec.serialize(value) : value
+    return this.env.put(key, encoded) as unknown as Promise<void>
+  }
+
+  /**
+   * Retrieve all duplicate values for a key (dupSort databases only).
+   *
+   * @param key - Key whose values to retrieve.
+   * @returns Array of values (decoded via codec) — empty if the key has none.
+   *
+   * @public
+   */
+  getValues(key: K): Promise<T[]> {
+    const closed = this._rejectClosed<T[]>()
+    if (closed) return closed
+    return Promise.resolve(this.env.getValues(key).asArray as Promise<unknown[]>).then((raws) => (raws as unknown[]).map((raw) => this._decode(raw)))
+  }
+
+  /**
+   * Count duplicate values for a key (dupSort databases only).
+   *
+   * @param key - Key to count.
+   * @returns Number of values — `0` if the key is absent.
+   *
+   * @public
+   */
+  getValuesCount(key: K): number {
+    this._assertOpen()
+    return this.env.getValuesCount(key)
+  }
+
+  /**
+   * Remove a specific duplicate value for a key (dupSort databases only).
+   *
+   * @param key - Key holding the duplicate.
+   * @param value - Exact duplicate value to remove.
+   * @returns `true` if the entry existed and was removed, `false` otherwise.
+   *
+   * @throws {@link LmdbReadOnlyError} if the env is read-only.
+   *
+   * @public
+   */
+  removeValue(key: K, value: T): Promise<boolean> {
+    const closed = this._rejectClosed<boolean>()
+    if (closed) return closed
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`removeValue`))
+    const encoded = this._codec ? this._codec.serialize(value) : value
+    // LMDB's native remove(key, value) can return true even when the
+    // value is absent (dupSort bookkeeping). Verify existence first so the
+    // boolean contract stays precise.
+    return this.getValues(key).then((values) => {
+      const exists = values.some((v) => {
+        if (v === value) return true
+        // Fallback for object values where reference equality fails
+        try {
+          return JSON.stringify(v) === JSON.stringify(value)
+        } catch {
+          return false
+        }
+      })
+      if (!exists) return false
+      return (this.env as unknown as {remove(key: Key, value: unknown): Promise<boolean>}).remove(key, encoded)
+    })
+  }
+
+  /**
+   * Store raw binary data, bypassing codec and encoding.
+   *
+   * @remarks
+   * Uses LMDB's `asBinary` wrapper — the bytes are stored verbatim without
+   * msgpack/JSON serialization. Suitable for blobs, media, or pre-encoded
+   * payloads.
+   *
+   * @param key - Key to write under.
+   * @param value - Raw bytes to store.
+   *
+   * @throws {@link LmdbReadOnlyError} if the env is read-only.
+   *
+   * @public
+   */
+  putBinary(key: K, value: Buffer | Uint8Array): Promise<void> {
+    const closed = this._rejectClosed<void>()
+    if (closed) return closed
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`putBinary`))
+    return this.env.put(key, asBinary(value as unknown as Buffer)) as unknown as Promise<void>
+  }
+
+  /**
+   * Retrieve raw binary data.
+   *
+   * @param key - Key to look up.
+   * @returns Buffer with the raw bytes, or `undefined` if the key is absent.
+   *
+   * @public
+   */
+  getBinary(key: K): Buffer | undefined {
+    this._assertOpen()
+    return this.env.getBinary(key)
+  }
+
+  /**
+   * Retrieve raw binary data via a reusable buffer (faster).
+   *
+   * @remarks
+   * The returned buffer is only valid until the next `get` operation.
+   * Copy with `Buffer.from()` if you need it later.
+   *
+   * @param key - Key to look up.
+   * @returns Buffer with the raw bytes, or `undefined` if the key is absent.
+   *
+   * @public
+   */
+  getBinaryFast(key: K): Buffer | undefined {
+    this._assertOpen()
+    return this.env.getBinaryFast(key)
+  }
+
+  /**
+   * Store multiple entries in a single batched transaction.
+   *
+   * @remarks
+   * Chunked into transactions of `chunkSize` (default 500) to avoid LMDB
+   * instruction buffer overflow on very large batches.
+   *
+   * @param entries - Array of `[key, value]` tuples.
+   * @param chunkSize - Max entries per transaction chunk.
+   *
+   * @public
+   */
+  async setMany(entries: Array<[K, T]>, chunkSize = 500): Promise<void> {
+    const closed = this._rejectClosed<void>()
+    if (closed) return closed
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`setMany`))
+    if (entries.length === 0) return
+    for (let i = 0; i < entries.length; i += chunkSize) {
+      const chunk = entries.slice(i, i + chunkSize)
+      await this.env.transaction(() => {
+        for (const [k, v] of chunk) {
+          const encoded = this._codec ? this._codec.serialize(v) : (v as unknown)
+          void this.env.put(k as unknown as Key, encoded as unknown)
+        }
+      })
+    }
+  }
+
+  /**
+   * Export all entries as JSON Lines.
+   *
+   * @remarks
+   * Each line is `JSON.stringify([key, value])` — a text-format complement
+   * to LMDB's native binary `backup()`. Snapshot-consistent via `entries()`.
+   *
+   * @returns A string where each line is a JSON array of `[key, value]`.
+   *
+   * @public
+   */
+  async exportJSONL(): Promise<string> {
+    const closed = this._rejectClosed<string>()
+    if (closed) return closed
+    const entries = await this.entries()
+    return entries.map(([k, v]) => JSON.stringify([k, v])).join(`\n`)
+  }
+
+  /**
+   * Import entries from a JSON Lines string.
+   *
+   * @param jsonl - String produced by {@link exportJSONL} (or compatible).
+   * @returns Number of entries imported.
+   *
+   * @public
+   */
+  async importJSONL(jsonl: string): Promise<number> {
+    const closed = this._rejectClosed<number>()
+    if (closed) return closed
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`importJSONL`))
+    const trimmed = jsonl.trim()
+    if (!trimmed) return 0
+    const entries: Array<[K, T]> = trimmed
+      .split(`\n`)
+      .map((line: string) => line.trim())
+      .filter((line: string) => line.length > 0)
+      .map((line: string) => JSON.parse(line) as [K, T])
+    if (entries.length === 0) return 0
+    await this.setMany(entries)
+    return entries.length
   }
 }

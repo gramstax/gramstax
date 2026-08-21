@@ -194,3 +194,16 @@ export class LmdbLikePatternError extends LmdbError {
     this.name = `LmdbLikePatternError`
   }
 }
+
+/**
+ * Thrown when a version-dependent operation (e.g. {@link LmdbRepository.compareAndSet})
+ * is called on an env opened without `useVersions: true`.
+ *
+ * @public
+ */
+export class LmdbUseVersionsRequiredError extends LmdbError {
+  constructor(operation: string) {
+    super(`Cannot perform '${operation}' because the env was not opened with useVersions: true.`)
+    this.name = `LmdbUseVersionsRequiredError`
+  }
+}

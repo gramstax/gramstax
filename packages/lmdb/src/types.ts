@@ -9,18 +9,20 @@
  * @public
  */
 
-import type {Transaction} from "lmdb"
+import type {Key, Transaction} from "lmdb"
 
 /**
  * Anything that can be used as a key in LMDB.
  *
  * @remarks
- * LMDB natively accepts strings, numbers, Buffers, and binary Buffers.
- * Numbers are encoded as little-endian for ordering stability.
+ * LMDB natively accepts strings, numbers, Buffers, and arrays of primitives
+ * (ordered-binary composite keys). The array form enables multi-tenant
+ * / namespaced keys like `["tenant-a", 42]` that sort lexicographically.
+ * Re-exported from `lmdb` for convenience.
  *
  * @public
  */
-export type ILmdbKey = string | number | Buffer
+export type ILmdbKey = Key
 
 /**
  * Options accepted by {@link LmdbEnv}.
@@ -385,7 +387,7 @@ export interface ICodec<T> {
  *
  * @public
  */
-export type ILmdbEncoding = `msgpack` | `json` | `string` | `binary` | `ordered-binary`
+export type ILmdbEncoding = `msgpack` | `json` | `cbor` | `string` | `binary` | `ordered-binary`
 
 /**
  * Lifecycle state of an {@link LmdbEnv}.
