@@ -99,8 +99,8 @@ export class LmdbEnv {
   /** @internal Sub-DB handle cache (L3 fix — one LMDBStore wrapper per name+encoding). */
   private readonly _subDbCache = new Map<string, Database<unknown, Key>>()
 
-  /** @internal Sub-DB names opened via this env — used to purge lmdb-js `allDbs` on close. */
-  private readonly _subDbNames = new Set<string>()
+  /** @internal Sub-DB handles opened via this env — used to purge this env's entries from lmdb-js `allDbs` on close. */
+  private readonly _subDbNames = new Map<string, Database<unknown, Key>>()
 
   /** @internal Commit-event listeners: user callback → registered wrapper (plan 007 L5). */
   private readonly _commitListeners = new Map<`beforecommit` | `aftercommit`, Map<(event: unknown) => void, (event: unknown) => void>>()
@@ -246,9 +246,17 @@ export class LmdbEnv {
   /** @internal Remove handles for this env from lmdb-js's module-level `allDbs` map. */
   private _purgeAllDbs(): void {
     const key = this._lmdbKeyName()
-    allDbsFromLmdb.delete(key)
-    for (const dbName of this._subDbNames) {
-      allDbsFromLmdb.delete(`${key}-${dbName}`)
+    // Identity check: only delete if the entry belongs to THIS env, so
+    // closing one env does not corrupt another env with the same basename
+    // (C1 — cross-env allDbs collision fix).
+    if (allDbsFromLmdb.get(key) === this._root) {
+      allDbsFromLmdb.delete(key)
+    }
+    for (const [dbName, db] of this._subDbNames) {
+      const entryKey = `${key}-${dbName}`
+      if (allDbsFromLmdb.get(entryKey) === db) {
+        allDbsFromLmdb.delete(entryKey)
+      }
     }
   }
 
@@ -292,7 +300,7 @@ export class LmdbEnv {
     if (encoding) openOpts.encoding = encoding
     const db = this._root.openDB(name, openOpts)
     this._subDbCache.set(cacheKey, db)
-    this._subDbNames.add(name)
+    this._subDbNames.set(name, db)
     return db
   }
 

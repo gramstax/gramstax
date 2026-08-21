@@ -270,6 +270,32 @@ describe(`LmdbEnv.close resource cleanup`, () => {
     expect(after.length).toBe(0)
   })
 
+  it(`C1: close() of one env does not remove another env's allDbs entries with the same basename`, async () => {
+    const dirA = createTestDir(`lmdb-env-cross-a-`)
+    const dirB = createTestDir(`lmdb-env-cross-b-`)
+    const pathA = join(dirA, `store`)
+    const pathB = join(dirB, `store`)
+    const envA = new LmdbEnv({path: pathA, maxDbs: 5})
+    const envB = new LmdbEnv({path: pathB, maxDbs: 5})
+    envA.register(UserRepo)
+    envB.register(SessionRepo)
+    // envB opened last, so the shared root entry now points at envB's store
+    const sharedRoot = allDbs.get(`store`)
+    const envBStore = (envB as unknown as {_root: unknown})._root
+    expect(sharedRoot).toBe(envBStore)
+
+    await envA.close()
+
+    // envB's root entry must survive envA's purge (identity check)
+    expect(allDbs.has(`store`)).toBe(true)
+    // envB's sub-DB entry must survive too
+    expect(allDbs.has(`store-env-test-session`)).toBe(true)
+
+    await envB.close()
+    await rmWithRetry(dirA)
+    await rmWithRetry(dirB)
+  })
+
   it(`L3: getDb returns the same handle for repeated calls (same name+encoding)`, () => {
     const db1 = env.getDb(`audit-user`)
     const db2 = env.getDb(`audit-user`)
