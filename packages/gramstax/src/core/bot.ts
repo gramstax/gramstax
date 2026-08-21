@@ -751,6 +751,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             if (pathname === `/health`) {
               return new Response(JSON.stringify({status: `ok`}), {status: 200, headers: {"Content-Type": `application/json`}})
             }
+            if ((pathname === `/stats` || pathname === `/metrics`) && this._webhookSecretToken) {
+              const secret = req.headers.get(`X-Telegram-Bot-Api-Secret-Token`)
+              if (
+                secret === null ||
+                secret.length !== this._webhookSecretToken.length ||
+                !timingSafeEqual(Buffer.from(secret), Buffer.from(this._webhookSecretToken))
+              ) {
+                return new Response(`Unauthorized`, {status: 401})
+              }
+            }
             if (pathname === `/stats`) {
               return new Response(JSON.stringify(this.metrics.snapshot()), {status: 200, headers: {"Content-Type": `application/json`}})
             }

@@ -1465,12 +1465,23 @@ export class Ctx extends Context {
    * temporary location and its path is returned; with a path, the file
    * is written there.
    *
+   * **Security:** when `path` is supplied it must not contain NUL bytes
+   * or `..` path segments. Absolute or traversal-like values throw — keep
+   * downloads inside a dedicated directory (e.g. `os.tmpdir()` or
+   * `process.cwd()/downloads`) and pass only a `basename`-derived name
+   * when the name comes from user input. The no-arg form (tmp file) is
+   * always safe.
+   *
    * @param path - Optional destination file path.
    * @returns The saved file path.
    *
    * @public
    */
   async download(path?: string) {
+    if (path !== undefined) {
+      if (path.includes(`\0`)) throw new Error(`download path must not contain null bytes`)
+      if (path.split(/[/\\]/).includes(`..`)) throw new Error(`download path must not contain ".." segments (got "${path}")`)
+    }
     const file = await (this as unknown as FileFlavor<Ctx>).getFile()
     return file.download(path)
   }

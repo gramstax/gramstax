@@ -39,4 +39,40 @@ describe(`Ctx.download`, () => {
     expect(path).toBe(`/tmp/report.pdf`)
     expect(download).toHaveBeenCalledWith(`/tmp/report.pdf`)
   })
+
+  it(`rejects download path containing ".." via forward slash`, async () => {
+    const ctx = createCtx()
+    const download = mock(async (path?: string) => path ?? `/tmp/file.bin`)
+    ;(ctx as unknown as {getFile: () => Promise<{download: (path?: string) => Promise<string>}>}).getFile = mock(async () => ({download}))
+
+    await expect(ctx.download(`../../etc/passwd`)).rejects.toThrow(`..`)
+    expect(download).not.toHaveBeenCalled()
+  })
+
+  it(`rejects download path containing ".." via backslash`, async () => {
+    const ctx = createCtx()
+    const download = mock(async (path?: string) => path ?? `/tmp/file.bin`)
+    ;(ctx as unknown as {getFile: () => Promise<{download: (path?: string) => Promise<string>}>}).getFile = mock(async () => ({download}))
+
+    await expect(ctx.download(`..\\..\\secret.txt`)).rejects.toThrow(`..`)
+    expect(download).not.toHaveBeenCalled()
+  })
+
+  it(`rejects download path containing null bytes`, async () => {
+    const ctx = createCtx()
+    const download = mock(async (path?: string) => path ?? `/tmp/file.bin`)
+    ;(ctx as unknown as {getFile: () => Promise<{download: (path?: string) => Promise<string>}>}).getFile = mock(async () => ({download}))
+
+    await expect(ctx.download(`/tmp/bad\0file`)).rejects.toThrow(`null bytes`)
+    expect(download).not.toHaveBeenCalled()
+  })
+
+  it(`rejects download path with embedded ".." segment`, async () => {
+    const ctx = createCtx()
+    const download = mock(async (path?: string) => path ?? `/tmp/file.bin`)
+    ;(ctx as unknown as {getFile: () => Promise<{download: (path?: string) => Promise<string>}>}).getFile = mock(async () => ({download}))
+
+    await expect(ctx.download(`/tmp/a/../b/file.txt`)).rejects.toThrow(`..`)
+    expect(download).not.toHaveBeenCalled()
+  })
 })
