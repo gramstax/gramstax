@@ -6,7 +6,8 @@
  * `get`/`has` check `Date.now()` and treat expired entries as missing
  * (deleted lazily, or via `purgeExpired`). The check is deterministic per
  * process — no timers — so it stays correct across multiple processes.
- * Overwriting a key resets its TTL.
+ * Overwriting a key resets its TTL. Define a repository-wide default via
+ * `static ttlMs` — per-call `ttlMs` overrides it.
  *
  * @packageDocumentation
  * @public
@@ -21,6 +22,12 @@ type TtlEnvelope<T> = {v: T; exp?: number}
 /**
  * Repository with per-record TTL via envelope.
  *
+ * @remarks
+ * Define a default TTL once per repository class via `static ttlMs`.
+ * Per-call `ttlMs` (number or `{ttlMs}`) overrides the class default.
+ * Priority: `set(..., {ttlMs})` / `set(..., ttlMs)` → `static ttlMs` → never expires.
+ * Overwriting a key resets its TTL.
+ *
  * @typeParam T - Logical value type.
  * @typeParam K - Key type.
  *
@@ -28,13 +35,27 @@ type TtlEnvelope<T> = {v: T; exp?: number}
  */
 export class LmdbTtlRepository<T, K extends ILmdbKey = string> extends LmdbRepository<unknown, K> {
   /**
+   * Default TTL for this repository (ms). Optional — when omitted, records
+   * without an explicit per-call TTL never expire. Define per subclass:
+   * `static ttlMs = 60_000`.
+   *
+   * @virtual
+   * @public
+   */
+  static ttlMs?: number
+
+  /**
    * Store a value with optional TTL.
+   *
+   * @remarks
+   * Priority: per-call `ttlMs` (if provided) → class `static ttlMs` → never expires.
    *
    * @param key - Key to write under.
    * @param value - Logical value to store.
    * @param ttlOrTx - Either a TTL (`number` or `{ttlMs}`) or a transaction.
-   * Omitted → never expires. Transaction is ignored — TTL sets join the
-   * current writer transaction automatically via LMDB batching.
+   * When a TTL, it overrides the class default. Omitted → falls back to
+   * `static ttlMs`, then never expires. Transaction is ignored — TTL sets
+   * join the current writer transaction automatically via LMDB batching.
    */
   override async set(key: K, value: T, ttlOrTx?: unknown): Promise<void> {
     let ttlMs: number | undefined
@@ -42,6 +63,10 @@ export class LmdbTtlRepository<T, K extends ILmdbKey = string> extends LmdbRepos
     else if (typeof ttlOrTx === `number`) ttlMs = ttlOrTx
     else if (ttlOrTx && typeof (ttlOrTx as {ttlMs?: unknown}).ttlMs === `number`) {
       ttlMs = (ttlOrTx as {ttlMs: number}).ttlMs
+    }
+    if (ttlMs === undefined) {
+      const ctorTtl = (this.constructor as unknown as {ttlMs?: number}).ttlMs
+      if (typeof ctorTtl === `number` && ctorTtl > 0) ttlMs = ctorTtl
     }
     const exp = typeof ttlMs === `number` && ttlMs > 0 ? Date.now() + ttlMs : undefined
     const envelope: TtlEnvelope<T> = exp !== undefined ? {v: value, exp} : {v: value}
