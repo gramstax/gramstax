@@ -3,7 +3,7 @@ import {existsSync} from "node:fs"
 import {mkdir, rm} from "node:fs/promises"
 import {join} from "node:path"
 import {Gramstax} from "~/core/bot"
-import {Ctx} from "~/core/ctx"
+import type {Ctx} from "~/core/ctx"
 import {TemplateManager} from "~/template/manager"
 
 const TEST_PAGES_DIR = join(import.meta.dir, `rate-limit-test-pages`)
