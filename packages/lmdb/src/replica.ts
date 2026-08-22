@@ -66,6 +66,7 @@ export async function backupWithRetention(env: LmdbEnv, baseDir: string, keep = 
   } catch {}
   const stamp = `${Date.now().toString().padStart(13, `0`)}-${Math.random().toString(36).slice(2, 6)}`
   const dest = join(baseDir, `backup-${stamp}`)
+  mkdirSync(dest, {recursive: true})
   await env.backup(dest)
   // Prune oldest beyond `keep`
   try {
