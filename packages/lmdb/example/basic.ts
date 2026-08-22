@@ -7,7 +7,7 @@
  * - Opening an LmdbEnv
  * - Defining LmdbRepository subclasses with static `dbName`
  * - Registering repositories with the env
- * - Basic CRUD: set, get, has, delete, count, clear
+ * - Basic CRUD: put, get, has, delete, count, clear
  */
 import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
@@ -44,9 +44,9 @@ async function main() {
 
     console.log(`--- Basic CRUD ---\n`)
 
-    await users.set(`u1`, {id: `u1`, name: `Alice`, age: 30})
-    await users.set(`u2`, {id: `u2`, name: `Bob`, age: 25})
-    await users.set(`u3`, {id: `u3`, name: `Carol`, age: 35})
+    await users.put(`u1`, {id: `u1`, name: `Alice`, age: 30})
+    await users.put(`u2`, {id: `u2`, name: `Bob`, age: 25})
+    await users.put(`u3`, {id: `u3`, name: `Carol`, age: 35})
 
     const u1 = await users.get(`u1`)
     console.log(`get u1:`, u1)
@@ -59,7 +59,7 @@ async function main() {
     console.log(`delete u3:`, await users.delete(`u3`))
     console.log(`count after delete:`, await users.count())
 
-    await sessions.set(`s1`, {sid: `s1`, data: `active`})
+    await sessions.put(`s1`, {sid: `s1`, data: `active`})
     console.log(`session s1:`, await sessions.get(`s1`))
 
     await users.clear()

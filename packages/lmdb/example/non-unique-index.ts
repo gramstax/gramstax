@@ -1,17 +1,20 @@
 /**
- * Secondary Index (SecondaryIndex) — use when you need to query primary records by a non-primary field
- * (find User by email, Order by userId). Why: LMDB is key-value only; a dupSort index stores `indexedValue -> primaryKey`
- * and is updated in the same writer transaction as the primary put/remove, so index and primary never diverge even
- * with concurrent writers. `findByIndex` fans out via `getValues` + `get` and returns primary values.
+ * Non-Unique Index (NonUniqueIndex) — use when you need to query primary records by a non-primary field
+ * where many primaries can share the same indexed value (find Users by email domain, Orders by userId, Users by language).
+ * Why: LMDB is key-value only — without an index you must full-scan O(N). This helper maintains a dupSort index
+ * `IndexKey -> PrimaryKey` (SQL: CREATE INDEX — non-unique, allows duplicates, unlike CREATE UNIQUE INDEX) and updates
+ * it in the same writer transaction as the primary `put`/`remove`, so concurrent writers never leave index and primary
+ * inconsistent. The index repo MUST be `static dupSort = true` — validated in the constructor. `findByIndex` fans out
+ * via `getValues` + `get` and returns primary values.
  *
- * Run with: `bun run packages/lmdb/example/secondary-index.ts`
+ * Run with: `bun run packages/lmdb/example/non-unique-index.ts`
  */
 import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
+import {NonUniqueIndex} from "../src/non-unique-index"
 import {LmdbRepository} from "../src/repository"
-import {SecondaryIndex} from "../src/secondary-index"
 
 type User = {id: string; email: string; name: string}
 
@@ -30,7 +33,7 @@ async function main() {
     const env = new LmdbEnv({path: dir, maxDbs: 10})
     const users = env.register(UserRepo)
     const emailIndex = env.register(EmailIndexRepo)
-    const byEmail = new SecondaryIndex(env, users, emailIndex, (u) => u.email)
+    const byEmail = new NonUniqueIndex(env, users, emailIndex, (u: User) => u.email)
 
     console.log(`--- Secondary index: email -> user ---\n`)
     await byEmail.put(`u1`, {id: `u1`, email: `alice@example.com`, name: `Alice`})
@@ -48,7 +51,7 @@ async function main() {
     await byEmail.put(`u4`, {id: `u4`, email: `shared@example.com`, name: `Dave`})
     console.log(
       `  shared@example.com:`,
-      (await byEmail.findByIndex(`shared@example.com`)).map((u) => u.id)
+      (await byEmail.findByIndex(`shared@example.com`)).map((u: User) => u.id)
     )
 
     console.log(`\n--- Remove cleans index ---\n`)

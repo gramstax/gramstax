@@ -25,7 +25,7 @@ type TtlEnvelope<T> = {v: T; exp?: number}
  * @remarks
  * Define a default TTL once per repository class via `static ttlMs`.
  * Per-call `ttlMs` (number or `{ttlMs}`) overrides the class default.
- * Priority: `set(..., {ttlMs})` / `set(..., ttlMs)` → `static ttlMs` → never expires.
+ * Priority: `put(..., {ttlMs})` / `put(..., ttlMs)` → `static ttlMs` → never expires.
  * Overwriting a key resets its TTL.
  *
  * @typeParam T - Logical value type.
@@ -57,7 +57,7 @@ export class LmdbTtlRepository<T, K extends ILmdbKey = string> extends LmdbRepos
    * `static ttlMs`, then never expires. Transaction is ignored — TTL sets
    * join the current writer transaction automatically via LMDB batching.
    */
-  override async set(key: K, value: T, ttlOrTx?: unknown): Promise<void> {
+  override async put(key: K, value: T, ttlOrTx?: unknown): Promise<void> {
     let ttlMs: number | undefined
     if (ttlOrTx instanceof LmdbTransaction) ttlMs = undefined
     else if (typeof ttlOrTx === `number`) ttlMs = ttlOrTx
@@ -70,7 +70,7 @@ export class LmdbTtlRepository<T, K extends ILmdbKey = string> extends LmdbRepos
     }
     const exp = typeof ttlMs === `number` && ttlMs > 0 ? Date.now() + ttlMs : undefined
     const envelope: TtlEnvelope<T> = exp !== undefined ? {v: value, exp} : {v: value}
-    return super.set(key, envelope as unknown as unknown)
+    return super.put(key, envelope as unknown as unknown)
   }
 
   /**

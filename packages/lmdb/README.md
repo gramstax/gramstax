@@ -66,7 +66,7 @@ class Db extends LmdbEnv {
 // 3. Use it — env opens on construction, `get()` is synchronous
 const db = new Db(`./data`);
 
-await db.users.set(1, { id: 1, name: `Alice`, age: 30 });
+await db.users.put(1, { id: 1, name: `Alice`, age: 30 });
 const alice = db.users.get(1); // sync — no await!
 //    ^? IVUser | undefined
 
@@ -84,7 +84,7 @@ The native LMDB environment opens during construction — the `open()` system ca
 const db = new Db(`./data`);
 
 // 2. Use — env is immediately operational
-await db.users.set(1, { id: 1, name: `Alice` });
+await db.users.put(1, { id: 1, name: `Alice` });
 const user = db.users.get(1); // synchronous read
 
 // 3. Close — flush + release mmap
@@ -127,15 +127,15 @@ Every LMDB write transaction has exclusive writer lock semantics — a single wr
 ```typescript
 // ✅ Recommended: sync callback — all writes batched atomically
 const result = await env.transaction(() => {
-  userRepo.set(`u1`, user);
-  sessionRepo.set(`s1`, session);
+  userRepo.put(`u1`, user);
+  sessionRepo.put(`s1`, session);
   return { ok: true };
 });
 
 // ⚠️  Works atomically too, but slower: async callback
 await env.transaction(async (tx) => {
-  await userRepo.set(`u1`, user);
-  await sessionRepo.set(`s1`, session);
+  await userRepo.put(`u1`, user);
+  await sessionRepo.put(`s1`, session);
   tx.abort(); // also rolls back correctly after an await
 });
 ```
@@ -148,10 +148,10 @@ await env.transaction(async (tx) => {
 
 | Pattern                                                | Safe? | Reason                                                |
 | ------------------------------------------------------ | ----- | ----------------------------------------------------- |
-| Single `set` or `delete`                               | ✅    | lmdb async writes are atomic per-key                  |
-| `get` then `set` (no tx)                               | ❌    | Interleaving writer can modify between read and write |
-| `get` then `set` (inside `env.transaction`)            | ✅    | Exclusive write lock covers both operations           |
-| Multiple `set` across repos (inside `env.transaction`) | ✅    | Single native LMDB write transaction                  |
+| Single `put` or `delete`                               | ✅    | lmdb async writes are atomic per-key                  |
+| `get` then `put` (no tx)                               | ❌    | Interleaving writer can modify between read and write |
+| `get` then `put` (inside `env.transaction`)            | ✅    | Exclusive write lock covers both operations           |
+| Multiple `put` across repos (inside `env.transaction`) | ✅    | Single native LMDB write transaction                  |
 | Multiple `get` (inside `env.readTransaction`)          | ✅    | Snapshot isolation from pinned read transaction       |
 
 ## API
@@ -163,11 +163,11 @@ Every option maps directly to lmdb-js `open()` parameters:
 | Option              | Type             | Default          | Description                                             |
 | ------------------- | ---------------- | ---------------- | ------------------------------------------------------- |
 | `path`              | string           | **required**     | Filesystem path for data files                          |
-| `maxDbs`            | number           | `10`             | Max sub-databases                                       |
+| `maxDbs`            | number           | `128`            | Max sub-databases                                       |
 | `encoding`          | string           | `msgpack`        | `msgpack`, `json`, `binary`, `string`, `ordered-binary` |
 | `compression`       | boolean / object | `false`          | LZ4 compression (off-thread)                            |
 | `readOnly`          | boolean          | `false`          | Open in read-only mode                                  |
-| `mapSize`           | number           | `256 MB`         | Virtual memory mapping in bytes                         |
+| `mapSize`           | number           | `4 GB`           | Virtual memory mapping in bytes                         |
 | `cache`             | boolean / object | `false`          | In-memory read cache                                    |
 | `useVersions`       | boolean          | `false`          | Optimistic locking via version numbers                  |
 | `keyEncoding`       | string           | `ordered-binary` | `uint32`, `binary`, `ordered-binary`                    |
@@ -197,7 +197,7 @@ repo.count()           → number              // mdb_env_stat entry count, sync
 **Asynchronous** (returns a Promise — write operations queue through lmdb-js async batching, range materialization drains a lazy `RangeIterable`):
 
 ```
-await repo.set(key, value)       → void           // queued put
+await repo.put(key, value)       → void           // queued put
 await repo.delete(key)           → boolean        // queued remove
 await repo.clear()               → void           // queued clearAsync
 await repo.drop()                → void           // queued sub-DB drop
@@ -287,6 +287,42 @@ await repo.like(`*partial*`); // full scan + regex filter
 ```
 
 The `\uffff` sentinel produces the first key that sorts after any prefix — it is the exclusive upper bound for a prefix range scan.
+
+### Materialization Guardrail
+
+`keys()`/`values()`/`entries()`/`like()`/`findByPrefix()`/`deleteByPrefix()` materialize the entire result set into memory, so `LmdbRepository.MAX_MATERIALIZE` caps them at `100_000` entries. Any call that would return more entries than the cap — or that passes a `{limit}` above it — rejects with `LmdbMaterializationError`.
+
+**For result sets larger than 100k entries, use `iterate()`** — it streams entries lazily and is never guarded:
+
+```typescript
+for await (const [k, v] of repo.iterate()) {
+  // one entry at a time — no array materialization
+}
+
+// ❌ LmdbMaterializationError: would materialize more than 100_000 entries
+// await repo.values();
+```
+
+## Queues
+
+`LmdbQueue<T>` is a FIFO queue over a dedicated sub-DB per queue name. Enqueue bumps a monotonic sequence counter (kept in a shared `__queue_meta` sub-DB) and writes the payload in **one synchronous transaction** (`env.transactionSync`) — the generated zero-padded id and the payload commit atomically, so FIFO order is preserved even across processes. Dequeue reads the head through a synchronous cursor and removes it in one synchronous transaction (at-least-once semantics).
+
+```typescript
+import { LmdbEnv, LmdbQueue } from "@gramstax/lmdb";
+
+const env = new LmdbEnv({ path: `./data` });
+const queue = new LmdbQueue<{ type: string; data: unknown }>(env, `jobs`);
+
+// Single-transaction enqueue — counter bump + payload write commit together
+const id = await queue.enqueue({ type: `email`, data: { to: `a@b.c` } });
+
+const head = await queue.peek();    // head without removing
+const job = await queue.dequeue();  // atomic read + delete (single txn)
+const size = await queue.size();    // number of queued jobs
+await queue.clear();                // drain the queue
+```
+
+Constructing a second `LmdbQueue` with the same `dbName` is idempotent — it reuses the already-registered repository instead of throwing `LmdbDuplicateDbNameError`.
 
 ## License
 

@@ -9,12 +9,10 @@ import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {existsSync} from "node:fs"
 import {basename, extname, join} from "node:path"
 import * as lmdbNs from "lmdb"
-import {createTestDir} from "./test-helpers"
-
 import {LmdbEnv} from "../src/env"
 import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError} from "../src/errors"
 import {LmdbRepository} from "../src/repository"
-import {rmWithRetry} from "./test-helpers"
+import {createTestDir, rmWithRetry} from "./test-helpers"
 
 // `allDbs` is a runtime-only export of lmdb-js (absent from its d.ts).
 const allDbs = (lmdbNs as unknown as {allDbs: Map<string, unknown>}).allDbs
@@ -70,7 +68,7 @@ describe(`LmdbEnv constructor`, () => {
     const dir = createTestDir(`lmdb-env-defaults-`)
     const e = new LmdbEnv({path: dir})
     try {
-      expect(e.maxDbs).toBe(10)
+      expect(e.maxDbs).toBe(128)
       expect(e.readOnly).toBe(false)
       expect(e.encoding).toBeUndefined()
     } finally {
@@ -149,8 +147,8 @@ describe(`LmdbEnv.register / get / has`, () => {
   it(`two different classes with distinct dbNames can coexist`, async () => {
     const users = env.register(UserRepo)
     const sessions = env.register(SessionRepo)
-    await users.set(`u1`, {id: `u1`, name: `Alice`})
-    await sessions.set(`s1`, {sid: `s1`, data: `hello`})
+    await users.put(`u1`, {id: `u1`, name: `Alice`})
+    await sessions.put(`s1`, {sid: `s1`, data: `hello`})
     expect((await users.get(`u1`))?.name).toBe(`Alice`)
     expect((await sessions.get(`s1`))?.data).toBe(`hello`)
   })
@@ -161,7 +159,7 @@ describe(`LmdbEnv read-only mode`, () => {
     const dir = createTestDir(`lmdb-env-readonly-`)
     const writeEnv = new LmdbEnv({path: dir})
     const users = writeEnv.register(UserRepo)
-    await users.set(`u1`, {id: `u1`, name: `A`})
+    await users.put(`u1`, {id: `u1`, name: `A`})
     await writeEnv.close()
 
     const roEnv = new LmdbEnv({path: dir, readOnly: true})
@@ -169,7 +167,7 @@ describe(`LmdbEnv read-only mode`, () => {
       expect(roEnv.readOnly).toBe(true)
       const roUsers = roEnv.register(UserRepo)
       expect((await roUsers.get(`u1`))?.name).toBe(`A`)
-      await expect(roUsers.set(`u2`, {id: `u2`, name: `B`})).rejects.toThrow(LmdbReadOnlyError)
+      await expect(roUsers.put(`u2`, {id: `u2`, name: `B`})).rejects.toThrow(LmdbReadOnlyError)
       await expect(roUsers.delete(`u1`)).rejects.toThrow(LmdbReadOnlyError)
       await expect(roUsers.clear()).rejects.toThrow(LmdbReadOnlyError)
     } finally {
@@ -208,7 +206,7 @@ describe(`LmdbEnv state after close`, () => {
     const reopen = new LmdbEnv({path: tmpDir, maxDbs: 5})
     expect(reopen.state).toBe(`open`)
     const r = reopen.register(SimpleRepo)
-    await r.set(`reopened`, 42)
+    await r.put(`reopened`, 42)
     expect(await r.get(`reopened`)).toBe(42)
     await reopen.close()
   })
@@ -316,7 +314,7 @@ describe(`LmdbEnv.close resource cleanup`, () => {
     env.on(`beforecommit`, cb as any)
     env.off(`beforecommit`, cb as any)
     const users = env.register(UserRepo)
-    await users.set(`u1`, {id: `u1`, name: `A`})
+    await users.put(`u1`, {id: `u1`, name: `A`})
     await env.committed
     expect(calls).toBe(0)
   })
@@ -328,7 +326,7 @@ describe(`LmdbEnv.close resource cleanup`, () => {
     }
     env.on(`beforecommit`, cb as any)
     const users = env.register(UserRepo)
-    await users.set(`u1`, {id: `u1`, name: `A`})
+    await users.put(`u1`, {id: `u1`, name: `A`})
     await env.committed
     expect(calls).toBeGreaterThan(0)
   })
@@ -343,16 +341,16 @@ describe(`LmdbEnv.put with options`, () => {
 })
 
 describe(`LmdbEnv snapshot / durability`, () => {
-  it(`committed resolves after a set`, async () => {
+  it(`committed resolves after a put`, async () => {
     const r = env.register(SimpleRepo)
-    await r.set(`a`, 1)
+    await r.put(`a`, 1)
     await env.committed
     expect(await r.get(`a`)).toBe(1)
   })
 
-  it(`flushed resolves after a set`, async () => {
+  it(`flushed resolves after a put`, async () => {
     const r = env.register(SimpleRepo)
-    await r.set(`b`, 2)
+    await r.put(`b`, 2)
     await env.flushed
     expect(await r.get(`b`)).toBe(2)
   })
@@ -377,8 +375,8 @@ describe(`LmdbEnv snapshot / durability`, () => {
   const skipBackup = process.platform === `win32` || process.env.CI === `true`
   ;(skipBackup ? it.skip : it)(`backup writes a copy that reopens cleanly`, async () => {
     const r = env.register(SimpleRepo)
-    await r.set(`bk1`, 100)
-    await r.set(`bk2`, 200)
+    await r.put(`bk1`, 100)
+    await r.put(`bk2`, 200)
 
     const backupBase = createTestDir(`lmdb-backup-test-`)
     const destDir = join(backupBase, `snapshot`) // must not already exist

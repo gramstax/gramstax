@@ -16,9 +16,9 @@ import {existsSync, mkdtempSync, readdirSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
+import {NonUniqueIndex} from "../src/non-unique-index"
 import {backupWithRetention, LmdbReplica} from "../src/replica"
 import {LmdbRepository} from "../src/repository"
-import {SecondaryIndex} from "../src/secondary-index"
 import {LmdbTtlRepository} from "../src/ttl"
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -80,14 +80,14 @@ async function main() {
     // Use case: Tenant isolation — same userId under different tenants must not collide.
     console.log(`--- F1: Composite keys [tenantId, userId] ---`)
     const tenantUsers = env.register(TenantUserRepo)
-    await tenantUsers.set([`tenant-a`, `u1`], {id: `u1`, email: `a@a.com`, name: `Alice`})
-    await tenantUsers.set([`tenant-b`, `u1`], {id: `u1`, email: `a@b.com`, name: `Alice-B`})
+    await tenantUsers.put([`tenant-a`, `u1`], {id: `u1`, email: `a@a.com`, name: `Alice`})
+    await tenantUsers.put([`tenant-b`, `u1`], {id: `u1`, email: `a@b.com`, name: `Alice-B`})
     console.log(`  tenant-a/u1:`, tenantUsers.get([`tenant-a`, `u1`]))
     console.log(`  tenant-b/u1:`, tenantUsers.get([`tenant-b`, `u1`]))
     console.log(`  count:`, tenantUsers.count(), `(isolated per composite key)`)
 
     // ── F2: Conditional writes ────────────────────────────────────
-    console.log(`\n--- F2: Conditional writes (setIfNotExists / compareAndSet) ---`)
+    console.log(`\n--- F2: Conditional writes (putIfNotExists / compareAndSet) ---`)
     const users = env.register(UserRepo)
     const vEnvDir = mkdtempSync(join(tmpdir(), `lmdb-v-`))
     const vEnv = new LmdbEnv({path: vEnvDir, maxDbs: 5, useVersions: true})
@@ -95,9 +95,9 @@ async function main() {
       static dbName = `vuser`
     }
     const vUsers = vEnv.register(VUserRepo)
-    // setIfNotExists — create only if absent (safe for concurrent sign-ups)
-    console.log(`  setIfNotExists u1 (first):`, await users.setIfNotExists(`u1`, {id: `u1`, email: `a@b.com`, name: `Alice`}))
-    console.log(`  setIfNotExists u1 (second, should be false):`, await users.setIfNotExists(`u1`, {id: `u1`, email: `x@x.com`, name: `Hijack`}))
+    // putIfNotExists — create only if absent (safe for concurrent sign-ups)
+    console.log(`  putIfNotExists u1 (first):`, await users.putIfNotExists(`u1`, {id: `u1`, email: `a@b.com`, name: `Alice`}))
+    console.log(`  putIfNotExists u1 (second, should be false):`, await users.putIfNotExists(`u1`, {id: `u1`, email: `x@x.com`, name: `Hijack`}))
     console.log(`  u1 after second attempt:`, users.get(`u1`))
     // compareAndSet — optimistic locking via versions
     await (vUsers as unknown as {env: LmdbEnv}).env.put(`u9`, {id: `u9`, email: `v@b.com`, name: `V1`}, 1)
@@ -109,7 +109,7 @@ async function main() {
     // ── F3: Atomic counter ────────────────────────────────────────
     console.log(`\n--- F3: Atomic increment ---`)
     const counters = env.register(CounterRepo)
-    await counters.set(`order-seq`, 100)
+    await counters.put(`order-seq`, 100)
     console.log(`  increment order-seq by 1:`, await counters.increment(`order-seq`))
     console.log(`  increment by 5:`, await counters.increment(`order-seq`, 5))
     console.log(`  final:`, counters.get(`order-seq`))
@@ -120,7 +120,7 @@ async function main() {
     const cborDir = mkdtempSync(join(tmpdir(), `lmdb-cbor-`))
     const cborEnv = new LmdbEnv({path: cborDir, maxDbs: 5, encoding: `cbor`})
     const docs = cborEnv.register(DocRepo)
-    await docs.set(`d1`, {title: `Hello CBOR`})
+    await docs.put(`d1`, {title: `Hello CBOR`})
     console.log(`  cbor get d1:`, docs.get(`d1`))
     await cborEnv.close()
     rmSync(cborDir, {recursive: true, force: true})
@@ -147,12 +147,12 @@ async function main() {
     // Priority: per-call ttlMs → static ttlMs → never expires
     console.log(`\n--- F7: TTL repository (per-call + class default) ---`)
     const sessions = env.register(SessionRepo)
-    await sessions.set(`s1`, {userId: `u1`, token: `tok-abc`}, {ttlMs: 80})
+    await sessions.put(`s1`, {userId: `u1`, token: `tok-abc`}, {ttlMs: 80})
     console.log(`  s1 before expiry:`, sessions.get(`s1`))
     await Bun.sleep(100)
     console.log(`  s1 after 100ms (expired):`, sessions.get(`s1`))
-    await sessions.set(`s2`, {userId: `u2`, token: `tok-xyz`}, {ttlMs: 200})
-    await sessions.set(`s3`, {userId: `u3`, token: `keep`}) // never expires
+    await sessions.put(`s2`, {userId: `u2`, token: `tok-xyz`}, {ttlMs: 200})
+    await sessions.put(`s3`, {userId: `u3`, token: `keep`}) // never expires
     await Bun.sleep(30)
     console.log(`  purgeExpired removed:`, await sessions.purgeExpired(), `(s1 already gone)`)
     console.log(`  s2 alive:`, !!sessions.get(`s2`), `s3 alive:`, !!sessions.get(`s3`))
@@ -163,11 +163,11 @@ async function main() {
       static ttlMs = 80
     }
     const defaultSessions = env.register(DefaultTtlSessionRepo)
-    await defaultSessions.set(`d1`, {userId: `u1`, token: `via-class`}) // uses class 80ms
+    await defaultSessions.put(`d1`, {userId: `u1`, token: `via-class`}) // uses class 80ms
     console.log(`  d1 with class default 80ms (alive):`, !!defaultSessions.get(`d1`))
     await Bun.sleep(100)
     console.log(`  d1 after 100ms (expired via class):`, defaultSessions.get(`d1`))
-    await defaultSessions.set(`d2`, {userId: `u2`, token: `override`}, {ttlMs: 300000}) // per-call overrides class
+    await defaultSessions.put(`d2`, {userId: `u2`, token: `override`}, {ttlMs: 300000}) // per-call overrides class
     await Bun.sleep(100)
     console.log(`  d2 per-call 300s overrides class (alive):`, !!defaultSessions.get(`d2`))
 
@@ -175,7 +175,7 @@ async function main() {
     console.log(`\n--- F8: Secondary index (email -> user) ---`)
     const orders = env.register(OrderRepo)
     env.register(OrderByUserIndexRepo)
-    const userIndex = new SecondaryIndex(env, users, emailIndex, (u: User) => u.email)
+    const userIndex = new NonUniqueIndex(env, users, emailIndex, (u: User) => u.email)
     // Reuse users + emailIndex from F5; put via index helper
     await userIndex.put(`u10`, {id: `u10`, email: `alice@example.com`, name: `Alice`})
     await userIndex.put(`u11`, {id: `u11`, email: `bob@example.com`, name: `Bob`})
@@ -192,14 +192,14 @@ async function main() {
         version: 1,
         name: `seed-orders`,
         up: async (e) => {
-          await e.get(OrderRepo).set(`o1`, {id: `o1`, userId: `u10`, total: 42})
+          await e.get(OrderRepo).put(`o1`, {id: `o1`, userId: `u10`, total: 42})
         }
       },
       {
         version: 2,
         name: `seed-more`,
         up: async (e) => {
-          await e.get(OrderRepo).set(`o2`, {id: `o2`, userId: `u11`, total: 99})
+          await e.get(OrderRepo).put(`o2`, {id: `o2`, userId: `u11`, total: 99})
         }
       }
     ])
@@ -212,13 +212,13 @@ async function main() {
     console.log(`  re-run (idempotent) applied:`, (await env.migrate([{version: 1, name: `seed-orders`, up: async () => {}}])).applied.length)
 
     // ── F10: Bulk ─────────────────────────────────────────────────
-    console.log(`\n--- F10: Bulk setMany / exportJSONL / importJSONL ---`)
-    await orders.setMany([
+    console.log(`\n--- F10: Bulk putMany / exportJSONL / importJSONL ---`)
+    await orders.putMany([
       [`o10`, {id: `o10`, userId: `u1`, total: 10}],
       [`o11`, {id: `o11`, userId: `u1`, total: 20}],
       [`o12`, {id: `o12`, userId: `u2`, total: 30}]
     ])
-    console.log(`  count after setMany:`, orders.count())
+    console.log(`  count after putMany:`, orders.count())
     const jsonl = await orders.exportJSONL()
     console.log(`  exportJSONL lines:`, jsonl.split(`\n`).length)
     await orders.clear()

@@ -196,6 +196,33 @@ export class LmdbLikePatternError extends LmdbError {
 }
 
 /**
+ * Thrown when a range query would materialize an unbounded or oversized
+ * result array into memory (guardrail B4).
+ *
+ * @remarks
+ * {@link LmdbRepository.keys}, {@link LmdbRepository.values},
+ * {@link LmdbRepository.entries}, {@link LmdbRepository.like},
+ * {@link LmdbRepository.findByPrefix} and {@link LmdbRepository.deleteByPrefix}
+ * refuse to materialize more than {@link LmdbRepository.MAX_MATERIALIZE}
+ * entries. Pass `{limit}` or use {@link LmdbRepository.iterate} to bound the
+ * result.
+ *
+ * @public
+ */
+export class LmdbMaterializationError extends LmdbError {
+  /**
+   * @param operation - The repository method that was guarded.
+   * @param max - The materialization cap ({@link LmdbRepository.MAX_MATERIALIZE}).
+   * @param requested - The requested limit, when the rejection came from an
+   * explicit limit above the cap.
+   */
+  constructor(operation: string, max: number, requested?: number) {
+    super(requested === undefined ? `${operation} would materialize more than ${max} entries into memory — use {limit} or iterate() to bound the result.` : `${operation} limit ${requested} exceeds the materialization cap of ${max} — use {limit} or iterate() to bound the result.`)
+    this.name = `LmdbMaterializationError`
+  }
+}
+
+/**
  * Thrown when a version-dependent operation (e.g. {@link LmdbRepository.compareAndSet})
  * is called on an env opened without `useVersions: true`.
  *
@@ -205,5 +232,24 @@ export class LmdbUseVersionsRequiredError extends LmdbError {
   constructor(operation: string) {
     super(`Cannot perform '${operation}' because the env was not opened with useVersions: true.`)
     this.name = `LmdbUseVersionsRequiredError`
+  }
+}
+
+/**
+ * Thrown when the LMDB map is nearly full (free ratio below 10%).
+ *
+ * @remarks
+ * Raised by {@link LmdbEnv.register} as a guardrail before the system
+ * hits MDB_MAP_FULL. Free up space or increase `mapSize`.
+ *
+ * @public
+ */
+export class LmdbMapFullError extends LmdbError {
+  /**
+   * @param ratio - The free ratio (`free/total`) at the time of the check.
+   */
+  constructor(ratio: number) {
+    super(`MDB_MAP_FULL risk — free ratio ${ratio.toFixed(3)} is below 10%. Increase mapSize or prune data.`)
+    this.name = `LmdbMapFullError`
   }
 }

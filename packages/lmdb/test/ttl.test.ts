@@ -34,13 +34,13 @@ afterEach(async () => {
 
 describe(`LmdbTtlRepository`, () => {
   it(`stores and retrieves without TTL`, async () => {
-    await sessions.set(`s1`, {userId: `u1`})
+    await sessions.put(`s1`, {userId: `u1`})
     expect(sessions.get(`s1`)).toEqual({userId: `u1`})
     expect(sessions.has(`s1`)).toBe(true)
   })
 
   it(`returns value before expiry and undefined after`, async () => {
-    await sessions.set(`s1`, {userId: `u1`}, {ttlMs: 50})
+    await sessions.put(`s1`, {userId: `u1`}, {ttlMs: 50})
     expect(sessions.get(`s1`)).toEqual({userId: `u1`})
     await Bun.sleep(70)
     expect(sessions.get(`s1`)).toBeUndefined()
@@ -48,15 +48,15 @@ describe(`LmdbTtlRepository`, () => {
   })
 
   it(`never expires when ttlMs is omitted`, async () => {
-    await sessions.set(`s1`, {userId: `u1`})
+    await sessions.put(`s1`, {userId: `u1`})
     await Bun.sleep(20)
     expect(sessions.get(`s1`)).toEqual({userId: `u1`})
   })
 
   it(`purgeExpired removes only expired entries and returns count`, async () => {
-    await sessions.set(`s1`, {userId: `u1`}, {ttlMs: 30})
-    await sessions.set(`s2`, {userId: `u2`}, {ttlMs: 300000})
-    await sessions.set(`s3`, {userId: `u3`})
+    await sessions.put(`s1`, {userId: `u1`}, {ttlMs: 30})
+    await sessions.put(`s2`, {userId: `u2`}, {ttlMs: 300000})
+    await sessions.put(`s3`, {userId: `u3`})
     await Bun.sleep(50)
     const removed = await sessions.purgeExpired()
     expect(removed).toBe(1)
@@ -66,11 +66,11 @@ describe(`LmdbTtlRepository`, () => {
   })
 
   it(`overwriting resets TTL`, async () => {
-    await sessions.set(`s1`, {userId: `u1`}, {ttlMs: 40})
+    await sessions.put(`s1`, {userId: `u1`}, {ttlMs: 40})
     await Bun.sleep(20)
-    await sessions.set(`s1`, {userId: `u1`}, {ttlMs: 100})
+    await sessions.put(`s1`, {userId: `u1`}, {ttlMs: 100})
     await Bun.sleep(30)
-    // Would have expired at 40ms, but was reset to 100ms from second set
+    // Would have expired at 40ms, but was reset to 100ms from second put
     expect(sessions.get(`s1`)).toEqual({userId: `u1`})
     await Bun.sleep(80)
     expect(sessions.get(`s1`)).toBeUndefined()

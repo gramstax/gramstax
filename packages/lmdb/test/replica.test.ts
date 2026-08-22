@@ -31,7 +31,7 @@ afterEach(async () => {
 
 describe(`LmdbReplica`, () => {
   it(`opens a read-only replica that sees writer data after resetReadTxn`, async () => {
-    await env.get(UserRepo).set(`u1`, {name: `Alice`})
+    await env.get(UserRepo).put(`u1`, {name: `Alice`})
     await env.committed
 
     const replica = await LmdbReplica.open(tmpDir)
@@ -41,7 +41,7 @@ describe(`LmdbReplica`, () => {
     replica.resetReadTxn()
     expect(roRepo.get(`u1`)).toEqual({name: `Alice`})
 
-    await env.get(UserRepo).set(`u2`, {name: `Bob`})
+    await env.get(UserRepo).put(`u2`, {name: `Bob`})
     await env.committed
     // Replica's read txn is stale until reset
     replica.resetReadTxn()
@@ -55,7 +55,7 @@ describe(`LmdbReplica`, () => {
     const replica = await LmdbReplica.open(tmpDir)
     replica.register(UserRepo)
     const roRepo = replica.get(UserRepo)
-    await expect(roRepo.set(`u1`, {name: `Alice`})).rejects.toThrow()
+    await expect(roRepo.put(`u1`, {name: `Alice`})).rejects.toThrow()
     await replica.close()
   })
 })
@@ -64,7 +64,7 @@ const skipBackup = process.platform === `win32`
 
 describe(`backupWithRetention`, () => {
   ;(skipBackup ? it.skip : it)(`creates a backup and prunes to keep N`, async () => {
-    await env.get(UserRepo).set(`u1`, {name: `Alice`})
+    await env.get(UserRepo).put(`u1`, {name: `Alice`})
     await env.committed
 
     const base = createTestDir(`lmdb-backup-retention-`)

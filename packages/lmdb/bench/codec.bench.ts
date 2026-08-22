@@ -6,7 +6,7 @@
  * @internal
  */
 
-import {mkdtempSync, readdirSync, rmSync, statSync } from "node:fs"
+import {mkdtempSync, readdirSync, rmSync, statSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv, LmdbRepository} from "../src"
@@ -148,6 +148,22 @@ function printResult(label: string, enc: string, r: BenchResult): void {
   console.log(`  ${label.padEnd(6)} ${enc.padEnd(8)} write: p50=${f(r.writeP50)} p95=${f(r.writeP95)} p99=${f(r.writeP99)} max=${f(r.writeMax)}  ${o(r.writeOps)} ops/s  |  read: p50=${f(r.readP50)} p95=${f(r.readP95)} p99=${f(r.readP99)} max=${f(r.readMax)}  ${o(r.readOps)} ops/s`)
 }
 
+function winnerLoser(mp: BenchResult, js: BenchResult, metric: `writeP50` | `readP50`): {winner: string; loser: string; ratio: number} {
+  const a = mp[metric]
+  const b = js[metric]
+  return a <= b ? {winner: `msgpack`, loser: `json`, ratio: b / a} : {winner: `json`, loser: `msgpack`, ratio: a / b}
+}
+
+function rankPair(title: string, metric: `writeP50` | `readP50`, rows: Array<{label: string; r: BenchResult}>): void {
+  const sorted = [...rows].sort((a, b) => a.r[metric] - b.r[metric])
+  console.log(`  Ranking by ${title} p50:`)
+  for (const [i, row] of sorted.entries()) {
+    const tag = i === 0 ? `🏆` : `💀`
+    const pct = i === 0 ? `(WINNER)` : `+${((row.r[metric] / sorted[0]!.r[metric] - 1) * 100).toFixed(0)}% vs winner`
+    console.log(`    #${i + 1} ${tag} ${row.label.padEnd(8)} ${fmtMs(row.r[metric]).padStart(10)}  ${pct}`)
+  }
+}
+
 async function benchEncoding<T>(data: T, encoding: `msgpack` | `json` | `binary`): Promise<BenchResult> {
   const dir = mkdtempSync(join(tmpdir(), `enc-${encoding}-`))
   const env = new LmdbEnv({path: dir, maxDbs: 5})
@@ -250,7 +266,24 @@ async function main(): Promise<void> {
     const rdLabel = rd > 1.05 ? `json ${rd.toFixed(2)}x faster` : mp.readP50 / js.readP50 > 1.05 ? `msgpack ${(mp.readP50 / js.readP50).toFixed(2)}x faster` : `similar`
     const sizeRatio = ((js.bytesPerValue / mp.bytesPerValue) * 100).toFixed(0)
     const sizeLabel = Number(sizeRatio) < 95 ? `msgpack ${(mp.bytesPerValue / js.bytesPerValue).toFixed(1)}x smaller` : Number(sizeRatio) > 105 ? `json ${(js.bytesPerValue / mp.bytesPerValue).toFixed(1)}x larger` : `similar`
-    console.log(`  write: ${wrLabel.padEnd(30)} read: ${rdLabel.padEnd(30)} size: ${sizeLabel}  (json=${sizeRatio}% of msgpack)\n`)
+    console.log(`  write: ${wrLabel.padEnd(30)} read: ${rdLabel.padEnd(30)} size: ${sizeLabel}  (json=${sizeRatio}% of msgpack)`)
+    for (const [metric, dir] of [
+      [`writeP50`, `write`],
+      [`readP50`, `read`]
+    ] as const) {
+      const v = winnerLoser(mp, js, metric)
+      console.log(`  🏆 WINNER (${dir}): ${v.winner} — ${v.ratio.toFixed(2)}x faster than ${v.loser} (p50)`)
+      console.log(`  💀 LOSER (${dir}): ${v.loser} — ${v.ratio.toFixed(2)}x slower than ${v.winner} (p50)`)
+    }
+    rankPair(`write`, `writeP50`, [
+      {label: `msgpack`, r: mp},
+      {label: `json`, r: js}
+    ])
+    rankPair(`read`, `readP50`, [
+      {label: `msgpack`, r: mp},
+      {label: `json`, r: js}
+    ])
+    console.log(``)
   }
 
   console.log(`Done.`)

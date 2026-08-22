@@ -29,30 +29,69 @@ async function main() {
     console.log(`  current version (0):`, env.getMigrationVersion())
 
     const r1 = await env.migrate([
-      {version: 1, name: `seed-alice`, up: async (e) => { await e.get(UserRepo).set(`u1`, {id: `u1`, name: `Alice`}) }},
-      {version: 2, name: `seed-bob`, up: async (e) => { await e.get(UserRepo).set(`u2`, {id: `u2`, name: `Bob`}) }},
-      {version: 3, name: `seed-carol`, up: async (e) => { await e.get(UserRepo).set(`u3`, {id: `u3`, name: `Carol`}) }},
+      {
+        version: 1,
+        name: `seed-alice`,
+        up: async (e) => {
+          await e.get(UserRepo).put(`u1`, {id: `u1`, name: `Alice`})
+        }
+      },
+      {
+        version: 2,
+        name: `seed-bob`,
+        up: async (e) => {
+          await e.get(UserRepo).put(`u2`, {id: `u2`, name: `Bob`})
+        }
+      },
+      {
+        version: 3,
+        name: `seed-carol`,
+        up: async (e) => {
+          await e.get(UserRepo).put(`u3`, {id: `u3`, name: `Carol`})
+        }
+      }
     ])
-    console.log(`  applied:`, r1.applied.map((m) => `${m.version}:${m.name}`), `current:`, r1.currentVersion)
+    console.log(
+      `  applied:`,
+      r1.applied.map((m) => `${m.version}:${m.name}`),
+      `current:`,
+      r1.currentVersion
+    )
     console.log(`  u1:`, env.get(UserRepo).get(`u1`))
 
     console.log(`\n  re-run same (idempotent, 0 applied):`, (await env.migrate([{version: 1, name: `seed-alice`, up: async () => {}}])).applied.length)
 
     console.log(`\n--- Rollback on failure ---\n`)
     try {
-      await env.migrate([{version: 4, name: `bad`, up: async () => { throw new Error(`boom`) }}])
+      await env.migrate([
+        {
+          version: 4,
+          name: `bad`,
+          up: async () => {
+            throw new Error(`boom`)
+          }
+        }
+      ])
     } catch (err) {
       console.log(`  failed as expected:`, (err as Error).message)
     }
     console.log(`  version still 3:`, env.getMigrationVersion())
-    await env.migrate([{version: 4, name: `good`, up: async (e) => { await e.get(UserRepo).set(`u4`, {id: `u4`, name: `Dave`}) }}])
+    await env.migrate([
+      {
+        version: 4,
+        name: `good`,
+        up: async (e) => {
+          await e.get(UserRepo).put(`u4`, {id: `u4`, name: `Dave`})
+        }
+      }
+    ])
     console.log(`  after good v4, version 4:`, env.getMigrationVersion(), `u4:`, env.get(UserRepo).get(`u4`))
 
     console.log(`\n--- Duplicate version throws ---\n`)
     try {
       await env.migrate([
         {version: 5, name: `a`, up: async () => {}},
-        {version: 5, name: `b`, up: async () => {}},
+        {version: 5, name: `b`, up: async () => {}}
       ])
     } catch (err) {
       console.log(`  duplicate error:`, (err as Error).message)

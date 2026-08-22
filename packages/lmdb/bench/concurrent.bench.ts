@@ -37,8 +37,14 @@ function fmtMs(ms: number): string {
 }
 
 interface PResult {
-  p50: number; p95: number; p99: number; max: number; min: number
-  throughput: number; totalMs: number; count: number
+  p50: number
+  p95: number
+  p99: number
+  max: number
+  min: number
+  throughput: number
+  totalMs: number
+  count: number
 }
 
 function compute(latencies: bigint[], wall: bigint): PResult {
@@ -53,15 +59,47 @@ function compute(latencies: bigint[], wall: bigint): PResult {
     max: Number(sorted[len - 1] ?? 0n) / 1_000_000,
     min: Number(sorted[0] ?? 0n) / 1_000_000,
     throughput: len > 0 ? (len / totalMs) * 1_000 : 0,
-    totalMs, count: len
+    totalMs,
+    count: len
   }
 }
 
 function printStats(method: string, s: PResult): void {
   const f = (v: number): string => fmtMs(v).padStart(10)
-  console.log(
-    `    ${method.padEnd(20)} p50=${f(s.p50)} p95=${f(s.p95)} p99=${f(s.p99)} max=${f(s.max)}  ${s.throughput.toFixed(0).padStart(8)} ops/s  (n=${s.count})`
-  )
+  console.log(`    ${method.padEnd(20)} p50=${f(s.p50)} p95=${f(s.p95)} p99=${f(s.p99)} max=${f(s.max)}  ${s.throughput.toFixed(0).padStart(8)} ops/s  (n=${s.count})`)
+}
+
+interface RankResult {
+  method: string
+  p50: number
+  throughput: number
+}
+
+function rankMethods(results: RankResult[], conc: number, mode: string): void {
+  const sorted = [...results].sort((a, b) => a.p50 - b.p50)
+  const winner = sorted[0]
+  const loser = sorted[sorted.length - 1]
+  const title = conc === 0 ? `-- Ranking ${mode} (all concurrencies) --` : `-- Ranking ${mode} conc=${conc} --`
+  if (!winner) {
+    console.log(`\n  ${title} — no results\n`)
+    return
+  }
+  if (sorted.length < 2 || !loser) {
+    console.log(`\n  ${title}\n  #1 🏆 ${winner.method}  p50=${fmtMs(winner.p50)}  +0.0% vs winner  (WINNER)\n`)
+    return
+  }
+  const speedup = loser.p50 / winner.p50
+  console.log(`\n  ${title}`)
+  sorted.forEach((r, i) => {
+    const isWinner = i === 0
+    const isLoser = i === sorted.length - 1
+    const vsWinnerPct = ((r.p50 - winner.p50) / winner.p50) * 100
+    const tpDelta = ((r.throughput - winner.throughput) / winner.throughput) * 100
+    const tag = isWinner ? `🏆` : isLoser ? `💀` : `  `
+    const suffix = isWinner ? `+0.0% vs winner  (WINNER)` : `${vsWinnerPct.toFixed(1)}% slower vs winner${isLoser ? `  (LOSER)` : ``}`
+    console.log(`  #${i + 1} ${tag} ${r.method.padEnd(20)} p50=${fmtMs(r.p50).padStart(10)}  ${suffix}  throughput ${tpDelta >= 0 ? `+${tpDelta.toFixed(1)}%` : `${tpDelta.toFixed(1)}%`}  ${r.throughput.toFixed(0).padStart(8)} ops/s`)
+  })
+  console.log(`Winner is ${speedup.toFixed(2)}x faster than loser: ${fmtMs(loser.p50)} vs ${fmtMs(winner.p50)}`)
 }
 
 const randKey = (): string => `u${Math.floor(Math.random() * POPULATE)}`
@@ -69,27 +107,58 @@ const randKey = (): string => `u${Math.floor(Math.random() * POPULATE)}`
 type BenchFn = (users: UserRepo, wid: number) => Promise<unknown>
 
 const METHODS: Record<string, BenchFn> = {
-  get: async (u) => { await u.get(randKey()) },
-  has: async (u) => { await u.has(randKey()) },
-  set: async (u, w) => { await u.set(`w${w}:${Math.random().toString(36).slice(2)}`, {id: `w`, name: `w${w}`, age: w}) },
-  delete: async (u) => { const k = `tmp:${Math.random().toString(36).slice(2)}`; await u.set(k, {id: `t`, name: `t`, age: 0}); await u.delete(k) },
-  count: async (u) => { await u.count() },
-  getMany: async (u) => { await u.getMany(Array.from({length: 10}, () => randKey())) },
-  findByPrefix: async (u) => { await u.findByPrefix(`u${Math.floor(Math.random() * 10)}`) },
-  countByPrefix: async (u) => { await u.countByPrefix(`u${Math.floor(Math.random() * 10)}`) },
-  like: async (u) => { await u.like(`u*`) },
-  first: async (u) => { await u.first() },
-  last: async (u) => { await u.last() },
-  update: async (u) => { const k = `u${Math.floor(Math.random() * 1000)}`; await u.update(k, (x) => x ?? {id: k, name: `init`, age: 0}) },
-  iterate: async (u) => { let c = 0; for await (const _ of u.iterate({limit: 50})) { c++; if (c >= 50) break } }
+  get: async (u) => {
+    await u.get(randKey())
+  },
+  has: async (u) => {
+    await u.has(randKey())
+  },
+  put: async (u, w) => {
+    await u.put(`w${w}:${Math.random().toString(36).slice(2)}`, {id: `w`, name: `w${w}`, age: w})
+  },
+  delete: async (u) => {
+    const k = `tmp:${Math.random().toString(36).slice(2)}`
+    await u.put(k, {id: `t`, name: `t`, age: 0})
+    await u.delete(k)
+  },
+  count: async (u) => {
+    await u.count()
+  },
+  getMany: async (u) => {
+    await u.getMany(Array.from({length: 10}, () => randKey()))
+  },
+  findByPrefix: async (u) => {
+    await u.findByPrefix(`u${Math.floor(Math.random() * 10)}`)
+  },
+  countByPrefix: async (u) => {
+    await u.countByPrefix(`u${Math.floor(Math.random() * 10)}`)
+  },
+  like: async (u) => {
+    await u.like(`u*`)
+  },
+  first: async (u) => {
+    await u.first()
+  },
+  last: async (u) => {
+    await u.last()
+  },
+  update: async (u) => {
+    const k = `u${Math.floor(Math.random() * 1000)}`
+    await u.update(k, (x) => x ?? {id: k, name: `init`, age: 0})
+  },
+  iterate: async (u) => {
+    let c = 0
+    for await (const _ of u.iterate({limit: 50})) {
+      c++
+      if (c >= 50) break
+    }
+  }
 }
 
 const METHODS_READ: ReadonlyArray<keyof typeof METHODS> = [`get`, `has`, `count`, `getMany`, `findByPrefix`, `countByPrefix`, `like`, `first`, `last`, `iterate`]
-const METHODS_MIXED: ReadonlyArray<keyof typeof METHODS> = [`get`, `set`, `delete`, `update`, `findByPrefix`, `countByPrefix`, `like`, `getMany`]
+const METHODS_MIXED: ReadonlyArray<keyof typeof METHODS> = [`get`, `put`, `delete`, `update`, `findByPrefix`, `countByPrefix`, `like`, `getMany`]
 
-async function runConc(
-  users: UserRepo, method: keyof typeof METHODS, concurrency: number
-): Promise<PResult> {
+async function runConc(users: UserRepo, method: keyof typeof METHODS, concurrency: number): Promise<PResult> {
   const fn = METHODS[method]!
   const latencies: bigint[] = []
   const wallStart = process.hrtime.bigint()
@@ -131,16 +200,27 @@ async function main(): Promise<void> {
   }
   console.log(`Ready.\n`)
 
+  const grand: Record<string, RankResult[]> = {"pure-read": [], mixed: []}
   for (const mode of [`pure-read`, `mixed`] as const) {
     const methods = mode === `pure-read` ? METHODS_READ : METHODS_MIXED
     console.log(`\n=== ${mode.toUpperCase()} (${OPS_PER_WORKER} ops/worker) ===\n`)
     for (const conc of CONCURRENCY) {
       console.log(`  Concurrency: ${conc}`)
+      const concResults: RankResult[] = []
       for (const method of methods) {
-        printStats(method, await runConc(users, method, conc))
+        const r = await runConc(users, method, conc)
+        printStats(method, r)
+        concResults.push({method, p50: r.p50, throughput: r.throughput})
       }
+      rankMethods(concResults, conc, mode)
+      grand[mode]!.push(...concResults)
       console.log(``)
     }
+  }
+
+  // Grand ranking per mode across all concurrency levels
+  for (const mode of [`pure-read`, `mixed`] as const) {
+    rankMethods(grand[mode]!, 0, mode)
   }
 
   // Mixed interleaved

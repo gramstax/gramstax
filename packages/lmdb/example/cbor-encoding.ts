@@ -29,13 +29,13 @@ async function main() {
     const docs = env.register(DocRepo)
 
     const doc: Doc = {id: `d1`, title: `Hello CBOR`, tags: [`lmdb`, `cbor`], createdAt: Date.now()}
-    await docs.set(`d1`, doc)
+    await docs.put(`d1`, doc)
     console.log(`  stored:`, doc)
     console.log(`  retrieved:`, docs.get(`d1`))
     console.log(`  equal:`, JSON.stringify(docs.get(`d1`)) === JSON.stringify(doc))
 
     // CBOR handles binary-friendly structures without base64 wrapping
-    await docs.set(`d2`, {id: `d2`, title: `Second`, tags: [], createdAt: 0})
+    await docs.put(`d2`, {id: `d2`, title: `Second`, tags: [], createdAt: 0})
     console.log(`  d2:`, docs.get(`d2`))
 
     await env.close()

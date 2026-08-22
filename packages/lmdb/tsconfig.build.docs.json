@@ -1,6 +1,6 @@
 {
-    "extends": "./tsconfig.build.json",
-    "compilerOptions": {
-        "removeComments": false // (docs must false for visibility comment)
-    }
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "removeComments": false // (docs must false for visibility comment)
+  }
 }

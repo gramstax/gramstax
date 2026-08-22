@@ -17,11 +17,12 @@
  * @public
  */
 
-import {basename, extname} from "node:path"
+import {statSync} from "node:fs"
+import {basename, extname, join} from "node:path"
 import type {Database, DatabaseOptions, GetOptions, Key, PutOptions, RangeIterable, RangeOptions, RootDatabase, RootDatabaseOptionsWithPath, Transaction, TransactionFlags} from "lmdb"
 import * as lmdbModule from "lmdb"
 import {ABORT, open} from "lmdb"
-import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError, LmdbTransactionError} from "./errors"
+import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbError, LmdbMapFullError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError, LmdbTransactionError} from "./errors"
 import type {LmdbRepository} from "./repository"
 import {LmdbTransaction} from "./transaction"
 import type {ILmdbEncoding, ILmdbEnvOptions, ILmdbEnvState, ILmdbKey} from "./types"
@@ -52,6 +53,22 @@ export interface LmdbMigration {
 type LmdbRepositoryInstance = LmdbRepository<unknown, ILmdbKey>
 type LmdbRepositoryClass<T extends LmdbRepositoryInstance = LmdbRepositoryInstance> = new (rootEnv: IEnvForRepo, dbName?: string) => T
 type LmdbRepositoryClassWithDbName<T extends LmdbRepositoryInstance = LmdbRepositoryInstance> = LmdbRepositoryClass<T> & {dbName?: string}
+
+/**
+ * Map usage snapshot returned by {@link LmdbEnv.getMapSizeUsed}.
+ *
+ * @public
+ */
+export interface LmdbMapUsage {
+  /** Configured virtual map size in bytes. */
+  total: number
+  /** Current on-disk size of the LMDB data file in bytes. */
+  used: number
+  /** `total - used`, floored at 0. */
+  free: number
+  /** `free / total` — `1` when the data file cannot be measured. */
+  ratio: number
+}
 
 /**
  * Per-instance root store type.
@@ -105,6 +122,9 @@ export class LmdbEnv {
   /** Maximum number of sub-databases (mirrors {@link ILmdbEnvOptions.maxDbs}). */
   readonly maxDbs: number
 
+  /** @internal Configured virtual map size in bytes — used by {@link getMapSizeUsed}. */
+  private readonly _mapSize: number
+
   /** Whether the env is read-only (mirrors {@link ILmdbEnvOptions.readOnly}). */
   readonly readOnly: boolean
 
@@ -132,7 +152,7 @@ export class LmdbEnv {
    * @remarks
    * Construction opens the env immediately. The `path` is required and
    * flows through to lmdb's native `open()`. No explicit `open()` call
-   * is needed.
+   * is needed. Defaults: `mapSize` = 4 GB (`4 << 30` bytes), `maxDbs` = 128.
    *
    * @param options - Env configuration. Supports the full set of LMDB
    * `open()` parameters via {@link ILmdbEnvOptions}.
@@ -162,15 +182,20 @@ export class LmdbEnv {
    * @public
    */
   constructor(options: ILmdbEnvOptions) {
+    const mapSize = options.mapSize ?? 4 << 30
+    const maxDbs = options.maxDbs ?? 128
     const opts: RootDatabaseOptionsWithPath = {
       ...(options as unknown as RootDatabaseOptionsWithPath),
+      mapSize,
+      maxDbs,
       sharedStructuresKey: Symbol.for(`global-structure`)
     } as unknown as RootDatabaseOptionsWithPath
     // Per-instance root store. Each env calls open() independently so
     // sub-database handle caches are naturally isolated across envs.
     this._root = open(opts) as unknown as LmdbRootStore
     this.path = options.path
-    this.maxDbs = options.maxDbs ?? 10
+    this.maxDbs = maxDbs
+    this._mapSize = mapSize
     this.readOnly = options.readOnly ?? false
     this.encoding = options.encoding
     this.useVersions = options.useVersions ?? false
@@ -357,6 +382,12 @@ export class LmdbEnv {
     if (this._repoByClass.has(repoClass)) {
       throw new LmdbRepositoryAlreadyRegisteredError(repoClass.name)
     }
+    // B2 guardrail — refuse to open a new sub-DB when the map is nearly full
+    // (free ratio below 10%) to fail early instead of hitting MDB_MAP_FULL.
+    const usage = this.getMapSizeUsed()
+    if (usage.ratio < 0.1) {
+      throw new LmdbMapFullError(usage.ratio)
+    }
     const dbName = repoClass.dbName
     if (!dbName) {
       throw new LmdbMissingDbNameError(repoClass.name)
@@ -442,7 +473,7 @@ export class LmdbEnv {
    * **SQL equivalent**:
    * ```sql
    * BEGIN;
-   * -- <writes performed via repository.set() inside fn>
+   * -- <writes performed via repository.put() inside fn>
    * COMMIT;  -- on tx.commit() or callback return
    * -- ROLLBACK;  -- on tx.abort() or callback throw
    * ```
@@ -476,16 +507,16 @@ export class LmdbEnv {
    * //    LMDB write transaction. Repository methods return Promise directly
    * //    without async wrapper, so no await is needed inside the callback.
    * const result = await env.transaction(() => {
-   *   userRepo.set("u1", user);
-   *   sessionRepo.set("s1", session);
+   *   userRepo.put("u1", user);
+   *   sessionRepo.put("s1", session);
    *   return { ok: true };
    * });
    *
    * // ⚠️  Async callback — works but not recommended. Each await creates a
    * //    microtask boundary that may cause lmdb-js to flush writes early.
    * await env.transaction(async (tx) => {
-   *   await userRepo.set("u1", user);
-   *   await sessionRepo.set("s1", session);
+   *   await userRepo.put("u1", user);
+   *   await sessionRepo.put("s1", session);
    * });
    * ```
    *
@@ -605,7 +636,7 @@ export class LmdbEnv {
    *
    * @remarks
    * Forwards to the inherited lmdb root-store `committed`. Useful to await
-   * after a batch of `set()`/`delete()`/`clear()` calls to guarantee
+   * after a batch of `put()`/`delete()`/`clear()` calls to guarantee
    * visibility before the next read.
    *
    * @public
@@ -988,6 +1019,28 @@ export class LmdbEnv {
   getStats(): Record<string, unknown> {
     this._assertOpen()
     return this._root.getStats()
+  }
+
+  /**
+   * Return map usage — configured map size vs current on-disk size.
+   *
+   * @remarks
+   * Simple estimation via `statSync` on the data file: `used` is the file
+   * size, `ratio` is the free fraction of the configured map. When the file
+   * cannot be measured (e.g. closed/not yet created) `ratio` is `1`.
+   *
+   * @public
+   */
+  getMapSizeUsed(): LmdbMapUsage {
+    const total = this._mapSize
+    try {
+      const pathStat = statSync(this.path)
+      const used = pathStat.isDirectory() ? statSync(join(this.path, `data.mdb`)).size : pathStat.size
+      const free = Math.max(total - used, 0)
+      return {total, used, free, ratio: total > 0 ? free / total : 1}
+    } catch {
+      return {total, used: 0, free: total, ratio: 1}
+    }
   }
 
   /**

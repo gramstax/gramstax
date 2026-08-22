@@ -25,9 +25,9 @@ async function main() {
     const repo = env.register(TenantUserRepo)
 
     console.log(`--- Composite keys: same userId under different tenants are distinct ---\n`)
-    await repo.set([`tenant-a`, `u1`], {id: `u1`, name: `Alice`})
-    await repo.set([`tenant-b`, `u1`], {id: `u1`, name: `Alice-B`})
-    await repo.set([`tenant-a`, `u2`], {id: `u2`, name: `Bob`})
+    await repo.put([`tenant-a`, `u1`], {id: `u1`, name: `Alice`})
+    await repo.put([`tenant-b`, `u1`], {id: `u1`, name: `Alice-B`})
+    await repo.put([`tenant-a`, `u2`], {id: `u2`, name: `Bob`})
 
     console.log(`tenant-a/u1:`, repo.get([`tenant-a`, `u1`]))
     console.log(`tenant-b/u1:`, repo.get([`tenant-b`, `u1`]))

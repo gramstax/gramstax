@@ -1,14 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": [
-      "node",
-      "bun"
-    ],
+    "types": ["node", "bun"],
     "paths": {
-      "~/*": [
-        "./src/*"
-      ]
+      "~/*": ["./src/*"]
     },
     "outDir": "dist",
     "composite": true,
@@ -21,15 +16,6 @@
     "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false
   },
-  "include": [
-    "*.ts",
-    "src",
-    "test",
-    "example",
-    "bench"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["*.ts", "src", "test", "example", "bench"],
+  "exclude": ["node_modules", "dist"]
 }

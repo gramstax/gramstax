@@ -1,13 +1,14 @@
 /**
- * F8 — Declarative secondary index.
- *
+ * F8 — Declarative non-unique secondary index (NonUniqueIndex) — SQL: CREATE INDEX (non-unique).
+ * Why dupSort: one indexed value (email) maps to many primary keys; dupSort stores duplicates
+ * under the same key in sorted order. Non-unique index requires static dupSort = true — validated.
  * Primary repo holds User by id; index repo (dupSort) maps email -> id.
  * Helper maintains index in same transaction as primary writes.
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
+import {NonUniqueIndex} from "../src/non-unique-index"
 import {LmdbRepository} from "../src/repository"
-import {SecondaryIndex} from "../src/secondary-index"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
 interface User {
@@ -29,14 +30,14 @@ let tmpDir: string
 let env: LmdbEnv
 let users: UserRepo
 let emailIndex: EmailIndexRepo
-let indexed: SecondaryIndex<User, string, string>
+let indexed: NonUniqueIndex<User, string, string>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-sec-index-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 10})
   users = env.register(UserRepo)
   emailIndex = env.register(EmailIndexRepo)
-  indexed = new SecondaryIndex(env, users, emailIndex, (u: User) => u.email)
+  indexed = new NonUniqueIndex(env, users, emailIndex, (u: User) => u.email)
 })
 
 afterEach(async () => {
@@ -44,7 +45,7 @@ afterEach(async () => {
   await rmWithRetry(tmpDir)
 })
 
-describe(`SecondaryIndex`, () => {
+describe(`NonUniqueIndex`, () => {
   it(`indexes on put and finds by index key`, async () => {
     await indexed.put(`u1`, {id: `u1`, email: `a@b.com`, name: `Alice`})
     await indexed.put(`u2`, {id: `u2`, email: `b@b.com`, name: `Bob`})
@@ -72,5 +73,13 @@ describe(`SecondaryIndex`, () => {
     const found = await indexed.findByIndex(`shared@b.com`)
     expect(found.length).toBe(2)
     expect(found.map((u: User) => u.id).sort()).toEqual([`u1`, `u2`])
+  })
+
+  it(`throws if index repo is not dupSort (validation)`, () => {
+    class BadIndex extends LmdbRepository<string, string> {
+      static dbName = `bad-index_dupsort_test`
+    }
+    const bad = env.register(BadIndex)
+    expect(() => new NonUniqueIndex(env, users, bad, (u: User) => u.email)).toThrow(/dupSort/)
   })
 })

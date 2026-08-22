@@ -1,7 +1,7 @@
 /**
  * F2 — Conditional writes at repository level.
  *
- * setIfNotExists: native ifNoExists — atomic across processes.
+ * putIfNotExists: native ifNoExists — atomic across processes.
  * compareAndSet: native ifVersion + versioned put — requires useVersions env.
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
@@ -48,22 +48,22 @@ afterEach(async () => {
   await rmWithRetry(vTmpDir)
 })
 
-describe(`LmdbRepository.setIfNotExists`, () => {
+describe(`LmdbRepository.putIfNotExists`, () => {
   it(`stores and returns true when the key is absent`, async () => {
-    const created = await users.setIfNotExists(`u1`, {id: `u1`, name: `Alice`})
+    const created = await users.putIfNotExists(`u1`, {id: `u1`, name: `Alice`})
     expect(created).toBe(true)
     expect(await users.get(`u1`)).toEqual({id: `u1`, name: `Alice`})
   })
 
   it(`returns false and preserves the existing value when the key exists`, async () => {
-    await users.set(`u1`, {id: `u1`, name: `Original`})
-    const created = await users.setIfNotExists(`u1`, {id: `u1`, name: `Overwrite`})
+    await users.put(`u1`, {id: `u1`, name: `Original`})
+    const created = await users.putIfNotExists(`u1`, {id: `u1`, name: `Overwrite`})
     expect(created).toBe(false)
     expect(await users.get(`u1`)).toEqual({id: `u1`, name: `Original`})
   })
 
-  it(`runs through the codec like set() does`, async () => {
-    const created = await users.setIfNotExists(`u1`, {id: `u1`, name: `Alice`})
+  it(`runs through the codec like put() does`, async () => {
+    const created = await users.putIfNotExists(`u1`, {id: `u1`, name: `Alice`})
     expect(created).toBe(true)
     expect((await users.getStrict(`u1`)).name).toBe(`Alice`)
   })
@@ -92,26 +92,26 @@ describe(`LmdbRepository.compareAndSet`, () => {
   })
 
   it(`rejects with a clear error when the env was opened without useVersions`, async () => {
-    await users.set(`u1`, {id: `u1`, name: `v1`})
+    await users.put(`u1`, {id: `u1`, name: `v1`})
     await expect(users.compareAndSet(`u1`, 1, {id: `u1`, name: `v2`})).rejects.toThrow(/useVersions/)
   })
 })
 
 describe(`LmdbRepository conditional write guards`, () => {
-  it(`setIfNotExists rejects on a read-only env`, async () => {
+  it(`putIfNotExists rejects on a read-only env`, async () => {
     const roTmp = createTestDir(`lmdb-cond-ro-`)
     let roEnv: LmdbEnv | undefined
     try {
       // Seed data via a writable env first, then reopen read-only.
       const wEnv = new LmdbEnv({path: roTmp, maxDbs: 5})
       const wRepo = wEnv.register(UserRepo)
-      await wRepo.set(`u1`, {id: `u1`, name: `A`})
+      await wRepo.put(`u1`, {id: `u1`, name: `A`})
       await wEnv.committed
       await wEnv.close()
 
       roEnv = new LmdbEnv({path: roTmp, maxDbs: 5, readOnly: true})
       const roRepo = roEnv.register(UserRepo)
-      await expect(roRepo.setIfNotExists(`u2`, {id: `u2`, name: `B`})).rejects.toBeInstanceOf(LmdbReadOnlyError)
+      await expect(roRepo.putIfNotExists(`u2`, {id: `u2`, name: `B`})).rejects.toBeInstanceOf(LmdbReadOnlyError)
     } finally {
       if (roEnv) await roEnv.close()
       await rmWithRetry(roTmp)

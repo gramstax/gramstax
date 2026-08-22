@@ -75,8 +75,8 @@ async function main() {
     const now = new Date(`2026-06-21T10:00:00Z`)
     const later = new Date(`2026-12-31T23:59:59Z`)
 
-    await dates.set(`now`, now)
-    await dates.set(`later`, later)
+    await dates.put(`now`, now)
+    await dates.put(`later`, later)
 
     const gotNow = await dates.get(`now`)
     console.log(`get('now'):`, gotNow?.toISOString())
@@ -93,7 +93,7 @@ async function main() {
       expiresAt: later,
       data: Buffer.from(`hello world`)
     }
-    await sessions.set(session.sid, session)
+    await sessions.put(session.sid, session)
 
     const gotSession = await sessions.get(session.sid)
     console.log(`session.sid:`, gotSession?.sid)

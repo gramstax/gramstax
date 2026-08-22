@@ -3,7 +3,7 @@
  *
  * @remarks
  * Each {@link LmdbRepository} owns one sub-database (identified by the static
- * `dbName`). The class provides typed `set`/`get`/`delete`/iteration methods
+ * `dbName`). The class provides typed `put`/`get`/`delete`/iteration methods
  * via a configurable codec (default: JSON).
  *
  * Subclassing is the preferred way to declare a repository:
@@ -15,7 +15,7 @@
  *
  * env.register(UserRepository);
  * const userRepo = env.get(UserRepository);
- * await userRepo.set("u1", { name: "Alice", age: 30 });
+ * await userRepo.put("u1", { name: "Alice", age: 30 });
  * ```
  *
  * Custom serialization: override static serialize / static deserialize`
@@ -29,7 +29,7 @@ import type {GetOptions, Key, RangeOptions} from "lmdb"
 import {asBinary} from "lmdb"
 import {resolveCodec} from "./codec"
 import type {IEnvForRepo} from "./env"
-import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbKeyNotFoundError, LmdbLikePatternError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbTransactionDoneError, LmdbTransactionError, LmdbUseVersionsRequiredError} from "./errors"
+import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbError, LmdbKeyNotFoundError, LmdbLikePatternError, LmdbMaterializationError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbTransactionDoneError, LmdbTransactionError, LmdbUseVersionsRequiredError} from "./errors"
 import type {LmdbTransaction} from "./transaction"
 import type {ICodec, ILmdbKey, IRangeOptions} from "./types"
 
@@ -92,6 +92,20 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   static dbName: string
+
+  /**
+   * Hard cap on how many entries a materializing range query may return.
+   *
+   * @remarks
+   * {@link keys}, {@link values}, {@link entries}, {@link like},
+   * {@link findByPrefix} and {@link deleteByPrefix} reject with
+   * {@link LmdbMaterializationError} when the result set would exceed this
+   * cap. Pass `{limit}` below the cap or use {@link iterate} (lazy, never
+   * guarded) instead.
+   *
+   * @public
+   */
+  static MAX_MATERIALIZE = 100_000
 
   /**
    * Whether this repository's sub-DB allows duplicate values per key.
@@ -215,7 +229,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
 
   /**
    * Guard for async methods: reject with the closed-state error instead of
-   * throwing synchronously, so `await repo.set(...)` after close rejects
+   * throwing synchronously, so `await repo.put(...)` after close rejects
    * cleanly instead of crashing the caller.
    *
    * @internal
@@ -223,6 +237,27 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   private _rejectClosed<T>(): Promise<T> | null {
     try {
       this._assertOpen()
+      return null
+    } catch (err) {
+      return Promise.reject(err)
+    }
+  }
+
+  /**
+   * Guard for dupSort-only methods.
+   *
+   * @internal
+   */
+  private _assertDupSort(op: string): void {
+    const ctor = this.constructor as typeof LmdbRepository & {dupSort?: boolean}
+    if (!ctor.dupSort) {
+      throw new LmdbError(`Repository '${ctor.dbName ?? this.constructor.name}' is not dupSort. Add static dupSort = true to use ${op}.`)
+    }
+  }
+
+  private _rejectIfNotDupSort<T>(op: string): Promise<T> | null {
+    try {
+      this._assertDupSort(op)
       return null
     } catch (err) {
       return Promise.reject(err)
@@ -254,6 +289,64 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
       return Promise.reject(new LmdbTransactionError(`A transaction was passed to a write operation but no write transaction is active. Wrap the write in env.transaction() and pass the same tx.`))
     }
     return null
+  }
+
+  /**
+   * Guardrail (B4): refuse materializing queries that would return unbounded
+   * or oversized result arrays.
+   *
+   * @remarks
+   * When `options.limit` is absent, conservatively checks the repository count
+   * (O(1), sync). When `options.limit` exceeds {@link MAX_MATERIALIZE}, rejects
+   * unconditionally.
+   *
+   * @throws {@link LmdbMaterializationError}
+   * @internal
+   */
+  private _assertMaterialize(op: string, options?: IRangeOptions): void {
+    const max = (this.constructor as typeof LmdbRepository).MAX_MATERIALIZE
+    const limit = options?.limit
+    if (limit !== undefined) {
+      if (limit > max) {
+        throw new LmdbMaterializationError(op, max, limit)
+      }
+      return
+    }
+    if (this.count() > max) {
+      throw new LmdbMaterializationError(op, max)
+    }
+  }
+
+  /**
+   * Count-based guardrail variant for operations that have no `options` param
+   * (e.g. {@link deleteByPrefix}).
+   *
+   * @throws {@link LmdbMaterializationError}
+   * @internal
+   */
+  private _assertMaterializeCount(op: string, count: number): void {
+    const max = (this.constructor as typeof LmdbRepository).MAX_MATERIALIZE
+    if (count > max) {
+      throw new LmdbMaterializationError(op, max)
+    }
+  }
+
+  private _rejectMaterialize<T>(op: string, options?: IRangeOptions): Promise<T> | null {
+    try {
+      this._assertMaterialize(op, options)
+      return null
+    } catch (err) {
+      return Promise.reject(err)
+    }
+  }
+
+  private _rejectMaterializeCount<T>(op: string, count: number): Promise<T> | null {
+    try {
+      this._assertMaterializeCount(op, count)
+      return null
+    } catch (err) {
+      return Promise.reject(err)
+    }
   }
 
   /**
@@ -334,10 +427,10 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  set(key: K, value: T, tx?: LmdbTransaction): Promise<void> {
+  put(key: K, value: T, tx?: LmdbTransaction): Promise<void> {
     const closed = this._rejectClosed<void>()
     if (closed) return closed
-    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`set`))
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`put`))
     const txErr = this._rejectBadTx<void>(tx)
     if (txErr) return txErr
     const encoded = this._codec ? this._codec.serialize(value) : value
@@ -513,7 +606,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
     // documented Promise<void> contract (tested) promises undefined. Prefetch
     // is a pre-burst page-fault helper, not a per-write hot path, so the
     // single normalization promise is acceptable (plan 007 P3 applies to
-    // set/delete).
+    // put/delete).
     return this.env.prefetch(keys).then(() => undefined as undefined)
   }
 
@@ -583,6 +676,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   keys(options?: IRangeOptions, tx?: LmdbTransaction): Promise<K[]> {
     const closed = this._rejectClosed<K[]>()
     if (closed) return closed
+    const guard = this._rejectMaterialize<K[]>(`keys`, options)
+    if (guard) return guard
     return Promise.resolve(this.env.getKeys(this._rangeOpts(options, tx)).asArray) as Promise<K[]>
   }
 
@@ -603,7 +698,13 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   values(options?: IRangeOptions, tx?: LmdbTransaction): Promise<T[]> {
     const closed = this._rejectClosed<T[]>()
     if (closed) return closed
-    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => this._decode(e.value)))
+    const guard = this._rejectMaterialize<T[]>(`values`, options)
+    if (guard) return guard
+    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => {
+      const a = arr as Array<{key: K; value: unknown}>
+      if (!this._codec) return a.map((e) => e.value as T)
+      return a.map((e) => this._decode(e.value))
+    })
   }
 
   /**
@@ -623,7 +724,13 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   entries(options?: IRangeOptions, tx?: LmdbTransaction): Promise<Array<[K, T]>> {
     const closed = this._rejectClosed<Array<[K, T]>>()
     if (closed) return closed
-    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
+    const guard = this._rejectMaterialize<Array<[K, T]>>(`entries`, options)
+    if (guard) return guard
+    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => {
+      const a = arr as Array<{key: K; value: unknown}>
+      if (!this._codec) return a.map((e) => [e.key as K, e.value as T])
+      return a.map((e) => [e.key as K, this._decode(e.value)])
+    })
   }
 
   /**
@@ -651,7 +758,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
     this._assertOpen()
     const iter = this.env.getRange(this._rangeOpts(options, tx)) as Iterable<{key: K; value: unknown}>
     for (const entry of iter) {
-      yield [entry.key as K, this._decode(entry.value)]
+      if (!this._codec) yield [entry.key as K, entry.value as T]
+      else yield [entry.key as K, this._decode(entry.value)]
     }
   }
 
@@ -795,6 +903,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   like(pattern: string, options?: IRangeOptions): Promise<Array<[K, T]>> {
     const closed = this._rejectClosed<Array<[K, T]>>()
     if (closed) return closed
+    const guard = this._rejectMaterialize<Array<[K, T]>>(`like`, options)
+    if (guard) return guard
     const wildcardCount = (pattern.match(/[*?]/g) || []).length
     if (wildcardCount > LmdbLikePatternError.MAX_WILDCARDS) {
       return Promise.reject(new LmdbLikePatternError(wildcardCount))
@@ -814,7 +924,11 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
             inclusiveEnd: options?.inclusiveEnd,
             exclusiveStart: options?.exclusiveStart
           }).asArray
-        ).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
+        ).then((arr) => {
+          const a = arr as Array<{key: K; value: unknown}>
+          if (!this._codec) return a.map((e) => [e.key as K, e.value as T])
+          return a.map((e) => [e.key as K, this._decode(e.value)])
+        })
       }
     }
     // Bound the scan by a literal prefix anchor so we don't full-scan the
@@ -827,7 +941,11 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
         rangeOpts.end = inferred.end
       }
     }
-    return Promise.resolve(this.env.getRange(rangeOpts).filter(({key}: {key: Key}) => globMatch(String(key), pattern)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
+    return Promise.resolve(this.env.getRange(rangeOpts).filter(({key}: {key: Key}) => globMatch(String(key), pattern)).asArray).then((arr) => {
+      const a = arr as Array<{key: K; value: unknown}>
+      if (!this._codec) return a.map((e) => [e.key as K, e.value as T])
+      return a.map((e) => [e.key as K, this._decode(e.value)])
+    })
   }
 
   /**
@@ -852,9 +970,15 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   findByPrefix(prefix: K, options?: IRangeOptions): Promise<Array<[K, T]>> {
     const closed = this._rejectClosed<Array<[K, T]>>()
     if (closed) return closed
+    const guard = this._rejectMaterialize<Array<[K, T]>>(`findByPrefix`, options)
+    if (guard) return guard
     const endKey = this._prefixEnd(prefix)
     if (endKey !== undefined && this._stringBoundsValid(prefix)) {
-      return Promise.resolve(this.env.getRange({...options, start: prefix, end: endKey}).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
+      return Promise.resolve(this.env.getRange({...options, start: prefix, end: endKey}).asArray).then((arr) => {
+        const a = arr as Array<{key: K; value: unknown}>
+        if (!this._codec) return a.map((e) => [e.key as K, e.value as T])
+        return a.map((e) => [e.key as K, this._decode(e.value)])
+      })
     }
     // Unsupported key type (e.g. numeric), or a string prefix on a non-string
     // keyed repo: no valid prefix bounds, so we must scan. To avoid
@@ -862,7 +986,13 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
     // filter by prefix, then fetch the matched values.
     return Promise.resolve(this.env.getKeys(options).asArray)
       .then((keys) => (keys as K[]).filter((k) => String(k).startsWith(String(prefix))))
-      .then((matchedKeys) => this.env.getMany(matchedKeys).then((raws) => (raws as Array<unknown>).map((raw, i) => [matchedKeys[i] as K, this._decode(raw)] as [K, T])))
+      .then((matchedKeys) =>
+        this.env.getMany(matchedKeys).then((raws) => {
+          const rawArr = raws as Array<unknown>
+          if (!this._codec) return rawArr.map((raw, i) => [matchedKeys[i] as K, raw as T] as [K, T])
+          return rawArr.map((raw, i) => [matchedKeys[i] as K, this._decode(raw)] as [K, T])
+        })
+      )
   }
 
   /**
@@ -928,6 +1058,18 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
       return Promise.reject(new LmdbEmptyPrefixError())
     }
     const endKey = this._prefixEnd(prefix)
+    // Guardrail (B4): deleteByPrefix materializes the matched keys into an
+    // array before removing them. Reject when the deletion set would exceed
+    // the cap — exact count via the native O(log N + M) getKeysCount for
+    // boundable key types, conservative whole-repo count otherwise (the
+    // fallback path drains the full key array anyway).
+    if (endKey !== undefined && this._stringBoundsValid(prefix)) {
+      const guard = this._rejectMaterializeCount<number>(`deleteByPrefix`, this.env.getKeysCount({start: prefix, end: endKey}))
+      if (guard) return guard
+    } else {
+      const guard = this._rejectMaterializeCount<number>(`deleteByPrefix`, this.count())
+      if (guard) return guard
+    }
     // Bounded range scan for matching key types. For unsupported key types
     // (e.g. numeric) or a string prefix on a Buffer-keyed repo there is no
     // valid prefix bound, so we drain the native key array once and filter.
@@ -1027,7 +1169,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
     return this.env.transaction(() => {
       const current = this.get(key)
       const next = updater(current)
-      this.set(key, next)
+      this.put(key, next)
       return next
     })
   }
@@ -1049,10 +1191,10 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  setIfNotExists(key: K, value: T): Promise<boolean> {
+  putIfNotExists(key: K, value: T): Promise<boolean> {
     const closed = this._rejectClosed<boolean>()
     if (closed) return closed
-    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`setIfNotExists`))
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`putIfNotExists`))
     const encoded = this._codec ? this._codec.serialize(value) : value
     return this.env.ifNoExists(key, () => {
       void this.env.put(key, encoded)
@@ -1102,10 +1244,11 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * Reads and writes inside a single LMDB writer transaction, so concurrent
    * `increment()` calls on the same key — even from different processes —
-   * cannot interleave and lose updates.
+   * cannot interleave and lose updates. Prefer {@link decrement} for
+   * decrements instead of `increment(key, -n)`.
    *
    * @param key - Key holding the counter. Absent keys are treated as `0`.
-   * @param delta - Amount to add (defaults to `1`). Negative values decrement.
+   * @param delta - Amount to add (defaults to `1`). Must be finite.
    * @returns The value after the increment.
    *
    * @throws TypeError if the existing value is not a number.
@@ -1126,9 +1269,33 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
         throw new TypeError(`Cannot increment non-numeric value for key '${String(key)}'`)
       }
       const next = (current ?? 0) + delta
-      this.set(key, next as unknown as T)
+      this.put(key, next as unknown as T)
       return next
     })
+  }
+
+  /**
+   * Atomically decrement a numeric value.
+   *
+   * @remarks
+   * Thin wrapper around {@link increment} with negated `amount`. Atomicity
+   * is identical to `increment` — single writer transaction, safe across
+   * processes. Use this instead of `increment(key, -n)` for clarity.
+   *
+   * @param key - Key holding the counter. Absent keys are treated as `0`.
+   * @param amount - Amount to subtract (defaults to `1`). Must be finite.
+   * @returns The value after the decrement.
+   *
+   * @throws TypeError if the existing value is not a number or amount is not finite.
+   * @throws {@link LmdbReadOnlyError} if the env is read-only.
+   *
+   * @public
+   */
+  decrement(key: K, amount = 1): Promise<number> {
+    if (typeof amount !== `number` || !Number.isFinite(amount)) {
+      return Promise.reject(new TypeError(`amount must be a finite number`))
+    }
+    return this.increment(key, -amount)
   }
 
   /**
@@ -1142,6 +1309,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @param key - Key under which to store the duplicate.
    * @param value - Duplicate value to add.
    *
+   * @throws {@link LmdbError} if the repository is not dupSort.
    * @throws {@link LmdbReadOnlyError} if the env is read-only.
    *
    * @public
@@ -1149,6 +1317,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   addValue(key: K, value: T): Promise<void> {
     const closed = this._rejectClosed<void>()
     if (closed) return closed
+    const dup = this._rejectIfNotDupSort<void>(`addValue`)
+    if (dup) return dup
     if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`addValue`))
     const encoded = this._codec ? this._codec.serialize(value) : value
     return this.env.put(key, encoded) as unknown as Promise<void>
@@ -1160,12 +1330,20 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @param key - Key whose values to retrieve.
    * @returns Array of values (decoded via codec) — empty if the key has none.
    *
+   * @throws {@link LmdbError} if the repository is not dupSort.
+   *
    * @public
    */
   getValues(key: K): Promise<T[]> {
     const closed = this._rejectClosed<T[]>()
     if (closed) return closed
-    return Promise.resolve(this.env.getValues(key).asArray as Promise<unknown[]>).then((raws) => (raws as unknown[]).map((raw) => this._decode(raw)))
+    const dup = this._rejectIfNotDupSort<T[]>(`getValues`)
+    if (dup) return dup
+    return Promise.resolve(this.env.getValues(key).asArray as Promise<unknown[]>).then((raws) => {
+      const rawArr = raws as unknown[]
+      if (!this._codec) return rawArr.map((raw) => raw as T)
+      return rawArr.map((raw) => this._decode(raw))
+    })
   }
 
   /**
@@ -1174,10 +1352,13 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @param key - Key to count.
    * @returns Number of values — `0` if the key is absent.
    *
+   * @throws {@link LmdbError} if the repository is not dupSort.
+   *
    * @public
    */
   getValuesCount(key: K): number {
     this._assertOpen()
+    this._assertDupSort(`getValuesCount`)
     return this.env.getValuesCount(key)
   }
 
@@ -1188,6 +1369,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @param value - Exact duplicate value to remove.
    * @returns `true` if the entry existed and was removed, `false` otherwise.
    *
+   * @throws {@link LmdbError} if the repository is not dupSort.
    * @throws {@link LmdbReadOnlyError} if the env is read-only.
    *
    * @public
@@ -1195,6 +1377,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   removeValue(key: K, value: T): Promise<boolean> {
     const closed = this._rejectClosed<boolean>()
     if (closed) return closed
+    const dup = this._rejectIfNotDupSort<boolean>(`removeValue`)
+    if (dup) return dup
     if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`removeValue`))
     const encoded = this._codec ? this._codec.serialize(value) : value
     // LMDB's native remove(key, value) can return true even when the
@@ -1279,10 +1463,10 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  async setMany(entries: Array<[K, T]>, chunkSize = 500): Promise<void> {
+  async putMany(entries: Array<[K, T]>, chunkSize = 500): Promise<void> {
     const closed = this._rejectClosed<void>()
     if (closed) return closed
-    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`setMany`))
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`putMany`))
     if (entries.length === 0) return
     for (let i = 0; i < entries.length; i += chunkSize) {
       const chunk = entries.slice(i, i + chunkSize)
@@ -1333,7 +1517,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
       .filter((line: string) => line.length > 0)
       .map((line: string) => JSON.parse(line) as [K, T])
     if (entries.length === 0) return 0
-    await this.setMany(entries)
+    await this.putMany(entries)
     return entries.length
   }
 }

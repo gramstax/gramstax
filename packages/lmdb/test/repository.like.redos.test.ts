@@ -46,8 +46,8 @@ describe(`LmdbRepository.like ReDoS regression`, () => {
     // old regex) so a regression breaches the 2000ms budget within seconds
     // instead of hanging the synchronous main thread forever — which bun's
     // timeout cannot interrupt. Fixed code runs in <5ms at any length.
-    await plain.set(`a`.repeat(35), `v1`)
-    await plain.set(`a`.repeat(40), `v2`)
+    await plain.put(`a`.repeat(35), `v1`)
+    await plain.put(`a`.repeat(40), `v2`)
     const t0 = performance.now()
     await plain.like(`*********Z`) // 9 wildcards — inside MAX_WILDCARDS=10
     const elapsed = performance.now() - t0
@@ -55,8 +55,8 @@ describe(`LmdbRepository.like ReDoS regression`, () => {
   })
 
   it(`literal-separated wildcard pattern over long keys completes in bounded time`, async () => {
-    await plain.set(`a`.repeat(35), `v1`)
-    await plain.set(`a`.repeat(40), `v2`)
+    await plain.put(`a`.repeat(35), `v1`)
+    await plain.put(`a`.repeat(40), `v2`)
     const t0 = performance.now()
     await plain.like(`*a*a*a*a*a*a*a*a*aZ`)
     const elapsed = performance.now() - t0
@@ -96,7 +96,7 @@ describe(`LmdbRepository.like glob semantics parity`, () => {
     it(`${c.label} (${c.pattern})`, async () => {
       let i = 0
       for (const key of [...c.shouldMatch, ...c.shouldNotMatch]) {
-        await plain.set(key, `v${i++}`)
+        await plain.put(key, `v${i++}`)
       }
       const hits = (await plain.like(c.pattern)).map(([k]) => k)
       for (const key of c.shouldMatch) {

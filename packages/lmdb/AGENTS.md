@@ -33,13 +33,15 @@ class Db extends LmdbEnv {
 
 - **Root class**: `class Db extends LmdbEnv` — subclass, do not wrap.
 - **Repository**: extend `LmdbRepository<T,K>` with `static dbName` for each sub-DB.
-- **Env opens on construction** — no explicit `open()` call.
+- **Env opens on construction** — no explicit `open()` call. Defaults: `mapSize` = 4 GB (`4 << 30` bytes), `maxDbs` = 128.
 - **Sync reads**: `get()`/`has()`/`count()` are synchronous (delegate to lmdb sync methods).
 - **Atomic writes**: `env.transaction()` for every read-then-write pattern. Use a sync callback (non-async) — repository methods are non-async, and a sync callback keeps all writes in the same event turn for proper batching.
 - **Cross-repo access**: `this.env.getRepository(OtherRepo)` inside transactions.
 - **Key design**: natural key per repo — no namespace prefixes.
 - **Counting**: `repo.count()` = O(1), synchronous — prefer over manual counters.
 - **Encoding**: default msgpack (fast, Date/Map/Set/BigInt); `encoding: "json"` for human-readable.
+- **Materialization guardrail**: `keys()`/`values()`/`entries()`/`like()`/`findByPrefix()`/`deleteByPrefix()` reject with `LmdbMaterializationError` when the result set would exceed `MAX_MATERIALIZE` (`100_000`). Pass `{limit}` below the cap or use `iterate()` (lazy, never guarded) for result sets larger than 100k.
+- **Queue v2**: `LmdbQueue` enqueue/dequeue run in ONE synchronous transaction (`transactionSync`) — counter bump + payload write (enqueue) and read + delete (dequeue) commit atomically, FIFO preserved across processes.
 
 ## API
 
@@ -49,7 +51,7 @@ class Db extends LmdbEnv {
 | `getStrict(key, tx?)`           | `T` (throws if absent)   | sync       |
 | `has(key)`                      | `boolean`                | sync       |
 | `count()`                       | `number`                 | sync       |
-| `set(key, value, tx?)`          | `Promise<void>`          | async      |
+| `put(key, value, tx?)`          | `Promise<void>`          | async      |
 | `delete(key)`                   | `Promise<boolean>`       | async      |
 | `clear()`                       | `Promise<void>`          | async      |
 | `drop()`                        | `Promise<void>`          | async      |
@@ -65,7 +67,7 @@ class Db extends LmdbEnv {
 
 Transaction lifecycle: `'active' | 'committed' | 'aborted' | 'released'` — read transactions that finish normally report `'released'` (not `aborted`). `env.on('beforecommit'|'aftercommit', cb)` / `env.off(...)` attach commit listeners; `close()` detaches them and purges the env from lmdb-js's `allDbs` registry. `deleteByPrefix('')` rejects with `LmdbEmptyPrefixError` (use `clear()`). After `close()`, all ops throw `LmdbEnvClosedError`.
 
-Constructor options: `path`, `maxDbs`, `compression`, `encoding`, `readOnly`, `mapSize`, `cache`, `useVersions`, `keyEncoding`, `dupSort`, `noSync`, `encryptionKey`, `commitDelay`, `pageSize`, and all other `lmdb` `open()` options.
+Constructor options: `path`, `maxDbs` (default 128), `compression`, `encoding`, `readOnly`, `mapSize` (default 4 GB), `cache`, `useVersions`, `keyEncoding`, `dupSort`, `noSync`, `encryptionKey`, `commitDelay`, `pageSize`, and all other `lmdb` `open()` options.
 
 ## Build & Test
 

@@ -38,14 +38,14 @@ afterEach(async () => {
 describe(`LmdbRepository cbor encoding`, () => {
   it(`stores and retrieves a document with cbor encoding`, async () => {
     const doc: Doc = {id: `d1`, n: 42, flag: true}
-    await docs.set(`d1`, doc)
+    await docs.put(`d1`, doc)
     expect(await docs.get(`d1`)).toEqual(doc)
   })
 
   it(`handles nested structures with cbor`, async () => {
     const doc: Doc = {id: `d2`, n: 0, flag: false}
-    await docs.set(`d2`, doc)
-    await docs.set(`d2`, {...doc, n: 99})
+    await docs.put(`d2`, doc)
+    await docs.put(`d2`, {...doc, n: 99})
     expect((await docs.get(`d2`))!.n).toBe(99)
   })
 })

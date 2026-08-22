@@ -1,7 +1,7 @@
 /**
- * F10 — Bulk utilities: setMany, exportJSONL, importJSONL.
+ * F10 — Bulk utilities: putMany, exportJSONL, importJSONL.
  *
- * setMany batches in one transaction; export/import are text-format
+ * putMany batches in one transaction; export/import are text-format
  * complements to native binary backup().
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
@@ -34,8 +34,8 @@ afterEach(async () => {
 })
 
 describe(`LmdbRepository bulk utilities`, () => {
-  it(`setMany stores multiple entries in one batch`, async () => {
-    await users.setMany([
+  it(`putMany stores multiple entries in one batch`, async () => {
+    await users.putMany([
       [`u1`, {id: `u1`, name: `Alice`}],
       [`u2`, {id: `u2`, name: `Bob`}],
       [`u3`, {id: `u3`, name: `Carol`}]
@@ -46,15 +46,15 @@ describe(`LmdbRepository bulk utilities`, () => {
     expect(users.count()).toBe(3)
   })
 
-  it(`setMany overwrites existing keys`, async () => {
-    await users.set(`u1`, {id: `u1`, name: `Alice`})
-    await users.setMany([[`u1`, {id: `u1`, name: `Alicia`}]])
+  it(`putMany overwrites existing keys`, async () => {
+    await users.put(`u1`, {id: `u1`, name: `Alice`})
+    await users.putMany([[`u1`, {id: `u1`, name: `Alicia`}]])
     expect(await users.get(`u1`)).toEqual({id: `u1`, name: `Alicia`})
   })
 
   it(`exportJSONL serializes entries as JSON Lines`, async () => {
-    await users.set(`u1`, {id: `u1`, name: `Alice`})
-    await users.set(`u2`, {id: `u2`, name: `Bob`})
+    await users.put(`u1`, {id: `u1`, name: `Alice`})
+    await users.put(`u2`, {id: `u2`, name: `Bob`})
     const jsonl = await users.exportJSONL()
     const lines = jsonl
       .trim()
@@ -75,8 +75,8 @@ describe(`LmdbRepository bulk utilities`, () => {
   })
 
   it(`export then import roundtrips through clear`, async () => {
-    await users.set(`u1`, {id: `u1`, name: `Alice`})
-    await users.set(`u2`, {id: `u2`, name: `Bob`})
+    await users.put(`u1`, {id: `u1`, name: `Alice`})
+    await users.put(`u2`, {id: `u2`, name: `Bob`})
     const jsonl = await users.exportJSONL()
     await users.clear()
     expect(users.count()).toBe(0)

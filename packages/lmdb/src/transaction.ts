@@ -139,8 +139,8 @@ export class LmdbTransaction {
    * @example
    * ```typescript
    * await env.transaction(async (tx) => {
-   *   await userRepo.set("u1", user, tx);
-   *   await sessionRepo.set("s1", session, tx);
+   *   await userRepo.put("u1", user, tx);
+   *   await sessionRepo.put("s1", session, tx);
    *   tx.commit();
    * });
    * ```
@@ -172,7 +172,7 @@ export class LmdbTransaction {
    * ```typescript
    * await env.transaction(async (tx) => {
    *   try {
-   *     await userRepo.set("u1", user, tx);
+   *     await userRepo.put("u1", user, tx);
    *     await someRiskyOp();
    *     tx.commit();
    *   } catch (err) {

@@ -32,7 +32,7 @@ describe(`error hierarchy`, () => {
       new LmdbKeyNotFoundError(`db`, `key1`),
       new LmdbTransactionError(`msg`),
       new LmdbTransactionDoneError(),
-      new LmdbReadOnlyError(`set`),
+      new LmdbReadOnlyError(`put`),
       new LmdbEmptyPrefixError()
     ]
     for (const e of all) {
@@ -51,7 +51,7 @@ describe(`error hierarchy`, () => {
     expect(new LmdbKeyNotFoundError(`db`, `k`).name).toBe(`LmdbKeyNotFoundError`)
     expect(new LmdbTransactionError(`msg`).name).toBe(`LmdbTransactionError`)
     expect(new LmdbTransactionDoneError().name).toBe(`LmdbTransactionDoneError`)
-    expect(new LmdbReadOnlyError(`set`).name).toBe(`LmdbReadOnlyError`)
+    expect(new LmdbReadOnlyError(`put`).name).toBe(`LmdbReadOnlyError`)
     expect(new LmdbEmptyPrefixError().name).toBe(`LmdbEmptyPrefixError`)
   })
 })
@@ -92,7 +92,7 @@ describe(`error messages`, () => {
   })
 
   it(`LmdbReadOnlyError includes the operation name`, () => {
-    expect(new LmdbReadOnlyError(`set`).message).toContain(`set`)
+    expect(new LmdbReadOnlyError(`put`).message).toContain(`put`)
   })
 
   it(`LmdbEmptyPrefixError mentions clear() as the alternative`, () => {

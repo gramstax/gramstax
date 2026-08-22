@@ -45,8 +45,8 @@ async function main() {
     console.log(`--- Cross-repo transaction (commit) ---\n`)
 
     await env.transaction(async (tx) => {
-      await users.set(`u1`, {id: `u1`, name: `Alice`}, tx)
-      await sessions.set(`s1`, {id: `s1`, userId: `u1`}, tx)
+      await users.put(`u1`, {id: `u1`, name: `Alice`}, tx)
+      await sessions.put(`s1`, {id: `s1`, userId: `u1`}, tx)
       tx.commit()
     })
 
@@ -63,7 +63,7 @@ async function main() {
     console.log(`\n--- LmdbTransaction commit + tx.abort() (no-op after commit) ---\n`)
 
     await env.transaction(async (tx) => {
-      await users.set(`u2`, {id: `u2`, name: `Bob`}, tx)
+      await users.put(`u2`, {id: `u2`, name: `Bob`}, tx)
       tx.commit()
     })
 

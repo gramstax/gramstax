@@ -32,7 +32,7 @@ async function main() {
     const logs = env.register(LogRepository)
 
     for (let i = 1; i <= 10; i++) {
-      await logs.set(`log-${String(i).padStart(2, `0`)}`, {
+      await logs.put(`log-${String(i).padStart(2, `0`)}`, {
         level: i % 3 === 0 ? `warn` : `info`,
         message: `entry ${i}`
       })

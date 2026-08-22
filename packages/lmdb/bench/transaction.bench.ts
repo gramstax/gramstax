@@ -15,8 +15,14 @@ const POPULATE = 10_000
 const ITERS = 500
 const WARMUP = 50
 
-interface Item { id: string; value: number }
-interface Log { ts: number; msg: string }
+interface Item {
+  id: string
+  value: number
+}
+interface Log {
+  ts: number
+  msg: string
+}
 
 class ItemRepo extends LmdbRepository<Item, string> {
   static dbName = `bench-tx-item`
@@ -38,12 +44,15 @@ function fmtNs(ns: bigint): string {
   return `${(n / 1_000_000_000).toFixed(2)}s`
 }
 
-async function bench(
-  label: string,
-  fn: () => Promise<unknown> | unknown,
-  iterations = ITERS,
-  warmup = WARMUP
-): Promise<void> {
+interface BenchResult {
+  label: string
+  median: bigint
+  min: bigint
+  max: bigint
+  mean: bigint
+}
+
+async function bench(label: string, fn: () => Promise<unknown> | unknown, iterations = ITERS, warmup = WARMUP): Promise<BenchResult> {
   for (let i = 0; i < warmup; i++) await fn()
   const samples: bigint[] = []
   for (let i = 0; i < iterations; i++) {
@@ -57,9 +66,34 @@ async function bench(
   const max = samples[samples.length - 1] ?? 0n
   const sum = samples.reduce((a, b) => a + b, 0n)
   const mean = sum / BigInt(samples.length)
-  console.log(
-    `  ${label.padEnd(36)} median=${fmtNs(median).padStart(10)} min=${fmtNs(min).padStart(10)} max=${fmtNs(max).padStart(10)} mean=${fmtNs(mean).padStart(10)}`
-  )
+  console.log(`  ${label.padEnd(36)} median=${fmtNs(median).padStart(10)} min=${fmtNs(min).padStart(10)} max=${fmtNs(max).padStart(10)} mean=${fmtNs(mean).padStart(10)}`)
+  return {label, median, min, max, mean}
+}
+
+function rankAndPrint(results: BenchResult[], title = `benchmark`): void {
+  const sorted = [...results].sort((a, b) => (a.median < b.median ? -1 : a.median > b.median ? 1 : 0))
+  const winner = sorted[0]
+  const loser = sorted[sorted.length - 1]
+  if (!winner) {
+    console.log(`\n--- Ranking: ${title} (by median) — no results ---\n`)
+    return
+  }
+  if (sorted.length < 2 || !loser) {
+    console.log(`\n--- Ranking: ${title} (by median) ---\n  #1 🏆 ${winner.label}  median=${fmtNs(winner.median)}  +0.0% vs winner  (WINNER)\n`)
+    return
+  }
+  const vsLoserPct = (Number(loser.median - winner.median) / Number(loser.median)) * 100
+  const ratio = Number(loser.median) / Number(winner.median)
+  console.log(`\n--- Ranking: ${title} (by median) ---`)
+  for (const [i, r] of sorted.entries()) {
+    const isWinner = i === 0
+    const isLoser = i === sorted.length - 1
+    const vsWinnerPct = (Number(r.median - winner.median) / Number(winner.median)) * 100
+    const tag = isWinner ? `🏆` : isLoser ? `💀` : `  `
+    const suffix = isWinner ? `+0.0% vs winner  (WINNER)` : `${vsWinnerPct.toFixed(1)}% slower vs winner${isLoser ? `  (LOSER)` : ``}`
+    console.log(`  #${i + 1} ${tag} ${r.label.padEnd(36)} median=${fmtNs(r.median).padStart(10)}  ${suffix}`)
+  }
+  console.log(`Winner is ${ratio.toFixed(2)}x faster than loser: ${fmtNs(loser.median)} vs ${fmtNs(winner.median)} (winner uses ${vsLoserPct.toFixed(0)}% less time than loser)`)
 }
 
 // ---------------------------------------------------------------------------
@@ -86,64 +120,84 @@ async function main(): Promise<void> {
 
   console.log(`=== Transaction benchmark (${ITERS} iters) ===\n`)
 
+  const results: BenchResult[] = []
+
   // Single write inside transaction
-  await bench(`tx single set`, async () => {
-    await env.transaction(async () => {
-      await items.set(`_tx1`, {id: `_tx1`, value: Date.now()})
+  results.push(
+    await bench(`tx single put`, async () => {
+      await env.transaction(async () => {
+        await items.put(`_tx1`, {id: `_tx1`, value: Date.now()})
+      })
     })
-  })
+  )
 
   // Read + write inside transaction
-  await bench(`tx read-then-set`, async () => {
-    await env.transaction(async () => {
-      const cur = await items.get(`k0`)
-      await items.set(`k0`, {id: `k0`, value: (cur?.value ?? 0) + 1})
+  results.push(
+    await bench(`tx read-then-put`, async () => {
+      await env.transaction(async () => {
+        const cur = await items.get(`k0`)
+        await items.put(`k0`, {id: `k0`, value: (cur?.value ?? 0) + 1})
+      })
     })
-  })
+  )
 
   // Cross-repo transaction (two repos)
-  await bench(`tx cross-repo (2 repos)`, async () => {
-    await env.transaction(async () => {
-      await items.set(`_tx_cr`, {id: `_tx_cr`, value: Date.now()})
-      await logs.set(`_log_cr`, {ts: Date.now(), msg: `cross-repo tx`})
+  results.push(
+    await bench(`tx cross-repo (2 repos)`, async () => {
+      await env.transaction(async () => {
+        await items.put(`_tx_cr`, {id: `_tx_cr`, value: Date.now()})
+        await logs.put(`_log_cr`, {ts: Date.now(), msg: `cross-repo tx`})
+      })
     })
-  })
+  )
 
-  // Batch write (multiple sets in one tx)
-  await bench(`tx batch 10 sets`, async () => {
-    await env.transaction(async () => {
-      for (let i = 0; i < 10; i++) {
-        await items.set(`_batch:${i}`, {id: `_batch:${i}`, value: i})
-      }
+  // Batch write (multiple puts in one tx)
+  results.push(
+    await bench(`tx batch 10 puts`, async () => {
+      await env.transaction(async () => {
+        for (let i = 0; i < 10; i++) {
+          await items.put(`_batch:${i}`, {id: `_batch:${i}`, value: i})
+        }
+      })
     })
-  })
+  )
 
   // Transaction with abort
-  await bench(`tx abort (rollback)`, async () => {
-    await env.transaction(async (tx) => {
-      await items.set(`_abort_test`, {id: `_abort_test`, value: 0})
-      tx.abort()
+  results.push(
+    await bench(`tx abort (rollback)`, async () => {
+      await env.transaction(async (tx) => {
+        await items.put(`_abort_test`, {id: `_abort_test`, value: 0})
+        tx.abort()
+      })
     })
-  })
+  )
 
   // Read-only transaction
-  await bench(`readTransaction (snapshot)`, async () => {
-    await env.readTransaction(async () => {
-      await items.get(`k0`)
-      await items.get(`k100`)
-      await items.get(`k500`)
+  results.push(
+    await bench(`readTransaction (snapshot)`, async () => {
+      await env.readTransaction(async () => {
+        await items.get(`k0`)
+        await items.get(`k100`)
+        await items.get(`k500`)
+      })
     })
-  })
+  )
 
   // writeTransaction + readTransaction combo
-  await bench(`tx write + read snapshot`, async () => {
-    await env.transaction(async () => {
-      await items.set(`_combo`, {id: `_combo`, value: Date.now()})
+  results.push(
+    await bench(`tx write + read snapshot`, async () => {
+      await env.transaction(async () => {
+        await items.put(`_combo`, {id: `_combo`, value: Date.now()})
+      })
+      await env.readTransaction(async () => {
+        await items.get(`_combo`)
+      })
     })
-    await env.readTransaction(async () => {
-      await items.get(`_combo`)
-    })
-  })
+  )
+
+  rankAndPrint(results, `Transaction / all`)
+  rankAndPrint([results[0]!, results[1]!, results[2]!, results[3]!], `Transaction / write`)
+  rankAndPrint([results[5]!, results[6]!], `Transaction / read`)
 
   await env.close()
   console.log(`\nDone.`)

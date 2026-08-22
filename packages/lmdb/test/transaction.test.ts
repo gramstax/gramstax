@@ -9,13 +9,11 @@
  *   LMDB read transaction is released when the wrapper finalizes.
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
-import {createTestDir} from "./test-helpers"
-
 import {LmdbEnv} from "../src/env"
 import {LmdbTransactionDoneError, LmdbTransactionError} from "../src/errors"
 import {LmdbRepository} from "../src/repository"
 import {LmdbTransaction} from "../src/transaction"
-import {rmWithRetry} from "./test-helpers"
+import {createTestDir, rmWithRetry} from "./test-helpers"
 
 interface User {
   id: string
@@ -55,8 +53,8 @@ afterEach(async () => {
 describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
   it(`commits writes to both repositories atomically`, async () => {
     await env.transaction(() => {
-      userRepo.set(`u1`, {id: `u1`, name: `Alice`})
-      sessionRepo.set(`s1`, {id: `s1`, userId: `u1`})
+      userRepo.put(`u1`, {id: `u1`, name: `Alice`})
+      sessionRepo.put(`s1`, {id: `s1`, userId: `u1`})
     })
 
     expect(await userRepo.get(`u1`)).toEqual({id: `u1`, name: `Alice`})
@@ -65,7 +63,7 @@ describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
 
   it(`marks the wrapper as committed after tx.commit()`, async () => {
     const tx = await env.transaction((tx) => {
-      userRepo.set(`u1`, {id: `u1`, name: `Bob`})
+      userRepo.put(`u1`, {id: `u1`, name: `Bob`})
       tx.commit()
       return tx
     })
@@ -77,7 +75,7 @@ describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
 
   it(`throws when commit is called twice`, async () => {
     const tx = await env.transaction((tx) => {
-      userRepo.set(`u1`, {id: `u1`, name: `X`})
+      userRepo.put(`u1`, {id: `u1`, name: `X`})
       tx.commit()
       return tx
     })
@@ -96,8 +94,8 @@ describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
 describe(`LmdbTransaction abort (write via env.transaction)`, () => {
   it(`rolls back writes when tx.abort() is called inside the callback`, async () => {
     await env.transaction((tx) => {
-      userRepo.set(`u1`, {id: `u1`, name: `Rolled`})
-      sessionRepo.set(`s1`, {id: `s1`, userId: `u1`})
+      userRepo.put(`u1`, {id: `u1`, name: `Rolled`})
+      sessionRepo.put(`s1`, {id: `s1`, userId: `u1`})
       tx.abort()
     })
 
@@ -128,7 +126,7 @@ describe(`LmdbTransaction abort (write via env.transaction)`, () => {
   it(`env.transaction wraps user throws in LmdbTransactionError`, async () => {
     try {
       await env.transaction(() => {
-        userRepo.set(`u1`, {id: `u1`, name: `Ghost`})
+        userRepo.put(`u1`, {id: `u1`, name: `Ghost`})
         throw new Error(`intentional`)
       })
       expect.unreachable()
@@ -140,12 +138,12 @@ describe(`LmdbTransaction abort (write via env.transaction)`, () => {
   })
 
   it(`rollback on throw is atomic — neither repo's writes survive`, async () => {
-    await userRepo.set(`existing`, {id: `existing`, name: `Pre`})
+    await userRepo.put(`existing`, {id: `existing`, name: `Pre`})
 
     try {
       await env.transaction(() => {
-        userRepo.set(`existing`, {id: `existing`, name: `Should rollback`})
-        sessionRepo.set(`new-session`, {id: `new-session`, userId: `existing`})
+        userRepo.put(`existing`, {id: `existing`, name: `Should rollback`})
+        sessionRepo.put(`new-session`, {id: `new-session`, userId: `existing`})
         throw new Error(`fail`)
       })
     } catch {
@@ -170,8 +168,8 @@ describe(`LmdbTransaction.done flag`, () => {
 describe(`env.transaction with async callbacks`, () => {
   it(`commits async callback writes atomically and returns the value`, async () => {
     const result = await env.transaction(async () => {
-      await userRepo.set(`u1`, {id: `u1`, name: `Async`})
-      await sessionRepo.set(`s1`, {id: `s1`, userId: `u1`})
+      await userRepo.put(`u1`, {id: `u1`, name: `Async`})
+      await sessionRepo.put(`s1`, {id: `s1`, userId: `u1`})
       return {ok: true}
     })
     expect(result).toEqual({ok: true})
@@ -180,10 +178,10 @@ describe(`env.transaction with async callbacks`, () => {
   })
 
   it(`tx.abort() after an await rolls back all writes`, async () => {
-    await userRepo.set(`existing`, {id: `existing`, name: `Pre`})
+    await userRepo.put(`existing`, {id: `existing`, name: `Pre`})
     await env.transaction(async (tx) => {
-      await userRepo.set(`existing`, {id: `existing`, name: `Ghost`})
-      await sessionRepo.set(`s1`, {id: `s1`, userId: `existing`})
+      await userRepo.put(`existing`, {id: `existing`, name: `Ghost`})
+      await sessionRepo.put(`s1`, {id: `s1`, userId: `existing`})
       tx.abort()
     })
     expect((await userRepo.get(`existing`))?.name).toBe(`Pre`)
@@ -193,7 +191,7 @@ describe(`env.transaction with async callbacks`, () => {
   it(`tx.abort() before the first await rolls back`, async () => {
     await env.transaction(async (tx) => {
       tx.abort()
-      await userRepo.set(`u3`, {id: `u3`, name: `Aborted`})
+      await userRepo.put(`u3`, {id: `u3`, name: `Aborted`})
     })
     expect(await userRepo.get(`u3`)).toBeUndefined()
   })
@@ -201,7 +199,7 @@ describe(`env.transaction with async callbacks`, () => {
   it(`async throw after an await rolls back and wraps in LmdbTransactionError`, async () => {
     try {
       await env.transaction(async () => {
-        await userRepo.set(`u2`, {id: `u2`, name: `Partial`})
+        await userRepo.put(`u2`, {id: `u2`, name: `Partial`})
         throw new Error(`async boom`)
       })
       expect.unreachable()
@@ -229,12 +227,12 @@ describe(`env.transaction serialization (concurrent)`, () => {
     await Promise.all([
       env.transaction(async (tx) => {
         await sleep(30)
-        await userRepo.set(`u1`, {id: `u1`, name: `A`}, tx)
+        await userRepo.put(`u1`, {id: `u1`, name: `A`}, tx)
         tx.abort()
       }),
       env.transaction(async () => {
         await sleep(10)
-        await sessionRepo.set(`s1`, {id: `s1`, userId: `u1`})
+        await sessionRepo.put(`s1`, {id: `s1`, userId: `u1`})
       })
     ])
 
@@ -244,7 +242,7 @@ describe(`env.transaction serialization (concurrent)`, () => {
 
   it(`nested transaction() inside a synchronous callback still works (no deadlock)`, async () => {
     const result = await env.transaction(async () => {
-      await userRepo.set(`u1`, {id: `u1`, name: `A`})
+      await userRepo.put(`u1`, {id: `u1`, name: `A`})
       await userRepo.update(`u1`, (cur) => ({id: cur?.id ?? `u1`, name: `A-prime`}))
       return `ok`
     })
@@ -255,7 +253,7 @@ describe(`env.transaction serialization (concurrent)`, () => {
 
 describe(`env.readTransaction`, () => {
   it(`reads committed data via snapshot`, async () => {
-    await userRepo.set(`u1`, {id: `u1`, name: `Carol`})
+    await userRepo.put(`u1`, {id: `u1`, name: `Carol`})
 
     const snapshot = await env.readTransaction(async (tx) => {
       return await userRepo.get(`u1`, tx)
@@ -274,7 +272,7 @@ describe(`env.readTransaction`, () => {
   })
 
   it(`read transaction sees writes committed before env.readTransaction started`, async () => {
-    await userRepo.set(`u1`, {id: `u1`, name: `Before`})
+    await userRepo.put(`u1`, {id: `u1`, name: `Before`})
 
     const entries = await env.readTransaction(async (tx) => {
       return await userRepo.entries({}, tx)
@@ -297,7 +295,7 @@ describe(`env.readTransaction`, () => {
   })
 
   it(`two sequential readTransactions in the same tick both succeed (L1)`, async () => {
-    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    await userRepo.put(`u1`, {id: `u1`, name: `A`})
     // No setTimeout between — the shared-readTxn EINVAL regression fires here.
     const first = await env.readTransaction(async (t) => userRepo.get(`u1`, t))
     const second = await env.readTransaction(async (t) => userRepo.get(`u1`, t))
@@ -306,7 +304,7 @@ describe(`env.readTransaction`, () => {
   })
 
   it(`concurrent readTransactions all succeed (L1)`, async () => {
-    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    await userRepo.put(`u1`, {id: `u1`, name: `A`})
     const results = await Promise.all(Array.from({length: 10}, () => env.readTransaction(async (t) => userRepo.get(`u1`, t))))
     for (const r of results) {
       expect(r).toEqual({id: `u1`, name: `A`})
@@ -314,7 +312,7 @@ describe(`env.readTransaction`, () => {
   })
 
   it(`a plain get() right after readTransaction works (L1)`, async () => {
-    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    await userRepo.put(`u1`, {id: `u1`, name: `A`})
     await env.readTransaction(async (t) => userRepo.get(`u1`, t))
     // Same tick, no setTimeout — previously the shared readTxn was left dead
     // until the next macrotask, so this get() hit EINVAL.
@@ -324,7 +322,7 @@ describe(`env.readTransaction`, () => {
 
 describe(`env.readTransaction raw txn release`, () => {
   it(`releases raw read txn even when user calls tx.commit() inside`, async () => {
-    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    await userRepo.put(`u1`, {id: `u1`, name: `A`})
     const before = env.readerList().split(`\n`).filter(Boolean).length
     await env.readTransaction(async (tx) => {
       await userRepo.get(`u1`, tx)
@@ -338,7 +336,7 @@ describe(`env.readTransaction raw txn release`, () => {
   })
 
   it(`tx.abort() inside readTransaction still releases exactly once`, async () => {
-    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    await userRepo.put(`u1`, {id: `u1`, name: `A`})
     const before = env.readerList().split(`\n`).filter(Boolean).length
     await env.readTransaction(async (tx) => {
       await userRepo.get(`u1`, tx)
@@ -351,7 +349,7 @@ describe(`env.readTransaction raw txn release`, () => {
   })
 
   it(`repeated readTransactions do not grow the reader-slot count`, async () => {
-    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    await userRepo.put(`u1`, {id: `u1`, name: `A`})
     const first = env.readerList().split(`\n`).filter(Boolean).length
     for (let i = 0; i < 20; i++) {
       await env.readTransaction(async (tx) => {
@@ -371,7 +369,7 @@ describe(`read-only env transactions`, () => {
     const dir = createTestDir(`lmdb-readonly-tx-`)
     const writeEnv = new LmdbEnv({path: dir, maxDbs: 5})
     const writeUsers = writeEnv.register(UserRepository)
-    await writeUsers.set(`u1`, {id: `u1`, name: `Initial`})
+    await writeUsers.put(`u1`, {id: `u1`, name: `Initial`})
     await writeEnv.close()
 
     const roEnv = new LmdbEnv({path: dir, maxDbs: 5, readOnly: true})

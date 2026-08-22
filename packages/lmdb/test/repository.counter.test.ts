@@ -36,26 +36,26 @@ describe(`LmdbRepository.increment`, () => {
   })
 
   it(`increments an existing numeric value`, async () => {
-    await counters.set(`hits`, 5)
+    await counters.put(`hits`, 5)
     const next = await counters.increment(`hits`, 1)
     expect(next).toBe(6)
     expect(await counters.get(`hits`)).toBe(6)
   })
 
   it(`respects a custom delta`, async () => {
-    await counters.set(`hits`, 10)
+    await counters.put(`hits`, 10)
     const next = await counters.increment(`hits`, 5)
     expect(next).toBe(15)
   })
 
   it(`supports negative delta as a decrement`, async () => {
-    await counters.set(`hits`, 10)
+    await counters.put(`hits`, 10)
     const next = await counters.increment(`hits`, -3)
     expect(next).toBe(7)
   })
 
   it(`is atomic under concurrent increments`, async () => {
-    await counters.set(`hits`, 0)
+    await counters.put(`hits`, 0)
     const ops = Array.from({length: 10}, () => counters.increment(`hits`, 1))
     const results = await Promise.all(ops)
     // 10 increments must each return a distinct 1..10 in some order
@@ -70,6 +70,38 @@ describe(`LmdbRepository.increment`, () => {
     try {
       await counters.increment(`bad`)
       expect.unreachable(`expected increment to throw`)
+    } catch (e) {
+      err = e
+    }
+    expect(String((err as Error & {cause?: unknown}).cause ?? err)).toMatch(/numeric/)
+  })
+})
+
+describe(`LmdbRepository.decrement`, () => {
+  it(`decrements an existing numeric value`, async () => {
+    await counters.put(`hits`, 10)
+    const next = await counters.decrement(`hits`, 3)
+    expect(next).toBe(7)
+    expect(await counters.get(`hits`)).toBe(7)
+  })
+
+  it(`stores negative when decrementing absent key (0 - amount)`, async () => {
+    const next = await counters.decrement(`hits`, 2)
+    expect(next).toBe(-2)
+    expect(await counters.get(`hits`)).toBe(-2)
+  })
+
+  it(`defaults amount to 1`, async () => {
+    await counters.put(`hits`, 5)
+    expect(await counters.decrement(`hits`)).toBe(4)
+  })
+
+  it(`throws when the existing value is not a number`, async () => {
+    await (counters as unknown as {env: LmdbEnv}).env.put(`bad2`, `not-a-number` as unknown as number)
+    let err: unknown
+    try {
+      await counters.decrement(`bad2`)
+      expect.unreachable(`expected decrement to throw`)
     } catch (e) {
       err = e
     }

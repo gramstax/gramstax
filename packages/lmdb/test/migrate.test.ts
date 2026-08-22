@@ -38,7 +38,7 @@ describe(`LmdbEnv.migrate`, () => {
         name: `add-bob`,
         up: async (e: LmdbEnv) => {
           order.push(2)
-          await e.get(UserRepo).set(`bob`, {name: `Bob`})
+          await e.get(UserRepo).put(`bob`, {name: `Bob`})
         }
       },
       {
@@ -46,7 +46,7 @@ describe(`LmdbEnv.migrate`, () => {
         name: `add-alice`,
         up: async (e: LmdbEnv) => {
           order.push(1)
-          await e.get(UserRepo).set(`alice`, {name: `Alice`})
+          await e.get(UserRepo).put(`alice`, {name: `Alice`})
         }
       },
       {
@@ -54,7 +54,7 @@ describe(`LmdbEnv.migrate`, () => {
         name: `add-carol`,
         up: async (e: LmdbEnv) => {
           order.push(3)
-          await e.get(UserRepo).set(`carol`, {name: `Carol`})
+          await e.get(UserRepo).put(`carol`, {name: `Carol`})
         }
       }
     ])
@@ -69,7 +69,7 @@ describe(`LmdbEnv.migrate`, () => {
         version: 1,
         name: `v1`,
         up: async (e: LmdbEnv) => {
-          await e.get(UserRepo).set(`a`, {name: `A`})
+          await e.get(UserRepo).put(`a`, {name: `A`})
         }
       }
     ]
@@ -86,7 +86,7 @@ describe(`LmdbEnv.migrate`, () => {
         version: 1,
         name: `v1`,
         up: async (e: LmdbEnv) => {
-          await e.get(UserRepo).set(`a`, {name: `A`})
+          await e.get(UserRepo).put(`a`, {name: `A`})
         }
       }
     ])
@@ -102,7 +102,7 @@ describe(`LmdbEnv.migrate`, () => {
         version: 2,
         name: `v2`,
         up: async (e: LmdbEnv) => {
-          await e.get(UserRepo).set(`b`, {name: `B`})
+          await e.get(UserRepo).put(`b`, {name: `B`})
         }
       }
     ])
@@ -129,7 +129,7 @@ describe(`LmdbEnv.migrate`, () => {
         version: 1,
         name: `good`,
         up: async (e: LmdbEnv) => {
-          await e.get(UserRepo).set(`a`, {name: `A`})
+          await e.get(UserRepo).put(`a`, {name: `A`})
         }
       }
     ])

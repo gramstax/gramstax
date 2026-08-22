@@ -1,9 +1,10 @@
 /**
- * Atomic Counter (increment) — use when you need a monotonically increasing number shared across processes
- * (order numbers, invoice sequences, hit counts). Why: read-then-write via `get`+`set` races under concurrent writers;
- * `increment` wraps the read+write in a single LMDB writer transaction (`env.transaction`), so 10 concurrent
- * `increment` calls on the same key serialize and yield distinct 1..10 with no lost updates, even across processes.
- * Absent keys start at 0, negative delta decrements, non-numeric existing values throw.
+ * Atomic Counter (increment / decrement) — use when you need a monotonically increasing/decreasing number shared
+ * across processes (order numbers, invoice sequences, hit counts, stock). Why: read-then-write via `get`+`put` races
+ * under concurrent writers; `increment`/`decrement` wrap the read+write in a single LMDB writer transaction
+ * (`env.transaction`), so 10 concurrent calls on the same key serialize and yield distinct values with no lost updates,
+ * even across processes. Absent keys start at 0, non-numeric existing values throw. Prefer `decrement` over
+ * `increment(key, -n)` for clarity.
  *
  * Run with: `bun run packages/lmdb/example/atomic-counter.ts`
  */
@@ -23,17 +24,20 @@ async function main() {
     const env = new LmdbEnv({path: dir, maxDbs: 5})
     const counters = env.register(CounterRepo)
 
-    console.log(`--- Atomic increment ---\n`)
+    console.log(`--- Atomic increment / decrement ---\n`)
     console.log(`  increment absent "order-seq":`, await counters.increment(`order-seq`)) // 1
     console.log(`  increment again:`, await counters.increment(`order-seq`)) // 2
     console.log(`  increment by 5:`, await counters.increment(`order-seq`, 5)) // 7
-    console.log(`  decrement by 2:`, await counters.increment(`order-seq`, -2)) // 5
+    console.log(`  decrement by 2:`, await counters.decrement(`order-seq`, 2)) // 5
     console.log(`  stored:`, counters.get(`order-seq`))
 
     console.log(`\n--- Concurrent increments (10 parallel) ---\n`)
-    await counters.set(`hits`, 0)
+    await counters.put(`hits`, 0)
     const results = await Promise.all(Array.from({length: 10}, () => counters.increment(`hits`)))
-    console.log(`  results (sorted):`, [...results].sort((a, b) => a - b))
+    console.log(
+      `  results (sorted):`,
+      [...results].sort((a, b) => a - b)
+    )
     console.log(`  final hits:`, counters.get(`hits`)) // 10, no lost updates
 
     try {

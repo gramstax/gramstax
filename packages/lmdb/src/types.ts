@@ -43,7 +43,7 @@ export interface ILmdbEnvOptions {
    * @remarks
    * Each {@link LmdbRepository} typically owns one sub-database. Set this to at
    * least the number of repositories you intend to register.
-   * @defaultValue `10`
+   * @defaultValue `128`
    */
   maxDbs?: number
 
@@ -98,7 +98,7 @@ export interface ILmdbEnvOptions {
    * @remarks
    * The virtual memory mapping size. Must be larger than the total expected
    * dataset. Cannot be changed after env is opened.
-   * @defaultValue `268435456` (256 MB)
+   * @defaultValue `4294967296` (4 GB)
    */
   mapSize?: number
 

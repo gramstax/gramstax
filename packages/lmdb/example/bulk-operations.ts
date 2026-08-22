@@ -1,7 +1,7 @@
 /**
- * Bulk Operations (setMany / exportJSONL / importJSONL) — use when you need to seed, migrate, or back up as text.
- * Why: `setMany` chunks into 500-entry writer transactions to avoid LMDB instruction buffer overflow; `exportJSONL`
- * snapshots via `entries()` (each line `JSON.stringify([key,value])`) and `importJSONL` round-trips through `setMany`.
+ * Bulk Operations (putMany / exportJSONL / importJSONL) — use when you need to seed, migrate, or back up as text.
+ * Why: `putMany` chunks into 500-entry writer transactions to avoid LMDB instruction buffer overflow; `exportJSONL`
+ * snapshots via `entries()` (each line `JSON.stringify([key,value])`) and `importJSONL` round-trips through `putMany`.
  * Text complement to native binary `backup()`, readable and diffable.
  *
  * Run with: `bun run packages/lmdb/example/bulk-operations.ts`
@@ -24,13 +24,13 @@ async function main() {
     const env = new LmdbEnv({path: dir, maxDbs: 5})
     const orders = env.register(OrderRepo)
 
-    console.log(`--- setMany (batched) ---\n`)
-    await orders.setMany([
+    console.log(`--- putMany (batched) ---\n`)
+    await orders.putMany([
       [`o1`, {id: `o1`, userId: `u1`, total: 10}],
       [`o2`, {id: `o2`, userId: `u1`, total: 20}],
-      [`o3`, {id: `o3`, userId: `u2`, total: 30}],
+      [`o3`, {id: `o3`, userId: `u2`, total: 30}]
     ])
-    console.log(`  count after setMany:`, orders.count())
+    console.log(`  count after putMany:`, orders.count())
     console.log(`  o1:`, orders.get(`o1`))
 
     console.log(`\n--- exportJSONL ---\n`)
