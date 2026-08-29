@@ -115,7 +115,7 @@ function generateTestContent(pageRel: string): string {
   const baseName = pageRel.replace(/\.(ts|js)$/, ``)
   const parts = baseName.split(`/`)
   const fileName = parts[parts.length - 1] || `index`
-  const className = toClassName(fileName) + `Page`
+  const className = `${toClassName(fileName)}Page`
   const importPath = setupImport(baseName + testExt(pageRel))
 
   return [

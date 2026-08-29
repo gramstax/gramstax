@@ -12,7 +12,7 @@
 
 - `packages/gramstax`: core library package (tsup build).
 - `packages/create-gramstax`: CLI scaffolding tool (tsup build).
-- `packages/lmdb`: LMDB-backed database with OOP Repository pattern (separate npm package `@gramstax/lmdb`).
+- `packages/lmdb`: LMDB-backed database with schema-declared repositories (separate npm package `@gramstax/lmdb`).
 - `packages/worker-thread`: worker thread lifecycle + RPC + Unix-socket gateway (separate npm package `@gramstax/worker-thread`).
 - `packages/*/src`: TypeScript sources.
 - `packages/*/test`: Bun unit tests (currently only in `gramstax`, `lmdb`, `worker-thread`).
@@ -257,8 +257,8 @@ To add a new PAGE value validator: extend `_PAGE_ATTR_VALUE_VALIDATORS[tagName]`
 ## Package: lmdb
 
 - Published as `@gramstax/lmdb`.
-- Source root is `packages/lmdb/src`; flat module structure (env, repository, transaction, codec, errors, types).
-- Core pattern: extend `LmdbEnv` for the root DB class; extend `LmdbRepository<T,K>` with `static dbName` for each sub-DB.
+- Source root is `packages/lmdb/src`; flat module structure (env, sub-manager, sub, schema, transaction, errors, types, replica).
+- Core pattern: extend `LmdbEnv` for the root DB class; declare each sub-DB as an `LmdbSchema` subclass (`static db`/`static key`/`static value`) and `env.register(SchemaClass)` materializes a typed `LmdbEnvSub` handle.
 - Build with `nx build` (tsup).
 
 ## Package: worker-thread

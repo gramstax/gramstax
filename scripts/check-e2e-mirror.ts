@@ -89,10 +89,10 @@ function generateTestContent(pageRel: string): string {
   const baseName = pageRel.replace(/\.(ts|js)$/, ``)
   const parts = baseName.split(`/`)
   const pageName = parts[parts.length - 1] || parts[parts.length - 2] || `Page`
-  const className = pageName
+  const className = `${pageName
     .split(/[-_]/)
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join(``) + `Page`
+    .join(``)}Page`
 
   return [
     `import {describe, it, expect} from "bun:test"`,
