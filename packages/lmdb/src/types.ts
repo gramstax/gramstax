@@ -5,10 +5,9 @@
  * Types are intentionally minimal — only the shapes that appear at public
  * API boundaries. Internal helpers keep their types private to their modules.
  *
- * @packageDocumentation
- * @public
  */
 
+import type {IEnvForSub} from "./env"
 import type {Key, Transaction} from "lmdb"
 
 /**
@@ -29,7 +28,7 @@ export type ILmdbKey = Key
  *
  * @remarks
  * Mirrors the underlying `lmdb` `open()` options with sensible defaults
- * tuned for the Repository use case.
+ * tuned for the collection use case.
  *
  * @public
  */
@@ -41,8 +40,8 @@ export interface ILmdbEnvOptions {
    * Maximum number of named sub-databases.
    *
    * @remarks
-   * Each {@link LmdbRepository} typically owns one sub-database. Set this to at
-   * least the number of repositories you intend to register.
+   * Each registered collection typically owns one sub-database. Set this to at
+   * least the number of collections you intend to register.
    * @defaultValue `128`
    */
   maxDbs?: number
@@ -118,7 +117,7 @@ export interface ILmdbEnvOptions {
    *
    * @remarks
    * Required for atomic conditional writes via `ifVersion`/`ifNoExists`
-   * (used by {@link LmdbRepository.update} when wrapped in `env.transaction`).
+   * (used by `env.update` when wrapped in `env.transaction`).
    * @defaultValue `false`
    */
   useVersions?: boolean
@@ -292,7 +291,7 @@ export interface ICompressionOptions {
  * @remarks
  * All fields are optional. Omitting `start` and `end` iterates the full key
  * space in lexicographic order. `transaction` is an LMDB-internal field used
- * by {@link Repository} to bind the range query to a read transaction for
+ * by {@link LmdbEnv} to bind the range query to a read transaction for
  * snapshot consistency.
  *
  * @public
@@ -310,10 +309,10 @@ export interface IRangeOptions {
    * @example
    * ```typescript
    * // keys "k1", "k2", "k3" — returns "k1" and "k2"
-   * repo.entries({start: `k1`, end: `k3`})
+   * coll.entries({start: `k1`, end: `k3`})
    *
    * // same range but with inclusiveEnd: returns "k1", "k2", "k3"
-   * repo.entries({start: `k1`, end: `k3`, inclusiveEnd: true})
+   * coll.entries({start: `k1`, end: `k3`, inclusiveEnd: true})
    * ```
    */
   inclusiveEnd?: boolean
@@ -324,10 +323,10 @@ export interface IRangeOptions {
    * @example
    * ```typescript
    * // keys "k1", "k2", "k3" — returns "k1", "k2", "k3"
-   * repo.entries({start: `k1`, end: `k3`})
+   * coll.entries({start: `k1`, end: `k3`})
    *
    * // same range but with exclusiveStart: returns "k2", "k3"
-   * repo.entries({start: `k1`, end: `k3`, exclusiveStart: true})
+   * coll.entries({start: `k1`, end: `k3`, exclusiveStart: true})
    * ```
    */
   exclusiveStart?: boolean
@@ -343,7 +342,7 @@ export interface IRangeOptions {
 
   /**
    * Underlying LMDB read transaction object (set internally by
-   * {@link Repository} when a transaction wrapper is passed).
+   * {@link LmdbEnv} when a transaction wrapper is passed).
    *
    * @internal
    */
@@ -351,20 +350,22 @@ export interface IRangeOptions {
 }
 
 /**
- * A serializer/deserializer pair used by a {@link Repository}.
+ * A write/read hook pair used by {@link LmdbEnv} for custom transforms.
  *
  * @remarks
- * Default codec is JSON. Override for custom formats (msgpack, protobuf,
- * structured-clone, etc).
+ * Default encoding (lmdb-js native) is msgpack/JSON/etc. Use this to
+ * transform rows at the repository boundary — `hookBeforeWrite` runs
+ * before LMDB serializes the value, `hookBeforeRead` after it deserializes
+ * it (e.g. `Date → number`). This runs BEFORE the native LMDB encoding.
  *
  * @public
  */
 export interface ICodec<T> {
   /** Convert a typed value to a storable representation. */
-  serialize(value: T): unknown
+  hookBeforeWrite(value: T): unknown
 
   /** Convert a stored representation back to a typed value. */
-  deserialize(raw: unknown): T
+  hookBeforeRead(raw: unknown): T
 }
 
 /**
@@ -372,7 +373,7 @@ export interface ICodec<T> {
  * a sub-database.
  *
  * @remarks
- * LMDB handles encoding natively per sub-database. The Repository's
+ * LMDB handles encoding natively per sub-database. The collection's
  * optional `codec` (if defined) runs BEFORE LMDB encoding — use it only
  * for custom transforms (e.g. `Date → number`).
  *
@@ -395,3 +396,186 @@ export type ILmdbEncoding = `msgpack` | `json` | `cbor` | `string` | `binary` | 
  * @public
  */
 export type ILmdbEnvState = `closed` | `opening` | `open` | `closing`
+
+/**
+ * Declarative embedded secondary index definition.
+ *
+ * @remarks
+ * Declared via `static indexes` on a schema class:
+ *
+ * ```typescript
+ * class UserSchema extends LmdbSchema {
+ *   static db = `user`;
+ *   static indexes = {
+ *     email: {unique: true},            // auto-resolved field `user.email`
+ *     emailLower: {extractor: (u) => u.email.toLowerCase()},
+ *     profileCity: {dbName: `user:idx:city`}  // dotted path, custom dbName
+ *   } as const;
+ * }
+ * ```
+ *
+ * When `extractor` is omitted the index name is treated as a field path on
+ * the value (`username` → `value.username`, `profile.email` →
+ * `value.profile.email`). A missing field path throws {@link LmdbError} on
+ * the first write; a resolved `undefined`/`null` value skips the entry.
+ *
+ * @typeParam T - Value type of the primary collection.
+ * @typeParam K - Key type of the index sub-DB (the indexed field's value type).
+ *
+ * @public
+ */
+export interface IIndexDef<T, K extends ILmdbKey = ILmdbKey> {
+  /**
+   * Extract the indexed value from a primary value.
+   *
+   * @remarks
+   * Returning `undefined`/`null` skips the index entry. When omitted, the
+   * index name is auto-resolved as a (possibly dotted) field path.
+   */
+  extractor?: (value: T) => K | undefined | null
+
+  /**
+   * Enforce uniqueness on this index.
+   *
+   * @remarks
+   * `true` → SQL `CREATE UNIQUE INDEX`: a write whose index value is already
+   * owned by a different primary key throws {@link LmdbUniqueConstraintError}
+   * and rolls back. `false` (default) → SQL `CREATE INDEX` (duplicates allowed).
+   * @defaultValue `false`
+   */
+  unique?: boolean
+
+  /**
+   * Override the auto-generated index sub-DB name.
+   *
+   * @remarks
+   * Default is `` `${dbName}:idx:${name}` `` (Q3). Must not collide with any
+   * other registered sub-DB name.
+   */
+  dbName?: string
+}
+
+/**
+ * Declarative index definition map: `static indexes` shape.
+ *
+ * @remarks
+ * `Record<string, IIndexDef<T, ILmdbKey>>` — every declared index name maps to
+ * its {@link IIndexDef}. Used as the third type parameter of
+ * a schema class so the subclass can bind its own `static indexes`
+ * type: `class UserSchema extends LmdbSchema` with `static value` columns.
+ *
+ * @typeParam T - Value type of the primary collection.
+ *
+ * @public
+ */
+export type IIndexDefs<T = unknown> = Record<string, IIndexDef<T, ILmdbKey>>
+
+/**
+ * Value type of a single index key inside {@link IIndexQuery}.
+ *
+ * @remarks
+ * Resolves to the indexed field's type when the index name is an auto-resolved
+ * field path on `T` (`username` → `T["username"]`); otherwise falls back to
+ * {@link ILmdbKey} (explicit extractors may index arbitrary key-shaped values).
+ *
+ * @typeParam T - Value type of the primary collection.
+ * @typeParam P - Declared index name (a key of `static indexes`).
+ *
+ * @public
+ */
+export type IndexQueryValue<T, P extends string> = P extends keyof T ? T[P] : ILmdbKey
+
+/**
+ * Object query accepted by {@link LmdbEnv.findByIndex}: maps declared
+ * index names to the values to match. Every supplied key is ANDed.
+ *
+ * @remarks
+ * At least one key is required — the intersection term forces a non-empty
+ * query, so `{}` is a compile-time error. The index definitions come from the
+ * schema's index map type: `SchemaIndexesOf<typeof UserSchema[`value`]>`
+ * with `static indexes` declared `as const` (so `unique: true` survives as a
+ * literal type); without the self-reference or `as const`, queries still type
+ * but the return type degrades to `T[]` for every query (runtime unchanged).
+ *
+ * @typeParam T - Value type of the primary collection.
+ * @typeParam I - The collection's `static indexes` type.
+ *
+ * @public
+ */
+export type IIndexQuery<T, I> = Partial<{[P in keyof I]: IndexQueryValue<T, P & string>}> & {[P in keyof I]-?: Record<P, IndexQueryValue<T, P & string>>}[keyof I]
+
+/**
+ * Return type of {@link LmdbEnv.findByIndex} for a given query.
+ *
+ * @remarks
+ * `T | undefined` when EVERY queried index is unique (`unique: true` — at
+ * most one primary key can match, so a miss is `undefined`); `T[]` when ANY
+ * queried index is non-unique (several primaries may share the value, so a
+ * miss is an empty array).
+ *
+ * @typeParam T - Value type of the primary collection.
+ * @typeParam I - The collection's `static indexes` type.
+ * @typeParam Q - The concrete query type.
+ *
+ * @public
+ */
+export type IIndexResult<T, I, Q> = AllKeysUnique<I, Q> extends true ? T | undefined : T[]
+
+/**
+ * Whether every key present in query `Q` names a `unique: true` index.
+ *
+ * @remarks
+ * `false` for empty queries and for queries touching any non-unique index.
+ * With `as const` on `static indexes`, `unique: true` is a literal type and
+ * the check resolves statically; without it the index definitions widen to
+ * `IIndexDef` and every query reports `false` (degrades to `T[]`).
+ *
+ * @internal
+ */
+type AllKeysUnique<I, Q> = Extract<keyof Q, keyof I> extends never ? false : {[P in Extract<keyof Q, keyof I>]: I[P] extends {unique: true} ? true : false}[Extract<keyof Q, keyof I>] extends true ? true : false
+
+/** Hard cap on how many entries a materializing range query may return. */
+export const MAX_MATERIALIZE = 100_000
+
+/** Runtime shape of one attached embedded-index descriptor. */
+export type IndexDescriptor = {
+  name: string
+  extractor: (value: unknown) => ILmdbKey | undefined | null
+  unique: boolean
+  /** State of the index's backing sub-DB (unique: plain map; non-unique: dupSort). */
+  state: LmdbSubState
+  autoResolved: boolean
+}
+
+/**
+ * Per-sub-DB state kept by {@link LmdbEnvSubManager}.
+ *
+ * @internal
+ */
+export type LmdbSubState = {
+  dbName: string
+  /** Sub-DB handle combined with root-env methods — the same shape the sub handle operates on. */
+  env: IEnvForSub
+  /** Optional write/read hook pair (schema `hookBeforeWrite`/`hookBeforeRead` bridge). */
+  codec?: ICodec<unknown>
+  /** Pre-resolved read hook — decided once per state. */
+  hookBeforeRead: (raw: unknown) => unknown
+  /** Attached embedded-index descriptors. */
+  indexes: IndexDescriptor[]
+  /** O(1) index-name → descriptor lookup (built alongside `indexes`). */
+  indexByName: Map<string, IndexDescriptor>
+  /** Cached key-type probe result (plan 007 P1). */
+  keyType?: `string` | `buffer` | `number` | `empty`
+  /** Sub-DB flags + codec — mirrors the old collection constructor opts. */
+  opts: {
+    dupSort: boolean
+    useVersions: boolean
+    encoding?: string
+    codec?: ICodec<unknown>
+  }
+  /** Whether this collection is a TTL collection (envelope-wrapped). */
+  isTtl: boolean
+  /** Collection-wide default TTL in ms (only when `isTtl`). */
+  ttlMs?: number
+}
+

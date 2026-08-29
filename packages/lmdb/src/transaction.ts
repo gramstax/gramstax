@@ -1,24 +1,3 @@
-/**
- * LmdbTransaction wrapper for cross-repository atomic operations.
- *
- * @remarks
- * The underlying `lmdb` library uses a callback-based transaction model:
- * - **Write transactions** are managed by `rootDb.childTransaction(callback)`.
- *   The wrapper detects user intent and either returns the `ABORT` sentinel
- *   (causing LMDB to roll back) or returns normally (causing LMDB to commit).
- * - **Read transactions** are obtained via `db.useReadTransaction()` and
- *   released via `rawTxn.done()` when the wrapper finalizes.
- *
- * This class wraps both flavors behind a unified lifecycle API:
- * - `commit()` marks the wrapper as committed — LMDB commits when the
- *   childTransaction callback returns normally.
- * - `abort()` marks the wrapper as aborted — LMDB rolls back when the
- *   childTransaction callback returns the `ABORT` sentinel.
- *
- * @packageDocumentation
- * @public
- */
-
 import type {Transaction} from "lmdb"
 import {LmdbTransactionDoneError} from "./errors"
 
@@ -43,6 +22,19 @@ export type TransactionLifecycle = `active` | `committed` | `aborted` | `release
  * Wraps the underlying `lmdb` transaction lifecycle with a stable API.
  *
  * @remarks
+ * The underlying `lmdb` library uses a callback-based transaction model:
+ * - **Write transactions** are managed by `rootDb.childTransaction(callback)`.
+ *   The wrapper detects user intent and either returns the `ABORT` sentinel
+ *   (causing LMDB to roll back) or returns normally (causing LMDB to commit).
+ * - **Read transactions** are obtained via `db.useReadTransaction()` and
+ *   released via `rawTxn.done()` when the wrapper finalizes.
+ *
+ * This class wraps both flavors behind a unified lifecycle API:
+ * - `commit()` marks the wrapper as committed — LMDB commits when the
+ *   childTransaction callback returns normally.
+ * - `abort()` marks the wrapper as aborted — LMDB rolls back when the
+ *   childTransaction callback returns the `ABORT` sentinel.
+ *
  * You do not construct this class directly — {@link LmdbEnv.transaction} and
  * {@link LmdbEnv.readTransaction} create and manage the instance.
  *
@@ -139,8 +131,8 @@ export class LmdbTransaction {
    * @example
    * ```typescript
    * await env.transaction(async (tx) => {
-   *   await userRepo.put("u1", user, tx);
-   *   await sessionRepo.put("s1", session, tx);
+   *   await users.put("u1", user, tx);
+   *   await sessions.put("s1", session, tx);
    *   tx.commit();
    * });
    * ```
@@ -172,7 +164,7 @@ export class LmdbTransaction {
    * ```typescript
    * await env.transaction(async (tx) => {
    *   try {
-   *     await userRepo.put("u1", user, tx);
+   *     await users.put("u1", user, tx);
    *     await someRiskyOp();
    *     tx.commit();
    *   } catch (err) {

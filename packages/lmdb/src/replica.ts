@@ -1,16 +1,16 @@
-/**
- * LmdbReplica + backupWithRetention — read-only attach sugar and rotating backups.
- *
- * @packageDocumentation
- * @public
- */
+
 
 import {mkdirSync, readdirSync, rmSync, statSync} from "node:fs"
 import {join} from "node:path"
 import {LmdbEnv} from "./env"
 
 /**
- * Read-only replica helper.
+ * Read-only replica helper + rotating backup utility.
+ *
+ * @remarks
+ * {@link LmdbReplica.open} attaches a read-only {@link LmdbEnv} to an existing
+ * LMDB data file, with optional periodic `resetReadTxn` polling.
+ * {@link backupWithRetention} creates timestamped backups and prunes to `keep`.
  *
  * @public
  */

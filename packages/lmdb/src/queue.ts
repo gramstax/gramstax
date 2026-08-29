@@ -1,5 +1,34 @@
+import type {LmdbEnv} from "./env"
+import type {ColumnBuilder, KeyOf, ValueOf} from "./schema"
+import {LmdbSchema, t} from "./schema"
+import type {LmdbEnvSub} from "./sub"
+
 /**
- * LmdbQueue — FIFO queue over LMDB with single-writer transaction dequeue.
+ * Shared meta sub — monotonic sequence counters for every queue.
+ *
+ * @remarks
+ * One sub-DB holds `__queue_seq_<dbName> → number` counters for all
+ * queues in the env. Registered lazily on first queue construction.
+ *
+ * @internal
+ */
+class QueueMetaSchema extends LmdbSchema {
+  static db = `__queue_meta`
+  static key = t.string()
+  static value = t.number()
+}
+
+/**
+ * Schema class constraint for {@link LmdbQueue} — the queue key must be a
+ * `t.string()` builder (queue ids are zero-padded sequence strings), so
+ * `KeyOf<S>` resolves to `string` for the schema-typed sub calls.
+ *
+ * @public
+ */
+export type QueueSchema = typeof LmdbSchema & {key: ColumnBuilder<`string`>}
+
+/**
+ * FIFO queue over LMDB with single-writer transaction dequeue.
  *
  * @remarks
  * Backed by a dedicated sub-DB per queue name. Enqueue bumps a monotonic
@@ -12,61 +41,29 @@
  * the write lock open across a microtask. At-least-once semantics — a
  * crash between read and delete may redeliver.
  *
- * @packageDocumentation
- * @public
- */
-
-import type {LmdbEnv} from "./env"
-import {LmdbRepository} from "./repository"
-
-class QueueMetaRepo extends LmdbRepository<number, string> {
-  static dbName = `__queue_meta`
-}
-
-// One shared Store class per dbName so a second LmdbQueue with the same
-// dbName reuses the already-registered repo instead of throwing
-// LmdbDuplicateDbNameError (idempotent construction).
-const queueStores = new Map<string, typeof LmdbRepository>()
-
-/**
- * FIFO queue.
- *
- * @typeParam T - Payload type.
+ * @typeParam S - Schema class describing the queue payload (its `static db`
+ * is the queue name; its value shape is the payload row; its key must be
+ * `t.string()`).
  *
  * @public
  */
-export class LmdbQueue<T> {
-  private readonly repo: LmdbRepository<T, string>
-  private readonly metaRepo: LmdbRepository<number, string>
+export class LmdbQueue<S extends QueueSchema> {
   private readonly dbName: string
+  private readonly meta: LmdbEnvSub<typeof QueueMetaSchema>
+  private readonly sub: LmdbEnvSub<S>
 
   constructor(
     private readonly env: LmdbEnv,
-    dbName: string
+    schema: S
   ) {
-    this.dbName = dbName
-    // Dynamic sub-DB per queue name — reuse one shared class per dbName so
-    // multiple queues in the same env (or same dbName twice) don't collide
-    // on static dbName / don't throw LmdbDuplicateDbNameError.
-    let Store = queueStores.get(dbName)
-    if (!Store) {
-      Store = class extends LmdbRepository<T, string> {
-        static dbName = dbName
-      } as unknown as typeof LmdbRepository
-      queueStores.set(dbName, Store)
-    }
-    try {
-      this.repo = env.get(Store as never) as unknown as LmdbRepository<T, string>
-    } catch {
-      this.repo = env.register(Store as never) as unknown as LmdbRepository<T, string>
-    }
-
-    // Shared meta DB for sequence counters (one DB for all queues).
-    try {
-      this.metaRepo = env.get(QueueMetaRepo as never) as unknown as LmdbRepository<number, string>
-    } catch {
-      this.metaRepo = env.register(QueueMetaRepo as never) as unknown as LmdbRepository<number, string>
-    }
+    this.dbName = schema.db
+    // register is idempotent-safe via isRegistered: a second LmdbQueue with
+    // the same schema reuses the already-created sub instead of
+    // throwing LmdbDuplicateDbNameError.
+    if (!env.isRegistered(schema)) env.register(schema)
+    if (!env.isRegistered(QueueMetaSchema)) env.register(QueueMetaSchema)
+    this.meta = env.sub(QueueMetaSchema)
+    this.sub = env.sub(schema)
   }
 
   /**
@@ -79,14 +76,14 @@ export class LmdbQueue<T> {
    * @param job - Payload to store.
    * @returns The generated id (zero-padded sequence).
    */
-  async enqueue(job: T): Promise<string> {
-    return this.env.transactionSync(() => {
+  async enqueue(job: ValueOf<S>): Promise<string> {
+    return this.env.rootTransactionSync(() => {
       const key = `__queue_seq_${this.dbName}`
-      const cur = this.metaRepo.get(key) ?? 0
+      const cur = this.meta.get(key) ?? 0
       const next = cur + 1
-      this.metaRepo.env.putSync(key, next)
+      this.meta.putSync(key, next)
       const id = String(next).padStart(12, `0`)
-      this.repo.env.putSync(id, job)
+      this.sub.putSync(id as KeyOf<S>, job)
       return id
     })
   }
@@ -94,8 +91,8 @@ export class LmdbQueue<T> {
   /**
    * Peek at the head without removing.
    */
-  async peek(): Promise<[string, T] | undefined> {
-    return this.repo.first() as Promise<[string, T] | undefined>
+  async peek(): Promise<[string, ValueOf<S>] | undefined> {
+    return (await this.sub.first()) as [string, ValueOf<S>] | undefined
   }
 
   /**
@@ -106,14 +103,14 @@ export class LmdbQueue<T> {
    * so the write transaction is never held open across a microtask by an
    * async `first()` materialization.
    */
-  async dequeue(): Promise<[string, T] | undefined> {
-    return this.env.transactionSync(() => {
-      for (const key of this.repo.env.getKeys({limit: 1})) {
+  async dequeue(): Promise<[string, ValueOf<S>] | undefined> {
+    return this.env.rootTransactionSync(() => {
+      for (const key of this.sub.getKeys({limit: 1})) {
         const id = key as string
-        const job = this.repo.get(id)
+        const job = this.sub.get(id as KeyOf<S>)
         if (job === undefined) return undefined
-        this.repo.env.removeSync(id)
-        return [id, job] as [string, T]
+        this.sub.removeSync(id as KeyOf<S>)
+        return [id, job] as [string, ValueOf<S>]
       }
       return undefined
     })
@@ -123,13 +120,13 @@ export class LmdbQueue<T> {
    * Number of jobs currently queued.
    */
   async size(): Promise<number> {
-    return this.repo.count()
+    return this.sub.count()
   }
 
   /**
    * Drain the queue.
    */
   async clear(): Promise<void> {
-    await this.repo.clear()
+    await this.sub.clear()
   }
 }

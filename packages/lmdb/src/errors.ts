@@ -1,19 +1,10 @@
 /**
- * Typed error classes for `@gramstax/lmdb`.
+ * Base class for all `@gramstax/lmdb` errors.
  *
  * @remarks
  * Every public API failure throws one of these so callers can `instanceof`
  * discriminate. Plain `Error` is never thrown from this package.
- *
- * @packageDocumentation
- * @public
- */
-
-/**
- * Base class for all `@gramstax/lmdb` errors.
- *
- * @remarks
- * Catch this to handle any error from the package.
+ * Catch this base class to handle any error from the package.
  *
  * @public
  */
@@ -57,43 +48,42 @@ export class LmdbEnvClosedError extends LmdbError {
 }
 
 /**
- * Thrown when a LmdbRepository class does not declare a static `dbName`.
+ * Thrown when a schema class does not declare a static `db`.
  *
  * @remarks
- * Every {@link LmdbRepository} subclass must declare `static dbName = '...'` to
+ * Every schema class must declare `static db = '...'` to
  * identify its sub-database.
  *
  * @public
  */
 export class LmdbMissingDbNameError extends LmdbError {
-  constructor(repoClassName: string) {
-    super(`LmdbRepository class '${repoClassName}' must declare a static 'dbName' property.`)
+  constructor(schemaClassName: string) {
+    super(`Schema class '${schemaClassName}' must declare a static 'db' property.`)
     this.name = `LmdbMissingDbNameError`
   }
 }
 
 /**
- * Thrown when a LmdbRepository's `dbName` collides with another registered
- * LmdbRepository.
+ * Thrown when a sub's `dbName` collides with another registered sub.
  *
  * @public
  */
 export class LmdbDuplicateDbNameError extends LmdbError {
   constructor(dbName: string) {
-    super(`A repository with dbName '${dbName}' is already registered. Use a different dbName.`)
+    super(`A sub with dbName '${dbName}' is already registered. Use a different dbName.`)
     this.name = `LmdbDuplicateDbNameError`
   }
 }
 
 /**
- * Thrown when {@link LmdbEnv.get} is called for an unregistered LmdbRepository class.
+ * Thrown when {@link LmdbEnv.get} is called for an unregistered LmdbSchema class.
  *
  * @public
  */
-export class LmdbRepositoryNotRegisteredError extends LmdbError {
-  constructor(repoClassName: string) {
-    super(`LmdbRepository '${repoClassName}' is not registered. Call env.register(RepoClass) first.`)
-    this.name = `LmdbRepositoryNotRegisteredError`
+export class LmdbSchemaNotRegisteredError extends LmdbError {
+  constructor(schemaClassName: string) {
+    super(`LmdbSchema class '${schemaClassName}' is not registered. Call env.register(SchemaClass) first.`)
+    this.name = `LmdbSchemaNotRegisteredError`
   }
 }
 
@@ -102,21 +92,21 @@ export class LmdbRepositoryNotRegisteredError extends LmdbError {
  *
  * @public
  */
-export class LmdbRepositoryAlreadyRegisteredError extends LmdbError {
-  constructor(repoClassName: string) {
-    super(`LmdbRepository '${repoClassName}' is already registered.`)
-    this.name = `LmdbRepositoryAlreadyRegisteredError`
+export class LmdbSchemaAlreadyRegisteredError extends LmdbError {
+  constructor(schemaClassName: string) {
+    super(`LmdbSchema class '${schemaClassName}' is already registered.`)
+    this.name = `LmdbSchemaAlreadyRegisteredError`
   }
 }
 
 /**
- * Thrown when {@link LmdbRepository.getStrict} is called and the key is absent.
+ * Thrown when {@link LmdbEnv.getStrict} is called and the key is absent.
  *
  * @public
  */
 export class LmdbKeyNotFoundError extends LmdbError {
   constructor(dbName: string, key: unknown) {
-    super(`Key '${String(key)}' not found in repository '${dbName}'.`)
+    super(`Key '${String(key)}' not found in sub '${dbName}'.`)
     this.name = `LmdbKeyNotFoundError`
   }
 }
@@ -168,7 +158,7 @@ export class LmdbReadOnlyError extends LmdbError {
 /**
  * Thrown when a destructive prefix operation is called with an empty prefix
  * (e.g. `deleteByPrefix('')`), which would otherwise wipe the entire
- * repository silently. Use {@link LmdbRepository.clear} instead.
+ * collection silently. Use {@link LmdbEnv.clear} instead.
  *
  * @public
  */
@@ -180,7 +170,7 @@ export class LmdbEmptyPrefixError extends LmdbError {
 }
 
 /**
- * Thrown when a {@link LmdbRepository.like} pattern has too many wildcards,
+ * Thrown when a {@link LmdbEnv.like} pattern has too many wildcards,
  * risking ReDoS (catastrophic backtracking) in the compiled regex.
  *
  * @public
@@ -200,19 +190,19 @@ export class LmdbLikePatternError extends LmdbError {
  * result array into memory (guardrail B4).
  *
  * @remarks
- * {@link LmdbRepository.keys}, {@link LmdbRepository.values},
- * {@link LmdbRepository.entries}, {@link LmdbRepository.like},
- * {@link LmdbRepository.findByPrefix} and {@link LmdbRepository.deleteByPrefix}
- * refuse to materialize more than {@link LmdbRepository.MAX_MATERIALIZE}
- * entries. Pass `{limit}` or use {@link LmdbRepository.iterate} to bound the
+ * {@link LmdbEnv.keys}, {@link LmdbEnv.values},
+ * {@link LmdbEnv.entries}, {@link LmdbEnv.like},
+ * {@link LmdbEnv.findByPrefix} and {@link LmdbEnv.deleteByPrefix}
+ * refuse to materialize more than {@link MAX_MATERIALIZE}
+ * entries. Pass `{limit}` or use {@link LmdbEnv.iterate} to bound the
  * result.
  *
  * @public
  */
 export class LmdbMaterializationError extends LmdbError {
   /**
-   * @param operation - The repository method that was guarded.
-   * @param max - The materialization cap ({@link LmdbRepository.MAX_MATERIALIZE}).
+   * @param operation - The sub method that was guarded.
+   * @param max - The materialization cap ({@link MAX_MATERIALIZE}).
    * @param requested - The requested limit, when the rejection came from an
    * explicit limit above the cap.
    */
@@ -223,7 +213,7 @@ export class LmdbMaterializationError extends LmdbError {
 }
 
 /**
- * Thrown when a version-dependent operation (e.g. {@link LmdbRepository.compareAndSet})
+ * Thrown when a version-dependent operation (e.g. {@link LmdbEnv.compareAndSet})
  * is called on an env opened without `useVersions: true`.
  *
  * @public
@@ -251,5 +241,28 @@ export class LmdbMapFullError extends LmdbError {
   constructor(ratio: number) {
     super(`MDB_MAP_FULL risk — free ratio ${ratio.toFixed(3)} is below 10%. Increase mapSize or prune data.`)
     this.name = `LmdbMapFullError`
+  }
+}
+
+/**
+ * Thrown when a unique embedded index would be violated by a write.
+ *
+ * @remarks
+ * Raised by schema writes when the new index value is already
+ * owned by a DIFFERENT primary key (SQL: `UNIQUE` constraint violation).
+ * Re-putting the same primary key with the same index value (self-update)
+ * does NOT throw — the conflict only fires when another key owns the value.
+ *
+ * @public
+ */
+export class LmdbUniqueConstraintError extends LmdbError {
+  /**
+   * @param indexName - Name of the unique index that was violated.
+   * @param primaryKey - The primary key of the write that was rejected.
+   * @param indexValue - The index value that is already taken.
+   */
+  constructor(indexName: string, primaryKey: unknown, indexValue: unknown) {
+    super(`Unique index '${indexName}' violated: index value '${String(indexValue)}' is already owned by a different primary key (write was for key '${String(primaryKey)}').`)
+    this.name = `LmdbUniqueConstraintError`
   }
 }

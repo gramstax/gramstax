@@ -1,21 +1,17 @@
 /**
- * @gramstax/lmdb — LMDB-backed key-value database with OOP Repository pattern.
+ * @gramstax/lmdb — LMDB-backed key-value database with typed collections.
  *
  * @remarks
- * Multi-runtime (Bun, Node.js >=18). Provides a typed Repository abstraction
- * over LMDB sub-databases, with cross-repository transactions.
+ * Multi-runtime (Bun, Node.js >=18). Provides typed collection handles
+ * over LMDB sub-databases, with cross-collection transactions.
  *
- * @packageDocumentation
- * @public
  */
 
-export * from "./codec"
 export * from "./env"
 export * from "./errors"
-export * from "./non-unique-index"
 export * from "./queue"
 export * from "./replica"
-export * from "./repository"
+export * from "./schema"
+export * from "./sub"
 export * from "./transaction"
-export * from "./ttl"
 export * from "./types"
