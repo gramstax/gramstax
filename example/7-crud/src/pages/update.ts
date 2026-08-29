@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import type {IVItem} from "~/db/db"
+import type {IVItem} from "~/db/schema/item"
 import {StartPage} from "./start"
 
 class Base {
@@ -25,7 +25,7 @@ class Helper {
     return ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
-          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, ctx.data.callbackQueryData(bi, `select`, item.id))
+          k.text(`📝 #${item.id} ${item.title!.slice(0, 5)}..`, ctx.data.callbackQueryData(bi, `select`, item.id!))
           if (index % 2 === 1) {
             k.row()
           }
@@ -104,7 +104,7 @@ export class UpdatePage extends PageBase {
   gselectStatus = {
     show: async (item: IVItem) => {
       const bi = Base.selectStatus
-      const kb = Helper.buildSStatusKb(this, item.id)
+      const kb = Helper.buildSStatusKb(this, item.id!)
       const da = {id: item.id, title: item.title, status: item.status}
       await this.renderAuto(kb, da, bi)
     },
@@ -114,9 +114,9 @@ export class UpdatePage extends PageBase {
         return await this.gselectItem.show(0)
       }
 
-      const updated = await this.db.items.edit(this.from!.id, id, item.title, item.description, status)
+      const updated = await this.db.items.edit(this.from!.id, id, item.title!, item.description!, status)
       if (updated) {
-        await this.gsuccess.show(id, status)
+        await this.gsuccess.show(id, status!)
       } else {
         await this.gselectItem.show(0)
       }

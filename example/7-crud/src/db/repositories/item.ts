@@ -1,22 +1,13 @@
-import {LmdbRepository} from "@gramstax/lmdb"
-import {SequenceRepository} from "./sequence"
+import type {LmdbEnvSub} from "@gramstax/lmdb"
+import type {ItemSchema} from "../schema/item"
+import type {IVItem} from "../schema/item"
+import type {SequenceRepository} from "./sequence"
 
-export type IKItem = string
-export type IVItem = {
-  id: string
-  title: string
-  description: string
-  status: `todo` | `in-progress` | `done`
-  createdAt: number
-  updatedAt: number
-}
-
-export class ItemRepository extends LmdbRepository<IVItem, IKItem> {
-  static dbName = `items`
-
-  private get seq() {
-    return this.env.getRepository(SequenceRepository)
-  }
+export class ItemRepository {
+  constructor(
+    private readonly items: LmdbEnvSub<typeof ItemSchema>,
+    private readonly seq: SequenceRepository
+  ) {}
 
   private key(userId: number, id: string) {
     return `${userId}:${id}`
@@ -27,31 +18,31 @@ export class ItemRepository extends LmdbRepository<IVItem, IKItem> {
   }
 
   async create(userId: number, title: string, description: string): Promise<IVItem> {
-    return this.env.transaction(async () => {
-      await this.seq.ensure(userId)
+    return this.items.owner.transaction(async () => {
+      this.seq.ensure(userId)
       const id = await this.seq.nextId(userId)
       const now = Date.now()
       const item: IVItem = {id, title, description, status: `todo`, createdAt: now, updatedAt: now}
-      await this.set(this.key(userId, id), item)
+      await this.items.put(this.key(userId, id), item)
       await this.seq.incrCount(userId)
       return item
     })
   }
 
   async remove(userId: number, id: string): Promise<boolean> {
-    return this.env.transaction(async () => {
-      const existed = await this.delete(this.key(userId, id))
+    return this.items.owner.transaction(async () => {
+      const existed = await this.items.delete(this.key(userId, id))
       if (existed) await this.seq.decrCount(userId)
       return existed
     })
   }
 
   async purge(userId: number) {
-    return this.env.transaction(async () => {
+    return this.items.owner.transaction(async () => {
       const prefix = this.keyPrefix(userId)
       const end = `${prefix}\uffff`
-      const keys = await this.keys({start: prefix, end})
-      await Promise.all(keys.map((k) => this.delete(k)))
+      const keys = await this.items.keys({start: prefix, end})
+      await Promise.all(keys.map((k) => this.items.delete(k)))
       await this.seq.reset(userId)
     })
   }
@@ -63,8 +54,8 @@ export class ItemRepository extends LmdbRepository<IVItem, IKItem> {
   async list(userId: number, options?: {limit?: number; offset?: number}): Promise<IVItem[]> {
     const prefix = this.keyPrefix(userId)
     const end = `${prefix}\uffff`
-    const entries = await this.entries({start: prefix, end})
-    const sorted = entries.map(([_, v]) => v).sort((a, b) => a.createdAt - b.createdAt)
+    const entries = await this.items.entries({start: prefix, end})
+    const sorted = entries.map(([, v]) => v as IVItem).sort((a, b) => a.createdAt! - b.createdAt!)
     const limit = options?.limit
     const offset = options?.offset ?? 0
     if (limit == null && offset === 0) return sorted
@@ -72,8 +63,8 @@ export class ItemRepository extends LmdbRepository<IVItem, IKItem> {
   }
 
   async fetch(userId: number, id: string): Promise<IVItem | null> {
-    const item = await this.get(this.key(userId, id))
-    return item ?? null
+    const item = this.items.get(this.key(userId, id))
+    return (item as IVItem | undefined) ?? null
   }
 
   async edit(userId: number, id: string, title: string, description: string, status?: IVItem[`status`]): Promise<IVItem | null> {
@@ -86,7 +77,7 @@ export class ItemRepository extends LmdbRepository<IVItem, IKItem> {
       status: status ?? item.status,
       updatedAt: Date.now()
     }
-    await this.set(this.key(userId, id), updated)
+    await this.items.put(this.key(userId, id), updated)
     return updated
   }
 }

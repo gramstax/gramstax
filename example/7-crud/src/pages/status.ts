@@ -26,6 +26,7 @@ export class StatusPage extends PageBase {
       await this.renderAuto(kb, {}, bi)
     }
   }
+
   bnotFound = {
     show: async () => {
       const bi = Base.notFound

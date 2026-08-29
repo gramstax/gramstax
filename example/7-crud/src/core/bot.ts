@@ -1,5 +1,5 @@
 import {Gramstax} from "gramstax"
-import {Db} from "~/db/db"
+import {Db} from "~/db"
 import {Env} from "~/env"
 import {CrudGuard} from "~/guards/crud"
 import {StatusPage} from "~/pages/status"

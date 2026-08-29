@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import type {IVItem} from "~/db/db"
+import type {IVItem} from "~/db/schema/item"
 import {TimeUt} from "~/utils/time"
 import {StartPage} from "./start"
 
@@ -49,8 +49,8 @@ export class DetailPage extends PageBase {
   bsuccess = {
     show: async (item: IVItem) => {
       await this.clearSession()
-      const createdAt = TimeUt.formatTimestamp(item.createdAt)
-      const updatedAt = TimeUt.formatTimestamp(item.updatedAt)
+      const createdAt = TimeUt.formatTimestamp(item.createdAt!)
+      const updatedAt = TimeUt.formatTimestamp(item.updatedAt!)
 
       const bi = Base.success
       const kb = Helper.buildHomeKeyboard(this, bi)

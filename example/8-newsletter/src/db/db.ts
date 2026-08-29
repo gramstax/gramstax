@@ -1,10 +1,10 @@
-import {LmdbEnv} from "@gramstax/lmdb"
-import {SubscriberRepository} from "./repositories/subscriber"
+import {LmdbEnv, type LmdbEnvSub} from "@gramstax/lmdb"
+import {SubscriberSchema, SubscriberService} from "./repositories/subscriber"
 
 export type {IVSubscriber as ISubscriber} from "./repositories/subscriber"
 
 export class Db extends LmdbEnv {
-  subs!: SubscriberRepository
+  subs!: SubscriberService
 
   constructor(storePath: string) {
     super({path: storePath, maxDbs: 5, compression: true})
@@ -12,6 +12,7 @@ export class Db extends LmdbEnv {
 
   async init() {
     if (this.subs) return
-    this.subs = this.register(SubscriberRepository)
+    const subscribers: LmdbEnvSub<typeof SubscriberSchema> = this.register(SubscriberSchema)
+    this.subs = new SubscriberService(subscribers)
   }
 }

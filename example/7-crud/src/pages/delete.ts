@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import type {IVItem} from "~/db/db"
+import type {IVItem} from "~/db/schema/item"
 import {StartPage} from "./start"
 
 class Base {
@@ -18,7 +18,7 @@ class Helper {
     return ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
-          k.text(`🗑️ #${item.id} ${item.title.slice(0, 5)}..`, ctx.data.callbackQueryData(bi, item.id))
+          k.text(`🗑️ #${item.id} ${item.title!.slice(0, 5)}..`, ctx.data.callbackQueryData(bi, item.id!))
           if (index % 2 === 1) {
             k.row()
           }

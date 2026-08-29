@@ -36,19 +36,19 @@ export class ListPage extends PageBase {
   static data = this.buildData((pageNo?: string) => [pageNo])
 
   async handleCallbackQueryData() {
-    await this.gindex.show(0)
+    await this.bindex.show(0)
   }
 
   async handleArgsCallbackQueryData() {
     const pageNo = this.callbackQueryDataArg
-    await this.gindex.process(pageNo)
+    await this.bindex.process(pageNo)
   }
 
-  gindex = {
+  bindex = {
     show: async (pageNo = 0) => {
       const totalItems = await this.db.items.total(this.from!.id)
       if (totalItems === 0) {
-        return await this.ginfoEmpty.show()
+        return await this.binfoEmpty.show()
       }
 
       const totalPages = Math.max(Math.ceil(totalItems / Helper.PAGE_SIZE), 1)
@@ -57,7 +57,7 @@ export class ListPage extends PageBase {
       const items = await this.db.items.list(this.from!.id, {limit: Helper.PAGE_SIZE, offset})
       const list = items
         .map((item) => {
-          const ts = TimeUt.formatTimestamp(item.updatedAt)
+          const ts = TimeUt.formatTimestamp(item.updatedAt!)
           return `#${item.id} ${item.title} [${item.status}] (updated ${ts})`
         })
         .join(`\n`)
@@ -70,10 +70,11 @@ export class ListPage extends PageBase {
     process: async (pageNo: string) => {
       const nextPage = Number(pageNo)
       const pageNum = Number.isNaN(nextPage) ? 0 : nextPage
-      await this.gindex.show(pageNum)
+      await this.bindex.show(pageNum)
     }
   }
-  ginfoEmpty = {
+
+  binfoEmpty = {
     show: async () => {
       const bi = Base.infoEmpty
       const kb = Helper.buildHomeKeyboard(this, bi)
