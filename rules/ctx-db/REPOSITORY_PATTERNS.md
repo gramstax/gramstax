@@ -1,13 +1,12 @@
 # Repository Patterns & Transactions
 
-## Defining a Repository
+## Defining a Collection (Schema)
 
-Every repository extends `LmdbRepository<T, K>` with a `static dbName`:
+Every collection is a `LmdbSchema` subclass — `static db` names the sub-database, `static key` is the primary key column, `static value` maps columns to fields:
 
 ```typescript
-import { LmdbRepository } from "@gramstax/lmdb";
+import {LmdbSchema, t} from "@gramstax/lmdb";
 
-type IKUser = number;
 type IVUser = {
   id: number;
   name: string;
@@ -16,40 +15,73 @@ type IVUser = {
   updatedAt: number;
 };
 
-export class UserRepo extends LmdbRepository<IVUser, IKUser> {
-  static dbName = `user`;
+export class UserSchema extends LmdbSchema {
+  static db = `user`;
+  static key = t.number(); // primary key — never unique()/index()
+  static value = {
+    id: t.number(),
+    name: t.string(),
+    email: t.string().unique(), // SQL UNIQUE INDEX — duplicates throw LmdbUniqueConstraintError
+    createdAt: t.number(),
+    updatedAt: t.number()
+  };
 }
 ```
 
 **Key points:**
 
-- `dbName` must be unique within an `LmdbEnv`.
-- The key type `K` must be one of `string | number | Buffer`.
+- `static db` must be unique within an `LmdbEnv`.
+- The key type is set by the `t` builder — `t.number()` for numeric ids, `t.string()` for string ids.
 - The key is the natural identifier for your entity.
-- Each repository gets its own isolated sub-database — keys between repositories never collide.
+- Each schema gets its own isolated sub-database — keys between schemas never collide.
+- `static value` columns use `t.string()`/`t.number()`/`t.boolean()`/`t.bigint()`/`t.object()`/`t.array()`/`t.date()`/`t.buffer()`; `.nullable()` widens with `| undefined`; `.unique()`/`.index(name?)` declare secondary indexes.
+
+## Service Layer (Domain Methods)
+
+Schemas stay declarative — business logic lives in a service class receiving the `Db` env:
+
+```typescript
+import {LmdbEnv, LmdbSchema, t} from "@gramstax/lmdb";
+
+// no repo type — use `typeof UserSchema` directly
+
+export class UserService {
+  constructor(private readonly users: IUserRepo) {}
+
+  async findById(id: number): Promise<IVUser | undefined> {
+    return this.users.get(id) as IVUser | undefined;
+  }
+
+  async findByEmail(email: string): Promise<IVUser | undefined> {
+    return (await this.users.findByIndex({email})) as IVUser | undefined; // O(log N) via unique index
+  }
+}
+```
+
+**Note:** the schema's inferred row type is loose (every column resolves to `T | undefined`); the service is the seam that narrows it to the precise domain type.
 
 ## Repository File Organization
 
-Place each repository in a dedicated file, typically under `src/db/repositories/`:
+Place each schema + service pair in a dedicated file, typically under `src/db/repositories/`:
 
 ```
 src/db/
-├── db.ts                  ← LmdbEnv subclass
+├── db.ts                  ← LmdbEnv subclass (registers schemas, wires services)
 └── repositories/
-    ├── user.ts
+    ├── user.ts            ← UserSchema + UserService
     ├── session.ts
     └── item.ts
 ```
 
-## Inherited CRUD Methods
+## CRUD Methods (on the env, schema class as first arg)
 
 | Method          | Signature                               | Description         | Complexity   |
 | --------------- | --------------------------------------- | ------------------- | ------------ |
-| `get`           | `(key) => Promise<T \| undefined>`      | Read by key         | O(1)         |
-| `set`           | `(key, value, tx?) => Promise<void>`    | Write (upsert)      | O(1)         |
-| `has`           | `(key) => Promise<boolean>`             | Check existence     | O(1)         |
+| `get`           | `(key) => T \| undefined`               | Read by key (SYNC)  | O(1)         |
+| `has`           | `(key) => boolean`                      | Check existence (SYNC) | O(1)      |
+| `count`         | `() => number`                          | Total entries (SYNC) | O(1)        |
+| `put`           | `(key, value, tx?) => Promise<void>`    | Write (upsert)      | O(1)         |
 | `delete`        | `(key, tx?) => Promise<boolean>`        | Remove by key       | O(1)         |
-| `count`         | `(tx?) => Promise<number>`              | Total entries       | O(1)         |
 | `clear`         | `(tx?) => Promise<void>`                | Remove all entries  | O(N)         |
 | `getMany`       | `(keys) => Promise<(T \| undefined)[]>` | Batch read          | O(M)         |
 | `entries`       | `(range?) => Promise<[K, T][]>`         | Range query         | O(log N + M) |
@@ -60,40 +92,26 @@ src/db/
 | `iterate`       | `(range?) => AsyncIterable<[K, T]>`     | Streaming iteration | O(N)         |
 | `first`         | `() => Promise<[K, T] \| undefined>`    | First key order     | O(log N)     |
 | `last`          | `() => Promise<[K, T] \| undefined>`    | Last key order      | O(log N)     |
+| `findByIndex`   | `(query) => Promise<T \| T[] \| undefined>` | Index lookup    | O(log N + M) |
 
-## Custom Domain Methods
-
-Add domain-specific methods directly to your repository subclass:
-
-```typescript
-class UserRepo extends LmdbRepository<IVUser, number> {
-  static dbName = `user`;
-
-  async findByEmail(email: string): Promise<IVUser | undefined> {
-    const entries = await this.entries();
-    return entries.find(([_, v]) => v.email === email)?.[1];
-  }
-}
-```
-
-**Note:** `findByEmail` scans all entries — O(N). For production, consider an index repository or storing email as part of the key.
+**Sync vs async:** `get`/`has`/`count` return values directly (LMDB sync C calls) — do not `await` them. Writes and range queries are async.
 
 ## Transactions (Read-then-Write Atomicity)
 
-Any method that reads a value and then writes based on that read **must** use `env.transaction()`:
+Any method that reads a value and then writes based on that read **must** use `db.transaction()`:
 
 ```typescript
-// ✅ CORRECT: atomic read-then-write
+// ✅ CORRECT: atomic read-then-write (in a service)
 async findOrCreate(id: number, name: string) {
-  return this.env.transaction(async () => {
-    const existing = await this.get(id)
+  return this.users.env.transaction(async () => {
+    const existing = this.users.get(id)
     if (existing) {
       const updated = {...existing, name, updatedAt: Date.now()}
-      await this.set(id, updated)
+      await this.users.put(id, updated)
       return {user: updated, created: false}
     }
     const user: IVUser = {id, name, createdAt: Date.now(), updatedAt: Date.now()}
-    await this.set(id, user)
+    await this.users.put(id, user)
     return {user, created: true}
   })
 }
@@ -102,66 +120,79 @@ async findOrCreate(id: number, name: string) {
 ```typescript
 // ❌ WRONG: race condition — concurrent calls can interleave
 async findOrCreate(id: number, name: string) {
-  const existing = await this.get(id)        // read
+  const existing = this.users.get(id)            // read
   if (existing) {
-    await this.set(id, {...existing, name})   // write — may overwrite concurrent change
+    await this.users.put(id, {...existing, name}) // write — may overwrite concurrent change
   }
 }
 ```
 
 **When transactions are NOT needed:**
 
-- Single writes: `this.set(key, value)` — already atomic at LMDB level.
-- Read-only operations: `this.get()`, `this.has()`, `this.count()`.
+- Single writes: `db.put(ItemSchema, key, value)` — already atomic at LMDB level.
+- Read-only operations: `db.get(ItemSchema, key)`, `db.has(ItemSchema, key)`, `db.count(ItemSchema)`.
 - Write-only operations that don't depend on a previous read.
 
 ## Cross-Repository Access
 
-Use `this.env.getRepository(OtherRepo)` to access other repositories inside a transaction:
+Prefer constructor-injected services — one service may depend on another's service:
 
 ```typescript
-class ItemRepo extends LmdbRepository<IVItem, string> {
-  static dbName = `items`;
+export class ItemService {
+  constructor(
+    private readonly db: Db,
+    private readonly seq: SequenceService // injected — same env
+  ) {}
 
   async create(userId: number, title: string) {
-    const seq = this.env.getRepository(SequenceRepo);
-    return this.env.transaction(async () => {
-      const id = await seq.nextId(userId);
-      const item: IVItem = { id, title, createdAt: Date.now() };
-      await this.set(`${userId}:${id}`, item);
-      await seq.incrCount(userId);
+    return this.db.transaction(async () => {
+      const id = await this.seq.nextId(userId);
+      const item: IVItem = {id, title, createdAt: Date.now()};
+      await this.db.put(ItemSchema, `${userId}:${id}`, item);
+      await this.seq.incrCount(userId);
       return item;
     });
   }
 }
 ```
 
+Cross-collection access is direct: `db.put(OtherSchema, ...)` inside a transaction.
+
+```typescript
+const seq = this.db.get(SequenceSchema, key); // same env, registered instance
+```
+
 **Rules:**
 
-- Call `getRepository()` inside the method (not in the constructor or a property getter).
-- The target repository must be registered in the same `LmdbEnv` before use.
-- Multiple `getRepository()` calls inside one `transaction()` are safe and efficient.
+- Services must share the same `LmdbEnv` instance.
+- The target schema must be registered in that env before use (wire services in `db.init()` after registering).
+- Nested `env.transaction()` calls inside a transaction are safe (child transactions).
 
 ## Key Design
 
-Each repository has its own sub-database — there's no need for namespace prefixes in keys:
+Each schema has its own sub-database — there's no need for namespace prefixes in keys:
 
 ```typescript
 // ✅ CORRECT: natural key in an isolated sub-db
-class UserRepo extends LmdbRepository<IVUser, number> {
-  static dbName = `user`;
+class UserSchema extends LmdbSchema {
+  static db = `user`;
+  static key = t.number();
+  static value = {id: t.number(), name: t.string()};
 }
-await userRepo.set(123, user); // key 123 in "user" sub-db
+await userService.users.put(123, {id: 123, name: `x`}); // key 123 in "user" sub-db
 
 // ❌ WRONG: redundant namespace prefix
-await userRepo.set(`user:123`, user); // "user" prefix is meaningless — sub-db is already "user"
+await userService.users.put(`user:123`, user); // "user" prefix is meaningless — sub-db is already "user"
 ```
 
-For entities scoped by a parent (e.g., items belonging to a user), use a compound key with a private helper:
+For entities scoped by a parent (e.g., items belonging to a user), use a compound key with a private helper in the service:
 
 ```typescript
-class ItemRepo extends LmdbRepository<IVItem, string> {
-  static dbName = `items`;
+class ItemService {
+  constructor(private readonly db: Db) {
+    db.register(ItemSchema)
+  }
+
   private key(userId: number, id: string) {
     return `${userId}:${id}`;
   }
@@ -171,8 +202,8 @@ class ItemRepo extends LmdbRepository<IVItem, string> {
 
   async list(userId: number) {
     const end = `${this.keyPrefix(userId)}\uffff`;
-    const entries = await this.entries({ start: this.keyPrefix(userId), end });
-    return entries.map(([_, v]) => v);
+    const entries = await this.db.entries(ItemSchema, {start: this.keyPrefix(userId), end});
+    return entries.map(([, v]) => v);
   }
 }
 ```
@@ -187,11 +218,11 @@ import {
   LmdbReadOnlyError,
   LmdbTransactionError,
   LmdbEnvClosedError,
-  LmdbRepositoryNotRegisteredError,
+  LmdbSchemaNotRegisteredError,
 } from "@gramstax/lmdb";
 
 try {
-  await repo.set(key, value);
+  await db.put(ItemSchema, key, value);
 } catch (err) {
   if (err instanceof LmdbReadOnlyError) {
     console.error(`Cannot write: env is read-only`);
@@ -201,12 +232,12 @@ try {
 }
 ```
 
-## Encodings
+## Encodings & Custom Transforms
 
 Set encoding at the `LmdbEnv` level — all sub-databases inherit it:
 
 ```typescript
-const env = new LmdbEnv({ path: `./data`, encoding: `json` });
+const env = new LmdbEnv({path: `./data`, encoding: `json`});
 ```
 
 | Encoding            | Read Speed          | Size     | Use Case                  |
@@ -214,14 +245,16 @@ const env = new LmdbEnv({ path: `./data`, encoding: `json` });
 | `msgpack` (default) | Fast                | Smallest | Production, large values  |
 | `json`              | Fastest (V8 native) | Larger   | Debugging, human-readable |
 
-For custom per-repository encoding, use `static codec`:
+For per-repository custom transforms (the former `static codec` / `LmdbCodec`), use a schema's `static hookBeforeWrite`/`static hookBeforeRead` pair — they run before LMDB serializes the value / after it deserializes it:
 
 ```typescript
-class DateRepo extends LmdbRepository<Date, string> {
-  static dbName = `dates`;
-  static codec = LmdbCodec.create<Date, number>(
-    (d) => d.getTime(),
-    (n) => new Date(n),
-  );
+class DateSchema extends LmdbSchema {
+  static db = `dates`;
+  static key = t.string();
+  static value = {at: t.date()};
+  static hookBeforeWrite = (row: unknown): unknown => ({at: (row as {at: Date}).at.getTime()});
+  static hookBeforeRead = (raw: unknown): unknown => ({at: new Date((raw as {at: number}).at)});
 }
 ```
+
+`hookBeforeWrite` and `hookBeforeRead` must be declared together — registration throws `LmdbError` otherwise.

@@ -4,11 +4,11 @@
 
 | Operation               | Complexity   | Notes                                   |
 | ----------------------- | ------------ | --------------------------------------- |
-| `get(key)`              | O(1)         | Direct page lookup                      |
-| `set(key, value)`       | O(1)         | Write to page cache                     |
-| `has(key)`              | O(1)         | Same as get                             |
+| `get(key)`              | O(1)         | Direct page lookup (SYNC)               |
+| `put(key, value)`       | O(1)         | Write to page cache                     |
+| `has(key)`              | O(1)         | Same as get (SYNC)                      |
 | `delete(key)`           | O(1)         | Remove from page cache                  |
-| `count()`               | O(1)         | LMDB maintains per-sub-db count         |
+| `count()`               | O(1)         | LMDB maintains per-sub-db count (SYNC)  |
 | `getMany(keys)`         | O(M)         | M = number of keys, parallel page fault |
 | `entries({start, end})` | O(log N + M) | Range scan, M = results                 |
 | `findByPrefix(prefix)`  | O(log N + M) | Prefix scan via range                   |
@@ -22,21 +22,30 @@
 
 ```typescript
 // ✅ O(1) — LMDB keeps an accurate count per sub-database
-const total = await repo.count();
+const total = db.count(ItemSchema); // sync — no await
 ```
 
-For per-group counts (e.g., items per user), use a dedicated counter repository:
+For per-group counts (e.g., items per user), keep a counter in a dedicated schema and update it inside the same transaction as the write:
 
 ```typescript
-class CounterRepo extends LmdbRepository<
-  { seq: number; count: number },
-  number
-> {
-  static dbName = `counters`;
+class SequenceSchema extends LmdbSchema {
+  static db = `sequences`;
+  static key = t.number();
+  static value = {
+    seq: t.number(),
+    count: t.number()
+  };
+}
 
-  async total(userId: number): Promise<number> {
-    return (await this.get(userId))?.count ?? 0; // O(1)
-  }
+// In the service: increment the counter in the SAME transaction as the item write
+async create(userId: number) {
+  return this.db.transaction(async () => {
+    await this.seq.put(userId, {seq: (this.seq.get(userId)?.seq ?? 0) + 1, count: (this.seq.get(userId)?.count ?? 0) + 1});
+  });
+}
+
+async total(userId: number): Promise<number> {
+  return this.seq.get(userId)?.count ?? 0; // O(1)
 }
 ```
 
@@ -46,12 +55,12 @@ class CounterRepo extends LmdbRepository<
 
 ```typescript
 // ❌ BAD — reads ALL entries into memory
-const all = await repo.entries();
+const all = await db.entries(ItemSchema);
 
 // ✅ GOOD — bounded range query
 const prefix = `${userId}:`;
 const end = `${prefix}\uffff`;
-const page = await repo.entries({ start: prefix, end, limit: 50, offset: 100 });
+const page = await db.entries(ItemSchema, {start: prefix, end, limit: 50, offset: 100});
 ```
 
 **How `\uffff` works:** LMDB range queries use exclusive end bounds. The Unicode character `\uffff` (a very high code point) acts as a sentinel — `${userId}:\uffff` is the first key that does NOT start with `${userId}:`. This creates an efficient prefix range scan.
@@ -65,8 +74,8 @@ async list(userId: number, page: number, pageSize: number = 20) {
   const offset = (page - 1) * pageSize
   const prefix = this.keyPrefix(userId)
   const end = `${prefix}\uffff`
-  const entries = await this.entries({start: prefix, end, limit: pageSize, offset})
-  return entries.map(([_, v]) => v)
+  const entries = await this.db.entries(ItemSchema, {start: prefix, end, limit: pageSize, offset})
+  return entries.map(([, v]) => v)
 }
 ```
 
@@ -89,7 +98,7 @@ const u3 = await userRepo.get(3);
 ```typescript
 const ids = [100, 200, 300, 400, 500];
 await userRepo.prefetch(ids); // background page-fault, non-blocking
-const users = await Promise.all(ids.map((id) => userRepo.get(id))); // hot cache
+const users = ids.map((id) => userRepo.get(id)); // hot cache — get is sync
 ```
 
 ## Like / Prefix Queries
@@ -100,15 +109,19 @@ const users = await Promise.all(ids.map((id) => userRepo.get(id))); // hot cache
 
 ```typescript
 // ✅ Efficient — range scan
-await repo.findByPrefix(`admin:`);
+await db.findByPrefix(ItemSchema, `admin:`);
 
 // ✅ Efficient — prefix pattern detected
-await repo.like(`admin:*`);
+await db.like(ItemSchema, `admin:*`);
 
 // ❌ Slower — full scan + filter
-await repo.like(`*admin*`);
-await repo.like(`?dmin`);
+await db.like(ItemSchema, `*admin*`);
+await db.like(ItemSchema, `?dmin`);
 ```
+
+## Indexes
+
+Declare secondary indexes on the schema's value columns — `.unique()` (SQL UNIQUE INDEX) or `.index(name?)` (SQL CREATE INDEX). Index lookups via `findByIndex({column: value})` are O(log N + M) and are maintained atomically with primary writes; unique conflicts throw `LmdbUniqueConstraintError`. Do not use an index for columns that change every write (write amplification) — prefer the natural key or a plain column.
 
 ## Encoding Impact
 
@@ -122,5 +135,7 @@ For typical bot data (small objects under 1KB), `json` is faster for reads becau
 Set encoding at `LmdbEnv` construction:
 
 ```typescript
-const env = new LmdbEnv({ path: `./data`, encoding: `json` });
+const env = new LmdbEnv({path: `./data`, encoding: `json`});
 ```
+
+Per-repository transforms (the former `LmdbCodec`) are now schema `static hookBeforeWrite`/`static hookBeforeRead` — they run per value at the repository boundary and add a function call per read/write; keep them cheap (a field transform, not a heavy serialization).
