@@ -1,5 +1,5 @@
 import {Ctx} from "gramstax"
-import type {Db} from "~/db/db"
+import type {Db} from "~/db"
 
 export class CtxCore extends Ctx {
   db: Db

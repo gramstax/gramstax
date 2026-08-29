@@ -3,7 +3,7 @@ import {type KeyOf, LmdbSchema, t, type ValueOf} from "@gramstax/lmdb"
 export type IKItem = KeyOf<typeof ItemSchema>
 export type IVItem = ValueOf<typeof ItemSchema>
 export class ItemSchema extends LmdbSchema {
-  static db = `items`
+  static db = `item`
   static key = t.string()
   static value = {
     id: t.string(),

@@ -1,4 +1,4 @@
-import {type KeyOf, LmdbSchema, type ValueOf, t} from "@gramstax/lmdb"
+import {type KeyOf, LmdbSchema, t, type ValueOf} from "@gramstax/lmdb"
 
 export type IKSequence = KeyOf<typeof SequenceSchema>
 export type IVSequence = ValueOf<typeof SequenceSchema>

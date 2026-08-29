@@ -1,4 +1,4 @@
-import {LmdbEnv, type LmdbEnvSub} from "@gramstax/lmdb"
+import {LmdbEnv} from "@gramstax/lmdb"
 import {ItemRepository} from "./repositories/item"
 import {SequenceRepository} from "./repositories/sequence"
 import {ItemSchema} from "./schema/item"
@@ -14,9 +14,7 @@ export class Db extends LmdbEnv {
 
   async init() {
     if (this.items) return
-    const items: LmdbEnvSub<typeof ItemSchema> = this.register(ItemSchema)
-    const sequences: LmdbEnvSub<typeof SequenceSchema> = this.register(SequenceSchema)
-    this.sequences = new SequenceRepository(sequences)
-    this.items = new ItemRepository(items, this.sequences)
+    this.sequences = new SequenceRepository(this.register(SequenceSchema))
+    this.items = new ItemRepository(this.register(ItemSchema), this.sequences)
   }
 }

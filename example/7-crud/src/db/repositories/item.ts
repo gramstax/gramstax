@@ -1,11 +1,10 @@
 import type {LmdbEnvSub} from "@gramstax/lmdb"
-import type {ItemSchema} from "../schema/item"
-import type {IVItem} from "../schema/item"
+import type {ItemSchema, IVItem} from "../schema/item"
 import type {SequenceRepository} from "./sequence"
 
 export class ItemRepository {
   constructor(
-    private readonly items: LmdbEnvSub<typeof ItemSchema>,
+    private readonly env: LmdbEnvSub<typeof ItemSchema>,
     private readonly seq: SequenceRepository
   ) {}
 
@@ -18,31 +17,31 @@ export class ItemRepository {
   }
 
   async create(userId: number, title: string, description: string): Promise<IVItem> {
-    return this.items.owner.transaction(async () => {
+    return this.env.owner.transaction(async (tx) => {
       this.seq.ensure(userId)
       const id = await this.seq.nextId(userId)
       const now = Date.now()
       const item: IVItem = {id, title, description, status: `todo`, createdAt: now, updatedAt: now}
-      await this.items.put(this.key(userId, id), item)
+      await this.env.put(this.key(userId, id), item, tx)
       await this.seq.incrCount(userId)
       return item
     })
   }
 
   async remove(userId: number, id: string): Promise<boolean> {
-    return this.items.owner.transaction(async () => {
-      const existed = await this.items.delete(this.key(userId, id))
+    return this.env.owner.transaction(async (tx) => {
+      const existed = await this.env.delete(this.key(userId, id), tx)
       if (existed) await this.seq.decrCount(userId)
       return existed
     })
   }
 
   async purge(userId: number) {
-    return this.items.owner.transaction(async () => {
+    return this.env.owner.transaction(async (tx) => {
       const prefix = this.keyPrefix(userId)
       const end = `${prefix}\uffff`
-      const keys = await this.items.keys({start: prefix, end})
-      await Promise.all(keys.map((k) => this.items.delete(k)))
+      const keys = await this.env.keys({start: prefix, end}, tx)
+      await Promise.all(keys.map((k) => this.env.delete(k)))
       await this.seq.reset(userId)
     })
   }
@@ -54,8 +53,8 @@ export class ItemRepository {
   async list(userId: number, options?: {limit?: number; offset?: number}): Promise<IVItem[]> {
     const prefix = this.keyPrefix(userId)
     const end = `${prefix}\uffff`
-    const entries = await this.items.entries({start: prefix, end})
-    const sorted = entries.map(([, v]) => v as IVItem).sort((a, b) => a.createdAt! - b.createdAt!)
+    const entries = await this.env.entries({start: prefix, end})
+    const sorted = entries.map(([, v]) => v).sort((a, b) => a.createdAt! - b.createdAt!)
     const limit = options?.limit
     const offset = options?.offset ?? 0
     if (limit == null && offset === 0) return sorted
@@ -63,21 +62,21 @@ export class ItemRepository {
   }
 
   async fetch(userId: number, id: string): Promise<IVItem | null> {
-    const item = this.items.get(this.key(userId, id))
-    return (item as IVItem | undefined) ?? null
+    const item = this.env.get(this.key(userId, id))
+    return item ?? null
   }
 
   async edit(userId: number, id: string, title: string, description: string, status?: IVItem[`status`]): Promise<IVItem | null> {
     const item = await this.fetch(userId, id)
     if (!item) return null
-    const updated: IVItem = {
+    const updated = {
       ...item,
       title,
       description,
       status: status ?? item.status,
       updatedAt: Date.now()
     }
-    await this.items.put(this.key(userId, id), updated)
+    await this.env.put(this.key(userId, id), updated)
     return updated
   }
 }

@@ -1,5 +1,5 @@
 import {Gramstax} from "gramstax"
-import {Db} from "~/db/db"
+import {Db} from "~/db"
 import {Env} from "~/env"
 import {StatusPage} from "~/pages/status"
 import {CtxCore} from "./ctx"
@@ -22,7 +22,7 @@ export class BotCore extends Gramstax {
     })
   }
 
-  async hookAfterStart() {
+  async hookBeforeStart() {
     this.db = new Db(Env.DB_PATH)
     await this.db.init()
   }
