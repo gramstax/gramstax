@@ -1,18 +1,25 @@
-import {LmdbRepository} from "@gramstax/lmdb"
+import {LmdbEnvSub, LmdbSchema, t} from "@gramstax/lmdb"
+import type {KeyOf, ValueOf} from "@gramstax/lmdb"
 
-export type IKUser = number
-export type IVUser = {
-  tgId: number
-  username: string
-  firstName: string
-  lastName: string
-  languageCode: string
-  createdAt: number
-  updatedAt: number
+export class UserSchema extends LmdbSchema {
+  static db = `user`
+  static key = t.number()
+  static value = {
+    tgId: t.number(),
+    username: t.string(),
+    firstName: t.string(),
+    lastName: t.string(),
+    languageCode: t.string(),
+    createdAt: t.number(),
+    updatedAt: t.number()
+  }
 }
 
-export class UserRepo extends LmdbRepository<IVUser, IKUser> {
-  static dbName = `user`
+export type IKUser = KeyOf<typeof UserSchema>
+export type IVUser = ValueOf<typeof UserSchema>
+
+export class UserService {
+  constructor(private users: LmdbEnvSub<typeof UserSchema>) {}
 
   async findOrCreate(
     tgId: number,
@@ -23,31 +30,31 @@ export class UserRepo extends LmdbRepository<IVUser, IKUser> {
       languageCode: string
     }
   ): Promise<{user: IVUser; created: boolean}> {
-    return this.env.transaction(() => {
-      const existing = this.get(tgId)
+    return this.users.owner.transaction(async () => {
+      const existing = this.users.get(tgId)
       if (existing) {
         const updated: IVUser = {...existing, ...data, updatedAt: Date.now()}
-        this.set(tgId, updated)
+        await this.users.put(tgId, updated)
         return {user: updated, created: false}
       }
       const now = Date.now()
       const user: IVUser = {tgId, ...data, createdAt: now, updatedAt: now}
-      this.set(tgId, user)
+      await this.users.put(tgId, user)
       return {user, created: true}
     })
   }
 
   async touch(tgId: number) {
-    return this.env.transaction(() => {
-      const user = this.get(tgId)
+    return this.users.owner.transaction(async () => {
+      const user = this.users.get(tgId)
       if (user) {
-        this.set(tgId, {...user, updatedAt: Date.now()})
+        await this.users.put(tgId, {...user, updatedAt: Date.now()})
       }
     })
   }
 
   async displayName(tgId: number): Promise<string> {
-    const user = await this.get(tgId)
+    const user = this.users.get(tgId)
     if (!user) return `User#${tgId}`
     return user.firstName || user.username || `User#${tgId}`
   }

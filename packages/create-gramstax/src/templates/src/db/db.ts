@@ -1,8 +1,8 @@
-import {LmdbEnv} from "@gramstax/lmdb"
-import {UserRepo} from "./repositories/user"
+import {LmdbEnv, LmdbEnvSub} from "@gramstax/lmdb"
+import {UserSchema, UserService} from "./repositories/user"
 
 export class Db extends LmdbEnv {
-  user!: UserRepo
+  userService!: UserService
   private _ready: Promise<void>
 
   constructor(storePath: string) {
@@ -11,7 +11,8 @@ export class Db extends LmdbEnv {
   }
 
   private async _init() {
-    this.user = this.register(UserRepo)
+    const users: LmdbEnvSub<typeof UserSchema> = this.register(UserSchema)
+    this.userService = new UserService(users)
   }
 
   async ready() {
