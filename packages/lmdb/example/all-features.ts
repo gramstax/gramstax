@@ -10,61 +10,102 @@
  *  - Product images stored as raw binary
  *  - Sessions with TTL
  *  - Schema migrations, bulk import/export, queue processing, replica/backup
+ *
+ * Every repository is an LmdbSchema (`static db` / `static key` / `static value`)
+ * registered via `env.register(SchemaClass)`. Scalar shapes (bare-number
+ * counters) and dupSort sub-DBs are declared with a scalar `static value`
+ * (plus `static dupSort = true`); TTL-specific members (`put(..., {ttlMs})`,
+ * `purgeExpired`) are exposed via a narrow `LmdbTtlRepository` cast.
  */
 
 import {existsSync, mkdtempSync, readdirSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
-import {NonUniqueIndex} from "../src/non-unique-index"
 import {backupWithRetention, LmdbReplica} from "../src/replica"
-import {LmdbRepository} from "../src/repository"
-import {LmdbTtlRepository} from "../src/ttl"
+import {LmdbSchema, t} from "../src/schema"
 
-// ── Types ──────────────────────────────────────────────────────────
+// ── Schemas ─────────────────────────────────────────────────────────
 
-type User = {id: string; email: string; name: string}
-type Order = {id: string; userId: string; total: number}
-type Session = {userId: string; token: string}
-// ── Repositories ───────────────────────────────────────────────────
-
-class TenantUserRepo extends LmdbRepository<User, [string, string]> {
-  static dbName = `tenant-user`
+class TenantUserSchema extends LmdbSchema {
+  static db = `tenant-user`
+  static key = t.array<string>() // composite key ["tenantId", "userId"]
+  static value = {
+    id: t.string(),
+    email: t.string(),
+    name: t.string()
+  }
 }
 
-class UserRepo extends LmdbRepository<User, string> {
-  static dbName = `user`
+class UserSchema extends LmdbSchema {
+  static db = `user`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    email: t.string(),
+    name: t.string()
+  }
 }
 
-class CounterRepo extends LmdbRepository<number, string> {
-  static dbName = `counter`
+class OrderSchema extends LmdbSchema {
+  static db = `order`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    userId: t.string(),
+    total: t.number()
+  }
 }
 
-class OrderRepo extends LmdbRepository<Order, string> {
-  static dbName = `order`
+class ImageSchema extends LmdbSchema {
+  static db = `image`
+  static key = t.string()
+  static value = {
+    data: t.buffer()
+  }
 }
 
-// dupSort index: email -> userId
-class EmailIndexRepo extends LmdbRepository<string, string> {
-  static dbName = `email-index`
+class SessionTTLSchema extends LmdbSchema {
+  static db = `session-ttl`
+  static key = t.string()
+  static value = {
+    userId: t.string(),
+    token: t.string()
+  }
+  // Declaring `ttl` materializes a TTL repository; 0 = no default, per-call `{ttlMs}` only.
+  static ttl = 0
+}
+
+class DocCborSchema extends LmdbSchema {
+  static db = `doc-cbor`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    title: t.string(),
+    tags: t.array<string>(),
+    createdAt: t.number()
+  }
+}
+
+class CounterSchema extends LmdbSchema {
+  static db = `counter`
+  static key = t.string()
+  static value = t.number()
+}
+
+class EmailIndexSchema extends LmdbSchema {
+  static db = `email-index`
+  static key = t.string()
+  static value = t.string()
   static dupSort = true
 }
 
-class OrderByUserIndexRepo extends LmdbRepository<string, string> {
-  static dbName = `order-by-user`
-  static dupSort = true
-}
-
-class ImageRepo extends LmdbRepository<Buffer, string> {
-  static dbName = `image`
-}
-
-class SessionRepo extends LmdbTtlRepository<Session, string> {
-  static dbName = `session-ttl`
-}
-
-class DocRepo extends LmdbRepository<{title: string}, string> {
-  static dbName = `doc-cbor`
+class QueueJobsSchema extends LmdbSchema {
+  static db = `jobs`
+  static key = t.string()
+  static value = {
+    task: t.string()
+  }
 }
 
 async function main() {
@@ -75,40 +116,50 @@ async function main() {
   try {
     // ── Env ───────────────────────────────────────────────────────
     const env = new LmdbEnv({path: dir, maxDbs: 15})
+    const tenantUser = env.register(TenantUserSchema)
+    const users = env.register(UserSchema)
+    const orders = env.register(OrderSchema)
+    const images = env.register(ImageSchema)
+    const sessions = env.register(SessionTTLSchema)
+    const counters = env.register(CounterSchema)
 
     // ── F1: Composite keys ────────────────────────────────────────
     // Use case: Tenant isolation — same userId under different tenants must not collide.
     console.log(`--- F1: Composite keys [tenantId, userId] ---`)
-    const tenantUsers = env.register(TenantUserRepo)
-    await tenantUsers.put([`tenant-a`, `u1`], {id: `u1`, email: `a@a.com`, name: `Alice`})
-    await tenantUsers.put([`tenant-b`, `u1`], {id: `u1`, email: `a@b.com`, name: `Alice-B`})
-    console.log(`  tenant-a/u1:`, tenantUsers.get([`tenant-a`, `u1`]))
-    console.log(`  tenant-b/u1:`, tenantUsers.get([`tenant-b`, `u1`]))
-    console.log(`  count:`, tenantUsers.count(), `(isolated per composite key)`)
+    await tenantUser.put([`tenant-a`, `u1`], {id: `u1`, email: `a@a.com`, name: `Alice`})
+    await tenantUser.put([`tenant-b`, `u1`], {id: `u1`, email: `a@b.com`, name: `Alice-B`})
+    console.log(`  tenant-a/u1:`, tenantUser.get([`tenant-a`, `u1`]))
+    console.log(`  tenant-b/u1:`, tenantUser.get([`tenant-b`, `u1`]))
+    console.log(`  count:`, tenantUser.count(), `(isolated per composite key)`)
 
     // ── F2: Conditional writes ────────────────────────────────────
     console.log(`\n--- F2: Conditional writes (putIfNotExists / compareAndSet) ---`)
-    const users = env.register(UserRepo)
     const vEnvDir = mkdtempSync(join(tmpdir(), `lmdb-v-`))
     const vEnv = new LmdbEnv({path: vEnvDir, maxDbs: 5, useVersions: true})
-    class VUserRepo extends LmdbRepository<User, string> {
-      static dbName = `vuser`
+    class VUserSchema extends LmdbSchema {
+      static db = `vuser`
+      static key = t.string()
+      static value = {
+        id: t.string(),
+        email: t.string(),
+        name: t.string()
+      }
     }
-    const vUsers = vEnv.register(VUserRepo)
+    vEnv.register(VUserSchema)
     // putIfNotExists — create only if absent (safe for concurrent sign-ups)
     console.log(`  putIfNotExists u1 (first):`, await users.putIfNotExists(`u1`, {id: `u1`, email: `a@b.com`, name: `Alice`}))
     console.log(`  putIfNotExists u1 (second, should be false):`, await users.putIfNotExists(`u1`, {id: `u1`, email: `x@x.com`, name: `Hijack`}))
     console.log(`  u1 after second attempt:`, users.get(`u1`))
-    // compareAndSet — optimistic locking via versions
-    await (vUsers as unknown as {env: LmdbEnv}).env.put(`u9`, {id: `u9`, email: `v@b.com`, name: `V1`}, 1)
-    console.log(`  compareAndSet v1->v2 (correct version 1):`, await vUsers.compareAndSet(`u9`, 1, {id: `u9`, email: `v@b.com`, name: `V2`}))
-    console.log(`  compareAndSet with stale version 1 (should be false):`, await vUsers.compareAndSet(`u9`, 1, {id: `u9`, email: `v@b.com`, name: `V3`}))
+    // compareAndSet — optimistic locking via versions (root-level versioned put)
+    await vEnv.rootPut(`u9`, {id: `u9`, email: `v@b.com`, name: `V1`}, 1)
+    console.log(`  compareAndSet v1->v2 (correct version 1):`, await vEnv.rootPut(`u9`, {id: `u9`, email: `v@b.com`, name: `V2`}, 2, 1))
+    console.log(`  compareAndSet with stale version 1 (should be false):`, await vEnv.rootPut(`u9`, {id: `u9`, email: `v@b.com`, name: `V3`}, 3, 1))
     await vEnv.close()
     rmSync(vEnvDir, {recursive: true, force: true})
 
     // ── F3: Atomic counter ────────────────────────────────────────
     console.log(`\n--- F3: Atomic increment ---`)
-    const counters = env.register(CounterRepo)
+    // Scalar schema: counter values are bare numbers.
     await counters.put(`order-seq`, 100)
     console.log(`  increment order-seq by 1:`, await counters.increment(`order-seq`))
     console.log(`  increment by 5:`, await counters.increment(`order-seq`, 5))
@@ -119,15 +170,16 @@ async function main() {
     // cbor env is separate because encoding is per-env
     const cborDir = mkdtempSync(join(tmpdir(), `lmdb-cbor-`))
     const cborEnv = new LmdbEnv({path: cborDir, maxDbs: 5, encoding: `cbor`})
-    const docs = cborEnv.register(DocRepo)
-    await docs.put(`d1`, {title: `Hello CBOR`})
-    console.log(`  cbor get d1:`, docs.get(`d1`))
+    const cborDocs = cborEnv.register(DocCborSchema)
+    await cborDocs.put(`d1`, {id: `d1`, title: `Hello CBOR`, tags: [`a`, `b`], createdAt: Date.now()})
+    console.log(`  cbor get d1:`, cborDocs.get(`d1`))
     await cborEnv.close()
     rmSync(cborDir, {recursive: true, force: true})
 
     // ── F5: dupSort ───────────────────────────────────────────────
     console.log(`\n--- F5: dupSort (email -> userId index) ---`)
-    const emailIndex = env.register(EmailIndexRepo)
+    // Scalar dupSort schema: one key -> many ordered values.
+    const emailIndex = env.register(EmailIndexSchema)
     await emailIndex.addValue(`shared@b.com`, `u1`)
     await emailIndex.addValue(`shared@b.com`, `u2`)
     console.log(`  shared@b.com ->`, await emailIndex.getValues(`shared@b.com`))
@@ -137,16 +189,14 @@ async function main() {
 
     // ── F6: Binary helpers ────────────────────────────────────────
     console.log(`\n--- F6: Binary helpers (asBinary) ---`)
-    const images = env.register(ImageRepo)
     const blob = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]) // PNG header
     await images.putBinary(`logo`, blob)
     console.log(`  getBinary logo:`, images.getBinary(`logo`))
     console.log(`  getBinaryFast length:`, images.getBinaryFast(`logo`)?.length)
 
     // ── F7: TTL ───────────────────────────────────────────────────
-    // Priority: per-call ttlMs → static ttlMs → never expires
-    console.log(`\n--- F7: TTL repository (per-call + class default) ---`)
-    const sessions = env.register(SessionRepo)
+    // Priority: per-call ttlMs → static ttl → never expires
+    console.log(`\n--- F7: TTL repository (per-call + schema default) ---`)
     await sessions.put(`s1`, {userId: `u1`, token: `tok-abc`}, {ttlMs: 80})
     console.log(`  s1 before expiry:`, sessions.get(`s1`))
     await Bun.sleep(100)
@@ -157,49 +207,41 @@ async function main() {
     console.log(`  purgeExpired removed:`, await sessions.purgeExpired(), `(s1 already gone)`)
     console.log(`  s2 alive:`, !!sessions.get(`s2`), `s3 alive:`, !!sessions.get(`s3`))
 
-    // Class-level default: static ttlMs = 80, per-call overrides it
-    class DefaultTtlSessionRepo extends LmdbTtlRepository<Session, string> {
-      static dbName = `session-default-ttl`
-      static ttlMs = 80
+    // Schema-level default: static ttl = 80, per-call overrides it
+    class DefaultTtlSessionSchema extends LmdbSchema {
+      static db = `session-default-ttl`
+      static key = t.string()
+      static value = {
+        userId: t.string(),
+        token: t.string()
+      }
+      static ttl = 80
     }
-    const defaultSessions = env.register(DefaultTtlSessionRepo)
-    await defaultSessions.put(`d1`, {userId: `u1`, token: `via-class`}) // uses class 80ms
-    console.log(`  d1 with class default 80ms (alive):`, !!defaultSessions.get(`d1`))
+    const defaultTtlSessions = env.register(DefaultTtlSessionSchema)
+    await defaultTtlSessions.put(`d1`, {userId: `u1`, token: `via-schema`}) // uses static ttl 80ms
+    console.log(`  d1 with schema default 80ms (alive):`, !!defaultTtlSessions.get(`d1`))
     await Bun.sleep(100)
-    console.log(`  d1 after 100ms (expired via class):`, defaultSessions.get(`d1`))
-    await defaultSessions.put(`d2`, {userId: `u2`, token: `override`}, {ttlMs: 300000}) // per-call overrides class
+    console.log(`  d1 after 100ms (expired via schema):`, defaultTtlSessions.get(`d1`))
+    await defaultTtlSessions.put(`d2`, {userId: `u2`, token: `override`}, {ttlMs: 300000}) // per-call overrides schema
     await Bun.sleep(100)
-    console.log(`  d2 per-call 300s overrides class (alive):`, !!defaultSessions.get(`d2`))
+    console.log(`  d2 per-call 300s overrides schema (alive):`, !!defaultTtlSessions.get(`d2`))
 
-    // ── F8: Secondary index ───────────────────────────────────────
-    console.log(`\n--- F8: Secondary index (email -> user) ---`)
-    const orders = env.register(OrderRepo)
-    env.register(OrderByUserIndexRepo)
-    const userIndex = new NonUniqueIndex(env, users, emailIndex, (u: User) => u.email)
-    // Reuse users + emailIndex from F5; put via index helper
-    await userIndex.put(`u10`, {id: `u10`, email: `alice@example.com`, name: `Alice`})
-    await userIndex.put(`u11`, {id: `u11`, email: `bob@example.com`, name: `Bob`})
-    console.log(`  find alice@example.com:`, await userIndex.findByIndex(`alice@example.com`))
-    await userIndex.put(`u10`, {id: `u10`, email: `alice2@example.com`, name: `Alice`})
-    console.log(`  after email change, old index empty:`, await userIndex.findByIndex(`alice@example.com`))
-    console.log(`  new index:`, await userIndex.findByIndex(`alice2@example.com`))
-
-    // ── F9: Migrations ────────────────────────────────────────────
-    console.log(`\n--- F9: Schema migrations ---`)
+    // ── F8: Migrations ────────────────────────────────────────────
+    console.log(`\n--- F8: Schema migrations ---`)
     console.log(`  current version:`, env.getMigrationVersion())
     const migResult = await env.migrate([
       {
         version: 1,
         name: `seed-orders`,
-        up: async (e) => {
-          await e.get(OrderRepo).put(`o1`, {id: `o1`, userId: `u10`, total: 42})
+        up: async () => {
+          await orders.put(`o1`, {id: `o1`, userId: `u10`, total: 42})
         }
       },
       {
         version: 2,
         name: `seed-more`,
-        up: async (e) => {
-          await e.get(OrderRepo).put(`o2`, {id: `o2`, userId: `u11`, total: 99})
+        up: async () => {
+          await orders.put(`o2`, {id: `o2`, userId: `u11`, total: 99})
         }
       }
     ])
@@ -211,8 +253,8 @@ async function main() {
     )
     console.log(`  re-run (idempotent) applied:`, (await env.migrate([{version: 1, name: `seed-orders`, up: async () => {}}])).applied.length)
 
-    // ── F10: Bulk ─────────────────────────────────────────────────
-    console.log(`\n--- F10: Bulk putMany / exportJSONL / importJSONL ---`)
+    // ── F9: Bulk ─────────────────────────────────────────────────
+    console.log(`\n--- F9: Bulk putMany / exportJSONL / importJSONL ---`)
     await orders.putMany([
       [`o10`, {id: `o10`, userId: `u1`, total: 10}],
       [`o11`, {id: `o11`, userId: `u1`, total: 20}],
@@ -225,10 +267,10 @@ async function main() {
     console.log(`  count after clear:`, orders.count())
     console.log(`  importJSONL restored:`, await orders.importJSONL(jsonl), `count:`, orders.count())
 
-    // ── F11: Queue ────────────────────────────────────────────────
-    console.log(`\n--- F11: FIFO queue ---`)
+    // ── F10: Queue ───────────────────────────────────────────────
+    console.log(`\n--- F10: FIFO queue ---`)
     const {LmdbQueue} = await import("../src/queue")
-    const queue = new LmdbQueue<{task: string}>(env, `jobs`)
+    const queue = new LmdbQueue(env, QueueJobsSchema)
     const qid1 = await queue.enqueue({task: `email-welcome`})
     const qid2 = await queue.enqueue({task: `generate-invoice`})
     console.log(`  enqueued:`, qid1, qid2, `size:`, await queue.size())
@@ -237,12 +279,12 @@ async function main() {
     console.log(`  size after dequeue:`, await queue.size())
     await queue.clear()
 
-    // ── F12: Replica + backup retention ───────────────────────────
-    console.log(`\n--- F12: Replica (readOnly) + backupWithRetention ---`)
+    // ── F11: Replica + backup retention ───────────────────────────
+    console.log(`\n--- F11: Replica (readOnly) + backupWithRetention ---`)
     const replica = await LmdbReplica.open(dir)
-    replica.register(UserRepo)
+    const replicaUsers = replica.register(UserSchema)
     replica.resetReadTxn()
-    console.log(`  replica readOnly:`, replica.readOnly, `peek u10:`, replica.get(UserRepo).get(`u10`))
+    console.log(`  replica readOnly:`, replica.readOnly, `peek u10:`, replicaUsers.get(`u10`))
     await replica.close()
     if (process.platform !== `win32`) {
       const base = mkdtempSync(join(tmpdir(), `lmdb-backup-demo-`))
@@ -264,7 +306,11 @@ async function main() {
     await env.close()
     console.log(`\nenv closed cleanly — all 12 features demonstrated`)
   } finally {
-    rmSync(dir, {recursive: true, force: true})
+    try {
+      rmSync(dir, {recursive: true, force: true})
+    } catch {
+      // Windows LMDB lock race — ignore
+    }
   }
 }
 

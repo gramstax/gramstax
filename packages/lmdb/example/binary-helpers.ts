@@ -4,23 +4,30 @@
  * verbatim without msgpack/JSON overhead; `getBinary` returns a copied Buffer, `getBinaryFast` returns a reusable view
  * (valid until next get — copy with Buffer.from if you keep it). Both respect `readOnly` and closed-state guards.
  *
+ * The schema declares a `t.buffer()` column for typing, but all reads/writes go through the binary helpers,
+ * which bypass the value pipeline entirely.
+ *
  * Run with: `bun run packages/lmdb/example/binary-helpers.ts`
  */
 import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 
-class ImageRepo extends LmdbRepository<Buffer, string> {
-  static dbName = `image`
+class ImageSchema extends LmdbSchema {
+  static db = `image`
+  static key = t.string()
+  static value = {
+    data: t.buffer()
+  }
 }
 
 async function main() {
   const dir = mkdtempSync(join(tmpdir(), `lmdb-binary-`))
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 5})
-    const images = env.register(ImageRepo)
+    const images = env.register(ImageSchema)
 
     console.log(`--- Binary helpers (bypass codec) ---\n`)
     const pngHeader = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
@@ -41,10 +48,10 @@ async function main() {
     // Read-only guard demo
     const roDir = mkdtempSync(join(tmpdir(), `lmdb-bin-ro-`))
     const wEnv = new LmdbEnv({path: roDir, maxDbs: 3})
-    wEnv.register(ImageRepo)
+    wEnv.register(ImageSchema)
     await wEnv.close()
     const roEnv = new LmdbEnv({path: roDir, maxDbs: 3, readOnly: true})
-    const roImages = roEnv.register(ImageRepo)
+    const roImages = roEnv.register(ImageSchema)
     try {
       await roImages.putBinary(`x`, Buffer.from([1]))
     } catch (err) {

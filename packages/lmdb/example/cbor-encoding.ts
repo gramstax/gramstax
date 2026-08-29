@@ -12,12 +12,17 @@ import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 
-type Doc = {id: string; title: string; tags: string[]; createdAt: number}
-
-class DocRepo extends LmdbRepository<Doc, string> {
-  static dbName = `doc`
+class DocSchema extends LmdbSchema {
+  static db = `doc`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    title: t.string(),
+    tags: t.array<string>(),
+    createdAt: t.number()
+  }
 }
 
 async function main() {
@@ -26,9 +31,9 @@ async function main() {
     console.log(`--- CBOR encoding ---\n`)
     // cbor encoding is per-env; all sub-DBs in this env share it
     const env = new LmdbEnv({path: dir, maxDbs: 5, encoding: `cbor`})
-    const docs = env.register(DocRepo)
+    const docs = env.register(DocSchema)
 
-    const doc: Doc = {id: `d1`, title: `Hello CBOR`, tags: [`lmdb`, `cbor`], createdAt: Date.now()}
+    const doc = {id: `d1`, title: `Hello CBOR`, tags: [`lmdb`, `cbor`], createdAt: Date.now()}
     await docs.put(`d1`, doc)
     console.log(`  stored:`, doc)
     console.log(`  retrieved:`, docs.get(`d1`))

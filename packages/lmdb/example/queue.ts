@@ -12,14 +12,22 @@ import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
 import {LmdbQueue} from "../src/queue"
+import {LmdbSchema, t} from "../src/schema"
 
-type Job = {id: string; task: string}
+class JobSchema extends LmdbSchema {
+  static db = `jobs`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    task: t.string()
+  }
+}
 
 async function main() {
   const dir = mkdtempSync(join(tmpdir(), `lmdb-queue-`))
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 10})
-    const queue = new LmdbQueue<Job>(env, `jobs`)
+    const queue = new LmdbQueue(env, JobSchema)
 
     console.log(`--- Queue: enqueue -> peek -> dequeue (FIFO) ---\n`)
     const id1 = await queue.enqueue({id: `j1`, task: `email-welcome`})

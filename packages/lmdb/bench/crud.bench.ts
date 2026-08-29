@@ -9,21 +9,21 @@
 import {mkdtempSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
-import {LmdbEnv, LmdbRepository} from "../src"
+import {LmdbEnv, LmdbSchema, t} from "../src"
 
 const POPULATE = 20_000
 const ITERS = 5_000
 const WARMUP = 200
 
-interface Item {
-  id: string
-  name: string
-  score: number
-  tags: string[]
-}
-
-class ItemRepo extends LmdbRepository<Item, string> {
-  static dbName = `bench-crud`
+class ItemSchema extends LmdbSchema {
+  static db = `bench-crud`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    name: t.string(),
+    score: t.number(),
+    tags: t.array<string>()
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -99,16 +99,16 @@ function rankAndPrint(results: BenchResult[], title = `benchmark`): void {
 async function main(): Promise<void> {
   const tmp = mkdtempSync(join(tmpdir(), `lmdb-bench-crud-`))
   const env = new LmdbEnv({path: tmp, maxDbs: 5})
-  const repo = env.register(ItemRepo)
+  const items = env.register(ItemSchema)
   const collected: BenchResult[] = []
 
   console.log(`Populating ${POPULATE} entries (txSync)...`)
   const CHUNK = 500
   for (let start = 0; start < POPULATE; start += CHUNK) {
     const end = Math.min(start + CHUNK, POPULATE)
-    repo.env.transactionSync(() => {
+    env.rootTransactionSync(() => {
       for (let i = start; i < end; i++) {
-        repo.env.putSync(`k${i}`, {id: `k${i}`, name: `name${i}`, score: i % 100, tags: [`tag${i % 10}`]})
+        items.putSync(`k${i}`, {id: `k${i}`, name: `name${i}`, score: i % 100, tags: [`tag${i % 10}`]})
       }
     })
   }
@@ -123,38 +123,38 @@ async function main(): Promise<void> {
   await bench(
     `get (existing)`,
     async () => {
-      for (const k of existingKeys) await repo.get(k)
+      for (const k of existingKeys) await items.get(k)
     },
     collected
   )
   await bench(
     `get (missing)`,
     async () => {
-      for (let i = 0; i < 3; i++) await repo.get(missingKey)
+      for (let i = 0; i < 3; i++) await items.get(missingKey)
     },
     collected
   )
   await bench(
     `has (existing)`,
     async () => {
-      for (const k of existingKeys) await repo.has(k)
+      for (const k of existingKeys) await items.has(k)
     },
     collected
   )
   await bench(
     `has (missing)`,
     async () => {
-      for (let i = 0; i < 3; i++) await repo.has(missingKey)
+      for (let i = 0; i < 3; i++) await items.has(missingKey)
     },
     collected
   )
   await bench(
     `put (new key)`,
     async () => {
-      repo.env.transactionSync(() => {
-        repo.env.putSync(`${writeKey}:0`, {id: `w`, name: `write`, score: 0, tags: [`w`]})
-        repo.env.putSync(`${writeKey}:1`, {id: `w`, name: `write`, score: 0, tags: [`w`]})
-        repo.env.putSync(`${writeKey}:2`, {id: `w`, name: `write`, score: 0, tags: [`w`]})
+      env.rootTransactionSync(() => {
+        items.putSync(`${writeKey}:0`, {id: `w`, name: `write`, score: 0, tags: [`w`]})
+        items.putSync(`${writeKey}:1`, {id: `w`, name: `write`, score: 0, tags: [`w`]})
+        items.putSync(`${writeKey}:2`, {id: `w`, name: `write`, score: 0, tags: [`w`]})
       })
     },
     collected
@@ -162,8 +162,8 @@ async function main(): Promise<void> {
   await bench(
     `put (overwrite)`,
     async () => {
-      repo.env.transactionSync(() => {
-        for (const k of existingKeys) repo.env.putSync(k, {id: k, name: `updated`, score: 99, tags: [`u`]})
+      env.rootTransactionSync(() => {
+        for (const k of existingKeys) items.putSync(k, {id: k, name: `updated`, score: 99, tags: [`u`]})
       })
     },
     collected
@@ -171,15 +171,15 @@ async function main(): Promise<void> {
   await bench(
     `delete (existing)`,
     async () => {
-      repo.env.transactionSync(() => {
-        repo.env.putSync(`__del:0`, {id: `d`, name: `del`, score: 0, tags: [`d`]})
-        repo.env.putSync(`__del:1`, {id: `d`, name: `del`, score: 0, tags: [`d`]})
-        repo.env.putSync(`__del:2`, {id: `d`, name: `del`, score: 0, tags: [`d`]})
+      env.rootTransactionSync(() => {
+        items.putSync(`__del:0`, {id: `d`, name: `del`, score: 0, tags: [`d`]})
+        items.putSync(`__del:1`, {id: `d`, name: `del`, score: 0, tags: [`d`]})
+        items.putSync(`__del:2`, {id: `d`, name: `del`, score: 0, tags: [`d`]})
       })
-      repo.env.transactionSync(() => {
-        repo.env.removeSync(`__del:0`)
-        repo.env.removeSync(`__del:1`)
-        repo.env.removeSync(`__del:2`)
+      env.rootTransactionSync(() => {
+        items.removeSync(`__del:0`)
+        items.removeSync(`__del:1`)
+        items.removeSync(`__del:2`)
       })
     },
     collected
@@ -187,14 +187,14 @@ async function main(): Promise<void> {
   await bench(
     `count`,
     async () => {
-      for (let i = 0; i < 3; i++) await repo.count()
+      for (let i = 0; i < 3; i++) await items.count()
     },
     collected
   )
   await bench(
     `getMany (10 keys)`,
     async () => {
-      await repo.getMany([`k0`, `k1`, `k2`, `k3`, `k4`, `k5`, `k6`, `k7`, `k8`, `k9`])
+      await items.getMany([`k0`, `k1`, `k2`, `k3`, `k4`, `k5`, `k6`, `k7`, `k8`, `k9`])
     },
     collected
   )

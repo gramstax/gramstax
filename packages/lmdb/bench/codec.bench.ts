@@ -1,5 +1,11 @@
 /**
- * Encoding benchmark — msgpack vs json vs binary across object sizes.
+ * Encoding benchmark — msgpack vs json across object sizes.
+ *
+ * Per-repo encoding is a schema `static encoding` option, so this bench
+ * builds one schema class per encoding via a factory and registers it with
+ * `env.register` (the only registration path — `env._createRepo` is gone).
+ * `LmdbCodec` no longer exists; custom transforms benchmark via schema
+ * `static hookBeforeWrite`/`static hookBeforeRead` in decode.bench.ts.
  *
  * Run: bun run packages/lmdb/bench/codec.bench.ts
  *
@@ -9,7 +15,7 @@
 import {mkdtempSync, readdirSync, rmSync, statSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
-import {LmdbEnv, LmdbRepository} from "../src"
+import {LmdbEnv, LmdbSchema, t} from "../src"
 
 const N = 2_000
 const WARMUP = 200
@@ -164,29 +170,38 @@ function rankPair(title: string, metric: `writeP50` | `readP50`, rows: Array<{la
   }
 }
 
+function makeBenchSchema(encoding: string) {
+  return class BenchSchema extends LmdbSchema {
+    static db = `bench-${encoding}`
+    static key = t.string()
+    static value = t.string()
+    static encoding = encoding
+  }
+}
+
 async function benchEncoding<T>(data: T, encoding: `msgpack` | `json` | `binary`): Promise<BenchResult> {
   const dir = mkdtempSync(join(tmpdir(), `enc-${encoding}-`))
   const env = new LmdbEnv({path: dir, maxDbs: 5})
 
-  class BenchRepo extends LmdbRepository<T, string> {
-    static dbName = `bench-${encoding}`
-    static encoding = encoding
+  // Per-repo encoding via schema `static encoding` — a fresh schema class per
+  // encoding (fresh env per call, so the dbName registers exactly once). The
+  // register() handle is pre-bound to the schema; the bench stores raw payloads
+  // of arbitrary shape, so the handle is widened to unknown values (bench-only).
+  const bench = env.register(makeBenchSchema(encoding)) as unknown as {
+    putSync: (key: string, value: unknown) => void
+    get: (key: string) => unknown
   }
-  const repo = env.register(BenchRepo)
 
   // Warmup writes (transactionSync), reads sequential
   const CHUNK = 500
   for (let start = 0; start < WARMUP; start += CHUNK) {
     const end = Math.min(start + CHUNK, WARMUP)
-    repo.env.transactionSync(() => {
-      for (let j = start; j < end; j++) repo.env.putSync(`w${j}`, data)
+    env.rootTransactionSync(() => {
+      for (let j = start; j < end; j++) bench.putSync(`w${j}`, data)
     })
   }
 
-  // console.log(111111111, repo.get(`w5`))
-  // process.exit()
-
-  for (let i = 0; i < WARMUP; i++) await repo.get(`w${i}`)
+  for (let i = 0; i < WARMUP; i++) await bench.get(`w${i}`)
 
   // Timed writes (transactionSync), reads sequential
   const writeLat: bigint[] = []
@@ -194,13 +209,13 @@ async function benchEncoding<T>(data: T, encoding: `msgpack` | `json` | `binary`
   for (let start = 0; start < N; start += CHUNK) {
     const end = Math.min(start + CHUNK, N)
     const t0 = process.hrtime.bigint()
-    repo.env.transactionSync(() => {
-      for (let j = start; j < end; j++) repo.env.putSync(`k${j}`, data)
+    env.rootTransactionSync(() => {
+      for (let j = start; j < end; j++) bench.putSync(`k${j}`, data)
     })
     writeLat.push(process.hrtime.bigint() - t0)
     for (let i = start; i < end; i++) {
       const t1 = process.hrtime.bigint()
-      await repo.get(`k${i}`)
+      await bench.get(`k${i}`)
       readLat.push(process.hrtime.bigint() - t1)
     }
   }

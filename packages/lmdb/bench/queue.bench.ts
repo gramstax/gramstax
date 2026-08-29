@@ -17,14 +17,19 @@ import {mkdtempSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv, LmdbQueue} from "../src"
+import {LmdbSchema, t} from "../src/schema"
 
 const N = Number(process.env.BENCH_N ?? 50_000)
 const ITERS = Number(process.env.BENCH_ITERS ?? 300)
 const WARMUP = 30
 
-interface Job {
-  id: string
-  payload: {type: string; n: number}
+class JobSchema extends LmdbSchema {
+  static db = `jobs`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    payload: t.object<{type: string; n: number}>()
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -98,7 +103,7 @@ function rankAndPrint(results: BenchResult[], title = `benchmark`): void {
 async function main(): Promise<void> {
   const tmp = mkdtempSync(join(tmpdir(), `lmdb-bench-queue-`))
   const env = new LmdbEnv({path: tmp, maxDbs: 10})
-  const queue = new LmdbQueue<Job>(env, `jobs`)
+  const queue = new LmdbQueue(env, JobSchema)
 
   console.log(`Populating ${N} jobs via v2 enqueue (single txn each)...`)
   const t0 = process.hrtime.bigint()

@@ -1,9 +1,12 @@
 /**
- * _decode overhead benchmark — measure cost of identity vs codec decode in range queries.
+ * Read-hook overhead benchmark — measure cost of identity vs hookBeforeRead in range queries.
  *
- * Why: LmdbRepository.values()/entries()/iterate() always do `.map(e => _decode(e.value))`
- * even when no codec is configured (identity). This bench quantifies that overhead vs raw
- * LMDB range without decode and vs a real codec (Date -> number).
+ * Why: LmdbRepository.values()/entries()/iterate() always do `.map(e => _readValue(e.value))`
+ * even when no hook is configured (identity). This bench quantifies that overhead vs raw
+ * LMDB range without the read hook and vs a real transform (Date -> number).
+ *
+ * `LmdbCodec` was removed in the schema-only API — the real transform side is now a schema
+ * `static hookBeforeWrite`/`static hookBeforeRead` pair, which forwards to the same repository codec opts.
  *
  * Run: bun run packages/lmdb/bench/decode.bench.ts
  *
@@ -13,7 +16,8 @@
 import {mkdtempSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
-import {LmdbCodec, LmdbEnv, LmdbRepository} from "../src"
+import {LmdbEnv, LmdbSchema, t} from "../src"
+import {MAX_MATERIALIZE} from "../src/types"
 
 const POPULATE = Number(process.env.BENCH_N ?? 500_000)
 const ITERS = 300
@@ -21,21 +25,25 @@ const WARMUP = 30
 const ITERS_LARGE = 20
 const WARMUP_LARGE = 5
 
-interface Plain {
-  id: string
-  val: number
-}
-class PlainRepo extends LmdbRepository<Plain, string> {
-  static dbName = `bench-decode-plain`
+class PlainSchema extends LmdbSchema {
+  static db = `bench-decode-plain`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    val: t.number()
+  }
 }
 
-class DateRepo extends LmdbRepository<Date, string> {
-  static dbName = `bench-decode-date`
-  static codec = LmdbCodec.create<Date, number>(
-    (d) => d.getTime(),
-    (n) => new Date(n)
-  )
+class DateSchema extends LmdbSchema {
+  static db = `bench-decode-date`
+  static key = t.string()
+  static value = {at: t.date()}
+  static hookBeforeWrite = (row: unknown): unknown => ({at: (row as {at: Date}).at.getTime()})
+  static hookBeforeRead = (raw: unknown): unknown => ({at: new Date((raw as {at: number}).at)})
 }
+
+// Row shape of PlainSchema — used by the pure-JS micro benchmarks below.
+type Plain = {id: string; val: number}
 
 function fmtNs(ns: bigint): string {
   const n = Number(ns)
@@ -143,41 +151,27 @@ function rankAndPrint(results: BenchResult[], title = `benchmark`): void {
 async function main(): Promise<void> {
   const tmp = mkdtempSync(join(tmpdir(), `lmdb-bench-decode-`))
   const env = new LmdbEnv({path: tmp, maxDbs: 10})
-  const plain = env.register(PlainRepo)
-  const dates = env.register(DateRepo)
+  const plain = env.register(PlainSchema)
+  const dates = env.register(DateSchema)
 
   console.log(`Populating ${POPULATE} plain + ${POPULATE} date entries...`)
   const CHUNK = 500
   for (let start = 0; start < POPULATE; start += CHUNK) {
     const end = Math.min(start + CHUNK, POPULATE)
-    env.transactionSync(() => {
+    await env.rootTransactionSync(() => {
       for (let i = start; i < end; i++) {
         const k = `k${String(i).padStart(6, `0`)}`
-        env.putSync(k, {id: k, val: i} as unknown as never)
-        // plain uses same putSync via repo env handle — but we populate via env's subDb handles
-        // to avoid double-encoding confusion, use direct repo.putSync inside transaction
-      }
-    })
-  }
-  // Re-populate correctly via repo handles (ensures correct sub-DB)
-  await plain.clear()
-  await dates.clear()
-  for (let start = 0; start < POPULATE; start += CHUNK) {
-    const end = Math.min(start + CHUNK, POPULATE)
-    await env.transactionSync(() => {
-      for (let i = start; i < end; i++) {
-        const k = `k${String(i).padStart(6, `0`)}`
-        plain.env.putSync(k, {id: k, val: i})
-        dates.env.putSync(k, new Date(Date.now() + i))
+        plain.putSync(k, {id: k, val: i})
+        dates.putSync(k, {at: new Date(Date.now() + i)})
       }
     })
   }
   console.log(`Ready.\n`)
 
-  console.log(`=== _decode overhead (plain = identity, date = real codec) ===\n`)
-  console.log(`Note: values()/entries() always do .map(e => _decode(e.value)).`)
-  console.log(`      Plain repo _decode is identity (raw as T) — measures pure mapping overhead.`)
-  console.log(`      Date repo _decode is codec.deserialize (number -> Date) — measures real transform.\n`)
+  console.log(`=== read-hook overhead (plain = identity, date = real transform) ===\n`)
+  console.log(`Note: values()/entries() always do .map(e => _readValue(e.value)).`)
+  console.log(`      Plain repo hook is identity (raw as T) — measures pure mapping overhead.`)
+  console.log(`      Date repo hook is hookBeforeRead (number -> Date) — measures real transform.\n`)
 
   // Grouped by limit for fair comparison — 100 vs 1000 must not share one table
   const limit100: BenchResult[] = []
@@ -185,26 +179,26 @@ async function main(): Promise<void> {
 
   // Raw LMDB range without any JS decode/map — baseline
   const raw100 = await bench(`raw getRange({limit:100}) + extract value (no decode)`, async () => {
-    const arr = (plain.env.getRange({limit: 100}) as unknown as {asArray: unknown[]}).asArray
+    const arr = (env.openDB(PlainSchema.db).getRange({limit: 100}) as unknown as {asArray: unknown[]}).asArray
     await Promise.resolve(arr).then((a) => (a as Array<{value: unknown}>).map((e) => e.value))
   })
   limit100.push(raw100)
   const raw1000 = await bench(`raw getRange({limit:1000}) + extract value`, async () => {
-    const arr = (plain.env.getRange({limit: 1000}) as unknown as {asArray: unknown[]}).asArray
+    const arr = (env.openDB(PlainSchema.db).getRange({limit: 1000}) as unknown as {asArray: unknown[]}).asArray
     await Promise.resolve(arr).then((a) => (a as Array<{value: unknown}>).map((e) => e.value))
   })
   limit1000.push(raw1000)
 
   // Plain repo — identity decode
-  const pv100 = await bench(`plain.values({limit:100}) [identity _decode]`, () => plain.values({limit: 100}))
+  const pv100 = await bench(`env.values(PlainSchema, {limit:100}) [identity read-hook]`, () => plain.values({limit: 100}))
   limit100.push(pv100)
-  const pv1000 = await bench(`plain.values({limit:1000}) [identity _decode]`, () => plain.values({limit: 1000}))
+  const pv1000 = await bench(`env.values(PlainSchema, {limit:1000}) [identity read-hook]`, () => plain.values({limit: 1000}))
   limit1000.push(pv1000)
-  const pe100 = await bench(`plain.entries({limit:100}) [identity]`, () => plain.entries({limit: 100}))
+  const pe100 = await bench(`env.entries(PlainSchema, {limit:100}) [identity]`, () => plain.entries({limit: 100}))
   limit100.push(pe100)
-  const pe1000 = await bench(`plain.entries({limit:1000}) [identity]`, () => plain.entries({limit: 1000}))
+  const pe1000 = await bench(`env.entries(PlainSchema, {limit:1000}) [identity]`, () => plain.entries({limit: 1000}))
   limit1000.push(pe1000)
-  const pi100 = await bench(`plain.iterate({limit:100}) [identity]`, async () => {
+  const pi100 = await bench(`env.iterate(PlainSchema, {limit:100}) [identity]`, async () => {
     for await (const _ of plain.iterate({limit: 100})) {
       /* drain */
     }
@@ -227,19 +221,19 @@ async function main(): Promise<void> {
   // Large limits — grouped by limit (10k vs 100k separated for fair vs)
   console.log(`\n--- Large scale (500k DB) ---\n`)
   const large10k: BenchResult[] = []
-  const l1 = await bench(`plain.values({limit:10_000}) [fast-path]`, () => plain.values({limit: 10_000}), ITERS_LARGE, WARMUP_LARGE)
+  const l1 = await bench(`env.values(PlainSchema, {limit:10_000}) [fast-path]`, () => plain.values({limit: 10_000}), ITERS_LARGE, WARMUP_LARGE)
   large10k.push(l1)
-  const l2 = await bench(`plain.entries({limit:10_000}) [fast-path]`, () => plain.entries({limit: 10_000}), ITERS_LARGE, WARMUP_LARGE)
+  const l2 = await bench(`env.entries(PlainSchema, {limit:10_000}) [fast-path]`, () => plain.entries({limit: 10_000}), ITERS_LARGE, WARMUP_LARGE)
   large10k.push(l2)
   rankAndPrint(large10k, `Decode / large 10k (values vs entries)`)
 
   const large100k: BenchResult[] = []
-  const l3 = await bench(`plain.values({limit:100_000})`, () => plain.values({limit: 100_000}), 10, 2)
+  const l3 = await bench(`env.values(PlainSchema, {limit:100_000})`, () => plain.values({limit: 100_000}), 10, 2)
   large100k.push(l3)
-  const l4 = await bench(`plain.entries({limit:100_000})`, () => plain.entries({limit: 100_000}), 10, 2)
+  const l4 = await bench(`env.entries(PlainSchema, {limit:100_000})`, () => plain.entries({limit: 100_000}), 10, 2)
   large100k.push(l4)
   const l5 = await bench(
-    `plain.iterate({limit:100_000}) [lazy stream]`,
+    `env.iterate(PlainSchema, {limit:100_000}) [lazy stream]`,
     async () => {
       for await (const _ of plain.iterate({limit: 100_000})) {
         /* drain */
@@ -254,7 +248,7 @@ async function main(): Promise<void> {
   // Guardrail (B4): a limit above MAX_MATERIALIZE rejects with
   // LmdbMaterializationError while iterate() remains the escape hatch.
   console.log(`\n--- Guardrail: >100k materialization cap (B4) ---\n`)
-  const cap = LmdbRepository.MAX_MATERIALIZE ?? 100_000
+  const cap = MAX_MATERIALIZE ?? 100_000
   let guardErr: string | null = null
   try {
     await plain.values({limit: cap + 1})
@@ -282,7 +276,7 @@ async function main(): Promise<void> {
   // values() without a limit is guarded (> MAX_MATERIALIZE) — iterate() streams the full set.
   if (POPULATE >= 500_000) {
     const l6 = await bench(
-      `plain.iterate(all 500k) [lazy, escape hatch]`,
+      `env.iterate(PlainSchema, all 500k) [lazy, escape hatch]`,
       async () => {
         for await (const _ of plain.iterate()) {
           /* drain */
@@ -294,7 +288,7 @@ async function main(): Promise<void> {
     console.log(`\n  Full scan 500k absolute: median=${fmtNs(l6.median)} min=${fmtNs(l6.min)} max=${fmtNs(l6.max)} (single sample, not ranked)`)
   }
 
-  // Micro: pure JS map overhead (no LMDB) — isolates _decode call cost
+  // Micro: pure JS map overhead (no LMDB) — isolates the read-hook call cost
   console.log(`\n--- Micro: pure JS map (50k elements, no LMDB) ---\n`)
   const N = 50_000
   const fake = Array.from({length: N}, (_, i) => ({key: `k${i}`, value: {id: `k${i}`, val: i}}))
@@ -319,7 +313,7 @@ async function main(): Promise<void> {
 
   await env.close()
   console.log(`\nDone. Compare median: raw vs plain vs date. Identity overhead = plain - raw.`)
-  console.log(`If plain ≈ raw, _decode identity cost is negligible. If date >> plain, codec dominates.`)
+  console.log(`If plain ≈ raw, read-hook identity cost is negligible. If date >> plain, the transform dominates.`)
 }
 
 main().catch((e) => {

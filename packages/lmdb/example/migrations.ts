@@ -11,19 +11,22 @@ import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 
-type User = {id: string; name: string}
-
-class UserRepo extends LmdbRepository<User, string> {
-  static dbName = `user`
+class UserSchema extends LmdbSchema {
+  static db = `user`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    name: t.string()
+  }
 }
 
 async function main() {
   const dir = mkdtempSync(join(tmpdir(), `lmdb-migrate-`))
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 10})
-    env.register(UserRepo)
+    const users = env.register(UserSchema)
 
     console.log(`--- Migrations (versioned, idempotent) ---\n`)
     console.log(`  current version (0):`, env.getMigrationVersion())
@@ -32,22 +35,22 @@ async function main() {
       {
         version: 1,
         name: `seed-alice`,
-        up: async (e) => {
-          await e.get(UserRepo).put(`u1`, {id: `u1`, name: `Alice`})
+        up: async () => {
+          await users.put(`u1`, {id: `u1`, name: `Alice`})
         }
       },
       {
         version: 2,
         name: `seed-bob`,
-        up: async (e) => {
-          await e.get(UserRepo).put(`u2`, {id: `u2`, name: `Bob`})
+        up: async () => {
+          await users.put(`u2`, {id: `u2`, name: `Bob`})
         }
       },
       {
         version: 3,
         name: `seed-carol`,
-        up: async (e) => {
-          await e.get(UserRepo).put(`u3`, {id: `u3`, name: `Carol`})
+        up: async () => {
+          await users.put(`u3`, {id: `u3`, name: `Carol`})
         }
       }
     ])
@@ -57,7 +60,7 @@ async function main() {
       `current:`,
       r1.currentVersion
     )
-    console.log(`  u1:`, env.get(UserRepo).get(`u1`))
+    console.log(`  u1:`, users.get(`u1`))
 
     console.log(`\n  re-run same (idempotent, 0 applied):`, (await env.migrate([{version: 1, name: `seed-alice`, up: async () => {}}])).applied.length)
 
@@ -80,12 +83,12 @@ async function main() {
       {
         version: 4,
         name: `good`,
-        up: async (e) => {
-          await e.get(UserRepo).put(`u4`, {id: `u4`, name: `Dave`})
+        up: async () => {
+          await users.put(`u4`, {id: `u4`, name: `Dave`})
         }
       }
     ])
-    console.log(`  after good v4, version 4:`, env.getMigrationVersion(), `u4:`, env.get(UserRepo).get(`u4`))
+    console.log(`  after good v4, version 4:`, env.getMigrationVersion(), `u4:`, users.get(`u4`))
 
     console.log(`\n--- Duplicate version throws ---\n`)
     try {

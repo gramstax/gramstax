@@ -9,19 +9,19 @@
 import {mkdtempSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
-import {LmdbEnv, LmdbRepository} from "../src"
+import {LmdbEnv, LmdbSchema, t} from "../src"
 
 const POPULATE = 100_000
 const ITERS = 500
 const WARMUP = 50
 
-interface Item {
-  id: string
-  val: number
-}
-
-class ItemRepo extends LmdbRepository<Item, string> {
-  static dbName = `bench-range`
+class ItemSchema extends LmdbSchema {
+  static db = `bench-range`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    val: t.number()
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -89,15 +89,15 @@ function rankAndPrint(results: BenchResult[], title: string): void {
 async function main(): Promise<void> {
   const tmp = mkdtempSync(join(tmpdir(), `lmdb-bench-range-`))
   const env = new LmdbEnv({path: tmp, maxDbs: 5})
-  const repo = env.register(ItemRepo)
+  const items = env.register(ItemSchema)
 
   console.log(`Populating ${POPULATE} entries (txSync)...`)
   const CHUNK = 500
   for (let start = 0; start < POPULATE; start += CHUNK) {
     const end = Math.min(start + CHUNK, POPULATE)
-    repo.env.transactionSync(() => {
+    env.rootTransactionSync(() => {
       for (let i = start; i < end; i++) {
-        repo.env.putSync(`k${String(i).padStart(6, `0`)}`, {id: `k${i}`, val: i})
+        items.putSync(`k${String(i).padStart(6, `0`)}`, {id: `k${i}`, val: i})
       }
     })
   }
@@ -112,53 +112,53 @@ async function main(): Promise<void> {
   const allResults: BenchResult[] = []
 
   // --- keys ---
-  await bench(keysResults, `keys() (all)`, () => repo.keys())
-  await bench(keysResults, `keys({limit:10})`, () => repo.keys({limit: 10}))
-  await bench(keysResults, `keys({limit:100})`, () => repo.keys({limit: 100}))
-  await bench(keysResults, `keys({limit:1000})`, () => repo.keys({limit: 1000}))
-  await bench(keysResults, `keys({reverse:true, limit:10})`, () => repo.keys({reverse: true, limit: 10}))
-  await bench(keysResults, `keys({start:"k000500", limit:10})`, () => repo.keys({start: `k000500`, limit: 10}))
-  await bench(keysResults, `keys({start:"k000500", end:"k001000"})`, () => repo.keys({start: `k000500`, end: `k001000`}))
+  await bench(keysResults, `keys() (all)`, () => items.keys())
+  await bench(keysResults, `keys({limit:10})`, () => items.keys({limit: 10}))
+  await bench(keysResults, `keys({limit:100})`, () => items.keys({limit: 100}))
+  await bench(keysResults, `keys({limit:1000})`, () => items.keys({limit: 1000}))
+  await bench(keysResults, `keys({reverse:true, limit:10})`, () => items.keys({reverse: true, limit: 10}))
+  await bench(keysResults, `keys({start:"k000500", limit:10})`, () => items.keys({start: `k000500`, limit: 10}))
+  await bench(keysResults, `keys({start:"k000500", end:"k001000"})`, () => items.keys({start: `k000500`, end: `k001000`}))
   rankAndPrint(keysResults, `Range / keys`)
   allResults.push(...keysResults)
 
   // --- values ---
-  await bench(valuesResults, `values({limit:10})`, () => repo.values({limit: 10}))
-  await bench(valuesResults, `values({limit:100})`, () => repo.values({limit: 100}))
-  await bench(valuesResults, `values({reverse:true, limit:10})`, () => repo.values({reverse: true, limit: 10}))
+  await bench(valuesResults, `values({limit:10})`, () => items.values({limit: 10}))
+  await bench(valuesResults, `values({limit:100})`, () => items.values({limit: 100}))
+  await bench(valuesResults, `values({reverse:true, limit:10})`, () => items.values({reverse: true, limit: 10}))
   rankAndPrint(valuesResults, `Range / values`)
   allResults.push(...valuesResults)
 
   // --- entries ---
-  await bench(entriesResults, `entries() (all)`, () => repo.entries())
-  await bench(entriesResults, `entries({limit:10})`, () => repo.entries({limit: 10}))
-  await bench(entriesResults, `entries({limit:100})`, () => repo.entries({limit: 100}))
-  await bench(entriesResults, `entries({limit:1000})`, () => repo.entries({limit: 1000}))
-  await bench(entriesResults, `entries({reverse:true, limit:10})`, () => repo.entries({reverse: true, limit: 10}))
-  await bench(entriesResults, `entries({start:"k000500", limit:10})`, () => repo.entries({start: `k000500`, limit: 10}))
-  await bench(entriesResults, `entries({start:"k000500", end:"k001000"})`, () => repo.entries({start: `k000500`, end: `k001000`}))
+  await bench(entriesResults, `entries() (all)`, () => items.entries())
+  await bench(entriesResults, `entries({limit:10})`, () => items.entries({limit: 10}))
+  await bench(entriesResults, `entries({limit:100})`, () => items.entries({limit: 100}))
+  await bench(entriesResults, `entries({limit:1000})`, () => items.entries({limit: 1000}))
+  await bench(entriesResults, `entries({reverse:true, limit:10})`, () => items.entries({reverse: true, limit: 10}))
+  await bench(entriesResults, `entries({start:"k000500", limit:10})`, () => items.entries({start: `k000500`, limit: 10}))
+  await bench(entriesResults, `entries({start:"k000500", end:"k001000"})`, () => items.entries({start: `k000500`, end: `k001000`}))
   rankAndPrint(entriesResults, `Range / entries`)
   allResults.push(...entriesResults)
 
   // --- iterate (async generator) ---
   await bench(iterateResults, `iterate({limit:10})`, async () => {
-    for await (const _ of repo.iterate({limit: 10})) {
+    for await (const _ of items.iterate({limit: 10})) {
       /* count */
     }
   })
   await bench(iterateResults, `iterate({limit:100})`, async () => {
-    for await (const _ of repo.iterate({limit: 100})) {
+    for await (const _ of items.iterate({limit: 100})) {
       /* count */
     }
   })
 
   // --- offset ---
-  await bench(iterateResults, `entries({limit:10, offset:100})`, () => repo.entries({limit: 10, offset: 100}))
-  await bench(iterateResults, `entries({limit:10, offset:1000})`, () => repo.entries({limit: 10, offset: 1000}))
+  await bench(iterateResults, `entries({limit:10, offset:100})`, () => items.entries({limit: 10, offset: 100}))
+  await bench(iterateResults, `entries({limit:10, offset:1000})`, () => items.entries({limit: 10, offset: 1000}))
 
   // --- first / last (edge queries) ---
-  await bench(iterateResults, `first()`, () => repo.first())
-  await bench(iterateResults, `last()`, () => repo.last())
+  await bench(iterateResults, `first()`, () => items.first())
+  await bench(iterateResults, `last()`, () => items.last())
   rankAndPrint(iterateResults, `Range / iterate & edges`)
   allResults.push(...iterateResults)
 

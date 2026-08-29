@@ -10,19 +10,23 @@ import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 
-type Order = {id: string; userId: string; total: number}
-
-class OrderRepo extends LmdbRepository<Order, string> {
-  static dbName = `order`
+class OrderSchema extends LmdbSchema {
+  static db = `order`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    userId: t.string(),
+    total: t.number()
+  }
 }
 
 async function main() {
   const dir = mkdtempSync(join(tmpdir(), `lmdb-bulk-`))
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 5})
-    const orders = env.register(OrderRepo)
+    const orders = env.register(OrderSchema)
 
     console.log(`--- putMany (batched) ---\n`)
     await orders.putMany([

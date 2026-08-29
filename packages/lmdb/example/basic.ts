@@ -5,32 +5,33 @@
  *
  * Demonstrates:
  * - Opening an LmdbEnv
- * - Defining LmdbRepository subclasses with static `dbName`
- * - Registering repositories with the env
+ * - Defining LmdbSchema subclasses with static `db` / `key` / `value`
+ * - Registering schemas with the env (`register(SchemaClass)` → typed repo)
  * - Basic CRUD: put, get, has, delete, count, clear
  */
 import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 
-type IVUser = {
-  id: string
-  name: string
-  age: number
-}
-type IVSession = {
-  sid: string
-  data: string
-}
-
-class UserRepository extends LmdbRepository<IVUser, string> {
-  static dbName = `user`
+class UserSchema extends LmdbSchema {
+  static db = `user`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    name: t.string(),
+    age: t.number()
+  }
 }
 
-class SessionRepository extends LmdbRepository<IVSession, string> {
-  static dbName = `session`
+class SessionSchema extends LmdbSchema {
+  static db = `session`
+  static key = t.string()
+  static value = {
+    sid: t.string(),
+    data: t.string()
+  }
 }
 
 async function main() {
@@ -39,8 +40,8 @@ async function main() {
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 5})
 
-    const users = env.register(UserRepository)
-    const sessions = env.register(SessionRepository)
+    const users = env.register(UserSchema)
+    const sessions = env.register(SessionSchema)
 
     console.log(`--- Basic CRUD ---\n`)
 
@@ -48,22 +49,22 @@ async function main() {
     await users.put(`u2`, {id: `u2`, name: `Bob`, age: 25})
     await users.put(`u3`, {id: `u3`, name: `Carol`, age: 35})
 
-    const u1 = await users.get(`u1`)
+    const u1 = users.get(`u1`)
     console.log(`get u1:`, u1)
 
-    console.log(`has u2:`, await users.has(`u2`))
-    console.log(`has missing:`, await users.has(`missing`))
+    console.log(`has u2:`, users.has(`u2`))
+    console.log(`has missing:`, users.has(`missing`))
 
-    console.log(`count:`, await users.count())
+    console.log(`count:`, users.count())
 
     console.log(`delete u3:`, await users.delete(`u3`))
-    console.log(`count after delete:`, await users.count())
+    console.log(`count after delete:`, users.count())
 
     await sessions.put(`s1`, {sid: `s1`, data: `active`})
-    console.log(`session s1:`, await sessions.get(`s1`))
+    console.log(`session s1:`, sessions.get(`s1`))
 
     await users.clear()
-    console.log(`count after clear:`, await users.count())
+    console.log(`count after clear:`, users.count())
 
     await env.close()
     console.log(`\nenv closed cleanly`)

@@ -13,38 +13,41 @@ import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
 import {backupWithRetention, LmdbReplica} from "../src/replica"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 
-type User = {id: string; name: string}
-
-class UserRepo extends LmdbRepository<User, string> {
-  static dbName = `user`
+class UserSchema extends LmdbSchema {
+  static db = `user`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    name: t.string()
+  }
 }
 
 async function main() {
   const dir = mkdtempSync(join(tmpdir(), `lmdb-replica-`))
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 10})
-    env.register(UserRepo)
-    await env.get(UserRepo).put(`u1`, {id: `u1`, name: `Alice`})
+    const users = env.register(UserSchema)
+    await users.put(`u1`, {id: `u1`, name: `Alice`})
     await env.committed
 
     console.log(`--- Replica (readOnly) ---\n`)
     const replica = await LmdbReplica.open(dir)
-    replica.register(UserRepo)
+    const replicaUsers = replica.register(UserSchema)
     replica.resetReadTxn()
     console.log(`  replica readOnly:`, replica.readOnly)
-    console.log(`  replica sees u1:`, replica.get(UserRepo).get(`u1`))
+    console.log(`  replica sees u1:`, replicaUsers.get(`u1`))
 
-    await env.get(UserRepo).put(`u2`, {id: `u2`, name: `Bob`})
+    await users.put(`u2`, {id: `u2`, name: `Bob`})
     await env.committed
     // Replica's read txn is stale until reset
-    console.log(`  before reset, sees u2?`, replica.get(UserRepo).get(`u2`))
+    console.log(`  before reset, sees u2?`, replicaUsers.get(`u2`))
     replica.resetReadTxn()
-    console.log(`  after resetReadTxn, sees u2:`, replica.get(UserRepo).get(`u2`))
+    console.log(`  after resetReadTxn, sees u2:`, replicaUsers.get(`u2`))
 
     try {
-      await replica.get(UserRepo).put(`u3`, {id: `u3`, name: `Carol`})
+      await replicaUsers.put(`u3`, {id: `u3`, name: `Carol`})
     } catch (err) {
       console.log(`  replica write throws:`, (err as Error).name)
     }

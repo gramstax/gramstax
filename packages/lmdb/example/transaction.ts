@@ -13,24 +13,24 @@ import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 
-type IVUser = {
-  id: string
-  name: string
+class UserSchema extends LmdbSchema {
+  static db = `user`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    name: t.string()
+  }
 }
 
-type IVSession = {
-  id: string
-  userId: string
-}
-
-class UserRepository extends LmdbRepository<IVUser, string> {
-  static dbName = `user`
-}
-
-class SessionRepository extends LmdbRepository<IVSession, string> {
-  static dbName = `session`
+class SessionSchema extends LmdbSchema {
+  static db = `session`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    userId: t.string()
+  }
 }
 
 async function main() {
@@ -38,36 +38,31 @@ async function main() {
 
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 5})
-
-    const users = env.register(UserRepository)
-    const sessions = env.register(SessionRepository)
+    const user = env.register(UserSchema)
+    const session = env.register(SessionSchema)
 
     console.log(`--- Cross-repo transaction (commit) ---\n`)
 
-    await env.transaction(async (tx) => {
-      await users.put(`u1`, {id: `u1`, name: `Alice`}, tx)
-      await sessions.put(`s1`, {id: `s1`, userId: `u1`}, tx)
-      tx.commit()
+    await env.transaction((tx) => {
+      user.put(`u1`, {id: `u1`, name: `Alice`}, tx)
+      session.put(`s1`, {id: `s1`, userId: `u1`}, tx)
     })
 
-    console.log(`u1:`, await users.get(`u1`))
-    console.log(`s1:`, await sessions.get(`s1`))
+    console.log(`u1:`, user.get(`u1`))
+    console.log(`s1:`, session.get(`s1`))
 
     console.log(`\n--- Snapshot read via env.readTransaction ---\n`)
 
-    const snapshot = await env.readTransaction(async (tx) => {
-      return await users.entries({}, tx)
-    })
+    const snapshot = await env.readTransaction(() => user.entries())
     console.log(`snapshot entries:`, snapshot)
 
     console.log(`\n--- LmdbTransaction commit + tx.abort() (no-op after commit) ---\n`)
 
-    await env.transaction(async (tx) => {
-      await users.put(`u2`, {id: `u2`, name: `Bob`}, tx)
-      tx.commit()
+    await env.transaction((tx) => {
+      user.put(`u2`, {id: `u2`, name: `Bob`}, tx)
     })
 
-    console.log(`u2:`, await users.get(`u2`))
+    console.log(`u2:`, user.get(`u2`))
 
     await env.close()
     console.log(`\nenv closed cleanly`)

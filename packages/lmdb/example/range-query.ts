@@ -12,15 +12,15 @@ import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 
-type IVLog = {
-  level: string
-  message: string
-}
-
-class LogRepository extends LmdbRepository<IVLog, string> {
-  static dbName = `log`
+class LogSchema extends LmdbSchema {
+  static db = `log`
+  static key = t.string()
+  static value = {
+    level: t.string(),
+    message: t.string()
+  }
 }
 
 async function main() {
@@ -29,7 +29,7 @@ async function main() {
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 3})
 
-    const logs = env.register(LogRepository)
+    const logs = env.register(LogSchema)
 
     for (let i = 1; i <= 10; i++) {
       await logs.put(`log-${String(i).padStart(2, `0`)}`, {
@@ -38,7 +38,7 @@ async function main() {
       })
     }
 
-    console.log(`--- All keys (count: ${await logs.count()}) ---\n`)
+    console.log(`--- All keys (count: ${logs.count()}) ---\n`)
     const allKeys = await logs.keys()
     console.log(allKeys)
 

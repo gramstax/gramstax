@@ -9,27 +9,28 @@
 import {mkdtempSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
-import {LmdbEnv, LmdbRepository} from "../src"
+import {LmdbEnv, LmdbSchema, t} from "../src"
 
 const POPULATE = 10_000
 const ITERS = 500
 const WARMUP = 50
 
-interface Item {
-  id: string
-  value: number
-}
-interface Log {
-  ts: number
-  msg: string
-}
-
-class ItemRepo extends LmdbRepository<Item, string> {
-  static dbName = `bench-tx-item`
+class ItemSchema extends LmdbSchema {
+  static db = `bench-tx-item`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    value: t.number()
+  }
 }
 
-class LogRepo extends LmdbRepository<Log, string> {
-  static dbName = `bench-tx-log`
+class LogSchema extends LmdbSchema {
+  static db = `bench-tx-log`
+  static key = t.string()
+  static value = {
+    ts: t.number(),
+    msg: t.string()
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -103,16 +104,16 @@ function rankAndPrint(results: BenchResult[], title = `benchmark`): void {
 async function main(): Promise<void> {
   const tmp = mkdtempSync(join(tmpdir(), `lmdb-bench-tx-`))
   const env = new LmdbEnv({path: tmp, maxDbs: 10})
-  const items = env.register(ItemRepo)
-  const logs = env.register(LogRepo)
+  const items = env.register(ItemSchema)
+  const logs = env.register(LogSchema)
 
   console.log(`Populating ${POPULATE} entries (txSync)...`)
   const CHUNK = 500
   for (let start = 0; start < POPULATE; start += CHUNK) {
     const end = Math.min(start + CHUNK, POPULATE)
-    items.env.transactionSync(() => {
+    env.rootTransactionSync(() => {
       for (let i = start; i < end; i++) {
-        items.env.putSync(`k${i}`, {id: `k${i}`, value: i})
+        items.putSync(`k${i}`, {id: `k${i}`, value: i})
       }
     })
   }

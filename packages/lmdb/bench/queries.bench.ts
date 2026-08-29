@@ -9,21 +9,21 @@
 import {mkdtempSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
-import {LmdbEnv, LmdbRepository} from "../src"
+import {LmdbEnv, LmdbSchema, t} from "../src"
 
 const POPULATE = 50_000
 const PREFIX_COUNT = 500
 const ITERS = 200
 const WARMUP = 50
 
-interface User {
-  id: string
-  name: string
-  age: number
-}
-
-class UserRepo extends LmdbRepository<User, string> {
-  static dbName = `bench-queries`
+class UserSchema extends LmdbSchema {
+  static db = `bench-queries`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    name: t.string(),
+    age: t.number()
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -91,15 +91,15 @@ function rankAndPrint(results: BenchResult[], title: string): void {
 async function main(): Promise<void> {
   const tmp = mkdtempSync(join(tmpdir(), `lmdb-bench-queries-`))
   const env = new LmdbEnv({path: tmp, maxDbs: 5})
-  const users = env.register(UserRepo)
+  const users = env.register(UserSchema)
 
   console.log(`Populating ${POPULATE} entries (${PREFIX_COUNT} with "pref:" prefix, txSync)...`)
   const CHUNK = 500
   for (let start = 0; start < POPULATE; start += CHUNK) {
     const end = Math.min(start + CHUNK, POPULATE)
-    users.env.transactionSync(() => {
+    env.rootTransactionSync(() => {
       for (let i = start; i < end; i++) {
-        users.env.putSync(i < PREFIX_COUNT ? `pref:${i}` : `other:${i}`, {id: `u${i}`, name: `name${i}`, age: i % 100})
+        users.putSync(i < PREFIX_COUNT ? `pref:${i}` : `other:${i}`, {id: `u${i}`, name: `name${i}`, age: i % 100})
       }
     })
   }

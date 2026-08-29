@@ -9,20 +9,20 @@
 import {mkdtempSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
-import {LmdbEnv, LmdbRepository} from "../src"
+import {LmdbEnv, LmdbSchema, t} from "../src"
 
 const POPULATE = 5_000
 const CONCURRENCY = [10, 50, 100] as const
 const OPS_PER_WORKER = 30
 
-interface User {
-  id: string
-  name: string
-  age: number
-}
-
-class UserRepo extends LmdbRepository<User, string> {
-  static dbName = `bench-concurrent`
+class UserSchema extends LmdbSchema {
+  static db = `bench-concurrent`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    name: t.string(),
+    age: t.number()
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -104,51 +104,52 @@ function rankMethods(results: RankResult[], conc: number, mode: string): void {
 
 const randKey = (): string => `u${Math.floor(Math.random() * POPULATE)}`
 
-type BenchFn = (users: UserRepo, wid: number) => Promise<unknown>
+type BenchFn = (env: LmdbEnv, wid: number) => Promise<unknown>
 
 const METHODS: Record<string, BenchFn> = {
-  get: async (u) => {
-    await u.get(randKey())
+  get: async (e) => {
+    await e.sub(UserSchema).get(randKey())
   },
-  has: async (u) => {
-    await u.has(randKey())
+  has: async (e) => {
+    await e.sub(UserSchema).has(randKey())
   },
-  put: async (u, w) => {
-    await u.put(`w${w}:${Math.random().toString(36).slice(2)}`, {id: `w`, name: `w${w}`, age: w})
+  put: async (e, w) => {
+    await e.sub(UserSchema).put(`w${w}:${Math.random().toString(36).slice(2)}`, {id: `w`, name: `w${w}`, age: w})
   },
-  delete: async (u) => {
+  delete: async (e) => {
     const k = `tmp:${Math.random().toString(36).slice(2)}`
-    await u.put(k, {id: `t`, name: `t`, age: 0})
-    await u.delete(k)
+    await e.sub(UserSchema).put(k, {id: `t`, name: `t`, age: 0})
+    await e.sub(UserSchema).delete(k)
   },
-  count: async (u) => {
-    await u.count()
+  count: async (e) => {
+    await e.sub(UserSchema).count()
   },
-  getMany: async (u) => {
-    await u.getMany(Array.from({length: 10}, () => randKey()))
+  getMany: async (e) => {
+    await e.sub(UserSchema).getMany(Array.from({length: 10}, () => randKey()))
   },
-  findByPrefix: async (u) => {
-    await u.findByPrefix(`u${Math.floor(Math.random() * 10)}`)
+  findByPrefix: async (e) => {
+    await e.sub(UserSchema).findByPrefix(`u${Math.floor(Math.random() * 10)}`)
   },
-  countByPrefix: async (u) => {
-    await u.countByPrefix(`u${Math.floor(Math.random() * 10)}`)
+  countByPrefix: async (e) => {
+    await e.sub(UserSchema).countByPrefix(`u${Math.floor(Math.random() * 10)}`)
   },
-  like: async (u) => {
-    await u.like(`u*`)
+  like: async (e) => {
+    await e.sub(UserSchema).like(`u*`)
   },
-  first: async (u) => {
-    await u.first()
+  first: async (e) => {
+    await e.sub(UserSchema).first()
   },
-  last: async (u) => {
-    await u.last()
+  last: async (e) => {
+    await e.sub(UserSchema).last()
   },
-  update: async (u) => {
+  update: async (e) => {
     const k = `u${Math.floor(Math.random() * 1000)}`
-    await u.update(k, (x) => x ?? {id: k, name: `init`, age: 0})
+    const cur = e.sub(UserSchema).get(k)
+    await e.sub(UserSchema).put(k, cur ?? {id: k, name: `init`, age: 0})
   },
-  iterate: async (u) => {
+  iterate: async (e) => {
     let c = 0
-    for await (const _ of u.iterate({limit: 50})) {
+    for await (const _ of e.sub(UserSchema).iterate({limit: 50})) {
       c++
       if (c >= 50) break
     }
@@ -158,7 +159,7 @@ const METHODS: Record<string, BenchFn> = {
 const METHODS_READ: ReadonlyArray<keyof typeof METHODS> = [`get`, `has`, `count`, `getMany`, `findByPrefix`, `countByPrefix`, `like`, `first`, `last`, `iterate`]
 const METHODS_MIXED: ReadonlyArray<keyof typeof METHODS> = [`get`, `put`, `delete`, `update`, `findByPrefix`, `countByPrefix`, `like`, `getMany`]
 
-async function runConc(users: UserRepo, method: keyof typeof METHODS, concurrency: number): Promise<PResult> {
+async function runConc(env: LmdbEnv, method: keyof typeof METHODS, concurrency: number): Promise<PResult> {
   const fn = METHODS[method]!
   const latencies: bigint[] = []
   const wallStart = process.hrtime.bigint()
@@ -169,7 +170,7 @@ async function runConc(users: UserRepo, method: keyof typeof METHODS, concurrenc
       (async () => {
         for (let i = 0; i < OPS_PER_WORKER; i++) {
           const t0 = process.hrtime.bigint()
-          await fn(users, wid)
+          await fn(env, wid)
           latencies[wid * OPS_PER_WORKER + i] = process.hrtime.bigint() - t0
         }
       })()
@@ -186,15 +187,16 @@ async function runConc(users: UserRepo, method: keyof typeof METHODS, concurrenc
 async function main(): Promise<void> {
   const tmp = mkdtempSync(join(tmpdir(), `lmdb-bench-conc-`))
   const env = new LmdbEnv({path: tmp, maxDbs: 5})
-  const users = env.register(UserRepo)
+  env.register(UserSchema)
 
+  const users = env.register(UserSchema)
   console.log(`Populating ${POPULATE} entries (txSync)...`)
   const CHUNK = 500
   for (let start = 0; start < POPULATE; start += CHUNK) {
     const end = Math.min(start + CHUNK, POPULATE)
-    users.env.transactionSync(() => {
+    env.rootTransactionSync(() => {
       for (let i = start; i < end; i++) {
-        users.env.putSync(`u${i}`, {id: `u${i}`, name: `name${i}`, age: i % 100})
+        users.putSync(`u${i}`, {id: `u${i}`, name: `name${i}`, age: i % 100})
       }
     })
   }
@@ -208,7 +210,7 @@ async function main(): Promise<void> {
       console.log(`  Concurrency: ${conc}`)
       const concResults: RankResult[] = []
       for (const method of methods) {
-        const r = await runConc(users, method, conc)
+        const r = await runConc(env, method, conc)
         printStats(method, r)
         concResults.push({method, p50: r.p50, throughput: r.throughput})
       }
@@ -234,7 +236,7 @@ async function main(): Promise<void> {
           const method = METHODS_MIXED[i % METHODS_MIXED.length]!
           const fn = METHODS[method]!
           const t0 = process.hrtime.bigint()
-          await fn(users, wid)
+          await fn(env, wid)
           latencies.push(process.hrtime.bigint() - t0)
         }
       })
