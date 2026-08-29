@@ -9,7 +9,7 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
 import {LmdbQueue} from "../src/queue"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
 let tmpDir: string
@@ -36,24 +36,31 @@ describe(`B1+B2 env defaults`, () => {
 
   it(`maxDbs defaults to 128 — 20 dummy repos register fine`, () => {
     expect(env.maxDbs).toBe(128)
-    const repos: Array<typeof LmdbRepository<{n: number}, string>> = []
+    const repos: Array<typeof LmdbSchema> = []
     for (let i = 0; i < 20; i++) {
       const dbName = `dummy_${i}`
-      class DummyRepo extends LmdbRepository<{n: number}, string> {
-        static dbName = dbName
+      class DummySchema extends LmdbSchema {
+        static db = dbName
+        static key = t.string()
+        static value = {n: t.number()}
       }
-      env.register(DummyRepo)
-      repos.push(DummyRepo)
+      env.register(DummySchema)
+      repos.push(DummySchema)
     }
-    expect(env.get(repos[0] as never)).toBeDefined()
-    expect(env.get(repos[19] as never)).toBeDefined()
+    expect(env.isRegistered(repos[0] as typeof LmdbSchema)).toBe(true)
+    expect(env.isRegistered(repos[19] as typeof LmdbSchema)).toBe(true)
   })
 
   it(`queue is idempotent — second LmdbQueue on same dbName does not throw`, async () => {
-    const q1 = new LmdbQueue<{v: number}>(env, `jobs`)
-    let q2: LmdbQueue<{v: number}> | undefined
+    class JobsSchema extends LmdbSchema {
+      static db = `jobs`
+      static key = t.string()
+      static value = {v: t.number()}
+    }
+    const q1 = new LmdbQueue(env, JobsSchema)
+    let q2: LmdbQueue<typeof JobsSchema> | undefined
     expect(() => {
-      q2 = new LmdbQueue<{v: number}>(env, `jobs`)
+      q2 = new LmdbQueue(env, JobsSchema)
     }).not.toThrow()
     const id = await q1.enqueue({v: 1})
     expect(await q2!.peek()).toEqual([id, {v: 1}])

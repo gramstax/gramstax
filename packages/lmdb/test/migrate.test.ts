@@ -8,11 +8,13 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
-class UserRepo extends LmdbRepository<{name: string}, string> {
-  static dbName = `migrate-user-test`
+class UserSchema extends LmdbSchema {
+  static db = `migrate-user-test`
+  static key = t.string()
+  static value = {name: t.string()}
 }
 
 let tmpDir: string
@@ -21,7 +23,7 @@ let env: LmdbEnv
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-migrate-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 10})
-  env.register(UserRepo)
+  env.register(UserSchema)
 })
 
 afterEach(async () => {
@@ -38,7 +40,7 @@ describe(`LmdbEnv.migrate`, () => {
         name: `add-bob`,
         up: async (e: LmdbEnv) => {
           order.push(2)
-          await e.get(UserRepo).put(`bob`, {name: `Bob`})
+          await e.sub(UserSchema).put(`bob`, {name: `Bob`})
         }
       },
       {
@@ -46,7 +48,7 @@ describe(`LmdbEnv.migrate`, () => {
         name: `add-alice`,
         up: async (e: LmdbEnv) => {
           order.push(1)
-          await e.get(UserRepo).put(`alice`, {name: `Alice`})
+          await e.sub(UserSchema).put(`alice`, {name: `Alice`})
         }
       },
       {
@@ -54,12 +56,12 @@ describe(`LmdbEnv.migrate`, () => {
         name: `add-carol`,
         up: async (e: LmdbEnv) => {
           order.push(3)
-          await e.get(UserRepo).put(`carol`, {name: `Carol`})
+          await e.sub(UserSchema).put(`carol`, {name: `Carol`})
         }
       }
     ])
     expect(order).toEqual([1, 2, 3])
-    expect(await env.get(UserRepo).get(`alice`)).toEqual({name: `Alice`})
+    expect(await env.sub(UserSchema).get(`alice`)).toEqual({name: `Alice`})
     expect(env.getMigrationVersion()).toBe(3)
   })
 
@@ -69,7 +71,7 @@ describe(`LmdbEnv.migrate`, () => {
         version: 1,
         name: `v1`,
         up: async (e: LmdbEnv) => {
-          await e.get(UserRepo).put(`a`, {name: `A`})
+          await e.sub(UserSchema).put(`a`, {name: `A`})
         }
       }
     ]
@@ -86,7 +88,7 @@ describe(`LmdbEnv.migrate`, () => {
         version: 1,
         name: `v1`,
         up: async (e: LmdbEnv) => {
-          await e.get(UserRepo).put(`a`, {name: `A`})
+          await e.sub(UserSchema).put(`a`, {name: `A`})
         }
       }
     ])
@@ -102,12 +104,12 @@ describe(`LmdbEnv.migrate`, () => {
         version: 2,
         name: `v2`,
         up: async (e: LmdbEnv) => {
-          await e.get(UserRepo).put(`b`, {name: `B`})
+          await e.sub(UserSchema).put(`b`, {name: `B`})
         }
       }
     ])
     expect(result.applied.map((m: {version: number}) => m.version)).toEqual([2])
-    expect(await env.get(UserRepo).get(`b`)).toEqual({name: `B`})
+    expect(await env.sub(UserSchema).get(`b`)).toEqual({name: `B`})
   })
 
   it(`rolls back a failed migration and does not advance version`, async () => {
@@ -129,7 +131,7 @@ describe(`LmdbEnv.migrate`, () => {
         version: 1,
         name: `good`,
         up: async (e: LmdbEnv) => {
-          await e.get(UserRepo).put(`a`, {name: `A`})
+          await e.sub(UserSchema).put(`a`, {name: `A`})
         }
       }
     ])

@@ -14,8 +14,8 @@ import {
   LmdbKeyNotFoundError,
   LmdbMissingDbNameError,
   LmdbReadOnlyError,
-  LmdbRepositoryAlreadyRegisteredError,
-  LmdbRepositoryNotRegisteredError,
+  LmdbSchemaAlreadyRegisteredError,
+  LmdbSchemaNotRegisteredError,
   LmdbTransactionDoneError,
   LmdbTransactionError
 } from "../src/errors"
@@ -27,8 +27,8 @@ describe(`error hierarchy`, () => {
       new LmdbEnvClosedError(),
       new LmdbMissingDbNameError(`X`),
       new LmdbDuplicateDbNameError(`x`),
-      new LmdbRepositoryNotRegisteredError(`Y`),
-      new LmdbRepositoryAlreadyRegisteredError(`Y`),
+      new LmdbSchemaNotRegisteredError(`Y`),
+      new LmdbSchemaAlreadyRegisteredError(`Y`),
       new LmdbKeyNotFoundError(`db`, `key1`),
       new LmdbTransactionError(`msg`),
       new LmdbTransactionDoneError(),
@@ -46,8 +46,8 @@ describe(`error hierarchy`, () => {
     expect(new LmdbEnvClosedError().name).toBe(`LmdbEnvClosedError`)
     expect(new LmdbMissingDbNameError(`X`).name).toBe(`LmdbMissingDbNameError`)
     expect(new LmdbDuplicateDbNameError(`x`).name).toBe(`LmdbDuplicateDbNameError`)
-    expect(new LmdbRepositoryNotRegisteredError(`Y`).name).toBe(`LmdbRepositoryNotRegisteredError`)
-    expect(new LmdbRepositoryAlreadyRegisteredError(`Y`).name).toBe(`LmdbRepositoryAlreadyRegisteredError`)
+    expect(new LmdbSchemaNotRegisteredError(`Y`).name).toBe(`LmdbSchemaNotRegisteredError`)
+    expect(new LmdbSchemaAlreadyRegisteredError(`Y`).name).toBe(`LmdbSchemaAlreadyRegisteredError`)
     expect(new LmdbKeyNotFoundError(`db`, `k`).name).toBe(`LmdbKeyNotFoundError`)
     expect(new LmdbTransactionError(`msg`).name).toBe(`LmdbTransactionError`)
     expect(new LmdbTransactionDoneError().name).toBe(`LmdbTransactionDoneError`)
@@ -73,12 +73,12 @@ describe(`error messages`, () => {
     expect(new LmdbDuplicateDbNameError(`users`).message).toContain(`users`)
   })
 
-  it(`LmdbRepositoryNotRegisteredError includes the class name`, () => {
-    expect(new LmdbRepositoryNotRegisteredError(`MyRepo`).message).toContain(`MyRepo`)
+  it(`LmdbSchemaNotRegisteredError includes the class name`, () => {
+    expect(new LmdbSchemaNotRegisteredError(`MyRepo`).message).toContain(`MyRepo`)
   })
 
-  it(`LmdbRepositoryAlreadyRegisteredError includes the class name`, () => {
-    expect(new LmdbRepositoryAlreadyRegisteredError(`MyRepo`).message).toContain(`MyRepo`)
+  it(`LmdbSchemaAlreadyRegisteredError includes the class name`, () => {
+    expect(new LmdbSchemaAlreadyRegisteredError(`MyRepo`).message).toContain(`MyRepo`)
   })
 
   it(`LmdbKeyNotFoundError includes the key`, () => {

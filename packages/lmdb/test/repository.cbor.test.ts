@@ -6,7 +6,9 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
+
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
 interface Doc {
@@ -15,19 +17,17 @@ interface Doc {
   flag: boolean
 }
 
-class DocRepo extends LmdbRepository<Doc, string> {
-  static dbName = `cbor-doc-test`
-}
+class DocSchema extends LmdbSchema { static db = `cbor-doc-test`; static key = t.string(); static value = t.object<Doc>() }
 
 let tmpDir: string
 let env: LmdbEnv
-let docs: DocRepo
+let docs: LmdbEnvSub<typeof DocSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-cbor-test-`)
   // This line is the type-level RED: 'cbor' must be in ILmdbEncoding
   env = new LmdbEnv({path: tmpDir, maxDbs: 5, encoding: `cbor`})
-  docs = env.register(DocRepo)
+  docs = env.register(DocSchema)
 })
 
 afterEach(async () => {

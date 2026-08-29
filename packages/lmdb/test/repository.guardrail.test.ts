@@ -10,25 +10,26 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
 import {LmdbMaterializationError} from "../src/errors"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
+import {MAX_MATERIALIZE} from "../src/types"
+import type {LmdbEnvSub} from "../src/sub"
+
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
-class GuardRepo extends LmdbRepository<{v: number}, string> {
-  static dbName = `guardrail-test`
-}
+class GuardSchema extends LmdbSchema { static db = `guardrail-test`; static key = t.string(); static value = t.object<{v: number}>() }
 
-const MAX = LmdbRepository.MAX_MATERIALIZE ?? 100_000
+const MAX = MAX_MATERIALIZE
 
 describe(`LmdbRepository materialization guardrail`, () => {
   describe(`small repository (under the cap)`, () => {
     let tmpDir: string
     let env: LmdbEnv
-    let repo: GuardRepo
+    let repo: LmdbEnvSub<typeof GuardSchema>
 
     beforeEach(async () => {
       tmpDir = createTestDir(`lmdb-guardrail-small-`)
       env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-      repo = env.register(GuardRepo)
+      repo = env.register(GuardSchema)
       await repo.putMany([
         [`pref-1`, {v: 1}],
         [`pref-2`, {v: 2}],
@@ -66,7 +67,9 @@ describe(`LmdbRepository materialization guardrail`, () => {
 
     it(`iterate() is never guarded`, async () => {
       const seen: Array<[string, {v: number}]> = []
-      for await (const entry of repo.iterate()) seen.push(entry)
+      for await (const entry of repo.iterate()) {
+        if (entry) seen.push(entry as [string, {v: number}])
+      }
       expect(seen).toHaveLength(3)
     })
   })
@@ -74,12 +77,12 @@ describe(`LmdbRepository materialization guardrail`, () => {
   describe(`oversized repository (150k entries, over the cap)`, () => {
     let tmpDir: string
     let env: LmdbEnv
-    let repo: GuardRepo
+    let repo: LmdbEnvSub<typeof GuardSchema>
 
     beforeAll(async () => {
       tmpDir = createTestDir(`lmdb-guardrail-big-`)
       env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-      repo = env.register(GuardRepo)
+      repo = env.register(GuardSchema)
       const entries: Array<[string, {v: number}]> = []
       for (let i = 0; i < 150_000; i++) {
         entries.push([`pref-${String(i).padStart(6, `0`)}`, {v: i}])

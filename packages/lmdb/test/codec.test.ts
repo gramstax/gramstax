@@ -1,88 +1,80 @@
 /**
- * Tests for {@link LmdbCodec} — only the custom codec path.
+ * Tests for schema write/read hooks — the codec path at the collection boundary.
  *
  * @remarks
  * Default encoding (LMDB native msgpack/json/etc.) is exercised in
- * repository.test.ts. The codec itself only matters when a LmdbRepository
- * defines `static codec` for custom transforms (e.g. `Date → number`).
+ * repository.test.ts. Custom transforms are declared as
+ * `static hookBeforeWrite` / `static hookBeforeRead` on a schema class
+ * (e.g. `Date → number`), replacing the deleted `LmdbCodec` class.
  */
-import {describe, expect, it} from "bun:test"
-import {LmdbCodec, resolveCodec} from "../src/codec"
-import {LmdbRepository} from "../src/repository"
-import type {ICodec} from "../src/types"
+import {afterEach, beforeEach, describe, expect, it} from "bun:test"
+import {LmdbEnv} from "../src/env"
+import {LmdbSchema, t} from "../src/schema"
+import {createTestDir, rmWithRetry} from "./test-helpers"
 
-describe(`LmdbCodec (abstract base)`, () => {
-  it(`create() returns a working codec from a serialize/deserialize pair`, () => {
-    const codec = LmdbCodec.create<Date, number>(
-      (d) => d.getTime(),
-      (n) => new Date(n)
-    )
-    const now = new Date(`2026-06-21T10:00:00Z`)
-    expect(codec.serialize(now)).toBe(now.getTime())
-    expect(codec.deserialize(now.getTime()).toISOString()).toBe(now.toISOString())
-  })
+interface Session {
+  at: Date
+}
 
-  it(`create() returns an instance of LmdbCodec`, () => {
-    const codec = LmdbCodec.create<number, string>(
-      (n) => String(n),
-      (s) => Number(s)
-    )
-    expect(codec).toBeInstanceOf(LmdbCodec)
-  })
+class DateSchema extends LmdbSchema {
+  static db = `codec-date-test`
+  static key = t.string()
+  static value = {at: t.date()}
+  static hookBeforeWrite = (row: unknown): unknown => ({at: (row as Session).at.getTime()})
+  static hookBeforeRead = (raw: unknown): unknown => ({at: new Date((raw as {at: number}).at)})
+}
+
+class UpperSchema extends LmdbSchema {
+  static db = `codec-upper-test`
+  static key = t.string()
+  static value = t.string()
+  static hookBeforeWrite = (v: unknown): unknown => String(v).toUpperCase()
+  static hookBeforeRead = (r: unknown): unknown => String(r)
+}
+
+let tmpDir: string
+let env: LmdbEnv
+
+beforeEach(async () => {
+  tmpDir = createTestDir(`lmdb-codec-test-`)
+  env = new LmdbEnv({path: tmpDir, maxDbs: 5})
 })
 
-describe(`LmdbCodecConfigurable (internal)`, () => {
-  it(`serialize/deserialize round-trip preserves the value`, () => {
-    const codec = LmdbCodec.create<{n: number}, string>(
-      (v) => `s:${v.n}`,
-      (r) => ({n: parseInt(r.slice(2), 10)})
-    )
-    expect(codec.deserialize(codec.serialize({n: 42}))).toEqual({n: 42})
-  })
+afterEach(async () => {
+  await env.close()
+  await rmWithRetry(tmpDir)
 })
 
-describe(`resolveCodec`, () => {
-  class NoConfig extends LmdbRepository {}
-  ;(NoConfig as any).dbName = `no-config-codec-test`
-
-  class WithExplicit extends LmdbRepository {}
-  ;(WithExplicit as any).dbName = `with-explicit-codec-test`
-  const explicit = LmdbCodec.create<number, string>(String, Number)
-  ;(WithExplicit as any).codec = explicit
-
-  it(`returns the explicit codec when set`, () => {
-    expect(resolveCodec(WithExplicit)).toBe(explicit)
+describe(`schema write/read hooks`, () => {
+  it(`hookBeforeWrite runs before serialization and hookBeforeRead after deserialization`, async () => {
+    env.register(DateSchema)
+    const d = new Date(`2026-06-21T10:00:00Z`)
+    await env.sub(DateSchema).put(`s1`, {at: d})
+    // Raw stored value is the encoded (number) form
+    const raw = await (env as any).getDb(`codec-date-test`).get(`s1`)
+    expect(raw).toEqual({at: d.getTime()})
+    // Decoded read returns the original Date
+    const got = env.sub(DateSchema).get(`s1`)
+    expect(got?.at).toBeInstanceOf(Date)
+    expect(got?.at?.toISOString()).toBe(d.toISOString())
   })
 
-  it(`returns undefined when no codec is defined`, () => {
-    expect(resolveCodec(NoConfig)).toBeUndefined()
+  it(`write/read hooks must be declared together — registration rejects partial`, () => {
+    class HalfSchema extends LmdbSchema {
+      static db = `codec-half-test`
+      static key = t.string()
+      static value = t.string()
+      static hookBeforeWrite = (v: unknown): unknown => v
+    }
+    expect(() => env.register(HalfSchema)).toThrow(/hookBeforeWrite.*hookBeforeRead/)
   })
 
-  it(`wraps static serialize/deserialize when no codec instance is given`, () => {
-    class WithStatic extends LmdbRepository {}
-    ;(WithStatic as any).dbName = `with-static-codec-test`
-    ;(WithStatic as any).serialize = (v: number) => `s:${v}`
-    ;(WithStatic as any).deserialize = (r: string) => parseInt(r.slice(2), 10)
-    const codec = resolveCodec(WithStatic) as ICodec<number>
-    expect(codec).toBeDefined()
-    expect(codec!.serialize(5)).toBe(`s:5`)
-    expect(codec!.deserialize(`s:42`)).toBe(42)
-  })
-
-  it(`wraps partial static methods with passthrough for the missing side`, () => {
-    class OnlySerialize extends LmdbRepository {}
-    ;(OnlySerialize as any).dbName = `only-serialize-codec-test`
-    ;(OnlySerialize as any).serialize = (v: number) => v * 2
-    const codec = resolveCodec(OnlySerialize) as ICodec<number>
-    expect(codec!.serialize(5)).toBe(10)
-    expect(codec!.deserialize(99)).toBe(99)
-  })
-
-  it(`returns the same wrapper instance for repeated calls (L6 memo)`, () => {
-    class Memoized extends LmdbRepository {}
-    ;(Memoized as any).dbName = `memoized-codec-test`
-    ;(Memoized as any).serialize = (v: number) => `s:${v}`
-    ;(Memoized as any).deserialize = (r: string) => parseInt(r.slice(2), 10)
-    expect(resolveCodec(Memoized)).toBe(resolveCodec(Memoized))
+  it(`write hook transform round-trips through put/get`, async () => {
+    env.register(UpperSchema)
+    await env.sub(UpperSchema).put(`k`, `hello`)
+    expect(env.sub(UpperSchema).get(`k`)).toBe(`HELLO`)
+    // Raw stored value is uppercased
+    const raw = await (env as any).getDb(`codec-upper-test`).get(`k`)
+    expect(raw).toBe(`HELLO`)
   })
 })

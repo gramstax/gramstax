@@ -6,22 +6,21 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
+
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
-class IndexRepo extends LmdbRepository<string, string> {
-  static dbName = `dup-index-test`
-  static dupSort = true
-}
+class IndexSchema extends LmdbSchema { static db = `dupsort-index-test`; static key = t.string(); static value = t.string(); static dupSort = true }
 
 let tmpDir: string
 let env: LmdbEnv
-let index: IndexRepo
+let index: LmdbEnvSub<typeof IndexSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-dup-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5, encoding: `ordered-binary`})
-  index = env.register(IndexRepo)
+  index = env.register(IndexSchema)
 })
 
 afterEach(async () => {

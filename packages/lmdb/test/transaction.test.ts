@@ -11,7 +11,8 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
 import {LmdbTransactionDoneError, LmdbTransactionError} from "../src/errors"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
 import {LmdbTransaction} from "../src/transaction"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
@@ -25,24 +26,41 @@ interface Session {
   userId: string
 }
 
-class UserRepository extends LmdbRepository<User, string> {
-  static dbName = `user-tx`
+class UserSchema extends LmdbSchema {
+  static db = `user-tx`
+  static key = t.string()
+  static value = t.object<User>()
 }
 
-class SessionRepository extends LmdbRepository<Session, string> {
-  static dbName = `session-tx`
+class SessionSchema extends LmdbSchema {
+  static db = `session-tx`
+  static key = t.string()
+  static value = t.object<Session>()
 }
+
+class IndexedUserSchema extends LmdbSchema {
+  static db = `user-idx-tx`
+  static key = t.number()
+  static value = {
+    id: t.number().unique(),
+    username: t.string().index()
+  }
+}
+
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 let tmpDir: string
 let env: LmdbEnv
-let userRepo: UserRepository
-let sessionRepo: SessionRepository
+let userRepo: LmdbEnvSub<typeof UserSchema>
+let sessionRepo: LmdbEnvSub<typeof SessionSchema>
+let indexedRepo: LmdbEnvSub<typeof IndexedUserSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-tx-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-  userRepo = env.register(UserRepository)
-  sessionRepo = env.register(SessionRepository)
+  userRepo = env.register(UserSchema)
+  sessionRepo = env.register(SessionSchema)
+  indexedRepo = env.register(IndexedUserSchema)
 })
 
 afterEach(async () => {
@@ -243,7 +261,8 @@ describe(`env.transaction serialization (concurrent)`, () => {
   it(`nested transaction() inside a synchronous callback still works (no deadlock)`, async () => {
     const result = await env.transaction(async () => {
       await userRepo.put(`u1`, {id: `u1`, name: `A`})
-      await userRepo.update(`u1`, (cur) => ({id: cur?.id ?? `u1`, name: `A-prime`}))
+      const cur = userRepo.get(`u1`)
+      await userRepo.put(`u1`, {id: cur?.id ?? `u1`, name: `A-prime`})
       return `ok`
     })
     expect(result).toBe(`ok`)
@@ -255,15 +274,15 @@ describe(`env.readTransaction`, () => {
   it(`reads committed data via snapshot`, async () => {
     await userRepo.put(`u1`, {id: `u1`, name: `Carol`})
 
-    const snapshot = await env.readTransaction(async (tx) => {
-      return await userRepo.get(`u1`, tx)
+    const snapshot = await env.readTransaction(async () => {
+      return await userRepo.get(`u1`)
     })
     expect(snapshot).toEqual({id: `u1`, name: `Carol`})
   })
 
   it(`finalizes the read txn after callback resolves`, async () => {
     const tx = await env.readTransaction(async (tx) => {
-      await userRepo.get(`u1`, tx)
+      await userRepo.get(`u1`)
       return tx
     })
     expect(tx.done).toBe(true)
@@ -274,8 +293,8 @@ describe(`env.readTransaction`, () => {
   it(`read transaction sees writes committed before env.readTransaction started`, async () => {
     await userRepo.put(`u1`, {id: `u1`, name: `Before`})
 
-    const entries = await env.readTransaction(async (tx) => {
-      return await userRepo.entries({}, tx)
+    const entries = await env.readTransaction(async () => {
+      return await userRepo.entries()
     })
     expect(entries).toEqual([[`u1`, {id: `u1`, name: `Before`}]])
   })
@@ -297,15 +316,15 @@ describe(`env.readTransaction`, () => {
   it(`two sequential readTransactions in the same tick both succeed (L1)`, async () => {
     await userRepo.put(`u1`, {id: `u1`, name: `A`})
     // No setTimeout between — the shared-readTxn EINVAL regression fires here.
-    const first = await env.readTransaction(async (t) => userRepo.get(`u1`, t))
-    const second = await env.readTransaction(async (t) => userRepo.get(`u1`, t))
+    const first = await env.readTransaction(async () => userRepo.get(`u1`))
+    const second = await env.readTransaction(async () => userRepo.get(`u1`))
     expect(first).toEqual({id: `u1`, name: `A`})
     expect(second).toEqual({id: `u1`, name: `A`})
   })
 
   it(`concurrent readTransactions all succeed (L1)`, async () => {
     await userRepo.put(`u1`, {id: `u1`, name: `A`})
-    const results = await Promise.all(Array.from({length: 10}, () => env.readTransaction(async (t) => userRepo.get(`u1`, t))))
+    const results = await Promise.all(Array.from({length: 10}, () => env.readTransaction(async () => userRepo.get(`u1`))))
     for (const r of results) {
       expect(r).toEqual({id: `u1`, name: `A`})
     }
@@ -313,10 +332,85 @@ describe(`env.readTransaction`, () => {
 
   it(`a plain get() right after readTransaction works (L1)`, async () => {
     await userRepo.put(`u1`, {id: `u1`, name: `A`})
-    await env.readTransaction(async (t) => userRepo.get(`u1`, t))
+    await env.readTransaction(async () => userRepo.get(`u1`))
     // Same tick, no setTimeout — previously the shared readTxn was left dead
     // until the next macrotask, so this get() hit EINVAL.
     expect(userRepo.get(`u1`)).toEqual({id: `u1`, name: `A`})
+  })
+
+  it(`get(key, tx) pins the snapshot across a concurrent committed write`, async () => {
+    await userRepo.put(`u1`, {id: `u1`, name: `A`})
+
+    const [inside] = await Promise.all([
+      env.readTransaction(async (tx) => {
+        const before = userRepo.get(`u1`, tx)
+        await sleep(30) // let the concurrent writer commit
+        const after = userRepo.get(`u1`, tx)
+        return {before: before?.name, after: after?.name}
+      }),
+      (async () => {
+        await sleep(10)
+        await userRepo.put(`u1`, {id: `u1`, name: `B`}) // commits while the read txn is open
+      })()
+    ])
+
+    expect(inside).toEqual({before: `A`, after: `A`}) // pinned snapshot
+    expect(userRepo.get(`u1`)?.name).toBe(`B`) // write visible after release
+  })
+
+  it(`has/count/entries/iterate with tx read the pinned snapshot`, async () => {
+    await userRepo.put(`u1`, {id: `u1`, name: `A`})
+    await userRepo.put(`u2`, {id: `u2`, name: `A2`})
+
+    const inside = await env.readTransaction(async (tx) => {
+      const countBefore = userRepo.count(tx)
+      const hasU1 = userRepo.has(`u1`, tx)
+      const entriesBefore = await userRepo.entries({}, tx)
+      const iteratedBefore: string[] = []
+      for await (const [k] of userRepo.iterate({}, tx)) iteratedBefore.push(k)
+
+      await userRepo.put(`u3`, {id: `u3`, name: `C`}) // writer adds a key
+
+      const countAfter = userRepo.count(tx)
+      const hasU3 = userRepo.has(`u3`, tx)
+      const entriesAfter = await userRepo.entries({}, tx)
+      const iteratedAfter: string[] = []
+      for await (const [k] of userRepo.iterate({}, tx)) iteratedAfter.push(k)
+      return {countBefore, hasU1, entriesBefore, iteratedBefore, countAfter, hasU3, entriesAfter, iteratedAfter}
+    })
+
+    expect(inside.countBefore).toBe(2)
+    expect(inside.hasU1).toBe(true)
+    expect(inside.entriesBefore.map(([k]) => k)).toEqual([`u1`, `u2`])
+    expect(inside.iteratedBefore).toEqual([`u1`, `u2`])
+    expect(inside.countAfter).toBe(2) // pinned — u3 not visible
+    expect(inside.hasU3).toBe(false)
+    expect(inside.entriesAfter.map(([k]) => k)).toEqual([`u1`, `u2`])
+    expect(inside.iteratedAfter).toEqual([`u1`, `u2`])
+    expect(userRepo.count()).toBe(3) // visible after release
+  })
+
+  it(`findByIndex(query, tx) reads the pinned snapshot for unique and non-unique indexes`, async () => {
+    await indexedRepo.put(1, {id: 1, username: `alice`})
+    await indexedRepo.put(2, {id: 2, username: `bob`})
+
+    const inside = await env.readTransaction(async (tx) => {
+      const uniqueBefore = await indexedRepo.findByIndex({id: 1}, tx)
+      const nonUniqueBefore = await indexedRepo.findByIndex({username: `alice`}, tx)
+
+      await indexedRepo.put(1, {id: 1, username: `carol`}) // writer re-indexes row 1
+
+      const uniqueAfter = await indexedRepo.findByIndex({id: 1}, tx)
+      const newIndexAfter = await indexedRepo.findByIndex({username: `carol`}, tx)
+      return {uniqueBefore, nonUniqueBefore, uniqueAfter, newIndexAfter}
+    })
+
+    expect(inside.uniqueBefore).toEqual({id: 1, username: `alice`})
+    expect(inside.nonUniqueBefore).toEqual([{id: 1, username: `alice`}])
+    expect(inside.uniqueAfter).toEqual({id: 1, username: `alice`}) // pinned — still old row
+    expect(inside.newIndexAfter).toEqual([]) // pinned — carol not indexed yet
+    expect(await indexedRepo.findByIndex({id: 1})).toEqual({id: 1, username: `carol`}) // visible after release
+    expect(await indexedRepo.findByIndex({username: `carol`})).toEqual([{id: 1, username: `carol`}])
   })
 })
 
@@ -325,7 +419,7 @@ describe(`env.readTransaction raw txn release`, () => {
     await userRepo.put(`u1`, {id: `u1`, name: `A`})
     const before = env.readerList().split(`\n`).filter(Boolean).length
     await env.readTransaction(async (tx) => {
-      await userRepo.get(`u1`, tx)
+      await userRepo.get(`u1`)
       tx.commit()
     })
     await new Promise((resolve) => setTimeout(resolve, 20))
@@ -339,7 +433,7 @@ describe(`env.readTransaction raw txn release`, () => {
     await userRepo.put(`u1`, {id: `u1`, name: `A`})
     const before = env.readerList().split(`\n`).filter(Boolean).length
     await env.readTransaction(async (tx) => {
-      await userRepo.get(`u1`, tx)
+      await userRepo.get(`u1`)
       tx.abort()
       tx.abort()
     })
@@ -352,8 +446,8 @@ describe(`env.readTransaction raw txn release`, () => {
     await userRepo.put(`u1`, {id: `u1`, name: `A`})
     const first = env.readerList().split(`\n`).filter(Boolean).length
     for (let i = 0; i < 20; i++) {
-      await env.readTransaction(async (tx) => {
-        await userRepo.get(`u1`, tx)
+      await env.readTransaction(async () => {
+        await userRepo.get(`u1`)
       })
     }
     await new Promise((resolve) => setTimeout(resolve, 20))
@@ -368,15 +462,15 @@ describe(`read-only env transactions`, () => {
   it(`readTransaction works on read-only envs`, async () => {
     const dir = createTestDir(`lmdb-readonly-tx-`)
     const writeEnv = new LmdbEnv({path: dir, maxDbs: 5})
-    const writeUsers = writeEnv.register(UserRepository)
+    const writeUsers = writeEnv.register(UserSchema)
     await writeUsers.put(`u1`, {id: `u1`, name: `Initial`})
     await writeEnv.close()
 
     const roEnv = new LmdbEnv({path: dir, maxDbs: 5, readOnly: true})
     try {
-      const roUsers = roEnv.register(UserRepository)
-      const got = await roEnv.readTransaction(async (tx) => {
-        return await roUsers.get(`u1`, tx)
+      const roUsers = roEnv.register(UserSchema)
+      const got = await roEnv.readTransaction(async () => {
+        return await roUsers.get(`u1`)
       })
       expect(got).toEqual({id: `u1`, name: `Initial`})
     } finally {

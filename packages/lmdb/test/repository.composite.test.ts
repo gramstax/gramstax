@@ -6,29 +6,25 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
-import {createTestDir, rmWithRetry} from "./test-helpers"
+import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
 
-type TenantId = string
-type UserId = number
-type CompositeKey = [TenantId, UserId]
+import {createTestDir, rmWithRetry} from "./test-helpers"
 
 interface User {
   name: string
 }
 
-class TenantUserRepo extends LmdbRepository<User, CompositeKey> {
-  static dbName = `tenant-user-f1-test`
-}
+class TenantUserSchema extends LmdbSchema { static db = `tenant-user-f1-test`; static key = t.array(); static value = t.object<User>() }
 
 let tmpDir: string
 let env: LmdbEnv
-let repo: TenantUserRepo
+let repo: LmdbEnvSub<typeof TenantUserSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-composite-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-  repo = env.register(TenantUserRepo)
+  repo = env.register(TenantUserSchema)
 })
 
 afterEach(async () => {

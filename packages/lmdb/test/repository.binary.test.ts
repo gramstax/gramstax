@@ -5,21 +5,21 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
+
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
-class BlobRepo extends LmdbRepository<Buffer, string> {
-  static dbName = `blob-f6-test`
-}
+class BlobSchema extends LmdbSchema { static db = `blob-f6-test`; static key = t.string(); static value = t.buffer() }
 
 let tmpDir: string
 let env: LmdbEnv
-let blobs: BlobRepo
+let blobs: LmdbEnvSub<typeof BlobSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-blob-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-  blobs = env.register(BlobRepo)
+  blobs = env.register(BlobSchema)
 })
 
 afterEach(async () => {
@@ -60,10 +60,10 @@ describe(`LmdbRepository binary helpers`, () => {
     let roEnv: LmdbEnv | undefined
     try {
       const wEnv = new LmdbEnv({path: roTmp, maxDbs: 5})
-      wEnv.register(BlobRepo)
+      wEnv.register(BlobSchema)
       await wEnv.close()
       roEnv = new LmdbEnv({path: roTmp, maxDbs: 5, readOnly: true})
-      const roRepo = roEnv.register(BlobRepo)
+      const roRepo = roEnv.register(BlobSchema)
       await expect(roRepo.putBinary(`k`, Buffer.from([1]))).rejects.toThrow()
     } finally {
       if (roEnv) await roEnv.close()

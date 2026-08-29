@@ -10,34 +10,50 @@ import {existsSync} from "node:fs"
 import {basename, extname, join} from "node:path"
 import * as lmdbNs from "lmdb"
 import {LmdbEnv} from "../src/env"
-import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError} from "../src/errors"
-import {LmdbRepository} from "../src/repository"
+import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbError, LmdbReadOnlyError, LmdbSchemaAlreadyRegisteredError, LmdbSchemaNotRegisteredError} from "../src/errors"
+import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
 // `allDbs` is a runtime-only export of lmdb-js (absent from its d.ts).
 const allDbs = (lmdbNs as unknown as {allDbs: Map<string, unknown>}).allDbs
 
-interface User {
-  id: string
-  name: string
+class UserSchema extends LmdbSchema {
+  static db = `env-test-user`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    name: t.string()
+  }
 }
 
-class UserRepo extends LmdbRepository<User, string> {
-  static dbName = `env-test-user`
+class SessionSchema extends LmdbSchema {
+  static db = `env-test-session`
+  static key = t.string()
+  static value = {
+    sid: t.string(),
+    data: t.string()
+  }
 }
 
-class SessionRepo extends LmdbRepository<{sid: string; data: string}, string> {
-  static dbName = `env-test-session`
+class MissingDbNameSchema extends LmdbSchema {
+  static key = t.string()
+  static value = {
+    v: t.string()
+  }
 }
 
-class SimpleRepo extends LmdbRepository<number, string> {
-  static dbName = `env-test-simple`
+class SameDbNameSchema extends LmdbSchema {
+  static db = `env-test-user` // collides with UserSchema
+  static key = t.string()
+  static value = {
+    v: t.string()
+  }
 }
 
-class MissingDbNameRepo extends LmdbRepository {}
-
-class SameDbNameRepo extends LmdbRepository {
-  static dbName = `env-test-user` // collides with UserRepo
+class EnvTestSimpleSchema extends LmdbSchema {
+  static db = `env-test-simple`
+  static key = t.string()
+  static value = t.number()
 }
 
 let tmpDir: string
@@ -46,6 +62,7 @@ let env: LmdbEnv
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-env-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
+  env.register(EnvTestSimpleSchema)
   // env opens on construction
 })
 
@@ -109,48 +126,49 @@ describe(`LmdbEnv.open / close`, () => {
 })
 
 describe(`LmdbEnv.register / get / has`, () => {
-  it(`register returns a typed LmdbRepository instance`, () => {
-    const users = env.register(UserRepo)
-    expect(users).toBeInstanceOf(UserRepo)
+  it(`register returns a typed LmdbEnvSub handle`, () => {
+    env.register(UserSchema)
+    expect(env.sub(UserSchema).dbName).toBe(`env-test-user`)
   })
 
-  it(`get returns the same instance for the same class`, () => {
-    const a = env.register(UserRepo)
-    const b = env.get(UserRepo)
+  it(`sub returns the same instance for the same schema class`, () => {
+    env.register(UserSchema)
+    const a = env.sub(UserSchema)
+    const b = env.sub(UserSchema)
     expect(a).toBe(b)
   })
 
-  it(`has returns true after register, false before`, () => {
-    expect(env.has(UserRepo)).toBe(false)
-    env.register(UserRepo)
-    expect(env.has(UserRepo)).toBe(true)
+  it(`isRegistered returns true after register, false before`, () => {
+    expect(env.isRegistered(UserSchema)).toBe(false)
+    env.register(UserSchema)
+    expect(env.isRegistered(UserSchema)).toBe(true)
   })
 
-  it(`get throws LmdbRepositoryNotRegisteredError for unknown class`, () => {
-    expect(() => env.get(SessionRepo)).toThrow(LmdbRepositoryNotRegisteredError)
+  it(`sub throws LmdbSchemaNotRegisteredError for unknown schema class`, () => {
+    expect(() => env.sub(SessionSchema)).toThrow(LmdbSchemaNotRegisteredError)
   })
 
-  it(`registering the same class twice throws`, () => {
-    env.register(UserRepo)
-    expect(() => env.register(UserRepo)).toThrow(LmdbRepositoryAlreadyRegisteredError)
+  it(`registering the same schema class twice throws`, () => {
+    env.register(UserSchema)
+    expect(() => env.register(UserSchema)).toThrow(LmdbSchemaAlreadyRegisteredError)
   })
 
-  it(`register rejects LmdbRepository without static dbName`, () => {
-    expect(() => env.register(MissingDbNameRepo)).toThrow(LmdbMissingDbNameError)
+  it(`register rejects a schema without static db`, () => {
+    expect(() => env.register(MissingDbNameSchema)).toThrow(LmdbError)
   })
 
   it(`register rejects collision with an existing dbName`, () => {
-    env.register(UserRepo)
-    expect(() => env.register(SameDbNameRepo)).toThrow(LmdbDuplicateDbNameError)
+    env.register(UserSchema)
+    expect(() => env.register(SameDbNameSchema)).toThrow(LmdbDuplicateDbNameError)
   })
 
-  it(`two different classes with distinct dbNames can coexist`, async () => {
-    const users = env.register(UserRepo)
-    const sessions = env.register(SessionRepo)
-    await users.put(`u1`, {id: `u1`, name: `Alice`})
-    await sessions.put(`s1`, {sid: `s1`, data: `hello`})
-    expect((await users.get(`u1`))?.name).toBe(`Alice`)
-    expect((await sessions.get(`s1`))?.data).toBe(`hello`)
+  it(`two different schemas with distinct dbNames can coexist`, async () => {
+    env.register(UserSchema)
+    env.register(SessionSchema)
+    await env.sub(UserSchema).put(`u1`, {id: `u1`, name: `Alice`})
+    await env.sub(SessionSchema).put(`s1`, {sid: `s1`, data: `hello`})
+    expect((await env.sub(UserSchema).get(`u1`))?.name).toBe(`Alice`)
+    expect((await env.sub(SessionSchema).get(`s1`))?.data).toBe(`hello`)
   })
 })
 
@@ -158,18 +176,18 @@ describe(`LmdbEnv read-only mode`, () => {
   it(`readOnly option is stored and enforced`, async () => {
     const dir = createTestDir(`lmdb-env-readonly-`)
     const writeEnv = new LmdbEnv({path: dir})
-    const users = writeEnv.register(UserRepo)
-    await users.put(`u1`, {id: `u1`, name: `A`})
+    writeEnv.register(UserSchema)
+    await writeEnv.sub(UserSchema).put(`u1`, {id: `u1`, name: `A`})
     await writeEnv.close()
 
     const roEnv = new LmdbEnv({path: dir, readOnly: true})
     try {
       expect(roEnv.readOnly).toBe(true)
-      const roUsers = roEnv.register(UserRepo)
-      expect((await roUsers.get(`u1`))?.name).toBe(`A`)
-      await expect(roUsers.put(`u2`, {id: `u2`, name: `B`})).rejects.toThrow(LmdbReadOnlyError)
-      await expect(roUsers.delete(`u1`)).rejects.toThrow(LmdbReadOnlyError)
-      await expect(roUsers.clear()).rejects.toThrow(LmdbReadOnlyError)
+      roEnv.register(UserSchema)
+      expect(roEnv.sub(UserSchema).get(`u1`)?.name).toBe(`A`)
+      await expect(roEnv.sub(UserSchema).put(`u2`, {id: `u2`, name: `B`})).rejects.toThrow(LmdbReadOnlyError)
+      await expect(roEnv.sub(UserSchema).delete(`u1`)).rejects.toThrow(LmdbReadOnlyError)
+      await expect(roEnv.sub(UserSchema).clear()).rejects.toThrow(LmdbReadOnlyError)
     } finally {
       await roEnv.close()
       await rmWithRetry(dir)
@@ -205,9 +223,9 @@ describe(`LmdbEnv state after close`, () => {
     await env.close()
     const reopen = new LmdbEnv({path: tmpDir, maxDbs: 5})
     expect(reopen.state).toBe(`open`)
-    const r = reopen.register(SimpleRepo)
-    await r.put(`reopened`, 42)
-    expect(await r.get(`reopened`)).toBe(42)
+    reopen.register(EnvTestSimpleSchema)
+    await reopen.sub(EnvTestSimpleSchema).put(`reopened`, 42)
+    expect(reopen.sub(EnvTestSimpleSchema).get(`reopened`)).toBe(42)
     await reopen.close()
   })
 })
@@ -218,7 +236,7 @@ describe(`LmdbEnv operations after close`, () => {
   })
 
   it(`register throws LmdbEnvClosedError`, () => {
-    expect(() => env.register(UserRepo)).toThrow(LmdbEnvClosedError)
+    expect(() => env.register(UserSchema)).toThrow(LmdbEnvClosedError)
   })
 
   it(`getDb throws LmdbEnvClosedError`, () => {
@@ -238,11 +256,11 @@ describe(`LmdbEnv operations after close`, () => {
   })
 
   it(`env-level data ops throw LmdbEnvClosedError (B2)`, () => {
-    expect(() => env.get(`k`)).toThrow(LmdbEnvClosedError)
-    expect(() => env.getRange()).toThrow(LmdbEnvClosedError)
-    expect(() => env.getCount()).toThrow(LmdbEnvClosedError)
-    expect(() => env.doesExist(`k`)).toThrow(LmdbEnvClosedError)
-    expect(() => env.getKeys()).toThrow(LmdbEnvClosedError)
+    expect(() => env.rootGetEntry(`k`)).toThrow(LmdbEnvClosedError)
+    expect(() => env.rootGetRange()).toThrow(LmdbEnvClosedError)
+    expect(() => env.rootGetCount()).toThrow(LmdbEnvClosedError)
+    expect(() => env.rootDoesExist(`k`)).toThrow(LmdbEnvClosedError)
+    expect(() => env.rootGetKeys()).toThrow(LmdbEnvClosedError)
     expect(() => env.openDB(`x`)).toThrow(LmdbEnvClosedError)
   })
 
@@ -257,8 +275,8 @@ describe(`LmdbEnv.close resource cleanup`, () => {
   it(`L2: close() removes this env's keys from lmdb-js allDbs`, async () => {
     const dir = createTestDir(`lmdb-env-alldbs-`)
     const e = new LmdbEnv({path: dir, maxDbs: 5})
-    e.register(UserRepo)
-    e.register(SessionRepo)
+    e.register(UserSchema)
+    e.register(SessionSchema)
     const key = basename(dir, extname(dir))
     const before = Array.from(allDbs.keys()).filter((n) => n.startsWith(key))
     expect(before.length).toBe(3) // root + user + session sub-DB stores
@@ -275,8 +293,8 @@ describe(`LmdbEnv.close resource cleanup`, () => {
     const pathB = join(dirB, `store`)
     const envA = new LmdbEnv({path: pathA, maxDbs: 5})
     const envB = new LmdbEnv({path: pathB, maxDbs: 5})
-    envA.register(UserRepo)
-    envB.register(SessionRepo)
+    envA.register(UserSchema)
+    envB.register(SessionSchema)
     // envB opened last, so the shared root entry now points at envB's store
     const sharedRoot = allDbs.get(`store`)
     const envBStore = (envB as unknown as {_root: unknown})._root
@@ -307,26 +325,26 @@ describe(`LmdbEnv.close resource cleanup`, () => {
   })
 
   it(`L5: off() stops a previously attached commit listener`, async () => {
+    env.register(UserSchema)
     let calls = 0
     const cb = () => {
       calls++
     }
     env.on(`beforecommit`, cb as any)
     env.off(`beforecommit`, cb as any)
-    const users = env.register(UserRepo)
-    await users.put(`u1`, {id: `u1`, name: `A`})
+    await env.sub(UserSchema).put(`u1`, {id: `u1`, name: `A`})
     await env.committed
     expect(calls).toBe(0)
   })
 
   it(`L5: listener attached and not removed still fires`, async () => {
+    env.register(UserSchema)
     let calls = 0
     const cb = () => {
       calls++
     }
     env.on(`beforecommit`, cb as any)
-    const users = env.register(UserRepo)
-    await users.put(`u1`, {id: `u1`, name: `A`})
+    await env.sub(UserSchema).put(`u1`, {id: `u1`, name: `A`})
     await env.committed
     expect(calls).toBeGreaterThan(0)
   })
@@ -334,25 +352,23 @@ describe(`LmdbEnv.close resource cleanup`, () => {
 
 describe(`LmdbEnv.put with options`, () => {
   it(`put(id, value, {noOverwrite}) works and respects noOverwrite`, async () => {
-    expect(await env.put(`k`, {v: 1})).toBe(true)
-    expect(await env.put(`k`, {v: 2}, {noOverwrite: true} as any)).toBe(false)
-    expect(await env.get(`k`)).toEqual({v: 1})
+    expect(await env.rootPut(`k`, {v: 1})).toBe(true)
+    expect(await env.rootPut(`k`, {v: 2}, {noOverwrite: true} as any)).toBe(false)
+    expect(env.rootGetEntry(`k`)).toEqual({value: {v: 1}})
   })
 })
 
 describe(`LmdbEnv snapshot / durability`, () => {
   it(`committed resolves after a put`, async () => {
-    const r = env.register(SimpleRepo)
-    await r.put(`a`, 1)
+    await env.sub(EnvTestSimpleSchema).put(`a`, 1)
     await env.committed
-    expect(await r.get(`a`)).toBe(1)
+    expect(await env.sub(EnvTestSimpleSchema).get(`a`)).toBe(1)
   })
 
   it(`flushed resolves after a put`, async () => {
-    const r = env.register(SimpleRepo)
-    await r.put(`b`, 2)
+    await env.sub(EnvTestSimpleSchema).put(`b`, 2)
     await env.flushed
-    expect(await r.get(`b`)).toBe(2)
+    expect(await env.sub(EnvTestSimpleSchema).get(`b`)).toBe(2)
   })
 
   it(`committed / flushed are safe before any writes (resolves immediately)`, async () => {
@@ -374,9 +390,8 @@ describe(`LmdbEnv snapshot / durability`, () => {
   // Consistently passes on bare-metal Linux/macOS.
   const skipBackup = process.platform === `win32` || process.env.CI === `true`
   ;(skipBackup ? it.skip : it)(`backup writes a copy that reopens cleanly`, async () => {
-    const r = env.register(SimpleRepo)
-    await r.put(`bk1`, 100)
-    await r.put(`bk2`, 200)
+    await env.sub(EnvTestSimpleSchema).put(`bk1`, 100)
+    await env.sub(EnvTestSimpleSchema).put(`bk2`, 200)
 
     const backupBase = createTestDir(`lmdb-backup-test-`)
     const destDir = join(backupBase, `snapshot`) // must not already exist
@@ -385,9 +400,9 @@ describe(`LmdbEnv snapshot / durability`, () => {
 
       const reopenEnv = new LmdbEnv({path: destDir, maxDbs: 5})
       try {
-        const reopenRepo = reopenEnv.register(SimpleRepo)
-        expect(reopenRepo.get(`bk1`)).toBe(100)
-        expect(reopenRepo.get(`bk2`)).toBe(200)
+        reopenEnv.register(EnvTestSimpleSchema)
+        expect(reopenEnv.sub(EnvTestSimpleSchema).get(`bk1`)).toBe(100)
+        expect(reopenEnv.sub(EnvTestSimpleSchema).get(`bk2`)).toBe(200)
       } finally {
         await reopenEnv.close()
       }

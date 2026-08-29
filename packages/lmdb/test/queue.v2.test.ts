@@ -14,6 +14,7 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
 import {LmdbQueue} from "../src/queue"
+import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
 interface Job {
@@ -21,14 +22,20 @@ interface Job {
   payload: string
 }
 
+class JobsSchema extends LmdbSchema {
+  static db = `jobs`
+  static key = t.string()
+  static value = t.object<Job>()
+}
+
 let tmpDir: string
 let env: LmdbEnv
-let queue: LmdbQueue<Job>
+let queue: LmdbQueue<typeof JobsSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-queue-v2-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 10})
-  queue = new LmdbQueue<Job>(env, `jobs`)
+  queue = new LmdbQueue(env, JobsSchema)
 })
 
 afterEach(async () => {
@@ -61,8 +68,8 @@ describe(`LmdbQueue v2 (single-txn)`, () => {
   })
 
   it(`constructing a second LmdbQueue with the same dbName does not throw (idempotent)`, async () => {
-    expect(() => new LmdbQueue<Job>(env, `jobs`)).not.toThrow()
-    const second = new LmdbQueue<Job>(env, `jobs`)
+    expect(() => new LmdbQueue(env, JobsSchema)).not.toThrow()
+    const second = new LmdbQueue(env, JobsSchema)
     await queue.enqueue({id: `j1`, payload: `a`})
     expect(await second.size()).toBe(1)
     expect((await second.dequeue())?.[1]).toEqual({id: `j1`, payload: `a`})
@@ -72,10 +79,10 @@ describe(`LmdbQueue v2 (single-txn)`, () => {
     // v1 enqueue = counter txn (async transaction) + async payload put → the
     // public transactionSync is never invoked. v2 must invoke it exactly once
     // per enqueue. Monkey-patch the instance to count invocations.
-    const envAny = env as unknown as {transactionSync: (...args: unknown[]) => unknown}
-    const original = envAny.transactionSync
+    const envAny = env as unknown as {rootTransactionSync: (...args: unknown[]) => unknown}
+    const original = envAny.rootTransactionSync
     let calls = 0
-    envAny.transactionSync = function (this: unknown, ...args: unknown[]): unknown {
+    envAny.rootTransactionSync = function (this: unknown, ...args: unknown[]): unknown {
       calls++
       return original.apply(this, args)
     }
@@ -83,7 +90,7 @@ describe(`LmdbQueue v2 (single-txn)`, () => {
       await queue.enqueue({id: `j1`, payload: `single-commit`})
       await queue.enqueue({id: `j2`, payload: `single-commit-2`})
     } finally {
-      envAny.transactionSync = original
+      envAny.rootTransactionSync = original
     }
     expect(calls).toBe(2)
   })

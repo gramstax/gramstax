@@ -6,25 +6,25 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbTtlRepository} from "../src/ttl"
+import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
+
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
 interface Session {
   userId: string
 }
 
-class SessionRepo extends LmdbTtlRepository<Session, string> {
-  static dbName = `ttl-session-test`
-}
+class SessionSchema extends LmdbSchema { static db = `ttl-session-test`; static key = t.string(); static value = t.object<Session>(); static ttl = 0 }
 
 let tmpDir: string
 let env: LmdbEnv
-let sessions: SessionRepo
+let sessions: LmdbEnvSub<typeof SessionSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-ttl-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-  sessions = env.register(SessionRepo)
+  sessions = env.register(SessionSchema)
 })
 
 afterEach(async () => {

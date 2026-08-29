@@ -7,6 +7,7 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
 import {LmdbQueue} from "../src/queue"
+import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
 interface Job {
@@ -14,14 +15,20 @@ interface Job {
   payload: string
 }
 
+class JobsSchema extends LmdbSchema {
+  static db = `jobs`
+  static key = t.string()
+  static value = t.object<Job>()
+}
+
 let tmpDir: string
 let env: LmdbEnv
-let queue: LmdbQueue<Job>
+let queue: LmdbQueue<typeof JobsSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-queue-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 10})
-  queue = new LmdbQueue<Job>(env, `jobs`)
+  queue = new LmdbQueue(env, JobsSchema)
 })
 
 afterEach(async () => {

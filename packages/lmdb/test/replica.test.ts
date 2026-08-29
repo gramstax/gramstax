@@ -8,11 +8,13 @@ import {existsSync, readdirSync} from "node:fs"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
 import {backupWithRetention, LmdbReplica} from "../src/replica"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
-class UserRepo extends LmdbRepository<{name: string}, string> {
-  static dbName = `replica-user-test`
+class UserSchema extends LmdbSchema {
+  static db = `replica-user-test`
+  static key = t.string()
+  static value = {name: t.string()}
 }
 
 let tmpDir: string
@@ -21,7 +23,7 @@ let env: LmdbEnv
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-replica-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-  env.register(UserRepo)
+  env.register(UserSchema)
 })
 
 afterEach(async () => {
@@ -31,17 +33,17 @@ afterEach(async () => {
 
 describe(`LmdbReplica`, () => {
   it(`opens a read-only replica that sees writer data after resetReadTxn`, async () => {
-    await env.get(UserRepo).put(`u1`, {name: `Alice`})
+    await env.sub(UserSchema).put(`u1`, {name: `Alice`})
     await env.committed
 
     const replica = await LmdbReplica.open(tmpDir)
-    replica.register(UserRepo)
-    const roRepo = replica.get(UserRepo)
+    replica.register(UserSchema)
+    const roRepo = replica.sub(UserSchema)
     // Initially may see u1, or need reset after writer commit
     replica.resetReadTxn()
     expect(roRepo.get(`u1`)).toEqual({name: `Alice`})
 
-    await env.get(UserRepo).put(`u2`, {name: `Bob`})
+    await env.sub(UserSchema).put(`u2`, {name: `Bob`})
     await env.committed
     // Replica's read txn is stale until reset
     replica.resetReadTxn()
@@ -53,8 +55,8 @@ describe(`LmdbReplica`, () => {
 
   it(`replica rejects writes`, async () => {
     const replica = await LmdbReplica.open(tmpDir)
-    replica.register(UserRepo)
-    const roRepo = replica.get(UserRepo)
+    replica.register(UserSchema)
+    const roRepo = replica.sub(UserSchema)
     await expect(roRepo.put(`u1`, {name: `Alice`})).rejects.toThrow()
     await replica.close()
   })
@@ -64,7 +66,7 @@ const skipBackup = process.platform === `win32`
 
 describe(`backupWithRetention`, () => {
   ;(skipBackup ? it.skip : it)(`creates a backup and prunes to keep N`, async () => {
-    await env.get(UserRepo).put(`u1`, {name: `Alice`})
+    await env.sub(UserSchema).put(`u1`, {name: `Alice`})
     await env.committed
 
     const base = createTestDir(`lmdb-backup-retention-`)

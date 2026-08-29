@@ -6,7 +6,9 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
+
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
 interface User {
@@ -14,18 +16,16 @@ interface User {
   name: string
 }
 
-class UserRepo extends LmdbRepository<User, string> {
-  static dbName = `bulk-user-test`
-}
+class UserSchema extends LmdbSchema { static db = `bulk-user-test`; static key = t.string(); static value = t.object<User>() }
 
 let tmpDir: string
 let env: LmdbEnv
-let users: UserRepo
+let users: LmdbEnvSub<typeof UserSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-bulk-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-  users = env.register(UserRepo)
+  users = env.register(UserSchema)
 })
 
 afterEach(async () => {

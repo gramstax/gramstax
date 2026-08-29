@@ -6,21 +6,21 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
+
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
-class CounterRepo extends LmdbRepository<number, string> {
-  static dbName = `counter-f3-test`
-}
+class CounterSchema extends LmdbSchema { static db = `counter-f3-test`; static key = t.string(); static value = t.number() }
 
 let tmpDir: string
 let env: LmdbEnv
-let counters: CounterRepo
+let counters: LmdbEnvSub<typeof CounterSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-counter-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-  counters = env.register(CounterRepo)
+  counters = env.register(CounterSchema)
 })
 
 afterEach(async () => {
@@ -65,7 +65,7 @@ describe(`LmdbRepository.increment`, () => {
 
   it(`throws when the existing value is not a number`, async () => {
     // Force a non-numeric value via raw put bypassing the number-typed repo
-    await (counters as unknown as {env: LmdbEnv}).env.put(`bad`, `not-a-number` as unknown as number)
+    await counters.owner.getDb(counters.dbName).put(`bad`, `not-a-number` as unknown as number)
     let err: unknown
     try {
       await counters.increment(`bad`)
@@ -97,7 +97,7 @@ describe(`LmdbRepository.decrement`, () => {
   })
 
   it(`throws when the existing value is not a number`, async () => {
-    await (counters as unknown as {env: LmdbEnv}).env.put(`bad2`, `not-a-number` as unknown as number)
+    await counters.owner.getDb(counters.dbName).put(`bad2`, `not-a-number` as unknown as number)
     let err: unknown
     try {
       await counters.decrement(`bad2`)

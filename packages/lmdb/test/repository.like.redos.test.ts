@@ -18,21 +18,21 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
 import {LmdbLikePatternError} from "../src/errors"
-import {LmdbRepository} from "../src/repository"
+import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
+
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
-class PlainRepo extends LmdbRepository<string, string> {
-  static dbName = `redos-plain-test`
-}
+class PlainSchema extends LmdbSchema { static db = `like-redos-test`; static key = t.string(); static value = t.string() }
 
 let tmpDir: string
 let env: LmdbEnv
-let plain: PlainRepo
+let plain: LmdbEnvSub<typeof PlainSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-redos-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-  plain = env.register(PlainRepo)
+  plain = env.register(PlainSchema)
 })
 
 afterEach(async () => {
