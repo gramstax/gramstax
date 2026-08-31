@@ -19,7 +19,7 @@ packages/create-gramstax/src/
 │   │   ├── base/guard.ts      GuardBase template
 │   │   ├── core/bot.ts        Bot wrapper (extends Gramstax)
 │   │   ├── core/ctx.ts        Ctx wrapper (extends gramstax Ctx)
-│   │   ├── blocks/keyboard.ts Keyboard block template
+│   │   ├── blocks/g-keyboard.ts Keyboard block template
 │   │   ├── helpers/log.ts     Logger re-export
 │   │   ├── guards/user.ts     User guard template
 │   │   ├── db/db.ts           LmdbEnv subclass (only when LMDB enabled)

@@ -2,39 +2,39 @@
  * Keyboard block builder — generates `<g-keyboard>` template blocks.
  *
  * @remarks
- * Converts {@link LabelKeyboard} definitions into HTML-like template strings
- * for the template engine. Requires `BlockKeyboard.label` to be set before
+ * Converts {@link LabelGKeyboard} definitions into HTML-like template strings
+ * for the template engine. Requires `BlockGKeyboard.label` to be set before
  * calling build methods.
  *
  * @public
  */
 
-import type {LabelKeyboard} from "~/labels/keyboard"
+import type {LabelGKeyboard} from "~/labels/g-keyboard"
 
 /**
- * Provides static methods for generating keyboard template blocks from `LabelKeyboard` definitions.
+ * Provides static methods for generating keyboard template blocks from `LabelGKeyboard` definitions.
  *
  * @remarks
  * This class generates HTML-like `<g-keyboard>` blocks for the template engine.
- * Requires `LabelKeyboard` to be set via {@link BlockKeyboard.label} before using {@link BlockKeyboard._build}.
+ * Requires `LabelGKeyboard` to be set via {@link BlockGKeyboard.label} before using {@link BlockGKeyboard._build}.
  *
  * @example
  * ```typescript
- * // blocks/keyboard.ts
- * import { BlockKeyboard, LabelKeyboard } from "gramstax";
+ * // blocks/g-keyboard.ts
+ * import { BlockGKeyboard, LabelGKeyboard } from "gramstax";
  *
- * class KeyboardBlock extends BlockKeyboard {
- *   static label = class extends LabelKeyboard {
+ * class KeyboardGBlock extends BlockGKeyboard {
+ *   static label = class extends LabelGKeyboard {
  *     static backNext = {en: "Back, Next", id: "Kembali, Lanjut"}
  *   }
  *   static backNext = (lang?: string, type?: string) => this._build(`backNext`, lang, type)
  * }
  *
  * // base/page.ts
- * import {KeyboardBlock} from "~/blocks/keyboard"
+ * import {KeyboardGBlock} from "~/blocks/g-keyboard"
  * export abstract class PageBase extends CtxCore {
- *   static kbk = KeyboardBlock
- *   static kbl = KeyboardBlock.label
+ *   static kbk = KeyboardGBlock
+ *   static kbl = KeyboardGBlock.label
  * }
  *
  * // pages/some.ts
@@ -63,33 +63,33 @@ import type {LabelKeyboard} from "~/labels/keyboard"
  *
  * @public
  */
-export class BlockKeyboard {
+export class BlockGKeyboard {
   /**
-   * Reference to the `LabelKeyboard` class containing keyboard definitions.
+   * Reference to the `LabelGKeyboard` class containing keyboard definitions.
    *
    * @remarks
-   * Must be set before using {@link BlockKeyboard._build}.
+   * Must be set before using {@link BlockGKeyboard._build}.
    * @virtual
    */
-  static label: typeof LabelKeyboard
+  static label: typeof LabelGKeyboard
 
   /**
-   * Build keyboard blocks by calling a method from the linked `LabelKeyboard`.
+   * Build keyboard blocks by calling a method from the linked `LabelGKeyboard`.
    *
-   * @param key - Method name in LabelKeyboard. Must exist or throws.
+   * @param key - Method name in LabelGKeyboard. Must exist or throws.
    * @param lang - Target language. If set, returns single language block.
    * @param type - Keyboard type. Values are `"inline"` or `"bottom"`. Defaults to `"inline"`.
    * @param reverse - Reverse button order. If true, reverses comma-separated labels.
    * @returns Keyboard block string.
    *
-   * @throws Error if {@link BlockKeyboard.label} is not set.
+   * @throws Error if {@link BlockGKeyboard.label} is not set.
    * @throws Error if the specified method name does not exist in the label class.
    *
    * @example
    * ```typescript
-   * // Assuming BlockKeyboard.label = MyKeyboards with backNext() method
+   * // Assuming BlockGKeyboard.label = MyKeyboards with backNext() method
    *
-   * const kbk = BlockKeyboard
+   * const kbk = BlockGKeyboard
    * kbk._build("backNext");
    * // => '<g-keyboard type="inline" lang="en">Back, Next</g-keyboard> ...'
    *
@@ -100,7 +100,7 @@ export class BlockKeyboard {
    */
   static _build(key: string, lang?: string, type?: string, reverse?: boolean) {
     if (!this.label) {
-      throw new Error(`Label not found, make sure set this.label from class extends LabelKeyboard`)
+      throw new Error(`Label not found, make sure set this.label from class extends LabelGKeyboard`)
     }
 
     if (!type) {
@@ -110,7 +110,7 @@ export class BlockKeyboard {
     if (!Object.hasOwn(this.label, key)) {
       throw new Error(`Object value ${key} not found`)
     }
-    const obj = this.label[key as keyof typeof LabelKeyboard] as Record<string, string>
+    const obj = this.label[key as keyof typeof LabelGKeyboard] as Record<string, string>
     if (lang !== undefined && !Object.hasOwn(obj, lang)) {
       throw new Error(`Language "${lang}" not found in label "${key}"`)
     }

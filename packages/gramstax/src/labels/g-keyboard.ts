@@ -2,7 +2,7 @@
  * Keyboard label definitions — base classes for keyboard data.
  *
  * @remarks
- * Provides {@link LabelKeyboard} which serves as the base class for
+ * Provides {@link LabelGKeyboard} which serves as the base class for
  * user-defined keyboard data. The `label()` static method extracts
  * button labels for use by the block keyboard builder.
  *
@@ -18,9 +18,9 @@
  *
  * @example
  * ```typescript
- * import { LabelKeyboard } from "gramstax";
+ * import { LabelGKeyboard } from "gramstax";
  *
- * export class KeyboardLabel extends LabelKeyboard {
+ * export class KeyboardGLabel extends LabelGKeyboard {
  *   static home = {
  *     id: "Rumah",
  *     en: "Home"
@@ -39,7 +39,7 @@
  *   }
  * }
  *
- * const kbl = KeyboardLabel
+ * const kbl = KeyboardGLabel
  * kbl.home.id // => "Rumah"
  * kbl.backNext.id // => "Kembali, Lanjut"
  * kbl.oneTwo.id // => "Dua, Satu"
@@ -50,7 +50,7 @@
  *
  * @public
  */
-export class LabelKeyboard {
+export class LabelGKeyboard {
   /**
    * Reverse the order of comma-separated button labels.
    *
@@ -59,11 +59,11 @@ export class LabelKeyboard {
    *
    * @example
    * ```typescript
-   * const reversed = LabelKeyboard._reverse("Back, Next, Submit");
+   * const reversed = LabelGKeyboard._reverse("Back, Next, Submit");
    * // => "Submit, Next, Back"
    *
    * // Escaped commas are preserved
-   * const preserved = LabelKeyboard._reverse("Option A\\, B, Option C");
+   * const preserved = LabelGKeyboard._reverse("Option A\\, B, Option C");
    * // => "Option C, Option A\\, B"
    * ```
    * @public
@@ -81,12 +81,12 @@ export class LabelKeyboard {
   /**
    * Reverse button order for all languages in an object.
    *
-   * @param input - Object with language keys and button values. Applies {@link LabelKeyboard._reverse} to each value.
+   * @param input - Object with language keys and button values. Applies {@link LabelGKeyboard._reverse} to each value.
    * @returns Object with reversed labels.
    *
    * @example
    * ```typescript
-   * const reversed = LabelKeyboard._reverseObj({
+   * const reversed = LabelGKeyboard._reverseObj({
    *   en: "Back, Next",
    *   id: "Kembali, Lanjut",
    * });

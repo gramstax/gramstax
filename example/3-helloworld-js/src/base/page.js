@@ -1,7 +1,7 @@
-import {KeyboardBlock} from "../blocks/keyboard.js"
+import {KeyboardGBlock} from "../blocks/g-keyboard.js"
 import {CtxCore} from "../core/ctx.js"
 
 export class PageBase extends CtxCore {
-  static kbk = KeyboardBlock
-  static kbl = KeyboardBlock.label
+  static kbk = KeyboardGBlock
+  static kbl = KeyboardGBlock.label
 }

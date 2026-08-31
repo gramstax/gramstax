@@ -14,8 +14,8 @@ packages/gramstax/
 │   ├── template/engine.ts    TemplateEngine (parser, compiler, validator)
 │   ├── template/manager.ts   TemplateManager (watcher, loader, compiler)
 │   ├── page/manager.ts       PageManager (module loader/discovery)
-│   ├── blocks/keyboard.ts    BlockKeyboard builder
-│   ├── labels/keyboard.ts    LabelKeyboard utilities
+│   ├── blocks/g-keyboard.ts    BlockGKeyboard builder
+│   ├── labels/g-keyboard.ts    LabelGKeyboard utilities
 │   ├── cache/external.ts     CacheExternal (keyv/Redis adapter)
 │   ├── helpers/log.ts         LoggingHelper (extends LoggingPretty)
 │   ├── webhook/queue.ts      WebhookQueue (bounded concurrent queue)

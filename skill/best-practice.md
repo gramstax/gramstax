@@ -107,7 +107,7 @@ description: Comprehensive best practices for Gramstax real project structure an
 
 ## Label Reuse and Duplication
 
-- Avoid duplicate values inside `KeyboardBlock.label`.
+- Avoid duplicate values inside `KeyboardGBlock.label`.
 - When a label combines other labels, derive it using `this.<key>` instead of literal duplication.
 - Define derived labels after their dependencies to avoid "used before initialization" errors.
 

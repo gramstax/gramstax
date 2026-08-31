@@ -26,7 +26,7 @@ Telegram ── update ──▶ Gramstax (core/bot.ts)
                  (watch+cache)   (parse/compile/        memory | redis |
                                       validate)           | custom)
                          ▲
-                         │ BlockKeyboard + LabelKeyboard build <g-keyboard>
+                         │ BlockGKeyboard + LabelGKeyboard build <g-keyboard>
 ```
 
 ## Components
@@ -108,8 +108,8 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/blocks/keyboard.ts` (`BlockKeyboard`), `src/labels/keyboard.ts` (`LabelKeyboard`) |
-| **Responsibility** | `LabelKeyboard` holds multilingual button label maps; `BlockKeyboard._build(key, lang?, type?, reverse?)` emits `<g-keyboard type="inline\|bottom" lang="…">…</g-keyboard>` strings. |
+| **Location** | `src/blocks/g-keyboard.ts` (`BlockGKeyboard`), `src/labels/g-keyboard.ts` (`LabelGKeyboard`) |
+| **Responsibility** | `LabelGKeyboard` holds multilingual button label maps; `BlockGKeyboard._build(key, lang?, type?, reverse?)` emits `<g-keyboard type="inline\|bottom" lang="…">…</g-keyboard>` strings. |
 | **Depends On** | Each other (`blocks` imports `labels`). |
 | **Depended On By** | Page templates (via `this.kbk.*()` helpers). |
 

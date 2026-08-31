@@ -1,7 +1,7 @@
-import {BlockKeyboard, LabelKeyboard} from "gramstax"
+import {BlockGKeyboard, LabelGKeyboard} from "gramstax"
 
-export class KeyboardBlock extends BlockKeyboard {
-  static label = class extends LabelKeyboard {
+export class KeyboardGBlock extends BlockGKeyboard {
+  static label = class extends LabelGKeyboard {
     static home = {default: `🏠 Home`, id: `🏠 Beranda`}
     static back = {default: `⬅️ Back`, id: `⬅️ Kembali`}
     static cancel = {default: `✖️ Cancel`, id: `✖️ Batal`}
