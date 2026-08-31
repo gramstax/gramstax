@@ -13,7 +13,7 @@ import {setTimeout} from "node:timers/promises"
 import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"
-import type {InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
+import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
 import type {ITMediaBlock} from "~/template/engine"
@@ -57,6 +57,8 @@ import type {
 type ITMediaGroupType = Extract<ITMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
 type ITMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
 type ITMediaGroupItem = NonNullable<ITMediaBlock[`mediaGroup`]>[number]
+
+export type {EphemeralMessageParameters}
 
 /**
  * Extended `InlineKeyboard` — overrides `.text()` so the `data` parameter
@@ -187,6 +189,77 @@ class Helper {
       if (type === `audio`) return InputMediaBuilder.audio(media, opts)
       return InputMediaBuilder.document(media, opts)
     })
+  }
+
+  /**
+   * Build `EphemeralMessageParameters` for Bot API 10.3 ephemeral messages.
+   *
+   * @remarks
+   * Creates the `ephemeral_message_parameters` payload accepted by the 13
+   * `send*` methods plus `sendRichMessage`. Ephemeral messages are short-lived
+   * notifications sent directly to a user — they disappear after the user reads
+   * (or ignores) them and are not kept in the chat history.
+   *
+   * Preferred call style: `Helper.ephemeralParams(receiverUserId, callbackQueryId, replace)`.
+   * A deprecated shim also accepts the pre-10.3 snake_case object
+   * `{receiver_user_id, callback_query_id, replace_callback_query_message}`
+   * and emits a one-time `console.warn`.
+   *
+   * @example Sending an ephemeral message
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   // Replace the callback query message in place
+   *   await this.api.sendMessage(this.chatId, `Order received!`, {
+   *     ephemeral_message_parameters: this.ephemeralParams(this.from?.id, this.callbackQuery?.id, true)
+   *   })
+   * }
+   * ```
+   *
+   * @example Deprecated 10.2 snake_case shim (warns once)
+   * ```typescript
+   * Helper.ephemeralParams({receiver_user_id: 123, callback_query_id: `cb_1`})
+   * // => {receiver_user_id: 123, callback_query_id: `cb_1`} + console.warn
+   * ```
+   *
+   * @param receiverUserId - Target user id, or a legacy object with snake_case keys.
+   * @param callbackQueryId - Callback query id that triggered the ephemeral message (optional).
+   * @param replace - Pass `true` to show the ephemeral message in place of the original message (optional).
+   * @returns Ephemeral params, or `undefined` when no receiver is provided.
+   *
+   * @public
+   */
+  static ephemeralParams(
+    receiverUserId?: number | Record<string, unknown>,
+    callbackQueryId?: string,
+    replace?: boolean
+  ): EphemeralMessageParameters | undefined {
+    if (receiverUserId !== null && typeof receiverUserId === `object`) {
+      const legacy = receiverUserId as unknown as {
+        receiver_user_id?: number
+        callback_query_id?: string
+        replace_callback_query_message?: boolean
+        receiverUserId?: number
+        callbackQueryId?: string
+        replace?: boolean
+      }
+      const hasLegacy = `receiver_user_id` in (legacy as Record<string, unknown>) || `callback_query_id` in (legacy as Record<string, unknown>) || `replace_callback_query_message` in (legacy as Record<string, unknown>)
+      if (hasLegacy) {
+        console.warn(`ephemeralParams: deprecated snake_case object {receiver_user_id, callback_query_id} — use ephemeralParams(receiverUserId, callbackQueryId, replace) instead`)
+      }
+      const rid = legacy.receiver_user_id ?? legacy.receiverUserId
+      const cqid = legacy.callback_query_id ?? legacy.callbackQueryId
+      const rep = legacy.replace_callback_query_message ?? legacy.replace
+      if (rid === undefined) return undefined
+      const out: EphemeralMessageParameters = {receiver_user_id: rid}
+      if (cqid !== undefined) out.callback_query_id = cqid
+      if (rep !== undefined) out.replace_callback_query_message = rep
+      return out
+    }
+    if (receiverUserId === undefined) return undefined
+    const out: EphemeralMessageParameters = {receiver_user_id: receiverUserId as number}
+    if (callbackQueryId !== undefined) out.callback_query_id = callbackQueryId
+    if (replace !== undefined) out.replace_callback_query_message = replace
+    return out
   }
 
   /**
@@ -347,6 +420,86 @@ export class Ctx extends Context {
    */
   static template?: string
 
+  /**
+   * Build `EphemeralMessageParameters` for Bot API 10.3 ephemeral messages.
+   *
+   * @remarks
+   * Creates the `ephemeral_message_parameters` payload accepted by 13 send*
+   * methods plus `sendRichMessage`. Ephemeral messages are short-lived
+   * notifications sent directly to a user — they disappear after the user
+   * reads (or ignores) them and are not kept in the chat history.
+   *
+   * The deprecated shim also accepts the pre-10.3 snake_case object
+   * `{receiver_user_id, callback_query_id, ...}` and emits a `console.warn`.
+   *
+   * @example Replace callback query message in place
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.api.sendMessage(this.chatId, `Order received!`, {
+   *     ephemeral_message_parameters: this.ephemeralParams(this.from?.id, this.callbackQuery?.id, true)
+   *   })
+   * }
+   * ```
+   *
+   * @example Legacy 10.2 snake_case object (warns once)
+   * ```typescript
+   * this.ephemeralParams({receiver_user_id: 123, callback_query_id: `cb_1`})
+   * ```
+   *
+   * @param receiverUserId - Target user id, or a legacy object with snake_case keys.
+   * @param callbackQueryId - Callback query id that triggered the message (optional).
+   * @param replace - Pass `true` to show in place of the original message (optional).
+   * @returns The ephemeral parameters object, or `undefined` when no receiver is provided.
+   *
+   * @public
+   */
+  static ephemeralParams(
+    receiverUserId?: number | Record<string, unknown>,
+    callbackQueryId?: string,
+    replace?: boolean
+  ): EphemeralMessageParameters | undefined {
+    return Helper.ephemeralParams(receiverUserId, callbackQueryId, replace)
+  }
+
+  /**
+   * Instance version of the static `ephemeralParams` method.
+   *
+   * @remarks
+   * Convenience shortcut so you can call `this.ephemeralParams(...)` inside a
+   * page handler instead of `Ctx.ephemeralParams(...)`.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.api.sendMessage(this.chatId, `Done`, {
+   *     ephemeral_message_parameters: this.ephemeralParams(this.from?.id, this.callbackQuery?.id)
+   *   })
+   * }
+   * ```
+   *
+   * @public
+   */
+  ephemeralParams(
+    receiverUserId?: number | Record<string, unknown>,
+    callbackQueryId?: string,
+    replace?: boolean
+  ): EphemeralMessageParameters | undefined {
+    return Helper.ephemeralParams(receiverUserId, callbackQueryId, replace)
+  }
+
+  /**
+   * Set of API methods whose responses are marked as "answered" (`temp.isAnswer = true`).
+   *
+   * @remarks
+   * Used internally by the context proxy to track whether the page has sent a
+   * meaningful reply. If none of these methods were called, the router may
+   * fall through to `no-match` handling.
+   *
+   * Includes all `send*`, `answer*`, `edit*`, `stop*`, `set*`, `forward*`,
+   * `copy*`, `pin*`, `unpin*`, and `delete*` methods.
+   *
+   * @public
+   */
   static readonly ANSWER_API_METHODS = new Set([
     `sendMessage`,
     `sendPhoto`,
@@ -1388,9 +1541,9 @@ export class Ctx extends Context {
         const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
 
         if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
-          await this.api.sendMediaGroup(id!, Helper.buildMediaGroupFromItems(med.mediaGroup, med.caption), Helper.buildMediaGroupOptions(opt))
+          await this.api.sendMediaGroup(id! as unknown as never, Helper.buildMediaGroupFromItems(med.mediaGroup, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
         } else if (Helper.isMediaGroupType(med.type) && med.srcList && med.srcList.length > 1) {
-          await this.api.sendMediaGroup(id!, Helper.buildMediaGroup(med.type, med.srcList, med.caption), Helper.buildMediaGroupOptions(opt))
+          await this.api.sendMediaGroup(id! as unknown as never, Helper.buildMediaGroup(med.type, med.srcList, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
         } else if (med.type === `photo`) await this.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
         else if (med.type === `video`) await this.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
         else if (med.type === `audio`) await this.api.sendAudio(id!, med.src!, {caption: med.caption!, ...opt})
@@ -1495,7 +1648,7 @@ export class Ctx extends Context {
    * quotations, collapsible blocks, footnotes, and formulas.
    *
    * The page template's `<g-message>` HTML content is passed as the `html` field
-   * of `InputRichMessage`. Use the Bot API 10.2 Rich HTML tags in your template
+   * of `InputRichMessage`. Use the Bot API 10.3 Rich HTML tags in your template
    * (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by
    * {@link TemplateEngine.validateBlockGMessageRich}.
    *
@@ -1734,13 +1887,13 @@ export class Ctx extends Context {
       if (items.length === 0) {
         throw new Error(`replyMediaGroup: no items of type "${type}" found in <g-media-group>`)
       }
-      return await this.replyWithMediaGroup(Helper.buildMediaGroupFromItems(items, med.caption), Helper.buildMediaGroupOptions(opt))
+      return await this.replyWithMediaGroup(Helper.buildMediaGroupFromItems(items, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
     }
     if (!type) {
       throw new Error(`replyMediaGroup type is required when template media is not <g-media-group>`)
     }
     const srcList = med.srcList && med.srcList.length > 1 ? med.srcList : med.src ? [med.src] : []
-    return await this.replyWithMediaGroup(Helper.buildMediaGroup(type, srcList, med.caption), Helper.buildMediaGroupOptions(opt))
+    return await this.replyWithMediaGroup(Helper.buildMediaGroup(type, srcList, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
   }
 
   /**
@@ -6305,6 +6458,30 @@ export class Ctx extends Context {
   setSessionFreeWriteAccessAllowed(this: Ctx & {handleSessionFreeWriteAccessAllowed: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeWriteAccessAllowed(), params)
   }
+  /**
+   * Set the session method for `handleSessionFreeCommunityChatJoined` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeCommunityChatJoined} via {@link Ctx.setSession}.
+   * @param params - Optional session parameters
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   * @public
+   */
+  setSessionFreeCommunityChatJoined(this: Ctx & {handleSessionFreeCommunityChatJoined: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeCommunityChatJoined(), params)
+  }
+  /**
+   * Set the session method for `handleSessionFreeStoppedGeneration` routing.
+   *
+   * @remarks
+   * Stores the key from {@link Ctx.methodSessionFreeStoppedGeneration} via {@link Ctx.setSession}.
+   * @param params - Optional session parameters
+   * @returns The `setSession` result, or null when no user/chat id is available.
+   * @public
+   */
+  setSessionFreeStoppedGeneration(this: Ctx & {handleSessionFreeStoppedGeneration: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeStoppedGeneration(), params)
+  }
 
   /**
    * [LOW-LEVEL] Session method name builders.
@@ -7817,5 +7994,21 @@ export class Ctx extends Context {
    */
   methodSessionFreeWriteAccessAllowed(name?: string) {
     return this.methodSession(`98`, name)
+  }
+  /**
+   * Session method key builder for `handleSessionFreeCommunityChatJoined`.
+   *
+   * @public
+   */
+  methodSessionFreeCommunityChatJoined(name?: string) {
+    return this.methodSession(`99`, name)
+  }
+  /**
+   * Session method key builder for `handleSessionFreeStoppedGeneration`.
+   *
+   * @public
+   */
+  methodSessionFreeStoppedGeneration(name?: string) {
+    return this.methodSession(`100`, name)
   }
 }

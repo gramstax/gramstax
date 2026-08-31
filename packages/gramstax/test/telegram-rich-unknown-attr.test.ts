@@ -1,7 +1,7 @@
 import {describe, expect, it} from "bun:test"
 import {TemplateEngine} from "~/template/engine"
 
-describe(`telegram rich unknown attribute validation (Bot API 10.2)`, () => {
+describe(`telegram rich unknown attribute validation (Bot API 10.3)`, () => {
   const invalid = (template: string) => {
     const result = TemplateEngine.validateTelegramUnknownAttributesBlock(template)
     expect(result.valid).toBe(false)

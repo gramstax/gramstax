@@ -17,16 +17,16 @@ import {autoRetry} from "@grammyjs/auto-retry"
 import {chatMemberFilter, myChatMemberFilter} from "@grammyjs/chat-members"
 import {hydrateFiles} from "@grammyjs/files"
 import {limit} from "@grammyjs/ratelimiter"
-import {apiThrottler} from "@grammyjs/transformer-throttler"
 import {stream} from "@grammyjs/stream"
+import {apiThrottler} from "@grammyjs/transformer-throttler"
 import KeyvRedis from "@keyv/redis"
 import {API_CONSTANTS, Bot, type BotConfig, type BotError, type Context, type Middleware, webhookCallback} from "grammy"
 import type {BotCommandScope, LanguageCode, Update, UserFromGetMe} from "grammy/types"
 import {CacheExternal, type ITCacheRpc} from "~/cache/external"
+import {type IRedisLockClient, SessionLock} from "~/core/session-lock"
 import {type LoggingHelper, log} from "~/helpers/log"
 import {MetricsStore, metricsToPrometheus} from "~/helpers/metrics"
 import {PageManager} from "~/page/manager"
-import {type IRedisLockClient, SessionLock} from "~/core/session-lock"
 import {TemplateManager} from "~/template/manager"
 import type {ITGramstaxParams, ITUpdateErrorEvent, ITUpdateSuccessEvent, ITWebhookQueueConfig} from "~/types/t.bot"
 import type {ITCt, ITCtMiddleware} from "~/types/t.ctx"
@@ -129,7 +129,9 @@ const _BUILT_IN_LISTENERS = new Map<string, string>([
   [`message:new_chat_title`, `newchattitle`],
   [`message:new_chat_photo`, `newchatphoto`],
   [`message:delete_chat_photo`, `deletechatphoto`],
-  [`message:write_access_allowed`, `writeaccessallowed`]
+  [`message:write_access_allowed`, `writeaccessallowed`],
+  [`message:community_chat_joined`, `communitychatjoined`],
+  [`stopped_message_generation`, `stoppedgeneration`]
 ])
 
 const __dirname = dirname(
@@ -179,7 +181,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * In-memory cache for keyboard instances by language.
    *
    * @remarks
-   * Cached values are built from {@link BlockKeyboard} and reused per language.
+   * Cached values are built from {@link BlockGKeyboard} and reused per language.
    */
   cacheKeyboard: Map<string, unknown>
 
@@ -482,8 +484,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         limit({
           timeFrame: windowMs,
           limit: max,
-          keyGenerator: (ctx) =>
-            this.hookKeyGenerator ? this.hookKeyGenerator(this.createCtx(ctx as unknown as ITCt)) : ctx.from?.id?.toString(),
+          keyGenerator: (ctx) => (this.hookKeyGenerator ? this.hookKeyGenerator(this.createCtx(ctx as unknown as ITCt)) : ctx.from?.id?.toString()),
           onLimitExceeded: (ctx) => {
             void this.hookRateLimited?.(this.createCtx(ctx as unknown as ITCt))
           }
@@ -616,6 +617,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.on(`message:new_chat_photo`, (ctx) => this._onHandle(ctx, `newchatphoto`, false))
     this.bot.on(`message:delete_chat_photo`, (ctx) => this._onHandle(ctx, `deletechatphoto`, false))
     this.bot.on(`message:write_access_allowed`, (ctx) => this._onHandle(ctx, `writeaccessallowed`, false))
+    this.bot.on(`message:community_chat_joined`, (ctx) => this._onHandle(ctx, `communitychatjoined`, false))
+    this.bot.on(`stopped_message_generation`, (ctx) => this._onHandle(ctx, `stoppedgeneration`, false))
 
     // Load pages AFTER templateManager is initialized
     this.pages = this._pageLoads(this.templateManager._path?.[0])
@@ -753,11 +756,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             }
             if ((pathname === `/stats` || pathname === `/metrics`) && this._webhookSecretToken) {
               const secret = req.headers.get(`X-Telegram-Bot-Api-Secret-Token`)
-              if (
-                secret === null ||
-                secret.length !== this._webhookSecretToken.length ||
-                !timingSafeEqual(Buffer.from(secret), Buffer.from(this._webhookSecretToken))
-              ) {
+              if (secret === null || secret.length !== this._webhookSecretToken.length || !timingSafeEqual(Buffer.from(secret), Buffer.from(this._webhookSecretToken))) {
                 return new Response(`Unauthorized`, {status: 401})
               }
             }
@@ -1258,11 +1257,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       async fetch(req) {
         if (self._webhookSecretToken) {
           const secret = req.headers.get(`X-Telegram-Bot-Api-Secret-Token`)
-          if (
-            secret === null ||
-            secret.length !== self._webhookSecretToken.length ||
-            !timingSafeEqual(Buffer.from(secret), Buffer.from(self._webhookSecretToken))
-          ) {
+          if (secret === null || secret.length !== self._webhookSecretToken.length || !timingSafeEqual(Buffer.from(secret), Buffer.from(self._webhookSecretToken))) {
             return new Response(`Unauthorized`, {status: 401})
           }
         }
@@ -1870,7 +1865,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `handleSessionFreeNewChatTitle`,
       `handleSessionFreeNewChatPhoto`,
       `handleSessionFreeDeleteChatPhoto`,
-      `handleSessionFreeWriteAccessAllowed`
+      `handleSessionFreeWriteAccessAllowed`,
+      `handleSessionFreeCommunityChatJoined`,
+      `handleSessionFreeStoppedGeneration`
     ] as const
     const listRouteDynamicSpesific = [
       `handleFreeText`,
@@ -1935,7 +1932,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `handleFreeNewChatTitle`,
       `handleFreeNewChatPhoto`,
       `handleFreeDeleteChatPhoto`,
-      `handleFreeWriteAccessAllowed`
+      `handleFreeWriteAccessAllowed`,
+      `handleFreeCommunityChatJoined`,
+      `handleFreeStoppedGeneration`
     ] as const
 
     // Pre-bucket route names by listener suffix for O(1) per-update lookups

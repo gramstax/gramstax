@@ -10,7 +10,8 @@
  * @public
  */
 
-export * from "./blocks/keyboard"
+export {InputMediaBuilder} from "grammy"
+export * from "./blocks/g-keyboard"
 export * from "./cache/external"
 export * from "./core/bot"
 export * from "./core/ctx"
@@ -18,12 +19,11 @@ export * from "./core/session-lock"
 export * from "./e2e/helper"
 export * from "./helpers/log"
 export * from "./helpers/metrics"
-export * from "./labels/keyboard"
+export * from "./labels/g-keyboard"
 export * from "./mock/telegram-server"
 export * from "./page/manager"
 export * from "./template/engine"
 export * from "./template/manager"
-export {InputMediaBuilder} from "grammy"
 // type
 export * from "./types/t.bot"
 export * from "./types/t.ctx"

@@ -3,7 +3,7 @@ import {TemplateEngine} from "~/template/engine"
 
 /**
  * Exhaustive matrix: every official attribute of every rich tag exercised with
- * valid and invalid values (Bot API 10.2). Add rows when the spec changes —
+ * valid and invalid values (Bot API 10.3). Add rows when the spec changes —
  * the test loop runs the whole table. Void tags are rendered self-closing;
  * content tags get a closing tag. {{placeholder}} values are excluded here
  * (they are covered by a dedicated test in template.engine.test.ts).
@@ -12,18 +12,18 @@ const matrix: Array<{tag: string; attr: string; valid: string[]; invalid: string
   // inline / media / forms
   {tag: `a`, attr: `href`, valid: [`https://x.com`, `http://x.com`, `mailto:a@b.c`, `tel:+123`, `tg://user?id=1`, `#anchor`], invalid: [`javascript:alert(1)`, `data:text/html`, `ftp://x`, `relative`]},
   {tag: `a`, attr: `name`, valid: [`ref1`], invalid: [``]},
-  {tag: `img`, attr: `src`, valid: [`https://x.com/a.jpg`, `http://x.com/a`, `tg://emoji?id=5368324170671202286`, `tg://photo?id=123`], invalid: [`ftp://x/a`, `//x/a`, `x.jpg`, `data:image/png;base64,abc`, `tg://emoji?id=abc`, `tg://video?id=1`]},
+  {tag: `img`, attr: `src`, valid: [`https://x.com/a.jpg`, `http://x.com/a`, `tg://emoji?id=5368324170671202286`, `tg://photo?id=123`, `tg://document?id=123`], invalid: [`ftp://x/a`, `//x/a`, `x.jpg`, `data:image/png;base64,abc`, `tg://emoji?id=abc`, `tg://video?id=1`]},
   {tag: `img`, attr: `alt`, valid: [`pic`, `👍`], invalid: [``]},
   {tag: `img`, attr: `tg-spoiler`, valid: [`true`], invalid: []},
-  {tag: `video`, attr: `src`, valid: [`https://x.com/a.mp4`, `tg://video?id=123`], invalid: [`file:///a.mp4`, `a.mp4`, `tg://emoji?id=1`]},
+  {tag: `video`, attr: `src`, valid: [`https://x.com/a.mp4`, `tg://video?id=123`, `tg://document?id=123`], invalid: [`file:///a.mp4`, `a.mp4`, `tg://emoji?id=1`]},
   {tag: `video`, attr: `tg-spoiler`, valid: [`true`], invalid: []},
-  {tag: `audio`, attr: `src`, valid: [`https://x.com/a.mp3`, `tg://audio?id=123`], invalid: [`a.mp3`, `ftp://x/a.mp3`, `tg://video?id=1`]},
+  {tag: `audio`, attr: `src`, valid: [`https://x.com/a.mp3`, `tg://audio?id=123`, `tg://document?id=123`], invalid: [`a.mp3`, `ftp://x/a.mp3`, `tg://video?id=1`]},
   {tag: `tg-emoji`, attr: `emoji-id`, valid: [`5368324170671202286`], invalid: [`abc`, `-1`, `1.5`]},
   {tag: `tg-time`, attr: `unix`, valid: [`1720000000`], invalid: [`0`, `-1`, `abc`, `1.5`]},
   {tag: `tg-time`, attr: `format`, valid: [`t`, `r`, `w`, `d`, `D`, `wD`, `wdt`, `wDT`], invalid: [`X`, `xx`, ``]},
   {tag: `tg-map`, attr: `lat`, valid: [`0`, `-90`, `90`, `41.9`], invalid: [`91`, `-91`, `abc`]},
   {tag: `tg-map`, attr: `long`, valid: [`0`, `-180`, `180`, `12.5`], invalid: [`181`, `-181`, `abc`]},
-  {tag: `tg-map`, attr: `zoom`, valid: [`13`, `14`, `19`], invalid: [`12`, `20`, `0`, `24`, `abc`, `1.5`]},
+  {tag: `tg-map`, attr: `zoom`, valid: [`13`, `14`, `19`, `20`], invalid: [`12`, `0`, `21`, `24`, `abc`, `1.5`]},
   {tag: `tg-reference`, attr: `name`, valid: [`note-1`], invalid: [``]},
   {tag: `input`, attr: `type`, valid: [`checkbox`], invalid: [`text`, `number`, `email`, `submit`, `foobar`]},
   {tag: `input`, attr: `checked`, valid: [`true`], invalid: []},
@@ -37,6 +37,7 @@ const matrix: Array<{tag: string; attr: string; valid: string[]; invalid: string
   {tag: `li`, attr: `checked`, valid: [`true`], invalid: []},
   {tag: `table`, attr: `bordered`, valid: [`true`], invalid: []},
   {tag: `table`, attr: `striped`, valid: [`true`], invalid: []},
+  {tag: `table`, attr: `is_compact`, valid: [`true`], invalid: []},
   {tag: `td`, attr: `colspan`, valid: [`1`, `3`], invalid: [`0`, `-1`, `x`]},
   {tag: `td`, attr: `rowspan`, valid: [`2`], invalid: [`0`, `x`]},
   {tag: `td`, attr: `align`, valid: [`left`, `center`, `right`], invalid: [`middle`, `justify`]},
@@ -74,7 +75,7 @@ function render(tag: string, attr: string, value: string): string {
   return `<g-base><g-message>${body}</g-message></g-base>`
 }
 
-describe(`telegram rich attribute matrix (Bot API 10.2)`, () => {
+describe(`telegram rich attribute matrix (Bot API 10.3)`, () => {
   for (const row of matrix) {
     it(`accepts valid ${row.tag} ${row.attr}=${row.valid.join(`|`)}`, () => {
       for (const v of row.valid) {

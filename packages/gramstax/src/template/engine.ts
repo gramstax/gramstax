@@ -158,7 +158,7 @@ export class TemplateEngine {
    * Updated with each gramstax release to reflect the latest supported
    * Telegram Bot API version.
    */
-  static BOT_API_VERSION = `10.2`
+  static BOT_API_VERSION = `10.3`
   static ALLOWED_BLOCKS_TELEGRAM_LEGACY = [
     // Original Telegram HTML mode tags (parse_mode="HTML", pre-Rich spec)
     `<b>`,
@@ -343,7 +343,7 @@ export class TemplateEngine {
    * the required-attribute check, so missing attributes are reported
    * separately by {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}.
    *
-   * Value rules follow the Telegram Bot API 10.2 Rich Message Formatting
+   * Value rules follow the Telegram Bot API 10.3 Rich Message Formatting
    * Options spec (see `BOT_API_VERSION`). `{{placeholder}}` values and
    * boolean attributes (no `=value`) are skipped by the caller.
    *
@@ -370,8 +370,8 @@ export class TemplateEngine {
         const n = Number(v)
         return !Number.isNaN(n) && n >= -180 && n <= 180 ? null : `long must be a number between -180 and 180 (got "${v}")`
       },
-      // Bot API 10.2 rich map zoom range (13-19; SDK variance up to 20 flagged in plan)
-      zoom: (v) => (/^\d+$/.test(v) && Number(v) >= 13 && Number(v) <= 19 ? null : `zoom must be an integer between 13 and 19 (got "${v}")`)
+      // Bot API 10.3 rich map zoom range (13-20)
+      zoom: (v) => (/^\d+$/.test(v) && Number(v) >= 13 && Number(v) <= 20 ? null : `zoom must be an integer between 13 and 20 (got "${v}")`)
     },
     "tg-emoji": {
       "emoji-id": (v) => (/^\d+$/.test(v) ? null : `emoji-id must be a numeric string (got "${v}")`)
@@ -381,19 +381,19 @@ export class TemplateEngine {
       name: (v) => (v.length > 0 ? null : `name must not be empty`)
     },
     img: {
-      src: (v) => (/^(https?:\/\/|tg:\/\/emoji\?id=\d+|tg:\/\/photo\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL, or a tg://emoji/photo reference (got "${v}")`),
+      src: (v) => (/^(https?:\/\/|tg:\/\/emoji\?id=\d+|tg:\/\/photo\?id=\d+|tg:\/\/document\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL, or a tg://emoji/photo/document reference (got "${v}")`),
       alt: (v) => (v.length > 0 ? null : `alt must not be empty`),
       "tg-spoiler": () => null
     },
     video: {
-      src: (v) => (/^(https?:\/\/|tg:\/\/video\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL or a tg://video reference (got "${v}")`),
+      src: (v) => (/^(https?:\/\/|tg:\/\/video\?id=\d+|tg:\/\/document\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL or a tg://video/document reference (got "${v}")`),
       "tg-spoiler": () => null
     },
     audio: {
-      src: (v) => (/^(https?:\/\/|tg:\/\/audio\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL or a tg://audio reference (got "${v}")`)
+      src: (v) => (/^(https?:\/\/|tg:\/\/audio\?id=\d+|tg:\/\/document\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL or a tg://audio/document reference (got "${v}")`)
     },
     input: {
-      // Bot API 10.2 rich messages: only <input type="checkbox"> is supported (checklists)
+      // Bot API 10.3 rich messages: only <input type="checkbox"> is supported (checklists)
       type: (v) => (v === `checkbox` ? null : `type must be "checkbox" (got "${v}")`),
       checked: () => null
     },
@@ -410,7 +410,8 @@ export class TemplateEngine {
     },
     table: {
       bordered: () => null,
-      striped: () => null
+      striped: () => null,
+      is_compact: () => null
     },
     td: {
       colspan: (v) => (/^\d+$/.test(v) && Number(v) >= 1 ? null : `colspan must be a positive integer (got "${v}")`),
@@ -447,7 +448,7 @@ export class TemplateEngine {
    * @remarks
    * Single source of truth for the unknown-attribute validation pass
    * ({@link TemplateEngine._validateTelegramTagUnknownAttributes}). Built from
-   * the official Telegram Bot API 10.2 rich HTML style examples
+   * the official Telegram Bot API 10.3 rich HTML style examples
    * (core.telegram.org/bots/api#rich-html-style) unioned with legacy
    * parse_mode HTML attributes still tolerated (blockquote expandable,
    * cite attributes, li checkbox/checked). Tags with an empty array allow
@@ -498,7 +499,7 @@ export class TemplateEngine {
     p: [],
     pre: [],
     summary: [],
-    table: [`bordered`, `striped`],
+    table: [`bordered`, `striped`, `is_compact`],
     td: [`colspan`, `rowspan`, `align`, `valign`],
     th: [`colspan`, `rowspan`, `align`, `valign`],
     tr: [],

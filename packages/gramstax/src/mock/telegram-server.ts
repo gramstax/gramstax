@@ -480,6 +480,56 @@ export class MockTelegramServer {
       return {ok: true, result: {url: this.webhookUrl}}
     }
 
+    if (
+      method === `editEphemeralMessageText` ||
+      method === `editEphemeralMessageCaption` ||
+      method === `editEphemeralMessageMedia` ||
+      method === `editEphemeralMessageReplyMarkup` ||
+      method === `deleteEphemeralMessage`
+    ) {
+      const data = this._bodyRecord(body) as unknown as {
+        ephemeral_message_parameters?: unknown
+        replace_callback_query_message?: unknown
+        rich_message?: unknown
+        show_caption_above_media?: unknown
+      } | undefined
+      return {
+        ok: true,
+        result: true,
+        ...(data?.ephemeral_message_parameters ? {ephemeral_message_parameters: data.ephemeral_message_parameters} : {}),
+        ...(data?.replace_callback_query_message !== undefined ? {replace_callback_query_message: data.replace_callback_query_message} : {}),
+        ...(data?.rich_message ? {rich_message: data.rich_message} : {}),
+        ...(data?.show_caption_above_media !== undefined ? {show_caption_above_media: data.show_caption_above_media} : {})
+      } as unknown as ITMockTelegramJson
+    }
+
+    if (method === `promoteChatMember`) {
+      const data = this._bodyRecord(body) as unknown as {can_send_welcome_messages?: unknown} | undefined
+      return {
+        ok: true,
+        result: true,
+        ...(data?.can_send_welcome_messages !== undefined ? {can_send_welcome_messages: data.can_send_welcome_messages} : {})
+      } as unknown as ITMockTelegramJson
+    }
+
+    if (
+      method.startsWith(`send`) &&
+      body !== null &&
+      typeof body === `object` &&
+      `ephemeral_message_parameters` in (body as Record<string, unknown>)
+    ) {
+      const data = body as unknown as {chat_id?: number; ephemeral_message_parameters?: unknown}
+      return {
+        ok: true,
+        result: {
+          message_id: this._nextMessageId++,
+          date: Math.floor(Date.now() / 1000),
+          chat: {id: data.chat_id ?? 0, type: `private`},
+          ephemeral_message_parameters: data.ephemeral_message_parameters
+        }
+      }
+    }
+
     return {ok: true, result: true}
   }
 
@@ -831,5 +881,61 @@ export class MockTelegramServer {
       },
       options
     )
+  }
+
+  /**
+   * Simulate a user stopping message generation (Bot API 10.3 `stopped_message_generation`).
+   *
+   * @param options - Chat, draft and thread options
+   * @returns Array of captured Bot API responses
+   * @public
+   */
+  async sendStoppedGeneration(options?: ITMockTelegramUpdateOptions & {chat?: ITMockTelegramChat; draft_id?: number; message_thread_id?: number}) {
+    const {updateId} = this._nextIds(options)
+    return await this._postUpdate(
+      {
+        update_id: updateId,
+        stopped_message_generation: {
+          chat: this._defaultChat(options?.chat),
+          draft_id: options?.draft_id ?? 1,
+          ...(options?.message_thread_id !== undefined ? {message_thread_id: options.message_thread_id} : {})
+        }
+      },
+      options
+    )
+  }
+
+  /**
+   * Alias for `sendStoppedGeneration` (Bot API 10.3).
+   *
+   * @param options - Chat, draft and thread options
+   * @returns Array of captured Bot API responses
+   * @public
+   */
+  async sendStoppedMessageGeneration(options?: ITMockTelegramUpdateOptions & {chat?: ITMockTelegramChat; draft_id?: number; message_thread_id?: number}) {
+    return await this.sendStoppedGeneration(options)
+  }
+
+  /**
+   * Simulate a community chat joined service message (Bot API 10.3 `community_chat_joined`).
+   *
+   * @param options - User, chat and community options
+   * @returns Array of captured Bot API responses
+   * @public
+   */
+  async sendCommunityChatJoined(options?: ITMockTelegramUpdateOptions & {community?: {id?: number; name?: string}}) {
+    return await this._postUpdate(this._buildMessageUpdate({community_chat_joined: {community: (options as unknown as {community?: unknown})?.community ?? {id: 1, name: `Test Community`}}}, options), options)
+  }
+
+  /**
+   * Simulate a message containing `UniqueGiftInfo` fields (Bot API 10.3 `text/entities/is_private`).
+   *
+   * @param giftInfo - Gift info payload
+   * @param options - User, chat and response options
+   * @returns Array of captured Bot API responses
+   * @public
+   */
+  async sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITMockTelegramUpdateOptions) {
+    return await this._postUpdate(this._buildMessageUpdate({unique_gift: giftInfo}, options), options)
   }
 }

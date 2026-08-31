@@ -7,10 +7,10 @@ import {TemplateEngine} from "~/template/engine"
  * A tag is covered when it has a required-attr spec, a value validator, or is
  * officially documented as attribute-free (NO_ATTRIBUTE_TAGS).
  */
-describe(`telegram rich tag coverage guard (Bot API 10.2)`, () => {
+describe(`telegram rich tag coverage guard (Bot API 10.3)`, () => {
   const allTags = [...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY, ...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH]
 
-  // Tags officially documented with no attributes (Bot API 10.2 rich spec);
+  // Tags officially documented with no attributes (Bot API 10.3 rich spec);
   // normalized via the same rules as TemplateEngine._extractBlockNames.
   const NO_ATTRIBUTE_TAGS = new Set([
     // legacy inline

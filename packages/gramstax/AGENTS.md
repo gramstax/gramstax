@@ -11,8 +11,8 @@ packages/gramstax/src/
 ├── template/engine.ts  TemplateEngine (parser, compiler, validator)
 ├── template/manager.ts TemplateManager (watcher, loader, compiler)
 ├── page/manager.ts     PageManager (module loader/discovery)
-├── blocks/keyboard.ts  BlockKeyboard builder
-├── labels/keyboard.ts  LabelKeyboard utilities
+├── blocks/g-keyboard.ts  BlockGKeyboard builder
+├── labels/g-keyboard.ts  LabelGKeyboard utilities
 ├── cache/external.ts   CacheExternal (Keyv/Redis adapter)
 ├── helpers/log.ts      LoggingHelper (extends LoggingPretty)
 ├── webhook/queue.ts    WebhookQueue (bounded concurrent queue)
@@ -31,7 +31,7 @@ packages/gramstax/src/
 | Template syntax, parsing, validation         | `template/engine.ts`                       |
 | Template file watching, loading, compilation | `template/manager.ts`                      |
 | Page module auto-discovery                   | `page/manager.ts`                          |
-| Keyboard block/label builders                | `blocks/keyboard.ts`, `labels/keyboard.ts` |
+| Keyboard block/label builders                | `blocks/g-keyboard.ts`, `labels/g-keyboard.ts` |
 | Session/keyboard caching (Keyv/Redis)        | `cache/external.ts`                        |
 | Webhook request queuing                      | `webhook/queue.ts`                         |
 | Mock Telegram API for tests                  | `mock/telegram-server.ts`                  |

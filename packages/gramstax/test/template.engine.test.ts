@@ -1738,7 +1738,7 @@ describe(`TemplateEngine`, () => {
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for <tg-time> with only unix (format is optional per Bot API 10.2)`, () => {
+    it(`should return valid for <tg-time> with only unix (format is optional per Bot API 10.3)`, () => {
       const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-time unix="1647531900">x</tg-time>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
@@ -2012,15 +2012,15 @@ describe(`TemplateEngine`, () => {
       expect(result.errors[0]?.message).toContain(`long must be a number between -180 and 180`)
     })
 
-    it(`<tg-map zoom> accepts 13 and 19`, () => {
+    it(`<tg-map zoom> accepts 13 and 20`, () => {
       const result1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="13"/>`)
-      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="19"/>`)
+      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="20"/>`)
       expect(result1.valid).toBe(true)
       expect(result2.valid).toBe(true)
     })
 
-    it(`<tg-map zoom> rejects values outside 13..19`, () => {
-      for (const z of [`0`, `12`, `20`, `24`, `25`]) {
+    it(`<tg-map zoom> rejects values outside 13..20`, () => {
+      for (const z of [`0`, `12`, `21`, `24`, `25`]) {
         expect(TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="${z}"/>`).valid).toBe(false)
       }
     })
@@ -2028,7 +2028,7 @@ describe(`TemplateEngine`, () => {
     it(`<tg-map zoom> rejects non-integer value`, () => {
       const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="1.5"/>`)
       expect(result.valid).toBe(false)
-      expect(result.errors[0]?.message).toContain(`zoom must be an integer between 13 and 19`)
+      expect(result.errors[0]?.message).toContain(`zoom must be an integer between 13 and 20`)
     })
 
     it(`<tg-emoji emoji-id> accepts valid numeric string`, () => {
@@ -2084,7 +2084,7 @@ describe(`TemplateEngine`, () => {
       expect(badV.valid).toBe(false)
     })
 
-    it(`<input type> accepts only checkbox (per Bot API 10.2 rich spec)`, () => {
+    it(`<input type> accepts only checkbox (per Bot API 10.3 rich spec)`, () => {
       const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<input type="checkbox"/>`)
       expect(ok.valid).toBe(true)
       for (const t of [`text`, `number`, `email`, `password`, `submit`, `radio`, `hidden`, `tel`, `url`]) {

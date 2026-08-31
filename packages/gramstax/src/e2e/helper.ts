@@ -75,7 +75,7 @@ export class E2eHelper {
 
   /** @param bot - The parent Gramstax instance. */
   constructor(private bot: Gramstax) {
-    this.bot.bot.api.config.use(async (_prev, method, payload) => {
+    ;(this.bot.bot.api.config.use as unknown as (fn: (prev: unknown, method: string, payload: unknown) => Promise<unknown>) => void)(async (_prev, method, payload) => {
       this.calls.push({
         method,
         body: payload as Record<string, unknown>,
@@ -101,18 +101,53 @@ export class E2eHelper {
       }
       // Stream plugin API methods
       if (method === `sendMessageDraft`) {
-        const msgId = (payload as any)?.draft_id ?? this._nextApiMsgId++
-        return {ok: true, result: {message_id: msgId, date: Math.floor(Date.now() / 1000), chat: (payload as any)?.chat_id ? {id: (payload as any).chat_id, type: `private`} : {id: 0, type: `private`}}} as any
+        const msgId = (payload as unknown as {draft_id?: number})?.draft_id ?? this._nextApiMsgId++
+        return {
+          ok: true,
+          result: {
+            message_id: msgId,
+            date: Math.floor(Date.now() / 1000),
+            chat: (payload as unknown as {chat_id?: number})?.chat_id ? {id: (payload as unknown as {chat_id: number}).chat_id, type: `private`} : {id: 0, type: `private`}
+          }
+        } as unknown as never
       }
       if (method === `sendRichMessageDraft`) {
-        const msgId = (payload as any)?.draft_id ?? this._nextApiMsgId++
-        return {ok: true, result: {message_id: msgId, date: Math.floor(Date.now() / 1000), chat: (payload as any)?.chat_id ? {id: (payload as any).chat_id, type: `private`} : {id: 0, type: `private`}}} as any
+        const msgId = (payload as unknown as {draft_id?: number})?.draft_id ?? this._nextApiMsgId++
+        return {
+          ok: true,
+          result: {
+            message_id: msgId,
+            date: Math.floor(Date.now() / 1000),
+            chat: (payload as unknown as {chat_id?: number})?.chat_id ? {id: (payload as unknown as {chat_id: number}).chat_id, type: `private`} : {id: 0, type: `private`}
+          }
+        } as unknown as never
       }
       if (method === `sendRichMessage`) {
-        return {ok: true, result: {message_id: this._nextApiMsgId++, date: Math.floor(Date.now() / 1000), chat: {id: 0, type: `private`}}} as any
+        const p = payload as unknown as {rich_message?: unknown}
+        return {
+          ok: true,
+          result: {
+            message_id: this._nextApiMsgId++,
+            date: Math.floor(Date.now() / 1000),
+            chat: {id: 0, type: `private`},
+            ...(p?.rich_message ? {rich_message: p.rich_message} : {})
+          }
+        } as unknown as never
+      }
+      if (
+        method === `editEphemeralMessageText` ||
+        method === `editEphemeralMessageCaption` ||
+        method === `editEphemeralMessageMedia` ||
+        method === `editEphemeralMessageReplyMarkup` ||
+        method === `deleteEphemeralMessage`
+      ) {
+        return {ok: true, result: true} as unknown as never
+      }
+      if (method === `promoteChatMember`) {
+        return {ok: true, result: true} as unknown as never
       }
 
-      return {ok: true, result: {message_id: this._nextApiMsgId++}} as any
+      return {ok: true, result: {message_id: this._nextApiMsgId++}} as unknown as never
     })
   }
 
@@ -643,6 +678,61 @@ export class E2eHelper {
         }
       }
     })
+  }
+
+  // ── Bot API 10.3 helpers ──────────────────────────────────────
+
+  /**
+   * Simulate a user stopping message generation (Bot API 10.3 `stopped_message_generation`).
+   *
+   * @param options - Chat, draft, thread and response options
+   * @returns API calls made while processing this update
+   * @public
+   */
+  async sendStoppedGeneration(options?: ITE2eUpdateOptions & {chat?: ITE2eChat; draft_id?: number; message_thread_id?: number}) {
+    const {updateId} = this._nextIds(options)
+    return await this.handleUpdate({
+      update_id: updateId,
+      stopped_message_generation: {
+        chat: this._defaultChat(options?.chat),
+        draft_id: options?.draft_id ?? 1,
+        ...(options?.message_thread_id !== undefined ? {message_thread_id: options.message_thread_id} : {})
+      }
+    })
+  }
+
+  /**
+   * Alias for `sendStoppedGeneration` (Bot API 10.3).
+   *
+   * @param options - Chat, draft, thread and response options
+   * @returns API calls made while processing this update
+   * @public
+   */
+  async sendStoppedMessageGeneration(options?: ITE2eUpdateOptions & {chat?: ITE2eChat; draft_id?: number; message_thread_id?: number}) {
+    return await this.sendStoppedGeneration(options)
+  }
+
+  /**
+   * Simulate a community chat joined service message (Bot API 10.3 `community_chat_joined`).
+   *
+   * @param options - User, chat and response options
+   * @returns API calls made while processing this update
+   * @public
+   */
+  async sendCommunityChatJoined(options?: ITE2eUpdateOptions & {community?: {id?: number; name?: string}}) {
+    return await this.handleUpdate(this._buildMessageUpdate({community_chat_joined: {community: options?.community ?? {id: 1, name: `Test Community`}}}, options))
+  }
+
+  /**
+   * Simulate a message containing `UniqueGiftInfo` fields (Bot API 10.3 `text/entities/is_private`).
+   *
+   * @param giftInfo - Gift info payload (gift, origin, text, entities, is_private)
+   * @param options - User, chat and response options
+   * @returns API calls made while processing this update
+   * @public
+   */
+  async sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITE2eUpdateOptions) {
+    return await this.handleUpdate(this._buildMessageUpdate({unique_gift: giftInfo}, options))
   }
 
   // ── stream helpers ────────────────────────────────────────────
