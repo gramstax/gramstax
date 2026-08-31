@@ -300,6 +300,36 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
         description: Array of captured Bot API responses.
+  - name: sendCommunityChatJoined(options)
+    uid: gramstax!MockTelegramServer#sendCommunityChatJoined:member(1)
+    package: gramstax!
+    fullName: sendCommunityChatJoined(options)
+    summary: Simulate a community chat joined service message (Bot API 10.3 `community_chat_joined`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        sendCommunityChatJoined(options?: ITMockTelegramUpdateOptions & {
+                community?: {
+                    id?: number;
+                    name?: string;
+                };
+            }): Promise<ITMockTelegramRequestRecord[]>;
+      parameters:
+        - id: options
+          description: User, chat and community options
+          type: |-
+            <xref uid="gramstax!ITMockTelegramUpdateOptions:type" /> & {
+                    community?: {
+                        id?: number;
+                        name?: string;
+                    };
+                }
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses
   - name: sendContact(options)
     uid: gramstax!MockTelegramServer#sendContact:member(1)
     package: gramstax!
@@ -336,6 +366,29 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
         description: Array of captured Bot API responses.
+  - name: sendGiftInfo(giftInfo, options)
+    uid: gramstax!MockTelegramServer#sendGiftInfo:member(1)
+    package: gramstax!
+    fullName: sendGiftInfo(giftInfo, options)
+    summary: Simulate a message containing `UniqueGiftInfo` fields (Bot API 10.3 `text/entities/is_private`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITMockTelegramUpdateOptions):
+        Promise<ITMockTelegramRequestRecord[]>;
+      parameters:
+        - id: giftInfo
+          description: Gift info payload
+          type: Record&lt;string, unknown&gt;
+        - id: options
+          description: User, chat and response options
+          type: <xref uid="gramstax!ITMockTelegramUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses
   - name: sendLocation(options)
     uid: gramstax!MockTelegramServer#sendLocation:member(1)
     package: gramstax!
@@ -390,6 +443,62 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
         description: Array of captured Bot API responses.
+  - name: sendStoppedGeneration(options)
+    uid: gramstax!MockTelegramServer#sendStoppedGeneration:member(1)
+    package: gramstax!
+    fullName: sendStoppedGeneration(options)
+    summary: Simulate a user stopping message generation (Bot API 10.3 `stopped_message_generation`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        sendStoppedGeneration(options?: ITMockTelegramUpdateOptions & {
+                chat?: ITMockTelegramChat;
+                draft_id?: number;
+                message_thread_id?: number;
+            }): Promise<ITMockTelegramRequestRecord[]>;
+      parameters:
+        - id: options
+          description: Chat, draft and thread options
+          type: |-
+            <xref uid="gramstax!ITMockTelegramUpdateOptions:type" /> & {
+                    chat?: <xref uid="gramstax!ITMockTelegramChat:type" />;
+                    draft_id?: number;
+                    message_thread_id?: number;
+                }
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses
+  - name: sendStoppedMessageGeneration(options)
+    uid: gramstax!MockTelegramServer#sendStoppedMessageGeneration:member(1)
+    package: gramstax!
+    fullName: sendStoppedMessageGeneration(options)
+    summary: Alias for `sendStoppedGeneration` (Bot API 10.3).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        sendStoppedMessageGeneration(options?: ITMockTelegramUpdateOptions & {
+                chat?: ITMockTelegramChat;
+                draft_id?: number;
+                message_thread_id?: number;
+            }): Promise<ITMockTelegramRequestRecord[]>;
+      parameters:
+        - id: options
+          description: Chat, draft and thread options
+          type: |-
+            <xref uid="gramstax!ITMockTelegramUpdateOptions:type" /> & {
+                    chat?: <xref uid="gramstax!ITMockTelegramChat:type" />;
+                    draft_id?: number;
+                    message_thread_id?: number;
+                }
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses
   - name: sendText(text, options)
     uid: gramstax!MockTelegramServer#sendText:member(1)
     package: gramstax!

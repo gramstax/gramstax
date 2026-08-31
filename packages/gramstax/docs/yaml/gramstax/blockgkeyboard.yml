@@ -1,31 +1,31 @@
 ### YamlMime:TSType
-name: BlockKeyboard
-uid: gramstax!BlockKeyboard:class
+name: BlockGKeyboard
+uid: gramstax!BlockGKeyboard:class
 package: gramstax!
-fullName: BlockKeyboard
-summary: Provides static methods for generating keyboard template blocks from `LabelKeyboard` definitions.
+fullName: BlockGKeyboard
+summary: Provides static methods for generating keyboard template blocks from `LabelGKeyboard` definitions.
 remarks: >-
-  This class generates HTML-like `<g-keyboard>` blocks for the template engine. Requires `LabelKeyboard` to be set via
-  [BlockKeyboard.label](xref:gramstax!BlockKeyboard.label:member) before using
-  [BlockKeyboard.\_build()](xref:gramstax!BlockKeyboard._build:member(1))<!-- -->.
+  This class generates HTML-like `<g-keyboard>` blocks for the template engine. Requires `LabelGKeyboard` to be set via
+  [BlockGKeyboard.label](xref:gramstax!BlockGKeyboard.label:member) before using
+  [BlockGKeyboard.\_build()](xref:gramstax!BlockGKeyboard._build:member(1))<!-- -->.
 example:
   - |-
     ```typescript
-    // blocks/keyboard.ts
-    import { BlockKeyboard, LabelKeyboard } from "gramstax";
+    // blocks/g-keyboard.ts
+    import { BlockGKeyboard, LabelGKeyboard } from "gramstax";
 
-    class KeyboardBlock extends BlockKeyboard {
-      static label = class extends LabelKeyboard {
+    class KeyboardGBlock extends BlockGKeyboard {
+      static label = class extends LabelGKeyboard {
         static backNext = {en: "Back, Next", id: "Kembali, Lanjut"}
       }
       static backNext = (lang?: string, type?: string) => this._build(`backNext`, lang, type)
     }
 
     // base/page.ts
-    import {KeyboardBlock} from "~/blocks/keyboard"
+    import {KeyboardGBlock} from "~/blocks/g-keyboard"
     export abstract class PageBase extends CtxCore {
-      static kbk = KeyboardBlock
-      static kbl = KeyboardBlock.label
+      static kbk = KeyboardGBlock
+      static kbl = KeyboardGBlock.label
     }
 
     // pages/some.ts
@@ -56,33 +56,33 @@ isDeprecated: false
 type: class
 properties:
   - name: label
-    uid: gramstax!BlockKeyboard.label:member
+    uid: gramstax!BlockGKeyboard.label:member
     package: gramstax!
     fullName: label
-    summary: Reference to the `LabelKeyboard` class containing keyboard definitions.
-    remarks: Must be set before using [BlockKeyboard.\_build()](xref:gramstax!BlockKeyboard._build:member(1))<!-- -->.
+    summary: Reference to the `LabelGKeyboard` class containing keyboard definitions.
+    remarks: Must be set before using [BlockGKeyboard.\_build()](xref:gramstax!BlockGKeyboard._build:member(1))<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
         /** @virtual */
-        static label: typeof LabelKeyboard;
+        static label: typeof LabelGKeyboard;
       return:
-        type: typeof <xref uid="gramstax!LabelKeyboard:class" />
+        type: typeof <xref uid="gramstax!LabelGKeyboard:class" />
 methods:
   - name: _build(key, lang, type, reverse)
-    uid: gramstax!BlockKeyboard._build:member(1)
+    uid: gramstax!BlockGKeyboard._build:member(1)
     package: gramstax!
     fullName: _build(key, lang, type, reverse)
-    summary: Build keyboard blocks by calling a method from the linked `LabelKeyboard`<!-- -->.
+    summary: Build keyboard blocks by calling a method from the linked `LabelGKeyboard`<!-- -->.
     remarks: ''
     example:
       - |-
         ```typescript
-        // Assuming BlockKeyboard.label = MyKeyboards with backNext() method
+        // Assuming BlockGKeyboard.label = MyKeyboards with backNext() method
 
-        const kbk = BlockKeyboard
+        const kbk = BlockGKeyboard
         kbk._build("backNext");
         // => '<g-keyboard type="inline" lang="en">Back, Next</g-keyboard> ...'
 
@@ -95,7 +95,7 @@ methods:
       content: 'static _build(key: string, lang?: string, type?: string, reverse?: boolean): string;'
       parameters:
         - id: key
-          description: Method name in LabelKeyboard. Must exist or throws.
+          description: Method name in LabelGKeyboard. Must exist or throws.
           type: string
         - id: lang
           description: Target language. If set, returns single language block.

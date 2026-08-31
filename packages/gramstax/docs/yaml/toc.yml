@@ -15,8 +15,8 @@ items:
             uid: gramstax!_KbCallbackData:type
           - name: _KbPageLike
             uid: gramstax!_KbPageLike:type
-          - name: BlockKeyboard
-            uid: gramstax!BlockKeyboard:class
+          - name: BlockGKeyboard
+            uid: gramstax!BlockGKeyboard:class
           - name: CacheExternal
             uid: gramstax!CacheExternal:class
           - name: Ctx
@@ -159,8 +159,8 @@ items:
             uid: gramstax!ITUpdateSuccessEvent:type
           - name: ITWebhookQueueConfig
             uid: gramstax!ITWebhookQueueConfig:type
-          - name: LabelKeyboard
-            uid: gramstax!LabelKeyboard:class
+          - name: LabelGKeyboard
+            uid: gramstax!LabelGKeyboard:class
           - name: LoggingHelper
             uid: gramstax!LoggingHelper:class
           - name: MetricsStore

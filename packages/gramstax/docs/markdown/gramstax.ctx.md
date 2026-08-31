@@ -145,6 +145,8 @@ Set&lt;string&gt;
 
 </td><td>
 
+Set of API methods whose responses are marked as "answered" (`temp.isAnswer = true`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -1291,6 +1293,36 @@ Clears session data for the current user.
 </td><td>
 
 Downloads the file attached to the current message.
+
+
+</td></tr>
+<tr><td>
+
+[ephemeralParams(receiverUserId, callbackQueryId, replace)](./gramstax.ctx.ephemeralparams.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Instance version of the static `ephemeralParams` method.
+
+
+</td></tr>
+<tr><td>
+
+[ephemeralParams(receiverUserId, callbackQueryId, replace)](./gramstax.ctx.ephemeralparams.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Build `EphemeralMessageParameters` for Bot API 10.3 ephemeral messages.
 
 
 </td></tr>
@@ -3270,6 +3302,20 @@ Session method key builder for `handleSessionFreeChosenInlineResult`<!-- -->.
 </td></tr>
 <tr><td>
 
+[methodSessionFreeCommunityChatJoined(name)](./gramstax.ctx.methodsessionfreecommunitychatjoined.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method key builder for `handleSessionFreeCommunityChatJoined`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [methodSessionFreeConnectedWebsite(name)](./gramstax.ctx.methodsessionfreeconnectedwebsite.md)
 
 
@@ -3811,6 +3857,20 @@ Session method key builder for `handleSessionFreeShippingQuery`<!-- -->.
 </td><td>
 
 Session method key builder for `handleSessionFreeSticker`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeStoppedGeneration(name)](./gramstax.ctx.methodsessionfreestoppedgeneration.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method key builder for `handleSessionFreeStoppedGeneration`<!-- -->.
 
 
 </td></tr>
@@ -5298,6 +5358,20 @@ Set the session method for `handleSessionFreeChosenInlineResult` routing.
 </td></tr>
 <tr><td>
 
+[setSessionFreeCommunityChatJoined(this, params)](./gramstax.ctx.setsessionfreecommunitychatjoined.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Set the session method for `handleSessionFreeCommunityChatJoined` routing.
+
+
+</td></tr>
+<tr><td>
+
 [setSessionFreeConnectedWebsite(this, params)](./gramstax.ctx.setsessionfreeconnectedwebsite.md)
 
 
@@ -5839,6 +5913,20 @@ Set the session method for `handleSessionFreeShippingQuery` routing.
 </td><td>
 
 Set the session method for `handleSessionFreeSticker` routing.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionFreeStoppedGeneration(this, params)](./gramstax.ctx.setsessionfreestoppedgeneration.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Set the session method for `handleSessionFreeStoppedGeneration` routing.
 
 
 </td></tr>

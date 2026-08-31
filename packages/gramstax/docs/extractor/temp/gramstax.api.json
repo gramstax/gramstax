@@ -819,24 +819,24 @@
         },
         {
           "kind": "Class",
-          "canonicalReference": "gramstax!BlockKeyboard:class",
-          "docComment": "/**\n * Provides static methods for generating keyboard template blocks from `LabelKeyboard` definitions.\n *\n * @remarks\n *\n * This class generates HTML-like `<g-keyboard>` blocks for the template engine. Requires `LabelKeyboard` to be set via {@link BlockKeyboard.label} before using {@link BlockKeyboard._build}.\n *\n * @example\n * ```typescript\n * // blocks/keyboard.ts\n * import { BlockKeyboard, LabelKeyboard } from \"gramstax\";\n *\n * class KeyboardBlock extends BlockKeyboard {\n *   static label = class extends LabelKeyboard {\n *     static backNext = {en: \"Back, Next\", id: \"Kembali, Lanjut\"}\n *   }\n *   static backNext = (lang?: string, type?: string) => this._build(`backNext`, lang, type)\n * }\n *\n * // base/page.ts\n * import {KeyboardBlock} from \"~/blocks/keyboard\"\n * export abstract class PageBase extends CtxCore {\n *   static kbk = KeyboardBlock\n *   static kbl = KeyboardBlock.label\n * }\n *\n * // pages/some.ts\n * import {PageBase} from \"~/base/page\"\n * export class SomePage extends PageBase {\n *   static template = `\n *     <g-base>\n *       ${this.kbk.backNext()}\n *       <g-message>Default message hello world</g-message>\n *     </g-base>\n *     <g-base id=\"others-id-1\">\n *       <g-message>Message from others id 1 with keyboard from base id default</g-message>\n *     </g-base>\n *     <g-base id=\"others-id-2\">\n *       <g-base>${this.kbk.backNext()}</g-base>\n *       <g-message>Message from others id 3 with keyboard in same base</g-message>\n *     </g-base>\n *   `\n * }\n *\n * // understanding example\n * this.kbk.backNext() // will show all language with block template\n * this.kbk.backNext(\"id\") // will show all language only (lang=\"id\") with block template\n * this.kbk.backNext(\"default\") // will show all language only (lang=\"default\" or without lang) with block template\n * ```\n *\n * @public\n */\n",
+          "canonicalReference": "gramstax!BlockGKeyboard:class",
+          "docComment": "/**\n * Provides static methods for generating keyboard template blocks from `LabelGKeyboard` definitions.\n *\n * @remarks\n *\n * This class generates HTML-like `<g-keyboard>` blocks for the template engine. Requires `LabelGKeyboard` to be set via {@link BlockGKeyboard.label} before using {@link BlockGKeyboard._build}.\n *\n * @example\n * ```typescript\n * // blocks/g-keyboard.ts\n * import { BlockGKeyboard, LabelGKeyboard } from \"gramstax\";\n *\n * class KeyboardGBlock extends BlockGKeyboard {\n *   static label = class extends LabelGKeyboard {\n *     static backNext = {en: \"Back, Next\", id: \"Kembali, Lanjut\"}\n *   }\n *   static backNext = (lang?: string, type?: string) => this._build(`backNext`, lang, type)\n * }\n *\n * // base/page.ts\n * import {KeyboardGBlock} from \"~/blocks/g-keyboard\"\n * export abstract class PageBase extends CtxCore {\n *   static kbk = KeyboardGBlock\n *   static kbl = KeyboardGBlock.label\n * }\n *\n * // pages/some.ts\n * import {PageBase} from \"~/base/page\"\n * export class SomePage extends PageBase {\n *   static template = `\n *     <g-base>\n *       ${this.kbk.backNext()}\n *       <g-message>Default message hello world</g-message>\n *     </g-base>\n *     <g-base id=\"others-id-1\">\n *       <g-message>Message from others id 1 with keyboard from base id default</g-message>\n *     </g-base>\n *     <g-base id=\"others-id-2\">\n *       <g-base>${this.kbk.backNext()}</g-base>\n *       <g-message>Message from others id 3 with keyboard in same base</g-message>\n *     </g-base>\n *   `\n * }\n *\n * // understanding example\n * this.kbk.backNext() // will show all language with block template\n * this.kbk.backNext(\"id\") // will show all language only (lang=\"id\") with block template\n * this.kbk.backNext(\"default\") // will show all language only (lang=\"default\" or without lang) with block template\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare class BlockKeyboard "
+              "text": "declare class BlockGKeyboard "
             }
           ],
           "fileUrlPath": "dist/src/index.d.ts",
           "releaseTag": "Public",
           "isAbstract": false,
-          "name": "BlockKeyboard",
+          "name": "BlockGKeyboard",
           "preserveMemberOrder": false,
           "members": [
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!BlockKeyboard._build:member(1)",
-              "docComment": "/**\n * Build keyboard blocks by calling a method from the linked `LabelKeyboard`.\n *\n * @param key - Method name in LabelKeyboard. Must exist or throws.\n *\n * @param lang - Target language. If set, returns single language block.\n *\n * @param type - Keyboard type. Values are `\"inline\"` or `\"bottom\"`. Defaults to `\"inline\"`.\n *\n * @param reverse - Reverse button order. If true, reverses comma-separated labels.\n *\n * @returns Keyboard block string.\n *\n * @throws\n *\n * Error if {@link BlockKeyboard.label} is not set.\n *\n * @throws\n *\n * Error if the specified method name does not exist in the label class.\n *\n * @example\n * ```typescript\n * // Assuming BlockKeyboard.label = MyKeyboards with backNext() method\n *\n * const kbk = BlockKeyboard\n * kbk._build(\"backNext\");\n * // => '<g-keyboard type=\"inline\" lang=\"en\">Back, Next</g-keyboard> ...'\n *\n * kbk._build(\"backNext\", \"en\", \"bottom\");\n * // => '<g-keyboard type=\"bottom\" lang=\"en\">Back, Next</g-keyboard>'\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!BlockGKeyboard._build:member(1)",
+              "docComment": "/**\n * Build keyboard blocks by calling a method from the linked `LabelGKeyboard`.\n *\n * @param key - Method name in LabelGKeyboard. Must exist or throws.\n *\n * @param lang - Target language. If set, returns single language block.\n *\n * @param type - Keyboard type. Values are `\"inline\"` or `\"bottom\"`. Defaults to `\"inline\"`.\n *\n * @param reverse - Reverse button order. If true, reverses comma-separated labels.\n *\n * @returns Keyboard block string.\n *\n * @throws\n *\n * Error if {@link BlockGKeyboard.label} is not set.\n *\n * @throws\n *\n * Error if the specified method name does not exist in the label class.\n *\n * @example\n * ```typescript\n * // Assuming BlockGKeyboard.label = MyKeyboards with backNext() method\n *\n * const kbk = BlockGKeyboard\n * kbk._build(\"backNext\");\n * // => '<g-keyboard type=\"inline\" lang=\"en\">Back, Next</g-keyboard> ...'\n *\n * kbk._build(\"backNext\", \"en\", \"bottom\");\n * // => '<g-keyboard type=\"bottom\" lang=\"en\">Back, Next</g-keyboard>'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -931,8 +931,8 @@
             },
             {
               "kind": "Property",
-              "canonicalReference": "gramstax!BlockKeyboard.label:member",
-              "docComment": "/**\n * Reference to the `LabelKeyboard` class containing keyboard definitions.\n *\n * @remarks\n *\n * Must be set before using {@link BlockKeyboard._build}.\n *\n * @virtual\n */\n",
+              "canonicalReference": "gramstax!BlockGKeyboard.label:member",
+              "docComment": "/**\n * Reference to the `LabelGKeyboard` class containing keyboard definitions.\n *\n * @remarks\n *\n * Must be set before using {@link BlockGKeyboard._build}.\n *\n * @virtual\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -944,8 +944,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "LabelKeyboard",
-                  "canonicalReference": "gramstax!LabelKeyboard:class"
+                  "text": "LabelGKeyboard",
+                  "canonicalReference": "gramstax!LabelGKeyboard:class"
                 },
                 {
                   "kind": "Content",
@@ -1343,7 +1343,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx.ANSWER_API_METHODS:member",
-              "docComment": "",
+              "docComment": "/**\n * Set of API methods whose responses are marked as \"answered\" (`temp.isAnswer = true`).\n *\n * @remarks\n *\n * Used internally by the context proxy to track whether the page has sent a meaningful reply. If none of these methods were called, the router may fall through to `no-match` handling.\n *\n * Includes all `send*`, `answer*`, `edit*`, `stop*`, `set*`, `forward*`, `copy*`, `pin*`, `unpin*`, and `delete*` methods.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2617,7 +2617,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#download:member(1)",
-              "docComment": "/**\n * Downloads the file attached to the current message.\n *\n * @remarks\n *\n * Requires the `@grammyjs/files` plugin (`hydrateFiles` — mounted by default in Gramstax). Without a path, the file is saved to a temporary location and its path is returned; with a path, the file is written there.\n *\n * @param path - Optional destination file path.\n *\n * @returns The saved file path.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Downloads the file attached to the current message.\n *\n * @remarks\n *\n * Requires the `@grammyjs/files` plugin (`hydrateFiles` — mounted by default in Gramstax). Without a path, the file is saved to a temporary location and its path is returned; with a path, the file is written there.\n *\n * **Security:** when `path` is supplied it must not contain NUL bytes or `..` path segments. Absolute or traversal-like values throw — keep downloads inside a dedicated directory (e.g. `os.tmpdir()` or `process.cwd()/downloads`) and pass only a `basename`-derived name when the name comes from user input. The no-arg form (tmp file) is always safe.\n *\n * @param path - Optional destination file path.\n *\n * @returns The saved file path.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2798,6 +2798,194 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#ephemeralParams:member(1)",
+              "docComment": "/**\n * Instance version of the static `ephemeralParams` method.\n *\n * @remarks\n *\n * Convenience shortcut so you can call `this.ephemeralParams(...)` inside a page handler instead of `Ctx.ephemeralParams(...)`.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.api.sendMessage(this.chatId, `Done`, {\n *     ephemeral_message_parameters: this.ephemeralParams(this.from?.id, this.callbackQuery?.id)\n *   })\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ephemeralParams(receiverUserId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", callbackQueryId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", replace?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "EphemeralMessageParameters",
+                  "canonicalReference": "@grammyjs/types!EphemeralMessageParameters:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "receiverUserId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "callbackQueryId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "replace",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "ephemeralParams"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx.ephemeralParams:member(1)",
+              "docComment": "/**\n * Build `EphemeralMessageParameters` for Bot API 10.3 ephemeral messages.\n *\n * @remarks\n *\n * Creates the `ephemeral_message_parameters` payload accepted by 13 send* methods plus `sendRichMessage`. Ephemeral messages are short-lived notifications sent directly to a user — they disappear after the user reads (or ignores) them and are not kept in the chat history.\n *\n * The deprecated shim also accepts the pre-10.3 snake_case object `{receiver_user_id, callback_query_id, ...}` and emits a `console.warn`.\n *\n * @param receiverUserId - Target user id, or a legacy object with snake_case keys.\n *\n * @param callbackQueryId - Callback query id that triggered the message (optional).\n *\n * @param replace - Pass `true` to show in place of the original message (optional).\n *\n * @returns The ephemeral parameters object, or `undefined` when no receiver is provided.\n *\n * @example\n *\n * Replace callback query message in place\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.api.sendMessage(this.chatId, `Order received!`, {\n *     ephemeral_message_parameters: this.ephemeralParams(this.from?.id, this.callbackQuery?.id, true)\n *   })\n * }\n * ```\n *\n * @example\n *\n * Legacy 10.2 snake_case object (warns once)\n * ```typescript\n * this.ephemeralParams({receiver_user_id: 123, callback_query_id: `cb_1`})\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static ephemeralParams(receiverUserId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", callbackQueryId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", replace?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "EphemeralMessageParameters",
+                  "canonicalReference": "@grammyjs/types!EphemeralMessageParameters:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "receiverUserId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "callbackQueryId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "replace",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "ephemeralParams"
             },
             {
               "kind": "Property",
@@ -9107,6 +9295,54 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#methodSessionFreeCommunityChatJoined:member(1)",
+              "docComment": "/**\n * Session method key builder for `handleSessionFreeCommunityChatJoined`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "methodSessionFreeCommunityChatJoined(name?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "name",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "methodSessionFreeCommunityChatJoined"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeConnectedWebsite:member(1)",
               "docComment": "/**\n * Session method key builder for `handleSessionFreeConnectedWebsite`.\n *\n * @remarks\n *\n * Low-level: prefer the typed {@link Ctx.setSessionFreeConnectedWebsite} helper. Used by session routing (id=1) to look up the active page for `handleSessionFreeConnectedWebsite`.\n *\n * @param name - Optional page name override (defaults to the page data name).\n *\n * @returns The prefixed session method key (e.g. `1-PageName`).\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -10976,6 +11212,54 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "methodSessionFreeSticker"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#methodSessionFreeStoppedGeneration:member(1)",
+              "docComment": "/**\n * Session method key builder for `handleSessionFreeStoppedGeneration`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "methodSessionFreeStoppedGeneration(name?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "name",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "methodSessionFreeStoppedGeneration"
             },
             {
               "kind": "Method",
@@ -20498,7 +20782,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderRich:member(1)",
-              "docComment": "/**\n * Sends a rich message reply using the page template.\n *\n * @remarks\n *\n * Uses `replyWithRichMessage` (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) to send structured rich text with headings, lists, tables, media, block quotations, collapsible blocks, footnotes, and formulas.\n *\n * The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`. Use the Bot API 10.2 Rich HTML tags in your template (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by {@link TemplateEngine.validateBlockGMessageRich}.\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).\n *\n * @param options2 - Optional send options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Rich message with template content\n *   await this.renderRich()\n *\n *   // With keyboard and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderRich(kb, {name: \"John\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a rich message reply using the page template.\n *\n * @remarks\n *\n * Uses `replyWithRichMessage` (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) to send structured rich text with headings, lists, tables, media, block quotations, collapsible blocks, footnotes, and formulas.\n *\n * The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`. Use the Bot API 10.3 Rich HTML tags in your template (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by {@link TemplateEngine.validateBlockGMessageRich}.\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).\n *\n * @param options2 - Optional send options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Rich message with template content\n *   await this.renderRich()\n *\n *   // With keyboard and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderRich(kb, {name: \"John\"})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25529,6 +25813,85 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeCommunityChatJoined:member(1)",
+              "docComment": "/**\n * Set the session method for `handleSessionFreeCommunityChatJoined` routing.\n *\n * @remarks\n *\n * Stores the key from {@link Ctx.methodSessionFreeCommunityChatJoined} via {@link Ctx.setSession}.\n *\n * @param params - Optional session parameters\n *\n * @returns The `setSession` result, or null when no user/chat id is available.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeCommunityChatJoined(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeCommunityChatJoined: (...args: unknown[]) => unknown;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "this",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeCommunityChatJoined"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeConnectedWebsite:member(1)",
               "docComment": "/**\n * Set the session method for `handleSessionFreeConnectedWebsite` routing.\n *\n * @remarks\n *\n * Stores the key from {@link Ctx.methodSessionFreeConnectedWebsite} via {@link Ctx.setSession}. Subsequent updates of the matching listener type dispatch to the page's `handleSessionFreeConnectedWebsite` handler (routing id=1) until the session is cleared.\n *\n * @param params - Optional session parameters stored alongside the method.\n *\n * @returns The `setSession` result, or null when no user/chat id is available.\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -28610,6 +28973,85 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeStoppedGeneration:member(1)",
+              "docComment": "/**\n * Set the session method for `handleSessionFreeStoppedGeneration` routing.\n *\n * @remarks\n *\n * Stores the key from {@link Ctx.methodSessionFreeStoppedGeneration} via {@link Ctx.setSession}.\n *\n * @param params - Optional session parameters\n *\n * @returns The `setSession` result, or null when no user/chat id is available.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeStoppedGeneration(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeStoppedGeneration: (...args: unknown[]) => unknown;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "this",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeStoppedGeneration"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeSuccessfulPayment:member(1)",
               "docComment": "/**\n * Set the session method for `handleSessionFreeSuccessfulPayment` routing.\n *\n * @remarks\n *\n * Stores the key from {@link Ctx.methodSessionFreeSuccessfulPayment} via {@link Ctx.setSession}. Subsequent updates of the matching listener type dispatch to the page's `handleSessionFreeSuccessfulPayment` handler (routing id=1) until the session is cleared.\n *\n * @param params - Optional session parameters stored alongside the method.\n *\n * @returns The `setSession` result, or null when no user/chat id is available.\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -31230,6 +31672,73 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!E2eHelper#sendCommunityChatJoined:member(1)",
+              "docComment": "/**\n * Simulate a community chat joined service message (Bot API 10.3 `community_chat_joined`).\n *\n * @param options - User, chat and response options\n *\n * @returns API calls made while processing this update\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendCommunityChatJoined(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eUpdateOptions",
+                  "canonicalReference": "gramstax!ITE2eUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        community?: {\n            id?: number;\n            name?: string;\n        };\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eApiCall",
+                  "canonicalReference": "gramstax!ITE2eApiCall:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 4,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendCommunityChatJoined"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!E2eHelper#sendContact:member(1)",
               "docComment": "/**\n * Simulate a user sending a contact message.\n *\n * @param options - Phone number, name, user, chat, and response options.\n *\n * @returns API calls made while processing this update.\n */\n",
               "excerptTokens": [
@@ -31495,6 +32004,90 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "sendEditedText"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!E2eHelper#sendGiftInfo:member(1)",
+              "docComment": "/**\n * Simulate a message containing `UniqueGiftInfo` fields (Bot API 10.3 `text/entities/is_private`).\n *\n * @param giftInfo - Gift info payload (gift, origin, text, entities, is_private)\n *\n * @param options - User, chat and response options\n *\n * @returns API calls made while processing this update\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendGiftInfo(giftInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eUpdateOptions",
+                  "canonicalReference": "gramstax!ITE2eUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eApiCall",
+                  "canonicalReference": "gramstax!ITE2eApiCall:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 10
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "giftInfo",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendGiftInfo"
             },
             {
               "kind": "Method",
@@ -31984,6 +32577,158 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "sendSticker"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!E2eHelper#sendStoppedGeneration:member(1)",
+              "docComment": "/**\n * Simulate a user stopping message generation (Bot API 10.3 `stopped_message_generation`).\n *\n * @param options - Chat, draft, thread and response options\n *\n * @returns API calls made while processing this update\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendStoppedGeneration(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eUpdateOptions",
+                  "canonicalReference": "gramstax!ITE2eUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        chat?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eChat",
+                  "canonicalReference": "gramstax!ITE2eChat:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        draft_id?: number;\n        message_thread_id?: number;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eApiCall",
+                  "canonicalReference": "gramstax!ITE2eApiCall:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 10
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendStoppedGeneration"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!E2eHelper#sendStoppedMessageGeneration:member(1)",
+              "docComment": "/**\n * Alias for `sendStoppedGeneration` (Bot API 10.3).\n *\n * @param options - Chat, draft, thread and response options\n *\n * @returns API calls made while processing this update\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendStoppedMessageGeneration(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eUpdateOptions",
+                  "canonicalReference": "gramstax!ITE2eUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        chat?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eChat",
+                  "canonicalReference": "gramstax!ITE2eChat:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        draft_id?: number;\n        message_thread_id?: number;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eApiCall",
+                  "canonicalReference": "gramstax!ITE2eApiCall:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 10
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendStoppedMessageGeneration"
             },
             {
               "kind": "Method",
@@ -32693,7 +33438,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#cacheKeyboard:member",
-              "docComment": "/**\n * In-memory cache for keyboard instances by language.\n *\n * @remarks\n *\n * Cached values are built from {@link BlockKeyboard} and reused per language.\n */\n",
+              "docComment": "/**\n * In-memory cache for keyboard instances by language.\n *\n * @remarks\n *\n * Cached values are built from {@link BlockGKeyboard} and reused per language.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -36646,24 +37391,24 @@
         },
         {
           "kind": "Class",
-          "canonicalReference": "gramstax!LabelKeyboard:class",
-          "docComment": "/**\n * Provides static utilities for keyboard data manipulation, specifically for reversing keyboard button order.\n *\n * @remarks\n *\n * Used as base class for user-defined keyboard data classes. Provides button order manipulation for multi-language keyboards.\n *\n * @example\n * ```typescript\n * import { LabelKeyboard } from \"gramstax\";\n *\n * export class KeyboardLabel extends LabelKeyboard {\n *   static home = {\n *     id: \"Rumah\",\n *     en: \"Home\"\n *   }\n *   static backNext = {\n *     id: \"Kembali, Lanjut\",\n *     en: \"Back, Next\"\n *   }\n *   static oneTwo = this._reverseObj({\n *     id: \"Satu, Dua\",\n *     en: \"One, Two\"\n *   })\n *   static threeFour = {\n *     id: this._reverse(\"Tiga, Empat\"),\n *     en: \"Three, Four\"\n *   }\n * }\n *\n * const kbl = KeyboardLabel\n * kbl.home.id // => \"Rumah\"\n * kbl.backNext.id // => \"Kembali, Lanjut\"\n * kbl.oneTwo.id // => \"Dua, Satu\"\n * kbl.oneTwo.en // => \"Two, One\"\n * kbl.threeFour.id // => \"Empat, Tiga\"\n * kbl.threeFour.en // => \"Three, Four\"\n * ```\n *\n * @public\n */\n",
+          "canonicalReference": "gramstax!LabelGKeyboard:class",
+          "docComment": "/**\n * Provides static utilities for keyboard data manipulation, specifically for reversing keyboard button order.\n *\n * @remarks\n *\n * Used as base class for user-defined keyboard data classes. Provides button order manipulation for multi-language keyboards.\n *\n * @example\n * ```typescript\n * import { LabelGKeyboard } from \"gramstax\";\n *\n * export class KeyboardGLabel extends LabelGKeyboard {\n *   static home = {\n *     id: \"Rumah\",\n *     en: \"Home\"\n *   }\n *   static backNext = {\n *     id: \"Kembali, Lanjut\",\n *     en: \"Back, Next\"\n *   }\n *   static oneTwo = this._reverseObj({\n *     id: \"Satu, Dua\",\n *     en: \"One, Two\"\n *   })\n *   static threeFour = {\n *     id: this._reverse(\"Tiga, Empat\"),\n *     en: \"Three, Four\"\n *   }\n * }\n *\n * const kbl = KeyboardGLabel\n * kbl.home.id // => \"Rumah\"\n * kbl.backNext.id // => \"Kembali, Lanjut\"\n * kbl.oneTwo.id // => \"Dua, Satu\"\n * kbl.oneTwo.en // => \"Two, One\"\n * kbl.threeFour.id // => \"Empat, Tiga\"\n * kbl.threeFour.en // => \"Three, Four\"\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare class LabelKeyboard "
+              "text": "declare class LabelGKeyboard "
             }
           ],
           "fileUrlPath": "dist/src/index.d.ts",
           "releaseTag": "Public",
           "isAbstract": false,
-          "name": "LabelKeyboard",
+          "name": "LabelGKeyboard",
           "preserveMemberOrder": false,
           "members": [
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LabelKeyboard._reverse:member(1)",
-              "docComment": "/**\n * Reverse the order of comma-separated button labels.\n *\n * @param input - Comma-separated button labels. Escaped commas (`\\,`) are preserved.\n *\n * @returns Reversed comma-separated labels.\n *\n * @example\n * ```typescript\n * const reversed = LabelKeyboard._reverse(\"Back, Next, Submit\");\n * // => \"Submit, Next, Back\"\n *\n * // Escaped commas are preserved\n * const preserved = LabelKeyboard._reverse(\"Option A\\\\, B, Option C\");\n * // => \"Option C, Option A\\\\, B\"\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LabelGKeyboard._reverse:member(1)",
+              "docComment": "/**\n * Reverse the order of comma-separated button labels.\n *\n * @param input - Comma-separated button labels. Escaped commas (`\\,`) are preserved.\n *\n * @returns Reversed comma-separated labels.\n *\n * @example\n * ```typescript\n * const reversed = LabelGKeyboard._reverse(\"Back, Next, Submit\");\n * // => \"Submit, Next, Back\"\n *\n * // Escaped commas are preserved\n * const preserved = LabelGKeyboard._reverse(\"Option A\\\\, B, Option C\");\n * // => \"Option C, Option A\\\\, B\"\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -36710,8 +37455,8 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LabelKeyboard._reverseObj:member(1)",
-              "docComment": "/**\n * Reverse button order for all languages in an object.\n *\n * @param input - Object with language keys and button values. Applies {@link LabelKeyboard._reverse} to each value.\n *\n * @returns Object with reversed labels.\n *\n * @example\n * ```typescript\n * const reversed = LabelKeyboard._reverseObj({\n *   en: \"Back, Next\",\n *   id: \"Kembali, Lanjut\",\n * });\n * // => { en: \"Next, Back\", id: \"Lanjut, Kembali\" }\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LabelGKeyboard._reverseObj:member(1)",
+              "docComment": "/**\n * Reverse button order for all languages in an object.\n *\n * @param input - Object with language keys and button values. Applies {@link LabelGKeyboard._reverse} to each value.\n *\n * @returns Object with reversed labels.\n *\n * @example\n * ```typescript\n * const reversed = LabelGKeyboard._reverseObj({\n *   en: \"Back, Next\",\n *   id: \"Kembali, Lanjut\",\n * });\n * // => { en: \"Next, Back\", id: \"Lanjut, Kembali\" }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -38186,6 +38931,73 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendCommunityChatJoined:member(1)",
+              "docComment": "/**\n * Simulate a community chat joined service message (Bot API 10.3 `community_chat_joined`).\n *\n * @param options - User, chat and community options\n *\n * @returns Array of captured Bot API responses\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendCommunityChatJoined(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramUpdateOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        community?: {\n            id?: number;\n            name?: string;\n        };\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 4,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendCommunityChatJoined"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!MockTelegramServer#sendContact:member(1)",
               "docComment": "/**\n * Simulate a user sending a contact message.\n *\n * @param options - Phone number, name, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -38309,6 +39121,90 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "sendDocument"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendGiftInfo:member(1)",
+              "docComment": "/**\n * Simulate a message containing `UniqueGiftInfo` fields (Bot API 10.3 `text/entities/is_private`).\n *\n * @param giftInfo - Gift info payload\n *\n * @param options - User, chat and response options\n *\n * @returns Array of captured Bot API responses\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendGiftInfo(giftInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramUpdateOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 10
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "giftInfo",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendGiftInfo"
             },
             {
               "kind": "Method",
@@ -38498,6 +39394,158 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "sendSticker"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendStoppedGeneration:member(1)",
+              "docComment": "/**\n * Simulate a user stopping message generation (Bot API 10.3 `stopped_message_generation`).\n *\n * @param options - Chat, draft and thread options\n *\n * @returns Array of captured Bot API responses\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendStoppedGeneration(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramUpdateOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        chat?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramChat",
+                  "canonicalReference": "gramstax!ITMockTelegramChat:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        draft_id?: number;\n        message_thread_id?: number;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 10
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendStoppedGeneration"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendStoppedMessageGeneration:member(1)",
+              "docComment": "/**\n * Alias for `sendStoppedGeneration` (Bot API 10.3).\n *\n * @param options - Chat, draft and thread options\n *\n * @returns Array of captured Bot API responses\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendStoppedMessageGeneration(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramUpdateOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        chat?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramChat",
+                  "canonicalReference": "gramstax!ITMockTelegramChat:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        draft_id?: number;\n        message_thread_id?: number;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 10
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendStoppedMessageGeneration"
             },
             {
               "kind": "Method",
@@ -40822,7 +41870,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine._TELEGRAM_ALLOWED_ATTRS:member",
-              "docComment": "/**\n * Per-tag allowlist of attribute names for Telegram Rich HTML tags.\n *\n * @remarks\n *\n * Single source of truth for the unknown-attribute validation pass ({@link TemplateEngine._validateTelegramTagUnknownAttributes}). Built from the official Telegram Bot API 10.2 rich HTML style examples (core.telegram.org/bots/api#rich-html-style) unioned with legacy parse_mode HTML attributes still tolerated (blockquote expandable, cite attributes, li checkbox/checked). Tags with an empty array allow NO attributes — any attribute on them is an error.\n *\n * `{{placeholder}}` is only valid as an attribute VALUE, never as a name. Generic HTML attributes (style, id, data-*) are not supported by the spec and are NOT whitelisted.\n *\n * @example\n * ```typescript\n * TemplateEngine._TELEGRAM_ALLOWED_ATTRS[\"table\"] // => [\"bordered\", \"striped\"]\n * TemplateEngine._TELEGRAM_ALLOWED_ATTRS[\"b\"]     // => [] (no attributes)\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Per-tag allowlist of attribute names for Telegram Rich HTML tags.\n *\n * @remarks\n *\n * Single source of truth for the unknown-attribute validation pass ({@link TemplateEngine._validateTelegramTagUnknownAttributes}). Built from the official Telegram Bot API 10.3 rich HTML style examples (core.telegram.org/bots/api#rich-html-style) unioned with legacy parse_mode HTML attributes still tolerated (blockquote expandable, cite attributes, li checkbox/checked). Tags with an empty array allow NO attributes — any attribute on them is an error.\n *\n * `{{placeholder}}` is only valid as an attribute VALUE, never as a name. Generic HTML attributes (style, id, data-*) are not supported by the spec and are NOT whitelisted.\n *\n * @example\n * ```typescript\n * TemplateEngine._TELEGRAM_ALLOWED_ATTRS[\"table\"] // => [\"bordered\", \"striped\"]\n * TemplateEngine._TELEGRAM_ALLOWED_ATTRS[\"b\"]     // => [] (no attributes)\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -40857,7 +41905,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS:member",
-              "docComment": "/**\n * Attribute value validators for Telegram Rich HTML tags.\n *\n * @remarks\n *\n * Per-tag, per-attribute map of validators. Each validator receives the raw attribute value (after quote-stripping) and returns either `null` (valid) or a descriptive error string. The value validation runs after the required-attribute check, so missing attributes are reported separately by {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}.\n *\n * Value rules follow the Telegram Bot API 10.2 Rich Message Formatting Options spec (see `BOT_API_VERSION`). `{{placeholder}}` values and boolean attributes (no `=value`) are skipped by the caller.\n *\n * @example\n * ```typescript\n * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS[\"tg-time\"].unix(\"1647531900\") // => null\n * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS[\"tg-time\"].unix(\"abc\")       // => \"unix must be a positive integer (got \\\"abc\\\")\"\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Attribute value validators for Telegram Rich HTML tags.\n *\n * @remarks\n *\n * Per-tag, per-attribute map of validators. Each validator receives the raw attribute value (after quote-stripping) and returns either `null` (valid) or a descriptive error string. The value validation runs after the required-attribute check, so missing attributes are reported separately by {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}.\n *\n * Value rules follow the Telegram Bot API 10.3 Rich Message Formatting Options spec (see `BOT_API_VERSION`). `{{placeholder}}` values and boolean attributes (no `=value`) are skipped by the caller.\n *\n * @example\n * ```typescript\n * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS[\"tg-time\"].unix(\"1647531900\") // => null\n * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS[\"tg-time\"].unix(\"abc\")       // => \"unix must be a positive integer (got \\\"abc\\\")\"\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

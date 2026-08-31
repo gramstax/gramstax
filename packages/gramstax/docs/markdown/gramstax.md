@@ -19,12 +19,12 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[BlockKeyboard](./gramstax.blockkeyboard.md)
+[BlockGKeyboard](./gramstax.blockgkeyboard.md)
 
 
 </td><td>
 
-Provides static methods for generating keyboard template blocks from `LabelKeyboard` definitions.
+Provides static methods for generating keyboard template blocks from `LabelGKeyboard` definitions.
 
 
 </td></tr>
@@ -74,7 +74,7 @@ Main bot framework class for building Telegram bots.
 </td></tr>
 <tr><td>
 
-[LabelKeyboard](./gramstax.labelkeyboard.md)
+[LabelGKeyboard](./gramstax.labelgkeyboard.md)
 
 
 </td><td>

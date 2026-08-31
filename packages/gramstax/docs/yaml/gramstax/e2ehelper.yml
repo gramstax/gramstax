@@ -349,6 +349,36 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
+  - name: sendCommunityChatJoined(options)
+    uid: gramstax!E2eHelper#sendCommunityChatJoined:member(1)
+    package: gramstax!
+    fullName: sendCommunityChatJoined(options)
+    summary: Simulate a community chat joined service message (Bot API 10.3 `community_chat_joined`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        sendCommunityChatJoined(options?: ITE2eUpdateOptions & {
+                community?: {
+                    id?: number;
+                    name?: string;
+                };
+            }): Promise<ITE2eApiCall[]>;
+      parameters:
+        - id: options
+          description: User, chat and response options
+          type: |-
+            <xref uid="gramstax!ITE2eUpdateOptions:type" /> & {
+                    community?: {
+                        id?: number;
+                        name?: string;
+                    };
+                }
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update
   - name: sendContact(options)
     uid: gramstax!E2eHelper#sendContact:member(1)
     package: gramstax!
@@ -424,6 +454,27 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
+  - name: sendGiftInfo(giftInfo, options)
+    uid: gramstax!E2eHelper#sendGiftInfo:member(1)
+    package: gramstax!
+    fullName: sendGiftInfo(giftInfo, options)
+    summary: Simulate a message containing `UniqueGiftInfo` fields (Bot API 10.3 `text/entities/is_private`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: giftInfo
+          description: Gift info payload (gift, origin, text, entities, is\_private)
+          type: Record&lt;string, unknown&gt;
+        - id: options
+          description: User, chat and response options
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update
   - name: sendInlineQuery(query, options)
     uid: gramstax!E2eHelper#sendInlineQuery:member(1)
     package: gramstax!
@@ -566,6 +617,62 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
+  - name: sendStoppedGeneration(options)
+    uid: gramstax!E2eHelper#sendStoppedGeneration:member(1)
+    package: gramstax!
+    fullName: sendStoppedGeneration(options)
+    summary: Simulate a user stopping message generation (Bot API 10.3 `stopped_message_generation`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        sendStoppedGeneration(options?: ITE2eUpdateOptions & {
+                chat?: ITE2eChat;
+                draft_id?: number;
+                message_thread_id?: number;
+            }): Promise<ITE2eApiCall[]>;
+      parameters:
+        - id: options
+          description: Chat, draft, thread and response options
+          type: |-
+            <xref uid="gramstax!ITE2eUpdateOptions:type" /> & {
+                    chat?: <xref uid="gramstax!ITE2eChat:type" />;
+                    draft_id?: number;
+                    message_thread_id?: number;
+                }
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update
+  - name: sendStoppedMessageGeneration(options)
+    uid: gramstax!E2eHelper#sendStoppedMessageGeneration:member(1)
+    package: gramstax!
+    fullName: sendStoppedMessageGeneration(options)
+    summary: Alias for `sendStoppedGeneration` (Bot API 10.3).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        sendStoppedMessageGeneration(options?: ITE2eUpdateOptions & {
+                chat?: ITE2eChat;
+                draft_id?: number;
+                message_thread_id?: number;
+            }): Promise<ITE2eApiCall[]>;
+      parameters:
+        - id: options
+          description: Chat, draft, thread and response options
+          type: |-
+            <xref uid="gramstax!ITE2eUpdateOptions:type" /> & {
+                    chat?: <xref uid="gramstax!ITE2eChat:type" />;
+                    draft_id?: number;
+                    message_thread_id?: number;
+                }
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update
   - name: sendText(text, options)
     uid: gramstax!E2eHelper#sendText:member(1)
     package: gramstax!

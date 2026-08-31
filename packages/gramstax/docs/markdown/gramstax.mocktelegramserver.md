@@ -398,6 +398,20 @@ Simulate a user pressing an inline keyboard button (callback query).
 </td></tr>
 <tr><td>
 
+[sendCommunityChatJoined(options)](./gramstax.mocktelegramserver.sendcommunitychatjoined.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Simulate a community chat joined service message (Bot API 10.3 `community_chat_joined`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
 [sendContact(options)](./gramstax.mocktelegramserver.sendcontact.md)
 
 
@@ -421,6 +435,20 @@ Simulate a user sending a contact message.
 </td><td>
 
 Simulate a user sending a document (file) message.
+
+
+</td></tr>
+<tr><td>
+
+[sendGiftInfo(giftInfo, options)](./gramstax.mocktelegramserver.sendgiftinfo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Simulate a message containing `UniqueGiftInfo` fields (Bot API 10.3 `text/entities/is_private`<!-- -->).
 
 
 </td></tr>
@@ -463,6 +491,34 @@ Simulate a user sending a photo message.
 </td><td>
 
 Simulate a user sending a sticker message.
+
+
+</td></tr>
+<tr><td>
+
+[sendStoppedGeneration(options)](./gramstax.mocktelegramserver.sendstoppedgeneration.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Simulate a user stopping message generation (Bot API 10.3 `stopped_message_generation`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[sendStoppedMessageGeneration(options)](./gramstax.mocktelegramserver.sendstoppedmessagegeneration.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Alias for `sendStoppedGeneration` (Bot API 10.3).
 
 
 </td></tr>

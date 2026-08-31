@@ -58,3 +58,5 @@ The saved file path.
 
 Requires the `@grammyjs/files` plugin (`hydrateFiles` — mounted by default in Gramstax). Without a path, the file is saved to a temporary location and its path is returned; with a path, the file is written there.
 
+\*\*Security:\*\* when `path` is supplied it must not contain NUL bytes or `..` path segments. Absolute or traversal-like values throw — keep downloads inside a dedicated directory (e.g. `os.tmpdir()` or `process.cwd()/downloads`<!-- -->) and pass only a `basename`<!-- -->-derived name when the name comes from user input. The no-arg form (tmp file) is always safe.
+

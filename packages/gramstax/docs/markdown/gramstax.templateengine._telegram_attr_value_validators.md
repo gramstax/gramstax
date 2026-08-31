@@ -16,7 +16,7 @@ static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: st
 
 Per-tag, per-attribute map of validators. Each validator receives the raw attribute value (after quote-stripping) and returns either `null` (valid) or a descriptive error string. The value validation runs after the required-attribute check, so missing attributes are reported separately by [TemplateEngine.\_TELEGRAM\_REQUIRED\_ATTRS](./gramstax.templateengine._telegram_required_attrs.md)<!-- -->.
 
-Value rules follow the Telegram Bot API 10.2 Rich Message Formatting Options spec (see `BOT_API_VERSION`<!-- -->). `{{placeholder}}` values and boolean attributes (no `=value`<!-- -->) are skipped by the caller.
+Value rules follow the Telegram Bot API 10.3 Rich Message Formatting Options spec (see `BOT_API_VERSION`<!-- -->). `{{placeholder}}` values and boolean attributes (no `=value`<!-- -->) are skipped by the caller.
 
 ## Example
 

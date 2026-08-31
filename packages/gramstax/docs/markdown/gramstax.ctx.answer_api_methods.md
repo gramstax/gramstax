@@ -4,8 +4,17 @@
 
 ## Ctx.ANSWER\_API\_METHODS property
 
+Set of API methods whose responses are marked as "answered" (`temp.isAnswer = true`<!-- -->).
+
 **Signature:**
 
 ```typescript
 static readonly ANSWER_API_METHODS: Set<string>;
 ```
+
+## Remarks
+
+Used internally by the context proxy to track whether the page has sent a meaningful reply. If none of these methods were called, the router may fall through to `no-match` handling.
+
+Includes all `send*`<!-- -->, `answer*`<!-- -->, `edit*`<!-- -->, `stop*`<!-- -->, `set*`<!-- -->, `forward*`<!-- -->, `copy*`<!-- -->, `pin*`<!-- -->, `unpin*`<!-- -->, and `delete*` methods.
+

@@ -162,7 +162,7 @@ properties:
     package: gramstax!
     fullName: cacheKeyboard
     summary: In-memory cache for keyboard instances by language.
-    remarks: Cached values are built from [BlockKeyboard](xref:gramstax!BlockKeyboard:class) and reused per language.
+    remarks: Cached values are built from [BlockGKeyboard](xref:gramstax!BlockGKeyboard:class) and reused per language.
     example: []
     isPreview: false
     isDeprecated: false

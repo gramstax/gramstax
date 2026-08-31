@@ -78,12 +78,12 @@ typeAliases:
   - gramstax!ITUpdateSuccessEvent:type
   - gramstax!ITWebhookQueueConfig:type
 classes:
-  - gramstax!BlockKeyboard:class
+  - gramstax!BlockGKeyboard:class
   - gramstax!CacheExternal:class
   - gramstax!Ctx:class
   - gramstax!E2eHelper:class
   - gramstax!Gramstax:class
-  - gramstax!LabelKeyboard:class
+  - gramstax!LabelGKeyboard:class
   - gramstax!LoggingHelper:class
   - gramstax!MetricsStore:class
   - gramstax!MockTelegramServer:class

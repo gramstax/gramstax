@@ -83,8 +83,14 @@ properties:
     uid: gramstax!Ctx.ANSWER_API_METHODS:member
     package: gramstax!
     fullName: ANSWER_API_METHODS
-    summary: ''
-    remarks: ''
+    summary: Set of API methods whose responses are marked as "answered" (`temp.isAnswer = true`<!-- -->).
+    remarks: >-
+      Used internally by the context proxy to track whether the page has sent a meaningful reply. If none of these
+      methods were called, the router may fall through to `no-match` handling.
+
+
+      Includes all `send*`<!-- -->, `answer*`<!-- -->, `edit*`<!-- -->, `stop*`<!-- -->, `set*`<!-- -->, `forward*`<!--
+      -->, `copy*`<!-- -->, `pin*`<!-- -->, `unpin*`<!-- -->, and `delete*` methods.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1145,6 +1151,12 @@ methods:
     remarks: >-
       Requires the `@grammyjs/files` plugin (`hydrateFiles` — mounted by default in Gramstax). Without a path, the file
       is saved to a temporary location and its path is returned; with a path, the file is written there.
+
+
+      \*\*Security:\*\* when `path` is supplied it must not contain NUL bytes or `..` path segments. Absolute or
+      traversal-like values throw — keep downloads inside a dedicated directory (e.g. `os.tmpdir()` or
+      `process.cwd()/downloads`<!-- -->) and pass only a `basename`<!-- -->-derived name when the name comes from user
+      input. The no-arg form (tmp file) is always safe.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1157,6 +1169,91 @@ methods:
       return:
         type: Promise&lt;string&gt;
         description: The saved file path.
+  - name: ephemeralParams(receiverUserId, callbackQueryId, replace)
+    uid: gramstax!Ctx#ephemeralParams:member(1)
+    package: gramstax!
+    fullName: ephemeralParams(receiverUserId, callbackQueryId, replace)
+    summary: Instance version of the static `ephemeralParams` method.
+    remarks: >-
+      Convenience shortcut so you can call `this.ephemeralParams(...)` inside a page handler instead of
+      `Ctx.ephemeralParams(...)`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        async handleCallbackQueryData() {
+          await this.api.sendMessage(this.chatId, `Done`, {
+            ephemeral_message_parameters: this.ephemeralParams(this.from?.id, this.callbackQuery?.id)
+          })
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        ephemeralParams(receiverUserId?: number | Record<string, unknown>, callbackQueryId?: string, replace?: boolean):
+        EphemeralMessageParameters | undefined;
+      parameters:
+        - id: receiverUserId
+          description: ''
+          type: number | Record&lt;string, unknown&gt;
+        - id: callbackQueryId
+          description: ''
+          type: string
+        - id: replace
+          description: ''
+          type: boolean
+      return:
+        type: <xref uid="@grammyjs/types!EphemeralMessageParameters:interface" /> | undefined
+        description: ''
+  - name: ephemeralParams(receiverUserId, callbackQueryId, replace)
+    uid: gramstax!Ctx.ephemeralParams:member(1)
+    package: gramstax!
+    fullName: ephemeralParams(receiverUserId, callbackQueryId, replace)
+    summary: Build `EphemeralMessageParameters` for Bot API 10.3 ephemeral messages.
+    remarks: >-
+      Creates the `ephemeral_message_parameters` payload accepted by 13 send\* methods plus `sendRichMessage`<!-- -->.
+      Ephemeral messages are short-lived notifications sent directly to a user — they disappear after the user reads (or
+      ignores) them and are not kept in the chat history.
+
+
+      The deprecated shim also accepts the pre-10.3 snake\_case object `{receiver_user_id, callback_query_id, ...}` and
+      emits a `console.warn`<!-- -->.
+    example:
+      - |-
+        Replace callback query message in place
+
+        ```typescript
+        async handleCallbackQueryData() {
+          await this.api.sendMessage(this.chatId, `Order received!`, {
+            ephemeral_message_parameters: this.ephemeralParams(this.from?.id, this.callbackQuery?.id, true)
+          })
+        }
+        ```
+      - |-
+        Legacy 10.2 snake\_case object (warns once)
+
+        ```typescript
+        this.ephemeralParams({receiver_user_id: 123, callback_query_id: `cb_1`})
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static ephemeralParams(receiverUserId?: number | Record<string, unknown>, callbackQueryId?: string, replace?:
+        boolean): EphemeralMessageParameters | undefined;
+      parameters:
+        - id: receiverUserId
+          description: Target user id, or a legacy object with snake\_case keys.
+          type: number | Record&lt;string, unknown&gt;
+        - id: callbackQueryId
+          description: Callback query id that triggered the message (optional).
+          type: string
+        - id: replace
+          description: Pass `true` to show in place of the original message (optional).
+          type: boolean
+      return:
+        type: <xref uid="@grammyjs/types!EphemeralMessageParameters:interface" /> | undefined
+        description: The ephemeral parameters object, or `undefined` when no receiver is provided.
   - name: getArgs(str, mtd, positionStart)
     uid: gramstax!Ctx#getArgs:member(1)
     package: gramstax!
@@ -4376,6 +4473,24 @@ methods:
       return:
         type: string
         description: The prefixed session method key (e.g. `1-PageName`<!-- -->).
+  - name: methodSessionFreeCommunityChatJoined(name)
+    uid: gramstax!Ctx#methodSessionFreeCommunityChatJoined:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeCommunityChatJoined(name)
+    summary: Session method key builder for `handleSessionFreeCommunityChatJoined`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeCommunityChatJoined(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
   - name: methodSessionFreeConnectedWebsite(name)
     uid: gramstax!Ctx#methodSessionFreeConnectedWebsite:member(1)
     package: gramstax!
@@ -5193,6 +5308,24 @@ methods:
       return:
         type: string
         description: The prefixed session method key (e.g. `1-PageName`<!-- -->).
+  - name: methodSessionFreeStoppedGeneration(name)
+    uid: gramstax!Ctx#methodSessionFreeStoppedGeneration:member(1)
+    package: gramstax!
+    fullName: methodSessionFreeStoppedGeneration(name)
+    summary: Session method key builder for `handleSessionFreeStoppedGeneration`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionFreeStoppedGeneration(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
   - name: methodSessionFreeSuccessfulPayment(name)
     uid: gramstax!Ctx#methodSessionFreeSuccessfulPayment:member(1)
     package: gramstax!
@@ -7479,7 +7612,7 @@ methods:
 
 
       The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`<!-- -->. Use
-      the Bot API 10.2 Rich HTML tags in your template (e.g. `<h1>`<!-- -->, `<table>`<!-- -->, `<blockquote>`<!-- -->)
+      the Bot API 10.3 Rich HTML tags in your template (e.g. `<h1>`<!-- -->, `<table>`<!-- -->, `<blockquote>`<!-- -->)
       — they are validated by
       [TemplateEngine.validateBlockGMessageRich()](xref:gramstax!TemplateEngine.validateBlockGMessageRich:member(1))<!--
       -->.
@@ -9227,6 +9360,36 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: The `setSession` result, or null when no user/chat id is available.
+  - name: setSessionFreeCommunityChatJoined(this, params)
+    uid: gramstax!Ctx#setSessionFreeCommunityChatJoined:member(1)
+    package: gramstax!
+    fullName: setSessionFreeCommunityChatJoined(this, params)
+    summary: Set the session method for `handleSessionFreeCommunityChatJoined` routing.
+    remarks: >-
+      Stores the key from
+      [Ctx.methodSessionFreeCommunityChatJoined()](xref:gramstax!Ctx%23methodSessionFreeCommunityChatJoined:member(1))
+      via [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1))<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeCommunityChatJoined(this: Ctx & {
+                handleSessionFreeCommunityChatJoined: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeCommunityChatJoined: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: Optional session parameters
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: The `setSession` result, or null when no user/chat id is available.
   - name: setSessionFreeConnectedWebsite(this, params)
     uid: gramstax!Ctx#setSessionFreeConnectedWebsite:member(1)
     package: gramstax!
@@ -10444,6 +10607,36 @@ methods:
                 }
         - id: params
           description: Optional session parameters stored alongside the method.
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: The `setSession` result, or null when no user/chat id is available.
+  - name: setSessionFreeStoppedGeneration(this, params)
+    uid: gramstax!Ctx#setSessionFreeStoppedGeneration:member(1)
+    package: gramstax!
+    fullName: setSessionFreeStoppedGeneration(this, params)
+    summary: Set the session method for `handleSessionFreeStoppedGeneration` routing.
+    remarks: >-
+      Stores the key from
+      [Ctx.methodSessionFreeStoppedGeneration()](xref:gramstax!Ctx%23methodSessionFreeStoppedGeneration:member(1)) via
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1))<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        setSessionFreeStoppedGeneration(this: Ctx & {
+                handleSessionFreeStoppedGeneration: (...args: unknown[]) => unknown;
+            }, params?: Record<string, unknown>): Promise<boolean | null>;
+      parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeStoppedGeneration: (...args: unknown[]) =&gt; unknown;
+                }
+        - id: params
+          description: Optional session parameters
           type: Record&lt;string, unknown&gt;
       return:
         type: Promise&lt;boolean | null&gt;

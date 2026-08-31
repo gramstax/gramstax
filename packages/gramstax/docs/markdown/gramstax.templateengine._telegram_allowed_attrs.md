@@ -14,7 +14,7 @@ static _TELEGRAM_ALLOWED_ATTRS: Record<string, readonly string[]>;
 
 ## Remarks
 
-Single source of truth for the unknown-attribute validation pass ([TemplateEngine.\_validateTelegramTagUnknownAttributes()](./gramstax.templateengine._validatetelegramtagunknownattributes.md)<!-- -->). Built from the official Telegram Bot API 10.2 rich HTML style examples (core.telegram.org/bots/api\#rich-html-style) unioned with legacy parse\_mode HTML attributes still tolerated (blockquote expandable, cite attributes, li checkbox/checked). Tags with an empty array allow NO attributes — any attribute on them is an error.
+Single source of truth for the unknown-attribute validation pass ([TemplateEngine.\_validateTelegramTagUnknownAttributes()](./gramstax.templateengine._validatetelegramtagunknownattributes.md)<!-- -->). Built from the official Telegram Bot API 10.3 rich HTML style examples (core.telegram.org/bots/api\#rich-html-style) unioned with legacy parse\_mode HTML attributes still tolerated (blockquote expandable, cite attributes, li checkbox/checked). Tags with an empty array allow NO attributes — any attribute on them is an error.
 
 `{{placeholder}}` is only valid as an attribute VALUE, never as a name. Generic HTML attributes (style, id, data-\*) are not supported by the spec and are NOT whitelisted.
 

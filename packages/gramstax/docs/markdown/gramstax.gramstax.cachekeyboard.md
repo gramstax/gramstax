@@ -14,5 +14,5 @@ cacheKeyboard: Map<string, unknown>;
 
 ## Remarks
 
-Cached values are built from [BlockKeyboard](./gramstax.blockkeyboard.md) and reused per language.
+Cached values are built from [BlockGKeyboard](./gramstax.blockgkeyboard.md) and reused per language.
 

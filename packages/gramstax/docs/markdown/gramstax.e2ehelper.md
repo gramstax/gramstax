@@ -310,6 +310,20 @@ Simulate a user choosing a result from an inline query.
 </td></tr>
 <tr><td>
 
+[sendCommunityChatJoined(options)](./gramstax.e2ehelper.sendcommunitychatjoined.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Simulate a community chat joined service message (Bot API 10.3 `community_chat_joined`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
 [sendContact(options)](./gramstax.e2ehelper.sendcontact.md)
 
 
@@ -361,6 +375,20 @@ Simulate a user sending a document (file) message.
 </td><td>
 
 Simulate an edited text message.
+
+
+</td></tr>
+<tr><td>
+
+[sendGiftInfo(giftInfo, options)](./gramstax.e2ehelper.sendgiftinfo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Simulate a message containing `UniqueGiftInfo` fields (Bot API 10.3 `text/entities/is_private`<!-- -->).
 
 
 </td></tr>
@@ -459,6 +487,34 @@ Simulate a poll update sent by the bot (used for poll answer testing).
 </td><td>
 
 Simulate a user sending a sticker message.
+
+
+</td></tr>
+<tr><td>
+
+[sendStoppedGeneration(options)](./gramstax.e2ehelper.sendstoppedgeneration.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Simulate a user stopping message generation (Bot API 10.3 `stopped_message_generation`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[sendStoppedMessageGeneration(options)](./gramstax.e2ehelper.sendstoppedmessagegeneration.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Alias for `sendStoppedGeneration` (Bot API 10.3).
 
 
 </td></tr>

@@ -10,6 +10,7 @@ import { BotConfig } from 'grammy';
 import { BotError } from 'grammy';
 import { ChokidarOptions } from 'chokidar';
 import { Context } from 'grammy';
+import { EphemeralMessageParameters } from 'grammy/types';
 import { FilterQuery } from 'grammy';
 import { FSWatcher } from 'chokidar';
 import * as grammy_types from 'grammy/types';
@@ -27,10 +28,10 @@ import { UserFromGetMe } from 'grammy/types';
 import { watch } from 'chokidar';
 
 // @public
-export class BlockKeyboard {
+export class BlockGKeyboard {
     static _build(key: string, lang?: string, type?: string, reverse?: boolean): string;
     // @virtual
-    static label: typeof LabelKeyboard;
+    static label: typeof LabelGKeyboard;
 }
 
 // @public
@@ -56,7 +57,6 @@ export type _CtorOf<P extends Ctx> = typeof Ctx & {
 export class Ctx extends Context {
     constructor(params: ITCtxParams);
     addArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], pld: Array<string | undefined>): string;
-    // (undocumented)
     static readonly ANSWER_API_METHODS: Set<string>;
     // @internal
     static readonly _answerApiGuard: WeakSet<object>;
@@ -89,6 +89,8 @@ export class Ctx extends Context {
     get editedBusinessMessage(): NonNullable<Context[`editedBusinessMessage`]>;
     get editedChannelPost(): NonNullable<Context[`editedChannelPost`]>;
     get editedMessage(): NonNullable<Context[`editedMessage`]>;
+    static ephemeralParams(receiverUserId?: number | Record<string, unknown>, callbackQueryId?: string, replace?: boolean): EphemeralMessageParameters | undefined;
+    ephemeralParams(receiverUserId?: number | Record<string, unknown>, callbackQueryId?: string, replace?: boolean): EphemeralMessageParameters | undefined;
     get from(): NonNullable<Context[`from`]>;
     get fromFullName(): string;
     getArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], positionStart?: number): string[];
@@ -292,6 +294,7 @@ export class Ctx extends Context {
     methodSessionFreeChatJoinRequest(name?: string): string;
     methodSessionFreeChatShared(name?: string): string;
     methodSessionFreeChosenInlineResult(name?: string): string;
+    methodSessionFreeCommunityChatJoined(name?: string): string;
     methodSessionFreeConnectedWebsite(name?: string): string;
     methodSessionFreeContact(name?: string): string;
     methodSessionFreeDeleteChatPhoto(name?: string): string;
@@ -331,6 +334,7 @@ export class Ctx extends Context {
     methodSessionFreeRemovedChatBoost(name?: string): string;
     methodSessionFreeShippingQuery(name?: string): string;
     methodSessionFreeSticker(name?: string): string;
+    methodSessionFreeStoppedGeneration(name?: string): string;
     methodSessionFreeSuccessfulPayment(name?: string): string;
     methodSessionFreeSupergroupChatCreated(name?: string): string;
     methodSessionFreeText(name?: string): string;
@@ -558,6 +562,9 @@ export class Ctx extends Context {
     setSessionFreeChosenInlineResult(this: Ctx & {
         handleSessionFreeChosenInlineResult: (...args: unknown[]) => unknown;
     }, params?: Record<string, unknown>): Promise<boolean | null>;
+    setSessionFreeCommunityChatJoined(this: Ctx & {
+        handleSessionFreeCommunityChatJoined: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeConnectedWebsite(this: Ctx & {
         handleSessionFreeConnectedWebsite: (...args: unknown[]) => unknown;
     }, params?: Record<string, unknown>): Promise<boolean | null>;
@@ -675,6 +682,9 @@ export class Ctx extends Context {
     setSessionFreeSticker(this: Ctx & {
         handleSessionFreeSticker: (...args: unknown[]) => unknown;
     }, params?: Record<string, unknown>): Promise<boolean | null>;
+    setSessionFreeStoppedGeneration(this: Ctx & {
+        handleSessionFreeStoppedGeneration: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeSuccessfulPayment(this: Ctx & {
         handleSessionFreeSuccessfulPayment: (...args: unknown[]) => unknown;
     }, params?: Record<string, unknown>): Promise<boolean | null>;
@@ -753,10 +763,17 @@ export class E2eHelper {
     sendChannelPost(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendChatMemberUpdate(options?: ITE2eChatMemberOptions): Promise<ITE2eApiCall[]>;
     sendChosenInlineResult(resultId: string, query: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
+    sendCommunityChatJoined(options?: ITE2eUpdateOptions & {
+        community?: {
+            id?: number;
+            name?: string;
+        };
+    }): Promise<ITE2eApiCall[]>;
     sendContact(options?: ITE2eContactOptions): Promise<ITE2eApiCall[]>;
     sendDice(options?: ITE2eDiceOptions): Promise<ITE2eApiCall[]>;
     sendDocument(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
     sendEditedText(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
+    sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendInlineQuery(query: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendLocation(options?: ITE2eLocationOptions): Promise<ITE2eApiCall[]>;
     sendMyChatMemberUpdate(options?: ITE2eChatMemberOptions): Promise<ITE2eApiCall[]>;
@@ -764,6 +781,16 @@ export class E2eHelper {
     sendPhoto(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
     sendPollAnswer(pollId: string, optionIds: number[], options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendSticker(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
+    sendStoppedGeneration(options?: ITE2eUpdateOptions & {
+        chat?: ITE2eChat;
+        draft_id?: number;
+        message_thread_id?: number;
+    }): Promise<ITE2eApiCall[]>;
+    sendStoppedMessageGeneration(options?: ITE2eUpdateOptions & {
+        chat?: ITE2eChat;
+        draft_id?: number;
+        message_thread_id?: number;
+    }): Promise<ITE2eApiCall[]>;
     sendText(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendVideo(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
     sendVideoNote(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
@@ -771,6 +798,8 @@ export class E2eHelper {
     streamCalls(): ITE2eApiCall[];
     streamChunks(): string[];
 }
+
+export { EphemeralMessageParameters }
 
 // @public
 export class Gramstax<ICtx extends Ctx = Ctx> {
@@ -1282,6 +1311,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 name: string;
                 routeName: string;
             }>;
+            handleSessionFreeCommunityChatJoined: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeStoppedGeneration: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
         };
         routeChatMember: Array<{
             name: string;
@@ -1295,8 +1332,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         routeCustom: ITCustomRouteEntry_2[];
         listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
         listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
-        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember", "handleSessionFreeBusinessConnection", "handleSessionFreeBusinessMessage", "handleSessionFreeEditedBusinessMessage", "handleSessionFreeDeletedBusinessMessages", "handleSessionFreeMessageReactionCount", "handleSessionFreeChatBoost", "handleSessionFreeRemovedChatBoost", "handleSessionFreeSuccessfulPayment", "handleSessionFreeRefundedPayment", "handleSessionFreeGroupChatCreated", "handleSessionFreeSupergroupChatCreated", "handleSessionFreeChannelChatCreated", "handleSessionFreeVideoChatStarted", "handleSessionFreeVideoChatScheduled", "handleSessionFreeVideoChatEnded", "handleSessionFreeVideoChatParticipantsInvited", "handleSessionFreeUserShared", "handleSessionFreeChatShared", "handleSessionFreeWebAppData", "handleSessionFreeGiveaway", "handleSessionFreeGiveawayCreated", "handleSessionFreeGiveawayWinners", "handleSessionFreeGiveawayCompleted", "handleSessionFreePinMessage", "handleSessionFreeForumTopicCreated", "handleSessionFreeForumTopicEdited", "handleSessionFreeForumTopicClosed", "handleSessionFreeForumTopicReopened", "handleSessionFreeGeneralForumTopicHidden", "handleSessionFreeGeneralForumTopicUnhidden", "handleSessionFreeProximityAlertTriggered", "handleSessionFreeConnectedWebsite", "handleSessionFreePassportData", "handleSessionFreeMessageAutoDeleteTimerChanged", "handleSessionFreeChatBackgroundSet", "handleSessionFreeNewChatTitle", "handleSessionFreeNewChatPhoto", "handleSessionFreeDeleteChatPhoto", "handleSessionFreeWriteAccessAllowed"];
-        listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember", "handleFreeBusinessConnection", "handleFreeBusinessMessage", "handleFreeEditedBusinessMessage", "handleFreeDeletedBusinessMessages", "handleFreeMessageReactionCount", "handleFreeChatBoost", "handleFreeRemovedChatBoost", "handleFreeSuccessfulPayment", "handleFreeRefundedPayment", "handleFreeGroupChatCreated", "handleFreeSupergroupChatCreated", "handleFreeChannelChatCreated", "handleFreeVideoChatStarted", "handleFreeVideoChatScheduled", "handleFreeVideoChatEnded", "handleFreeVideoChatParticipantsInvited", "handleFreeUserShared", "handleFreeChatShared", "handleFreeWebAppData", "handleFreeGiveaway", "handleFreeGiveawayCreated", "handleFreeGiveawayWinners", "handleFreeGiveawayCompleted", "handleFreePinMessage", "handleFreeForumTopicCreated", "handleFreeForumTopicEdited", "handleFreeForumTopicClosed", "handleFreeForumTopicReopened", "handleFreeGeneralForumTopicHidden", "handleFreeGeneralForumTopicUnhidden", "handleFreeProximityAlertTriggered", "handleFreeConnectedWebsite", "handleFreePassportData", "handleFreeMessageAutoDeleteTimerChanged", "handleFreeChatBackgroundSet", "handleFreeNewChatTitle", "handleFreeNewChatPhoto", "handleFreeDeleteChatPhoto", "handleFreeWriteAccessAllowed"];
+        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember", "handleSessionFreeBusinessConnection", "handleSessionFreeBusinessMessage", "handleSessionFreeEditedBusinessMessage", "handleSessionFreeDeletedBusinessMessages", "handleSessionFreeMessageReactionCount", "handleSessionFreeChatBoost", "handleSessionFreeRemovedChatBoost", "handleSessionFreeSuccessfulPayment", "handleSessionFreeRefundedPayment", "handleSessionFreeGroupChatCreated", "handleSessionFreeSupergroupChatCreated", "handleSessionFreeChannelChatCreated", "handleSessionFreeVideoChatStarted", "handleSessionFreeVideoChatScheduled", "handleSessionFreeVideoChatEnded", "handleSessionFreeVideoChatParticipantsInvited", "handleSessionFreeUserShared", "handleSessionFreeChatShared", "handleSessionFreeWebAppData", "handleSessionFreeGiveaway", "handleSessionFreeGiveawayCreated", "handleSessionFreeGiveawayWinners", "handleSessionFreeGiveawayCompleted", "handleSessionFreePinMessage", "handleSessionFreeForumTopicCreated", "handleSessionFreeForumTopicEdited", "handleSessionFreeForumTopicClosed", "handleSessionFreeForumTopicReopened", "handleSessionFreeGeneralForumTopicHidden", "handleSessionFreeGeneralForumTopicUnhidden", "handleSessionFreeProximityAlertTriggered", "handleSessionFreeConnectedWebsite", "handleSessionFreePassportData", "handleSessionFreeMessageAutoDeleteTimerChanged", "handleSessionFreeChatBackgroundSet", "handleSessionFreeNewChatTitle", "handleSessionFreeNewChatPhoto", "handleSessionFreeDeleteChatPhoto", "handleSessionFreeWriteAccessAllowed", "handleSessionFreeCommunityChatJoined", "handleSessionFreeStoppedGeneration"];
+        listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember", "handleFreeBusinessConnection", "handleFreeBusinessMessage", "handleFreeEditedBusinessMessage", "handleFreeDeletedBusinessMessages", "handleFreeMessageReactionCount", "handleFreeChatBoost", "handleFreeRemovedChatBoost", "handleFreeSuccessfulPayment", "handleFreeRefundedPayment", "handleFreeGroupChatCreated", "handleFreeSupergroupChatCreated", "handleFreeChannelChatCreated", "handleFreeVideoChatStarted", "handleFreeVideoChatScheduled", "handleFreeVideoChatEnded", "handleFreeVideoChatParticipantsInvited", "handleFreeUserShared", "handleFreeChatShared", "handleFreeWebAppData", "handleFreeGiveaway", "handleFreeGiveawayCreated", "handleFreeGiveawayWinners", "handleFreeGiveawayCompleted", "handleFreePinMessage", "handleFreeForumTopicCreated", "handleFreeForumTopicEdited", "handleFreeForumTopicClosed", "handleFreeForumTopicReopened", "handleFreeGeneralForumTopicHidden", "handleFreeGeneralForumTopicUnhidden", "handleFreeProximityAlertTriggered", "handleFreeConnectedWebsite", "handleFreePassportData", "handleFreeMessageAutoDeleteTimerChanged", "handleFreeChatBackgroundSet", "handleFreeNewChatTitle", "handleFreeNewChatPhoto", "handleFreeDeleteChatPhoto", "handleFreeWriteAccessAllowed", "handleFreeCommunityChatJoined", "handleFreeStoppedGeneration"];
         listRouteStaticLC: string[];
         listRouteStaticIntentLC: string[];
         listRouteStaticSessionLC: string[];
@@ -1308,7 +1345,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         lenListRouteStatic: 15;
         lenListRouteStaticIntent: 15;
         lenListRouteStaticSession: number;
-        lenListRouteDynamicSpesific: 63;
+        lenListRouteDynamicSpesific: 65;
         hasSessionRoutes: boolean;
     };
     cacheKeyboard: Map<string, unknown>;
@@ -1901,6 +1938,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 name: string;
                 routeName: string;
             }>;
+            handleSessionFreeCommunityChatJoined: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeStoppedGeneration: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
         };
         routeChatMember: Array<{
             name: string;
@@ -1914,8 +1959,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         routeCustom: ITCustomRouteEntry_2[];
         listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
         listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
-        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember", "handleSessionFreeBusinessConnection", "handleSessionFreeBusinessMessage", "handleSessionFreeEditedBusinessMessage", "handleSessionFreeDeletedBusinessMessages", "handleSessionFreeMessageReactionCount", "handleSessionFreeChatBoost", "handleSessionFreeRemovedChatBoost", "handleSessionFreeSuccessfulPayment", "handleSessionFreeRefundedPayment", "handleSessionFreeGroupChatCreated", "handleSessionFreeSupergroupChatCreated", "handleSessionFreeChannelChatCreated", "handleSessionFreeVideoChatStarted", "handleSessionFreeVideoChatScheduled", "handleSessionFreeVideoChatEnded", "handleSessionFreeVideoChatParticipantsInvited", "handleSessionFreeUserShared", "handleSessionFreeChatShared", "handleSessionFreeWebAppData", "handleSessionFreeGiveaway", "handleSessionFreeGiveawayCreated", "handleSessionFreeGiveawayWinners", "handleSessionFreeGiveawayCompleted", "handleSessionFreePinMessage", "handleSessionFreeForumTopicCreated", "handleSessionFreeForumTopicEdited", "handleSessionFreeForumTopicClosed", "handleSessionFreeForumTopicReopened", "handleSessionFreeGeneralForumTopicHidden", "handleSessionFreeGeneralForumTopicUnhidden", "handleSessionFreeProximityAlertTriggered", "handleSessionFreeConnectedWebsite", "handleSessionFreePassportData", "handleSessionFreeMessageAutoDeleteTimerChanged", "handleSessionFreeChatBackgroundSet", "handleSessionFreeNewChatTitle", "handleSessionFreeNewChatPhoto", "handleSessionFreeDeleteChatPhoto", "handleSessionFreeWriteAccessAllowed"];
-        listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember", "handleFreeBusinessConnection", "handleFreeBusinessMessage", "handleFreeEditedBusinessMessage", "handleFreeDeletedBusinessMessages", "handleFreeMessageReactionCount", "handleFreeChatBoost", "handleFreeRemovedChatBoost", "handleFreeSuccessfulPayment", "handleFreeRefundedPayment", "handleFreeGroupChatCreated", "handleFreeSupergroupChatCreated", "handleFreeChannelChatCreated", "handleFreeVideoChatStarted", "handleFreeVideoChatScheduled", "handleFreeVideoChatEnded", "handleFreeVideoChatParticipantsInvited", "handleFreeUserShared", "handleFreeChatShared", "handleFreeWebAppData", "handleFreeGiveaway", "handleFreeGiveawayCreated", "handleFreeGiveawayWinners", "handleFreeGiveawayCompleted", "handleFreePinMessage", "handleFreeForumTopicCreated", "handleFreeForumTopicEdited", "handleFreeForumTopicClosed", "handleFreeForumTopicReopened", "handleFreeGeneralForumTopicHidden", "handleFreeGeneralForumTopicUnhidden", "handleFreeProximityAlertTriggered", "handleFreeConnectedWebsite", "handleFreePassportData", "handleFreeMessageAutoDeleteTimerChanged", "handleFreeChatBackgroundSet", "handleFreeNewChatTitle", "handleFreeNewChatPhoto", "handleFreeDeleteChatPhoto", "handleFreeWriteAccessAllowed"];
+        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember", "handleSessionFreeBusinessConnection", "handleSessionFreeBusinessMessage", "handleSessionFreeEditedBusinessMessage", "handleSessionFreeDeletedBusinessMessages", "handleSessionFreeMessageReactionCount", "handleSessionFreeChatBoost", "handleSessionFreeRemovedChatBoost", "handleSessionFreeSuccessfulPayment", "handleSessionFreeRefundedPayment", "handleSessionFreeGroupChatCreated", "handleSessionFreeSupergroupChatCreated", "handleSessionFreeChannelChatCreated", "handleSessionFreeVideoChatStarted", "handleSessionFreeVideoChatScheduled", "handleSessionFreeVideoChatEnded", "handleSessionFreeVideoChatParticipantsInvited", "handleSessionFreeUserShared", "handleSessionFreeChatShared", "handleSessionFreeWebAppData", "handleSessionFreeGiveaway", "handleSessionFreeGiveawayCreated", "handleSessionFreeGiveawayWinners", "handleSessionFreeGiveawayCompleted", "handleSessionFreePinMessage", "handleSessionFreeForumTopicCreated", "handleSessionFreeForumTopicEdited", "handleSessionFreeForumTopicClosed", "handleSessionFreeForumTopicReopened", "handleSessionFreeGeneralForumTopicHidden", "handleSessionFreeGeneralForumTopicUnhidden", "handleSessionFreeProximityAlertTriggered", "handleSessionFreeConnectedWebsite", "handleSessionFreePassportData", "handleSessionFreeMessageAutoDeleteTimerChanged", "handleSessionFreeChatBackgroundSet", "handleSessionFreeNewChatTitle", "handleSessionFreeNewChatPhoto", "handleSessionFreeDeleteChatPhoto", "handleSessionFreeWriteAccessAllowed", "handleSessionFreeCommunityChatJoined", "handleSessionFreeStoppedGeneration"];
+        listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember", "handleFreeBusinessConnection", "handleFreeBusinessMessage", "handleFreeEditedBusinessMessage", "handleFreeDeletedBusinessMessages", "handleFreeMessageReactionCount", "handleFreeChatBoost", "handleFreeRemovedChatBoost", "handleFreeSuccessfulPayment", "handleFreeRefundedPayment", "handleFreeGroupChatCreated", "handleFreeSupergroupChatCreated", "handleFreeChannelChatCreated", "handleFreeVideoChatStarted", "handleFreeVideoChatScheduled", "handleFreeVideoChatEnded", "handleFreeVideoChatParticipantsInvited", "handleFreeUserShared", "handleFreeChatShared", "handleFreeWebAppData", "handleFreeGiveaway", "handleFreeGiveawayCreated", "handleFreeGiveawayWinners", "handleFreeGiveawayCompleted", "handleFreePinMessage", "handleFreeForumTopicCreated", "handleFreeForumTopicEdited", "handleFreeForumTopicClosed", "handleFreeForumTopicReopened", "handleFreeGeneralForumTopicHidden", "handleFreeGeneralForumTopicUnhidden", "handleFreeProximityAlertTriggered", "handleFreeConnectedWebsite", "handleFreePassportData", "handleFreeMessageAutoDeleteTimerChanged", "handleFreeChatBackgroundSet", "handleFreeNewChatTitle", "handleFreeNewChatPhoto", "handleFreeDeleteChatPhoto", "handleFreeWriteAccessAllowed", "handleFreeCommunityChatJoined", "handleFreeStoppedGeneration"];
         listRouteStaticLC: string[];
         listRouteStaticIntentLC: string[];
         listRouteStaticSessionLC: string[];
@@ -1927,7 +1972,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         lenListRouteStatic: 15;
         lenListRouteStaticIntent: 15;
         lenListRouteStaticSession: number;
-        lenListRouteDynamicSpesific: 63;
+        lenListRouteDynamicSpesific: 65;
         hasSessionRoutes: boolean;
     };
     _pageRoutes(ctx: ICtx, fromListener: string): Promise<{
@@ -2474,7 +2519,7 @@ export type _KbCallbackDataCheck<D extends _KbCallbackData<typeof Ctx, Array<str
 export type _KbPageLike = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]);
 
 // @public
-export class LabelKeyboard {
+export class LabelGKeyboard {
     static _reverse(input: string): string;
     static _reverseObj<T extends Record<string, string>>(input: T): T;
 }
@@ -2554,11 +2599,28 @@ export class MockTelegramServer {
     sendAnimation(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendAudio(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendCallbackQuery(data: string, options?: ITMockTelegramCallbackQueryOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendCommunityChatJoined(options?: ITMockTelegramUpdateOptions & {
+        community?: {
+            id?: number;
+            name?: string;
+        };
+    }): Promise<ITMockTelegramRequestRecord[]>;
     sendContact(options?: ITMockTelegramContactOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendDocument(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendLocation(options?: ITMockTelegramLocationOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendPhoto(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendSticker(options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendStoppedGeneration(options?: ITMockTelegramUpdateOptions & {
+        chat?: ITMockTelegramChat;
+        draft_id?: number;
+        message_thread_id?: number;
+    }): Promise<ITMockTelegramRequestRecord[]>;
+    sendStoppedMessageGeneration(options?: ITMockTelegramUpdateOptions & {
+        chat?: ITMockTelegramChat;
+        draft_id?: number;
+        message_thread_id?: number;
+    }): Promise<ITMockTelegramRequestRecord[]>;
     sendText(text: string, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendVideo(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendVideoNote(options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
@@ -2967,10 +3029,10 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:1437:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:4169:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
-// dist/src/index.d.ts:12952:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:13897:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:1326:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:4058:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
+// dist/src/index.d.ts:13117:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:14070:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
