@@ -16,7 +16,7 @@ export class ItemRepository {
     return `${userId}:`
   }
 
-  async create(userId: number, title: string, description: string): Promise<IVItem> {
+  async create(userId: number, title: string, description: string) {
     return this.env.owner.transaction(async (tx) => {
       this.seq.ensure(userId)
       const id = await this.seq.nextId(userId)
@@ -28,7 +28,7 @@ export class ItemRepository {
     })
   }
 
-  async remove(userId: number, id: string): Promise<boolean> {
+  async remove(userId: number, id: string) {
     return this.env.owner.transaction(async (tx) => {
       const existed = await this.env.delete(this.key(userId, id), tx)
       if (existed) await this.seq.decrCount(userId)
@@ -46,11 +46,11 @@ export class ItemRepository {
     })
   }
 
-  async total(userId: number): Promise<number> {
+  async total(userId: number) {
     return this.seq.total(userId)
   }
 
-  async list(userId: number, options?: {limit?: number; offset?: number}): Promise<IVItem[]> {
+  async list(userId: number, options?: {limit?: number; offset?: number}) {
     const prefix = this.keyPrefix(userId)
     const end = `${prefix}\uffff`
     const entries = await this.env.entries({start: prefix, end})
@@ -61,12 +61,12 @@ export class ItemRepository {
     return sorted.slice(offset, limit == null ? undefined : offset + limit)
   }
 
-  async fetch(userId: number, id: string): Promise<IVItem | null> {
+  async fetch(userId: number, id: string) {
     const item = this.env.get(this.key(userId, id))
     return item ?? null
   }
 
-  async edit(userId: number, id: string, title: string, description: string, status?: IVItem[`status`]): Promise<IVItem | null> {
+  async edit(userId: number, id: string, title: string, description: string, status?: IVItem[`status`]) {
     const item = await this.fetch(userId, id)
     if (!item) return null
     const updated = {
