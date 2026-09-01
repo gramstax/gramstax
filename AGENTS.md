@@ -21,7 +21,7 @@
 - `rules/`: rule sets for generated Gramstax projects (`main`, `ctx-pages`, `ctx-db`, `ctx-e2e`).
 - `docs/`: documentation and API reference.
 - `docs/AGENTS.md`: API reference; not repo-wide agent guidance.
-- `real-projects/`: standalone (non-workspace) sample apps — currently `vip-content-bot` (own `bun.lock`, eslint-based).
+- `real-projects/`: standalone (non-workspace) sample apps — currently `vip-content-bot` (own `bun.lock`).
 - `plans/`: numbered implementation plans (`001-` through `007-`, each a `plan.md`).
 - `prompts/`: AI agent prompt templates (`PROMPT.md`, `PROMPT_WITH_VALUE.md`) — consume `rules/_INDEX.md`.
 - `scripts/`: root e2e-mirror tooling (`generate-e2e-structure.ts`, `check-e2e-mirror.ts`); mirrored into create-gramstax templates.
@@ -120,11 +120,7 @@ Deep per-area guidance lives in child files — read the one matching your task 
 
 ## Lint Rules (highlights)
 
-- `@typescript-eslint/no-explicit-any: off` (allowed but avoid when possible).
-- `@typescript-eslint/no-unused-vars: error` (remove or use values).
-- `no-unused-vars: off` (handled by TS rule).
-- `object-curly-spacing: never` (align with Prettier).
-- `quotes: backtick` (use template literals).
+- Follow biome.json
 
 ## Imports
 

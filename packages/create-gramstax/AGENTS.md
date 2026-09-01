@@ -76,4 +76,4 @@ bun test packages/create-gramstax/test/
 - When adding new template files, update `create.ts` copy/post-processing logic.
 - Template `biome.json` mirrors the root config with environment conditioning: `root: true` (standalone projects — `root: false` would silently disable the config when no parent config exists), project-specific excludes (`dist`, `database`, `experiments`, `logs`, `data`), and a test/e2e override for `noExplicitAny`.
 - The root `biome.json` excludes `packages/create-gramstax/src/templates` (a nested `root: true` config conflicts with the monorepo root). Lint/format templates with their own config: `bunx biome lint packages/create-gramstax/src/templates` works from inside the templates dir, or `bunx biome lint --config-path=packages/create-gramstax/src/templates/biome.json <path>`.
-- The generated project is Biome-only: no ESLint or Prettier configs are shipped (`eslint.config.ts.template` and `.prettierrc` were removed).
+- The generated project is Biome-only.

@@ -16,15 +16,15 @@ The CLI will prompt for:
 - **Runtime** — bun (recommended), node
 - **@gramstax/lmdb** — persistent storage (recommended, default: Yes)
 - **@gramstax/worker-thread** — background jobs (recommended, default: Yes)
-- **ESLint** — code linting (default: Yes)
+- **biome** — code linting (default: Yes)
 
 ## Non-Interactive Mode (CLI Flags)
 
 Pass a project name and flags to skip all prompts:
 
 ```bash
-bun create gramstax@latest my-bot --pm bun --runtime bun --lmdb --no-worker-thread --eslint
-npx create-gramstax@latest my-bot --pm npm --runtime node --no-lmdb --no-eslint
+bun create gramstax@latest my-bot --pm bun --runtime bun --lmdb --no-worker-thread
+npx create-gramstax@latest my-bot --pm npm --runtime node --no-lmdb
 ```
 
 ### Available Flags
@@ -35,7 +35,6 @@ npx create-gramstax@latest my-bot --pm npm --runtime node --no-lmdb --no-eslint
 | `--runtime`                              | string  | `bun`   | Runtime: `bun`, `node`                        |
 | `--lmdb` / `--no-lmdb`                   | boolean | `true`  | Include `@gramstax/lmdb`                      |
 | `--worker-thread` / `--no-worker-thread` | boolean | `true`  | Include `@gramstax/worker-thread`             |
-| `--eslint` / `--no-eslint`               | boolean | `true`  | Include ESLint                                |
 
 ### Hydrat dari CLI Flags
 

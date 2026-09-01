@@ -16,4 +16,4 @@ All Gramstax code MUST pass linting (bun run lint:fix) before it is committed.
 ## Ethical Rule
 
 > [!CAUTION]
-> Using eslint-disable or any other method to suppress linting warnings is an illegal act within this codebase. If the linter reports an issue, you MUST fix the underlying code.
+> Using disable linter or any other method to suppress linting warnings is an illegal act within this codebase. If the linter reports an issue, you MUST fix the underlying code.

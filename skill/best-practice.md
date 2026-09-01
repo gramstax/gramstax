@@ -483,17 +483,6 @@ bun run ci:check # Type checking
 bun run test     # Run tests
 ```
 
-### Never Use eslint-disable
-
-Hiding errors with `eslint-disable` is **illegal**. Fix the code, don't hide the error.
-
-```typescript
-// ❌ ILLEGAL
-class Main {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-}
-```
-
 ### Key Formatting Rules
 
 - Use **backtick** quotes for strings (`` ` ``), not single or double quotes
