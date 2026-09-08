@@ -8,7 +8,7 @@ import type {ITCtxParams} from "~/types/t.ctx"
 class TestPage extends Ctx {
   static data = this.buildData({name: `render-auto-test`})
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       await this.renderAuto(null, null, null, null)
     }
@@ -117,7 +117,7 @@ describe(`Ctx.renderAuto`, () => {
     expect(renderEditSpy).toHaveBeenCalledWith(kb, da, null, null, `delete-reply`)
   })
 
-  // ── Direct page pattern: new TestPage(this).bdefault.show() ────
+  // ── Direct page pattern: new TestPage(this).gdefault.show() ────
 
   it(`should auto-detect via page show() pattern without callbackQuery`, async () => {
     const {ctx} = createTestCtx(false)
@@ -126,8 +126,8 @@ describe(`Ctx.renderAuto`, () => {
     ctx.render = renderSpy as any
     ctx.renderEdit = renderEditSpy as any
 
-    // Simulate: new TestPage(this).bdefault.show()
-    await ctx.bdefault.show()
+    // Simulate: new TestPage(this).gdefault.show()
+    await ctx.gdefault.show()
 
     expect(renderSpy).toHaveBeenCalledTimes(1)
     expect(renderEditSpy).not.toHaveBeenCalled()
@@ -140,8 +140,8 @@ describe(`Ctx.renderAuto`, () => {
     ctx.render = renderSpy as any
     ctx.renderEdit = renderEditSpy as any
 
-    // Simulate: new TestPage(this).bdefault.show()
-    await ctx.bdefault.show()
+    // Simulate: new TestPage(this).gdefault.show()
+    await ctx.gdefault.show()
 
     expect(renderEditSpy).toHaveBeenCalledTimes(1)
     expect(renderSpy).not.toHaveBeenCalled()

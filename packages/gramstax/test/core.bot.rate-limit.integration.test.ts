@@ -30,7 +30,7 @@ class PleaseWaitPage extends Ctx {
     </g-base>
   `
 
-  bshow = {
+  gshow = {
     show: async () => {
       await this.renderAuto(null, {}, `please-wait`)
     }
@@ -42,7 +42,7 @@ class RateLimitBot extends Gramstax {
 
   override async hookRateLimited(ctx: Ctx) {
     this.blockedCount++
-    await new PleaseWaitPage(ctx).bshow.show()
+    await new PleaseWaitPage(ctx).gshow.show()
   }
 }
 
