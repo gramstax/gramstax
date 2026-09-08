@@ -12,14 +12,14 @@ import { HelpPage } from "./help";
 
 export class StartPage extends PageBase {
   async handleCallbackQueryData() {
-    await this.bdefault.show(true);
+    await this.gdefault.show(true);
   }
 
   async handleCommandText() {
-    await this.bdefault.show(false);
+    await this.gdefault.show(false);
   }
 
-  bdefault = {
+  gdefault = {
     show: async (isEdit = true) => {
       await this.clearSession();
       const kb = this.inlineKeyboardT([HelpPage], `1`);
@@ -79,19 +79,19 @@ class Helper {
 // 4. EXPORTED PAGE CLASS
 export class DepositPage extends PageBase {
   async handleCallbackQueryData() {
-    await this.bamount.show(true);
+    await this.gamount.show(true);
   }
 
   async handleSessionFreeText() {
     const { step, amount } = Helper.getSessionParams(this);
     if (step === Base.amount) {
-      await this.bamount.process(amount);
+      await this.gamount.process(amount);
     } else if (step === Base.confirm) {
-      await this.bconfirm.process();
+      await this.gconfirm.process();
     }
   }
 
-  bamount = {
+  gamount = {
     show: async (edit: boolean) => {
       await this.setSessionFreeText();
       const bi = Base.amount;
@@ -99,18 +99,18 @@ export class DepositPage extends PageBase {
       await this.edit(kb, {}, bi);
     },
     // processAmount is defined because showAmount expects a text answer.
-    // If a b<name>.show had no answer to process, OMIT process entirely.
+    // If a g<name>.show had no answer to process, OMIT process entirely.
     process: async (amountInput: string) => {
       if (!amountInput) {
-        return await this.bwarnInvalid.show();
+        return await this.gwarnInvalid.show();
       }
       // Core business logic here...
       const newBalance = `500`;
-      await this.bsuccess.show(amountInput, newBalance);
+      await this.gsuccess.show(amountInput, newBalance);
     },
   };
 
-  bconfirm = {
+  gconfirm = {
     show: async (amount: number) => {
       await this.setSessionFreeText({ step: Base.confirm, amount });
       const bi = Base.confirm;
@@ -122,8 +122,8 @@ export class DepositPage extends PageBase {
     },
   };
 
-  // Feedback objects at the bottom (after all step b* objects)
-  bsuccess = {
+  // Feedback objects at the bottom (after all step g* objects)
+  gsuccess = {
     show: async (amount: string, balance: string) => {
       const bi = Base.success;
       const da = { amount, balance };
@@ -132,7 +132,7 @@ export class DepositPage extends PageBase {
     },
   };
 
-  bwarnInvalid = {
+  gwarnInvalid = {
     show: async (amount = ``) => {
       const bi = Base.warnInvalid;
       const kb = Helper.kb(this, bi);

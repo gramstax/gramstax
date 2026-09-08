@@ -9,28 +9,28 @@ Each page file must follow a strict modular structure. **Only define internal cl
 | **Base**          | g-base id constants | `static <idName> = \`id\`` inside `class Base`         |
 | **UPPER consts**  | Reusable literals   | `const <NAME> = <value>` at top level (below imports) |
 | **Helper**        | Local utilities     | `static kb(ctx, bi) { ... }`                          |
-| **b\* objects**   | View/process pairs  | `b<name> = { show, [process] }` on Page class         |
+| **g* objects**   | View/process pairs  | `g<name> = { show, [process] }` on Page class         |
 
-## Execution Path (b\* Objects)
+## Execution Path (g* Objects)
 
-Each `<g-base>` block gets a corresponding `b<name>` object field on the exported Page class.
+Each `<g-base>` block gets a corresponding `g<name>` object field on the exported Page class.
 
-### Naming Convention for b\* Objects
+### Naming Convention for g* Objects
 
-| `<g-base>` config      | `b<name>` to use |
+| `<g-base>` config      | `g<name>` to use |
 | :--------------------- | :--------------- |
-| No `id` attribute      | `bdefault`       |
-| Has `id="s1"`          | `bs1`            |
-| Has `id="amount"`      | `bamount`        |
-| Has `id="warnInvalid"` | `bwarnInvalid`   |
+| No `id` attribute      | `gdefault`       |
+| Has `id="s1"`          | `gs1`            |
+| Has `id="amount"`      | `gamount`        |
+| Has `id="warnInvalid"` | `gwarnInvalid`   |
 
-**Rule**: The `b` prefix + the camelCase version of the `id` attribute value. When `id` is omitted (single-base page), always use `bdefault`.
+**Rule**: The `g` prefix + the camelCase version of the `id` attribute value. When `id` is omitted (single-base page), always use `gdefault`.
 
 ### show / process Methods
 
-- **Form Display**: The `b<name>` object MUST have a `show` method. Name the object after the step (e.g., `bamount`, `bconfirm`, `bsuccess`).
+- **Form Display**: The `g<name>` object MUST have a `show` method. Name the object after the step (e.g., `gamount`, `gconfirm`, `gsuccess`).
 - **Processing (OPTIONAL)**: Add a `process` method when the step expects a text/answer input that must be validated or processed (e.g., a form the user fills in). If `show` has no answer to process, OMIT `process` entirely — do NOT define a `throw ctx` no-op placeholder.
-- **Handler Delegation**: Handler methods on the Page class (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`) MUST be thin wrappers containing no core business logic. They route to the appropriate `b<*>.show()` or `b<*>.process()` call.
+- **Handler Delegation**: Handler methods on the Page class (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`) MUST be thin wrappers containing no core business logic. They route to the appropriate `g<*>.show()` or `g<*>.process()` call.
 
 ### Simple pages (single base, no id)
 
@@ -39,14 +39,14 @@ export class StartPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(true);
+    await this.gdefault.show(true);
   }
 
   async handleCommandText() {
-    await this.bdefault.show(false);
+    await this.gdefault.show(false);
   }
 
-  bdefault = {
+  gdefault = {
     show: async (isEdit = true) => {
       // render logic
     },
@@ -76,29 +76,29 @@ export class DepositPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bamount.show(true)
+    await this.gamount.show(true)
   }
 
   async handleSessionFreeText() {
     const {step, amount} = Helper.getSessionParams(this)
     if (step === Base.amount) {
-      await this.bamount.process(amount)
+      await this.gamount.process(amount)
     } else if (step === Base.confirm) {
-      await this.bconfirm.process()
+      await this.gconfirm.process()
     }
   }
 
-  bamount = {
+  gamount = {
     show: async (edit: boolean) => { ... },
     process: async (input: string) => { ... }
   }
 
-  bconfirm = {
+  gconfirm = {
     show: async (amount: number) => { ... },
     process: async () => { ... }
   }
 
-  bsuccess = {
+  gsuccess = {
     show: async (amount: number, balance: string) => { ... }
   }
 
@@ -129,19 +129,19 @@ Members within the file **MUST** be declared in this exact order:
 5. **Page** — exported class extending PageBase
    a. `static data = this.buildData(...)` — always first (type safety)
    b. Handler methods (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`)
-   c. `b<*>` object fields
+   c. `g<*>` object fields
    d. `static template`
 
-## Feedback in b\* Objects
+## Feedback in g* Objects
 
-Feedback views (success, error, warning, info) follow the same `b<name>` pattern as step views.
+Feedback views (success, error, warning, info) follow the same `g<name>` pattern as step views.
 
-Naming for feedback `b<name>` objects:
+Naming for feedback `g<name>` objects:
 
-| `b<name>`  | Use Case                |
+| `g<name>`  | Use Case                |
 | ---------- | ----------------------- |
-| `bsuccess` | Positive outcomes       |
-| `bfailed`  | Business logic failures |
-| `berror`   | System errors           |
-| `bwarn`    | Validation warnings     |
-| `binfo`    | Informative content     |
+| `gsuccess` | Positive outcomes       |
+| `gfailed`  | Business logic failures |
+| `gerror`   | System errors           |
+| `gwarn`    | Validation warnings     |
+| `ginfo`    | Informative content     |
