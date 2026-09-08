@@ -7,14 +7,14 @@ export class StartPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleCommandText() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([StartRandomPage, SumNumberPage, HelpPage], `2`)

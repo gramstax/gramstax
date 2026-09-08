@@ -68,10 +68,10 @@ export class StartRandomTextPage extends PageBase {
   static data = this.buildData()
   
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([this, StartRandomPage], `2`)
       const count = Math.floor(Math.random() * 3) + 2 // 2–4 words

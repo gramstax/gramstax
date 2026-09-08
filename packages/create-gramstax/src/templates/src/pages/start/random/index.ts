@@ -7,14 +7,14 @@ export class StartRandomPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleCommandText() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartRandomNumberPage, StartRandomTextPage, StartPage], `2`)
       await this.renderAutoRich(kb)

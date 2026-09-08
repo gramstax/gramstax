@@ -21,11 +21,11 @@ export class SumNumberPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bleft.show()
+    await this.gleft.show()
   }
 
   async handleCommandText() {
-    await this.bleft.show()
+    await this.gleft.show()
   }
 
   async handleSessionFreeText() {
@@ -33,13 +33,13 @@ export class SumNumberPage extends PageBase {
     const input = this.msg!.text!.trim()
     const value = input ? Number(input) : NaN
     if (step === Base.left) {
-      await this.bleft.process(value)
+      await this.gleft.process(value)
     } else if (step === Base.right) {
-      await this.bright.process(value, left!)
+      await this.gright.process(value, left!)
     }
   }
 
-  bleft = {
+  gleft = {
     show: async () => {
       const bi = Base.left
       const kb = Helper.kb(this, bi)
@@ -48,14 +48,14 @@ export class SumNumberPage extends PageBase {
     },
     process: async (left: number) => {
       if (!Number.isFinite(left)) {
-        await this.bleft.show()
+        await this.gleft.show()
       } else {
-        await this.bright.show(left)
+        await this.gright.show(left)
       }
     }
   }
 
-  bright = {
+  gright = {
     show: async (left: number) => {
       const bi = Base.right
       const kb = Helper.kb(this, bi)
@@ -64,15 +64,15 @@ export class SumNumberPage extends PageBase {
     },
     process: async (value: number, left: number) => {
       if (!Number.isFinite(value)) {
-        await this.bright.show(left)
+        await this.gright.show(left)
       } else {
         await this.clearSession()
-        await this.bsuccess.show(left, value)
+        await this.gsuccess.show(left, value)
       }
     }
   }
 
-  bsuccess = {
+  gsuccess = {
     show: async (left: number, right: number) => {
       const bi = Base.success
       const kb = Helper.kb(this, bi)

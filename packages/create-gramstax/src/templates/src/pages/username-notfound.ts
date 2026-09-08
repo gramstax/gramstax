@@ -4,7 +4,7 @@ import {HelpPage} from "./help"
 export class UserNameNotFoundPage extends PageBase {
   static data = this.buildData()
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([HelpPage])
       await this.renderAuto(kb)
