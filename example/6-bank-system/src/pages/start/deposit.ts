@@ -18,15 +18,15 @@ export class StartDepositPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleSessionFreeText() {
     const amountInput = this.msg!.text!.trim()
-    await this.bindex.process(amountInput)
+    await this.gindex.process(amountInput)
   }
 
-  bindex = {
+  gindex = {
     show: async () => {
       await this.setSessionFreeText()
       const bi = Base.index
@@ -35,12 +35,12 @@ export class StartDepositPage extends PageBase {
     },
     process: async (amountInput: string) => {
       if (!amountInput) {
-        return await this.bwarnInvalid.show()
+        return await this.gwarnInvalid.show()
       }
 
       const amount = this.bankStore.parseAmount(amountInput)
       if (amount === null) {
-        return await this.bwarnInvalid.show(amountInput)
+        return await this.gwarnInvalid.show(amountInput)
       }
 
       const current = this.bankStore.getBalance(this.from!.id)
@@ -53,10 +53,10 @@ export class StartDepositPage extends PageBase {
         ts: Date.now()
       })
 
-      await this.bsuccess.show(amount, next)
+      await this.gsuccess.show(amount, next)
     }
   }
-  bsuccess = {
+  gsuccess = {
     show: async (amount: bigint, next: bigint) => {
       await this.clearSession()
       const bi = Base.success
@@ -68,7 +68,7 @@ export class StartDepositPage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  bwarnInvalid = {
+  gwarnInvalid = {
     show: async (amount = ``) => {
       const bi = Base.warnInvalid
       const kb = Helper.kb(this, bi)

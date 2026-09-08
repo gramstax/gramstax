@@ -6,17 +6,17 @@ export class StartCounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleArgsCallbackQueryData() {
     const [exe] = this.callbackQueryDataArgs
     if (exe === `1`) {
-      await this.bdefault.process()
+      await this.gdefault.process()
     }
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const count = await IncrementJob.mtdGetCount() // difference thread
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(`1`), StartPage])
@@ -24,7 +24,7 @@ export class StartCounterThreadPage extends PageBase {
       await this.renderAuto(kb, da)
     },
     process: async () => {
-      await this.bdefault.show()
+      await this.gdefault.show()
     }
   }
 

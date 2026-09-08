@@ -15,18 +15,18 @@ export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
   async handleCommandText() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleText() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleCallbackQueryData() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
-  bindex = {
+  gindex = {
     show: async () => {
       const bi = Base.index
       const ikb = this.inlineKeyboardT([StartCategoryPage, StartInlineWithRangePage, StartInlineWithoutRangePage, StartHelpPage, StartResetPage], `2`)

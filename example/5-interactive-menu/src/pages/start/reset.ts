@@ -6,14 +6,14 @@ export class StartResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleText() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       await this.clearSession()
       await this.cacheState.delete(`${this.from!.id}:category`)

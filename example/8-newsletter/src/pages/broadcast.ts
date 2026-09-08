@@ -38,23 +38,23 @@ export class BroadcastPage extends PageBase {
   }
 
   async handleCallbackQueryData() {
-    await this.bindex.show(`-`, false)
+    await this.gindex.show(`-`, false)
   }
 
   async handleCommandText() {
-    await this.bindex.show(`-`, false)
+    await this.gindex.show(`-`, false)
   }
 
   async handleSessionArgsCallbackQueryData() {
     const [step, action] = this.callbackQueryDataArgs
     if (step === Base.index && action) {
-      await this.bindex.process(action)
+      await this.gindex.process(action)
     }
   }
 
   async handleSessionFreeText() {
     const draftText = this.msg!.text!.trim()
-    await this.binfoConfirmText.show(draftText)
+    await this.ginfoConfirmText.show(draftText)
   }
 
   async handleSessionFreePhoto() {
@@ -66,7 +66,7 @@ export class BroadcastPage extends PageBase {
     }
 
     const caption = this.msg?.caption?.trim()
-    await this.binfoConfirmPhoto.show(fileId, caption)
+    await this.ginfoConfirmPhoto.show(fileId, caption)
   }
 
   async handleSessionFreeVideo() {
@@ -77,7 +77,7 @@ export class BroadcastPage extends PageBase {
     }
 
     const caption = this.msg?.caption?.trim()
-    await this.binfoConfirmVideo.show(fileId, caption)
+    await this.ginfoConfirmVideo.show(fileId, caption)
   }
 
   async handleSessionFreeAnimation() {
@@ -88,10 +88,10 @@ export class BroadcastPage extends PageBase {
     }
 
     const caption = this.msg?.caption?.trim()
-    await this.binfoConfirmAnimation.show(fileId, caption)
+    await this.ginfoConfirmAnimation.show(fileId, caption)
   }
 
-  bindex = {
+  gindex = {
     show: async (draftText: string, isEmpty = false) => {
       await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto(), this.methodSessionFreeVideo(), this.methodSessionFreeAnimation()], {position: `form`})
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(Base.index, `hybrid`), this.data.callbackQueryData(Base.index, `cancel`), StartPage], `1-2`, Base.index)
@@ -105,15 +105,15 @@ export class BroadcastPage extends PageBase {
       }
 
       if (action === `edit`) {
-        await this.bindex.show(mediaType ? `-` : draftText || `-`, false)
+        await this.gindex.show(mediaType ? `-` : draftText || `-`, false)
       } else if (action === `send`) {
         if (!draftText && !mediaType) {
-          return await this.bindex.show(`-`, true)
+          return await this.gindex.show(`-`, true)
         }
 
         const subscribers = await this.db.subs.list()
         if (subscribers.length === 0) {
-          return await this.binfoEmptySubs.show()
+          return await this.ginfoEmptySubs.show()
         }
 
         const ids = subscribers.map((item) => item.id)
@@ -121,26 +121,26 @@ export class BroadcastPage extends PageBase {
         let res: Awaited<ReturnType<typeof this.renderBroadcast>>
         if (mediaType && fileId) {
           if (mediaType === `photo`) {
-            res = await this.binfoDeliverPhoto.show(ids, langs, fileId, caption)
+            res = await this.ginfoDeliverPhoto.show(ids, langs, fileId, caption)
           } else if (mediaType === `video`) {
-            res = await this.binfoDeliverVideo.show(ids, langs, fileId, caption)
+            res = await this.ginfoDeliverVideo.show(ids, langs, fileId, caption)
           } else {
-            res = await this.binfoDeliverAnimation.show(ids, langs, fileId, caption)
+            res = await this.ginfoDeliverAnimation.show(ids, langs, fileId, caption)
           }
         } else {
-          res = await this.binfoDeliverText.show(ids, langs, draftText)
+          res = await this.ginfoDeliverText.show(ids, langs, draftText)
         }
 
-        await this.bsuccess.show(res.successCount, res.totalCount)
+        await this.gsuccess.show(res.successCount, res.totalCount)
       } else if (action === `cancel`) {
-        await this.binfoCancel.show()
+        await this.ginfoCancel.show()
       } else if (action === `hybrid`) {
-        await this.binfoHybridMediaNotAvailable.show()
+        await this.ginfoHybridMediaNotAvailable.show()
       }
     }
   }
 
-  binfoHybridMedia = {
+  ginfoHybridMedia = {
     show: async () => {
       await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto(), this.methodSessionFreeVideo(), this.methodSessionFreeAnimation()], {position: `form`})
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(Base.index, `cancel`), StartPage], `2`, Base.infoHybridMedia)
@@ -148,94 +148,94 @@ export class BroadcastPage extends PageBase {
     }
   }
 
-  binfoHybridMediaNotAvailable = {
+  ginfoHybridMediaNotAvailable = {
     show: async () => {
       await this.clearSession()
-      await this.renderAuto(this.bkbHome.show(), {}, Base.infoHybridMediaNotAvailable)
+      await this.renderAuto(this.gkbHome.show(), {}, Base.infoHybridMediaNotAvailable)
     }
   }
 
-  binfoConfirmText = {
+  ginfoConfirmText = {
     show: async (draftText: string) => {
       await this.setSessionArgsCallbackQueryData({position: `confirm`, draftText})
-      await this.renderAuto(this.bkbConfirm.show(), {draftText}, Base.infoConfirmText)
+      await this.renderAuto(this.gkbConfirm.show(), {draftText}, Base.infoConfirmText)
     }
   }
 
-  binfoConfirmPhoto = {
+  ginfoConfirmPhoto = {
     show: async (fileId: string, caption?: string) => {
       await this.setSessionArgsCallbackQueryData({position: `confirm`, mediaType: `photo`, fileId, caption})
-      await this.renderPhoto(this.bkbConfirm.show(), {fileId, caption}, Base.infoConfirmPhoto)
+      await this.renderPhoto(this.gkbConfirm.show(), {fileId, caption}, Base.infoConfirmPhoto)
     }
   }
 
-  binfoConfirmVideo = {
+  ginfoConfirmVideo = {
     show: async (fileId: string, caption?: string) => {
       await this.setSessionArgsCallbackQueryData({position: `confirm`, mediaType: `video`, fileId, caption})
-      await this.renderVideo(this.bkbConfirm.show(), {fileId, caption}, Base.infoConfirmVideo)
+      await this.renderVideo(this.gkbConfirm.show(), {fileId, caption}, Base.infoConfirmVideo)
     }
   }
 
-  binfoConfirmAnimation = {
+  ginfoConfirmAnimation = {
     show: async (fileId: string, caption?: string) => {
       await this.setSessionArgsCallbackQueryData({position: `confirm`, mediaType: `animation`, fileId, caption})
-      await this.renderAnimation(this.bkbConfirm.show(), {fileId, caption}, Base.infoConfirmAnimation)
+      await this.renderAnimation(this.gkbConfirm.show(), {fileId, caption}, Base.infoConfirmAnimation)
     }
   }
 
-  bsuccess = {
+  gsuccess = {
     show: async (successCount: number, totalCount: number) => {
       await this.clearSession()
-      await this.renderAuto(this.bkbHome.show(), {successCount, totalCount}, Base.success)
+      await this.renderAuto(this.gkbHome.show(), {successCount, totalCount}, Base.success)
     }
   }
 
-  binfoEmptySubs = {
+  ginfoEmptySubs = {
     show: async () => {
       await this.clearSession()
-      await this.renderAuto(this.bkbHome.show(), {}, Base.infoEmptySubs)
+      await this.renderAuto(this.gkbHome.show(), {}, Base.infoEmptySubs)
     }
   }
 
-  binfoCancel = {
+  ginfoCancel = {
     show: async () => {
       await this.clearSession()
-      await this.renderAuto(this.bkbHome.show(), {}, Base.infoCancel)
+      await this.renderAuto(this.gkbHome.show(), {}, Base.infoCancel)
     }
   }
 
-  bkbHome = {
+  gkbHome = {
     show: () => {
       return this.inlineKeyboardT([StartPage], `1`, Base.kbHome)
     }
   }
 
-  bkbConfirm = {
+  gkbConfirm = {
     show: () => {
       const s1 = Base.index
       return this.inlineKeyboardT([this.data.callbackQueryData(s1, `send`), this.data.callbackQueryData(s1, `edit`), this.data.callbackQueryData(s1, `cancel`), StartPage], `2-2`, Base.kbConfirm)
     }
   }
 
-  binfoDeliverText = {
+  ginfoDeliverText = {
     show: async (ids: number[], langs: string[], draftText?: string) => {
       return await this.renderBroadcast(ids, langs, null, {message: draftText}, Base.infoDeliverText)
     }
   }
 
-  binfoDeliverPhoto = {
+  ginfoDeliverPhoto = {
     show: async (ids: number[], langs: string[], fileId: string, caption?: string) => {
       return await this.renderBroadcastMedia(ids, langs, null, {fileId, caption}, Base.infoDeliverPhoto)
     }
   }
 
-  binfoDeliverVideo = {
+  ginfoDeliverVideo = {
     show: async (ids: number[], langs: string[], fileId: string, caption?: string) => {
       return await this.renderBroadcastMedia(ids, langs, null, {fileId, caption}, Base.infoDeliverVideo)
     }
   }
 
-  binfoDeliverAnimation = {
+  ginfoDeliverAnimation = {
     show: async (ids: number[], langs: string[], fileId: string, caption?: string) => {
       return await this.renderBroadcastMedia(ids, langs, null, {fileId, caption}, Base.infoDeliverAnimation)
     }

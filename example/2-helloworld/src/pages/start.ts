@@ -4,14 +4,14 @@ export class StartPage extends PageBase {
   static data = this.buildData()
 
   async handleCommandText() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([this])
       const da = {time: new Date().toString()}

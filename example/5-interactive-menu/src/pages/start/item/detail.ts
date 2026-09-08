@@ -11,10 +11,10 @@ export class StartItemDetailPage extends PageBase {
     if (action !== `detail` || !categoryId || !itemId) {
       return
     }
-    await this.bdefault.show(categoryId!, itemId!)
+    await this.gdefault.show(categoryId!, itemId!)
   }
 
-  bdefault = {
+  gdefault = {
     show: async (categoryId: string, itemId: string) => {
       const item = CatalogData.getItemById(categoryId, itemId)
       const getPage = await this.cacheState.get(`${this.from!.id}:page`)

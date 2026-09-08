@@ -35,14 +35,14 @@ export class StartTransferPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleSessionFreeText() {
-    await this.bdefault.process(this.msg!.text!)
+    await this.gdefault.process(this.msg!.text!)
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const bi = Base.index
       const kb = Helper.kb(this, bi)
@@ -51,26 +51,26 @@ export class StartTransferPage extends PageBase {
     process: async (input: string) => {
       const [amountInput, targetInput] = input.trim().split(/\s+/)
       if (!amountInput || !targetInput) {
-        return await this.bwarnInvalid.show()
+        return await this.gwarnInvalid.show()
       }
 
       const amount = this.bankStore.parseAmount(amountInput)
       if (amount === null) {
-        return await this.bwarnInvalid.show(amountInput)
+        return await this.gwarnInvalid.show(amountInput)
       }
 
       const target = Helper.resolveTarget(this, targetInput)
       if (!target) {
-        return await this.bwarnUnknownUser.show(targetInput)
+        return await this.gwarnUnknownUser.show(targetInput)
       }
 
       if (target.id === this.from!.id) {
-        return await this.bwarnSelf.show()
+        return await this.gwarnSelf.show()
       }
 
       const current = this.bankStore.getBalance(this.from!.id)
       if (current < amount) {
-        return await this.bwarnInsufficient.show(this.bankStore.formatAmount(current))
+        return await this.gwarnInsufficient.show(this.bankStore.formatAmount(current))
       }
 
       const nextSender = current - amount
@@ -95,10 +95,10 @@ export class StartTransferPage extends PageBase {
         ts: Date.now()
       })
 
-      await this.bsuccess.show(this.bankStore.formatAmount(amount), this.bankStore.formatAmount(nextSender), target.label)
+      await this.gsuccess.show(this.bankStore.formatAmount(amount), this.bankStore.formatAmount(nextSender), target.label)
     }
   }
-  bwarnInvalid = {
+  gwarnInvalid = {
     show: async (amount = ``) => {
       const bi = Base.warnInvalid
       const kb = Helper.kb(this, bi)
@@ -106,7 +106,7 @@ export class StartTransferPage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  bwarnUnknownUser = {
+  gwarnUnknownUser = {
     show: async (target: string) => {
       const bi = Base.warnUnknownUser
       const kb = Helper.kb(this, bi)
@@ -114,14 +114,14 @@ export class StartTransferPage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  bwarnSelf = {
+  gwarnSelf = {
     show: async () => {
       const bi = Base.warnSelf
       const kb = Helper.kb(this, bi)
       await this.renderAuto(kb, {}, bi)
     }
   }
-  bwarnInsufficient = {
+  gwarnInsufficient = {
     show: async (balance: string) => {
       const bi = Base.warnInsufficient
       const kb = Helper.kb(this, bi)
@@ -129,7 +129,7 @@ export class StartTransferPage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  bsuccess = {
+  gsuccess = {
     show: async (amount: string, balance: string, target: string) => {
       await this.clearSession()
       const bi = Base.success

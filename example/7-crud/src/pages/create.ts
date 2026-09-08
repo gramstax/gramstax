@@ -27,20 +27,20 @@ export class CreatePage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.btitle.show()
+    await this.gtitle.show()
   }
 
   async handleSessionFreeText() {
     const {step, title} = Helper.getSessionParams(this)
     const input = this.msg!.text!.trim()
     if (step === Base.title) {
-      await this.bnotes.show(title!)
+      await this.gnotes.show(title!)
     } else if (step === Base.notes) {
-      await this.bsuccess.show(title!, input)
+      await this.gsuccess.show(title!, input)
     }
   }
 
-  btitle = {
+  gtitle = {
     show: async () => {
       const bi = Base.title
       const kb = Helper.buildHomeKeyboard(this, bi)
@@ -48,7 +48,7 @@ export class CreatePage extends PageBase {
       await this.renderAuto(kb, {}, bi)
     }
   }
-  bnotes = {
+  gnotes = {
     show: async (title: string) => {
       const bi = Base.notes
       const kb = Helper.buildHomeKeyboard(this, bi)
@@ -57,7 +57,7 @@ export class CreatePage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  bsuccess = {
+  gsuccess = {
     show: async (title: string, input: string) => {
       await this.clearSession()
       const item = await this.db.items.create(this.from!.id, title!, input)

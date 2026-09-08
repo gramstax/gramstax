@@ -27,54 +27,54 @@ export class EchoPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleFreeText() {
-    await this.bftext.show()
+    await this.gftext.show()
   }
 
   async handleFreePhoto() {
-    await this.bfphoto.show()
+    await this.gfphoto.show()
   }
 
   async handleFreeVideo() {
-    await this.bfvideo.show()
+    await this.gfvideo.show()
   }
 
   async handleFreeAudio() {
-    await this.bfaudio.show()
+    await this.gfaudio.show()
   }
 
   async handleFreeDocument() {
-    await this.bfdocument.show()
+    await this.gfdocument.show()
   }
 
   async handleFreeAnimation() {
-    await this.bfanimation.show()
+    await this.gfanimation.show()
   }
 
   async handleFreeVoice() {
-    await this.bfvoice.show()
+    await this.gfvoice.show()
   }
 
   async handleFreeVideoNote() {
-    await this.bfvideoNote.show()
+    await this.gfvideoNote.show()
   }
 
   async handleFreeSticker() {
-    await this.bfsticker.show()
+    await this.gfsticker.show()
   }
 
   async handleFreeLocation() {
-    await this.bflocation.show()
+    await this.gflocation.show()
   }
 
   async handleFreeContact() {
-    await this.bfcontact.show()
+    await this.gfcontact.show()
   }
 
-  bindex = {
+  gindex = {
     show: async () => {
       const bi = Base.index
       const kb = Helper.kbIndex(this)
@@ -82,7 +82,7 @@ export class EchoPage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  bftext = {
+  gftext = {
     show: async () => {
       const text = this.msg!.text!
       if (text.startsWith(`/`)) {
@@ -95,7 +95,7 @@ export class EchoPage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  bfphoto = {
+  gfphoto = {
     show: async () => {
       const caption = this.msg?.caption
       const fileIdLargest = this.msg!.photo![this.msg!.photo!.length - 1]!.file_id
@@ -109,7 +109,7 @@ export class EchoPage extends PageBase {
       await this.renderPhoto(kb, da, bi)
     }
   }
-  bfvideo = {
+  gfvideo = {
     show: async () => {
       const caption = this.msg?.caption
       const fileId = this.msg!.video!.file_id
@@ -123,7 +123,7 @@ export class EchoPage extends PageBase {
       await this.renderVideo(kb, da, bi)
     }
   }
-  bfaudio = {
+  gfaudio = {
     show: async () => {
       const caption = this.msg?.caption
       const fileId = this.msg!.audio!.file_id
@@ -137,7 +137,7 @@ export class EchoPage extends PageBase {
       await this.renderAudio(kb, da, bi)
     }
   }
-  bfdocument = {
+  gfdocument = {
     show: async () => {
       const caption = this.msg?.caption
       const fileId = this.msg!.document!.file_id
@@ -151,7 +151,7 @@ export class EchoPage extends PageBase {
       await this.renderDocument(kb, da, bi)
     }
   }
-  bfanimation = {
+  gfanimation = {
     show: async () => {
       const caption = this.msg?.caption
       const fileId = this.msg!.animation!.file_id
@@ -165,7 +165,7 @@ export class EchoPage extends PageBase {
       await this.renderAnimation(kb, da, bi)
     }
   }
-  bfvoice = {
+  gfvoice = {
     show: async () => {
       const caption = this.msg?.caption
       const fileId = this.msg!.voice!.file_id
@@ -179,7 +179,7 @@ export class EchoPage extends PageBase {
       await this.renderVoice(kb, da, bi)
     }
   }
-  bfvideoNote = {
+  gfvideoNote = {
     show: async () => {
       // not support caption
       const fileId = this.msg!.video_note!.file_id
@@ -189,7 +189,7 @@ export class EchoPage extends PageBase {
       await this.renderVideoNote(kb, da, bi)
     }
   }
-  bfsticker = {
+  gfsticker = {
     show: async () => {
       // not support caption
       const fileId = this.msg!.sticker!.file_id
@@ -199,7 +199,7 @@ export class EchoPage extends PageBase {
       await this.renderSticker(kb, da, bi)
     }
   }
-  bflocation = {
+  gflocation = {
     show: async () => {
       // not support caption
       const {latitude, longitude} = this.msg!.location!
@@ -209,7 +209,7 @@ export class EchoPage extends PageBase {
       await this.renderLocation(kb, da, bi)
     }
   }
-  bfcontact = {
+  gfcontact = {
     show: async () => {
       // not support caption
       const {first_name, last_name, phone_number, user_id, vcard} = this.msg!.contact!

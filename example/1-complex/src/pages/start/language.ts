@@ -32,14 +32,14 @@ export class StartLanguagePage extends PageBase {
   static data = this.buildData((lang?: string) => [lang])
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleArgsCallbackQueryData() {
-    await this.bdefault.process()
+    await this.gdefault.process()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const kb = Helper.kb(this)
       await this.renderAuto(kb)
@@ -49,7 +49,7 @@ export class StartLanguagePage extends PageBase {
 
       this.from!.language_code = language
       await this.cacheData.set(`${this.from!.id}:lang`, language)
-      await this.bdefault.show()
+      await this.gdefault.show()
     }
   }
 

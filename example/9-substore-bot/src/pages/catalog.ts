@@ -9,19 +9,19 @@ export class CatalogPage extends PageBase {
   static data = this.buildData((action?: string, value?: string) => [action, value])
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(0)
+    await this.gdefault.show(0)
   }
 
   async handleArgsCallbackQueryData() {
     const [action, value] = this.callbackQueryDataArgs
-    await this.bdefault.process(action, value)
+    await this.gdefault.process(action, value)
   }
 
   async handleCommandText() {
-    await this.bdefault.show(0)
+    await this.gdefault.show(0)
   }
 
-  bdefault = {
+  gdefault = {
     show: async (pageNo = 0) => {
       const productPage = ProductCatalog.getPage(pageNo)
       const kb = this.inlineKeyboard((k, l) => {
@@ -51,7 +51,7 @@ export class CatalogPage extends PageBase {
     },
     process: async (action?: string, value?: string) => {
       if (action === `page`) {
-        await this.bdefault.show(Number(value ?? 0))
+        await this.gdefault.show(Number(value ?? 0))
       }
     }
   }

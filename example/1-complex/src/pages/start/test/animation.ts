@@ -24,21 +24,21 @@ export class StartTestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => [swc])
 
   async handleCallbackQueryData() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleArgsCallbackQueryData() {
-    await this.bdynamic.show()
+    await this.gdynamic.show()
   }
 
-  bindex = {
+  gindex = {
     show: async () => {
       const bi = Base.index
       const kb = Helper.kb(this)
       await this.renderEditAnimation(kb, {}, bi)
     }
   }
-  bdynamic = {
+  gdynamic = {
     show: async () => {
       const swc = this.callbackQueryDataArg
       if (swc === `static`) {

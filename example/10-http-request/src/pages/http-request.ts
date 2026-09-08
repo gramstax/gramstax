@@ -90,26 +90,26 @@ export class HttpRequestPage extends PageBase {
   }
 
   async handleCallbackQueryData() {
-    await this.bmethod.show()
+    await this.gmethod.show()
   }
 
   async handleArgsCallbackQueryData() {
     const [action] = this.callbackQueryDataArgs
     if (!action) return
     if (action === `_back`) {
-      await this.bmethod.show()
+      await this.gmethod.show()
     } else if (action === `skip_token`) {
-      await this.btoken.process(null)
+      await this.gtoken.process(null)
     } else if (action === `toggle_view`) {
-      await this.bsuccess.process()
+      await this.gsuccess.process()
     } else {
-      await this.burl.show(action)
+      await this.gurl.show(action)
     }
   }
 
   // Session twin of handleArgsCallbackQueryData: while a flow session is
   // active, callback args arrive here via session routing (id=1) so the
-  // pending session survives for btoken/bsuccess to read it.
+  // pending session survives for gtoken/gsuccess to read it.
   async handleSessionArgsCallbackQueryData() {
     await this.handleArgsCallbackQueryData()
   }
@@ -119,24 +119,24 @@ export class HttpRequestPage extends PageBase {
     const sparams = this.temp.session?.params
     const step = sparams?.httpStep as string | undefined
     if (!step || step === `method` || step === `done`) {
-      await this.burl.process(input, `GET`)
+      await this.gurl.process(input, `GET`)
     } else if (step === `url`) {
-      await this.burl.process(input, sparams?.httpMethod as string, true)
+      await this.gurl.process(input, sparams?.httpMethod as string, true)
     } else if (step === `token`) {
-      await this.btoken.process(input)
+      await this.gtoken.process(input)
     } else if (step === `body`) {
-      await this.bbody.process(input)
+      await this.gbody.process(input)
     }
   }
 
-  bmethod = {
+  gmethod = {
     show: async () => {
       await this.clearSession()
       await this.renderAuto(Helper.buildMethodKeyboard(this), {}, Base.method)
     }
   }
 
-  burl = {
+  gurl = {
     show: async (method: string) => {
       await this._setFlowSession({httpStep: `url`, httpMethod: method})
       await this.renderAuto(Helper.buildUrlKeyboard(this), {method}, Base.url)
@@ -148,24 +148,24 @@ export class HttpRequestPage extends PageBase {
       }
 
       if (showToken) {
-        await this.btoken.show(method, input)
+        await this.gtoken.show(method, input)
       } else if (HttpService.needsBody(method)) {
-        await this.bbody.show(method, input)
+        await this.gbody.show(method, input)
       } else {
         try {
           const result = await HttpService.request(method, input)
           await this._setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
-          await this.bsuccess.show(result, `formatted`)
+          await this.gsuccess.show(result, `formatted`)
         } catch (error) {
           await this.clearSession()
           const message = error instanceof Error ? error.message : String(error)
-          await this.bwarnNetwork.show(input, message)
+          await this.gwarnNetwork.show(input, message)
         }
       }
     }
   }
 
-  btoken = {
+  gtoken = {
     show: async (method: string, url: string) => {
       await this._setFlowSession({httpStep: `token`, httpMethod: method, httpUrl: url})
       await this.renderAuto(Helper.buildTokenKeyboard(this), {method, url: Helper.escapeHtml(url)}, Base.token)
@@ -175,12 +175,12 @@ export class HttpRequestPage extends PageBase {
       const method = session?.params?.httpMethod as string
       const url = session?.params?.httpUrl as string
       if (!method || !url) {
-        return await this.bmethod.show()
+        return await this.gmethod.show()
       }
 
       if (HttpService.needsBody(method)) {
         await this._setFlowSession({httpStep: `body`, httpMethod: method, httpUrl: url, httpToken: token})
-        await this.bbody.show(method, url)
+        await this.gbody.show(method, url)
       } else {
         const headers: Record<string, string> = {}
         if (token) {
@@ -189,17 +189,17 @@ export class HttpRequestPage extends PageBase {
         try {
           const result = await HttpService.request(method, url, undefined, headers)
           await this._setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
-          await this.bsuccess.show(result, `formatted`)
+          await this.gsuccess.show(result, `formatted`)
         } catch (error) {
           await this.clearSession()
           const msg = error instanceof Error ? error.message : String(error)
-          await this.bwarnNetwork.show(url, msg)
+          await this.gwarnNetwork.show(url, msg)
         }
       }
     }
   }
 
-  bbody = {
+  gbody = {
     show: async (method: string, url: string) => {
       await this._setFlowSession({httpStep: `body`, httpMethod: method, httpUrl: url})
       const da = {method, url: Helper.escapeHtml(url)}
@@ -211,7 +211,7 @@ export class HttpRequestPage extends PageBase {
       const url = session?.params?.httpUrl as string
       const token = session?.params?.httpToken as string | undefined
       if (!url) {
-        return await this.bmethod.show()
+        return await this.gmethod.show()
       }
 
       const headers: Record<string, string> = {}
@@ -221,16 +221,16 @@ export class HttpRequestPage extends PageBase {
       try {
         const result = await HttpService.request(method, url, body, headers)
         await this._setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
-        await this.bsuccess.show(result, `formatted`)
+        await this.gsuccess.show(result, `formatted`)
       } catch (error) {
         await this.clearSession()
         const message = error instanceof Error ? error.message : String(error)
-        await this.bwarnNetwork.show(url, message)
+        await this.gwarnNetwork.show(url, message)
       }
     }
   }
 
-  bsuccess = {
+  gsuccess = {
     show: async (result: IHttpResponse, viewMode = `formatted`) => {
       const kb = Helper.buildSuccessKeyboard(this, viewMode)
       const emoji = result.status >= 200 && result.status < 300 ? `✅` : result.status >= 400 ? `❌` : `⚠️`
@@ -254,17 +254,17 @@ export class HttpRequestPage extends PageBase {
       const currentView = (session?.params?.httpViewMode as string) || `formatted`
       const newView = currentView === `formatted` ? `raw` : `formatted`
       await this._setFlowSession({...session?.params, httpViewMode: newView})
-      await this.bsuccess.show(result, newView)
+      await this.gsuccess.show(result, newView)
     }
   }
 
-  bwarnInvalid = {
+  gwarnInvalid = {
     show: async (url: string) => {
       await this.renderAuto(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(url)}, Base.warnInvalid)
     }
   }
 
-  bwarnNetwork = {
+  gwarnNetwork = {
     show: async (url: string, errorMessage: string) => {
       const kb = Helper.buildHomeKeyboard(this)
       const da = {url: Helper.escapeHtml(url), errorMessage: Helper.escapeHtml(errorMessage)}

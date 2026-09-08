@@ -5,15 +5,15 @@ export class StartBlockSwitchPage extends PageBase {
   static data = this.buildData((status?: string) => [status])
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(`0`)
+    await this.gdefault.show(`0`)
   }
 
   async handleArgsCallbackQueryData() {
     const [status] = this.callbackQueryDataArgs
-    await this.bdefault.show(status!)
+    await this.gdefault.show(status!)
   }
 
-  bdefault = {
+  gdefault = {
     show: async (status: string) => {
       const da = {status}
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(status === `1` ? `0` : `1`), StartPage], `1`, null, da)

@@ -80,30 +80,30 @@ export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
   async handleText() {
-    await this.bindex.show(1)
+    await this.gindex.show(1)
   }
 
   async handleArgsText() {
-    await this.bindex.show(1)
+    await this.gindex.show(1)
   }
 
   async handleCommandText() {
-    await this.bindex.show(1)
+    await this.gindex.show(1)
   }
 
   async handleCommandArgsText() {
-    await this.bindex.show(1)
+    await this.gindex.show(1)
   }
 
   async handleCallbackQueryData() {
-    await this.bindex.show(2)
+    await this.gindex.show(2)
   }
 
   async handleArgsCallbackQueryData() {
-    await this.bindex.show(3)
+    await this.gindex.show(3)
   }
 
-  bindex = {
+  gindex = {
     show: async (condition = 1) => {
       const bi = Base.index
       const kb = Helper.kb(this)

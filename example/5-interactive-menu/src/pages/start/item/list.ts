@@ -41,10 +41,10 @@ export class StartItemListPage extends PageBase {
 
   async handleArgsCallbackQueryData() {
     const pageNo = this.callbackQueryDataArg
-    await this.bdefault.process(pageNo)
+    await this.gdefault.process(pageNo)
   }
 
-  bdefault = {
+  gdefault = {
     show: async (categoryId: string, pageNo = 0) => {
       await this.cacheState.set(`${this.from!.id}:category`, categoryId)
       await this.cacheState.set(`${this.from!.id}:page`, pageNo)
@@ -58,9 +58,9 @@ export class StartItemListPage extends PageBase {
     process: async (pageNo: string) => {
       const categoryId = await this.cacheState.get(`${this.from!.id}:category`)
       if (!categoryId) {
-        await new StartCategoryPage(this).bdefault.show()
+        await new StartCategoryPage(this).gdefault.show()
       } else {
-        await this.bdefault.show(categoryId as string, Number(pageNo))
+        await this.gdefault.show(categoryId as string, Number(pageNo))
       }
     }
   }

@@ -4,10 +4,10 @@ export class StartTestMediaGroupPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       // ATTENTION: <g-media-group> is not support inline/bottom keyboard
       // const kb = ctx.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)], `1`, bi)

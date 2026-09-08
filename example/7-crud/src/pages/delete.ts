@@ -42,16 +42,16 @@ export class DeletePage extends PageBase {
     const getItems = await this.db.items.list(this.from!.id)
     const items = getItems.slice(0, Helper.MAX_ITEMS)
     if (items.length === 0) {
-      await this.binfoEmpty.show()
+      await this.ginfoEmpty.show()
     } else {
-      await this.bindex.show(items)
+      await this.gindex.show(items)
     }
   }
 
   async handleArgsCallbackQueryData() {
     const [step, id] = this.callbackQueryDataArgs
     if (step === Base.index) {
-      await this.bindex.process(id!)
+      await this.gindex.process(id!)
     }
   }
 
@@ -59,11 +59,11 @@ export class DeletePage extends PageBase {
     const {step} = this.temp.session.params ?? {}
     const input = this.msg!.text!.trim()
     if (step === Base.index) {
-      await this.bindex.process(input)
+      await this.gindex.process(input)
     }
   }
 
-  bindex = {
+  gindex = {
     show: async (items: IVItem[]) => {
       const bi = Base.index
       const kb = Helper.buildListKeyboard(this, items)
@@ -93,7 +93,7 @@ export class DeletePage extends PageBase {
       }
     }
   }
-  binfoEmpty = {
+  ginfoEmpty = {
     show: async () => {
       const bi = Base.infoEmpty
       const kb = Helper.buildHomeKeyboard(this, bi)

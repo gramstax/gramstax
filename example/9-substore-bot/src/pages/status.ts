@@ -15,7 +15,7 @@ export class StatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
-  berror = {
+  gerror = {
     show: async (code: string, error: unknown) => {
       const bi = Base.error
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
@@ -23,7 +23,7 @@ export class StatusPage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  bnotFound = {
+  gnotFound = {
     show: async () => {
       const bi = Base.notFound
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)

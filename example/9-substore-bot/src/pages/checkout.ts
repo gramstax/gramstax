@@ -77,30 +77,30 @@ export class CheckoutPage extends PageBase {
   static data = this.buildData((action?: string, orderId?: string) => [action, orderId])
 
   async handleCallbackQueryData() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleArgsCallbackQueryData() {
     const [action, orderId] = this.callbackQueryDataArgs
     if (action === `confirm`) {
-      await this.bconfirm.process()
+      await this.gconfirm.process()
     } else if (action === Base.refresh) {
-      await this.brefresh.process(orderId)
+      await this.grefresh.process(orderId)
     } else if (action === `cancel`) {
-      await this.binfoCancel.show()
+      await this.ginfoCancel.show()
     }
   }
 
   async handleSessionFreeText() {
-    await this.bindex.process()
+    await this.gindex.process()
   }
 
-  bindex = {
+  gindex = {
     show: async () => {
       const cart = await Helper.getCart(this)
       const summary = CartStore.getSummary(cart)
       if (summary.isEmpty) {
-        return await this.bwarnEmpty.show()
+        return await this.gwarnEmpty.show()
       }
 
       await this.setSessionFreeText({position: `contact`})
@@ -119,21 +119,21 @@ export class CheckoutPage extends PageBase {
       const {contact, notes} = Helper.splitContactNotes(input)
       if (!Helper.isValidContact(contact)) {
         await this.setSessionFreeText({position: `contact`})
-        return await this.bwarnInvalid.show(contact)
+        return await this.gwarnInvalid.show(contact)
       }
 
       const cart = await Helper.getCart(this)
       const summary = CartStore.getSummary(cart)
       if (summary.isEmpty) {
-        return await this.bwarnEmpty.show()
+        return await this.gwarnEmpty.show()
       }
 
       await this.setSessionFreeText({position: `confirm`, contact, notes})
-      await this.bconfirm.show(OrderStore.formatCart(summary), ProductCatalog.formatPrice(summary.subtotal), contact, notes)
+      await this.gconfirm.show(OrderStore.formatCart(summary), ProductCatalog.formatPrice(summary.subtotal), contact, notes)
     }
   }
 
-  bconfirm = {
+  gconfirm = {
     show: async (items: string, subtotal: string, contact: string, notes: string) => {
       const kb = Helper.kbConfirm(this, Base.confirm)
       const da = {items, subtotal, contact, notes}
@@ -154,23 +154,23 @@ export class CheckoutPage extends PageBase {
       await Helper.setHistory(this, OrderHistoryStore.addOrder(history, order))
       await Helper.setCart(this, CartStore.clear())
       await this.clearSession()
-      await this.bsuccess.show(order)
+      await this.gsuccess.show(order)
     }
   }
 
-  brefresh = {
+  grefresh = {
     process: async (orderId?: string) => {
       const refreshedHistory = OrderHistoryStore.refreshStatuses(await Helper.getHistory(this))
       await Helper.setHistory(this, refreshedHistory)
       const order = orderId ? refreshedHistory.find((item) => item.id === orderId) : refreshedHistory[0]
       if (!order) {
-        return await this.binfoMissing.show()
+        return await this.ginfoMissing.show()
       }
-      await this.bsuccess.show(order)
+      await this.gsuccess.show(order)
     }
   }
 
-  bsuccess = {
+  gsuccess = {
     show: async (order: OrderRecord) => {
       const kb = Helper.kbSuccess(this, order.id, Base.success)
       const da = {
@@ -190,14 +190,14 @@ export class CheckoutPage extends PageBase {
     }
   }
 
-  bwarnEmpty = {
+  gwarnEmpty = {
     show: async () => {
       const kb = Helper.kbCart(this, Base.warnEmpty)
       await this.renderAuto(kb, {}, Base.warnEmpty)
     }
   }
 
-  bwarnInvalid = {
+  gwarnInvalid = {
     show: async (contact: string) => {
       await this.setSessionFreeText({position: `contact`})
       const kb = Helper.kbCart(this, Base.warnInvalid)
@@ -206,7 +206,7 @@ export class CheckoutPage extends PageBase {
     }
   }
 
-  binfoCancel = {
+  ginfoCancel = {
     show: async () => {
       await this.clearSession()
       const kb = Helper.kbHome(this, Base.infoCancel)
@@ -214,7 +214,7 @@ export class CheckoutPage extends PageBase {
     }
   }
 
-  binfoMissing = {
+  ginfoMissing = {
     show: async () => {
       const kb = Helper.kbHome(this, Base.infoMissing)
       await this.renderAuto(kb, {}, Base.infoMissing)

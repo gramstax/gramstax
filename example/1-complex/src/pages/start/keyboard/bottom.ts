@@ -35,45 +35,45 @@ export class StartKeyboardBottomPage extends PageBase {
   })
 
   async handleCallbackQueryData() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleText() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleArgsText() {
-    await this.bindex.process(this.msgTextArg)
+    await this.gindex.process(this.msgTextArg)
   }
 
   async handleCommandText() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleCommandArgsText() {
-    await this.bindex.process(this.msgTextCommandArg)
+    await this.gindex.process(this.msgTextCommandArg)
   }
 
-  bindex = {
+  gindex = {
     show: async (count?: number) => {
       await Helper.built(this, count, Base.index)
     },
     process: async (action: string) => {
       if (action === Base.reset) {
-        await this.breset.show()
+        await this.greset.show()
       } else if (action === Base.delete) {
-        await this.bdelete.show()
+        await this.gdelete.show()
       } else {
-        await this.bindex.show(parseInt(this.msgTextArg))
+        await this.gindex.show(parseInt(this.msgTextArg))
       }
     }
   }
-  breset = {
+  greset = {
     show: async () => {
       await Helper.built(this, undefined, Base.reset)
     }
   }
-  bdelete = {
+  gdelete = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage], `1`, Base.index)
       await this.renderAuto(kb, {}, Base.delete, {

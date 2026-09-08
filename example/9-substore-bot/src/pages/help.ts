@@ -7,14 +7,14 @@ export class HelpPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleCommandText() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([CatalogPage, StartPage])
       const da = {support: Env.STORE_ADMIN_USERNAME}

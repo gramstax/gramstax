@@ -10,29 +10,29 @@ export class StartInputText2Page extends PageBase {
   static data = this.buildData({intentCommandText: `input_text2`})
 
   async handleCallbackQueryData() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleCommandText() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleFreeText() {
-    await this.bindex.process()
+    await this.gindex.process()
   }
 
-  bindex = {
+  gindex = {
     show: async () => {
       const bi = Base.index
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       await this.renderAuto(kb, {}, bi)
     },
     process: async () => {
-      await this.bsuccess.show()
+      await this.gsuccess.show()
     }
   }
 
-  bsuccess = {
+  gsuccess = {
     show: async () => {
       const bi = Base.success
       const da = {res: this.msg?.text}

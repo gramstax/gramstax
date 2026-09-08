@@ -21,24 +21,24 @@ export class DetailPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bindex.show()
+    await this.gindex.show()
   }
 
   async handleSessionFreeText() {
     const id = this.msg!.text!.trim()
     if (!id) {
-      await this.bwarnInvalid.show()
+      await this.gwarnInvalid.show()
     }
 
     const item = await this.db.items.fetch(this.from!.id, id)
     if (!item) {
-      await this.binfoNotFound.show(id)
+      await this.ginfoNotFound.show(id)
     } else {
-      await this.bsuccess.show(item)
+      await this.gsuccess.show(item)
     }
   }
 
-  bindex = {
+  gindex = {
     show: async () => {
       const bi = Base.index
       const kb = Helper.buildHomeKeyboard(this, bi)
@@ -46,7 +46,7 @@ export class DetailPage extends PageBase {
       await this.renderAuto(kb, {}, bi)
     }
   }
-  bsuccess = {
+  gsuccess = {
     show: async (item: IVItem) => {
       await this.clearSession()
       const createdAt = TimeUt.formatTimestamp(item.createdAt!)
@@ -65,7 +65,7 @@ export class DetailPage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  binfoNotFound = {
+  ginfoNotFound = {
     show: async (id: string) => {
       await this.clearSession()
       const bi = Base.infoNotFound
@@ -74,7 +74,7 @@ export class DetailPage extends PageBase {
       await this.renderAuto(kb, da, bi)
     }
   }
-  bwarnInvalid = {
+  gwarnInvalid = {
     show: async () => {
       const bi = Base.warnInvalid
       const kb = Helper.buildHomeKeyboard(this, bi)

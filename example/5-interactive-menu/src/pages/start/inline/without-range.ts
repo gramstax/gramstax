@@ -41,15 +41,15 @@ export class StartInlineWithoutRangePage extends PageBase {
   static data = this.buildData((step?: string, action?: string, page?: string) => [step, action, page])
 
   async handleCallbackQueryData() {
-    await this.bdefault.show(0)
+    await this.gdefault.show(0)
   }
 
   async handleArgsCallbackQueryData() {
     const [action, value] = this.callbackQueryDataArgs
-    await this.bdefault.process(action!, value!)
+    await this.gdefault.process(action!, value!)
   }
 
-  bdefault = {
+  gdefault = {
     show: async (pageNo: number) => {
       const {pageNo: currentPage, safePage} = Helper.pageData(pageNo)
       const da = {pageNo: currentPage}
@@ -60,7 +60,7 @@ export class StartInlineWithoutRangePage extends PageBase {
       if (action === `page`) {
         const nextPage = Number(value)
         if (!Number.isNaN(nextPage)) {
-          await this.bdefault.show(nextPage)
+          await this.gdefault.show(nextPage)
         }
       } else if (action === `item` && value) {
         // ???

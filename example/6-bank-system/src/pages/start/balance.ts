@@ -6,10 +6,10 @@ export class StartBalancePage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const balance = this.bankStore.getBalance(this.from!.id)
       const formatted = this.bankStore.formatAmount(balance)

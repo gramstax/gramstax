@@ -4,10 +4,10 @@ export class StartTestErrorPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       // The error will be thrown to the GeneralErrorPage automatically because there is no try catch error handler in this area.
       await Promise.reject(new Error(`error from ${this.data.name}`))

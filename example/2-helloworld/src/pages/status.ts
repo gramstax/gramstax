@@ -16,7 +16,7 @@ export class StatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
-  berror = {
+  gerror = {
     show: async (funcName: string, error: Error | unknown) => {
       LogHe.errorMake(error, this.constructorName, funcName)
 
@@ -27,7 +27,7 @@ export class StatusPage extends PageBase {
     }
   }
 
-  bnotFound = {
+  gnotFound = {
     show: async () => {
       const bi = Base.notFound
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
@@ -36,7 +36,7 @@ export class StatusPage extends PageBase {
   }
 
   static template = `
-    <g-base>
+    <g-base id="${Base.error}">
       ${this.kbk.home()}
       <g-message>
         ❌ Something went wrong

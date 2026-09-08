@@ -5,10 +5,10 @@ export class StartHelpPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       await this.renderAuto(this.inlineKeyboardT([StartPage]))
     }

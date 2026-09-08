@@ -6,14 +6,14 @@ export class StartHelpPage extends PageBase {
   static data = this.buildData({intentText: `Help`})
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleText() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage])
       await this.renderAuto(kb)

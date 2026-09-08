@@ -22,10 +22,10 @@ export class BotCore extends Gramstax {
   }
 
   async hookErrorPage(ctx: CtxCore, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {
-    await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error)
+    await new StatusPage(ctx).gerror.show(`${data.listenerName}:hookErrorPage`, data.error)
   }
 
   async hookNotFoundPage(ctx: CtxCore) {
-    await new StatusPage(ctx).bnotFound.show()
+    await new StatusPage(ctx).gnotFound.show()
   }
 }

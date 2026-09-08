@@ -5,10 +5,10 @@ export class StatsPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const count = await this.db.subs.total()
       const subscribed = await this.db.subs.isSubscribed(this.from!.id)

@@ -11,14 +11,14 @@ export class StartCounterPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleArgsCallbackQueryData() {
-    await this.bdefault.process()
+    await this.gdefault.process()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const key = `${this.from!.id}`
       const count = (await this.cacheData.get(key)) || `0`

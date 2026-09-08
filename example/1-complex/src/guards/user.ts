@@ -3,7 +3,7 @@ import {StatusPage} from "~/pages/status"
 
 export class UserGuard extends GuardBase {
   async _catch(err: Error | unknown, func: string) {
-    await new StatusPage(this).berror.show(func, err)
+    await new StatusPage(this).gerror.show(func, err)
     return null
   }
 

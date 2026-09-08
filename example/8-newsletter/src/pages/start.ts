@@ -6,19 +6,19 @@ export class StartPage extends PageBase {
   static data = this.buildData((action?: string) => [action])
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleArgsCallbackQueryData() {
     const action = this.callbackQueryDataArg
-    await this.bdefault.process(action)
+    await this.gdefault.process(action)
   }
 
   async handleCommandText() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       await this.clearSession()
       const subscribed = await this.db.subs.isSubscribed(this.from!.id)
@@ -38,7 +38,7 @@ export class StartPage extends PageBase {
             language: this.from?.language_code
           })
         }
-        await this.bdefault.show()
+        await this.gdefault.show()
       }
     }
   }

@@ -20,7 +20,7 @@
 ## SHARED SKELETON
 All TS examples share the same `src/` layout:
 - `base/{guard,page}.ts`, `blocks/g-keyboard.ts`, `core/{bot,ctx}.ts`, `guards/`, `helpers/log.ts`, `pages/`, `utils/array.ts`, `env.ts`, `index.ts`
-- Class chain: `PageBase extends CtxCore extends Ctx`; `BotCore extends Gramstax` overriding `hookErrorPage` + `hookNotFoundPage` (via `StatusPage.berror/bnotFound`)
+- Class chain: `PageBase extends CtxCore extends Ctx`; `BotCore extends Gramstax` overriding `hookErrorPage` + `hookNotFoundPage` (via `StatusPage.gerror/gnotFound`)
 - Entry convention: `index.ts` does `new BotCore({deploy, token, log})` then `Index.run()`
 - `env.ts` = static class with `TELEGRAM_BOT_DEPLOY` (default `polling`) and a hardcoded (revoked) test token
 - Every TS example has its own `tsconfig.json` extending `../../tsconfig.json` (composite, `noEmit: false`, includes `src/test/e2e`) with `~/*` → `./src/*` path alias

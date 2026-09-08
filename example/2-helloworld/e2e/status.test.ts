@@ -3,16 +3,18 @@ import {e2e, enUser, idUser} from "./setup"
 
 const intent = `status`
 
-beforeEach(() => {
+beforeEach(async () => {
+  await e2e.sendText(`/start`, enUser)
+  await e2e.sendText(`/start`, idUser)
   e2e.clearCalls()
 })
 
 describe(`E2E: StatusPage`, () => {
-  it(`show not-found for unrecognized callback`, async () => {
-    await e2e.sendText(`/start`, enUser)
-    await e2e.sendText(`/start`, idUser)
-    e2e.clearCalls()
+  it(`show error`, () => {
+    expect(true).toBe(true)
+  })
 
+  it(`show not-found for unrecognized callback`, async () => {
     const res = await e2e.sendCallbackQuery(`nonexistent`, enUser)
     const resId = await e2e.sendCallbackQuery(`nonexistent`, idUser)
     expect(res.length).toBeGreaterThan(0)

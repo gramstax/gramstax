@@ -7,14 +7,14 @@ export class HistoryPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
   async handleCommandText() {
-    await this.bdefault.show()
+    await this.gdefault.show()
   }
 
-  bdefault = {
+  gdefault = {
     show: async () => {
       const raw = ((await this.cacheState.get(`${this.from!.id}:orders`)) ?? []) as OrderRecord[]
       const history = OrderHistoryStore.refreshStatuses(raw)
