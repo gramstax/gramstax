@@ -336,7 +336,7 @@ await users.findByIndex({ lowerEmail: `damar@example.com` }); // explicit name l
 
 Semantics:
 
-- **Object-query reads.** `findByIndex(query, tx?)` is the single read API — no more `findByIndex`/`findOneByIndex` split (the old `findOneByIndex` was never released). The query maps declared index names to values; every key is ANDed, and unique and non-unique indexes are queried alike. The optional `tx` argument keeps every point read of the query (index lookups + primary fetches) on the same snapshot, so `findByIndex(query, tx)` inside `readTransaction`/`transaction` sees a consistent view. Return shape is driven by the *uniqueness of the queried keys*:
+- **Object-query reads.** `findByIndex(query, tx?, { limit }?)` is the single read API — no more `findByIndex`/`findOneByIndex` split (the old `findOneByIndex` was never released). The query maps declared index names to values; every key is ANDed, and unique and non-unique indexes are queried alike. The optional `tx` argument keeps every point read of the query (index lookups + primary fetches) on the same snapshot, so `findByIndex(query, tx)` inside `readTransaction`/`transaction` sees a consistent view. The optional `{ limit }` caps the final matched rows with flat memory (the driver index is paged in chunks until the limit is satisfied) — always pass it for fan-out reads like `findByIndex({ subscribed: true }, undefined, { limit: 1000 })`, since an unbounded non-unique query materializes every match. Return shape is driven by the *uniqueness of the queried keys*:
   - all queried keys are unique (`{ username: ... }`, `{ username, email }` on two unique indexes) → `T | undefined`
   - any queried key is non-unique (`{ email: ... }`, `{ username, email }` where email is non-unique) → `T[]`
   - multi-key queries AND the keys — the driver key (unique indexes tried first, then non-unique) seeds the candidates and the remaining keys filter them; contradictory keys yield no match (`undefined`/`[]`), never an error.
@@ -488,6 +488,20 @@ await repo.like(`*partial*`); // full scan + regex filter
 ```
 
 The `\uffff` sentinel produces the first key that sorts after any prefix — it is the exclusive upper bound for a prefix range scan.
+
+### Pagination: prefer keyset over offset
+
+`{offset}` skips by stepping the cursor over N rows (O(offset) wasted work per page — page 100 pays for 1000 discarded rows). Keyset pagination seeks straight to the last seen key (O(log n)):
+
+```typescript
+// ❌ Offset: every page re-walks all previous rows
+await repo.entries({ limit: 10, offset: 1000 });
+
+// ✅ Keyset: cursor seeks directly to the resume point
+await repo.entries({ start: lastKeyFromPreviousPage, limit: 10 });
+```
+
+Measured in `bench/range.bench.ts` (`Range / pagination` group) — the gap grows linearly with page depth. Rule of thumb: `offset` is fine below ~100; beyond that, carry the last key forward.
 
 ### Materialization Guardrail
 

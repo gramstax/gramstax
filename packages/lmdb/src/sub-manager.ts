@@ -147,7 +147,24 @@ export class LmdbEnvSubManager {
       ...(opts?.ttlMs !== undefined ? {ttlMs: opts.ttlMs} : {})
     }
     this._subStates.set(dbName, state)
+    this._warnMaxDbs()
     return state
+  }
+
+  private _maxDbsWarned = false
+
+  private _warnMaxDbs(): void {
+    // Production-scale configs only (tests use tiny maxDbs): warn once when
+    // fewer than 32 sub-DB slots remain. Every schema, index, queue, and TTL
+    // helper consumes slots, and breaching maxDbs throws mid-registration.
+    if (this._maxDbsWarned) return
+    const max = this.env.maxDbs
+    if (max < 32) return
+    const remaining = max - this._subStates.size
+    if (remaining <= 32) {
+      this._maxDbsWarned = true
+      console.warn(`[@gramstax/lmdb] ${this._subStates.size}/${max} sub-DBs used — raise maxDbs before deploy (each schema + each .unique()/.index() consumes slots).`)
+    }
   }
 
   private _attachIndexesTo(state: LmdbSubState, defs: Array<{name: string; def: IIndexDef<unknown, ILmdbKey>; dbName: string}>): void {

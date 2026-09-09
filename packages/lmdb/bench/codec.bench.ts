@@ -7,6 +7,10 @@
  * `LmdbCodec` no longer exists; custom transforms benchmark via schema
  * `static hookBeforeWrite`/`static hookBeforeRead` in decode.bench.ts.
  *
+ * Runner: mitata (`bench`/`group`/`run`) — env setup + populate + byte-size
+ * measurement stay outside the measured closures; only a bounded 500-key
+ * write window and its sequential reads are timed.
+ *
  * Run: bun run packages/lmdb/bench/codec.bench.ts
  *
  * @internal
@@ -15,10 +19,13 @@
 import {mkdtempSync, readdirSync, rmSync, statSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
+import {bench, do_not_optimize, group} from "mitata"
 import {LmdbEnv, LmdbSchema, t} from "../src"
+import {benchSize, runBench} from "./_setup"
 
-const N = 2_000
+const N = benchSize(2_000)
 const WARMUP = 200
+const WINDOW = 500
 
 // ---------------------------------------------------------------------------
 // Data types
@@ -107,31 +114,10 @@ const HUGE: Huge = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function fmtMs(ms: number): string {
-  if (ms < 0.001) return `${Math.round(ms * 1_000_000)}ns`
-  if (ms < 1) return `${(ms * 1_000).toFixed(1)}us`
-  if (ms < 1_000) return `${ms.toFixed(2)}ms`
-  return `${(ms / 1_000).toFixed(2)}s`
-}
-
 function fmtBytes(b: number): string {
   if (b < 1024) return `${b}B`
   if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)}KB`
   return `${(b / 1024 / 1024).toFixed(2)}MB`
-}
-
-interface BenchResult {
-  writeP50: number
-  writeP95: number
-  writeP99: number
-  writeMax: number
-  readP50: number
-  readP95: number
-  readP99: number
-  readMax: number
-  writeOps: number
-  readOps: number
-  bytesPerValue: number
 }
 
 function dirSize(path: string): number {
@@ -148,28 +134,6 @@ function dirSize(path: string): number {
   return total
 }
 
-function printResult(label: string, enc: string, r: BenchResult): void {
-  const f = (v: number): string => fmtMs(v).padStart(10)
-  const o = (v: number): string => v.toFixed(0).padStart(8)
-  console.log(`  ${label.padEnd(6)} ${enc.padEnd(8)} write: p50=${f(r.writeP50)} p95=${f(r.writeP95)} p99=${f(r.writeP99)} max=${f(r.writeMax)}  ${o(r.writeOps)} ops/s  |  read: p50=${f(r.readP50)} p95=${f(r.readP95)} p99=${f(r.readP99)} max=${f(r.readMax)}  ${o(r.readOps)} ops/s`)
-}
-
-function winnerLoser(mp: BenchResult, js: BenchResult, metric: `writeP50` | `readP50`): {winner: string; loser: string; ratio: number} {
-  const a = mp[metric]
-  const b = js[metric]
-  return a <= b ? {winner: `msgpack`, loser: `json`, ratio: b / a} : {winner: `json`, loser: `msgpack`, ratio: a / b}
-}
-
-function rankPair(title: string, metric: `writeP50` | `readP50`, rows: Array<{label: string; r: BenchResult}>): void {
-  const sorted = [...rows].sort((a, b) => a.r[metric] - b.r[metric])
-  console.log(`  Ranking by ${title} p50:`)
-  for (const [i, row] of sorted.entries()) {
-    const tag = i === 0 ? `🏆` : `💀`
-    const pct = i === 0 ? `(WINNER)` : `+${((row.r[metric] / sorted[0]!.r[metric] - 1) * 100).toFixed(0)}% vs winner`
-    console.log(`    #${i + 1} ${tag} ${row.label.padEnd(8)} ${fmtMs(row.r[metric]).padStart(10)}  ${pct}`)
-  }
-}
-
 function makeBenchSchema(encoding: string) {
   return class BenchSchema extends LmdbSchema {
     static db = `bench-${encoding}`
@@ -179,7 +143,18 @@ function makeBenchSchema(encoding: string) {
   }
 }
 
-async function benchEncoding<T>(data: T, encoding: `msgpack` | `json` | `binary`): Promise<BenchResult> {
+interface BenchHandle {
+  putSync: (key: string, value: unknown) => void
+  get: (key: string) => unknown
+}
+
+interface Prepared {
+  env: LmdbEnv
+  bench: BenchHandle
+  dir: string
+}
+
+async function setupEncoding<T>(data: T, encoding: `msgpack` | `json`): Promise<Prepared> {
   const dir = mkdtempSync(join(tmpdir(), `enc-${encoding}-`))
   const env = new LmdbEnv({path: dir, maxDbs: 5})
 
@@ -187,12 +162,9 @@ async function benchEncoding<T>(data: T, encoding: `msgpack` | `json` | `binary`
   // encoding (fresh env per call, so the dbName registers exactly once). The
   // register() handle is pre-bound to the schema; the bench stores raw payloads
   // of arbitrary shape, so the handle is widened to unknown values (bench-only).
-  const bench = env.register(makeBenchSchema(encoding)) as unknown as {
-    putSync: (key: string, value: unknown) => void
-    get: (key: string) => unknown
-  }
+  const bench = env.register(makeBenchSchema(encoding)) as unknown as BenchHandle
 
-  // Warmup writes (transactionSync), reads sequential
+  // Warmup + populate (transactionSync) — unmeasured setup
   const CHUNK = 500
   for (let start = 0; start < WARMUP; start += CHUNK) {
     const end = Math.min(start + CHUNK, WARMUP)
@@ -200,55 +172,17 @@ async function benchEncoding<T>(data: T, encoding: `msgpack` | `json` | `binary`
       for (let j = start; j < end; j++) bench.putSync(`w${j}`, data)
     })
   }
-
   for (let i = 0; i < WARMUP; i++) await bench.get(`w${i}`)
 
-  // Timed writes (transactionSync), reads sequential
-  const writeLat: bigint[] = []
-  const readLat: bigint[] = []
   for (let start = 0; start < N; start += CHUNK) {
     const end = Math.min(start + CHUNK, N)
-    const t0 = process.hrtime.bigint()
     env.rootTransactionSync(() => {
       for (let j = start; j < end; j++) bench.putSync(`k${j}`, data)
     })
-    writeLat.push(process.hrtime.bigint() - t0)
-    for (let i = start; i < end; i++) {
-      const t1 = process.hrtime.bigint()
-      await bench.get(`k${i}`)
-      readLat.push(process.hrtime.bigint() - t1)
-    }
   }
+  for (let i = 0; i < N; i++) await bench.get(`k${i}`)
 
-  const srt = (arr: bigint[]): bigint[] => [...arr].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-  const at = (s: bigint[], p: number): bigint => s[Math.min(s.length - 1, Math.floor((s.length * p) / 100))] ?? 0n
-  const ws = srt(writeLat)
-  const rs = srt(readLat)
-  const wallW = ws.reduce((a, b) => a + b, 0n)
-  const wallR = rs.reduce((a, b) => a + b, 0n)
-  const size = dirSize(dir)
-
-  await env.close()
-  try {
-    rmSync(dir, {recursive: true, force: true})
-  } catch {
-    /* ignore */
-  }
-
-  const nsToMs = (n: bigint): number => Number(n) / 1_000_000
-  return {
-    writeP50: nsToMs(at(ws, 50)),
-    writeP95: nsToMs(at(ws, 95)),
-    writeP99: nsToMs(at(ws, 99)),
-    writeMax: nsToMs(ws[ws.length - 1] ?? 0n),
-    readP50: nsToMs(at(rs, 50)),
-    readP95: nsToMs(at(rs, 95)),
-    readP99: nsToMs(at(rs, 99)),
-    readMax: nsToMs(rs[rs.length - 1] ?? 0n),
-    writeOps: N / (nsToMs(wallW) / 1000),
-    readOps: N / (nsToMs(wallR) / 1000),
-    bytesPerValue: size / N
-  }
+  return {env, bench, dir}
 }
 
 // ---------------------------------------------------------------------------
@@ -265,40 +199,45 @@ async function main(): Promise<void> {
     {label: `HUGE`, data: HUGE, desc: `~15KB, 100 rows`}
   ]
 
+  const prepared: Prepared[] = []
+  const byteSizes: Record<string, Record<string, number>> = {}
+
   for (const sz of sizes) {
     console.log(`--- ${sz.label} (${sz.desc}) ---`)
-    const results: Partial<Record<string, BenchResult>> = {}
     for (const enc of [`msgpack`, `json`] as const) {
-      results[enc] = await benchEncoding(sz.data, enc)
-      printResult(sz.label, enc, results[enc]!)
+      const p = await setupEncoding(sz.data, enc)
+      prepared.push(p)
+      const bytesPerValue = dirSize(p.dir) / N
+      byteSizes[sz.label] ??= {}
+      byteSizes[sz.label]![enc] = bytesPerValue
+
+      // Bounded 500-key window — overwrite + sequential read, DB size stays flat
+      group(`${sz.label} / ${enc}`, () => {
+        bench(`write window (500 puts/1 txn)`, () => {
+          p.env.rootTransactionSync(() => {
+            for (let j = 0; j < WINDOW; j++) p.bench.putSync(`b${j}`, sz.data)
+          })
+        })
+        bench(`read sequential (500 gets/500 reqs)`, async () => {
+          for (let j = 0; j < WINDOW; j++) do_not_optimize(await p.bench.get(`b${j}`))
+        }).gc(`inner`)
+      })
     }
-    const mp = results.msgpack!
-    const js = results.json!
-    console.log(`  bytes/val:  msgpack=${fmtBytes(mp.bytesPerValue).padStart(8)}  json=${fmtBytes(js.bytesPerValue).padStart(8)}` + `  (json=${((js.bytesPerValue / mp.bytesPerValue) * 100).toFixed(0)}% of msgpack)`)
-    const wr = js.writeP50 / mp.writeP50
-    const rd = js.readP50 / mp.readP50
-    const wrLabel = wr > 1.05 ? `json ${wr.toFixed(2)}x faster` : mp.writeP50 / js.writeP50 > 1.05 ? `msgpack ${(mp.writeP50 / js.writeP50).toFixed(2)}x faster` : `similar`
-    const rdLabel = rd > 1.05 ? `json ${rd.toFixed(2)}x faster` : mp.readP50 / js.readP50 > 1.05 ? `msgpack ${(mp.readP50 / js.readP50).toFixed(2)}x faster` : `similar`
-    const sizeRatio = ((js.bytesPerValue / mp.bytesPerValue) * 100).toFixed(0)
-    const sizeLabel = Number(sizeRatio) < 95 ? `msgpack ${(mp.bytesPerValue / js.bytesPerValue).toFixed(1)}x smaller` : Number(sizeRatio) > 105 ? `json ${(js.bytesPerValue / mp.bytesPerValue).toFixed(1)}x larger` : `similar`
-    console.log(`  write: ${wrLabel.padEnd(30)} read: ${rdLabel.padEnd(30)} size: ${sizeLabel}  (json=${sizeRatio}% of msgpack)`)
-    for (const [metric, dir] of [
-      [`writeP50`, `write`],
-      [`readP50`, `read`]
-    ] as const) {
-      const v = winnerLoser(mp, js, metric)
-      console.log(`  🏆 WINNER (${dir}): ${v.winner} — ${v.ratio.toFixed(2)}x faster than ${v.loser} (p50)`)
-      console.log(`  💀 LOSER (${dir}): ${v.loser} — ${v.ratio.toFixed(2)}x slower than ${v.winner} (p50)`)
-    }
-    rankPair(`write`, `writeP50`, [
-      {label: `msgpack`, r: mp},
-      {label: `json`, r: js}
-    ])
-    rankPair(`read`, `readP50`, [
-      {label: `msgpack`, r: mp},
-      {label: `json`, r: js}
-    ])
+    const mp = byteSizes[sz.label]!.msgpack!
+    const js = byteSizes[sz.label]!.json!
+    console.log(`  bytes/val: msgpack=${fmtBytes(mp)}  json=${fmtBytes(js)}  (json=${((js / mp) * 100).toFixed(0)}% of msgpack)`)
     console.log(``)
+  }
+
+  await runBench()
+
+  for (const p of prepared) {
+    await p.env.close()
+    try {
+      rmSync(p.dir, {recursive: true, force: true})
+    } catch {
+      /* ignore */
+    }
   }
 
   console.log(`Done.`)

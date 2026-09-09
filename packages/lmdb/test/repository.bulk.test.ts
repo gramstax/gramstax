@@ -52,6 +52,19 @@ describe(`LmdbRepository bulk utilities`, () => {
     expect(await users.get(`u1`)).toEqual({id: `u1`, name: `Alicia`})
   })
 
+  it(`count() tracks put/overwrite/delete/clear exactly (stat-based)`, async () => {
+    expect(users.count()).toBe(0)
+    await users.put(`u1`, {id: `u1`, name: `Alice`})
+    await users.put(`u2`, {id: `u2`, name: `Bob`})
+    expect(users.count()).toBe(2)
+    await users.put(`u1`, {id: `u1`, name: `Alicia`})
+    expect(users.count()).toBe(2)
+    await users.delete(`u1`)
+    expect(users.count()).toBe(1)
+    await users.clear()
+    expect(users.count()).toBe(0)
+  })
+
   it(`exportJSONL serializes entries as JSON Lines`, async () => {
     await users.put(`u1`, {id: `u1`, name: `Alice`})
     await users.put(`u2`, {id: `u2`, name: `Bob`})

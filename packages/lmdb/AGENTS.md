@@ -48,9 +48,10 @@ class Db extends LmdbEnv {
 - **Atomic writes**: `env.transaction()` for every read-then-write pattern. Use a sync callback (non-async) — sub methods are non-async, and a sync callback keeps all writes in the same event turn for proper batching.
 - **Cross-repo access**: `this.env.sub(OtherSchema)` inside transactions.
 - **Key design**: natural key per repo — no namespace prefixes. Composite keys: `static key = t.array<string>()` (runtime keys are arrays like `["tenant-a", "u1"]`).
-- **Counting**: `repo.count()` = O(1), synchronous — prefer over manual counters.
+- **Counting**: `repo.count()` = O(1) (`mdb_stat`), synchronous — prefer over manual counters.
+- **Pagination**: prefer keyset (`entries({start: lastKey, limit})`, O(log n) seek) over `offset` (O(offset) cursor stepping per page).
 - **Encoding**: default msgpack (fast, Date/Map/Set/BigInt); `encoding: "json"` for human-readable.
-- **Materialization guardrail**: `keys()`/`values()`/`entries()`/`like()`/`findByPrefix()`/`deleteByPrefix()` reject with `LmdbMaterializationError` when the result set would exceed `MAX_MATERIALIZE` (`100_000`). Pass `{limit}` below the cap or use `iterate()` (lazy, never guarded) for result sets larger than 100k.
+- **Materialization guardrail**: `keys()`/`values()`/`entries()`/`like()`/`findByPrefix()`/`deleteByPrefix()` reject with `LmdbMaterializationError` when the result set would exceed `MAX_MATERIALIZE` (`100_000`). The guard counts only the effective range (`start`+`end`, or the inferred prefix bounds for `like()`/`findByPrefix()`) via keys-only counting instead of walking the whole sub-DB — selective patterns on oversized repos pass instead of false-rejecting. Pass `{limit}` below the cap or use `iterate()` (lazy, never guarded) for result sets larger than 100k.
 - **Queue v2**: `LmdbQueue` enqueue/dequeue run in ONE synchronous transaction (`transactionSync`) — counter bump + payload write (enqueue) and read + delete (dequeue) commit atomically, FIFO preserved across processes.
 - **Service layer**: domain methods do NOT live on the schema. Keep the schema for storage and put business logic in a service class that receives the `Db` env — e.g. `class UserService { constructor(private db: Db) { this.db.register(UserSchema) } }`, then `this.db.sub(UserSchema).put(...)`.
 
@@ -137,12 +138,30 @@ Transaction lifecycle: `'active' | 'committed' | 'aborted' | 'released'` — rea
 
 Constructor options: `path`, `maxDbs` (default 128), `compression`, `encoding`, `readOnly`, `mapSize` (default 4 GB), `cache`, `useVersions`, `keyEncoding`, `dupSort`, `noSync`, `encryptionKey`, `commitDelay`, `pageSize`, and all other `lmdb` `open()` options.
 
+## Ops Sizing (production)
+
+- **`mapSize` is virtual, not RAM** — size it 10-50x expected data (millions of rows need tens of GB). Breaching it throws `LmdbMapFullError` at runtime; monitor with `env.getMapSizeUsed()` (registration already refuses below 10% free).
+- **`maxDbs` counts everything**: each schema + each `.unique()`/`.index()` + each queue (`+2` with `__queue_meta`) consumes a sub-DB slot. Breaching it throws mid-registration; a one-time `console.warn` fires below 32 remaining slots (production configs only).
+- **Broadcast queries need `{limit}`**: unbounded `findByIndex` on a non-unique key materializes every match — always pass `{limit}` for fan-out reads (`findByIndex({subscribed: true}, undefined, {limit: 1000})`).
+
 ## Build & Test
 
 ```
 nx build lmdb                     # tsup → dist/src/
 bun test packages/lmdb/test/
 ```
+
+## Bench
+
+```
+cd packages/lmdb && bun run bench:crud     # per-file: bench:queue|range|queries|transaction|decode|concurrent|codec|index|batch|ttl
+cd packages/lmdb && bun run bench:quick    # fast subset (BENCH_N=1000)
+cd packages/lmdb && bun run bench:all      # full suite (slow: decode defaults to 500k rows)
+```
+
+- Runner: mitata (`bench`/`group`/`run`); shared setup in `bench/_setup.ts` (`setupEnv`, `populateSync`, `benchSize`, `runBench`). Bench labels state the per-iteration request count (`3 reqs`, `500 puts/1 txn`).
+- Knobs: `BENCH_N` (dataset size, per file), `BENCH_CONC` (csv concurrency, concurrent only), `BENCH_FILTER` (regex → mitata `run({filter})`, e.g. `BENCH_FILTER="count" bun run bench:crud`).
+- Benches are `@internal` scripts — excluded from `bun test` and CI. Destructive ops (delete, dequeue-drain) are self-contained per iteration (unique keys / refill) so mitata's adaptive iteration count never breaks them.
 
 ## Anti-Patterns
 

@@ -524,3 +524,44 @@ describe(`embedded indexes + compareAndSet (useVersions)`, () => {
     expect(await vEnv.sub(CasEmailSchema).findByIndex({email: `same@x.com`})).toHaveLength(2)
   })
 })
+
+describe(`findByIndex limit`, () => {
+  beforeEach(async () => {
+    const users = env.sub(StrUserSchema)
+    for (let i = 0; i < 50; i++) {
+      await users.put(`u${i}`, {username: `user${i}`, email: `group${i % 5}@x.dev`})
+    }
+  })
+
+  it(`caps non-unique matches to the leading limit rows`, async () => {
+    const users = env.sub(StrUserSchema)
+    const full = await users.findByIndex({email: `group1@x.dev`})
+    expect(full).toHaveLength(10)
+    const limited = await users.findByIndex({email: `group1@x.dev`}, undefined, {limit: 3})
+    expect(limited).toHaveLength(3)
+    expect(limited).toEqual(full.slice(0, 3))
+  })
+
+  it(`returns every match when limit exceeds the set`, async () => {
+    const users = env.sub(StrUserSchema)
+    expect(await users.findByIndex({email: `group1@x.dev`}, undefined, {limit: 100})).toHaveLength(10)
+  })
+
+  it(`limit 0 returns an empty array for non-unique queries`, async () => {
+    const users = env.sub(StrUserSchema)
+    expect(await users.findByIndex({email: `group1@x.dev`}, undefined, {limit: 0})).toEqual([])
+  })
+
+  it(`applies limit after multi-key AND filtering`, async () => {
+    const users = env.sub(StrUserSchema)
+    const one = await users.findByIndex({email: `group1@x.dev`, username: `user11`}, undefined, {limit: 5})
+    expect(one).toHaveLength(1)
+  })
+
+  it(`unique queries ignore positive limits and empty on zero`, async () => {
+    const users = env.sub(StrUserSchema)
+    expect(await users.findByIndex({username: `user1`}, undefined, {limit: 5})).toEqual({username: `user1`, email: `group1@x.dev`})
+    expect(await users.findByIndex({username: `user1`}, undefined, {limit: 0})).toBeUndefined()
+  })
+
+})

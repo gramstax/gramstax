@@ -17,14 +17,18 @@ interface Session {
 
 class SessionSchema extends LmdbSchema { static db = `ttl-session-test`; static key = t.string(); static value = t.object<Session>(); static ttl = 0 }
 
+class DefaultTtlSchema extends LmdbSchema { static db = `ttl-default-test`; static key = t.string(); static value = t.object<Session>(); static ttl = 30 }
+
 let tmpDir: string
 let env: LmdbEnv
 let sessions: LmdbEnvSub<typeof SessionSchema>
+let defaultSessions: LmdbEnvSub<typeof DefaultTtlSchema>
 
 beforeEach(async () => {
   tmpDir = createTestDir(`lmdb-ttl-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
   sessions = env.register(SessionSchema)
+  defaultSessions = env.register(DefaultTtlSchema)
 })
 
 afterEach(async () => {
@@ -37,6 +41,30 @@ describe(`LmdbTtlRepository`, () => {
     await sessions.put(`s1`, {userId: `u1`})
     expect(sessions.get(`s1`)).toEqual({userId: `u1`})
     expect(sessions.has(`s1`)).toBe(true)
+  })
+
+  it(`putMany honors per-call TTL envelopes like put`, async () => {
+    await sessions.putMany([
+      [`s1`, {userId: `u1`}],
+      [`s2`, {userId: `u2`}]
+    ])
+    expect(sessions.get(`s1`)).toEqual({userId: `u1`})
+    await sessions.put(`s3`, {userId: `u3`}, {ttlMs: 30})
+    await Bun.sleep(50)
+    expect(sessions.get(`s3`)).toBeUndefined()
+    expect(sessions.get(`s1`)).toEqual({userId: `u1`})
+    expect(await sessions.purgeExpired()).toBe(1)
+  })
+
+  it(`putMany applies the schema default TTL`, async () => {
+    await defaultSessions.putMany([
+      [`d1`, {userId: `u1`}],
+      [`d2`, {userId: `u2`}]
+    ])
+    expect(defaultSessions.get(`d1`)).toEqual({userId: `u1`})
+    await Bun.sleep(50)
+    expect(defaultSessions.get(`d1`)).toBeUndefined()
+    expect(await defaultSessions.purgeExpired()).toBe(2)
   })
 
   it(`returns value before expiry and undefined after`, async () => {

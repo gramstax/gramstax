@@ -21,6 +21,19 @@
   ],
   "scripts": {
     "build": "tsup",
+    "bench:crud": "bun run ./bench/crud.bench.ts",
+    "bench:queue": "bun run ./bench/queue.bench.ts",
+    "bench:range": "bun run ./bench/range.bench.ts",
+    "bench:queries": "bun run ./bench/queries.bench.ts",
+    "bench:transaction": "bun run ./bench/transaction.bench.ts",
+    "bench:decode": "bun run ./bench/decode.bench.ts",
+    "bench:concurrent": "bun run ./bench/concurrent.bench.ts",
+    "bench:codec": "bun run ./bench/codec.bench.ts",
+    "bench:index": "bun run ./bench/index.bench.ts",
+    "bench:batch": "bun run ./bench/batch.bench.ts",
+    "bench:ttl": "bun run ./bench/ttl.bench.ts",
+    "bench:quick": "BENCH_N=1000 BENCH_CONC=10 bun run ./bench/crud.bench.ts && BENCH_N=1000 bun run ./bench/transaction.bench.ts && BENCH_N=1000 bun run ./bench/ttl.bench.ts",
+    "bench:all": "bun run bench:crud && bun run bench:queue && bun run bench:range && bun run bench:queries && bun run bench:transaction && bun run bench:decode && bun run bench:concurrent && bun run bench:codec && bun run bench:index && bun run bench:batch && bun run bench:ttl",
     "nx-release-publish": "npm publish --access public"
   },
   "engines": {
@@ -55,6 +68,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "cbor-x": "^1.6.5",
+    "mitata": "^1.0.34",
     "tsup": "^8.5.1"
   },
   "peerDependencies": {

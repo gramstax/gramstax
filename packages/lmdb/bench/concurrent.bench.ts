@@ -1,18 +1,27 @@
 /**
  * Concurrent access benchmark — N workers hitting the repository in parallel.
  *
+ * Runner: mitata (`bench`/`group`/`run`) — one bench per (mode × method ×
+ * concurrency); the worker fan-out lives inside the measured closure.
+ * The sub handle is registered ONCE and captured directly (no per-op
+ * `env.sub()` lookup inside hot closures). Read results go through
+ * `do_not_optimize` so JIT cannot eliminate them; allocation-heavy
+ * benches use `.gc('inner')` for consistent GC behavior.
+ *
  * Run: bun run packages/lmdb/bench/concurrent.bench.ts
  *
  * @internal
  */
 
-import {mkdtempSync} from "node:fs"
-import {tmpdir} from "node:os"
-import {join} from "node:path"
-import {LmdbEnv, LmdbSchema, t} from "../src"
+import {bench, do_not_optimize, group} from "mitata"
+import {LmdbSchema, t} from "../src"
+import type {LmdbEnvSub} from "../src"
+import {benchSize, populateSync, runBench, setupEnv} from "./_setup"
 
-const POPULATE = 5_000
-const CONCURRENCY = [10, 50, 100] as const
+const POPULATE = benchSize(5_000)
+const CONCURRENCY: ReadonlyArray<number> = process.env.BENCH_CONC?.split(`,`)
+  .map(Number)
+  .filter((n) => n > 0) ?? [10, 50, 100]
 const OPS_PER_WORKER = 30
 
 class UserSchema extends LmdbSchema {
@@ -25,225 +34,131 @@ class UserSchema extends LmdbSchema {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function fmtMs(ms: number): string {
-  if (ms < 0.001) return `${(ms * 1_000_000).toFixed(0)}ns`
-  if (ms < 1) return `${(ms * 1_000).toFixed(1)}us`
-  if (ms < 1_000) return `${ms.toFixed(2)}ms`
-  return `${(ms / 1_000).toFixed(2)}s`
-}
-
-interface PResult {
-  p50: number
-  p95: number
-  p99: number
-  max: number
-  min: number
-  throughput: number
-  totalMs: number
-  count: number
-}
-
-function compute(latencies: bigint[], wall: bigint): PResult {
-  const sorted = [...latencies].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-  const len = sorted.length
-  const at = (p: number): bigint => sorted[Math.min(len - 1, Math.floor((len * p) / 100))] ?? 0n
-  const totalMs = Number(wall) / 1_000_000
-  return {
-    p50: Number(at(50)) / 1_000_000,
-    p95: Number(at(95)) / 1_000_000,
-    p99: Number(at(99)) / 1_000_000,
-    max: Number(sorted[len - 1] ?? 0n) / 1_000_000,
-    min: Number(sorted[0] ?? 0n) / 1_000_000,
-    throughput: len > 0 ? (len / totalMs) * 1_000 : 0,
-    totalMs,
-    count: len
-  }
-}
-
-function printStats(method: string, s: PResult): void {
-  const f = (v: number): string => fmtMs(v).padStart(10)
-  console.log(`    ${method.padEnd(20)} p50=${f(s.p50)} p95=${f(s.p95)} p99=${f(s.p99)} max=${f(s.max)}  ${s.throughput.toFixed(0).padStart(8)} ops/s  (n=${s.count})`)
-}
-
-interface RankResult {
-  method: string
-  p50: number
-  throughput: number
-}
-
-function rankMethods(results: RankResult[], conc: number, mode: string): void {
-  const sorted = [...results].sort((a, b) => a.p50 - b.p50)
-  const winner = sorted[0]
-  const loser = sorted[sorted.length - 1]
-  const title = conc === 0 ? `-- Ranking ${mode} (all concurrencies) --` : `-- Ranking ${mode} conc=${conc} --`
-  if (!winner) {
-    console.log(`\n  ${title} — no results\n`)
-    return
-  }
-  if (sorted.length < 2 || !loser) {
-    console.log(`\n  ${title}\n  #1 🏆 ${winner.method}  p50=${fmtMs(winner.p50)}  +0.0% vs winner  (WINNER)\n`)
-    return
-  }
-  const speedup = loser.p50 / winner.p50
-  console.log(`\n  ${title}`)
-  sorted.forEach((r, i) => {
-    const isWinner = i === 0
-    const isLoser = i === sorted.length - 1
-    const vsWinnerPct = ((r.p50 - winner.p50) / winner.p50) * 100
-    const tpDelta = ((r.throughput - winner.throughput) / winner.throughput) * 100
-    const tag = isWinner ? `🏆` : isLoser ? `💀` : `  `
-    const suffix = isWinner ? `+0.0% vs winner  (WINNER)` : `${vsWinnerPct.toFixed(1)}% slower vs winner${isLoser ? `  (LOSER)` : ``}`
-    console.log(`  #${i + 1} ${tag} ${r.method.padEnd(20)} p50=${fmtMs(r.p50).padStart(10)}  ${suffix}  throughput ${tpDelta >= 0 ? `+${tpDelta.toFixed(1)}%` : `${tpDelta.toFixed(1)}%`}  ${r.throughput.toFixed(0).padStart(8)} ops/s`)
-  })
-  console.log(`Winner is ${speedup.toFixed(2)}x faster than loser: ${fmtMs(loser.p50)} vs ${fmtMs(winner.p50)}`)
-}
+type Users = LmdbEnvSub<typeof UserSchema>
 
 const randKey = (): string => `u${Math.floor(Math.random() * POPULATE)}`
 
-type BenchFn = (env: LmdbEnv, wid: number) => Promise<unknown>
+type BenchFn = (users: Users, wid: number) => Promise<unknown>
 
 const METHODS: Record<string, BenchFn> = {
-  get: async (e) => {
-    await e.sub(UserSchema).get(randKey())
+  get: async (u) => {
+    do_not_optimize(await u.get(randKey()))
   },
-  has: async (e) => {
-    await e.sub(UserSchema).has(randKey())
+  has: async (u) => {
+    do_not_optimize(await u.has(randKey()))
   },
-  put: async (e, w) => {
-    await e.sub(UserSchema).put(`w${w}:${Math.random().toString(36).slice(2)}`, {id: `w`, name: `w${w}`, age: w})
+  put: async (u, w) => {
+    await u.put(`w${w}:${Math.random().toString(36).slice(2)}`, {id: `w`, name: `w${w}`, age: w})
   },
-  delete: async (e) => {
+  delete: async (u) => {
     const k = `tmp:${Math.random().toString(36).slice(2)}`
-    await e.sub(UserSchema).put(k, {id: `t`, name: `t`, age: 0})
-    await e.sub(UserSchema).delete(k)
+    await u.put(k, {id: `t`, name: `t`, age: 0})
+    do_not_optimize(await u.delete(k))
   },
-  count: async (e) => {
-    await e.sub(UserSchema).count()
+  count: async (u) => {
+    do_not_optimize(await u.count())
   },
-  getMany: async (e) => {
-    await e.sub(UserSchema).getMany(Array.from({length: 10}, () => randKey()))
+  getMany: async (u) => {
+    do_not_optimize(await u.getMany(Array.from({length: 10}, () => randKey())))
   },
-  findByPrefix: async (e) => {
-    await e.sub(UserSchema).findByPrefix(`u${Math.floor(Math.random() * 10)}`)
+  findByPrefix: async (u) => {
+    do_not_optimize(await u.findByPrefix(`u${Math.floor(Math.random() * 10)}`))
   },
-  countByPrefix: async (e) => {
-    await e.sub(UserSchema).countByPrefix(`u${Math.floor(Math.random() * 10)}`)
+  countByPrefix: async (u) => {
+    do_not_optimize(await u.countByPrefix(`u${Math.floor(Math.random() * 10)}`))
   },
-  like: async (e) => {
-    await e.sub(UserSchema).like(`u*`)
+  like: async (u) => {
+    do_not_optimize(await u.like(`u*`))
   },
-  first: async (e) => {
-    await e.sub(UserSchema).first()
+  first: async (u) => {
+    do_not_optimize(await u.first())
   },
-  last: async (e) => {
-    await e.sub(UserSchema).last()
+  last: async (u) => {
+    do_not_optimize(await u.last())
   },
-  update: async (e) => {
+  update: async (u) => {
     const k = `u${Math.floor(Math.random() * 1000)}`
-    const cur = e.sub(UserSchema).get(k)
-    await e.sub(UserSchema).put(k, cur ?? {id: k, name: `init`, age: 0})
+    const cur = u.get(k)
+    do_not_optimize(cur)
+    await u.put(k, cur ?? {id: k, name: `init`, age: 0})
   },
-  iterate: async (e) => {
+  iterate: async (u) => {
     let c = 0
-    for await (const _ of e.sub(UserSchema).iterate({limit: 50})) {
+    for await (const _ of u.iterate({limit: 50})) {
       c++
       if (c >= 50) break
     }
+    do_not_optimize(c)
   }
 }
 
 const METHODS_READ: ReadonlyArray<keyof typeof METHODS> = [`get`, `has`, `count`, `getMany`, `findByPrefix`, `countByPrefix`, `like`, `first`, `last`, `iterate`]
 const METHODS_MIXED: ReadonlyArray<keyof typeof METHODS> = [`get`, `put`, `delete`, `update`, `findByPrefix`, `countByPrefix`, `like`, `getMany`]
 
-async function runConc(env: LmdbEnv, method: keyof typeof METHODS, concurrency: number): Promise<PResult> {
-  const fn = METHODS[method]!
-  const latencies: bigint[] = []
-  const wallStart = process.hrtime.bigint()
-  const totalOps = concurrency * OPS_PER_WORKER
-  latencies.length = totalOps
-  await Promise.all(
-    Array.from({length: concurrency}, (_, wid) =>
-      (async () => {
-        for (let i = 0; i < OPS_PER_WORKER; i++) {
-          const t0 = process.hrtime.bigint()
-          await fn(env, wid)
-          latencies[wid * OPS_PER_WORKER + i] = process.hrtime.bigint() - t0
-        }
-      })()
-    )
-  )
-  const wall = process.hrtime.bigint() - wallStart
-  return compute(latencies, wall)
-}
+const HEAVY_READ = new Set([`getMany`, `findByPrefix`, `like`, `iterate`])
 
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  const tmp = mkdtempSync(join(tmpdir(), `lmdb-bench-conc-`))
-  const env = new LmdbEnv({path: tmp, maxDbs: 5})
-  env.register(UserSchema)
+  const {env} = setupEnv(`lmdb-bench-conc-`, 5)
 
   const users = env.register(UserSchema)
   console.log(`Populating ${POPULATE} entries (txSync)...`)
-  const CHUNK = 500
-  for (let start = 0; start < POPULATE; start += CHUNK) {
-    const end = Math.min(start + CHUNK, POPULATE)
-    env.rootTransactionSync(() => {
-      for (let i = start; i < end; i++) {
-        users.putSync(`u${i}`, {id: `u${i}`, name: `name${i}`, age: i % 100})
-      }
-    })
-  }
+  populateSync(env, POPULATE, (i) => {
+    users.putSync(`u${i}`, {id: `u${i}`, name: `name${i}`, age: i % 100})
+  })
   console.log(`Ready.\n`)
 
-  const grand: Record<string, RankResult[]> = {"pure-read": [], mixed: []}
   for (const mode of [`pure-read`, `mixed`] as const) {
     const methods = mode === `pure-read` ? METHODS_READ : METHODS_MIXED
-    console.log(`\n=== ${mode.toUpperCase()} (${OPS_PER_WORKER} ops/worker) ===\n`)
     for (const conc of CONCURRENCY) {
-      console.log(`  Concurrency: ${conc}`)
-      const concResults: RankResult[] = []
-      for (const method of methods) {
-        const r = await runConc(env, method, conc)
-        printStats(method, r)
-        concResults.push({method, p50: r.p50, throughput: r.throughput})
-      }
-      rankMethods(concResults, conc, mode)
-      grand[mode]!.push(...concResults)
-      console.log(``)
+      group(`${mode} / conc=${conc} (${OPS_PER_WORKER} ops/worker)`, () => {
+        for (const method of methods) {
+          const fn = METHODS[method]!
+          const b = bench(`${method} (${conc * OPS_PER_WORKER} ops)`, async () => {
+            await Promise.all(
+              Array.from({length: conc}, (_, wid) =>
+                (async () => {
+                  for (let i = 0; i < OPS_PER_WORKER; i++) {
+                    await fn(users, wid)
+                  }
+                })()
+              )
+            )
+          })
+          if (HEAVY_READ.has(method)) b.gc(`inner`)
+        }
+      })
     }
   }
 
-  // Grand ranking per mode across all concurrency levels
-  for (const mode of [`pure-read`, `mixed`] as const) {
-    rankMethods(grand[mode]!, 0, mode)
-  }
+  group(`mixed interleaved`, () => {
+    for (const conc of CONCURRENCY) {
+      bench(`interleaved (conc=${conc}, ${conc * OPS_PER_WORKER} ops)`, async () => {
+        await Promise.all(
+          Array.from({length: conc}, async (_, wid) => {
+            for (let i = 0; i < OPS_PER_WORKER; i++) {
+              const method = METHODS_MIXED[i % METHODS_MIXED.length]!
+              await METHODS[method]!(users, wid)
+            }
+          })
+        )
+      }).gc(`inner`)
+    }
+  })
 
-  // Mixed interleaved
-  console.log(`=== MIXED INTERLEAVED ===\n`)
-  for (const conc of CONCURRENCY) {
-    const latencies: bigint[] = []
-    const wallStart = process.hrtime.bigint()
-    await Promise.all(
-      Array.from({length: conc}, async (_, wid) => {
-        for (let i = 0; i < OPS_PER_WORKER; i++) {
-          const method = METHODS_MIXED[i % METHODS_MIXED.length]!
-          const fn = METHODS[method]!
-          const t0 = process.hrtime.bigint()
-          await fn(env, wid)
-          latencies.push(process.hrtime.bigint() - t0)
-        }
-      })
-    )
-    const s = compute(latencies, process.hrtime.bigint() - wallStart)
-    console.log(`  concurrency=${String(conc).padStart(3)}  p50=${fmtMs(s.p50).padStart(10)} p95=${fmtMs(s.p95).padStart(10)} p99=${fmtMs(s.p99).padStart(10)} max=${fmtMs(s.max).padStart(10)}  ${s.throughput.toFixed(0).padStart(8)} ops/s  (n=${s.count})`)
-  }
+  group(`burst / 10_000 simultaneous users (Promise.all)`, () => {
+    bench(`get (10_000 parallel reqs)`, async () => {
+      do_not_optimize(await Promise.all(Array.from({length: 10_000}, () => users.get(randKey()))))
+    }).gc(`inner`)
+    bench(`mixed (10_000 parallel reqs)`, async () => {
+      await Promise.all(Array.from({length: 10_000}, (_, i) => METHODS[METHODS_MIXED[i % METHODS_MIXED.length]!]!(users, i)))
+    }).gc(`inner`)
+  })
+
+  await runBench()
 
   await env.close()
   console.log(`\nDone.`)

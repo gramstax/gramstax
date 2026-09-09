@@ -88,8 +88,9 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
   // ── Internal guards / helpers ──────────────────────────────────
 
   private _assertOpen(): void {
-    if (this.owner.state === `closed`) throw new LmdbEnvClosedError()
-    if (this.owner.state !== `open`) throw new LmdbEnvNotOpenError()
+    const state = this.owner.state
+    if (state === `closed`) throw new LmdbEnvClosedError()
+    if (state !== `open`) throw new LmdbEnvNotOpenError()
   }
 
   private _rejectClosed(): Promise<never> | null {
@@ -127,10 +128,6 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
 
   private _rangeOpts(options: IRangeOptions | undefined, tx?: LmdbTransaction): RangeOptions | undefined {
     return tx?.raw ? {...options, transaction: tx.raw} : options
-  }
-
-  private _readValue(state: LmdbSubState, raw: unknown): unknown {
-    return state.hookBeforeRead(raw)
   }
 
   private _probeKeyType(state: LmdbSubState): `string` | `buffer` | `number` | `empty` {
@@ -196,12 +193,22 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     }
   }
 
-  private _assertMaterialize(state: LmdbSubState, op: string, options?: IRangeOptions): void {
+  private _assertMaterialize(state: LmdbSubState, op: string, options?: IRangeOptions, bounds?: {start: ILmdbKey; end: ILmdbKey}): void {
     const max = MAX_MATERIALIZE
     const limit = options?.limit
     if (limit !== undefined) {
       if (limit > max) {
         throw new LmdbMaterializationError(op, max, limit)
+      }
+      return
+    }
+    // Bounded ranges count only the range (exact when the scan covers exactly
+    // [start, end)) instead of walking the whole sub-DB with getCount().
+    const start = bounds?.start ?? options?.start
+    const end = bounds?.end ?? options?.end
+    if (start !== undefined && end !== undefined) {
+      if (state.env.getKeysCount({start, end}) > max) {
+        throw new LmdbMaterializationError(op, max)
       }
       return
     }
@@ -217,9 +224,9 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     }
   }
 
-  private _rejectMaterialize(state: LmdbSubState, op: string, options?: IRangeOptions): Promise<never> | null {
+  private _rejectMaterialize(state: LmdbSubState, op: string, options?: IRangeOptions, bounds?: {start: ILmdbKey; end: ILmdbKey}): Promise<never> | null {
     try {
-      this._assertMaterialize(state, op, options)
+      this._assertMaterialize(state, op, options, bounds)
       return null
     } catch (err) {
       return Promise.reject(err)
@@ -258,7 +265,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     this._assertOpen()
     const raw = state.env.get(key)
     if (raw === undefined) return undefined
-    const decoded = state.codec ? this._readValue(state, raw) : raw
+    const decoded = state.codec ? state.hookBeforeRead(raw) : raw
     if (state.isTtl) {
       const envelope = decoded as {v: unknown; exp?: number} | undefined
       return envelope?.v
@@ -271,7 +278,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     const opts = this._readOpts(_tx)
     const raw = opts ? state.env.get(key, opts) : state.env.get(key)
     if (raw === undefined) return undefined
-    const decoded = state.codec ? this._readValue(state, raw) : raw
+    const decoded = state.codec ? state.hookBeforeRead(raw) : raw
     if (state.isTtl) {
       const envelope = decoded as {v: unknown; exp?: number} | undefined
       if (!envelope) return undefined
@@ -353,6 +360,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
   private _getMany(state: LmdbSubState, keys: ILmdbKey[]): Promise<Array<unknown | undefined>> {
     const closed = this._rejectClosed()
     if (closed) return closed
+    if (keys.length === 0) return Promise.resolve([])
     const raws = state.env.getMany(keys) as Promise<Array<unknown>>
     if (!state.codec) return raws as Promise<Array<unknown | undefined>>
     return raws.then((arr) => arr.map((raw) => (raw === undefined ? undefined : state.hookBeforeRead(raw))))
@@ -361,7 +369,10 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
   private _count(state: LmdbSubState, _tx?: LmdbTransaction): number {
     this._assertOpen()
     const opts = this._readOpts(_tx)
-    return (opts ? state.env.getCount(opts) : state.env.getCount()) as number
+    // Snapshot-pinned reads keep the cursor-walk path; otherwise the O(1)
+    // mdb_stat entry count via getStats() (getCount() walks the whole range).
+    if (opts) return state.env.getCount(opts) as number
+    return (state.env.getStats() as unknown as {entryCount: number}).entryCount
   }
 
   private _keys(state: LmdbSubState, options?: IRangeOptions, tx?: LmdbTransaction): Promise<ILmdbKey[]> {
@@ -396,64 +407,82 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     this._assertOpen()
     const iter = state.env.getRange(this._rangeOpts(options, tx)) as Iterable<{key: ILmdbKey; value: unknown}>
     for (const entry of iter) {
-      yield [entry.key, state.codec ? this._readValue(state, entry.value) : entry.value]
+      yield [entry.key, state.codec ? state.hookBeforeRead(entry.value) : entry.value]
     }
   }
 
   private _like(state: LmdbSubState, pattern: string, options?: IRangeOptions, tx?: LmdbTransaction): Promise<Array<[ILmdbKey, unknown]>> {
     const closed = this._rejectClosed()
     if (closed) return closed
-    const guard = this._rejectMaterialize(state, `like`, options)
-    if (guard) return guard
-    const wildcardCount = (pattern.match(/[*?]/g) || []).length
+    let wildcardCount = 0
+    for (let i = 0; i < pattern.length; i++) {
+      const ch = pattern[i]
+      if (ch === `*` || ch === `?`) wildcardCount++
+    }
     if (wildcardCount > LmdbLikePatternError.MAX_WILDCARDS) {
       return Promise.reject(new LmdbLikePatternError(wildcardCount))
     }
     const stringsOnly = this._keysAreStrings(state)
     const prefix = stringsOnly ? this._extractPrefixLikePattern(pattern) : null
+    const prefixEnd = prefix !== null ? this._prefixEnd(prefix as ILmdbKey) : undefined
+    const inferred = prefix === null && stringsOnly ? this._inferRangeFromPrefix(pattern) : null
+    const bounds = prefix !== null && prefixEnd !== undefined ? {start: prefix as ILmdbKey, end: prefixEnd} : (inferred ?? undefined)
+    const guard = this._rejectMaterialize(state, `like`, options, bounds)
+    if (guard) return guard
     const rangeOpts: IRangeOptions = {...options, ...(tx?.raw ? {transaction: tx.raw} : {})}
     if (prefix !== null) {
-      const endKey = this._prefixEnd(prefix as ILmdbKey)
-      if (endKey !== undefined) {
+      if (prefixEnd !== undefined) {
         rangeOpts.start = prefix as ILmdbKey
-        rangeOpts.end = endKey
+        rangeOpts.end = prefixEnd
         const range = state.env.getRange(rangeOpts)
         if (!state.codec) return range.map((e) => [e.key as ILmdbKey, e.value as unknown] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
         return range.map((e) => [e.key as ILmdbKey, state.hookBeforeRead(e.value)] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
       }
     }
-    const inferred = stringsOnly ? this._inferRangeFromPrefix(pattern) : null
     if (inferred) {
       rangeOpts.start = (options?.start as ILmdbKey) ?? inferred.start
       if (options?.end === undefined) {
         rangeOpts.end = inferred.end
       }
     }
-    const range = state.env.getRange(rangeOpts).filter(({key}: {key: Key}) => globMatch(String(key), pattern))
-    if (!state.codec) return range.map((e) => [e.key as ILmdbKey, e.value as unknown] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
-    return range.map((e) => [e.key as ILmdbKey, state.hookBeforeRead(e.value)] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
+    // Keys-only walk: collect matches first, then fetch values in one batch so
+    // non-matching rows are never decoded.
+    const matchedKeys: ILmdbKey[] = []
+    for (const k of state.env.getKeys(rangeOpts)) {
+      if (globMatch(String(k), pattern)) matchedKeys.push(k as ILmdbKey)
+    }
+    if (matchedKeys.length === 0) return Promise.resolve([])
+    return state.env.getMany(matchedKeys).then((raws) => {
+      const rawArr = raws as Array<unknown>
+      if (!state.codec) return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, raw as unknown] as [ILmdbKey, unknown])
+      return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, state.hookBeforeRead(raw)] as [ILmdbKey, unknown])
+    })
   }
 
   private _findByPrefix(state: LmdbSubState, prefix: ILmdbKey, options?: IRangeOptions, tx?: LmdbTransaction): Promise<Array<[ILmdbKey, unknown]>> {
     const closed = this._rejectClosed()
     if (closed) return closed
-    const guard = this._rejectMaterialize(state, `findByPrefix`, options)
-    if (guard) return guard
     const endKey = this._prefixEnd(prefix)
     if (endKey !== undefined && this._stringBoundsValid(state, prefix)) {
+      const guard = this._rejectMaterialize(state, `findByPrefix`, options, {start: prefix, end: endKey})
+      if (guard) return guard
       const range = state.env.getRange({...options, start: prefix, end: endKey, ...(tx?.raw ? {transaction: tx.raw} : {})})
       if (!state.codec) return range.map((e) => [e.key as ILmdbKey, e.value as unknown] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
       return range.map((e) => [e.key as ILmdbKey, state.hookBeforeRead(e.value)] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
     }
-    return Promise.resolve(state.env.getKeys(this._rangeOpts(options, tx)).asArray)
-      .then((keys) => (keys as ILmdbKey[]).filter((k) => String(k).startsWith(String(prefix))))
-      .then((matchedKeys) =>
-        state.env.getMany(matchedKeys).then((raws) => {
-          const rawArr = raws as Array<unknown>
-          if (!state.codec) return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, raw as unknown] as [ILmdbKey, unknown])
-          return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, state.hookBeforeRead(raw)] as [ILmdbKey, unknown])
-        })
-      )
+    const guard = this._rejectMaterialize(state, `findByPrefix`, options)
+    if (guard) return guard
+    const prefixStr = String(prefix)
+    const matchedKeys: ILmdbKey[] = []
+    for (const k of state.env.getKeys(this._rangeOpts(options, tx))) {
+      if (String(k as ILmdbKey).startsWith(prefixStr)) matchedKeys.push(k as ILmdbKey)
+    }
+    if (matchedKeys.length === 0) return Promise.resolve([])
+    return state.env.getMany(matchedKeys).then((raws) => {
+      const rawArr = raws as Array<unknown>
+      if (!state.codec) return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, raw as unknown] as [ILmdbKey, unknown])
+      return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, state.hookBeforeRead(raw)] as [ILmdbKey, unknown])
+    })
   }
 
   private _countByPrefix(state: LmdbSubState, prefix: ILmdbKey): Promise<number> {
@@ -463,13 +492,21 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     if (endKey !== undefined && this._stringBoundsValid(state, prefix)) {
       return Promise.resolve(state.env.getKeysCount({start: prefix, end: endKey}))
     }
-    return Promise.resolve(state.env.getKeys().asArray).then((keys) => {
-      let count = 0
-      for (const k of keys as ILmdbKey[]) {
-        if (String(k).startsWith(String(prefix))) count++
-      }
-      return count
-    })
+    let count = 0
+    const prefixStr = String(prefix)
+    for (const k of state.env.getKeys()) {
+      if (String(k as ILmdbKey).startsWith(prefixStr)) count++
+    }
+    return Promise.resolve(count)
+  }
+
+  private _collectPrefixKeys(state: LmdbSubState, prefix: ILmdbKey): ILmdbKey[] {
+    const matched: ILmdbKey[] = []
+    const prefixStr = String(prefix)
+    for (const k of state.env.getKeys()) {
+      if (String(k as ILmdbKey).startsWith(prefixStr)) matched.push(k as ILmdbKey)
+    }
+    return matched
   }
 
   private _deleteByPrefix(state: LmdbSubState, prefix: ILmdbKey): Promise<number> {
@@ -487,22 +524,13 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
       const guard = this._rejectMaterializeCount(`deleteByPrefix`, this._count(state))
       if (guard) return guard
     }
-    const keysPromise: Promise<ILmdbKey[]> =
-      endKey !== undefined && this._stringBoundsValid(state, prefix)
-        ? (Promise.resolve(state.env.getKeys({start: prefix, end: endKey}).asArray) as Promise<ILmdbKey[]>)
-        : Promise.resolve(state.env.getKeys().asArray).then((keys) => {
-            const matched: ILmdbKey[] = []
-            const prefixStr = String(prefix)
-            for (const k of keys as ILmdbKey[]) {
-              if (String(k).startsWith(prefixStr)) matched.push(k)
-            }
-            return matched
-          })
+    const keysPromise: Promise<ILmdbKey[]> = endKey !== undefined && this._stringBoundsValid(state, prefix) ? (Promise.resolve(state.env.getKeys({start: prefix, end: endKey}).asArray) as Promise<ILmdbKey[]>) : Promise.resolve(this._collectPrefixKeys(state, prefix))
     return keysPromise.then((keys) =>
       this.owner.transaction(() => {
+        const indexed = state.indexes.length > 0
         let removed = 0
         for (const k of keys) {
-          if (state.indexes.length > 0) {
+          if (indexed) {
             const existing = this._peek(state, k)
             if (existing !== undefined) {
               this._deleteIndexedSync(state, k, existing)
@@ -590,12 +618,13 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     return state.env.put(key, encoded) as unknown as Promise<void>
   }
 
-  private _getValues(state: LmdbSubState, key: ILmdbKey, tx?: LmdbTransaction): Promise<unknown[]> {
+  private _getValues(state: LmdbSubState, key: ILmdbKey, tx?: LmdbTransaction, range?: {limit?: number; offset?: number}): Promise<unknown[]> {
     const closed = this._rejectClosed()
     if (closed) return closed
     const dup = this._rejectIfNotDupSort(state, `getValues`)
     if (dup) return dup
-    const raws = state.env.getValues(key, tx?.raw ? {transaction: tx.raw} : undefined).asArray as Promise<unknown[]>
+    const opts = {...(tx?.raw ? {transaction: tx.raw} : {}), ...(range?.limit !== undefined ? {limit: range.limit} : {}), ...(range?.offset !== undefined ? {offset: range.offset} : {})}
+    const raws = state.env.getValues(key, opts).asArray as Promise<unknown[]>
     if (!state.codec) return raws
     return raws.then((arr) => arr.map((raw) => state.hookBeforeRead(raw)))
   }
@@ -645,23 +674,33 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     if (closed) return closed
     if (this.owner.readOnly) return Promise.reject(new LmdbReadOnlyError(`putMany`))
     if (entries.length === 0) return
+    const codec = state.codec
+    const encode = codec ? (v: unknown): unknown => codec.hookBeforeWrite(v) : (v: unknown): unknown => v
+    // Mirror _put: TTL subs always store the expiry envelope (hook runs on it).
+    const defaultTtlMs = state.isTtl && typeof state.ttlMs === `number` && state.ttlMs > 0 ? state.ttlMs : undefined
+    const toStored = (v: unknown): unknown => {
+      if (!state.isTtl) return v
+      const exp = defaultTtlMs !== undefined ? Date.now() + defaultTtlMs : undefined
+      return exp !== undefined ? {v, exp} : {v}
+    }
     if (state.indexes.length > 0) {
       for (let i = 0; i < entries.length; i += chunkSize) {
-        const chunk = entries.slice(i, i + chunkSize)
+        const end = Math.min(i + chunkSize, entries.length)
         await this._indexedTx(state, () => {
-          for (const [k, v] of chunk) {
-            this._writeIndexedSync(state, k, v, state.codec ? state.codec.hookBeforeWrite(v) : v)
+          for (let j = i; j < end; j++) {
+            const e = entries[j]!
+            this._writeIndexedSync(state, e[0], e[1], encode(toStored(e[1])))
           }
         })
       }
       return
     }
     for (let i = 0; i < entries.length; i += chunkSize) {
-      const chunk = entries.slice(i, i + chunkSize)
+      const end = Math.min(i + chunkSize, entries.length)
       await this.owner.transaction(() => {
-        for (const [k, v] of chunk) {
-          const encoded = state.codec ? state.codec.hookBeforeWrite(v) : (v as unknown)
-          void state.env.put(k as unknown as Key, encoded as unknown)
+        for (let j = i; j < end; j++) {
+          const e = entries[j]!
+          void state.env.put(e[0] as unknown as Key, encode(toStored(e[1])) as unknown)
         }
       })
     }
@@ -844,7 +883,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     })
   }
 
-  private async _findByIndex(state: LmdbSubState, query: Record<string, ILmdbKey>, tx?: LmdbTransaction): Promise<unknown> {
+  private async _findByIndex(state: LmdbSubState, query: Record<string, ILmdbKey>, tx?: LmdbTransaction, options?: {limit?: number}): Promise<unknown> {
     const closed = this._rejectClosed()
     if (closed) return closed as Promise<unknown>
     const entries = Object.entries(query) as Array<[string, ILmdbKey]>
@@ -876,6 +915,8 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     }
     const empty = hasNonUnique ? [] : undefined
     if (uniqueMiss) return empty
+    const limit = typeof options?.limit === `number` && Number.isFinite(options.limit) ? options.limit : undefined
+    if (limit !== undefined && limit <= 0) return empty
 
     // Single-pk path: a unique index constrained the answer to one row.
     if (uniquePk !== undefined) {
@@ -889,31 +930,127 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
 
     // Non-unique path: pick the MOST SELECTIVE index (fewest pks, O(1) native
     // count) as driver, then fetch + verify candidates in one combined loop.
+    // A single non-unique key needs no count walk — it is the driver as-is.
     let driver: {idx: IndexDescriptor; value: ILmdbKey} | undefined
-    let driverCount = Infinity
-    for (const {idx, value} of nonUniques) {
-      const count = this._getValuesCount(idx.state, value, tx)
-      if (count > 0 && count < driverCount) {
-        driver = {idx, value}
-        driverCount = count
+    if (nonUniques.length === 1) {
+      driver = nonUniques[0]
+    } else {
+      let driverCount = Infinity
+      for (const {idx, value} of nonUniques) {
+        const count = this._getValuesCount(idx.state, value, tx)
+        if (count > 0 && count < driverCount) {
+          driver = {idx, value}
+          driverCount = count
+        }
       }
     }
     if (driver === undefined) return []
 
-    const pks = (await this._getValues(driver.idx.state, driver.value, tx)) as ILmdbKey[]
     const filtered: unknown[] = []
-    for (const pk of pks) {
-      const v = this._get(state, pk, tx)
-      if (v === undefined) continue
-      let keep = true
-      for (const {idx, value} of nonUniques) {
-        if (idx === driver.idx) continue
-        if (!sameIndexValue(idx.extractor(v), value)) {
-          keep = false
-          break
+    if (limit === undefined) {
+      const pks = (await this._getValues(driver.idx.state, driver.value, tx)) as ILmdbKey[]
+      if (tx?.raw) {
+        for (const pk of pks) {
+          const v = this._get(state, pk, tx)
+          if (v === undefined) continue
+          let keep = true
+          for (const {idx, value} of nonUniques) {
+            if (idx === driver.idx) continue
+            if (!sameIndexValue(idx.extractor(v), value)) {
+              keep = false
+              break
+            }
+          }
+          if (keep) filtered.push(v)
+        }
+        return filtered
+      }
+      // No snapshot pin: one native batch (prefetch + sync gets) instead of N
+      // sequential point reads, with _get-identical decode/TTL/filter semantics.
+      const raws = (await state.env.getMany(pks)) as Array<unknown>
+      for (let i = 0; i < pks.length; i++) {
+        const raw = raws[i]
+        if (raw === undefined) continue
+        const decoded = state.codec ? state.hookBeforeRead(raw) : raw
+        let v: unknown
+        if (state.isTtl) {
+          const envelope = decoded as {v: unknown; exp?: number} | undefined
+          if (!envelope) continue
+          if (envelope.exp !== undefined && Date.now() > envelope.exp) {
+            void this._delete(state, pks[i]!)
+            continue
+          }
+          v = envelope.v
+        } else {
+          v = decoded
+        }
+        let keep = true
+        for (const {idx, value} of nonUniques) {
+          if (idx === driver.idx) continue
+          if (!sameIndexValue(idx.extractor(v), value)) {
+            keep = false
+            break
+          }
+        }
+        if (keep) filtered.push(v)
+      }
+      return filtered
+    }
+    // Bounded path: page the driver in limit/offset chunks until `limit` rows
+    // survive filtering (or the driver is exhausted) — memory stays flat.
+    let offset = 0
+    for (;;) {
+      const need = limit - filtered.length
+      if (need <= 0) break
+      const chunk = (await this._getValues(driver.idx.state, driver.value, tx, {limit: need, offset})) as ILmdbKey[]
+      if (chunk.length === 0) break
+      offset += chunk.length
+      if (tx?.raw) {
+        for (const pk of chunk) {
+          const v = this._get(state, pk, tx)
+          if (v === undefined) continue
+          if (filtered.length >= limit) break
+          let keep = true
+          for (const {idx, value} of nonUniques) {
+            if (idx === driver.idx) continue
+            if (!sameIndexValue(idx.extractor(v), value)) {
+              keep = false
+              break
+            }
+          }
+          if (keep) filtered.push(v)
+        }
+      } else {
+        const raws = (await state.env.getMany(chunk)) as Array<unknown>
+        for (let i = 0; i < chunk.length; i++) {
+          const raw = raws[i]
+          if (raw === undefined) continue
+          const decoded = state.codec ? state.hookBeforeRead(raw) : raw
+          let v: unknown
+          if (state.isTtl) {
+            const envelope = decoded as {v: unknown; exp?: number} | undefined
+            if (!envelope) continue
+            if (envelope.exp !== undefined && Date.now() > envelope.exp) {
+              void this._delete(state, chunk[i]!)
+              continue
+            }
+            v = envelope.v
+          } else {
+            v = decoded
+          }
+          if (filtered.length >= limit) break
+          let keep = true
+          for (const {idx, value} of nonUniques) {
+            if (idx === driver.idx) continue
+            if (!sameIndexValue(idx.extractor(v), value)) {
+              keep = false
+              break
+            }
+          }
+          if (keep) filtered.push(v)
         }
       }
-      if (keep) filtered.push(v)
+      if (chunk.length < need) break
     }
     return filtered
   }
@@ -921,23 +1058,31 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
   private async _purgeExpired(state: LmdbSubState): Promise<number> {
     this._assertOpen()
     if (!state.isTtl) return 0
-    // Lazy scan: collect only expired envelopes instead of materialising every entry.
+    // Raw range walk instead of the _iterate generator (no per-row resume,
+    // tuple alloc, or destructure): collect expired keys, plus envelopes for
+    // indexed subs only. Deletes still run after the scan completes.
     const now = Date.now()
-    const expired: Array<[ILmdbKey, {v: unknown; exp?: number}]> = []
-    for await (const [k, value] of this._iterate(state)) {
-      const envelope = value as {v: unknown; exp?: number} | undefined
+    const wantValues = state.indexes.length > 0
+    const noCodec = !state.codec
+    const expiredKeys: ILmdbKey[] = []
+    const expiredEnvelopes: Array<{v: unknown; exp?: number}> = []
+    for (const e of state.env.getRange() as Iterable<{key: ILmdbKey; value: unknown}>) {
+      const envelope = (noCodec ? e.value : state.hookBeforeRead(e.value)) as {v: unknown; exp?: number} | undefined
       if (envelope && envelope.exp !== undefined && now > envelope.exp) {
-        expired.push([k, envelope])
+        expiredKeys.push(e.key)
+        if (wantValues) expiredEnvelopes.push(envelope)
       }
     }
-    if (expired.length === 0) return 0
+    if (expiredKeys.length === 0) return 0
     if (state.indexes.length > 0) {
       const CHUNK = 500
       let removed = 0
-      for (let i = 0; i < expired.length; i += CHUNK) {
-        const chunk = expired.slice(i, i + CHUNK)
+      for (let i = 0; i < expiredKeys.length; i += CHUNK) {
+        const end = Math.min(i + CHUNK, expiredKeys.length)
         await this._indexedTx(state, () => {
-          for (const [k, envelope] of chunk) {
+          for (let j = i; j < end; j++) {
+            const k = expiredKeys[j]!
+            const envelope = expiredEnvelopes[j]!
             for (const idx of state.indexes) {
               let idxVal: ILmdbKey | undefined | null
               try {
@@ -960,8 +1105,19 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
       }
       return removed
     }
-    const results = await Promise.all(expired.map(([k]) => this._delete(state, k)))
-    return results.filter(Boolean).length
+    // Chunked single-txn batches: the speed of one transaction per key set
+    // without an unbounded write txn on massive purges.
+    const CHUNK = 500
+    let removed = 0
+    for (let i = 0; i < expiredKeys.length; i += CHUNK) {
+      const end = Math.min(i + CHUNK, expiredKeys.length)
+      await this.owner.transaction(() => {
+        for (let j = i; j < end; j++) {
+          if (state.env.removeSync(expiredKeys[j]!)) removed++
+        }
+      })
+    }
+    return removed
   }
 
   private _reindex(state: LmdbSubState, name?: string): Promise<{built: number; skipped: Array<{key: ILmdbKey; index: string; value: unknown}>}> {
@@ -1410,10 +1566,11 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    *
    * @param query - Map of declared index names to values; every key is ANDed.
    * @param tx - Optional active {@link LmdbTransaction} to read within — keeps every point read of the query on the same snapshot.
+   * @param options - Optional `{limit}` capping the final matched rows (lazy chunk fetch, flat memory; unbounded by default).
    * @returns The row when all queried keys are unique, `T[]` when any is non-unique, `undefined`/`[]` on no match.
    */
-  findByIndex<Q extends IIndexQuery<ValueOf<S>, SchemaIndexesOf<S[`value`]>>>(query: Q, tx?: LmdbTransaction): Promise<IIndexResult<ValueOf<S>, SchemaIndexesOf<S[`value`]>, Q>> {
-    return this._findByIndex(this._state, query as Record<string, ILmdbKey>, tx) as Promise<IIndexResult<ValueOf<S>, SchemaIndexesOf<S[`value`]>, Q>>
+  findByIndex<Q extends IIndexQuery<ValueOf<S>, SchemaIndexesOf<S[`value`]>>>(query: Q, tx?: LmdbTransaction, options?: {limit?: number}): Promise<IIndexResult<ValueOf<S>, SchemaIndexesOf<S[`value`]>, Q>> {
+    return this._findByIndex(this._state, query as Record<string, ILmdbKey>, tx, options) as Promise<IIndexResult<ValueOf<S>, SchemaIndexesOf<S[`value`]>, Q>>
   }
 
   /**

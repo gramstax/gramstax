@@ -110,6 +110,13 @@ describe(`LmdbRepository materialization guardrail`, () => {
       await expect(repo.findByPrefix(`pref-`)).rejects.toBeInstanceOf(LmdbMaterializationError)
     })
 
+    it(`bounded scans below the cap pass on an oversized repo (bounded guard)`, async () => {
+      expect(await repo.findByPrefix(`zzz-`)).toHaveLength(0)
+      expect(await repo.like(`zzz-*`)).toHaveLength(0)
+      expect(await repo.keys({start: `zzz-`, end: `zzz0`})).toHaveLength(0)
+      expect(await repo.values({start: `zzz-`, end: `zzz0`})).toHaveLength(0)
+    })
+
     it(`deleteByPrefix() over the cap rejects with LmdbMaterializationError`, async () => {
       await expect(repo.deleteByPrefix(`pref-`)).rejects.toBeInstanceOf(LmdbMaterializationError)
     })
