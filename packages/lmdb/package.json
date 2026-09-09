@@ -6,7 +6,7 @@
     "access": "public",
     "provenance": false
   },
-  "description": "LMDB-backed key-value database with OOP Repository pattern per sub-database. Multi-runtime (Bun, Node.js).",
+  "description": "LMDB-backed key-value database with schema-declared repositories, embedded indexes, TTL, queues, and transactions. Multi-runtime (Bun, Node.js).",
   "keywords": [
     "lmdb",
     "key-value",

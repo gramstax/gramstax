@@ -44,7 +44,9 @@ class SessionSchema extends LmdbSchema {
     return {sid: s.sid, createdAt: s.createdAt.getTime(), expiresAt: s.expiresAt.getTime(), dataB64: Buffer.from(s.data).toString(`base64`)}
   }
   static hookBeforeRead = (raw: unknown): unknown => {
-    const obj = raw as IVSession
+    // `raw` is the STORED form (numbers/base64), not the decoded row —
+    // casting to IVSession here would mistype every stored-only field.
+    const obj = raw as {sid: string; createdAt: number; expiresAt: number; dataB64: string}
     return {sid: obj.sid, createdAt: new Date(obj.createdAt), expiresAt: new Date(obj.expiresAt), data: Buffer.from(obj.dataB64, `base64`)}
   }
 }
