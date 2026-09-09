@@ -100,7 +100,7 @@ class EmailIndexSchema extends LmdbSchema {
   static dupSort = true
 }
 
-class QueueJobsSchema extends LmdbSchema {
+class JobsSchema extends LmdbSchema {
   static db = `jobs`
   static key = t.string()
   static value = {
@@ -270,7 +270,7 @@ async function main() {
     // ── F10: Queue ───────────────────────────────────────────────
     console.log(`\n--- F10: FIFO queue ---`)
     const {LmdbQueue} = await import("../src/queue")
-    const queue = new LmdbQueue(env, QueueJobsSchema)
+    const queue = new LmdbQueue(env, JobsSchema)
     const qid1 = await queue.enqueue({task: `email-welcome`})
     const qid2 = await queue.enqueue({task: `generate-invoice`})
     console.log(`  enqueued:`, qid1, qid2, `size:`, await queue.size())

@@ -15,7 +15,8 @@ import {LmdbEnv} from "../src/env"
 import {type KeyOf, LmdbSchema, t, type ValueOf} from "../src/schema"
 
 // Schema repo 1 — users keyed by id, unique `id` + `username` columns, non-unique `email`.
-class UserSchema extends LmdbSchema {
+type IKUsers = KeyOf<typeof UsersSchema>
+class UsersSchema extends LmdbSchema {
   static db = `users`
   static key = t.number()
   static value = {
@@ -26,7 +27,8 @@ class UserSchema extends LmdbSchema {
 }
 
 // Schema repo 2 — profiles keyed by id, unique `userId` column.
-class ProfileSchema extends LmdbSchema {
+type IVProfiles = ValueOf<typeof ProfilesSchema>
+class ProfilesSchema extends LmdbSchema {
   static db = `profiles`
   static key = t.number()
   static value = {
@@ -35,17 +37,14 @@ class ProfileSchema extends LmdbSchema {
   }
 }
 
-type UserKey = KeyOf<typeof UserSchema>
-type ProfileRow = ValueOf<typeof ProfileSchema>
-
 async function main() {
   const dir = mkdtempSync(join(tmpdir(), `lmdb-hybrid-`))
   const env = new LmdbEnv({path: dir, maxDbs: 10})
-  const users = env.register(UserSchema)
-  const profiles = env.register(ProfileSchema)
+  const users = env.register(UsersSchema)
+  const profiles = env.register(ProfilesSchema)
   try {
     console.log(`--- put 1 record in each repo — same key 1, different data, isolated sub-DBs ---\n`)
-    const key: UserKey = 1
+    const key: IKUsers = 1
     await users.put(key, {id: 1, username: `damar`, email: `damar@example.com`})
     await profiles.put(key, {userId: 1, bio: `Schema-driven bio`})
     console.log(`  users.get(1):`, users.get(1))
@@ -65,7 +64,7 @@ async function main() {
     console.log(`  users.has(1):`, users.has(1))
     console.log(`  profiles.has(1):`, profiles.has(1))
     console.log(`  users.get(99):`, users.get(99))
-    const profileViaGet: ProfileRow | undefined = profiles.get(1)
+    const profileViaGet: IVProfiles | undefined = profiles.get(1)
     console.log(`  profiles.get(1):`, profileViaGet)
 
     console.log(`\n--- findByIndex on both repos ---\n`)
