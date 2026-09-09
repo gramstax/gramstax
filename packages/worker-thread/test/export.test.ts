@@ -175,3 +175,86 @@ describe(`WorkerThreadExport Job proxy (real worker threads)`, () => {
     expect(err).toBeInstanceOf(Error)
   }, 20_000)
 })
+
+describe(`WorkerThreadExport regression (a–k fixes)`, () => {
+  const sock = `/tmp/regression-${Date.now()}.sock`
+  const DENIED = [`toString`, `constructor`, `__proto__`, `prototype`, `inspect`, `then`]
+
+  it(`(a) magic props on the gateway static proxy never become RPC calls`, () => {
+    const Gateway = WorkerThreadExport.launchGatewayClient<StubWorker>(sock) as any
+    for (const prop of DENIED) {
+      if (prop === `prototype`) {
+        // Own property of the constructor function — reachable but a plain
+        // object, never an RPC closure.
+        expect(typeof Gateway[prop]).not.toBe(`function`)
+      } else {
+        expect(Gateway[prop]).toBeUndefined()
+      }
+    }
+    expect(Gateway[Symbol.iterator]).toBeUndefined()
+    expect(typeof Gateway.mtdAdd).toBe(`function`)
+  })
+
+  it(`(a) magic props on the gateway constructor proxy never become RPC calls`, () => {
+    const Gateway = WorkerThreadExport.launchGatewayClient<StubWorker>(sock) as any
+    const instance = new Gateway(new StubWorker())
+    for (const prop of DENIED) expect(instance[prop]).toBeUndefined()
+    expect(instance[Symbol.iterator]).toBeUndefined()
+    expect(typeof instance.mtdAdd).toBe(`function`)
+  })
+
+  it(`(a) magic/symbol props on the Job proxy never become RPC calls, then-guard intact`, () => {
+    const Job = WorkerThreadExport.init({path: `/tmp/fake-regression-${Date.now()}.ts`, WTInit: StubWorker}) as any
+    for (const prop of DENIED) expect(Job[prop]).toBeUndefined()
+    expect(Job[Symbol.iterator]).toBeUndefined()
+    expect(typeof Job.mtdAdd).toBe(`function`)
+  })
+
+  it(`(a) result proxy has-trap matches get-trap (string non-denied → true)`, () => {
+    const Job = WorkerThreadExport.init({path: `/tmp/fake-has-${Date.now()}.ts`, WTInit: StubWorker}) as any
+    expect(`mtdAdd` in Job).toBe(true)
+    expect(`toString` in Job).toBe(false)
+    expect(`then` in Job).toBe(false)
+  })
+
+  it(`(b) per-prop closures are cached (no per-access allocation)`, () => {
+    const Gateway = WorkerThreadExport.launchGatewayClient<StubWorker>(sock) as any
+    expect(Gateway.mtdAdd).toBe(Gateway.mtdAdd)
+    const Job = WorkerThreadExport.init({path: `/tmp/fake-cache-${Date.now()}.ts`, WTInit: StubWorker}) as any
+    expect(Job.mtdAdd).toBe(Job.mtdAdd)
+    const instance = new Gateway(new StubWorker())
+    expect(instance.mtdAdd).toBe(instance.mtdAdd)
+  })
+
+  it(`(j) gateway constructor preserves name/length; instanceof is not supported`, () => {
+    const Gateway = WorkerThreadExport.launchGatewayClient<StubWorker>(sock) as any
+    expect(Gateway.length).toBe(1)
+    expect(typeof Gateway.name).toBe(`string`)
+    expect(Gateway.name.length).toBeGreaterThan(0)
+    expect(Gateway.name).not.toBe(`ctor`)
+    const instance = new Gateway(new StubWorker())
+    expect(instance instanceof Gateway).toBe(false)
+  })
+
+  it(`(k) factory shutdown() terminates ALL launched workers (latest-wins routing)`, async () => {
+    const Job = WorkerThreadExport.init({path: `${import.meta.dir}/fixtures/lifecycle-worker.ts`, WTInit: LifecycleWorker})
+    const w1 = await withTimeout(Job.launchWorker(), 10_000, `first launch`)
+    const w2 = await withTimeout(Job.launchWorker(), 10_000, `second launch`)
+    expect(w2.threadId).not.toBe(w1.threadId)
+    expect(await withTimeout<number>((Job as any).mtdAdd(1, 2), 10_000, `routes to latest`)).toBe(3)
+    await withTimeout((Job as any).shutdown(5_000), 15_000, `factory shutdown`)
+    await sleep(300)
+    expect(await withTimeout(w1.request(`mtdAdd`, [1, 2]).catch((e: unknown) => e), 5_000, `w1 dead`)).toBeInstanceOf(Error)
+    expect(await withTimeout(w2.request(`mtdAdd`, [1, 2]).catch((e: unknown) => e), 5_000, `w2 dead`)).toBeInstanceOf(Error)
+  }, 30_000)
+})
+
+describe(`WorkerThreadExport has-trap typo safety (oracle follow-up)`, () => {
+  it(`reports false for unknown methods instead of over-claiming`, () => {
+    const Job = WorkerThreadExport.init({path: `/tmp/fake-has-typo-${Date.now()}.ts`, WTInit: StubWorker}) as any
+    expect(`mtdAdd` in Job).toBe(true)
+    expect(`launchWorker` in Job).toBe(true)
+    expect(`mtdTypo` in Job).toBe(false)
+    expect(`toString` in Job).toBe(false)
+  })
+})

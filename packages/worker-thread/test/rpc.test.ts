@@ -5,10 +5,12 @@
  * spawning any actual worker threads. Uses a stub `send` function to
  * capture outgoing messages and feeds back canned responses.
  */
-import {beforeEach, describe, expect, it } from "bun:test"
+import {afterEach, beforeEach, describe, expect, it } from "bun:test"
 import type {ITMapRpc} from "../src/rpc"
-import {WorkerThreadRpc} from "../src/rpc"
-import {withTimeout } from "./helpers"
+import * as RpcModule from "../src/rpc"
+import {estimatePayloadSize, WorkerThreadRpc} from "../src/rpc"
+import {setDefaultErrorHandler} from "../src/error-handler"
+import {sleep, withTimeout } from "./helpers"
 
 describe(`WorkerThreadRpc`, () => {
   let sentMessages: any[]
@@ -311,16 +313,19 @@ describe(`WorkerThreadRpc`, () => {
 
   describe(`malformed inbound payloads (regression)`, () => {
     it(`make() tolerates malformed payloads without crashing`, async () => {
+      await rpc.make(null as any)
+      await rpc.make(undefined as any)
       await rpc.make({} as any)
       await rpc.make({method: `x`} as any)
       await rpc.make({result: 5} as any)
-      await rpc.make({id: `str`, result: 5} as any)
-      await rpc.make({method: 123 as any, params: []} as any)
-      await rpc.make({method: `x`, params: null} as any)
+      await rpc.make({id: 100, method: 123 as any, params: []} as any)
+      await rpc.make({id: 101, method: `x`, params: null} as any)
       await rpc.make({id: 1, method: `add`, params: [2, 3]})
+      // id-less payloads are dispatched but answered to nobody; the keyed
       // invalid requests produced error responses; the valid one produced a result
+      expect(sentMessages).toHaveLength(3)
       const errors = sentMessages.filter((m) => m?.error !== undefined)
-      expect(errors.length).toBeGreaterThanOrEqual(2)
+      expect(errors.map((m) => m?.id).sort()).toEqual([100, 101])
       expect(sentMessages.some((m) => m?.result === 5)).toBe(true)
     })
 
@@ -347,5 +352,299 @@ describe(`WorkerThreadRpc`, () => {
       await rpc.make({id: 0, method: `add`, params: [1, 2]})
       expect(sentMessages[0]).toMatchObject({id: 0, result: 3})
     })
+  })
+})
+
+/**
+ * Regression tests for the rpc.ts hardening batch.
+ *
+ * Each item below first reproduces a claimed bug against the unfixed code
+ * (red), then guards the fix (green). Behavior-neutral items (j, n) are
+ * green-green guards documenting no observable change.
+ */
+function makeStubRpc(register?: Record<string, (...args: never[]) => unknown>) {
+  const sent: any[] = []
+  const stub = new WorkerThreadRpc((data) => {
+    sent.push(data)
+  }, register ?? {add: (a: number, b: number) => a + b})
+  return {sent, stub}
+}
+
+describe(`regression (a): make() non-object guard`, () => {
+  it(`ignores null/non-object payloads without throwing or replying`, async () => {
+    const {sent, stub} = makeStubRpc()
+    for (const bad of [null, undefined, 42, `nope`, true]) {
+      await stub.make(bad as any)
+    }
+    expect(sent).toHaveLength(0)
+  })
+})
+
+describe(`regression (b): prototype methods are not remotely callable`, () => {
+  it(`rejects toString/constructor/hasOwnProperty with not-found errors`, async () => {
+    const {sent, stub} = makeStubRpc()
+    await stub.make({id: 1, method: `toString`, params: []})
+    expect(sent[0]?.error).toBeDefined()
+    expect(String(sent[0]?.error?.message ?? sent[0]?.error)).toMatch(/not found/)
+    await stub.make({id: 2, method: `constructor`, params: []})
+    expect(sent[1]?.error).toBeDefined()
+    await stub.make({id: 3, method: `hasOwnProperty`, params: []})
+    expect(sent[2]?.error).toBeDefined()
+  })
+})
+
+describe(`regression (c): default request timeout`, () => {
+  it(`exports DEFAULT_REQUEST_TIMEOUT_MS = 30000`, () => {
+    expect((RpcModule as any).DEFAULT_REQUEST_TIMEOUT_MS).toBe(30000)
+  })
+
+  it(`new instances default defaultTimeoutMs to 30000`, () => {
+    const {stub} = makeStubRpc()
+    expect((stub as any).defaultTimeoutMs).toBe(30000)
+  })
+
+  it(`accepts defaultTimeoutMs via constructor options`, () => {
+    const sent: any[] = []
+    const stub = new WorkerThreadRpc((data) => sent.push(data), {}, {defaultTimeoutMs: 123} as any)
+    expect((stub as any).defaultTimeoutMs).toBe(123)
+  })
+
+  it(`applies the instance default when timeoutMs is omitted`, async () => {
+    const {stub} = makeStubRpc()
+    ;(stub as any).defaultTimeoutMs = 40
+    const promise = stub.makeRequest(`add`, [1, 2]) as Promise<unknown>
+    await expect(withTimeout(promise, 2000, `instance default timeout`)).rejects.toThrow(/timeout after 40ms/)
+  })
+
+  it(`explicit timeoutMs overrides the instance default`, async () => {
+    const {stub, sent} = makeStubRpc()
+    ;(stub as any).defaultTimeoutMs = 30
+    const promise = stub.makeRequest(`add`, [1, 2], true, undefined, 500) as Promise<unknown>
+    promise.catch(() => {})
+    await sleep(80)
+    // would already have timed out under the 30ms default
+    expect(stub.map.size).toBe(1)
+    await stub.make({id: sent[0]!.id, result: 3})
+    expect(await withTimeout(promise, 2000, `explicit override`)).toBe(3)
+  })
+
+  it(`explicit 0 stays infinite even with an instance default (back-compat)`, async () => {
+    const {stub} = makeStubRpc()
+    ;(stub as any).defaultTimeoutMs = 30
+    const promise = stub.makeRequest(`add`, [1, 2], true, undefined, 0) as Promise<unknown>
+    promise.catch(() => {})
+    await sleep(80)
+    expect(stub.map.size).toBe(1)
+    stub.rejectAllPending(new Error(`cleanup`))
+    await expect(promise).rejects.toThrow(/cleanup/)
+  })
+
+  it(`throws TypeError on negative/NaN/non-number timeoutMs`, () => {
+    const {stub} = makeStubRpc()
+    for (const bad of [-5, NaN, `fast`]) {
+      let threw: unknown = null
+      try {
+        const ret = stub.makeRequest(`add`, [1, 2], true, undefined, bad as any) as unknown as Promise<unknown>
+        if (ret && typeof (ret as any).catch === `function`) {
+          ;(ret as any).catch(() => {})
+          stub.rejectAllPending(new Error(`cleanup`))
+        }
+      } catch (err) {
+        threw = err
+      }
+      expect(threw).toBeInstanceOf(TypeError)
+    }
+    expect(stub.map.size).toBe(0)
+  })
+})
+
+describe(`regression (d): timeout timer is unrefd`, () => {
+  it(`calls unref on the timer right after creation`, () => {
+    const g = globalThis as any
+    const origSetTimeout = g.setTimeout
+    let unrefCalled = false
+    const fake = (...args: any[]): any => {
+      const t = origSetTimeout(...args)
+      const prev = t?.unref?.bind(t)
+      if (typeof prev === `function`) {
+        t.unref = (...rest: any[]) => {
+          unrefCalled = true
+          return prev(...rest)
+        }
+      }
+      return t
+    }
+    g.setTimeout = fake
+    const {stub} = makeStubRpc()
+    try {
+      const promise = stub.makeRequest(`add`, [1, 2], true, undefined, 50) as Promise<unknown>
+      promise.catch(() => {})
+      expect(unrefCalled).toBe(true)
+      stub.rejectAllPending(new Error(`cleanup`))
+    } finally {
+      g.setTimeout = origSetTimeout
+    }
+  })
+})
+
+describe(`regression (e): single-call next() guard`, () => {
+  it(`second next() call throws and surfaces as an error response`, async () => {
+    const sent: any[] = []
+    let calls = 0
+    const stub = new WorkerThreadRpc((data) => sent.push(data), {add: () => {
+      calls++
+      return 1
+    }})
+    stub.use(async (_ctx, next) => {
+      await next()
+      await next()
+    })
+    await stub.make({id: 1, method: `add`, params: []})
+    expect(calls).toBe(1)
+    expect(sent[0]?.error).toBeDefined()
+    expect(String(sent[0]?.error?.message ?? sent[0]?.error)).toMatch(/multiple|next/)
+  })
+})
+
+describe(`regression (f): undefined results resolve via key presence`, () => {
+  it(`resolves a pending request when result is present-but-undefined (msgpack)`, async () => {
+    const {sent, stub} = makeStubRpc()
+    const promise = stub.makeRequest(`add`, [1, 2]) as Promise<unknown>
+    await stub.make({id: sent[0]!.id, result: undefined})
+    expect(await withTimeout(promise, 1000, `undefined result`)).toBeUndefined()
+  })
+})
+
+describe(`regression (g): mixed envelope resolves pending first`, () => {
+  it(`prefers pending resolution over request dispatch when both apply`, async () => {
+    const {sent, stub} = makeStubRpc()
+    const promise = stub.makeRequest(`add`, [1, 2]) as Promise<unknown>
+    await stub.make({id: sent[0]!.id, method: `add`, params: [1, 2], result: 99} as any)
+    expect(await withTimeout(promise, 1000, `mixed envelope`)).toBe(99)
+    expect(sent).toHaveLength(1)
+  })
+})
+
+describe(`regression (h): transport-send failures route to reportError`, () => {
+  afterEach(() => {
+    setDefaultErrorHandler(() => {})
+  })
+
+  it(`reports synchronous send throws from make()`, async () => {
+    const seen: unknown[] = []
+    setDefaultErrorHandler((err) => seen.push(err))
+    try {
+      const boom = new WorkerThreadRpc(() => {
+        throw new Error(`transport down`)
+      }, {add: () => 1})
+      await boom.make({id: 1, method: `add`, params: []})
+      expect(seen.length).toBeGreaterThan(0)
+    } finally {
+      setDefaultErrorHandler(() => {})
+    }
+  })
+
+  it(`reports async send rejections from make()`, async () => {
+    const seen: unknown[] = []
+    setDefaultErrorHandler((err) => seen.push(err))
+    try {
+      const boom = new WorkerThreadRpc(() => Promise.reject(new Error(`async transport down`)), {add: () => 1})
+      await boom.make({id: 2, method: `add`, params: []})
+      await sleep(20)
+      expect(seen.length).toBeGreaterThan(0)
+    } finally {
+      setDefaultErrorHandler(() => {})
+    }
+  })
+})
+
+describe(`regression (i): id-less inbound skips the reply`, () => {
+  it(`dispatches id-less requests but answers nobody`, async () => {
+    const sent: any[] = []
+    let calls = 0
+    const stub = new WorkerThreadRpc((data) => sent.push(data), {add: (a: number, b: number) => {
+      calls++
+      return a + b
+    }})
+    await stub.make({method: `add`, params: [1, 2]} as any)
+    expect(calls).toBe(1)
+    expect(sent).toHaveLength(0)
+    await stub.make({method: `nope`, params: []} as any)
+    expect(sent).toHaveLength(0)
+  })
+})
+
+describe(`regression (j): single-spread payload guard`, () => {
+  it(`builds a correct envelope when others is undefined`, () => {
+    const {sent, stub} = makeStubRpc()
+    stub.makeRequest(`add`, [1, 2])
+    expect(sent[0]).toMatchObject({method: `add`, params: [1, 2]})
+    expect(typeof sent[0].id).toBe(`number`)
+  })
+})
+
+describe(`regression (k): estimatePayloadSize counts Map/Set entries`, () => {
+  it(`handles empty Map/Set as zero`, () => {
+    expect(estimatePayloadSize(new Map())).toBe(0)
+    expect(estimatePayloadSize(new Set())).toBe(0)
+  })
+
+  it(`counts Map keys and values instead of Object.keys undercount`, () => {
+    expect(estimatePayloadSize(new Map([[`k`, `vvv`]]))).toBe(8)
+  })
+
+  it(`counts Set items`, () => {
+    expect(estimatePayloadSize(new Set([`ab`]))).toBe(4)
+  })
+})
+
+describe(`regression (l): non-number response id reports and ignores`, () => {
+  afterEach(() => {
+    setDefaultErrorHandler(() => {})
+  })
+
+  it(`reportErrors and sends nothing on a string response id`, async () => {
+    const seen: unknown[] = []
+    setDefaultErrorHandler((err) => seen.push(err))
+    try {
+      const {sent, stub} = makeStubRpc()
+      await stub.make({id: `str`, result: 5} as any)
+      expect(seen.length).toBeGreaterThan(0)
+      expect(sent).toHaveLength(0)
+    } finally {
+      setDefaultErrorHandler(() => {})
+    }
+  })
+})
+
+describe(`regression (n): makeRequest stays positional`, () => {
+  it(`keeps runtime arity so positional callers are unaffected`, () => {
+    const {stub} = makeStubRpc()
+    expect(stub.makeRequest.length).toBe(2)
+  })
+})
+
+describe(`regression (o): duplex plumbing is never remotely callable`, () => {
+  it(`denies send/request/kill/init/handleOnMessage/gateway factories, allows shutdown`, async () => {
+    const {sent, stub} = makeStubRpc({
+      send: () => 1,
+      request: () => 2,
+      kill: () => 3,
+      init: () => 4,
+      handleOnMessage: () => 5,
+      createGatewayServer: () => 6,
+      createGatewayClient: () => 7,
+      shutdown: () => 8,
+      mtdOk: () => 9
+    } as any)
+    const denied = [`send`, `request`, `kill`, `init`, `handleOnMessage`, `createGatewayServer`, `createGatewayClient`]
+    for (const [i, method] of denied.entries()) {
+      await stub.make({id: 100 + i, method, params: []})
+    }
+    expect(sent.filter((m) => m?.error !== undefined)).toHaveLength(denied.length)
+    await stub.make({id: 200, method: `shutdown`, params: []})
+    await stub.make({id: 201, method: `mtdOk`, params: []})
+    expect(sent.find((m) => m?.id === 200)?.result).toBe(8)
+    expect(sent.find((m) => m?.id === 201)?.result).toBe(9)
   })
 })

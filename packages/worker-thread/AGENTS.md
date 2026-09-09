@@ -61,12 +61,45 @@ console.log(await CounterJob.mtdGetNumber());
 - **Mesh (advanced)**: workers can be both server and client — bind + connect simultaneously.
 - Main thread is never on the inter-worker hot path.
 
+## Gateway Reliability Semantics (at-least-once)
+
+- **Retried delivery, not exactly-once**: the transport retries failed writes
+  and replays in-flight requests across reconnects — handlers may see the same
+  RPC `id` twice. Ids are monotonic per client and never reused within a
+  connection, so the server dedupes per connection (first delivery executes,
+  redeliveries replay the cached response — including redeliveries that arrive
+  while the first copy is still running, which are dropped; >64KB responses
+  are never cached, max 1000 entries FIFO per connection, dropped on
+  disconnect). Keep handlers idempotent anyway.
+- **Default RPC timeout is 30s**: omitting `timeoutMs` rejects the caller after
+  30s (`DEFAULT_REQUEST_TIMEOUT_MS`); pass `timeoutMs: 0` for long tasks.
+- **No ordering across reconnect**: pre-drop requests may resolve after
+  post-reconnect ones.
+- **`maxMessageSize` is post-buffering** (stops handler-memory growth, not a
+  wire-level DoS cap — upstream `net-ipc` limitation).
+- **Allow-list escape hatch is intentional**: short-circuit middleware (sets
+  `ctx.result` without `next()`) skips the `allowedMethods` guard — only
+  reachable by code already holding the server instance.
+
 ## Build & Test
 
 ```
 nx build worker-thread            # tsup → dist/src/
 bun test packages/worker-thread/test/
 ```
+
+## Bench
+
+```
+cd packages/worker-thread && bun run bench                                    # full suite (5 files)
+BENCH_FILTER="json echo single" bun run ./bench/gateway-roundtrip.bench.ts    # one bench only
+```
+
+- Runner: mitata (`bench`/`group`/`run`); shared setup in `bench/_setup.ts` (`spawnEchoWorker`, `spawnGatewayPair`, `makePool`, `runBench`, `benchSize`).
+- Knobs: `BENCH_N` (batch/payload-size multiplier), `BENCH_FILTER` (regex → mitata `run({filter})` — smoke runs select exactly one bench per file).
+- Socket paths must stay unique per server (`pid`+`Date.now`+counter via `uniqueSocketPath`) — a reused path collides with a stale socket file and hangs the runner.
+- Every bench primes once unmeasured, wraps setup awaits in `withTimeout`, and kills/closes all workers, servers, clients, and pools in teardown.
+- Benches are `@internal` scripts — excluded from `bun test` and CI.
 
 ## Anti-Patterns
 

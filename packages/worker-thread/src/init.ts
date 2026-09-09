@@ -12,7 +12,8 @@
  * @public
  */
 
-import {isMainThread, parentPort, threadId } from "node:worker_threads"
+import {isMainThread, parentPort, threadId} from "node:worker_threads"
+import {reportError} from "./error-handler"
 import {type GatewayClientOptions, WorkerThreadGatewayClient} from "./gateway-client"
 import {type GatewayServerOptions, WorkerThreadGatewayServer} from "./gateway-server"
 import {WorkerThreadRpc} from "./rpc"
@@ -130,9 +131,16 @@ export class WorkerThreadInit {
    * Hook called when an unhandled error occurs inside the worker's RPC handling.
    *
    * @remarks
-   * Receives the error object. Override to log or report.
+   * Default implementation forwards to {@link reportError} — silent by
+   * default (the package-wide handler is a no-op) but observable via
+   * `setDefaultErrorHandler`. Override contract: replace this method to
+   * customize handling (e.g. log); call `super.onError(err)` (or
+   * `reportError(err)` directly) inside the override to preserve
+   * package-wide observability.
    */
-  onError(_err: unknown): void {}
+  onError(err: unknown): void {
+    reportError(err)
+  }
 
   /**
    * Get the most recently created gateway client.
@@ -156,18 +164,39 @@ export class WorkerThreadInit {
   /**
    * Creates a new WorkerThreadInit instance.
    * Sets up message handling and signals readiness to the main thread.
+   *
+   * @remarks
+   * The `readyResolve` signal is deferred with `queueMicrotask` so that
+   * subclass field initializers (which run after `super()` returns) are
+   * already applied before main-thread RPCs can observe worker state.
    */
   constructor() {
     this.init()
     this.rpc = new WorkerThreadRpc(this.send.bind(this), this as unknown as Record<string, (...args: never[]) => unknown>)
-    this.send({method: `readyResolve`})
+    queueMicrotask(() => {
+      this.send({method: `readyResolve`})
+    })
   }
+
+  /** Guards {@link WorkerThreadInit.init} against duplicate listeners. */
+  private _initDone = false
+
+  /** Parent port {@link WorkerThreadInit.init} last attached to. */
+  private _initPort: unknown = undefined
+
+  /** Guards {@link WorkerThreadInit.shutdown} so the hook runs at most once. */
+  private _shutdownDone = false
 
   /**
    * [LOW-LEVEL] Initialize message handling from parent port and register event message from parent.
    * @public
    */
   init() {
+    if (this._initDone && this._initPort === this.parentPort) {
+      return
+    }
+    this._initDone = true
+    this._initPort = this.parentPort
     this.parentPort?.on(`message`, (data) => this.handleOnMessage(data))
   }
 
@@ -187,6 +216,9 @@ export class WorkerThreadInit {
    * Send a message to the main thread.
    *
    * @param payload - Data to send. Payload to main thread.
+   * @returns `true` when the message was posted, `false` when there is
+   *   no parent port (e.g. running on the main thread) and the payload
+   *   was dropped.
    *
    * @example
    * ```typescript
@@ -194,8 +226,12 @@ export class WorkerThreadInit {
    * ```
    * @public
    */
-  send(payload: Record<string, unknown>) {
-    this.parentPort?.postMessage(payload)
+  send(payload: Record<string, unknown>): boolean {
+    if (this.parentPort === null || this.parentPort === undefined) {
+      return false
+    }
+    this.parentPort.postMessage(payload)
+    return true
   }
 
   /**
@@ -308,14 +344,35 @@ export class WorkerThreadInit {
    * the worker after this resolves. Override to customize, or just set
    * `onBeforeExit`.
    *
+   * Gateway cleanup runs in a `finally` block, so it ALWAYS executes even
+   * when `onBeforeExit` throws (the hook error still propagates to the
+   * caller). The hook runs at most once — a second `shutdown()` call
+   * returns `true` immediately. After cleanup the gateway registry is
+   * cleared (`gatewayClients` emptied, `gatewayServer` and
+   * `gatewayClientLatest` reset to `undefined`) so no closed handle is
+   * reused.
+   *
    * @returns Promise resolving to `true` when shutdown is complete.
    * @public
    */
   async shutdown() {
-    await this.onBeforeExit()
-    await this.gatewayServer?.close()
-    for (const client of this.gatewayClients.values()) {
-      await client.close()
+    if (this._shutdownDone) {
+      return true
+    }
+    this._shutdownDone = true
+    try {
+      await this.onBeforeExit()
+    } finally {
+      try {
+        await this.gatewayServer?.close()
+        for (const client of this.gatewayClients.values()) {
+          await client.close()
+        }
+      } finally {
+        this.gatewayClients.clear()
+        this.gatewayServer = undefined
+        this.gatewayClientLatest = undefined
+      }
     }
     return true
   }

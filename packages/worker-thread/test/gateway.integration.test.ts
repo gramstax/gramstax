@@ -11,13 +11,13 @@
  * unreliable under bun test (the response never settles), so rejection
  * assertions resolve the promise first, then assert on the error.
  */
-import {describe, expect, it } from "bun:test"
+import {describe, expect, it} from "bun:test"
 import {WorkerThreadExport} from "../src/export"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
 import {normalizeGatewayPath} from "../src/gateway-path"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import {WorkerThreadInit} from "../src/init"
-import {sleep, withTimeout } from "./helpers"
+import {sleep, withTimeout} from "./helpers"
 
 let counter = 0
 function uniquePath() {
@@ -28,15 +28,20 @@ function uniquePath() {
 describe(`normalizeGatewayPath (P2-9)`, () => {
   it(`converts POSIX paths and bare names to named pipes on Windows`, () => {
     if (process.platform !== `win32`) return
-    expect(normalizeGatewayPath(`gateway-main`)).toBe(`\\\\.\\pipe\\gateway-main`)
+    expect(normalizeGatewayPath(`gateway-main`)).toBe(`\\\\.\\pipe\\gateway--main`)
     expect(normalizeGatewayPath(`/tmp/server.sock`)).toBe(`\\\\.\\pipe\\tmp-server.sock`)
+    expect(normalizeGatewayPath(`/tmp/a-b`)).not.toBe(normalizeGatewayPath(`/tmp/a/b`))
     expect(normalizeGatewayPath(`\\\\.\\pipe\\keep`)).toBe(`\\\\.\\pipe\\keep`)
   })
 
-  it(`passes paths through unchanged on POSIX`, () => {
+  it(`passes absolute paths through unchanged on POSIX`, () => {
     if (process.platform === `win32`) return
     expect(normalizeGatewayPath(`/tmp/server.sock`)).toBe(`/tmp/server.sock`)
-    expect(normalizeGatewayPath(`gateway-main`)).toBe(`gateway-main`)
+  })
+
+  it(`resolves bare names against os.tmpdir() on POSIX (no CWD pollution)`, () => {
+    if (process.platform === `win32`) return
+    expect(normalizeGatewayPath(`gateway-main`) !== `gateway-main`).toBe(true)
   })
 })
 
@@ -73,7 +78,11 @@ describe(`WorkerThreadGatewayServer/Client integration (real sockets)`, () => {
     try {
       await withTimeout(server.start(path, {ping: () => `pong`}, {token: `s3cret`}), 10_000, `server start`)
       const closed = new Promise((resolve) => bad.once(`close`, resolve))
-      await withTimeout(bad.connect(path).catch(() => bad), 10_000, `unauthorized connect`)
+      await withTimeout(
+        bad.connect(path).catch(() => bad),
+        10_000,
+        `unauthorized connect`
+      )
       await withTimeout(closed, 10_000, `server should close unauthorized client`)
 
       await withTimeout(good.connect(path, {token: `s3cret`}), 10_000, `authorized connect`)
@@ -185,7 +194,11 @@ describe(`gateway client lifecycle guards (regression)`, () => {
     try {
       await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
       await withTimeout(client.connect(path), 10_000, `first connect`)
-      const err = await withTimeout(client.connect(path).catch((e: unknown) => e), 10_000, `second connect`)
+      const err = await withTimeout(
+        client.connect(path).catch((e: unknown) => e),
+        10_000,
+        `second connect`
+      )
       expect(err).toBeInstanceOf(Error)
     } finally {
       await client.close()
@@ -199,11 +212,7 @@ describe(`gateway client lifecycle guards (regression)`, () => {
     const client = new WorkerThreadGatewayClient()
     try {
       await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
-      const results = await withTimeout(
-        Promise.allSettled([client.connect(path), client.connect(path)]),
-        10_000,
-        `concurrent connects`
-      )
+      const results = await withTimeout(Promise.allSettled([client.connect(path), client.connect(path)]), 10_000, `concurrent connects`)
       expect(results.filter((r) => r.status === `fulfilled`).length).toBe(1)
       expect(results.filter((r) => r.status === `rejected`).length).toBe(1)
       expect(await withTimeout(client.request(`ping`, []), 10_000, `ping`)).toBe(`pong`)
@@ -223,7 +232,11 @@ describe(`gateway client lifecycle guards (regression)`, () => {
       const pending = client.request(`hang`, [])
       await sleep(100) // let the request reach the server
       await withTimeout(client.close(), 10_000, `close`)
-      const err = await withTimeout(pending.catch((e: unknown) => e), 5_000, `pending rejection`)
+      const err = await withTimeout(
+        pending.catch((e: unknown) => e),
+        5_000,
+        `pending rejection`
+      )
       expect(err).toBeInstanceOf(Error)
       expect((err as Error).message).toMatch(/closed/)
     } finally {
@@ -240,7 +253,11 @@ describe(`gateway client lifecycle guards (regression)`, () => {
       await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
       await withTimeout(client.connect(path), 10_000, `connect`)
       await withTimeout(client.close(), 10_000, `close`)
-      const err = await withTimeout(client.request(`ping`, []).catch((e: unknown) => e), 3_000, `request after close`)
+      const err = await withTimeout(
+        client.request(`ping`, []).catch((e: unknown) => e),
+        3_000,
+        `request after close`
+      )
       expect(err).toBeInstanceOf(Error)
     } finally {
       await client.close()
@@ -262,7 +279,11 @@ describe(`gateway client lifecycle guards (regression)`, () => {
       await withTimeout(server.server.close(true), 10_000, `server close`)
       await sleep(500)
 
-      const err = await withTimeout(client.request(`ping`, []).catch((e: unknown) => e), 5_000, `request after death`)
+      const err = await withTimeout(
+        client.request(`ping`, []).catch((e: unknown) => e),
+        5_000,
+        `request after death`
+      )
       expect(err).toBeInstanceOf(Error)
     } finally {
       await client.close()
@@ -277,7 +298,11 @@ describe(`gateway client lifecycle guards (regression)`, () => {
     try {
       await withTimeout(server.start(path, {hang: () => new Promise(() => {})}), 10_000, `server start`)
       await withTimeout(client.connect(path), 10_000, `connect`)
-      const err = await withTimeout(client.request(`hang`, [], true, undefined, 300).catch((e: unknown) => e), 5_000, `hang request`)
+      const err = await withTimeout(
+        client.request(`hang`, [], true, undefined, 300).catch((e: unknown) => e),
+        5_000,
+        `hang request`
+      )
       expect((err as Error).message).toMatch(/timeout/)
     } finally {
       await client.close()
@@ -341,7 +366,11 @@ describe(`gateway server restart & allow-list (regression)`, () => {
       // the allowed method must see the real instance state, not a proxy
       expect(await withTimeout(client.request(`mtdGetCount`, []), 10_000, `mtdGetCount`)).toBe(5)
       // disallowed methods stay blocked
-      const err = await withTimeout(client.request(`mtdBump`, []).catch((e: unknown) => e), 10_000, `mtdBump`)
+      const err = await withTimeout(
+        client.request(`mtdBump`, []).catch((e: unknown) => e),
+        10_000,
+        `mtdBump`
+      )
       expect((err as {message?: string})?.message).toMatch(/not allowed/)
       // instance state must be intact after the blocked call
       expect(worker.count).toBe(5)
@@ -381,7 +410,11 @@ describe(`gateway server restart & allow-list (regression)`, () => {
     try {
       await withTimeout(server.start(path, {ping: () => `pong`}, {allowedMethods: [`ping`]}), 10_000, `server start`)
       await withTimeout(client.connect(path), 10_000, `connect`)
-      const err = await withTimeout(client.request(`missing`, []).catch((e: unknown) => e), 10_000, `missing`)
+      const err = await withTimeout(
+        client.request(`missing`, []).catch((e: unknown) => e),
+        10_000,
+        `missing`
+      )
       expect((err as {message?: string})?.message).toMatch(/not allowed/)
     } finally {
       await client.close()
@@ -508,7 +541,11 @@ describe(`gateway default-open hardening (SEC-1)`, () => {
     try {
       await withTimeout(server.start(path, {ping: () => `pong`}, {allowedMethods: [] as string[]}), 10_000, `server start`)
       await withTimeout(client.connect(path), 10_000, `client connect`)
-      const err = await withTimeout(client.request(`ping`, []).catch((e: unknown) => e), 10_000, `ping`)
+      const err = await withTimeout(
+        client.request(`ping`, []).catch((e: unknown) => e),
+        10_000,
+        `ping`
+      )
       expect((err as {message?: string}).message).toMatch(/not allowed/)
     } finally {
       await client.close()
@@ -531,7 +568,7 @@ describe(`gateway message-size limit (SEC-2)`, () => {
             echo: (v: unknown) => {
               dispatched = true
               return v
-            },
+            }
           },
           {maxMessageSize: 1024}
         ),
@@ -540,7 +577,11 @@ describe(`gateway message-size limit (SEC-2)`, () => {
       )
       await withTimeout(client.connect(path), 10_000, `client connect`)
       const big = `A`.repeat(64 * 1024)
-      const err = await withTimeout(client.request(`echo`, [big]).catch((e: unknown) => e), 10_000, `big echo`)
+      const err = await withTimeout(
+        client.request(`echo`, [big]).catch((e: unknown) => e),
+        10_000,
+        `big echo`
+      )
       expect((err as {message?: string}).message).toMatch(/maxMessageSize/)
       expect(dispatched).toBe(false)
       // a small request still works after the rejection
@@ -558,7 +599,11 @@ describe(`gateway message-size limit (SEC-2)`, () => {
     try {
       await withTimeout(server.start(path, {big: () => `B`.repeat(64 * 1024)}), 10_000, `server start`)
       await withTimeout(client.connect(path, {maxMessageSize: 1024}), 10_000, `client connect`)
-      const err = await withTimeout(client.request(`big`, []).catch((e: unknown) => e), 10_000, `big result`)
+      const err = await withTimeout(
+        client.request(`big`, []).catch((e: unknown) => e),
+        10_000,
+        `big result`
+      )
       expect((err as {message?: string}).message).toMatch(/maxMessageSize/)
     } finally {
       await client.close()
@@ -573,8 +618,12 @@ describe(`gateway message-size limit (SEC-2)`, () => {
     try {
       await withTimeout(server.start(path, {echo: (v: unknown) => v}), 10_000, `server start`)
       await withTimeout(client.connect(path), 10_000, `client connect`)
-      const big = `A`.repeat((10 * 1024 * 1024) + 1)
-      const err = await withTimeout(client.request(`echo`, [big]).catch((e: unknown) => e), 15_000, `oversized echo`)
+      const big = `A`.repeat(10 * 1024 * 1024 + 1)
+      const err = await withTimeout(
+        client.request(`echo`, [big]).catch((e: unknown) => e),
+        15_000,
+        `oversized echo`
+      )
       expect((err as {message?: string}).message).toMatch(/maxMessageSize/)
     } finally {
       await client.close()
@@ -596,4 +645,243 @@ describe(`gateway message-size limit (SEC-2)`, () => {
       await server.close()
     }
   }, 20_000)
+})
+
+describe(`gateway auth hardening (token strictness)`, () => {
+  it(`empty-string token still enforces auth: tokenless client is rejected`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const bad = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}, {token: ``}), 10_000, `server start`)
+      const closed = new Promise((resolve) => bad.once(`close`, resolve))
+      await withTimeout(
+        bad.connect(path, {reconnect: false}).catch(() => bad),
+        10_000,
+        `tokenless connect`
+      )
+      await withTimeout(closed, 10_000, `server should close tokenless client`)
+    } finally {
+      await bad.destroy()
+      await server.close()
+    }
+  }, 20_000)
+
+  it(`wrong token is rejected while the right token works`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const bad = new WorkerThreadGatewayClient()
+    const good = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}, {token: `s3cret`}), 10_000, `server start`)
+      const closed = new Promise((resolve) => bad.once(`close`, resolve))
+      await withTimeout(
+        bad.connect(path, {token: `wrong`, reconnect: false}).catch(() => bad),
+        10_000,
+        `wrong-token connect`
+      )
+      await withTimeout(closed, 10_000, `server should close wrong-token client`)
+      await withTimeout(good.connect(path, {token: `s3cret`}), 10_000, `authorized connect`)
+      expect(await withTimeout(good.request(`ping`, []), 10_000, `ping`)).toBe(`pong`)
+    } finally {
+      await bad.destroy()
+      await good.close()
+      await server.close()
+    }
+  }, 20_000)
+})
+
+describe(`gateway server send-failure contract`, () => {
+  it(`server-side send rejects (not resolves Error) when the transport is dead`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
+      await withTimeout(client.connect(path, {reconnect: false}), 10_000, `client connect`)
+      const {waitFor} = await import(`./helpers`)
+      await waitFor(() => server.rpc.size > 0, 10_000)
+      const connId = Array.from(server.rpc.keys())[0]!
+      const rpc = server.rpc.get(connId)!
+      const raw = (server.server as unknown as {connections: {id: string; connection: {destroy: () => void}}[]}).connections.find((c) => c.id === connId)!
+      raw.connection.destroy()
+      const settled = await withTimeout(Promise.allSettled([Promise.resolve(rpc.send({id: 1, result: `x`}) as unknown as Promise<unknown>)]), 20_000, `dead send`)
+      expect(settled[0]!.status).toBe(`rejected`)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 30_000)
+})
+
+describe(`gateway at-least-once dedupe`, () => {
+  it(`duplicate inbound id executes once and replays the cached response`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    let calls = 0
+    try {
+      await withTimeout(
+        server.start(path, {
+          count: () => {
+            calls += 1
+            return calls
+          }
+        }),
+        10_000,
+        `server start`
+      )
+      await withTimeout(client.connect(path, {reconnect: false}), 10_000, `client connect`)
+      const {waitFor} = await import(`./helpers`)
+      await waitFor(() => server.rpc.size > 0, 10_000)
+      const connId = Array.from(server.rpc.keys())[0]!
+      const raw = (server.server as unknown as {connections: {id: string; send: (data: unknown) => Promise<unknown>}[]}).connections.find((c) => c.id === connId)!
+      let sends = 0
+      const rawSend = raw.send.bind(raw)
+      raw.send = (async (data: unknown) => {
+        sends += 1
+        return rawSend(data)
+      }) as typeof raw.send
+      const emit = (server.server as unknown as {emit: (ev: string, ...args: unknown[]) => void}).emit.bind(server.server)
+      const envelope = {id: 424242, method: `count`, params: [] as unknown[]}
+      emit(`message`, envelope, raw)
+      await waitFor(() => sends >= 1, 10_000)
+      emit(`message`, envelope, raw)
+      await waitFor(() => sends >= 2, 10_000)
+      expect(calls).toBe(1)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 25_000)
+
+  it(`responses over 64KB are not cached: duplicate id re-executes`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    let calls = 0
+    try {
+      await withTimeout(
+        server.start(path, {
+          big: () => {
+            calls += 1
+            return `B`.repeat(100 * 1024)
+          }
+        }),
+        10_000,
+        `server start`
+      )
+      await withTimeout(client.connect(path, {reconnect: false}), 10_000, `client connect`)
+      const {waitFor} = await import(`./helpers`)
+      await waitFor(() => server.rpc.size > 0, 10_000)
+      const connId = Array.from(server.rpc.keys())[0]!
+      const raw = (server.server as unknown as {connections: {id: string; send: (data: unknown) => Promise<unknown>}[]}).connections.find((c) => c.id === connId)!
+      let sends = 0
+      const rawSend = raw.send.bind(raw)
+      raw.send = (async (data: unknown) => {
+        sends += 1
+        return rawSend(data)
+      }) as typeof raw.send
+      const emit = (server.server as unknown as {emit: (ev: string, ...args: unknown[]) => void}).emit.bind(server.server)
+      const envelope = {id: 434343, method: `big`, params: [] as unknown[]}
+      emit(`message`, envelope, raw)
+      await waitFor(() => sends >= 1, 10_000)
+      emit(`message`, envelope, raw)
+      await waitFor(() => sends >= 2, 10_000)
+      expect(calls).toBe(2)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 25_000)
+
+  it(`duplicate id arriving while the first copy runs executes once (in-flight drop)`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const client = new WorkerThreadGatewayClient()
+    let calls = 0
+    let release!: () => void
+    const gate = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    try {
+      await withTimeout(
+        server.start(path, {
+          slow: async () => {
+            calls += 1
+            await gate
+            return `done`
+          }
+        }),
+        10_000,
+        `server start`
+      )
+      await withTimeout(client.connect(path, {reconnect: false}), 10_000, `client connect`)
+      const {waitFor, sleep} = await import(`./helpers`)
+      await waitFor(() => server.rpc.size > 0, 10_000)
+      const connId = Array.from(server.rpc.keys())[0]!
+      const raw = (server.server as unknown as {connections: {id: string; send: (data: unknown) => Promise<unknown>}[]}).connections.find((c) => c.id === connId)!
+      let sends = 0
+      const rawSend = raw.send.bind(raw)
+      raw.send = (async (data: unknown) => {
+        sends += 1
+        return rawSend(data)
+      }) as typeof raw.send
+      const emit = (server.server as unknown as {emit: (ev: string, ...args: unknown[]) => void}).emit.bind(server.server)
+      const envelope = {id: 454545, method: `slow`, params: [] as unknown[]}
+      emit(`message`, envelope, raw)
+      await waitFor(() => calls >= 1, 10_000)
+      emit(`message`, envelope, raw)
+      await sleep(100)
+      release()
+      await waitFor(() => sends >= 1, 10_000)
+      await sleep(100)
+      expect(calls).toBe(1)
+      expect(sends).toBe(1)
+    } finally {
+      await client.close()
+      await server.close()
+    }
+  }, 25_000)
+})
+
+describe(`gateway server close semantics`, () => {
+  it(`close() unlinks the socket file and double-close is idempotent`, async () => {
+    const path = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const {stat} = await import(`node:fs/promises`)
+    const resolved = normalizeGatewayPath(path)
+    try {
+      await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
+      await withTimeout(stat(resolved), 5_000, `socket exists`)
+      await withTimeout(server.close(), 10_000, `first close`)
+      const after = await stat(resolved)
+        .then(() => `exists` as const)
+        .catch((e: unknown) => e)
+      expect(after).toBeInstanceOf(Error)
+      expect((after as {code?: unknown}).code).toBe(`ENOENT`)
+      await withTimeout(server.close(), 10_000, `second close (idempotent)`)
+    } finally {
+      await server.close().catch(() => {})
+    }
+  }, 25_000)
+})
+
+describe(`gateway server start failure semantics`, () => {
+  it(`failed second start does not overwrite auth config`, async () => {
+    const pathA = uniquePath()
+    const pathB = uniquePath()
+    const server = new WorkerThreadGatewayServer()
+    const probe = new WorkerThreadGatewayClient()
+    try {
+      await withTimeout(server.start(pathA, {ping: () => `pong`}, {token: `original`}), 10_000, `first start`)
+      const err = await server.start(pathB, {ping: () => `pong`}, {token: `new-token`}).catch((e: unknown) => e)
+      expect(err).toBeInstanceOf(Error)
+      await withTimeout(probe.connect(pathA, {token: `original`, reconnect: false}), 10_000, `original-token probe`)
+      expect(await withTimeout(probe.request(`ping`, []), 10_000, `ping`)).toBe(`pong`)
+    } finally {
+      await probe.close()
+      await server.close()
+    }
+  }, 25_000)
 })

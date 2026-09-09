@@ -60,3 +60,29 @@ describe(`default error handler`, () => {
     expect(seen).toHaveLength(1)
   })
 })
+
+describe(`regression (m): setDefaultErrorHandler validation`, () => {
+  afterEach(() => {
+    setDefaultErrorHandler(() => {})
+  })
+
+  it(`throws TypeError on non-function arguments`, () => {
+    for (const bad of [123, `handler`, null, {}, true]) {
+      expect(() => setDefaultErrorHandler(bad as any)).toThrow(TypeError)
+    }
+  })
+
+  it(`calling with undefined resets to the silent default`, () => {
+    const seen: unknown[] = []
+    setDefaultErrorHandler((err) => seen.push(err))
+    reportError(new Error(`before reset`))
+    expect(seen).toHaveLength(1)
+    setDefaultErrorHandler(undefined as any)
+    expect(() => reportError(new Error(`after reset`))).not.toThrow()
+    expect(seen).toHaveLength(1)
+    // a fresh handler can be installed after the reset
+    setDefaultErrorHandler((err) => seen.push(err))
+    reportError(new Error(`after reinstall`))
+    expect(seen).toHaveLength(2)
+  })
+})

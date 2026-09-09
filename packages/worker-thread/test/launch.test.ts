@@ -208,3 +208,88 @@ describe(`WorkerThreadLaunch shutdown edge cases`, () => {
     expect(err).toBeInstanceOf(Error)
   }, 20_000)
 })
+
+describe(`WorkerThreadLaunch regression (a–k fixes)`, () => {
+  it(`(c) explicit [undefined] argv normalizes to no-args`, async () => {
+    const worker = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [undefined] as unknown[])
+    expect(worker.argv.length).toBe(0)
+    await withTimeout(worker.ready(), 10_000, `ready`)
+    expect(await withTimeout(worker.request(`mtdAdd`, [1, 2]), 10_000, `rpc`)).toBe(3)
+    await worker.kill()
+  }, 20_000)
+
+  it(`(c) documents the argv slot convention (routing token at argv[2], user args from argv[3])`, async () => {
+    // `export` reserves process.argv[2] for its routing token; raw launch
+    // args start at argv[2] and user args follow at argv[3]+.
+    const worker = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [`user-arg`])
+    expect(worker.argv).toEqual([`user-arg`])
+    await withTimeout(worker.ready(), 10_000, `ready`)
+    await worker.kill()
+  }, 20_000)
+
+  it(`(d) kill() removes SIGINT/SIGTERM listeners (no pool leak)`, async () => {
+    const beforeInt = process.listenerCount(`SIGINT`)
+    const beforeTerm = process.listenerCount(`SIGTERM`)
+    const worker = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [])
+    await withTimeout(worker.ready(), 10_000, `ready`)
+    await withTimeout(worker.kill(), 10_000, `kill`)
+    await sleep(300)
+    expect(process.listenerCount(`SIGINT`)).toBe(beforeInt)
+    expect(process.listenerCount(`SIGTERM`)).toBe(beforeTerm)
+  }, 20_000)
+
+  it(`(e) send()/request() fail fast once kill() starts (no hang)`, async () => {
+    const worker = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [])
+    await withTimeout(worker.ready(), 10_000, `ready`)
+    const killed = worker.kill()
+    expect(() => worker.send({hello: `world`} as never)).toThrow(/exiting|exited/i)
+    const err = await withTimeout(worker.request(`mtdAdd`, [1, 2]).catch((e: unknown) => e), 5_000, `request fail-fast`)
+    expect(err).toBeInstanceOf(Error)
+    await withTimeout(killed, 10_000, `kill settles`)
+  }, 20_000)
+
+  it(`(f) concurrent shutdown() calls share one in-flight drain`, async () => {
+    const worker = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [])
+    await withTimeout(worker.ready(), 10_000, `ready`)
+    let drains = 0
+    const orig = worker.rpc.makeRequest.bind(worker.rpc) as (...args: unknown[]) => unknown
+    worker.rpc.makeRequest = ((...args: never[]) => {
+      if (args[0] === `shutdown`) drains++
+      return orig(...args)
+    }) as typeof worker.rpc.makeRequest
+    await withTimeout(Promise.all([worker.shutdown(5_000), worker.shutdown(5_000)]), 15_000, `concurrent shutdowns`)
+    expect(drains).toBe(1)
+  }, 25_000)
+
+  it(`(g) shutdown() fast-paths when already exited (no 5s stall)`, async () => {
+    const worker = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [])
+    await withTimeout(worker.ready(), 10_000, `ready`)
+    await withTimeout(worker.kill(), 10_000, `kill`)
+    await sleep(300)
+    const t0 = Date.now()
+    await withTimeout(worker.shutdown(5_000), 3_000, `fast shutdown`)
+    expect(Date.now() - t0).toBeLessThan(1_000)
+  }, 20_000)
+
+  it(`(h) ready() rejects after the worker died (no stale resolve)`, async () => {
+    const worker = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [])
+    await withTimeout(worker.ready(), 10_000, `ready`)
+    await withTimeout(worker.kill(), 10_000, `kill`)
+    await sleep(300)
+    await expect(withTimeout(worker.ready(), 3_000, `post-mortem ready`)).rejects.toThrow(/exited/i)
+  }, 20_000)
+
+  it(`(i) kill() routes terminate() errors to the error event (never swallows)`, async () => {
+    const worker = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [])
+    await withTimeout(worker.ready(), 10_000, `ready`)
+    const seen = new Promise<unknown>((resolve) => worker.once(`error`, resolve))
+    const thread = worker.thread as unknown as {terminate: () => Promise<number>}
+    const origTerminate = thread.terminate.bind(thread)
+    thread.terminate = () => Promise.reject(new Error(`boom-terminate`))
+    await worker.kill()
+    await withTimeout(seen, 5_000, `error event`)
+    thread.terminate = origTerminate
+    await withTimeout(worker.kill(), 10_000, `cleanup kill`)
+    await sleep(200)
+  }, 20_000)
+})

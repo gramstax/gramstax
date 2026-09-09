@@ -178,6 +178,12 @@ export class WorkerThreadGatewayClient extends EventEmitter {
     if (!path || typeof path !== `string`) {
       throw new Error(`createGatewayClient requires a non-empty socket path`)
     }
+    // net-ipc loads msgpackr via try-require (src/interfaces.js) and silently
+    // downgrades to JSON with a console.warn when it is missing — refuse early
+    // with a clear Error instead, reading the same hook net-ipc itself uses
+    if (options.messagepack === true && !(this.client as unknown as {_msgpack?: unknown})._msgpack) {
+      throw new Error(`gateway client messagepack:true requires the 'msgpackr' package to be installed (npm install msgpackr) — refusing a silent JSON downgrade`)
+    }
     this.client.options.path = normalizeGatewayPath(path)
     this.client.options.reconnect = options.reconnect ?? true
     if (options.retries !== undefined) {

@@ -81,12 +81,19 @@ export type WorkerThreadExportResult<TWorker extends WorkerThreadInit, TMain ext
 }
 
 /**
- * Validate a gateway server path is provided.
- *
- * @param serverPath - Path to the gateway server socket.
- * @returns The validated path.
- * @throws When the path is missing or empty.
+ * Props that must never become RPC calls. `then` keeps the proxy
+ * non-thenable (await-safe); the rest block prototype-pollution and
+ * introspection gadgets (`constructor`, `__proto__`, ...) from turning
+ * into remote method invocations.
  */
+const DENIED_RPC_PROPS = new Set([`then`, `toString`, `constructor`, `__proto__`, `prototype`, `inspect`])
+
+/**
+ * True when a proxy `get` must resolve to `undefined` instead of an RPC closure.
+ */
+function isDeniedRpcProp(prop: string | symbol): boolean {
+  return typeof prop !== `string` || DENIED_RPC_PROPS.has(prop)
+}
 function requireGatewayPath(serverPath?: string): string {
   if (!serverPath || typeof serverPath !== `string`) {
     throw new Error(`launchGatewayClient requires a gateway server path — pass the same path used in createGatewayServer()`)
@@ -190,36 +197,56 @@ export class WorkerThreadExport {
    * @public
    */
   static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string, options?: GatewayClientOptions): WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>} {
+    const staticCache = new Map<string, (owner: WorkerThreadInit, ...args: never[]) => Promise<unknown>>()
     const proxy: Record<string, (...args: never[]) => unknown> = new Proxy({} as Record<string, (...args: never[]) => unknown>, {
       get(_, prop) {
-        if (typeof prop !== `string` || prop === `then`) return undefined
-        return async (owner: WorkerThreadInit, ...args: unknown[]) => {
-          let client = owner.gatewayClients.get(path)
-          if (!client || client.isClosed()) {
-            client = await owner.createGatewayClient(path, options)
-          }
-          return client.request(prop, args)
-        }
-      }
-    })
-
-    // Add constructor support
-    const ctor = function (this: WorkerThreadInit, owner: WorkerThreadInit) {
-      return new Proxy({} as Record<string, (...args: never[]) => unknown>, {
-        get(_, prop) {
-          if (typeof prop !== `string` || prop === `then`) return undefined
-          return async (...args: unknown[]) => {
+        if (isDeniedRpcProp(prop)) return undefined
+        const key = prop as string
+        let fn = staticCache.get(key)
+        if (!fn) {
+          fn = async (owner: WorkerThreadInit, ...args: unknown[]) => {
             let client = owner.gatewayClients.get(path)
             if (!client || client.isClosed()) {
               client = await owner.createGatewayClient(path, options)
             }
-            return client.request(prop, args)
+            return client.request(key, args)
           }
+          staticCache.set(key, fn as (owner: WorkerThreadInit, ...args: never[]) => Promise<unknown>)
+        }
+        return fn
+      }
+    })
+
+    // Add constructor support. NOTE: the constructor returns a fresh proxy
+    // object, so `instanceof` against it is always false by design — compare
+    // against WorkerThreadInit or duck-type instead.
+    const ctor = function (this: WorkerThreadInit, owner: WorkerThreadInit) {
+      const instanceCache = new Map<string, (...args: never[]) => Promise<unknown>>()
+      return new Proxy({} as Record<string, (...args: never[]) => unknown>, {
+        get(_, prop) {
+          if (isDeniedRpcProp(prop)) return undefined
+          const key = prop as string
+          let fn = instanceCache.get(key)
+          if (!fn) {
+            fn = async (...args: unknown[]) => {
+              let client = owner.gatewayClients.get(path)
+              if (!client || client.isClosed()) {
+                client = await owner.createGatewayClient(path, options)
+              }
+              return client.request(key, args)
+            }
+            instanceCache.set(key, fn as (...args: never[]) => Promise<unknown>)
+          }
+          return fn
         }
       })
     } as unknown as WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>}
 
     Object.setPrototypeOf(ctor, proxy)
+    Object.defineProperties(ctor, {
+      name: {value: `WorkerThreadGatewayClient`, configurable: true},
+      length: {value: 1, configurable: true}
+    })
     return ctor
   }
 
@@ -275,32 +302,51 @@ export class WorkerThreadExport {
     }
 
     // below is area main thread
-    let instance: TMain
+    let instance: TMain | undefined
+    // Every launched worker is tracked; `instance` stays the latest for
+    // routing (latest-wins: Job.mtd* always calls the most recent launch)
+    // while shutdown() drains ALL live workers so earlier ones never leak.
+    const instances = new Set<TMain>()
 
     // Proxy to satisfy TMain type in wrap
+    const mainCache = new Map<string, (...args: never[]) => unknown>()
     const mainProxy = new Proxy({} as TMain, {
       get(_, prop) {
-        if (prop === `then`) return undefined
-        if (prop === `request` || prop === `kill` || prop === `send` || prop === `shutdown`) {
-          return (...args: unknown[]) => {
-            if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
-            return (instance as unknown as Record<string, (...args: unknown[]) => unknown>)[prop as string]!(...args)
+        if (isDeniedRpcProp(prop)) return undefined
+        const key = prop as string
+        let fn = mainCache.get(key)
+        if (!fn) {
+          if (key === `request` || key === `kill` || key === `send` || key === `shutdown`) {
+            fn = (...args: unknown[]) => {
+              if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
+              return (instance as unknown as Record<string, (...args: unknown[]) => unknown>)[key]!(...args)
+            }
+          } else {
+            fn = (...args: unknown[]) => {
+              if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
+              return instance.request(key, args)
+            }
           }
+          mainCache.set(key, fn as (...args: never[]) => unknown)
         }
-        return (...args: unknown[]) => {
-          if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
-          return instance.request(prop as string, args)
-        }
+        return fn
       }
     })
 
     const custom = wrap ? wrap(mainProxy as TMain & Record<string, (...args: never[]) => unknown>) : ({} as TWrap)
+    const methodCache = new Map<string, (...args: never[]) => unknown>()
     const result = {
       ...custom,
       launchWorker: async (argv: unknown[] = []) => {
-        // each call spawns an independent worker — callers own the returned
-        // launch instances (launching the same Job multiple times is valid)
-        instance = new WTLaunch(path, [uniqueArg, ...argv])
+        // Slot convention: argv[2] is the routing token, user args follow at
+        // argv[3]+. Normalize explicit [undefined] to no-args (see launch.ts).
+        const clean = argv.length === 1 && argv[0] === undefined ? [] : argv
+        const worker = new WTLaunch(path, [uniqueArg, ...clean])
+        instance = worker
+        instances.add(worker)
+        worker.once(`exit`, () => {
+          instances.delete(worker)
+        })
         await instance.ready()
         return instance
       },
@@ -309,23 +355,34 @@ export class WorkerThreadExport {
       },
       shutdown: (timeoutMs?: number) => {
         if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
-        return instance.shutdown(timeoutMs)
+        const live = [...instances]
+        return Promise.all(live.map((w) => w.shutdown(timeoutMs))).then(() => undefined)
       }
     }
 
     return new Proxy(result, {
       get(target, prop) {
-        if (prop === `then`) return undefined
+        if (isDeniedRpcProp(prop)) return undefined
         if (prop === `launchGatewayClient`) return target.launchGatewayClient
         if (prop === `launchWorker`) return target.launchWorker
         if (prop in target) return (target as Record<string, unknown>)[prop as unknown as string]
-        if (typeof prop === `string`) {
-          return (...args: unknown[]) => {
+        const key = prop as string
+        let fn = methodCache.get(key)
+        if (!fn) {
+          fn = (...args: unknown[]) => {
             if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
-            return instance.request(prop, args)
+            return instance.request(key, args)
           }
+          methodCache.set(key, fn as (...args: never[]) => unknown)
         }
-        return (target as Record<string, unknown>)[prop as unknown as string]
+        return fn
+      },
+      has(target, prop) {
+        if (isDeniedRpcProp(prop)) return false
+        if (prop in target) return true
+        // Only real worker methods exist — typos and probes report false
+        // instead of passing feature-detection and failing at call time.
+        return typeof prop === `string` && prop in WTInit.prototype
       }
     }) as unknown as WorkerThreadExportResult<TWorker, TMain, TWrap>
   }

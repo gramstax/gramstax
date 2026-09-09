@@ -100,6 +100,22 @@ export class WorkerThreadLaunch extends EventEmitter {
   private exited = false
 
   /**
+   * Set synchronously at the top of `kill()`/`shutdown()` so `send()`/`request()`
+   * fail fast instead of hanging while termination is in flight.
+   */
+  private exiting = false
+
+  /** Exit code from the worker `exit` event, if it has fired. */
+  private exitCode?: number
+
+  /** In-flight `shutdown()` promise shared by concurrent callers (single drain). */
+  private shutdownPromise?: Promise<void>
+
+  /** Bound SIGINT/SIGTERM handlers so `kill()`/`exit` can remove them (no pool leak). */
+  private sigintHandler?: () => void
+  private sigtermHandler?: () => void
+
+  /**
    * The main process ID.
    *
    * @remarks
@@ -146,6 +162,13 @@ export class WorkerThreadLaunch extends EventEmitter {
     public register?: Record<string, (...args: never[]) => unknown>
   ) {
     super()
+    // Argv slot convention: `export` reserves process.argv[2] for its routing
+    // token (`for-<path>`); raw launch args start at argv[2] and user args
+    // follow at argv[3]+. Normalize explicit [undefined]/empty to no-args so a
+    // worker never self-misdetects (which would cause a nested spawn).
+    if (this.argv.length === 0 || (this.argv.length === 1 && this.argv[0] === undefined)) {
+      this.argv = []
+    }
     this.init()
     this.rpc = new WorkerThreadRpc(this.send.bind(this), register ?? (this as unknown as Record<string, (...args: never[]) => unknown>))
   }
@@ -165,6 +188,11 @@ export class WorkerThreadLaunch extends EventEmitter {
    * @public
    */
   ready() {
+    // A stale resolve after death is misleading — callers polling ready()
+    // on a dead worker must learn it died instead of hanging on success.
+    if (this.exited) {
+      return Promise.reject(new Error(`Worker ${this.threadId} has exited (code ${this.exitCode}) — ready() cannot resolve after death`))
+    }
     return this._readyPromise
   }
 
@@ -196,7 +224,7 @@ export class WorkerThreadLaunch extends EventEmitter {
     if (!this.path || typeof this.path !== `string`) {
       throw new Error(`WorkerThreadLaunch requires a non-empty worker path`)
     }
-    this.thread = new Worker(this.path, {argv: this.argv.length === 0 && this.argv[0] === undefined ? undefined : this.argv})
+    this.thread = new Worker(this.path, {argv: this.argv.length === 0 ? undefined : this.argv})
     this.threadId = this.thread.threadId
     this.thread.on(`message`, (data) => this.handleOnMessage(data))
     this.thread.on(`error`, (err) => this.safeEmitError(err))
@@ -206,11 +234,37 @@ export class WorkerThreadLaunch extends EventEmitter {
         this._readyReject?.(new Error(`Worker ${this.threadId} exited before signaling ready (code ${code})`))
       }
       this.exited = true
+      this.exitCode = code
       this.emit(`exit`, code)
-      this.kill()
+      // Dead kill() removed: it short-circuits on `exited`, so it could never act here.
+      this.removeSignalHandlers()
     })
-    process.once(`SIGINT`, () => this.kill())
-    process.once(`SIGTERM`, () => this.kill())
+    this.sigintHandler = () => {
+      void this.kill()
+    }
+    this.sigtermHandler = () => {
+      void this.kill()
+    }
+    process.once(`SIGINT`, this.sigintHandler)
+    process.once(`SIGTERM`, this.sigtermHandler)
+  }
+
+  /**
+   * Detach the SIGINT/SIGTERM handlers registered in `init()`.
+   *
+   * @remarks
+   * Called from `kill()` and the `exit` handler so worker pools stop
+   * accumulating `MaxListenersExceededWarning`s.
+   */
+  private removeSignalHandlers() {
+    if (this.sigintHandler) {
+      process.removeListener(`SIGINT`, this.sigintHandler)
+      this.sigintHandler = undefined
+    }
+    if (this.sigtermHandler) {
+      process.removeListener(`SIGTERM`, this.sigtermHandler)
+      this.sigtermHandler = undefined
+    }
   }
 
   /**
@@ -262,10 +316,15 @@ export class WorkerThreadLaunch extends EventEmitter {
    * @public
    */
   kill() {
+    this.exiting = true
+    this.removeSignalHandlers()
     if (this.exited) return Promise.resolve()
-    // terminate() can reject when the thread is already mid-exit — kill is
-    // best-effort, so never let that surface to the caller
-    return this.thread.terminate().catch(() => {})
+    // terminate() can reject when the thread is already mid-exit — kill stays
+    // best-effort, but the failure is routed to the `error` event (or the
+    // default handler) instead of being swallowed silently
+    return this.thread.terminate().catch((err: unknown) => {
+      this.safeEmitError(err)
+    })
   }
 
   /**
@@ -287,12 +346,31 @@ export class WorkerThreadLaunch extends EventEmitter {
    * @public
    */
   async shutdown(timeoutMs = 5000) {
-    try {
-      await this.request(`shutdown`, [], true, undefined, timeoutMs)
-    } catch {
-      // worker may be unresponsive or already gone — force terminate below
-    }
-    await this.kill()
+    // Fast-path: an exited worker needs no RPC and no 5s stall.
+    if (this.exited) return
+    // Serialize: concurrent callers share one in-flight drain.
+    if (this.shutdownPromise) return this.shutdownPromise
+    this.exiting = true
+    this.shutdownPromise = (async () => {
+      // The drain bypasses the public send() guard (which rejects while
+      // `exiting` is set) by posting straight to the thread — the reply is
+      // still routed through this.rpc, so the pending map resolves normally.
+      const rpcSend = this.rpc.send
+      this.rpc.send = (data) => this.thread.postMessage(data)
+      try {
+        // Direct rpc call: the public request() guard below would reject
+        // while `exiting` is set, but the drain itself must still go out.
+        await this.rpc.makeRequest(`shutdown`, [], true, undefined, timeoutMs)
+      } catch {
+        // worker may be unresponsive or already gone — force terminate below
+      } finally {
+        this.rpc.send = rpcSend
+      }
+      await this.kill()
+    })().finally(() => {
+      this.shutdownPromise = undefined
+    })
+    return this.shutdownPromise
   }
 
   /**
@@ -309,6 +387,9 @@ export class WorkerThreadLaunch extends EventEmitter {
   send(payload: Record<string, unknown>) {
     if (this.exited) {
       throw new Error(`Worker ${this.threadId} has exited — cannot send message`)
+    }
+    if (this.exiting) {
+      throw new Error(`Worker ${this.threadId} is exiting — cannot send message`)
     }
     this.thread.postMessage(payload)
   }
@@ -332,6 +413,12 @@ export class WorkerThreadLaunch extends EventEmitter {
    * @public
    */
   async request(method: string, params: unknown[], _wait = true, _others?: Record<string, unknown>, timeoutMs?: number) {
+    if (this.exited) {
+      throw new Error(`Worker ${this.threadId} has exited — cannot send request "${method}"`)
+    }
+    if (this.exiting) {
+      throw new Error(`Worker ${this.threadId} is exiting — cannot send request "${method}"`)
+    }
     return this.rpc.makeRequest(method, params, _wait, _others, timeoutMs)
   }
 }

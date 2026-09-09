@@ -179,6 +179,30 @@ await client.connect("/tmp/server.sock", {
 });
 ```
 
+### Gateway reliability semantics
+
+- **At-least-once delivery, not exactly-once.** The transport retries failed
+  writes and replays in-flight requests across reconnects, and callers may
+  retry timed-out requests — so a handler can observe the same RPC `id` twice.
+  Request ids are monotonically increasing per client and never reused within
+  a connection lifetime, so the server suppresses duplicates per connection:
+  the first delivery executes, redeliveries replay the cached response
+  (including redeliveries that arrive while the first copy is still running —
+  they are dropped, not queued). Make handlers idempotent anyway — responses
+  over 64KB are never cached (re-executed on redelivery), the cache holds at
+  most 1000 entries per connection (FIFO), and it is dropped on disconnect.
+- **No ordering across reconnect.** Requests sent before a drop may resolve
+  after requests sent after the reconnect; never rely on cross-request order.
+- **`maxMessageSize` is enforced post-buffering, not a wire-level DoS cap.**
+  The full frame is already buffered by `net-ipc` before the estimate runs —
+  the cap stops a peer from growing handler memory or the pending map, it does
+  not stop the bytes crossing the socket (upstream `net-ipc` limitation).
+- **Allow-list escape hatch.** Middleware that short-circuits (sets
+  `ctx.result` without calling `next()`) skips every downstream check,
+  including the `allowedMethods` guard. That is an intentional escape hatch for
+  trusted in-process customization, not a vulnerability: only code that already
+  holds the server instance can register such middleware.
+
 ### Structured payloads
 
 By default the gateway uses JSON. Switch to **msgpackr** encoding to preserve `Date`, `BigInt`, `undefined` and typed arrays across the wire:
@@ -220,6 +244,8 @@ Any `request()` can take a `timeoutMs` — the call rejects with a timeout error
 ```typescript
 await worker.request("mtdSlowTask", [2000], true, undefined, 500);  // rejects after 500ms
 ```
+
+Omitting `timeoutMs` applies a **30s default** (`DEFAULT_REQUEST_TIMEOUT_MS`, overridable per instance via `rpc.defaultTimeoutMs`). Pass `timeoutMs: 0` to opt a call out for genuinely long tasks — otherwise the caller rejects at 30s while the handler keeps running (a retry then double-executes). Pool `execute`/`broadcastRequest` forward their `timeoutMs` to the same default.
 
 ### Crash detection
 

@@ -10,6 +10,8 @@
  * @public
  */
 
+import {reportError} from "./error-handler"
+
 /**
  * Map type for storing pending RPC request handlers.
  * @public
@@ -52,6 +54,37 @@ export type RpcMiddleware = (ctx: RpcContext, next: () => Promise<void>) => Prom
 export const DEFAULT_MAX_MESSAGE_SIZE = 10 * 1024 * 1024
 
 /**
+ * Default timeout in milliseconds applied to every `makeRequest` call that
+ * does not pass an explicit `timeoutMs`. `0` disables the timeout
+ * (requests wait indefinitely). Can be overridden per instance via
+ * `defaultTimeoutMs` or per call via `timeoutMs`.
+ * @public
+ */
+export const DEFAULT_REQUEST_TIMEOUT_MS = 30000
+
+/**
+ * Method names that are never remotely callable, even when they resolve
+ * to a function on the register object. Covers prototype gadgets
+ * (`constructor` would expose the class) and the duplex plumbing
+ * (`send`/`request`/`kill`/gateway factories are outgoing-only APIs —
+ * `shutdown` and `readyResolve` stay allowed: they are the legitimate
+ * inbound lifecycle methods).
+ * @public
+ */
+export const DENIED_RPC_METHODS: ReadonlySet<string> = new Set([
+  `__proto__`,
+  `constructor`,
+  `prototype`,
+  `send`,
+  `request`,
+  `kill`,
+  `init`,
+  `handleOnMessage`,
+  `createGatewayServer`,
+  `createGatewayClient`
+])
+
+/**
  * Estimate the in-memory footprint of a structured value.
  *
  * @remarks
@@ -80,6 +113,17 @@ export function estimatePayloadSize(value: unknown): number {
     }
     if (v instanceof ArrayBuffer || (typeof ArrayBuffer !== `undefined` && ArrayBuffer.isView(v))) {
       size += v.byteLength
+      return
+    }
+    if (v instanceof Map) {
+      for (const [key, val] of v) {
+        walk(key)
+        walk(val)
+      }
+      return
+    }
+    if (v instanceof Set) {
+      for (const item of v) walk(item)
       return
     }
     if (typeof v !== `object` || seen.has(v)) return
@@ -124,7 +168,7 @@ export class WorkerThreadRpc {
    * @remarks
    * Useful for propagating correlation data (e.g. `traceId`) across threads:
    * set it once and it is included in every `makeRequest` payload. Per-call
-   * `_others` values take precedence over this context.
+   * `others` values take precedence over this context.
    * @public
    */
   context: Record<string, unknown> = {}
@@ -136,6 +180,14 @@ export class WorkerThreadRpc {
    */
   maxMessageSize?: number
 
+  /**
+   * Default timeout in milliseconds for `makeRequest` calls that omit
+   * `timeoutMs`. Initialized from `DEFAULT_REQUEST_TIMEOUT_MS`; assign `0`
+   * to wait indefinitely. Must stay a non-negative finite number.
+   * @public
+   */
+  defaultTimeoutMs: number = DEFAULT_REQUEST_TIMEOUT_MS
+
   private _middlewares: RpcMiddleware[] = []
 
   /**
@@ -143,14 +195,49 @@ export class WorkerThreadRpc {
    *
    * @param send - Function to send data. Called with RPC payload.
    * @param register - Object with callable methods. Exposed RPC method map.
-   * @param options - Optional settings (message-size cap).
+   * @param options - Optional settings (message-size cap, default timeout).
    */
   constructor(
     public send: (data: Record<string, unknown>) => unknown,
     public register: Record<string, (...args: never[]) => unknown>,
-    options?: {maxMessageSize?: number}
+    options?: {maxMessageSize?: number; defaultTimeoutMs?: number}
   ) {
     this.maxMessageSize = options?.maxMessageSize
+    if (options?.defaultTimeoutMs !== undefined) {
+      WorkerThreadRpc.assertTimeout(options.defaultTimeoutMs, `defaultTimeoutMs`)
+      this.defaultTimeoutMs = options.defaultTimeoutMs
+    }
+  }
+
+  /**
+   * Validate a timeout value. `0` means no timeout; anything else must be
+   * a non-negative finite number.
+   *
+   * @internal
+   */
+  static assertTimeout(value: unknown, name: string): void {
+    if (typeof value !== `number` || !Number.isFinite(value) || value < 0) {
+      throw new TypeError(`Invalid RPC ${name}: expected non-negative finite number, got ${String(value)}`)
+    }
+  }
+
+  /**
+   * Send an envelope, routing transport failures to the package error
+   * handler instead of dropping them silently.
+   *
+   * @internal
+   */
+  private _sendEnvelope(envelope: Record<string, unknown>): void {
+    try {
+      const p = this.send(envelope)
+      if (p && typeof (p as Promise<unknown>).then === `function`) {
+        ;(p as Promise<unknown>).catch((err: unknown) => {
+          reportError(err instanceof Error ? err : new Error(String(err)))
+        })
+      }
+    } catch (err) {
+      reportError(err instanceof Error ? err : new Error(String(err)))
+    }
   }
 
   /**
@@ -199,9 +286,9 @@ export class WorkerThreadRpc {
    * @public
    */
   async make(data: {id?: number; method?: string; params?: unknown[]; result?: unknown; error?: unknown}) {
+    if (data === null || typeof data !== `object`) return
     const map = this.map
-    const send = this.send
-    const {id, method, params, result, error} = data
+    const {id, method, params} = data
 
     // Reject oversized messages before any dispatch or pending-map write —
     // a gateway peer can otherwise exhaust memory or grow the pending map
@@ -210,15 +297,8 @@ export class WorkerThreadRpc {
       if (method !== undefined) {
         // request-type: answer with a controlled error so the caller
         // rejects instead of hanging on a missing response
-        try {
-          const p = send({id, error: {message: `message exceeds maxMessageSize=${this.maxMessageSize}`, name: `Error`}})
-          if (p && typeof (p as Promise<unknown>).then === `function`) {
-            ;(p as Promise<unknown>).catch(() => {
-              // intentionally ignored
-            })
-          }
-        } catch {
-          // intentionally ignored
+        if (id !== undefined) {
+          this._sendEnvelope({id, error: {message: `message exceeds maxMessageSize=${this.maxMessageSize}`, name: `Error`}})
         }
       } else if (id !== undefined) {
         // response-type: reject the pending request it belongs to
@@ -233,6 +313,13 @@ export class WorkerThreadRpc {
     }
 
     if (method !== undefined) {
+      // A live pending entry plus a result/error key means this envelope is
+      // a response that also carries request fields — resolve it instead of
+      // dispatching it as a new request.
+      if (id !== undefined && map.has(id) && ((`result` in data) || (`error` in data))) {
+        this._handleResponse(data)
+        return
+      }
       // Handle request
       try {
         if (typeof method !== `string`) {
@@ -245,42 +332,41 @@ export class WorkerThreadRpc {
         await this._runMiddleware(ctx, 0)
         // the wire cannot carry `undefined` — send null so the caller resolves
         // instead of hanging on a missing result field
-        const sent = send({id, result: ctx.result === undefined ? null : ctx.result})
-        if (sent && typeof (sent as Promise<unknown>).then === `function`) {
-          ;(sent as Promise<unknown>).catch(() => {
-            // intentionally ignored
-          })
+        if (id !== undefined) {
+          this._sendEnvelope({id, result: ctx.result === undefined ? null : ctx.result})
         }
       } catch (err: unknown) {
+        if (id === undefined) return
         const errPayload = err instanceof Error ? {message: err.message, stack: err.stack, name: err.name} : err
-        try {
-          const p = send({id, error: errPayload})
-          if (p && typeof (p as Promise<unknown>).then === `function`) {
-            ;(p as Promise<unknown>).catch(() => {
-              // intentionally ignored
-            })
-          }
-        } catch {
-          // intentionally ignored
-        }
+        this._sendEnvelope({id, error: errPayload})
       }
-    } else if (result !== undefined && id !== undefined) {
-      // Handle result
-      const data = map.get(id)
-      if (data) {
-        if (data.timer) clearTimeout(data.timer)
-        data.resolve(result)
-        map.delete(id)
-      }
-    } else if (error !== undefined && id !== undefined) {
-      // Handle error
-      const data = map.get(id)
-      if (data) {
-        if (data.timer) clearTimeout(data.timer)
-        data.reject(error)
-        map.delete(id)
-      }
+    } else if (id !== undefined) {
+      this._handleResponse(data)
     }
+  }
+
+  /**
+   * Resolve or reject the pending request matching a response envelope.
+   *
+   * @remarks
+   * Discrimination is by key presence (`in`), not by value: a msgpack
+   * `undefined` result still carries the `result` key and must resolve.
+   * Non-number ids are reported and ignored instead of silently dropped.
+   *
+   * @internal
+   */
+  private _handleResponse(data: {id?: number; result?: unknown; error?: unknown}): void {
+    const {id} = data
+    if (typeof id !== `number`) {
+      reportError(new Error(`Invalid RPC response id: expected number, got ${typeof id}`))
+      return
+    }
+    const pending = this.map.get(id)
+    if (!pending) return
+    if (pending.timer) clearTimeout(pending.timer)
+    this.map.delete(id)
+    if (`result` in data) pending.resolve(data.result)
+    else if (`error` in data) pending.reject(data.error)
   }
 
   /**
@@ -292,14 +378,26 @@ export class WorkerThreadRpc {
   private async _runMiddleware(ctx: RpcContext, index: number): Promise<void> {
     if (index >= this._middlewares.length) {
       const func = this.register[ctx.method]
-      if (typeof func !== `function`) {
+      // Accept own properties AND class-prototype methods (gateway registers
+      // worker *instances*, whose mtd* methods live on the prototype), but
+      // never Object.prototype members (`toString`, `hasOwnProperty`, ...) or
+      // the dangerous names below (`constructor` would expose the class).
+      const fromObjectProto =
+        !Object.hasOwn(this.register, ctx.method) &&
+        Object.hasOwn(Object.prototype, ctx.method)
+      if (typeof func !== `function` || DENIED_RPC_METHODS.has(ctx.method) || fromObjectProto) {
         throw new Error(`Method ${ctx.method} not found or not function`)
       }
       ctx.result = await (func as (...args: unknown[]) => unknown).apply(this.register, ctx.params)
       return
     }
     const middleware = this._middlewares[index]!
-    await middleware(ctx, () => this._runMiddleware(ctx, index + 1))
+    let nextCalled = false
+    await middleware(ctx, async () => {
+      if (nextCalled) throw new Error(`next() called multiple times`)
+      nextCalled = true
+      await this._runMiddleware(ctx, index + 1)
+    })
   }
 
   /** @internal Counter for unique ID generation (avoids Math.random determinism). */
@@ -325,11 +423,11 @@ export class WorkerThreadRpc {
    *
    * @param method - Method name to call. Targets registered method.
    * @param params - Method parameters. Sent as positional array.
-   * @param _wait - Wait for response. If false, returns send result. Defaults to `true`.
-   * @param _others - Additional data to include. Merged into RPC payload.
+   * @param wait - Wait for response. If false, returns send result. Defaults to `true`.
+   * @param others - Additional data to include. Merged into RPC payload.
    * @param timeoutMs - Optional timeout in milliseconds. When exceeded, the
    *   pending request is rejected with a timeout error and removed from the
-   *   pending map. `undefined` disables the timeout.
+   *   pending map. Defaults to `defaultTimeoutMs`; `0` disables the timeout.
    * @returns Promise resolving to the result if waiting, or send result if not.
    *
    * @example
@@ -346,15 +444,16 @@ export class WorkerThreadRpc {
    * ```
    * @public
    */
-  makeRequest(method: string, params: unknown[], _wait: true, _others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown>
-  makeRequest(method: string, params: unknown[], _wait?: false, _others?: Record<string, unknown>, timeoutMs?: number): unknown
-  makeRequest(method: string, params: unknown[], _wait: boolean, _others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown> | unknown
-  makeRequest(method: string, params: unknown[], _wait = true, _others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown> | unknown {
+  makeRequest(method: string, params: unknown[], wait: true, others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown>
+  makeRequest(method: string, params: unknown[], wait?: false, others?: Record<string, unknown>, timeoutMs?: number): unknown
+  makeRequest(method: string, params: unknown[], wait: boolean, others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown> | unknown
+  makeRequest(method: string, params: unknown[], wait = true, others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown> | unknown {
+    if (timeoutMs !== undefined) WorkerThreadRpc.assertTimeout(timeoutMs, `timeoutMs`)
     const id = this.makeId()
-    // reserved envelope fields come last so context/_others can never corrupt
+    // reserved envelope fields come last so context/others can never corrupt
     // the wire format (id/method/params)
-    const pld = {...this.context, ..._others, id, method, params}
-    if (!_wait) {
+    const pld = others === undefined ? {...this.context, id, method, params} : {...this.context, ...others, id, method, params}
+    if (!wait) {
       const sent = this.send(pld)
       if (sent && typeof (sent as Promise<unknown>).then === `function`) {
         ;(sent as Promise<unknown>).catch(() => {
@@ -364,16 +463,20 @@ export class WorkerThreadRpc {
       return sent
     }
 
+    const effectiveTimeout = timeoutMs ?? this.defaultTimeoutMs
     return new Promise((resolve, reject) => {
       let timer: ReturnType<typeof setTimeout> | undefined
-      if (timeoutMs !== undefined && timeoutMs > 0) {
+      if (effectiveTimeout !== undefined && effectiveTimeout !== 0) {
+        WorkerThreadRpc.assertTimeout(effectiveTimeout, `defaultTimeoutMs`)
+        const effective = effectiveTimeout
         timer = setTimeout(() => {
           const entry = this.map.get(id)
           if (entry) {
             this.map.delete(id)
-            reject(new Error(`RPC timeout after ${timeoutMs}ms: ${method}`))
+            reject(new Error(`RPC timeout after ${effective}ms: ${method}`))
           }
-        }, timeoutMs)
+        }, effective)
+        ;(timer as unknown as {unref?: () => void}).unref?.()
       }
       this.map.set(id, {resolve, reject, timer})
       try {

@@ -25,7 +25,8 @@
     "*.ts",
     "src",
     "test",
-    "example"
+    "example",
+    "bench"
   ],
   "exclude": [
     "node_modules",

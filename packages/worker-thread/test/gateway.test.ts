@@ -5,11 +5,11 @@
  * net-ipc transport. Verifies the start() parameter bug fix (default
  * `register: any = {}` would have overridden any pre-set register).
  */
-import {describe, expect, it } from "bun:test"
+import {describe, expect, it} from "bun:test"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import {WorkerThreadRpc} from "../src/rpc"
-import {withTimeout } from "./helpers"
+import {withTimeout} from "./helpers"
 
 describe(`WorkerThreadGatewayServer`, () => {
   it(`register defaults to an empty object`, () => {
@@ -107,7 +107,11 @@ describe(`WorkerThreadGatewayClient`, () => {
     it(`connect() after close() rejects instead of half-connecting`, async () => {
       const client = new WorkerThreadGatewayClient()
       await withTimeout(client.close(), 5_000, `close`)
-      const err = await withTimeout(client.connect(`dead-${process.pid}`).catch((e: unknown) => e), 5_000, `connect after close`)
+      const err = await withTimeout(
+        client.connect(`dead-${process.pid}`).catch((e: unknown) => e),
+        5_000,
+        `connect after close`
+      )
       expect(err).toBeInstanceOf(Error)
     }, 15_000)
 
@@ -122,4 +126,52 @@ describe(`WorkerThreadGatewayClient`, () => {
       expect(client2.isClosed()).toBe(true)
     }, 10_000)
   })
+})
+
+describe(`normalizeGatewayPath hardening (unit)`, () => {
+  it(`resolves bare names under os.tmpdir() instead of CWD (POSIX)`, async () => {
+    if (process.platform === `win32`) return
+    const {normalizeGatewayPath} = await import(`../src/gateway-path`)
+    const {tmpdir} = await import(`node:os`)
+    const {join} = await import(`node:path`)
+    expect(normalizeGatewayPath(`gtest-x`)).toBe(join(tmpdir(), `gtest-x`))
+  })
+
+  it(`passes short absolute POSIX paths through unchanged`, async () => {
+    if (process.platform === `win32`) return
+    const {normalizeGatewayPath} = await import(`../src/gateway-path`)
+    expect(normalizeGatewayPath(`/tmp/server.sock`)).toBe(`/tmp/server.sock`)
+  })
+
+  it(`rejects POSIX paths longer than 104 chars with a clear Error`, async () => {
+    if (process.platform === `win32`) return
+    const {normalizeGatewayPath} = await import(`../src/gateway-path`)
+    expect(() => normalizeGatewayPath(`/tmp/${`x`.repeat(200)}`)).toThrow(/104/)
+  })
+
+  it(`never collides /tmp/a-b with /tmp/a/b on Windows pipes`, async () => {
+    if (process.platform !== `win32`) return
+    const {normalizeGatewayPath} = await import(`../src/gateway-path`)
+    expect(normalizeGatewayPath(`/tmp/a-b`)).not.toBe(normalizeGatewayPath(`/tmp/a/b`))
+  })
+})
+
+describe(`gateway client messagepack guard (unit)`, () => {
+  it(`connect() with messagepack:true and missing msgpackr throws a clear Error`, async () => {
+    const client = new WorkerThreadGatewayClient()
+    // simulate an environment without msgpackr: net-ipc loads it via
+    // try-require in src/interfaces.js and downgrades silently — the guard
+    // must read the same hook (client._msgpack) before touching the socket
+    ;(client.client as unknown as {_msgpack?: unknown})._msgpack = undefined
+    try {
+      const err = await withTimeout(
+        client.connect(`gtest-msgpack-${process.pid}-${Date.now()}`, {messagepack: true, reconnect: false}).catch((e: unknown) => e),
+        10_000,
+        `messagepack guard connect`
+      )
+      expect((err as Error).message).toMatch(/msgpackr/)
+    } finally {
+      await withTimeout(client.close(), 5_000, `close`)
+    }
+  }, 15_000)
 })

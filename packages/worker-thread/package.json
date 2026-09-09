@@ -6,7 +6,7 @@
     "access": "public",
     "provenance": false
   },
-  "description": "Worker thread utilities with RPC and Unix socket gateway (Bun, Node.js).",
+  "description": "Worker thread lifecycle with type-safe RPC, inter-worker socket gateway, and worker pools. Multi-runtime (Bun, Node.js).",
   "keywords": [
     "worker",
     "worker-thread",
@@ -20,6 +20,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "bench": "bun run ./bench/rpc-roundtrip.bench.ts && bun run ./bench/gateway-roundtrip.bench.ts && bun run ./bench/payload-codec.bench.ts && bun run ./bench/pool-scale.bench.ts && bun run ./bench/reconnect-storm.bench.ts",
     "nx-release-publish": "npm publish --access public"
   },
   "engines": {
@@ -53,6 +54,7 @@
   ],
   "devDependencies": {
     "@types/bun": "latest",
+    "mitata": "^1.0.34",
     "tsup": "^8.5.1"
   },
   "peerDependencies": {
