@@ -79,7 +79,7 @@ function walkFiles(dir: string, prefix = ``): string[] {
     const full = join(dir, entry.name)
     if (entry.isDirectory()) {
       results.push(...walkFiles(full, prefix ? `${prefix}/${entry.name}` : entry.name))
-    } else if (entry.isFile() && /\.(ts|js)$/.test(entry.name) && !entry.name.endsWith(`.test`)) {
+    } else if (entry.isFile() && /\.(ts|js)$/.test(entry.name) && !/\.test\.(ts|js)$/.test(entry.name)) {
       results.push(prefix ? `${prefix}/${entry.name}` : entry.name)
     }
   }
@@ -110,6 +110,11 @@ function toClassName(name: string): string {
     .replace(/\s+/g, ``)
 }
 
+/** Build page key access: dotted for identifier-like keys, computed otherwise (useLiteralKeys-safe) */
+function pageKeyAccess(baseName: string): string {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(baseName) ? `.${baseName}` : `[\`${baseName}\`]`
+}
+
 /** Generate the content for an e2e test file */
 function generateTestContent(pageRel: string): string {
   const baseName = pageRel.replace(/\.(ts|js)$/, ``)
@@ -125,7 +130,7 @@ function generateTestContent(pageRel: string): string {
     `describe(\`E2E: ${className}\`, () => {`,
     `  it(\`load as a registered page in the bot\`, () => {`,
     `    const allPages = bot.pages.all`,
-    `    expect(allPages[\`${baseName}\`]).toBeDefined()`,
+    `    expect(allPages${pageKeyAccess(baseName)}).toBeDefined()`,
     `  })`,
     `})`,
     ``
