@@ -16,7 +16,6 @@ export const bot = new BotCore({
 export const e2e = bot.e2e!
 export const enUser = {user: {id: 4001, language_code: `en`}, chat: {id: 4001}}
 export const idUser = {user: {id: 5001, language_code: `id`}, chat: {id: 5001}}
-export async function resetDb(userId: number) {
-  await bot.db.init()
+export async function resetEnv(userId: number) {
   await bot.db.items.purge(userId)
 }

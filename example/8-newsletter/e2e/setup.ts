@@ -23,5 +23,4 @@ export const idUser = {user: {id: 5001, language_code: `id`}, chat: {id: 5001}}
 export async function resetEnv() {
   e2e.clearCalls()
   await bot.cacheSession.clear()
-  await bot.db.init()
 }

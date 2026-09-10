@@ -1,11 +1,11 @@
 import {beforeEach, describe, expect, it} from "bun:test"
-import {e2e, enUser, idUser, resetDb} from "./setup"
+import {e2e, enUser, idUser, resetEnv} from "./setup"
 
 const intent = `create`
 beforeEach(async () => {
   e2e.clearCalls()
-  await resetDb(4001)
-  await resetDb(5001)
+  await resetEnv(4001)
+  await resetEnv(5001)
 })
 describe(`E2E: CreatePage`, () => {
   it(`shows create form`, async () => {
