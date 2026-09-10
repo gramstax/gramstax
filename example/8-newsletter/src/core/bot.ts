@@ -5,7 +5,7 @@ import {StatusPage} from "~/pages/status"
 import {CtxCore} from "./ctx"
 
 export class BotCore extends Gramstax {
-  declare db: Db
+  db = new Db(Env.DB_PATH)
 
   createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
     return new CtxCore({
@@ -20,11 +20,6 @@ export class BotCore extends Gramstax {
         data: {}
       }
     })
-  }
-
-  async hookBeforeStart() {
-    this.db = new Db(Env.DB_PATH)
-    await this.db.init()
   }
 
   async hookErrorPage(ctx: CtxCore, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {

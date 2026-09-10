@@ -10,10 +10,6 @@ export class Db extends LmdbEnv {
 
   constructor(storePath: string) {
     super({path: storePath, maxDbs: 5, compression: true})
-  }
-
-  async init() {
-    if (this.items) return
     this.sequences = new SequenceRepository(this.register(SequenceSchema))
     this.items = new ItemRepository(this.register(ItemSchema), this.sequences)
   }

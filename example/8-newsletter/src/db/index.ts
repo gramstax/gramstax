@@ -7,10 +7,6 @@ export class Db extends LmdbEnv {
 
   constructor(storePath: string) {
     super({path: storePath, maxDbs: 2, compression: true, encoding: `json`})
-  }
-
-  async init() {
-    if (this.subs) return
     this.subs = new SubscriberRepository(this.register(SubscriberSchema))
   }
 }
