@@ -6,10 +6,7 @@ import type {CtxCore} from "./ctx"
 export class BotCore extends Gramstax {
   async hookBeforeRoute(ctx: CtxCore) {
     const result = await new UserGuard(ctx).ensureUsername()
-    if (result === null) {
-      return false
-    }
-    return true
+    return result === null ? false : true
   }
 
   async hookErrorPage(ctx: CtxCore, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {

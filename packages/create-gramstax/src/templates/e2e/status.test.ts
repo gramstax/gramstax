@@ -1,8 +1,7 @@
 import {beforeEach, describe, expect, it} from "bun:test"
-import {e2e} from "./setup"
+import {e2e, enUser, idUser} from "./setup"
 
 const intent = `status`
-const asUser = {user: {id: 8001, username: `testuser`}}
 
 beforeEach(() => {
   e2e.clearCalls()
@@ -10,13 +9,11 @@ beforeEach(() => {
 
 describe(`E2E: StatusPage`, () => {
   it(`show 'Route not found' for unrecognized callback query`, async () => {
-    await e2e.sendText(`/start`, asUser)
+    await e2e.sendText(`/start`, enUser)
     e2e.clearCalls()
 
-    const responses = await e2e.sendCallbackQuery(`nonexistent-callback-data`, asUser)
-    const responsesId = await e2e.sendCallbackQuery(`nonexistent-callback-data`, {
-      user: {id: 8002, username: `pengguna`, language_code: `id`}
-    })
+    const responses = await e2e.sendCallbackQuery(`nonexistent-callback-data`, enUser)
+    const responsesId = await e2e.sendCallbackQuery(`nonexistent-callback-data`, idUser)
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)

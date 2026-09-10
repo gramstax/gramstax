@@ -1,8 +1,7 @@
 import {beforeEach, describe, expect, it} from "bun:test"
-import {e2e} from "./setup"
+import {e2e, enUser, idUser} from "./setup"
 
 const intent = `help`
-const asUser = {user: {id: 7001, username: `testuser`}}
 
 beforeEach(() => {
   e2e.clearCalls()
@@ -10,13 +9,11 @@ beforeEach(() => {
 
 describe(`E2E: HelpPage`, () => {
   it(`show help text when navigating from /start -> Help`, async () => {
-    await e2e.sendText(`/start`, asUser)
+    await e2e.sendText(`/start`, enUser)
     e2e.clearCalls()
 
-    const responses = await e2e.sendCallbackQuery(intent, asUser)
-    const responsesId = await e2e.sendCallbackQuery(intent, {
-      user: {id: 7002, username: `pengguna`, language_code: `id`}
-    })
+    const responses = await e2e.sendCallbackQuery(intent, enUser)
+    const responsesId = await e2e.sendCallbackQuery(intent, idUser)
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)

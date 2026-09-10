@@ -1,5 +1,5 @@
 {
-  "name": "{{projectName}}",
+  "name": "{{packageName}}",
   "version": "0.1.0",
   "private": true,
   "description": "",
@@ -28,10 +28,11 @@
   },
   "dependencies": {
     "@gramstax/lmdb": "workspace:*",
+    "@gramstax/worker-thread": "workspace:*",
     "gramstax": "workspace:*"
   },
   "peerDependencies": {
-    "typescript": "6.0.3"
+    "typescript": "7.0.2"
   },
   "devDependencies": {
     "@types/bun": "latest"
