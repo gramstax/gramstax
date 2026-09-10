@@ -9,6 +9,12 @@ permissions:
   contents: write
   id-token: write
 
+# Single release at a time: concurrent runs would double-bump versions
+# and race tags. Queued runs wait instead of cancelling.
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -21,21 +27,35 @@ jobs:
       - name: Setup Node (for NPM OIDC)
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.4.2"
+
+      - name: Cache Bun install
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-install-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-install-${{ runner.os }}-
 
       - name: Install Dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Verify Code
         run: |
           bun run ci:test:packages
           bun run build
+
+      - name: Record pre-release tag
+        run: |
+          TAG_BEFORE=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+          echo "TAG_BEFORE=$TAG_BEFORE" >> "$GITHUB_ENV"
+          echo "Pre-release tag: $TAG_BEFORE"
 
       - name: Initialize Git User
         run: |
@@ -52,38 +72,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Safe rollback: only removes artifacts THIS run created (tag + GitHub
+      # release). Never rewrites history — the version-bump commit stays, and
+      # already-published NPM packages are immutable and left for manual
+      # follow-up. Single workspace version (nx releaseTag v{version}), so one
+      # VERSION applies to all four packages.
       - name: Revert Release on Failure
         if: failure()
         run: |
           echo "Workflow failed. Checking state..."
-
-          # Get the tag that was just created
-          TAG=$(git describe --tags --abbrev=0)
-          VERSION=${TAG#v}
-          PACKAGE_NAME="gramstax"
-
-          echo "Checking if $PACKAGE_NAME@$VERSION exists on NPM..."
-
-          if npm view "$PACKAGE_NAME@$VERSION" version > /dev/null 2>&1; then
-            echo "⚠️ Package $PACKAGE_NAME@$VERSION ALREADY EXISTS on NPM."
-            echo "Publishing succeeded but workflow failed elsewhere (e.g. GitHub Release)."
-            echo "SKIPPING REVERT to prevent inconsistent state (orphaned NPM package)."
-            echo "Please manually check the failure."
+          TAG_NOW=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+          if [ "$TAG_NOW" = "$TAG_BEFORE" ]; then
+            echo "Latest tag ($TAG_NOW) predates this run — release created nothing. Nothing to revert."
             exit 1
-          else
-            echo "Package not found on NPM. Proceeding with full rollback..."
-            
-            echo "Reverting tag: $TAG"
-            
-            # Delete release from GitHub
-            gh release delete $TAG --yes || echo "Release not found on GitHub"
-            
-            # Delete tag remotely
-            git push origin :refs/tags/$TAG || echo "Remote tag not found"
-            
-            # Reset to previous commit and force push to revert the version bump
-            git reset --hard HEAD~1
-            git push origin main --force
           fi
+          TAG="$TAG_NOW"
+          VERSION=${TAG#v}
+          echo "This run created tag: $TAG (version $VERSION)"
+
+          for NPM_NAME in gramstax create-gramstax "@gramstax/lmdb" "@gramstax/worker-thread"; do
+            if npm view "$NPM_NAME@$VERSION" version > /dev/null 2>&1; then
+              echo "⚠️ $NPM_NAME@$VERSION EXISTS on NPM — published before the failure. Leaving it in place (immutable); manual follow-up required."
+            else
+              echo "$NPM_NAME@$VERSION not on NPM — nothing to unpublish."
+            fi
+          done
+
+          echo "Deleting GitHub release and remote tag for $TAG (if created by this run)..."
+          gh release delete "$TAG" --yes || echo "No GitHub release for $TAG"
+          git push origin ":refs/tags/$TAG" || echo "No remote tag $TAG"
+
+          echo "Version-bump commit left in place intentionally — no history rewrite."
+          exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
