@@ -22,45 +22,52 @@ packages/create-gramstax/src/
 │   │   ├── blocks/g-keyboard.ts Keyboard block template
 │   │   ├── helpers/log.ts     Logger re-export
 │   │   ├── guards/user.ts     User guard template
-│   │   ├── db/db.ts           LmdbEnv subclass (only when LMDB enabled)
+│   │   ├── db/index.ts        LmdbEnv subclass (only when LMDB enabled)
+│   │   ├── db/schema/user.ts
 │   │   ├── db/repositories/user.ts
-│   │   ├── pages/*.ts         7 page templates (start, help, etc.)
+│   │   ├── workers/example.ts   WorkerThreadInit sample (only when workers enabled)
+│   │   ├── pages/*            9 page templates (nested start/random)
 │   │   └── utils/array.ts
 │   ├── test/.gitkeep
-│   └── e2e/                   setup.ts + 7 test file templates
+│   ├── e2e/                   setup.ts + 8 test file templates (shared enUser/idUser fixtures, 4001/5001)
+│   └── scripts/               check-e2e-mirror.ts + generate-e2e-structure.ts (single-project e2e tooling)
 ```
 
 ## How It Works
 
-1. User runs `npx create-gramstax [project-dir]` with optional flags (`--no-biome`, `--no-lmdb`, `--no-worker-thread`, `--pm`, `--runtime`, etc.).
-2. CLI reads flags, prompts for missing values via enquirer.
-3. Copies `templates/` to target dir, replacing `{{placeholders}}` (`projectName`, `installCmd`, etc.).
+1. User runs `npx create-gramstax [project-name]` with optional flags (`--skip-install`, `--no-biome`, `--no-lmdb`, `--no-worker-thread`, `--pm`, `--runtime`, etc.). The positional is a bare name (not a path).
+2. CLI reads flags, prompts for missing values via enquirer (non-TTY without full flags errors out naming what is missing).
+3. Copies `templates/` to target dir, replacing generator placeholders (`projectName`, `packageName`, `installCmd`, etc.); runtime `{{userName}}`/`{{result}}`/`{{res}}` placeholders are intentionally preserved, and any other leftover `{{...}}` fails the run.
 4. Post-processes:
-   - Renames `.env.example` → `.env`
-   - Removes `bunfig.toml` for npm/pnpm/yarn targets
-   - Removes `src/db/` when LMDB disabled
-   - Removes `src/workers/` when worker threads disabled
-   - Installs `@biomejs/biome` as devDependency when Biome enabled; removes `biome.json` otherwise
-5. Runs `installCmd` in the target directory.
+   - Renames `.env.example` → `.env` (preserves a pre-existing `.env`)
+   - Removes `src/db/` + `@gramstax/lmdb` deps + monorepo tsconfig paths when LMDB disabled (monorepo paths are always stripped — scaffolds are standalone)
+   - Removes `src/workers/` + `@gramstax/worker-thread` dep when workers disabled
+   - Adds `@biomejs/biome` to devDependencies when Biome enabled (installed with the rest); removes `biome.json` + `lint*`/`format*` scripts otherwise
+   - For `--runtime node`: dev/start → `node`, build → `tsc --outDir dist` (kept), `test*` → `node --test`, template `noEmit` flipped off
+5. Runs `installCmd` in the target directory (unless `--skip-install`).
+6. Errors: `Create` only throws (never `process.exit`); `index.ts` maps to exit codes (0 ok, 1 error, 2 usage, 0 + `Setup cancelled` on cancel).
 
 ## CLI Flags
 
 | Flag                          | Type       | Default            |
 | ----------------------------- | ---------- | ------------------ |
-| `project-directory`           | positional | interactive prompt |
-| `--pm <name>`                 | string     | auto-detect        |
-| `--runtime <name>`            | string     | auto-detect        |
-| `--biome` / `--no-biome`      | boolean    | Biome included     |
+| `project-name`                | positional | interactive prompt |
+| `--pm <name>`                 | string     | detect (lockfile/user-agent) → `bun` |
+| `--runtime <name>`            | string     | detect → `bun`     |
 | `--lmdb` / `--no-lmdb`        | boolean    | LMDB included      |
 | `--worker-thread` / `--no-worker-thread` | boolean | Workers included |
+| `--biome` / `--no-biome`      | boolean    | Biome included     |
+| `--skip-install`              | boolean    | install runs       |
 
+Case-insensitive `--pm`/`--runtime` (normalized before validation). Boolean flags are single-side definitions with default `true` (negation is commander-automatic).
 ## Template Variables
 
-Placeholders replaced recursively in all copied files:
+Placeholders replaced in all copied files:
 
-- `{{projectName}}`
+- `{{projectName}}` (display case, dirs/README)
+- `{{packageName}}` (lowercased, `package.json` name — npm-valid)
 - `{{installCmd}}`, `{{runDevCmd}}`, `{{runStartCmd}}`
-- Package metadata from `templates/package.json`
+- Runtime template syntax `{{userName}}`, `{{result}}`, `{{res}}` is intentionally left untouched.
 
 ## Build & Test
 

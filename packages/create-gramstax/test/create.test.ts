@@ -4,7 +4,7 @@ import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {Create} from "../src/create"
 import {FsUt} from "../src/utils/fs"
-import {SetupCancelledError, appendEnvDbPath, appendGitignoreEntries, isValidProjectName, removeDependency, removeTsconfigPathMappings, replaceTemplateVariables, resolveRuntimeScripts, resolveWorkspaceDeps, sanitizeProjectName, stripBiomeScripts, validateCliOptions} from "../src/utils/project"
+import {SetupCancelledError, appendEnvDbPath, appendGitignoreEntries, isValidProjectName, removeDependency, removeTsconfigPathMappings, replaceTemplateVariables, resolveRuntimeScripts, resolveWorkspaceDeps, sanitizeProjectName, setTsconfigCompilerOptions, stripBiomeScripts, validateCliOptions} from "../src/utils/project"
 
 describe(`create-gramstax utilities`, () => {
   let originalConsoleLog: typeof console.log
@@ -87,7 +87,7 @@ describe(`create-gramstax utilities`, () => {
     rmSync(tempDir, {recursive: true, force: true})
   })
 
-  it(`removes the stray gitignore template when a .gitignore already exists`, () => {
+  it(`merges the gitignore template into an existing .gitignore`, () => {
     const tempDir = mkdtempSync(join(tmpdir(), `create-gramstax-`))
     writeFileSync(join(tempDir, `gitignore`), `node_modules/\n`)
     writeFileSync(join(tempDir, `.gitignore`), `custom-entry\n`)
@@ -96,7 +96,7 @@ describe(`create-gramstax utilities`, () => {
 
     expect(existsSync(join(tempDir, `.gitignore`))).toBe(true)
     expect(existsSync(join(tempDir, `gitignore`))).toBe(false)
-    expect(readFileSync(join(tempDir, `.gitignore`), `utf-8`)).toBe(`custom-entry\n`)
+    expect(readFileSync(join(tempDir, `.gitignore`), `utf-8`)).toBe(`custom-entry\nnode_modules/\n`)
     rmSync(tempDir, {recursive: true, force: true})
   })
 
@@ -343,11 +343,11 @@ describe(`resolveRuntimeScripts`, () => {
     expect(resolveRuntimeScripts(`bun`, bunScripts)).toBe(bunScripts)
   })
 
-  it(`switches dev/start to node and drops the bun build for the node runtime`, () => {
+  it(`switches dev/start to node and keeps a tsc build for the node runtime`, () => {
     const result = resolveRuntimeScripts(`node`, bunScripts)
     expect(result.dev).toBe(`node --watch src/index.ts`)
     expect(result.start).toBe(`node src/index.ts`)
-    expect(result.build).toBeUndefined()
+    expect(result.build).toBe(`tsc --outDir dist`)
     expect(result.typecheck).toBe(`tsc --noEmit`)
   })
 
@@ -545,10 +545,34 @@ describe(`resolveWorkspaceDeps`, () => {
     expect(() => resolveWorkspaceDeps(pkg, `1.2.3`)).not.toThrow()
   })
 
-  it(`handles missing version`, () => {
+  it(`throws on missing version when workspace:* remains`, () => {
     const pkg = {dependencies: {gramstax: `workspace:*`}}
-    resolveWorkspaceDeps(pkg, undefined)
-    expect(pkg.dependencies?.gramstax).toBe(`workspace:*`)
+    expect(() => resolveWorkspaceDeps(pkg, undefined)).toThrow()
+  })
+
+  it(`does not throw on missing version when no workspace:* remains`, () => {
+    const pkg = {dependencies: {gramstax: `^1.0.0`}}
+    expect(() => resolveWorkspaceDeps(pkg, undefined)).not.toThrow()
+    expect(pkg.dependencies?.gramstax).toBe(`^1.0.0`)
+  })
+})
+
+describe(`setTsconfigCompilerOptions`, () => {
+  it(`flips noEmit off for the node runtime`, () => {
+    const out = setTsconfigCompilerOptions(`{"compilerOptions": {"noEmit": true}}`, {noEmit: false})
+    expect(JSON.parse(out).compilerOptions.noEmit).toBe(false)
+  })
+
+  it(`parses JSONC with comments`, () => {
+    const out = setTsconfigCompilerOptions(`{// generated\n"compilerOptions": {"noEmit": true}}`, {noEmit: false})
+    expect(JSON.parse(out).compilerOptions.noEmit).toBe(false)
+  })
+
+  it(`returns input untouched when already set or unparseable`, () => {
+    const same = `{"compilerOptions": {"noEmit": false}}`
+    expect(setTsconfigCompilerOptions(same, {noEmit: false})).toBe(same)
+    const broken = `{"compilerOptions": {`
+    expect(setTsconfigCompilerOptions(broken, {noEmit: false})).toBe(broken)
   })
 })
 

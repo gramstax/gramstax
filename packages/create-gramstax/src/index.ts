@@ -2,10 +2,36 @@
 import {existsSync, readFileSync} from "node:fs"
 import {dirname, join} from "node:path"
 import {fileURLToPath} from "node:url"
-import {Command} from "commander"
-import {type CliOptions, Create} from "./create"
+import {Command, Option} from "commander"
+import {Create, type CliOptions} from "./create"
 import {log} from "./utils/log"
-import {validateCliOptions} from "./utils/project"
+import {PACKAGE_MANAGERS, SetupCancelledError, validateCliOptions, type PackageManager} from "./utils/project"
+
+export function detectPackageManager(
+  explicit?: string,
+  overrides?: {userAgent?: string; cwd?: string; exists?: (p: string) => boolean}
+): PackageManager {
+  if (explicit !== undefined) {
+    const normalized = explicit.trim().toLowerCase()
+    if ((PACKAGE_MANAGERS as readonly string[]).includes(normalized)) {
+      return normalized as PackageManager
+    }
+  }
+  const userAgent = overrides?.userAgent ?? process.env.npm_config_user_agent ?? ``
+  const agent = userAgent.toLowerCase()
+  if (agent.includes(`bun`)) return `bun`
+  if (agent.includes(`pnpm`)) return `pnpm`
+  if (agent.includes(`yarn`)) return `yarn`
+  if (agent.includes(`npm`)) return `npm`
+  const cwd = overrides?.cwd ?? process.cwd()
+  const exists = overrides?.exists ?? existsSync
+  if (exists(join(cwd, `bun.lockb`))) return `bun`
+  if (exists(join(cwd, `bun.lock`))) return `bun`
+  if (exists(join(cwd, `package-lock.json`))) return `npm`
+  if (exists(join(cwd, `pnpm-lock.yaml`))) return `pnpm`
+  if (exists(join(cwd, `yarn.lock`))) return `yarn`
+  return `bun`
+}
 
 function findPackageJson(startDir: string): string {
   let dir = startDir
@@ -19,41 +45,91 @@ function findPackageJson(startDir: string): string {
   throw new Error(`package.json not found`)
 }
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const packageVersion = JSON.parse(readFileSync(findPackageJson(__dirname), `utf-8`)).version as string
-const program = new Command()
+function loadVersion(): string {
+  try {
+    const raw = readFileSync(findPackageJson(dirname(fileURLToPath(import.meta.url))), `utf-8`)
+    const parsed = JSON.parse(raw) as {version?: unknown}
+    if (typeof parsed.version === `string` && parsed.version.length > 0) return parsed.version
+    return `0.0.0`
+  } catch {
+    return `0.0.0`
+  }
+}
+
+const packageVersion = loadVersion()
+
+export const program = new Command()
 
 program
   .name(`create-gramstax`)
   .description(`CLI to create a new Gramstax Telegram bot project`)
   .version(packageVersion)
   .argument(`[project-directory]`, `Directory to create the project in`)
-  .option(`--pm <name>`, `Package manager (bun, npm, pnpm, yarn)`)
-  .option(`--runtime <name>`, `Runtime (bun, node)`)
-  .option(`--lmdb`, `Include @gramstax/lmdb (default: true)`)
-  .option(`--no-lmdb`, `Skip @gramstax/lmdb`)
-  .option(`--worker-thread`, `Include @gramstax/worker-thread (default: true)`)
-  .option(`--no-worker-thread`, `Skip @gramstax/worker-thread`)
-  .option(`--biome`, `Include Biome for linting & formatting (default: true)`)
-  .option(`--no-biome`, `Skip Biome`)
-  .action(async (projectDirectory?: string, opts?: {pm: CliOptions["packageManager"]} & Omit<CliOptions, "packageManager">) => {
+  .addOption(new Option(`--pm <name>`, `Package manager (bun, npm, pnpm, yarn)`).choices([`bun`, `npm`, `pnpm`, `yarn`]).argParser((value: string) => value.trim().toLowerCase()))
+  .addOption(new Option(`--runtime <name>`, `Runtime (bun, node)`).choices([`bun`, `node`]).argParser((value: string) => value.trim().toLowerCase()))
+  .option(`--lmdb`, `Include @gramstax/lmdb (default: true)`, true)
+  .option(`--worker-thread`, `Include @gramstax/worker-thread (default: true)`, true)
+  .option(`--biome`, `Include Biome for linting & formatting (default: true)`, true)
+  .option(`--skip-install`, `Skip dependency installation`, false)
+  .exitOverride()
+  .action(async (projectDirectory?: string, opts?: {pm?: string; runtime?: string; lmdb?: boolean; workerThread?: boolean; biome?: boolean; skipInstall?: boolean}) => {
     try {
-      validateCliOptions(opts?.pm, opts?.runtime)
+      const rawPm = opts?.pm !== undefined ? opts.pm.trim().toLowerCase() : undefined
+      const rawRuntime = opts?.runtime !== undefined ? opts.runtime.trim().toLowerCase() : undefined
+      validateCliOptions(rawPm, rawRuntime)
       const cliOptions: CliOptions = {}
-      if (opts?.pm) cliOptions.packageManager = opts.pm
-      if (opts?.runtime) cliOptions.runtime = opts.runtime
+      cliOptions.packageManager = (rawPm as CliOptions[`packageManager`]) ?? detectPackageManager()
+      if (rawRuntime !== undefined) cliOptions.runtime = rawRuntime as CliOptions[`runtime`]
       if (opts?.lmdb !== undefined) cliOptions.lmdb = opts.lmdb
       if (opts?.workerThread !== undefined) cliOptions.workerThread = opts.workerThread
       if (opts?.biome !== undefined) cliOptions.biome = opts.biome
-
+      if (opts?.skipInstall !== undefined) cliOptions.skipInstall = opts.skipInstall
       await new Create(projectDirectory, {
         version: packageVersion,
         cliOptions
       }).createProject()
+      process.exitCode = 0
     } catch (error) {
-      log.error(`Failed to create project: ${String(error)}`)
-      process.exit(1)
+      if (error instanceof SetupCancelledError) {
+        log.info(`Setup cancelled`)
+        process.exitCode = 0
+        return
+      }
+      const message = error instanceof Error ? error.message : String(error)
+      const isUsage = message.includes(`Unsupported`) || message.includes(`Missing`) || message.includes(`required`) || message.includes(`Invalid`) || message.includes(`already exists`) || message.includes(`not empty`)
+      if (isUsage) {
+        log.error(message)
+        process.exitCode = 2
+        return
+      }
+      log.error(`Failed to create project: ${message}`)
+      process.exitCode = 1
     }
   })
 
-program.parse()
+function isMainModule(): boolean {
+  const argv1 = process.argv[1] ?? ``
+  if (argv1 === ``) return false
+  try {
+    const current = fileURLToPath(import.meta.url)
+    if (argv1 === current) return true
+    if (argv1.endsWith(`create-gramstax`) || argv1.endsWith(`index.js`)) return true
+    return false
+  } catch {
+    return false
+  }
+}
+
+if (isMainModule()) {
+  try {
+    program.parse()
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    if (message.includes(`helpDisplayed`) || message.includes(`version`)) {
+      process.exitCode = 0
+    } else {
+      log.error(message)
+      process.exitCode = 2
+    }
+  }
+}

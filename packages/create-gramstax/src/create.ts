@@ -8,16 +8,22 @@ import {log} from "./utils/log"
 import {
   appendEnvDbPath,
   appendGitignoreEntries,
+  assertNoLeftoverPlaceholders,
+  BIOME_DEV_VERSION,
   isValidProjectName,
+  PROJECT_NAME_PATTERN,
   removeDependency,
   removeTsconfigPathMappings,
   replaceTemplateVariables,
   resolveRuntimeScripts,
   resolveWorkspaceDeps,
   sanitizeProjectName,
+  setTsconfigCompilerOptions,
   SetupCancelledError,
   stripBiomeScripts,
   validateCliOptions,
+  writeJsonFileAtomic,
+  writeTextFileAtomic,
   type PackageManager,
   type Runtime
 } from "./utils/project"
@@ -31,6 +37,7 @@ export type CliOptions = {
   lmdb?: boolean
   workerThread?: boolean
   biome?: boolean
+  skipInstall?: boolean
 }
 
 type ProjectConfig = {
@@ -41,6 +48,7 @@ type ProjectConfig = {
   setupBiome: boolean
   useLmdb: boolean
   useWorkerThread: boolean
+  skipInstall?: boolean
 }
 
 export class Create {
@@ -90,12 +98,31 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     for (const item of items) {
       const sourcePath = path.join(source, item.name)
       const destPath = path.join(destination, item.name)
+      if (item.isSymbolicLink()) {
+        log.warn(`Skipping symlink ${sourcePath}..`)
+        continue
+      }
       if (item.isDirectory()) {
         this.copyDirectorySync(sourcePath, destPath, variables)
       } else if (item.isFile()) {
-        let content = fs.readFileSync(sourcePath, `utf-8`)
-        content = replaceTemplateVariables(content, variables)
+        const stat = fs.statSync(sourcePath)
+        const raw = fs.readFileSync(sourcePath)
+        let isText = !raw.includes(0)
+        if (isText) {
+          try {
+            new TextDecoder(`utf-8`, {fatal: true}).decode(raw)
+          } catch {
+            isText = false
+          }
+        }
+        if (!isText) {
+          fs.copyFileSync(sourcePath, destPath)
+          fs.chmodSync(destPath, stat.mode)
+          continue
+        }
+        const content = replaceTemplateVariables(raw.toString(`utf-8`), variables)
         fs.writeFileSync(destPath, content)
+        fs.chmodSync(destPath, stat.mode)
       }
     }
   }
@@ -103,18 +130,26 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   // ── Prompts (only used in interactive mode) ──────────────────────
 
   private async promptForProjectName(): Promise<string> {
-    const response = await enquirer.prompt<{projectName: string}>({
-      type: `input`,
-      name: `projectName`,
-      message: `What is your project named?`,
-      initial: ``,
-      validate: (value: string) => {
-        if (value === ``) return true
-        if (!/^[a-z0-9-_]{1,100}$/i.test(value)) return `Project name can only contain letters, numbers, hyphens, and underscores (max 100 characters)`
-        return true
-      }
-    })
-    return response.projectName
+    let response: {projectName: string} | undefined
+    try {
+      response = await enquirer.prompt<{projectName: string}>({
+        type: `input`,
+        name: `projectName`,
+        message: `What is your project named?`,
+        initial: ``,
+        validate: (value: string) => {
+          if (value.trim() === ``) return true
+          if (!PROJECT_NAME_PATTERN.test(value.trim())) return `Project name can only contain letters, numbers, hyphens, and underscores (max 100 characters)`
+          return true
+        }
+      })
+    } catch {
+      throw new SetupCancelledError()
+    }
+    if (!response || typeof response.projectName !== `string`) {
+      throw new SetupCancelledError()
+    }
+    return response.projectName.trim()
   }
 
   private async promptForConfiguration(): Promise<{
@@ -171,8 +206,10 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         message: `Would you like to use Biome for linting & formatting? (recommended)`,
         initial: true
       }
-    ])
-    if (!answers?.packageManager) {
+    ]).catch(() => {
+      throw new SetupCancelledError()
+    })
+    if (!answers?.packageManager || !answers?.runtime || answers?.lmdb === undefined || answers?.workerThread === undefined || answers?.biome === undefined) {
       throw new SetupCancelledError()
     }
     return {
@@ -191,8 +228,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         stdio: `inherit`,
         shell: FsUt.resolveSpawnShell(packageManager)
       })
-      installProcess.on(`close`, (code) => (code === 0 ? resolve(true) : (log.fail(`Dependencies installation failed`), resolve(false))))
-      installProcess.on(`error`, (error) => (log.fail(`Dependencies installation failed: ${error.message}`), resolve(false)))
+      installProcess.on(`close`, (code) => resolve(code === 0))
+      installProcess.on(`error`, () => resolve(false))
     })
   }
 
@@ -212,9 +249,16 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       throw new Error(`Invalid project name "${projectName}". Use only letters, numbers, hyphens, and underscores (max 100 characters).`)
     }
 
+    const isTTY = process.stdin?.isTTY === true
+    const hasAnyFlag = Boolean(cli && (this._hasAnyCliFlag() || cli.skipInstall !== undefined))
+    const normalizedPm = cli?.packageManager !== undefined ? String(cli!.packageManager).trim().toLowerCase() as PackageManager : undefined
+    const normalizedRuntime = cli?.runtime !== undefined ? String(cli!.runtime).trim().toLowerCase() as Runtime : undefined
+
     if (!projectName) {
-      if (cli && this._hasAnyCliFlag()) {
-        log.error(`Project name is required when using CLI flags`)
+      if (!isTTY) {
+        if (hasAnyFlag) {
+          log.error(`Project name is required when using CLI flags`)
+        }
         throw new Error(`Missing project name`)
       }
       projectName = await this.promptForProjectName()
@@ -230,7 +274,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     }
 
     // Gather config — skip prompts if CLI options provided
-    const hasCli = cli && this._hasAnyCliFlag()
+    const hasCli = hasAnyFlag
     let config: {
       packageManager: PackageManager
       runtime: Runtime
@@ -239,19 +283,60 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       biome: boolean
     }
     if (hasCli) {
-      validateCliOptions(cli!.packageManager, cli!.runtime)
-      config = {
-        packageManager: cli!.packageManager ?? `bun`,
-        runtime: cli!.runtime ?? `bun`,
-        lmdb: cli!.lmdb ?? true,
-        workerThread: cli!.workerThread ?? true,
-        biome: cli!.biome ?? true
+      validateCliOptions(normalizedPm, normalizedRuntime)
+      const detectPackageManagerFallback = (): PackageManager => {
+        if (normalizedPm !== undefined) return normalizedPm
+        const agent = (process.env.npm_config_user_agent ?? ``).toLowerCase()
+        if (agent.includes(`bun`)) return `bun`
+        if (agent.includes(`pnpm`)) return `pnpm`
+        if (agent.includes(`yarn`)) return `yarn`
+        if (agent.includes(`npm`)) return `npm`
+        if (fs.existsSync(path.join(baseWorkingDir, `bun.lockb`))) return `bun`
+        if (fs.existsSync(path.join(baseWorkingDir, `bun.lock`))) return `bun`
+        if (fs.existsSync(path.join(baseWorkingDir, `package-lock.json`))) return `npm`
+        if (fs.existsSync(path.join(baseWorkingDir, `pnpm-lock.yaml`))) return `pnpm`
+        if (fs.existsSync(path.join(baseWorkingDir, `yarn.lock`))) return `yarn`
+        return `bun`
+      }
+      const fallbackPm = detectPackageManagerFallback()
+      const missing: string[] = []
+      if (normalizedRuntime === undefined) missing.push(`runtime`)
+      if (cli?.lmdb === undefined) missing.push(`lmdb`)
+      if (cli?.workerThread === undefined) missing.push(`workerThread`)
+      if (cli?.biome === undefined) missing.push(`biome`)
+      if (missing.length > 0) {
+        if (!isTTY) {
+          throw new Error(`Missing required CLI options: ${missing.join(`, `)}. Provide ${missing.join(`, `)} flags or run interactively.`)
+        }
+        const prompted = await this.promptForConfiguration()
+        config = {
+          packageManager: normalizedPm ?? fallbackPm,
+          runtime: normalizedRuntime ?? prompted.runtime,
+          lmdb: cli?.lmdb ?? prompted.lmdb,
+          workerThread: cli?.workerThread ?? prompted.workerThread,
+          biome: cli?.biome ?? prompted.biome
+        }
+      } else {
+        config = {
+          packageManager: normalizedPm ?? fallbackPm,
+          runtime: normalizedRuntime ?? `bun`,
+          lmdb: cli?.lmdb ?? true,
+          workerThread: cli?.workerThread ?? true,
+          biome: cli?.biome ?? true
+        }
       }
     } else {
       config = await this.promptForConfiguration()
     }
 
     const {packageManager, runtime, lmdb, workerThread, biome} = config
+
+    // Validation
+    if (useCurrentDir) {
+      if (!FsUt.isDirectoryEffectivelyEmpty(projectPath)) throw new Error(`Current directory is not empty`)
+    } else {
+      if (fs.existsSync(projectPath)) throw new Error(`Directory "${projectName}" already exists`)
+    }
 
     // Summary
     log.info(`Project: ${projectName}`)
@@ -261,13 +346,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     log.info(`LMDB Storage: ${lmdb ? `Yes` : `No`}`)
     log.info(`Worker Thread: ${workerThread ? `Yes` : `No`}`)
     log.info(`Biome: ${biome ? `Yes` : `No`}`)
-
-    // Validation
-    if (useCurrentDir) {
-      if (!FsUt.isDirectoryEffectivelyEmpty(projectPath)) throw new Error(`Current directory is not empty`)
-    } else {
-      if (fs.existsSync(projectPath)) throw new Error(`Directory "${projectName}" already exists`)
-    }
 
     return {
       projectName,
@@ -289,9 +367,11 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
   private async executeProjectGeneration(config: ProjectConfig): Promise<void> {
     const {projectName, projectPath, packageManager, runtime, setupBiome, useLmdb, useWorkerThread} = config
+    const skipInstall = config.skipInstall === true
     const commands = this.getPackageManagerCommands(packageManager)
     const variables = {
       projectName,
+      packageName: projectName.toLowerCase(),
       installCmd: commands.install,
       runDevCmd: commands.dev,
       runStartCmd: commands.start
@@ -304,6 +384,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     // Task 2: Copy templates
     log.info(`Copying template files..`)
     this.copyDirectorySync(path.join(__dirname, `templates`), projectPath, variables)
+    assertNoLeftoverPlaceholders(projectPath)
 
     // Task 3: Logs
     log.info(`Creating logs directory..`)
@@ -315,7 +396,11 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     const envExamplePath = path.join(projectPath, `.env.example`)
     if (fs.existsSync(envExamplePath)) {
       log.info(`Creating .env file..`)
-      fs.renameSync(envExamplePath, envPath)
+      if (fs.existsSync(envPath)) {
+        fs.unlinkSync(envExamplePath)
+      } else {
+        fs.renameSync(envExamplePath, envPath)
+      }
     }
 
     // Task 4b: .gitignore (shipped as `gitignore` because npm never publishes .gitignore files)
@@ -328,42 +413,49 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {scripts?: Record<string, string>}
         if (pkg.scripts) {
           pkg.scripts = resolveRuntimeScripts(runtime, pkg.scripts)
-          fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, `utf8`)
+          writeJsonFileAtomic(packageJsonPath, pkg)
         }
+      }
+      // The node build emits via tsc, so the template's noEmit must be off
+      const tsconfigJsonPath = path.join(projectPath, `tsconfig.json`)
+      if (fs.existsSync(tsconfigJsonPath)) {
+        writeTextFileAtomic(tsconfigJsonPath, setTsconfigCompilerOptions(fs.readFileSync(tsconfigJsonPath, `utf-8`), {noEmit: false}))
       }
     }
 
     // Task 5b: Resolve workspace:* deps to concrete versions (scaffolded
     // projects are standalone — workspace:* only works inside the monorepo)
-    if (this.version !== undefined && fs.existsSync(packageJsonPath)) {
-      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>}
+    if (fs.existsSync(packageJsonPath)) {
+      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>, devDependencies?: Record<string, string>, peerDependencies?: Record<string, string>, optionalDependencies?: Record<string, string>}
       resolveWorkspaceDeps(pkg, this.version)
-      fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, `utf8`)
+      writeJsonFileAtomic(packageJsonPath, pkg)
     }
 
     // Task 6: LMDB
     const dbPath = path.join(projectPath, `src`, `db`)
+    const tsconfigPath = path.join(projectPath, `tsconfig.json`)
     if (useLmdb) {
       log.info(`Keeping @gramstax/lmdb files..`)
       if (fs.existsSync(envPath)) {
-        fs.writeFileSync(envPath, appendEnvDbPath(fs.readFileSync(envPath, `utf-8`)))
+        writeTextFileAtomic(envPath, appendEnvDbPath(fs.readFileSync(envPath, `utf-8`)))
       }
       const gitignorePath = path.join(projectPath, `.gitignore`)
       if (fs.existsSync(gitignorePath)) {
-        fs.writeFileSync(gitignorePath, appendGitignoreEntries(fs.readFileSync(gitignorePath, `utf-8`), [`data/`]))
+        writeTextFileAtomic(gitignorePath, appendGitignoreEntries(fs.readFileSync(gitignorePath, `utf-8`), [`data/`]))
+      }
+      if (fs.existsSync(tsconfigPath)) {
+        writeTextFileAtomic(tsconfigPath, removeTsconfigPathMappings(fs.readFileSync(tsconfigPath, `utf-8`), [`gramstax`, `@gramstax/lmdb`, `@gramstax/worker-thread`]))
       }
     } else {
       log.info(`Removing @gramstax/lmdb files..`)
       if (fs.existsSync(dbPath)) fs.rmSync(dbPath, {recursive: true, force: true})
       if (fs.existsSync(packageJsonPath)) {
-        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>}
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>, devDependencies?: Record<string, string>, peerDependencies?: Record<string, string>, optionalDependencies?: Record<string, string>}
         removeDependency(pkg, `@gramstax/lmdb`)
-        fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, `utf8`)
+        writeJsonFileAtomic(packageJsonPath, pkg)
       }
-      const tsconfigPath = path.join(projectPath, `tsconfig.json`)
       if (fs.existsSync(tsconfigPath)) {
-        const tsconfig = removeTsconfigPathMappings(fs.readFileSync(tsconfigPath, `utf-8`), [`@gramstax/lmdb`])
-        fs.writeFileSync(tsconfigPath, tsconfig, `utf8`)
+        writeTextFileAtomic(tsconfigPath, removeTsconfigPathMappings(fs.readFileSync(tsconfigPath, `utf-8`), [`gramstax`, `@gramstax/lmdb`, `@gramstax/worker-thread`]))
       }
     }
 
@@ -374,41 +466,41 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     } else {
       log.info(`Removing @gramstax/worker-thread files..`)
       if (fs.existsSync(workerPath)) fs.rmSync(workerPath, {recursive: true, force: true})
+      if (fs.existsSync(packageJsonPath)) {
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>, devDependencies?: Record<string, string>, peerDependencies?: Record<string, string>, optionalDependencies?: Record<string, string>}
+        removeDependency(pkg, `@gramstax/worker-thread`)
+        writeJsonFileAtomic(packageJsonPath, pkg)
+      }
+    }
+
+    // Task 9: Biome (runs before Task 8 so a single install covers it —
+    // there is no per-package-manager second install pass anymore)
+    const biomeJsonPath = path.join(projectPath, `biome.json`)
+    if (setupBiome) {
+      log.info(`Keeping Biome configuration..`)
+      if (fs.existsSync(packageJsonPath)) {
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {devDependencies?: Record<string, string>}
+        pkg.devDependencies ??= {}
+        pkg.devDependencies[`@biomejs/biome`] ??= BIOME_DEV_VERSION
+        writeJsonFileAtomic(packageJsonPath, pkg)
+      }
+    } else {
+      log.info(`Removing Biome configuration..`)
+      if (fs.existsSync(biomeJsonPath)) fs.unlinkSync(biomeJsonPath)
+      if (fs.existsSync(packageJsonPath)) {
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {scripts?: Record<string, string>, devDependencies?: Record<string, string>, peerDependencies?: Record<string, string>, optionalDependencies?: Record<string, string>}
+        stripBiomeScripts(pkg)
+        removeDependency(pkg, `@biomejs/biome`)
+        writeJsonFileAtomic(packageJsonPath, pkg)
+      }
     }
 
     // Task 8: Install
     log.info(`Installing dependencies..`)
-    if (!(await this.installDependencies(projectPath, packageManager))) throw new Error(`Dependencies installation failed`)
-
-    // Task 9: Biome
-    const biomeJsonPath = path.join(projectPath, `biome.json`)
-    if (setupBiome) {
-      log.info(`Installing Biome dependencies..`)
-      const installCmd = FsUt.resolvePackageManagerCommand(packageManager)
-      const installArgs = packageManager === `yarn` ? [`add`, `-D`] : [`install`, `-D`]
-      installArgs.push(`@biomejs/biome`)
-      const installResult = await new Promise<boolean>((resolve) => {
-        const p = spawn(installCmd, installArgs, {
-          cwd: projectPath,
-          stdio: `inherit`,
-          shell: FsUt.resolveSpawnShell(packageManager)
-        })
-        p.on(`close`, (code) => resolve(code === 0))
-        p.on(`error`, (err) => {
-          log.fail(`Failed to install Biome: ${err.message}`)
-          resolve(false)
-        })
-      })
-      if (!installResult) {
-        log.fail(`Biome installation failed — run "${packageManager} ${installArgs.join(` `)}" manually`)
-      }
-    } else {
-      if (fs.existsSync(biomeJsonPath)) fs.unlinkSync(biomeJsonPath)
-      if (fs.existsSync(packageJsonPath)) {
-        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {scripts?: Record<string, string>}
-        stripBiomeScripts(pkg)
-        fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, `utf8`)
-      }
+    if (skipInstall) {
+      log.warn(`Skipping dependencies installation..`)
+    } else if (!(await this.installDependencies(projectPath, packageManager))) {
+      throw new Error(`Dependencies installation failed`)
     }
 
     log.info(`Project created successfully!`)
@@ -419,12 +511,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   // ── Entry point ─────────────────────────────────────────────────
 
   async createProject() {
-    try {
-      this.config = await this.gatherProjectConfig()
-      await this.executeProjectGeneration(this.config)
-    } catch (error) {
-      log.error(`Failed to create project: ${error instanceof Error ? error.message : String(error)}`)
-      process.exit(1)
-    }
+    this.config = await this.gatherProjectConfig()
+    await this.executeProjectGeneration(this.config)
   }
 }
