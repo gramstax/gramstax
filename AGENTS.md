@@ -27,7 +27,7 @@
 - `scripts/`: root e2e-mirror tooling (`generate-e2e-structure.ts`, `check-e2e-mirror.ts`); mirrored into create-gramstax templates.
 - `biome.json`, `tsconfig.json`, `nx.json`: global tooling config.
 - `bunfig.toml`: Bun runtime config.
-- `security-poc/`: standalone numbered security PoC scripts (template-engine breakout/injection/RCE).
+- `packages/gramstax/security-poc/`: standalone numbered security PoC scripts (template-engine breakout/injection/RCE).
 - `skill/`: legacy custom tooling scripts (some deprecated).
 
 ## AGENTS.md Hierarchy
@@ -282,7 +282,7 @@ To add a new PAGE value validator: extend `_PAGE_ATTR_VALUE_VALIDATORS[tagName]`
 
 The repo has a broader scope than a typical 2-package Bun/Nx monorepo:
 
-- **Extra top-level dirs**: `rules/` (agent rules), `security-poc/` (numbered PoCs), `skill/` (tooling, some deprecated), `.omo/` (tool metadata), `plans/` (numbered implementation plans), `prompts/` (agent prompt templates), `scripts/` (e2e-mirror tooling), `z-experiment/` (empty scratch), `real-projects/` (standalone apps, not workspace members).
+- **Extra top-level dirs**: `rules/` (agent rules), `skill/` (tooling, some deprecated), `.omo/` (tool metadata), `plans/` (numbered implementation plans), `prompts/` (agent prompt templates), `scripts/` (e2e-mirror tooling), `z-experiment/` (empty scratch), `real-projects/` (standalone apps, not workspace members).
 - **Extra packages**: `lmdb/` and `worker-thread/` are independently published npm packages.
 - **Example workspaces**: `example/1-complex` through `example/10-http-request` are ordinally named and included in the root workspace.
 - **Checked-in artifacts**: `tsconfig.tsbuildinfo`, API-extractor temp output, and generated docs/yaml/markdown trees are versioned.

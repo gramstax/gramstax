@@ -12,7 +12,7 @@
  * Result: User-provided data cannot trigger RCE as long as it is handled via {{}}.
  */
 
-import {TemplateEngine} from "../packages/gramstax/src/template/engine.js"
+import {TemplateEngine} from "../src/template/engine.js"
 
 console.log(`--- CASE 3: SAFE DATA BINDING ---`)
 
@@ -32,7 +32,9 @@ const messages = TemplateEngine.compileBlockGMessage(safeTemplate)
 const maliciousUserInput = `\` + console.log("I am trying to hack you") + \`\${process.exit()}`
 
 console.log(`Executing compiled function with malicious data...`)
-const result = messages.default.default({username: maliciousUserInput})
+const render = messages.default?.default
+if (!render) throw new Error(`compile produced no default message`)
+const result = render({username: maliciousUserInput})
 
 console.log(`Final Result (Should be safe string):`, result)
 console.log(`Verification: No code was executed.`)

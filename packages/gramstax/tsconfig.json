@@ -25,6 +25,7 @@
     "*.ts",
     "src/**/*",
     "test/**/*",
+    "security-poc/**/*",
     "package.json"
   ],
   "exclude": [

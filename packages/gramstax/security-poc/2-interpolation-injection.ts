@@ -11,7 +11,7 @@
  * they can execute arbitrary JavaScript in the context of the render function.
  */
 
-import {TemplateEngine} from "../packages/gramstax/src/template/engine.js"
+import {TemplateEngine} from "../src/template/engine.js"
 
 console.log(`--- CASE 2: INTERPOLATION INJECTION ---`)
 
@@ -29,5 +29,7 @@ console.log(`Compiling template...`)
 const messages = TemplateEngine.compileBlockGMessage(maliciousTemplate)
 
 console.log(`Executing compiled function...`)
-const result = messages.default.default({})
+const render = messages.default?.default
+if (!render) throw new Error(`compile produced no default message`)
+const result = render({})
 console.log(`Final Result:`, result)

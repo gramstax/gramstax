@@ -22,6 +22,10 @@ packages/gramstax/src/
 └── index.ts            Public barrel (runtime exports, then types with `// type` separator)
 ```
 
+```
+security-poc/           Standalone numbered TemplateEngine PoCs (breakout/injection/RCE) — run via `bun run packages/gramstax/security-poc/<file>.ts`, excluded from lint/format/publish, covered by package tsc
+```
+
 ## Where to Look
 
 | Task                                         | File                                       |

@@ -2,7 +2,7 @@
 
 files documenting various security scenarios in TemplateEngine (gramstax). Each file describes the vulnerability, risks, and expected results.
 Here is a list of the files created:
-You can run these files using the command `bun run security-poc/<filename>.ts` to see the results immediately.
+You can run these files using the command `bun run packages/gramstax/security-poc/<filename>.ts` to see the results immediately.
 
 ## 1-template-breakout.ts:
 

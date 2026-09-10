@@ -11,7 +11,7 @@
  * Risk: Immediate and complete Remote Code Execution (RCE).
  */
 
-import {TemplateEngine} from "../packages/gramstax/src/template/engine.js"
+import {TemplateEngine} from "../src/template/engine.js"
 
 console.log(`--- CASE 4: UNTRUSTED TEMPLATE INPUT ---`)
 
@@ -33,4 +33,6 @@ console.log(`Compiling malicious template...`)
 const messages = TemplateEngine.compileBlockGMessage(maliciousTemplate)
 
 console.log(`Executing compiled function...`)
-messages.default.default({})
+const render = messages.default?.default
+if (!render) throw new Error(`compile produced no default message`)
+render({})
