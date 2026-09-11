@@ -5,25 +5,9 @@ export class SubscriberRepository {
   constructor(private readonly env: LmdbEnvSub<typeof SubscriberSchema>) {}
 
   async subscribe(id: number, data: Omit<IVSubscriber, `id` | `joinedAt`>): Promise<{subscriber: IVSubscriber; created: boolean}> {
-    return this.env.owner.transaction(async (tx) => {
-      const existing = this.env.get(id, tx)
-      if (existing) {
-        const updated: IVSubscriber = {
-          id,
-          joinedAt: existing.joinedAt ?? Date.now(),
-          userName: data.userName ?? existing.userName,
-          fullName: data.fullName ?? existing.fullName,
-          language: data.language ?? existing.language
-        }
-        await this.env.put(id, updated, tx)
-        return {subscriber: updated, created: false}
-      }
-
-      const now = Date.now()
-      const subscriber: IVSubscriber = {id, joinedAt: now, ...data}
-      await this.env.put(id, subscriber, tx)
-      return {subscriber, created: true}
-    })
+    const subscriber = {id, joinedAt: Date.now(), ...data}
+    const status = await this.env.putIfNotExists(id, subscriber)
+    return {subscriber, created: status}
   }
 
   async unsubscribe(id: number): Promise<boolean> {
