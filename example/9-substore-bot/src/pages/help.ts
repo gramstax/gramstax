@@ -14,12 +14,14 @@ export class HelpPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([CatalogPage, StartPage])
       const da = {support: Env.STORE_ADMIN_USERNAME}
       await this.renderAuto(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

@@ -1,18 +1,10 @@
+import {log} from "gramstax"
 import {PageBase} from "~/base/page"
-import {LogHe} from "~/helpers/log"
 import {StartPage} from "./start"
 
 class Base {
   static error = `e`
   static notFound = `nf`
-}
-
-class Helper {
-  static async built(ctx: StatusPage) {
-    const bi = Base.error
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
-    await ctx.renderAuto(kb, {}, bi)
-  }
 }
 
 export class StatusPage extends PageBase {
@@ -24,18 +16,28 @@ export class StatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
+  helper = {
+    built: async () => {
+      const bi = Base.error
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
+      await this.renderAuto(kb, {}, bi)
+    }
+  }
   gerror = {
     show: async (funcName: string, error: Error | unknown) => {
-      LogHe.errorMake(error, this.constructorName, funcName)
+      log.errorMake(error, this.constructorName, funcName)
       await this.clearSession()
-      await Helper.built(this)
-    }
+      await this.helper.built()
+    },
+    process: () => {}
   }
   gnotFound = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartPage], `1`, Base.notFound)
-      await this.renderAuto(kb, {}, Base.notFound)
-    }
+      const bi = Base.notFound
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
+      await this.renderAuto(kb, {}, bi)
+    },
+    process: () => {}
   }
 
   static template = `

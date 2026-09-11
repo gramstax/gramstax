@@ -1,7 +1,9 @@
+// Updates item status via inline selection.
 import {PageBase} from "~/base/page"
 import type {IVItem} from "~/db/schema/item"
 import {StartPage} from "./start"
 
+const PAGE_SIZE = 5
 class Base {
   static selectItem = `si`
   static selectStatus = `ss`
@@ -10,51 +12,6 @@ class Base {
   static infoNotFound = `i-notfound`
 }
 
-class Helper {
-  static PAGE_SIZE = 5
-
-  static buildHomeKb(ctx: UpdatePage, AGBaseId: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-  }
-
-  static async buildSItemKb(ctx: UpdatePage, pageNo: number, items: IVItem[]) {
-    const allItems = await ctx.db.items.list(ctx.from!.id!)
-    const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
-    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
-    const bi = Base.selectItem
-    return ctx.inlineKeyboard(
-      (k, l) => {
-        items.forEach((item, index) => {
-          k.text(`📝 #${item.id} ${item.title!.slice(0, 5)}..`, ctx.data.callbackQueryData(bi, `select`, item.id!))
-          if (index % 2 === 1) {
-            k.row()
-          }
-        })
-
-        k.row()
-        if (safePage > 0) {
-          k.text(l[0]!, ctx.data.callbackQueryData(bi, `page`, `${safePage - 1}`))
-        }
-        if (safePage < totalPages - 1) {
-          k.text(l[1]!, ctx.data.callbackQueryData(bi, `page`, `${safePage + 1}`))
-        }
-        return k.row().text(l[2]!, StartPage)
-      },
-      {AGBaseId: bi}
-    )
-  }
-
-  static buildSStatusKb(ctx: UpdatePage, id: string) {
-    const bi = Base.selectStatus
-    const b1 = ctx.data.callbackQueryData(bi, `todo`, id)
-    const b2 = ctx.data.callbackQueryData(bi, `in-progress`, id)
-    const b3 = ctx.data.callbackQueryData(bi, `done`, id)
-    const b4 = StartPage
-    return ctx.inlineKeyboardT([b1, b2, b3, b4], `3-1`, bi)
-  }
-}
-
-// Updates item status via inline selection.
 export class UpdatePage extends PageBase {
   static data = this.buildData((step?: string, arg1?: string, arg2?: string) => [step, arg1, arg2])
 
@@ -71,13 +28,52 @@ export class UpdatePage extends PageBase {
     }
   }
 
+  helper = {
+    buildHomeKb: (AGBaseId: string) => {
+      return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+    },
+    buildSItemKb: async (pageNo: number, items: IVItem[]) => {
+      const allItems = await this.db.items.list(this.from!.id!)
+      const totalPages = Math.max(Math.ceil(allItems.length / PAGE_SIZE), 1)
+      const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
+      const bi = Base.selectItem
+      return this.inlineKeyboard(
+        (k, l) => {
+          items.forEach((item, index) => {
+            k.text(`📝 #${item.id} ${item.title!.slice(0, 5)}..`, this.data.callbackQueryData(bi, `select`, item.id!))
+            if (index % 2 === 1) {
+              k.row()
+            }
+          })
+
+          k.row()
+          if (safePage > 0) {
+            k.text(l[0]!, this.data.callbackQueryData(bi, `page`, `${safePage - 1}`))
+          }
+          if (safePage < totalPages - 1) {
+            k.text(l[1]!, this.data.callbackQueryData(bi, `page`, `${safePage + 1}`))
+          }
+          return k.row().text(l[2]!, StartPage)
+        },
+        {AGBaseId: bi}
+      )
+    },
+    buildSStatusKb: (id: string) => {
+      const bi = Base.selectStatus
+      const b1 = this.data.callbackQueryData(bi, `todo`, id)
+      const b2 = this.data.callbackQueryData(bi, `in-progress`, id)
+      const b3 = this.data.callbackQueryData(bi, `done`, id)
+      const b4 = StartPage
+      return this.inlineKeyboardT([b1, b2, b3, b4], `3-1`, bi)
+    }
+  }
   gselectItem = {
     show: async (pageNo = 0) => {
       const allItems = await this.db.items.list(this.from!.id)
-      const totalPages = Math.max(Math.ceil(allItems.length / Helper.PAGE_SIZE), 1)
+      const totalPages = Math.max(Math.ceil(allItems.length / PAGE_SIZE), 1)
       const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
-      const start = safePage * Helper.PAGE_SIZE
-      const end = start + Helper.PAGE_SIZE
+      const start = safePage * PAGE_SIZE
+      const end = start + PAGE_SIZE
       const items = allItems.slice(start, end)
       if (items.length === 0) {
         return await this.ginfoEmpty.show()
@@ -85,7 +81,7 @@ export class UpdatePage extends PageBase {
 
       const bi = Base.selectItem
       const da = {count: allItems.length, pageNo: safePage + 1, totalPages}
-      const kb = await Helper.buildSItemKb(this, safePage, items)
+      const kb = await this.helper.buildSItemKb(safePage, items)
       await this.renderAuto(kb, da, bi)
     },
     process: async (type: string, idOrPage: string) => {
@@ -104,7 +100,7 @@ export class UpdatePage extends PageBase {
   gselectStatus = {
     show: async (item: IVItem) => {
       const bi = Base.selectStatus
-      const kb = Helper.buildSStatusKb(this, item.id!)
+      const kb = this.helper.buildSStatusKb(item.id!)
       const da = {id: item.id, title: item.title, status: item.status}
       await this.renderAuto(kb, da, bi)
     },
@@ -125,25 +121,28 @@ export class UpdatePage extends PageBase {
   ginfoNotFound = {
     show: async (id: string) => {
       const bi = Base.infoNotFound
-      const kb = Helper.buildHomeKb(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       const da = {id}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   ginfoEmpty = {
     show: async () => {
       const bi = Base.infoEmpty
-      const kb = Helper.buildHomeKb(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       await this.renderAuto(kb, {}, bi)
-    }
+    },
+    process: () => {}
   }
   gsuccess = {
     show: async (id: string, status: string) => {
       const bi = Base.success
-      const kb = Helper.buildHomeKb(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       const da = {id, status}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

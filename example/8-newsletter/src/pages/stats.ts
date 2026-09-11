@@ -8,6 +8,7 @@ export class StatsPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const count = await this.db.subs.total()
@@ -15,7 +16,8 @@ export class StatsPage extends PageBase {
       const kb = this.inlineKeyboardT([StartPage])
       const da = {count, subscribed}
       await this.renderAuto(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

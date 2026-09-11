@@ -6,12 +6,6 @@ class Base {
   static success = `s`
 }
 
-class Helper {
-  static kb(ctx: StartInputTextPage, AGBaseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-  }
-}
-
 export class StartInputTextPage extends PageBase {
   static data = this.buildData({intentCommandText: `input_text`})
 
@@ -30,10 +24,13 @@ export class StartInputTextPage extends PageBase {
     }
   }
 
+  helper = {
+    kb: (AGBaseId?: string) => this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+  }
   gindex = {
     show: async () => {
       const bi = Base.index
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       await this.setSessionFreeText({step: bi})
       await this.renderAuto(kb, {}, bi)
     },
@@ -41,14 +38,14 @@ export class StartInputTextPage extends PageBase {
       await this.gsuccess.show()
     }
   }
-
   gsuccess = {
     show: async () => {
       const bi = Base.success
       const da = {res: this.msg?.text}
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

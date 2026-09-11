@@ -18,6 +18,7 @@ export class StartPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       await this.clearSession()

@@ -23,6 +23,7 @@ export class ProductPage extends PageBase {
     }
   }
 
+  helper = {}
   gindex = {
     show: async (productId: string) => {
       const product = ProductCatalog.getById(productId)
@@ -30,7 +31,8 @@ export class ProductPage extends PageBase {
         return await this.gwarnMissing.show()
       }
 
-      const kb = this.inlineKeyboardT([this.data.callbackQueryData(`buy`, productId), this.data.callbackQueryData(`add`, productId), CartPage, CatalogPage], `2-1`, Base.index)
+      const bi = Base.index
+      const kb = this.inlineKeyboardT([this.data.callbackQueryData(`buy`, productId), this.data.callbackQueryData(`add`, productId), CartPage, CatalogPage], `2-1`, bi)
       const da = {
         name: product.name,
         service: product.service,
@@ -42,7 +44,7 @@ export class ProductPage extends PageBase {
         benefits: product.benefits.map((benefit) => `• ${benefit}`).join(`\n`),
         delivery: product.deliveryEstimate
       }
-      await this.renderAuto(kb, da, Base.index)
+      await this.renderAuto(kb, da, bi)
     },
     process: async (action?: string, productId?: string) => {
       if (!productId) {
@@ -69,30 +71,32 @@ export class ProductPage extends PageBase {
       }
     }
   }
-
   ginfoAdded = {
     show: async (productId: string) => {
       const product = ProductCatalog.getById(productId)
-      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.infoAdded)
+      const bi = Base.infoAdded
+      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, bi)
       const da = {name: product?.name ?? `Selected product`}
-      await this.renderAuto(kb, da, Base.infoAdded)
-    }
+      await this.renderAuto(kb, da, bi)
+    },
+    process: () => {}
   }
-
   gwarnStock = {
     show: async (productId: string) => {
       const product = ProductCatalog.getById(productId)
-      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnStock)
+      const bi = Base.warnStock
+      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, bi)
       const da = {name: product?.name ?? `This product`}
-      await this.renderAuto(kb, da, Base.warnStock)
-    }
+      await this.renderAuto(kb, da, bi)
+    },
+    process: () => {}
   }
-
   gwarnMissing = {
     show: async () => {
       const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnMissing)
       await this.renderAuto(kb, {}, Base.warnMissing)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

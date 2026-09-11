@@ -14,12 +14,14 @@ export class StartPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([HttpRequestPage, HelpPage], `1`)
       await this.clearSession()
       await this.renderAuto(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

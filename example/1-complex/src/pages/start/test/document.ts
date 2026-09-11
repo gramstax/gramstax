@@ -8,11 +8,13 @@ export class StartTestDocumentPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)])
       await this.renderEditDocument(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

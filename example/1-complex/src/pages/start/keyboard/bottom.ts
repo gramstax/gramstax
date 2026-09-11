@@ -7,27 +7,6 @@ class Base {
   static delete = `d`
 }
 
-class Helper {
-  static async built(ctx: StartKeyboardBottomPage, count?: number, AGBaseId?: string) {
-    const kb = ctx.bottomKeyboard(
-      (k, l) => {
-        return k
-          .text(count === undefined ? `${l[0]!} 0` : `${l[0]} ${count + 1}`)
-          .row()
-          .text(l[1]!)
-          .oneTime()
-      },
-      {
-        AGBaseId: Base.index,
-        data: {
-          first: ctx.data.intentText
-        }
-      }
-    )
-    await ctx.renderAuto(kb, {}, AGBaseId)
-  }
-}
-
 export class StartKeyboardBottomPage extends PageBase {
   static data = this.buildData({
     intentText: `📚 KBBottom:`, // <===== overrides trigger for function "handleText" and "handleArgsText" because need emoticon + space, only support 1 space.
@@ -54,9 +33,29 @@ export class StartKeyboardBottomPage extends PageBase {
     await this.gindex.process(this.msgTextCommandArg)
   }
 
+  helper = {
+    built: async (count?: number, AGBaseId?: string) => {
+      const kb = this.bottomKeyboard(
+        (k, l) => {
+          return k
+            .text(count === undefined ? `${l[0]!} 0` : `${l[0]} ${count + 1}`)
+            .row()
+            .text(l[1]!)
+            .oneTime()
+        },
+        {
+          AGBaseId: Base.index,
+          data: {
+            first: this.data.intentText
+          }
+        }
+      )
+      await this.renderAuto(kb, {}, AGBaseId)
+    }
+  }
   gindex = {
     show: async (count?: number) => {
-      await Helper.built(this, count, Base.index)
+      await this.helper.built(count, Base.index)
     },
     process: async (action: string) => {
       if (action === Base.reset) {
@@ -70,8 +69,9 @@ export class StartKeyboardBottomPage extends PageBase {
   }
   greset = {
     show: async () => {
-      await Helper.built(this, undefined, Base.reset)
-    }
+      await this.helper.built(undefined, Base.reset)
+    },
+    process: () => {}
   }
   gdelete = {
     show: async () => {
@@ -81,7 +81,8 @@ export class StartKeyboardBottomPage extends PageBase {
           remove_keyboard: true
         }
       })
-    }
+    },
+    process: () => {}
   }
 
   static template = `    

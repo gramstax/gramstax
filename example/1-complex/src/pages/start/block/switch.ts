@@ -13,12 +13,14 @@ export class StartBlockSwitchPage extends PageBase {
     await this.gdefault.show(status!)
   }
 
+  helper = {}
   gdefault = {
     show: async (status: string) => {
       const da = {status}
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(status === `1` ? `0` : `1`), StartPage], `1`, null, da)
       await this.renderAuto(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

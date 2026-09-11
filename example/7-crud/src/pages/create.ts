@@ -1,3 +1,4 @@
+// Creates a new item in cache.
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
@@ -7,22 +8,6 @@ class Base {
   static success = `s`
 }
 
-class Helper {
-  static buildHomeKeyboard(ctx: CreatePage, AGBaseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-  }
-
-  static getSessionParams(ctx: CreatePage) {
-    return (
-      (ctx.temp.session?.params as {
-        step?: Base
-        title?: string
-      }) ?? {}
-    )
-  }
-}
-
-// Creates a new item in cache.
 export class CreatePage extends PageBase {
   static data = this.buildData()
 
@@ -31,7 +16,7 @@ export class CreatePage extends PageBase {
   }
 
   async handleSessionFreeText() {
-    const {step, title} = Helper.getSessionParams(this)
+    const {step, title} = this.helper.getSessionParams()
     const input = this.msg!.text!.trim()
     if (step === Base.title) {
       await this.gnotes.show(title!)
@@ -40,29 +25,44 @@ export class CreatePage extends PageBase {
     }
   }
 
+  helper = {
+    buildHomeKb: (AGBaseId?: string) => {
+      return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+    },
+    getSessionParams: () => {
+      return (
+        (this.temp.session?.params as {
+          step?: Base
+          title?: string
+        }) ?? {}
+      )
+    }
+  }
   gtitle = {
     show: async () => {
       const bi = Base.title
-      const kb = Helper.buildHomeKeyboard(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       await this.setSessionFreeText({step: bi})
       await this.renderAuto(kb, {}, bi)
-    }
+    },
+    process: () => {}
   }
   gnotes = {
     show: async (title: string) => {
       const bi = Base.notes
-      const kb = Helper.buildHomeKeyboard(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       const da = {title}
       await this.setSessionFreeText({step: bi, title})
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gsuccess = {
     show: async (title: string, input: string) => {
       await this.clearSession()
       const item = await this.db.items.create(this.from!.id, title!, input)
       const bi = Base.success
-      const kb = Helper.buildHomeKeyboard(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       const da = {
         id: item.id,
         title: item.title,
@@ -70,7 +70,8 @@ export class CreatePage extends PageBase {
         status: item.status
       }
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

@@ -13,15 +13,18 @@ export class StartResetPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       await this.clearSession()
-      await this.cacheState.delete(`${this.from!.id}:category`)
-      await this.cacheState.delete(`${this.from!.id}:page`)
+      const id = this.from!.id
+      await this.cacheState.delete(`${id}:category`)
+      await this.cacheState.delete(`${id}:page`)
 
       const kb = this.inlineKeyboardT([StartPage])
       await this.renderAuto(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

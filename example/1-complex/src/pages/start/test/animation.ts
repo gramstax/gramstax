@@ -6,20 +6,6 @@ class Base {
   static dynamic = `dynamic-attribute`
 }
 
-class Helper {
-  static kb(ctx: StartTestAnimationPage, isDynamic = false) {
-    return ctx.inlineKeyboard(
-      (k, l) => {
-        return k //
-          .text(isDynamic ? l[1]! : l[0]!, ctx.data.callbackQueryData(isDynamic ? `static` : `dynamic`))
-          .row()
-          .text(l[2]!, StartPage.data.callbackQueryData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackQueryData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
-      },
-      {AGBaseId: Base.index}
-    )
-  }
-}
-
 export class StartTestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => [swc])
 
@@ -31,12 +17,26 @@ export class StartTestAnimationPage extends PageBase {
     await this.gdynamic.show()
   }
 
+  helper = {
+    kb: (isDynamic = false) => {
+      return this.inlineKeyboard(
+        (k, l) => {
+          return k //
+            .text(isDynamic ? l[1]! : l[0]!, this.data.callbackQueryData(isDynamic ? `static` : `dynamic`))
+            .row()
+            .text(l[2]!, StartPage.data.callbackQueryData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackQueryData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
+        },
+        {AGBaseId: Base.index}
+      )
+    }
+  }
   gindex = {
     show: async () => {
       const bi = Base.index
-      const kb = Helper.kb(this)
+      const kb = this.helper.kb()
       await this.renderEditAnimation(kb, {}, bi)
-    }
+    },
+    process: () => {}
   }
   gdynamic = {
     show: async () => {
@@ -45,13 +45,14 @@ export class StartTestAnimationPage extends PageBase {
         await this.handleCallbackQueryData()
       } else if (swc === `dynamic`) {
         const bi = Base.dynamic
-        const kb = Helper.kb(this, true)
+        const kb = this.helper.kb(true)
         const da = {
           src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
         }
         await this.renderEditAnimation(kb, da, bi)
       }
-    }
+    },
+    process: () => {}
   }
 
   static template = `

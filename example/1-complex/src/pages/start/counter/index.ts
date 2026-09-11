@@ -1,12 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "~/pages/start"
 
-class Helper {
-  static kb(ctx: StartCounterPage) {
-    return ctx.inlineKeyboardT([ctx.data.callbackQueryData(`I`), ctx.data.callbackQueryData(`D`), StartPage], `2`)
-  }
-}
-
 export class StartCounterPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
@@ -18,11 +12,14 @@ export class StartCounterPage extends PageBase {
     await this.gdefault.process()
   }
 
+  helper = {
+    kb: () => this.inlineKeyboardT([this.data.callbackQueryData(`I`), this.data.callbackQueryData(`D`), StartPage], `2`)
+  }
   gdefault = {
     show: async () => {
       const key = `${this.from!.id}`
       const count = (await this.cacheData.get(key)) || `0`
-      const kb = Helper.kb(this)
+      const kb = this.helper.kb()
       const da = {count}
       await this.renderAuto(kb, da)
     },
@@ -40,7 +37,7 @@ export class StartCounterPage extends PageBase {
       }
 
       await this.cacheData.set(key, count)
-      const kb = Helper.kb(this)
+      const kb = this.helper.kb()
       const da = {count}
       await this.renderAuto(kb, da)
     }

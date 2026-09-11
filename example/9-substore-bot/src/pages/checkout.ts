@@ -6,7 +6,7 @@ import {CatalogPage} from "./catalog"
 import {HistoryPage} from "./history"
 import {StartPage} from "./start"
 
-type ICheckoutSession = {
+type ISPCheckout = {
   position?: `contact` | `confirm`
   contact?: string
   notes?: string
@@ -21,56 +21,6 @@ class Base {
   static warnInvalid = `w-invalid`
   static infoCancel = `i-cancel`
   static infoMissing = `i-missing`
-}
-
-class Helper {
-  static async getCart(ctx: CheckoutPage): Promise<CartState> {
-    return ((await ctx.cacheState.get(`${ctx.from!.id!}:cart`)) ?? {}) as CartState
-  }
-
-  static async setCart(ctx: CheckoutPage, cart: CartState) {
-    await ctx.cacheState.set(`${ctx.from!.id!}:cart`, cart)
-  }
-
-  static async getHistory(ctx: CheckoutPage): Promise<OrderRecord[]> {
-    return ((await ctx.cacheState.get(`${ctx.from!.id!}:orders`)) ?? []) as OrderRecord[]
-  }
-
-  static async setHistory(ctx: CheckoutPage, history: OrderRecord[]) {
-    await ctx.cacheState.set(`${ctx.from!.id!}:orders`, history)
-  }
-
-  static getSession(ctx: CheckoutPage): ICheckoutSession {
-    return (ctx.temp.session?.params as ICheckoutSession) ?? {}
-  }
-
-  static splitContactNotes(input: string) {
-    const [contactLine, ...noteLines] = input.split(`\n`).map((line) => line.trim())
-    return {
-      contact: contactLine ?? ``,
-      notes: noteLines.filter(Boolean).join(`\n`) || `No additional notes.`
-    }
-  }
-
-  static isValidContact(contact: string): boolean {
-    return contact.length >= 5 && (/^@?[a-zA-Z0-9_]{5,}$/.test(contact) || /^\+?[0-9][0-9\s-]{7,}$/.test(contact) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact))
-  }
-
-  static kbCart(ctx: CheckoutPage, bi?: string) {
-    return ctx.inlineKeyboardT([CartPage, CatalogPage], `2`, bi)
-  }
-
-  static kbConfirm(ctx: CheckoutPage, bi?: string) {
-    return ctx.inlineKeyboardT([ctx.data.callbackQueryData(`confirm`), ctx.data.callbackQueryData(`cancel`), CartPage], `2`, bi)
-  }
-
-  static kbHome(ctx: CheckoutPage, bi?: string) {
-    return ctx.inlineKeyboardT([HistoryPage, StartPage, CatalogPage], `2`, bi)
-  }
-
-  static kbSuccess(ctx: CheckoutPage, orderId: string, bi?: string) {
-    return ctx.inlineKeyboardT([ctx.data.callbackQueryData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage], `2`, bi)
-  }
 }
 
 export class CheckoutPage extends PageBase {
@@ -95,34 +45,74 @@ export class CheckoutPage extends PageBase {
     await this.gindex.process()
   }
 
+  helper = {
+    getCart: async () => {
+      return ((await this.cacheState.get(`${this.from!.id!}:cart`)) ?? {}) as CartState
+    },
+    setCart: async (cart: CartState) => {
+      await this.cacheState.set(`${this.from!.id!}:cart`, cart)
+    },
+    getHistory: async () => {
+      return ((await this.cacheState.get(`${this.from!.id!}:orders`)) ?? []) as OrderRecord[]
+    },
+    setHistory: async (history: OrderRecord[]) => {
+      await this.cacheState.set(`${this.from!.id!}:orders`, history)
+    },
+    getSessionParams: () => {
+      return (this.temp.session?.params as ISPCheckout) ?? {}
+    },
+    splitContactNotes: (input: string) => {
+      const [contactLine, ...noteLines] = input.split(`\n`).map((line) => line.trim())
+      return {
+        contact: contactLine ?? ``,
+        notes: noteLines.filter(Boolean).join(`\n`) || `No additional notes.`
+      }
+    },
+    isValidContact: (contact: string) => {
+      return contact.length >= 5 && (/^@?[a-zA-Z0-9_]{5,}$/.test(contact) || /^\+?[0-9][0-9\s-]{7,}$/.test(contact) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact))
+    },
+    kbCart: (bi?: string) => {
+      return this.inlineKeyboardT([CartPage, CatalogPage], `2`, bi)
+    },
+    kbConfirm: (bi?: string) => {
+      return this.inlineKeyboardT([this.data.callbackQueryData(`confirm`), this.data.callbackQueryData(`cancel`), CartPage], `2`, bi)
+    },
+    kbHome: (bi?: string) => {
+      return this.inlineKeyboardT([HistoryPage, StartPage, CatalogPage], `2`, bi)
+    },
+    kbSuccess: (orderId: string, bi?: string) => {
+      return this.inlineKeyboardT([this.data.callbackQueryData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage], `2`, bi)
+    }
+  }
   gindex = {
     show: async () => {
-      const cart = await Helper.getCart(this)
+      const cart = await this.helper.getCart()
       const summary = CartStore.getSummary(cart)
       if (summary.isEmpty) {
         return await this.gwarnEmpty.show()
       }
 
       await this.setSessionFreeText({position: `contact`})
-      const kb = Helper.kbCart(this, Base.index)
+      const bi = Base.index
+      const kb = this.helper.kbCart(bi)
       const da = {
         items: OrderStore.formatCart(summary),
         subtotal: ProductCatalog.formatPrice(summary.subtotal)
       }
-      await this.renderAuto(kb, da, Base.index)
+      await this.renderAuto(kb, da, bi)
     },
     process: async () => {
-      const {position} = Helper.getSession(this)
+      const {position} = this.helper.getSessionParams()
       if (position !== `contact`) return
 
       const input = this.msg!.text!.trim()
-      const {contact, notes} = Helper.splitContactNotes(input)
-      if (!Helper.isValidContact(contact)) {
+      const {contact, notes} = this.helper.splitContactNotes(input)
+      if (!this.helper.isValidContact(contact)) {
         await this.setSessionFreeText({position: `contact`})
         return await this.gwarnInvalid.show(contact)
       }
 
-      const cart = await Helper.getCart(this)
+      const cart = await this.helper.getCart()
       const summary = CartStore.getSummary(cart)
       if (summary.isEmpty) {
         return await this.gwarnEmpty.show()
@@ -132,17 +122,17 @@ export class CheckoutPage extends PageBase {
       await this.gconfirm.show(OrderStore.formatCart(summary), ProductCatalog.formatPrice(summary.subtotal), contact, notes)
     }
   }
-
   gconfirm = {
     show: async (items: string, subtotal: string, contact: string, notes: string) => {
-      const kb = Helper.kbConfirm(this, Base.confirm)
+      const bi = Base.confirm
+      const kb = this.helper.kbConfirm(bi)
       const da = {items, subtotal, contact, notes}
-      await this.renderAuto(kb, da, Base.confirm)
+      await this.renderAuto(kb, da, bi)
     },
     process: async () => {
-      const cart = await Helper.getCart(this)
+      const cart = await this.helper.getCart()
       const summary = CartStore.getSummary(cart)
-      const session = Helper.getSession(this)
+      const session = this.helper.getSessionParams()
       const order = OrderStore.createOrder({
         userId: this.from!.id,
         summary,
@@ -150,18 +140,17 @@ export class CheckoutPage extends PageBase {
         notes: session.notes || `No additional notes.`,
         support: Env.STORE_ADMIN_USERNAME
       })
-      const history = await Helper.getHistory(this)
-      await Helper.setHistory(this, OrderHistoryStore.addOrder(history, order))
-      await Helper.setCart(this, CartStore.clear())
+      const history = await this.helper.getHistory()
+      await this.helper.setHistory(OrderHistoryStore.addOrder(history, order))
+      await this.helper.setCart(CartStore.clear())
       await this.clearSession()
       await this.gsuccess.show(order)
     }
   }
-
   grefresh = {
     process: async (orderId?: string) => {
-      const refreshedHistory = OrderHistoryStore.refreshStatuses(await Helper.getHistory(this))
-      await Helper.setHistory(this, refreshedHistory)
+      const refreshedHistory = OrderHistoryStore.refreshStatuses(await this.helper.getHistory())
+      await this.helper.setHistory(refreshedHistory)
       const order = orderId ? refreshedHistory.find((item) => item.id === orderId) : refreshedHistory[0]
       if (!order) {
         return await this.ginfoMissing.show()
@@ -169,10 +158,10 @@ export class CheckoutPage extends PageBase {
       await this.gsuccess.show(order)
     }
   }
-
   gsuccess = {
     show: async (order: OrderRecord) => {
-      const kb = Helper.kbSuccess(this, order.id, Base.success)
+      const bi = Base.success
+      const kb = this.helper.kbSuccess(order.id, bi)
       const da = {
         orderId: order.id,
         items: OrderStore.formatCart({items: order.items, subtotal: order.subtotal, isEmpty: order.items.length === 0}),
@@ -186,39 +175,44 @@ export class CheckoutPage extends PageBase {
         timeNow: new Date(),
         qrisImageUrl: order.qrisImageUrl
       }
-      await this.renderEditPhoto(kb, da, Base.success)
-    }
+      await this.renderEditPhoto(kb, da, bi)
+    },
+    process: () => {}
   }
-
   gwarnEmpty = {
     show: async () => {
-      const kb = Helper.kbCart(this, Base.warnEmpty)
-      await this.renderAuto(kb, {}, Base.warnEmpty)
-    }
+      const bi = Base.warnEmpty
+      const kb = this.helper.kbCart(bi)
+      await this.renderAuto(kb, {}, bi)
+    },
+    process: () => {}
   }
-
   gwarnInvalid = {
     show: async (contact: string) => {
       await this.setSessionFreeText({position: `contact`})
-      const kb = Helper.kbCart(this, Base.warnInvalid)
+      const bi = Base.warnInvalid
+      const kb = this.helper.kbCart(bi)
       const da = {contact}
-      await this.renderAuto(kb, da, Base.warnInvalid)
-    }
+      await this.renderAuto(kb, da, bi)
+    },
+    process: () => {}
   }
-
   ginfoCancel = {
     show: async () => {
       await this.clearSession()
-      const kb = Helper.kbHome(this, Base.infoCancel)
-      await this.renderAuto(kb, {}, Base.infoCancel)
-    }
+      const bi = Base.infoCancel
+      const kb = this.helper.kbHome(bi)
+      await this.renderAuto(kb, {}, bi)
+    },
+    process: () => {}
   }
-
   ginfoMissing = {
     show: async () => {
-      const kb = Helper.kbHome(this, Base.infoMissing)
-      await this.renderAuto(kb, {}, Base.infoMissing)
-    }
+      const bi = Base.infoMissing
+      const kb = this.helper.kbHome(bi)
+      await this.renderAuto(kb, {}, bi)
+    },
+    process: () => {}
   }
 
   static template = `

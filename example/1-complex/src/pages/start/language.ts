@@ -1,33 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "~/pages/start"
 
-class Helper {
-  static kb(ctx: StartLanguagePage) {
-    return ctx.inlineKeyboard((k, l) => {
-      const languages = l.slice(0, -1)
-      const backButton = l[l.length - 1]! // Get the back button text
-
-      // Get current user language for comparison
-      const currentLang = ctx.from!.language_code!.toLowerCase()
-
-      // Add language buttons in rows of 3
-      for (let i = 0; i < languages.length; i += 3) {
-        const row = languages.slice(i, i + 3)
-        row.forEach((lang) => {
-          const langCode = lang.toLowerCase()
-          const isSelected = langCode.endsWith(currentLang)
-          const displayText = isSelected ? `+ ${lang}` : lang
-          k.text(displayText, ctx.data.callbackQueryData(langCode))
-        })
-        k.row()
-      }
-
-      // Add back button
-      return k.text(backButton, StartPage)
-    })
-  }
-}
-
 export class StartLanguagePage extends PageBase {
   static data = this.buildData((lang?: string) => [lang])
 
@@ -39,9 +12,31 @@ export class StartLanguagePage extends PageBase {
     await this.gdefault.process()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
-      const kb = Helper.kb(this)
+      const kb = this.inlineKeyboard((k, l) => {
+        const languages = l.slice(0, -1)
+        const backButton = l[l.length - 1]! // Get the back button text
+
+        // Get current user language for comparison
+        const currentLang = this.from!.language_code!.toLowerCase()
+
+        // Add language buttons in rows of 3
+        for (let i = 0; i < languages.length; i += 3) {
+          const row = languages.slice(i, i + 3)
+          row.forEach((lang) => {
+            const langCode = lang.toLowerCase()
+            const isSelected = langCode.endsWith(currentLang)
+            const displayText = isSelected ? `+ ${lang}` : lang
+            k.text(displayText, this.data.callbackQueryData(langCode))
+          })
+          k.row()
+        }
+
+        // Add back button
+        return k.text(backButton, StartPage)
+      })
       await this.renderAuto(kb)
     },
     process: async () => {

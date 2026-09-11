@@ -26,6 +26,7 @@ export class StartPage extends PageBase {
     await this.gindex.show()
   }
 
+  helper = {}
   gindex = {
     show: async () => {
       const bi = Base.index
@@ -33,14 +34,19 @@ export class StartPage extends PageBase {
       const isEdit = !!this.callbackQuery
       await this.renderAuto(ikb, {}, bi)
       if (!isEdit) {
-        {
-          const bi = Base.infoQuick
-          const bkb = this.bottomKeyboardT(`2`, bi)
-          const da = {}
-          await this.render(bkb, da, bi)
-        }
+        await this.ginfoQuick.show()
       }
-    }
+    },
+    process: () => {}
+  }
+  ginfoQuick = {
+    show: async () => {
+      const bi = Base.infoQuick
+      const bkb = this.bottomKeyboardT(`2`, bi)
+      const da = {}
+      await this.render(bkb, da, bi)
+    },
+    process: () => {}
   }
 
   static template = `

@@ -8,6 +8,7 @@ export class StartBlockMapPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([this, StartPage], `1`)
@@ -18,7 +19,8 @@ export class StartBlockMapPage extends PageBase {
         i: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`
       }
       await this.renderAuto(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

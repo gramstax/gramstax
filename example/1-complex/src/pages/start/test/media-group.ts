@@ -7,12 +7,14 @@ export class StartTestMediaGroupPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       // ATTENTION: <g-media-group> is not support inline/bottom keyboard
       // const kb = ctx.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)], `1`, bi)
       await this.renderEditPhotoGroup()
-    }
+    },
+    process: () => {}
   }
 
   static template = `

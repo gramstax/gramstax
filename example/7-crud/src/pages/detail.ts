@@ -1,3 +1,4 @@
+// Shows a single item by ID.
 import {PageBase} from "~/base/page"
 import type {IVItem} from "~/db/schema/item"
 import {TimeUt} from "~/utils/time"
@@ -10,13 +11,6 @@ class Base {
   static warnInvalid = `w-invalid`
 }
 
-class Helper {
-  static buildHomeKeyboard(ctx: DetailPage, AGBaseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-  }
-}
-
-// Shows a single item by ID.
 export class DetailPage extends PageBase {
   static data = this.buildData()
 
@@ -38,13 +32,19 @@ export class DetailPage extends PageBase {
     }
   }
 
+  helper = {
+    buildHomeKb: (AGBaseId?: string) => {
+      return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+    }
+  }
   gindex = {
     show: async () => {
       const bi = Base.index
-      const kb = Helper.buildHomeKeyboard(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       await this.setSessionFreeText()
       await this.renderAuto(kb, {}, bi)
-    }
+    },
+    process: () => {}
   }
   gsuccess = {
     show: async (item: IVItem) => {
@@ -53,7 +53,7 @@ export class DetailPage extends PageBase {
       const updatedAt = TimeUt.formatTimestamp(item.updatedAt!)
 
       const bi = Base.success
-      const kb = Helper.buildHomeKeyboard(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       const da = {
         id: item.id,
         title: item.title,
@@ -63,23 +63,26 @@ export class DetailPage extends PageBase {
         updatedAt
       }
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   ginfoNotFound = {
     show: async (id: string) => {
       await this.clearSession()
       const bi = Base.infoNotFound
-      const kb = Helper.buildHomeKeyboard(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       const da = {id}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gwarnInvalid = {
     show: async () => {
       const bi = Base.warnInvalid
-      const kb = Helper.buildHomeKeyboard(this, bi)
+      const kb = this.helper.buildHomeKb(bi)
       await this.renderAuto(kb, {}, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

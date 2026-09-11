@@ -19,12 +19,14 @@ export class StartPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([CatalogPage, CartPage, HistoryPage, HelpPage], `2`)
       await this.renderAuto(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

@@ -7,12 +7,6 @@ class Base {
   static warnInvalid = `w-invalid`
 }
 
-class Helper {
-  static kb(ctx: StartDepositPage, AGBaseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-  }
-}
-
 // Deposits funds into the user's balance.
 export class StartDepositPage extends PageBase {
   static data = this.buildData()
@@ -26,11 +20,14 @@ export class StartDepositPage extends PageBase {
     await this.gindex.process(amountInput)
   }
 
+  helper = {
+    kb: (AGBaseId?: string) => this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+  }
   gindex = {
     show: async () => {
       await this.setSessionFreeText()
       const bi = Base.index
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       await this.renderAuto(kb, {}, bi)
     },
     process: async (amountInput: string) => {
@@ -64,17 +61,19 @@ export class StartDepositPage extends PageBase {
         amount: this.bankStore.formatAmount(amount),
         balance: this.bankStore.formatAmount(next)
       }
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gwarnInvalid = {
     show: async (amount = ``) => {
       const bi = Base.warnInvalid
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       const da = {amount}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

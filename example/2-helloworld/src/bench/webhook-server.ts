@@ -1,7 +1,6 @@
-import {MockTelegramServer} from "gramstax"
+import {log, MockTelegramServer} from "gramstax"
 import {BotCore} from "../core/bot"
 import {Env} from "../env"
-import {LogHe} from "../helpers/log"
 
 const queueEnabled = process.env.WEBHOOK_QUEUE === `1` || process.env.WEBHOOK_QUEUE === `true`
 const maxQueueSize = Number(process.env.WEBHOOK_QUEUE_SIZE ?? `5000`)
@@ -33,11 +32,11 @@ const run = async () => {
   })
 
   const res1 = await mockServer.sendText(`/start`)
-  LogHe.info(`Mock Telegram /start (commandText) response:`)
+  log.info(`Mock Telegram /start (commandText) response:`)
   console.log(res1)
 
   const res2 = await mockServer.sendCallbackQuery(`start`)
-  LogHe.info(`Mock Telegram start (callbackQueryData) response.`)
+  log.info(`Mock Telegram start (callbackQueryData) response.`)
   console.log(res2[0]?.body?.reply_markup?.inline_keyboard)
 
   await botCore.stop()

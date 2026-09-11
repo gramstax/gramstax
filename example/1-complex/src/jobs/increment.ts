@@ -1,5 +1,5 @@
 import {WorkerThreadExport, WorkerThreadInit} from "@gramstax/worker-thread"
-import {LogHe} from "~/helpers/log"
+import {log} from "gramstax"
 
 export class Worker extends WorkerThreadInit {
   count = 0
@@ -11,10 +11,10 @@ export class Worker extends WorkerThreadInit {
 
   mtdAutoRun(ms: number) {
     const padStart = `(${this.pid}:${this.id}) [IncrementCoreJob]`
-    LogHe.debug(`${padStart} Started..`)
+    log.debug(`${padStart} Started..`)
     setInterval(() => {
       this.count += 1
-      LogHe.debug(`${padStart} count: ${this.count}`)
+      log.debug(`${padStart} count: ${this.count}`)
     }, ms)
   }
 

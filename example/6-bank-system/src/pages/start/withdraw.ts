@@ -1,3 +1,4 @@
+// Withdraw funds from the user's balance.
 import {PageBase} from "~/base/page"
 import {StartPage} from "."
 
@@ -8,13 +9,6 @@ class Base {
   static warnInvalid = `w-invalid`
 }
 
-class Helper {
-  static kb(ctx: StartWithdrawPage, AGBaseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-  }
-}
-
-// Withdraw funds from the user's balance.
 export class StartWithdrawPage extends PageBase {
   static data = this.buildData()
 
@@ -27,11 +21,14 @@ export class StartWithdrawPage extends PageBase {
     await this.gindex.process(amountInput)
   }
 
+  helper = {
+    kb: (AGBaseId?: string) => this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+  }
   gindex = {
     show: async () => {
       await this.setSessionFreeText()
       const bi = Base.index
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       await this.renderAuto(kb, {}, bi)
     },
     process: async (amountInput: string) => {
@@ -64,29 +61,32 @@ export class StartWithdrawPage extends PageBase {
     show: async (amount: bigint, next: bigint) => {
       await this.clearSession()
       const bi = Base.success
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       const da = {
         amount: this.bankStore.formatAmount(amount),
         balance: this.bankStore.formatAmount(next)
       }
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gwarnInsufficient = {
     show: async (current: bigint) => {
       const bi = Base.warnInsufficient
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       const da = {balance: this.bankStore.formatAmount(current)}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gwarnInvalid = {
     show: async (amount = ``) => {
       const bi = Base.warnInvalid
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       const da = {amount}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

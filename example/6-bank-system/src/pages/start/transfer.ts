@@ -10,26 +10,6 @@ class Base {
   static warnSelf = `w-self`
 }
 
-class Helper {
-  static kb(ctx: StartTransferPage, AGBaseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-  }
-
-  static resolveTarget(ctx: StartTransferPage, input: string) {
-    const trimmed = input.trim()
-    if (/^\d+$/.test(trimmed)) {
-      return {id: Number(trimmed), label: `#${trimmed}`}
-    }
-
-    const username = trimmed.replace(/^@/, ``)
-    const userId = ctx.bankStore.getUserIdByUsername(username)
-    if (!userId) {
-      return null
-    }
-    return {id: userId, label: `@${username}`}
-  }
-}
-
 // Transfer funds to another user.
 export class StartTransferPage extends PageBase {
   static data = this.buildData()
@@ -42,10 +22,28 @@ export class StartTransferPage extends PageBase {
     await this.gdefault.process(this.msg!.text!)
   }
 
+  helper = {
+    kb: (AGBaseId?: string) => {
+      return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+    },
+    resolveTarget: (input: string) => {
+      const trimmed = input.trim()
+      if (/^\d+$/.test(trimmed)) {
+        return {id: Number(trimmed), label: `#${trimmed}`}
+      }
+
+      const username = trimmed.replace(/^@/, ``)
+      const userId = this.bankStore.getUserIdByUsername(username)
+      if (!userId) {
+        return null
+      }
+      return {id: userId, label: `@${username}`}
+    }
+  }
   gdefault = {
     show: async () => {
       const bi = Base.index
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       await this.renderAuto(kb, {}, bi)
     },
     process: async (input: string) => {
@@ -59,7 +57,7 @@ export class StartTransferPage extends PageBase {
         return await this.gwarnInvalid.show(amountInput)
       }
 
-      const target = Helper.resolveTarget(this, targetInput)
+      const target = this.helper.resolveTarget(targetInput)
       if (!target) {
         return await this.gwarnUnknownUser.show(targetInput)
       }
@@ -101,42 +99,47 @@ export class StartTransferPage extends PageBase {
   gwarnInvalid = {
     show: async (amount = ``) => {
       const bi = Base.warnInvalid
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       const da = {amount}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gwarnUnknownUser = {
     show: async (target: string) => {
       const bi = Base.warnUnknownUser
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       const da = {target}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gwarnSelf = {
     show: async () => {
       const bi = Base.warnSelf
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       await this.renderAuto(kb, {}, bi)
-    }
+    },
+    process: () => {}
   }
   gwarnInsufficient = {
     show: async (balance: string) => {
       const bi = Base.warnInsufficient
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       const da = {balance}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gsuccess = {
     show: async (amount: string, balance: string, target: string) => {
       await this.clearSession()
       const bi = Base.success
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       const da = {amount, balance, target}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

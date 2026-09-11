@@ -1,6 +1,9 @@
+// Deletes an item by button or ID input.
 import {PageBase} from "~/base/page"
 import type {IVItem} from "~/db/schema/item"
 import {StartPage} from "./start"
+
+const MAX_ITEMS = 5
 
 class Base {
   static index = `i`
@@ -10,37 +13,12 @@ class Base {
   static infoEmpty = `i-empty`
 }
 
-class Helper {
-  static MAX_ITEMS = 5
-
-  static buildListKeyboard(ctx: DeletePage, items: IVItem[]) {
-    const bi = Base.index
-    return ctx.inlineKeyboard(
-      (k, l) => {
-        items.forEach((item, index) => {
-          k.text(`🗑️ #${item.id} ${item.title!.slice(0, 5)}..`, ctx.data.callbackQueryData(bi, item.id!))
-          if (index % 2 === 1) {
-            k.row()
-          }
-        })
-        return k.row().text(l[0]!, StartPage)
-      },
-      {AGBaseId: bi}
-    )
-  }
-
-  static buildHomeKeyboard(ctx: DeletePage, AGBaseId: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-  }
-}
-
-// Deletes an item by button or ID input.
 export class DeletePage extends PageBase {
   static data = this.buildData((step?: string, id?: string) => [step, id])
 
   async handleCallbackQueryData() {
     const getItems = await this.db.items.list(this.from!.id)
-    const items = getItems.slice(0, Helper.MAX_ITEMS)
+    const items = getItems.slice(0, MAX_ITEMS)
     if (items.length === 0) {
       await this.ginfoEmpty.show()
     } else {
@@ -63,10 +41,30 @@ export class DeletePage extends PageBase {
     }
   }
 
+  helper = {
+    buildListKeyboard: (items: IVItem[]) => {
+      const bi = Base.index
+      return this.inlineKeyboard(
+        (k, l) => {
+          items.forEach((item, index) => {
+            k.text(`🗑️ #${item.id} ${item.title!.slice(0, 5)}..`, this.data.callbackQueryData(bi, item.id!))
+            if (index % 2 === 1) {
+              k.row()
+            }
+          })
+          return k.row().text(l[0]!, StartPage)
+        },
+        {AGBaseId: bi}
+      )
+    },
+    buildHomeKeyboard: (AGBaseId: string) => {
+      return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+    }
+  }
   gindex = {
     show: async (items: IVItem[]) => {
       const bi = Base.index
-      const kb = Helper.buildListKeyboard(this, items)
+      const kb = this.helper.buildListKeyboard(items)
       const da = {count: items.length}
       await this.setSessionFreeText({step: bi})
       await this.renderAuto(kb, da, bi)
@@ -74,20 +72,20 @@ export class DeletePage extends PageBase {
     process: async (id: string) => {
       if (!id) {
         const bi = Base.warnInvalid
-        const kb = Helper.buildHomeKeyboard(this, bi)
+        const kb = this.helper.buildHomeKeyboard(bi)
         await this.renderAuto(kb, {}, bi)
       } else {
         const deleted = await this.db.items.remove(this.from!.id, id)
         if (!deleted) {
           const bi = Base.errorNotFound
           const da = {id}
-          const kb = Helper.buildHomeKeyboard(this, bi)
+          const kb = this.helper.buildHomeKeyboard(bi)
           await this.renderAuto(kb, da, bi)
         } else {
           await this.clearSession()
           const bi = Base.success
           const da = {id}
-          const kb = Helper.buildHomeKeyboard(this, bi)
+          const kb = this.helper.buildHomeKeyboard(bi)
           await this.renderAuto(kb, da, bi)
         }
       }
@@ -96,9 +94,10 @@ export class DeletePage extends PageBase {
   ginfoEmpty = {
     show: async () => {
       const bi = Base.infoEmpty
-      const kb = Helper.buildHomeKeyboard(this, bi)
+      const kb = this.helper.buildHomeKeyboard(bi)
       await this.renderAuto(kb, {}, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

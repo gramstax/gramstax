@@ -1,3 +1,4 @@
+// Inline keyboard with total page count.
 import {PageBase} from "~/base/page"
 import {CatalogData} from "~/data/catalog"
 import {BlankPage} from "~/pages/blank"
@@ -5,39 +6,6 @@ import {StartPage} from "~/pages/start"
 
 const ITEMS_PER_PAGE = 4
 
-class Helper {
-  static kb(ctx: StartInlineWithRangePage, pageNo: number) {
-    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / ITEMS_PER_PAGE), 1)
-    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
-    const start = safePage * ITEMS_PER_PAGE
-    const end = start + ITEMS_PER_PAGE
-    const items = CatalogData.menuItems.slice(start, end)
-    const kb = ctx.inlineKeyboard((k, l) => {
-      items.forEach((item) => {
-        k.text(item.name, ctx.data.callbackQueryData(`item`, item.id)).row()
-      })
-
-      k.row()
-      if (safePage > 0) {
-        k.text(l[0]!, ctx.data.callbackQueryData(`page`, String(safePage - 1)))
-      }
-      k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage)
-      if (safePage < totalPages - 1) {
-        k.text(l[1]!, ctx.data.callbackQueryData(`page`, String(safePage + 1)))
-      }
-      return k.row().text(l[3]!, StartPage)
-    })
-    return kb
-  }
-
-  static pageData(pageNo: number) {
-    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / ITEMS_PER_PAGE), 1)
-    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
-    return {pageNo: safePage + 1, totalPages, safePage}
-  }
-}
-
-// Inline keyboard with total page count.
 export class StartInlineWithRangePage extends PageBase {
   static data = this.buildData((action?: string, page?: string) => [action, page])
 
@@ -50,11 +18,41 @@ export class StartInlineWithRangePage extends PageBase {
     await this.gdefault.process(action!, value!)
   }
 
+  helper = {
+    kb: (pageNo: number) => {
+      const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / ITEMS_PER_PAGE), 1)
+      const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
+      const start = safePage * ITEMS_PER_PAGE
+      const end = start + ITEMS_PER_PAGE
+      const items = CatalogData.menuItems.slice(start, end)
+      const kb = this.inlineKeyboard((k, l) => {
+        items.forEach((item) => {
+          k.text(item.name, this.data.callbackQueryData(`item`, item.id)).row()
+        })
+
+        k.row()
+        if (safePage > 0) {
+          k.text(l[0]!, this.data.callbackQueryData(`page`, String(safePage - 1)))
+        }
+        k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage)
+        if (safePage < totalPages - 1) {
+          k.text(l[1]!, this.data.callbackQueryData(`page`, String(safePage + 1)))
+        }
+        return k.row().text(l[3]!, StartPage)
+      })
+      return kb
+    },
+    pageData: (pageNo: number) => {
+      const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / ITEMS_PER_PAGE), 1)
+      const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
+      return {pageNo: safePage + 1, totalPages, safePage}
+    }
+  }
   gdefault = {
     show: async (pageNo: number) => {
-      const {pageNo: currentPage, totalPages, safePage} = Helper.pageData(pageNo)
+      const {pageNo: currentPage, totalPages, safePage} = this.helper.pageData(pageNo)
       const da = {pageNo: currentPage, totalPages}
-      const kb = Helper.kb(this, safePage)
+      const kb = this.helper.kb(safePage)
       await this.renderAuto(kb, da)
     },
     process: async (action: string, value: string) => {

@@ -1,16 +1,16 @@
+import {log} from "gramstax"
 import {BotCore} from "./core/bot"
 import {Env} from "./env"
-import {LogHe} from "./helpers/log"
 
 class Index {
   static async run() {
     // Entry point for the Bank System bot.
-    LogHe.info(`Starting 6-bank-system bot...`)
+    log.info(`Starting 6-bank-system bot...`)
 
     new BotCore({
       deploy: Env.TELEGRAM_BOT_DEPLOY,
       token: Env.TELEGRAM_BOT_TOKEN,
-      log: LogHe
+      log: log
     })
   }
 }

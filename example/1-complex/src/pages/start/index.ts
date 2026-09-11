@@ -29,53 +29,6 @@ class Base {
   static forImport = `for-block-import`
 }
 
-class Helper {
-  static kb(ctx: StartPage) {
-    return ctx.inlineKeyboard(
-      (k, l) => {
-        return k
-          .text(l[0]!, StartCounterPage) //
-          .text(l[1]!, StartCounterThreadPage)
-          .row()
-          .text(l[2]!, StartHelpPage)
-          .text(l[3]!, StartLanguagePage)
-          .row()
-          .text(l[4]!, StartTestPhotoPage)
-          .text(l[5]!, StartTestMediaGroupPage)
-          .row()
-          .text(l[6]!, StartTestVideoPage)
-          .text(l[7]!, StartTestAudioPage)
-          .row()
-          .text(l[8]!, StartTestDocumentPage)
-          .text(l[9]!, StartTestAnimationPage)
-          .row()
-          .text(l[10]!, StartTestVoicePage)
-          .text(l[11]!, StartTestVideoNotePage)
-          .row()
-          .text(l[12]!, StartTestStickerPage)
-          .text(l[13]!, StartTestLocationPage)
-          .row()
-          .text(l[14]!, StartTestContactPage)
-          .text(l[15]!, StartTestErrorPage)
-          .row()
-          .text(l[16]!, StartInputText2Page)
-          .text(l[17]!, StartInputTextPage)
-          .row()
-          .text(l[18]!, StartBlockMapPage)
-          .text(l[19]!, StartBlockImportPage)
-          .row()
-          .text(l[20]!, StartBlockSwitchPage)
-          .text(l[21]!, StartKeyboardBottomPage)
-          .row()
-          .text(l[22]!, StartStreamPage)
-          .row()
-          .text(l[23]!, ctx)
-      },
-      {cache: true, AGBaseId: Base.index}
-    )
-  }
-}
-
 export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
@@ -103,10 +56,52 @@ export class StartPage extends PageBase {
     await this.gindex.show(3)
   }
 
+  helper = {}
   gindex = {
     show: async (condition = 1) => {
       const bi = Base.index
-      const kb = Helper.kb(this)
+      const kb = this.inlineKeyboard(
+        (k, l) => {
+          return k
+            .text(l[0]!, StartCounterPage) //
+            .text(l[1]!, StartCounterThreadPage)
+            .row()
+            .text(l[2]!, StartHelpPage)
+            .text(l[3]!, StartLanguagePage)
+            .row()
+            .text(l[4]!, StartTestPhotoPage)
+            .text(l[5]!, StartTestMediaGroupPage)
+            .row()
+            .text(l[6]!, StartTestVideoPage)
+            .text(l[7]!, StartTestAudioPage)
+            .row()
+            .text(l[8]!, StartTestDocumentPage)
+            .text(l[9]!, StartTestAnimationPage)
+            .row()
+            .text(l[10]!, StartTestVoicePage)
+            .text(l[11]!, StartTestVideoNotePage)
+            .row()
+            .text(l[12]!, StartTestStickerPage)
+            .text(l[13]!, StartTestLocationPage)
+            .row()
+            .text(l[14]!, StartTestContactPage)
+            .text(l[15]!, StartTestErrorPage)
+            .row()
+            .text(l[16]!, StartInputText2Page)
+            .text(l[17]!, StartInputTextPage)
+            .row()
+            .text(l[18]!, StartBlockMapPage)
+            .text(l[19]!, StartBlockImportPage)
+            .row()
+            .text(l[20]!, StartBlockSwitchPage)
+            .text(l[21]!, StartKeyboardBottomPage)
+            .row()
+            .text(l[22]!, StartStreamPage)
+            .row()
+            .text(l[23]!, this)
+        },
+        {cache: true, AGBaseId: Base.index}
+      )
       const da = {
         firstName: this.from!.first_name,
         time: new Date().toString(),
@@ -122,7 +117,8 @@ export class StartPage extends PageBase {
         await this.deleteMessage()
         await this.renderRich(kb, da, bi)
       }
-    }
+    },
+    process: () => {}
   }
 
   static template = `

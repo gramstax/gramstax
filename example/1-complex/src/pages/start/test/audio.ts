@@ -8,11 +8,13 @@ export class StartTestAudioPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)])
       await this.renderEditAudio(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

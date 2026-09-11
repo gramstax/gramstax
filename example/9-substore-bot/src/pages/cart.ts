@@ -24,6 +24,7 @@ export class CartPage extends PageBase {
     }
   }
 
+  helper = {}
   gindex = {
     show: async () => {
       const cart = ((await this.cacheState.get(`${this.from!.id}:cart`)) ?? {}) as CartState
@@ -78,19 +79,21 @@ export class CartPage extends PageBase {
       await this.gindex.show()
     }
   }
-
   gempty = {
     show: async () => {
-      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.empty)
-      await this.renderAuto(kb, {}, Base.empty)
-    }
+      const bi = Base.empty
+      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, bi)
+      await this.renderAuto(kb, {}, bi)
+    },
+    process: () => {}
   }
-
   ginfoCleared = {
     show: async () => {
-      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.infoCleared)
-      await this.renderAuto(kb, {}, Base.infoCleared)
-    }
+      const bi = Base.infoCleared
+      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, bi)
+      await this.renderAuto(kb, {}, bi)
+    },
+    process: () => {}
   }
 
   static template = `

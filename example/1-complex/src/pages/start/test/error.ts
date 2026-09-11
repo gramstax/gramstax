@@ -7,11 +7,13 @@ export class StartTestErrorPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       // The error will be thrown to the GeneralErrorPage automatically because there is no try catch error handler in this area.
       await Promise.reject(new Error(`error from ${this.data.name}`))
-    }
+    },
+    process: () => {}
   }
 
   static template = `

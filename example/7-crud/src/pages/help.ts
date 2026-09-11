@@ -9,11 +9,13 @@ export class HelpPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage])
       await this.renderAuto(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

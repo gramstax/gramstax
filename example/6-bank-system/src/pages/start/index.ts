@@ -17,11 +17,13 @@ export class StartPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartBalancePage, StartDepositPage, StartWithdrawPage, StartTransferPage, StartHistoryPage], `2`)
       await this.renderAuto(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

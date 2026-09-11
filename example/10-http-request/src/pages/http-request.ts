@@ -12,82 +12,9 @@ class Base {
   static warnNetwork = `w-network`
 }
 
-class Helper {
-  static escapeHtml(text: string): string {
-    return text.replace(/&/g, `&amp;`).replace(/</g, `&lt;`).replace(/>/g, `&gt;`)
-  }
-
-  static formatHeaders(headers: Record<string, string>, limit = 10): string {
-    const entries = Object.entries(headers)
-    const shown = entries.slice(0, limit)
-    const lines = shown.map(([key, value]) => `  <code>${Helper.escapeHtml(key)}: ${Helper.escapeHtml(value)}</code>`)
-    if (entries.length > limit) {
-      lines.push(`  ... and ${entries.length - limit} more`)
-    }
-    return lines.join(`\n`)
-  }
-
-  static formatBody(body: string): string {
-    const truncated = body.length > 200 ? `${body.slice(0, 200)}\n... [${body.length} total chars]` : body
-    return Helper.escapeHtml(truncated)
-  }
-
-  static renderBody(result: IHttpResponse, viewMode: string): string {
-    if (viewMode === `raw`) {
-      return Helper.formatBody(result.rawBody)
-    }
-    const prettyBody = result.contentType.includes(`application/json`) ? HttpService.formatJson(result.rawBody) : result.rawBody
-    return Helper.formatBody(prettyBody)
-  }
-
-  static buildMethodKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT(
-      [
-        HttpRequestPage.data.callbackQueryData(`GET`), //
-        HttpRequestPage.data.callbackQueryData(`POST`),
-        HttpRequestPage.data.callbackQueryData(`PUT`),
-        HttpRequestPage.data.callbackQueryData(`DELETE`),
-        HttpRequestPage.data.callbackQueryData(`PATCH`),
-        StartPage
-      ],
-      `3`,
-      Base.method
-    )
-  }
-
-  static buildUrlKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`_back`), StartPage], `2`, Base.url)
-  }
-
-  static buildBodyKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`_back`), StartPage], `2`, Base.body)
-  }
-
-  static buildTokenKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`skip_token`), StartPage], `2`, Base.token)
-  }
-
-  static buildHomeKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([StartPage], `1`, Base.warnNetwork)
-  }
-
-  static buildSuccessKeyboard(ctx: HttpRequestPage, viewMode: string) {
-    const toggleLabel = viewMode === `formatted` ? `🔁 Raw` : `🔁 Formatted`
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`toggle_view`), StartPage], `2`, Base.success, {toggleLabel})
-  }
-}
-
 // HTTP Request page with multi-step flow: method selection → URL input → body input (if needed) → result.
 export class HttpRequestPage extends PageBase {
   static data = this.buildData((action: string) => [action])
-
-  // Binds the flow to both session listeners (text + callback args) so that
-  // continuation callbacks (skip_token, toggle_view, _back) route through
-  // session routing (id=1) — the auto session-clear on non-session handlers
-  // never wipes the in-flight flow state.
-  private _setFlowSession(params: Record<string, unknown>) {
-    return this.setSession([this.methodSessionFreeText(), this.methodSessionArgsCallbackQueryData()], params)
-  }
 
   async handleCallbackQueryData() {
     await this.gmethod.show()
@@ -129,21 +56,83 @@ export class HttpRequestPage extends PageBase {
     }
   }
 
+  helper = {
+    // Binds the flow to both session listeners (text + callback args) so that
+    // continuation callbacks (skip_token, toggle_view, _back) route through
+    // session routing (id=1) — the auto session-clear on non-session handlers
+    // never wipes the in-flight flow state.
+    setFlowSession: (params: Record<string, unknown>) => {
+      return this.setSession([this.methodSessionFreeText(), this.methodSessionArgsCallbackQueryData()], params)
+    },
+    escapeHtml: (text: string) => {
+      return text.replace(/&/g, `&amp;`).replace(/</g, `&lt;`).replace(/>/g, `&gt;`)
+    },
+    formatHeaders: (headers: Record<string, string>, limit = 10) => {
+      const entries = Object.entries(headers)
+      const shown = entries.slice(0, limit)
+      const lines = shown.map(([key, value]) => `  <code>${this.helper.escapeHtml(key)}: ${this.helper.escapeHtml(value)}</code>`)
+      if (entries.length > limit) {
+        lines.push(`  ... and ${entries.length - limit} more`)
+      }
+      return lines.join(`\n`)
+    },
+    formatBody: (body: string) => {
+      const truncated = body.length > 200 ? `${body.slice(0, 200)}\n... [${body.length} total chars]` : body
+      return this.helper.escapeHtml(truncated)
+    },
+    renderBody: (result: IHttpResponse, viewMode: string) => {
+      if (viewMode === `raw`) {
+        return this.helper.formatBody(result.rawBody)
+      }
+      const prettyBody = result.contentType.includes(`application/json`) ? HttpService.formatJson(result.rawBody) : result.rawBody
+      return this.helper.formatBody(prettyBody)
+    },
+    buildMethodKb: () => {
+      return this.inlineKeyboardT(
+        [
+          HttpRequestPage.data.callbackQueryData(`GET`), //
+          HttpRequestPage.data.callbackQueryData(`POST`),
+          HttpRequestPage.data.callbackQueryData(`PUT`),
+          HttpRequestPage.data.callbackQueryData(`DELETE`),
+          HttpRequestPage.data.callbackQueryData(`PATCH`),
+          StartPage
+        ],
+        `3`,
+        Base.method
+      )
+    },
+    buildUrlKb: () => {
+      return this.inlineKeyboardT([this.data.callbackQueryData(`_back`), StartPage], `2`, Base.url)
+    },
+    buildBodyKb: () => {
+      return this.inlineKeyboardT([this.data.callbackQueryData(`_back`), StartPage], `2`, Base.body)
+    },
+    buildTokenKb: () => {
+      return this.inlineKeyboardT([this.data.callbackQueryData(`skip_token`), StartPage], `2`, Base.token)
+    },
+    buildHomeKb: () => {
+      return this.inlineKeyboardT([StartPage], `1`, Base.warnNetwork)
+    },
+    buildSuccessKb: (viewMode: string) => {
+      const toggleLabel = viewMode === `formatted` ? `🔁 Raw` : `🔁 Formatted`
+      return this.inlineKeyboardT([this.data.callbackQueryData(`toggle_view`), StartPage], `2`, Base.success, {toggleLabel})
+    }
+  }
   gmethod = {
     show: async () => {
       await this.clearSession()
-      await this.renderAuto(Helper.buildMethodKeyboard(this), {}, Base.method)
-    }
+      await this.renderAuto(this.helper.buildMethodKb(), {}, Base.method)
+    },
+    process: () => {}
   }
-
   gurl = {
     show: async (method: string) => {
-      await this._setFlowSession({httpStep: `url`, httpMethod: method})
-      await this.renderAuto(Helper.buildUrlKeyboard(this), {method}, Base.url)
+      await this.helper.setFlowSession({httpStep: `url`, httpMethod: method})
+      await this.renderAuto(this.helper.buildUrlKb(), {method}, Base.url)
     },
     process: async (input: string, method: string, showToken = false) => {
       if (!HttpService.isValidUrl(input)) {
-        await this.renderAuto(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(input)}, Base.warnInvalid)
+        await this.renderAuto(this.helper.buildUrlKb(), {url: this.helper.escapeHtml(input)}, Base.warnInvalid)
         return
       }
 
@@ -154,7 +143,7 @@ export class HttpRequestPage extends PageBase {
       } else {
         try {
           const result = await HttpService.request(method, input)
-          await this._setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
+          await this.helper.setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
           await this.gsuccess.show(result, `formatted`)
         } catch (error) {
           await this.clearSession()
@@ -164,11 +153,10 @@ export class HttpRequestPage extends PageBase {
       }
     }
   }
-
   gtoken = {
     show: async (method: string, url: string) => {
-      await this._setFlowSession({httpStep: `token`, httpMethod: method, httpUrl: url})
-      await this.renderAuto(Helper.buildTokenKeyboard(this), {method, url: Helper.escapeHtml(url)}, Base.token)
+      await this.helper.setFlowSession({httpStep: `token`, httpMethod: method, httpUrl: url})
+      await this.renderAuto(this.helper.buildTokenKb(), {method, url: this.helper.escapeHtml(url)}, Base.token)
     },
     process: async (token: string | null) => {
       const session = await this.getSession()
@@ -179,7 +167,7 @@ export class HttpRequestPage extends PageBase {
       }
 
       if (HttpService.needsBody(method)) {
-        await this._setFlowSession({httpStep: `body`, httpMethod: method, httpUrl: url, httpToken: token})
+        await this.helper.setFlowSession({httpStep: `body`, httpMethod: method, httpUrl: url, httpToken: token})
         await this.gbody.show(method, url)
       } else {
         const headers: Record<string, string> = {}
@@ -188,7 +176,7 @@ export class HttpRequestPage extends PageBase {
         }
         try {
           const result = await HttpService.request(method, url, undefined, headers)
-          await this._setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
+          await this.helper.setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
           await this.gsuccess.show(result, `formatted`)
         } catch (error) {
           await this.clearSession()
@@ -198,12 +186,11 @@ export class HttpRequestPage extends PageBase {
       }
     }
   }
-
   gbody = {
     show: async (method: string, url: string) => {
-      await this._setFlowSession({httpStep: `body`, httpMethod: method, httpUrl: url})
-      const da = {method, url: Helper.escapeHtml(url)}
-      await this.renderAuto(Helper.buildBodyKeyboard(this), da, Base.body)
+      await this.helper.setFlowSession({httpStep: `body`, httpMethod: method, httpUrl: url})
+      const da = {method, url: this.helper.escapeHtml(url)}
+      await this.renderAuto(this.helper.buildBodyKb(), da, Base.body)
     },
     process: async (body: string) => {
       const session = await this.getSession()
@@ -220,7 +207,7 @@ export class HttpRequestPage extends PageBase {
       }
       try {
         const result = await HttpService.request(method, url, body, headers)
-        await this._setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
+        await this.helper.setFlowSession({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})
         await this.gsuccess.show(result, `formatted`)
       } catch (error) {
         await this.clearSession()
@@ -229,13 +216,12 @@ export class HttpRequestPage extends PageBase {
       }
     }
   }
-
   gsuccess = {
     show: async (result: IHttpResponse, viewMode = `formatted`) => {
-      const kb = Helper.buildSuccessKeyboard(this, viewMode)
+      const kb = this.helper.buildSuccessKb(viewMode)
       const emoji = result.status >= 200 && result.status < 300 ? `✅` : result.status >= 400 ? `❌` : `⚠️`
-      const headersText = Helper.formatHeaders(result.headers)
-      const bodyPreview = Helper.renderBody(result, viewMode)
+      const headersText = this.helper.formatHeaders(result.headers)
+      const bodyPreview = this.helper.renderBody(result, viewMode)
       const da = {
         status: result.status,
         statusText: result.statusText,
@@ -253,23 +239,23 @@ export class HttpRequestPage extends PageBase {
       if (!result) return
       const currentView = (session?.params?.httpViewMode as string) || `formatted`
       const newView = currentView === `formatted` ? `raw` : `formatted`
-      await this._setFlowSession({...session?.params, httpViewMode: newView})
+      await this.helper.setFlowSession({...session?.params, httpViewMode: newView})
       await this.gsuccess.show(result, newView)
     }
   }
-
   gwarnInvalid = {
     show: async (url: string) => {
-      await this.renderAuto(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(url)}, Base.warnInvalid)
-    }
+      await this.renderAuto(this.helper.buildUrlKb(), {url: this.helper.escapeHtml(url)}, Base.warnInvalid)
+    },
+    process: () => {}
   }
-
   gwarnNetwork = {
     show: async (url: string, errorMessage: string) => {
-      const kb = Helper.buildHomeKeyboard(this)
-      const da = {url: Helper.escapeHtml(url), errorMessage: Helper.escapeHtml(errorMessage)}
+      const kb = this.helper.buildHomeKb()
+      const da = {url: this.helper.escapeHtml(url), errorMessage: this.helper.escapeHtml(errorMessage)}
       await this.renderAuto(kb, da, Base.warnNetwork)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

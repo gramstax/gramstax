@@ -1,3 +1,4 @@
+// Main menu page for CRUD example.
 import {PageBase} from "~/base/page"
 import {CreatePage} from "./create"
 import {DeletePage} from "./delete"
@@ -6,7 +7,6 @@ import {HelpPage} from "./help"
 import {ListPage} from "./list"
 import {UpdatePage} from "./update"
 
-// Main menu page for CRUD example.
 export class StartPage extends PageBase {
   static data = this.buildData()
 
@@ -18,12 +18,14 @@ export class StartPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
       await this.renderAuto(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

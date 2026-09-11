@@ -23,6 +23,7 @@ export class StartCategoryPage extends PageBase {
     await this.gdefault.process(categoryId!)
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboard((k, l) => {

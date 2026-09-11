@@ -1,5 +1,5 @@
+import {log} from "gramstax"
 import {PageBase} from "../base/page.js"
-import {LogHe} from "../helpers/log.js"
 import {StartPage} from "./start.js"
 
 class Base {
@@ -13,20 +13,23 @@ export class StatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
+  helper = {}
   gerror = {
     show: async (funcName, error) => {
-      LogHe.errorMake(error, this.constructorName, funcName)
+      log.errorMake(error, this.constructorName, funcName)
 
       await this.clearSession()
       const kb = this.inlineKeyboardT([StartPage], `1`, Base.error)
       await this.renderAuto(kb, {}, Base.error)
-    }
+    },
+    process: () => {}
   }
   gnotFound = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage], `1`, Base.notFound)
       await this.renderAuto(kb, {}, Base.notFound)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

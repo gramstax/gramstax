@@ -1,15 +1,15 @@
+import {log} from "gramstax"
 import {BotCore} from "./core/bot"
 import {Env} from "./env"
-import {LogHe} from "./helpers/log"
 
 class Index {
   static async run() {
-    LogHe.info(`Starting 9-substore-bot...`)
+    log.info(`Starting 9-substore-bot...`)
 
     new BotCore({
       deploy: Env.TELEGRAM_BOT_DEPLOY,
       token: Env.TELEGRAM_BOT_TOKEN,
-      log: LogHe,
+      log: log,
       optionsPage: {
         shortCallbackQueryData: true
       }

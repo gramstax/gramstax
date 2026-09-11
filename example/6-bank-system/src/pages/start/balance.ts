@@ -9,6 +9,7 @@ export class StartBalancePage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const balance = this.bankStore.getBalance(this.from!.id)
@@ -16,7 +17,8 @@ export class StartBalancePage extends PageBase {
       const da = {balance: formatted}
       const kb = this.inlineKeyboardT([StartPage])
       await this.renderAuto(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

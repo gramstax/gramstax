@@ -14,6 +14,7 @@ export class StartItemDetailPage extends PageBase {
     await this.gdefault.show(categoryId!, itemId!)
   }
 
+  helper = {}
   gdefault = {
     show: async (categoryId: string, itemId: string) => {
       const item = CatalogData.getItemById(categoryId, itemId)
@@ -25,7 +26,8 @@ export class StartItemDetailPage extends PageBase {
         description: item?.description
       }
       await this.renderAuto(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

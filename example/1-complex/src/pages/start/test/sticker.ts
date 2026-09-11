@@ -8,11 +8,13 @@ export class StartTestStickerPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)])
       await this.renderEditSticker(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

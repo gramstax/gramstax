@@ -8,10 +8,12 @@ export class StartHelpPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       await this.renderAuto(this.inlineKeyboardT([StartPage]))
-    }
+    },
+    process: () => {}
   }
 
   static template = `

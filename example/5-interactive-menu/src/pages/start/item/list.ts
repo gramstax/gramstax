@@ -3,47 +3,46 @@ import {CatalogData} from "~/data/catalog"
 import {StartCategoryPage} from "../category"
 import {StartItemDetailPage} from "./detail"
 
-class Helper {
-  static kb(ctx: StartItemListPage, categoryId: string, pageNo: number, category = CatalogData.getCategoryById(categoryId)) {
-    if (!category) {
-      return ctx.inlineKeyboardT([StartCategoryPage])
-    }
-
-    const PAGE_SIZE = 3
-    const totalPages = Math.max(Math.ceil(category.items.length / PAGE_SIZE), 1)
-    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
-    const start = safePage * PAGE_SIZE
-    const end = start + PAGE_SIZE
-    const items = category.items.slice(start, end)
-    return ctx.inlineKeyboard((k, l) => {
-      items.forEach((item, index) => {
-        k.text(item.name, StartItemDetailPage.data.callbackQueryData(`detail`, categoryId, item.id))
-        if (index % 2 === 1) {
-          k.row()
-        }
-      })
-
-      k.row()
-      if (safePage > 0) {
-        k.text(l[0]!, ctx.data.callbackQueryData(`page`, `${safePage - 1}`))
-      }
-      if (safePage < totalPages - 1) {
-        k.text(l[1]!, ctx.data.callbackQueryData(`page`, `${safePage - 1}`))
-      }
-      return k.row().text(l[2]!, StartCategoryPage)
-    })
-  }
-}
-
 // Item list with pagination and dynamic buttons.
 export class StartItemListPage extends PageBase {
   static data = this.buildData((pageNo: string) => [pageNo])
 
   async handleArgsCallbackQueryData() {
-    const pageNo = this.callbackQueryDataArg
-    await this.gdefault.process(pageNo)
+    const [pageNo] = this.callbackQueryDataArgs
+    await this.gdefault.process(pageNo!)
   }
 
+  helper = {
+    kb: (categoryId: string, pageNo: number, category = CatalogData.getCategoryById(categoryId)) => {
+      if (!category) {
+        return this.inlineKeyboardT([StartCategoryPage])
+      }
+
+      const PAGE_SIZE = 3
+      const totalPages = Math.max(Math.ceil(category.items.length / PAGE_SIZE), 1)
+      const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
+      const start = safePage * PAGE_SIZE
+      const end = start + PAGE_SIZE
+      const items = category.items.slice(start, end)
+      return this.inlineKeyboard((k, l) => {
+        items.forEach((item, index) => {
+          k.text(item.name, StartItemDetailPage.data.callbackQueryData(`detail`, categoryId, item.id))
+          if (index % 2 === 1) {
+            k.row()
+          }
+        })
+
+        k.row()
+        if (safePage > 0) {
+          k.text(l[0]!, this.data.callbackQueryData(`page`, `${safePage - 1}`))
+        }
+        if (safePage < totalPages - 1) {
+          k.text(l[1]!, this.data.callbackQueryData(`page`, `${safePage - 1}`))
+        }
+        return k.row().text(l[2]!, StartCategoryPage)
+      })
+    }
+  }
   gdefault = {
     show: async (categoryId: string, pageNo = 0) => {
       await this.cacheState.set(`${this.from!.id}:category`, categoryId)
@@ -52,7 +51,7 @@ export class StartItemListPage extends PageBase {
       const categoryName = category?.name || `Unknown`
 
       const da = {category: categoryName}
-      const kb = Helper.kb(this, categoryId, pageNo, category)
+      const kb = this.helper.kb(categoryId, pageNo, category)
       await this.renderAuto(kb, da)
     },
     process: async (pageNo: string) => {

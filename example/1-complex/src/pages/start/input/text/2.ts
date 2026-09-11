@@ -21,6 +21,7 @@ export class StartInputText2Page extends PageBase {
     await this.gindex.process()
   }
 
+  helper = {}
   gindex = {
     show: async () => {
       const bi = Base.index
@@ -31,14 +32,14 @@ export class StartInputText2Page extends PageBase {
       await this.gsuccess.show()
     }
   }
-
   gsuccess = {
     show: async () => {
       const bi = Base.success
       const da = {res: this.msg?.text}
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

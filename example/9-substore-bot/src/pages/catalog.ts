@@ -21,6 +21,7 @@ export class CatalogPage extends PageBase {
     await this.gdefault.show(0)
   }
 
+  helper = {}
   gdefault = {
     show: async (pageNo = 0) => {
       const productPage = ProductCatalog.getPage(pageNo)

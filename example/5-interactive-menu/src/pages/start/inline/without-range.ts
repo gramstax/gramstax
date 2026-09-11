@@ -5,37 +5,6 @@ import {StartPage} from "~/pages/start"
 
 const ITEMS_PER_PAGE = 4
 
-class Helper {
-  static kb(ctx: StartInlineWithoutRangePage, pageNo: number) {
-    const safePage = Math.max(pageNo, 0)
-    const start = safePage * ITEMS_PER_PAGE
-    const end = start + ITEMS_PER_PAGE
-    const items = CatalogData.menuItems.slice(start, end)
-    const hasPrevious = safePage > 0
-    const hasMore = end < CatalogData.menuItems.length
-    return ctx.inlineKeyboard((k, l) => {
-      items.forEach((item) => {
-        k.text(item.name, ctx.data.callbackQueryData(`item`, item.id)).row()
-      })
-
-      k.row()
-      if (hasPrevious) {
-        k.text(l[0]!, ctx.data.callbackQueryData(`page`, String(safePage - 1)))
-      }
-      k.text(`${l[2]} ${safePage + 1}`, BlankPage)
-      if (hasMore) {
-        k.text(l[1]!, ctx.data.callbackQueryData(`page`, String(safePage + 1)))
-      }
-      return k.row().text(l[3]!, StartPage)
-    })
-  }
-
-  static pageData(pageNo: number) {
-    const safePage = Math.max(pageNo, 0)
-    return {pageNo: safePage + 1, safePage}
-  }
-}
-
 // Inline keyboard with page info (no total count).
 export class StartInlineWithoutRangePage extends PageBase {
   static data = this.buildData((step?: string, action?: string, page?: string) => [step, action, page])
@@ -49,11 +18,40 @@ export class StartInlineWithoutRangePage extends PageBase {
     await this.gdefault.process(action!, value!)
   }
 
+  helper = {
+    kb: (pageNo: number) => {
+      const safePage = Math.max(pageNo, 0)
+      const start = safePage * ITEMS_PER_PAGE
+      const end = start + ITEMS_PER_PAGE
+      const items = CatalogData.menuItems.slice(start, end)
+      const hasPrevious = safePage > 0
+      const hasMore = end < CatalogData.menuItems.length
+      return this.inlineKeyboard((k, l) => {
+        items.forEach((item) => {
+          k.text(item.name, this.data.callbackQueryData(`item`, item.id)).row()
+        })
+
+        k.row()
+        if (hasPrevious) {
+          k.text(l[0]!, this.data.callbackQueryData(`page`, String(safePage - 1)))
+        }
+        k.text(`${l[2]} ${safePage + 1}`, BlankPage)
+        if (hasMore) {
+          k.text(l[1]!, this.data.callbackQueryData(`page`, String(safePage + 1)))
+        }
+        return k.row().text(l[3]!, StartPage)
+      })
+    },
+    pageData: (pageNo: number) => {
+      const safePage = Math.max(pageNo, 0)
+      return {pageNo: safePage + 1, safePage}
+    }
+  }
   gdefault = {
     show: async (pageNo: number) => {
-      const {pageNo: currentPage, safePage} = Helper.pageData(pageNo)
+      const {pageNo: currentPage, safePage} = this.helper.pageData(pageNo)
       const da = {pageNo: currentPage}
-      const kb = Helper.kb(this, safePage)
+      const kb = this.helper.kb(safePage)
       await this.renderAuto(kb, da)
     },
     process: async (action: string, value: string) => {

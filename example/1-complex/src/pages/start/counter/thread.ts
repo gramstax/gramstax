@@ -16,6 +16,7 @@ export class StartCounterThreadPage extends PageBase {
     }
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const count = await IncrementJob.mtdGetCount() // difference thread

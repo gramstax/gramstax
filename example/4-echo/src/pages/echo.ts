@@ -16,12 +16,6 @@ class Base {
   static fcontact = `f-contact`
 }
 
-class Helper {
-  static kbIndex(ctx: EchoPage) {
-    return ctx.inlineKeyboardT([StartPage], `1`, Base.index)
-  }
-}
-
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
   static data = this.buildData()
@@ -74,13 +68,17 @@ export class EchoPage extends PageBase {
     await this.gfcontact.show()
   }
 
+  helper = {
+    kbIndex: () => this.inlineKeyboardT([StartPage], `1`, Base.index)
+  }
   gindex = {
     show: async () => {
       const bi = Base.index
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gftext = {
     show: async () => {
@@ -89,25 +87,28 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {text}
       const bi = Base.ftext
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gfphoto = {
     show: async () => {
       const caption = this.msg?.caption
-      const fileIdLargest = this.msg!.photo![this.msg!.photo!.length - 1]!.file_id
+      const photos = this.msg!.photo!
+      const fileIdLargest = photos[photos.length - 1]!.file_id
       if (caption?.startsWith(`/`)) {
         return null
       }
 
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {caption, fileId: fileIdLargest}
       const bi = Base.fphoto
       await this.renderPhoto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gfvideo = {
     show: async () => {
@@ -117,11 +118,12 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {caption, fileId}
       const bi = Base.fvideo
       await this.renderVideo(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gfaudio = {
     show: async () => {
@@ -131,11 +133,12 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {caption, fileId}
       const bi = Base.faudio
       await this.renderAudio(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gfdocument = {
     show: async () => {
@@ -145,11 +148,12 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {caption, fileId}
       const bi = Base.fdocument
       await this.renderDocument(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gfanimation = {
     show: async () => {
@@ -159,11 +163,12 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {caption, fileId}
       const bi = Base.fanimation
       await this.renderAnimation(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gfvoice = {
     show: async () => {
@@ -173,51 +178,56 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {caption, fileId}
       const bi = Base.fvoice
       await this.renderVoice(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gfvideoNote = {
     show: async () => {
       // not support caption
       const fileId = this.msg!.video_note!.file_id
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {fileId}
       const bi = Base.fvideoNote
       await this.renderVideoNote(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gfsticker = {
     show: async () => {
       // not support caption
       const fileId = this.msg!.sticker!.file_id
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {fileId}
       const bi = Base.fsticker
       await this.renderSticker(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gflocation = {
     show: async () => {
       // not support caption
       const {latitude, longitude} = this.msg!.location!
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {latitude, longitude}
       const bi = Base.flocation
       await this.renderLocation(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
   gfcontact = {
     show: async () => {
       // not support caption
       const {first_name, last_name, phone_number, user_id, vcard} = this.msg!.contact!
-      const kb = Helper.kbIndex(this)
+      const kb = this.helper.kbIndex()
       const da = {first_name, last_name, phone_number, user_id, vcard}
       const bi = Base.fcontact
       await this.renderContact(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

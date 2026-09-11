@@ -14,6 +14,7 @@ export class HistoryPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const raw = ((await this.cacheState.get(`${this.from!.id}:orders`)) ?? []) as OrderRecord[]
@@ -23,7 +24,8 @@ export class HistoryPage extends PageBase {
       const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`)
       const da = {history: OrderHistoryStore.formatHistory(history)}
       await this.renderAuto(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `
