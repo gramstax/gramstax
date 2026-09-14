@@ -27,17 +27,15 @@ class Base {
 
 const DEPOSIT_TIMEOUT = 300_000
 
-class Helper {
-  static kb(ctx: DepositPage, bi?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, bi)
-  }
-}
-
 export class DepositPage extends PageBase {
   static data = this.buildData()
 
   async handleCallbackQueryData() {
     await this.gamount.show(true)
+  }
+
+  helper = {
+    kb: (bi?: string) => this.inlineKeyboardT([StartPage], `1`, bi)
   }
 
   gamount = {
@@ -51,7 +49,7 @@ export class DepositPage extends PageBase {
 
 ## Notes
 
-- Order: imports → `Base` → UPPER consts → `Helper` → Page (`static data` first, handlers, `g*` objects, `static template` last). Skip sections a file does not need — never leave empty class blocks.
+- Order: imports → `Base` → UPPER consts → Page (`static data` first, handlers, instance `helper = {}`, `g*` objects, `static template` last). Skip sections a file does not need — never leave empty class blocks. The static `Helper` class pattern is retired: page-local logic lives in instance `helper = {}` (no `ctx` parameter, captures `this`).
 - `g<name>` maps from base id: no id → `gdefault`, `id="s1"` → `gs1`, `id="amount"` → `gamount`.
 - Instance `helper = {}` is MANDATORY alongside `g*`: every page that defines `g*` objects also defines an instance-level `helper = {}` field holding that page's small closures (keyboard builders, param readers), so `g*` show/process stay one-liner delegations to `this.helper.*` — easy to maintain, readable for humans.
 - Instance `helper` vs static `Helper` class: `helper = {}` holds per-page closures capturing `this` (no `ctx` parameter). The static `Helper` class is for shared utilities that take `ctx` explicitly (`Helper.kb(ctx, bi)`). Prefer instance `helper` for page-local logic:

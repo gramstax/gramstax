@@ -38,5 +38,6 @@ async handleSessionFreeText() {
 ## Notes
 
 - `setSessionFreeText(params?)` arms the next free-text step; `process*` validates it.
+- **Non-session handlers auto-clear**: once per dispatch, the first matched non-session route clears any existing session (`_clearSessionOnNonSession`) — so after a non-session handler runs, there is no session left to leak into the next update. Session routes never auto-clear. Guards: skipped entirely when the app registers no session routes, and no write happens when no session exists.
 - Session isolation across users/chats is enforced by the session key — e2e must still prove user A never affects user B (see `e2e-flows.md`).
 - Distributed deployments: enable the Redis `sessionLock` so concurrent updates for one user serialize (see `deploy-runtime.md`).
