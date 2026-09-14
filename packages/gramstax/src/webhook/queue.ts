@@ -20,7 +20,7 @@ export class WebhookQueue<T = unknown> {
   private head = 0
   private tail = 0
   private lengthCount = 0
-  private waitEnqueue: Array<() => void> = []
+  private waitEnqueue: Array<{resolve: () => void; reject: (error: Error) => void}> = []
   private waitDequeue: Array<(value: T) => void> = []
   private closed = false
 
@@ -80,21 +80,25 @@ export class WebhookQueue<T = unknown> {
       if (signal?.aborted) {
         throw new Error(`WebhookQueue enqueue aborted`)
       }
-      await new Promise<void>((resolve, reject) => {
-        const waiter = () => resolve()
-        this.waitEnqueue.push(waiter)
-        signal?.addEventListener(
-          `abort`,
-          () => {
+      let onAbort: (() => void) | undefined
+      try {
+        await new Promise<void>((resolve, reject) => {
+          const waiter = {resolve, reject}
+          onAbort = () => {
             const index = this.waitEnqueue.indexOf(waiter)
             if (index >= 0) {
               this.waitEnqueue.splice(index, 1)
             }
             reject(new Error(`WebhookQueue enqueue aborted`))
-          },
-          {once: true}
-        )
-      })
+          }
+          this.waitEnqueue.push(waiter)
+          signal?.addEventListener(`abort`, onAbort, {once: true})
+        })
+      } finally {
+        if (signal && onAbort) {
+          signal.removeEventListener(`abort`, onAbort)
+        }
+      }
     }
 
     if (this.closed) {
@@ -113,27 +117,83 @@ export class WebhookQueue<T = unknown> {
   }
 
   /**
+   * Offer a value without blocking.
+   *
+   * @param value - Value to enqueue.
+   * @returns `true` when the value was accepted (buffered or handed to a
+   * waiting dequeuer), `false` when the queue is closed or full.
+   * @public
+   */
+  tryEnqueue(value: T): boolean {
+    if (this.closed) {
+      return false
+    }
+    if (this.waitDequeue.length > 0) {
+      const resolve = this.waitDequeue.shift()!
+      resolve(value)
+      return true
+    }
+    if (this.lengthCount >= this.maxSize) {
+      return false
+    }
+    this.items[this.tail] = value
+    this.tail = (this.tail + 1) % this.maxSize
+    this.lengthCount++
+    return true
+  }
+
+  /**
    * Dequeue a value, blocking when the queue is empty.
    *
+   * @param signal - Optional AbortSignal to cancel a blocked dequeue.
    * @returns Promise resolved with the next value, or `undefined` when closed and empty.
    * @public
    */
-  async dequeue(): Promise<T> {
+  async dequeue(signal?: AbortSignal): Promise<T | undefined> {
     if (this.lengthCount > 0) {
       const value = this.items[this.head] as T
       this.items[this.head] = undefined
       this.head = (this.head + 1) % this.maxSize
       this.lengthCount--
-      const resolve = this.waitEnqueue.shift()
-      resolve?.()
+      const waiter = this.waitEnqueue.shift()
+      waiter?.resolve()
       return value
     }
 
     if (this.closed) {
-      return undefined as T
+      return undefined
     }
 
-    return await new Promise<T>((resolve) => this.waitDequeue.push(resolve))
+    if (signal?.aborted) {
+      throw new Error(`WebhookQueue dequeue aborted`)
+    }
+
+    return await new Promise<T>((resolve, reject) => {
+      let settled = false
+      const waiter = (value: T) => {
+        if (settled) {
+          return
+        }
+        settled = true
+        if (signal) {
+          signal.removeEventListener(`abort`, onAbort)
+        }
+        resolve(value)
+      }
+      const onAbort = () => {
+        if (settled) {
+          return
+        }
+        settled = true
+        const index = this.waitDequeue.indexOf(waiter)
+        if (index >= 0) {
+          this.waitDequeue.splice(index, 1)
+        }
+        reject(new Error(`WebhookQueue dequeue aborted`))
+      }
+      this.waitDequeue.push(waiter)
+      signal?.addEventListener(`abort`, onAbort, {once: true})
+    })
   }
 
   /**
@@ -153,8 +213,8 @@ export class WebhookQueue<T = unknown> {
     dequeuers.forEach((resolve) => {
       resolve(undefined as T)
     })
-    enqueuers.forEach((resolve) => {
-      resolve()
+    enqueuers.forEach((waiter) => {
+      waiter.reject(new Error(`WebhookQueue is closed`))
     })
   }
 

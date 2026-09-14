@@ -73,31 +73,22 @@ export class E2eHelper {
   private _nextMessageId = 1
   private _nextApiMsgId = 1
 
+  /** Bot API methods treated as internal: answered but never recorded in `calls`. Mirrors the mock allowlist. */
+  private static readonly _INTERNAL_METHODS = new Set([`getMe`, `getWebhookInfo`, `setWebhook`, `getMyCommands`, `getUpdates`])
+
   /** @param bot - The parent Gramstax instance. */
   constructor(private bot: Gramstax) {
     ;(this.bot.bot.api.config.use as unknown as (fn: (prev: unknown, method: string, payload: unknown) => Promise<unknown>) => void)(async (_prev, method, payload) => {
+      if (E2eHelper._INTERNAL_METHODS.has(method)) {
+        return this._internalResponse(method)
+      }
       this.calls.push({
         method,
         body: payload as Record<string, unknown>,
         timestamp: Date.now()
       })
-      if (method === `getMe`) {
-        return {ok: true, result: {id: 123456789, is_bot: true, first_name: `GramstaxMock`, username: `gramstax_mock_bot`}}
-      }
-      if (method === `getWebhookInfo`) {
-        return {ok: true, result: {url: ``}}
-      }
-      if (method === `setWebhook`) {
-        return {ok: true, result: true}
-      }
-      if (method === `getMyCommands`) {
-        return {ok: true, result: []}
-      }
       if (method === `setMyCommands`) {
         return {ok: true, result: true}
-      }
-      if (method === `getUpdates`) {
-        return {ok: true, result: []}
       }
       // Stream plugin API methods
       if (method === `sendMessageDraft`) {
@@ -146,9 +137,35 @@ export class E2eHelper {
       if (method === `promoteChatMember`) {
         return {ok: true, result: true} as unknown as never
       }
+      if (method.startsWith(`send`)) {
+        const chatId = (payload as unknown as {chat_id?: number})?.chat_id ?? 0
+        return {
+          ok: true,
+          result: {message_id: this._nextApiMsgId++, date: Math.floor(Date.now() / 1000), chat: {id: chatId, type: `private`}}
+        } as unknown as never
+      }
+      if (method.startsWith(`answer`) || method.startsWith(`edit`) || method.startsWith(`delete`) || method.startsWith(`copy`) || method.startsWith(`forward`) || method === `pinChatMessage` || method === `unpinChatMessage` || method === `setMessageReaction`) {
+        return {ok: true, result: true} as unknown as never
+      }
 
-      return {ok: true, result: {message_id: this._nextApiMsgId++}} as unknown as never
+      return {ok: true, result: true} as unknown as never
     })
+  }
+
+  private _internalResponse(method: string): unknown {
+    if (method === `getMe`) {
+      return {ok: true, result: {id: 123456789, is_bot: true, first_name: `GramstaxMock`, username: `gramstax_mock_bot`}}
+    }
+    if (method === `getWebhookInfo`) {
+      return {ok: true, result: {url: ``}}
+    }
+    if (method === `setWebhook`) {
+      return {ok: true, result: true}
+    }
+    if (method === `getMyCommands`) {
+      return {ok: true, result: []}
+    }
+    return {ok: true, result: []}
   }
 
   private _initialized = false
@@ -192,6 +209,21 @@ export class E2eHelper {
    */
   clearCalls() {
     this.calls.length = 0
+  }
+
+  /**
+   * Resets the helper: clears calls and restarts update/message counters.
+   *
+   * @remarks
+   * Unlike `clearCalls` (calls-only), `reset` also restores `_nextUpdateId`,
+   * `_nextMessageId`, `_nextApiMsgId` to `1` and requires re-initialization.
+   */
+  reset() {
+    this.calls.length = 0
+    this._nextUpdateId = 1
+    this._nextMessageId = 1
+    this._nextApiMsgId = 1
+    this._initialized = false
   }
 
   // ── template helpers ──────────────────────────────────────────
@@ -244,7 +276,8 @@ export class E2eHelper {
    * @returns The message text, or `undefined` if neither field is present.
    */
   extractText(call: ITE2eApiCall): string | undefined {
-    return (call?.body as any)?.rich_message?.html ?? (call?.body as any)?.text
+    const body = call?.body as {text?: string; caption?: string; rich_message?: {html?: string; markdown?: string}} | undefined
+    return body?.rich_message?.html ?? body?.rich_message?.markdown ?? body?.text ?? body?.caption
   }
 
   /**
@@ -254,39 +287,46 @@ export class E2eHelper {
    * @returns Flat array of button text labels.
    */
   extractButtonLabels(call: ITE2eApiCall): string[] {
-    return (call?.body?.reply_markup as any)?.inline_keyboard?.flat().map((b: any) => b.text) ?? []
+    const markup = (call?.body as {reply_markup?: {inline_keyboard?: unknown[][]; keyboard?: unknown[][]}} | undefined)?.reply_markup
+    const inline = markup?.inline_keyboard?.flat().map((b) => (typeof b === `string` ? b : (b as {text?: string} | null | undefined)?.text ?? ``)) ?? []
+    const bottom = markup?.keyboard?.flat().map((b) => (typeof b === `string` ? b : (b as {text?: string} | null | undefined)?.text ?? ``)) ?? []
+    return [...inline, ...bottom].filter((label) => label !== ``)
   }
 
   // ── update build helpers ──────────────────────────────────────
 
   private _defaultUser(user?: ITE2eUser) {
     return {
-      id: user?.id ?? 1001,
-      is_bot: user?.is_bot ?? false,
-      first_name: user?.first_name ?? `Test`,
-      ...(user?.last_name ? {last_name: user.last_name} : {}),
-      ...(user?.username ? {username: user.username} : {}),
-      language_code: user?.language_code ?? `en`
+      id: user !== undefined && `id` in user ? user.id : 1001,
+      is_bot: user !== undefined && `is_bot` in user ? user.is_bot : false,
+      first_name: user !== undefined && `first_name` in user ? user.first_name : `Test`,
+      ...(user !== undefined && `last_name` in user ? {last_name: user.last_name} : {}),
+      ...(user !== undefined && `username` in user ? {username: user.username} : {}),
+      language_code: user !== undefined && `language_code` in user ? user.language_code : `en`
     }
   }
 
   private _defaultChat(chat?: ITE2eChat) {
     return {
-      id: chat?.id ?? 1001,
-      type: chat?.type ?? `private`,
-      first_name: chat?.first_name ?? `Test`,
-      ...(chat?.last_name ? {last_name: chat.last_name} : {}),
-      ...(chat?.username ? {username: chat.username} : {}),
-      ...(chat?.title ? {title: chat.title} : {})
+      id: chat !== undefined && `id` in chat ? chat.id : 1001,
+      type: chat !== undefined && `type` in chat ? chat.type : `private`,
+      first_name: chat !== undefined && `first_name` in chat ? chat.first_name : `Test`,
+      ...(chat !== undefined && `last_name` in chat ? {last_name: chat.last_name} : {}),
+      ...(chat !== undefined && `username` in chat ? {username: chat.username} : {}),
+      ...(chat !== undefined && `title` in chat ? {title: chat.title} : {})
     }
   }
 
   private _nextIds(options?: ITE2eUpdateOptions) {
     return {
       updateId: this._nextUpdateId++,
-      messageId: options?.message_id ?? this._nextMessageId++,
-      date: options?.date ?? Math.floor(Date.now() / 1000)
+      messageId: options !== undefined && `message_id` in options ? options.message_id : this._nextMessageId++,
+      date: options !== undefined && `date` in options ? options.date : Math.floor(Date.now() / 1000)
     }
+  }
+
+  private _settleFrom(options: ITE2eUpdateOptions | undefined): number {
+    return (options as {settleMs?: number} | undefined)?.settleMs ?? 0
   }
 
   private _buildMessageUpdate(message: Record<string, unknown>, options?: ITE2eUpdateOptions) {
@@ -309,12 +349,12 @@ export class E2eHelper {
    * @param update - A raw Telegram Update object.
    * @returns All API calls made while processing this update.
    */
-  async handleUpdate(update: Record<string, unknown>): Promise<ITE2eApiCall[]> {
+  async handleUpdate(update: Record<string, unknown>, settleMs = 0): Promise<ITE2eApiCall[]> {
     await this._ensureInit()
     const startIndex = this.calls.length
-    await this.bot.bot.handleUpdate(update as any)
+    await this.bot.bot.handleUpdate(update as unknown as Parameters<Gramstax[`bot`][`handleUpdate`]>[0])
     // Allow microtasks to settle (some API calls may be deferred)
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, settleMs))
     return this.calls.slice(startIndex)
   }
 
@@ -329,7 +369,7 @@ export class E2eHelper {
    */
   async sendText(text: string, options?: ITE2eUpdateOptions) {
     const entities = text.startsWith(`/`) ? [{offset: 0, length: text.split(` `)[0]?.length ?? text.length, type: `bot_command`}] : undefined
-    return await this.handleUpdate(this._buildMessageUpdate({text, ...(entities ? {entities} : {})}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({text, ...(entities ? {entities} : {})}, options), this._settleFrom(options))
   }
 
   /**
@@ -339,7 +379,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendPhoto(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({photo: [{file_id: `mock-photo-file-id`, file_unique_id: `mock-photo-unique-id`, width: 1, height: 1}], ...(options?.caption ? {caption: options.caption} : {})}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({photo: [{file_id: `mock-photo-file-id`, file_unique_id: `mock-photo-unique-id`, width: 1, height: 1}], ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
   /**
@@ -349,7 +389,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendVideo(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({video: {file_id: `mock-video-file-id`, file_unique_id: `mock-video-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({video: {file_id: `mock-video-file-id`, file_unique_id: `mock-video-unique-id`, width: 1, height: 1, duration: 1}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
   /**
@@ -359,7 +399,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendAudio(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({audio: {file_id: `mock-audio-file-id`, file_unique_id: `mock-audio-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({audio: {file_id: `mock-audio-file-id`, file_unique_id: `mock-audio-unique-id`, duration: 1}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
   /**
@@ -369,7 +409,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendDocument(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({document: {file_id: `mock-document-file-id`, file_unique_id: `mock-document-unique-id`, file_name: `mock.txt`}, ...(options?.caption ? {caption: options.caption} : {})}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({document: {file_id: `mock-document-file-id`, file_unique_id: `mock-document-unique-id`, file_name: `mock.txt`}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
   /**
@@ -379,7 +419,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendAnimation(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({animation: {file_id: `mock-animation-file-id`, file_unique_id: `mock-animation-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({animation: {file_id: `mock-animation-file-id`, file_unique_id: `mock-animation-unique-id`, width: 1, height: 1, duration: 1}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
   /**
@@ -389,7 +429,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendVoice(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({voice: {file_id: `mock-voice-file-id`, file_unique_id: `mock-voice-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({voice: {file_id: `mock-voice-file-id`, file_unique_id: `mock-voice-unique-id`, duration: 1}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
   /**
@@ -399,7 +439,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendVideoNote(options?: ITE2eUpdateOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({video_note: {file_id: `mock-video-note-file-id`, file_unique_id: `mock-video-note-unique-id`, length: 1, duration: 1}}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({video_note: {file_id: `mock-video-note-file-id`, file_unique_id: `mock-video-note-unique-id`, length: 1, duration: 1}}, options), this._settleFrom(options))
   }
 
   /**
@@ -409,7 +449,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendSticker(options?: ITE2eUpdateOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({sticker: {file_id: `mock-sticker-file-id`, file_unique_id: `mock-sticker-unique-id`, type: `regular`, width: 1, height: 1, is_animated: false, is_video: false}}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({sticker: {file_id: `mock-sticker-file-id`, file_unique_id: `mock-sticker-unique-id`, type: `regular`, width: 1, height: 1, is_animated: false, is_video: false}}, options), this._settleFrom(options))
   }
 
   /**
@@ -419,7 +459,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendLocation(options?: ITE2eLocationOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({location: {latitude: options?.latitude ?? 0, longitude: options?.longitude ?? 0}}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({location: {latitude: options !== undefined && `latitude` in options ? options.latitude : 0, longitude: options !== undefined && `longitude` in options ? options.longitude : 0}}, options), this._settleFrom(options))
   }
 
   /**
@@ -433,14 +473,15 @@ export class E2eHelper {
       this._buildMessageUpdate(
         {
           contact: {
-            phone_number: options?.phone_number ?? `+10000000000`,
-            first_name: options?.first_name ?? `Test`,
-            ...(options?.last_name ? {last_name: options.last_name} : {}),
-            ...(options?.user_id ? {user_id: options.user_id} : {})
+            phone_number: options !== undefined && `phone_number` in options ? options.phone_number : `+10000000000`,
+            first_name: options !== undefined && `first_name` in options ? options.first_name : `Test`,
+            ...(options !== undefined && `last_name` in options ? {last_name: options.last_name} : {}),
+            ...(options !== undefined && `user_id` in options ? {user_id: options.user_id} : {})
           }
         },
         options
-      )
+      ),
+      this._settleFrom(options)
     )
   }
 
@@ -456,18 +497,18 @@ export class E2eHelper {
     return await this.handleUpdate({
       update_id: updateId,
       callback_query: {
-        id: options?.id ?? `mock-callback-${updateId}`,
+        id: options !== undefined && `id` in options ? options.id : `mock-callback-${updateId}`,
         from: this._defaultUser(options?.user),
         message: {
           message_id: messageId,
           date,
           chat: this._defaultChat(options?.chat),
-          text: options?.messageText ?? `Mock message`
+          text: options !== undefined && `messageText` in options ? options.messageText : `Mock message`
         },
         chat_instance: `mock-chat-instance`,
         data
       }
-    })
+    }, this._settleFrom(options))
   }
 
   /**
@@ -477,7 +518,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendDice(options?: ITE2eDiceOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({dice: {emoji: options?.emoji ?? `🎲`, value: 1}}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({dice: {emoji: options !== undefined && `emoji` in options ? options.emoji : `🎲`, value: 1}}, options), this._settleFrom(options))
   }
 
   /**
@@ -499,7 +540,7 @@ export class E2eHelper {
         text,
         edit_date: Math.floor(Date.now() / 1000)
       }
-    })
+    }, this._settleFrom(options))
   }
 
   /**
@@ -510,7 +551,7 @@ export class E2eHelper {
    */
   async sendNewChatMembers(options?: ITE2eUpdateOptions) {
     const user = this._defaultUser(options?.user)
-    return await this.handleUpdate(this._buildMessageUpdate({new_chat_members: [user]}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({new_chat_members: [user]}, options), this._settleFrom(options))
   }
 
   /**
@@ -531,7 +572,7 @@ export class E2eHelper {
         text,
         ...(text.startsWith(`/`) ? {entities: [{offset: 0, length: text.split(` `)[0]?.length ?? text.length, type: `bot_command`}]} : {})
       }
-    })
+    }, this._settleFrom(options))
   }
 
   /**
@@ -551,7 +592,7 @@ export class E2eHelper {
         user: this._defaultUser(options?.user),
         option_ids: optionIds
       }
-    })
+    }, this._settleFrom(options))
   }
 
   /**
@@ -571,7 +612,7 @@ export class E2eHelper {
         query,
         offset: ``
       }
-    })
+    }, this._settleFrom(options))
   }
 
   /**
@@ -591,7 +632,7 @@ export class E2eHelper {
         from: this._defaultUser(options?.user),
         query
       }
-    })
+    }, this._settleFrom(options))
   }
 
   // ── chat member helpers ────────────────────────────────────────
@@ -616,28 +657,28 @@ export class E2eHelper {
    */
   async sendChatMemberUpdate(options?: ITE2eChatMemberOptions) {
     const {updateId} = this._nextIds(options)
-    const botId = options?.botId ?? this.bot.bot.botInfo?.id ?? 123456789
-    const userId = options?.user?.id ?? 1001
-    const oldStatus = options?.oldStatus ?? `kicked`
-    const newStatus = options?.newStatus ?? `member`
+    const botId = options !== undefined && `botId` in options ? options.botId : (this.bot.bot.botInfo?.id ?? 123456789)
+    const userId = options?.user !== undefined && `id` in options.user ? options.user.id : 1001
+    const oldStatus = options !== undefined && `oldStatus` in options ? options.oldStatus : `kicked`
+    const newStatus = options !== undefined && `newStatus` in options ? options.newStatus : `member`
     return await this.handleUpdate({
       update_id: updateId,
       chat_member: {
         chat: this._defaultChat({...options?.chat, type: options?.chat?.type ?? `supergroup`}),
         from: this._defaultUser(options?.user),
-        date: options?.date ?? Math.floor(Date.now() / 1000),
+        date: options !== undefined && `date` in options ? options.date : Math.floor(Date.now() / 1000),
         old_chat_member: {
           user: {id: userId, is_bot: userId === botId, first_name: `User`},
           status: oldStatus,
-          ...(oldStatus === `restricted` ? {is_member: options?.oldIsMember ?? false} : {})
+          ...(oldStatus === `restricted` ? {is_member: options !== undefined && `oldIsMember` in options ? options.oldIsMember : false} : {})
         },
         new_chat_member: {
           user: {id: userId, is_bot: userId === botId, first_name: `User`},
           status: newStatus,
-          ...(newStatus === `restricted` ? {is_member: options?.newIsMember ?? true} : {})
+          ...(newStatus === `restricted` ? {is_member: options !== undefined && `newIsMember` in options ? options.newIsMember : true} : {})
         }
       }
-    })
+    }, this._settleFrom(options))
   }
 
   /**
@@ -659,15 +700,15 @@ export class E2eHelper {
    */
   async sendMyChatMemberUpdate(options?: ITE2eChatMemberOptions) {
     const {updateId} = this._nextIds(options)
-    const botId = options?.botId ?? this.bot.bot.botInfo?.id ?? 123456789
-    const oldStatus = options?.oldStatus ?? `left`
-    const newStatus = options?.newStatus ?? `member`
+    const botId = options !== undefined && `botId` in options ? options.botId : (this.bot.bot.botInfo?.id ?? 123456789)
+    const oldStatus = options !== undefined && `oldStatus` in options ? options.oldStatus : `left`
+    const newStatus = options !== undefined && `newStatus` in options ? options.newStatus : `member`
     return await this.handleUpdate({
       update_id: updateId,
       my_chat_member: {
         chat: this._defaultChat({...options?.chat, type: options?.chat?.type ?? `supergroup`}),
         from: {id: botId, is_bot: true, first_name: `GramstaxBot`},
-        date: options?.date ?? Math.floor(Date.now() / 1000),
+        date: options !== undefined && `date` in options ? options.date : Math.floor(Date.now() / 1000),
         old_chat_member: {
           user: {id: botId, is_bot: true, first_name: `GramstaxBot`},
           status: oldStatus
@@ -677,7 +718,7 @@ export class E2eHelper {
           status: newStatus
         }
       }
-    })
+    }, this._settleFrom(options))
   }
 
   // ── Bot API 10.3 helpers ──────────────────────────────────────
@@ -695,10 +736,10 @@ export class E2eHelper {
       update_id: updateId,
       stopped_message_generation: {
         chat: this._defaultChat(options?.chat),
-        draft_id: options?.draft_id ?? 1,
+        draft_id: options !== undefined && `draft_id` in options ? options.draft_id : 1,
         ...(options?.message_thread_id !== undefined ? {message_thread_id: options.message_thread_id} : {})
       }
-    })
+    }, this._settleFrom(options))
   }
 
   /**
@@ -720,7 +761,7 @@ export class E2eHelper {
    * @public
    */
   async sendCommunityChatJoined(options?: ITE2eUpdateOptions & {community?: {id?: number; name?: string}}) {
-    return await this.handleUpdate(this._buildMessageUpdate({community_chat_joined: {community: options?.community ?? {id: 1, name: `Test Community`}}}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({community_chat_joined: {community: options !== undefined && `community` in options ? options.community : {id: 1, name: `Test Community`}}}, options), this._settleFrom(options))
   }
 
   /**
@@ -732,7 +773,7 @@ export class E2eHelper {
    * @public
    */
   async sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITE2eUpdateOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({unique_gift: giftInfo}, options))
+    return await this.handleUpdate(this._buildMessageUpdate({unique_gift: giftInfo}, options), this._settleFrom(options))
   }
 
   // ── stream helpers ────────────────────────────────────────────
@@ -747,7 +788,7 @@ export class E2eHelper {
    * @returns Array of stream-related API calls.
    */
   streamCalls(): ITE2eApiCall[] {
-    return this.calls.filter((c) => c.method === `sendMessageDraft` || c.method === `sendRichMessageDraft` || c.method === `sendRichMessage` || c.method === `sendMessage`)
+    return this.calls.filter((c) => c.method === `sendMessageDraft` || c.method === `sendRichMessageDraft` || c.method === `sendRichMessage` || c.method === `sendMessage` || c.method === `editMessageText` || c.method === `editMessageCaption` || c.method === `editMessageMedia` || c.method === `editMessageReplyMarkup` || c.method === `editEphemeralMessageText` || c.method === `editEphemeralMessageCaption` || c.method === `editEphemeralMessageMedia` || c.method === `editEphemeralMessageReplyMarkup` || c.method === `deleteEphemeralMessage`)
   }
 
   /**

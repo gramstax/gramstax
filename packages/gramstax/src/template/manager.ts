@@ -10,7 +10,7 @@
  */
 
 import {existsSync, readdirSync, readFileSync, statSync, writeFileSync} from "node:fs"
-import {basename, extname, join, resolve} from "node:path"
+import {basename, extname, join, relative, resolve} from "node:path"
 import {type FSWatcher, watch} from "chokidar"
 import {PageManager} from "~/page/manager"
 import type {ITCompiledTemplate, ITTemplateOptions} from "~/types/t.template"
@@ -85,6 +85,41 @@ export class TemplateManager {
    * Defaults to `.html`, `.ts`, and `.js`.
    */
   _supportedExtensions = new Set([`.html`, `.ts`, `.js`])
+
+  /**
+   * Shared import-resolution cache reused across single-file reloads.
+   *
+   * @remarks
+   * `_loadAllFiles` uses a batch-local cache; `_loadFile` reuses this
+   * persistent cache so repeated watcher reloads share resolutions.
+   */
+  _importCache = new Map<string, string>()
+
+  /**
+   * Per-file debounce timers for watcher reloads.
+   *
+   * @internal
+   */
+  _reloadTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+  /**
+   * Serial chain for watcher reloads.
+   *
+   * @internal
+   */
+  _reloadChain: Promise<void> = Promise.resolve()
+
+  /**
+   * Internal miss sentinel for template getters.
+   *
+   * @remarks
+   * Contract: missing template/base/lang falls back `base → default` then
+   * `lang → default`. On total miss the getter throws `DEFER` internally and
+   * returns `` (message/description) or `[]` (keyboard) — empty-string and
+   * empty-array results from compiled templates are preserved, never treated
+   * as a miss.
+   */
+  static readonly _DEFER = Symbol(`DEFER`)
 
   /**
    * Base paths for scanning template files.
@@ -257,9 +292,9 @@ export class TemplateManager {
    * @public
    */
   _handleFileChange(filepath: string): void {
-    const filename = basename(filepath)
-    if (this._isValidFile(filename)) {
-      this._loadFile(filename)
+    const relativePath = this._toRelative(filepath)
+    if (this._isValidFile(basename(relativePath))) {
+      this._queueReload(relativePath)
     }
   }
 
@@ -280,9 +315,9 @@ export class TemplateManager {
    * @public
    */
   _handleFileAdd(filepath: string): void {
-    const fileName = basename(filepath)
-    if (this._isValidFile(fileName)) {
-      this._loadFile(fileName)
+    const relativePath = this._toRelative(filepath)
+    if (this._isValidFile(basename(relativePath))) {
+      this._queueReload(relativePath)
     }
   }
 
@@ -302,11 +337,50 @@ export class TemplateManager {
    * @public
    */
   _handleFileDelete(filepath: string): void {
-    const fileName = basename(filepath)
-    const fileKey = this._getKey(fileName)
+    const relativePath = this._toRelative(filepath)
+    const fileKey = this._getKey(relativePath)
     if (this._map.has(fileKey)) {
       this._map.delete(fileKey)
     }
+  }
+
+  /**
+   * Resolves a watcher absolute path to a path relative to its base dir.
+   *
+   * @internal
+   */
+  _toRelative(filepath: string): string {
+    const abs = resolve(filepath)
+    for (let index = 0; index < this._path.length; index++) {
+      const root = resolve(this._path[index] as string)
+      if (abs === root || abs.startsWith(`${root}/`) || abs.startsWith(`${root}\\`)) {
+        return relative(root, abs).replace(/\\/g, `/`)
+      }
+    }
+    return basename(filepath)
+  }
+
+  /**
+   * Enqueues a debounced serial reload for one relative path.
+   *
+   * @internal
+   */
+  _queueReload(relativePath: string): void {
+    const prev = this._reloadTimers.get(relativePath)
+    if (prev !== undefined) {
+      clearTimeout(prev)
+    }
+    const timer = setTimeout(() => {
+      this._reloadTimers.delete(relativePath)
+      this._reloadChain = this._reloadChain.then(async () => {
+        try {
+          this._loadFile(relativePath)
+        } catch (error) {
+          this._handleWatchError(error)
+        }
+      })
+    }, 30)
+    this._reloadTimers.set(relativePath, timer)
   }
 
   /**
@@ -424,21 +498,25 @@ export class TemplateManager {
     for (let index = 0; index < this._path.length; index++) {
       const it = this._path[index] as string
       const path = join(it, filename)
+      if (!existsSync(path)) {
+        continue
+      }
       const ext = this._getExtension(filename)
       const key = this._getKey(filename)
 
       if (ext === `.html`) {
         const raw = readFileSync(path, `utf8`)
-        this._compile(key, raw, undefined, undefined, undefined, filename)
+        this._compile(key, raw, undefined, this._importCache, undefined, filename)
       } else if (ext === `.ts` || ext === `.js`) {
         const Page = PageManager.getFileSync(path)
         if (Page?.template !== undefined) {
-          this._compile(key, Page.template, undefined, undefined, undefined, filename)
+          this._compile(key, Page.template, undefined, this._importCache, undefined, filename)
           Page.template = undefined // Cleanup single file as well
         }
       } else {
         throw new Error(`File ${filename} is not support`)
       }
+      break
     }
     this._onReload?.()
   }
@@ -570,7 +648,7 @@ export class TemplateManager {
    * @public
    */
   _getGBaseAtLine(template: string, line: number): {AGBaseId: string | null; hasId: boolean} | null {
-    const openRegex = /<base\b([^>]*?)>/gi
+    const openRegex = /<g-base\b([^>]*?)>/gi
     const closeRegex = /<\/g-base>/gi
     const lines = line
     let openMatch: RegExpExecArray | null
@@ -754,8 +832,8 @@ export class TemplateManager {
    */
   getGMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]> {
     const map = this._map.get(key)
-    const one = map?.media?.[AGBaseId]
-    const func = one?.[ALang] || one?.default
+    const one = map?.media?.[AGBaseId] ?? map?.media?.default
+    const func = one?.[ALang] ?? one?.default
 
     if (!func) {
       throw new Error(`Media function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
@@ -788,10 +866,10 @@ export class TemplateManager {
   getGMessage(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
     try {
       const map = this._map.get(key)
-      const one = map?.message?.[AGBaseId]
-      const func = one?.[ALang] || one?.default
+      const one = map?.message?.[AGBaseId] ?? map?.message?.default
+      const func = one?.[ALang] ?? one?.default
       if (!func) {
-        throw ``
+        throw TemplateManager._DEFER
       }
 
       return func(data)
@@ -825,10 +903,10 @@ export class TemplateManager {
   getGDescription(key: string, AGBaseId = `default`, ALang = `default`, AScope = `default`, data?: Record<string, unknown>): string {
     try {
       const map = this._map.get(key)
-      const one = map?.description?.[AGBaseId]?.[AScope]
-      const func = one?.[ALang] || one?.default
+      const one = map?.description?.[AGBaseId]?.[AScope] ?? map?.description?.default?.[AScope]
+      const func = one?.[ALang] ?? one?.default
       if (!func) {
-        throw ``
+        throw TemplateManager._DEFER
       }
 
       return func(data)
@@ -927,10 +1005,10 @@ export class TemplateManager {
   getGKeyboard(key: string, AGBaseId = `default`, ALang = `default`, AType: `inline` | `bottom` = `inline`, data?: Record<string, unknown>): string[] {
     try {
       const map = this._map.get(key)
-      const one = map?.keyboard?.[AGBaseId]
-      const func = one?.[ALang]?.[AType] || one?.default?.[AType]
+      const one = map?.keyboard?.[AGBaseId] ?? map?.keyboard?.default
+      const func = one?.[ALang]?.[AType] ?? one?.default?.[AType]
       if (!func) {
-        throw []
+        throw TemplateManager._DEFER
       }
 
       return func(data)
@@ -999,6 +1077,31 @@ export class TemplateManager {
     return this._map.has(key)
   }
 
+  async closeWatchers(): Promise<void> {
+    if (this._watcher) {
+      for (const wt of this._watcher) {
+        wt.removeAllListeners()
+        await wt.close()
+      }
+      this._watcher = []
+    }
+    for (const timer of this._reloadTimers.values()) {
+      clearTimeout(timer)
+    }
+    this._reloadTimers.clear()
+    await this._reloadChain
+  }
+
+  /**
+   * Clears compiled template and import caches.
+   *
+   * @public
+   */
+  clearCache(): void {
+    this._map.clear()
+    this._importCache.clear()
+  }
+
   /**
    * Cleans up resources and closes file watchers.
    *
@@ -1020,13 +1123,7 @@ export class TemplateManager {
    * @public
    */
   async destroy(): Promise<void> {
-    if (this._watcher) {
-      for (const wt of this._watcher) {
-        wt.removeAllListeners()
-        await wt.close()
-      }
-      this._watcher = []
-    }
-    this._map.clear()
+    await this.closeWatchers()
+    this.clearCache()
   }
 }

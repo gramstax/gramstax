@@ -220,13 +220,16 @@ describe(`TemplateManager`, () => {
 
       // Write the page AFTER construction: _loadAllFiles consumes and clears
       // Page.template, which would mask the jsPath regression under test.
-      await writeFile(join(TEST_DIR, `js_page.js`), [`export class JsPage {}`, `JsPage.template = \`<g-base><g-message>JS Content</g-message></g-base>\``].join(`\n`))
+      await writeFile(join(TEST_DIR, `js_page.js`), [`export class JsPage {`, `  constructor() {}`, `  static load() { return new JsPage() }`, `}`, `JsPage.template = \`<g-base><g-message>JS Content</g-message></g-base>\``].join(`\n`))
 
       const jsContent = manager._readTemplateFile(`js_page`)
       expect(jsContent).toBe(`<g-base><g-message>JS Content</g-message></g-base>`)
 
       const explicitJs = manager._readTemplateFile(`js_page.js`)
       expect(explicitJs).toBe(`<g-base><g-message>JS Content</g-message></g-base>`)
+
+      const jsMod = (await import(join(TEST_DIR, `js_page.js`))) as unknown as {JsPage: {load: () => object}}
+      expect(jsMod.JsPage.load()).toBeDefined()
     })
 
     it(`should throw error when imported template content contains unsupported block`, async () => {

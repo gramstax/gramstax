@@ -53,6 +53,7 @@ export type ITCacheRpc = {method: string | string[]; params: Record<string, unkn
  * @public
  */
 export class CacheExternal<V = unknown> extends Keyv<V> {
+  public url: string
   /**
    * Creates a new CacheExternal instance.
    *
@@ -62,17 +63,23 @@ export class CacheExternal<V = unknown> extends Keyv<V> {
    * @param more - Additional Keyv options. Use `forceStore` to override automatic store selection.
    */
   constructor(
-    public url: string = `memory`,
+    url: string = `memory`,
     ttl?: number,
     namespace?: string,
     more?: ITMore
   ) {
-    let store: Map<unknown, unknown> | KeyvRedis<unknown> | unknown = {}
-    if (url.startsWith(`redis`)) store = new KeyvRedis(url)
-    if (url === `memory`) store = new Map()
-    if (more?.forceStore) store = more.forceStore
-
-    super({store, namespace, ttl})
+    let store: unknown
+    if (more?.forceStore !== undefined && more?.forceStore !== null) {
+      store = more.forceStore
+    } else if (url === `memory`) {
+      store = new Map()
+    } else if (url.startsWith(`redis`)) {
+      store = new KeyvRedis(url)
+    } else {
+      throw new Error(`Unsupported cache storage URL "${url}". Use "memory", a "redis://..." URL, or pass more.forceStore.`)
+    }
+    super({store: store as never, namespace, ttl, throwOnErrors: true})
+    this.url = url
   }
 
   /**
@@ -96,16 +103,17 @@ export class CacheExternal<V = unknown> extends Keyv<V> {
    * ```
    * @public
    */
-  refreshLruCache(maxLength?: number) {
-    const store = this.store as Map<unknown, unknown>
-    const nsLen = this.opts.namespace ? this.opts.namespace?.length + 1 : null
-    const keys = store.keys().toArray()
-    for (let i = 0; i < keys.length; i++) {
-      const k = keys[i] as string
-      if (i === maxLength) {
-        return
-      }
-      this.get(nsLen ? k.slice(nsLen) : k)
+  async refreshLruCache(maxLength?: number): Promise<void> {
+    const store: unknown = this.store
+    if (!(store instanceof Map)) {
+      return
+    }
+    const keys = Array.from(store.keys())
+    const nsLen = this.opts.namespace ? this.opts.namespace.length + 1 : 0
+    const limit = maxLength ?? keys.length
+    for (let i = 0; i < keys.length && i < limit; i++) {
+      const k = String(keys[i])
+      await this.get(nsLen ? k.slice(nsLen) : k)
     }
   }
 }

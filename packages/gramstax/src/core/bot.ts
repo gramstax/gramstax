@@ -51,7 +51,7 @@ type ITCustomRouteEntry = {
 class UpdateTimeoutError extends Error {}
 
 /**
- * Maps every built-in grammY event subscription (constructor) to its listenerName.
+ * Maps every built-in grammY `bot.on(...)` event subscription (constructor) to its listenerName.
  *
  * @remarks
  * Used by `registerCustomRoute` to detect events that already have a built-in
@@ -61,9 +61,10 @@ class UpdateTimeoutError extends Error {}
  * terminates the chain). Instead the custom route is dispatched by the built-in
  * subscription through routing id=6 (custom routes).
  *
- * Keep this in sync with the constructor registration block.
+ * Filter-backed subscriptions (`bot.filter(...)`) live in `_BUILT_IN_FILTER`.
+ * Keep both maps in sync with the constructor registration block.
  */
-const _BUILT_IN_LISTENERS = new Map<string, string>([
+const _BUILT_IN_ON = new Map<string, string>([
   [`callback_query:data`, `callbackquerydata`],
   [`message:text`, `text`],
   [`message:photo`, `photo`],
@@ -102,19 +103,16 @@ const _BUILT_IN_LISTENERS = new Map<string, string>([
   [`message:refunded_payment`, `refundedpayment`],
   [`message:group_chat_created`, `groupchatcreated`],
   [`message:supergroup_chat_created`, `supergroupchatcreated`],
-  [`message:channel_chat_created`, `channelchatcreated`],
   [`message:video_chat_started`, `videochatstarted`],
   [`message:video_chat_scheduled`, `videochatscheduled`],
   [`message:video_chat_ended`, `videochatended`],
   [`message:video_chat_participants_invited`, `videochatparticipantsinvited`],
-  [`message:users_shared`, `usershared`],
   [`message:chat_shared`, `chatshared`],
   [`message:web_app_data`, `webappdata`],
   [`message:giveaway`, `giveaway`],
   [`message:giveaway_created`, `giveawaycreated`],
   [`message:giveaway_winners`, `giveawaywinners`],
   [`message:giveaway_completed`, `giveawaycompleted`],
-  [`message:pinned_message`, `pinmessage`],
   [`message:forum_topic_created`, `forumtopiccreated`],
   [`message:forum_topic_edited`, `forumtopicedited`],
   [`message:forum_topic_closed`, `forumtopicclosed`],
@@ -132,6 +130,22 @@ const _BUILT_IN_LISTENERS = new Map<string, string>([
   [`message:write_access_allowed`, `writeaccessallowed`],
   [`message:community_chat_joined`, `communitychatjoined`],
   [`stopped_message_generation`, `stoppedgeneration`]
+])
+
+/**
+ * Maps every built-in grammY `bot.filter(...)` subscription (constructor) to its listenerName.
+ *
+ * @remarks
+ * Same dispatch contract as `_BUILT_IN_ON`, but for the three events the
+ * constructor subscribes via `bot.filter(predicate, ...)` instead of
+ * `bot.on(...)`. Kept as a separate map so `registerCustomRoute` can tell
+ * the subscription kind apart. Keep in sync with the constructor
+ * registration block.
+ */
+const _BUILT_IN_FILTER = new Map<string, string>([
+  [`message:channel_chat_created`, `channelchatcreated`],
+  [`message:users_shared`, `usershared`],
+  [`message:pinned_message`, `pinmessage`]
 ])
 
 const __dirname = dirname(
@@ -298,6 +312,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   _onTrace?: (span: {name: string; durationMs: number; attributes: Record<string, unknown>}) => void
   /** Max consecutive polling failures before giving up (-1 = infinite). @internal */
   _pollingMaxRetries = 5
+  /** Set once `stop()` begins; the polling loop checks it before every retry. @internal */
+  _pollingStopped = false
+  /** Active polling backoff sleep timer (cleared by `stop()`). @internal */
+  _pollingSleepTimer?: ReturnType<typeof setTimeout>
+  /** Resolver for the active polling backoff sleep (settled by `stop()`). @internal */
+  _pollingSleepResolve?: () => void
   /** Hostname for the status/health server. @internal */
   _statusServerHostname = `127.0.0.1`
   /** Optional HTTP port for `/health` and `/stats`. @internal */
@@ -310,6 +330,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   _traceSeq = 0
   /** Optional status/health HTTP server (any deploy mode). @internal */
   _statusServer?: {stop: () => void}
+
+  /**
+   * Resolves once the startup hooks (`hookBeforeStart`/`hookAfterStart`)
+   * complete for constructor-driven modes (`raw`, `test`).
+   *
+   * @remarks
+   * The constructor cannot `await`, so sync construction is preserved
+   * (hooks still fire in order) while async completion is observable here.
+   */
+  ready: Promise<void> = Promise.resolve()
 
   /**
    * Handler function for processing bot updates.
@@ -480,13 +510,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.use(stream() as Middleware<Context>)
     if (params.rateLimit) {
       const {windowMs, max} = params.rateLimit
+      const rateCtxCache = new WeakMap<object, ICtx>()
+      const getRateCtx = (raw: Context): ICtx => {
+        let cached = rateCtxCache.get(raw)
+        if (!cached) {
+          cached = this.createCtx(raw as unknown as ITCt)
+          rateCtxCache.set(raw, cached)
+        }
+        return cached
+      }
       this.bot.use(
         limit({
           timeFrame: windowMs,
           limit: max,
-          keyGenerator: (ctx) => (this.hookKeyGenerator ? this.hookKeyGenerator(this.createCtx(ctx as unknown as ITCt)) : ctx.from?.id?.toString()),
+          keyGenerator: (ctx) => (this.hookKeyGenerator ? this.hookKeyGenerator(getRateCtx(ctx)) : ctx.from?.id?.toString()),
           onLimitExceeded: (ctx) => {
-            void this.hookRateLimited?.(this.createCtx(ctx as unknown as ITCt))
+            void this.hookRateLimited?.(getRateCtx(ctx))
           }
         })
       )
@@ -518,7 +557,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (params.deploy === `raw`) {
       this.deployType = `raw`
       this.pages = this._buildEmptyPages()
-      this.hookBeforeStart?.()
+      this.ready = Promise.resolve(this.hookBeforeStart?.()).then(() => undefined)
       return
     }
     // ─────────────────────────────────────────────────────────────────────
@@ -633,7 +672,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     if (params.deploy.startsWith(`polling`)) {
       this.deployType = `polling`
-      void this._runPolling()
+      void this._runPolling().catch((error) => this._onStartupError(error))
     } else if (params.deploy.startsWith(`webhook:`)) {
       this.deployType = `webhook`
       void this._runWebhook(params.deploy.split(`webhook:`)[1] as string).catch((error) => this._onStartupError(error))
@@ -642,9 +681,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       void this._runServerless(params.deploy.split(`serverless:`)[1] as string).catch((error) => this._onStartupError(error))
     } else if (params.deploy.startsWith(`test`)) {
       this.deployType = `test`
-      this.hookBeforeStart?.()
+      const beforeHook = this.hookBeforeStart
+      const afterHook = this.hookAfterStart
       this.e2e = new E2eHelper(this)
-      this.hookAfterStart?.()
+      this.ready = (async () => {
+        await beforeHook?.call(this)
+        await afterHook?.call(this)
+      })()
       // nothing, for test unit internal area
     } else {
       throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>, raw`)
@@ -659,6 +702,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   async stop() {
+    this._pollingStopped = true
+    if (this._pollingSleepTimer) {
+      clearTimeout(this._pollingSleepTimer)
+      this._pollingSleepTimer = undefined
+    }
+    this._pollingSleepResolve?.()
+    this._pollingSleepResolve = undefined
     if (this._onSigint) {
       process.removeListener(`SIGINT`, this._onSigint)
     }
@@ -963,7 +1013,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  async hookAfterRoute?(ctx: ICtx, data?: {listenerName: string; state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` | `notfound`; isEdit: boolean}): Promise<void>
+  async hookAfterRoute?(ctx: ICtx, data?: {listenerName: string; state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout`; isEdit: boolean}): Promise<void>
 
   /**
    * Hook called when a page handler throws an error.
@@ -1112,11 +1162,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @internal
    */
   async _runPolling(): Promise<void> {
-    await this.hookBeforeStart?.()
+    try {
+      await this.hookBeforeStart?.()
+    } catch (error) {
+      this._onStartupError(error)
+      return
+    }
     const opts: Record<string, unknown> = {
-      onStart: (botInfo: UserFromGetMe) => {
-        this._onStart(botInfo, `polling`, null)
-      }
+      onStart: (botInfo: UserFromGetMe) => this._onStart(botInfo, `polling`, null)
     }
     // Request all update types to receive channel posts, inline queries,
     // reactions, poll updates, join requests, etc.
@@ -1138,10 +1191,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @internal
    */
   async _startPollingLoop(opts: Record<string, unknown>, attempt: number): Promise<void> {
-    opts.drop_pending_updates = attempt === 0
+    if (this._pollingStopped) {
+      return
+    }
+    const attemptOpts = {...opts, drop_pending_updates: attempt === 0}
     try {
-      await this.bot.start(opts)
+      await this.bot.start(attemptOpts)
     } catch (error) {
+      if (this._pollingStopped) {
+        return
+      }
       this.metrics.counts.updatesFailed += 1
       this._emitUpdateError({traceId: `polling`, listenerName: `polling`, state: `error`, error, durationMs: 0, isEdit: false})
       if (this._pollingMaxRetries >= 0 && attempt >= this._pollingMaxRetries) {
@@ -1151,7 +1210,23 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
       const delay = Math.min(60_000, 1000 * 2 ** attempt)
       this.log?.error?.(`[Polling] attempt ${attempt + 1} failed, retrying in ${delay}ms: ${String(error)}`)
-      await new Promise((resolve) => setTimeout(resolve, delay))
+      await new Promise<void>((resolve) => {
+        if (this._pollingStopped) {
+          resolve()
+          return
+        }
+        this._pollingSleepResolve = resolve
+        this._pollingSleepTimer = setTimeout(() => {
+          this._pollingSleepTimer = undefined
+          this._pollingSleepResolve = undefined
+          resolve()
+        }, delay)
+      })
+      this._pollingSleepTimer = undefined
+      this._pollingSleepResolve = undefined
+      if (this._pollingStopped) {
+        return
+      }
       await this._startPollingLoop(opts, attempt + 1)
     }
   }
@@ -2035,7 +2110,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
       seenNames.add(pd.name)
 
-      // Check uniqueness of all language variants for intentText
+      // Check uniqueness against the final routing keys (with `/` and `lang:` prefixes)
       const _checkIntentVariants = (variant: string, seen: Set<string>, label: string) => {
         if (seen.has(variant)) {
           throw new Error(`Duplicate ${label} "${variant}" in ${path} (${page.name}). Each intentText/intentCommandText variant must be unique across all pages.`)
@@ -2043,27 +2118,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         seen.add(variant)
       }
       if (pd.intentTextMap) {
-        for (const [, intent] of Object.entries(pd.intentTextMap)) {
-          _checkIntentVariants(intent, seenIntentText, `intentText variant`)
+        for (const [lang, intent] of Object.entries(pd.intentTextMap)) {
+          _checkIntentVariants(`${lang}:${intent}`, seenIntentText, `intentText variant`)
         }
       } else if (pd.intentText) {
         _checkIntentVariants(pd.intentText, seenIntentText, `intentText`)
       }
       if (pd.intentCommandTextMap) {
         for (const [, intent] of Object.entries(pd.intentCommandTextMap)) {
-          _checkIntentVariants(intent, seenIntentCommandText, `intentCommandText variant`)
+          if (intent) _checkIntentVariants(`/${intent}`, seenIntentCommandText, `intentCommandText variant`)
         }
       } else if (pd.intentCommandText) {
-        _checkIntentVariants(pd.intentCommandText, seenIntentCommandText, `intentCommandText`)
+        _checkIntentVariants(`/${pd.intentCommandText}`, seenIntentCommandText, `intentCommandText`)
       }
-
-      if (pd.intentCallbackQueryData && seenIntentCallbackQueryData.has(pd.intentCallbackQueryData)) {
-        throw new Error(`Duplicate intentCallbackQueryData "${pd.intentCallbackQueryData}" in ${path} (${page.name}). Pages must have unique intentCallbackQueryData values for callback query routing. Override via buildData({callbackQueryData: ...}).`)
-      }
-      if (pd.intentCallbackQueryData) seenIntentCallbackQueryData.add(pd.intentCallbackQueryData)
 
       this._pageSorts(page, pages, index) // sort route method
-      page.template = undefined // delete template for efficient memory
+
+      // Callback duplicate check runs AFTER the short-id mutation above so it
+      // compares the final routing keys (the index scheme is preserved).
+      if (pd.intentCallbackQueryData) {
+        if (seenIntentCallbackQueryData.has(pd.intentCallbackQueryData)) {
+          throw new Error(`Duplicate intentCallbackQueryData "${pd.intentCallbackQueryData}" in ${path} (${page.name}). Pages must have unique intentCallbackQueryData values for callback query routing. Override via buildData({callbackQueryData: ...}).`)
+        }
+        seenIntentCallbackQueryData.add(pd.intentCallbackQueryData)
+      }
+      delete page.template // delete template for efficient memory
     })
 
     this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
@@ -2147,6 +2226,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // true when the matched route is a non-session handler (id=2/3). Session
     // routes (id=1) never auto-clear; free handlers (id=4/5) are handled in-loop.
     let isNonSession = false
+    // Session-clear runs at most once per dispatch across every non-session
+    // id (0/2/3/4/5/6) instead of once per handler-loop iteration.
+    let sessionClearDone = false
+    const clearSessionOnce = async (): Promise<void> => {
+      if (!sessionClearDone) {
+        sessionClearDone = true
+        await this._clearSessionOnNonSession(ctx)
+      }
+    }
 
     /**
      * id = 0
@@ -2165,15 +2253,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           if (ChatPage && typeof ChatPage.prototype[route.routeName as keyof typeof ChatPage.prototype] === `function`) {
             const initPage = new ChatPage(ctx)
             if ((await initPage.hookBeforeRoute?.()) !== false) {
+              await clearSessionOnce()
               await (initPage as unknown as Record<string, () => unknown>)[route.routeName]!()
               await initPage.hookAfterRoute?.()
-              return {state: `matched`}
+              return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
             }
             return {state: `blocked`}
           }
         }
       }
-      return {state: `no-match`}
+      return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
     }
 
     /**
@@ -2320,7 +2409,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const initPage = new Page(ctx) as unknown as Ctx
       if ((await initPage.hookBeforeRoute?.()) !== false) {
         if (isNonSession) {
-          await this._clearSessionOnNonSession(ctx)
+          await clearSessionOnce()
         }
         await (initPage as unknown as Record<string, () => unknown>)[res.routeName]?.()
         await initPage.hookAfterRoute?.()
@@ -2354,7 +2443,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] === `function`) {
         const initPage = new Page(ctx) as unknown as ICtx
         if ((await initPage.hookBeforeRoute?.()) !== false) {
-          await this._clearSessionOnNonSession(ctx)
+          await clearSessionOnce()
           await (initPage as unknown as Record<string, () => unknown>)[value.routeName]!()
           await initPage.hookAfterRoute?.()
         }
@@ -2382,7 +2471,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       if (typeof Page.prototype.handleFree === `function`) {
         const initPage = new Page(ctx)
         if ((await initPage.hookBeforeRoute?.()) !== false) {
-          await this._clearSessionOnNonSession(ctx)
+          await clearSessionOnce()
           await initPage.handleFree!()
           await initPage.hookAfterRoute?.()
         }
@@ -2417,9 +2506,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
       const initPage = new Page(ctx) as unknown as Ctx
       if ((await initPage.hookBeforeRoute?.()) !== false) {
+        await clearSessionOnce()
         await (initPage as unknown as Record<string, () => unknown>)[route.routeName]!()
         await initPage.hookAfterRoute?.()
-        return {state: `matched`}
+        return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
       }
       return {state: `blocked`}
     }
@@ -2458,25 +2548,43 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const ctx = this.createCtx(ct)
     if (!this._sessionLock) {
-      await this._handleCtx(ctx, listenerName, shouldCheckNotFound)
+      await this._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId)
       return
     }
     // Updates without a user/chat owner have no session to protect — skip locking.
     if (ctx.from?.id === undefined && ctx.chat?.id === undefined) {
-      await this._handleCtx(ctx, listenerName, shouldCheckNotFound)
+      await this._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId)
       return
     }
     const lockKey = this._sessionLockKey ? this._sessionLockKey(ctx) : ctx.sessionKey()
-    const handled = await this._sessionLock.withLock(lockKey, () => this._handleCtx(ctx, listenerName, shouldCheckNotFound))
+    const handled = await this._sessionLock.withLock(lockKey, () => this._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId))
     if (handled === null) {
       this.metrics.counts.blocked += 1
     }
   }
 
-  private async _handleCtx(ctx: ICtx, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean): Promise<void> {
+  /**
+   * Dispatches one update context through route hooks and page routing.
+   *
+   * @remarks
+   * Runs `hookBeforeRoute` first (an explicit `false` aborts with a
+   * `blocked` count and no further hooks), then `_pageRoutes`, firing
+   * `hookNotFoundPage` for `no-match` when the listener opts into
+   * not-found checks. Routing races against `_updateTimeoutMs`
+   * (`timeout` state via `UpdateTimeoutError`); any other throw becomes
+   * the `error` state via `hookErrorPage`. `hookAfterRoute` always fires,
+   * metrics are recorded, `_onTrace` is guarded, and `_onUpdate` is
+   * skipped for `error`/`timeout`. `isEdit` is true for
+   * `callbackquerydata` listeners.
+   *
+   * @param ctx - The page context built for this update.
+   * @param listenerName - Routing key passed to `_pageRoutes`.
+   * @param shouldCheckNotFound - Whether to fire `hookNotFoundPage` on `no-match`.
+   * @param traceId - Correlation id for metrics and error events.
+   * @internal
+   */
+  async _handleCtx(ctx: ICtx, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean, traceId: string): Promise<void> {
     const startedAt = Date.now()
-    const updateId = ctx.update?.update_id
-    const traceId = updateId !== undefined ? `u${updateId}` : `c${++this._traceSeq}`
     let state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` = `no-match`
     const isEdit = listenerName === `callbackquerydata`
 
@@ -2616,22 +2724,26 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   registerCustomRoute(entry: ITCustomRouteEntry): void {
-    if (entry.routeName.startsWith(`handle`) === false) {
-      throw new Error(`routeName must be start with 'handle'`)
+    if (!entry.routeName || entry.routeName.startsWith(`handle`) === false) {
+      throw new Error(`routeName must be a non-empty string starting with 'handle'`)
+    }
+
+    if (this.pages.all[entry.name] === undefined) {
+      throw new Error(`registerCustomRoute: unknown page "${entry.name}". Register the page first so custom routes dispatch to a known handler.`)
     }
 
     if (this.pages.routeCustom.some((r) => r.routeName === entry.routeName)) {
-      return // idempotent: skip duplicate registration
+      this.log?.warn?.(`registerCustomRoute: duplicate routeName "${entry.routeName}" is already registered — skipping`)
+      return
     }
 
     this.pages.routeCustom.push(entry)
-    this.pages.all[entry.name] ??= undefined as unknown as typeof Ctx
 
     // Events with a built-in listener must NOT get a second subscription here:
     // built-in listeners do not call grammY `next()`, so a second `bot.on` on the
     // same event would never run. The built-in subscription's `_onHandle` already
     // reaches routing id=6 (custom routes), so only the listenerName needs to match.
-    const builtInListenerName = _BUILT_IN_LISTENERS.get(entry.event as string)
+    const builtInListenerName = _BUILT_IN_ON.get(entry.event as string) ?? _BUILT_IN_FILTER.get(entry.event as string)
     if (builtInListenerName !== undefined) {
       if (entry.listenerName !== builtInListenerName) {
         throw new Error(`registerCustomRoute: listenerName "${entry.listenerName}" does not match the built-in listener "${builtInListenerName}" for event "${entry.event}". Use "${builtInListenerName}" so the built-in subscription dispatches this route.`)
@@ -2640,29 +2752,5 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
 
     this.bot.on(entry.event, (ctx) => this._onHandle(ctx, entry.listenerName, entry.shouldCheckNotFound ?? true))
-
-    // Also populate routeDynamicSpesific so free handlers can match
-    const dyn = (this.pages.routeDynamicSpesific as Record<string, {name: string; routeName: string}[]>)[entry.listenerName]
-    if (dyn) {
-      dyn.push({name: entry.name, routeName: entry.routeName})
-    }
-
-    // Populate routeStaticSession so session-based routing (id=1) can match.
-    // Only register when the page exposes the matching methodSession* key so the
-    // entry is reachable via session.method (e.g. "7-PageName") — otherwise the
-    // route would never fire (and could crash id=1 lookups).
-    const sessionRouteName = `handleSessionFree${entry.listenerName.charAt(0).toUpperCase() + entry.listenerName.slice(1)}`
-    const pss = (this.pages.routeStaticSession as Record<string, Record<string, {name: string; routeName: string}>>)[sessionRouteName]
-    const methodSessionName = `methodSessionFree${entry.listenerName.charAt(0).toUpperCase() + entry.listenerName.slice(1)}`
-    const methodKey = (this.pages.all[entry.name] as unknown as Record<string, (name: string) => string> | undefined)?.[methodSessionName]?.(entry.name)
-    if (pss && methodKey !== undefined) {
-      pss[methodKey] = {name: entry.name, routeName: entry.routeName}
-      this.pages.hasSessionRoutes = true
-      ;(this.pages as unknown as {listRouteStaticSession: string[]}).listRouteStaticSession.push(sessionRouteName)
-      ;(this.pages as unknown as {listRouteStaticSessionLC: string[]}).listRouteStaticSessionLC.push(sessionRouteName.toLowerCase())
-      this.pages.lenListRouteStaticSession++
-      const bucket = (this.pages.routesByListener[entry.listenerName] ??= {static: [], staticIntent: [], staticSession: []})
-      bucket.staticSession.push(sessionRouteName)
-    }
   }
 }

@@ -20,6 +20,30 @@ Demonstrates that using the standard {{key}} syntax is highly secure against use
 
 Demonstrates the most dangerous scenario where user input is directly embedded into the template string (rather than as a data variable), allowing users to inject <g-script> tags for full control over the server.
 
+## 5-filter-argument-injection.ts:
+
+Proves that hostile filter names and arguments in `{{var|filter}}` pipes cannot break out of the generated code (arguments are embedded via `JSON.stringify`, unknown names render empty).
+
+## 6-switch-each-breakout.ts:
+
+Proves that backticks and `${}` smuggled into `<g-case>`, `<g-default>`, and `<g-map>` static bodies render literally and never execute.
+
+## 7-media-group-src-breakout.ts:
+
+Proves that backticks, quotes, and `${}` smuggled into media `src` values (pipe-delimited and `<g-media-group>` items) stay inert strings in the compiled definitions.
+
+## 8-xss-escaping.ts:
+
+Proves the output-encoding contract: `{{var}}` HTML-escapes `&`, `<`, `>` so markup in data cannot become live HTML, while `{{{var}}}` is raw by design.
+
+## 9-attribute-injection.ts:
+
+Proves that hostile attribute values (backticks, quotes, `${}`, in double-quoted, single-quoted, and bare syntax) stay inert strings across `value`, `is`, `join`, `type`, and `src`.
+
+## 10-unknown-block-passthrough.ts:
+
+Proves that unrecognized tags are flagged by `validateNamesBlock` and rendered literally by the compiler — no tag smuggles code except the documented code blocks (`<g-script>`, `{~ ~}`).
+
 # Key Security Recommendation:
 
 Always treat template strings as code (to be written only by developers), while Data (the object passed to the render function) is a safe place to hold user input.

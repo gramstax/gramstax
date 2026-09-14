@@ -136,6 +136,14 @@ export class PageManager {
    * file `help.ts` is equivalent to `help/index.ts`; using both simultaneously
    * produces a duplicate error.  Nesting can be arbitrary deep.
    *
+   * Supported cases and extensions:
+   * - Extensions: `.ts` and `.js` only — other files are ignored.
+   * - Flat file: `start.ts` → route `start`.
+   * - Nested file: `admin/ban.ts` → route `admin/ban` (arbitrary depth).
+   * - Directory index: `admin/index.ts` → route `admin`.
+   * - A root-level `index.ts`/`index.js` has no parent route and is rejected
+   *   with an empty-routeName error — rename it to a named file instead.
+   *
    * @param path - Path to the pages directory. Uses default pages directory when omitted.
    * @param positionModule - Index of the exported class. Used when files have multiple exports. Defaults to `0`.
    * @returns Array of page records containing `path`, `page` and `routeName` properties.
@@ -209,6 +217,10 @@ export class PageManager {
             ? `${parentRoute}/${fileName.replace(/\.(ts|js)$/, ``)}`
             : fileName.replace(/\.(ts|js)$/, ``)
 
+        if (!routeName) {
+          throw new Error(`Empty routeName for "${join(dir, fileName)}" — a root-level index.ts/index.js has no parent route. Rename it to a named page file (e.g. "start.ts").`)
+        }
+
         results.push({
           path: join(dir, fileName),
           page: this.getFileSync(join(dir, fileName), positionModule),
@@ -224,10 +236,17 @@ export class PageManager {
   /**
    * Clear the require cache for all page modules.
    *
+   * @remarks
+   * CommonJS-only: entries are deleted from the `require` cache. In ESM
+   * runtimes without a `require` cache this throws a descriptive error —
+   * use the async {@link PageManager.getFile} path instead, which
+   * cache-busts via an `?t=` import query.
+   *
    * @param path - Path to the pages directory. Enables hot-reloading of pages.
    * @returns `true` when cache is cleared.
    *
    * @throws Error if directory does not exist.
+   * @throws Error if no CommonJS require cache is available (ESM runtime).
    *
    * @example
    * ```typescript
@@ -244,6 +263,11 @@ export class PageManager {
       throw new Error(`Directory ${path} is not found, please make it manually`)
     }
 
+    const cjsRequire = (globalThis as unknown as {require?: {cache: Record<string, unknown>; resolve: (id: string) => string}}).require
+    if (!cjsRequire?.cache || !cjsRequire?.resolve) {
+      throw new Error(`PageManager.clearCacheRequire requires the CommonJS require cache, which is unavailable in ESM. Use the async PageManager.getFile path (cache-busted import with ?t= query) to reload a page instead.`)
+    }
+
     const clearDir = (dir: string) => {
       const entries = readdirSync(dir, {withFileTypes: true})
       for (const entry of entries) {
@@ -251,7 +275,7 @@ export class PageManager {
         if (entry.isDirectory()) {
           clearDir(fullPath)
         } else if (entry.isFile() && /\.(ts|js)$/.test(entry.name)) {
-          delete require.cache[require.resolve(fullPath)]
+          delete cjsRequire.cache[cjsRequire.resolve(fullPath)]
         }
       }
     }

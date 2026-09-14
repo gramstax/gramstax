@@ -85,15 +85,22 @@ type ITTemplateFilter = (value: unknown, ...args: string[]) => unknown
 
 /**
  * Built-in `{{var|filter}}` pipes. Unknown filter names render empty and
- * log a one-time warning at compile time (whitelist enforced — templates
- * cannot execute arbitrary code through filters).
+ * log a warning deduplicated per compile call (whitelist enforced — templates
+ * cannot execute arbitrary code through filters). `number` renders empty for
+ * non-numeric input; `default` applies only to undefined/null/empty (0 and
+ * false pass through).
  *
  * @public
  */
 const DEFAULT_FILTERS: Record<string, ITTemplateFilter> = {
   upper: (value) => String(value ?? ``).toUpperCase(),
   lower: (value) => String(value ?? ``).toLowerCase(),
-  number: (value, decimals) => Number(value ?? 0).toFixed(decimals === undefined ? 0 : Number(decimals)),
+  // Non-numeric input renders empty (never "NaN").
+  number: (value, decimals) => {
+    const n = Number(value ?? 0)
+    if (!Number.isFinite(n)) return ``
+    return n.toFixed(decimals === undefined || decimals === `` ? 0 : Number(decimals))
+  },
   date: (value, format) => {
     const d = new Date(String(value))
     if (Number.isNaN(d.getTime())) {
@@ -108,11 +115,13 @@ const DEFAULT_FILTERS: Record<string, ITTemplateFilter> = {
       .replace(/mm/g, String(d.getUTCMinutes()).padStart(2, `0`))
       .replace(/ss/g, String(d.getUTCSeconds()).padStart(2, `0`))
   },
-  plural: (value, one, many) => (Number(value) === 1 ? (one ?? ``) : (many ?? ``)),
+  plural: (value, both) => {
+    const [one = ``, ...rest] = String(both ?? ``).split(`:`)
+    const many = rest.join(`:`)
+    return Number(value) === 1 ? one : many
+  },
   default: (value, fallback) => (value === undefined || value === null || value === `` ? (fallback ?? ``) : value)
 }
-
-const warnedUnknownFilters = new Set<string>()
 
 /**
  * Static utility class for parsing and compiling HTML-like templates.
@@ -148,7 +157,19 @@ const warnedUnknownFilters = new Set<string>()
  * @public
  */
 export class TemplateEngine {
-  /** Maximum items in a media group (pipe-delimited `src` or `<g-media-group>`). */
+  /**
+   * Maximum items in a single Telegram media group.
+   *
+   * @remarks
+   * Applies to both authoring paths: pipe-delimited `src`
+   * (`<g-media type="photo" src="a|b|c">`) and `<g-media-group>` blocks.
+   * Excess items are truncated at compile time (`_splitMediaSources`,
+   * `_processGMediaGroupBlocks`) and rejected at validation time
+   * (`_validateMediaGroupItems`). Matches the Telegram Bot API
+   * `sendMediaGroup` limit of 10 items.
+   *
+   * @public
+   */
   static MAX_MEDIA_GROUP_ITEMS = 10
 
   /**
@@ -159,6 +180,19 @@ export class TemplateEngine {
    * Telegram Bot API version.
    */
   static BOT_API_VERSION = `10.3`
+  /**
+   * Telegram HTML-mode tags from the pre-Rich spec (`parse_mode="HTML"`).
+   *
+   * @remarks
+   * The original 9-tag set: `b`, `i`, `u`, `s`, `code`, `pre`, `a`,
+   * `blockquote`, `blockquote expandable`. Combined with
+   * {@link TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH} into
+   * {@link TemplateEngine.ALLOWED_BLOCKS_TELEGRAM}, which feeds the
+   * validator allowlist (`validateTemplate`) and the passthrough tag
+   * extraction (`_extractBlockNames`).
+   *
+   * @public
+   */
   static ALLOWED_BLOCKS_TELEGRAM_LEGACY = [
     // Original Telegram HTML mode tags (parse_mode="HTML", pre-Rich spec)
     `<b>`,
@@ -171,6 +205,20 @@ export class TemplateEngine {
     `<blockquote>`,
     `<blockquote expandable>`
   ]
+  /**
+   * Telegram Rich HTML tags passed through to the message `html` field.
+   *
+   * @remarks
+   * 45 tags in 5 categories — inline (9), block/structural (21),
+   * Telegram-specific (8), media (6), forms (1) — following the Telegram
+   * Bot API Rich Message Formatting spec (`BOT_API_VERSION`). Excludes the
+   * legacy set ({@link TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY});
+   * both combine into {@link TemplateEngine.ALLOWED_BLOCKS_TELEGRAM}.
+   * Coverage is locked by `telegram-rich-coverage.test.ts` and
+   * `telegram-rich-matrix.test.ts`.
+   *
+   * @public
+   */
   static ALLOWED_BLOCKS_TELEGRAM_RICH = [
     // Telegram Rich HTML (passed through to message `html` field)
     // New tags added by the Rich HTML spec (excludes legacy)
@@ -225,7 +273,34 @@ export class TemplateEngine {
     // Forms
     `<input/>`
   ]
+  /**
+   * Combined Telegram tag allowlist: legacy (9) + Rich HTML (45) = 54 tags.
+   *
+   * @remarks
+   * Single source of truth for Telegram-side validation
+   * (`validateTemplate` required-attribute, value-format, and
+   * unknown-attribute steps) and passthrough extraction
+   * (`_extractBlockNames`). See {@link TemplateEngine.ALLOWED_BLOCKS}
+   * for the full registry including PAGE blocks.
+   *
+   * @public
+   */
   static ALLOWED_BLOCKS_TELEGRAM = [...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY, ...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH]
+  /**
+   * Gramstax `<g-*>` PAGE block allowlist.
+   *
+   * @remarks
+   * Content blocks (`g-base`, `g-message`, `g-keyboard`, `g-media`,
+   * `g-media-group`, `g-description`), logic blocks (`g-script`,
+   * `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`), and utility
+   * blocks (`g-import`, `g-space`). Validated by `validateTemplate`
+   * (per-block `validateBlockG*Attributes` methods plus the centralized
+   * `_PAGE_REQUIRED_ATTRS` / `_PAGE_ATTR_VALUE_VALIDATORS` specs).
+   * Combined with {@link TemplateEngine.ALLOWED_BLOCKS_TELEGRAM} into
+   * {@link TemplateEngine.ALLOWED_BLOCKS}.
+   *
+   * @public
+   */
   static ALLOWED_BLOCKS_PAGE = [
     // Content blocks
     `<g-base>`,
@@ -613,8 +688,11 @@ export class TemplateEngine {
    * Escapes special characters in a string for safe use in template literals.
    *
    * @remarks
-   * This internal method escapes backslashes and backticks to prevent them from
-   * interfering with template literal syntax during compilation.
+   * This internal method escapes backslashes, backticks, and `${` sequences to
+   * prevent static template text from breaking out of template literal syntax
+   * during compilation. Applied to static segments before they are embedded in
+   * generated code (`_compileToFunction` builds concatenation, never raw
+   * backtick-wrapped statics; block processors escape embedded content).
    *
    * @param str - The input string to escape
    * @returns The escaped string with backslashes and backticks properly escaped
@@ -628,9 +706,84 @@ export class TemplateEngine {
    * @public
    */
   static _escape(str: string): string {
-    return str
-      .replace(/\\/g, `\\\\`) // escape backslash: \ → \\
-      .replace(/`/g, `\\\``) // escape backtick: ` → \`
+    return str.replace(/\\/g, `\\\\`).replace(/`/g, `\\\``).replace(/\$\{/g, `\\\${`)
+  }
+
+  /**
+   * Escapes static template text while preserving template syntax spans.
+   *
+   * @remarks
+   * Walks `content` char-by-char: `{{{...}}}`, `{{...}}`, and `{~...~}`
+   * spans pass through untouched (they are converted to generated code
+   * later). A balanced `${...}` span is preserved live only when its inner
+   * code passes {@link TemplateEngine._isGeneratedCode} — i.e. it was
+   * produced by an inner block processor (nested `<g-map>` bodies carry
+   * `${(() => ...)}` / `${__esc(...)}` spans through outer escaping).
+   * Any other `${` sequence (untrusted/static text, unterminated spans)
+   * is neutralized via {@link TemplateEngine._escape}, consistent with
+   * top-level static text. Every other character goes through
+   * {@link TemplateEngine._escape}, neutralizing breakout payloads
+   * (backticks, backslashes) in untrusted static text. Used by
+   * `_processGSwitchBlocks` and `_processGMapBlocks` for case/default and
+   * loop bodies.
+   *
+   * @param content - Raw static block content to escape.
+   * @returns The content with non-syntax characters escaped.
+   * @public
+   */
+  static _escapeStaticExceptInterpolation(content: string): string {
+    let out = ``
+    let i = 0
+    const tick = String.fromCharCode(96)
+    while (i < content.length) {
+      if (content.startsWith(`{{{`, i)) {
+        const end = content.indexOf(`}}}`, i + 3)
+        const stop = end < 0 ? content.length : end + 3
+        out += content.slice(i, stop)
+        i = stop
+      } else if (content.startsWith(`{{`, i)) {
+        const end = content.indexOf(`}}`, i + 2)
+        const stop = end < 0 ? content.length : end + 2
+        out += content.slice(i, stop)
+        i = stop
+      } else if (content.startsWith(`{~`, i)) {
+        const end = content.indexOf(`~}`, i + 2)
+        const stop = end < 0 ? content.length : end + 2
+        out += content.slice(i, stop)
+        i = stop
+      } else if (content[i] === `$` && content[i + 1] === `{`) {
+        let j = i + 2
+        let depth = 1
+        let quote: string | null = null
+        let escaped = false
+        while (j < content.length && depth > 0) {
+          const ch = content[j]!
+          if (quote !== null) {
+            if (escaped) escaped = false
+            else if (ch === `\\`) escaped = true
+            else if (ch === quote) quote = null
+          } else if (ch === `'` || ch === `"` || ch === tick) {
+            quote = ch
+          } else if (ch === `{`) {
+            depth++
+          } else if (ch === `}`) {
+            depth--
+          }
+          j++
+        }
+        const span = content.slice(i, j)
+        if (depth === 0 && this._isGeneratedCode(content.slice(i + 2, j - 1))) {
+          out += span
+        } else {
+          out += this._escape(span)
+        }
+        i = j
+      } else {
+        out += this._escape(content[i]!)
+        i++
+      }
+    }
+    return out
   }
 
   /**
@@ -641,7 +794,13 @@ export class TemplateEngine {
    * This internal method transforms Mustache-like variable syntax into JavaScript
    * template literal interpolation. `{{key}}` is HTML-escaped at runtime; `{{{key}}}`
    * is inserted raw. Variables are accessed from the `data` object, with nullish
-   * coalescing to empty string when undefined.
+   * coalescing to empty string when undefined. Surrounding whitespace inside the
+   * braces is trimmed. Each filter segment splits its name on the first `:` only;
+   * the remainder is passed as one combined argument (so `date:HH:mm:ss` stays
+   * whole; `plural` splits its combined `one:many` argument itself). Filter
+   * arguments are embedded via `JSON.stringify`, never raw backticks. Unknown
+   * filter warnings are deduplicated per compile call; other expressions in the
+   * same template still render (unknown one renders empty).
    *
    * @param template - The template string containing `{{variable}}` placeholders
    * @returns The processed template with placeholders converted to `${data["key"]}` syntax
@@ -655,28 +814,32 @@ export class TemplateEngine {
    * @public
    */
   static _processScopeVariables(template: string) {
-    const toAccess = (key: string) => key.split(`.`).map((k: string) => `?.${k}`).join(``)
+    const toAccess = (key: string) =>
+      key
+        .split(`.`)
+        .map((k: string) => `?.${k}`)
+        .join(``)
+    const warnedLocal = new Set<string>()
     const toFilterChain = (expr: string): string => {
       const segments = expr.split(`|`)
-      const path = segments.shift() as string
+      const path = (segments.shift() as string).trim()
       let access = `(data${toAccess(path)})`
       for (const segment of segments) {
-        const [name = ``, ...args] = segment.split(`:`)
+        const colon = segment.indexOf(`:`)
+        const name = (colon < 0 ? segment : segment.slice(0, colon)).trim()
+        const rest = colon < 0 ? `` : segment.slice(colon + 1)
         if (DEFAULT_FILTERS[name] === undefined) {
-          if (!warnedUnknownFilters.has(name)) {
-            warnedUnknownFilters.add(name)
+          if (!warnedLocal.has(name)) {
+            warnedLocal.add(name)
             console.warn(`Unknown template filter "${name}" in {{${expr}}} — renders empty`)
           }
           return `""`
         }
-        const argList = args.map((a) => `\`${a}\``).join(`, `)
-        access = `FILTERS.${name}(${access}${argList ? `, ${argList}` : ``})`
+        access = rest === `` ? `FILTERS.${name}(${access})` : `FILTERS.${name}(${access}, ${JSON.stringify(rest)})`
       }
       return access
     }
-    return template
-      .replace(/\{\{\{([^{}\s]+)\}\}\}/g, (_, expr) => `\${${toFilterChain(expr)} ?? ""}`)
-      .replace(/\{\{([^{}\s]+)\}\}/g, (_, expr) => `\${__esc(${toFilterChain(expr)} ?? "")}`)
+    return template.replace(/\{\{\{\s*([^{}]+?)\s*\}\}\}/g, (_, expr) => `\${${toFilterChain(expr.trim())} ?? ""}`).replace(/\{\{\s*([^{}]+?)\s*\}\}/g, (_, expr) => `\${__esc(${toFilterChain(expr.trim())} ?? "")}`)
   }
 
   /**
@@ -685,6 +848,8 @@ export class TemplateEngine {
    * @remarks
    * Non-string values are stringified; `null`/`undefined` become empty string.
    * Escaped code points: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`.
+   * Scope: text-node interpolation via `{{}}` only. Attribute values and
+   * `{{{}}}` raw output are intentionally not HTML-escaped.
    *
    * @param value - The runtime value to escape.
    * @returns The escaped string.
@@ -706,6 +871,9 @@ export class TemplateEngine {
    * This internal method converts inline execution syntax into self-invoking
    * JavaScript expressions. It first attempts direct execution, then falls back
    * to `with(data)` scope. Returns an empty string on any error.
+   * By design this executes developer-authored template code (templates are
+   * code, only `data` values are untrusted input); no strict/no-script mode
+   * is provided.
    *
    * @param template - The template string containing `{~ code ~}` expressions
    * @returns The template with inline execution blocks converted to executable expressions
@@ -792,6 +960,9 @@ export class TemplateEngine {
    * This internal method converts `<g-script>` blocks into self-invoking functions
    * that execute with access to the `data` object via `with(data)`. If the script
    * throws an error or `data` is undefined, an empty string is returned.
+   * By design this executes developer-authored template code (templates are
+   * code, only `data` values are untrusted input); no strict/no-script mode
+   * is provided.
    *
    * **Attributes:**
    *   - none
@@ -916,43 +1087,47 @@ export class TemplateEngine {
    * @public
    */
   static _processGSwitchBlocks(template: string) {
-    const switchRegex = /<g-switch\b(?:\s+value="([^"]+)")?>([\s\S]*?)<\/g-switch>/gi
-    return template.replace(switchRegex, (_, valueKey, innerContent) => {
+    const switchRegex = /<g-switch\b(?:\s+value\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+)))?>([\s\S]*?)<\/g-switch>/gi
+    return template.replace(switchRegex, (_, valueDouble, valueSingle, valueBare, innerContent) => {
+      const valueKey = valueDouble ?? valueSingle ?? valueBare
       if (!valueKey) return ``
 
       let casesJs = ``
-      const caseRegex = /<g-case\b(?:\s+is="([^"]+)")?>([\s\S]*?)<\/g-case>/gi
+      const caseRegex = /<g-case\b(?:\s+is\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+)))?>([\s\S]*?)<\/g-case>/gi
       const defaultRegex = /<g-default>([\s\S]*?)<\/g-default>/gi
 
       let match: RegExpExecArray | null
       while ((match = caseRegex.exec(innerContent)) !== null) {
-        const values = (match[1] || ``).split(`,`).map((v) => v.trim())
-        const content = (match[2] || ``)
-          .replace(/^[\t ]+/gm, ``)
-          .replace(/^\n+/, ``)
-          .replace(/\n+$/, ``)
-          .trim()
+        const values = (match[1] ?? match[2] ?? match[3] ?? ``).split(`,`).map((v) => v.trim())
+        const content = this._escapeStaticExceptInterpolation(
+          (match[4] || ``)
+            .replace(/^[\t ]+/gm, ``)
+            .replace(/^\n+/, ``)
+            .replace(/\n+$/, ``)
+            .trim()
+        )
 
         values.forEach((v) => {
-          casesJs += `case "${v}": `
+          casesJs += `case ${JSON.stringify(v)}: `
         })
         casesJs += `return \`${content}\`; `
       }
 
-      // Reset regex index for safety if needed, though we only call once per switch
       const defaultMatch = defaultRegex.exec(innerContent)
       if (defaultMatch) {
-        const content = (defaultMatch[1] || ``)
-          .replace(/^[\t ]+/gm, ``)
-          .replace(/^\n+/, ``)
-          .replace(/\n+$/, ``)
-          .trim()
+        const content = this._escapeStaticExceptInterpolation(
+          (defaultMatch[1] || ``)
+            .replace(/^[\t ]+/gm, ``)
+            .replace(/^\n+/, ``)
+            .replace(/\n+$/, ``)
+            .trim()
+        )
         casesJs += `default: return \`${content}\`; `
       } else {
         casesJs += `default: return ''; `
       }
 
-      return `\${(() => { switch((data && data["${valueKey}"])) { ${casesJs} } })()}`
+      return `\${(() => { switch((data && data[${JSON.stringify(valueKey)}])) { ${casesJs} } })()}`
     })
   }
 
@@ -1012,20 +1187,27 @@ export class TemplateEngine {
         const depth = openTags + 1
         const suffix = depth === 1 ? `` : String(depth)
 
-        // Parse src attribute
-        const srcAttrMatch = attrsStr?.match(/src="([^"]*)"/)
-        const src = srcAttrMatch?.[1]
+        // Parse src attribute (double-quoted, single-quoted, or bare)
+        const srcAttrMatch = attrsStr?.match(/src\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/)
+        const src = srcAttrMatch?.[1] ?? srcAttrMatch?.[2] ?? srcAttrMatch?.[3]
         if (!src) return ``
 
-        // Parse join attribute (default: \n)
-        const joinAttrMatch = attrsStr?.match(/join="([^"]*)"/)
-        const join = joinAttrMatch?.[1] ?? `\\n`
+        // Parse join attribute (default: newline)
+        const joinAttrMatch = attrsStr?.match(/join\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/)
+        const join =
+          joinAttrMatch?.[1] ??
+          joinAttrMatch?.[2] ??
+          joinAttrMatch?.[3] ??
+          `
+`
 
         // Clean content: strip line-leading whitespace, trim surrounding newlines
-        let processed = content
-          .replace(/^[\t ]+/gm, ``)
-          .replace(/^\n+/, ``)
-          .replace(/\n+$/, ``)
+        let processed = this._escapeStaticExceptInterpolation(
+          content
+            .replace(/^[\t ]+/gm, ``)
+            .replace(/^\n+/, ``)
+            .replace(/\n+$/, ``)
+        )
 
         // Replace loop variable references with depth-indexed JS expressions.
         // {{e}} / {{e.prop}}  →  current depth's element (e, e2, e3...)
@@ -1072,10 +1254,17 @@ export class TemplateEngine {
 
         // Resolve src: "e.prop" or "e2.prop" → parent loop element property, else data key
         const srcRef = src.match(/^(e\d*)\.(.+)$/)
-        const srcExpr = srcRef ? `(${srcRef[1]} && ${srcRef[1]}["${srcRef[2]}"])` : `(data && data["${src}"])`
+        const srcExpr = srcRef ? `(${srcRef[1]} && ${srcRef[1]}[${JSON.stringify(srcRef[2])}])` : `(data && data[${JSON.stringify(src)}])`
 
-        const safeJoin = join.replace(/"/g, `\\"`)
-        return `\${(() => { const __arr${suffix} = ${srcExpr} || []; let __out${suffix} = ""; for (let i${suffix} = 0; i${suffix} < __arr${suffix}.length; i${suffix}++) { const e${suffix} = __arr${suffix}[i${suffix}]; if (i${suffix} > 0) { __out${suffix} += "${safeJoin}" } __out${suffix} += \`${processed}\`; } return __out${suffix}; })()}`
+        const unescapedJoin = join.replace(/\\(\\|n|t|r|"|')/g, (_m, c) => {
+          if (c === `\\`) return `\\`
+          if (c === `n`) return `\n`
+          if (c === `t`) return `\t`
+          if (c === `r`) return `\r`
+          return c
+        })
+        const safeJoin = JSON.stringify(unescapedJoin)
+        return `\${(() => { const __arr${suffix} = ${srcExpr} || []; let __out${suffix} = ""; for (let i${suffix} = 0; i${suffix} < __arr${suffix}.length; i${suffix}++) { const e${suffix} = __arr${suffix}[i${suffix}]; if (i${suffix} > 0) { __out${suffix} += ${safeJoin} } __out${suffix} += \`${processed}\`; } return __out${suffix}; })()}`
       })
     }
 
@@ -1142,11 +1331,11 @@ export class TemplateEngine {
 
       // Extract all attributes
       const attrs: {[key: string]: string} = {}
-      const attrRegex = /(\w+)="([^"]*)"/g
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
 
       if (attributesStr) {
         for (const attrMatch of attributesStr.matchAll(attrRegex)) {
-          attrs[attrMatch[1]!] = attrMatch[2]!
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
         }
       }
 
@@ -1209,7 +1398,24 @@ export class TemplateEngine {
       .slice(0, this.MAX_MEDIA_GROUP_ITEMS)
   }
 
-  /** Parses `<g-media-group>` blocks into Telegram media group item definitions. */
+  /**
+   * Parses `<g-media-group>` blocks into Telegram media group item definitions.
+   *
+   * @remarks
+   * Groups inner `<g-media>` items (via `_processMediaGroupItems`,
+   * truncated to {@link TemplateEngine.MAX_MEDIA_GROUP_ITEMS}) into lang
+   * variants preserving document order: the block-`lang` (default
+   * `default`) variant holds un-languaged or `shared` items, plus one
+   * variant per item `lang` holding matching or `shared` items. Each
+   * variant takes its caption from the first captioned item; a block with
+   * no items still yields an empty default variant unless lang items
+   * exist. Attribute values accept double-quoted, single-quoted, or bare
+   * syntax.
+   *
+   * @param template - The template source containing `<g-media-group>` blocks.
+   * @returns Map of lang → `{type: "group", mediaGroup, caption?}` definitions.
+   * @public
+   */
   static _processGMediaGroupBlocks(template: string) {
     const mediaGroupRegex = /<g-media-group(?:\s+([^>]*))?>([\s\S]*?)<\/g-media-group>/gi
     const result: {[lang: string]: ITMediaBlock} = {}
@@ -1218,11 +1424,11 @@ export class TemplateEngine {
       const attributesStr = match[1]
       const groupContent = match[2] || ``
       const attrs: {[key: string]: string} = {}
-      const attrRegex = /(\w+)="([^"]*)"/g
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
 
       if (attributesStr) {
         for (const attrMatch of attributesStr.matchAll(attrRegex)) {
-          attrs[attrMatch[1]!] = attrMatch[2]!
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
         }
       }
 
@@ -1261,7 +1467,7 @@ export class TemplateEngine {
    * @param groupContent - The content between `<g-media-group>` and `</g-media-group>`
    * @returns An array of parsed media item descriptors, preserving document order
    */
-  private static _processMediaGroupItems(groupContent: string): Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string; shared?: boolean}> {
+  static _processMediaGroupItems(groupContent: string): Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string; shared?: boolean}> {
     const mediaRegex = /<g-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-media>/gi
     const mediaGroup: Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string; shared?: boolean}> = []
     const supportedTypes = new Set([`photo`, `video`, `audio`, `document`])
@@ -1270,11 +1476,11 @@ export class TemplateEngine {
       if (mediaGroup.length >= this.MAX_MEDIA_GROUP_ITEMS) break
 
       const attrs: {[key: string]: string} = {}
-      const attrRegex = /(\w+)="([^"]*)"/g
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
       const attributesStr = match[1]
       if (attributesStr) {
         for (const attrMatch of attributesStr.matchAll(attrRegex)) {
-          attrs[attrMatch[1]!] = attrMatch[2]!
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
         }
         // Detect standalone boolean attributes (no ="value") — only match as a whole token, not inside src values
         if (/(?:^|\s)shared(?=\s|$)/i.test(attributesStr)) {
@@ -1339,11 +1545,11 @@ export class TemplateEngine {
 
     for (const [, attributesStr, rawContent] of template.matchAll(messageRegex)) {
       const attrs: {[key: string]: string} = {}
-      const attrRegex = /(\w+)="([^"]*)"/g
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
 
       if (attributesStr) {
         for (const attrMatch of attributesStr.matchAll(attrRegex)) {
-          attrs[attrMatch[1]!] = attrMatch[2]!
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
         }
       }
 
@@ -1402,11 +1608,11 @@ export class TemplateEngine {
 
     for (const [, attributesStr, rawContent] of template.matchAll(descriptionRegex)) {
       const attrs: {[key: string]: string} = {}
-      const attrRegex = /(\w+)="([^"]*)"/g
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
 
       if (attributesStr) {
         for (const attrMatch of attributesStr.matchAll(attrRegex)) {
-          attrs[attrMatch[1]!] = attrMatch[2]!
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
         }
       }
 
@@ -1472,11 +1678,11 @@ export class TemplateEngine {
 
     for (const [, attributesStr, rawContent] of template.matchAll(keyboardRegex)) {
       const attrs: {[key: string]: string} = {}
-      const attrRegex = /(\w+)="([^"]*)"/g
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
 
       if (attributesStr) {
         for (const attrMatch of attributesStr.matchAll(attrRegex)) {
-          attrs[attrMatch[1]!] = attrMatch[2]!
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
         }
       }
 
@@ -1499,6 +1705,11 @@ export class TemplateEngine {
    * This internal method takes a pre-processed template (or array of templates)
    * and compiles it into a JavaScript function that accepts a `data` object and
    * returns the rendered result. The function is created using `new Function()`.
+   * Static segments are emitted via string concatenation (`JSON.stringify`
+   * literals joined with `+`), never wrapped in a raw backtick literal, so
+   * static backticks, backslashes, and `${` sequences cannot break out into
+   * code. Only `${...}` spans produced by the block/scope processors are
+   * evaluated.
    *
    * @typeParam T - Boolean type indicating whether the input is an array
    * @param template - The processed template string or array of strings
@@ -1515,33 +1726,93 @@ export class TemplateEngine {
    *
    * @public
    */
-  static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T> {
-    let singleOrCombined: string
-    if (isArray) {
-      const multiTemplate = template as string[]
-      singleOrCombined = multiTemplate.map((t) => `\`${t}\``).join(`,`)
-    } else {
-      singleOrCombined = `\`${template as string}\``
+  static _isGeneratedCode(code: string): boolean {
+    return code.startsWith(`__esc(`) || code.startsWith(`FILTERS.`) || code.startsWith(`(data`) || code.startsWith(`(() =>`) || code.startsWith(`"`) || /^e\d*(\.|$)/.test(code) || /^i\d*$/.test(code)
+  }
+
+  /**
+   * Converts processed template output into a concatenation expression.
+   *
+   * @remarks
+   * Splits `processed` on balanced `${...}` spans (quote-aware,
+   * brace-nesting-aware): spans passing {@link TemplateEngine._isGeneratedCode}
+   * are emitted as parenthesized code, everything else — including
+   * attacker-controlled `${...}`-lookalikes — is emitted as
+   * `JSON.stringify` string literals joined with `+`. Static segments can
+   * therefore never break out into code; this is the core guarantee behind
+   * `_compileToFunction`. An unterminated `${` is treated as literal text.
+   *
+   * @param processed - Template output after block/scope processing.
+   * @returns A JS expression evaluating to the rendered string.
+   * @public
+   */
+  static _toConcatExpr(processed: string): string {
+    const parts: string[] = []
+    let lit = ``
+    let i = 0
+    const tick = String.fromCharCode(96)
+    const flush = (): void => {
+      if (lit !== ``) {
+        parts.push(JSON.stringify(lit))
+        lit = ``
+      }
     }
+    while (i < processed.length) {
+      if (processed[i] === `$` && processed[i + 1] === `{`) {
+        let j = i + 2
+        let depth = 1
+        let quote: string | null = null
+        let escaped = false
+        while (j < processed.length && depth > 0) {
+          const ch = processed[j]!
+          if (quote !== null) {
+            if (escaped) escaped = false
+            else if (ch === `\\`) escaped = true
+            else if (ch === quote) quote = null
+          } else if (ch === `'` || ch === `"` || ch === tick) {
+            quote = ch
+          } else if (ch === `{`) {
+            depth++
+          } else if (ch === `}`) {
+            depth--
+          }
+          j++
+        }
+        if (depth === 0) {
+          flush()
+          const code = processed.slice(i + 2, j - 1)
+          if (this._isGeneratedCode(code)) {
+            parts.push(`(${code})`)
+          } else {
+            parts.push(JSON.stringify(processed.slice(i, j)))
+          }
+          i = j
+          continue
+        }
+        lit += processed[i]!
+        i++
+        continue
+      }
+      lit += processed[i]!
+      i++
+    }
+    flush()
+    return parts.length === 0 ? `""` : parts.join(`+`)
+  }
 
-    let processed = singleOrCombined
-    processed = this._processGScriptBlocks(this._processGDivBlocks(this._processGSpaceBlocks(processed)))
+  static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T> {
+    const inputs = isArray ? (template as string[]) : [template as string]
+    const bodies = inputs.map((t) => {
+      const post = this._processGScriptBlocks(this._processGDivBlocks(this._processGSpaceBlocks(t)))
+      return `""+(${this._toConcatExpr(post)})`
+    })
+    const functionBody = isArray ? `return [${bodies.join(`,`)}]` : `return ${bodies[0]}`
 
     if (isArray) {
-      const functionBody = `return [${processed}]`
-      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (
-        data: Record<string, unknown> | undefined,
-        esc: (value: unknown) => string,
-        filters: Record<string, ITTemplateFilter>
-      ) => string[]
+      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string, filters: Record<string, ITTemplateFilter>) => string[]
       return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData, DEFAULT_FILTERS)) as unknown as ITTemplateRenderer<T>
     } else {
-      const functionBody = `return ${processed}`
-      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (
-        data: Record<string, unknown> | undefined,
-        esc: (value: unknown) => string,
-        filters: Record<string, ITTemplateFilter>
-      ) => string
+      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string, filters: Record<string, ITTemplateFilter>) => string
       return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData, DEFAULT_FILTERS)) as unknown as ITTemplateRenderer<T>
     }
   }
@@ -1977,9 +2248,9 @@ export class TemplateEngine {
         for (const match of baseContent.matchAll(blockRegex)) {
           const attributesStr = match[2]
           if (lang) {
-            const attrRegex = /lang="([^"]*)"/i
+            const attrRegex = /lang\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i
             const langMatch = attributesStr?.match(attrRegex)
-            const blockLang = langMatch ? langMatch[1] : undefined
+            const blockLang = langMatch ? (langMatch[1] ?? langMatch[2] ?? langMatch[3]) : undefined
 
             // Fix: lang="default" should match blocks with no lang attribute (undefined)
             const effectiveBlockLang = blockLang || `default`
@@ -2074,10 +2345,10 @@ export class TemplateEngine {
     const imports: Array<{src: string; blocks?: string | string[]; base: string; lang?: string; section: `all` | `value`; indent: string}> = []
     const processed = template.replace(importRegex, (_, indent, attributesStr) => {
       const attrs: {[key: string]: string} = {}
-      const attrRegex = /(\w+)="([^"]*)"/g
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
       if (attributesStr) {
         for (const attrMatch of attributesStr.matchAll(attrRegex)) {
-          attrs[attrMatch[1]!] = attrMatch[2]!
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
         }
       }
 
@@ -2604,7 +2875,7 @@ export class TemplateEngine {
    * @param valueValidators - Optional per-attribute value validators; return error message or null
    * @returns Array of line, message errors
    */
-  private static _validateBlockAttributes(template: string, tagName: string, allowedAttributes: Set<string>, allowedLabel: string, valueValidators?: Record<string, (value: string) => string | null>): Array<{line: number; message: string}> {
+  static _validateBlockAttributes(template: string, tagName: string, allowedAttributes: Set<string>, allowedLabel: string, valueValidators?: Record<string, (value: string) => string | null>): Array<{line: number; message: string}> {
     const errors: Array<{line: number; message: string}> = []
     const tagRegex = new RegExp(`<${tagName}(?![\\w-])([^>]*?)>`, `g`)
     let match: RegExpExecArray | null
@@ -2807,10 +3078,7 @@ export class TemplateEngine {
       if (unknown.length === 0) continue
 
       const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
-      const message =
-        allowed.length === 0
-          ? `${tagDisplay} does not support any attributes`
-          : `${tagDisplay} has unknown attribute(s): ${unknown.join(`, `)} (allowed: ${allowed.join(`, `)})`
+      const message = allowed.length === 0 ? `${tagDisplay} does not support any attributes` : `${tagDisplay} has unknown attribute(s): ${unknown.join(`, `)} (allowed: ${allowed.join(`, `)})`
       errors.push({line, message})
     }
 
@@ -2889,8 +3157,7 @@ export class TemplateEngine {
       while ((am = attrRegex.exec(attrsStr)) !== null) {
         const attrName = am[1]!.toLowerCase()
         const attrValue = am[2] ?? am[3] ?? am[4] ?? ``
-        // Skip pure template variable placeholders — they're substituted at compile time
-        if (/^\{\{[\w-]+\}\}$/.test(attrValue)) continue
+        if (/\{\{|\}\}/.test(attrValue)) continue
         const validator = validators[attrName]
         if (!validator) continue
 
@@ -2981,7 +3248,7 @@ export class TemplateEngine {
       const attrsStr = match[2] ?? ``
       const tagDisplay = match[0]!.endsWith(`/>`) ? `<${tagName}/>` : `<${tagName}>`
 
-      const spec = this._TELEGRAM_REQUIRED_ATTRS[tagName]
+      const spec = this._PAGE_REQUIRED_ATTRS[tagName]
       if (!spec) continue
 
       // Extract attribute names: both `name="value"` and boolean `name`
@@ -3081,8 +3348,7 @@ export class TemplateEngine {
       while ((am = attrRegex.exec(attrsStr)) !== null) {
         const attrName = am[1]!.toLowerCase()
         const attrValue = am[2] ?? am[3] ?? am[4] ?? ``
-        // Skip pure template variable placeholders — they're substituted at compile time
-        if (/^\{\{[\w-]+\}\}$/.test(attrValue)) continue
+        if (/\{\{|\}\}/.test(attrValue)) continue
         const validator = validators[attrName]
         if (!validator) continue
 
@@ -3237,14 +3503,43 @@ export class TemplateEngine {
     return {valid: errors.length === 0, errors}
   }
 
-  /** Validates attributes and item constraints on `<g-media-group>` blocks. */
+  /**
+   * Validates attributes and item constraints on `<g-media-group>` blocks.
+   *
+   * @remarks
+   * Step 12 of the `validateTemplate` pipeline. Checks the block-level
+   * `lang` attribute via `_validateBlockAttributes`, then delegates item
+   * rules (supported `type`, required `src`, 1–10 items, no `audio`/
+   * `document` mixing) to {@link TemplateEngine._validateMediaGroupItems}.
+   * Returns `valid: false` with per-line errors instead of throwing, so
+   * callers can aggregate across blocks.
+   *
+   * @param template - The raw template source to validate.
+   * @returns `{valid, errors}`; `errors` carry 1-based line numbers.
+   * @public
+   */
   static validateBlockGMediaGroupAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors = this._validateBlockAttributes(template, `g-media-group`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-media-group`])
     errors.push(...this._validateMediaGroupItems(template))
     return {valid: errors.length === 0, errors}
   }
 
-  private static _validateMediaGroupItems(template: string): Array<{line: number; message: string}> {
+  /**
+   * Validates `<g-media>` items inside `<g-media-group>` blocks.
+   *
+   * @remarks
+   * Enforces the Telegram `sendMediaGroup` constraints: every item needs a
+   * supported `type` (`photo`, `video`, `audio`, `document`) and a `src`;
+   * groups need 1–{@link TemplateEngine.MAX_MEDIA_GROUP_ITEMS} items;
+   * `audio` and `document` items cannot mix with other types. Called by
+   * {@link TemplateEngine.validateBlockGMediaGroupAttributes}; errors carry
+   * 1-based line numbers.
+   *
+   * @param template - The raw template source to inspect.
+   * @returns Validation errors (empty when valid).
+   * @public
+   */
+  static _validateMediaGroupItems(template: string): Array<{line: number; message: string}> {
     const errors: Array<{line: number; message: string}> = []
     const mediaGroupRegex = /<g-media-group(?:\s+[^>]*)?>([\s\S]*?)<\/g-media-group>/gi
     const mediaRegex = /<g-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-media>/gi
@@ -3260,8 +3555,14 @@ export class TemplateEngine {
         itemCount += 1
         const line = groupLine + (groupContent.slice(0, mediaMatch.index).match(/\n/g) || []).length
         const attrsStr = mediaMatch[1] || ``
-        const type = attrsStr.match(/\btype\s*=\s*"([^"]*)"/)?.[1]
-        const src = attrsStr.match(/\bsrc\s*=\s*"([^"]*)"/)?.[1]
+        const type = attrsStr
+          .match(/\btype\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/)
+          ?.slice(1, 4)
+          .find((g) => g !== undefined)
+        const src = attrsStr
+          .match(/\bsrc\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/)
+          ?.slice(1, 4)
+          .find((g) => g !== undefined)
 
         if (!type || !supportedTypes.has(type)) {
           errors.push({line, message: `Attribute "type" on <g-media> inside <g-media-group> must be one of: photo, video, audio, document`})

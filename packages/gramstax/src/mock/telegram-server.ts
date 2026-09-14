@@ -299,6 +299,9 @@ export class MockTelegramServer {
   private _onSigint?: () => void
   private _onSigterm?: () => void
 
+  static userResponsePrefixes = [`send`, `edit`, `answer`, `delete`, `copy`, `forward`, `pin`, `unpin`, `setMessageReaction`]
+  static userResponseMethods = [`pinChatMessage`, `unpinChatMessage`, `setMessageReaction`, `answerInlineQuery`]
+
   /**
    * Create a new mock server instance.
    *
@@ -360,7 +363,7 @@ export class MockTelegramServer {
    *
    * @public
    */
-  async stop() {
+  async stop(options?: {clear?: boolean}) {
     this.server?.stop()
     this.server = undefined
     if (this._onSigint) {
@@ -368,6 +371,9 @@ export class MockTelegramServer {
     }
     if (this._onSigterm) {
       process.removeListener(`SIGTERM`, this._onSigterm)
+    }
+    if (options?.clear) {
+      this.clearAll()
     }
     this.log?.info?.(`Mock Telegram server stopped`)
   }
@@ -428,6 +434,30 @@ export class MockTelegramServer {
    */
   clearUpdates() {
     this.updates.length = 0
+  }
+
+  /**
+   * Clear both captured outbound requests and inbound updates.
+   *
+   * @remarks
+   * Convenience helper that combines `clearRequests()` and `clearUpdates()`.
+   * Does not affect `webhookUrl` — use `reset()` for a pristine state.
+   *
+   * @public
+   */
+  clearAll() {
+    this.clearRequests()
+    this.clearUpdates()
+  }
+
+  /**
+   * Restore pristine state: clears requests and updates and unsets the webhook URL.
+   *
+   * @public
+   */
+  reset() {
+    this.clearAll()
+    this.webhookUrl = ``
   }
 
   private _isLoopbackUrl(url: string): boolean {
@@ -530,6 +560,18 @@ export class MockTelegramServer {
       }
     }
 
+    if (method.startsWith(`send`)) {
+      const data = this._bodyRecord(body) as unknown as {chat_id?: number} | undefined
+      return {
+        ok: true,
+        result: {
+          message_id: this._nextMessageId++,
+          date: Math.floor(Date.now() / 1000),
+          chat: {id: data?.chat_id ?? 0, type: `private`}
+        }
+      }
+    }
+
     return {ok: true, result: true}
   }
 
@@ -558,8 +600,13 @@ export class MockTelegramServer {
     })
 
     const handler = this.handlers[method] ?? this.defaultHandler
-    const result = handler ? await handler({method, request}) : this._defaultResponse(method, body)
-    return this._json(result)
+    try {
+      const result = handler ? await handler({method, request}) : this._defaultResponse(method, body)
+      return this._json(result)
+    } catch (error) {
+      const description = error instanceof Error ? error.message : String(error)
+      return this._json({ok: false, description})
+    }
   }
 
   private _bodyRecord(body: unknown): Record<string, unknown> | undefined {
@@ -579,7 +626,16 @@ export class MockTelegramServer {
 
       if (contentType.includes(`multipart/form-data`) || contentType.includes(`application/x-www-form-urlencoded`)) {
         const form = await request.formData()
-        return Object.fromEntries(form.entries())
+        const entries = [...form.entries()].map(([key, value]) => {
+          if (value instanceof File) {
+            const baseType = value.type.split(`;`)[0]?.trim() ?? ``
+            if (baseType && baseType !== value.type) {
+              Object.defineProperty(value, `type`, {value: baseType, configurable: true})
+            }
+          }
+          return [key, value]
+        })
+        return Object.fromEntries(entries)
       }
 
       const text = await request.text()
@@ -937,5 +993,187 @@ export class MockTelegramServer {
    */
   async sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITMockTelegramUpdateOptions) {
     return await this._postUpdate(this._buildMessageUpdate({unique_gift: giftInfo}, options), options)
+  }
+
+  /**
+   * Simulate a user editing a previously sent text message.
+   *
+   * @param text - The new message text.
+   * @param options - User, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
+  async sendEditedText(text: string, options?: ITMockTelegramUpdateOptions) {
+    const {updateId, messageId, date} = this._nextIds(options)
+    return await this._postUpdate(
+      {
+        update_id: updateId,
+        edited_message: {
+          message_id: messageId,
+          date,
+          chat: this._defaultChat(options?.chat),
+          from: this._defaultUser(options?.user),
+          text
+        }
+      },
+      options
+    )
+  }
+
+  /**
+   * Simulate service message for new chat members joining.
+   *
+   * @param options - User, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
+  async sendNewChatMembers(options?: ITMockTelegramUpdateOptions) {
+    return await this._postUpdate(this._buildMessageUpdate({new_chat_members: [this._defaultUser(options?.user)]}, options), options)
+  }
+
+  /**
+   * Simulate a channel post.
+   *
+   * @param text - The channel post text.
+   * @param options - Chat and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
+  async sendChannelPost(text: string, options?: ITMockTelegramUpdateOptions) {
+    const {updateId, messageId, date} = this._nextIds(options)
+    return await this._postUpdate(
+      {
+        update_id: updateId,
+        channel_post: {
+          message_id: messageId,
+          date,
+          chat: this._defaultChat({type: `channel`, ...options?.chat}),
+          text
+        }
+      },
+      options
+    )
+  }
+
+  /**
+   * Simulate a user answering a poll.
+   *
+   * @param pollId - The poll identifier.
+   * @param optionIds - Selected option indexes.
+   * @param options - User and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
+  async sendPollAnswer(pollId: string, optionIds: number[], options?: ITMockTelegramUpdateOptions) {
+    const {updateId} = this._nextIds(options)
+    return await this._postUpdate(
+      {
+        update_id: updateId,
+        poll_answer: {
+          poll_id: pollId,
+          user: this._defaultUser(options?.user),
+          option_ids: optionIds
+        }
+      },
+      options
+    )
+  }
+
+  /**
+   * Simulate an incoming inline query.
+   *
+   * @param query - The query string.
+   * @param options - User and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
+  async sendInlineQuery(query: string, options?: ITMockTelegramUpdateOptions) {
+    const {updateId} = this._nextIds(options)
+    return await this._postUpdate(
+      {
+        update_id: updateId,
+        inline_query: {
+          id: `mock-inline-${updateId}`,
+          from: this._defaultUser(options?.user),
+          query,
+          offset: `0`
+        }
+      },
+      options
+    )
+  }
+
+  /**
+   * Simulate a chosen inline result.
+   *
+   * @param resultId - The selected result identifier.
+   * @param query - The query string that produced the result.
+   * @param options - User and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
+  async sendChosenInlineResult(resultId: string, query: string, options?: ITMockTelegramUpdateOptions) {
+    const {updateId} = this._nextIds(options)
+    return await this._postUpdate(
+      {
+        update_id: updateId,
+        chosen_inline_result: {
+          result_id: resultId,
+          from: this._defaultUser(options?.user),
+          query
+        }
+      },
+      options
+    )
+  }
+
+  /**
+   * Simulate a chat member status transition.
+   *
+   * @param options - Old/new status plus user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
+  async sendChatMemberUpdate(options?: ITMockTelegramUpdateOptions & {oldStatus?: string; newStatus?: string}) {
+    const {updateId, date} = this._nextIds(options)
+    const user = this._defaultUser(options?.user)
+    return await this._postUpdate(
+      {
+        update_id: updateId,
+        chat_member: {
+          chat: this._defaultChat(options?.chat),
+          from: user,
+          date,
+          old_chat_member: {user, status: options?.oldStatus ?? `member`},
+          new_chat_member: {user, status: options?.newStatus ?? `member`}
+        }
+      },
+      options
+    )
+  }
+
+  /**
+   * Simulate a bot membership status transition (my_chat_member).
+   *
+   * @param options - Old/new status plus user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
+  async sendMyChatMemberUpdate(options?: ITMockTelegramUpdateOptions & {oldStatus?: string; newStatus?: string}) {
+    const {updateId, date} = this._nextIds(options)
+    const user = this._defaultUser(options?.user)
+    return await this._postUpdate(
+      {
+        update_id: updateId,
+        my_chat_member: {
+          chat: this._defaultChat(options?.chat),
+          from: user,
+          date,
+          old_chat_member: {user, status: options?.oldStatus ?? `member`},
+          new_chat_member: {user, status: options?.newStatus ?? `member`}
+        }
+      },
+      options
+    )
   }
 }

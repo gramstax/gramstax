@@ -1,26 +1,26 @@
 /**
  * Case 2: Template Literal Interpolation Injection
  *
- * This POC demonstrates how the ${} syntax in the template string is automatically
- * evaluated by JavaScript because the entire message is compiled into a template literal.
+ * This POC proves that `${}` smuggled into top-level static template text
+ * is rendered literally instead of being evaluated. Non-generated spans
+ * are emitted as `JSON.stringify` string literals, so only code produced
+ * by the block/scope processors ever runs.
  *
- * Vulnerability: The TemplateEngine does not escape or sanitize the $ character
- * in the raw template text.
- *
- * Risk: Similar to backticks, if an attacker can inject ${} into the template source,
- * they can execute arbitrary JavaScript in the context of the render function.
+ * Expected: no code executes; the payload prints literally.
  */
 
 import {TemplateEngine} from "../src/template/engine.js"
 
 console.log(`--- CASE 2: INTERPOLATION INJECTION ---`)
 
-// The developer/attacker puts ${} directly in the message block.
-// This is evaluated because the result of compilation is a `...` string.
+const store = globalThis as unknown as Record<string, unknown>
+store.__poc2 = false
+
+// The payload sits directly in the message block. It must stay literal.
 const maliciousTemplate = `
   <g-base>
     <g-message>
-      Server Time: \${console.log("!!! VULNERABILITY ALERT: Interpolation injection successful !!!") || new Date()}
+      Server Time: \${((globalThis as unknown as Record<string, unknown>).__poc2 = true, new Date())}
     </g-message>
   </g-base>
 `
@@ -33,3 +33,10 @@ const render = messages.default?.default
 if (!render) throw new Error(`compile produced no default message`)
 const result = render({})
 console.log(`Final Result:`, result)
+
+if (store.__poc2 === true) {
+  console.log(`VULNERABLE: interpolation injection executed code`)
+  process.exit(1)
+} else {
+  console.log(`SAFE: interpolation payload rendered literally, no code executed`)
+}

@@ -1,15 +1,12 @@
 /**
  * Case 3: Safe Data Binding (Default Behavior)
  *
- * This POC demonstrates that the standard {{variable}} syntax is SAFE against
- * data injection from users (e.g., names, bio, messages).
+ * This POC proves that the standard `{{variable}}` syntax is safe against
+ * data injection from users (e.g., names, bio, messages). Data values are
+ * resolved at runtime and never re-evaluated as code, even when they
+ * contain backticks or `${}` syntax.
  *
- * Why it is safe: The engine converts {{key}} into data["key"] access inside the
- * template literal. JavaScript treats the value of data["key"] strictly as a
- * string/value, and does NOT re-evaluate it as code even if it contains
- * backticks or ${} syntax.
- *
- * Result: User-provided data cannot trigger RCE as long as it is handled via {{}}.
+ * Expected: the malicious input prints literally; no code executes.
  */
 
 import {TemplateEngine} from "../src/template/engine.js"
@@ -37,4 +34,10 @@ if (!render) throw new Error(`compile produced no default message`)
 const result = render({username: maliciousUserInput})
 
 console.log(`Final Result (Should be safe string):`, result)
-console.log(`Verification: No code was executed.`)
+
+if (typeof result === `string` && result.includes(maliciousUserInput)) {
+  console.log(`SAFE: user input rendered literally, no code executed`)
+} else {
+  console.log(`UNEXPECTED: user input missing from output`)
+  process.exit(1)
+}
