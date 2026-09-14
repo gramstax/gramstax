@@ -1,0 +1,50 @@
+# e2e-setup
+
+One `setup.ts` with `deploy: "test"`, mirrored test files, `clearCalls` isolation.
+
+## Why
+
+`deploy: "test"` drives updates through `handleUpdate` in-process — no MockTelegramServer, no ports, no polling, no `beforeAll` server waits. Mirror layout guarantees every page has at least a registration test; `clearCalls` per test prevents call-log leakage between cases.
+
+## Incorrect
+
+```typescript
+// spinning up servers and polling for e2e
+import {MockTelegramServer} from "gramstax"
+const mock = new MockTelegramServer()
+await mock.start() // ports, webhook polling, flaky timing
+```
+
+## Correct
+
+```typescript
+// e2e/setup.ts
+import {join} from "node:path"
+import {BotCore} from "../src/core/bot"
+import {TemplateManager} from "gramstax"
+
+export const bot = new BotCore({
+  deploy: `test`,
+  token: `test`,
+  log: false,
+  stream: true,
+  autoRetry: true,
+  templateManager: new TemplateManager({path: [join(import.meta.dir, `../src/pages`)]})
+})
+export const e2e = bot.e2e!
+```
+
+```typescript
+// e2e/start.test.ts
+import {beforeEach, describe, expect, it} from "bun:test"
+import {e2e} from "./setup"
+
+beforeEach(() => e2e.clearCalls())
+```
+
+## Notes
+
+- Mirror: `src/pages/foo/bar.ts` → `e2e/foo/bar.test.ts` (`scripts/check-e2e-mirror.ts`, `--fix` scaffolds stubs).
+- `stream: true` captures streaming as `sendMessageDraft`/`sendRichMessageDraft`/`sendRichMessage`; `autoRetry: true` is invisible to call capture.
+- Unique `{user, chat}` ids per file when sessions could collide; `hookAfterStart` workers start automatically.
+- Project extras live after `e2e`: `resetDb`/`resetEnv`, HTTP `Bun.serve` URLs, page monkey-patches (before bot creation).

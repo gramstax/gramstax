@@ -1,0 +1,56 @@
+# pages-structure
+
+Follow the strict file order; compose pages from Base, consts, Helper, and `g*` objects; always define `static data`.
+
+## Why
+
+Uniform layout lets any agent (or human) locate routing, rendering, and business logic blind. `static data` is what makes `callbackQueryData()` type-safe — without it, callback wiring is stringly-typed and breaks silently.
+
+## Incorrect
+
+```typescript
+export class DepositPage extends PageBase {
+  gamount = { show: async () => {} } // handlers missing, data missing
+  static template = `...`
+  async handleCallbackQueryData() { await this.gamount.show(true) }
+}
+```
+
+## Correct
+
+```typescript
+import {PageBase} from "~/base/page"
+
+class Base {
+  static amount = `s1`
+}
+
+const DEPOSIT_TIMEOUT = 300_000
+
+class Helper {
+  static kb(ctx: DepositPage, bi?: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, bi)
+  }
+}
+
+export class DepositPage extends PageBase {
+  static data = this.buildData()
+
+  async handleCallbackQueryData() {
+    await this.gamount.show(true)
+  }
+
+  gamount = {
+    show: async (edit: boolean) => {},
+    process: async (input: string) => {}
+  }
+
+  static template = `...`
+}
+```
+
+## Notes
+
+- Order: imports → `Base` → UPPER consts → `Helper` → Page (`static data` first, handlers, `g*` objects, `static template` last). Skip sections a file does not need — never leave empty class blocks.
+- `g<name>` maps from base id: no id → `gdefault`, `id="s1"` → `gs1`, `id="amount"` → `gamount`.
+- Feedback views follow the same pattern (`gsuccess`, `gfailed`, `gerror`, `gwarn`, `ginfo`) and sit after step objects.
