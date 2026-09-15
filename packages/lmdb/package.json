@@ -4,7 +4,7 @@
   "private": false,
   "publishConfig": {
     "access": "public",
-    "provenance": true
+    "provenance": false
   },
   "description": "LMDB-backed key-value database with schema-declared repositories, embedded indexes, TTL, queues, and transactions. Multi-runtime (Bun, Node.js).",
   "keywords": [

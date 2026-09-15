@@ -4,7 +4,7 @@
   "private": false,
   "publishConfig": {
     "access": "public",
-    "provenance": true
+    "provenance": false
   },
   "description": "Worker thread lifecycle with type-safe RPC, inter-worker socket gateway, and worker pools. Multi-runtime (Bun, Node.js).",
   "keywords": [
