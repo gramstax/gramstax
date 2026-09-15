@@ -25,7 +25,7 @@ documentation = ./packages/gramstax/docs/markdown/\*.md
 | STORAGE_REQUIREMENT       | Use LMDB only. Store users, content records, delivery records, settings, and broadcast metadata in `src/db`. Do not add SQL, Prisma, Redis, cloud databases, or unrelated persistence layers.                                                                                                                               |
 | ENVIRONMENT_VARIABLES     | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_DEPLOY`, `TELEGRAM_ADMIN_IDS`, `DB_PATH`, `DEFAULT_CONTENT_TTL_SECONDS`, `BROADCAST_BATCH_SIZE`, `BROADCAST_BATCH_DELAY_MS`                                                                                                                                                             |
 | PRODUCTION_CONSTRAINTS    | No secrets in source. Admin routes must be guarded. Broadcast must handle blocked/deleted chats gracefully. Auto-delete must not crash the bot if Telegram deletion fails. Content codes must be unique and normalized. TTL must be configurable per content with a safe default.                                           |
-| EXTRA_REQUIREMENTS        | Reference local Gramstax examples before implementing: `example/8-newsletter` for LMDB, admin guard, broadcast flow; `example/1-complex/e2e/main.test.ts` and `example/8-newsletter/e2e/main.test.ts` for e2e style; `example/9-substore-bot/test/store.test.ts` for unit-test style.                                       |
+| EXTRA_REQUIREMENTS        | Reference local Gramstax examples before implementing: `example/8-newsletter` for LMDB, admin guard, broadcast flow; `example/1-complex/e2e/start/` and `example/8-newsletter/e2e/broadcast.test.ts` for e2e style; `example/9-substore-bot/test/store.test.ts` for unit-test style.                                       |
 
 ## Target outcome
 
@@ -136,24 +136,15 @@ Use helper functions for code normalization, TTL parsing, delivery ID creation, 
 
 ## LMDB requirements
 
-- Use the `lmdb` npm package with `open` or the package’s current recommended open function.
-- Create `src/db/main.ts` or a small `src/db` module set.
-- Store data under stable prefixes, for example:
-  - `user:${id}`
-  - `content:${code}`
-  - `delivery:${deliveryId}`
-  - `setting:${key}`
-  - `broadcast:${id}`
-- Provide repository methods for:
-  - upsert/list/count known users
-  - mark user unreachable
-  - create/update/get/list/delete content
-  - increment content view count
-  - get/set settings
-  - create/update/list delivery records
-  - list pending deletions due before a timestamp
-- Use range iteration for list methods, following the style in `example/8-newsletter/src/db/main.ts`.
-- Keep LMDB access behind repository classes/functions. Do not scatter raw key strings across page files.
+- Use `@gramstax/lmdb` (schema-declared repositories), never the raw `lmdb` driver and never prefix-encoded keys.
+- Each entity is a `LmdbSchema` subclass (`static db` names the isolated sub-database, `static key` the primary key, `static value` the columns); register via `env.register(Schema)` and operate through the returned handle — e.g. `users.put(...)`, `users.get(...)` (sync reads).
+- Create `src/db/db.ts` (`Db extends LmdbEnv`, registers schemas in the constructor) plus `src/db/schema/*.ts` declarations; domain methods live in service classes receiving the `Db`, never on the schema.
+- Secondary indexes via `.unique()` / `.index()` on value columns; query with `findByIndex({...})`; pass `{limit}` for fan-out reads.
+- TTL via `static ttl` (ms) or per-put `{ttlMs}`; purge with `purgeExpired()`.
+- Keep the established layout: `src/db/db.ts`, `src/db/schema/<entity>.ts`, `src/db/repositories/<entity>.ts` (plain service classes taking `LmdbEnv`).
+- Range iteration for list methods, following the style in `example/8-newsletter/src/db/` — keyset (`start`/`limit`), never deep `offset`.
+- Keep LMDB access behind repository/service classes. Do not scatter raw key strings across page files.
+- Provide repository/service methods for: upsert/list/count known users; mark user unreachable; create/update/get/list/delete content; increment content view count; get/set settings; create/update/list delivery records; list pending deletions due before a timestamp.
 
 ## Auto-delete requirements
 
@@ -172,7 +163,7 @@ Use helper functions for code normalization, TTL parsing, delivery ID creation, 
 - Use batching controlled by `BROADCAST_BATCH_SIZE` and `BROADCAST_BATCH_DELAY_MS`.
 - Do not stop the whole broadcast on one failed chat.
 - Track result counts and show a clear admin summary.
-- Prefer Gramstax helpers such as `ctx.broadcast`/`ctx.broadcastMedia` if available in the generated context; otherwise use the generated bot/context API to send messages directly.
+- Prefer Gramstax `renderBroadcast`/`renderBroadcastMedia` when fanning out (per-user langs, counts, throttling); otherwise use the generated bot/context API to send messages directly.
 - For blocked/unreachable users, mark them unreachable or remove them from the active broadcast list.
 
 ## Project structure rules
@@ -197,19 +188,19 @@ For every page file in `src/pages`:
 - Do not write UI tags such as `<b>` or content-heavy message strings inside page logic methods.
 - Use `this.buildData` only when data must be prepared before rendering, and place that logic at the top of the handler.
 - Do not call `getSession()` manually. Assume the framework injects session data before routing.
-- If a form method exists as `showStep{N}Form`, the paired `processStep{N}Answer` MUST also exist.
-- If the paired answer method is intentionally unused, its body MUST be exactly `throw ctx`.
-- Prefer static methods in the internal `Main` class for page transitions and business logic.
+- Structure each view as a `g<name>` object with `show` and `process` methods (`gdefault` for single-base pages, `gs1`/`gamount`/… matching each `<g-base id>`). Handlers (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`) MUST be thin wrappers delegating to `g<*>.show()`/`g<*>.process()`.
+- Every `g*` object MUST define both `show` and `process` — use `process: () => {}` when the step expects no input. Uniform shape keeps generated code consistent.
+- Every page that defines `g*` objects MUST also define an instance `helper = {}` field with that page's small closures (keyboard builders, param readers); `g*` methods delegate to `this.helper.*`.
+- Prefer `renderAuto` family for rendering (auto send-vs-edit); never branch on `this.callbackQuery` manually.
+- Clear the session on the start page so every visit begins clean.
 
 Use this internal class order when classes are needed:
 
-1. `Base`
-2. `Constant`
-3. `Helper`
-4. `Main`
-5. Exported page class extending the generated page base
+1. `Base` (g-base id constants)
+2. Uppercase consts (reusable literals, top-level `const`, never class-wrapped)
+3. Exported page class extending the generated page base (`static data` first, handlers, `helper = {}`, `g*` objects, `static template` last)
 
-Feedback methods (success, warning, error, info) are static methods inside `Main`, positioned **after** all `showStep{N}Form` and `processStep{N}Answer` methods.
+Feedback views (`gsuccess`, `gfailed`, `gerror`, `gwarn`, `ginfo`) follow the same `g*` pattern, positioned **after** all step objects.
 
 Only define an internal class if it contains real logic or data. Do not create empty class blocks.
 
@@ -269,7 +260,7 @@ Code style MUST follow:
 ## Production quality requirements
 
 - Handle empty content code, invalid content code, disabled content, expired content, invalid TTL, missing admin env, no known users, broadcast failures, and Telegram delete failures.
-- Never swallow errors. Provide meaningful user-facing feedback through Main feedback methods and store operational failure status where useful.
+- Never swallow errors. Provide meaningful user-facing feedback through `g*` feedback objects (`gsuccess`, `gerror`, …) and store operational failure status where useful.
 - Keep UI transitions responsive and clear.
 - Use helpers, services, repositories, or database folders only when justified by actual project complexity.
 - Do not over-engineer. Only add abstractions that the implemented flow uses.
@@ -281,12 +272,10 @@ Add tests that prove the bot works from the user’s point of view and that extr
 
 ### E2E testing
 
-- MUST create `e2e/main.test.ts`.
-- Use `bun:test` with `describe`, `it`, `expect`, `beforeAll`, `afterAll`, and `beforeEach`.
-- Use Gramstax `MockTelegramServer` to simulate Telegram instead of calling the real Telegram API.
-- Initialize the generated bot core with a test token, webhook deploy mode, a `TemplateManager` that loads `src/pages`, and `botConfig.client.apiRoot` pointing to `mockServer.apiRoot`.
-- Start `MockTelegramServer` in `beforeAll`, stop both `botCore` and the mock server in `afterAll`, and call `mockServer.clearRequests()` in `beforeEach`.
-- Prefer helper functions for repeated user context and keyboard lookup, such as `createPrivateUserContext(id)` and `getCallbackQueryDataByLabel(responses, label)`.
+- Mirror the pages tree: `src/pages/<name>.ts` → `e2e/<name>.test.ts` (verify with `bun run scripts/check-e2e-mirror.ts`).
+- Use `bun:test` with `describe`, `it`, `expect`, and `beforeEach`.
+- Drive the bot in-process with `deploy: "test"` via `e2e/setup.ts` (`bot.e2e!`) — no `MockTelegramServer`, no ports, no polling, no `beforeAll` server waits; `beforeEach(() => e2e.clearCalls())`.
+- Validate every Telegram call, not just the last: methods order, message text via `e2e.gmsg()`, labels via `e2e.gkb()`, media via `e2e.gmedia()`; edits via `e2e.lastCall("editMessageText")`.
 - Cover `/start` without code: helpful instruction message and user saved.
 - Cover `/start valid-code`: content delivered, expiry text shown, delivery record created.
 - Cover `/start invalid-code`: helpful not-found message.
@@ -316,12 +305,11 @@ Add tests that prove the bot works from the user’s point of view and that extr
 2. Scaffold with `npx create-gramstax@latest` into `./real/vip-content-bot`.
 3. Inspect the generated project before editing.
 4. Inspect local references before implementing:
-   - `example/8-newsletter/src/db/main.ts`
+   - `example/8-newsletter/src/db/` (index, schema, repositories)
    - `example/8-newsletter/src/guards/admin.ts`
    - `example/8-newsletter/src/pages/broadcast.ts`
-   - `example/1-complex/e2e/main.test.ts`
-   - `example/8-newsletter/e2e/main.test.ts`
-   - `example/9-substore-bot/test/store.test.ts`
+   - `example/1-complex/e2e/start/` and `example/8-newsletter/e2e/broadcast.test.ts` for e2e style
+   - `example/9-substore-bot/test/store.test.ts` for unit-test style
 5. Identify generated Gramstax imports, page base classes, routing hooks, template helpers, context methods, and scripts.
 6. Implement LMDB repositories first with unit tests.
 7. Implement content delivery and auto-delete services with unit tests.

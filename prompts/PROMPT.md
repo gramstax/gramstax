@@ -96,19 +96,19 @@ For every page file in `src/pages`:
 - Do not write UI tags such as `<b>` or content-heavy message strings inside page logic methods.
 - Use `this.buildData` only when data must be prepared before rendering, and place that logic at the top of the handler.
 - Do not call `getSession()` manually. Assume the framework injects session data before routing.
-- If a form method exists as `showStep{N}Form`, the paired `processStep{N}Answer` MUST also exist.
-- If the paired answer method is intentionally unused, its body MUST be exactly `throw ctx`.
-- Prefer static methods in the internal `Main` class for page transitions and business logic.
+- Structure each view as a `g<name>` object with `show` and `process` methods (`gdefault` for single-base pages, `gs1`/`gamount`/… matching each `<g-base id>`). Handlers (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`) MUST be thin wrappers delegating to `g<*>.show()`/`g<*>.process()`.
+- Every `g*` object MUST define both `show` and `process` — use `process: () => {}` when the step expects no input. Uniform shape keeps generated code consistent.
+- Every page that defines `g*` objects MUST also define an instance `helper = {}` field with that page's small closures (keyboard builders, param readers); `g*` methods delegate to `this.helper.*`.
+- Prefer `renderAuto` family for rendering (auto send-vs-edit); never branch on `this.callbackQuery` manually.
+- Clear the session on the start page so every visit begins clean.
 
 Use this internal class order when classes are needed:
 
-1. `Base`
-2. `Constant`
-3. `Helper`
-4. `Main`
-5. Exported page class extending the generated page base
+1. `Base` (g-base id constants)
+2. Uppercase consts (reusable literals, top-level `const`, never class-wrapped)
+3. Exported page class extending the generated page base (`static data` first, handlers, `helper = {}`, `g*` objects, `static template` last)
 
-Feedback methods (success, warning, error, info) are static methods inside `Main`, positioned **after** all `showStep{N}Form` and `processStep{N}Answer` methods.
+Feedback views (`gsuccess`, `gfailed`, `gerror`, `gwarn`, `ginfo`) follow the same `g*` pattern, positioned **after** all step objects.
 
 Only define an internal class if it contains real logic or data. Do not create empty class blocks.
 
@@ -168,7 +168,7 @@ Code style MUST follow:
 ## Production quality requirements
 
 - Handle common edge cases such as empty input, invalid input, missing environment variables, and failed external operations.
-- Never swallow errors. Provide meaningful user-facing feedback through Main feedback methods.
+- Never swallow errors. Provide meaningful user-facing feedback through `g*` feedback objects (`gsuccess`, `gerror`, …).
 - Keep UI transitions responsive and clear.
 - Use helpers, services, repositories, or database folders only when they are justified by actual project complexity.
 - Do not over-engineer. Only add abstractions that the implemented flow uses.
@@ -179,26 +179,23 @@ Add tests that prove the bot works from the user’s point of view and that extr
 
 ### E2E testing
 
-- MUST create an e2e test at `e2e/main.test.ts` when the generated project has or can support a test script.
-- Use `bun:test` with `describe`, `it`, `expect`, `beforeAll`, `afterAll`, and `beforeEach`.
-- Use Gramstax’s `MockTelegramServer` to simulate Telegram instead of calling the real Telegram API.
-- Initialize the generated bot core with a test token, webhook deploy mode, a `TemplateManager` that loads `src/pages`, and `botConfig.client.apiRoot` pointing to `mockServer.apiRoot`.
-- Start `MockTelegramServer` in `beforeAll`, stop both `botCore` and the mock server in `afterAll`, and call `mockServer.clearRequests()` in `beforeEach`.
-- Prefer helper functions for repeated user context and keyboard lookup, such as `createPrivateUserContext(id)` and `getCallbackQueryDataByLabel(responses, label)`.
+- Mirror the pages tree: `src/pages/foo/bar.ts` → `e2e/foo/bar.test.ts` (plus `e2e/setup.ts` harness, never a page test). Verify with `bun run scripts/check-e2e-mirror.ts`.
+- Use `bun:test` with `describe`, `it`, `expect`, and `beforeEach`.
+- Drive the bot in-process with `deploy: "test"` — no `MockTelegramServer`, no ports, no polling, no `beforeAll` server waits. Shape (see generated `e2e/setup.ts`):
+
+```typescript
+export const bot = new BotCore({deploy: `test`, token: `test`, log: false, stream: true, autoRetry: true, templateManager})
+export const e2e = bot.e2e!
+beforeEach(() => e2e.clearCalls())
+```
+
 - Cover the primary happy path from `/start` through the main inline keyboard flow described by `PRIMARY_USER_JOURNEY`.
 - Cover each important callback action from `INLINE_KEYBOARD_ACTIONS`, including navigation back to the start page when applicable.
 - Cover each free-text step from `FREE_TEXT_STEPS`, including the session state that accepts the answer and the resulting confirmation or validation message.
-- Cover important media or Telegram method behavior by checking `mockServer.lastRequest("sendMessage")`, `mockServer.lastRequest("editMessageText")`, `mockServer.lastRequest("sendPhoto")`, `mockServer.lastRequest("editMessageMedia")`, or the method relevant to the feature.
+- Validate every Telegram call, not just the last: methods order (`answerCallbackQuery` first), message text via `e2e.gmsg()`, labels via `e2e.gkb()`, media via `e2e.gmedia()`; edits via `e2e.lastCall("editMessageText")`.
 - Assert user-visible outcomes, not implementation details: message text contains stable headings/content, inline keyboards contain expected labels, and Telegram requests contain expected payload fields.
 - Use distinct private user IDs for stateful tests so session data does not leak between scenarios.
-
-Reference shape for e2e tests:
-
-- imports: `join` from `node:path`, Bun test helpers from `bun:test`, `TemplateManager` and `MockTelegramServer` from `gramstax`, and the generated `BotCore` from `../src/core/bot`.
-- top-level variables: `let mockServer: MockTelegramServer` and `let botCore: BotCore`.
-- `beforeAll`: start `new MockTelegramServer({log: false})`, create `new TemplateManager({path: [join(import.meta.dir, `../src/pages`)]})`, then create `new BotCore({deploy: `webhook:http://127.0.0.1:3001/webhook/e2e-project-name`, token: `test-token`, log: false, templateManager, botConfig: {client: {apiRoot: mockServer.apiRoot}}})`.
-- `afterAll`: `await botCore.stop()` and `await mockServer.stop()`.
-- `beforeEach`: `mockServer.clearRequests()`.
+- Cover fallback (unknown callback/command/text → StatusPage), session reset on `/start`, and language variants when applicable.
 
 ### Unit testing
 
@@ -234,7 +231,7 @@ Reference shape for e2e tests:
 - The app contains a working `start.ts` entry flow and the required inline/session-driven interactions.
 - Page files follow Gramstax class order, template, keyboard, base block, and naming rules.
 - User-facing text is production-ready, not placeholder text.
-- `e2e/main.test.ts` covers the primary `/start`, callback navigation, free-text, and Telegram request behavior for the requested flow when testing is supported.
+- `e2e/` mirrors `src/pages/` and covers the primary `/start`, callback navigation, free-text, and Telegram request behavior for the requested flow when testing is supported.
 - Unit tests under `test/` cover extracted helpers/stores/services, or the final response explicitly explains why no unit-testable pure logic was added.
 - Secrets are not committed or embedded.
 - Environment variables from `ENVIRONMENT_VARIABLES` are documented when provided.
