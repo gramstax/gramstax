@@ -14,11 +14,13 @@ export class StartRandomPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartRandomNumberPage, StartRandomTextPage, StartPage], `2`)
       await this.renderAutoRich(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

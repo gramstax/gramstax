@@ -4,11 +4,13 @@ import {HelpPage} from "./help"
 export class UserNameNotFoundPage extends PageBase {
   static data = this.buildData()
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([HelpPage])
       await this.renderAuto(kb)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

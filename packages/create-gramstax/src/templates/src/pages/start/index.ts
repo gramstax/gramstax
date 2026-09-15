@@ -14,13 +14,15 @@ export class StartPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([StartRandomPage, SumNumberPage, HelpPage], `2`)
       const da = {userName: this.from?.username}
       await this.renderAutoRich(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

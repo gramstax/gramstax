@@ -8,12 +8,14 @@ export class StartRandomNumberPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {}
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([this, StartRandomPage], `2`)
       const da = {result: Math.random() * 10 ** 18}
       await this.renderAuto(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

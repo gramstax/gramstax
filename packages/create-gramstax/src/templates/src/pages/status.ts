@@ -16,6 +16,7 @@ export class StatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
+  helper = {}
   gerror = {
     show: async (funcName: string, error: Error | unknown) => {
       LogHe.errorMake(error, this.constructorName, funcName)
@@ -24,15 +25,16 @@ export class StatusPage extends PageBase {
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       await this.clearSession()
       await this.renderAuto(kb, {}, bi)
-    }
+    },
+    process: () => {}
   }
-
   gnotFound = {
     show: async () => {
       const bi = Base.notFound
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       await this.renderAuto(kb, {}, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

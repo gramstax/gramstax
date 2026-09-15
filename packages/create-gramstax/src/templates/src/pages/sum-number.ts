@@ -7,16 +7,6 @@ class Base {
   static success = `s`
 }
 
-class Helper {
-  static getSessionParams(ctx: SumNumberPage) {
-    return (ctx.temp.session?.params as {step?: (typeof Base)[keyof typeof Base]; left?: number} | undefined) ?? {}
-  }
-
-  static kb(ctx: SumNumberPage, AGBaseId: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-  }
-}
-
 export class SumNumberPage extends PageBase {
   static data = this.buildData()
 
@@ -29,7 +19,7 @@ export class SumNumberPage extends PageBase {
   }
 
   async handleSessionFreeText() {
-    const {step, left} = Helper.getSessionParams(this)
+    const {step, left} = this.helper.getSessionParams()
     const input = this.msg!.text!.trim()
     const value = input ? Number(input) : NaN
     if (step === Base.left) {
@@ -39,10 +29,18 @@ export class SumNumberPage extends PageBase {
     }
   }
 
+  helper = {
+    getSessionParams: () => {
+      return (this.temp.session?.params as {step?: (typeof Base)[keyof typeof Base]; left?: number} | undefined) ?? {}
+    },
+    kb: (AGBaseId: string) => {
+      return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+    }
+  }
   gleft = {
     show: async () => {
       const bi = Base.left
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       await this.setSessionFreeText({step: bi})
       await this.renderAuto(kb, {}, bi)
     },
@@ -54,11 +52,10 @@ export class SumNumberPage extends PageBase {
       }
     }
   }
-
   gright = {
     show: async (left: number) => {
       const bi = Base.right
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       await this.setSessionFreeText({step: bi, left})
       await this.renderAuto(kb, {}, bi)
     },
@@ -71,14 +68,14 @@ export class SumNumberPage extends PageBase {
       }
     }
   }
-
   gsuccess = {
     show: async (left: number, right: number) => {
       const bi = Base.success
-      const kb = Helper.kb(this, bi)
+      const kb = this.helper.kb(bi)
       const da = {result: left + right}
       await this.renderAuto(kb, da, bi)
-    }
+    },
+    process: () => {}
   }
 
   static template = `

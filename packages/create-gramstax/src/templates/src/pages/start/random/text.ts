@@ -57,13 +57,6 @@ const _ID_WORDS = [
   `ketekunan`
 ]
 
-class Helper {
-  static pickRandom<T>(arr: T[], count: number): T[] {
-    const shuffled = [...arr].sort(() => Math.random() - 0.5)
-    return shuffled.slice(0, count)
-  }
-}
-
 export class StartRandomTextPage extends PageBase {
   static data = this.buildData()
   
@@ -71,16 +64,23 @@ export class StartRandomTextPage extends PageBase {
     await this.gdefault.show()
   }
 
+  helper = {
+    pickRandom: <T>(arr: T[], count: number): T[] => {
+      const shuffled = [...arr].sort(() => Math.random() - 0.5)
+      return shuffled.slice(0, count)
+    }
+  }
   gdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([this, StartRandomPage], `2`)
       const count = Math.floor(Math.random() * 3) + 2 // 2–4 words
       const lang = this.from.language_code
       const da = {
-        res: lang === `en` ? Helper.pickRandom(_WORDS, count).join(` `) : lang === `id` ? Helper.pickRandom(_ID_WORDS, count).join(` `) : Helper.pickRandom(_WORDS, count).join(` `)
+        res: lang === `en` ? this.helper.pickRandom(_WORDS, count).join(` `) : lang === `id` ? this.helper.pickRandom(_ID_WORDS, count).join(` `) : this.helper.pickRandom(_WORDS, count).join(` `)
       }
       await this.renderAuto(kb, da)
-    }
+    },
+    process: () => {}
   }
 
   static template = `
