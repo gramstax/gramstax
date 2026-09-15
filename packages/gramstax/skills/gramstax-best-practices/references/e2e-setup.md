@@ -32,6 +32,8 @@ export const bot = new BotCore({
   templateManager: new TemplateManager({path: [join(import.meta.dir, `../src/pages`)]})
 })
 export const e2e = bot.e2e!
+export const enUser = {user: {id: 4001, language_code: `en`}, chat: {id: 4001}}
+export const idUser = {user: {id: 5001, language_code: `id`}, chat: {id: 5001}}
 ```
 
 ```typescript
@@ -41,6 +43,35 @@ import {e2e} from "./setup"
 
 beforeEach(() => e2e.clearCalls())
 ```
+
+## Structure Mirroring — `e2e/` MUST Mirror `src/pages/`
+
+Every page file MUST have a test file at the same relative path — including directory-index pages:
+
+```
+src/pages/                   e2e/
+├── start.ts      ──────▶    ├── start.test.ts
+├── start/                   ├── start/
+│   ├── index.ts  ──▶        │   ├── index.test.ts
+│   └── counter/             │   └── counter/
+│       └── index.ts  ──▶    │       └── index.test.ts
+├── help.ts        ──────▶    ├── help.test.ts
+└── sum-number.ts  ──────▶    └── sum-number.test.ts
+```
+
+Rules:
+
+- `foo.ts` → `foo.test.ts`; `foo/bar.ts` → `foo/bar.test.ts`; `index.ts` → `index.test.ts` in the same folder (never at the parent level).
+- `setup.ts` is the harness, not a page test — excluded from mirroring.
+- Verify mechanically (ships in generated projects and repo root `scripts/`):
+
+```bash
+bun run scripts/check-e2e-mirror.ts          # fail CI on orphans
+bun run scripts/check-e2e-mirror.ts --fix    # scaffold missing stubs
+bun run scripts/generate-e2e-structure.ts    # bulk-generate stubs
+```
+
+Rationale: mirroring guarantees every page — including nested index routes — has at minimum a registration test, so orphaned pages can never go unnoticed.
 
 ## Notes
 
