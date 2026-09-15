@@ -21,11 +21,14 @@ Map of rule files by category prefix. Read only the files relevant to the task �
 - `template-scope.md` — scopes emit values only, double-quote literals, structural branches use blocks
 - `template-filters.md` — `{{var|filter:arg}}` pipes, chaining, `default` semantics
 - `template-rich.md` — 54-tag allowlist, self-closing voids, attribute validation
+- `template-media.md` — `g-media`/`g-media-group` authoring, pipe groups, delete-then-send types
+- `template-i18n.md` — `lang` variants, `intentTextMap`, default fallback
 
 ## keyboard- (HIGH)
 
 - `keyboard-reuse.md` — `kbk` centralization (2+ pages), local single-use builds
 - `keyboard-labels.md` — `kbl` composites, short action-led labels with emoji
+- `keyboard-choice.md` — inline (edit in place) vs bottom (text input) selection
 
 ## pages- (HIGH)
 

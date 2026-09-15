@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0
+
+- New rules: `template-media.md`, `template-i18n.md` (template-),
+  `keyboard-choice.md` (keyboard-). 26 rules total.
+
 ## 1.1.0
 
 - New rules: `route-hooks.md`, `route-broadcast.md` (route-),
