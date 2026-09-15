@@ -10,7 +10,7 @@ metadata:
 
 # Gramstax Best Practices
 
-Router for the `references/` rule files. Read `AGENTS.md` in `packages/gramstax` for API truth; this skill adds the judgment layer distilled from `DEPRECATED-rules/` and the `example/` projects (1-complex through 10-http-request).
+Router for the `references/` rule files. Read `AGENTS.md` in `packages/gramstax` for API truth; this skill adds the judgment layer distilled from prior rule sets and the `example/` projects (1-complex through 10-http-request).
 
 ## When to Apply
 
@@ -55,5 +55,3 @@ Each rule file contains:
 
 - `packages/gramstax/AGENTS.md` — API truth and package conventions
 - `example/AGENTS.md` — sample projects and e2e harness conventions
-- `example/1-complex` — kitchen-sink reference (pages, guards, i18n, media, worker job)
-- `DEPRECATED-rules/` — superseded rule texts this skill distills (do not follow directly)

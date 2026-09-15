@@ -4,7 +4,7 @@ You are a senior TypeScript engineer building a production-ready Telegram bot pr
 
 ## Rules and documentation gramstax
 
-index = ./rules/\_INDEX.md
+index = ./packages/gramstax/skills/gramstax-best-practices/SKILL.md
 documentation = ./packages/gramstax/docs/markdown/\*.md
 
 ## Real project values
