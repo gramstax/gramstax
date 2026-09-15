@@ -39,6 +39,6 @@ gamount = {
 
 ## Notes
 
-- Every `g*` object MUST have `show`; add `process` only when the step expects text input — never a throwaway no-op placeholder.
+- Every `g*` object MUST have `show` AND `process` — even when the step expects no input, define `process` as a void noop (`process: () => {}`). Uniform shape keeps AI-generated code consistent: every step is always renderable and processable without special cases.
 - Name the object after the step (`gamount`, `gconfirm`); feedback views go last (`gsuccess`, `gfailed`, `gerror`, `gwarn`, `ginfo`).
 - Manipulate data via `this.buildData` at the very top of the handler when needed, before rendering.
