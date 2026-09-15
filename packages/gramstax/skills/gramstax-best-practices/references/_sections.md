@@ -7,6 +7,8 @@ Map of rule files by category prefix. Read only the files relevant to the task �
 - `route-render-auto.md` — `renderAuto*` default, forced send/edit, `fallbackEdit`, no manual `callbackQuery` branching
 - `route-session.md` — session lifecycle: clear on start, `handleSessionFreeText`, never fetch manually
 - `route-handlers.md` — thin handlers delegating to `g*` show/process pairs
+- `route-hooks.md` — `hookBeforeRoute`/`hookAfterRoute`/`hookErrorPage`/`hookNotFoundPage` + `StatusPage`
+- `route-broadcast.md` — `renderBroadcast*` fan-out with per-user langs, counts, throttling
 
 ## security- (CRITICAL)
 
@@ -18,6 +20,7 @@ Map of rule files by category prefix. Read only the files relevant to the task �
 - `template-logic.md` — conditionals live in templates (`<g-switch>`, `{~~}`, `<g-script>`), single-base dedup
 - `template-scope.md` — scopes emit values only, double-quote literals, structural branches use blocks
 - `template-filters.md` — `{{var|filter:arg}}` pipes, chaining, `default` semantics
+- `template-rich.md` — 54-tag allowlist, self-closing voids, attribute validation
 
 ## keyboard- (HIGH)
 
@@ -40,3 +43,11 @@ Map of rule files by category prefix. Read only the files relevant to the task �
 
 - `deploy-modes.md` — polling/webhook/serverless/raw/test selection, `ready`, startup hooks
 - `deploy-runtime.md` — rate limiting, outgoing throttling, session lock, status server
+
+## guard- (MEDIUM)
+
+- `guard-guards.md` — `GuardBase` access control, `_catch` to `StatusPage`, language override
+
+## cache- (MEDIUM)
+
+- `cache-store.md` — `CacheExternal` memory/Redis/`forceStore`, TTL, namespaces

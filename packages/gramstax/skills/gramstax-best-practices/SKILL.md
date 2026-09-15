@@ -30,6 +30,8 @@ Router for the `references/` rule files. Read `AGENTS.md` in `packages/gramstax`
 | 5 | Pages & structure | HIGH | `pages-` |
 | 6 | E2E testing | MEDIUM-HIGH | `e2e-` |
 | 7 | Deploy & runtime | MEDIUM | `deploy-` |
+| 8 | Guards | MEDIUM | `guard-` |
+| 9 | Session cache store | MEDIUM | `cache-` |
 
 ## How to Use
 

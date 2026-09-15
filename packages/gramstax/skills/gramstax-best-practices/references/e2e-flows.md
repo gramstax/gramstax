@@ -30,7 +30,7 @@ const isolated = await e2e.sendText(`hi`, asUserB)
 expect(isolated).toBeDefined()
 
 // language variant renders translated content
-const id = await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
+const id = await e2e.sendCallbackQuery(intent, idUser)
 expect(id.length).toBeGreaterThan(0)
 ```
 
