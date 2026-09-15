@@ -67,6 +67,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Passwordless OIDC trusted publishing requires npm >= 11.5.1 to mint
+      # the short-lived registry token automatically. Node 22 bundles npm 10,
+      # which sends NO auth at all — the registry then answers every PUT
+      # (scoped and unscoped alike) with a misleading 404 "not in this
+      # registry". Do NOT add NODE_AUTH_TOKEN: that would silently replace
+      # the OIDC flow with a long-lived secret.
+      - name: Upgrade npm for OIDC trusted publishing
+        run: npm install -g npm@11 && npm --version
+
       - name: Release (with NPM OIDC)
         run: bun run release
         env:
