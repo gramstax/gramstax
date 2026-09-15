@@ -467,8 +467,6 @@ The migration is mechanical:
 
 Custom domain methods move to a service layer: keep the schema class for storage (db/key/value) and put business logic in a service class that receives the `Db` (env subclass) and calls `env.sub(Schema).put(...)` directly.
 
-For the full step-by-step guide, see `rules/ctx-db/MIGRATION_GUIDE.md` in the gramstax repo.
-
 ## Range Query Model
 
 Range queries use LMDB cursors exposed through lmdb-js's lazy `RangeIterable`. The iterator is created synchronously (no data read yet), and materialization via `.asArray` drains it asynchronously in a microtask. This means `keys()`/`values()`/`entries()`/`first()`/`last()`/`like()`/`findByPrefix()` all return Promises even though cursor creation is synchronous.
