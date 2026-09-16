@@ -206,6 +206,32 @@ beforeEach(() => e2e.clearCalls())
 - If testing page wiring that is hard to instantiate, use a narrow source-level assertion only for structural rules that cannot be exercised through e2e, and explain why in the test name.
 - If no extracted logic exists, do not create meaningless unit tests; state that e2e coverage is sufficient because the project has no pure logic layer.
 
+## README requirements
+
+The finished project MUST ship a `README.md` at the project root that documents the bot accurately enough for a non-technical reader. Follow this section structure exactly — every section is REQUIRED:
+
+1. Centered header: logo image with a correct `alt` (the project name, never another project's name), `<h1>` project name, one-paragraph description, technology badges as plain `<img>` shields (no broken `<a/>` wrappers), and a license badge matching the actual `LICENSE` file. No commented-out blocks from other projects, no stray markup.
+2. `## Features` in three groups — For users / For admins (`BOT_ADMIN_IDS`-gated actions only) / Platform. Every bullet MUST describe behavior verified in the code. Never list aspirational features. State failure behavior precisely (explicit error reply vs silently ignored).
+3. `## Quick Start`: prerequisites (runtime, token source, admin ID source), `bun install`, a `.env` example with unquoted values (quote only JSON arrays), dev (`bun run dev`) and production (`bun run start`) commands, and the first Telegram step (`/start`).
+4. `## Usage`: each user flow with LITERAL message texts copied from the templates — verify against `static template` sources, never paraphrase inside code fences (include follow-up lines such as retry hints when the template has them). An admin panel table (`Section` | `What you can do`) matching the actual pages. State the EXACT command that opens each entry point — verify routing in code (`/start` vs `/admin`), never assume the panel lives on `/start`.
+5. `## How it works`: `PRIMARY_USER_JOURNEY` as a mermaid `flowchart` where every node traces to a real handler, plus prose naming exact files/functions for ban checks, registration, gate/membership checks (including cache TTLs), code validation, media delivery (spoiler, view counting, cleanup bookkeeping), and upload-to-code flow. Document edge behavior found in code: empty-gate-config pass-through, duplicate-event suppression, per-user cleanup on pass.
+6. `## Scripts`: a table of EVERY `package.json` script with descriptions verified against what each script actually runs.
+7. `## Project Structure`: an ASCII tree matching the real tree, with a one-line note per directory/file. Include `e2e/`, `test/`, runtime dirs, and helper scripts. Add the `New page?` convention line used by the scaffold.
+8. `## Configuration`: a table (`Variable` | `Required` | `Default` | `Description`) of EVERY environment variable the code reads — cross-check against the env module so none are missing, and copy each default exactly. Call out JSON-array shapes and single-writer/single-file semantics (e.g. one env file, index-parallel arrays) where they exist.
+9. `## Architecture`: the request-flow line (`Update` → guard → `Page (show/process)` → repository → API), background worker jobs (what each owns, RPC patterns with timeout notes), the exact shutdown order from the shutdown owner, and a data-model table (`Schema` | `Key` | `Value` | `Notes`) matching every registered schema (key types, unique/index markers, counters, retention/prune rules, list caps). State the enforced code rules (keyset pagination, sync transaction callbacks, `{limit}` on fan-out reads, `count()` over manual totals) only if the code actually enforces them.
+10. `## Testing`: `bun run test` / `test:e2e` / `test:all` with REAL counts from actual test runs (re-run to confirm before writing), one-file examples pointing at real files (`test/` paths for unit, `e2e/` paths for e2e), and one paragraph on what the e2e harness asserts.
+11. `## Deployment`: development (polling), production (webhook behind a process manager), serverless (only per the framework's documented pattern — never claim the entrypoint exports a handler when it boots directly), backup/restore matching ACTUAL library capabilities (live snapshot vs stop-the-world, multi-process read support vs single-writer rule), DB inspection script usage verified against its `--help`/behavior, and log behavior verified in code (stdout by default; file output only when the logger's file option is configured — never claim logs land in `logs/` unless something writes there).
+12. `## Troubleshooting`: a symptom table (`Symptom` | `Likely cause` | `Fix`) where every cause/fix is verified against code or observed errors — never generic guesses.
+13. `## Tech Stack`: each dependency with the MAJOR version from `package.json`, plus runtime/test/lint toolchain as configured. Never claim configs that do not exist (e.g. `.vscode/settings.json`).
+14. `## License`: MUST match the `LICENSE` file text and the `package.json` license field — never write `MIT` when the file says otherwise.
+
+Accuracy rules (BLOCKING — the README is not done until all hold):
+
+- Every literal (message text, command, default value, test count, TTL) MUST be copied from code or tool output, never written from memory.
+- After drafting, do a mandatory second pass: re-read the README against the code and fix every mismatch (wrong entry command, missing env var, stale count, leftover name/URL, invalid HTML).
+- No leftover content from other projects (names, avatars, GIFs, links, comments).
+- Every file, path, command, and script mentioned MUST exist in the generated project.
+
 ## Required workflow
 
 1. Confirm all required interpolation values are filled and no required value still uses `[[...]]`.
@@ -215,7 +241,7 @@ beforeEach(() => e2e.clearCalls())
 5. Identify existing Gramstax imports, page base classes, routing hooks, template helpers, and scripts.
 6. Implement the requested production flow using the generated patterns.
 7. Add e2e tests for the main Telegram user journey and unit tests for extracted pure logic when present.
-8. Add or update documentation for required environment variables, run commands, and test commands.
+8. Write or update `README.md` per `README requirements` (all 14 sections), then perform the mandatory second accuracy pass against the code.
 9. Run the project’s available quality checks. Prefer, in order:
    - package install command from the generated project
    - lint or lint:fix command if available
@@ -235,5 +261,6 @@ beforeEach(() => e2e.clearCalls())
 - Unit tests under `test/` cover extracted helpers/stores/services, or the final response explicitly explains why no unit-testable pure logic was added.
 - Secrets are not committed or embedded.
 - Environment variables from `ENVIRONMENT_VARIABLES` are documented when provided.
+- `README.md` covers all 14 required sections with literals verified against code (entry commands, message texts, env defaults, test counts, license) and passed the second accuracy pass.
 - Lint/typecheck/build/test commands available in the generated project pass, or any unavailable commands are clearly reported with evidence.
 - The final response summarizes changed files, how to run the bot, required environment variables, and exact verification results.
