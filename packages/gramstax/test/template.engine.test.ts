@@ -1,4 +1,5 @@
-import {describe, expect, it } from "bun:test"
+import {describe, expect, it} from "bun:test"
+import {InputFile} from "grammy"
 import {TemplateEngine} from "~/template/engine"
 
 describe(`TemplateEngine`, () => {
@@ -409,6 +410,64 @@ describe(`TemplateEngine`, () => {
       expect(media.caption).toBe(`Name: Alice`)
     })
 
+    it(`should keep bare-placeholder string src byte-identical incl. escaping`, () => {
+      const template = `<g-base><g-media type="document" src="{{file}}">cap</g-media></g-base>`
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      expect(compiled.default!.default!({file: `./x.log`}).src).toBe(`./x.log`)
+      expect(compiled.default!.default!({file: `a&b<c>.jpg`}).src).toBe(`a&amp;b&lt;c&gt;.jpg`)
+    })
+
+    it(`should pass Buffer src by reference through a bare placeholder`, () => {
+      const template = `<g-base><g-media type="document" src="{{file}}">cap</g-media></g-base>`
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      const buf = Buffer.from(`hello`)
+      expect(compiled.default!.default!({file: buf}).src).toBe(buf)
+    })
+
+    it(`should pass InputFile src by reference through a bare placeholder`, () => {
+      const template = `<g-base><g-media type="document" src="{{file}}">cap</g-media></g-base>`
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      const file = new InputFile(Buffer.from(`hello`), `a.txt`)
+      expect(compiled.default!.default!({file}).src).toBe(file)
+    })
+
+    it(`should pass dummy object src by reference through a bare placeholder`, () => {
+      const template = `<g-base><g-media type="document" src="{{file}}">cap</g-media></g-base>`
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      const obj = {custom: `payload`} as any
+      expect(compiled.default!.default!({file: obj}).src).toBe(obj)
+    })
+
+    it(`should render empty string for missing bare-placeholder src key`, () => {
+      const template = `<g-base><g-media type="document" src="{{file}}">cap</g-media></g-base>`
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      expect(compiled.default!.default!({}).src).toBe(``)
+    })
+
+    it(`should pass objects by reference through dotted bare-placeholder paths`, () => {
+      const template = `<g-base><g-media type="document" src="  {{a.b}}  ">cap</g-media></g-base>`
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      const buf = Buffer.from(`nested`)
+      expect(compiled.default!.default!({a: {b: buf}}).src).toBe(buf)
+      expect(compiled.default!.default!({a: {b: `./x.log`}}).src).toBe(`  ./x.log  `)
+      expect(compiled.default!.default!({}).src).toBe(`    `)
+    })
+
+    it(`should keep non-bare src stringified when data holds an object`, () => {
+      const template = `<g-base><g-media type="document" src="pre-{{x}}">cap</g-media></g-base>`
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      expect(compiled.default!.default!({x: {custom: 1}}).src).toBe(`pre-[object Object]`)
+    })
+
+    it(`should pass media-group item src objects by reference`, () => {
+      const template = `<g-base><g-media-group><g-media type="photo" src="{{pic}}">Cap</g-media><g-media type="photo" src="static.jpg"></g-media></g-media-group></g-base>`
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      const buf = Buffer.from(`group-bytes`)
+      const media = compiled.default!.default!({pic: buf})
+      expect(media.mediaGroup![0]!.src).toBe(buf)
+      expect(media.mediaGroup![1]!.src).toBe(`static.jpg`)
+    })
+
     it(`should compile dynamic pipe-delimited <g-media> src values as srcList`, () => {
       const template = `
         <g-base id="album">
@@ -421,6 +480,68 @@ describe(`TemplateEngine`, () => {
       expect(media.src).toBe(`a.jpg|b.jpg`)
       expect(media.srcList).toEqual([`a.jpg`, `b.jpg`])
       expect(media.caption).toBe(`Album: Photos`)
+    })
+
+    it(`should compile static <g-media> filename`, () => {
+      const template = `
+        <g-base id="doc">
+          <g-media type="document" src="./a.tar.gz" filename="backup.tar.gz">cap</g-media>
+        </g-base>
+      `
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      const media = compiled.doc!.default!({})
+
+      expect(media.src).toBe(`./a.tar.gz`)
+      expect(media.filename).toBe(`backup.tar.gz`)
+      expect(media.caption).toBe(`cap`)
+    })
+
+    it(`should interpolate {{var}} in <g-media> filename`, () => {
+      const template = `
+        <g-base id="doc">
+          <g-media type="document" src="./a.tar.gz" filename="backup-{{date}}.tar.gz">cap</g-media>
+        </g-base>
+      `
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      const media = compiled.doc!.default!({date: `2026-09-17`})
+
+      expect(media.src).toBe(`./a.tar.gz`)
+      expect(media.filename).toBe(`backup-2026-09-17.tar.gz`)
+      expect(media.caption).toBe(`cap`)
+    })
+
+    it(`should apply filter pipe in <g-media> filename`, () => {
+      const template = `
+        <g-base id="doc">
+          <g-media type="document" src="./a.tar.gz" filename="{{name|upper}}.tar.gz">cap</g-media>
+        </g-base>
+      `
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      const media = compiled.doc!.default!({name: `backup`})
+
+      expect(media.filename).toBe(`BACKUP.tar.gz`)
+    })
+
+    it(`should leave filename undefined when <g-media> has no filename attr`, () => {
+      const template = `
+        <g-base id="doc">
+          <g-media type="document" src="./a.tar.gz">cap</g-media>
+        </g-base>
+      `
+      const compiled = TemplateEngine.compileBlockGMedia(template)
+      const media = compiled.doc!.default!({})
+
+      expect(media.filename).toBeUndefined()
+    })
+
+    it(`should accept filename attr (incl. placeholder) and still reject unknown attrs on <g-media>`, () => {
+      const valid = TemplateEngine.validateBlockGMediaAttributes(`<g-media type="document" src="./a.tar.gz" filename="backup-{{date}}.tar.gz">cap</g-media>`)
+      expect(valid.valid).toBe(true)
+      expect(valid.errors).toEqual([])
+
+      const invalid = TemplateEngine.validateBlockGMediaAttributes(`<g-media type="document" src="./a.tar.gz" filename="x.tar.gz" bogus="1">cap</g-media>`)
+      expect(invalid.valid).toBe(false)
+      expect(invalid.errors.some((e) => e.message.includes(`bogus`))).toBe(true)
     })
 
     it(`should compile <g-media-group> blocks with mixed photo and video items`, () => {

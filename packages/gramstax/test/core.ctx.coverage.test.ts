@@ -1,9 +1,11 @@
 import {afterEach, describe, expect, it, mock} from "bun:test"
-import {InlineKeyboard} from "grammy"
 import {mkdir, rm, writeFile} from "node:fs/promises"
+
 import {join} from "node:path"
+import {InlineKeyboard, InputFile} from "grammy"
 import {Ctx} from "~/core/ctx"
 import {TemplateManager} from "~/template/manager"
+
 import type {ITCtxParams} from "~/types/t.ctx"
 
 const TEST_DIR = join(import.meta.dir, `ctx_coverage_views`)
@@ -418,5 +420,152 @@ describe(`ctx-coverage-session-members`, () => {
     expect(ctx.methodSessionMyChatMemberOutAdmin()).toContain(`sesscov`)
     expect(ctx.methodSessionMyChatMemberRegularAdmin()).toContain(`sesscov`)
     expect(ctx.methodSessionMyChatMemberAdminRegular()).toContain(`sesscov`)
+  })
+})
+
+describe(`ctx-coverage-resolve-media-input`, () => {
+  it(`passes undefined and empty src through unchanged`, () => {
+    expect(Ctx.resolveMediaInput(undefined)).toBeUndefined()
+    expect(Ctx.resolveMediaInput(``)).toBe(``)
+  })
+
+  it(`passes URL and file_id strings through unchanged`, () => {
+    expect(Ctx.resolveMediaInput(`https://example.com/a.jpg`)).toBe(`https://example.com/a.jpg`)
+    expect(Ctx.resolveMediaInput(`AgACAgQAAxkBAAM`)).toBe(`AgACAgQAAxkBAAM`)
+  })
+
+  it(`passes nonexistent paths through unchanged without throwing`, () => {
+    const missing = join(TEST_DIR, `nope.jpg`)
+    expect(Ctx.resolveMediaInput(missing)).toBe(missing)
+  })
+
+  it(`passes directory paths through unchanged`, async () => {
+    const dir = join(TEST_DIR, `media-dir`)
+    await mkdir(dir, {recursive: true})
+    expect(Ctx.resolveMediaInput(dir)).toBe(dir)
+  })
+
+  it(`wraps real files in InputFile and forwards filename`, async () => {
+    const dir = join(TEST_DIR, `media`)
+    await mkdir(dir, {recursive: true})
+    const file = join(dir, `pic.jpg`)
+    await writeFile(file, `bytes`)
+    const uploaded = Ctx.resolveMediaInput(file)
+    expect(uploaded).toBeInstanceOf(InputFile)
+    const named = Ctx.resolveMediaInput(file, `custom.jpg`)
+    expect(named).toBeInstanceOf(InputFile)
+    expect((named as InputFile).filename).toBe(`custom.jpg`)
+  })
+
+  it(`uploads local files via renderMedia`, async () => {
+    const dir = join(TEST_DIR, `wiring-media`)
+    await mkdir(dir, {recursive: true})
+    const file = join(dir, `photo.jpg`)
+    await writeFile(file, `bytes`)
+    const api = makeApi()
+    const tm = {getGMedia: mock(() => ({type: `photo`, src: file, caption: `Hi`}))} as never
+    const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
+    await makeCtx(CovPage, msg, tm, api).renderMedia(`photo`)
+    expect(api.sendPhoto).toHaveBeenCalledTimes(1)
+    expect((api.sendPhoto.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
+  })
+
+  it(`uploads local files via renderEditMedia`, async () => {
+    const dir = join(TEST_DIR, `wiring-edit`)
+    await mkdir(dir, {recursive: true})
+    const file = join(dir, `photo.jpg`)
+    await writeFile(file, `bytes`)
+    const api = makeApi()
+    const tm = {getGMedia: mock(() => ({type: `photo`, src: file, caption: `Hi`}))} as never
+    const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
+    await makeCtx(CovPage, msg, tm, api).renderEditMedia(`photo`)
+    expect(api.editMessageMedia).toHaveBeenCalledTimes(1)
+    const payload = (api.editMessageMedia.mock.calls as any)[0][2] as {media: unknown}
+    expect(payload.media).toBeInstanceOf(InputFile)
+  })
+
+  it(`uploads local files via renderMediaGroup`, async () => {
+    const dir = join(TEST_DIR, `wiring-group`)
+    await mkdir(dir, {recursive: true})
+    const file = join(dir, `photo.jpg`)
+    await writeFile(file, `bytes`)
+    const api = makeApi()
+    const tm = {getGMedia: mock(() => ({type: `group`, mediaGroup: [{type: `photo`, src: file}], caption: `Album`}))} as never
+    const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
+    await makeCtx(CovPage, msg, tm, api).renderMediaGroup()
+    expect(api.sendMediaGroup).toHaveBeenCalledTimes(1)
+    const group = (api.sendMediaGroup.mock.calls as any)[0][1] as Array<{media: unknown}>
+    expect(group[0]!.media).toBeInstanceOf(InputFile)
+  })
+
+  it(`uploads local files via renderBroadcastMedia`, async () => {
+    const dir = join(TEST_DIR, `wiring-broadcast`)
+    await mkdir(dir, {recursive: true})
+    const file = join(dir, `photo.jpg`)
+    await writeFile(file, `bytes`)
+    const api = makeApi()
+    const tm = {getGMedia: mock(() => ({type: `photo`, src: file, caption: `Hi`}))} as never
+    const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
+    await makeCtx(CovPage, msg, tm, api).renderBroadcastMedia([7], [`en`])
+    expect(api.sendPhoto).toHaveBeenCalledTimes(1)
+    expect((api.sendPhoto.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
+  })
+
+  it(`keeps InputFile filename unless the template defines one`, () => {
+    const file = new InputFile(Buffer.from(`bytes`), `a.txt`)
+    expect(Ctx.resolveMediaInput(file)).toBe(file)
+    expect(file.filename).toBe(`a.txt`)
+    expect(Ctx.resolveMediaInput(file, `override.txt`)).toBe(file)
+    expect(file.filename).toBe(`override.txt`)
+  })
+
+  it(`wraps Buffer payloads in InputFile with optional filename`, () => {
+    const buf = Buffer.from(`bytes`)
+    const named = Ctx.resolveMediaInput(buf, `a.txt`)
+    expect(named).toBeInstanceOf(InputFile)
+    expect((named as InputFile).filename).toBe(`a.txt`)
+    expect(Ctx.resolveMediaInput(buf)).toBeInstanceOf(InputFile)
+  })
+
+  it(`wraps Uint8Array payloads in InputFile`, () => {
+    const bytes = new Uint8Array([104, 105])
+    const uploaded = Ctx.resolveMediaInput(bytes, `b.bin`)
+    expect(uploaded).toBeInstanceOf(InputFile)
+    expect((uploaded as InputFile).filename).toBe(`b.bin`)
+  })
+
+  it(`delivers Buffer template data as InputFile via renderMedia`, async () => {
+    const dir = join(TEST_DIR, `wiring-buffer`)
+    await mkdir(dir, {recursive: true})
+    await writeFile(join(dir, `doc.html`), `<g-base><g-media type="document" src="{{file}}">cap</g-media></g-base>`)
+    const tm = new TemplateManager({path: [dir]})
+    try {
+      const api = makeApi()
+      const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
+      const buf = Buffer.from(`doc-bytes`)
+      await makeCtx(pageFor(`doc`), msg, tm, api).renderMedia(`document`, null, {file: buf})
+      expect(api.sendDocument).toHaveBeenCalledTimes(1)
+      expect((api.sendDocument.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
+    } finally {
+      await tm.destroy()
+    }
+  })
+
+  it(`prefers template filename over InputFile name via renderMedia`, async () => {
+    const dir = join(TEST_DIR, `wiring-inputfile-name`)
+    await mkdir(dir, {recursive: true})
+    await writeFile(join(dir, `doc.html`), `<g-base><g-media type="document" src="{{file}}" filename="from-template.txt">cap</g-media></g-base>`)
+    const tm = new TemplateManager({path: [dir]})
+    try {
+      const api = makeApi()
+      const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
+      await makeCtx(pageFor(`doc`), msg, tm, api).renderMedia(`document`, null, {file: new InputFile(Buffer.from(`doc-bytes`), `orig.txt`)})
+      expect(api.sendDocument).toHaveBeenCalledTimes(1)
+      const sent = (api.sendDocument.mock.calls as any)[0][1] as InputFile
+      expect(sent).toBeInstanceOf(InputFile)
+      expect(sent.filename).toBe(`from-template.txt`)
+    } finally {
+      await tm.destroy()
+    }
   })
 })

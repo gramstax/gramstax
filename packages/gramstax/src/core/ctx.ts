@@ -9,10 +9,11 @@
  * @public
  */
 
+import {existsSync, statSync} from "node:fs"
 import {setTimeout} from "node:timers/promises"
 import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
-import {Context, InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"
+import {Context, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
 import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
@@ -170,7 +171,7 @@ class Helper {
     return mediaGroupOptions
   }
 
-  static buildMediaGroupFromItems(items: ITMediaGroupItem[], caption?: string): ITMediaGroupInput[] {
+  static buildMediaGroupFromItems(items: Array<Omit<ITMediaGroupItem, `src`> & {src: string | InputFile}>, caption?: string): ITMediaGroupInput[] {
     return items.map((item, index) => {
       const itemCaption = item.caption ?? (index === 0 ? caption : undefined)
       const opts = itemCaption ? {caption: itemCaption, parse_mode: `HTML` as const} : undefined
@@ -181,7 +182,7 @@ class Helper {
     })
   }
 
-  static buildMediaGroup(type: ITMediaGroupType, srcList: string[], caption?: string): ITMediaGroupInput[] {
+  static buildMediaGroup(type: ITMediaGroupType, srcList: Array<string | InputFile>, caption?: string): ITMediaGroupInput[] {
     return srcList.map((media, index) => {
       const opts = index === 0 && caption ? {caption, parse_mode: `HTML` as const} : undefined
       if (type === `photo`) return InputMediaBuilder.photo(media, opts)
@@ -228,11 +229,7 @@ class Helper {
    *
    * @public
    */
-  static ephemeralParams(
-    receiverUserId?: number | Record<string, unknown>,
-    callbackQueryId?: string,
-    replace?: boolean
-  ): EphemeralMessageParameters | undefined {
+  static ephemeralParams(receiverUserId?: number | Record<string, unknown>, callbackQueryId?: string, replace?: boolean): EphemeralMessageParameters | undefined {
     if (receiverUserId !== null && typeof receiverUserId === `object`) {
       const legacy = receiverUserId as unknown as {
         receiver_user_id?: number
@@ -453,11 +450,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static ephemeralParams(
-    receiverUserId?: number | Record<string, unknown>,
-    callbackQueryId?: string,
-    replace?: boolean
-  ): EphemeralMessageParameters | undefined {
+  static ephemeralParams(receiverUserId?: number | Record<string, unknown>, callbackQueryId?: string, replace?: boolean): EphemeralMessageParameters | undefined {
     return Helper.ephemeralParams(receiverUserId, callbackQueryId, replace)
   }
 
@@ -479,12 +472,41 @@ export class Ctx extends Context {
    *
    * @public
    */
-  ephemeralParams(
-    receiverUserId?: number | Record<string, unknown>,
-    callbackQueryId?: string,
-    replace?: boolean
-  ): EphemeralMessageParameters | undefined {
+  ephemeralParams(receiverUserId?: number | Record<string, unknown>, callbackQueryId?: string, replace?: boolean): EphemeralMessageParameters | undefined {
     return Helper.ephemeralParams(receiverUserId, callbackQueryId, replace)
+  }
+
+  /**
+   * Resolve a template media `src` into an uploadable value.
+   *
+   * @remarks
+   * When `src` points at a real local file (`existsSync` + `statSync().isFile()`),
+   * it is wrapped in `new InputFile(src, filename)` so grammy uploads it.
+   * `file_id` values, URLs, and missing paths pass through unchanged — never throws.
+   * Pre-built `InputFile` instances pass through as-is, except a defined
+   * `filename` overrides the instance name in place; `Buffer`/`Uint8Array`
+   * payloads are wrapped in `new InputFile(src, filename)`.
+   *
+   * @param src - Template media `src` (file path, `file_id`, URL, or binary payload).
+   * @param filename - Optional upload filename; overrides `InputFile.filename` when defined.
+   * @returns `InputFile` for local files and binary payloads, otherwise `src` unchanged.
+   *
+   * @public
+   */
+  static resolveMediaInput(src: string | InputFile | Buffer | Uint8Array | undefined, filename?: string): string | InputFile {
+    if (src instanceof InputFile) {
+      if (filename) Object.assign(src, {filename})
+      return src
+    }
+    if (src instanceof Uint8Array) return new InputFile(src, filename)
+    if (!src) return src as string
+    try {
+      if (!existsSync(src)) return src
+      if (!statSync(src).isFile()) return src
+    } catch {
+      return src
+    }
+    return new InputFile(src, filename)
   }
 
   /**
@@ -1539,19 +1561,29 @@ export class Ctx extends Context {
           throw new Error(`Media not found for template "${this.data.name}"`)
         }
         const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
+        const medFilename = med.filename
 
         if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
-          await this.api.sendMediaGroup(id! as unknown as never, Helper.buildMediaGroupFromItems(med.mediaGroup, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
+          const resolvedItems = med.mediaGroup.map((item) => ({...item, src: Ctx.resolveMediaInput(item.src)}))
+          await this.api.sendMediaGroup(id! as unknown as never, Helper.buildMediaGroupFromItems(resolvedItems, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
         } else if (Helper.isMediaGroupType(med.type) && med.srcList && med.srcList.length > 1) {
-          await this.api.sendMediaGroup(id! as unknown as never, Helper.buildMediaGroup(med.type, med.srcList, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
-        } else if (med.type === `photo`) await this.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
-        else if (med.type === `video`) await this.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
-        else if (med.type === `audio`) await this.api.sendAudio(id!, med.src!, {caption: med.caption!, ...opt})
-        else if (med.type === `document`) await this.api.sendDocument(id!, med.src!, {caption: med.caption!, ...opt})
-        else if (med.type === `animation`) await this.api.sendAnimation(id!, med.src!, {caption: med.caption!, ...opt})
-        else if (med.type === `voice`) await this.api.sendVoice(id!, med.src!, opt)
-        else if (med.type === `video_note`) await this.api.sendVideoNote(id!, med.src!, opt)
-        else if (med.type === `sticker`) await this.api.sendSticker(id!, med.src!, opt)
+          await this.api.sendMediaGroup(
+            id! as unknown as never,
+            Helper.buildMediaGroup(
+              med.type,
+              med.srcList.map((src) => Ctx.resolveMediaInput(src)),
+              med.caption
+            ) as unknown as never,
+            Helper.buildMediaGroupOptions(opt) as unknown as never
+          )
+        } else if (med.type === `photo`) await this.api.sendPhoto(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+        else if (med.type === `video`) await this.api.sendVideo(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+        else if (med.type === `audio`) await this.api.sendAudio(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+        else if (med.type === `document`) await this.api.sendDocument(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+        else if (med.type === `animation`) await this.api.sendAnimation(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+        else if (med.type === `voice`) await this.api.sendVoice(id!, Ctx.resolveMediaInput(med.src, medFilename), opt)
+        else if (med.type === `video_note`) await this.api.sendVideoNote(id!, Ctx.resolveMediaInput(med.src, medFilename), opt)
+        else if (med.type === `sticker`) await this.api.sendSticker(id!, Ctx.resolveMediaInput(med.src, medFilename), opt)
         else if (med.type === `location`) await this.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
         else if (med.type === `contact`) await this.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
         else throw new Error(`Unknown media type "${med.type}"`)
@@ -1840,15 +1872,16 @@ export class Ctx extends Context {
   ) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
+    const medFilename = med.filename
 
-    if (type === `photo`) return await this.replyWithPhoto(med.src!, {caption: med.caption!, ...opt})
-    if (type === `video`) return await this.replyWithVideo(med.src!, {caption: med.caption!, ...opt})
-    if (type === `audio`) return await this.replyWithAudio(med.src!, {caption: med.caption!, ...opt})
-    if (type === `document`) return await this.replyWithDocument(med.src!, {caption: med.caption!, ...opt})
-    if (type === `animation`) return await this.replyWithAnimation(med.src!, {caption: med.caption!, ...opt})
-    if (type === `voice`) return await this.replyWithVoice(med.src!, opt)
-    if (type === `video_note`) return await this.replyWithVideoNote(med.src!, opt)
-    if (type === `sticker`) return await this.replyWithSticker(med.src!, opt)
+    if (type === `photo`) return await this.replyWithPhoto(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+    if (type === `video`) return await this.replyWithVideo(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+    if (type === `audio`) return await this.replyWithAudio(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+    if (type === `document`) return await this.replyWithDocument(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+    if (type === `animation`) return await this.replyWithAnimation(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
+    if (type === `voice`) return await this.replyWithVoice(Ctx.resolveMediaInput(med.src, medFilename), opt)
+    if (type === `video_note`) return await this.replyWithVideoNote(Ctx.resolveMediaInput(med.src, medFilename), opt)
+    if (type === `sticker`) return await this.replyWithSticker(Ctx.resolveMediaInput(med.src, medFilename), opt)
     if (type === `location`) return await this.replyWithLocation(parseInt(med.latitude!), parseInt(med.longitude!), opt)
     if (type === `contact`) return await this.replyWithContact(med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
   }
@@ -1887,13 +1920,15 @@ export class Ctx extends Context {
       if (items.length === 0) {
         throw new Error(`replyMediaGroup: no items of type "${type}" found in <g-media-group>`)
       }
-      return await this.replyWithMediaGroup(Helper.buildMediaGroupFromItems(items, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
+      const resolvedItems = items.map((item) => ({...item, src: Ctx.resolveMediaInput(item.src)}))
+      return await this.replyWithMediaGroup(Helper.buildMediaGroupFromItems(resolvedItems, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
     }
     if (!type) {
       throw new Error(`replyMediaGroup type is required when template media is not <g-media-group>`)
     }
     const srcList = med.srcList && med.srcList.length > 1 ? med.srcList : med.src ? [med.src] : []
-    return await this.replyWithMediaGroup(Helper.buildMediaGroup(type, srcList, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
+    const resolvedSrcList = srcList.map((src) => Ctx.resolveMediaInput(src))
+    return await this.replyWithMediaGroup(Helper.buildMediaGroup(type, resolvedSrcList, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
   }
 
   /**
@@ -2314,6 +2349,306 @@ export class Ctx extends Context {
   }
 
   /**
+   * Sends or edits a photo message using the page template, auto-selecting
+   * between {@link (Ctx:class).renderPhoto} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
+   * @param options1 - Optional photo-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderPhotoAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderPhotoAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyPhoto | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`photo`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
+   * Sends or edits a video message using the page template, auto-selecting
+   * between {@link (Ctx:class).renderVideo} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
+   * @param options1 - Optional video-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderVideoAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderVideoAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVideo | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`video`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
+   * Sends or edits an audio message using the page template, auto-selecting
+   * between {@link (Ctx:class).renderAudio} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
+   * @param options1 - Optional audio-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderAudioAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderAudioAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyAudio | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`audio`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
+   * Sends or edits a document message using the page template, auto-selecting
+   * between {@link (Ctx:class).renderDocument} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
+   * @param options1 - Optional document-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderDocumentAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderDocumentAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyDocument | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`document`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
+   * Sends or edits an animation/GIF message using the page template, auto-selecting
+   * between {@link (Ctx:class).renderAnimation} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).
+   * @param options1 - Optional animation-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderAnimationAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderAnimationAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyAnimation | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`animation`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
+   * Sends or edits a voice message using the page template, auto-selecting
+   * between {@link (Ctx:class).renderVoice} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).
+   * @param options1 - Optional voice-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderVoiceAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderVoiceAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVoice | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`voice`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
+   * Sends or edits a video note (circular video) using the page template, auto-selecting
+   * between {@link (Ctx:class).renderVideoNote} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).
+   * @param options1 - Optional video note-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderVideoNoteAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderVideoNoteAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVideoNote | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`video_note`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
+   * Sends or edits a sticker using the page template, auto-selecting
+   * between {@link (Ctx:class).renderSticker} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).
+   * @param options1 - Optional sticker-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderStickerAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderStickerAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplySticker | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`sticker`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
+   * Sends or edits a location using the page template, auto-selecting
+   * between {@link (Ctx:class).renderLocation} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).
+   * @param options1 - Optional location-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderLocationAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderLocationAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyLocation | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`location`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
+   * Sends or edits a contact using the page template, auto-selecting
+   * between {@link (Ctx:class).renderContact} and {@link (Ctx:class).renderEditMedia} based on
+   * `!!this.callbackQuery`.
+   *
+   * @remarks
+   * Callback-query updates edit in place while plain messages reply.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).
+   * @param options1 - Optional contact-specific options (or null to omit).
+   * @param options2 - Optional edit-specific options (or null to omit, send-only).
+   * @param fallbackEdit - Fallback when the edit fails:
+   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderContactAuto()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderContactAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyContact | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderAutoMedia(`contact`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
+  }
+
+  /**
    * Edits an existing message text using the page template.
    *
    * @remarks
@@ -2422,6 +2757,7 @@ export class Ctx extends Context {
     try {
       const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
       const {src, caption} = med
+      const medFilename = med.filename
       if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
         await this.deleteMessage()
         return await this.renderMediaGroup(type, data, AGBaseId)
@@ -2429,15 +2765,15 @@ export class Ctx extends Context {
       const commonOpt = {reply_markup: keyboardInline ?? undefined, ...(options1 ?? {})} as Record<string, unknown>
       if (type === `voice`) {
         await this.deleteMessage()
-        return await this.api.sendVoice(this.chat?.id as number, src!, commonOpt)
+        return await this.api.sendVoice(this.chat?.id as number, Ctx.resolveMediaInput(src, medFilename), commonOpt)
       }
       if (type === `video_note`) {
         await this.deleteMessage()
-        return await this.api.sendVideoNote(this.chat?.id as number, src!, commonOpt)
+        return await this.api.sendVideoNote(this.chat?.id as number, Ctx.resolveMediaInput(src, medFilename), commonOpt)
       }
       if (type === `sticker`) {
         await this.deleteMessage()
-        return await this.api.sendSticker(this.chat?.id as number, src!, commonOpt)
+        return await this.api.sendSticker(this.chat?.id as number, Ctx.resolveMediaInput(src, medFilename), commonOpt)
       }
       if (type === `location`) {
         await this.deleteMessage()
@@ -2450,7 +2786,7 @@ export class Ctx extends Context {
 
       return await this.editMessageMedia(
         {
-          media: src!,
+          media: Ctx.resolveMediaInput(src, medFilename),
           caption,
           type,
           parse_mode: `HTML`,

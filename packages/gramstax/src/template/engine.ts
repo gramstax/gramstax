@@ -9,6 +9,8 @@
  * @public
  */
 
+import type {InputFile} from "grammy"
+
 /**
  * Represents a media block configuration for Telegram messages.
  *
@@ -54,10 +56,11 @@
  */
 export type ITMediaBlock = {
   type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact` | `group`
-  src?: string
+  src?: string | InputFile | Buffer | Uint8Array
   srcList?: string[]
-  mediaGroup?: Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string}>
+  mediaGroup?: Array<{type: `photo` | `video` | `audio` | `document`; src: string | InputFile | Buffer | Uint8Array; caption?: string}>
   caption?: string
+  filename?: string
   // for location
   latitude?: string
   longitude?: string
@@ -629,6 +632,7 @@ export class TemplateEngine {
    * - `<g-keyboard type>` — must be `inline` or `bottom`
    * - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact
    * - `<g-media shared>` — must be `true` or `false`
+   * - `<g-media filename>` — any string, always valid
    *
    * Validators are intentionally lenient — they catch obvious bugs (wrong
    * type, invalid value) but do not enforce every framework-level constraint.
@@ -653,7 +657,8 @@ export class TemplateEngine {
         const validTypes = new Set([`photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`])
         return validTypes.has(v) ? null : `Attribute "type" on <g-media> must be one of: ${[...validTypes].join(`, `)}, got "${v}"`
       },
-      shared: (v) => (v === `true` || v === `false` ? null : `Attribute "shared" on <g-media> must be "true" or "false", got "${v}"`)
+      shared: (v) => (v === `true` || v === `false` ? null : `Attribute "shared" on <g-media> must be "true" or "false", got "${v}"`),
+      filename: () => null
     }
   }
   /**
@@ -1367,6 +1372,10 @@ export class TemplateEngine {
         mediaBlock.caption = caption
       }
 
+      if (attrs.filename) {
+        mediaBlock.filename = attrs.filename
+      }
+
       // Location attributes
       if (type === `location`) {
         if (attrs.latitude) mediaBlock.latitude = attrs.latitude
@@ -1818,6 +1827,67 @@ export class TemplateEngine {
   }
 
   /**
+   * Matches a bare `src` placeholder with no pipes or surrounding text.
+   *
+   * @remarks
+   * Only `{{dotted.path}}` (optional surrounding whitespace) qualifies —
+   * filtered (`{{x|upper}}`) or embedded (`pre-{{x}}`) values keep the
+   * existing string pipeline untouched.
+   *
+   * @param rawSrc - Raw `src` attribute value from the parsed template.
+   * @returns Dotted path when bare, otherwise `null`.
+   *
+   * @public
+   */
+  static _matchBareMediaPlaceholder(rawSrc: string): string | null {
+    const match = /^\s*\{\{\s*([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*\}\}\s*$/.exec(rawSrc)
+    return match?.[1] ?? null
+  }
+
+  /**
+   * Null-safe dotted-path lookup against template data.
+   *
+   * @param data - Template data passed to the compiled block.
+   * @param path - Dotted path such as `a.b.c`.
+   * @returns Resolved value, or `undefined` when any segment is missing.
+   *
+   * @public
+   */
+  static _resolveMediaDataPath(data: ITTemplateData | undefined, path: string): unknown {
+    let current: unknown = data
+    for (const part of path.split(`.`)) {
+      if (current === null || current === undefined) return undefined
+      current = (current as Record<string, unknown>)[part]
+    }
+    return current
+  }
+
+  /**
+   * Wraps a compiled string `src` fn so bare placeholders pass objects by reference.
+   *
+   * @remarks
+   * Strings, `null`, and `undefined` fall through to the existing compiled fn
+   * (byte-identical output, same escaping and `''` fallback). Non-string
+   * values (pre-built `InputFile`, `Buffer`, `Uint8Array`) bypass stringify
+   * and reach grammY intact.
+   *
+   * @param rawSrc - Raw `src` attribute value from the parsed template.
+   * @param stringFn - Existing compiled string renderer for this `src`.
+   * @returns Renderer yielding either the string output or the raw object.
+   *
+   * @public
+   */
+  static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITTemplateData) => string): (data?: ITTemplateData) => string | InputFile | Buffer | Uint8Array {
+    const path = this._matchBareMediaPlaceholder(rawSrc)
+    if (path === null) return stringFn
+    return (data?: ITTemplateData) => {
+      const value = this._resolveMediaDataPath(data, path)
+      if (typeof value === `string` || value === null || value === undefined) return stringFn(data)
+      return value as InputFile | Buffer | Uint8Array
+    }
+  }
+
+  /**
    * Compiles media blocks from a template into executable functions.
    *
    * @remarks
@@ -1856,18 +1926,23 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, mediaBlock] of Object.entries(mediaBlocks)) {
-        const compiledProps: Record<string, (data?: ITTemplateData) => string> = {}
-        const compiledMediaGroup = mediaBlock.mediaGroup?.map((item) => ({
-          type: item.type,
-          src: this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(item.src))))), false),
-          caption: item.caption ? this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(item.caption))))), false) : undefined
-        }))
+        const compiledProps: Record<string, (data?: ITTemplateData) => string | InputFile | Buffer | Uint8Array> = {}
+        const compiledMediaGroup = mediaBlock.mediaGroup?.map((item) => {
+          const rawSrc = item.src as string
+          const stringSrc = this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(rawSrc))))), false)
+          return {
+            type: item.type,
+            src: this._compileMediaSrc(rawSrc, stringSrc),
+            caption: item.caption ? this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(item.caption))))), false) : undefined
+          }
+        })
 
         for (const [key, value] of Object.entries(mediaBlock)) {
           if (key === `type` || typeof value !== `string`) continue
 
           const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(value)))))
-          compiledProps[key] = this._compileToFunction(processed, false)
+          const stringFn = this._compileToFunction(processed, false)
+          compiledProps[key] = key === `src` ? this._compileMediaSrc(value, stringFn) : stringFn
         }
 
         result[AGBaseId][ALang] = (data?: ITTemplateData) => {
@@ -3373,6 +3448,7 @@ export class TemplateEngine {
    * - `<g-keyboard type>` — must be `inline` or `bottom`
    * - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact
    * - `<g-media shared>` — must be `true` or `false`
+   * - `<g-media filename>` — any string, always valid
    *
    * Tags without value validators (e.g. `<g-message>`, `<g-script>`, `<g-div>`) are
    * skipped. See {@link TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS} for the full spec.
@@ -3496,8 +3572,8 @@ export class TemplateEngine {
     const errors = this._validateBlockAttributes(
       template,
       `g-media`,
-      new Set([`lang`, `type`, `src`, `shared`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]),
-      `"lang", "type", "src", "shared", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`,
+      new Set([`lang`, `type`, `src`, `shared`, `filename`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]),
+      `"lang", "type", "src", "shared", "filename", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`,
       this._PAGE_ATTR_VALUE_VALIDATORS[`g-media`]
     )
     return {valid: errors.length === 0, errors}
