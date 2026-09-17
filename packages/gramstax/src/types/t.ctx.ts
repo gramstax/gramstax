@@ -9,14 +9,6 @@ import type {LoggingHelper} from "~/helpers/log"
 import type {TemplateManager} from "~/template/manager"
 
 /**
- * Type alias for InlineKeyboard.
- *
- * @remarks
- * Used to create inline keyboards that appear below messages with callback buttons.
- *
- * @public
- */
-/**
  * Page class/instance that defines `handleCallbackQueryData`.
  *
  * @remarks

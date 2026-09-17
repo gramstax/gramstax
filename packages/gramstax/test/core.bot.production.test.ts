@@ -53,19 +53,22 @@ class TestBot extends Gramstax {
   }
 }
 
+class HookedBot extends TestBot {
+  override hookUpdateError: ((event: unknown) => void) | undefined
+  override hookUpdate: ((event: unknown) => void) | undefined
+}
+
 type TP = ReturnType<TestBot[`_pageLoads`]>
 
-function createBot(params: {skipDuplicateUpdate?: boolean; onUpdateError?: (event: unknown) => void; onUpdate?: (event: unknown) => void; pollingMaxRetries?: number} = {}): {bot: TestBot; pages: TP} {
+function createBot(params: {skipDuplicateUpdate?: boolean; hookUpdateError?: (event: unknown) => void; hookUpdate?: (event: unknown) => void; pollingMaxRetries?: number} = {}): {bot: HookedBot; pages: TP} {
   const tm = new TemplateManager({path: [TEST_PAGES_DIR]})
-  const bot = new TestBot({
+  const bot = new HookedBot({
     token: `test:token`,
     deploy: `test`,
     log: false,
     templateManager: tm,
     updateTimeoutMs: 0,
     skipDuplicateUpdate: params.skipDuplicateUpdate,
-    onUpdateError: params.onUpdateError,
-    onUpdate: params.onUpdate,
     pollingMaxRetries: params.pollingMaxRetries,
     botConfig: {
       botInfo: {
@@ -76,10 +79,12 @@ function createBot(params: {skipDuplicateUpdate?: boolean; onUpdateError?: (even
       }
     } as any
   })
+  bot.hookUpdateError = params.hookUpdateError
+  bot.hookUpdate = params.hookUpdate
   return {bot, pages: bot.pages}
 }
 
-function registerPage(bot: TestBot, pages: TP, page: typeof Ctx, name: string) {
+function registerPage(bot: HookedBot, pages: TP, page: typeof Ctx, name: string) {
   page.data = {name, intentText: name, intentCommandText: name, intentCallbackQueryData: name} as any
   pages.all[name] = page
   bot._pageSorts(page, pages as any, 0)
@@ -174,10 +179,10 @@ describe(`skipDuplicateUpdate`, () => {
   })
 })
 
-describe(`onUpdateError hook`, () => {
+describe(`hookUpdateError`, () => {
   it(`fires with a structured error event when a page handler throws`, async () => {
     const events: unknown[] = []
-    const {bot} = createBot({onUpdateError: (event) => events.push(event)})
+    const {bot} = createBot({hookUpdateError: (event) => events.push(event)})
     registerPage(bot, bot.pages, ThrowingPage, `boom`)
 
     await bot.bot.handleUpdate(buildCallbackQuery(`boom`, 2) as any)
@@ -189,10 +194,10 @@ describe(`onUpdateError hook`, () => {
   })
 })
 
-describe(`onUpdate hook`, () => {
+describe(`hookUpdate`, () => {
   it(`fires with matched and no-match states`, async () => {
     const events: unknown[] = []
-    const {bot} = createBot({onUpdate: (event) => events.push(event)})
+    const {bot} = createBot({hookUpdate: (event) => events.push(event)})
     registerPage(bot, bot.pages, CountPage, `count`)
     CountPage.hits = 0
 
@@ -210,7 +215,7 @@ describe(`onUpdate hook`, () => {
 describe(`Gramstax polling recovery`, () => {
   it(`gives up after max retries and emits an error event`, async () => {
     const events: unknown[] = []
-    const {bot} = createBot({pollingMaxRetries: 0, onUpdateError: (event) => events.push(event)})
+    const {bot} = createBot({pollingMaxRetries: 0, hookUpdateError: (event) => events.push(event)})
     bot.bot.start = mock(async () => {
       throw new Error(`polling down`)
     }) as unknown as typeof bot.bot.start
@@ -246,7 +251,7 @@ describe(`Gramstax polling recovery`, () => {
 describe(`Gramstax startup failure handling`, () => {
   it(`emits an error event and stops on startup failure`, async () => {
     const events: unknown[] = []
-    const {bot} = createBot({onUpdateError: (event) => events.push(event)})
+    const {bot} = createBot({hookUpdateError: (event) => events.push(event)})
     bot.bot.stop = mock(async () => {}) as unknown as typeof bot.bot.stop
 
     await bot.triggerStartupError(new Error(`webhook setup failed`))

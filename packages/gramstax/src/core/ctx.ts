@@ -1805,6 +1805,9 @@ export class Ctx extends Context {
     this.mediaRoots = params.mediaRoots ?? null
     this.onSendError = params.onSendError ?? null
     this.temp = params.temp
+    // App extras (e.g. `db`) are intentionally NOT auto-attached here:
+    // assign them explicitly in your subclass constructor so every
+    // wiring is visible and easy to troubleshoot.
   }
 
   /**
@@ -2208,6 +2211,13 @@ export class Ctx extends Context {
   /**
    * Sends a text message reply using the page template.
    *
+   * @remarks
+   * Observe-only send-error coverage (mirrors `renderMedia`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * Unlike the media paths there is no degraded fallback content for text,
+   * so after notify+log the original error is ALWAYS rethrown untouched.
+   *
    * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID position for block message (or null to use default).
@@ -2233,12 +2243,24 @@ export class Ctx extends Context {
    * @public
    */
   async render(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null) {
-    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-    return await this.reply(msg, {
-      parse_mode: `HTML`,
-      reply_markup: keyboard ?? undefined,
-      ...(options ?? {})
-    })
+    try {
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+      return await this.reply(msg, {
+        parse_mode: `HTML`,
+        reply_markup: keyboard ?? undefined,
+        ...(options ?? {})
+      })
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`text send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No text fallback for text: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`text send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
   }
 
   /**
@@ -2275,6 +2297,12 @@ export class Ctx extends Context {
    * Sends a rich message reply using the page template.
    *
    * @remarks
+   * Observe-only send-error coverage (mirrors `renderMedia`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * Unlike the media paths there is no degraded fallback content for text,
+   * so after notify+log the original error is ALWAYS rethrown untouched.
+   *
    * Uses `replyWithRichMessage` (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION})
    * to send structured rich text with headings, lists, tables, media, block
    * quotations, collapsible blocks, footnotes, and formulas.
@@ -2312,14 +2340,26 @@ export class Ctx extends Context {
    * @public
    */
   async renderRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | null) {
-    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-    return await this.replyWithRichMessage(
-      {html: msg, ...(options1 ?? {})},
-      {
-        reply_markup: keyboard ?? undefined,
-        ...(options2 ?? {})
+    try {
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+      return await this.replyWithRichMessage(
+        {html: msg, ...(options1 ?? {})},
+        {
+          reply_markup: keyboard ?? undefined,
+          ...(options2 ?? {})
+        }
+      )
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`text send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
       }
-    )
+      // No text fallback for text: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`text send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
   }
 
   /**

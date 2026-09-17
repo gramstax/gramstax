@@ -4,7 +4,7 @@ import {join} from "node:path"
 import {GrammyError, InputFile} from "grammy"
 import {Gramstax} from "~/core/bot"
 import {Ctx} from "~/core/ctx"
-import type {ITCt, ITCtxParams} from "~/types/t.ctx"
+import type {ITCt, ITCtxParams, ITSendErrorInfo} from "~/types/t.ctx"
 
 const TEST_DIR = join(import.meta.dir, `ctx_send_phase45`)
 
@@ -426,24 +426,62 @@ describe(`observe-hook`, () => {
 })
 
 describe(`observe-bot-channel`, () => {
-  it(`forwards mediaRoots and onSendError from Gramstax into createCtx`, () => {
-    const hook = (() => {}) as never
-    const bot = new Gramstax({token: `123:abc`, deploy: `raw`, log: false, mediaRoots: [`r`], onSendError: hook})
-    expect(bot.mediaRoots).toEqual([`r`])
-    expect(bot.onSendError).toBe(hook)
-    const ct = {
-      api: {config: {use: () => {}}},
+  class SendHookBot extends Gramstax {
+    seen: Array<{err: unknown; info: unknown}> = []
+    override hookSendError = (err: unknown, info: ITSendErrorInfo): void => {
+      this.seen.push({err, info})
+    }
+  }
+
+  class ThisBot extends Gramstax {
+    seenSelf: unknown = undefined
+    seen: Array<{err: unknown; info: unknown}> = []
+    override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+      this.seenSelf = this
+      this.seen.push({err, info})
+    }
+  }
+
+  const makeBotCt = (api: Record<string, unknown>): ITCt =>
+    ({
+      api,
       me: {id: 9, is_bot: true, first_name: `Bot`},
-      update: {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
-    } as unknown as ITCt
-    const ctx = bot.createCtx(ct) as unknown as Ctx
+      update: {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
+    }) as unknown as ITCt
+
+  it(`forwards mediaRoots and hookSendError from Gramstax into createCtx`, () => {
+    const bot = new SendHookBot({token: `123:abc`, deploy: `raw`, log: false, mediaRoots: [`r`]})
+    expect(bot.mediaRoots).toEqual([`r`])
+    const ctx = bot.createCtx(makeBotCt(makeApi()))
     expect(ctx.mediaRoots).toEqual([`r`])
-    expect(ctx.onSendError).toBe(hook)
+    expect(typeof ctx.onSendError).toBe(`function`)
+    const err = new Error(`x`)
+    const info = {page: `p`, kind: `fallback-text`, chatId: 1} as ITSendErrorInfo
+    ctx.onSendError?.(err, info)
+    expect(bot.seen).toEqual([{err, info}])
   })
 
   it(`defaults both channels to null`, () => {
     const bot = new Gramstax({token: `123:abc`, deploy: `raw`, log: false})
     expect(bot.mediaRoots).toBeNull()
-    expect(bot.onSendError).toBeNull()
+    expect(bot.hookSendError).toBeUndefined()
+    const ctx = bot.createCtx(makeBotCt(makeApi()))
+    expect(ctx.onSendError).toBeNull()
+  })
+
+  it(`binds method-form hookSendError through a real send so subclass this works`, async () => {
+    const bot = new ThisBot({token: `123:abc`, deploy: `raw`, log: false})
+    bot.ctxScope.templateManager = {getGMedia: () => photoMed(), getGMessage: () => `hello`} as never
+    const api = makeApi({
+      sendPhoto: mock(async () => {
+        throw grammyError(400)
+      })
+    })
+    const ctx = bot.createCtx(makeBotCt(api))
+    ;(ctx as unknown as {data: {name: string}}).data = {name: `hookpage`}
+    await ctx.renderMedia(`photo`)
+    expect(bot.seen.length).toBe(1)
+    expect(bot.seenSelf).toBe(bot)
+    expect(bot.seen[0]!.info).toEqual({page: `hookpage`, kind: `fallback-text`, chatId: 1})
   })
 })

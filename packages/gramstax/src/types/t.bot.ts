@@ -5,7 +5,7 @@ import type {Ctx} from "~/core/ctx"
 import type {ITSessionLockOptions} from "~/core/session-lock"
 import type {LoggingHelper} from "~/helpers/log"
 import type {TemplateManager} from "~/template/manager"
-import type {ITSendErrorHook} from "./t.ctx"
+import type {ITCtxParams} from "./t.ctx"
 
 /**
  * A custom filter-based route entry, registered via {@link Gramstax.registerCustomRoute}.
@@ -275,32 +275,6 @@ export type ITGramstaxParams = {
   mediaRoots?: string[] | null
 
   /**
-   * Best-effort send-error hook.
-   *
-   * @remarks
-   * Flows into every page `Ctx` via `createCtx` (mirrors the `log`
-   * channel). Invoked with `{page, kind, chatId}` at every site where a
-   * send error is classified; a throwing hook is swallowed. See
-   * {@link ITSendErrorHook}.
-   *
-   * @example
-   * ```typescript
-   * const bot = new Gramstax({
-   *   token: process.env.TELEGRAM_BOT_TOKEN,
-   *   onSendError: (err, info) => {
-   *     // info: {page: `admin/logs`, kind: `fallback-text` | `retryable`, chatId?: number}
-   *     if (info.kind === `retryable`) queueRetry(info)
-   *     else metrics.count(info.page, info.kind)
-   *   }
-   * })
-   * // Throwing inside the hook is swallowed — the send flow never breaks.
-   * ```
-   *
-   * @defaultValue `undefined` (no hook)
-   */
-  onSendError?: ITSendErrorHook | null
-
-  /**
    * Bot configuration options.
    *
    * @remarks
@@ -397,7 +371,7 @@ export type ITGramstaxParams = {
   /**
    * Max time (milliseconds) allowed for a single update handler before the
    * update is treated as timed out (watchdog — the page keeps running but the
-   * failure is recorded via `onUpdateError` and metrics).
+   * failure is recorded via `hookUpdateError` and metrics).
    *
    * @defaultValue `30000`
    */
@@ -429,24 +403,6 @@ export type ITGramstaxParams = {
   maxTextLength?: number
 
   /**
-   * Hook invoked with a structured error event for every update failure
-   * (errors, timeouts, blocked). Use for log sinks / alerting (Sentry, etc.).
-   */
-  onUpdateError?: (event: ITUpdateErrorEvent) => void
-
-  /**
-   * Optional OTel-style trace export hook.
-   *
-   * @remarks
-   * Called after every routed update with the listener name, duration, and
-   * outcome. Fire-and-forget — the hook is not awaited. Use to export traces
-   * to your observability backend.
-   *
-   * @defaultValue `undefined` (no trace export)
-   */
-  onTrace?: (span: {name: string; durationMs: number; attributes: Record<string, unknown>}) => void
-
-  /**
    * Optional HTTP port that serves `GET /health` (liveness) and `GET /stats`
    * (metrics) in any deploy mode. When unset, these routes are only available
    * on the webhook server (if deployed via `webhook:`).
@@ -470,21 +426,12 @@ export type ITGramstaxParams = {
    * @remarks
    * After a transient failure (network blip, 409 conflict) the bot retries with
    * exponential backoff (1s → 2s → 4s … capped at 60s). After this many retries
-   * the bot logs the failure, emits `onUpdateError` and calls `stop()`.
+   * the bot logs the failure, emits `hookUpdateError` and calls `stop()`.
    * `-1` retries forever.
    *
    * @defaultValue `5`
    */
   pollingMaxRetries?: number
-
-  /**
-   * Hook invoked with a structured success event after every routed update.
-   *
-   * @remarks
-   * Audit trail counterpart of `onUpdateError`. Fires for matched, no-match,
-   * no-handler and blocked states (not for errors/timeouts).
-   */
-  onUpdate?: (event: ITUpdateSuccessEvent) => void
 
   /**
    * Page routing configuration options.
@@ -502,6 +449,20 @@ export type ITGramstaxParams = {
     shortCallbackQueryData?: boolean
   }
 }
+
+/**
+ * Forwarded `Ctx` fields owned by `Gramstax.ctxScope`.
+ *
+ * @remarks
+ * Exactly the `ITCtxParams` keys (minus `ct` and `temp`) that `Gramstax`
+ * forwards into every page `Ctx`. Add a newly forwarded field here AND
+ * in the `Gramstax` constructor scope literal — the `_assertCtxScopeComplete`
+ * guard next to `Gramstax.ctxScope` fails `tsc` with the missing field name
+ * when this type drifts from `ITCtxParams`.
+ *
+ * @public
+ */
+export type ITGramstaxCtxScope = Pick<ITCtxParams, `cacheSession` | `cacheKeyboard` | `templateManager` | `log` | `mediaRoots` | `onSendError`>
 
 /**
  * Structured error event emitted by `onUpdateError`.

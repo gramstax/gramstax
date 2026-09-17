@@ -28,8 +28,8 @@ import {type LoggingHelper, log} from "~/helpers/log"
 import {MetricsStore, metricsToPrometheus} from "~/helpers/metrics"
 import {PageManager} from "~/page/manager"
 import {TemplateManager} from "~/template/manager"
-import type {ITGramstaxParams, ITUpdateErrorEvent, ITUpdateSuccessEvent, ITWebhookQueueConfig} from "~/types/t.bot"
-import type {ITCt, ITCtMiddleware, ITSendErrorHook} from "~/types/t.ctx"
+import type {ITGramstaxCtxScope, ITGramstaxParams, ITUpdateErrorEvent, ITUpdateSuccessEvent, ITWebhookQueueConfig} from "~/types/t.bot"
+import type {ITCt, ITCtMiddleware, ITCtxParams, ITSendErrorHook} from "~/types/t.ctx"
 import {WebhookQueue} from "~/webhook/queue"
 import {E2eHelper} from "../e2e/helper"
 import {Ctx} from "./ctx"
@@ -160,6 +160,17 @@ const __dirname = dirname(
 const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
 
 /**
+ * Keys of `ITCtxParams` (except `ct` and `temp`) missing from `ITGramstaxCtxScope`.
+ *
+ * @remarks
+ * Empty (`never`) when the scope covers every forwarded field. The const
+ * below turns a non-empty union into a `tsc` error naming the field, so a
+ * forgotten forward fails the build instead of shipping `undefined`.
+ */
+type _MissingCtxScopeFields = Exclude<keyof ITCtxParams, keyof ITGramstaxCtxScope | `ct` | `temp`>
+const _assertCtxScopeComplete: _MissingCtxScopeFields extends never ? [] : [`ctxScope misses ITCtxParams field(s):`, _MissingCtxScopeFields] = []
+
+/**
  * Main bot framework class for building Telegram bots.
  *
  * @remarks
@@ -249,13 +260,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   mediaRoots?: string[] | null
 
   /**
-   * Best-effort send-error hook.
+   * Forwarded `Ctx` fields, built once in the constructor.
    *
    * @remarks
-   * Forwarded into every page `Ctx` via `createCtx` (mirrors `log`).
-   * See {@link ITSendErrorHook}.
+   * Single source of truth for `Gramstax` → `Ctx` forwarding, spread by
+   * `buildCtxParams` on every `createCtx` call. To forward a new field:
+   * 1. add it to `ITGramstaxParams` (input) and `ITCtxParams` (output),
+   * 2. add it to `ITGramstaxCtxScope` (keeps the guard below honest),
+   * 3. set it here in the constructor scope literal (raw branch included),
+   * 4. copy it field-by-field in the `Ctx` constructor.
+   * Skipping step 2 fails `tsc` with the missing field name.
    */
-  onSendError?: ITSendErrorHook | null
+  ctxScope!: ITGramstaxCtxScope
 
   /**
    * The underlying Bot instance.
@@ -323,12 +339,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   _sessionLockKey?: (ctx: Ctx) => string
   /** Max accepted `message.text`/`caption` length (0 = unlimited). @internal */
   _maxTextLength = 0
-  /** Structured error hook (log sink / alerting). @internal */
-  _onUpdateError?: (event: ITUpdateErrorEvent) => void
-  /** Structured success hook (audit trail). @internal */
-  _onUpdate?: (event: ITUpdateSuccessEvent) => void
-  /** Optional OTel-style trace export hook (fire-and-forget). @internal */
-  _onTrace?: (span: {name: string; durationMs: number; attributes: Record<string, unknown>}) => void
   /** Max consecutive polling failures before giving up (-1 = infinite). @internal */
   _pollingMaxRetries = 5
   /** Set once `stop()` begins; the polling loop checks it before every retry. @internal */
@@ -494,7 +504,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.log = params.log === true ? log : !params.log ? undefined : params.log
     this.log?.info?.(`Gramstax v${__PKG_VERSION__}`)
     this.mediaRoots = params.mediaRoots ?? null
-    this.onSendError = params.onSendError ?? null
+    const buildScope = (): ITGramstaxCtxScope => ({
+      cacheSession: this.cacheSession,
+      cacheKeyboard: this.cacheKeyboard,
+      templateManager: this.templateManager,
+      log: this.log,
+      mediaRoots: this.mediaRoots ?? null,
+      onSendError: this.hookSendError?.bind(this) ?? null
+    })
 
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, 86_400_000)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
@@ -516,9 +533,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     }
     this._maxTextLength = params.maxTextLength ?? 0
-    this._onUpdateError = params.onUpdateError
-    this._onUpdate = params.onUpdate
-    this._onTrace = params.onTrace
     this._statusServerPort = params.statusServerPort
     this._statusServerHostname = params.statusServerHostname ?? `127.0.0.1`
     this._pollingMaxRetries = params.pollingMaxRetries ?? 5
@@ -578,6 +592,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (params.deploy === `raw`) {
       this.deployType = `raw`
       this.pages = this._buildEmptyPages()
+      this.ctxScope = buildScope()
       this.ready = Promise.resolve(this.hookBeforeStart?.()).then(() => undefined)
       return
     }
@@ -596,6 +611,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         path: [join(process.cwd(), `src`, `pages`)],
         onReload: () => void this.cacheKeyboard?.clear()
       })
+    this.ctxScope = buildScope()
 
     // Register built-in event listeners (inline — no separate overridable methods)
     this.bot.on(`callback_query:data`, (ctx) => this._onHandle(ctx, `callbackquerydata`))
@@ -856,12 +872,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return value.split(token).join(`***`)
   }
 
-  /** Emits a structured update error event via metrics + `onUpdateError`. @internal */
+  /** Emits a structured update error event via metrics + `hookUpdateError`. @internal */
   _emitUpdateError(event: ITUpdateErrorEvent): void {
     try {
-      this._onUpdateError?.(event)
+      this.hookUpdateError?.(event)
     } catch (error) {
-      this.log?.error?.(`onUpdateError hook failed: ${String(error)}`)
+      this.log?.error?.(`hookUpdateError hook failed: ${String(error)}`)
     }
   }
 
@@ -1143,6 +1159,145 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   hookKeyGenerator?(ctx: ICtx): string | undefined
 
   /**
+   * Hook invoked with a structured error event for every update failure
+   * (errors, timeouts, blocked). Use for log sinks / alerting (Sentry, etc.).
+   *
+   * @remarks
+   * Sibling hooks: `hookSendError` (per-send failures inside `Ctx.render*`,
+   * recoverable) and `hookTrace` (every routed update, success included).
+   * Routing rule: retry-queue ← `hookSendError`, Sentry ← `hookUpdateError`,
+   * dashboard ← `hookTrace`. One incident (e.g. a 403) can fire all three
+   * in sequence — do not forward all three to the same alert.
+   *
+   * @param event - The structured error event. See {@link ITUpdateErrorEvent}.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   override hookUpdateError(event: ITUpdateErrorEvent): void {
+   *     Sentry.captureException(event.error, {tags: {listener: event.listenerName}})
+   *   }
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  hookUpdateError?(event: ITUpdateErrorEvent): void
+
+  /**
+   * Hook invoked with a structured success event after every routed update.
+   *
+   * @remarks
+   * Audit trail counterpart of `hookUpdateError`. Fires for matched, no-match,
+   * no-handler and blocked states (not for errors/timeouts).
+   *
+   * @param event - The structured success event. See {@link ITUpdateSuccessEvent}.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   override hookUpdate(event: ITUpdateSuccessEvent): void {
+   *     metrics.count(event.listenerName, event.state)
+   *   }
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  hookUpdate?(event: ITUpdateSuccessEvent): void
+
+  /**
+   * Optional OTel-style trace export hook.
+   *
+   * @remarks
+   * Called after every routed update with the listener name, duration, and
+   * outcome. Fire-and-forget — the hook is not awaited. Use to export traces
+   * to your observability backend.
+   *
+   * @remarks
+   * Sibling hooks: `hookSendError` (per-send failures) and `hookUpdateError`
+   * (dead updates). Routing rule: retry-queue ← `hookSendError`,
+   * Sentry ← `hookUpdateError`, dashboard ← `hookTrace`.
+   *
+   * @param span - The trace span with `name`, `durationMs`, and `attributes`.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   override hookTrace(span: {name: string; durationMs: number; attributes: Record<string, unknown>}): void {
+   *     tracer.export(span)
+   *   }
+   * }
+   * ```
+   *
+   * @defaultValue `undefined` (no trace export)
+   * @virtual
+   * @public
+   */
+  hookTrace?(span: {name: string; durationMs: number; attributes: Record<string, unknown>}): void
+
+  /**
+   * Best-effort send-error hook.
+   *
+   * @remarks
+   * Flows into every page `Ctx` via `createCtx` (mirrors the `log`
+   * channel). Invoked with `{page, kind, chatId}` at every site where a
+   * send error is classified; a throwing hook is swallowed. See
+   * {@link ITSendErrorHook}.
+   *
+   * @remarks
+   * Sibling hooks: `hookUpdateError` (dead updates — terminal) and `hookTrace`
+   * (every routed update). This one is the recoverable layer: a
+   * `fallback-text` send still serves the user, a `retryable` send still
+   * throws to your caller. Routing rule: retry-queue ← `hookSendError`,
+   * Sentry ← `hookUpdateError`, dashboard ← `hookTrace`.
+   *
+   * @param err - The send error.
+   * @param info - The send-error info (`page`, `kind`, `chatId`). See {@link ITSendErrorHook}.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+   *     // info: {page: `admin/logs`, kind: `fallback-text` | `retryable`, chatId?: number}
+   *     if (info.kind === `retryable`) queueRetry(info)
+   *     else metrics.count(info.page, info.kind)
+   *   }
+   * }
+   * // Throwing inside the hook is swallowed — the send flow never breaks.
+   * ```
+   *
+   * @example Retry-for-later: collect retryables, re-drive them from a job.
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   retryQueue: Array<{err: unknown, page: string, chatId?: number, at: number}> = []
+   *   override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+   *     if (info.kind === `retryable`) this.retryQueue.push({err, page: info.page, chatId: info.chatId, at: Date.now()})
+   *   }
+   * }
+   * // NOTE: `retryable` still throws to your caller — the hook only observes.
+   * // Drain `retryQueue` from a worker/job; do not retry inline (429 needs backoff).
+   * ```
+   *
+   * @example Severity split: Sentry for retryables, logs for user-caused fallbacks.
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+   *     if (info.kind === `retryable`) Sentry.captureException(err, {tags: {page: info.page}})
+   *     // `fallback-text` (403 blocked, file deleted) is a normal condition — log, don't alert.
+   *   }
+   * }
+   * ```
+   *
+   * @defaultValue `undefined` (no hook)
+   * @virtual
+   * @public
+   */
+  hookSendError?(...args: Parameters<ITSendErrorHook>): void
+
+  /**
    * Creates the Bot instance.
    *
    * @param token - The Telegram Bot API token.
@@ -1155,6 +1310,47 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
+   * Builds the params for one page `Ctx`, plus optional app extras.
+   *
+   * @remarks
+   * Only assembly point for `createCtx`: per-update `ct` plus the
+   * constructor-built `ctxScope` plus a fresh `temp`. App values (e.g. a
+   * database handle) ride in `extra` through the params object, but the
+   * `Ctx` constructor does NOT attach them — assign each one explicitly
+   * in your subclass constructor so every wiring stays visible and easy
+   * to troubleshoot. `extra` keys must not be `ct`/`temp` (thrown here).
+   *
+   * @typeParam T - App extra fields merged into the returned params.
+   * @param ct - The grammy context for the current update.
+   * @param extra - Optional app values forwarded into every page `Ctx`.
+   * @returns Params for `new Ctx(...)`, shaped as `ITCtxParams & T`.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   db = new Db()
+   *   override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, _extra?: T): ITCtxParams & T & {db: Db} {
+   *     return super.buildCtxParams(ct, {db: this.db}) as ITCtxParams & T & {db: Db}
+   *   }
+   * }
+   * class CtxCore extends Ctx {
+   *   declare db: Db
+   *   constructor(params: ITCtxParams & {db: Db}) {
+   *     super(params)
+   *     this.db = params.db
+   *   }
+   * }
+   * // inside any page extending CtxCore: this.db — fully typed, zero casts.
+   * ```
+   *
+   * @public
+   */
+  buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, extra?: T): ITCtxParams & T {
+    if (extra && (`ct` in extra || `temp` in extra)) throw new Error(`Ctx extra must not override reserved key: ${`ct` in extra ? `ct` : `temp`}`)
+    return {ct, ...this.ctxScope, ...extra, onSendError: this.hookSendError?.bind(this) ?? null, temp: {isAnswer: false, session: {}, data: {}}} as ITCtxParams & T
+  }
+
+  /**
    * Creates a context instance for handling an update.
    *
    * @param ct - The context object.
@@ -1163,20 +1359,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   createCtx(ct: ITCt): ICtx {
-    return new Ctx({
-      ct,
-      cacheSession: this.cacheSession,
-      cacheKeyboard: this.cacheKeyboard,
-      templateManager: this.templateManager,
-      log: this.log,
-      mediaRoots: this.mediaRoots ?? null,
-      onSendError: this.onSendError ?? null,
-      temp: {
-        isAnswer: false,
-        session: {},
-        data: {}
-      }
-    }) as unknown as ICtx
+    return new Ctx(this.buildCtxParams(ct)) as unknown as ICtx
   }
 
   /**
@@ -1202,7 +1385,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
   /**
    * Runs the polling loop with exponential-backoff retries on transient
-   * failures. Gives up (logs + `onUpdateError` + `stop()`) after
+   * failures. Gives up (logs + `hookUpdateError` + `stop()`) after
    * `_pollingMaxRetries` consecutive failures, or retries forever when `-1`.
    *
    * @remarks
@@ -2596,7 +2779,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * not-found checks. Routing races against `_updateTimeoutMs`
    * (`timeout` state via `UpdateTimeoutError`); any other throw becomes
    * the `error` state via `hookErrorPage`. `hookAfterRoute` always fires,
-   * metrics are recorded, `_onTrace` is guarded, and `_onUpdate` is
+   * metrics are recorded, `hookTrace` is guarded, and `hookUpdate` is
    * skipped for `error`/`timeout`. `isEdit` is true for
    * `callbackquerydata` listeners.
    *
@@ -2655,18 +2838,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     await this.hookAfterRoute?.(ctx, {listenerName, state, isEdit})
     const durationMs = Date.now() - startedAt
     this.metrics.recordUpdate(listenerName, durationMs)
-    if (this._onTrace) {
+    if (this.hookTrace) {
       try {
-        this._onTrace({name: listenerName, durationMs, attributes: {state, isEdit}})
+        this.hookTrace({name: listenerName, durationMs, attributes: {state, isEdit}})
       } catch (error) {
-        this.log?.error?.(`onTrace hook failed: ${String(error)}`)
+        this.log?.error?.(`hookTrace hook failed: ${String(error)}`)
       }
     }
     if (state !== `error` && state !== `timeout`) {
       try {
-        this._onUpdate?.({traceId, listenerName, state, durationMs, isEdit})
+        this.hookUpdate?.({traceId, listenerName, state, durationMs, isEdit})
       } catch (error) {
-        this.log?.error?.(`onUpdate hook failed: ${String(error)}`)
+        this.log?.error?.(`hookUpdate hook failed: ${String(error)}`)
       }
     }
   }

@@ -203,7 +203,7 @@ describe(`F5 single traceId from _onHandle into _handleCtx`, () => {
   it(`passes one traceId through and increments the sequence once`, async () => {
     const bot = createTestBot()
     const traces: unknown[] = []
-    bot._onUpdate = (event: {traceId: unknown}) => {
+    bot.hookUpdate = (event: {traceId: unknown}) => {
       traces.push(event.traceId)
     }
     const received: unknown[] = []

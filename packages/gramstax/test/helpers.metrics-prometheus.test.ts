@@ -59,19 +59,23 @@ describe(`metricsToPrometheus`, () => {
   })
 })
 
-describe(`onTrace hook`, () => {
+describe(`hookTrace`, () => {
   it(`fires after a routed update`, async () => {
     const dir = mkdtempSync(join(tmpdir(), `gramstax-metrics-`))
     writeFileSync(join(dir, `page.html`), `<g-base><g-message>hi</g-message></g-base>`)
     const tm = new TemplateManager({path: [dir]})
-    const spans: unknown[] = []
-    const bot = new Gramstax({
+    class TraceBot extends Gramstax {
+      spans: unknown[] = []
+      override hookTrace(span: {name: string; durationMs: number; attributes: Record<string, unknown>}): void {
+        this.spans.push(span)
+      }
+    }
+    const bot = new TraceBot({
       token: `test`,
       deploy: `test`,
       templateManager: tm,
       log: false,
-      botConfig: {botInfo: {id: 123456789, is_bot: true, first_name: `Bot`, username: `test_bot`}} as never,
-      onTrace: (span: {name: string; durationMs: number; attributes: Record<string, unknown>}) => spans.push(span)
+      botConfig: {botInfo: {id: 123456789, is_bot: true, first_name: `Bot`, username: `test_bot`}} as never
     } as never)
 
     await bot.bot.handleUpdate({
@@ -85,9 +89,9 @@ describe(`onTrace hook`, () => {
       }
     } as never)
 
-    expect(spans.length).toBe(1)
-    expect((spans[0] as {name: string}).name).toBe(`text`)
-    expect(typeof (spans[0] as {durationMs: number}).durationMs).toBe(`number`)
-    expect((spans[0] as {attributes: {state: string}}).attributes.state).toBe(`no-match`)
+    expect(bot.spans.length).toBe(1)
+    expect((bot.spans[0] as {name: string}).name).toBe(`text`)
+    expect(typeof (bot.spans[0] as {durationMs: number}).durationMs).toBe(`number`)
+    expect((bot.spans[0] as {attributes: {state: string}}).attributes.state).toBe(`no-match`)
   })
 })
