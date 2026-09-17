@@ -29,7 +29,7 @@ import {MetricsStore, metricsToPrometheus} from "~/helpers/metrics"
 import {PageManager} from "~/page/manager"
 import {TemplateManager} from "~/template/manager"
 import type {ITGramstaxParams, ITUpdateErrorEvent, ITUpdateSuccessEvent, ITWebhookQueueConfig} from "~/types/t.bot"
-import type {ITCt, ITCtMiddleware} from "~/types/t.ctx"
+import type {ITCt, ITCtMiddleware, ITSendErrorHook} from "~/types/t.ctx"
 import {WebhookQueue} from "~/webhook/queue"
 import {E2eHelper} from "../e2e/helper"
 import {Ctx} from "./ctx"
@@ -237,6 +237,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Uses {@link LoggingHelper} for formatted log output.
    */
   log: LoggingHelper | undefined
+
+  /**
+   * Opt-in local-path jail for media uploads.
+   *
+   * @remarks
+   * Forwarded into every page `Ctx` via `createCtx` (mirrors `log`).
+   * `null`/empty means free; when set, local file uploads outside the
+   * roots pass through as `file_id` with a `log.warn`.
+   */
+  mediaRoots?: string[] | null
+
+  /**
+   * Best-effort send-error hook.
+   *
+   * @remarks
+   * Forwarded into every page `Ctx` via `createCtx` (mirrors `log`).
+   * See {@link ITSendErrorHook}.
+   */
+  onSendError?: ITSendErrorHook | null
 
   /**
    * The underlying Bot instance.
@@ -474,6 +493,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     this.log = params.log === true ? log : !params.log ? undefined : params.log
     this.log?.info?.(`Gramstax v${__PKG_VERSION__}`)
+    this.mediaRoots = params.mediaRoots ?? null
+    this.onSendError = params.onSendError ?? null
 
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, 86_400_000)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
@@ -1148,6 +1169,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
       log: this.log,
+      mediaRoots: this.mediaRoots ?? null,
+      onSendError: this.onSendError ?? null,
       temp: {
         isAnswer: false,
         session: {},

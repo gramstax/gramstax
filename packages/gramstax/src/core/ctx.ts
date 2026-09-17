@@ -10,10 +10,11 @@
  */
 
 import {existsSync, statSync} from "node:fs"
+import {resolve, sep} from "node:path"
 import {setTimeout} from "node:timers/promises"
 import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
-import {Context, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
+import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
 import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
@@ -52,6 +53,8 @@ import type {
   ITOptReplyVoice,
   ITPageData,
   ITPageDataBase,
+  ITSendErrorHook,
+  ITSendErrorInfo,
   ITTemp
 } from "../types/t.ctx"
 
@@ -159,8 +162,8 @@ class GramstaxKeyboard extends Keyboard {
  * @internal
  */
 class Helper {
-  static MEDIA_GROUP_TYPES = new Set<ITMediaBlock[`type`]>([`photo`, `video`, `audio`, `document`])
-  static isMediaGroupType(type: ITMediaBlock[`type`]): type is ITMediaGroupType {
+  static MEDIA_GROUP_TYPES: ReadonlySet<string> = new Set([`photo`, `video`, `audio`, `document`])
+  static isMediaGroupType(type: string): type is ITMediaGroupType {
     return Helper.MEDIA_GROUP_TYPES.has(type)
   }
 
@@ -477,26 +480,65 @@ export class Ctx extends Context {
   }
 
   /**
+   * Check whether a local path sits under one of the jail roots.
+   *
+   * @remarks
+   * Both `src` and every root are compared in resolved absolute form
+   * (`resolve`); a path equal to a root or nested under it (root +
+   * separator prefix) is allowed. Symlinks are NOT dereferenced — `resolve`
+   * without `realpath` is purely lexical, so a symlinked escape inside an
+   * allowed root is the operator's responsibility (keep roots free of
+   * untrusted symlinks or pre-resolve with `realpath` before configuring).
+   *
+   * @param src - Local file path to test.
+   * @param roots - Allowed root directories.
+   * @returns `true` when `src` is inside any root.
+   *
+   * @public
+   */
+  static isPathUnderRoots(src: string, roots: readonly string[]): boolean {
+    const abs = resolve(src)
+    for (const root of roots) {
+      const base = resolve(root)
+      if (abs === base || abs.startsWith(base + sep)) return true
+    }
+    return false
+  }
+
+  /**
    * Resolve a template media `src` into an uploadable value.
    *
    * @remarks
    * When `src` points at a real local file (`existsSync` + `statSync().isFile()`),
    * it is wrapped in `new InputFile(src, filename)` so grammy uploads it.
    * `file_id` values, URLs, and missing paths pass through unchanged — never throws.
-   * Pre-built `InputFile` instances pass through as-is, except a defined
-   * `filename` overrides the instance name in place; `Buffer`/`Uint8Array`
-   * payloads are wrapped in `new InputFile(src, filename)`.
+   * Pre-built `InputFile` instances pass through as-is when no `filename` is
+   * given; a defined `filename` returns a prototype-preserving clone
+   * (`Object.create` + `Object.assign`) so shared caller instances are never
+   * mutated. `Buffer`/`Uint8Array` payloads are wrapped in
+   * `new InputFile(src, filename)`.
+   *
+   * Opt-in local-path jail (Q8 option b): when `roots` is a non-empty list,
+   * a local file uploads ONLY when its resolved absolute form sits under one
+   * of the resolved roots — otherwise it passes through unchanged (sent as a
+   * `file_id`, never throws, never uploads). `null`/empty `roots` keeps
+   * current behavior unchanged. `file_id`/URL/`Buffer`/`InputFile` sources
+   * are unaffected by the jail. Symlink limitation: the check is lexical
+   * (`resolve` without `realpath` — see `Ctx.isPathUnderRoots`).
    *
    * @param src - Template media `src` (file path, `file_id`, URL, or binary payload).
-   * @param filename - Optional upload filename; overrides `InputFile.filename` when defined.
+   * @param filename - Optional upload filename; overrides `InputFile.filename` on a clone when defined.
+   * @param roots - Optional jail roots; `null`/empty disables the jail.
    * @returns `InputFile` for local files and binary payloads, otherwise `src` unchanged.
    *
    * @public
    */
-  static resolveMediaInput(src: string | InputFile | Buffer | Uint8Array | undefined, filename?: string): string | InputFile {
+  static resolveMediaInput(src: string | InputFile | Buffer | Uint8Array | undefined, filename?: string, roots?: readonly string[] | null): string | InputFile {
     if (src instanceof InputFile) {
-      if (filename) Object.assign(src, {filename})
-      return src
+      if (filename === undefined) return src
+      const clone = Object.create(Object.getPrototypeOf(src)) as InputFile
+      Object.assign(clone, src, {filename})
+      return clone
     }
     if (src instanceof Uint8Array) return new InputFile(src, filename)
     if (!src) return src as string
@@ -506,7 +548,400 @@ export class Ctx extends Context {
     } catch {
       return src
     }
+    if (roots !== undefined && roots !== null && roots.length > 0 && !Ctx.isPathUnderRoots(src, roots)) return src
     return new InputFile(src, filename)
+  }
+
+  /**
+   * Clone a resolved media input so parallel broadcast sends never share one mutable instance.
+   *
+   * @remarks
+   * `resolveMediaInput` returns a pre-built `InputFile` as-is when no
+   * `filename` is given; sharing that single instance across concurrent
+   * `send*` calls risks interleaved stream state. Broadcast paths wrap every
+   * resolved value with this helper (per recipient, inside the worker), so
+   * each send owns its copy. Non-`InputFile` values (`string` sources)
+   * pass through unchanged. The trailing `roots` param exists for call-site
+   * uniformity with `resolveMediaInput` and is intentionally ignored —
+   * cloning never re-evaluates the jail.
+   *
+   * @param value - Resolved media input (`string` or `InputFile`).
+   * @param _roots - Ignored; accepted so jail-forwarding call sites read uniformly.
+   * @returns A prototype-preserving shallow clone for `InputFile`, else `value` unchanged.
+   *
+   * @public
+   */
+  static cloneMediaInput<T>(value: T, _roots?: readonly string[] | null): T {
+    if (value instanceof InputFile) {
+      const clone = Object.create(Object.getPrototypeOf(value)) as InputFile
+      Object.assign(clone, value)
+      return clone as unknown as T
+    }
+    return value
+  }
+
+  /**
+   * Framework default fallback text sent when a media send fails with a
+   * `fallback-text` error and no per-page `fallbackText` override is set.
+   *
+   * @public
+   */
+  static readonly FALLBACK_TEXT = `Media unavailable`
+
+  /**
+   * Per-page fallback text override for media-send failures.
+   *
+   * @remarks
+   * When a media send fails with a `fallback-text` error (see
+   * `Ctx.classifySendError`), the page replies with this text instead.
+   * `undefined`/`null` falls back to `Ctx.FALLBACK_TEXT`.
+   *
+   * @public
+   */
+  fallbackText?: string | null
+
+  /**
+   * Bot API upload size limits in bytes, per media type.
+   *
+   * @remarks
+   * Values follow the documented Bot API defaults: photo 10MB, animation
+   * 10MB, sticker 512KB, document/video/audio/voice 50MB. `video_note` uses
+   * 50MB as a best-effort byte check — its real constraint is the 640x640
+   * dimension enforced server-side. Types without an entry (`location`,
+   * `contact`) carry no bytes and are never size-checked.
+   *
+   * @public
+   */
+  static readonly MEDIA_UPLOAD_LIMITS: Record<string, number> = {
+    photo: 10 * 1024 * 1024,
+    video: 50 * 1024 * 1024,
+    audio: 50 * 1024 * 1024,
+    document: 50 * 1024 * 1024,
+    animation: 10 * 1024 * 1024,
+    voice: 50 * 1024 * 1024,
+    video_note: 50 * 1024 * 1024,
+    sticker: 512 * 1024
+  }
+
+  /**
+   * All sendable single-media types (`ITMediaBlock` minus `group`).
+   *
+   * @public
+   */
+  static readonly MEDIA_TYPES = [`photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`]
+
+  /**
+   * Media types that carry a caption (caption length is enforced for these).
+   *
+   * @public
+   */
+  static readonly MEDIA_CAPTION_TYPES: ReadonlySet<string> = new Set([`photo`, `video`, `audio`, `document`, `animation`])
+
+  /**
+   * Bot API caption limit in characters (caption-carrying types + media groups).
+   *
+   * @public
+   */
+  static readonly MEDIA_CAPTION_LIMIT = 1024
+
+  /**
+   * Bot API media-group limit in items (also applies to pipe-delimited `srcList`).
+   *
+   * @public
+   */
+  static readonly MEDIA_GROUP_LIMIT = 10
+
+  /**
+   * Classify a send failure as `fallback-text` (content rejected, reply with
+   * fallback text) or `retryable` (rate limit, server, network, or unknown —
+   * rethrow the original error untouched, fail-loud default).
+   *
+   * @remarks
+   * Mapping: `GrammyError` 429 → `retryable`; 400–499 (incl. 403) →
+   * `fallback-text`; >= 500 → `retryable`; `HttpError`/network and anything
+   * unknown → `retryable`.
+   *
+   * @param err - The error thrown by the send call.
+   * @returns `fallback-text` when a text fallback should be delivered, else `retryable`.
+   *
+   * @public
+   */
+  static classifySendError(err: unknown): `fallback-text` | `retryable` {
+    if (err instanceof HttpError) return `retryable`
+    if (err instanceof GrammyError && err.error_code >= 400 && err.error_code < 500 && err.error_code !== 429) return `fallback-text`
+    return `retryable`
+  }
+
+  /**
+   * Extract the Bot API `retry_after` hint in milliseconds, if present.
+   *
+   * @remarks
+   * Reads `parameters.retry_after` (seconds) off a `GrammyError` and converts
+   * to ms. Returns `undefined` for non-`GrammyError` errors and when the hint
+   * is missing or non-numeric. Informational only — pacing is owned elsewhere.
+   *
+   * @param err - The error thrown by the send call.
+   * @returns Milliseconds to wait, or `undefined` when unknown.
+   *
+   * @public
+   */
+  static retryAfterMs(err: unknown): number | undefined {
+    if (!(err instanceof GrammyError)) return undefined
+    const retryAfter: unknown = (err.parameters as {retry_after?: unknown} | undefined)?.retry_after
+    if (typeof retryAfter !== `number` || !Number.isFinite(retryAfter)) return undefined
+    return retryAfter * 1000
+  }
+
+  /**
+   * Throw when `bytes` exceeds the `MEDIA_UPLOAD_LIMITS` entry for `type`.
+   *
+   * @remarks
+   * Programmer error — always throws, never falls back. Types without a limit
+   * entry are skipped silently.
+   *
+   * @param type - Media type (e.g. `photo`).
+   * @param bytes - Payload size in bytes.
+   *
+   * @public
+   */
+  static assertMediaSize(type: string, bytes: number): void {
+    const limit = Ctx.MEDIA_UPLOAD_LIMITS[type]
+    if (limit === undefined) return
+    if (bytes > limit) throw new Error(`Media ${type} size ${bytes} exceeds limit ${limit}`)
+  }
+
+  /**
+   * Size-check a media `src` when its bytes are knowable, else skip.
+   *
+   * @remarks
+   * Uses `statSync().size` for local file paths and `.length` for
+   * `Buffer`/`Uint8Array` payloads. `InputFile` instances, `file_id` values,
+   * and URLs are skipped (size unknowable). Missing paths and stat failures
+   * pass through (the send call reports them).
+   *
+   * @param type - Media type (e.g. `photo`).
+   * @param src - Template media `src`.
+   *
+   * @public
+   */
+  static assertMediaSrcSize(type: string, src: unknown): void {
+    if (Ctx.MEDIA_UPLOAD_LIMITS[type] === undefined) return
+    if (src instanceof InputFile) return
+    if (src instanceof Uint8Array) {
+      Ctx.assertMediaSize(type, src.length)
+      return
+    }
+    if (typeof src !== `string`) return
+    if (!existsSync(src)) return
+    const stat = statSync(src, {throwIfNoEntry: false})
+    if (stat === undefined || !stat.isFile()) return
+    Ctx.assertMediaSize(type, stat.size)
+  }
+
+  /**
+   * Throw when `caption` exceeds `MEDIA_CAPTION_LIMIT` for caption-carrying types.
+   *
+   * @remarks
+   * Only enforced for `MEDIA_CAPTION_TYPES`; other types ignore captions.
+   * Programmer error — always throws, never falls back.
+   *
+   * @param type - Media type (e.g. `photo`).
+   * @param caption - Template caption, if any.
+   *
+   * @public
+   */
+  static assertMediaCaption(type: string, caption: unknown): void {
+    if (typeof caption !== `string` || caption.length === 0) return
+    if (!Ctx.MEDIA_CAPTION_TYPES.has(type)) return
+    if (caption.length > Ctx.MEDIA_CAPTION_LIMIT) throw new Error(`Caption length ${caption.length} exceeds limit ${Ctx.MEDIA_CAPTION_LIMIT} for media type "${type}"`)
+  }
+
+  /**
+   * Fail-fast pre-send checks for one single-media payload (programmer errors
+   * always throw, never fall back): unknown type, upload size, voice caption, caption length.
+   *
+   * @param type - Media type (e.g. `photo`).
+   * @param med - Template media block (`src` + `caption` are read).
+   *
+   * @public
+   */
+  static assertMediaPreconditions(type: string, med: {src?: unknown; caption?: unknown}): void {
+    if (!(Ctx.MEDIA_TYPES as readonly string[]).includes(type)) throw new Error(`Unknown media type: ${type}`)
+    Ctx.assertMediaSrcSize(type, med.src)
+    if (type === `voice` && typeof med.caption === `string` && med.caption.length > 0) throw new Error(`voice messages do not support captions`)
+    Ctx.assertMediaCaption(type, med.caption)
+  }
+
+  /**
+   * Fail-fast checks for a `<g-media-group>` item list: group size limit,
+   * per-item group type, upload size, and caption length.
+   *
+   * @param items - Media-group items to validate.
+   *
+   * @public
+   */
+  static assertMediaGroupItems(items: Array<{type: string; src?: unknown; caption?: unknown}>): void {
+    if (items.length > Ctx.MEDIA_GROUP_LIMIT) throw new Error(`Media group size ${items.length} exceeds limit ${Ctx.MEDIA_GROUP_LIMIT}`)
+    for (const item of items) {
+      if (!Helper.isMediaGroupType(item.type)) throw new Error(`Unknown media type: ${item.type}`)
+      Ctx.assertMediaSrcSize(item.type, item.src)
+      Ctx.assertMediaCaption(item.type, item.caption)
+    }
+  }
+
+  /**
+   * Fail-fast checks for a pipe-delimited `srcList`: group size limit + upload size.
+   *
+   * @param type - Media group type (e.g. `photo`).
+   * @param srcList - Pipe-delimited sources to validate.
+   *
+   * @public
+   */
+  static assertMediaSrcList(type: string, srcList: Array<unknown>): void {
+    if (srcList.length > Ctx.MEDIA_GROUP_LIMIT) throw new Error(`Media group size ${srcList.length} exceeds limit ${Ctx.MEDIA_GROUP_LIMIT}`)
+    for (const src of srcList) Ctx.assertMediaSrcSize(type, src)
+  }
+
+  /**
+   * Parse and range-check `latitude`/`longitude` (replaces bare `parseInt`).
+   *
+   * @remarks
+   * Missing, non-numeric, `NaN`, or out-of-range values throw. Programmer
+   * error — always throws, never falls back.
+   *
+   * @param latitude - Raw template `latitude` (string or number).
+   * @param longitude - Raw template `longitude` (string or number).
+   * @returns Validated `{latitude, longitude}` numbers.
+   *
+   * @public
+   */
+  static assertLocation(latitude: unknown, longitude: unknown): {latitude: number; longitude: number} {
+    const lat = typeof latitude === `number` ? latitude : typeof latitude === `string` && latitude.trim() !== `` ? Number(latitude) : NaN
+    if (!Number.isFinite(lat) || lat < -90 || lat > 90) throw new Error(`Invalid latitude "${String(latitude)}": must be a finite number between -90 and 90`)
+    const long = typeof longitude === `number` ? longitude : typeof longitude === `string` && longitude.trim() !== `` ? Number(longitude) : NaN
+    if (!Number.isFinite(long) || long < -180 || long > 180) throw new Error(`Invalid longitude "${String(longitude)}": must be a finite number between -180 and 180`)
+    return {latitude: lat, longitude: long}
+  }
+
+  /**
+   * Require non-empty `phone` + `first_name` for contacts (replaces non-null assertions).
+   *
+   * @remarks
+   * Programmer error — always throws, never falls back.
+   *
+   * @param phone - Raw template `phone`.
+   * @param firstName - Raw template `first_name`.
+   *
+   * @public
+   */
+  static assertContact(phone: unknown, firstName: unknown): void {
+    if (typeof phone !== `string` || phone.trim() === ``) throw new Error(`Contact requires a non-empty "phone" (got "${String(phone)}")`)
+    if (typeof firstName !== `string` || firstName.trim() === ``) throw new Error(`Contact requires a non-empty "first_name" (got "${String(firstName)}")`)
+  }
+
+  /**
+   * Resolve the effective fallback text (per-page override or framework default).
+   *
+   * @returns `this.fallbackText` when set, else `Ctx.FALLBACK_TEXT`.
+   *
+   * @public
+   */
+  resolveFallbackText(): string {
+    return this.fallbackText ?? Ctx.FALLBACK_TEXT
+  }
+
+  /**
+   * Resolve a media `src` through the instance path jail.
+   *
+   * @remarks
+   * Forwards `this.mediaRoots` into `Ctx.resolveMediaInput`. Jail denial is
+   * detected by comparing the jailed form against the free form: when the
+   * free form would upload (`InputFile`) but the jailed form passes through
+   * (`string`), the path was denied and a `log.warn` names the rejected
+   * path (never file contents). Null-safe: an absent `log` stays silent.
+   *
+   * @param src - Template media `src` (file path, `file_id`, URL, or binary payload).
+   * @param filename - Optional upload filename forwarded to `resolveMediaInput`.
+   * @returns `InputFile` for allowed local files and binary payloads, otherwise `src` unchanged.
+   *
+   * @public
+   */
+  resolveMedia(src: string | InputFile | Buffer | Uint8Array | undefined, filename?: string): string | InputFile {
+    const roots = this.mediaRoots
+    if (typeof src !== `string` || roots === undefined || roots === null || roots.length === 0) return Ctx.resolveMediaInput(src, filename, roots ?? undefined)
+    const jailed = Ctx.resolveMediaInput(src, filename, roots)
+    if (typeof jailed === `string` && Ctx.resolveMediaInput(src, filename) instanceof InputFile) this.log?.warn(`media jail denies local path outside mediaRoots, passing through as file_id (src="${src}")`)
+    return jailed
+  }
+
+  /**
+   * Best-effort page name for send-error context.
+   *
+   * @returns `this.data.name`, or `unknown` when unavailable.
+   *
+   * @public
+   */
+  sendPageName(): string {
+    return this.data?.name ?? `unknown`
+  }
+
+  /**
+   * Best-effort current chat id for send-error context.
+   *
+   * @returns The current chat id, or `undefined` when the update carries no chat.
+   *
+   * @public
+   */
+  sendChatId(): number | undefined {
+    const id: unknown = this.chat?.id
+    return typeof id === `number` ? id : undefined
+  }
+
+  /**
+   * Invoke the `onSendError` hook best-effort (Q9 option b).
+   *
+   * @remarks
+   * Builds `{page, kind, chatId}` and calls the hook inside a nested
+   * try/catch — a throwing hook is swallowed and never breaks the send
+   * flow. Silent when no hook is configured. Validation throws are
+   * programmer errors and never reach this helper (hook-free by design).
+   *
+   * @param err - The classified send error.
+   * @param kind - The `Ctx.classifySendError` outcome.
+   * @param chatId - Target recipient when known.
+   *
+   * @public
+   */
+  notifySendError(err: unknown, kind: `fallback-text` | `retryable`, chatId?: number): void {
+    const hook = this.onSendError
+    if (hook === undefined || hook === null) return
+    const info: ITSendErrorInfo = {page: this.sendPageName(), kind, chatId}
+    try {
+      hook(err, info)
+    } catch {
+      // throwing hook must never break the send flow
+    }
+  }
+
+  /**
+   * Best-effort fallback-text reply; never throws (nested failures are ignored).
+   *
+   * @remarks
+   * A nested fallback failure is logged via `log.warn` (null-safe) and
+   * reported as `undefined` — the outer send already recorded the primary
+   * error, so this warn only marks the last-resort delivery loss.
+   *
+   * @returns The fallback message, or `undefined` when the fallback reply also failed.
+   *
+   * @public
+   */
+  async replyFallbackText(): Promise<unknown> {
+    try {
+      return await this.reply(this.resolveFallbackText())
+    } catch {
+      this.log?.warn(`replyFallbackText delivery failed for page "${this.sendPageName()}"`)
+      return undefined
+    }
   }
 
   /**
@@ -1287,6 +1722,32 @@ export class Ctx extends Context {
   log: LoggingHelper | null | undefined
 
   /**
+   * Opt-in local-path jail for media uploads (Q8 option b).
+   *
+   * @remarks
+   * Set from `ITCtxParams.mediaRoots` (mirrors the `log` channel, so
+   * `Gramstax({mediaRoots})` and `new SomePage(this)` both propagate it).
+   * `null`/empty means free; when set, `resolveMedia` uploads a local
+   * file only inside the roots and otherwise passes it through as a
+   * `file_id` with a `log.warn`.
+   *
+   * @public
+   */
+  mediaRoots?: string[] | null
+
+  /**
+   * Best-effort send-error hook (Q9 option b).
+   *
+   * @remarks
+   * Set from `ITCtxParams.onSendError` (mirrors the `log` channel).
+   * Invoked with `{page, kind, chatId}` at every classified send error;
+   * a throwing hook is swallowed. Validation throws stay hook-free.
+   *
+   * @public
+   */
+  onSendError?: ITSendErrorHook | null
+
+  /**
    * Temporary state storage for the current request.
    *
    * @public
@@ -1341,6 +1802,8 @@ export class Ctx extends Context {
     this.cacheKeyboard = params.cacheKeyboard
     this.templateManager = params.templateManager
     this.log = params.log
+    this.mediaRoots = params.mediaRoots ?? null
+    this.onSendError = params.onSendError ?? null
     this.temp = params.temp
   }
 
@@ -1429,6 +1892,22 @@ export class Ctx extends Context {
    * @remarks
    * Automatically throttles after 30 messages to respect Telegram rate limits.
    * Uses each user's specified language code for template rendering.
+   * Per-recipient send failures follow `Ctx.classifySendError`: `retryable`
+   * errors are counted and the loop continues; `fallback-text` errors
+   * additionally trigger a best-effort fallback-text send to that recipient
+   * (nested failures ignored). `failedCount`/`firstError` semantics are
+   * preserved either way; loop structure and pacing are untouched.
+   * Retryable failures (`429`/`5xx`/network) never abort the run: they are
+   * recorded in `retryable` (absolute `index` + `id` + `error`, completion
+   * order) while the checkpoint keeps advancing, so callers can re-drive
+   * just those entries with a fresh pass. `firstError` stays the first
+   * failure of any kind.
+   * Checkpoint-first (anti-spam over speed): `startFrom` resumes after a
+   * restart without resending (indexes below count as skipped, `done` in
+   * `onProgress` counts processed recipients, `total` is `ids.length`);
+   * `concurrency` defaults to `1` (sequential) and can be raised when
+   * throughput matters. At ~`40` sends/sec, `1M` recipients take ~`7h` —
+   * size chunks and checkpoints accordingly.
    *
    * @param ids - Array of user IDs to send the message to.
    * @param languageCode - Array of language codes corresponding to each user.
@@ -1437,12 +1916,18 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).
    * @param options - Optional send options (or null to omit).
    * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
+   * @param chunkSize - Optional custom chunk size for pacing sleeps (or null for free-limit pacing only).
+   * @param chunkDelayMs - Optional delay in ms after each `chunkSize` chunk (or null for `500`).
+   * @param excludeIds - Optional user IDs to skip, counted as skipped (or null to send to all).
+   * @param onProgress - Optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip).
+   * @param startFrom - Optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`).
+   * @param concurrency - Optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
    *   const userIds = [123456, 789012]
-   *   const langs = ["en", "id"]
+   *   const langs = [`en`, `id`]
    *   await this.renderBroadcast(userIds, langs)
    * }
    * ```
@@ -1459,24 +1944,32 @@ export class Ctx extends Context {
     throwError: boolean | null = false,
     chunkSize: number | null = null,
     chunkDelayMs: number | null = null,
-    excludeIds: number[] | null = null
+    excludeIds: number[] | null = null,
+    onProgress?: ((done: number, total: number) => void | Promise<void>) | null,
+    startFrom?: number | null,
+    concurrency?: number | null
   ) {
-    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0}
+    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: [] as Array<{index: number; id: number; error: unknown}>}
     res.totalCount = ids.length
     const limitFree = 30
     const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
     const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
+    const rawStart = startFrom ?? 0
+    const start = !Number.isFinite(rawStart) ? 0 : Math.min(ids.length, Math.max(0, Math.floor(rawStart)))
+    res.skippedCount += start
+    const rawWorkers = concurrency ?? 1
+    const workers = !Number.isFinite(rawWorkers) ? 1 : Math.min(10, Math.max(1, Math.floor(rawWorkers)))
     let firstError: unknown
-    for (let index = 0; index < ids.length; index++) {
+    const attempt = async (index: number): Promise<void> => {
       const id = ids[index]
       if (excluded?.has(id!)) {
         res.skippedCount += 1
-        continue
+        return
       }
       const msg = msgs[index] ?? msgs[msgs.length - 1]
       if (msg === undefined || msg === ``) {
         res.failedCount += 1
-        continue
+        return
       }
       try {
         await this.api.sendMessage(id!, msg, {
@@ -1486,15 +1979,46 @@ export class Ctx extends Context {
         })
         res.successCount += 1
       } catch (error) {
+        const kind = Ctx.classifySendError(error)
+        if (kind === `fallback-text`) {
+          this.log?.warn(`broadcast fallback-text delivery to ${id} for page "${this.sendPageName()}"`)
+          this.notifySendError(error, kind, id)
+          try {
+            await this.api.sendMessage(id!, this.resolveFallbackText())
+          } catch {
+            // best-effort fallback; ignore nested failure
+          }
+        } else {
+          this.notifySendError(error, kind, id)
+          res.retryable.push({index, id: id!, error})
+        }
         res.failedCount += 1
         firstError ??= error
       }
       if ((index + 1) % limitFree === 0) {
         await setTimeout(1200)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
       } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < ids.length) {
         await setTimeout(chunkDelayMs ?? 500)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
       }
     }
+    if (workers <= 1) {
+      for (let index = start; index < ids.length; index++) await attempt(index)
+    } else {
+      const pending: number[] = []
+      for (let index = start; index < ids.length; index++) pending.push(index)
+      const lanes: number[][] = Array.from({length: workers}, (): number[] => [])
+      pending.forEach((absolute, position) => {
+        lanes[position % workers]!.push(absolute)
+      })
+      await Promise.all(
+        lanes.map(async (lane) => {
+          for (const next of lane) await attempt(next)
+        })
+      )
+    }
+    await onProgress?.(res.successCount + res.failedCount, res.totalCount)
     if (throwError && res.failedCount > 0) {
       throw {...res, err: firstError}
     }
@@ -1511,6 +2035,25 @@ export class Ctx extends Context {
    * reply markup, so keyboards are ignored for grouped media.
    * Automatically throttles after 30 messages to respect Telegram rate limits.
    * Uses each user's specified language code for template rendering.
+   * Fail-fast validation runs for every recipient media BEFORE the loop
+   * (programmer errors always throw, never fall back). Per-recipient send
+   * failures follow `Ctx.classifySendError`: `retryable` errors are counted
+   * and the loop continues; `fallback-text` errors additionally trigger a
+   * best-effort fallback-text send to that recipient (nested failures
+   * ignored). `failedCount`/`firstError` semantics are preserved either way;
+   * loop structure and pacing are untouched.
+   * Retryable failures (`429`/`5xx`/network) never abort the run: they are
+   * recorded in `retryable` (absolute `index` + `id` + `error`, completion
+   * order) while the checkpoint keeps advancing, so callers can re-drive
+   * just those entries with a fresh pass. `firstError` stays the first
+   * failure of any kind.
+   * Checkpoint-first (anti-spam over speed): `startFrom` resumes after a
+   * restart without resending (indexes below count as skipped, `done` in
+   * `onProgress` counts processed recipients, `total` is `ids.length`);
+   * `concurrency` defaults to `1` (sequential) and can be raised when
+   * throughput matters. Every resolved media input is cloned per recipient
+   * via `Ctx.cloneMediaInput`, so parallel workers never share one mutable
+   * `InputFile` instance.
    *
    * @param ids - Array of user IDs to send the media to.
    * @param languageCode - Array of language codes corresponding to each user.
@@ -1519,12 +2062,18 @@ export class Ctx extends Context {
    * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
    * @param options - Optional send options for the inferred media type (or null to omit).
    * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
+   * @param chunkSize - Optional custom chunk size for pacing sleeps (or null for free-limit pacing only).
+   * @param chunkDelayMs - Optional delay in ms after each `chunkSize` chunk (or null for `500`).
+   * @param excludeIds - Optional user IDs to skip, counted as skipped (or null to send to all).
+   * @param onProgress - Optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip).
+   * @param startFrom - Optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`).
+   * @param concurrency - Optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
    *   const userIds = [123456, 789012]
-   *   const langs = ["en", "id"]
+   *   const langs = [`en`, `id`]
    *   await this.renderBroadcastMedia(userIds, langs)
    * }
    * ```
@@ -1541,19 +2090,35 @@ export class Ctx extends Context {
     throwError: boolean | null = false,
     chunkSize: number | null = null,
     chunkDelayMs: number | null = null,
-    excludeIds: number[] | null = null
+    excludeIds: number[] | null = null,
+    onProgress?: ((done: number, total: number) => void | Promise<void>) | null,
+    startFrom?: number | null,
+    concurrency?: number | null
   ) {
-    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0}
+    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: [] as Array<{index: number; id: number; error: unknown}>}
     res.totalCount = ids.length
     const limitFree = 30
     const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
     const medias = languageCode.map((it) => this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
+    for (const med of medias) {
+      if (!med) continue
+      if (med.type === `group` && med.mediaGroup) Ctx.assertMediaGroupItems(med.mediaGroup)
+      if (med.type !== `group`) Ctx.assertMediaPreconditions(med.type, med)
+      if (med.type === `location`) Ctx.assertLocation(med.latitude, med.longitude)
+      if (med.type === `contact`) Ctx.assertContact(med.phone, med.first_name)
+      if (med.srcList && med.srcList.length > 0) Ctx.assertMediaSrcList(med.type, med.srcList)
+    }
+    const rawStart = startFrom ?? 0
+    const start = !Number.isFinite(rawStart) ? 0 : Math.min(ids.length, Math.max(0, Math.floor(rawStart)))
+    res.skippedCount += start
+    const rawWorkers = concurrency ?? 1
+    const workers = !Number.isFinite(rawWorkers) ? 1 : Math.min(10, Math.max(1, Math.floor(rawWorkers)))
     let firstError: unknown
-    for (let index = 0; index < ids.length; index++) {
+    const attempt = async (index: number): Promise<void> => {
       const id = ids[index]
       if (excluded?.has(id!)) {
         res.skippedCount += 1
-        continue
+        return
       }
       const med = medias[index] ?? medias[medias.length - 1]
       try {
@@ -1564,41 +2129,76 @@ export class Ctx extends Context {
         const medFilename = med.filename
 
         if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
-          const resolvedItems = med.mediaGroup.map((item) => ({...item, src: Ctx.resolveMediaInput(item.src)}))
+          const resolvedItems = med.mediaGroup.map((item) => ({...item, src: Ctx.cloneMediaInput(this.resolveMedia(item.src))}))
           await this.api.sendMediaGroup(id! as unknown as never, Helper.buildMediaGroupFromItems(resolvedItems, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
         } else if (Helper.isMediaGroupType(med.type) && med.srcList && med.srcList.length > 1) {
           await this.api.sendMediaGroup(
             id! as unknown as never,
             Helper.buildMediaGroup(
               med.type,
-              med.srcList.map((src) => Ctx.resolveMediaInput(src)),
+              med.srcList.map((src) => Ctx.cloneMediaInput(this.resolveMedia(src))),
               med.caption
             ) as unknown as never,
             Helper.buildMediaGroupOptions(opt) as unknown as never
           )
-        } else if (med.type === `photo`) await this.api.sendPhoto(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-        else if (med.type === `video`) await this.api.sendVideo(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-        else if (med.type === `audio`) await this.api.sendAudio(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-        else if (med.type === `document`) await this.api.sendDocument(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-        else if (med.type === `animation`) await this.api.sendAnimation(id!, Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-        else if (med.type === `voice`) await this.api.sendVoice(id!, Ctx.resolveMediaInput(med.src, medFilename), opt)
-        else if (med.type === `video_note`) await this.api.sendVideoNote(id!, Ctx.resolveMediaInput(med.src, medFilename), opt)
-        else if (med.type === `sticker`) await this.api.sendSticker(id!, Ctx.resolveMediaInput(med.src, medFilename), opt)
-        else if (med.type === `location`) await this.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
-        else if (med.type === `contact`) await this.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
-        else throw new Error(`Unknown media type "${med.type}"`)
+        } else if (med.type === `photo`) await this.api.sendPhoto(id!, Ctx.cloneMediaInput(this.resolveMedia(med.src, medFilename)), {caption: med.caption!, ...opt})
+        else if (med.type === `video`) await this.api.sendVideo(id!, Ctx.cloneMediaInput(this.resolveMedia(med.src, medFilename)), {caption: med.caption!, ...opt})
+        else if (med.type === `audio`) await this.api.sendAudio(id!, Ctx.cloneMediaInput(this.resolveMedia(med.src, medFilename)), {caption: med.caption!, ...opt})
+        else if (med.type === `document`) await this.api.sendDocument(id!, Ctx.cloneMediaInput(this.resolveMedia(med.src, medFilename)), {caption: med.caption!, ...opt})
+        else if (med.type === `animation`) await this.api.sendAnimation(id!, Ctx.cloneMediaInput(this.resolveMedia(med.src, medFilename)), {caption: med.caption!, ...opt})
+        else if (med.type === `voice`) await this.api.sendVoice(id!, Ctx.cloneMediaInput(this.resolveMedia(med.src, medFilename)), opt)
+        else if (med.type === `video_note`) await this.api.sendVideoNote(id!, Ctx.cloneMediaInput(this.resolveMedia(med.src, medFilename)), opt)
+        else if (med.type === `sticker`) await this.api.sendSticker(id!, Ctx.cloneMediaInput(this.resolveMedia(med.src, medFilename)), opt)
+        else if (med.type === `location`) {
+          const coords = Ctx.assertLocation(med.latitude, med.longitude)
+          await this.api.sendLocation(id!, coords.latitude, coords.longitude, opt)
+        } else if (med.type === `contact`) {
+          Ctx.assertContact(med.phone, med.first_name)
+          await this.api.sendContact(id!, med.phone as string, med.first_name as string, {vcard: med.vcard!, ...opt})
+        } else throw new Error(`Unknown media type: ${med.type}`)
 
         res.successCount += 1
       } catch (error) {
+        const kind = Ctx.classifySendError(error)
+        if (kind === `fallback-text`) {
+          this.log?.warn(`broadcast fallback-text delivery to ${id} for page "${this.sendPageName()}"`)
+          this.notifySendError(error, kind, id)
+          try {
+            await this.api.sendMessage(id!, this.resolveFallbackText())
+          } catch {
+            // best-effort fallback; ignore nested failure
+          }
+        } else {
+          this.notifySendError(error, kind, id)
+          res.retryable.push({index, id: id!, error})
+        }
         res.failedCount += 1
         firstError ??= error
       }
       if ((index + 1) % limitFree === 0) {
         await setTimeout(1200)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
       } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < ids.length) {
         await setTimeout(chunkDelayMs ?? 500)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
       }
     }
+    if (workers <= 1) {
+      for (let index = start; index < ids.length; index++) await attempt(index)
+    } else {
+      const pending: number[] = []
+      for (let index = start; index < ids.length; index++) pending.push(index)
+      const lanes: number[][] = Array.from({length: workers}, (): number[] => [])
+      pending.forEach((absolute, position) => {
+        lanes[position % workers]!.push(absolute)
+      })
+      await Promise.all(
+        lanes.map(async (lane) => {
+          for (const next of lane) await attempt(next)
+        })
+      )
+    }
+    await onProgress?.(res.successCount + res.failedCount, res.totalCount)
     if (throwError && res.failedCount > 0) {
       throw {...res, err: firstError}
     }
@@ -1806,6 +2406,7 @@ export class Ctx extends Context {
       if (fallbackEdit === `disable`) {
         throw error
       }
+      this.log?.warn(`renderEditRich fallback reply for page "${this.sendPageName()}"`)
       if (fallbackEdit === `delete-reply`) {
         try {
           await this.deleteMessage()
@@ -1823,6 +2424,13 @@ export class Ctx extends Context {
    * @remarks
    * This is the base method for all media reply methods. Use specific methods
    * like {@link (Ctx:class).renderPhoto} or {@link (Ctx:class).renderVideo} for simpler usage.
+   *
+   * Fail-fast validation (`Ctx.assertMediaPreconditions`, plus
+   * `Ctx.assertLocation`/`Ctx.assertContact` in their branches) runs BEFORE
+   * any API call — programmer errors always throw, never fall back.
+   * Send failures follow `Ctx.classifySendError`: `retryable` rethrows the
+   * original error untouched; `fallback-text` best-effort replies with
+   * `resolveFallbackText()` (nested failures ignored) and returns it.
    *
    * @typeParam T - The media type to send.
    * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
@@ -1871,19 +2479,37 @@ export class Ctx extends Context {
       | null
   ) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    Ctx.assertMediaPreconditions(type, med)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
     const medFilename = med.filename
 
-    if (type === `photo`) return await this.replyWithPhoto(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-    if (type === `video`) return await this.replyWithVideo(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-    if (type === `audio`) return await this.replyWithAudio(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-    if (type === `document`) return await this.replyWithDocument(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-    if (type === `animation`) return await this.replyWithAnimation(Ctx.resolveMediaInput(med.src, medFilename), {caption: med.caption!, ...opt})
-    if (type === `voice`) return await this.replyWithVoice(Ctx.resolveMediaInput(med.src, medFilename), opt)
-    if (type === `video_note`) return await this.replyWithVideoNote(Ctx.resolveMediaInput(med.src, medFilename), opt)
-    if (type === `sticker`) return await this.replyWithSticker(Ctx.resolveMediaInput(med.src, medFilename), opt)
-    if (type === `location`) return await this.replyWithLocation(parseInt(med.latitude!), parseInt(med.longitude!), opt)
-    if (type === `contact`) return await this.replyWithContact(med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
+    try {
+      if (type === `photo`) return await this.replyWithPhoto(this.resolveMedia(med.src, medFilename), {caption: med.caption!, ...opt})
+      if (type === `video`) return await this.replyWithVideo(this.resolveMedia(med.src, medFilename), {caption: med.caption!, ...opt})
+      if (type === `audio`) return await this.replyWithAudio(this.resolveMedia(med.src, medFilename), {caption: med.caption!, ...opt})
+      if (type === `document`) return await this.replyWithDocument(this.resolveMedia(med.src, medFilename), {caption: med.caption!, ...opt})
+      if (type === `animation`) return await this.replyWithAnimation(this.resolveMedia(med.src, medFilename), {caption: med.caption!, ...opt})
+      if (type === `voice`) return await this.replyWithVoice(this.resolveMedia(med.src, medFilename), opt)
+      if (type === `video_note`) return await this.replyWithVideoNote(this.resolveMedia(med.src, medFilename), opt)
+      if (type === `sticker`) return await this.replyWithSticker(this.resolveMedia(med.src, medFilename), opt)
+      if (type === `location`) {
+        const coords = Ctx.assertLocation(med.latitude, med.longitude)
+        return await this.replyWithLocation(coords.latitude, coords.longitude, opt)
+      }
+      if (type === `contact`) {
+        Ctx.assertContact(med.phone, med.first_name)
+        return await this.replyWithContact(med.phone as string, med.first_name as string, {vcard: med.vcard!, ...opt})
+      }
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`media send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`media send fallback-text delivery for page "${this.sendPageName()}" chat ${this.sendChatId()}`)
+      return await this.replyFallbackText()
+    }
   }
 
   /**
@@ -1893,7 +2519,14 @@ export class Ctx extends Context {
    * Only `photo`, `video`, `audio`, and `document` support Telegram media groups.
    * Omit `type` when the template uses `<g-media-group>` with per-item media types.
    * The first item receives the template caption. Telegram media groups do not support
-   * reply markup, so keyboards are ignored for grouped media.
+   * reply markup, so keyboards are ignored for grouped media. Per-item filenames
+   * rely on grammy basename auto-guess (no per-item filename override is applied).
+   *
+   * Fail-fast validation runs BEFORE any API call (group/item size limits,
+   * per-item types, upload sizes, caption length) — programmer errors always
+   * throw, never fall back. Send failures follow `Ctx.classifySendError`:
+   * `retryable` rethrows the original error untouched; `fallback-text`
+   * best-effort replies with `resolveFallbackText()` (nested failures ignored).
    *
    * @param type - Supported media group type. When the template uses `<g-media-group>` (or null to include all items).
    *   only items matching this type are included. When omitted, all items are sent.
@@ -1920,15 +2553,41 @@ export class Ctx extends Context {
       if (items.length === 0) {
         throw new Error(`replyMediaGroup: no items of type "${type}" found in <g-media-group>`)
       }
-      const resolvedItems = items.map((item) => ({...item, src: Ctx.resolveMediaInput(item.src)}))
-      return await this.replyWithMediaGroup(Helper.buildMediaGroupFromItems(resolvedItems, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
+      Ctx.assertMediaGroupItems(items)
+      Ctx.assertMediaCaption(items[0]!.type, med.caption)
+      try {
+        const resolvedItems = items.map((item) => ({...item, src: this.resolveMedia(item.src)}))
+        return await this.replyWithMediaGroup(Helper.buildMediaGroupFromItems(resolvedItems, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
+      } catch (error) {
+        const kind = Ctx.classifySendError(error)
+        this.notifySendError(error, kind, this.sendChatId())
+        if (kind === `retryable`) {
+          this.log?.error(`media send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+          throw error
+        }
+        this.log?.warn(`media send fallback-text delivery for page "${this.sendPageName()}" chat ${this.sendChatId()}`)
+        return await this.replyFallbackText()
+      }
     }
     if (!type) {
       throw new Error(`replyMediaGroup type is required when template media is not <g-media-group>`)
     }
     const srcList = med.srcList && med.srcList.length > 1 ? med.srcList : med.src ? [med.src] : []
-    const resolvedSrcList = srcList.map((src) => Ctx.resolveMediaInput(src))
-    return await this.replyWithMediaGroup(Helper.buildMediaGroup(type, resolvedSrcList, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
+    Ctx.assertMediaSrcList(type, srcList)
+    Ctx.assertMediaCaption(type, med.caption)
+    try {
+      const resolvedSrcList = srcList.map((src) => this.resolveMedia(src))
+      return await this.replyWithMediaGroup(Helper.buildMediaGroup(type, resolvedSrcList, med.caption) as unknown as never, Helper.buildMediaGroupOptions(opt) as unknown as never)
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`media send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`media send fallback-text delivery for page "${this.sendPageName()}" chat ${this.sendChatId()}`)
+      return await this.replyFallbackText()
+    }
   }
 
   /**
@@ -2687,6 +3346,7 @@ export class Ctx extends Context {
       if (fallbackEdit === `disable`) {
         throw error
       }
+      this.log?.warn(`renderEdit fallback reply for page "${this.sendPageName()}"`)
       if (fallbackEdit === `delete-reply`) {
         try {
           await this.deleteMessage()
@@ -2709,7 +3369,13 @@ export class Ctx extends Context {
    *
    * If the edit itself fails, the fallback behavior is controlled by `fallbackEdit`
    * (default `delete-reply`: deletes the original message and re-sends the same media —
-   * the result looks like an in-place edit).
+   * the result looks like an in-place edit). The fallback re-send drops `options1`/
+   * `options2` (edit options do not map to reply options) and logs a `log.warn`
+   * when non-empty options are dropped; the re-send itself follows
+   * `Ctx.classifySendError` via `renderMedia` (`retryable` rethrows the
+   * original error untouched, `fallback-text` replies with fallback text).
+   * Fail-fast validation runs BEFORE any API call — programmer errors always
+   * throw, never fall back.
    *
    * @typeParam T - The media type to edit to.
    * @param type - The media type.
@@ -2754,8 +3420,12 @@ export class Ctx extends Context {
     options2?: ITOptEditMedia2 | null,
     fallbackEdit: ITOptFallbackEdit = `delete-reply`
   ) {
+    const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    Ctx.assertMediaPreconditions(type, med)
+    let coords: {latitude: number; longitude: number} | undefined
+    if (type === `location`) coords = Ctx.assertLocation(med.latitude, med.longitude)
+    if (type === `contact`) Ctx.assertContact(med.phone, med.first_name)
     try {
-      const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
       const {src, caption} = med
       const medFilename = med.filename
       if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
@@ -2765,28 +3435,28 @@ export class Ctx extends Context {
       const commonOpt = {reply_markup: keyboardInline ?? undefined, ...(options1 ?? {})} as Record<string, unknown>
       if (type === `voice`) {
         await this.deleteMessage()
-        return await this.api.sendVoice(this.chat?.id as number, Ctx.resolveMediaInput(src, medFilename), commonOpt)
+        return await this.api.sendVoice(this.chat?.id as number, this.resolveMedia(src, medFilename), commonOpt)
       }
       if (type === `video_note`) {
         await this.deleteMessage()
-        return await this.api.sendVideoNote(this.chat?.id as number, Ctx.resolveMediaInput(src, medFilename), commonOpt)
+        return await this.api.sendVideoNote(this.chat?.id as number, this.resolveMedia(src, medFilename), commonOpt)
       }
       if (type === `sticker`) {
         await this.deleteMessage()
-        return await this.api.sendSticker(this.chat?.id as number, Ctx.resolveMediaInput(src, medFilename), commonOpt)
+        return await this.api.sendSticker(this.chat?.id as number, this.resolveMedia(src, medFilename), commonOpt)
       }
       if (type === `location`) {
         await this.deleteMessage()
-        return await this.api.sendLocation(this.chat?.id as number, parseInt(med.latitude!), parseInt(med.longitude!), commonOpt)
+        return await this.api.sendLocation(this.chat?.id as number, coords!.latitude, coords!.longitude, commonOpt)
       }
       if (type === `contact`) {
         await this.deleteMessage()
-        return await this.api.sendContact(this.chat?.id as number, med.phone!, med.first_name!, {vcard: med.vcard!, ...commonOpt})
+        return await this.api.sendContact(this.chat?.id as number, med.phone as string, med.first_name as string, {vcard: med.vcard!, ...commonOpt})
       }
 
       return await this.editMessageMedia(
         {
-          media: Ctx.resolveMediaInput(src, medFilename),
+          media: this.resolveMedia(src, medFilename),
           caption,
           type,
           parse_mode: `HTML`,
@@ -2798,6 +3468,10 @@ export class Ctx extends Context {
       if (fallbackEdit === `disable`) {
         throw error
       }
+      if ((options1 !== null && options1 !== undefined && Object.keys(options1).length > 0) || (options2 !== null && options2 !== undefined && Object.keys(options2).length > 0)) {
+        this.log?.warn(`renderEditMedia fallback drops edit options (options1/options2 do not map to reply options)`)
+      }
+      this.log?.warn(`renderEditMedia fallback re-send for page "${this.sendPageName()}"`)
       if (fallbackEdit === `delete-reply`) {
         try {
           await this.deleteMessage()
@@ -2920,11 +3594,19 @@ export class Ctx extends Context {
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
    * When `type` is omitted or `undefined`, all items in the `<g-media-group>` are sent.
    * For a hardcoded type, use the convenience methods (`editPhotoGroup`, `editVideoGroup`, etc.).
+   * If the delete-and-send fails, the fallback behavior is controlled by
+   * `fallbackEdit` with identical semantics to `renderEditMedia` (`delete-reply`
+   * retries the delete then re-sends; `reply` re-sends without deleting;
+   * `disable` rethrows). The re-send follows `Ctx.classifySendError` via
+   * `renderMediaGroup`. Fail-fast validation runs BEFORE any API call.
    *
    * @param type - Optional media type filter. All items sent when omitted.
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
    * @param options - Optional media-agnostic options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent media group messages.
    *
    * @example
@@ -2942,13 +3624,28 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null) {
+  async renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
     try {
-      await this.deleteMessage()
-    } catch {
-      // delete failure (e.g. already deleted) must not block sending the media group
+      try {
+        await this.deleteMessage()
+      } catch {
+        // delete failure (e.g. already deleted) must not block sending the media group
+      }
+      return await this.renderMediaGroup(type, data, AGBaseId, options)
+    } catch (error) {
+      if (fallbackEdit === `disable`) {
+        throw error
+      }
+      this.log?.warn(`renderEditMediaGroup fallback re-send for page "${this.sendPageName()}"`)
+      if (fallbackEdit === `delete-reply`) {
+        try {
+          await this.deleteMessage()
+        } catch {
+          // delete failure (e.g. already deleted) must not block the fallback reply
+        }
+      }
+      return await this.renderMediaGroup(type, data, AGBaseId, options)
     }
-    return await this.renderMediaGroup(type, data, AGBaseId, options)
   }
 
   /**
@@ -2961,6 +3658,9 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
    * @param options - Optional photo-specific options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent media group message object.
    *
    * @example
@@ -2972,8 +3672,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null) {
-    return this.renderEditMediaGroup(`photo`, data, AGBaseId, options)
+  async renderEditPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderEditMediaGroup(`photo`, data, AGBaseId, options, fallbackEdit)
   }
 
   /**
@@ -2986,6 +3686,9 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
    * @param options - Optional video-specific options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent media group message object.
    *
    * @example
@@ -2997,8 +3700,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null) {
-    return this.renderEditMediaGroup(`video`, data, AGBaseId, options)
+  async renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderEditMediaGroup(`video`, data, AGBaseId, options, fallbackEdit)
   }
 
   /**
@@ -3011,6 +3714,9 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
    * @param options - Optional audio-specific options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent media group message object.
    *
    * @example
@@ -3022,8 +3728,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null) {
-    return this.renderEditMediaGroup(`audio`, data, AGBaseId, options)
+  async renderEditAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderEditMediaGroup(`audio`, data, AGBaseId, options, fallbackEdit)
   }
 
   /**
@@ -3036,6 +3742,9 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
    * @param options - Optional document-specific options (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
    * @returns The sent media group message object.
    *
    * @example
@@ -3047,8 +3756,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null) {
-    return this.renderEditMediaGroup(`document`, data, AGBaseId, options)
+  async renderEditDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    return this.renderEditMediaGroup(`document`, data, AGBaseId, options, fallbackEdit)
   }
 
   /**

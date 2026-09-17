@@ -1,10 +1,11 @@
-import type {BotConfig, Context, FilterQuery} from "grammy"
 import type {APIThrottlerOptions} from "@grammyjs/transformer-throttler"
+import type {BotConfig, Context, FilterQuery} from "grammy"
 import type {CacheExternal} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
 import type {ITSessionLockOptions} from "~/core/session-lock"
 import type {LoggingHelper} from "~/helpers/log"
 import type {TemplateManager} from "~/template/manager"
+import type {ITSendErrorHook} from "./t.ctx"
 
 /**
  * A custom filter-based route entry, registered via {@link Gramstax.registerCustomRoute}.
@@ -244,6 +245,60 @@ export type ITGramstaxParams = {
    * @defaultValue `false`
    */
   log?: LoggingHelper | boolean | null
+
+  /**
+   * Opt-in local-path jail for media uploads.
+   *
+   * @remarks
+   * Flows into every page `Ctx` via `createCtx` (mirrors the `log`
+   * channel). Jail-off cases (current behavior unchanged, byte-identical):
+   * - `undefined` (omitted) — jail off, any existing local path uploads.
+   * - `null` (explicit) — same as omitted, jail off.
+   * - `[]` (empty array) — same as omitted, jail off.
+   * When set to a non-empty array, a local file path uploads only when
+   * its resolved absolute form sits under one of the resolved roots —
+   * otherwise it passes through as a `file_id` with a `log.warn`.
+   * `file_id`/URL/`Buffer`/`InputFile` sources are unaffected.
+   *
+   * @example
+   * ```typescript
+   * const bot = new Gramstax({
+   *   token: process.env.TELEGRAM_BOT_TOKEN,
+   *   mediaRoots: [`./backups`, `./logs`]
+   * })
+   * // `<g-media src="./backups/db.tar.gz">` uploads normally;
+   * // `src="/etc/passwd"` passes through as a file_id with a log.warn.
+   * ```
+   *
+   * @defaultValue `undefined` (jail off)
+   */
+  mediaRoots?: string[] | null
+
+  /**
+   * Best-effort send-error hook.
+   *
+   * @remarks
+   * Flows into every page `Ctx` via `createCtx` (mirrors the `log`
+   * channel). Invoked with `{page, kind, chatId}` at every site where a
+   * send error is classified; a throwing hook is swallowed. See
+   * {@link ITSendErrorHook}.
+   *
+   * @example
+   * ```typescript
+   * const bot = new Gramstax({
+   *   token: process.env.TELEGRAM_BOT_TOKEN,
+   *   onSendError: (err, info) => {
+   *     // info: {page: `admin/logs`, kind: `fallback-text` | `retryable`, chatId?: number}
+   *     if (info.kind === `retryable`) queueRetry(info)
+   *     else metrics.count(info.page, info.kind)
+   *   }
+   * })
+   * // Throwing inside the hook is swallowed — the send flow never breaks.
+   * ```
+   *
+   * @defaultValue `undefined` (no hook)
+   */
+  onSendError?: ITSendErrorHook | null
 
   /**
    * Bot configuration options.

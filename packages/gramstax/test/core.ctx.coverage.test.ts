@@ -511,12 +511,15 @@ describe(`ctx-coverage-resolve-media-input`, () => {
     expect((api.sendPhoto.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
   })
 
-  it(`keeps InputFile filename unless the template defines one`, () => {
+  it(`clones InputFile on filename override without mutating the caller instance`, () => {
     const file = new InputFile(Buffer.from(`bytes`), `a.txt`)
     expect(Ctx.resolveMediaInput(file)).toBe(file)
     expect(file.filename).toBe(`a.txt`)
-    expect(Ctx.resolveMediaInput(file, `override.txt`)).toBe(file)
-    expect(file.filename).toBe(`override.txt`)
+    const clone = Ctx.resolveMediaInput(file, `override.txt`)
+    expect(clone).not.toBe(file)
+    expect(clone).toBeInstanceOf(InputFile)
+    expect((clone as InputFile).filename).toBe(`override.txt`)
+    expect(file.filename).toBe(`a.txt`)
   })
 
   it(`wraps Buffer payloads in InputFile with optional filename`, () => {

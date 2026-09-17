@@ -716,7 +716,38 @@ export type ITTemp = {isAnswer: boolean; session: Partial<ITCacheRpc>; data: Par
 export type ITOptFallbackEdit = `delete-reply` | `reply` | `disable`
 
 /**
- * Parameters for Ctx instance initialization.
+ * Send-error event delivered to {@link ITCtxParams.onSendError}.
+ *
+ * @remarks
+ * `page` is the template page name (`this.data.name`), `kind` is the
+ * `Ctx.classifySendError` outcome (`fallback-text` or `retryable`), and
+ * `chatId` is the target recipient when known (broadcast recipient id or
+ * the current chat id; `undefined` when the update carries no chat).
+ * Never carries file contents or full template data.
+ *
+ * @public
+ */
+export type ITSendErrorInfo = {
+  page: string
+  kind: `fallback-text` | `retryable`
+  chatId?: number
+}
+
+/**
+ * Best-effort send-error hook.
+ *
+ * @remarks
+ * Invoked at every site where a send error is classified via
+ * `Ctx.classifySendError` — both `fallback-text` and `retryable` outcomes.
+ * Pre-upload validation throws are programmer errors and stay hook-free.
+ * A throwing hook is swallowed and never breaks the send flow.
+ *
+ * @public
+ */
+export type ITSendErrorHook = (err: unknown, info: ITSendErrorInfo) => void
+
+/**
+ * Parameters for creating a new {@link Ctx} instance.
  *
  * @public
  */
@@ -762,6 +793,27 @@ export type ITCtxParams = {
    * Logger instance from Gramstax, for emitting runtime warnings.
    */
   log?: LoggingHelper | null
+
+  /**
+   * Opt-in local-path jail for media uploads.
+   *
+   * @remarks
+   * Mirrors the `log` config channel: `ITGramstaxParams.mediaRoots` flows
+   * through `Gramstax` into every `Ctx` via `createCtx`, and survives the
+   * `new SomePage(this)` pattern because the `Ctx` constructor copies it
+   * from the source instance. `null`/empty means free (current behavior
+   * unchanged); when set, a local file path uploads only when its resolved
+   * absolute form sits under one of the resolved roots.
+   */
+  mediaRoots?: string[] | null
+
+  /**
+   * Best-effort send-error hook.
+   *
+   * @remarks
+   * Mirrors the `log` config channel. See {@link ITSendErrorHook}.
+   */
+  onSendError?: ITSendErrorHook | null
 
   /**
    * Temporary state object.
