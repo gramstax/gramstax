@@ -143,7 +143,7 @@ describe(`invoice-render`, () => {
 
   it(`throws when no chat id is available`, async () => {
     const api = makeApi()
-    await expect(makeCtx(api, starsInvoice, undefined, noChatUpdate).renderInvoice()).rejects.toThrow(/chat id/)
+    await expect(makeCtx(api, starsInvoice, undefined, noChatUpdate).renderInvoice()).rejects.toThrow(/Missing information for API call to sendInvoice/)
     expect(api.sendInvoice).not.toHaveBeenCalled()
   })
 

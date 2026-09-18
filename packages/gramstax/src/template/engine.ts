@@ -64,6 +64,7 @@ export type ITMediaBlock = {
   // for location
   latitude?: string
   longitude?: string
+  live?: string
   // for contact
   phone?: string
   first_name?: string
@@ -167,6 +168,58 @@ export type ITInvoiceBlock = {
 export type ITPaidMediaBlock = {
   stars: number
   media: Array<{type: `photo` | `video`; src: string; caption?: string}>
+}
+
+/**
+ * Represents a venue block configuration for Telegram venues.
+ *
+ * @remarks
+ * This type defines the structure for template-driven venues declared with
+ * `<g-venue>` blocks. All four fields support the same `{{var|filter}}`
+ * interpolation pipeline as poll questions; the compiled strings are
+ * validated at runtime before any API call (non-empty title/address plus
+ * `Ctx.assertLocation` range checks on the coordinates).
+ *
+ * @example
+ * ```typescript
+ * const venue: ITVenueBlock = {
+ *   title: `Cafe {{name}}`,
+ *   address: `Jl. Merdeka 1`,
+ *   latitude: `-6.2`,
+ *   longitude: `106.8`
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITVenueBlock = {
+  title: string
+  address: string
+  latitude: string
+  longitude: string
+}
+
+/**
+ * Represents a dice block configuration for Telegram dice animations.
+ *
+ * @remarks
+ * This type defines the structure for template-driven dice declared with
+ * `<g-dice>` blocks. `emoji` supports the same `{{var|filter}}`
+ * interpolation pipeline as poll questions and defaults to `🎲` when the
+ * attribute is absent; the compiled value is checked at runtime by
+ * `Ctx.assertDiceEmoji` before any API call.
+ *
+ * @example
+ * ```typescript
+ * const dice: ITDiceBlock = {
+ *   emoji: `🎯`
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITDiceBlock = {
+  emoji: string
 }
 
 type ITTemplateData = Record<string, unknown>
@@ -307,6 +360,17 @@ export class TemplateEngine {
    */
   static BOT_API_VERSION = `10.3`
   /**
+   * Bot API dice emoji values accepted by `<g-dice emoji>`.
+   *
+   * @remarks
+   * Single source of truth shared by the `g-dice` validators and
+   * `Ctx.DICE_EMOJI`/`Ctx.assertDiceEmoji`: exactly the six `sendDice`
+   * emoji (`🎲🎯🏀⚽🎳🎰`).
+   *
+   * @public
+   */
+  static DICE_EMOJI: ReadonlySet<string> = new Set([`🎲`, `🎯`, `🏀`, `⚽`, `🎳`, `🎰`])
+  /**
    * Telegram HTML-mode tags from the pre-Rich spec (`parse_mode="HTML"`).
    *
    * @remarks
@@ -440,6 +504,8 @@ export class TemplateEngine {
     `<g-invoice>`,
     `<g-price>`,
     `<g-paid-media>`,
+    `<g-venue>`,
+    `<g-dice>`,
     `<g-description>`,
     // Logic blocks
     `<g-script>`,
@@ -765,7 +831,11 @@ export class TemplateEngine {
    * - `<g-poll type>` — must be `regular` or `quiz`
    * - `<g-poll correct>` — must be a non-negative option index
    * - `<g-poll explanation>` — any string, always valid
-    * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+     * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+     * - `<g-venue title>` / `<g-venue address>` — any string, always valid
+     * - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced)
+     * - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced)
+     * - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced)
     * - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced)
      * - `<g-price amount>` — must be a positive integer in smallest currency units
      * - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)
@@ -794,7 +864,8 @@ export class TemplateEngine {
         return validTypes.has(v) ? null : `Attribute "type" on <g-media> must be one of: ${[...validTypes].join(`, `)}, got "${v}"`
       },
       shared: (v) => (v === `true` || v === `false` ? null : `Attribute "shared" on <g-media> must be "true" or "false", got "${v}"`),
-      filename: () => null
+      filename: () => null,
+      live: (v) => (/^[1-9]\d*$/.test(v) ? null : `Attribute "live" on <g-media> must be a positive integer in seconds (got "${v}")`)
     },
     "g-poll": {
       type: (v) => (v === `regular` || v === `quiz` ? null : `Attribute "type" on <g-poll> must be "regular" or "quiz", got "${v}"`),
@@ -811,6 +882,26 @@ export class TemplateEngine {
     },
     "g-paid-media": {
       stars: (v) => (v.includes(`{{`) || v.includes(`{~`) ? null : (/^[1-9]\d*$/.test(v) && Number(v) <= 25000 ? null : `Attribute "stars" on <g-paid-media> must be a positive integer 1-25000 (got "${v}")`))
+    },
+    "g-venue": {
+      title: () => null,
+      address: () => null,
+      latitude: (v) => {
+        if (v.includes(`{{`) || v.includes(`{~`)) return null
+        const n = Number(v)
+        return v.trim() !== `` && Number.isFinite(n) && n >= -90 && n <= 90 ? null : `Attribute "latitude" on <g-venue> must be a number between -90 and 90 (got "${v}")`
+      },
+      longitude: (v) => {
+        if (v.includes(`{{`) || v.includes(`{~`)) return null
+        const n = Number(v)
+        return v.trim() !== `` && Number.isFinite(n) && n >= -180 && n <= 180 ? null : `Attribute "longitude" on <g-venue> must be a number between -180 and 180 (got "${v}")`
+      }
+    },
+    "g-dice": {
+      emoji: (v) => {
+        if (v === `` || v.includes(`{{`) || v.includes(`{~`)) return null
+        return TemplateEngine.DICE_EMOJI.has(v) ? null : `Attribute "emoji" on <g-dice> must be one of 🎲🎯🏀⚽🎳🎰 (got "${v}")`
+      }
     }
   }
   /**
@@ -1532,6 +1623,7 @@ export class TemplateEngine {
       if (type === `location`) {
         if (attrs.latitude) mediaBlock.latitude = attrs.latitude
         if (attrs.longitude) mediaBlock.longitude = attrs.longitude
+        if (attrs.live) mediaBlock.live = attrs.live
         if (caption) mediaBlock.caption = caption // Location can gave caption for additional text
       }
 
@@ -1617,6 +1709,105 @@ export class TemplateEngine {
       poll.anonymous = attrs.anonymous === undefined ? true : attrs.anonymous !== `false`
       if (attrs.multiple !== undefined && attrs.multiple !== ``) poll.multiple = attrs.multiple === `true`
       result[lang] = poll
+    }
+
+    return result
+  }
+
+  /**
+   * Block: g-venue
+   * Extracts and parses `<g-venue>` blocks from a template string.
+   *
+   * @remarks
+   * Each block declares one venue per language (`lang` defaults to
+   * `"default"`; last block wins per lang). All four venue fields
+   * (`title`, `address`, `latitude`, `longitude`) are carried as raw
+   * attribute strings verbatim (including `{{var|filter}}` spans) for
+   * later compilation. Both `<g-venue ...></g-venue>` and self-closing
+   * `<g-venue .../>` forms parse identically; the block carries no
+   * children. Presence and static numeric rules are enforced by
+   * `validateBlockGVenueAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-venue>` blocks
+   * @returns An object mapping language keys to their venue configurations
+   *
+   * @example
+   * ```typescript
+   * const venues = TemplateEngine._processGVenueBlocks(`<g-venue title="{{name}}" address="Jl. Merdeka 1" latitude="-6.2" longitude="106.8"/>`);
+   * // Result: { default: { title: '{{name}}', address: 'Jl. Merdeka 1', latitude: '-6.2', longitude: '106.8' } }
+   * ```
+   *
+   * @public
+   */
+  static _processGVenueBlocks(template: string) {
+    const venueRegex = /<g-venue\b([^>]*?)\/?>/gi
+    const result: {[lang: string]: ITVenueBlock} = {}
+    const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+      return attrs
+    }
+
+    for (const match of template.matchAll(venueRegex)) {
+      const attrs = parseAttrs(match[1])
+      result[attrs.lang || `default`] = {
+        title: attrs.title ?? ``,
+        address: attrs.address ?? ``,
+        latitude: attrs.latitude ?? ``,
+        longitude: attrs.longitude ?? ``
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Block: g-dice
+   * Extracts and parses `<g-dice>` blocks from a template string.
+   *
+   * @remarks
+   * Each block declares one dice animation per language (`lang` defaults
+   * to `"default"`; last block wins per lang). `emoji` is optional and
+   * defaults to `🎲` when absent or empty; the raw attribute string is
+   * preserved verbatim (including `{{var|filter}}` spans) for later
+   * compilation. Both `<g-dice ...></g-dice>` and self-closing
+   * `<g-dice .../>` forms parse identically; the block carries no
+   * children. Static emoji membership is enforced by
+   * `validateBlockGDiceAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-dice>` blocks
+   * @returns An object mapping language keys to their dice configurations
+   *
+   * @example
+   * ```typescript
+   * const dice = TemplateEngine._processGDiceBlocks(`<g-dice emoji="{{dice}}"/>`);
+   * // Result: { default: { emoji: '{{dice}}' } }
+   * ```
+   *
+   * @public
+   */
+  static _processGDiceBlocks(template: string) {
+    const diceRegex = /<g-dice\b([^>]*?)\/?>/gi
+    const result: {[lang: string]: ITDiceBlock} = {}
+    const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+      return attrs
+    }
+
+    for (const match of template.matchAll(diceRegex)) {
+      const attrs = parseAttrs(match[1])
+      result[attrs.lang || `default`] = {emoji: attrs.emoji || `🎲`}
     }
 
     return result
@@ -2358,6 +2549,101 @@ export class TemplateEngine {
           options: optionFns.map((fn) => fn(data)),
           ...(explanationFn ? {explanation: explanationFn(data)} : {})
         })
+      }
+    }
+    return result
+  }
+
+  /**
+   * Compiles venue blocks from a template into executable functions.
+   *
+   * @remarks
+   * Parses `<g-venue>` blocks per base and compiles all four fields
+   * (`title`, `address`, `latitude`, `longitude`) through the same
+   * pipeline as media captions (script → map → switch → exec →
+   * variables), so `{{var|filter}}` works in every field.
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-venue>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled venue functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const venues = TemplateEngine.compileBlockGVenue(`<g-base><g-venue title="{{name}}" address="Jl. Merdeka 1" latitude="-6.2" longitude="106.8"/></g-base>`);
+   * const result = venues.default?.default?.({ name: 'Cafe' });
+   * // Result: { title: 'Cafe', address: 'Jl. Merdeka 1', latitude: '-6.2', longitude: '106.8' }
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGVenue(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => ITVenueBlock
+      }
+    } = {}
+    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
+      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const venues = this._processGVenueBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, venue] of Object.entries(venues)) {
+        const titleFn = compileString(venue.title)
+        const addressFn = compileString(venue.address)
+        const latitudeFn = compileString(venue.latitude)
+        const longitudeFn = compileString(venue.longitude)
+        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+          title: titleFn(data),
+          address: addressFn(data),
+          latitude: latitudeFn(data),
+          longitude: longitudeFn(data)
+        })
+      }
+    }
+    return result
+  }
+
+  /**
+   * Compiles dice blocks from a template into executable functions.
+   *
+   * @remarks
+   * Parses `<g-dice>` blocks per base and compiles `emoji` through the
+   * same pipeline as media captions (script → map → switch → exec →
+   * variables), so `{{var|filter}}` works in the emoji field.
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-dice>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled dice functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const dice = TemplateEngine.compileBlockGDice(`<g-base><g-dice emoji="{{dice}}"/></g-base>`);
+   * const result = dice.default?.default?.({ dice: '🎯' });
+   * // Result: { emoji: '🎯' }
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGDice(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => ITDiceBlock
+      }
+    } = {}
+    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
+      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const blocks = this._processGDiceBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, block] of Object.entries(blocks)) {
+        const emojiFn = compileString(block.emoji)
+        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({emoji: emojiFn(data)})
       }
     }
     return result
@@ -3204,7 +3490,7 @@ export class TemplateEngine {
    *
    * **Enforced rules:**
    * - `<g-base>` must be at the outermost level and cannot be nested inside any other block.
-    * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-invoice>`, `<g-paid-media>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
+     * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-invoice>`, `<g-paid-media>`, `<g-venue>`, `<g-dice>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
       * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a paywall item.
      * - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`.
      * - `<g-price>` can only appear directly inside `<g-invoice>`.
@@ -3269,6 +3555,8 @@ export class TemplateEngine {
       "g-invoice": new Set([`g-base`]),
       "g-price": new Set([`g-invoice`]),
       "g-paid-media": new Set([`g-base`]),
+      "g-venue": new Set([`g-base`]),
+      "g-dice": new Set([`g-base`]),
       "g-description": new Set([`g-base`]),
       "g-switch": new Set([`g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description`]),
       "g-case": new Set([`g-switch`]),
@@ -3987,7 +4275,11 @@ export class TemplateEngine {
    * - `<g-poll type>` — must be `regular` or `quiz`
    * - `<g-poll correct>` — must be a non-negative option index
    * - `<g-poll explanation>` — any string, always valid
-    * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+     * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+     * - `<g-venue title>` / `<g-venue address>` — any string, always valid
+     * - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced)
+     * - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced)
+     * - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced)
     * - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced)
      * - `<g-price amount>` — must be a positive integer in smallest currency units
      * - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)
@@ -4092,8 +4384,8 @@ export class TemplateEngine {
    * Validates attributes on `<g-media>` blocks.
    *
    * @remarks
-   * Allowed attributes are `lang`, `type`, `src`, `shared`, `latitude`, `longitude`,
-   * `phone`, `first_name`, `last_name`, and `vcard`.
+   * Allowed attributes are `lang`, `type`, `src`, `shared`, `filename`, `latitude`, `longitude`,
+   * `live`, `phone`, `first_name`, `last_name`, and `vcard`.
    *
    * `shared` is a boolean attribute — it can be written as `shared`, `shared="true"`,
    * or `shared="false"`. When `true`, the media item is included in all language
@@ -4114,8 +4406,8 @@ export class TemplateEngine {
     const errors = this._validateBlockAttributes(
       template,
       `g-media`,
-      new Set([`lang`, `type`, `src`, `shared`, `filename`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]),
-      `"lang", "type", "src", "shared", "filename", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`,
+      new Set([`lang`, `type`, `src`, `shared`, `filename`, `latitude`, `longitude`, `live`, `phone`, `first_name`, `last_name`, `vcard`]),
+      `"lang", "type", "src", "shared", "filename", "latitude", "longitude", "live", "phone", "first_name", "last_name", and "vcard"`,
       this._PAGE_ATTR_VALUE_VALIDATORS[`g-media`]
     )
     return {valid: errors.length === 0, errors}
@@ -4246,6 +4538,156 @@ export class TemplateEngine {
       }
       if (explanation !== undefined && !isDynamic(explanation) && explanation.length > 200) {
         errors.push({line, message: `Attribute "explanation" on <g-poll> must be at most 200 characters (got ${explanation.length})`})
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates attributes and presence rules on `<g-venue>` blocks.
+   *
+   * @remarks
+   * Checks the block-level attributes (`lang`, `title`, `address`,
+   * `latitude`, `longitude`) via `_validateBlockAttributes`, then
+   * delegates presence rules (all four venue fields required and
+   * non-empty; static latitude/longitude numeric within the Bot API
+   * ranges) to {@link TemplateEngine._validateVenueItems}. `{{}}` /
+   * `{~ ~}` values skip the static numeric check — dynamic coordinates
+   * are range-checked at runtime on the compiled strings. Returns
+   * `valid: false` with per-line errors instead of throwing, so callers
+   * can aggregate across blocks.
+   *
+   * @param template - The raw template source to validate.
+   * @returns `{valid, errors}`; `errors` carry 1-based line numbers.
+   * @public
+   */
+  static validateBlockGVenueAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(
+      template,
+      `g-venue`,
+      new Set([`lang`, `title`, `address`, `latitude`, `longitude`]),
+      `"lang", "title", "address", "latitude", and "longitude"`,
+      this._PAGE_ATTR_VALUE_VALIDATORS[`g-venue`]
+    )
+    errors.push(...this._validateVenueItems(template))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates `<g-venue>` required attributes and static coordinates.
+   *
+   * @remarks
+   * Enforces the Telegram `sendVenue` constraints: `title`, `address`,
+   * `latitude`, and `longitude` must be present and non-empty. Static
+   * coordinates (no `{{}}` / `{~ ~}` interpolation) must be finite
+   * numbers within latitude -90–90 and longitude -180–180; dynamic
+   * coordinates are checked at runtime on the compiled strings. Called
+   * by {@link TemplateEngine.validateBlockGVenueAttributes}; errors
+   * carry 1-based line numbers.
+   *
+   * @param template - The raw template source to inspect.
+   * @returns Validation errors (empty when valid).
+   * @public
+   */
+  static _validateVenueItems(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const venueRegex = /<g-venue\b([^>]*?)\/?>/gi
+    const attrValue = (attrsStr: string, name: string): string | undefined => {
+      const m = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`).exec(attrsStr)
+      if (!m) return undefined
+      return m[1] ?? m[2] ?? m[3]
+    }
+    const isDynamic = (s: string): boolean => s.includes(`{{`) || s.includes(`{~`)
+
+    for (const venueMatch of template.matchAll(venueRegex)) {
+      const line = (template.slice(0, venueMatch.index).match(/\n/g) || []).length + 1
+      const attrsStr = venueMatch[1] ?? ``
+      const title = attrValue(attrsStr, `title`)
+      const address = attrValue(attrsStr, `address`)
+      const latitude = attrValue(attrsStr, `latitude`)
+      const longitude = attrValue(attrsStr, `longitude`)
+
+      if (title === undefined || title === ``) {
+        errors.push({line, message: `Attribute "title" on <g-venue> is required`})
+      }
+      if (address === undefined || address === ``) {
+        errors.push({line, message: `Attribute "address" on <g-venue> is required`})
+      }
+      if (latitude === undefined || latitude === ``) {
+        errors.push({line, message: `Attribute "latitude" on <g-venue> is required`})
+      } else if (!isDynamic(latitude)) {
+        const n = Number(latitude)
+        if (latitude.trim() === `` || !Number.isFinite(n) || n < -90 || n > 90) {
+          errors.push({line, message: `Attribute "latitude" on <g-venue> must be a number between -90 and 90 (got "${latitude}")`})
+        }
+      }
+      if (longitude === undefined || longitude === ``) {
+        errors.push({line, message: `Attribute "longitude" on <g-venue> is required`})
+      } else if (!isDynamic(longitude)) {
+        const n = Number(longitude)
+        if (longitude.trim() === `` || !Number.isFinite(n) || n < -180 || n > 180) {
+          errors.push({line, message: `Attribute "longitude" on <g-venue> must be a number between -180 and 180 (got "${longitude}")`})
+        }
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates attributes and the static emoji rule on `<g-dice>` blocks.
+   *
+   * @remarks
+   * Checks the block-level attributes (`lang`, `emoji`) via
+   * `_validateBlockAttributes`, then delegates the static emoji
+   * membership rule to {@link TemplateEngine._validateDiceItems}.
+   * `emoji` is optional (defaults to `🎲`); static values must be one of
+   * the six Bot API dice emoji, while `{{}}` / `{~ ~}` values skip the
+   * static check — dynamic emoji are checked at runtime on the compiled
+   * strings. Returns `valid: false` with per-line errors instead of
+   * throwing, so callers can aggregate across blocks.
+   *
+   * @param template - The raw template source to validate.
+   * @returns `{valid, errors}`; `errors` carry 1-based line numbers.
+   * @public
+   */
+  static validateBlockGDiceAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-dice`, new Set([`lang`, `emoji`]), `"lang" and "emoji"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-dice`])
+    errors.push(...this._validateDiceItems(template))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates the static `<g-dice>` emoji against the Bot API set.
+   *
+   * @remarks
+   * Static `emoji` values (no `{{}}` / `{~ ~}` interpolation) must be one
+   * of the six Bot API dice emoji (`🎲🎯🏀⚽🎳🎰` per
+   * {@link TemplateEngine.DICE_EMOJI}); dynamic emoji are checked at
+   * runtime on the compiled strings. Called by
+   * {@link TemplateEngine.validateBlockGDiceAttributes}; errors carry
+   * 1-based line numbers.
+   *
+   * @param template - The raw template source to inspect.
+   * @returns Validation errors (empty when valid).
+   * @public
+   */
+  static _validateDiceItems(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const diceRegex = /<g-dice\b([^>]*?)\/?>/gi
+    const attrValue = (attrsStr: string, name: string): string | undefined => {
+      const m = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`).exec(attrsStr)
+      if (!m) return undefined
+      return m[1] ?? m[2] ?? m[3]
+    }
+    const isDynamic = (s: string): boolean => s.includes(`{{`) || s.includes(`{~`)
+
+    for (const diceMatch of template.matchAll(diceRegex)) {
+      const line = (template.slice(0, diceMatch.index).match(/\n/g) || []).length + 1
+      const emoji = attrValue(diceMatch[1] ?? ``, `emoji`)
+      if (emoji !== undefined && emoji !== `` && !isDynamic(emoji) && !this.DICE_EMOJI.has(emoji)) {
+        errors.push({line, message: `Attribute "emoji" on <g-dice> must be one of 🎲🎯🏀⚽🎳🎰 (got "${emoji}")`})
       }
     }
 
@@ -4778,8 +5220,10 @@ export class TemplateEngine {
     * 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
     * 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
     * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
-    * 23. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-    * 24. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+    * 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
+    * 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
+    * 25. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+    * 26. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -4922,8 +5366,10 @@ export class TemplateEngine {
     * 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
     * 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
     * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
-    * 23. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-    * 24. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+    * 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
+    * 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
+    * 25. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+    * 26. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -4957,6 +5403,8 @@ export class TemplateEngine {
     const mediaAttrResult = this.validateBlockGMediaAttributes(template)
     const mediaGroupAttrResult = this.validateBlockGMediaGroupAttributes(template)
     const pollAttrResult = this.validateBlockGPollAttributes(template)
+    const venueAttrResult = this.validateBlockGVenueAttributes(template)
+    const diceAttrResult = this.validateBlockGDiceAttributes(template)
     const invoiceAttrResult = this.validateBlockGInvoiceAttributes(template)
     const priceAttrResult = this.validateBlockGPriceAttributes(template)
     const paidMediaAttrResult = this.validateBlockGPaidMediaAttributes(template)
@@ -4989,6 +5437,8 @@ export class TemplateEngine {
       ...mediaAttrResult.errors,
       ...mediaGroupAttrResult.errors,
       ...pollAttrResult.errors,
+      ...venueAttrResult.errors,
+      ...diceAttrResult.errors,
       ...invoiceAttrResult.errors,
       ...priceAttrResult.errors,
       ...paidMediaAttrResult.errors,

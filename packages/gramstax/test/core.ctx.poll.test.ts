@@ -100,7 +100,7 @@ describe(`poll-render`, () => {
 
   it(`throws when no chat id is available`, async () => {
     const api = makeApi()
-    await expect(makeCtx(api, regularPoll, undefined, noChatUpdate).renderPoll()).rejects.toThrow(/chat id/)
+    await expect(makeCtx(api, regularPoll, undefined, noChatUpdate).renderPoll()).rejects.toThrow(/Missing information for API call to sendPoll/)
     expect(api.sendPoll).not.toHaveBeenCalled()
   })
 

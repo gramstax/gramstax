@@ -24,7 +24,6 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
   config: {use: () => {}},
   sendPaidMedia: mock(async () => ({message_id: 7}) as never),
   refundStarPayment: mock(async () => true as never),
-  getStarTransactions: mock(async () => ({transactions: []}) as never),
   ...(overrides ?? {})
 })
 
@@ -149,7 +148,7 @@ describe(`paid-media-render`, () => {
 
   it(`throws when no chat id is available`, async () => {
     const api = makeApi()
-    await expect(makeCtx(api, wall, undefined, noChatUpdate).renderPaidMedia()).rejects.toThrow(/chat id/)
+    await expect(makeCtx(api, wall, undefined, noChatUpdate).renderPaidMedia()).rejects.toThrow(/Missing information for API call to sendPaidMedia/)
     expect(api.sendPaidMedia).not.toHaveBeenCalled()
   })
 
@@ -212,21 +211,5 @@ describe(`stars-refund`, () => {
     expect(result).toBe(true)
     expect(api.refundStarPayment).toHaveBeenCalledTimes(1)
     expect((api.refundStarPayment.mock.calls as any)[0]).toEqual([123, `ch_1`])
-  })
-})
-
-describe(`stars-transactions`, () => {
-  it(`lists Stars transactions with options`, async () => {
-    const api = makeApi()
-    const result = await makeCtx(api, wall).getStarTransactions({limit: 100})
-    expect(result).toEqual({transactions: []})
-    expect(api.getStarTransactions).toHaveBeenCalledTimes(1)
-    expect((api.getStarTransactions.mock.calls as any)[0]).toEqual([{limit: 100}])
-  })
-
-  it(`lists Stars transactions without options`, async () => {
-    const api = makeApi()
-    await makeCtx(api, wall).getStarTransactions()
-    expect((api.getStarTransactions.mock.calls as any)[0]).toEqual([{}])
   })
 })

@@ -15,10 +15,10 @@ import {setTimeout} from "node:timers/promises"
 import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
-import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
+import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent} from "grammy/types"
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
-import type {ITInvoiceBlock, ITMediaBlock, ITPaidMediaBlock, ITPollBlock} from "~/template/engine"
+import {TemplateEngine, type ITInvoiceBlock, type ITMediaBlock, type ITPaidMediaBlock, type ITPollBlock} from "~/template/engine"
 import type {TemplateManager} from "~/template/manager"
 import type {
   _KbButtonWithPageText,
@@ -115,6 +115,58 @@ export type ITBroadcastEditResult = {
   totalCount: number
   skippedCount: number
   retryable: Array<{index: number; chatId: number; messageId: number; error: unknown}>
+}
+
+/**
+ * Giveaway params accepted by {@link (Ctx:class).startGiveaway}.
+ *
+ * @remarks
+   * Data-driven by design: `sendGiveaway` carries no
+ * `parse_mode`, so a template block would add surface without value.
+ *
+ * @public
+ */
+export type ITGiveawayParams = {
+  channels: Array<number | string> | string
+  date: number
+  winners: number
+  prize: string
+}
+
+/**
+ * Optional giveaway flags accepted by {@link (Ctx:class).startGiveaway}.
+ *
+ * @remarks
+ * Passthrough for the remaining `sendGiveaway` flags; combination rules
+ * (for example `prizeStarCount` versus `premiumMonths`) are adjudicated by
+ * the Bot API, not validated here.
+ *
+ * @public
+ */
+export type ITGiveawayOptions = {
+  onlyNewMembers?: boolean | null
+  hasPublicWinners?: boolean | null
+  prizeStarCount?: number | null
+  premiumMonths?: number | null
+}
+
+/**
+ * Story content accepted by {@link (Ctx:class).postBusinessStory} and {@link (Ctx:class).editBusinessStory}.
+ *
+ * @remarks
+ * Photo or video only; `src` resolves through {@link (Ctx:class).resolveMedia}
+ * then converts to an upload (`InputFile` as-is, URLs via `{url}`); residual
+ * strings are `file_id` values the Bot API resolves server-side (the
+ * installed typings only model uploads, hence one narrow documented cast).
+ * Areas and captions ride on `options`; duration rules beyond presence are
+ * adjudicated by the Bot API.
+ *
+ * @public
+ */
+export type ITStoryContent = {
+  type: `photo` | `video`
+  src: string | InputFile | Buffer | Uint8Array
+  duration?: number | null
 }
 
 /**
@@ -1066,6 +1118,79 @@ export class Ctx extends Context {
   }
 
   /**
+   * Bot API dice emoji values accepted by `sendDice`.
+   *
+   * @remarks
+   * Shared single source of truth with `TemplateEngine.DICE_EMOJI`
+   * (the `<g-dice>` validators read the same set).
+   *
+   * @public
+   */
+  static readonly DICE_EMOJI: ReadonlySet<string> = TemplateEngine.DICE_EMOJI
+
+  /**
+   * Story `active_period` values accepted by `postBusinessStory` (seconds).
+   *
+   * @remarks
+   * The Bot API allows exactly 6h, 12h, 24h, and 48h; anything else is a
+   * programmer error and throws before any API call.
+   *
+   * @public
+   */
+  static readonly STORY_PERIODS: ReadonlySet<number> = new Set([21600, 43200, 86400, 172800])
+
+  /**
+   * Parse and check a `<g-media type="location">` `live` period (seconds → `live_period`).
+   *
+   * @remarks
+   * Absent (`undefined`/`null`/empty) means a static location and returns
+   * `undefined`. Otherwise the value must be a positive integer — non-numeric,
+   * fractional, or non-positive values throw. Programmer error — always
+   * throws, never falls back.
+   *
+   * @param live - Raw template `live` (string or number).
+   * @returns Validated seconds, or `undefined` when absent.
+   *
+   * @public
+   */
+  static assertLivePeriod(live: unknown): number | undefined {
+    if (live === undefined || live === null) return undefined
+    if (typeof live === `string` && live.trim() === ``) return undefined
+    const n = typeof live === `number` ? live : Number(live)
+    if (!Number.isInteger(n) || n <= 0) throw new Error(`Invalid live period "${String(live)}": must be a positive integer in seconds`)
+    return n
+  }
+
+  /**
+   * Fail-fast checks for a `renderDice` emoji against the Bot API set.
+   *
+   * @remarks
+   * Only the six Bot API dice emoji are accepted (`🎲🎯🏀⚽🎳🎰`).
+   * Programmer error — always throws, never falls back.
+   *
+   * @param emoji - Raw dice emoji.
+   * @returns The validated emoji.
+   *
+   * @public
+   */
+  static assertDiceEmoji(emoji: unknown): string {
+    if (typeof emoji !== `string` || !Ctx.DICE_EMOJI.has(emoji)) throw new Error(`Invalid dice emoji "${String(emoji)}": must be one of 🎲🎯🏀⚽🎳🎰`)
+    return emoji
+  }
+
+  /**
+   * Venue fields accepted by {@link (Ctx:class).renderVenue} from the compiled `<g-venue>` block.
+   *
+   * @public
+   */
+  static assertVenue(venue: {title: unknown; address: unknown; latitude: unknown; longitude: unknown}): {title: string; address: string; latitude: number; longitude: number} {
+    if (typeof venue.title !== `string` || venue.title.trim() === ``) throw new Error(`Venue requires a non-empty "title" (got "${String(venue.title)}")`)
+    if (typeof venue.address !== `string` || venue.address.trim() === ``) throw new Error(`Venue requires a non-empty "address" (got "${String(venue.address)}")`)
+    const coords = Ctx.assertLocation(venue.latitude, venue.longitude)
+    return {title: venue.title, address: venue.address, latitude: coords.latitude, longitude: coords.longitude}
+  }
+
+  /**
    * Resolve the effective fallback text (per-page override or framework default).
    *
    * @returns `this.fallbackText` when set, else `Ctx.FALLBACK_TEXT`.
@@ -1112,7 +1237,12 @@ export class Ctx extends Context {
   }
 
   /**
-   * Best-effort current chat id for send-error context.
+   * Best-effort current chat id for send-error context only.
+   *
+   * @remarks
+   * Routing never uses this helper: single-sends go through context-aware
+   * `this.replyWith*` and broadcasts carry explicit recipient ids. It remains
+   * solely for `notifySendError`/log payloads.
    *
    * @returns The current chat id, or `undefined` when the update carries no chat.
    *
@@ -2201,6 +2331,7 @@ export class Ctx extends Context {
         return
       }
       try {
+        // Cross-chat by design: recipients differ from the current chat, so this loop keeps `api.*`.
         await this.api.sendMessage(id!, msg, {
           parse_mode: `HTML`,
           reply_markup: keyboard ?? undefined,
@@ -2351,6 +2482,7 @@ export class Ctx extends Context {
       }
       const med = medias[index] ?? medias[medias.length - 1]
       try {
+        // Cross-chat by design: recipients differ from the current chat, so this loop keeps `api.*`.
         if (!med) {
           throw new Error(`Media not found for template "${this.data.name}"`)
         }
@@ -2578,6 +2710,7 @@ export class Ctx extends Context {
       const chatId = target.chatId
       const messageId = target.messageId
       try {
+        // Cross-chat by design: targets differ from the current chat, so this loop keeps `api.*`.
         const commonOpt = {reply_markup: keyboardInline ?? undefined, ...(options1 ?? {})} as Record<string, unknown>
         if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
           await this.api.deleteMessage(chatId, messageId)
@@ -2698,6 +2831,7 @@ export class Ctx extends Context {
       const chatId = target.chatId
       const messageId = target.messageId
       try {
+        // Cross-chat by design: targets differ from the current chat, so this loop keeps `api.*`.
         await this.api.deleteMessage(chatId, messageId)
         res.successCount += 1
       } catch (error) {
@@ -3063,7 +3197,8 @@ export class Ctx extends Context {
       if (type === `sticker`) return await this.replyWithSticker(this.resolveMedia(med.src, medFilename), opt)
       if (type === `location`) {
         const coords = Ctx.assertLocation(med.latitude, med.longitude)
-        return await this.replyWithLocation(coords.latitude, coords.longitude, opt)
+        const live = Ctx.assertLivePeriod(med.live)
+        return await this.replyWithLocation(coords.latitude, coords.longitude, {...opt, ...(live !== undefined ? {live_period: live} : {})})
       }
       if (type === `contact`) {
         Ctx.assertContact(med.phone, med.first_name)
@@ -3204,11 +3339,9 @@ export class Ctx extends Context {
   async renderPoll(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null) {
     const poll = this.templateManager.getGPoll(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertPoll(poll)
-    const chatId = this.sendChatId()
-    if (chatId === undefined) throw new Error(`renderPoll requires a chat id for page "${this.sendPageName()}"`)
     const correct = poll.correct ?? 0
     try {
-      return await this.api.sendPoll(chatId, poll.question, poll.options, {
+      return await this.replyWithPoll(poll.question, poll.options, {
         question_parse_mode: `HTML`,
         type: poll.type,
         ...(poll.type === `quiz` ? {correct_option_id: correct, ...(poll.explanation ? {explanation: poll.explanation, explanation_parse_mode: `HTML` as const} : {})} : {}),
@@ -3240,6 +3373,8 @@ export class Ctx extends Context {
    * inherited `Context.stopPoll(other?, signal?)` form still works and
    * stops the poll in the current context.
    *
+   * why-not-base: base `Context.stopPoll` omits `chat_id`/`message_id` (current-context only); the explicit form targets any chat.
+   *
    * @param chatId - Chat holding the poll message, or the inherited `stopPoll` options object.
    * @param messageId - Message id of the poll to stop, or the inherited abort signal.
    * @param options - Optional extra `stopPoll` fields (or null to omit).
@@ -3259,6 +3394,148 @@ export class Ctx extends Context {
       return await this.api.stopPoll(chatId, messageId, {...(options ?? {})})
     }
     return await super.stopPoll(chatId as Parameters<Context[`stopPoll`]>[0], messageId as Parameters<Context[`stopPoll`]>[1])
+  }
+
+  /**
+   * Sends a template poll to multiple users in bulk.
+   *
+   * @remarks
+   * Poll counterpart of `renderBroadcastMedia`: the same checkpoint-first loop
+   * (per-language `getGPoll` compilation, fail-fast `Ctx.assertPoll` for every
+   * recipient BEFORE the loop, `startFrom` resume without resending,
+   * bounded-concurrency stride lanes capped at `10`, `30`-message free-limit
+   * pacing plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`,
+   * `retryable[]` with absolute `index` + `id` + `error` in completion order,
+   * `excludeIds` skips, `throwError` rethrow). Per-recipient sends reuse the
+   * exact `api.sendPoll` arg construction from {@link (Ctx:class).renderPoll}
+   * (duplicated here — not extracted — so `renderPoll` behavior is untouched).
+   * Per-recipient failures mirror the broadcast-media loop: `fallback-text`
+   * triggers a best-effort fallback-text send (nested failures ignored) while
+   * `retryable` is recorded and the loop continues.
+   *
+   * @param ids - Array of user IDs to send the poll to.
+   * @param languageCode - Array of language codes corresponding to each user.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block poll (or null to use default).
+   * @param options - Optional extra `sendPoll` fields (or null to omit).
+   * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
+   * @param chunkSize - Optional custom chunk size for pacing sleeps (or null for free-limit pacing only).
+   * @param chunkDelayMs - Optional delay in ms after each `chunkSize` chunk (or null for `500`).
+   * @param excludeIds - Optional user IDs to skip, counted as skipped (or null to send to all).
+   * @param onProgress - Optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip).
+   * @param startFrom - Optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`).
+   * @param concurrency - Optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @returns Counts plus `retryable[]` for a re-drive pass.
+   *
+   * @example
+   * ```typescript
+   * async handleAnnounceVote() {
+   *   const userIds = [123456, 789012]
+   *   const langs = [`en`, `id`]
+   *   await this.renderBroadcastPoll(userIds, langs, null, {topic: `lunch`})
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderBroadcastPoll(
+    ids: number[],
+    languageCode: string[],
+    keyboard?: ITInBoKb | null,
+    data?: ITData | null,
+    AGBaseId?: string | null,
+    options?: Parameters<Ctx[`replyWithPoll`]>[2] | null,
+    throwError: boolean | null = false,
+    chunkSize: number | null = null,
+    chunkDelayMs: number | null = null,
+    excludeIds: number[] | null = null,
+    onProgress?: ((done: number, total: number) => void | Promise<void>) | null,
+    startFrom?: number | null,
+    concurrency?: number | null
+  ) {
+    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: [] as Array<{index: number; id: number; error: unknown}>}
+    res.totalCount = ids.length
+    const limitFree = 30
+    const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
+    const polls = languageCode.map((it) => this.templateManager.getGPoll(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
+    for (const poll of polls) {
+      Ctx.assertPoll(poll)
+    }
+    const rawStart = startFrom ?? 0
+    const start = !Number.isFinite(rawStart) ? 0 : Math.min(ids.length, Math.max(0, Math.floor(rawStart)))
+    res.skippedCount += start
+    const rawWorkers = concurrency ?? 1
+    const workers = !Number.isFinite(rawWorkers) ? 1 : Math.min(10, Math.max(1, Math.floor(rawWorkers)))
+    let firstError: unknown
+    const attempt = async (index: number): Promise<void> => {
+      const id = ids[index]
+      if (excluded?.has(id!)) {
+        res.skippedCount += 1
+        return
+      }
+      const poll = polls[index] ?? polls[polls.length - 1]
+      try {
+        // Cross-chat by design: recipients differ from the current chat, so this loop keeps `api.*`.
+        if (!poll) {
+          throw new Error(`Poll not found for template "${this.data.name}"`)
+        }
+        const correct = poll.correct ?? 0
+        await this.api.sendPoll(id!, poll.question, poll.options, {
+          question_parse_mode: `HTML`,
+          type: poll.type,
+          ...(poll.type === `quiz` ? {correct_option_id: correct, ...(poll.explanation ? {explanation: poll.explanation, explanation_parse_mode: `HTML` as const} : {})} : {}),
+          is_anonymous: poll.anonymous ?? true,
+          ...(poll.multiple !== undefined ? {allows_multiple_answers: poll.multiple} : {}),
+          reply_markup: keyboard ?? undefined,
+          ...(options ?? {})
+        })
+        res.successCount += 1
+      } catch (error) {
+        const kind = Ctx.classifySendError(error)
+        if (kind === `fallback-text`) {
+          this.log?.warn(`broadcast fallback-text delivery to ${id} for page "${this.sendPageName()}"`)
+          this.notifySendError(error, kind, id)
+          try {
+            await this.api.sendMessage(id!, this.resolveFallbackText())
+          } catch {
+            // best-effort fallback; ignore nested failure
+          }
+        } else {
+          this.notifySendError(error, kind, id)
+          res.retryable.push({index, id: id!, error})
+        }
+        res.failedCount += 1
+        firstError ??= error
+      }
+      if ((index + 1) % limitFree === 0) {
+        await setTimeout(1200)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < ids.length) {
+        await setTimeout(chunkDelayMs ?? 500)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      }
+    }
+    if (workers <= 1) {
+      for (let index = start; index < ids.length; index++) await attempt(index)
+    } else {
+      const pending: number[] = []
+      for (let index = start; index < ids.length; index++) pending.push(index)
+      const lanes: number[][] = Array.from({length: workers}, (): number[] => [])
+      pending.forEach((absolute, position) => {
+        lanes[position % workers]!.push(absolute)
+      })
+      await Promise.all(
+        lanes.map(async (lane) => {
+          for (const next of lane) await attempt(next)
+        })
+      )
+    }
+    await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+    if (throwError && res.failedCount > 0) {
+      throw {...res, err: firstError}
+    }
+    return res
   }
 
   /**
@@ -3324,12 +3601,10 @@ export class Ctx extends Context {
   async renderInvoice(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {provider_token?: string}) | null) {
     const invoice = this.templateManager.getGInvoice(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertInvoice(invoice)
-    const chatId = this.sendChatId()
-    if (chatId === undefined) throw new Error(`renderInvoice requires a chat id for page "${this.sendPageName()}"`)
     const providerToken = options?.provider_token
     if (providerToken === undefined && invoice.currency !== `XTR`) throw new Error(`provider_token is required for fiat currency "${invoice.currency}" (got none): pass it via options, never templates`)
     try {
-      return await this.api.sendInvoice(chatId, invoice.title, invoice.description, invoice.payload, invoice.currency, invoice.prices, {
+      return await this.replyWithInvoice(invoice.title, invoice.description, invoice.payload, invoice.currency, invoice.prices, {
         ...(providerToken !== undefined ? {provider_token: providerToken} : {}),
         reply_markup: keyboard ?? undefined,
         ...(options ?? {})
@@ -3392,15 +3667,13 @@ export class Ctx extends Context {
   async renderPaidMedia(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null) {
     const paidMedia = this.templateManager.getGPaidMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertPaidMedia(paidMedia)
-    const chatId = this.sendChatId()
-    if (chatId === undefined) throw new Error(`renderPaidMedia requires a chat id for page "${this.sendPageName()}"`)
     const media = paidMedia.media.map((item) => ({
       type: item.type,
       media: this.resolveMedia(item.src),
       ...(item.caption ? {caption: item.caption, parse_mode: `HTML` as const} : {})
     }))
     try {
-      return await this.api.sendPaidMedia(chatId, paidMedia.stars, media as Parameters<Ctx[`api`][`sendPaidMedia`]>[2], {
+      return await this.replyWithPaidMedia(paidMedia.stars, media as Parameters<Ctx[`replyWithPaidMedia`]>[1], {
         reply_markup: keyboard ?? undefined,
         ...(options ?? {})
       })
@@ -3426,6 +3699,8 @@ export class Ctx extends Context {
    * `handleSessionFreePreCheckoutQuery`); the Bot API must receive the answer
    * within 10 seconds of the query. Programmer error (no active
    * pre-checkout query) always throws, never falls back.
+   *
+   * why-not-base: simplified `(ok, errorMessage?)` shape with a fail-fast page-named throw; base `Context.answerPreCheckoutQuery` needs manual `other` shaping.
    *
    * @param ok - `true` to approve the checkout, `false` to reject it.
    * @param errorMessage - Optional rejection reason shown to the user (only sent when `ok` is `false`).
@@ -3463,6 +3738,8 @@ export class Ctx extends Context {
    * {@link (Ctx:class).renderPaidMedia}. The `chargeId` is the
    * `telegram_payment_charge_id` from the `successful_payment` update.
    *
+   * why-not-base: base `Context.refundStarPayment` takes no ids; this refunds any `(userId, chargeId)` pair.
+   *
    * @param userId - Telegram user id that made the payment.
    * @param chargeId - Payment charge id (`telegram_payment_charge_id`) to refund.
    * @returns `true` on success.
@@ -3481,20 +3758,22 @@ export class Ctx extends Context {
   }
 
   /**
-   * Lists the bot's Telegram Stars transactions in chronological order.
+   * Lists Stars transactions for the bot (admin reconciliation).
    *
    * @remarks
    * Thin passthrough to `api.getStarTransactions` — no template involved.
-   * Use to audit paywall revenue from content sold via
-   * {@link (Ctx:class).renderPaidMedia}.
+   * Use to audit paywalled content sold via
+   * {@link (Ctx:class).renderPaidMedia} (who paid, what was refunded).
    *
-   * @param options - Optional `getStarTransactions` fields such as `offset` and `limit` (or null to omit).
-   * @returns The Stars transactions object.
+   * why-not-base: no `Context` equivalent; pure `api` passthrough.
+   *
+   * @param options - Pagination/filter options (`offset`, `limit`) or null.
+   * @returns Star transactions page.
    *
    * @example
    * ```typescript
-   * async handleAuditRevenue() {
-   *   const txs = await this.getStarTransactions({limit: 100})
+   * async handleAudit() {
+   *   const page = await this.getStarTransactions({limit: 100})
    * }
    * ```
    *
@@ -3767,6 +4046,11 @@ export class Ctx extends Context {
   /**
    * Sends a location using the page template.
    *
+   * @remarks
+   * When the template `<g-media type="location">` carries a `live` attribute
+   * (seconds), it is validated by `Ctx.assertLivePeriod` and sent as Bot API
+   * `live_period`. Stop it later with {@link (Ctx:class).stopLiveLocation}.
+   *
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).
@@ -3806,6 +4090,402 @@ export class Ctx extends Context {
    */
   async renderContact(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyContact | null) {
     return this.renderMedia(`contact`, keyboard, data, AGBaseId, options)
+  }
+
+  /**
+   * Stops a live location message, freezing it at its last position.
+   *
+   * @remarks
+   * Thin passthrough to `api.stopMessageLiveLocation` — no template involved.
+   * Use with a message previously sent by {@link (Ctx:class).renderLocation}
+   * with a `live` period. There is no live-edit method by design: live
+   * position updates go via raw `api.editMessageLiveLocation`.
+   *
+   * why-not-base: base `Context.stopMessageLiveLocation` omits `chat_id`/`message_id` (current-context only); this targets any chat/message.
+   *
+   * @param chatId - Chat holding the live location message.
+   * @param messageId - Message id of the live location to stop.
+   * @param options - Optional extra `stopMessageLiveLocation` fields (or null to omit).
+   * @returns `true` on success.
+   *
+   * @example
+   * ```typescript
+   * async handleStopSharing() {
+   *   await this.stopLiveLocation(this.chat!.id, 42)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async stopLiveLocation(chatId: number, messageId: number, options?: Parameters<Ctx[`api`][`stopMessageLiveLocation`]>[2] | null) {
+    return await this.api.stopMessageLiveLocation(chatId, messageId, {...(options ?? {})})
+  }
+
+  /**
+   * Sends a template-driven venue using the page `<g-venue>` block.
+   *
+   * @remarks
+   * Fail-fast validation (`Ctx.assertVenue`: non-empty title/address plus
+   * `Ctx.assertLocation` range checks) runs on the COMPILED strings BEFORE
+   * any API call — programmer errors always throw, never fall back.
+   *
+   * Observe-only send-error coverage (mirrors `renderPoll`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * There is no degraded fallback content for venues, so after notify+log
+   * the original error is ALWAYS rethrown untouched.
+   *
+   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID position for block venue (or null to use default).
+   * @param options - Optional extra `sendVenue` fields such as `foursquare_id` (or null to omit).
+   * @returns The sent venue message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+   *   await this.renderVenue(kb, {name: `Cafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`})
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * async handleVenueId() {
+   *   // Template: <g-base id="promo"><g-venue lang="id" title="{{name}}" address="{{street}}" latitude="{{lat}}" longitude="{{long}}"/></g-base>
+   *   await this.renderVenue(null, {name: `Kafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`}, `promo`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderVenue(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithVenue`]>[4] | null) {
+    const venue = this.templateManager.getGVenue(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    const checked = Ctx.assertVenue(venue)
+    try {
+      return await this.replyWithVenue(checked.latitude, checked.longitude, checked.title, checked.address, {
+        reply_markup: keyboard ?? undefined,
+        ...(options ?? {})
+      })
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`venue send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No venue fallback for venues: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`venue send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Sends a template-driven dice animation using the page `<g-dice>` block.
+   *
+   * @remarks
+   * The emoji comes from the COMPILED block (`🎲` default when the
+   * attribute is absent) and is checked by `Ctx.assertDiceEmoji` BEFORE
+   * any API call — programmer errors always throw, never fall back.
+   *
+   * Observe-only send-error coverage (mirrors `renderPoll`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * There is no degraded fallback content for dice, so after notify+log
+   * the original error is ALWAYS rethrown untouched.
+   *
+   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID position for block dice (or null to use default).
+   * @param options - Optional extra `sendDice` fields (or null to omit).
+   * @returns The sent dice message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+   *   await this.renderDice(kb, {dice: `🎯`})
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * async handleLuckyRoll() {
+   *   // Template: <g-base><g-dice emoji="{{dice}}"/></g-base>
+   *   await this.renderDice(null, {dice: `🏀`})
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderDice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithDice`]>[1] | null) {
+    const dice = this.templateManager.getGDice(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    const resolved = Ctx.assertDiceEmoji(dice.emoji)
+    try {
+      return await this.replyWithDice(resolved as Parameters<Ctx[`replyWithDice`]>[0], {
+        reply_markup: keyboard ?? undefined,
+        ...(options ?? {})
+      })
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`dice send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No dice fallback for dice: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`dice send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Starts a channel giveaway from a single params object.
+   *
+   * @remarks
+   * Data-driven by design (no `<g-giveaway>` block): `sendGiveaway`
+   * has no `parse_mode`, so template interpolation adds no value. Requires
+   * the bot to be an administrator in the target channel; the installed
+   * grammy exposes no typed `sendGiveaway` (neither `api.` nor `api.raw.`),
+   * so this validates fail-fast then sends through a structurally-typed raw
+   * call (grammy's raw client dispatches any method name at runtime). Fail-fast validation (1+ channels, future
+   * integer `date`, positive integer `winners`, non-empty `prize`) runs
+   * BEFORE any API call — programmer errors always throw, never fall back.
+   * The first channel receives the giveaway message and doubles as the
+   * primary `chats` entry. Channel-targeted by design, so this keeps `api.raw`
+   * (context-aware `replyWith*` can only reach the current chat).
+   *
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * There is no degraded fallback content for giveaways, so after notify+log
+   * the original error is ALWAYS rethrown untouched.
+   *
+   * @param params - Giveaway params `{channels, date, winners, prize}` (or null — throws).
+   * @param options - Optional giveaway flags such as `onlyNewMembers` (or null to omit).
+   * @returns The sent giveaway message object.
+   *
+   * @example
+   * ```typescript
+   * async handleLaunch() {
+   *   await this.startGiveaway({channels: `@mychannel`, date: 1893456000, winners: 2, prize: `iPhone 16`})
+   * }
+   * ```
+   *
+   * @public
+   */
+  async startGiveaway(params?: ITGiveawayParams | null, options?: ITGiveawayOptions | null) {
+    if (params === undefined || params === null) throw new Error(`startGiveaway requires giveaway params for page "${this.sendPageName()}"`)
+    const raw = typeof params.channels === `string` ? params.channels.split(`,`) : params.channels
+    if (!Array.isArray(raw)) throw new Error(`startGiveaway requires channels as chat ids for page "${this.sendPageName()}"`)
+    const chats: Array<number | string> = []
+    for (const entry of raw) {
+      const trimmed = typeof entry === `string` ? entry.trim() : entry
+      if (typeof trimmed === `number` && Number.isInteger(trimmed)) {
+        chats.push(trimmed)
+        continue
+      }
+      if (typeof trimmed === `string` && trimmed !== ``) {
+        chats.push(/^-?\d+$/.test(trimmed) ? Number(trimmed) : trimmed)
+        continue
+      }
+      throw new Error(`startGiveaway requires channels with at least 1 chat id for page "${this.sendPageName()}" (got "${String(entry)}")`)
+    }
+    if (chats.length < 1) throw new Error(`startGiveaway requires channels with at least 1 chat id for page "${this.sendPageName()}"`)
+    const now = Math.floor(Date.now() / 1000)
+    if (!Number.isInteger(params.date) || params.date <= now) throw new Error(`startGiveaway requires date as a future unix timestamp for page "${this.sendPageName()}" (got "${String(params.date)}")`)
+    if (!Number.isInteger(params.winners) || params.winners <= 0) throw new Error(`startGiveaway requires winners as a positive integer for page "${this.sendPageName()}" (got "${String(params.winners)}")`)
+    if (typeof params.prize !== `string` || params.prize.trim() === ``) throw new Error(`startGiveaway requires a non-empty prize for page "${this.sendPageName()}"`)
+    const payload = {
+      chat_id: chats[0] as number | string,
+      chats,
+      winners_selection_date: params.date,
+      winner_count: params.winners,
+      prize_description: params.prize,
+      ...(options?.onlyNewMembers === undefined || options?.onlyNewMembers === null ? {} : {only_new_members: options.onlyNewMembers}),
+      ...(options?.hasPublicWinners === undefined || options?.hasPublicWinners === null ? {} : {has_public_winners: options.hasPublicWinners}),
+      ...(options?.prizeStarCount === undefined || options?.prizeStarCount === null ? {} : {prize_star_count: options.prizeStarCount}),
+      ...(options?.premiumMonths === undefined || options?.premiumMonths === null ? {} : {premium_subscription_month_count: options.premiumMonths})
+    }
+    try {
+      const rawApi = this.api.raw as unknown as {sendGiveaway: (payload: Record<string, unknown>) => Promise<unknown>}
+      return await rawApi.sendGiveaway(payload)
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`giveaway send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No giveaway fallback for giveaways: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`giveaway send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Posts a story on behalf of a managed business account.
+   *
+   * @remarks
+   * Business-connection-only: a normal bot cannot call `postBusinessStory` — pass a
+   * `business_connection_id` from a `BusinessConnection` update with the
+   * `can_manage_stories` right, otherwise the Bot API rejects the call.
+   * Thin passthrough otherwise: `content` resolves through `resolveMedia`
+   * then uploads (`InputFile` as-is, URLs via `{url}`, `file_id` strings
+   * pass through) and only presence, the
+   * `photo`/`video` discriminant, and the fixed `active_period` set are
+   * fail-fast validated; areas, durations, and captions are adjudicated by
+   * the Bot API — programmer errors always throw, never fall back.
+   *
+   * why-not-base: explicit `businessConnectionId` (base `Context.postStory` uses the current update only) plus local-path `InputFile` resolution and fail-fast validation.
+   *
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * There is no degraded fallback content for stories, so after notify+log
+   * the original error is ALWAYS rethrown untouched.
+   *
+   * @param businessConnectionId - Business connection id (or null — throws).
+   * @param content - Story content `{type: "photo"|"video", src}` (or null — throws).
+   * @param activePeriod - Archive delay in seconds: 21600, 43200, 86400, or 172800 (or null — throws).
+   * @param options - Optional extra story fields such as `caption` (or null to omit).
+   * @returns The posted story object.
+   *
+   * @example
+   * ```typescript
+   * async handlePostStory() {
+   *   await this.postBusinessStory(`conn-1`, {type: `photo`, src: `https://example.com/pic.jpg`}, 86400)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async postBusinessStory(businessConnectionId?: string | null, content?: ITStoryContent | null, activePeriod?: number | null, options?: Parameters<Ctx[`api`][`postStory`]>[3] | null) {
+    if (typeof businessConnectionId !== `string` || businessConnectionId.length < 1) throw new Error(`postBusinessStory requires a business connection id for page "${this.sendPageName()}" (stories are business-connection-only)`)
+    if (content === undefined || content === null) throw new Error(`postBusinessStory requires story content for page "${this.sendPageName()}"`)
+    if (content.type !== `photo` && content.type !== `video`) throw new Error(`postBusinessStory requires content type "photo" or "video" for page "${this.sendPageName()}" (got "${String(content.type)}")`)
+    if (content.src === undefined || content.src === null || content.src === ``) throw new Error(`postBusinessStory requires a content src for page "${this.sendPageName()}"`)
+    if (typeof activePeriod !== `number` || !Ctx.STORY_PERIODS.has(activePeriod)) throw new Error(`postBusinessStory requires activePeriod as one of 21600, 43200, 86400, 172800 for page "${this.sendPageName()}" (got "${String(activePeriod)}")`)
+    const media = this.resolveMedia(content.src)
+    const upload = media instanceof InputFile ? media : /^https?:\/\//.test(media) ? new InputFile({url: media}) : media
+    const storyContent = (content.type === `photo` ? {type: `photo` as const, photo: upload} : {type: `video` as const, video: upload, ...(content.duration === undefined || content.duration === null ? {} : {duration: content.duration})}) as InputStoryContent
+    try {
+      return await this.api.postStory(businessConnectionId, storyContent, activePeriod, {...(options ?? {})})
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`story send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No story fallback for stories: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`story send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Edits a story previously posted on behalf of a managed business account.
+   *
+   * @remarks
+   * Business-connection-only like {@link (Ctx:class).postBusinessStory}: the same
+   * `business_connection_id` (with `can_manage_stories`) that posted the
+   * story is required. Content validation mirrors `postBusinessStory`; areas and
+   * captions are adjudicated by the Bot API — programmer errors always
+   * throw, never fall back.
+   *
+   * why-not-base: explicit `businessConnectionId` (base `Context.editStory` uses the current update only) plus local-path `InputFile` resolution and fail-fast validation.
+   *
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * There is no degraded fallback content for stories, so after notify+log
+   * the original error is ALWAYS rethrown untouched.
+   *
+   * @param businessConnectionId - Business connection id (or null — throws).
+   * @param storyId - Id of the posted story (or null — throws).
+   * @param content - Replacement content `{type: "photo"|"video", src}` (or null — throws).
+   * @param options - Optional extra story fields such as `caption` (or null to omit).
+   * @returns The edited story object.
+   *
+   * @example
+   * ```typescript
+   * async handleEditStory() {
+   *   await this.editBusinessStory(`conn-1`, 21, {type: `video`, src: `https://example.com/clip.mp4`})
+   * }
+   * ```
+   *
+   * @public
+   */
+  async editBusinessStory(businessConnectionId?: string | null, storyId?: number | null, content?: ITStoryContent | null, options?: Parameters<Ctx[`api`][`editStory`]>[3] | null) {
+    if (typeof businessConnectionId !== `string` || businessConnectionId.length < 1) throw new Error(`editBusinessStory requires a business connection id for page "${this.sendPageName()}" (stories are business-connection-only)`)
+    if (typeof storyId !== `number` || !Number.isInteger(storyId) || storyId <= 0) throw new Error(`editBusinessStory requires storyId as a positive integer for page "${this.sendPageName()}" (got "${String(storyId)}")`)
+    if (content === undefined || content === null) throw new Error(`editBusinessStory requires story content for page "${this.sendPageName()}"`)
+    if (content.type !== `photo` && content.type !== `video`) throw new Error(`editBusinessStory requires content type "photo" or "video" for page "${this.sendPageName()}" (got "${String(content.type)}")`)
+    if (content.src === undefined || content.src === null || content.src === ``) throw new Error(`editBusinessStory requires a content src for page "${this.sendPageName()}"`)
+    const media = this.resolveMedia(content.src)
+    const upload = media instanceof InputFile ? media : /^https?:\/\//.test(media) ? new InputFile({url: media}) : media
+    const storyContent = (content.type === `photo` ? {type: `photo` as const, photo: upload} : {type: `video` as const, video: upload, ...(content.duration === undefined || content.duration === null ? {} : {duration: content.duration})}) as InputStoryContent
+    try {
+      return await this.api.editStory(businessConnectionId, storyId, storyContent, {...(options ?? {})})
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`story send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No story fallback for stories: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`story send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Deletes a story previously posted on behalf of a managed business account.
+   *
+   * @remarks
+   * Business-connection-only like {@link (Ctx:class).postBusinessStory}: the same
+   * `business_connection_id` (with `can_manage_stories`) that posted the
+   * story is required. Only presence and the positive-integer `storyId` are
+   * fail-fast validated — programmer errors always throw, never fall back.
+   *
+   * why-not-base: base `Context.deleteStory` takes no `business_connection_id` at all; this deletes under any connection.
+   *
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * The original error is ALWAYS rethrown untouched after notify+log.
+   *
+   * @param businessConnectionId - Business connection id (or null — throws).
+   * @param storyId - Id of the posted story (or null — throws).
+   * @returns `true` on success.
+   *
+   * @example
+   * ```typescript
+   * async handleDeleteStory() {
+   *   await this.deleteBusinessStory(`conn-1`, 21)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async deleteBusinessStory(businessConnectionId?: string | null, storyId?: number | null) {
+    if (typeof businessConnectionId !== `string` || businessConnectionId.length < 1) throw new Error(`deleteBusinessStory requires a business connection id for page "${this.sendPageName()}" (stories are business-connection-only)`)
+    if (typeof storyId !== `number` || !Number.isInteger(storyId) || storyId <= 0) throw new Error(`deleteBusinessStory requires storyId as a positive integer for page "${this.sendPageName()}" (got "${String(storyId)}")`)
+    try {
+      return await this.api.deleteStory(businessConnectionId, storyId)
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`story send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No story fallback for stories: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`story send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
   }
 
   /**
@@ -4349,23 +5029,23 @@ export class Ctx extends Context {
       const commonOpt = {reply_markup: keyboardInline ?? undefined, ...(options1 ?? {})} as Record<string, unknown>
       if (type === `voice`) {
         await this.deleteMessage()
-        return await this.api.sendVoice(this.chat?.id as number, this.resolveMedia(src, medFilename), commonOpt)
+        return await this.replyWithVoice(this.resolveMedia(src, medFilename), commonOpt)
       }
       if (type === `video_note`) {
         await this.deleteMessage()
-        return await this.api.sendVideoNote(this.chat?.id as number, this.resolveMedia(src, medFilename), commonOpt)
+        return await this.replyWithVideoNote(this.resolveMedia(src, medFilename), commonOpt)
       }
       if (type === `sticker`) {
         await this.deleteMessage()
-        return await this.api.sendSticker(this.chat?.id as number, this.resolveMedia(src, medFilename), commonOpt)
+        return await this.replyWithSticker(this.resolveMedia(src, medFilename), commonOpt)
       }
       if (type === `location`) {
         await this.deleteMessage()
-        return await this.api.sendLocation(this.chat?.id as number, coords!.latitude, coords!.longitude, commonOpt)
+        return await this.replyWithLocation(coords!.latitude, coords!.longitude, commonOpt)
       }
       if (type === `contact`) {
         await this.deleteMessage()
-        return await this.api.sendContact(this.chat?.id as number, med.phone as string, med.first_name as string, {vcard: med.vcard!, ...commonOpt})
+        return await this.replyWithContact(med.phone as string, med.first_name as string, {vcard: med.vcard!, ...commonOpt})
       }
 
       return await this.editMessageMedia(

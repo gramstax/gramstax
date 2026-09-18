@@ -795,6 +795,14 @@ export class TemplateManager {
       compiled.poll = TemplateEngine.compileBlockGPoll(processedTemplate, baseBlocks)
       updated = true
     }
+    if (keepIfExist === undefined || keepIfExist?.venue === false || existing?.venue === undefined) {
+      compiled.venue = TemplateEngine.compileBlockGVenue(processedTemplate, baseBlocks)
+      updated = true
+    }
+    if (keepIfExist === undefined || keepIfExist?.dice === false || existing?.dice === undefined) {
+      compiled.dice = TemplateEngine.compileBlockGDice(processedTemplate, baseBlocks)
+      updated = true
+    }
     if (keepIfExist === undefined || keepIfExist?.invoice === false || existing?.invoice === undefined) {
       compiled.invoice = TemplateEngine.compileBlockGInvoice(processedTemplate, baseBlocks)
       updated = true
@@ -882,6 +890,72 @@ export class TemplateManager {
 
     if (!func) {
       throw new Error(`Poll function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled from block <g-venue>.
+   *
+   * @param key - Template identifier (filename without extension)
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
+   * @param data - Template variables for interpolation
+   * @returns Venue object containing title, address, latitude, and longitude
+   *
+   * @remarks
+   * Retrieves the compiled venue function for the specified template and language,
+   * then executes it with the provided data to generate the venue payload.
+   *
+   * @example
+   * ```typescript
+   * const venue = tm.getGVenue("cafe-page", "default", "en", {name: "Cafe"})
+   * // => {title: "Cafe", address: "...", latitude: "-6.2", longitude: "106.8"}
+   * ```
+   *
+   * @public
+   */
+  getGVenue(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`venue`][`default`][`default`]> {
+    const map = this._map.get(key)
+    const one = map?.venue?.[AGBaseId] ?? map?.venue?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`Venue function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled from block <g-dice>.
+   *
+   * @param key - Template identifier (filename without extension)
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
+   * @param data - Template variables for interpolation
+   * @returns Dice object containing the emoji
+   *
+   * @remarks
+   * Retrieves the compiled dice function for the specified template and language,
+   * then executes it with the provided data to generate the dice payload.
+   *
+   * @example
+   * ```typescript
+   * const dice = tm.getGDice("lucky-page", "default", "en", {dice: "🎯"})
+   * // => {emoji: "🎯"}
+   * ```
+   *
+   * @public
+   */
+  getGDice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`dice`][`default`][`default`]> {
+    const map = this._map.get(key)
+    const one = map?.dice?.[AGBaseId] ?? map?.dice?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`Dice function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
     return func(data)
