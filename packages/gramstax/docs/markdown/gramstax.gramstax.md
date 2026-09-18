@@ -181,6 +181,25 @@ External cache for user session data.
 </td></tr>
 <tr><td>
 
+[ctxScope](./gramstax.gramstax.ctxscope.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[ITGramstaxCtxScope](./gramstax.itgramstaxctxscope.md)
+
+
+</td><td>
+
+Forwarded `Ctx` fields, built once in the constructor.
+
+
+</td></tr>
+<tr><td>
+
 [deployType](./gramstax.gramstax.deploytype.md)
 
 
@@ -257,6 +276,25 @@ Logger instance for debugging and info output.
 </td></tr>
 <tr><td>
 
+[mediaRoots?](./gramstax.gramstax.mediaroots.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string\[\] \| null
+
+
+</td><td>
+
+_(Optional)_ Opt-in local-path jail for media uploads.
+
+
+</td></tr>
+<tr><td>
+
 [metrics](./gramstax.gramstax.metrics.md)
 
 
@@ -313,6 +351,25 @@ ReturnType&lt;typeof this.\_pageLoads&gt;
 </td><td>
 
 Loaded and sorted page routes.
+
+
+</td></tr>
+<tr><td>
+
+[ready](./gramstax.gramstax.ready.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Promise&lt;void&gt;
+
+
+</td><td>
+
+Resolves once the startup hooks (`hookBeforeStart`<!-- -->/`hookAfterStart`<!-- -->) complete for constructor-driven modes (`raw`<!-- -->, `test`<!-- -->).
 
 
 </td></tr>
@@ -397,6 +454,20 @@ Description
 </td><td>
 
 Routes an incoming update to the appropriate page handler.
+
+
+</td></tr>
+<tr><td>
+
+[buildCtxParams(ct, extra)](./gramstax.gramstax.buildctxparams.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Builds the params for one page `Ctx`<!-- -->, plus optional app extras.
 
 
 </td></tr>
@@ -563,6 +634,62 @@ _(Optional)_ Hook called when no page handler matches the input.
 </td><td>
 
 _(Optional)_ Hook called when a user exceeds the configured `rateLimit` window.
+
+
+</td></tr>
+<tr><td>
+
+[hookSendError(args)?](./gramstax.gramstax.hooksenderror.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Best-effort send-error hook.
+
+
+</td></tr>
+<tr><td>
+
+[hookTrace(span)?](./gramstax.gramstax.hooktrace.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Optional OTel-style trace export hook.
+
+
+</td></tr>
+<tr><td>
+
+[hookUpdate(event)?](./gramstax.gramstax.hookupdate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Hook invoked with a structured success event after every routed update.
+
+
+</td></tr>
+<tr><td>
+
+[hookUpdateError(event)?](./gramstax.gramstax.hookupdateerror.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Hook invoked with a structured error event for every update failure (errors, timeouts, blocked). Use for log sinks / alerting (Sentry, etc.).
 
 
 </td></tr>

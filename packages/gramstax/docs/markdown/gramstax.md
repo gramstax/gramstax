@@ -343,6 +343,39 @@ Parameters for bottom keyboard configuration.
 </td></tr>
 <tr><td>
 
+[ITBroadcastEditOpts](./gramstax.itbroadcasteditopts.md)
+
+
+</td><td>
+
+Broadcast controls shared by `renderBroadcastEdit` and `renderBroadcastDelete`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[ITBroadcastEditResult](./gramstax.itbroadcasteditresult.md)
+
+
+</td><td>
+
+Bulk edit/delete result with a re-drive list.
+
+
+</td></tr>
+<tr><td>
+
+[ITBroadcastEditTarget](./gramstax.itbroadcastedittarget.md)
+
+
+</td><td>
+
+One already-sent message to revise or remove in bulk.
+
+
+</td></tr>
+<tr><td>
+
 [ITBuildDataOptions](./gramstax.itbuilddataoptions.md)
 
 
@@ -403,7 +436,7 @@ Type alias for Middleware.
 
 </td><td>
 
-Parameters for Ctx instance initialization.
+Parameters for creating a new [Ctx](./gramstax.ctx.md) instance.
 
 
 </td></tr>
@@ -426,6 +459,17 @@ A custom filter-based route entry, registered via [Gramstax.registerCustomRoute(
 </td><td>
 
 Generic data object for template interpolation.
+
+
+</td></tr>
+<tr><td>
+
+[ITDiceBlock](./gramstax.itdiceblock.md)
+
+
+</td><td>
+
+Represents a dice block configuration for Telegram dice animations.
 
 
 </td></tr>
@@ -541,6 +585,39 @@ E2E testing helper types for Gramstax bots.
 </td></tr>
 <tr><td>
 
+[ITGiveawayOptions](./gramstax.itgiveawayoptions.md)
+
+
+</td><td>
+
+Optional giveaway flags accepted by [Ctx.startGiveaway()](./gramstax.ctx.startgiveaway.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[ITGiveawayParams](./gramstax.itgiveawayparams.md)
+
+
+</td><td>
+
+Giveaway params accepted by [Ctx.startGiveaway()](./gramstax.ctx.startgiveaway.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[ITGramstaxCtxScope](./gramstax.itgramstaxctxscope.md)
+
+
+</td><td>
+
+Forwarded `Ctx` fields owned by `Gramstax.ctxScope`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [ITGramstaxParams](./gramstax.itgramstaxparams.md)
 
 
@@ -580,6 +657,17 @@ Inline keyboard whose `.text()` also accepts a page class/instance as the callba
 </td><td>
 
 Parameters for inline keyboard configuration.
+
+
+</td></tr>
+<tr><td>
+
+[ITInvoiceBlock](./gramstax.itinvoiceblock.md)
+
+
+</td><td>
+
+Represents an invoice block configuration for Telegram payments.
 
 
 </td></tr>
@@ -948,6 +1036,28 @@ Base page routing data — core properties only, no callbackQueryData.
 </td></tr>
 <tr><td>
 
+[ITPaidMediaBlock](./gramstax.itpaidmediablock.md)
+
+
+</td><td>
+
+Represents a Stars paid-media block for Telegram paywalls.
+
+
+</td></tr>
+<tr><td>
+
+[ITPollBlock](./gramstax.itpollblock.md)
+
+
+</td><td>
+
+Represents a poll block configuration for Telegram polls.
+
+
+</td></tr>
+<tr><td>
+
 [ITRateLimitOptions](./gramstax.itratelimitoptions.md)
 
 
@@ -970,6 +1080,28 @@ Type of chat action to send.
 </td></tr>
 <tr><td>
 
+[ITSendErrorHook](./gramstax.itsenderrorhook.md)
+
+
+</td><td>
+
+Best-effort send-error hook.
+
+
+</td></tr>
+<tr><td>
+
+[ITSendErrorInfo](./gramstax.itsenderrorinfo.md)
+
+
+</td><td>
+
+Send-error event delivered to .
+
+
+</td></tr>
+<tr><td>
+
 [ITSessionLockOnContended](./gramstax.itsessionlockoncontended.md)
 
 
@@ -987,6 +1119,17 @@ Contention policy when the session lease cannot be acquired.
 </td><td>
 
 Configuration for the distributed session lock.
+
+
+</td></tr>
+<tr><td>
+
+[ITStoryContent](./gramstax.itstorycontent.md)
+
+
+</td><td>
+
+Story content accepted by [Ctx.postBusinessStory()](./gramstax.ctx.postbusinessstory.md) and [Ctx.editBusinessStory()](./gramstax.ctx.editbusinessstory.md)<!-- -->.
 
 
 </td></tr>
@@ -1031,6 +1174,17 @@ Structured error event emitted by `onUpdateError`<!-- -->.
 </td><td>
 
 Structured success event emitted by `onUpdate`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[ITVenueBlock](./gramstax.itvenueblock.md)
+
+
+</td><td>
+
+Represents a venue block configuration for Telegram venues.
 
 
 </td></tr>

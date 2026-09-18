@@ -93,12 +93,12 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'refreshLruCache(maxLength?: number): void;'
+      content: 'refreshLruCache(maxLength?: number): Promise<void>;'
       parameters:
         - id: maxLength
           description: Maximum number of keys to refresh. If omitted, refreshes all keys.
           type: number
       return:
-        type: void
+        type: Promise&lt;void&gt;
         description: ''
 extends: <xref uid="keyv!Keyv:class" />&lt;V&gt;

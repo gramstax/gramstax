@@ -9,7 +9,7 @@ Sends an audio media group using pipe-delimited `src` values from the page templ
 **Signature:**
 
 ```typescript
-renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -82,7 +82,7 @@ _(Optional)_ Optional audio-specific options (or null to omit).
 
 **Returns:**
 
-Promise&lt;(grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.LivePhotoMessage)\[\]&gt;
+Promise&lt;unknown&gt;
 
 The sent media group messages.
 

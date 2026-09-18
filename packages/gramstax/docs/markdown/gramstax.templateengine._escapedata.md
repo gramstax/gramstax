@@ -56,5 +56,5 @@ The escaped string.
 
 ## Remarks
 
-Non-string values are stringified; `null`<!-- -->/`undefined` become empty string. Escaped code points: `&` → `&amp;`<!-- -->, `<` → `&lt;`<!-- -->, `>` → `&gt;`<!-- -->.
+Non-string values are stringified; `null`<!-- -->/`undefined` become empty string. Escaped code points: `&` → `&amp;`<!-- -->, `<` → `&lt;`<!-- -->, `>` → `&gt;`<!-- -->. Scope: text-node interpolation via `{{}}` only. Attribute values and `{{{}}}` raw output are intentionally not HTML-escaped.
 

@@ -9,7 +9,7 @@ Replaces the current message with a video media group.
 **Signature:**
 
 ```typescript
-renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -78,11 +78,27 @@ _(Optional)_ Optional video-specific options (or null to omit).
 
 
 </td></tr>
+<tr><td>
+
+fallbackEdit
+
+
+</td><td>
+
+[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+
+
+</td><td>
+
+_(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
 
-Promise&lt;(grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.LivePhotoMessage)\[\]&gt;
+Promise&lt;unknown&gt;
 
 The sent media group message object.
 

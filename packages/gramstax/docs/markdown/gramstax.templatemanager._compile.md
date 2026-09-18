@@ -136,7 +136,7 @@ void
 
 ## Remarks
 
-This method processes import blocks, compiles media, messages, keyboards, and descriptions from the template. It uses `TemplateEngine` for compilation. The `keepIfExist` parameter allows partial recompilation when only specific template parts have changed.
+This method processes import blocks, compiles media, polls, messages, keyboards, and descriptions from the template. It uses `TemplateEngine` for compilation. The `keepIfExist` parameter allows partial recompilation when only specific template parts have changed.
 
 ## Example
 

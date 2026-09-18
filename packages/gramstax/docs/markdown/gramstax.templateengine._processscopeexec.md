@@ -56,7 +56,7 @@ The template with inline execution blocks converted to executable expressions
 
 ## Remarks
 
-This internal method converts inline execution syntax into self-invoking JavaScript expressions. It first attempts direct execution, then falls back to `with(data)` scope. Returns an empty string on any error.
+This internal method converts inline execution syntax into self-invoking JavaScript expressions. It first attempts direct execution, then falls back to `with(data)` scope. Returns an empty string on any error. By design this executes developer-authored template code (templates are code, only `data` values are untrusted input); no strict/no-script mode is provided.
 
 ## Example
 

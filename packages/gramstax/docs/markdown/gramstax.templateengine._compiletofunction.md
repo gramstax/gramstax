@@ -4,8 +4,6 @@
 
 ## TemplateEngine.\_compileToFunction() method
 
-Compiles a processed template string into an executable function.
-
 **Signature:**
 
 ```typescript
@@ -42,8 +40,6 @@ T extends true ? string\[\] : string
 
 </td><td>
 
-The processed template string or array of strings
-
 
 </td></tr>
 <tr><td>
@@ -58,8 +54,6 @@ T
 
 </td><td>
 
-Whether the template parameter is an array
-
 
 </td></tr>
 </tbody></table>
@@ -67,20 +61,4 @@ Whether the template parameter is an array
 **Returns:**
 
 ITTemplateRenderer&lt;T&gt;
-
-A function that accepts optional data and returns the rendered string or string array
-
-## Remarks
-
-This internal method takes a pre-processed template (or array of templates) and compiles it into a JavaScript function that accepts a `data` object and returns the rendered result. The function is created using `new Function()`<!-- -->.
-
-## Example
-
-
-```typescript
-const processed = '${(data && data["name"]) ?? ""}';
-const fn = TemplateEngine._compileToFunction(processed, false);
-const result = fn({ name: 'John' });
-// Result: 'John'
-```
 

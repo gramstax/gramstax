@@ -9,7 +9,7 @@ Sends a document media group using pipe-delimited `src` values from the page tem
 **Signature:**
 
 ```typescript
-renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -82,7 +82,7 @@ _(Optional)_ Optional document-specific options (or null to omit).
 
 **Returns:**
 
-Promise&lt;(grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.LivePhotoMessage)\[\]&gt;
+Promise&lt;unknown&gt;
 
 The sent media group messages.
 

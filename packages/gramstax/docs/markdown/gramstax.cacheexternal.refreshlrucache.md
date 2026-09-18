@@ -9,7 +9,7 @@ Refreshes the LRU cache by re-accessing keys in order.
 **Signature:**
 
 ```typescript
-refreshLruCache(maxLength?: number): void;
+refreshLruCache(maxLength?: number): Promise<void>;
 ```
 
 ## Parameters
@@ -50,7 +50,7 @@ _(Optional)_ Maximum number of keys to refresh. If omitted, refreshes all keys.
 
 **Returns:**
 
-void
+Promise&lt;void&gt;
 
 ## Remarks
 

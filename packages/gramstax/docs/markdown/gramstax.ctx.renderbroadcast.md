@@ -9,11 +9,16 @@ Sends a message to multiple users in bulk.
 **Signature:**
 
 ```typescript
-renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null): Promise<{
+renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null): Promise<{
         successCount: number;
         failedCount: number;
         totalCount: number;
         skippedCount: number;
+        retryable: Array<{
+            index: number;
+            id: number;
+            error: unknown;
+        }>;
     }>;
 ```
 
@@ -159,7 +164,7 @@ number \| null
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional custom chunk size for pacing sleeps (or null for free-limit pacing only).
 
 
 </td></tr>
@@ -175,7 +180,7 @@ number \| null
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional delay in ms after each `chunkSize` chunk (or null for `500`<!-- -->).
 
 
 </td></tr>
@@ -191,7 +196,55 @@ number\[\] \| null
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional user IDs to skip, counted as skipped (or null to send to all).
+
+
+</td></tr>
+<tr><td>
+
+onProgress
+
+
+</td><td>
+
+((done: number, total: number) =&gt; void \| Promise&lt;void&gt;) \| null
+
+
+</td><td>
+
+_(Optional)_ Optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip).
+
+
+</td></tr>
+<tr><td>
+
+startFrom
+
+
+</td><td>
+
+number \| null
+
+
+</td><td>
+
+_(Optional)_ Optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+concurrency
+
+
+</td><td>
+
+number \| null
+
+
+</td><td>
+
+_(Optional)_ Optional parallel send workers; `1` keeps the sequential loop, floored at `1`<!-- -->, capped at `10`<!-- -->, non-finite becomes `1` (or null for `1`<!-- -->).
 
 
 </td></tr>
@@ -199,11 +252,11 @@ _(Optional)_
 
 **Returns:**
 
-Promise&lt;{ successCount: number; failedCount: number; totalCount: number; skippedCount: number; }&gt;
+Promise&lt;{ successCount: number; failedCount: number; totalCount: number; skippedCount: number; retryable: Array&lt;{ index: number; id: number; error: unknown; }&gt;; }&gt;
 
 ## Remarks
 
-Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.
+Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering. Per-recipient send failures follow `Ctx.classifySendError`<!-- -->: `retryable` errors are counted and the loop continues; `fallback-text` errors additionally trigger a best-effort fallback-text send to that recipient (nested failures ignored). `failedCount`<!-- -->/`firstError` semantics are preserved either way; loop structure and pacing are untouched. Retryable failures (`429`<!-- -->/`5xx`<!-- -->/network) never abort the run: they are recorded in `retryable` (absolute `index` + `id` + `error`<!-- -->, completion order) while the checkpoint keeps advancing, so callers can re-drive just those entries with a fresh pass. `firstError` stays the first failure of any kind. Checkpoint-first (anti-spam over speed): `startFrom` resumes after a restart without resending (indexes below count as skipped, `done` in `onProgress` counts processed recipients, `total` is `ids.length`<!-- -->); `concurrency` defaults to `1` (sequential) and can be raised when throughput matters. At \~`40` sends/sec, `1M` recipients take \~`7h` — size chunks and checkpoints accordingly.
 
 ## Example
 
@@ -211,7 +264,7 @@ Automatically throttles after 30 messages to respect Telegram rate limits. Uses 
 ```typescript
 async handleCallbackQueryData() {
   const userIds = [123456, 789012]
-  const langs = ["en", "id"]
+  const langs = [`en`, `id`]
   await this.renderBroadcast(userIds, langs)
 }
 ```

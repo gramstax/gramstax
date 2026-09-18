@@ -93,6 +93,29 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_DEFER](./gramstax.templatemanager._defer.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+unique symbol
+
+
+</td><td>
+
+Internal miss sentinel for template getters.
+
+
+</td></tr>
+<tr><td>
+
 [\_engine](./gramstax.templatemanager._engine.md)
 
 
@@ -107,6 +130,25 @@ typeof [TemplateEngine](./gramstax.templateengine.md)
 </td><td>
 
 Reference to the TemplateEngine class for compilation.
+
+
+</td></tr>
+<tr><td>
+
+[\_importCache](./gramstax.templatemanager._importcache.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Map&lt;string, string&gt;
+
+
+</td><td>
+
+Shared import-resolution cache reused across single-file reloads.
 
 
 </td></tr>
@@ -462,6 +504,32 @@ The error message includes the enclosing `<g-base id="...">` based on the error 
 </td></tr>
 <tr><td>
 
+[clearCache()](./gramstax.templatemanager.clearcache.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Clears compiled template and import caches.
+
+
+</td></tr>
+<tr><td>
+
+[closeWatchers()](./gramstax.templatemanager.closewatchers.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [destroy()](./gramstax.templatemanager.destroy.md)
 
 
@@ -518,6 +586,34 @@ Gets a command description for Telegram menu.
 </td></tr>
 <tr><td>
 
+[getGDice(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgdice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled from block <g-dice>.
+
+
+</td></tr>
+<tr><td>
+
+[getGInvoice(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getginvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled from block <g-invoice>.
+
+
+</td></tr>
+<tr><td>
+
 [getGKeyboard(key, AGBaseId, ALang, AType, data)](./gramstax.templatemanager.getgkeyboard.md)
 
 
@@ -555,6 +651,48 @@ Gets compiled from block <g-media>.
 </td><td>
 
 Gets compiled from block <g-message>.
+
+
+</td></tr>
+<tr><td>
+
+[getGPaidMedia(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgpaidmedia.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled from block <g-paid-media>.
+
+
+</td></tr>
+<tr><td>
+
+[getGPoll(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgpoll.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled from block <g-poll>.
+
+
+</td></tr>
+<tr><td>
+
+[getGVenue(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgvenue.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled from block <g-venue>.
 
 
 </td></tr>

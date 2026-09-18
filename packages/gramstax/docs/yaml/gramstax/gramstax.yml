@@ -185,6 +185,24 @@ properties:
       content: 'cacheSession: CacheExternal<ITCacheRpc>;'
       return:
         type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ITCacheRpc:type" />&gt;
+  - name: ctxScope
+    uid: gramstax!Gramstax#ctxScope:member
+    package: gramstax!
+    fullName: ctxScope
+    summary: Forwarded `Ctx` fields, built once in the constructor.
+    remarks: >-
+      Single source of truth for `Gramstax` → `Ctx` forwarding, spread by `buildCtxParams` on every `createCtx` call. To
+      forward a new field: 1. add it to `ITGramstaxParams` (input) and `ITCtxParams` (output), 2. add it to
+      `ITGramstaxCtxScope` (keeps the guard below honest), 3. set it here in the constructor scope literal (raw branch
+      included), 4. copy it field-by-field in the `Ctx` constructor. Skipping step 2 fails `tsc` with the missing field
+      name.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'ctxScope: ITGramstaxCtxScope;'
+      return:
+        type: <xref uid="gramstax!ITGramstaxCtxScope:type" />
   - name: deployType
     uid: gramstax!Gramstax#deployType:member
     package: gramstax!
@@ -247,6 +265,21 @@ properties:
       content: 'log: LoggingHelper | undefined;'
       return:
         type: <xref uid="gramstax!LoggingHelper:class" /> | undefined
+  - name: mediaRoots
+    uid: gramstax!Gramstax#mediaRoots:member
+    package: gramstax!
+    fullName: mediaRoots
+    summary: Opt-in local-path jail for media uploads.
+    remarks: >-
+      Forwarded into every page `Ctx` via `createCtx` (mirrors `log`<!-- -->). `null`<!-- -->/empty means free; when
+      set, local file uploads outside the roots pass through as `file_id` with a `log.warn`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'mediaRoots?: string[] | null;'
+      return:
+        type: string[] | null
   - name: metrics
     uid: gramstax!Gramstax#metrics:member
     package: gramstax!
@@ -292,6 +325,23 @@ properties:
       content: 'pages: ReturnType<typeof this._pageLoads>;'
       return:
         type: ReturnType&lt;typeof gramstax!Gramstax#<xref uid="_pageLoads:member" />&gt;
+  - name: ready
+    uid: gramstax!Gramstax#ready:member
+    package: gramstax!
+    fullName: ready
+    summary: >-
+      Resolves once the startup hooks (`hookBeforeStart`<!-- -->/`hookAfterStart`<!-- -->) complete for
+      constructor-driven modes (`raw`<!-- -->, `test`<!-- -->).
+    remarks: >-
+      The constructor cannot `await`<!-- -->, so sync construction is preserved (hooks still fire in order) while async
+      completion is observable here.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'ready: Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
   - name: templateManager
     uid: gramstax!Gramstax#templateManager:member
     package: gramstax!
@@ -404,6 +454,48 @@ methods:
                   state: `matched` | `no-match` | `no-handler` | `blocked`;
               }&gt;
         description: A `PageRouteResult` with `state` indicating what happened
+  - name: buildCtxParams(ct, extra)
+    uid: gramstax!Gramstax#buildCtxParams:member(1)
+    package: gramstax!
+    fullName: buildCtxParams(ct, extra)
+    summary: Builds the params for one page `Ctx`<!-- -->, plus optional app extras.
+    remarks: >-
+      Only assembly point for `createCtx`<!-- -->: per-update `ct` plus the constructor-built `ctxScope` plus a fresh
+      `temp`<!-- -->. App values (e.g. a database handle) ride in `extra` through the params object, but the `Ctx`
+      constructor does NOT attach them — assign each one explicitly in your subclass constructor so every wiring stays
+      visible and easy to troubleshoot. `extra` keys must not be `ct`<!-- -->/`temp` (thrown here).
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          db = new Db()
+          override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, _extra?: T): ITCtxParams & T & {db: Db} {
+            return super.buildCtxParams(ct, {db: this.db}) as ITCtxParams & T & {db: Db}
+          }
+        }
+        class CtxCore extends Ctx {
+          declare db: Db
+          constructor(params: ITCtxParams & {db: Db}) {
+            super(params)
+            this.db = params.db
+          }
+        }
+        // inside any page extending CtxCore: this.db — fully typed, zero casts.
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, extra?: T): ITCtxParams & T;'
+      parameters:
+        - id: ct
+          description: The grammy context for the current update.
+          type: <xref uid="gramstax!ITCt:type" />
+        - id: extra
+          description: Optional app values forwarded into every page `Ctx`<!-- -->.
+          type: T
+      return:
+        type: <xref uid="gramstax!ITCtxParams:type" /> & T
+        description: Params for `new Ctx(...)`<!-- -->, shaped as `ITCtxParams & T`<!-- -->.
   - name: createBot(token)
     uid: gramstax!Gramstax#createBot:member(1)
     package: gramstax!
@@ -526,7 +618,7 @@ methods:
         /** @virtual */
         hookAfterRoute?(ctx: ICtx, data?: {
                 listenerName: string;
-                state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` | `notfound`;
+                state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout`;
                 isEdit: boolean;
             }): Promise<void>;
       parameters:
@@ -538,7 +630,7 @@ methods:
           type: |-
             {
                     listenerName: string;
-                    state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` | `notfound`;
+                    state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout`;
                     isEdit: boolean;
                 }
       return:
@@ -823,6 +915,168 @@ methods:
           type: ICtx
       return:
         type: Promise&lt;void&gt;
+        description: ''
+  - name: hookSendError(args)
+    uid: gramstax!Gramstax#hookSendError:member(1)
+    package: gramstax!
+    fullName: hookSendError(args)
+    summary: Best-effort send-error hook.
+    remarks: >-
+      Sibling hooks: `hookUpdateError` (dead updates — terminal) and `hookTrace` (every routed update). This one is the
+      recoverable layer: a `fallback-text` send still serves the user, a `retryable` send still throws to your caller.
+      Routing rule: retry-queue ← `hookSendError`<!-- -->, Sentry ← `hookUpdateError`<!-- -->, dashboard ←
+      `hookTrace`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+            // info: {page: `admin/logs`, kind: `fallback-text` | `retryable`, chatId?: number}
+            if (info.kind === `retryable`) queueRetry(info)
+            else metrics.count(info.page, info.kind)
+          }
+        }
+        // Throwing inside the hook is swallowed — the send flow never breaks.
+        ```
+      - |-
+        Retry-for-later: collect retryables, re-drive them from a job.
+
+        ```typescript
+        class MyBot extends Gramstax {
+          retryQueue: Array<{err: unknown, page: string, chatId?: number, at: number}> = []
+          override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+            if (info.kind === `retryable`) this.retryQueue.push({err, page: info.page, chatId: info.chatId, at: Date.now()})
+          }
+        }
+        // NOTE: `retryable` still throws to your caller — the hook only observes.
+        // Drain `retryQueue` from a worker/job; do not retry inline (429 needs backoff).
+        ```
+      - |-
+        Severity split: Sentry for retryables, logs for user-caused fallbacks.
+
+        ```typescript
+        class MyBot extends Gramstax {
+          override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+            if (info.kind === `retryable`) Sentry.captureException(err, {tags: {page: info.page}})
+            // `fallback-text` (403 blocked, file deleted) is a normal condition — log, don't alert.
+          }
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookSendError?(...args: Parameters<ITSendErrorHook>): void;
+      parameters:
+        - id: args
+          description: ''
+          type: Parameters&lt;<xref uid="gramstax!ITSendErrorHook:type" />&gt;
+      return:
+        type: void
+        description: ''
+  - name: hookTrace(span)
+    uid: gramstax!Gramstax#hookTrace:member(1)
+    package: gramstax!
+    fullName: hookTrace(span)
+    summary: Optional OTel-style trace export hook.
+    remarks: >-
+      Sibling hooks: `hookSendError` (per-send failures) and `hookUpdateError` (dead updates). Routing rule: retry-queue
+      ← `hookSendError`<!-- -->, Sentry ← `hookUpdateError`<!-- -->, dashboard ← `hookTrace`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          override hookTrace(span: {name: string; durationMs: number; attributes: Record<string, unknown>}): void {
+            tracer.export(span)
+          }
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookTrace?(span: {
+                name: string;
+                durationMs: number;
+                attributes: Record<string, unknown>;
+            }): void;
+      parameters:
+        - id: span
+          description: The trace span with `name`<!-- -->, `durationMs`<!-- -->, and `attributes`<!-- -->.
+          type: |-
+            {
+                    name: string;
+                    durationMs: number;
+                    attributes: Record&lt;string, unknown&gt;;
+                }
+      return:
+        type: void
+        description: ''
+  - name: hookUpdate(event)
+    uid: gramstax!Gramstax#hookUpdate:member(1)
+    package: gramstax!
+    fullName: hookUpdate(event)
+    summary: Hook invoked with a structured success event after every routed update.
+    remarks: >-
+      Audit trail counterpart of `hookUpdateError`<!-- -->. Fires for matched, no-match, no-handler and blocked states
+      (not for errors/timeouts).
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          override hookUpdate(event: ITUpdateSuccessEvent): void {
+            metrics.count(event.listenerName, event.state)
+          }
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookUpdate?(event: ITUpdateSuccessEvent): void;
+      parameters:
+        - id: event
+          description: The structured success event. See [ITUpdateSuccessEvent](xref:gramstax!ITUpdateSuccessEvent:type)<!-- -->.
+          type: <xref uid="gramstax!ITUpdateSuccessEvent:type" />
+      return:
+        type: void
+        description: ''
+  - name: hookUpdateError(event)
+    uid: gramstax!Gramstax#hookUpdateError:member(1)
+    package: gramstax!
+    fullName: hookUpdateError(event)
+    summary: >-
+      Hook invoked with a structured error event for every update failure (errors, timeouts, blocked). Use for log sinks
+      / alerting (Sentry, etc.).
+    remarks: >-
+      Sibling hooks: `hookSendError` (per-send failures inside `Ctx.render*`<!-- -->, recoverable) and `hookTrace`
+      (every routed update, success included). Routing rule: retry-queue ← `hookSendError`<!-- -->, Sentry ←
+      `hookUpdateError`<!-- -->, dashboard ← `hookTrace`<!-- -->. One incident (e.g. a 403) can fire all three in
+      sequence — do not forward all three to the same alert.
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          override hookUpdateError(event: ITUpdateErrorEvent): void {
+            Sentry.captureException(event.error, {tags: {listener: event.listenerName}})
+          }
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookUpdateError?(event: ITUpdateErrorEvent): void;
+      parameters:
+        - id: event
+          description: The structured error event. See [ITUpdateErrorEvent](xref:gramstax!ITUpdateErrorEvent:type)<!-- -->.
+          type: <xref uid="gramstax!ITUpdateErrorEvent:type" />
+      return:
+        type: void
         description: ''
   - name: registerCustomRoute(entry)
     uid: gramstax!Gramstax#registerCustomRoute:member(1)

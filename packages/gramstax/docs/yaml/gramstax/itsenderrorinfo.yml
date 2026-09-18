@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: ITSendErrorInfo
+uid: gramstax!ITSendErrorInfo:type
+package: gramstax!
+fullName: ITSendErrorInfo
+summary: Send-error event delivered to .
+remarks: >-
+  `page` is the template page name (`this.data.name`<!-- -->), `kind` is the `Ctx.classifySendError` outcome
+  (`fallback-text` or `retryable`<!-- -->), and `chatId` is the target recipient when known (broadcast recipient id or
+  the current chat id; `undefined` when the update carries no chat). Never carries file contents or full template data.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITSendErrorInfo = {
+      page: string;
+      kind: `fallback-text` | `retryable`;
+      chatId?: number;
+  };

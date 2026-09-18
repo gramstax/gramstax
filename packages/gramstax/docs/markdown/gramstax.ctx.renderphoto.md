@@ -9,7 +9,7 @@ Sends a photo message using the page template.
 **Signature:**
 
 ```typescript
-renderPhoto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+renderPhoto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -98,7 +98,7 @@ _(Optional)_ Optional photo-specific options (or null to omit).
 
 **Returns:**
 
-Promise&lt;grammy\_types.Message.LocationMessage \| grammy\_types.Message.ContactMessage \| grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.VoiceMessage \| grammy\_types.Message.VideoNoteMessage \| grammy\_types.Message.StickerMessage \| undefined&gt;
+Promise&lt;unknown&gt;
 
 The sent message object.
 

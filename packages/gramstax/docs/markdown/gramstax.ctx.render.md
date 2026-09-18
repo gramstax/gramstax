@@ -102,6 +102,10 @@ Promise&lt;grammy\_types.Message.TextMessage&gt;
 
 The sent message object.
 
+## Remarks
+
+Observe-only send-error coverage (mirrors `renderMedia`<!-- -->): failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!-- -->, `fallback-text` → `log.warn`<!-- -->). Unlike the media paths there is no degraded fallback content for text, so after notify+log the original error is ALWAYS rethrown untouched.
+
 ## Example
 
 

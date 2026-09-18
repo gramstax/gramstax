@@ -4,7 +4,7 @@
 
 ## ITCtxParams type
 
-Parameters for Ctx instance initialization.
+Parameters for creating a new [Ctx](./gramstax.ctx.md) instance.
 
 **Signature:**
 
@@ -15,8 +15,10 @@ type ITCtxParams = {
     cacheKeyboard: Map<string, unknown>;
     templateManager: TemplateManager;
     log?: LoggingHelper | null;
+    mediaRoots?: string[] | null;
+    onSendError?: ITSendErrorHook | null;
     temp: ITTemp;
 };
 ```
-**References:** [ITCt](./gramstax.itct.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)<!-- -->, [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITTemp](./gramstax.ittemp.md)
+**References:** [ITCt](./gramstax.itct.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)<!-- -->, [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITSendErrorHook](./gramstax.itsenderrorhook.md)<!-- -->, [ITTemp](./gramstax.ittemp.md)
 

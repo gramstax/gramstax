@@ -177,6 +177,32 @@ properties:
       content: 'updates: Record<string, unknown>[];'
       return:
         type: Record&lt;string, unknown&gt;[]
+  - name: userResponseMethods
+    uid: gramstax!MockTelegramServer.userResponseMethods:member
+    package: gramstax!
+    fullName: userResponseMethods
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static userResponseMethods: string[];'
+      return:
+        type: string[]
+  - name: userResponsePrefixes
+    uid: gramstax!MockTelegramServer.userResponsePrefixes:member
+    package: gramstax!
+    fullName: userResponsePrefixes
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static userResponsePrefixes: string[];'
+      return:
+        type: string[]
   - name: webhookUrl
     uid: gramstax!MockTelegramServer#webhookUrl:member
     package: gramstax!
@@ -191,6 +217,22 @@ properties:
       return:
         type: string
 methods:
+  - name: clearAll()
+    uid: gramstax!MockTelegramServer#clearAll:member(1)
+    package: gramstax!
+    fullName: clearAll()
+    summary: Clear both captured outbound requests and inbound updates.
+    remarks: >-
+      Convenience helper that combines `clearRequests()` and `clearUpdates()`<!-- -->. Does not affect `webhookUrl` —
+      use `reset()` for a pristine state.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'clearAll(): void;'
+      return:
+        type: void
+        description: ''
   - name: clearRequests()
     uid: gramstax!MockTelegramServer#clearRequests:member(1)
     package: gramstax!
@@ -239,6 +281,20 @@ methods:
       return:
         type: <xref uid="gramstax!ITMockTelegramRequestRecord:type" /> | undefined
         description: The last matching request record, or `undefined` if none found.
+  - name: reset()
+    uid: gramstax!MockTelegramServer#reset:member(1)
+    package: gramstax!
+    fullName: reset()
+    summary: 'Restore pristine state: clears requests and updates and unsets the webhook URL.'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'reset(): void;'
+      return:
+        type: void
+        description: ''
   - name: sendAnimation(options)
     uid: gramstax!MockTelegramServer#sendAnimation:member(1)
     package: gramstax!
@@ -297,6 +353,79 @@ methods:
         - id: options
           description: Callback ID, message text, user, chat, and timeout options.
           type: <xref uid="gramstax!ITMockTelegramCallbackQueryOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses.
+  - name: sendChannelPost(text, options)
+    uid: gramstax!MockTelegramServer#sendChannelPost:member(1)
+    package: gramstax!
+    fullName: sendChannelPost(text, options)
+    summary: Simulate a channel post.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendChannelPost(text: string, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;'
+      parameters:
+        - id: text
+          description: The channel post text.
+          type: string
+        - id: options
+          description: Chat and timeout options.
+          type: <xref uid="gramstax!ITMockTelegramUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses.
+  - name: sendChatMemberUpdate(options)
+    uid: gramstax!MockTelegramServer#sendChatMemberUpdate:member(1)
+    package: gramstax!
+    fullName: sendChatMemberUpdate(options)
+    summary: Simulate a chat member status transition.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        sendChatMemberUpdate(options?: ITMockTelegramUpdateOptions & {
+                oldStatus?: string;
+                newStatus?: string;
+            }): Promise<ITMockTelegramRequestRecord[]>;
+      parameters:
+        - id: options
+          description: Old/new status plus user, chat, and timeout options.
+          type: |-
+            <xref uid="gramstax!ITMockTelegramUpdateOptions:type" /> & {
+                    oldStatus?: string;
+                    newStatus?: string;
+                }
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses.
+  - name: sendChosenInlineResult(resultId, query, options)
+    uid: gramstax!MockTelegramServer#sendChosenInlineResult:member(1)
+    package: gramstax!
+    fullName: sendChosenInlineResult(resultId, query, options)
+    summary: Simulate a chosen inline result.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        sendChosenInlineResult(resultId: string, query: string, options?: ITMockTelegramUpdateOptions):
+        Promise<ITMockTelegramRequestRecord[]>;
+      parameters:
+        - id: resultId
+          description: The selected result identifier.
+          type: string
+        - id: query
+          description: The query string that produced the result.
+          type: string
+        - id: options
+          description: User and timeout options.
+          type: <xref uid="gramstax!ITMockTelegramUpdateOptions:type" />
       return:
         type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
         description: Array of captured Bot API responses.
@@ -366,6 +495,27 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
         description: Array of captured Bot API responses.
+  - name: sendEditedText(text, options)
+    uid: gramstax!MockTelegramServer#sendEditedText:member(1)
+    package: gramstax!
+    fullName: sendEditedText(text, options)
+    summary: Simulate a user editing a previously sent text message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendEditedText(text: string, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;'
+      parameters:
+        - id: text
+          description: The new message text.
+          type: string
+        - id: options
+          description: User, chat, and timeout options.
+          type: <xref uid="gramstax!ITMockTelegramUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses.
   - name: sendGiftInfo(giftInfo, options)
     uid: gramstax!MockTelegramServer#sendGiftInfo:member(1)
     package: gramstax!
@@ -389,6 +539,27 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
         description: Array of captured Bot API responses
+  - name: sendInlineQuery(query, options)
+    uid: gramstax!MockTelegramServer#sendInlineQuery:member(1)
+    package: gramstax!
+    fullName: sendInlineQuery(query, options)
+    summary: Simulate an incoming inline query.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendInlineQuery(query: string, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;'
+      parameters:
+        - id: query
+          description: The query string.
+          type: string
+        - id: options
+          description: User and timeout options.
+          type: <xref uid="gramstax!ITMockTelegramUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses.
   - name: sendLocation(options)
     uid: gramstax!MockTelegramServer#sendLocation:member(1)
     package: gramstax!
@@ -407,6 +578,50 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
         description: Array of captured Bot API responses.
+  - name: sendMyChatMemberUpdate(options)
+    uid: gramstax!MockTelegramServer#sendMyChatMemberUpdate:member(1)
+    package: gramstax!
+    fullName: sendMyChatMemberUpdate(options)
+    summary: Simulate a bot membership status transition (my\_chat\_member).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        sendMyChatMemberUpdate(options?: ITMockTelegramUpdateOptions & {
+                oldStatus?: string;
+                newStatus?: string;
+            }): Promise<ITMockTelegramRequestRecord[]>;
+      parameters:
+        - id: options
+          description: Old/new status plus user, chat, and timeout options.
+          type: |-
+            <xref uid="gramstax!ITMockTelegramUpdateOptions:type" /> & {
+                    oldStatus?: string;
+                    newStatus?: string;
+                }
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses.
+  - name: sendNewChatMembers(options)
+    uid: gramstax!MockTelegramServer#sendNewChatMembers:member(1)
+    package: gramstax!
+    fullName: sendNewChatMembers(options)
+    summary: Simulate service message for new chat members joining.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendNewChatMembers(options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;'
+      parameters:
+        - id: options
+          description: User, chat, and timeout options.
+          type: <xref uid="gramstax!ITMockTelegramUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses.
   - name: sendPhoto(options)
     uid: gramstax!MockTelegramServer#sendPhoto:member(1)
     package: gramstax!
@@ -422,6 +637,32 @@ methods:
         - id: options
           description: Caption, user, chat, and timeout options.
           type: <xref uid="gramstax!ITMockTelegramMediaOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
+        description: Array of captured Bot API responses.
+  - name: sendPollAnswer(pollId, optionIds, options)
+    uid: gramstax!MockTelegramServer#sendPollAnswer:member(1)
+    package: gramstax!
+    fullName: sendPollAnswer(pollId, optionIds, options)
+    summary: Simulate a user answering a poll.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        sendPollAnswer(pollId: string, optionIds: number[], options?: ITMockTelegramUpdateOptions):
+        Promise<ITMockTelegramRequestRecord[]>;
+      parameters:
+        - id: pollId
+          description: The poll identifier.
+          type: string
+        - id: optionIds
+          description: Selected option indexes.
+          type: number[]
+        - id: options
+          description: User and timeout options.
+          type: <xref uid="gramstax!ITMockTelegramUpdateOptions:type" />
       return:
         type: Promise&lt;<xref uid="gramstax!ITMockTelegramRequestRecord:type" />[]&gt;
         description: Array of captured Bot API responses.
@@ -590,17 +831,27 @@ methods:
       return:
         type: Promise&lt;string&gt;
         description: The base API URL.
-  - name: stop()
+  - name: stop(options)
     uid: gramstax!MockTelegramServer#stop:member(1)
     package: gramstax!
-    fullName: stop()
+    fullName: stop(options)
     summary: Stop the mock server.
     remarks: After calling this, the server is no longer reachable and must be started again with `start()`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'stop(): Promise<void>;'
+      content: |-
+        stop(options?: {
+                clear?: boolean;
+            }): Promise<void>;
+      parameters:
+        - id: options
+          description: ''
+          type: |-
+            {
+                    clear?: boolean;
+                }
       return:
         type: Promise&lt;void&gt;
         description: ''

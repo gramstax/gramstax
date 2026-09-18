@@ -9,7 +9,7 @@ Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-gr
 **Signature:**
 
 ```typescript
-renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -98,13 +98,15 @@ _(Optional)_ Optional media-group send options (or null to omit).
 
 **Returns:**
 
-Promise&lt;(grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.LivePhotoMessage)\[\]&gt;
+Promise&lt;unknown&gt;
 
 The sent media group messages.
 
 ## Remarks
 
-Only `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, and `document` support Telegram media groups. Omit `type` when the template uses `<g-media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media.
+Only `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, and `document` support Telegram media groups. Omit `type` when the template uses `<g-media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media. Per-item filenames rely on grammy basename auto-guess (no per-item filename override is applied).
+
+Fail-fast validation runs BEFORE any API call (group/item size limits, per-item types, upload sizes, caption length) — programmer errors always throw, never fall back. Send failures follow `Ctx.classifySendError`<!-- -->: `retryable` rethrows the original error untouched; `fallback-text` best-effort replies with `resolveFallbackText()` (nested failures ignored).
 
 ## Example
 

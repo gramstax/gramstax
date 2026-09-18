@@ -9,7 +9,7 @@ Replaces the current message with a media group filtered by the given type.
 **Signature:**
 
 ```typescript
-renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -94,17 +94,33 @@ _(Optional)_ Optional media-agnostic options (or null to omit).
 
 
 </td></tr>
+<tr><td>
+
+fallbackEdit
+
+
+</td><td>
+
+[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+
+
+</td><td>
+
+_(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
 
-Promise&lt;(grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.LivePhotoMessage)\[\]&gt;
+Promise&lt;unknown&gt;
 
 The sent media group messages.
 
 ## Remarks
 
-Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. When `type` is omitted or `undefined`<!-- -->, all items in the `<g-media-group>` are sent. For a hardcoded type, use the convenience methods (`editPhotoGroup`<!-- -->, `editVideoGroup`<!-- -->, etc.).
+Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. When `type` is omitted or `undefined`<!-- -->, all items in the `<g-media-group>` are sent. For a hardcoded type, use the convenience methods (`editPhotoGroup`<!-- -->, `editVideoGroup`<!-- -->, etc.). If the delete-and-send fails, the fallback behavior is controlled by `fallbackEdit` with identical semantics to `renderEditMedia` (`delete-reply` retries the delete then re-sends; `reply` re-sends without deleting; `disable` rethrows). The re-send follows `Ctx.classifySendError` via `renderMediaGroup`<!-- -->. Fail-fast validation runs BEFORE any API call.
 
 ## Example
 

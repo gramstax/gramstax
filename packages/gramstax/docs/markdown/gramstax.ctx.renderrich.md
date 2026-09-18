@@ -120,6 +120,8 @@ The sent message object.
 
 ## Remarks
 
+Observe-only send-error coverage (mirrors `renderMedia`<!-- -->): failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!-- -->, `fallback-text` → `log.warn`<!-- -->). Unlike the media paths there is no degraded fallback content for text, so after notify+log the original error is ALWAYS rethrown untouched.
+
 Uses `replyWithRichMessage` (Telegram Bot API [TemplateEngine.BOT\_API\_VERSION](./gramstax.templateengine.bot_api_version.md)<!-- -->) to send structured rich text with headings, lists, tables, media, block quotations, collapsible blocks, footnotes, and formulas.
 
 The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`<!-- -->. Use the Bot API 10.3 Rich HTML tags in your template (e.g. `<h1>`<!-- -->, `<table>`<!-- -->, `<blockquote>`<!-- -->) — they are validated by [TemplateEngine.validateBlockGMessageRich()](./gramstax.templateengine.validateblockgmessagerich.md)<!-- -->.

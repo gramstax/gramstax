@@ -11,16 +11,18 @@ Represents a media block configuration for Telegram messages.
 ```typescript
 type ITMediaBlock = {
     type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact` | `group`;
-    src?: string;
+    src?: string | InputFile | Buffer | Uint8Array;
     srcList?: string[];
     mediaGroup?: Array<{
         type: `photo` | `video` | `audio` | `document`;
-        src: string;
+        src: string | InputFile | Buffer | Uint8Array;
         caption?: string;
     }>;
     caption?: string;
+    filename?: string;
     latitude?: string;
     longitude?: string;
+    live?: string;
     phone?: string;
     first_name?: string;
     last_name?: string;

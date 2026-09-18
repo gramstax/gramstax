@@ -9,7 +9,7 @@ Inject an Update object directly into the bot and capture responses.
 **Signature:**
 
 ```typescript
-handleUpdate(update: Record<string, unknown>): Promise<ITE2eApiCall[]>;
+handleUpdate(update: Record<string, unknown>, settleMs?: number): Promise<ITE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -43,6 +43,22 @@ Record&lt;string, unknown&gt;
 </td><td>
 
 A raw Telegram Update object.
+
+
+</td></tr>
+<tr><td>
+
+settleMs
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_
 
 
 </td></tr>

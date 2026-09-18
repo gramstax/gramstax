@@ -48,7 +48,16 @@ properties:
 
       Currently covers: - `<g-base id>` — must not be empty - `<g-keyboard type>` — must be `inline` or `bottom` -
       `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video\_note, sticker,
-      location, contact - `<g-media shared>` — must be `true` or `false`
+      location, contact - `<g-media shared>` — must be `true` or `false` - `<g-media filename>` — any string, always
+      valid - `<g-poll type>` — must be `regular` or `quiz` - `<g-poll correct>` — must be a non-negative option index -
+      `<g-poll explanation>` — any string, always valid - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or
+      `false` - `<g-venue title>` / `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a
+      number between -90 and 90; `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must
+      be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must
+      be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a
+      3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must
+      be a positive integer in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000;
+      `{{}}` values skip the static check (runtime-enforced)
 
 
       Validators are intentionally lenient — they catch obvious bugs (wrong type, invalid value) but do not enforce
@@ -194,8 +203,15 @@ properties:
     uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_PAGE:member
     package: gramstax!
     fullName: ALLOWED_BLOCKS_PAGE
-    summary: ''
-    remarks: ''
+    summary: Gramstax `<g-*>` PAGE block allowlist.
+    remarks: >-
+      Content blocks (`g-base`<!-- -->, `g-message`<!-- -->, `g-keyboard`<!-- -->, `g-media`<!-- -->,
+      `g-media-group`<!-- -->, `g-description`<!-- -->), logic blocks (`g-script`<!-- -->, `g-switch`<!-- -->,
+      `g-case`<!-- -->, `g-default`<!-- -->, `g-map`<!-- -->, `g-div`<!-- -->), and utility blocks (`g-import`<!-- -->,
+      `g-space`<!-- -->). Validated by `validateTemplate` (per-block `validateBlockG*Attributes` methods plus the
+      centralized `_PAGE_REQUIRED_ATTRS` / `_PAGE_ATTR_VALUE_VALIDATORS` specs). Combined with
+      [TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM:member) into
+      [TemplateEngine.ALLOWED\_BLOCKS](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS:member)<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -207,8 +223,14 @@ properties:
     uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY:member
     package: gramstax!
     fullName: ALLOWED_BLOCKS_TELEGRAM_LEGACY
-    summary: ''
-    remarks: ''
+    summary: Telegram HTML-mode tags from the pre-Rich spec (`parse_mode="HTML"`<!-- -->).
+    remarks: >-
+      The original 9-tag set: `b`<!-- -->, `i`<!-- -->, `u`<!-- -->, `s`<!-- -->, `code`<!-- -->, `pre`<!-- -->, `a`<!--
+      -->, `blockquote`<!-- -->, `blockquote expandable`<!-- -->. Combined with
+      [TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM\_RICH](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH:member)
+      into [TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM:member)<!--
+      -->, which feeds the validator allowlist (`validateTemplate`<!-- -->) and the passthrough tag extraction
+      (`_extractBlockNames`<!-- -->).
     example: []
     isPreview: false
     isDeprecated: false
@@ -220,8 +242,14 @@ properties:
     uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH:member
     package: gramstax!
     fullName: ALLOWED_BLOCKS_TELEGRAM_RICH
-    summary: ''
-    remarks: ''
+    summary: Telegram Rich HTML tags passed through to the message `html` field.
+    remarks: >-
+      45 tags in 5 categories — inline (9), block/structural (21), Telegram-specific (8), media (6), forms (1) —
+      following the Telegram Bot API Rich Message Formatting spec (`BOT_API_VERSION`<!-- -->). Excludes the legacy set
+      ([TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM\_LEGACY](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY:member)<!--
+      -->); both combine into
+      [TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM:member)<!-- -->.
+      Coverage is locked by `telegram-rich-coverage.test.ts` and `telegram-rich-matrix.test.ts`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -233,8 +261,12 @@ properties:
     uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM:member
     package: gramstax!
     fullName: ALLOWED_BLOCKS_TELEGRAM
-    summary: ''
-    remarks: ''
+    summary: 'Combined Telegram tag allowlist: legacy (9) + Rich HTML (45) = 54 tags.'
+    remarks: >-
+      Single source of truth for Telegram-side validation (`validateTemplate` required-attribute, value-format, and
+      unknown-attribute steps) and passthrough extraction (`_extractBlockNames`<!-- -->). See
+      [TemplateEngine.ALLOWED\_BLOCKS](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS:member) for the full registry
+      including PAGE blocks.
     example: []
     isPreview: false
     isDeprecated: false
@@ -316,12 +348,31 @@ properties:
       content: 'static BOT_API_VERSION: string;'
       return:
         type: string
+  - name: DICE_EMOJI
+    uid: gramstax!TemplateEngine.DICE_EMOJI:member
+    package: gramstax!
+    fullName: DICE_EMOJI
+    summary: Bot API dice emoji values accepted by `<g-dice emoji>`<!-- -->.
+    remarks: >-
+      Single source of truth shared by the `g-dice` validators and `Ctx.DICE_EMOJI`<!-- -->/`Ctx.assertDiceEmoji`<!--
+      -->: exactly the six `sendDice` emoji (`🎲🎯🏀⚽🎳🎰`<!-- -->).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static DICE_EMOJI: ReadonlySet<string>;'
+      return:
+        type: ReadonlySet&lt;string&gt;
   - name: MAX_MEDIA_GROUP_ITEMS
     uid: gramstax!TemplateEngine.MAX_MEDIA_GROUP_ITEMS:member
     package: gramstax!
     fullName: MAX_MEDIA_GROUP_ITEMS
-    summary: Maximum items in a media group (pipe-delimited `src` or `<g-media-group>`<!-- -->).
-    remarks: ''
+    summary: Maximum items in a single Telegram media group.
+    remarks: >-
+      Applies to both authoring paths: pipe-delimited `src` (`<g-media type="photo" src="a|b|c">`<!-- -->) and
+      `<g-media-group>` blocks. Excess items are truncated at compile time (`_splitMediaSources`<!-- -->,
+      `_processGMediaGroupBlocks`<!-- -->) and rejected at validation time (`_validateMediaGroupItems`<!-- -->). Matches
+      the Telegram Bot API `sendMediaGroup` limit of 10 items.
     example: []
     isPreview: false
     isDeprecated: false
@@ -329,24 +380,74 @@ properties:
       content: 'static MAX_MEDIA_GROUP_ITEMS: number;'
       return:
         type: number
+  - name: MAX_PAID_MEDIA_ITEMS
+    uid: gramstax!TemplateEngine.MAX_PAID_MEDIA_ITEMS:member
+    package: gramstax!
+    fullName: MAX_PAID_MEDIA_ITEMS
+    summary: Maximum items in a single `<g-paid-media>` block.
+    remarks: >-
+      Matches the Bot API `sendPaidMedia` `media` limit of 10 items (source:
+      `https://core.telegram.org/bots/api#sendpaidmedia`<!-- -->). Blocks need 1–10 `<g-media>` items of type
+      `photo`<!-- -->/`video`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static MAX_PAID_MEDIA_ITEMS: number;'
+      return:
+        type: number
+  - name: MAX_PAID_MEDIA_STARS
+    uid: gramstax!TemplateEngine.MAX_PAID_MEDIA_STARS:member
+    package: gramstax!
+    fullName: MAX_PAID_MEDIA_STARS
+    summary: Maximum Stars price for a `<g-paid-media>` paywall.
+    remarks: >-
+      The Bot API `sendPaidMedia` `star_count` accepts 1–25000 Stars per purchase (source:
+      `https://core.telegram.org/bots/api#sendpaidmedia`<!-- -->). Static values above this are rejected at validation
+      time; compiled values are re-checked at runtime by `Ctx.assertPaidMedia`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static MAX_PAID_MEDIA_STARS: number;'
+      return:
+        type: number
 methods:
+  - name: _compileMediaSrc(rawSrc, stringFn)
+    uid: gramstax!TemplateEngine._compileMediaSrc:member(1)
+    package: gramstax!
+    fullName: _compileMediaSrc(rawSrc, stringFn)
+    summary: Wraps a compiled string `src` fn so bare placeholders pass objects by reference.
+    remarks: >-
+      Strings, `null`<!-- -->, and `undefined` fall through to the existing compiled fn (byte-identical output, same
+      escaping and `''` fallback). Non-string values (pre-built `InputFile`<!-- -->, `Buffer`<!-- -->, `Uint8Array`<!--
+      -->) bypass stringify and reach grammY intact.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITTemplateData) => string): (data?: ITTemplateData) =>
+        string | InputFile | Buffer | Uint8Array;
+      parameters:
+        - id: rawSrc
+          description: Raw `src` attribute value from the parsed template.
+          type: string
+        - id: stringFn
+          description: Existing compiled string renderer for this `src`<!-- -->.
+          type: '(data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string'
+      return:
+        type: >-
+          (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string | <xref uid="grammy!InputFile:class" /> |
+          Buffer | Uint8Array
+        description: Renderer yielding either the string output or the raw object.
   - name: _compileToFunction(template, isArray)
     uid: gramstax!TemplateEngine._compileToFunction:member(1)
     package: gramstax!
     fullName: _compileToFunction(template, isArray)
-    summary: Compiles a processed template string into an executable function.
-    remarks: >-
-      This internal method takes a pre-processed template (or array of templates) and compiles it into a JavaScript
-      function that accepts a `data` object and returns the rendered result. The function is created using `new
-      Function()`<!-- -->.
-    example:
-      - |-
-        ```typescript
-        const processed = '${(data && data["name"]) ?? ""}';
-        const fn = TemplateEngine._compileToFunction(processed, false);
-        const result = fn({ name: 'John' });
-        // Result: 'John'
-        ```
+    summary: ''
+    remarks: ''
+    example: []
     isPreview: false
     isDeprecated: false
     syntax:
@@ -355,22 +456,24 @@ methods:
         ITTemplateRenderer<T>;
       parameters:
         - id: template
-          description: The processed template string or array of strings
+          description: ''
           type: 'T extends true ? string[] : string'
         - id: isArray
-          description: Whether the template parameter is an array
+          description: ''
           type: T
       return:
         type: <xref uid="gramstax!~ITTemplateRenderer:type" />&lt;T&gt;
-        description: A function that accepts optional data and returns the rendered string or string array
+        description: ''
   - name: _escape(str)
     uid: gramstax!TemplateEngine._escape:member(1)
     package: gramstax!
     fullName: _escape(str)
     summary: Escapes special characters in a string for safe use in template literals.
     remarks: >-
-      This internal method escapes backslashes and backticks to prevent them from interfering with template literal
-      syntax during compilation.
+      This internal method escapes backslashes, backticks, and `${` sequences to prevent static template text from
+      breaking out of template literal syntax during compilation. Applied to static segments before they are embedded in
+      generated code (`_compileToFunction` builds concatenation, never raw backtick-wrapped statics; block processors
+      escape embedded content).
     example:
       - |-
         ```typescript
@@ -395,7 +498,8 @@ methods:
     summary: HTML-escapes a runtime value for safe interpolation into rich-HTML messages.
     remarks: >-
       Non-string values are stringified; `null`<!-- -->/`undefined` become empty string. Escaped code points: `&` →
-      `&amp;`<!-- -->, `<` → `&lt;`<!-- -->, `>` → `&gt;`<!-- -->.
+      `&amp;`<!-- -->, `<` → `&lt;`<!-- -->, `>` → `&gt;`<!-- -->. Scope: text-node interpolation via `{{}}` only.
+      Attribute values and `{{{}}}` raw output are intentionally not HTML-escaped.
     example: []
     isPreview: false
     isDeprecated: false
@@ -408,6 +512,34 @@ methods:
       return:
         type: string
         description: The escaped string.
+  - name: _escapeStaticExceptInterpolation(content)
+    uid: gramstax!TemplateEngine._escapeStaticExceptInterpolation:member(1)
+    package: gramstax!
+    fullName: _escapeStaticExceptInterpolation(content)
+    summary: Escapes static template text while preserving template syntax spans.
+    remarks: >-
+      Walks `content` char-by-char: `{{{...}}}`<!-- -->, `{{...}}`<!-- -->, and `{~...~}` spans pass through untouched
+      (they are converted to generated code later). A balanced `${...}` span is preserved live only when its inner code
+      passes [TemplateEngine.\_isGeneratedCode()](xref:gramstax!TemplateEngine._isGeneratedCode:member(1)) — i.e. it was
+      produced by an inner block processor (nested `<g-map>` bodies carry `${(() => ...)}` / `${__esc(...)}` spans
+      through outer escaping). Any other `${` sequence (untrusted/static text, unterminated spans) is neutralized via
+      [TemplateEngine.\_escape()](xref:gramstax!TemplateEngine._escape:member(1))<!-- -->, consistent with top-level
+      static text. Every other character goes through
+      [TemplateEngine.\_escape()](xref:gramstax!TemplateEngine._escape:member(1))<!-- -->, neutralizing breakout
+      payloads (backticks, backslashes) in untrusted static text. Used by `_processGSwitchBlocks` and
+      `_processGMapBlocks` for case/default and loop bodies.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _escapeStaticExceptInterpolation(content: string): string;'
+      parameters:
+        - id: content
+          description: Raw static block content to escape.
+          type: string
+      return:
+        type: string
+        description: The content with non-syntax characters escaped.
   - name: _extractBlock(content, blocks, AGBaseId, section, lang)
     uid: gramstax!TemplateEngine._extractBlock:member(1)
     package: gramstax!
@@ -483,6 +615,56 @@ methods:
       return:
         type: Set&lt;string&gt;
         description: Set of normalized lowercase block names
+  - name: _isGeneratedCode(code)
+    uid: gramstax!TemplateEngine._isGeneratedCode:member(1)
+    package: gramstax!
+    fullName: _isGeneratedCode(code)
+    summary: Compiles a processed template string into an executable function.
+    remarks: >-
+      This internal method takes a pre-processed template (or array of templates) and compiles it into a JavaScript
+      function that accepts a `data` object and returns the rendered result. The function is created using `new
+      Function()`<!-- -->. Static segments are emitted via string concatenation (`JSON.stringify` literals joined with
+      `+`<!-- -->), never wrapped in a raw backtick literal, so static backticks, backslashes, and `${` sequences cannot
+      break out into code. Only `${...}` spans produced by the block/scope processors are evaluated.
+    example:
+      - |-
+        ```typescript
+        const processed = '${(data && data["name"]) ?? ""}';
+        const fn = TemplateEngine._compileToFunction(processed, false);
+        const result = fn({ name: 'John' });
+        // Result: 'John'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _isGeneratedCode(code: string): boolean;'
+      parameters:
+        - id: code
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: A function that accepts optional data and returns the rendered string or string array
+  - name: _matchBareMediaPlaceholder(rawSrc)
+    uid: gramstax!TemplateEngine._matchBareMediaPlaceholder:member(1)
+    package: gramstax!
+    fullName: _matchBareMediaPlaceholder(rawSrc)
+    summary: Matches a bare `src` placeholder with no pipes or surrounding text.
+    remarks: >-
+      Only `{{dotted.path}}` (optional surrounding whitespace) qualifies — filtered (`{{x|upper}}`<!-- -->) or embedded
+      (`pre-{{x}}`<!-- -->) values keep the existing string pipeline untouched.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _matchBareMediaPlaceholder(rawSrc: string): string | null;'
+      parameters:
+        - id: rawSrc
+          description: Raw `src` attribute value from the parsed template.
+          type: string
+      return:
+        type: string | null
+        description: Dotted path when bare, otherwise `null`<!-- -->.
   - name: _processGBaseBlocks(template)
     uid: gramstax!TemplateEngine._processGBaseBlocks:member(1)
     package: gramstax!
@@ -582,6 +764,40 @@ methods:
                   };
               }
         description: A nested object mapping language keys to scopes to their cleaned content
+  - name: _processGDiceBlocks(template)
+    uid: gramstax!TemplateEngine._processGDiceBlocks:member(1)
+    package: gramstax!
+    fullName: _processGDiceBlocks(template)
+    summary: 'Block: g-dice Extracts and parses `<g-dice>` blocks from a template string.'
+    remarks: >-
+      Each block declares one dice animation per language (`lang` defaults to `"default"`<!-- -->; last block wins per
+      lang). `emoji` is optional and defaults to `🎲` when absent or empty; the raw attribute string is preserved
+      verbatim (including `{{var|filter}}` spans) for later compilation. Both `<g-dice ...></g-dice>` and self-closing
+      `<g-dice .../>` forms parse identically; the block carries no children. Static emoji membership is enforced by
+      `validateBlockGDiceAttributes`<!-- -->, not here.
+    example:
+      - |-
+        ```typescript
+        const dice = TemplateEngine._processGDiceBlocks(`<g-dice emoji="{{dice}}"/>`);
+        // Result: { default: { emoji: '{{dice}}' } }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGDiceBlocks(template: string): {
+                [lang: string]: ITDiceBlock;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-dice>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: <xref uid="gramstax!ITDiceBlock:type" />;
+              }
+        description: An object mapping language keys to their dice configurations
   - name: _processGDivBlocks(template)
     uid: gramstax!TemplateEngine._processGDivBlocks:member(1)
     package: gramstax!
@@ -670,6 +886,46 @@ methods:
                   }[];
               }
         description: An object containing the processed template with placeholders and an array of import metadata
+  - name: _processGInvoiceBlocks(template)
+    uid: gramstax!TemplateEngine._processGInvoiceBlocks:member(1)
+    package: gramstax!
+    fullName: _processGInvoiceBlocks(template)
+    summary: Parses `<g-invoice>` blocks into Telegram invoice definitions.
+    remarks: >-
+      Each block carries its payment fields as attributes (`title`<!-- -->, `description`<!-- -->, `payload`<!-- -->,
+      `currency`<!-- -->, optional `lang`<!-- -->) with 1 or more self-closing `<g-price label amount/>` line items as
+      children. Raw attribute strings are preserved verbatim (including `{{var|filter}}` spans) for later compilation;
+      `amount` is parsed to a number eagerly (`NaN` when non-numeric — rejected by the validator and at runtime).
+      Structural rules (required attrs, `provider_token` rejection, price count, limits) are enforced by
+      `validateBlockGInvoiceAttributes`<!-- -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const invoices = TemplateEngine._processGInvoiceBlocks(`<g-invoice title="VIP {{days}} hari" description="Akses"
+        payload="{{orderId}}" currency="XTR"><g-price label="VIP" amount="100"/></g-invoice>`);
+
+        // Result: { default: { title: 'VIP {{days}} hari', description: 'Akses', payload: '{{orderId}}', currency:
+        'XTR', prices: [{label: 'VIP', amount: 100}] } }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGInvoiceBlocks(template: string): {
+                [lang: string]: ITInvoiceBlock;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-invoice>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: <xref uid="gramstax!ITInvoiceBlock:type" />;
+              }
+        description: An object mapping language keys to their invoice configurations
   - name: _processGKeyboardBlocks(template)
     uid: gramstax!TemplateEngine._processGKeyboardBlocks:member(1)
     package: gramstax!
@@ -818,7 +1074,13 @@ methods:
     package: gramstax!
     fullName: _processGMediaGroupBlocks(template)
     summary: Parses `<g-media-group>` blocks into Telegram media group item definitions.
-    remarks: ''
+    remarks: >-
+      Groups inner `<g-media>` items (via `_processMediaGroupItems`<!-- -->, truncated to
+      [TemplateEngine.MAX\_MEDIA\_GROUP\_ITEMS](xref:gramstax!TemplateEngine.MAX_MEDIA_GROUP_ITEMS:member)<!-- -->) into
+      lang variants preserving document order: the block-`lang` (default `default`<!-- -->) variant holds un-languaged
+      or `shared` items, plus one variant per item `lang` holding matching or `shared` items. Each variant takes its
+      caption from the first captioned item; a block with no items still yields an empty default variant unless lang
+      items exist. Attribute values accept double-quoted, single-quoted, or bare syntax.
     example: []
     isPreview: false
     isDeprecated: false
@@ -829,14 +1091,14 @@ methods:
             };
       parameters:
         - id: template
-          description: ''
+          description: The template source containing `<g-media-group>` blocks.
           type: string
       return:
         type: |-
           {
                   [lang: string]: <xref uid="gramstax!ITMediaBlock:type" />;
               }
-        description: ''
+        description: 'Map of lang → `{type: "group", mediaGroup, caption?}` definitions.'
   - name: _processGMessageBlocks(template)
     uid: gramstax!TemplateEngine._processGMessageBlocks:member(1)
     package: gramstax!
@@ -876,6 +1138,84 @@ methods:
                   [lang: string]: string;
               }
         description: An object mapping language keys to their cleaned message content
+  - name: _processGPaidMediaBlocks(template)
+    uid: gramstax!TemplateEngine._processGPaidMediaBlocks:member(1)
+    package: gramstax!
+    fullName: _processGPaidMediaBlocks(template)
+    summary: Parses `<g-paid-media>` blocks into Stars paywall definitions.
+    remarks: >-
+      Each block carries its price as a `stars` attribute (optional `lang`<!-- -->) with 1–10 inner `<g-media
+      type="photo"|"video" src>` items as children. Raw attribute strings are preserved verbatim (including
+      `{{var|filter}}` spans) for later compilation; `stars` is parsed to a number eagerly (`NaN` when non-numeric —
+      rejected by the validator and at runtime). Child `type` values pass through as-is so the validator can reject
+      non-photo/video types with a clear message. Structural rules (required `stars`<!-- -->, price range, item
+      count/types) are enforced by `validateBlockGPaidMediaAttributes`<!-- -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const walls = TemplateEngine._processGPaidMediaBlocks(`<g-paid-media stars="100"><g-media type="photo"
+        src="{{teaser}}">Bayar untuk membuka</g-media></g-paid-media>`);
+
+        // Result: { default: { stars: 100, media: [{type: 'photo', src: '{{teaser}}', caption: 'Bayar untuk membuka'}]
+        } }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGPaidMediaBlocks(template: string): {
+                [lang: string]: ITPaidMediaBlock;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-paid-media>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: <xref uid="gramstax!ITPaidMediaBlock:type" />;
+              }
+        description: An object mapping language keys to their paid-media configurations
+  - name: _processGPollBlocks(template)
+    uid: gramstax!TemplateEngine._processGPollBlocks:member(1)
+    package: gramstax!
+    fullName: _processGPollBlocks(template)
+    summary: 'Block: g-poll Extracts and parses `<g-poll>` blocks from a template string.'
+    remarks: >-
+      Each block declares one poll per language (`lang` defaults to `"default"`<!-- -->; last block wins per lang). The
+      inner `<g-question>` becomes `question`<!-- -->, each inner `<g-option>` becomes one entry of `options`<!-- -->.
+      `type` defaults to `"regular"`<!-- -->; `correct` is parsed to a 0-based index when numeric; `anonymous` defaults
+      to `true`<!-- -->. Structural rules (exactly one question, 2–10 options, quiz/regular coherence) are enforced by
+      `validateBlockGPollAttributes`<!-- -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const polls = TemplateEngine._processGPollBlocks(`<g-poll type="quiz"
+        correct="1"><g-question>Q?</g-question><g-option>A</g-option><g-option>B</g-option></g-poll>`);
+
+        // Result: { default: { type: 'quiz', question: 'Q?', options: ['A', 'B'], correct: 1, anonymous: true } }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGPollBlocks(template: string): {
+                [lang: string]: ITPollBlock;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-poll>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: <xref uid="gramstax!ITPollBlock:type" />;
+              }
+        description: An object mapping language keys to their poll configurations
   - name: _processGScriptBlocks(template)
     uid: gramstax!TemplateEngine._processGScriptBlocks:member(1)
     package: gramstax!
@@ -884,7 +1224,8 @@ methods:
     remarks: >-
       This internal method converts `<g-script>` blocks into self-invoking functions that execute with access to the
       `data` object via `with(data)`<!-- -->. If the script throws an error or `data` is undefined, an empty string is
-      returned.
+      returned. By design this executes developer-authored template code (templates are code, only `data` values are
+      untrusted input); no strict/no-script mode is provided.
 
 
       \*\*Attributes:\*\* - none
@@ -978,6 +1319,82 @@ methods:
       return:
         type: string
         description: The template with `<g-switch>` blocks converted to executable switch expressions
+  - name: _processGVenueBlocks(template)
+    uid: gramstax!TemplateEngine._processGVenueBlocks:member(1)
+    package: gramstax!
+    fullName: _processGVenueBlocks(template)
+    summary: 'Block: g-venue Extracts and parses `<g-venue>` blocks from a template string.'
+    remarks: >-
+      Each block declares one venue per language (`lang` defaults to `"default"`<!-- -->; last block wins per lang). All
+      four venue fields (`title`<!-- -->, `address`<!-- -->, `latitude`<!-- -->, `longitude`<!-- -->) are carried as raw
+      attribute strings verbatim (including `{{var|filter}}` spans) for later compilation. Both `<g-venue
+      ...></g-venue>` and self-closing `<g-venue .../>` forms parse identically; the block carries no children. Presence
+      and static numeric rules are enforced by `validateBlockGVenueAttributes`<!-- -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const venues = TemplateEngine._processGVenueBlocks(`<g-venue title="{{name}}" address="Jl. Merdeka 1"
+        latitude="-6.2" longitude="106.8"/>`);
+
+        // Result: { default: { title: '{{name}}', address: 'Jl. Merdeka 1', latitude: '-6.2', longitude: '106.8' } }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGVenueBlocks(template: string): {
+                [lang: string]: ITVenueBlock;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-venue>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: <xref uid="gramstax!ITVenueBlock:type" />;
+              }
+        description: An object mapping language keys to their venue configurations
+  - name: _processMediaGroupItems(groupContent)
+    uid: gramstax!TemplateEngine._processMediaGroupItems:member(1)
+    package: gramstax!
+    fullName: _processMediaGroupItems(groupContent)
+    summary: >-
+      Parses inner `<g-media>` items inside a `<g-media-group>` block body.
+
+
+      Extracts `type`<!-- -->, `src`<!-- -->, `lang`<!-- -->, and `shared` attributes plus the caption body for each
+      inner `<g-media>` element. `shared` supports both standalone boolean (`<g-media shared>`<!-- -->) and explicit
+      (`<g-media shared="true">`<!-- -->) syntax.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processMediaGroupItems(groupContent: string): Array<{
+                type: `photo` | `video` | `audio` | `document`;
+                src: string;
+                caption?: string;
+                lang?: string;
+                shared?: boolean;
+            }>;
+      parameters:
+        - id: groupContent
+          description: The content between `<g-media-group>` and `</g-media-group>`
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  type: `photo` | `video` | `audio` | `document`;
+                  src: string;
+                  caption?: string;
+                  lang?: string;
+                  shared?: boolean;
+              }&gt;
+        description: An array of parsed media item descriptors, preserving document order
   - name: _processScopeExec(template)
     uid: gramstax!TemplateEngine._processScopeExec:member(1)
     package: gramstax!
@@ -985,7 +1402,9 @@ methods:
     summary: 'Scope: `{~~}` Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.'
     remarks: >-
       This internal method converts inline execution syntax into self-invoking JavaScript expressions. It first attempts
-      direct execution, then falls back to `with(data)` scope. Returns an empty string on any error.
+      direct execution, then falls back to `with(data)` scope. Returns an empty string on any error. By design this
+      executes developer-authored template code (templates are code, only `data` values are untrusted input); no
+      strict/no-script mode is provided.
     example:
       - >-
         ```typescript
@@ -1017,7 +1436,11 @@ methods:
     remarks: >-
       This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation.
       `{{key}}` is HTML-escaped at runtime; `{{{key}}}` is inserted raw. Variables are accessed from the `data` object,
-      with nullish coalescing to empty string when undefined.
+      with nullish coalescing to empty string when undefined. Surrounding whitespace inside the braces is trimmed. Each
+      filter segment splits its name on the first `:` only; the remainder is passed as one combined argument (so
+      `date:HH:mm:ss` stays whole; `plural` splits its combined `one:many` argument itself). Filter arguments are
+      embedded via `JSON.stringify`<!-- -->, never raw backticks. Unknown filter warnings are deduplicated per compile
+      call; other expressions in the same template still render (unknown one renders empty).
     example:
       - |-
         ```typescript
@@ -1035,6 +1458,27 @@ methods:
       return:
         type: string
         description: The processed template with placeholders converted to `${data["key"]}` syntax
+  - name: _resolveMediaDataPath(data, path)
+    uid: gramstax!TemplateEngine._resolveMediaDataPath:member(1)
+    package: gramstax!
+    fullName: _resolveMediaDataPath(data, path)
+    summary: Null-safe dotted-path lookup against template data.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _resolveMediaDataPath(data: ITTemplateData | undefined, path: string): unknown;'
+      parameters:
+        - id: data
+          description: Template data passed to the compiled block.
+          type: <xref uid="gramstax!~ITTemplateData:type" /> | undefined
+        - id: path
+          description: Dotted path such as `a.b.c`<!-- -->.
+          type: string
+      return:
+        type: unknown
+        description: Resolved value, or `undefined` when any segment is missing.
   - name: _splitMediaSrcList(src)
     uid: gramstax!TemplateEngine._splitMediaSrcList:member(1)
     package: gramstax!
@@ -1053,6 +1497,165 @@ methods:
       return:
         type: string[]
         description: ''
+  - name: _toConcatExpr(processed)
+    uid: gramstax!TemplateEngine._toConcatExpr:member(1)
+    package: gramstax!
+    fullName: _toConcatExpr(processed)
+    summary: Converts processed template output into a concatenation expression.
+    remarks: >-
+      Splits `processed` on balanced `${...}` spans (quote-aware, brace-nesting-aware): spans passing
+      [TemplateEngine.\_isGeneratedCode()](xref:gramstax!TemplateEngine._isGeneratedCode:member(1)) are emitted as
+      parenthesized code, everything else — including attacker-controlled `${...}`<!-- -->-lookalikes — is emitted as
+      `JSON.stringify` string literals joined with `+`<!-- -->. Static segments can therefore never break out into code;
+      this is the core guarantee behind `_compileToFunction`<!-- -->. An unterminated `${` is treated as literal text.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _toConcatExpr(processed: string): string;'
+      parameters:
+        - id: processed
+          description: Template output after block/scope processing.
+          type: string
+      return:
+        type: string
+        description: A JS expression evaluating to the rendered string.
+  - name: _validateBlockAttributes(template, tagName, allowedAttributes, allowedLabel, valueValidators)
+    uid: gramstax!TemplateEngine._validateBlockAttributes:member(1)
+    package: gramstax!
+    fullName: _validateBlockAttributes(template, tagName, allowedAttributes, allowedLabel, valueValidators)
+    summary: 'Shared helper: validates attributes on a specific block tag.'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static _validateBlockAttributes(template: string, tagName: string, allowedAttributes: Set<string>, allowedLabel:
+        string, valueValidators?: Record<string, (value: string) => string | null>): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template string
+          type: string
+        - id: tagName
+          description: Block tag name (e.g. `g-base`<!-- -->, `g-message`<!-- -->)
+          type: string
+        - id: allowedAttributes
+          description: Set of allowed attribute names
+          type: Set&lt;string&gt;
+        - id: allowedLabel
+          description: Text listing allowed attributes for error messages (e.g. `"id"`<!-- -->)
+          type: string
+        - id: valueValidators
+          description: Optional per-attribute value validators; return error message or null
+          type: 'Record&lt;string, (value: string) =&gt; string | null&gt;'
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Array of line, message errors
+  - name: _validateDiceItems(template)
+    uid: gramstax!TemplateEngine._validateDiceItems:member(1)
+    package: gramstax!
+    fullName: _validateDiceItems(template)
+    summary: Validates the static `<g-dice>` emoji against the Bot API set.
+    remarks: >-
+      Static `emoji` values (no `{{}}` / `{~ ~}` interpolation) must be one of the six Bot API dice emoji (`🎲🎯🏀⚽🎳🎰`
+      per [TemplateEngine.DICE\_EMOJI](xref:gramstax!TemplateEngine.DICE_EMOJI:member)<!-- -->); dynamic emoji are
+      checked at runtime on the compiled strings. Called by
+      [TemplateEngine.validateBlockGDiceAttributes()](xref:gramstax!TemplateEngine.validateBlockGDiceAttributes:member(1))<!--
+      -->; errors carry 1-based line numbers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validateDiceItems(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template source to inspect.
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Validation errors (empty when valid).
+  - name: _validateInvoiceItems(template)
+    uid: gramstax!TemplateEngine._validateInvoiceItems:member(1)
+    package: gramstax!
+    fullName: _validateInvoiceItems(template)
+    summary: Validates `<g-invoice>` required attributes, secrets ban, and `<g-price>` items.
+    remarks: >-
+      Enforces the Telegram `sendInvoice` constraints: `title`<!-- -->, `description`<!-- -->, `payload`<!-- -->, and
+      `currency` must be present and non-empty; `provider_token` is forbidden (secrets must come from `renderInvoice`
+      options, never templates); at least one `<g-price>` with a non-empty `label` and a positive integer `amount` is
+      required; `currency` must be a 3-letter code. Static length limits (title 1–32 chars, description 1–255 chars,
+      payload 1–128 bytes per the Bot API) apply only when the value carries no `{{}}` / `{~ ~}` interpolation — dynamic
+      lengths are checked at runtime on the compiled strings. Called by
+      [TemplateEngine.validateBlockGInvoiceAttributes()](xref:gramstax!TemplateEngine.validateBlockGInvoiceAttributes:member(1))<!--
+      -->; errors carry 1-based line numbers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validateInvoiceItems(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template source to inspect.
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Validation errors (empty when valid).
+  - name: _validateMediaGroupItems(template)
+    uid: gramstax!TemplateEngine._validateMediaGroupItems:member(1)
+    package: gramstax!
+    fullName: _validateMediaGroupItems(template)
+    summary: Validates `<g-media>` items inside `<g-media-group>` blocks.
+    remarks: >-
+      Enforces the Telegram `sendMediaGroup` constraints: every item needs a supported `type` (`photo`<!-- -->,
+      `video`<!-- -->, `audio`<!-- -->, `document`<!-- -->) and a `src`<!-- -->; groups need
+      1–[TemplateEngine.MAX\_MEDIA\_GROUP\_ITEMS](xref:gramstax!TemplateEngine.MAX_MEDIA_GROUP_ITEMS:member) items;
+      `audio` and `document` items cannot mix with other types. Called by
+      [TemplateEngine.validateBlockGMediaGroupAttributes()](xref:gramstax!TemplateEngine.validateBlockGMediaGroupAttributes:member(1))<!--
+      -->; errors carry 1-based line numbers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validateMediaGroupItems(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template source to inspect.
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Validation errors (empty when valid).
   - name: _validatePageTagAttributes(template)
     uid: gramstax!TemplateEngine._validatePageTagAttributes:member(1)
     package: gramstax!
@@ -1136,6 +1739,73 @@ methods:
                   message: string;
               }&gt;
         description: Array of `{line, message}` errors (empty if all values are valid)
+  - name: _validatePaidMediaItems(template)
+    uid: gramstax!TemplateEngine._validatePaidMediaItems:member(1)
+    package: gramstax!
+    fullName: _validatePaidMediaItems(template)
+    summary: Validates `<g-paid-media>` required attributes and `<g-media>` items.
+    remarks: >-
+      Enforces the Telegram `sendPaidMedia` constraints: `stars` must be present and a positive integer within
+      1–`MAX_PAID_MEDIA_STARS` (the Bot API `star_count` range, 1–25000 per
+      `https://core.telegram.org/bots/api#sendpaidmedia`<!-- -->); the block must hold 1–`MAX_PAID_MEDIA_ITEMS`
+      `<g-media>` children, each typed `photo` or `video` with a non-empty `src`<!-- -->. Static checks apply only when
+      the value carries no `{{}}` / `{~ ~}` interpolation — dynamic values are checked at runtime on the compiled block.
+      Called by
+      [TemplateEngine.validateBlockGPaidMediaAttributes()](xref:gramstax!TemplateEngine.validateBlockGPaidMediaAttributes:member(1))<!--
+      -->; errors carry 1-based line numbers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validatePaidMediaItems(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template source to inspect.
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Validation errors (empty when valid).
+  - name: _validatePollItems(template)
+    uid: gramstax!TemplateEngine._validatePollItems:member(1)
+    package: gramstax!
+    fullName: _validatePollItems(template)
+    summary: Validates `<g-question>` / `<g-option>` items inside `<g-poll>` blocks.
+    remarks: >-
+      Enforces the Telegram `sendPoll` constraints: exactly one `<g-question>`<!-- -->, 2–10 `<g-option>` items,
+      quiz-only `correct` (required, numeric, within the option range) and `explanation` (at most 200 chars),
+      regular-only `multiple`<!-- -->. Static length limits (question 1–300 chars, each option 1–100 chars) apply only
+      when the text carries no `{{}}` / `{~ ~}` interpolation — dynamic lengths are checked at runtime on the compiled
+      strings. Called by
+      [TemplateEngine.validateBlockGPollAttributes()](xref:gramstax!TemplateEngine.validateBlockGPollAttributes:member(1))<!--
+      -->; errors carry 1-based line numbers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validatePollItems(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template source to inspect.
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Validation errors (empty when valid).
   - name: _validateTelegramTagAttributes(template)
     uid: gramstax!TemplateEngine._validateTelegramTagAttributes:member(1)
     package: gramstax!
@@ -1274,6 +1944,38 @@ methods:
                   message: string;
               }&gt;
         description: Array of `{line, message}` errors (empty if all attributes are known)
+  - name: _validateVenueItems(template)
+    uid: gramstax!TemplateEngine._validateVenueItems:member(1)
+    package: gramstax!
+    fullName: _validateVenueItems(template)
+    summary: Validates `<g-venue>` required attributes and static coordinates.
+    remarks: >-
+      Enforces the Telegram `sendVenue` constraints: `title`<!-- -->, `address`<!-- -->, `latitude`<!-- -->, and
+      `longitude` must be present and non-empty. Static coordinates (no `{{}}` / `{~ ~}` interpolation) must be finite
+      numbers within latitude -90–90 and longitude -180–180; dynamic coordinates are checked at runtime on the compiled
+      strings. Called by
+      [TemplateEngine.validateBlockGVenueAttributes()](xref:gramstax!TemplateEngine.validateBlockGVenueAttributes:member(1))<!--
+      -->; errors carry 1-based line numbers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validateVenueItems(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template source to inspect.
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Validation errors (empty when valid).
   - name: compileBlockGDescription(template, gBaseBlocks)
     uid: gramstax!TemplateEngine.compileBlockGDescription:member(1)
     package: gramstax!
@@ -1338,6 +2040,107 @@ methods:
                   };
               }
         description: Compiled description functions organized by base ID, scope, and language
+  - name: compileBlockGDice(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGDice:member(1)
+    package: gramstax!
+    fullName: compileBlockGDice(template, baseBlocks)
+    summary: Compiles dice blocks from a template into executable functions.
+    remarks: >-
+      Parses `<g-dice>` blocks per base and compiles `emoji` through the same pipeline as media captions (script → map →
+      switch → exec → variables), so `{{var|filter}}` works in the emoji field.
+    example:
+      - |-
+        ```typescript
+        const dice = TemplateEngine.compileBlockGDice(`<g-base><g-dice emoji="{{dice}}"/></g-base>`);
+        const result = dice.default?.default?.({ dice: '🎯' });
+        // Result: { emoji: '🎯' }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGDice(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
+        {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITTemplateData) => ITDiceBlock;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-dice>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITDiceBlock:type" />;
+                  };
+              }
+        description: Compiled dice functions organized by base ID and language
+  - name: compileBlockGInvoice(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGInvoice:member(1)
+    package: gramstax!
+    fullName: compileBlockGInvoice(template, baseBlocks)
+    summary: Compiles invoice blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-invoice>` blocks from the template and compiles the interpolable fields (`title`<!-- -->,
+      `description`<!-- -->, `payload`<!-- -->, each price `label`<!-- -->) into functions; `currency` and `amount` pass
+      through as parsed (amounts are static integers — dynamic amounts are rejected by the validator). The result is
+      organized by base ID and language. Pre-parsed base blocks can be provided for efficiency.
+
+
+      Processing pipeline (in order, per string field): 1. `_processGScriptBlocks` - converts `<g-script>` blocks into
+      executable expressions 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions 3.
+      `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` - evaluates
+      scope execution blocks (implementation-defined) 5. `_processScopeVariables` - resolves scope variables
+      (implementation-defined) 6. `_compileToFunction(processed, false)` - produces the final render function
+
+
+      Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `ALang` (from `<g-invoice lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?:
+      Record<string, unknown>) => ITInvoiceBlock`
+    example:
+      - >-
+        ```typescript
+
+        const invoices = TemplateEngine.compileBlockGInvoice(`<g-base><g-invoice title="VIP {{days}} hari"
+        description="Akses" payload="{{orderId}}" currency="XTR"><g-price label="VIP {{days}} hari"
+        amount="100"/></g-invoice></g-base>`);
+
+        const result = invoices.default?.default?.({ days: 30, orderId: 'o-1' });
+
+        // Result: { title: 'VIP 30 hari', description: 'Akses', payload: 'o-1', currency: 'XTR', prices: [{label: 'VIP
+        30 hari', amount: 100}] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGInvoice(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITTemplateData) => ITInvoiceBlock;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-invoice>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITInvoiceBlock:type" />;
+                  };
+              }
+        description: Compiled invoice functions organized by base ID and language
   - name: compileBlockGKeyboards(template, gBaseBlocks)
     uid: gramstax!TemplateEngine.compileBlockGKeyboards:member(1)
     package: gramstax!
@@ -1483,6 +2286,157 @@ methods:
                   };
               }
         description: Compiled message functions organized by base ID and language
+  - name: compileBlockGPaidMedia(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGPaidMedia:member(1)
+    package: gramstax!
+    fullName: compileBlockGPaidMedia(template, baseBlocks)
+    summary: Compiles paid-media blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-paid-media>` blocks from the template and compiles the interpolable fields (each item `src`
+      and `caption`<!-- -->) into functions; `stars` and item `type` pass through as parsed (dynamic prices are rejected
+      by the validator and re-checked at runtime). The result is organized by base ID and language.
+
+
+      Processing pipeline (in order, per string field): 1. `_processGScriptBlocks` - converts `<g-script>` blocks into
+      executable expressions 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions 3.
+      `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` - evaluates
+      scope execution blocks (implementation-defined) 5. `_processScopeVariables` - resolves scope variables
+      (implementation-defined) 6. `_compileToFunction(processed, false)` - produces the final render function
+
+
+      Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `ALang` (from `<g-paid-media lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?:
+      Record<string, unknown>) => ITPaidMediaBlock`
+    example:
+      - >-
+        ```typescript
+
+        const walls = TemplateEngine.compileBlockGPaidMedia(`<g-base><g-paid-media stars="100"><g-media type="photo"
+        src="{{teaser}}">Bayar untuk membuka</g-media></g-paid-media></g-base>`);
+
+        const result = walls.default?.default?.({ teaser: 't.jpg' });
+
+        // Result: { stars: 100, media: [{type: 'photo', src: 't.jpg', caption: 'Bayar untuk membuka'}] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGPaidMedia(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITTemplateData) => ITPaidMediaBlock;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-paid-media>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITPaidMediaBlock:type" />;
+                  };
+              }
+        description: Compiled paid-media functions organized by base ID and language
+  - name: compileBlockGPoll(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGPoll:member(1)
+    package: gramstax!
+    fullName: compileBlockGPoll(template, baseBlocks)
+    summary: Compiles poll blocks from a template into executable functions.
+    remarks: >-
+      Parses `<g-poll>` blocks per base and compiles `question`<!-- -->, each `option`<!-- -->, and `explanation`
+      through the same pipeline as media captions (script → map → switch → exec → variables), so `{{var|filter}}` works
+      in all three. Static fields (`type`<!-- -->, `correct`<!-- -->, `anonymous`<!-- -->, `multiple`<!-- -->) pass
+      through untouched.
+    example:
+      - >-
+        ```typescript
+
+        const polls = TemplateEngine.compileBlockGPoll(`<g-base><g-poll><g-question>Hi
+        {{name}}?</g-question><g-option>Yes</g-option><g-option>No</g-option></g-poll></g-base>`);
+
+        const result = polls.default?.default?.({ name: 'Jo' });
+
+        // Result: { type: 'regular', question: 'Hi Jo?', options: ['Yes', 'No'], anonymous: true }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGPoll(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
+        {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITTemplateData) => ITPollBlock;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-poll>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITPollBlock:type" />;
+                  };
+              }
+        description: Compiled poll functions organized by base ID and language
+  - name: compileBlockGVenue(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGVenue:member(1)
+    package: gramstax!
+    fullName: compileBlockGVenue(template, baseBlocks)
+    summary: Compiles venue blocks from a template into executable functions.
+    remarks: >-
+      Parses `<g-venue>` blocks per base and compiles all four fields (`title`<!-- -->, `address`<!-- -->,
+      `latitude`<!-- -->, `longitude`<!-- -->) through the same pipeline as media captions (script → map → switch → exec
+      → variables), so `{{var|filter}}` works in every field.
+    example:
+      - >-
+        ```typescript
+
+        const venues = TemplateEngine.compileBlockGVenue(`<g-base><g-venue title="{{name}}" address="Jl. Merdeka 1"
+        latitude="-6.2" longitude="106.8"/></g-base>`);
+
+        const result = venues.default?.default?.({ name: 'Cafe' });
+
+        // Result: { title: 'Cafe', address: 'Jl. Merdeka 1', latitude: '-6.2', longitude: '106.8' }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGVenue(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
+        {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITTemplateData) => ITVenueBlock;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-venue>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITVenueBlock:type" />;
+                  };
+              }
+        description: Compiled venue functions organized by base ID and language
   - name: processGImportBlocks(template, resolver, depth, importCache)
     uid: gramstax!TemplateEngine.processGImportBlocks:member(1)
     package: gramstax!
@@ -1690,6 +2644,44 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGDiceAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGDiceAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGDiceAttributes(template)
+    summary: Validates attributes and the static emoji rule on `<g-dice>` blocks.
+    remarks: >-
+      Checks the block-level attributes (`lang`<!-- -->, `emoji`<!-- -->) via `_validateBlockAttributes`<!-- -->, then
+      delegates the static emoji membership rule to
+      [TemplateEngine.\_validateDiceItems()](xref:gramstax!TemplateEngine._validateDiceItems:member(1))<!-- -->. `emoji`
+      is optional (defaults to `🎲`<!-- -->); static values must be one of the six Bot API dice emoji, while `{{}}` /
+      `{~ ~}` values skip the static check — dynamic emoji are checked at runtime on the compiled strings. Returns
+      `valid: false` with per-line errors instead of throwing, so callers can aggregate across blocks.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGDiceAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template source to validate.
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: '`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.'
   - name: validateBlockGDivAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGDivAttributes:member(1)
     package: gramstax!
@@ -1764,6 +2756,46 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGInvoiceAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGInvoiceAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGInvoiceAttributes(template)
+    summary: Validates attributes and item constraints on `<g-invoice>` blocks.
+    remarks: >-
+      Checks the block-level attributes (`lang`<!-- -->, `title`<!-- -->, `description`<!-- -->, `payload`<!-- -->,
+      `currency`<!-- -->) via `_validateBlockAttributes`<!-- -->, then delegates structural rules (required attrs,
+      `provider_token` rejection, 1 or more `<g-price>` items, static Bot API length limits where no `{{}}`
+      interpolation is present) to
+      [TemplateEngine.\_validateInvoiceItems()](xref:gramstax!TemplateEngine._validateInvoiceItems:member(1))<!-- -->.
+      `provider_token` is listed in the allowed set only so the dedicated secrets error (not a generic unknown-attribute
+      error) is reported. Returns `valid: false` with per-line errors instead of throwing, so callers can aggregate
+      across blocks.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGInvoiceAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template source to validate.
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: '`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.'
   - name: validateBlockGKeyboardAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGKeyboardAttributes:member(1)
     package: gramstax!
@@ -1844,8 +2876,9 @@ methods:
     fullName: validateBlockGMediaAttributes(template)
     summary: Validates attributes on `<g-media>` blocks.
     remarks: >-
-      Allowed attributes are `lang`<!-- -->, `type`<!-- -->, `src`<!-- -->, `shared`<!-- -->, `latitude`<!-- -->,
-      `longitude`<!-- -->, `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!-- -->, and `vcard`<!-- -->.
+      Allowed attributes are `lang`<!-- -->, `type`<!-- -->, `src`<!-- -->, `shared`<!-- -->, `filename`<!-- -->,
+      `latitude`<!-- -->, `longitude`<!-- -->, `live`<!-- -->, `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!--
+      -->, and `vcard`<!-- -->.
 
 
       `shared` is a boolean attribute — it can be written as `shared`<!-- -->, `shared="true"`<!-- -->, or
@@ -1891,7 +2924,12 @@ methods:
     package: gramstax!
     fullName: validateBlockGMediaGroupAttributes(template)
     summary: Validates attributes and item constraints on `<g-media-group>` blocks.
-    remarks: ''
+    remarks: >-
+      Step 12 of the `validateTemplate` pipeline. Checks the block-level `lang` attribute via
+      `_validateBlockAttributes`<!-- -->, then delegates item rules (supported `type`<!-- -->, required `src`<!-- -->,
+      1–10 items, no `audio`<!-- -->/ `document` mixing) to
+      [TemplateEngine.\_validateMediaGroupItems()](xref:gramstax!TemplateEngine._validateMediaGroupItems:member(1))<!--
+      -->. Returns `valid: false` with per-line errors instead of throwing, so callers can aggregate across blocks.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1906,7 +2944,7 @@ methods:
             };
       parameters:
         - id: template
-          description: ''
+          description: The raw template source to validate.
           type: string
       return:
         type: |-
@@ -1917,7 +2955,7 @@ methods:
                       message: string;
                   }&gt;;
               }
-        description: ''
+        description: '`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.'
   - name: validateBlockGMessageAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGMessageAttributes:member(1)
     package: gramstax!
@@ -1987,26 +3025,32 @@ methods:
       — checks `<g-media>` block attributes 12.
       [TemplateEngine.validateBlockGMediaGroupAttributes()](xref:gramstax!TemplateEngine.validateBlockGMediaGroupAttributes:member(1))
       — checks `<g-media-group>` block attributes 13.
+      [TemplateEngine.validateBlockGPollAttributes()](xref:gramstax!TemplateEngine.validateBlockGPollAttributes:member(1))
+      — checks `<g-poll>` block attributes 14.
       [TemplateEngine.validateBlockGDescriptionAttributes()](xref:gramstax!TemplateEngine.validateBlockGDescriptionAttributes:member(1))
-      — checks `<g-description>` block attributes 14.
+      — checks `<g-description>` block attributes 15.
       [TemplateEngine.validateBlockGScriptAttributes()](xref:gramstax!TemplateEngine.validateBlockGScriptAttributes:member(1))
-      — checks `<g-script>` block attributes 15.
+      — checks `<g-script>` block attributes 16.
       [TemplateEngine.validateBlockGSwitchAttributes()](xref:gramstax!TemplateEngine.validateBlockGSwitchAttributes:member(1))
-      — checks `<g-switch>` block attributes 16.
+      — checks `<g-switch>` block attributes 17.
       [TemplateEngine.validateBlockGCaseAttributes()](xref:gramstax!TemplateEngine.validateBlockGCaseAttributes:member(1))
-      — checks `<g-case>` block attributes 17.
+      — checks `<g-case>` block attributes 18.
       [TemplateEngine.validateBlockGDefaultAttributes()](xref:gramstax!TemplateEngine.validateBlockGDefaultAttributes:member(1))
-      — checks `<g-default>` block attributes 18.
+      — checks `<g-default>` block attributes 19.
       [TemplateEngine.validateBlockGMapAttributes()](xref:gramstax!TemplateEngine.validateBlockGMapAttributes:member(1))
-      — checks `<g-map>` block attributes 19.
+      — checks `<g-map>` block attributes 20.
       [TemplateEngine.validateBlockGDivAttributes()](xref:gramstax!TemplateEngine.validateBlockGDivAttributes:member(1))
-      — checks `<g-div>` block attributes 20.
+      — checks `<g-div>` block attributes 21.
       [TemplateEngine.validateBlockGImportAttributes()](xref:gramstax!TemplateEngine.validateBlockGImportAttributes:member(1))
-      — checks `<g-import>` block attributes 21.
+      — checks `<g-import>` block attributes 22.
       [TemplateEngine.validateBlockGSpaceAttributes()](xref:gramstax!TemplateEngine.validateBlockGSpaceAttributes:member(1))
-      — checks `<g-space>` block attributes 22.
+      — checks `<g-space>` block attributes 23.
+      [TemplateEngine.validateBlockGVenueAttributes()](xref:gramstax!TemplateEngine.validateBlockGVenueAttributes:member(1))
+      — checks `<g-venue>` block attributes 24.
+      [TemplateEngine.validateBlockGDiceAttributes()](xref:gramstax!TemplateEngine.validateBlockGDiceAttributes:member(1))
+      — checks `<g-dice>` block attributes 25.
       [TemplateEngine.validatePageAttributesBlock()](xref:gramstax!TemplateEngine.validatePageAttributesBlock:member(1))
-      — checks required attributes on `<g-*>` PAGE blocks (centralized) 23.
+      — checks required attributes on `<g-*>` PAGE blocks (centralized) 26.
       [TemplateEngine.validatePageAttributeValuesBlock()](xref:gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1))
       — checks value formats on `<g-*>` PAGE block attributes (centralized)
 
@@ -2049,6 +3093,123 @@ methods:
         description: >-
           An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive
           messages for every violation found
+  - name: validateBlockGPaidMediaAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGPaidMediaAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGPaidMediaAttributes(template)
+    summary: Validates attributes and item constraints on `<g-paid-media>` blocks.
+    remarks: >-
+      Checks the block-level attributes (`lang`<!-- -->, `stars`<!-- -->) via `_validateBlockAttributes`<!-- -->, then
+      delegates structural rules (required `stars` in the 1–25000 range, 1–10 `<g-media>` items of type `photo`<!--
+      -->/`video` only, each with a `src`<!-- -->) to
+      [TemplateEngine.\_validatePaidMediaItems()](xref:gramstax!TemplateEngine._validatePaidMediaItems:member(1))<!--
+      -->. Returns `valid: false` with per-line errors instead of throwing, so callers can aggregate across blocks.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGPaidMediaAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template source to validate.
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: '`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.'
+  - name: validateBlockGPollAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGPollAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGPollAttributes(template)
+    summary: Validates attributes and item constraints on `<g-poll>` blocks.
+    remarks: >-
+      Checks the block-level attributes (`lang`<!-- -->, `type`<!-- -->, `correct`<!-- -->, `explanation`<!-- -->,
+      `anonymous`<!-- -->, `multiple`<!-- -->) via `_validateBlockAttributes`<!-- -->, then delegates structural rules
+      (exactly one `<g-question>`<!-- -->, 2–10 `<g-option>` items, `correct` required and in range for quiz but
+      rejected on regular, `multiple`<!-- -->/`explanation` quiz/regular coherence, static Bot API length limits where
+      no `{{}}` interpolation is present) to
+      [TemplateEngine.\_validatePollItems()](xref:gramstax!TemplateEngine._validatePollItems:member(1))<!-- -->. Returns
+      `valid: false` with per-line errors instead of throwing, so callers can aggregate across blocks.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGPollAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template source to validate.
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: '`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.'
+  - name: validateBlockGPriceAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGPriceAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGPriceAttributes(template)
+    summary: Validates attributes on `<g-price>` line items inside `<g-invoice>` blocks.
+    remarks: >-
+      Allowed attributes are `label` and `amount`<!-- -->; value formats come from
+      [TemplateEngine.\_PAGE\_ATTR\_VALUE\_VALIDATORS](xref:gramstax!TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS:member)
+      (`amount` must be a positive integer in smallest currency units). Presence and static length rules live in
+      [TemplateEngine.\_validateInvoiceItems()](xref:gramstax!TemplateEngine._validateInvoiceItems:member(1))<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockGPriceAttributes(`<g-price label="VIP" amount="100"/>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGPriceAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
   - name: validateBlockGScriptAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGScriptAttributes:member(1)
     package: gramstax!
@@ -2160,6 +3321,45 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGVenueAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGVenueAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGVenueAttributes(template)
+    summary: Validates attributes and presence rules on `<g-venue>` blocks.
+    remarks: >-
+      Checks the block-level attributes (`lang`<!-- -->, `title`<!-- -->, `address`<!-- -->, `latitude`<!-- -->,
+      `longitude`<!-- -->) via `_validateBlockAttributes`<!-- -->, then delegates presence rules (all four venue fields
+      required and non-empty; static latitude/longitude numeric within the Bot API ranges) to
+      [TemplateEngine.\_validateVenueItems()](xref:gramstax!TemplateEngine._validateVenueItems:member(1))<!-- -->.
+      `{{}}` / `{~ ~}` values skip the static numeric check — dynamic coordinates are range-checked at runtime on the
+      compiled strings. Returns `valid: false` with per-line errors instead of throwing, so callers can aggregate across
+      blocks.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGVenueAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template source to validate.
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: '`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.'
   - name: validateFormatBlock(template)
     uid: gramstax!TemplateEngine.validateFormatBlock:member(1)
     package: gramstax!
@@ -2176,6 +3376,8 @@ methods:
 
       \*\*Must NOT be self-closing (must use open/close tags):\*\* - `<g-base>...</g-base>`<!-- -->,
       `<g-message>...</g-message>`<!-- -->, `<g-keyboard>...</g-keyboard>`<!-- -->, `<g-media>...</g-media>`<!-- -->,
+      `<g-poll>...</g-poll>`<!-- -->, `<g-question>...</g-question>`<!-- -->, `<g-option>...</g-option>`<!-- -->,
+      `<g-invoice>...</g-invoice>`<!-- -->, `<g-paid-media>...</g-paid-media>`<!-- -->,
       `<g-description>...</g-description>`<!-- -->, `<g-script>...</g-script>`<!-- -->, `<g-switch>...</g-switch>`<!--
       -->, `<g-case>...</g-case>`<!-- -->, `<g-default>...</g-default>`<!-- -->, `<g-map>...</g-map>`<!-- -->,
       `<g-div>...</g-div>`
@@ -2316,7 +3518,16 @@ methods:
       Runs after `TemplateEngine.validateBlockG*Attributes` (which check allowed attrs) to catch format-level issues.
       Currently validates: - `<g-base id>` — must not be empty - `<g-keyboard type>` — must be `inline` or `bottom` -
       `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video\_note, sticker,
-      location, contact - `<g-media shared>` — must be `true` or `false`
+      location, contact - `<g-media shared>` — must be `true` or `false` - `<g-media filename>` — any string, always
+      valid - `<g-poll type>` — must be `regular` or `quiz` - `<g-poll correct>` — must be a non-negative option index -
+      `<g-poll explanation>` — any string, always valid - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or
+      `false` - `<g-venue title>` / `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a
+      number between -90 and 90; `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must
+      be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must
+      be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a
+      3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must
+      be a positive integer in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000;
+      `{{}}` values skip the static check (runtime-enforced)
 
 
       Tags without value validators (e.g. `<g-message>`<!-- -->, `<g-script>`<!-- -->, `<g-div>`<!-- -->) are skipped.
@@ -2423,15 +3634,18 @@ methods:
       ```
 
       \*\*Enforced rules:\*\* - `<g-base>` must be at the outermost level and cannot be nested inside any other block. -
-      `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, `<g-media-group>`<!-- -->,
-      `<g-description>`<!-- -->, `<g-import>`<!-- -->, `<g-script>`<!-- -->, `<g-space>` can only appear directly inside
-      `<g-base>`<!-- -->. - `<g-media>` can also appear directly inside `<g-media-group>` as a group item. -
-      `<g-switch>`<!-- -->, `<g-map>` can only appear inside `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->,
-      `<g-media>`<!-- -->, or `<g-description>`<!-- -->. - `<g-case>` and `<g-default>` can only appear inside
-      `<g-switch>`<!-- -->. - `<g-map>` is also allowed inside `<g-case>` and `<g-default>` (explicitly and via
-      parent-child inheritance — see `inheritsContentFromParent`<!-- -->). - Telegram formatting tags (`<b>`<!-- -->,
-      `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!--
-      -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during validation.
+      `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, `<g-media-group>`<!-- -->, `<g-poll>`<!-- -->,
+      `<g-invoice>`<!-- -->, `<g-paid-media>`<!-- -->, `<g-venue>`<!-- -->, `<g-dice>`<!-- -->, `<g-description>`<!--
+      -->, `<g-import>`<!-- -->, `<g-script>`<!-- -->, `<g-space>` can only appear directly inside `<g-base>`<!-- -->. -
+      `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a
+      paywall item. - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`<!-- -->. - `<g-price>`
+      can only appear directly inside `<g-invoice>`<!-- -->. - `<g-switch>`<!-- -->, `<g-map>` can only appear inside
+      `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, or `<g-description>`<!-- -->. - `<g-case>` and
+      `<g-default>` can only appear inside `<g-switch>`<!-- -->. - `<g-map>` is also allowed inside `<g-case>` and
+      `<g-default>` (explicitly and via parent-child inheritance — see `inheritsContentFromParent`<!-- -->). - Telegram
+      formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->,
+      `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during
+      validation.
     example:
       - |-
         ```typescript
@@ -2727,26 +3941,32 @@ methods:
       — checks `<g-media>` block attributes 12.
       [TemplateEngine.validateBlockGMediaGroupAttributes()](xref:gramstax!TemplateEngine.validateBlockGMediaGroupAttributes:member(1))
       — checks `<g-media-group>` block attributes 13.
+      [TemplateEngine.validateBlockGPollAttributes()](xref:gramstax!TemplateEngine.validateBlockGPollAttributes:member(1))
+      — checks `<g-poll>` block attributes 14.
       [TemplateEngine.validateBlockGDescriptionAttributes()](xref:gramstax!TemplateEngine.validateBlockGDescriptionAttributes:member(1))
-      — checks `<g-description>` block attributes 14.
+      — checks `<g-description>` block attributes 15.
       [TemplateEngine.validateBlockGScriptAttributes()](xref:gramstax!TemplateEngine.validateBlockGScriptAttributes:member(1))
-      — checks `<g-script>` block attributes 15.
+      — checks `<g-script>` block attributes 16.
       [TemplateEngine.validateBlockGSwitchAttributes()](xref:gramstax!TemplateEngine.validateBlockGSwitchAttributes:member(1))
-      — checks `<g-switch>` block attributes 16.
+      — checks `<g-switch>` block attributes 17.
       [TemplateEngine.validateBlockGCaseAttributes()](xref:gramstax!TemplateEngine.validateBlockGCaseAttributes:member(1))
-      — checks `<g-case>` block attributes 17.
+      — checks `<g-case>` block attributes 18.
       [TemplateEngine.validateBlockGDefaultAttributes()](xref:gramstax!TemplateEngine.validateBlockGDefaultAttributes:member(1))
-      — checks `<g-default>` block attributes 18.
+      — checks `<g-default>` block attributes 19.
       [TemplateEngine.validateBlockGMapAttributes()](xref:gramstax!TemplateEngine.validateBlockGMapAttributes:member(1))
-      — checks `<g-map>` block attributes 19.
+      — checks `<g-map>` block attributes 20.
       [TemplateEngine.validateBlockGDivAttributes()](xref:gramstax!TemplateEngine.validateBlockGDivAttributes:member(1))
-      — checks `<g-div>` block attributes 20.
+      — checks `<g-div>` block attributes 21.
       [TemplateEngine.validateBlockGImportAttributes()](xref:gramstax!TemplateEngine.validateBlockGImportAttributes:member(1))
-      — checks `<g-import>` block attributes 21.
+      — checks `<g-import>` block attributes 22.
       [TemplateEngine.validateBlockGSpaceAttributes()](xref:gramstax!TemplateEngine.validateBlockGSpaceAttributes:member(1))
-      — checks `<g-space>` block attributes 22.
+      — checks `<g-space>` block attributes 23.
+      [TemplateEngine.validateBlockGVenueAttributes()](xref:gramstax!TemplateEngine.validateBlockGVenueAttributes:member(1))
+      — checks `<g-venue>` block attributes 24.
+      [TemplateEngine.validateBlockGDiceAttributes()](xref:gramstax!TemplateEngine.validateBlockGDiceAttributes:member(1))
+      — checks `<g-dice>` block attributes 25.
       [TemplateEngine.validatePageAttributesBlock()](xref:gramstax!TemplateEngine.validatePageAttributesBlock:member(1))
-      — checks required attributes on `<g-*>` PAGE blocks (centralized) 23.
+      — checks required attributes on `<g-*>` PAGE blocks (centralized) 26.
       [TemplateEngine.validatePageAttributeValuesBlock()](xref:gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1))
       — checks value formats on `<g-*>` PAGE block attributes (centralized)
 

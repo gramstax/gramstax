@@ -3,7 +3,7 @@ name: ITCtxParams
 uid: gramstax!ITCtxParams:type
 package: gramstax!
 fullName: ITCtxParams
-summary: Parameters for Ctx instance initialization.
+summary: Parameters for creating a new [Ctx](xref:gramstax!Ctx:class) instance.
 remarks: ''
 example: []
 isPreview: false
@@ -15,5 +15,7 @@ syntax: |-
       cacheKeyboard: Map<string, unknown>;
       templateManager: TemplateManager;
       log?: LoggingHelper | null;
+      mediaRoots?: string[] | null;
+      onSendError?: ITSendErrorHook | null;
       temp: ITTemp;
   };

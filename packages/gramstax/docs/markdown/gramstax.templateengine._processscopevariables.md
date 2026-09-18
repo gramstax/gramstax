@@ -56,7 +56,7 @@ The processed template with placeholders converted to `${data["key"]}` syntax
 
 ## Remarks
 
-This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation. `{{key}}` is HTML-escaped at runtime; `{{{key}}}` is inserted raw. Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined.
+This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation. `{{key}}` is HTML-escaped at runtime; `{{{key}}}` is inserted raw. Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined. Surrounding whitespace inside the braces is trimmed. Each filter segment splits its name on the first `:` only; the remainder is passed as one combined argument (so `date:HH:mm:ss` stays whole; `plural` splits its combined `one:many` argument itself). Filter arguments are embedded via `JSON.stringify`<!-- -->, never raw backticks. Unknown filter warnings are deduplicated per compile call; other expressions in the same template still render (unknown one renders empty).
 
 ## Example
 

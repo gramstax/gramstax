@@ -9,7 +9,7 @@ Edits an existing media message with dynamic type selection.
 **Signature:**
 
 ```typescript
-renderEditMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+renderEditMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -146,7 +146,7 @@ _(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the 
 
 **Returns:**
 
-Promise&lt;true \| grammy\_types.Message.LocationMessage \| grammy\_types.Message.ContactMessage \| grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.VoiceMessage \| grammy\_types.Message.VideoNoteMessage \| grammy\_types.Message.StickerMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message) \| (grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.LivePhotoMessage)\[\] \| undefined&gt;
+Promise&lt;unknown&gt;
 
 The edited/sent message object.
 
@@ -154,7 +154,7 @@ The edited/sent message object.
 
 For media types that cannot be edited (voice, video\_note, sticker, location, contact), the original message is deleted and a new one is sent. Multi-src media groups cannot replace a single message, so supported pipe-delimited media groups also delete the original message and send a new media group.
 
-If the edit itself fails, the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`<!-- -->: deletes the original message and re-sends the same media — the result looks like an in-place edit).
+If the edit itself fails, the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`<!-- -->: deletes the original message and re-sends the same media — the result looks like an in-place edit). The fallback re-send drops `options1`<!-- -->/ `options2` (edit options do not map to reply options) and logs a `log.warn` when non-empty options are dropped; the re-send itself follows `Ctx.classifySendError` via `renderMedia` (`retryable` rethrows the original error untouched, `fallback-text` replies with fallback text). Fail-fast validation runs BEFORE any API call — programmer errors always throw, never fall back.
 
 ## Example
 

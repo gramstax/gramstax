@@ -501,6 +501,29 @@ Alias for `ctx.update.deleted_business_messages`<!-- -->.
 </td></tr>
 <tr><td>
 
+[DICE\_EMOJI](./gramstax.ctx.dice_emoji.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+ReadonlySet&lt;string&gt;
+
+
+</td><td>
+
+Bot API dice emoji values accepted by `sendDice`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [editedBusinessMessage](./gramstax.ctx.editedbusinessmessage.md)
 
 
@@ -565,6 +588,48 @@ NonNullable&lt;Context\[\`editedMessage\`\]&gt;
 The full [Ctx.editedMessage](./gramstax.ctx.editedmessage.md) object from Telegram (non-nullable).
 
 Alias for `ctx.update.edited_message`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[FALLBACK\_TEXT](./gramstax.ctx.fallback_text.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Framework default fallback text sent when a media send fails with a `fallback-text` error and no per-page `fallbackText` override is set.
+
+
+</td></tr>
+<tr><td>
+
+[fallbackText?](./gramstax.ctx.fallbacktext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string \| null
+
+
+</td><td>
+
+_(Optional)_ Per-page fallback text override for media-send failures.
 
 
 </td></tr>
@@ -658,6 +723,98 @@ Alias for `ctx.update.inline_query`<!-- -->.
 </td></tr>
 <tr><td>
 
+[INVOICE\_DESCRIPTION\_LIMIT](./gramstax.ctx.invoice_description_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API invoice description limit in characters (`sendInvoice` description 1–255).
+
+
+</td></tr>
+<tr><td>
+
+[INVOICE\_PAYLOAD\_LIMIT](./gramstax.ctx.invoice_payload_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API invoice payload limit in bytes (`sendInvoice` payload 1–128 bytes).
+
+
+</td></tr>
+<tr><td>
+
+[INVOICE\_PRICES\_MIN](./gramstax.ctx.invoice_prices_min.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Minimum `<g-price>` line items per invoice (Bot API requires 1 or more).
+
+
+</td></tr>
+<tr><td>
+
+[INVOICE\_TITLE\_LIMIT](./gramstax.ctx.invoice_title_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API invoice title limit in characters (`sendInvoice` title 1–32).
+
+
+</td></tr>
+<tr><td>
+
 [log](./gramstax.ctx.log.md)
 
 
@@ -695,6 +852,140 @@ NonNullable&lt;Context\[\`managedBot\`\]&gt;
 The full [Ctx.managedBot](./gramstax.ctx.managedbot.md) object from Telegram (non-nullable).
 
 Alias for `ctx.update.managed_bot`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[MEDIA\_CAPTION\_LIMIT](./gramstax.ctx.media_caption_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API caption limit in characters (caption-carrying types + media groups).
+
+
+</td></tr>
+<tr><td>
+
+[MEDIA\_CAPTION\_TYPES](./gramstax.ctx.media_caption_types.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+ReadonlySet&lt;string&gt;
+
+
+</td><td>
+
+Media types that carry a caption (caption length is enforced for these).
+
+
+</td></tr>
+<tr><td>
+
+[MEDIA\_GROUP\_LIMIT](./gramstax.ctx.media_group_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API media-group limit in items (also applies to pipe-delimited `srcList`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[MEDIA\_TYPES](./gramstax.ctx.media_types.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+All sendable single-media types (`ITMediaBlock` minus `group`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[MEDIA\_UPLOAD\_LIMITS](./gramstax.ctx.media_upload_limits.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+Record&lt;string, number&gt;
+
+
+</td><td>
+
+Bot API upload size limits in bytes, per media type.
+
+
+</td></tr>
+<tr><td>
+
+[mediaRoots?](./gramstax.ctx.mediaroots.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string\[\] \| null
+
+
+</td><td>
+
+_(Optional)_ Opt-in local-path jail for media uploads (Q8 option b).
 
 
 </td></tr>
@@ -937,6 +1228,232 @@ All arg tokens from a command message.
 </td></tr>
 <tr><td>
 
+[onSendError?](./gramstax.ctx.onsenderror.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[ITSendErrorHook](./gramstax.itsenderrorhook.md) \| null
+
+
+</td><td>
+
+_(Optional)_ Best-effort send-error hook (Q9 option b).
+
+
+</td></tr>
+<tr><td>
+
+[PAID\_MEDIA\_ITEMS\_MAX](./gramstax.ctx.paid_media_items_max.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Maximum `<g-media>` items per paid-media paywall (Bot API `sendPaidMedia` media limit).
+
+
+</td></tr>
+<tr><td>
+
+[PAID\_MEDIA\_ITEMS\_MIN](./gramstax.ctx.paid_media_items_min.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Minimum `<g-media>` items per paid-media paywall (Bot API requires 1 or more).
+
+
+</td></tr>
+<tr><td>
+
+[PAID\_MEDIA\_STARS\_MAX](./gramstax.ctx.paid_media_stars_max.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Maximum Stars price for a `<g-paid-media>` paywall.
+
+
+</td></tr>
+<tr><td>
+
+[PAID\_MEDIA\_STARS\_MIN](./gramstax.ctx.paid_media_stars_min.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Minimum Stars price for a `<g-paid-media>` paywall.
+
+
+</td></tr>
+<tr><td>
+
+[POLL\_EXPLANATION\_LIMIT](./gramstax.ctx.poll_explanation_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API quiz explanation limit in characters.
+
+
+</td></tr>
+<tr><td>
+
+[POLL\_OPTION\_LIMIT](./gramstax.ctx.poll_option_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API poll option limit in characters (per option).
+
+
+</td></tr>
+<tr><td>
+
+[POLL\_OPTIONS\_MAX](./gramstax.ctx.poll_options_max.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API poll option count bounds (2–10 options).
+
+
+</td></tr>
+<tr><td>
+
+[POLL\_OPTIONS\_MIN](./gramstax.ctx.poll_options_min.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API poll option count bounds (2–10 options).
+
+
+</td></tr>
+<tr><td>
+
+[POLL\_QUESTION\_LIMIT](./gramstax.ctx.poll_question_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API poll question limit in characters.
+
+
+</td></tr>
+<tr><td>
+
 [poll](./gramstax.ctx.poll.md)
 
 
@@ -1073,6 +1590,29 @@ The full [Ctx.senderChat](./gramstax.ctx.senderchat.md) object from Telegram (no
 </td></tr>
 <tr><td>
 
+[STORY\_PERIODS](./gramstax.ctx.story_periods.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+ReadonlySet&lt;number&gt;
+
+
+</td><td>
+
+Story `active_period` values accepted by `postBusinessStory` (seconds).
+
+
+</td></tr>
+<tr><td>
+
 [temp](./gramstax.ctx.temp.md)
 
 
@@ -1161,6 +1701,244 @@ Description
 </td><td>
 
 Appends arg values to a string using the specified separator.
+
+
+</td></tr>
+<tr><td>
+
+[answerPreCheckout(ok, errorMessage)](./gramstax.ctx.answerprecheckout.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Answers the current pre-checkout query, approving or rejecting payment.
+
+
+</td></tr>
+<tr><td>
+
+[assertContact(phone, firstName)](./gramstax.ctx.assertcontact.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Require non-empty `phone` + `first_name` for contacts (replaces non-null assertions).
+
+
+</td></tr>
+<tr><td>
+
+[assertDiceEmoji(emoji)](./gramstax.ctx.assertdiceemoji.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Fail-fast checks for a `renderDice` emoji against the Bot API set.
+
+
+</td></tr>
+<tr><td>
+
+[assertInvoice(invoice)](./gramstax.ctx.assertinvoice.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Fail-fast checks for a compiled `<g-invoice>` block against Bot API limits.
+
+
+</td></tr>
+<tr><td>
+
+[assertLivePeriod(live)](./gramstax.ctx.assertliveperiod.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Parse and check a `<g-media type="location">` `live` period (seconds → `live_period`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[assertLocation(latitude, longitude)](./gramstax.ctx.assertlocation.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Parse and range-check `latitude`<!-- -->/`longitude` (replaces bare `parseInt`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[assertMediaCaption(type, caption)](./gramstax.ctx.assertmediacaption.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Throw when `caption` exceeds `MEDIA_CAPTION_LIMIT` for caption-carrying types.
+
+
+</td></tr>
+<tr><td>
+
+[assertMediaGroupItems(items)](./gramstax.ctx.assertmediagroupitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Fail-fast checks for a `<g-media-group>` item list: group size limit, per-item group type, upload size, and caption length.
+
+
+</td></tr>
+<tr><td>
+
+[assertMediaPreconditions(type, med)](./gramstax.ctx.assertmediapreconditions.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Fail-fast pre-send checks for one single-media payload (programmer errors always throw, never fall back): unknown type, upload size, voice caption, caption length.
+
+
+</td></tr>
+<tr><td>
+
+[assertMediaSize(type, bytes)](./gramstax.ctx.assertmediasize.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Throw when `bytes` exceeds the `MEDIA_UPLOAD_LIMITS` entry for `type`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[assertMediaSrcList(type, srcList)](./gramstax.ctx.assertmediasrclist.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Fail-fast checks for a pipe-delimited `srcList`<!-- -->: group size limit + upload size.
+
+
+</td></tr>
+<tr><td>
+
+[assertMediaSrcSize(type, src)](./gramstax.ctx.assertmediasrcsize.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Size-check a media `src` when its bytes are knowable, else skip.
+
+
+</td></tr>
+<tr><td>
+
+[assertPaidMedia(paidMedia)](./gramstax.ctx.assertpaidmedia.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Fail-fast validation for a compiled `<g-paid-media>` paywall.
+
+
+</td></tr>
+<tr><td>
+
+[assertPoll(poll)](./gramstax.ctx.assertpoll.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Fail-fast checks for a compiled `<g-poll>` block against Bot API limits.
+
+
+</td></tr>
+<tr><td>
+
+[assertVenue(venue)](./gramstax.ctx.assertvenue.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Venue fields accepted by [Ctx.renderVenue()](./gramstax.ctx.rendervenue.md) from the compiled `<g-venue>` block.
 
 
 </td></tr>
@@ -1270,6 +2048,22 @@ Creates default page routing data configuration.
 </td></tr>
 <tr><td>
 
+[classifySendError(err)](./gramstax.ctx.classifysenderror.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Classify a send failure as `fallback-text` (content rejected, reply with fallback text) or `retryable` (rate limit, server, network, or unknown — rethrow the original error untouched, fail-loud default).
+
+
+</td></tr>
+<tr><td>
+
 [clearSession()](./gramstax.ctx.clearsession.md)
 
 
@@ -1284,6 +2078,36 @@ Clears session data for the current user.
 </td></tr>
 <tr><td>
 
+[cloneMediaInput(value, \_roots)](./gramstax.ctx.clonemediainput.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Clone a resolved media input so parallel broadcast sends never share one mutable instance.
+
+
+</td></tr>
+<tr><td>
+
+[deleteBusinessStory(businessConnectionId, storyId)](./gramstax.ctx.deletebusinessstory.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Deletes a story previously posted on behalf of a managed business account.
+
+
+</td></tr>
+<tr><td>
+
 [download(path)](./gramstax.ctx.download.md)
 
 
@@ -1293,6 +2117,20 @@ Clears session data for the current user.
 </td><td>
 
 Downloads the file attached to the current message.
+
+
+</td></tr>
+<tr><td>
+
+[editBusinessStory(businessConnectionId, storyId, content, options)](./gramstax.ctx.editbusinessstory.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits a story previously posted on behalf of a managed business account.
 
 
 </td></tr>
@@ -1379,6 +2217,20 @@ Gets the separator character for the specified method.
 </td><td>
 
 Retrieves session data for the current user.
+
+
+</td></tr>
+<tr><td>
+
+[getStarTransactions(options)](./gramstax.ctx.getstartransactions.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Lists Stars transactions for the bot (admin reconciliation).
 
 
 </td></tr>
@@ -2695,6 +3547,22 @@ Creates an inline keyboard using a builder callback.
 </td><td>
 
 Creates an inline keyboard with template-based buttons linked to page destinations.
+
+
+</td></tr>
+<tr><td>
+
+[isPathUnderRoots(src, roots)](./gramstax.ctx.ispathunderroots.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Check whether a local path sits under one of the jail roots.
 
 
 </td></tr>
@@ -4128,6 +4996,48 @@ Session method key builder for `handleSessionText`<!-- -->.
 </td></tr>
 <tr><td>
 
+[notifySendError(err, kind, chatId)](./gramstax.ctx.notifysenderror.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Invoke the `onSendError` hook best-effort (Q9 option b).
+
+
+</td></tr>
+<tr><td>
+
+[postBusinessStory(businessConnectionId, content, activePeriod, options)](./gramstax.ctx.postbusinessstory.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Posts a story on behalf of a managed business account.
+
+
+</td></tr>
+<tr><td>
+
+[refundStars(userId, chargeId)](./gramstax.ctx.refundstars.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Refunds a successful Stars payment to the user.
+
+
+</td></tr>
+<tr><td>
+
 [render(keyboard, data, AGBaseId, options)](./gramstax.ctx.render.md)
 
 
@@ -4156,6 +5066,20 @@ Sends an animation/GIF message using the page template.
 </td></tr>
 <tr><td>
 
+[renderAnimationAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.renderanimationauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits an animation/GIF message using the page template, auto-selecting between [Ctx.renderAnimation()](./gramstax.ctx.renderanimation.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [renderAudio(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderaudio.md)
 
 
@@ -4165,6 +5089,20 @@ Sends an animation/GIF message using the page template.
 </td><td>
 
 Sends an audio message using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[renderAudioAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.renderaudioauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits an audio message using the page template, auto-selecting between [Ctx.renderAudio()](./gramstax.ctx.renderaudio.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
 
 </td></tr>
@@ -4240,7 +5178,7 @@ Sends or edits a rich message using the page template, auto-selecting between [C
 </td></tr>
 <tr><td>
 
-[renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs, excludeIds)](./gramstax.ctx.renderbroadcast.md)
+[renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs, excludeIds, onProgress, startFrom, concurrency)](./gramstax.ctx.renderbroadcast.md)
 
 
 </td><td>
@@ -4254,7 +5192,35 @@ Sends a message to multiple users in bulk.
 </td></tr>
 <tr><td>
 
-[renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs, excludeIds)](./gramstax.ctx.renderbroadcastmedia.md)
+[renderBroadcastDelete(targets, broadcastOpts)](./gramstax.ctx.renderbroadcastdelete.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Deletes already-sent messages for many recipients in bulk.
+
+
+</td></tr>
+<tr><td>
+
+[renderBroadcastEdit(targets, type, keyboardInline, data, AGBaseId, options1, options2, broadcastOpts)](./gramstax.ctx.renderbroadcastedit.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits already-sent messages for many recipients in bulk.
+
+
+</td></tr>
+<tr><td>
+
+[renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs, excludeIds, onProgress, startFrom, concurrency)](./gramstax.ctx.renderbroadcastmedia.md)
 
 
 </td><td>
@@ -4263,6 +5229,20 @@ Sends a message to multiple users in bulk.
 </td><td>
 
 Sends a media message to multiple users in bulk.
+
+
+</td></tr>
+<tr><td>
+
+[renderBroadcastPoll(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs, excludeIds, onProgress, startFrom, concurrency)](./gramstax.ctx.renderbroadcastpoll.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a template poll to multiple users in bulk.
 
 
 </td></tr>
@@ -4282,6 +5262,34 @@ Sends a contact using the page template.
 </td></tr>
 <tr><td>
 
+[renderContactAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendercontactauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a contact using the page template, auto-selecting between [Ctx.renderContact()](./gramstax.ctx.rendercontact.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[renderDice(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderdice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a template-driven dice animation using the page `<g-dice>` block.
+
+
+</td></tr>
+<tr><td>
+
 [renderDocument(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderdocument.md)
 
 
@@ -4291,6 +5299,20 @@ Sends a contact using the page template.
 </td><td>
 
 Sends a document message using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[renderDocumentAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.renderdocumentauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a document message using the page template, auto-selecting between [Ctx.renderDocument()](./gramstax.ctx.renderdocument.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
 
 </td></tr>
@@ -4352,7 +5374,7 @@ Edits an existing message to show an audio.
 </td></tr>
 <tr><td>
 
-[renderEditAudioGroup(data, AGBaseId, options)](./gramstax.ctx.rendereditaudiogroup.md)
+[renderEditAudioGroup(data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditaudiogroup.md)
 
 
 </td><td>
@@ -4394,7 +5416,7 @@ Edits an existing message to show a document.
 </td></tr>
 <tr><td>
 
-[renderEditDocumentGroup(data, AGBaseId, options)](./gramstax.ctx.rendereditdocumentgroup.md)
+[renderEditDocumentGroup(data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditdocumentgroup.md)
 
 
 </td><td>
@@ -4436,7 +5458,7 @@ Edits an existing media message with dynamic type selection.
 </td></tr>
 <tr><td>
 
-[renderEditMediaGroup(type, data, AGBaseId, options)](./gramstax.ctx.rendereditmediagroup.md)
+[renderEditMediaGroup(type, data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditmediagroup.md)
 
 
 </td><td>
@@ -4464,7 +5486,7 @@ Edits an existing message to show a photo.
 </td></tr>
 <tr><td>
 
-[renderEditPhotoGroup(data, AGBaseId, options)](./gramstax.ctx.rendereditphotogroup.md)
+[renderEditPhotoGroup(data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditphotogroup.md)
 
 
 </td><td>
@@ -4520,7 +5542,7 @@ Edits an existing message to show a video.
 </td></tr>
 <tr><td>
 
-[renderEditVideoGroup(data, AGBaseId, options)](./gramstax.ctx.rendereditvideogroup.md)
+[renderEditVideoGroup(data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditvideogroup.md)
 
 
 </td><td>
@@ -4562,6 +5584,20 @@ Replaces the current message with a voice message.
 </td></tr>
 <tr><td>
 
+[renderInvoice(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderinvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a template-driven invoice using the page `<g-invoice>` block.
+
+
+</td></tr>
+<tr><td>
+
 [renderLocation(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderlocation.md)
 
 
@@ -4571,6 +5607,20 @@ Replaces the current message with a voice message.
 </td><td>
 
 Sends a location using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[renderLocationAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.renderlocationauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a location using the page template, auto-selecting between [Ctx.renderLocation()](./gramstax.ctx.renderlocation.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
 
 </td></tr>
@@ -4604,6 +5654,20 @@ Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-gr
 </td></tr>
 <tr><td>
 
+[renderPaidMedia(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderpaidmedia.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends Stars-locked photo/video content using the page `<g-paid-media>` block.
+
+
+</td></tr>
+<tr><td>
+
 [renderPhoto(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderphoto.md)
 
 
@@ -4618,6 +5682,20 @@ Sends a photo message using the page template.
 </td></tr>
 <tr><td>
 
+[renderPhotoAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.renderphotoauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a photo message using the page template, auto-selecting between [Ctx.renderPhoto()](./gramstax.ctx.renderphoto.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [renderPhotoGroup(data, AGBaseId, options)](./gramstax.ctx.renderphotogroup.md)
 
 
@@ -4627,6 +5705,20 @@ Sends a photo message using the page template.
 </td><td>
 
 Sends a photo media group using pipe-delimited `src` values from the page template.
+
+
+</td></tr>
+<tr><td>
+
+[renderPoll(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderpoll.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a template-driven poll using the page `<g-poll>` block.
 
 
 </td></tr>
@@ -4660,6 +5752,34 @@ Sends a sticker using the page template.
 </td></tr>
 <tr><td>
 
+[renderStickerAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.renderstickerauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a sticker using the page template, auto-selecting between [Ctx.renderSticker()](./gramstax.ctx.rendersticker.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[renderVenue(keyboard, data, AGBaseId, options)](./gramstax.ctx.rendervenue.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a template-driven venue using the page `<g-venue>` block.
+
+
+</td></tr>
+<tr><td>
+
 [renderVideo(keyboard, data, AGBaseId, options)](./gramstax.ctx.rendervideo.md)
 
 
@@ -4669,6 +5789,20 @@ Sends a sticker using the page template.
 </td><td>
 
 Sends a video message using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[renderVideoAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendervideoauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a video message using the page template, auto-selecting between [Ctx.renderVideo()](./gramstax.ctx.rendervideo.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
 
 </td></tr>
@@ -4702,6 +5836,20 @@ Sends a video note (circular video) using the page template.
 </td></tr>
 <tr><td>
 
+[renderVideoNoteAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendervideonoteauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a video note (circular video) using the page template, auto-selecting between [Ctx.renderVideoNote()](./gramstax.ctx.rendervideonote.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [renderVoice(keyboard, data, AGBaseId, options)](./gramstax.ctx.rendervoice.md)
 
 
@@ -4711,6 +5859,34 @@ Sends a video note (circular video) using the page template.
 </td><td>
 
 Sends a voice message using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[renderVoiceAuto(keyboard, data, AGBaseId, options1, options2, fallbackEdit)](./gramstax.ctx.rendervoiceauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a voice message using the page template, auto-selecting between [Ctx.renderVoice()](./gramstax.ctx.rendervoice.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[replyFallbackText()](./gramstax.ctx.replyfallbacktext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Best-effort fallback-text reply; never throws (nested failures are ignored).
 
 
 </td></tr>
@@ -4753,6 +5929,94 @@ Streams an iterator of markdown strings to the current chat as a single rich mes
 </td><td>
 
 Streams an iterator of message pieces to the current chat, making text appear progressively as editing message drafts.
+
+
+</td></tr>
+<tr><td>
+
+[resolveFallbackText()](./gramstax.ctx.resolvefallbacktext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Resolve the effective fallback text (per-page override or framework default).
+
+
+</td></tr>
+<tr><td>
+
+[resolveMedia(src, filename)](./gramstax.ctx.resolvemedia.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Resolve a media `src` through the instance path jail.
+
+
+</td></tr>
+<tr><td>
+
+[resolveMediaInput(src, filename, roots)](./gramstax.ctx.resolvemediainput.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Resolve a template media `src` into an uploadable value.
+
+
+</td></tr>
+<tr><td>
+
+[retryAfterMs(err)](./gramstax.ctx.retryafterms.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Extract the Bot API `retry_after` hint in milliseconds, if present.
+
+
+</td></tr>
+<tr><td>
+
+[sendChatId()](./gramstax.ctx.sendchatid.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Best-effort current chat id for send-error context only.
+
+
+</td></tr>
+<tr><td>
+
+[sendPageName()](./gramstax.ctx.sendpagename.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Best-effort page name for send-error context.
 
 
 </td></tr>
@@ -6179,6 +7443,48 @@ Set the session method for `handleSessionMyChatMemberRegularAdmin` routing.
 </td><td>
 
 Set the session method for `handleSessionText` routing.
+
+
+</td></tr>
+<tr><td>
+
+[startGiveaway(params, options)](./gramstax.ctx.startgiveaway.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Starts a channel giveaway from a single params object.
+
+
+</td></tr>
+<tr><td>
+
+[stopLiveLocation(chatId, messageId, options)](./gramstax.ctx.stoplivelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Stops a live location message, freezing it at its last position.
+
+
+</td></tr>
+<tr><td>
+
+[stopPoll(chatId, messageId, options)](./gramstax.ctx.stoppoll.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Stops a live poll, closing voting and returning the final results.
 
 
 </td></tr>

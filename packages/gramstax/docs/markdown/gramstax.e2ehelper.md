@@ -198,7 +198,7 @@ Render a page message template.
 </td></tr>
 <tr><td>
 
-[handleUpdate(update)](./gramstax.e2ehelper.handleupdate.md)
+[handleUpdate(update, settleMs)](./gramstax.e2ehelper.handleupdate.md)
 
 
 </td><td>
@@ -221,6 +221,20 @@ Inject an Update object directly into the bot and capture responses.
 </td><td>
 
 Find the most recent captured API call.
+
+
+</td></tr>
+<tr><td>
+
+[reset()](./gramstax.e2ehelper.reset.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Resets the helper: clears calls and restarts update/message counters.
 
 
 </td></tr>

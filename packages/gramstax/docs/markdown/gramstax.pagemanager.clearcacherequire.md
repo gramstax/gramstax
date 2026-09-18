@@ -58,6 +58,12 @@ boolean
 
 Error if directory does not exist.
 
+Error if no CommonJS require cache is available (ESM runtime).
+
+## Remarks
+
+CommonJS-only: entries are deleted from the `require` cache. In ESM runtimes without a `require` cache this throws a descriptive error — use the async [PageManager.getFile()](./gramstax.pagemanager.getfile.md) path instead, which cache-busts via an `?t=` import query.
+
 ## Example
 
 

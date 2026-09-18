@@ -9,7 +9,7 @@ Sends a media message reply with dynamic type selection.
 **Signature:**
 
 ```typescript
-renderMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+renderMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -114,13 +114,15 @@ _(Optional)_ Type-specific options for the media (or null to omit).
 
 **Returns:**
 
-Promise&lt;grammy\_types.Message.LocationMessage \| grammy\_types.Message.ContactMessage \| grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.VoiceMessage \| grammy\_types.Message.VideoNoteMessage \| grammy\_types.Message.StickerMessage \| undefined&gt;
+Promise&lt;unknown&gt;
 
 The sent message object.
 
 ## Remarks
 
 This is the base method for all media reply methods. Use specific methods like [Ctx.renderPhoto()](./gramstax.ctx.renderphoto.md) or [Ctx.renderVideo()](./gramstax.ctx.rendervideo.md) for simpler usage.
+
+Fail-fast validation (`Ctx.assertMediaPreconditions`<!-- -->, plus `Ctx.assertLocation`<!-- -->/`Ctx.assertContact` in their branches) runs BEFORE any API call — programmer errors always throw, never fall back. Send failures follow `Ctx.classifySendError`<!-- -->: `retryable` rethrows the original error untouched; `fallback-text` best-effort replies with `resolveFallbackText()` (nested failures ignored) and returns it.
 
 ## Example
 

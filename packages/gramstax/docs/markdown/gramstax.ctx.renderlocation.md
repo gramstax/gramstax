@@ -9,7 +9,7 @@ Sends a location using the page template.
 **Signature:**
 
 ```typescript
-renderLocation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyLocation | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+renderLocation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyLocation | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -98,9 +98,13 @@ _(Optional)_ Optional location-specific options (or null to omit).
 
 **Returns:**
 
-Promise&lt;grammy\_types.Message.LocationMessage \| grammy\_types.Message.ContactMessage \| grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.VoiceMessage \| grammy\_types.Message.VideoNoteMessage \| grammy\_types.Message.StickerMessage \| undefined&gt;
+Promise&lt;unknown&gt;
 
 The sent message object.
+
+## Remarks
+
+When the template `<g-media type="location">` carries a `live` attribute (seconds), it is validated by `Ctx.assertLivePeriod` and sent as Bot API `live_period`<!-- -->. Stop it later with [Ctx.stopLiveLocation()](./gramstax.ctx.stoplivelocation.md)<!-- -->.
 
 ## Example
 

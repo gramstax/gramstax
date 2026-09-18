@@ -4,8 +4,15 @@
 
 ## TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM property
 
+Combined Telegram tag allowlist: legacy (9) + Rich HTML (45) = 54 tags.
+
 **Signature:**
 
 ```typescript
 static ALLOWED_BLOCKS_TELEGRAM: string[];
 ```
+
+## Remarks
+
+Single source of truth for Telegram-side validation (`validateTemplate` required-attribute, value-format, and unknown-attribute steps) and passthrough extraction (`_extractBlockNames`<!-- -->). See [TemplateEngine.ALLOWED\_BLOCKS](./gramstax.templateengine.allowed_blocks.md) for the full registry including PAGE blocks.
+

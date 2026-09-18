@@ -183,6 +183,8 @@ string\[\]
 
 </td><td>
 
+Gramstax `<g-*>` PAGE block allowlist.
+
 
 </td></tr>
 <tr><td>
@@ -201,6 +203,8 @@ string\[\]
 
 
 </td><td>
+
+Telegram HTML-mode tags from the pre-Rich spec (`parse_mode="HTML"`<!-- -->).
 
 
 </td></tr>
@@ -221,6 +225,8 @@ string\[\]
 
 </td><td>
 
+Telegram Rich HTML tags passed through to the message `html` field.
+
 
 </td></tr>
 <tr><td>
@@ -239,6 +245,8 @@ string\[\]
 
 
 </td><td>
+
+Combined Telegram tag allowlist: legacy (9) + Rich HTML (45) = 54 tags.
 
 
 </td></tr>
@@ -307,6 +315,27 @@ Telegram Bot API version supported by this release.
 </td></tr>
 <tr><td>
 
+[DICE\_EMOJI](./gramstax.templateengine.dice_emoji.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+ReadonlySet&lt;string&gt;
+
+
+</td><td>
+
+Bot API dice emoji values accepted by `<g-dice emoji>`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [MAX\_MEDIA\_GROUP\_ITEMS](./gramstax.templateengine.max_media_group_items.md)
 
 
@@ -322,7 +351,49 @@ number
 
 </td><td>
 
-Maximum items in a media group (pipe-delimited `src` or `<g-media-group>`<!-- -->).
+Maximum items in a single Telegram media group.
+
+
+</td></tr>
+<tr><td>
+
+[MAX\_PAID\_MEDIA\_ITEMS](./gramstax.templateengine.max_paid_media_items.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Maximum items in a single `<g-paid-media>` block.
+
+
+</td></tr>
+<tr><td>
+
+[MAX\_PAID\_MEDIA\_STARS](./gramstax.templateengine.max_paid_media_stars.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Maximum Stars price for a `<g-paid-media>` paywall.
 
 
 </td></tr>
@@ -348,7 +419,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_compileToFunction(template, isArray)](./gramstax.templateengine._compiletofunction.md)
+[\_compileMediaSrc(rawSrc, stringFn)](./gramstax.templateengine._compilemediasrc.md)
 
 
 </td><td>
@@ -358,7 +429,21 @@ Description
 
 </td><td>
 
-Compiles a processed template string into an executable function.
+Wraps a compiled string `src` fn so bare placeholders pass objects by reference.
+
+
+</td></tr>
+<tr><td>
+
+[\_compileToFunction(template, isArray)](./gramstax.templateengine._compiletofunction.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
 
 
 </td></tr>
@@ -396,6 +481,22 @@ HTML-escapes a runtime value for safe interpolation into rich-HTML messages.
 </td></tr>
 <tr><td>
 
+[\_escapeStaticExceptInterpolation(content)](./gramstax.templateengine._escapestaticexceptinterpolation.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Escapes static template text while preserving template syntax spans.
+
+
+</td></tr>
+<tr><td>
+
 [\_extractBlock(content, blocks, AGBaseId, section, lang)](./gramstax.templateengine._extractblock.md)
 
 
@@ -423,6 +524,38 @@ Extracts specific blocks from template content with optional filtering.
 </td><td>
 
 Extracts lowercase block tag names from an array of tag literals.
+
+
+</td></tr>
+<tr><td>
+
+[\_isGeneratedCode(code)](./gramstax.templateengine._isgeneratedcode.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles a processed template string into an executable function.
+
+
+</td></tr>
+<tr><td>
+
+[\_matchBareMediaPlaceholder(rawSrc)](./gramstax.templateengine._matchbaremediaplaceholder.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Matches a bare `src` placeholder with no pipes or surrounding text.
 
 
 </td></tr>
@@ -460,6 +593,22 @@ Block: g-description Extracts and parses `<g-description>` blocks from a templat
 </td></tr>
 <tr><td>
 
+[\_processGDiceBlocks(template)](./gramstax.templateengine._processgdiceblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-dice Extracts and parses `<g-dice>` blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
 [\_processGDivBlocks(template)](./gramstax.templateengine._processgdivblocks.md)
 
 
@@ -487,6 +636,22 @@ Block: g-div Normalizes content within `<g-div>` blocks by removing indentation.
 </td><td>
 
 Parses `<g-import>` directives from a template and extracts import metadata.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGInvoiceBlocks(template)](./gramstax.templateengine._processginvoiceblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Parses `<g-invoice>` blocks into Telegram invoice definitions.
 
 
 </td></tr>
@@ -572,6 +737,38 @@ Block: g-message Extracts and parses `<g-message>` blocks from a template string
 </td></tr>
 <tr><td>
 
+[\_processGPaidMediaBlocks(template)](./gramstax.templateengine._processgpaidmediablocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Parses `<g-paid-media>` blocks into Stars paywall definitions.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGPollBlocks(template)](./gramstax.templateengine._processgpollblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-poll Extracts and parses `<g-poll>` blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
 [\_processGScriptBlocks(template)](./gramstax.templateengine._processgscriptblocks.md)
 
 
@@ -620,6 +817,40 @@ Block: g-switch Transforms `<g-switch>` blocks into JavaScript switch statement 
 </td></tr>
 <tr><td>
 
+[\_processGVenueBlocks(template)](./gramstax.templateengine._processgvenueblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-venue Extracts and parses `<g-venue>` blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
+[\_processMediaGroupItems(groupContent)](./gramstax.templateengine._processmediagroupitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Parses inner `<g-media>` items inside a `<g-media-group>` block body.
+
+Extracts `type`<!-- -->, `src`<!-- -->, `lang`<!-- -->, and `shared` attributes plus the caption body for each inner `<g-media>` element. `shared` supports both standalone boolean (`<g-media shared>`<!-- -->) and explicit (`<g-media shared="true">`<!-- -->) syntax.
+
+
+</td></tr>
+<tr><td>
+
 [\_processScopeExec(template)](./gramstax.templateengine._processscopeexec.md)
 
 
@@ -652,6 +883,22 @@ Scope: `{{}}` Converts `{{variable}}` placeholders to JavaScript template litera
 </td></tr>
 <tr><td>
 
+[\_resolveMediaDataPath(data, path)](./gramstax.templateengine._resolvemediadatapath.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Null-safe dotted-path lookup against template data.
+
+
+</td></tr>
+<tr><td>
+
 [\_splitMediaSrcList(src)](./gramstax.templateengine._splitmediasrclist.md)
 
 
@@ -661,6 +908,86 @@ Scope: `{{}}` Converts `{{variable}}` placeholders to JavaScript template litera
 
 
 </td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_toConcatExpr(processed)](./gramstax.templateengine._toconcatexpr.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Converts processed template output into a concatenation expression.
+
+
+</td></tr>
+<tr><td>
+
+[\_validateBlockAttributes(template, tagName, allowedAttributes, allowedLabel, valueValidators)](./gramstax.templateengine._validateblockattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Shared helper: validates attributes on a specific block tag.
+
+
+</td></tr>
+<tr><td>
+
+[\_validateDiceItems(template)](./gramstax.templateengine._validatediceitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates the static `<g-dice>` emoji against the Bot API set.
+
+
+</td></tr>
+<tr><td>
+
+[\_validateInvoiceItems(template)](./gramstax.templateengine._validateinvoiceitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates `<g-invoice>` required attributes, secrets ban, and `<g-price>` items.
+
+
+</td></tr>
+<tr><td>
+
+[\_validateMediaGroupItems(template)](./gramstax.templateengine._validatemediagroupitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates `<g-media>` items inside `<g-media-group>` blocks.
 
 
 </td></tr>
@@ -693,6 +1020,38 @@ Scans a template for `<g-*>` PAGE blocks that are missing required attributes.
 </td><td>
 
 Scans a template for `<g-*>` PAGE blocks whose attribute values fail format checks.
+
+
+</td></tr>
+<tr><td>
+
+[\_validatePaidMediaItems(template)](./gramstax.templateengine._validatepaidmediaitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates `<g-paid-media>` required attributes and `<g-media>` items.
+
+
+</td></tr>
+<tr><td>
+
+[\_validatePollItems(template)](./gramstax.templateengine._validatepollitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates `<g-question>` / `<g-option>` items inside `<g-poll>` blocks.
 
 
 </td></tr>
@@ -746,6 +1105,22 @@ Scans a template for Telegram Rich HTML tags carrying attribute names outside th
 </td></tr>
 <tr><td>
 
+[\_validateVenueItems(template)](./gramstax.templateengine._validatevenueitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates `<g-venue>` required attributes and static coordinates.
+
+
+</td></tr>
+<tr><td>
+
 [compileBlockGDescription(template, gBaseBlocks)](./gramstax.templateengine.compileblockgdescription.md)
 
 
@@ -757,6 +1132,38 @@ Scans a template for Telegram Rich HTML tags carrying attribute names outside th
 </td><td>
 
 Compiles description blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGDice(template, baseBlocks)](./gramstax.templateengine.compileblockgdice.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles dice blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGInvoice(template, baseBlocks)](./gramstax.templateengine.compileblockginvoice.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles invoice blocks from a template into executable functions.
 
 
 </td></tr>
@@ -805,6 +1212,54 @@ Compiles media blocks from a template into executable functions.
 </td><td>
 
 Compiles message blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGPaidMedia(template, baseBlocks)](./gramstax.templateengine.compileblockgpaidmedia.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles paid-media blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGPoll(template, baseBlocks)](./gramstax.templateengine.compileblockgpoll.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles poll blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGVenue(template, baseBlocks)](./gramstax.templateengine.compileblockgvenue.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles venue blocks from a template into executable functions.
 
 
 </td></tr>
@@ -890,6 +1345,22 @@ Validates attributes on `<g-description>` blocks.
 </td></tr>
 <tr><td>
 
+[validateBlockGDiceAttributes(template)](./gramstax.templateengine.validateblockgdiceattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and the static emoji rule on `<g-dice>` blocks.
+
+
+</td></tr>
+<tr><td>
+
 [validateBlockGDivAttributes(template)](./gramstax.templateengine.validateblockgdivattributes.md)
 
 
@@ -917,6 +1388,22 @@ Validates attributes on `<g-div>` blocks.
 </td><td>
 
 Validates attributes on `<g-import>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGInvoiceAttributes(template)](./gramstax.templateengine.validateblockginvoiceattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and item constraints on `<g-invoice>` blocks.
 
 
 </td></tr>
@@ -1018,6 +1505,54 @@ Validates all aspects of a template: block names, scopes, block format, block po
 </td></tr>
 <tr><td>
 
+[validateBlockGPaidMediaAttributes(template)](./gramstax.templateengine.validateblockgpaidmediaattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and item constraints on `<g-paid-media>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGPollAttributes(template)](./gramstax.templateengine.validateblockgpollattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and item constraints on `<g-poll>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGPriceAttributes(template)](./gramstax.templateengine.validateblockgpriceattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<g-price>` line items inside `<g-invoice>` blocks.
+
+
+</td></tr>
+<tr><td>
+
 [validateBlockGScriptAttributes(template)](./gramstax.templateengine.validateblockgscriptattributes.md)
 
 
@@ -1061,6 +1596,22 @@ Validates attributes on `<g-space>` blocks.
 </td><td>
 
 Validates attributes on `<g-switch>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGVenueAttributes(template)](./gramstax.templateengine.validateblockgvenueattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and presence rules on `<g-venue>` blocks.
 
 
 </td></tr>

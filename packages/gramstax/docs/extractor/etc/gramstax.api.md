@@ -15,6 +15,7 @@ import { FilterQuery } from 'grammy';
 import { FSWatcher } from 'chokidar';
 import * as grammy_types from 'grammy/types';
 import { InlineKeyboard } from 'grammy';
+import { InputFile } from 'grammy';
 import { InputMediaBuilder } from 'grammy';
 import { Keyboard } from 'grammy';
 import { Keyv } from 'keyv';
@@ -43,7 +44,7 @@ export interface _BottomKbWithCtx extends Keyboard {
 export class CacheExternal<V = unknown> extends Keyv<V> {
     // Warning: (ae-forgotten-export) The symbol "ITMore" needs to be exported by the entry point index.d.ts
     constructor(url?: string, ttl?: number, namespace?: string, more?: ITMore);
-    refreshLruCache(maxLength?: number): void;
+    refreshLruCache(maxLength?: number): Promise<void>;
     // (undocumented)
     url: string;
 }
@@ -60,6 +61,41 @@ export class Ctx extends Context {
     static readonly ANSWER_API_METHODS: Set<string>;
     // @internal
     static readonly _answerApiGuard: WeakSet<object>;
+    answerPreCheckout(ok: boolean, errorMessage?: string | null): Promise<true>;
+    static assertContact(phone: unknown, firstName: unknown): void;
+    static assertDiceEmoji(emoji: unknown): string;
+    static assertInvoice(invoice: ITInvoiceBlock): void;
+    static assertLivePeriod(live: unknown): number | undefined;
+    static assertLocation(latitude: unknown, longitude: unknown): {
+        latitude: number;
+        longitude: number;
+    };
+    static assertMediaCaption(type: string, caption: unknown): void;
+    static assertMediaGroupItems(items: Array<{
+        type: string;
+        src?: unknown;
+        caption?: unknown;
+    }>): void;
+    static assertMediaPreconditions(type: string, med: {
+        src?: unknown;
+        caption?: unknown;
+    }): void;
+    static assertMediaSize(type: string, bytes: number): void;
+    static assertMediaSrcList(type: string, srcList: Array<unknown>): void;
+    static assertMediaSrcSize(type: string, src: unknown): void;
+    static assertPaidMedia(paidMedia: ITPaidMediaBlock): void;
+    static assertPoll(poll: ITPollBlock): void;
+    static assertVenue(venue: {
+        title: unknown;
+        address: unknown;
+        latitude: unknown;
+        longitude: unknown;
+    }): {
+        title: string;
+        address: string;
+        latitude: number;
+        longitude: number;
+    };
     bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb;
     bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb;
     // (undocumented)
@@ -81,22 +117,30 @@ export class Ctx extends Context {
     get chatJoinRequest(): NonNullable<Context[`chatJoinRequest`]>;
     get chatMember(): NonNullable<Context[`chatMember`]>;
     get chosenInlineResult(): NonNullable<Context[`chosenInlineResult`]>;
+    static classifySendError(err: unknown): `fallback-text` | `retryable`;
     clearSession(): Promise<boolean | null>;
+    static cloneMediaInput<T>(value: T, _roots?: readonly string[] | null): T;
     static data?: ITPageDataBase;
     data: ITPageData;
+    deleteBusinessStory(businessConnectionId?: string | null, storyId?: number | null): Promise<true>;
     get deletedBusinessMessages(): NonNullable<Context[`deletedBusinessMessages`]>;
+    static readonly DICE_EMOJI: ReadonlySet<string>;
     download(path?: string): Promise<string>;
+    editBusinessStory(businessConnectionId?: string | null, storyId?: number | null, content?: ITStoryContent | null, options?: Parameters<Ctx[`api`][`editStory`]>[3] | null): Promise<grammy_types.Story>;
     get editedBusinessMessage(): NonNullable<Context[`editedBusinessMessage`]>;
     get editedChannelPost(): NonNullable<Context[`editedChannelPost`]>;
     get editedMessage(): NonNullable<Context[`editedMessage`]>;
     static ephemeralParams(receiverUserId?: number | Record<string, unknown>, callbackQueryId?: string, replace?: boolean): EphemeralMessageParameters | undefined;
     ephemeralParams(receiverUserId?: number | Record<string, unknown>, callbackQueryId?: string, replace?: boolean): EphemeralMessageParameters | undefined;
+    static readonly FALLBACK_TEXT = "Media unavailable";
+    fallbackText?: string | null;
     get from(): NonNullable<Context[`from`]>;
     get fromFullName(): string;
     getArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], positionStart?: number): string[];
     getIntent(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], positionEnd?: number): string;
     getSeperatorTag(mtd?: `space` | `colon`): " " | ":";
     getSession(): Promise<ITCacheRpc | null>;
+    getStarTransactions(options?: Parameters<Ctx[`api`][`getStarTransactions`]>[0] | null): Promise<grammy_types.StarTransactions>;
     get guestMessage(): NonNullable<Context[`guestMessage`]>;
     // @virtual
     handleArgsCallbackQueryData?(): Promise<unknown>;
@@ -242,9 +286,20 @@ export class Ctx extends Context {
     inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null): ITInlineKb;
     inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null): _InlineKbWithCtx;
     get inlineQuery(): NonNullable<Context[`inlineQuery`]>;
+    static readonly INVOICE_DESCRIPTION_LIMIT = 255;
+    static readonly INVOICE_PAYLOAD_LIMIT = 128;
+    static readonly INVOICE_PRICES_MIN = 1;
+    static readonly INVOICE_TITLE_LIMIT = 32;
+    static isPathUnderRoots(src: string, roots: readonly string[]): boolean;
     keyboardCols<T = unknown>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => unknown): T;
     log: LoggingHelper | null | undefined;
     get managedBot(): NonNullable<Context[`managedBot`]>;
+    static readonly MEDIA_CAPTION_LIMIT = 1024;
+    static readonly MEDIA_CAPTION_TYPES: ReadonlySet<string>;
+    static readonly MEDIA_GROUP_LIMIT = 10;
+    static readonly MEDIA_TYPES: string[];
+    static readonly MEDIA_UPLOAD_LIMITS: Record<string, number>;
+    mediaRoots?: string[] | null;
     // @internal
     memoization: {
         sessionLoaded: boolean;
@@ -362,80 +417,140 @@ export class Ctx extends Context {
     get msgTextArgs(): string[];
     get msgTextCommandArg(): string;
     get msgTextCommandArgs(): string[];
+    notifySendError(err: unknown, kind: `fallback-text` | `retryable`, chatId?: number): void;
+    onSendError?: ITSendErrorHook | null;
+    static readonly PAID_MEDIA_ITEMS_MAX = 10;
+    static readonly PAID_MEDIA_ITEMS_MIN = 1;
+    static readonly PAID_MEDIA_STARS_MAX = 25000;
+    static readonly PAID_MEDIA_STARS_MIN = 1;
     get poll(): NonNullable<Context[`poll`]>;
+    static readonly POLL_EXPLANATION_LIMIT = 200;
+    static readonly POLL_OPTION_LIMIT = 100;
+    static readonly POLL_OPTIONS_MAX = 10;
+    static readonly POLL_OPTIONS_MIN = 2;
+    static readonly POLL_QUESTION_LIMIT = 300;
     get pollAnswer(): NonNullable<Context[`pollAnswer`]>;
+    postBusinessStory(businessConnectionId?: string | null, content?: ITStoryContent | null, activePeriod?: number | null, options?: Parameters<Ctx[`api`][`postStory`]>[3] | null): Promise<grammy_types.Story>;
     get preCheckoutQuery(): NonNullable<Context[`preCheckoutQuery`]>;
     get purchasedPaidMedia(): NonNullable<Context[`purchasedPaidMedia`]>;
+    refundStars(userId: number, chargeId: string): Promise<true>;
     get removedChatBoost(): NonNullable<Context[`removedChatBoost`]>;
     render(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null): Promise<grammy_types.Message.TextMessage>;
-    renderAnimation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAnimation | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    renderAudio(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderAnimation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAnimation | null): Promise<unknown>;
+    renderAnimationAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyAnimation | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderAudio(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<unknown>;
+    renderAudioAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyAudio | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<unknown>;
     renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         rich_message: grammy_types.RichMessage;
     })>;
-    renderAutoMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderAutoMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<unknown>;
     renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
     }>)>;
-    renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null): Promise<{
+    renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null): Promise<{
         successCount: number;
         failedCount: number;
         totalCount: number;
         skippedCount: number;
+        retryable: Array<{
+            index: number;
+            id: number;
+            error: unknown;
+        }>;
     }>;
-    renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null): Promise<{
+    renderBroadcastDelete(targets: ITBroadcastEditTarget[], broadcastOpts?: ITBroadcastEditOpts | null): Promise<ITBroadcastEditResult>;
+    renderBroadcastEdit<T extends Exclude<ITMediaBlock[`type`], `group`>>(targets: ITBroadcastEditTarget[], type: T, keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?: ITOptEditMedia2 | null, broadcastOpts?: ITBroadcastEditOpts | null): Promise<ITBroadcastEditResult>;
+    renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null): Promise<{
         successCount: number;
         failedCount: number;
         totalCount: number;
         skippedCount: number;
+        retryable: Array<{
+            index: number;
+            id: number;
+            error: unknown;
+        }>;
     }>;
-    renderContact(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyContact | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    renderDocument(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderBroadcastPoll(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null): Promise<{
+        successCount: number;
+        failedCount: number;
+        totalCount: number;
+        skippedCount: number;
+        retryable: Array<{
+            index: number;
+            id: number;
+            error: unknown;
+        }>;
+    }>;
+    renderContact(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyContact | null): Promise<unknown>;
+    renderContactAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyContact | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderDice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithDice`]>[1] | null): Promise<grammy_types.Message.DiceMessage>;
+    renderDocument(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<unknown>;
+    renderDocumentAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyDocument | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<unknown>;
     renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         rich_message: grammy_types.RichMessage;
     })>;
-    renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
     renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
     }>)>;
-    renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    renderLocation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyLocation | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    renderMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderInvoice(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {
+        provider_token?: string;
+    }) | null): Promise<grammy_types.Message.InvoiceMessage>;
+    renderLocation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyLocation | null): Promise<unknown>;
+    renderLocationAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyLocation | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null): Promise<unknown>;
     // Warning: (ae-forgotten-export) The symbol "ITMediaGroupType" needs to be exported by the entry point index.d.ts
-    renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    renderPhoto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    renderPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<unknown>;
+    renderPaidMedia(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null): Promise<grammy_types.Message.PaidMediaMessage>;
+    renderPhoto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<unknown>;
+    renderPhotoAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyPhoto | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<unknown>;
+    renderPoll(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null): Promise<grammy_types.Message.PollMessage>;
     renderRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | null): Promise<grammy_types.Message.RichMessageMessage>;
-    renderSticker(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplySticker | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    renderVideo(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    renderVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    renderVideoNote(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideoNote | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    renderVoice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVoice | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderSticker(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplySticker | null): Promise<unknown>;
+    renderStickerAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplySticker | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderVenue(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithVenue`]>[4] | null): Promise<grammy_types.Message.VenueMessage>;
+    renderVideo(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<unknown>;
+    renderVideoAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVideo | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<unknown>;
+    renderVideoNote(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideoNote | null): Promise<unknown>;
+    renderVideoNoteAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVideoNote | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    renderVoice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVoice | null): Promise<unknown>;
+    renderVoiceAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVoice | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+    replyFallbackText(): Promise<unknown>;
     replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[1], otherRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[2], baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[3], signal?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[4]): Promise<unknown>;
     replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[1], otherRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[2], baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[3], signal?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[4]): Promise<unknown>;
     replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Parameters<StreamContextExtension[`replyWithStream`]>[1], otherMessage?: Parameters<StreamContextExtension[`replyWithStream`]>[2], signal?: Parameters<StreamContextExtension[`replyWithStream`]>[3]): Promise<unknown>;
+    resolveFallbackText(): string;
+    resolveMedia(src: string | InputFile | Buffer | Uint8Array | undefined, filename?: string): string | InputFile;
+    static resolveMediaInput(src: string | InputFile | Buffer | Uint8Array | undefined, filename?: string, roots?: readonly string[] | null): string | InputFile;
+    static retryAfterMs(err: unknown): number | undefined;
+    sendChatId(): number | undefined;
     get senderChat(): NonNullable<Context[`senderChat`]>;
+    sendPageName(): string;
     // (undocumented)
     sessionKey(): string;
     setSession(method: string | string[], params?: Record<string, unknown>, moreRoot?: Record<string, unknown>): Promise<boolean | null>;
@@ -739,6 +854,12 @@ export class Ctx extends Context {
     setSessionText(this: Ctx & {
         handleSessionText: (...args: unknown[]) => unknown;
     }, params?: Record<string, unknown>): Promise<boolean | null>;
+    startGiveaway(params?: ITGiveawayParams | null, options?: ITGiveawayOptions | null): Promise<unknown>;
+    stopLiveLocation(chatId: number, messageId: number, options?: Parameters<Ctx[`api`][`stopMessageLiveLocation`]>[2] | null): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        location: grammy_types.Location;
+    })>;
+    stopPoll(chatId?: number | Parameters<Context[`stopPoll`]>[0], messageId?: number | Parameters<Context[`stopPoll`]>[1], options?: Parameters<Ctx[`api`][`stopPoll`]>[2] | null): Promise<grammy_types.Poll>;
+    static readonly STORY_PERIODS: ReadonlySet<number>;
     temp: ITTemp;
     // @virtual
     static template?: string;
@@ -755,8 +876,9 @@ export class E2eHelper {
     gkb(page: string, aGBaseId: string, aType?: `inline` | `bottom`, data?: Record<string, any>, aLang?: string): string[];
     gmedia(page: string, aGBaseId: string, data?: Record<string, any>, aLang?: string): Record<string, any>;
     gmsg(page: string, aGBaseId: string, data?: Record<string, any>, aLang?: string): string;
-    handleUpdate(update: Record<string, unknown>): Promise<ITE2eApiCall[]>;
+    handleUpdate(update: Record<string, unknown>, settleMs?: number): Promise<ITE2eApiCall[]>;
     lastCall(method?: string): ITE2eApiCall | undefined;
+    reset(): void;
     sendAnimation(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
     sendAudio(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
     sendCallbackQuery(data: string, options?: ITE2eCallbackQueryOptions): Promise<ITE2eApiCall[]>;
@@ -806,6 +928,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     constructor(params: ITGramstaxParams);
     bot: Bot<ITCt>;
     botConfig?: BotConfig<ITCt>;
+    buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, extra?: T): ITCtxParams & T;
     // @internal
     _buildEmptyPages(): {
         all: Record<string, typeof Ctx>;
@@ -1354,6 +1477,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     _clearSessionOnNonSession(ctx: Ctx): Promise<void>;
     createBot(token: string): Bot<ITCt>;
     createCtx(ct: ITCt): ICtx;
+    ctxScope: ITGramstaxCtxScope;
     deployType: `polling` | `webhook` | `serverless` | `test` | `raw`;
     e2e?: E2eHelper;
     // @internal
@@ -1371,11 +1495,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         perChatConcurrency: number;
         blockWhenFull: boolean;
     } | null;
+    // @internal
+    _handleCtx(ctx: ICtx, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean, traceId: string): Promise<void>;
     handlerBotUpdate: (...args: unknown[]) => Promise<unknown>;
     // @virtual
     hookAfterRoute?(ctx: ICtx, data?: {
         listenerName: string;
-        state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` | `notfound`;
+        state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout`;
         isEdit: boolean;
     }): Promise<void>;
     // @virtual
@@ -1402,9 +1528,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }): Promise<void>;
     // @virtual
     hookRateLimited?(ctx: ICtx): Promise<void>;
+    // @virtual
+    hookSendError?(...args: Parameters<ITSendErrorHook>): void;
+    // @virtual
+    hookTrace?(span: {
+        name: string;
+        durationMs: number;
+        attributes: Record<string, unknown>;
+    }): void;
+    // @virtual
+    hookUpdate?(event: ITUpdateSuccessEvent): void;
+    // @virtual
+    hookUpdateError?(event: ITUpdateErrorEvent): void;
     log: LoggingHelper | undefined;
     // @internal
     _maxTextLength: number;
+    mediaRoots?: string[] | null;
     readonly metrics: MetricsStore;
     // @internal
     _onCatch(error: BotError<ITCt>): void;
@@ -1418,16 +1557,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null): Promise<void>;
     // @internal
     _onStartupError(error: unknown): void;
-    // @internal
-    _onTrace?: (span: {
-        name: string;
-        durationMs: number;
-        attributes: Record<string, unknown>;
-    }) => void;
-    // @internal
-    _onUpdate?: (event: ITUpdateSuccessEvent) => void;
-    // @internal
-    _onUpdateError?: (event: ITUpdateErrorEvent) => void;
     optionsPage: {
         shortCallbackQueryData: boolean;
     };
@@ -1984,6 +2113,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // @internal
     _pollingMaxRetries: number;
     // @internal
+    _pollingSleepResolve?: () => void;
+    // @internal
+    _pollingSleepTimer?: ReturnType<typeof setTimeout>;
+    // @internal
+    _pollingStopped: boolean;
+    ready: Promise<void>;
+    // @internal
     _redactToken(value: string): string;
     // @virtual
     registerCustomRoute(entry: ITCustomRouteEntry_2): void;
@@ -2073,6 +2209,36 @@ export type ITBottomKbParams = {
 };
 
 // @public
+export type ITBroadcastEditOpts = {
+    onProgress?: ((done: number, total: number) => void | Promise<void>) | null;
+    startFrom?: number | null;
+    concurrency?: number | null;
+    chunkSize?: number | null;
+    chunkDelayMs?: number | null;
+    fallbackEdit?: ITOptFallbackEdit | null;
+};
+
+// @public
+export type ITBroadcastEditResult = {
+    successCount: number;
+    failedCount: number;
+    totalCount: number;
+    skippedCount: number;
+    retryable: Array<{
+        index: number;
+        chatId: number;
+        messageId: number;
+        error: unknown;
+    }>;
+};
+
+// @public
+export type ITBroadcastEditTarget = {
+    chatId: number;
+    messageId: number;
+};
+
+// @public
 export type ITBuildDataOptions<C extends (...args: string[]) => Array<string | undefined> = (...args: string[]) => Array<string | undefined>> = {
     name?: string | null;
     callbackQueryData?: C | null;
@@ -2090,6 +2256,11 @@ export type ITCacheRpc = {
 // @public
 export type ITCompiledTemplate = {
     media: ReturnType<typeof TemplateEngine.compileBlockGMedia>;
+    poll: ReturnType<typeof TemplateEngine.compileBlockGPoll>;
+    venue: ReturnType<typeof TemplateEngine.compileBlockGVenue>;
+    dice: ReturnType<typeof TemplateEngine.compileBlockGDice>;
+    invoice: ReturnType<typeof TemplateEngine.compileBlockGInvoice>;
+    paidMedia: ReturnType<typeof TemplateEngine.compileBlockGPaidMedia>;
     message: ReturnType<typeof TemplateEngine.compileBlockGMessage>;
     keyboard: ReturnType<typeof TemplateEngine.compileBlockGKeyboards>;
     description: ReturnType<typeof TemplateEngine.compileBlockGDescription>;
@@ -2108,6 +2279,8 @@ export type ITCtxParams = {
     cacheKeyboard: Map<string, unknown>;
     templateManager: TemplateManager;
     log?: LoggingHelper | null;
+    mediaRoots?: string[] | null;
+    onSendError?: ITSendErrorHook | null;
     temp: ITTemp;
 };
 
@@ -2123,6 +2296,11 @@ export type ITCustomRouteEntry = {
 
 // @public
 export type ITData = Record<string, unknown>;
+
+// @public
+export type ITDiceBlock = {
+    emoji: string;
+};
 
 // @public
 export type ITE2eApiCall = {
@@ -2199,10 +2377,30 @@ export type ITE2eUser = {
 };
 
 // @public
+export type ITGiveawayOptions = {
+    onlyNewMembers?: boolean | null;
+    hasPublicWinners?: boolean | null;
+    prizeStarCount?: number | null;
+    premiumMonths?: number | null;
+};
+
+// @public
+export type ITGiveawayParams = {
+    channels: Array<number | string> | string;
+    date: number;
+    winners: number;
+    prize: string;
+};
+
+// @public
+export type ITGramstaxCtxScope = Pick<ITCtxParams, `cacheSession` | `cacheKeyboard` | `templateManager` | `log` | `mediaRoots` | `onSendError`>;
+
+// @public
 export type ITGramstaxParams = {
     token: string;
     deploy: string;
     log?: LoggingHelper | boolean | null;
+    mediaRoots?: string[] | null;
     botConfig?: BotConfig<Context>;
     webhookQueue?: ITWebhookQueueConfig;
     cacheSession?: CacheExternal;
@@ -2220,16 +2418,9 @@ export type ITGramstaxParams = {
     skipDuplicateUpdate?: boolean;
     webhookSecretToken?: string;
     maxTextLength?: number;
-    onUpdateError?: (event: ITUpdateErrorEvent) => void;
-    onTrace?: (span: {
-        name: string;
-        durationMs: number;
-        attributes: Record<string, unknown>;
-    }) => void;
     statusServerPort?: number;
     statusServerHostname?: string;
     pollingMaxRetries?: number;
-    onUpdate?: (event: ITUpdateSuccessEvent) => void;
     optionsPage?: {
         shortCallbackQueryData?: boolean;
     };
@@ -2249,6 +2440,18 @@ export type ITInlineKbParams = {
 };
 
 // @public
+export type ITInvoiceBlock = {
+    title: string;
+    description: string;
+    payload: string;
+    currency: string;
+    prices: Array<{
+        label: string;
+        amount: number;
+    }>;
+};
+
+// @public
 export type ITKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 3 | 4 | 5 | 6}`;
 
 // Warning: (ae-forgotten-export) The symbol "_KbDestHasCallback" needs to be exported by the entry point index.d.ts
@@ -2259,16 +2462,18 @@ export type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCall
 // @public
 export type ITMediaBlock = {
     type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact` | `group`;
-    src?: string;
+    src?: string | InputFile | Buffer | Uint8Array;
     srcList?: string[];
     mediaGroup?: Array<{
         type: `photo` | `video` | `audio` | `document`;
-        src: string;
+        src: string | InputFile | Buffer | Uint8Array;
         caption?: string;
     }>;
     caption?: string;
+    filename?: string;
     latitude?: string;
     longitude?: string;
+    live?: string;
     phone?: string;
     first_name?: string;
     last_name?: string;
@@ -2433,6 +2638,27 @@ export type ITPageDataBase = {
 };
 
 // @public
+export type ITPaidMediaBlock = {
+    stars: number;
+    media: Array<{
+        type: `photo` | `video`;
+        src: string;
+        caption?: string;
+    }>;
+};
+
+// @public
+export type ITPollBlock = {
+    type: `regular` | `quiz`;
+    question: string;
+    options: string[];
+    correct?: number;
+    explanation?: string;
+    anonymous?: boolean;
+    multiple?: boolean;
+};
+
+// @public
 export type ITRateLimitOptions = {
     windowMs: number;
     max: number;
@@ -2440,6 +2666,16 @@ export type ITRateLimitOptions = {
 
 // @public
 export type ITReplyAction = Parameters<Context[`replyWithChatAction`]>[0];
+
+// @public
+export type ITSendErrorHook = (err: unknown, info: ITSendErrorInfo) => void;
+
+// @public
+export type ITSendErrorInfo = {
+    page: string;
+    kind: `fallback-text` | `retryable`;
+    chatId?: number;
+};
 
 // @public
 export type ITSessionLockOnContended = `skip` | `wait` | `serialize`;
@@ -2450,6 +2686,13 @@ export type ITSessionLockOptions = {
     leaseMs?: number;
     onContended?: ITSessionLockOnContended;
     key?: (ctx: Ctx) => string;
+};
+
+// @public
+export type ITStoryContent = {
+    type: `photo` | `video`;
+    src: string | InputFile | Buffer | Uint8Array;
+    duration?: number | null;
 };
 
 // @public
@@ -2485,6 +2728,14 @@ export type ITUpdateSuccessEvent = {
     state: `matched` | `no-match` | `no-handler` | `blocked`;
     durationMs: number;
     isEdit: boolean;
+};
+
+// @public
+export type ITVenueBlock = {
+    title: string;
+    address: string;
+    latitude: string;
+    longitude: string;
 };
 
 // @public
@@ -2587,6 +2838,7 @@ export class MockTelegramServer {
     constructor(options?: ITMockTelegramServerOptions);
     apiRoot: string;
     botToken: string;
+    clearAll(): void;
     clearRequests(): void;
     clearUpdates(): void;
     defaultHandler?: ITMockTelegramHandler;
@@ -2596,9 +2848,16 @@ export class MockTelegramServer {
     log?: ITMockTelegramLog;
     port: number;
     requests: ITMockTelegramRequestRecord[];
+    reset(): void;
     sendAnimation(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendAudio(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendCallbackQuery(data: string, options?: ITMockTelegramCallbackQueryOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendChannelPost(text: string, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendChatMemberUpdate(options?: ITMockTelegramUpdateOptions & {
+        oldStatus?: string;
+        newStatus?: string;
+    }): Promise<ITMockTelegramRequestRecord[]>;
+    sendChosenInlineResult(resultId: string, query: string, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendCommunityChatJoined(options?: ITMockTelegramUpdateOptions & {
         community?: {
             id?: number;
@@ -2607,9 +2866,17 @@ export class MockTelegramServer {
     }): Promise<ITMockTelegramRequestRecord[]>;
     sendContact(options?: ITMockTelegramContactOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendDocument(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendEditedText(text: string, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendInlineQuery(query: string, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendLocation(options?: ITMockTelegramLocationOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendMyChatMemberUpdate(options?: ITMockTelegramUpdateOptions & {
+        oldStatus?: string;
+        newStatus?: string;
+    }): Promise<ITMockTelegramRequestRecord[]>;
+    sendNewChatMembers(options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendPhoto(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendPollAnswer(pollId: string, optionIds: number[], options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendSticker(options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
     sendStoppedGeneration(options?: ITMockTelegramUpdateOptions & {
         chat?: ITMockTelegramChat;
@@ -2630,8 +2897,14 @@ export class MockTelegramServer {
         stop: () => void;
     };
     start(): Promise<string>;
-    stop(): Promise<void>;
+    stop(options?: {
+        clear?: boolean;
+    }): Promise<void>;
     updates: Record<string, unknown>[];
+    // (undocumented)
+    static userResponseMethods: string[];
+    // (undocumented)
+    static userResponsePrefixes: string[];
     webhookUrl: string;
 }
 
@@ -2665,13 +2938,9 @@ export { StreamFlavor }
 // @public
 export class TemplateEngine {
     static ALLOWED_BLOCKS: string[];
-    // (undocumented)
     static ALLOWED_BLOCKS_PAGE: string[];
-    // (undocumented)
     static ALLOWED_BLOCKS_TELEGRAM: string[];
-    // (undocumented)
     static ALLOWED_BLOCKS_TELEGRAM_LEGACY: string[];
-    // (undocumented)
     static ALLOWED_BLOCKS_TELEGRAM_RICH: string[];
     static ALLOWED_SCOPE: string[];
     static BOT_API_VERSION: string;
@@ -2680,6 +2949,16 @@ export class TemplateEngine {
             [AScope: string]: {
                 [ALang: string]: (data?: ITTemplateData) => string;
             };
+        };
+    };
+    static compileBlockGDice(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITTemplateData) => ITDiceBlock;
+        };
+    };
+    static compileBlockGInvoice(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITTemplateData) => ITInvoiceBlock;
         };
     };
     static compileBlockGKeyboards(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
@@ -2700,13 +2979,37 @@ export class TemplateEngine {
             [ALang: string]: (data?: ITTemplateData) => string;
         };
     };
+    static compileBlockGPaidMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITTemplateData) => ITPaidMediaBlock;
+        };
+    };
+    static compileBlockGPoll(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITTemplateData) => ITPollBlock;
+        };
+    };
+    static compileBlockGVenue(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITTemplateData) => ITVenueBlock;
+        };
+    };
+    static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITTemplateData) => string): (data?: ITTemplateData) => string | InputFile | Buffer | Uint8Array;
     // Warning: (ae-forgotten-export) The symbol "ITTemplateRenderer" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
     static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T>;
+    static DICE_EMOJI: ReadonlySet<string>;
     static _escape(str: string): string;
     static _escapeData(value: unknown): string;
+    static _escapeStaticExceptInterpolation(content: string): string;
     static _extractBlock(content: string, blocks?: string | string[], AGBaseId?: string, section?: `all` | `value`, lang?: string): string;
     static _extractBlockNames(blocks: string[]): Set<string>;
+    static _isGeneratedCode(code: string): boolean;
+    static _matchBareMediaPlaceholder(rawSrc: string): string | null;
     static MAX_MEDIA_GROUP_ITEMS: number;
+    static MAX_PAID_MEDIA_ITEMS: number;
+    static MAX_PAID_MEDIA_STARS: number;
     static _PAGE_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;
     static _PAGE_REQUIRED_ATTRS: Record<string, string[] | {
         oneOf: string[][];
@@ -2718,6 +3021,9 @@ export class TemplateEngine {
         [lang: string]: {
             [scope: string]: string;
         };
+    };
+    static _processGDiceBlocks(template: string): {
+        [lang: string]: ITDiceBlock;
     };
     static _processGDivBlocks(template: string): string;
     static processGImportBlocks(template: string, resolver: (src: string) => string | null, depth?: number, importCache?: Map<string, string>): string;
@@ -2731,6 +3037,9 @@ export class TemplateEngine {
             section: `all` | `value`;
             indent: string;
         }[];
+    };
+    static _processGInvoiceBlocks(template: string): {
+        [lang: string]: ITInvoiceBlock;
     };
     static _processGKeyboardBlocks(template: string): {
         [lang: string]: {
@@ -2748,11 +3057,29 @@ export class TemplateEngine {
     static _processGMessageBlocks(template: string): {
         [lang: string]: string;
     };
+    static _processGPaidMediaBlocks(template: string): {
+        [lang: string]: ITPaidMediaBlock;
+    };
+    static _processGPollBlocks(template: string): {
+        [lang: string]: ITPollBlock;
+    };
     static _processGScriptBlocks(template: string): string;
     static _processGSpaceBlocks(template: string): string;
     static _processGSwitchBlocks(template: string): string;
+    static _processGVenueBlocks(template: string): {
+        [lang: string]: ITVenueBlock;
+    };
+    static _processMediaGroupItems(groupContent: string): Array<{
+        type: `photo` | `video` | `audio` | `document`;
+        src: string;
+        caption?: string;
+        lang?: string;
+        shared?: boolean;
+    }>;
     static _processScopeExec(template: string): string;
     static _processScopeVariables(template: string): string;
+    // Warning: (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
+    static _resolveMediaDataPath(data: ITTemplateData | undefined, path: string): unknown;
     // @internal
     static _splitKeyboardLabels(content: string): string[];
     // (undocumented)
@@ -2761,6 +3088,11 @@ export class TemplateEngine {
     static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;
     static _TELEGRAM_REQUIRED_ATTRS: Record<string, string[] | {
         oneOf: string[][];
+    }>;
+    static _toConcatExpr(processed: string): string;
+    static _validateBlockAttributes(template: string, tagName: string, allowedAttributes: Set<string>, allowedLabel: string, valueValidators?: Record<string, (value: string) => string | null>): Array<{
+        line: number;
+        message: string;
     }>;
     static validateBlockGBaseAttributes(template: string): {
         valid: boolean;
@@ -2790,6 +3122,13 @@ export class TemplateEngine {
             message: string;
         }>;
     };
+    static validateBlockGDiceAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
     static validateBlockGDivAttributes(template: string): {
         valid: boolean;
         errors: Array<{
@@ -2798,6 +3137,13 @@ export class TemplateEngine {
         }>;
     };
     static validateBlockGImportAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockGInvoiceAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
@@ -2854,6 +3200,27 @@ export class TemplateEngine {
             message: string;
         }>;
     };
+    static validateBlockGPaidMediaAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockGPollAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockGPriceAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
     static validateBlockGScriptAttributes(template: string): {
         valid: boolean;
         errors: Array<{
@@ -2875,6 +3242,17 @@ export class TemplateEngine {
             message: string;
         }>;
     };
+    static validateBlockGVenueAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static _validateDiceItems(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
     static validateFormatBlock(template: string): {
         valid: boolean;
         errors: Array<{
@@ -2882,6 +3260,14 @@ export class TemplateEngine {
             message: string;
         }>;
     };
+    static _validateInvoiceItems(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
+    static _validateMediaGroupItems(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
     static validateNamesBlock(template: string): {
         valid: boolean;
         errors: Array<{
@@ -2908,6 +3294,14 @@ export class TemplateEngine {
         message: string;
     }>;
     static _validatePageTagAttributeValues(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
+    static _validatePaidMediaItems(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
+    static _validatePollItems(template: string): Array<{
         line: number;
         message: string;
     }>;
@@ -2965,14 +3359,22 @@ export class TemplateEngine {
             message: string;
         }>;
     };
+    static _validateVenueItems(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
 }
 
 // @public
 export class TemplateManager {
     constructor(options: ITTemplateOptions);
+    clearCache(): void;
+    // (undocumented)
+    closeWatchers(): Promise<void>;
     _compile(key: string, template: string, keepIfExist?: Partial<{
         [K in keyof ITCompiledTemplate]: boolean;
     }>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename?: string): void;
+    static readonly _DEFER: unique symbol;
     destroy(): Promise<void>;
     _engine: typeof TemplateEngine;
     getAGDescriptionLang(key: string, AGBaseId?: string, AScope?: string): string[];
@@ -2983,9 +3385,14 @@ export class TemplateManager {
         hasId: boolean;
     } | null;
     getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string, unknown>): string;
+    getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`dice`][`default`][`default`]>;
+    getGInvoice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`invoice`][`default`][`default`]>;
     getGKeyboard(key: string, AGBaseId?: string, ALang?: string, AType?: `inline` | `bottom`, data?: Record<string, unknown>): string[];
     getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
     getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
+    getGPaidMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`paidMedia`][`default`][`default`]>;
+    getGPoll(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`poll`][`default`][`default`]>;
+    getGVenue(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`venue`][`default`][`default`]>;
     _getKey(filename: string): string;
     _handleFileAdd(filepath: string): void;
     _handleFileChange(filepath: string): void;
@@ -2993,6 +3400,7 @@ export class TemplateManager {
     // @virtual
     _handleWatchError(error: unknown): void;
     has(key: string): boolean;
+    _importCache: Map<string, string>;
     _initializeWatcher(options?: Parameters<typeof watch>[1]): void;
     _isValidFile(filename: string): boolean;
     readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`];
@@ -3003,8 +3411,16 @@ export class TemplateManager {
     readonly _onReload?: () => void;
     _pageManager: typeof PageManager;
     readonly _path: ITTemplateOptions[`path`];
+    // @internal
+    _queueReload(relativePath: string): void;
     _readTemplateFile(filename: string): string | null;
+    // @internal
+    _reloadChain: Promise<void>;
+    // @internal
+    _reloadTimers: Map<string, NodeJS.Timeout>;
     _supportedExtensions: Set<string>;
+    // @internal
+    _toRelative(filepath: string): string;
     _validatePath(): boolean;
     _validateTemplate(AGBaseId: string, template: string, filename?: string): void;
     _watcher: FSWatcher[];
@@ -3015,7 +3431,7 @@ export class TemplateManager {
 export class WebhookQueue<T = unknown> {
     constructor(maxSize: number);
     close(): void;
-    dequeue(): Promise<T>;
+    dequeue(signal?: AbortSignal): Promise<T | undefined>;
     enqueue(value: T, signal?: AbortSignal): Promise<void>;
     getStats(): {
         length: number;
@@ -3025,14 +3441,14 @@ export class WebhookQueue<T = unknown> {
     };
     get isClosed(): boolean;
     get length(): number;
+    tryEnqueue(value: T): boolean;
 }
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:1326:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:4058:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
-// dist/src/index.d.ts:13117:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:14070:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:5244:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "_CtorOf" which is marked as @internal
+// dist/src/index.d.ts:16269:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:17242:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

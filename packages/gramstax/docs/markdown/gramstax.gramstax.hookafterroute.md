@@ -12,7 +12,7 @@ Hook called after routing an update.
 /** @virtual */
 hookAfterRoute?(ctx: ICtx, data?: {
         listenerName: string;
-        state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` | `notfound`;
+        state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout`;
         isEdit: boolean;
     }): Promise<void>;
 ```
@@ -58,7 +58,7 @@ data
 
 </td><td>
 
-{ listenerName: string; state: \`matched\` \| \`no-match\` \| \`no-handler\` \| \`blocked\` \| \`error\` \| \`timeout\` \| \`notfound\`; isEdit: boolean; }
+{ listenerName: string; state: \`matched\` \| \`no-match\` \| \`no-handler\` \| \`blocked\` \| \`error\` \| \`timeout\`; isEdit: boolean; }
 
 
 </td><td>

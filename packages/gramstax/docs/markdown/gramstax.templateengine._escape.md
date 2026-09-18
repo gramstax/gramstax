@@ -56,7 +56,7 @@ The escaped string with backslashes and backticks properly escaped
 
 ## Remarks
 
-This internal method escapes backslashes and backticks to prevent them from interfering with template literal syntax during compilation.
+This internal method escapes backslashes, backticks, and `${` sequences to prevent static template text from breaking out of template literal syntax during compilation. Applied to static segments before they are embedded in generated code (`_compileToFunction` builds concatenation, never raw backtick-wrapped statics; block processors escape embedded content).
 
 ## Example
 

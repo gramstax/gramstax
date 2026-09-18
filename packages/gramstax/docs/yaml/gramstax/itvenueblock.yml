@@ -1,0 +1,29 @@
+### YamlMime:TSTypeAlias
+name: ITVenueBlock
+uid: gramstax!ITVenueBlock:type
+package: gramstax!
+fullName: ITVenueBlock
+summary: Represents a venue block configuration for Telegram venues.
+remarks: >-
+  This type defines the structure for template-driven venues declared with `<g-venue>` blocks. All four fields support
+  the same `{{var|filter}}` interpolation pipeline as poll questions; the compiled strings are validated at runtime
+  before any API call (non-empty title/address plus `Ctx.assertLocation` range checks on the coordinates).
+example:
+  - |-
+    ```typescript
+    const venue: ITVenueBlock = {
+      title: `Cafe {{name}}`,
+      address: `Jl. Merdeka 1`,
+      latitude: `-6.2`,
+      longitude: `106.8`
+    };
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITVenueBlock = {
+      title: string;
+      address: string;
+      latitude: string;
+      longitude: string;
+  };

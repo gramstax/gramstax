@@ -9,8 +9,47 @@ Stop the mock server.
 **Signature:**
 
 ```typescript
-stop(): Promise<void>;
+stop(options?: {
+        clear?: boolean;
+    }): Promise<void>;
 ```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+options
+
+
+</td><td>
+
+{ clear?: boolean; }
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
+
 **Returns:**
 
 Promise&lt;void&gt;

@@ -57,7 +57,10 @@ methods:
     package: gramstax!
     fullName: clearCacheRequire(path)
     summary: Clear the require cache for all page modules.
-    remarks: ''
+    remarks: >-
+      CommonJS-only: entries are deleted from the `require` cache. In ESM runtimes without a `require` cache this throws
+      a descriptive error — use the async [PageManager.getFile()](xref:gramstax!PageManager.getFile:member(1)) path
+      instead, which cache-busts via an `?t=` import query.
     example:
       - |-
         ```typescript
@@ -114,6 +117,12 @@ methods:
       \*\*any\*\* `.ts`<!-- -->/`.js` file (not just `index`<!-- -->) is recognised as a page — its route name becomes
       `parentDir/basename`<!-- -->. A file `help.ts` is equivalent to `help/index.ts`<!-- -->; using both simultaneously
       produces a duplicate error. Nesting can be arbitrary deep.
+
+
+      Supported cases and extensions: - Extensions: `.ts` and `.js` only — other files are ignored. - Flat file:
+      `start.ts` → route `start`<!-- -->. - Nested file: `admin/ban.ts` → route `admin/ban` (arbitrary depth). -
+      Directory index: `admin/index.ts` → route `admin`<!-- -->. - A root-level `index.ts`<!-- -->/`index.js` has no
+      parent route and is rejected with an empty-routeName error — rename it to a named file instead.
     remarks: ''
     example:
       - |-

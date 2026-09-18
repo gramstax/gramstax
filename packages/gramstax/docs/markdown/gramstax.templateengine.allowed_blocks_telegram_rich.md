@@ -4,8 +4,15 @@
 
 ## TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM\_RICH property
 
+Telegram Rich HTML tags passed through to the message `html` field.
+
 **Signature:**
 
 ```typescript
 static ALLOWED_BLOCKS_TELEGRAM_RICH: string[];
 ```
+
+## Remarks
+
+45 tags in 5 categories — inline (9), block/structural (21), Telegram-specific (8), media (6), forms (1) — following the Telegram Bot API Rich Message Formatting spec (`BOT_API_VERSION`<!-- -->). Excludes the legacy set ([TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM\_LEGACY](./gramstax.templateengine.allowed_blocks_telegram_legacy.md)<!-- -->); both combine into [TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM](./gramstax.templateengine.allowed_blocks_telegram.md)<!-- -->. Coverage is locked by `telegram-rich-coverage.test.ts` and `telegram-rich-matrix.test.ts`<!-- -->.
+

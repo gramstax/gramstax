@@ -48,6 +48,8 @@ string
 
 </td><td>
 
+The raw template source to validate.
+
 
 </td></tr>
 </tbody></table>
@@ -55,4 +57,10 @@ string
 **Returns:**
 
 { valid: boolean; errors: Array&lt;{ line: number; message: string; }&gt;; }
+
+`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.
+
+## Remarks
+
+Step 12 of the `validateTemplate` pipeline. Checks the block-level `lang` attribute via `_validateBlockAttributes`<!-- -->, then delegates item rules (supported `type`<!-- -->, required `src`<!-- -->, 1–10 items, no `audio`<!-- -->/ `document` mixing) to [TemplateEngine.\_validateMediaGroupItems()](./gramstax.templateengine._validatemediagroupitems.md)<!-- -->. Returns `valid: false` with per-line errors instead of throwing, so callers can aggregate across blocks.
 

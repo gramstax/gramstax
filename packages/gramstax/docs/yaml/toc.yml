@@ -31,6 +31,12 @@ items:
             uid: gramstax!ITBottomKb:type
           - name: ITBottomKbParams
             uid: gramstax!ITBottomKbParams:type
+          - name: ITBroadcastEditOpts
+            uid: gramstax!ITBroadcastEditOpts:type
+          - name: ITBroadcastEditResult
+            uid: gramstax!ITBroadcastEditResult:type
+          - name: ITBroadcastEditTarget
+            uid: gramstax!ITBroadcastEditTarget:type
           - name: ITBuildDataOptions
             uid: gramstax!ITBuildDataOptions:type
           - name: ITCacheRpc
@@ -47,6 +53,8 @@ items:
             uid: gramstax!ITCustomRouteEntry:type
           - name: ITData
             uid: gramstax!ITData:type
+          - name: ITDiceBlock
+            uid: gramstax!ITDiceBlock:type
           - name: ITE2eApiCall
             uid: gramstax!ITE2eApiCall:type
           - name: ITE2eCallbackQueryOptions
@@ -67,6 +75,12 @@ items:
             uid: gramstax!ITE2eUpdateOptions:type
           - name: ITE2eUser
             uid: gramstax!ITE2eUser:type
+          - name: ITGiveawayOptions
+            uid: gramstax!ITGiveawayOptions:type
+          - name: ITGiveawayParams
+            uid: gramstax!ITGiveawayParams:type
+          - name: ITGramstaxCtxScope
+            uid: gramstax!ITGramstaxCtxScope:type
           - name: ITGramstaxParams
             uid: gramstax!ITGramstaxParams:type
           - name: ITInBoKb
@@ -75,6 +89,8 @@ items:
             uid: gramstax!ITInlineKb:type
           - name: ITInlineKbParams
             uid: gramstax!ITInlineKbParams:type
+          - name: ITInvoiceBlock
+            uid: gramstax!ITInvoiceBlock:type
           - name: ITKbCols
             uid: gramstax!ITKbCols:type
           - name: ITKbDest
@@ -141,14 +157,24 @@ items:
             uid: gramstax!ITPageData:type
           - name: ITPageDataBase
             uid: gramstax!ITPageDataBase:type
+          - name: ITPaidMediaBlock
+            uid: gramstax!ITPaidMediaBlock:type
+          - name: ITPollBlock
+            uid: gramstax!ITPollBlock:type
           - name: ITRateLimitOptions
             uid: gramstax!ITRateLimitOptions:type
           - name: ITReplyAction
             uid: gramstax!ITReplyAction:type
+          - name: ITSendErrorHook
+            uid: gramstax!ITSendErrorHook:type
+          - name: ITSendErrorInfo
+            uid: gramstax!ITSendErrorInfo:type
           - name: ITSessionLockOnContended
             uid: gramstax!ITSessionLockOnContended:type
           - name: ITSessionLockOptions
             uid: gramstax!ITSessionLockOptions:type
+          - name: ITStoryContent
+            uid: gramstax!ITStoryContent:type
           - name: ITTemp
             uid: gramstax!ITTemp:type
           - name: ITTemplateOptions
@@ -157,6 +183,8 @@ items:
             uid: gramstax!ITUpdateErrorEvent:type
           - name: ITUpdateSuccessEvent
             uid: gramstax!ITUpdateSuccessEvent:type
+          - name: ITVenueBlock
+            uid: gramstax!ITVenueBlock:type
           - name: ITWebhookQueueConfig
             uid: gramstax!ITWebhookQueueConfig:type
           - name: LabelGKeyboard

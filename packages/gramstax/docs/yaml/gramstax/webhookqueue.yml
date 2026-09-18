@@ -67,19 +67,23 @@ methods:
       return:
         type: void
         description: ''
-  - name: dequeue()
+  - name: dequeue(signal)
     uid: gramstax!WebhookQueue#dequeue:member(1)
     package: gramstax!
-    fullName: dequeue()
+    fullName: dequeue(signal)
     summary: Dequeue a value, blocking when the queue is empty.
     remarks: ''
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'dequeue(): Promise<T>;'
+      content: 'dequeue(signal?: AbortSignal): Promise<T | undefined>;'
+      parameters:
+        - id: signal
+          description: Optional AbortSignal to cancel a blocked dequeue.
+          type: AbortSignal
       return:
-        type: Promise&lt;T&gt;
+        type: Promise&lt;T | undefined&gt;
         description: Promise resolved with the next value, or `undefined` when closed and empty.
   - name: enqueue(value, signal)
     uid: gramstax!WebhookQueue#enqueue:member(1)
@@ -128,3 +132,23 @@ methods:
                   waitingDequeue: number;
               }
         description: Queue stats including length and waiters.
+  - name: tryEnqueue(value)
+    uid: gramstax!WebhookQueue#tryEnqueue:member(1)
+    package: gramstax!
+    fullName: tryEnqueue(value)
+    summary: Offer a value without blocking.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'tryEnqueue(value: T): boolean;'
+      parameters:
+        - id: value
+          description: Value to enqueue.
+          type: T
+      return:
+        type: boolean
+        description: >-
+          `true` when the value was accepted (buffered or handed to a waiting dequeuer), `false` when the queue is
+          closed or full.

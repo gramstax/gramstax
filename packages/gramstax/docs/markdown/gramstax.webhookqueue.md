@@ -147,7 +147,7 @@ Close the queue and release all waiting consumers and producers.
 </td></tr>
 <tr><td>
 
-[dequeue()](./gramstax.webhookqueue.dequeue.md)
+[dequeue(signal)](./gramstax.webhookqueue.dequeue.md)
 
 
 </td><td>
@@ -184,6 +184,20 @@ Enqueue a value, blocking when the queue is full.
 </td><td>
 
 Get current queue statistics.
+
+
+</td></tr>
+<tr><td>
+
+[tryEnqueue(value)](./gramstax.webhookqueue.tryenqueue.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Offer a value without blocking.
 
 
 </td></tr>

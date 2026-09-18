@@ -13,6 +13,11 @@ isDeprecated: false
 syntax: |-
   type ITCompiledTemplate = {
       media: ReturnType<typeof TemplateEngine.compileBlockGMedia>;
+      poll: ReturnType<typeof TemplateEngine.compileBlockGPoll>;
+      venue: ReturnType<typeof TemplateEngine.compileBlockGVenue>;
+      dice: ReturnType<typeof TemplateEngine.compileBlockGDice>;
+      invoice: ReturnType<typeof TemplateEngine.compileBlockGInvoice>;
+      paidMedia: ReturnType<typeof TemplateEngine.compileBlockGPaidMedia>;
       message: ReturnType<typeof TemplateEngine.compileBlockGMessage>;
       keyboard: ReturnType<typeof TemplateEngine.compileBlockGKeyboards>;
       description: ReturnType<typeof TemplateEngine.compileBlockGDescription>;
