@@ -106,6 +106,69 @@ export type ITPollBlock = {
   multiple?: boolean
 }
 
+/**
+ * Represents an invoice block configuration for Telegram payments.
+ *
+ * @remarks
+ * This type defines the structure for template-driven invoices declared with
+ * `<g-invoice>` blocks. The title, description, payload, and price labels
+ * support the same `{{var|filter}}` interpolation pipeline as poll questions;
+ * the compiled strings are length-checked at runtime before any API call
+ * (title 1–32 chars, description 1–255 chars, payload 1–128 bytes per the
+ * Bot API `sendInvoice` limits). `currency` is a 3-letter code (`XTR` for
+ * Telegram Stars, otherwise an ISO 4217 fiat code). `prices` holds 1 or more
+ * line items with positive integer `amount` values in the smallest currency
+ * units. Provider tokens are NEVER part of this type — they must come from
+ * `renderInvoice` options, never templates.
+ *
+ * @example
+ * ```typescript
+ * const stars: ITInvoiceBlock = {
+ *   title: `VIP 30 hari`,
+ *   description: `Akses semua konten`,
+ *   payload: `order-1`,
+ *   currency: `XTR`,
+ *   prices: [{label: `VIP 30 hari`, amount: 100}]
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITInvoiceBlock = {
+  title: string
+  description: string
+  payload: string
+  currency: string
+  prices: Array<{label: string; amount: number}>
+}
+
+/**
+ * Represents a Stars paid-media block for Telegram paywalls.
+ *
+ * @remarks
+ * This type defines the structure for template-driven paid media declared
+ * with `<g-paid-media>` blocks. `stars` is the Stars price unlocking the
+ * content (1–25000 per the Bot API `sendPaidMedia` limit); `media` holds
+ * 1–10 items of type `photo` or `video` only. Item `src` and `caption`
+ * support the same `{{var|filter}}` interpolation pipeline as media
+ * captions; the compiled strings are length-checked at runtime before any
+ * API call (non-empty `src`, caption at most 1024 chars).
+ *
+ * @example
+ * ```typescript
+ * const paywall: ITPaidMediaBlock = {
+ *   stars: 100,
+ *   media: [{type: `photo`, src: `teaser.jpg`, caption: `Bayar untuk membuka`}]
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITPaidMediaBlock = {
+  stars: number
+  media: Array<{type: `photo` | `video`; src: string; caption?: string}>
+}
+
 type ITTemplateData = Record<string, unknown>
 
 type ITTemplateRenderer<T extends boolean> = T extends true ? (data?: ITTemplateData) => string[] : (data?: ITTemplateData) => string
@@ -209,6 +272,31 @@ export class TemplateEngine {
    * @public
    */
   static MAX_MEDIA_GROUP_ITEMS = 10
+
+  /**
+   * Maximum Stars price for a `<g-paid-media>` paywall.
+   *
+   * @remarks
+   * The Bot API `sendPaidMedia` `star_count` accepts 1–25000 Stars per
+   * purchase (source: `https://core.telegram.org/bots/api#sendpaidmedia`).
+   * Static values above this are rejected at validation time; compiled
+   * values are re-checked at runtime by `Ctx.assertPaidMedia`.
+   *
+   * @public
+   */
+  static MAX_PAID_MEDIA_STARS = 25000
+
+  /**
+   * Maximum items in a single `<g-paid-media>` block.
+   *
+   * @remarks
+   * Matches the Bot API `sendPaidMedia` `media` limit of 10 items
+   * (source: `https://core.telegram.org/bots/api#sendpaidmedia`).
+   * Blocks need 1–10 `<g-media>` items of type `photo`/`video`.
+   *
+   * @public
+   */
+  static MAX_PAID_MEDIA_ITEMS = 10
 
   /**
    * Telegram Bot API version supported by this release.
@@ -349,6 +437,9 @@ export class TemplateEngine {
     `<g-poll>`,
     `<g-question>`,
     `<g-option>`,
+    `<g-invoice>`,
+    `<g-price>`,
+    `<g-paid-media>`,
     `<g-description>`,
     // Logic blocks
     `<g-script>`,
@@ -674,9 +765,12 @@ export class TemplateEngine {
    * - `<g-poll type>` — must be `regular` or `quiz`
    * - `<g-poll correct>` — must be a non-negative option index
    * - `<g-poll explanation>` — any string, always valid
-   * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
-   *
-   * Validators are intentionally lenient — they catch obvious bugs (wrong
+    * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+    * - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced)
+     * - `<g-price amount>` — must be a positive integer in smallest currency units
+     * - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)
+    *
+    * Validators are intentionally lenient — they catch obvious bugs (wrong
    * type, invalid value) but do not enforce every framework-level constraint.
    *
    * @example
@@ -708,6 +802,15 @@ export class TemplateEngine {
       explanation: () => null,
       anonymous: (v) => (v === `true` || v === `false` ? null : `Attribute "anonymous" on <g-poll> must be "true" or "false", got "${v}"`),
       multiple: (v) => (v === `true` || v === `false` ? null : `Attribute "multiple" on <g-poll> must be "true" or "false", got "${v}"`)
+    },
+    "g-invoice": {
+      currency: (v) => (v.includes(`{{`) || v.includes(`{~`) ? null : (/^[A-Z]{3}$/.test(v) ? null : `Attribute "currency" on <g-invoice> must be a 3-letter code (got "${v}")`))
+    },
+    "g-price": {
+      amount: (v) => (/^[1-9]\d*$/.test(v) ? null : `Attribute "amount" on <g-price> must be a positive integer in smallest units (got "${v}")`)
+    },
+    "g-paid-media": {
+      stars: (v) => (v.includes(`{{`) || v.includes(`{~`) ? null : (/^[1-9]\d*$/.test(v) && Number(v) <= 25000 ? null : `Attribute "stars" on <g-paid-media> must be a positive integer 1-25000 (got "${v}")`))
     }
   }
   /**
@@ -1520,6 +1623,131 @@ export class TemplateEngine {
   }
 
   /**
+   * Parses `<g-invoice>` blocks into Telegram invoice definitions.
+   *
+   * @remarks
+   * Each block carries its payment fields as attributes (`title`,
+   * `description`, `payload`, `currency`, optional `lang`) with 1 or more
+   * self-closing `<g-price label amount/>` line items as children. Raw
+   * attribute strings are preserved verbatim (including `{{var|filter}}`
+   * spans) for later compilation; `amount` is parsed to a number eagerly
+   * (`NaN` when non-numeric — rejected by the validator and at runtime).
+   * Structural rules (required attrs, `provider_token` rejection, price
+   * count, limits) are enforced by `validateBlockGInvoiceAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-invoice>` blocks
+   * @returns An object mapping language keys to their invoice configurations
+   *
+   * @example
+   * ```typescript
+   * const invoices = TemplateEngine._processGInvoiceBlocks(`<g-invoice title="VIP {{days}} hari" description="Akses" payload="{{orderId}}" currency="XTR"><g-price label="VIP" amount="100"/></g-invoice>`);
+   * // Result: { default: { title: 'VIP {{days}} hari', description: 'Akses', payload: '{{orderId}}', currency: 'XTR', prices: [{label: 'VIP', amount: 100}] } }
+   * ```
+   *
+   * @public
+   */
+  static _processGInvoiceBlocks(template: string) {
+    const invoiceRegex = /<g-invoice(?:\s+([^>]*))?>([\s\S]*?)<\/g-invoice>/gi
+    const result: {[lang: string]: ITInvoiceBlock} = {}
+    const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+      return attrs
+    }
+
+    for (const match of template.matchAll(invoiceRegex)) {
+      const attrs = parseAttrs(match[1])
+      const body = match[2] ?? ``
+      const prices: Array<{label: string; amount: number}> = []
+      for (const priceMatch of body.matchAll(/<g-price\b([^>]*?)\/?>/gi)) {
+        const priceAttrs = parseAttrs(priceMatch[1])
+        prices.push({label: priceAttrs.label ?? ``, amount: Number(priceAttrs.amount)})
+      }
+
+      result[attrs.lang || `default`] = {
+        title: attrs.title ?? ``,
+        description: attrs.description ?? ``,
+        payload: attrs.payload ?? ``,
+        currency: attrs.currency ?? ``,
+        prices
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Parses `<g-paid-media>` blocks into Stars paywall definitions.
+   *
+   * @remarks
+   * Each block carries its price as a `stars` attribute (optional `lang`)
+   * with 1–10 inner `<g-media type="photo"|"video" src>` items as children.
+   * Raw attribute strings are preserved verbatim (including
+   * `{{var|filter}}` spans) for later compilation; `stars` is parsed to a
+   * number eagerly (`NaN` when non-numeric — rejected by the validator and
+   * at runtime). Child `type` values pass through as-is so the validator
+   * can reject non-photo/video types with a clear message. Structural
+   * rules (required `stars`, price range, item count/types) are enforced
+   * by `validateBlockGPaidMediaAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-paid-media>` blocks
+   * @returns An object mapping language keys to their paid-media configurations
+   *
+   * @example
+   * ```typescript
+   * const walls = TemplateEngine._processGPaidMediaBlocks(`<g-paid-media stars="100"><g-media type="photo" src="{{teaser}}">Bayar untuk membuka</g-media></g-paid-media>`);
+   * // Result: { default: { stars: 100, media: [{type: 'photo', src: '{{teaser}}', caption: 'Bayar untuk membuka'}] } }
+   * ```
+   *
+   * @public
+   */
+  static _processGPaidMediaBlocks(template: string) {
+    const paidMediaRegex = /<g-paid-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-paid-media>/gi
+    const result: {[lang: string]: ITPaidMediaBlock} = {}
+    const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+      return attrs
+    }
+
+    for (const match of template.matchAll(paidMediaRegex)) {
+      const attrs = parseAttrs(match[1])
+      const body = match[2] ?? ``
+      const media: Array<{type: `photo` | `video`; src: string; caption?: string}> = []
+      for (const mediaMatch of body.matchAll(/<g-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-media>/gi)) {
+        const mediaAttrs = parseAttrs(mediaMatch[1])
+        const caption = (mediaMatch[2] || ``)
+          .replace(/^[\t ]+/gm, ``)
+          .replace(/^\n+/, ``)
+          .replace(/\n+$/, ``)
+          .trim()
+        media.push({
+          type: (mediaAttrs.type ?? ``) as `photo` | `video`,
+          src: mediaAttrs.src ?? ``,
+          ...(caption ? {caption} : {})
+        })
+      }
+
+      result[attrs.lang || `default`] = {
+        stars: Number(attrs.stars),
+        media
+      }
+    }
+
+    return result
+  }
+
+  /**
    * Parses `<g-media-group>` blocks into Telegram media group item definitions.
    *
    * @remarks
@@ -2129,6 +2357,140 @@ export class TemplateEngine {
           question: questionFn(data),
           options: optionFns.map((fn) => fn(data)),
           ...(explanationFn ? {explanation: explanationFn(data)} : {})
+        })
+      }
+    }
+    return result
+  }
+
+  /**
+   * Compiles invoice blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<g-invoice>` blocks from the template and compiles
+   * the interpolable fields (`title`, `description`, `payload`, each price
+   * `label`) into functions; `currency` and `amount` pass through as parsed
+   * (amounts are static integers — dynamic amounts are rejected by the
+   * validator). The result is organized by base ID and language.
+   * Pre-parsed base blocks can be provided for efficiency.
+   *
+   * Processing pipeline (in order, per string field):
+   * 1. `_processGScriptBlocks` - converts `<g-script>` blocks into executable expressions
+   * 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions
+   * 3. `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions
+   * 4. `_processScopeExec` - evaluates scope execution blocks (implementation-defined)
+   * 5. `_processScopeVariables` - resolves scope variables (implementation-defined)
+   * 6. `_compileToFunction(processed, false)` - produces the final render function
+   *
+   * Output shape:
+   * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `ALang` (from `<g-invoice lang="...">`, or `"default"` if omitted)
+   * - Value: `(data?: Record<string, unknown>) => ITInvoiceBlock`
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-invoice>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled invoice functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const invoices = TemplateEngine.compileBlockGInvoice(`<g-base><g-invoice title="VIP {{days}} hari" description="Akses" payload="{{orderId}}" currency="XTR"><g-price label="VIP {{days}} hari" amount="100"/></g-invoice></g-base>`);
+   * const result = invoices.default?.default?.({ days: 30, orderId: 'o-1' });
+   * // Result: { title: 'VIP 30 hari', description: 'Akses', payload: 'o-1', currency: 'XTR', prices: [{label: 'VIP 30 hari', amount: 100}] }
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGInvoice(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => ITInvoiceBlock
+      }
+    } = {}
+    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
+      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const invoices = this._processGInvoiceBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, invoice] of Object.entries(invoices)) {
+        const titleFn = compileString(invoice.title)
+        const descriptionFn = compileString(invoice.description)
+        const payloadFn = compileString(invoice.payload)
+        const labelFns = invoice.prices.map((price) => compileString(price.label))
+        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+          ...invoice,
+          title: titleFn(data),
+          description: descriptionFn(data),
+          payload: payloadFn(data),
+          prices: invoice.prices.map((price, index) => ({label: labelFns[index]!(data), amount: price.amount}))
+        })
+      }
+    }
+    return result
+  }
+
+  /**
+   * Compiles paid-media blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<g-paid-media>` blocks from the template and compiles
+   * the interpolable fields (each item `src` and `caption`) into functions;
+   * `stars` and item `type` pass through as parsed (dynamic prices are
+   * rejected by the validator and re-checked at runtime). The result is
+   * organized by base ID and language.
+   *
+   * Processing pipeline (in order, per string field):
+   * 1. `_processGScriptBlocks` - converts `<g-script>` blocks into executable expressions
+   * 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions
+   * 3. `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions
+   * 4. `_processScopeExec` - evaluates scope execution blocks (implementation-defined)
+   * 5. `_processScopeVariables` - resolves scope variables (implementation-defined)
+   * 6. `_compileToFunction(processed, false)` - produces the final render function
+   *
+   * Output shape:
+   * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `ALang` (from `<g-paid-media lang="...">`, or `"default"` if omitted)
+   * - Value: `(data?: Record<string, unknown>) => ITPaidMediaBlock`
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-paid-media>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled paid-media functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const walls = TemplateEngine.compileBlockGPaidMedia(`<g-base><g-paid-media stars="100"><g-media type="photo" src="{{teaser}}">Bayar untuk membuka</g-media></g-paid-media></g-base>`);
+   * const result = walls.default?.default?.({ teaser: 't.jpg' });
+   * // Result: { stars: 100, media: [{type: 'photo', src: 't.jpg', caption: 'Bayar untuk membuka'}] }
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGPaidMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => ITPaidMediaBlock
+      }
+    } = {}
+    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
+      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const walls = this._processGPaidMediaBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, paidMedia] of Object.entries(walls)) {
+        const srcFns = paidMedia.media.map((item) => compileString(item.src))
+        const captionFns = paidMedia.media.map((item) => (item.caption === undefined ? undefined : compileString(item.caption)))
+        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+          stars: paidMedia.stars,
+          media: paidMedia.media.map((item, index) => ({
+            type: item.type,
+            src: srcFns[index]!(data),
+            ...(captionFns[index] === undefined ? {} : {caption: captionFns[index]!(data)})
+          }))
         })
       }
     }
@@ -2842,9 +3204,10 @@ export class TemplateEngine {
    *
    * **Enforced rules:**
    * - `<g-base>` must be at the outermost level and cannot be nested inside any other block.
-    * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
-    * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item.
-    * - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`.
+    * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-invoice>`, `<g-paid-media>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
+      * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a paywall item.
+     * - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`.
+     * - `<g-price>` can only appear directly inside `<g-invoice>`.
    * - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`.
    * - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`.
    * - `<g-map>` is also allowed inside `<g-case>` and `<g-default>` (explicitly and via
@@ -2898,11 +3261,14 @@ export class TemplateEngine {
       "g-base": new Set([`__root__`]),
       "g-message": new Set([`g-base`]),
       "g-keyboard": new Set([`g-base`]),
-      "g-media": new Set([`g-base`, `g-media-group`]),
+      "g-media": new Set([`g-base`, `g-media-group`, `g-paid-media`]),
       "g-media-group": new Set([`g-base`]),
       "g-poll": new Set([`g-base`]),
       "g-question": new Set([`g-poll`]),
       "g-option": new Set([`g-poll`]),
+      "g-invoice": new Set([`g-base`]),
+      "g-price": new Set([`g-invoice`]),
+      "g-paid-media": new Set([`g-base`]),
       "g-description": new Set([`g-base`]),
       "g-switch": new Set([`g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description`]),
       "g-case": new Set([`g-switch`]),
@@ -3050,9 +3416,9 @@ export class TemplateEngine {
    * - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements
    *
    * **Must NOT be self-closing (must use open/close tags):**
-    * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
-    *   `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,
-    *   `<g-option>...</g-option>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
+     * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
+     *   `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,
+      *   `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
    *   `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,
    *   `<g-map>...</g-map>`, `<g-div>...</g-div>`
    *
@@ -3074,7 +3440,7 @@ export class TemplateEngine {
   static validateFormatBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
     const selfClosingBlocks = new Set([`space`, `import`, `hr`, `img`, `input`, `br`, `tg-map`])
-    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-description`, `g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`])
+    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`])
 
     const tagRegex = /<(\/?)(\w[\w-]*)([^>]*)>/g
     let match: RegExpExecArray | null
@@ -3621,9 +3987,12 @@ export class TemplateEngine {
    * - `<g-poll type>` — must be `regular` or `quiz`
    * - `<g-poll correct>` — must be a non-negative option index
    * - `<g-poll explanation>` — any string, always valid
-   * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
-   *
-   * Tags without value validators (e.g. `<g-message>`, `<g-script>`, `<g-div>`) are
+    * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+    * - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced)
+     * - `<g-price amount>` — must be a positive integer in smallest currency units
+     * - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)
+    *
+    * Tags without value validators (e.g. `<g-message>`, `<g-script>`, `<g-div>`) are
    * skipped. See {@link TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS} for the full spec.
    *
    * @param template - The raw template string to validate
@@ -3945,6 +4314,238 @@ export class TemplateEngine {
       }
       if (uniqueTypes.has(`document`) && uniqueTypes.size > 1) {
         errors.push({line: groupLine, message: `<g-media-group> with document items can only contain document items`})
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates attributes and item constraints on `<g-invoice>` blocks.
+   *
+   * @remarks
+   * Checks the block-level attributes (`lang`, `title`, `description`,
+   * `payload`, `currency`) via `_validateBlockAttributes`, then delegates
+   * structural rules (required attrs, `provider_token` rejection, 1 or more
+   * `<g-price>` items, static Bot API length limits where no `{{}}`
+   * interpolation is present) to {@link TemplateEngine._validateInvoiceItems}.
+   * `provider_token` is listed in the allowed set only so the dedicated
+   * secrets error (not a generic unknown-attribute error) is reported.
+   * Returns `valid: false` with per-line errors instead of throwing, so
+   * callers can aggregate across blocks.
+   *
+   * @param template - The raw template source to validate.
+   * @returns `{valid, errors}`; `errors` carry 1-based line numbers.
+   * @public
+   */
+  static validateBlockGInvoiceAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(
+      template,
+      `g-invoice`,
+      new Set([`lang`, `title`, `description`, `payload`, `currency`, `provider_token`]),
+      `"lang", "title", "description", "payload", and "currency"`,
+      this._PAGE_ATTR_VALUE_VALIDATORS[`g-invoice`]
+    )
+    errors.push(...this._validateInvoiceItems(template))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<g-price>` line items inside `<g-invoice>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `label` and `amount`; value formats come from
+   * {@link TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS} (`amount` must be a
+   * positive integer in smallest currency units). Presence and static
+   * length rules live in {@link TemplateEngine._validateInvoiceItems}.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGPriceAttributes(`<g-price label="VIP" amount="100"/>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGPriceAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-price`, new Set([`label`, `amount`]), `"label" and "amount"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-price`])
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates `<g-invoice>` required attributes, secrets ban, and `<g-price>` items.
+   *
+   * @remarks
+   * Enforces the Telegram `sendInvoice` constraints: `title`, `description`,
+   * `payload`, and `currency` must be present and non-empty; `provider_token`
+   * is forbidden (secrets must come from `renderInvoice` options, never
+   * templates); at least one `<g-price>` with a non-empty `label` and a
+   * positive integer `amount` is required; `currency` must be a 3-letter
+   * code. Static length limits (title 1–32 chars, description 1–255 chars,
+   * payload 1–128 bytes per the Bot API) apply only when the value carries
+   * no `{{}}` / `{~ ~}` interpolation — dynamic lengths are checked at
+   * runtime on the compiled strings. Called by
+   * {@link TemplateEngine.validateBlockGInvoiceAttributes}; errors carry
+   * 1-based line numbers.
+   *
+   * @param template - The raw template source to inspect.
+   * @returns Validation errors (empty when valid).
+   * @public
+   */
+  static _validateInvoiceItems(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const invoiceRegex = /<g-invoice(?:\s+([^>]*))?>([\s\S]*?)<\/g-invoice>/gi
+    const attrValue = (attrsStr: string, name: string): string | undefined => {
+      const m = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`).exec(attrsStr)
+      if (!m) return undefined
+      return m[1] ?? m[2] ?? m[3]
+    }
+    const isDynamic = (s: string): boolean => s.includes(`{{`) || s.includes(`{~`)
+
+    for (const invoiceMatch of template.matchAll(invoiceRegex)) {
+      const line = (template.slice(0, invoiceMatch.index).match(/\n/g) || []).length + 1
+      const attrsStr = invoiceMatch[1] ?? ``
+      const body = invoiceMatch[2] ?? ``
+      const title = attrValue(attrsStr, `title`)
+      const description = attrValue(attrsStr, `description`)
+      const payload = attrValue(attrsStr, `payload`)
+      const currency = attrValue(attrsStr, `currency`)
+      const priceMatches = [...body.matchAll(/<g-price(?![\w-])([^>]*?)\/?>/gi)]
+
+      if (title === undefined || title === ``) {
+        errors.push({line, message: `Attribute "title" on <g-invoice> is required`})
+      }
+      if (description === undefined || description === ``) {
+        errors.push({line, message: `Attribute "description" on <g-invoice> is required`})
+      }
+      if (payload === undefined || payload === ``) {
+        errors.push({line, message: `Attribute "payload" on <g-invoice> is required`})
+      }
+      if (currency === undefined || currency === ``) {
+        errors.push({line, message: `Attribute "currency" on <g-invoice> is required`})
+      } else if (!isDynamic(currency) && !/^[A-Z]{3}$/.test(currency)) {
+        errors.push({line, message: `Attribute "currency" on <g-invoice> must be a 3-letter code (got "${currency}")`})
+      }
+      if (/\bprovider_token\s*=/.test(attrsStr)) {
+        errors.push({line, message: `Attribute "provider_token" on <g-invoice> is forbidden: secrets must come from options, never templates`})
+      }
+      if (priceMatches.length < 1) {
+        errors.push({line, message: `<g-invoice> must contain at least one <g-price> block (got ${priceMatches.length})`})
+      }
+      for (const priceMatch of priceMatches) {
+        const priceAttrs = priceMatch[1] ?? ``
+        const label = attrValue(priceAttrs, `label`)
+        const amount = attrValue(priceAttrs, `amount`)
+        if (label === undefined || label === ``) {
+          errors.push({line, message: `Attribute "label" on <g-price> is required`})
+        }
+        if (amount === undefined || amount === ``) {
+          errors.push({line, message: `Attribute "amount" on <g-price> is required`})
+        } else if (!/^[1-9]\d*$/.test(amount)) {
+          errors.push({line, message: `Attribute "amount" on <g-price> must be a positive integer in smallest units (got "${amount}")`})
+        }
+      }
+      if (title !== undefined && title !== `` && !isDynamic(title) && (title.length < 1 || title.length > 32)) {
+        errors.push({line, message: `<g-invoice> "title" must be 1-32 characters (got ${title.length})`})
+      }
+      if (description !== undefined && description !== `` && !isDynamic(description) && (description.length < 1 || description.length > 255)) {
+        errors.push({line, message: `<g-invoice> "description" must be 1-255 characters (got ${description.length})`})
+      }
+      if (payload !== undefined && payload !== `` && !isDynamic(payload) && (payload.length < 1 || Buffer.byteLength(payload, `utf8`) > 128)) {
+        errors.push({line, message: `<g-invoice> "payload" must be 1-128 bytes (got ${Buffer.byteLength(payload, `utf8`)})`})
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates attributes and item constraints on `<g-paid-media>` blocks.
+   *
+   * @remarks
+   * Checks the block-level attributes (`lang`, `stars`) via
+   * `_validateBlockAttributes`, then delegates structural rules (required
+   * `stars` in the 1–25000 range, 1–10 `<g-media>` items of type
+   * `photo`/`video` only, each with a `src`) to
+   * {@link TemplateEngine._validatePaidMediaItems}. Returns `valid: false`
+   * with per-line errors instead of throwing, so callers can aggregate
+   * across blocks.
+   *
+   * @param template - The raw template source to validate.
+   * @returns `{valid, errors}`; `errors` carry 1-based line numbers.
+   * @public
+   */
+  static validateBlockGPaidMediaAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(
+      template,
+      `g-paid-media`,
+      new Set([`lang`, `stars`]),
+      `"lang" and "stars"`,
+      this._PAGE_ATTR_VALUE_VALIDATORS[`g-paid-media`]
+    )
+    errors.push(...this._validatePaidMediaItems(template))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates `<g-paid-media>` required attributes and `<g-media>` items.
+   *
+   * @remarks
+   * Enforces the Telegram `sendPaidMedia` constraints: `stars` must be
+   * present and a positive integer within 1–`MAX_PAID_MEDIA_STARS` (the
+   * Bot API `star_count` range, 1–25000 per
+   * `https://core.telegram.org/bots/api#sendpaidmedia`); the block must
+   * hold 1–`MAX_PAID_MEDIA_ITEMS` `<g-media>` children, each typed
+   * `photo` or `video` with a non-empty `src`. Static checks apply only
+   * when the value carries no `{{}}` / `{~ ~}` interpolation — dynamic
+   * values are checked at runtime on the compiled block. Called by
+   * {@link TemplateEngine.validateBlockGPaidMediaAttributes}; errors carry
+   * 1-based line numbers.
+   *
+   * @param template - The raw template source to inspect.
+   * @returns Validation errors (empty when valid).
+   * @public
+   */
+  static _validatePaidMediaItems(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const paidMediaRegex = /<g-paid-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-paid-media>/gi
+    const mediaRegex = /<g-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-media>/gi
+    const attrValue = (attrsStr: string, name: string): string | undefined => {
+      const m = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`).exec(attrsStr)
+      if (!m) return undefined
+      return m[1] ?? m[2] ?? m[3]
+    }
+    const isDynamic = (s: string): boolean => s.includes(`{{`) || s.includes(`{~`)
+
+    for (const paidMatch of template.matchAll(paidMediaRegex)) {
+      const line = (template.slice(0, paidMatch.index).match(/\n/g) || []).length + 1
+      const attrsStr = paidMatch[1] ?? ``
+      const body = paidMatch[2] ?? ``
+      const stars = attrValue(attrsStr, `stars`)
+      const mediaMatches = [...body.matchAll(mediaRegex)]
+
+      if (stars === undefined || stars === ``) {
+        errors.push({line, message: `Attribute "stars" on <g-paid-media> is required`})
+      } else if (!isDynamic(stars) && (!/^[1-9]\d*$/.test(stars) || Number(stars) > this.MAX_PAID_MEDIA_STARS)) {
+        errors.push({line, message: `Attribute "stars" on <g-paid-media> must be a positive integer 1-${this.MAX_PAID_MEDIA_STARS} (got "${stars}")`})
+      }
+      if (mediaMatches.length < 1 || mediaMatches.length > this.MAX_PAID_MEDIA_ITEMS) {
+        errors.push({line, message: `<g-paid-media> must contain 1-${this.MAX_PAID_MEDIA_ITEMS} <g-media> items (got ${mediaMatches.length})`})
+      }
+      for (const mediaMatch of mediaMatches) {
+        const mediaAttrs = mediaMatch[1] ?? ``
+        const mediaLine = line + (body.slice(0, mediaMatch.index).match(/\n/g) || []).length
+        const type = attrValue(mediaAttrs, `type`)
+        const src = attrValue(mediaAttrs, `src`)
+        if (type === undefined || (!isDynamic(type) && type !== `photo` && type !== `video`)) {
+          errors.push({line: mediaLine, message: `Attribute "type" on <g-media> inside <g-paid-media> must be "photo" or "video" (got "${type ?? ``}")`})
+        }
+        if (src === undefined || src === ``) {
+          errors.push({line: mediaLine, message: `Attribute "src" on <g-media> inside <g-paid-media> is required`})
+        }
       }
     }
 
@@ -4356,6 +4957,9 @@ export class TemplateEngine {
     const mediaAttrResult = this.validateBlockGMediaAttributes(template)
     const mediaGroupAttrResult = this.validateBlockGMediaGroupAttributes(template)
     const pollAttrResult = this.validateBlockGPollAttributes(template)
+    const invoiceAttrResult = this.validateBlockGInvoiceAttributes(template)
+    const priceAttrResult = this.validateBlockGPriceAttributes(template)
+    const paidMediaAttrResult = this.validateBlockGPaidMediaAttributes(template)
     const descriptionAttrResult = this.validateBlockGDescriptionAttributes(template)
     const scriptAttrResult = this.validateBlockGScriptAttributes(template)
     const switchAttrResult = this.validateBlockGSwitchAttributes(template)
@@ -4385,6 +4989,9 @@ export class TemplateEngine {
       ...mediaAttrResult.errors,
       ...mediaGroupAttrResult.errors,
       ...pollAttrResult.errors,
+      ...invoiceAttrResult.errors,
+      ...priceAttrResult.errors,
+      ...paidMediaAttrResult.errors,
       ...descriptionAttrResult.errors,
       ...scriptAttrResult.errors,
       ...switchAttrResult.errors,

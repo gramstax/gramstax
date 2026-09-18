@@ -18,7 +18,7 @@ import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBu
 import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
-import type {ITMediaBlock, ITPollBlock} from "~/template/engine"
+import type {ITInvoiceBlock, ITMediaBlock, ITPaidMediaBlock, ITPollBlock} from "~/template/engine"
 import type {TemplateManager} from "~/template/manager"
 import type {
   _KbButtonWithPageText,
@@ -740,6 +740,66 @@ export class Ctx extends Context {
   static readonly POLL_EXPLANATION_LIMIT = 200
 
   /**
+   * Bot API invoice title limit in characters (`sendInvoice` title 1–32).
+   *
+   * @public
+   */
+  static readonly INVOICE_TITLE_LIMIT = 32
+
+  /**
+   * Bot API invoice description limit in characters (`sendInvoice` description 1–255).
+   *
+   * @public
+   */
+  static readonly INVOICE_DESCRIPTION_LIMIT = 255
+
+  /**
+   * Bot API invoice payload limit in bytes (`sendInvoice` payload 1–128 bytes).
+   *
+   * @public
+   */
+  static readonly INVOICE_PAYLOAD_LIMIT = 128
+
+  /**
+   * Minimum `<g-price>` line items per invoice (Bot API requires 1 or more).
+   *
+   * @public
+   */
+  static readonly INVOICE_PRICES_MIN = 1
+
+  /**
+   * Minimum Stars price for a `<g-paid-media>` paywall.
+   *
+   * @public
+   */
+  static readonly PAID_MEDIA_STARS_MIN = 1
+
+  /**
+   * Maximum Stars price for a `<g-paid-media>` paywall.
+   *
+   * @remarks
+   * The Bot API `sendPaidMedia` `star_count` accepts 1–25000 Stars per
+   * purchase (source: `https://core.telegram.org/bots/api#sendpaidmedia`).
+   *
+   * @public
+   */
+  static readonly PAID_MEDIA_STARS_MAX = 25000
+
+  /**
+   * Minimum `<g-media>` items per paid-media paywall (Bot API requires 1 or more).
+   *
+   * @public
+   */
+  static readonly PAID_MEDIA_ITEMS_MIN = 1
+
+  /**
+   * Maximum `<g-media>` items per paid-media paywall (Bot API `sendPaidMedia` media limit).
+   *
+   * @public
+   */
+  static readonly PAID_MEDIA_ITEMS_MAX = 10
+
+  /**
    * Classify a send failure as `fallback-text` (content rejected, reply with
    * fallback text) or `retryable` (rate limit, server, network, or unknown —
    * rethrow the original error untouched, fail-loud default).
@@ -950,6 +1010,58 @@ export class Ctx extends Context {
       if (poll.correct === undefined) throw new Error(`Poll type "quiz" requires "correct"`)
       if (!Number.isInteger(poll.correct) || poll.correct < 0 || poll.correct >= poll.options.length) throw new Error(`Poll "correct" must be an option index 0-${poll.options.length - 1} (got ${String(poll.correct)})`)
       if (poll.explanation !== undefined && poll.explanation.length > Ctx.POLL_EXPLANATION_LIMIT) throw new Error(`Poll explanation must be at most ${Ctx.POLL_EXPLANATION_LIMIT} characters (got ${poll.explanation.length})`)
+    }
+  }
+
+  /**
+   * Fail-fast checks for a compiled `<g-invoice>` block against Bot API limits.
+   *
+   * @remarks
+   * Measures the COMPILED strings (post-interpolation): title 1–32 chars,
+   * description 1–255 chars, payload 1–128 bytes, currency a 3-letter code,
+   * 1 or more prices each with a non-empty label and a positive integer
+   * amount in smallest units. Programmer error — always throws, never
+   * falls back or notifies.
+   *
+   * @param invoice - Compiled invoice block from `getGInvoice`.
+   *
+   * @public
+   */
+  static assertInvoice(invoice: ITInvoiceBlock): void {
+    if (invoice.title.length < 1 || invoice.title.length > Ctx.INVOICE_TITLE_LIMIT) throw new Error(`Invoice title must be 1-${Ctx.INVOICE_TITLE_LIMIT} characters (got ${invoice.title.length})`)
+    if (invoice.description.length < 1 || invoice.description.length > Ctx.INVOICE_DESCRIPTION_LIMIT) throw new Error(`Invoice description must be 1-${Ctx.INVOICE_DESCRIPTION_LIMIT} characters (got ${invoice.description.length})`)
+    if (invoice.payload.length < 1 || Buffer.byteLength(invoice.payload, `utf8`) > Ctx.INVOICE_PAYLOAD_LIMIT) throw new Error(`Invoice payload must be 1-${Ctx.INVOICE_PAYLOAD_LIMIT} bytes (got ${Buffer.byteLength(invoice.payload, `utf8`)})`)
+    if (!/^[A-Z]{3}$/.test(invoice.currency)) throw new Error(`Invoice currency must be a 3-letter code (got "${invoice.currency}")`)
+    if (invoice.prices.length < Ctx.INVOICE_PRICES_MIN) throw new Error(`Invoice must contain at least ${Ctx.INVOICE_PRICES_MIN} price (got ${invoice.prices.length})`)
+    for (const price of invoice.prices) {
+      if (price.label.length < 1) throw new Error(`Invoice price label must be non-empty`)
+      if (!Number.isInteger(price.amount) || price.amount <= 0) throw new Error(`Invoice price amount must be a positive integer in smallest units (got ${String(price.amount)})`)
+    }
+  }
+
+  /**
+   * Fail-fast validation for a compiled `<g-paid-media>` paywall.
+   *
+   * @remarks
+   * Runs on the COMPILED block (after `{{}}` interpolation) BEFORE any API
+   * call: `stars` must be an integer within
+   * `PAID_MEDIA_STARS_MIN`–`PAID_MEDIA_STARS_MAX`; the block must hold
+   * `PAID_MEDIA_ITEMS_MIN`–`PAID_MEDIA_ITEMS_MAX` items, each typed `photo`
+   * or `video` with a non-empty `src` and a caption of at most
+   * `MEDIA_CAPTION_LIMIT` chars. Programmer error — always throws, never
+   * falls back or notifies.
+   *
+   * @param paidMedia - Compiled paid-media block from `getGPaidMedia`.
+   *
+   * @public
+   */
+  static assertPaidMedia(paidMedia: ITPaidMediaBlock): void {
+    if (!Number.isInteger(paidMedia.stars) || paidMedia.stars < Ctx.PAID_MEDIA_STARS_MIN || paidMedia.stars > Ctx.PAID_MEDIA_STARS_MAX) throw new Error(`Paid media stars must be an integer ${Ctx.PAID_MEDIA_STARS_MIN}-${Ctx.PAID_MEDIA_STARS_MAX} (got ${String(paidMedia.stars)})`)
+    if (paidMedia.media.length < Ctx.PAID_MEDIA_ITEMS_MIN || paidMedia.media.length > Ctx.PAID_MEDIA_ITEMS_MAX) throw new Error(`Paid media must contain ${Ctx.PAID_MEDIA_ITEMS_MIN}-${Ctx.PAID_MEDIA_ITEMS_MAX} items (got ${paidMedia.media.length})`)
+    for (const item of paidMedia.media) {
+      if (item.type !== `photo` && item.type !== `video`) throw new Error(`Paid media item type must be "photo" or "video" (got "${String(item.type)}")`)
+      if (item.src.length < 1) throw new Error(`Paid media item src must be non-empty`)
+      if (item.caption !== undefined && item.caption.length > Ctx.MEDIA_CAPTION_LIMIT) throw new Error(`Paid media item caption must be at most ${Ctx.MEDIA_CAPTION_LIMIT} characters (got ${item.caption.length})`)
     }
   }
 
@@ -3147,6 +3259,249 @@ export class Ctx extends Context {
       return await this.api.stopPoll(chatId, messageId, {...(options ?? {})})
     }
     return await super.stopPoll(chatId as Parameters<Context[`stopPoll`]>[0], messageId as Parameters<Context[`stopPoll`]>[1])
+  }
+
+  /**
+   * Sends a template-driven invoice using the page `<g-invoice>` block.
+   *
+   * @remarks
+   * Fail-fast validation (`Ctx.assertInvoice`) runs BEFORE any API call on the
+   * COMPILED strings — programmer errors always throw, never fall back. The
+   * invoice is sent with NO `parse_mode`: the Bot API offers no HTML parsing
+   * for invoices.
+   *
+   * Provider tokens are security-critical and NEVER come from templates: the
+   * validator rejects a `provider_token` attribute outright. Resolution order
+   * is `options.provider_token` when present, otherwise Telegram Stars
+   * (`currency: "XTR"`) sends with no token at all, and any other (fiat)
+   * currency without a token throws before any API call.
+   *
+   * Pre-checkout queries for the sent invoice already route to page handlers
+   * via the existing `precheckoutquery` listener — define
+   * `handleFreePreCheckoutQuery` (or `handleSessionFreePreCheckoutQuery` in a
+   * session flow) on the page and answer with
+   * {@link (Ctx:class).answerPreCheckout}. No new routing was added for this.
+   *
+   * Observe-only send-error coverage (mirrors `render`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * There is no degraded fallback content for invoices, so after notify+log
+   * the original error is ALWAYS rethrown untouched — the `catch` below
+   * observes only and never swallows, because swallowing would hide a
+   * payment send failure from the caller.
+   *
+   * @param keyboard - Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} (or null to omit). Only inline keyboards are accepted — the Bot API `sendInvoice` reply markup is `InlineKeyboardMarkup`.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID position for block invoice (or null to use default).
+   * @param options - Optional extra `sendInvoice` fields; `provider_token` here is the ONLY way to supply the payment provider secret (or null to omit).
+   * @returns The sent invoice message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+   *   await this.renderInvoice(kb, {days: 30, orderId: "o-1"})
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * async handleBuyFiat() {
+   *   // Template: <g-invoice title="Pro" description="Plan" payload="{{orderId}}" currency="USD"><g-price label="Pro" amount="499"/></g-invoice>
+   *   await this.renderInvoice(null, {orderId: "o-2"}, null, {provider_token: process.env.PAYMENT_PROVIDER_TOKEN})
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * async handleFreePreCheckoutQuery() {
+   *   await this.answerPreCheckout(true)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderInvoice(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {provider_token?: string}) | null) {
+    const invoice = this.templateManager.getGInvoice(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    Ctx.assertInvoice(invoice)
+    const chatId = this.sendChatId()
+    if (chatId === undefined) throw new Error(`renderInvoice requires a chat id for page "${this.sendPageName()}"`)
+    const providerToken = options?.provider_token
+    if (providerToken === undefined && invoice.currency !== `XTR`) throw new Error(`provider_token is required for fiat currency "${invoice.currency}" (got none): pass it via options, never templates`)
+    try {
+      return await this.api.sendInvoice(chatId, invoice.title, invoice.description, invoice.payload, invoice.currency, invoice.prices, {
+        ...(providerToken !== undefined ? {provider_token: providerToken} : {}),
+        reply_markup: keyboard ?? undefined,
+        ...(options ?? {})
+      })
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`invoice send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No invoice fallback for invoices: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`invoice send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Sends Stars-locked photo/video content using the page `<g-paid-media>` block.
+   *
+   * @remarks
+   * Fail-fast validation (`Ctx.assertPaidMedia`) runs BEFORE any API call on
+   * the COMPILED block — programmer errors always throw, never fall back.
+   * Each item `src` is resolved through the instance media jail
+   * (`this.resolveMedia`: local files become `InputFile` uploads, URLs and
+   * `file_id` values pass through) and sent with its caption as HTML.
+   *
+   * Observe-only send-error coverage (mirrors `renderInvoice`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * There is no degraded fallback content for paywalls, so after notify+log
+   * the original error is ALWAYS rethrown untouched — the `catch` below
+   * observes only and never swallows, because swallowing would hide a
+   * paywall send failure from the caller.
+   *
+   * @param keyboard - Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID position for block paid media (or null to use default).
+   * @param options - Optional extra `sendPaidMedia` fields (or null to omit).
+   * @returns The sent paid-media message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+   *   await this.renderPaidMedia(kb, {teaser: `t.jpg`, full: `v.mp4`})
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * async handleBuyContent() {
+   *   // Template: <g-paid-media stars="100"><g-media type="photo" src="{{teaser}}">Bayar untuk membuka</g-media></g-paid-media>
+   *   await this.renderPaidMedia(null, {teaser: `teaser.jpg`})
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderPaidMedia(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null) {
+    const paidMedia = this.templateManager.getGPaidMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    Ctx.assertPaidMedia(paidMedia)
+    const chatId = this.sendChatId()
+    if (chatId === undefined) throw new Error(`renderPaidMedia requires a chat id for page "${this.sendPageName()}"`)
+    const media = paidMedia.media.map((item) => ({
+      type: item.type,
+      media: this.resolveMedia(item.src),
+      ...(item.caption ? {caption: item.caption, parse_mode: `HTML` as const} : {})
+    }))
+    try {
+      return await this.api.sendPaidMedia(chatId, paidMedia.stars, media as Parameters<Ctx[`api`][`sendPaidMedia`]>[2], {
+        reply_markup: keyboard ?? undefined,
+        ...(options ?? {})
+      })
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`paid media send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No paid-media fallback for paywalls: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`paid media send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Answers the current pre-checkout query, approving or rejecting payment.
+   *
+   * @remarks
+   * Thin passthrough to `api.answerPreCheckoutQuery` for the active update —
+   * no template involved. Call from `handleFreePreCheckoutQuery` (or
+   * `handleSessionFreePreCheckoutQuery`); the Bot API must receive the answer
+   * within 10 seconds of the query. Programmer error (no active
+   * pre-checkout query) always throws, never falls back.
+   *
+   * @param ok - `true` to approve the checkout, `false` to reject it.
+   * @param errorMessage - Optional rejection reason shown to the user (only sent when `ok` is `false`).
+   * @returns `true` on success.
+   *
+   * @example
+   * ```typescript
+   * async handleFreePreCheckoutQuery() {
+   *   await this.answerPreCheckout(true)
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * async handleFreePreCheckoutQuery() {
+   *   await this.answerPreCheckout(false, `Stok habis`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async answerPreCheckout(ok: boolean, errorMessage?: string | null) {
+    const queryId = this.preCheckoutQuery?.id
+    if (queryId === undefined) throw new Error(`answerPreCheckout requires a pre_checkout_query for page "${this.sendPageName()}"`)
+    if (ok) return await this.api.answerPreCheckoutQuery(queryId, true)
+    return await this.api.answerPreCheckoutQuery(queryId, false, {...(errorMessage ? {error_message: errorMessage} : {})})
+  }
+
+  /**
+   * Refunds a successful Stars payment to the user.
+   *
+   * @remarks
+   * Thin passthrough to `api.refundStarPayment` — no template involved.
+   * Use for admin-initiated refunds of paywalled content sold via
+   * {@link (Ctx:class).renderPaidMedia}. The `chargeId` is the
+   * `telegram_payment_charge_id` from the `successful_payment` update.
+   *
+   * @param userId - Telegram user id that made the payment.
+   * @param chargeId - Payment charge id (`telegram_payment_charge_id`) to refund.
+   * @returns `true` on success.
+   *
+   * @example
+   * ```typescript
+   * async handleRefund() {
+   *   await this.refundStars(123, `ch_1`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async refundStars(userId: number, chargeId: string) {
+    return await this.api.refundStarPayment(userId, chargeId)
+  }
+
+  /**
+   * Lists the bot's Telegram Stars transactions in chronological order.
+   *
+   * @remarks
+   * Thin passthrough to `api.getStarTransactions` — no template involved.
+   * Use to audit paywall revenue from content sold via
+   * {@link (Ctx:class).renderPaidMedia}.
+   *
+   * @param options - Optional `getStarTransactions` fields such as `offset` and `limit` (or null to omit).
+   * @returns The Stars transactions object.
+   *
+   * @example
+   * ```typescript
+   * async handleAuditRevenue() {
+   *   const txs = await this.getStarTransactions({limit: 100})
+   * }
+   * ```
+   *
+   * @public
+   */
+  async getStarTransactions(options?: Parameters<Ctx[`api`][`getStarTransactions`]>[0] | null) {
+    return await this.api.getStarTransactions({...options})
   }
 
   /**

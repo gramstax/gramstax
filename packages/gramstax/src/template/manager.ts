@@ -795,6 +795,14 @@ export class TemplateManager {
       compiled.poll = TemplateEngine.compileBlockGPoll(processedTemplate, baseBlocks)
       updated = true
     }
+    if (keepIfExist === undefined || keepIfExist?.invoice === false || existing?.invoice === undefined) {
+      compiled.invoice = TemplateEngine.compileBlockGInvoice(processedTemplate, baseBlocks)
+      updated = true
+    }
+    if (keepIfExist === undefined || keepIfExist?.paidMedia === false || existing?.paidMedia === undefined) {
+      compiled.paidMedia = TemplateEngine.compileBlockGPaidMedia(processedTemplate, baseBlocks)
+      updated = true
+    }
     if (keepIfExist === undefined || keepIfExist?.message === false || existing?.message === undefined) {
       compiled.message = TemplateEngine.compileBlockGMessage(processedTemplate, baseBlocks)
       updated = true
@@ -874,6 +882,73 @@ export class TemplateManager {
 
     if (!func) {
       throw new Error(`Poll function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled from block <g-invoice>.
+   *
+   * @param key - Template identifier (filename without extension)
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
+   * @param data - Template variables for interpolation
+   * @returns Invoice object containing title, description, payload, currency, and prices
+   *
+   * @remarks
+   * Retrieves the compiled invoice function for the specified template and language,
+   * then executes it with the provided data to generate the invoice payload.
+   *
+   * @example
+   * ```typescript
+   * const invoice = tm.getGInvoice("vip-page", "default", "en", {orderId: "o-1"})
+   * // => {title: "...", description: "...", payload: "o-1", currency: "XTR", prices: [{label: "...", amount: 100}]}
+   * ```
+   *
+   * @public
+   */
+  getGInvoice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`invoice`][`default`][`default`]> {
+    const map = this._map.get(key)
+    const one = map?.invoice?.[AGBaseId] ?? map?.invoice?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`Invoice function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled from block <g-paid-media>.
+   *
+   * @param key - Template identifier (filename without extension)
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
+   * @param data - Template variables for interpolation
+   * @returns Paid-media object containing stars and media items
+   *
+   * @remarks
+   * Retrieves the compiled paid-media function for the specified template
+   * and language, then executes it with the provided data to generate the
+   * Stars paywall payload.
+   *
+   * @example
+   * ```typescript
+   * const wall = tm.getGPaidMedia("vip-page", "default", "en", {teaser: "t.jpg"})
+   * // => {stars: 100, media: [{type: "photo", src: "t.jpg", caption: "..."}]}
+   * ```
+   *
+   * @public
+   */
+  getGPaidMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`paidMedia`][`default`][`default`]> {
+    const map = this._map.get(key)
+    const one = map?.paidMedia?.[AGBaseId] ?? map?.paidMedia?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`Paid media function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
     return func(data)

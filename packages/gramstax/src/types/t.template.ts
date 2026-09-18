@@ -15,6 +15,10 @@ export type ITCompiledTemplate = {
   media: ReturnType<typeof TemplateEngine.compileBlockGMedia>
   /** Compiled poll blocks indexed by base ID and language */
   poll: ReturnType<typeof TemplateEngine.compileBlockGPoll>
+  /** Compiled invoice blocks indexed by base ID and language */
+  invoice: ReturnType<typeof TemplateEngine.compileBlockGInvoice>
+  /** Compiled Stars paid-media blocks indexed by base ID and language */
+  paidMedia: ReturnType<typeof TemplateEngine.compileBlockGPaidMedia>
   /** Compiled message blocks indexed by base ID and language */
   message: ReturnType<typeof TemplateEngine.compileBlockGMessage>
   /** Compiled keyboard blocks indexed by base ID, language, and type */
