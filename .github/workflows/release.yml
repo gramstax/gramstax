@@ -106,16 +106,43 @@ jobs:
           TAG_BEFORE=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
           echo "TAG_BEFORE=$TAG_BEFORE" >> "$GITHUB_ENV"
           echo "Pre-release tag: $TAG_BEFORE"
+          START_SHA=$(git rev-parse HEAD)
+          echo "START_SHA=$START_SHA" >> "$GITHUB_ENV"
 
-      # Idempotency guard: NPM publishes are immutable. If the disk version
-      # is already on the registry for ALL four packages (re-run of an old
-      # run, or an unneeded publish_only recovery), there is nothing to do —
-      # publishing again fails with "cannot publish over previously
-      # published versions". Skip both publish paths gracefully instead.
-      - name: Check if disk version already published
+      # Release gate: decide whether the publish path may run.
+      #
+      # Two independent facts:
+      # - VERSIONABLE: versionable commits (`feat:`, `fix:`, `!` breaking
+      #   marker) exist since the last tag, so `nx release` would bump to a
+      #   NEW version that cannot collide on the registry. Always release.
+      # - ALL_PUBLISHED: the disk version is already on NPM for all four
+      #   packages (re-run of an old run, or an unneeded publish_only
+      #   recovery). Publishing again fails with "cannot publish over
+      #   previously published versions".
+      #
+      # Skip ONLY when there is nothing to version AND nothing to publish.
+      # A bare "already published" check must never skip versioning (that
+      # mistake froze releases at 2.0.0 despite pending feats).
+      - name: Decide release necessity
         run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+          echo "Last tag: $LAST_TAG"
           DISK_VERSION=$(node -p "require('./packages/gramstax/package.json').version")
           echo "Disk version: $DISK_VERSION"
+          VERSIONABLE=false
+          if [ "$LAST_TAG" = "none" ]; then
+            echo "No tags reachable — cannot assess; proceeding WITHOUT skip (fail loudly, never silently)."
+            VERSIONABLE=true
+          else
+            if git log "$LAST_TAG..HEAD" --format=%s | grep -qE "^(feat|fix)(\(.+\))?!?:"; then
+              echo "Versionable commits found since $LAST_TAG."
+              VERSIONABLE=true
+            fi
+            if git log "$LAST_TAG..HEAD" --format=%B | grep -q "BREAKING CHANGE"; then
+              echo "Breaking-change footer found since $LAST_TAG."
+              VERSIONABLE=true
+            fi
+          fi
           ALL_PUBLISHED=true
           for NPM_NAME in gramstax create-gramstax "@gramstax/lmdb" "@gramstax/worker-thread"; do
             if npm view "$NPM_NAME@$DISK_VERSION" version > /dev/null 2>&1; then
@@ -125,9 +152,12 @@ jobs:
               ALL_PUBLISHED=false
             fi
           done
-          echo "ALL_PUBLISHED=$ALL_PUBLISHED" >> "$GITHUB_ENV"
-          if [ "$ALL_PUBLISHED" = "true" ]; then
-            echo "All packages already published at $DISK_VERSION — publish steps will be skipped."
+          if [ "$VERSIONABLE" = "true" ] || [ "$ALL_PUBLISHED" = "false" ]; then
+            echo "SKIP_RELEASE=false" >> "$GITHUB_ENV"
+            echo "Proceeding to release (new version and/or unpublished disk version)."
+          else
+            echo "SKIP_RELEASE=true" >> "$GITHUB_ENV"
+            echo "Nothing to version and disk version fully published — publish steps will be skipped."
           fi
 
       - name: Initialize Git User
@@ -148,11 +178,11 @@ jobs:
       # registry". Do NOT add NODE_AUTH_TOKEN: that would silently replace
       # the OIDC flow with a long-lived secret.
       - name: Upgrade npm for OIDC trusted publishing
-        if: ${{ env.ALL_PUBLISHED != 'true' }}
+        if: ${{ env.SKIP_RELEASE != 'true' }}
         run: npm install -g npm@11 && npm --version
 
       - name: Release (with NPM OIDC)
-        if: ${{ !inputs.publish_only && env.ALL_PUBLISHED != 'true' }}
+        if: ${{ !inputs.publish_only && env.SKIP_RELEASE != 'true' }}
         run: bun run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -176,7 +206,25 @@ jobs:
           TAG_NOW=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
           if [ "$TAG_NOW" = "$TAG_BEFORE" ]; then
             echo "Latest tag ($TAG_NOW) predates this run — no new tag to revert (covers publish-only runs too)."
+          elif [ "$TAG_BEFORE" = "none" ]; then
+            echo "❌ TAG_BEFORE is none (tagless checkout?) — refusing to delete anything: cannot prove this run created $TAG_NOW. Clean up manually if needed."
           else
+            # Proof of creation (not inference): under the serialized
+          # release-main group, a tag created by THIS run points at a commit
+          # made after START_SHA. A pre-existing tag points inside pre-run
+          # history and is always an ancestor of START_SHA.
+          TAG_COMMIT=$(git rev-list -n 1 "$TAG_NOW" 2>/dev/null || echo "")
+          if [ -z "$TAG_COMMIT" ] || [ -z "$START_SHA" ]; then
+            echo "❌ Cannot resolve tag commit or start SHA — refusing to delete anything. Clean up manually if needed."
+            mb=99
+          else
+            mb=0
+            git merge-base --is-ancestor "$TAG_COMMIT" "$START_SHA" 2>/dev/null || mb=$?
+          fi
+          if [ "$mb" -eq 0 ]; then
+            echo "Tag $TAG_NOW points inside pre-run history — it predates this run. Refusing to delete (tag + release left intact)."
+          elif [ "$mb" -eq 1 ]; then
+            echo "Tag $TAG_NOW was created by this run — proceeding with revert."
             TAG="$TAG_NOW"
             VERSION=${TAG#v}
             echo "This run created tag: $TAG (version $VERSION)"
@@ -212,6 +260,9 @@ jobs:
             else
               echo "Verified: remote tag $TAG is gone."
             fi
+          else
+            echo "❌ merge-base check failed (exit $mb) — refusing to delete anything. Clean up manually if needed."
+          fi
           fi
 
           echo "Version-bump commit left in place intentionally — no history rewrite."
