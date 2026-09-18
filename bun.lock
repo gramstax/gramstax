@@ -86,7 +86,7 @@
     },
     "packages/create-gramstax": {
       "name": "create-gramstax",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "bin": {
         "create-gramstax": "dist/src/index.js",
       },
@@ -102,7 +102,7 @@
     },
     "packages/gramstax": {
       "name": "gramstax",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "dependencies": {
         "@grammyjs/auto-retry": "^2.0.2",
         "@grammyjs/chat-members": "^1.2.0",
@@ -126,7 +126,7 @@
     },
     "packages/lmdb": {
       "name": "@gramstax/lmdb",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "dependencies": {
         "lmdb": "^3.5.6",
       },
@@ -146,7 +146,7 @@
     },
     "packages/worker-thread": {
       "name": "@gramstax/worker-thread",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "dependencies": {
         "net-ipc": "^2.2.2",
       },
