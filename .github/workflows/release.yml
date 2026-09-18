@@ -107,6 +107,29 @@ jobs:
           echo "TAG_BEFORE=$TAG_BEFORE" >> "$GITHUB_ENV"
           echo "Pre-release tag: $TAG_BEFORE"
 
+      # Idempotency guard: NPM publishes are immutable. If the disk version
+      # is already on the registry for ALL four packages (re-run of an old
+      # run, or an unneeded publish_only recovery), there is nothing to do —
+      # publishing again fails with "cannot publish over previously
+      # published versions". Skip both publish paths gracefully instead.
+      - name: Check if disk version already published
+        run: |
+          DISK_VERSION=$(node -p "require('./packages/gramstax/package.json').version")
+          echo "Disk version: $DISK_VERSION"
+          ALL_PUBLISHED=true
+          for NPM_NAME in gramstax create-gramstax "@gramstax/lmdb" "@gramstax/worker-thread"; do
+            if npm view "$NPM_NAME@$DISK_VERSION" version > /dev/null 2>&1; then
+              echo "$NPM_NAME@$DISK_VERSION already on NPM."
+            else
+              echo "$NPM_NAME@$DISK_VERSION NOT on NPM — publish needed."
+              ALL_PUBLISHED=false
+            fi
+          done
+          echo "ALL_PUBLISHED=$ALL_PUBLISHED" >> "$GITHUB_ENV"
+          if [ "$ALL_PUBLISHED" = "true" ]; then
+            echo "All packages already published at $DISK_VERSION — publish steps will be skipped."
+          fi
+
       - name: Initialize Git User
         run: |
           git config --global user.name "github-actions[bot]"
@@ -125,16 +148,17 @@ jobs:
       # registry". Do NOT add NODE_AUTH_TOKEN: that would silently replace
       # the OIDC flow with a long-lived secret.
       - name: Upgrade npm for OIDC trusted publishing
+        if: ${{ env.ALL_PUBLISHED != 'true' }}
         run: npm install -g npm@11 && npm --version
 
       - name: Release (with NPM OIDC)
-        if: ${{ !inputs.publish_only }}
+        if: ${{ !inputs.publish_only && env.ALL_PUBLISHED != 'true' }}
         run: bun run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Only (recovery, no versioning)
-        if: ${{ inputs.publish_only }}
+        if: ${{ inputs.publish_only && env.ALL_PUBLISHED != 'true' }}
         run: bun run publish:all
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
