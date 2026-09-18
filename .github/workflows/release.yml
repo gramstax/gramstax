@@ -27,7 +27,46 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Per-package test isolation: each package runs typecheck + tests in its
+  # own job/process so native resources (LMDB mmaps, worker threads) are
+  # never shared across packages. Previously `bun test ./packages` ran all
+  # 121 files in one process and flaked under load (see: LmdbRepository.like
+  # + worker-thread RPC timeouts failing only on CI, green locally).
+  test:
+    name: test (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [gramstax, create-gramstax, lmdb, worker-thread]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      - name: Cache Bun install
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-install-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-install-${{ runner.os }}-
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck package
+        run: bunx --package typescript@7.0.2 tsc --noEmit -p packages/${{ matrix.package }}
+
+      - name: Test package
+        run: bun test packages/${{ matrix.package }}
+
   release:
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -57,9 +96,9 @@ jobs:
       - name: Install Dependencies
         run: bun install --frozen-lockfile
 
-      - name: Verify Code
+      - name: Lint and Build
         run: |
-          bun run ci:test:packages
+          bun run lint:packages
           bun run build
 
       - name: Record pre-release tag
