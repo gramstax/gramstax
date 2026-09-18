@@ -744,8 +744,8 @@ export class TemplateManager {
    * @param rawCache - Optional pre-loaded raw template cache for batch loading
    *
    * @remarks
-   * This method processes import blocks, compiles media, messages, keyboards,
-   * and descriptions from the template. It uses `TemplateEngine` for compilation.
+    * This method processes import blocks, compiles media, polls, messages, keyboards,
+    * and descriptions from the template. It uses `TemplateEngine` for compilation.
    * The `keepIfExist` parameter allows partial recompilation when only specific
    * template parts have changed.
    *
@@ -789,6 +789,10 @@ export class TemplateManager {
 
     if (keepIfExist === undefined || keepIfExist?.media === false || existing?.media === undefined) {
       compiled.media = TemplateEngine.compileBlockGMedia(processedTemplate, baseBlocks)
+      updated = true
+    }
+    if (keepIfExist === undefined || keepIfExist?.poll === false || existing?.poll === undefined) {
+      compiled.poll = TemplateEngine.compileBlockGPoll(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.message === false || existing?.message === undefined) {
@@ -837,6 +841,39 @@ export class TemplateManager {
 
     if (!func) {
       throw new Error(`Media function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled from block <g-poll>.
+   *
+   * @param key - Template identifier (filename without extension)
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
+   * @param data - Template variables for interpolation
+   * @returns Poll object containing type, question, options, and quiz grading fields
+   *
+   * @remarks
+   * Retrieves the compiled poll function for the specified template and language,
+   * then executes it with the provided data to generate the poll payload.
+   *
+   * @example
+   * ```typescript
+   * const poll = tm.getGPoll("quiz-page", "default", "en", {topic: "math"})
+   * // => {type: "quiz", question: "...", options: ["..."], correct: 0, anonymous: true}
+   * ```
+   *
+   * @public
+   */
+  getGPoll(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`poll`][`default`][`default`]> {
+    const map = this._map.get(key)
+    const one = map?.poll?.[AGBaseId] ?? map?.poll?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`Poll function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
     return func(data)

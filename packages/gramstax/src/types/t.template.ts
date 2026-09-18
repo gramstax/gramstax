@@ -13,6 +13,8 @@ import type {TemplateEngine} from "~/template/engine"
 export type ITCompiledTemplate = {
   /** Compiled media blocks indexed by base ID and language */
   media: ReturnType<typeof TemplateEngine.compileBlockGMedia>
+  /** Compiled poll blocks indexed by base ID and language */
+  poll: ReturnType<typeof TemplateEngine.compileBlockGPoll>
   /** Compiled message blocks indexed by base ID and language */
   message: ReturnType<typeof TemplateEngine.compileBlockGMessage>
   /** Compiled keyboard blocks indexed by base ID, language, and type */

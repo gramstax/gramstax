@@ -18,7 +18,7 @@ import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBu
 import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
-import type {ITMediaBlock} from "~/template/engine"
+import type {ITMediaBlock, ITPollBlock} from "~/template/engine"
 import type {TemplateManager} from "~/template/manager"
 import type {
   _KbButtonWithPageText,
@@ -63,6 +63,59 @@ type ITMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto 
 type ITMediaGroupItem = NonNullable<ITMediaBlock[`mediaGroup`]>[number]
 
 export type {EphemeralMessageParameters}
+
+/**
+ * One already-sent message to revise or remove in bulk.
+ *
+ * @remarks
+ * Matches the downstream `SentRepository` row shape (`chatId` + `messageId`
+ * per content code): list stored rows and pass them back to
+ * `renderBroadcastEdit` / `renderBroadcastDelete`.
+ *
+ * @public
+ */
+export type ITBroadcastEditTarget = {
+  chatId: number
+  messageId: number
+}
+
+/**
+ * Broadcast controls shared by `renderBroadcastEdit` and `renderBroadcastDelete`.
+ *
+ * @remarks
+ * All fields are optional: defaults mirror broadcast-send behavior
+ * (sequential pool, `delete-reply` edit fallback). Checkpoint-first —
+ * `startFrom` resumes after a restart without re-editing (indexes below
+ * count as skipped).
+ *
+ * @public
+ */
+export type ITBroadcastEditOpts = {
+  onProgress?: ((done: number, total: number) => void | Promise<void>) | null
+  startFrom?: number | null
+  concurrency?: number | null
+  chunkSize?: number | null
+  chunkDelayMs?: number | null
+  fallbackEdit?: ITOptFallbackEdit | null
+}
+
+/**
+ * Bulk edit/delete result with a re-drive list.
+ *
+ * @remarks
+ * Mirrors the broadcast-send result shape: counts plus `retryable[]`
+ * (absolute `index` + `chatId` + `messageId` + `error`, completion order)
+ * for a fresh retry pass, and `skippedCount` for resumed indexes.
+ *
+ * @public
+ */
+export type ITBroadcastEditResult = {
+  successCount: number
+  failedCount: number
+  totalCount: number
+  skippedCount: number
+  retryable: Array<{index: number; chatId: number; messageId: number; error: unknown}>
+}
 
 /**
  * Extended `InlineKeyboard` — overrides `.text()` so the `data` parameter
@@ -652,6 +705,41 @@ export class Ctx extends Context {
   static readonly MEDIA_GROUP_LIMIT = 10
 
   /**
+   * Bot API poll question limit in characters.
+   *
+   * @public
+   */
+  static readonly POLL_QUESTION_LIMIT = 300
+
+  /**
+   * Bot API poll option limit in characters (per option).
+   *
+   * @public
+   */
+  static readonly POLL_OPTION_LIMIT = 100
+
+  /**
+   * Bot API poll option count bounds (2–10 options).
+   *
+   * @public
+   */
+  static readonly POLL_OPTIONS_MIN = 2
+
+  /**
+   * Bot API poll option count bounds (2–10 options).
+   *
+   * @public
+   */
+  static readonly POLL_OPTIONS_MAX = 10
+
+  /**
+   * Bot API quiz explanation limit in characters.
+   *
+   * @public
+   */
+  static readonly POLL_EXPLANATION_LIMIT = 200
+
+  /**
    * Classify a send failure as `fallback-text` (content rejected, reply with
    * fallback text) or `retryable` (rate limit, server, network, or unknown —
    * rethrow the original error untouched, fail-loud default).
@@ -837,6 +925,32 @@ export class Ctx extends Context {
   static assertContact(phone: unknown, firstName: unknown): void {
     if (typeof phone !== `string` || phone.trim() === ``) throw new Error(`Contact requires a non-empty "phone" (got "${String(phone)}")`)
     if (typeof firstName !== `string` || firstName.trim() === ``) throw new Error(`Contact requires a non-empty "first_name" (got "${String(firstName)}")`)
+  }
+
+  /**
+   * Fail-fast checks for a compiled `<g-poll>` block against Bot API limits.
+   *
+   * @remarks
+   * Measures the COMPILED strings (post-interpolation): question 1–300
+   * chars, 2–10 options of 1–100 chars each, quiz `correct` present and
+   * within range, explanation at most 200 chars. Programmer error —
+   * always throws, never falls back or notifies.
+   *
+   * @param poll - Compiled poll block from `getGPoll`.
+   *
+   * @public
+   */
+  static assertPoll(poll: ITPollBlock): void {
+    if (poll.question.length < 1 || poll.question.length > Ctx.POLL_QUESTION_LIMIT) throw new Error(`Poll question must be 1-${Ctx.POLL_QUESTION_LIMIT} characters (got ${poll.question.length})`)
+    if (poll.options.length < Ctx.POLL_OPTIONS_MIN || poll.options.length > Ctx.POLL_OPTIONS_MAX) throw new Error(`Poll must contain ${Ctx.POLL_OPTIONS_MIN}-${Ctx.POLL_OPTIONS_MAX} options (got ${poll.options.length})`)
+    for (const option of poll.options) {
+      if (option.length < 1 || option.length > Ctx.POLL_OPTION_LIMIT) throw new Error(`Poll option must be 1-${Ctx.POLL_OPTION_LIMIT} characters (got ${option.length})`)
+    }
+    if (poll.type === `quiz`) {
+      if (poll.correct === undefined) throw new Error(`Poll type "quiz" requires "correct"`)
+      if (!Number.isInteger(poll.correct) || poll.correct < 0 || poll.correct >= poll.options.length) throw new Error(`Poll "correct" must be an option index 0-${poll.options.length - 1} (got ${String(poll.correct)})`)
+      if (poll.explanation !== undefined && poll.explanation.length > Ctx.POLL_EXPLANATION_LIMIT) throw new Error(`Poll explanation must be at most ${Ctx.POLL_EXPLANATION_LIMIT} characters (got ${poll.explanation.length})`)
+    }
   }
 
   /**
@@ -2209,6 +2323,309 @@ export class Ctx extends Context {
   }
 
   /**
+   * Edits already-sent messages for many recipients in bulk.
+   *
+   * @remarks
+   * Mass typo-fix / content-revision counterpart of `renderBroadcastMedia`:
+   * same checkpoint-first resume (`startFrom`), bounded-concurrency stride
+   * lanes (`concurrency`, capped at `10`), pacing (`30`-message free-limit
+   * sleep plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`),
+   * retryable separation (`retryable[]` with absolute `index` + `chatId` +
+   * `messageId` + `error`, completion order), and fail-fast validation
+   * (programmer errors throw BEFORE any send).
+   *
+   * The intended input source is a stored sent-list such as the downstream
+   * `SentRepository` shape (`Array<{chatId, messageId}>` per content code):
+   * pass the rows back here to revise the same messages for every recipient.
+   *
+   * Per-recipient semantics mirror `renderEditMedia` exactly: `photo`,
+   * `video`, `audio`, `document`, and `animation` edit in place via
+   * `editMessageMedia` (with `InputFile` resolution + filename + caption);
+   * `voice`, `video_note`, `sticker`, `location`, and `contact` cannot be
+   * edited, so the old message is deleted and a new one is sent;
+   * pipe-delimited multi-src media deletes and resends a media group. Every
+   * resolved media input is cloned per recipient via `Ctx.cloneMediaInput`,
+   * so parallel workers never share one mutable `InputFile` instance.
+   *
+   * When the primary edit/delete+resend fails, the per-recipient
+   * `fallbackEdit` flow runs (default `delete-reply`: best-effort delete,
+   * then resend the media without `options1`/`options2`, with a `log.warn`
+   * when non-empty edit options are dropped). A failed fallback is
+   * classified via `Ctx.classifySendError`: `fallback-text` triggers a
+   * best-effort fallback-text send to that recipient (nested failures
+   * ignored) and `failedCount++`; `retryable` appends to `retryable[]` and
+   * the loop continues. `fallbackEdit: `disable`` skips the resend and
+   * classifies the primary error directly.
+   *
+   * @typeParam T - The media type to edit to.
+   * @param targets - Stored `{chatId, messageId}` rows to edit, in stable order (checkpoint index = array index).
+   * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
+   * @param options1 - Type-specific media options (or null to omit; dropped on fallback resend).
+   * @param options2 - Additional edit options (or null to omit; dropped on fallback resend).
+   * @param broadcastOpts - Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`, `fallbackEdit`) (or null for defaults).
+   * @returns Counts plus `retryable[]` for a re-drive pass.
+   *
+   * @example
+   * ```typescript
+   * async handleTypoFix() {
+   *   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
+   *   await this.renderBroadcastEdit(sent, `photo`, null, {price: `99`})
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderBroadcastEdit<T extends Exclude<ITMediaBlock[`type`], `group`>>(
+    targets: ITBroadcastEditTarget[],
+    type: T,
+    keyboardInline?: ITInlineKb | null,
+    data?: ITData | null,
+    AGBaseId?: string | null,
+    options1?:
+      | (T extends `voice`
+          ? ITOptReplyVoice
+          : T extends `video_note`
+            ? ITOptReplyVideoNote
+            : T extends `sticker`
+              ? ITOptReplySticker
+              : T extends `location`
+                ? ITOptReplyLocation
+                : T extends `contact`
+                  ? ITOptReplyContact
+                  : //
+                    ITOptEditMedia1)
+      | null,
+    options2?: ITOptEditMedia2 | null,
+    broadcastOpts?: ITBroadcastEditOpts | null
+  ): Promise<ITBroadcastEditResult> {
+    const opts = broadcastOpts ?? {}
+    const fallbackEdit = opts.fallbackEdit ?? `delete-reply`
+    const onProgress = opts.onProgress ?? null
+    const chunkSize = opts.chunkSize ?? null
+    const chunkDelayMs = opts.chunkDelayMs ?? null
+    const res: ITBroadcastEditResult = {successCount: 0, failedCount: 0, totalCount: targets.length, skippedCount: 0, retryable: []}
+    const limitFree = 30
+    const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    if (!med) throw new Error(`Media not found for template "${this.data.name}"`)
+    Ctx.assertMediaPreconditions(type, med)
+    let coords: {latitude: number; longitude: number} | undefined
+    if (type === `location`) coords = Ctx.assertLocation(med.latitude, med.longitude)
+    if (type === `contact`) Ctx.assertContact(med.phone, med.first_name)
+    if (med.srcList && med.srcList.length > 0) Ctx.assertMediaSrcList(type, med.srcList)
+    const rawStart = opts.startFrom ?? 0
+    const start = !Number.isFinite(rawStart) ? 0 : Math.min(targets.length, Math.max(0, Math.floor(rawStart)))
+    res.skippedCount += start
+    const rawWorkers = opts.concurrency ?? 1
+    const workers = !Number.isFinite(rawWorkers) ? 1 : Math.min(10, Math.max(1, Math.floor(rawWorkers)))
+    const {src, caption} = med
+    const medFilename = med.filename
+    const sendMediaTo = async (chatId: number, opt: Record<string, unknown>): Promise<unknown> => {
+      if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
+        return await this.api.sendMediaGroup(
+          chatId as unknown as never,
+          Helper.buildMediaGroup(
+            type,
+            med.srcList.map((item) => Ctx.cloneMediaInput(this.resolveMedia(item))),
+            caption
+          ) as unknown as never,
+          Helper.buildMediaGroupOptions(opt) as unknown as never
+        )
+      }
+      if (type === `photo`) return await this.api.sendPhoto(chatId, Ctx.cloneMediaInput(this.resolveMedia(src, medFilename)), {caption: caption!, ...opt})
+      if (type === `video`) return await this.api.sendVideo(chatId, Ctx.cloneMediaInput(this.resolveMedia(src, medFilename)), {caption: caption!, ...opt})
+      if (type === `audio`) return await this.api.sendAudio(chatId, Ctx.cloneMediaInput(this.resolveMedia(src, medFilename)), {caption: caption!, ...opt})
+      if (type === `document`) return await this.api.sendDocument(chatId, Ctx.cloneMediaInput(this.resolveMedia(src, medFilename)), {caption: caption!, ...opt})
+      if (type === `animation`) return await this.api.sendAnimation(chatId, Ctx.cloneMediaInput(this.resolveMedia(src, medFilename)), {caption: caption!, ...opt})
+      if (type === `voice`) return await this.api.sendVoice(chatId, Ctx.cloneMediaInput(this.resolveMedia(src, medFilename)), opt)
+      if (type === `video_note`) return await this.api.sendVideoNote(chatId, Ctx.cloneMediaInput(this.resolveMedia(src, medFilename)), opt)
+      if (type === `sticker`) return await this.api.sendSticker(chatId, Ctx.cloneMediaInput(this.resolveMedia(src, medFilename)), opt)
+      if (type === `location`) return await this.api.sendLocation(chatId, coords!.latitude, coords!.longitude, opt)
+      return await this.api.sendContact(chatId, med.phone as string, med.first_name as string, {vcard: med.vcard!, ...opt})
+    }
+    const classifyEditError = async (index: number, chatId: number, messageId: number, error: unknown): Promise<void> => {
+      const kind = Ctx.classifySendError(error)
+      if (kind === `fallback-text`) {
+        this.log?.warn(`broadcast edit fallback-text delivery to ${chatId} for page "${this.sendPageName()}"`)
+        this.notifySendError(error, kind, chatId)
+        try {
+          await this.api.sendMessage(chatId, this.resolveFallbackText())
+        } catch {
+          // best-effort fallback; ignore nested failure
+        }
+      } else {
+        this.notifySendError(error, kind, chatId)
+        res.retryable.push({index, chatId, messageId, error})
+      }
+      res.failedCount += 1
+    }
+    const attempt = async (index: number): Promise<void> => {
+      const target = targets[index]!
+      const chatId = target.chatId
+      const messageId = target.messageId
+      try {
+        const commonOpt = {reply_markup: keyboardInline ?? undefined, ...(options1 ?? {})} as Record<string, unknown>
+        if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
+          await this.api.deleteMessage(chatId, messageId)
+          await sendMediaTo(chatId, {parse_mode: `HTML`, reply_markup: keyboardInline ?? undefined})
+        } else if (type === `voice` || type === `video_note` || type === `sticker` || type === `location` || type === `contact`) {
+          await this.api.deleteMessage(chatId, messageId)
+          await sendMediaTo(chatId, commonOpt)
+        } else {
+          await this.api.editMessageMedia(
+            chatId,
+            messageId,
+            {
+              media: Ctx.cloneMediaInput(this.resolveMedia(src, medFilename)),
+              caption,
+              type,
+              parse_mode: `HTML`,
+              ...(options1 ?? {})
+            },
+            {reply_markup: keyboardInline ?? undefined, ...(options2 ?? {})}
+          )
+        }
+        res.successCount += 1
+      } catch (primaryError) {
+        if (fallbackEdit === `disable`) {
+          await classifyEditError(index, chatId, messageId, primaryError)
+        } else {
+          if ((options1 !== null && options1 !== undefined && Object.keys(options1).length > 0) || (options2 !== null && options2 !== undefined && Object.keys(options2).length > 0)) {
+            this.log?.warn(`renderBroadcastEdit fallback drops edit options (options1/options2 do not map to reply options)`)
+          }
+          this.log?.warn(`renderBroadcastEdit fallback re-send to ${chatId} for page "${this.sendPageName()}"`)
+          if (fallbackEdit === `delete-reply`) {
+            try {
+              await this.api.deleteMessage(chatId, messageId)
+            } catch {
+              // delete failure (e.g. already deleted) must not block the fallback re-send
+            }
+          }
+          try {
+            await sendMediaTo(chatId, {parse_mode: `HTML`, reply_markup: keyboardInline ?? undefined})
+            res.successCount += 1
+          } catch (fallbackError) {
+            await classifyEditError(index, chatId, messageId, fallbackError)
+          }
+        }
+      }
+      if ((index + 1) % limitFree === 0) {
+        await setTimeout(1200)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < targets.length) {
+        await setTimeout(chunkDelayMs ?? 500)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      }
+    }
+    if (workers <= 1) {
+      for (let index = start; index < targets.length; index++) await attempt(index)
+    } else {
+      const pending: number[] = []
+      for (let index = start; index < targets.length; index++) pending.push(index)
+      const lanes: number[][] = Array.from({length: workers}, (): number[] => [])
+      pending.forEach((absolute, position) => {
+        lanes[position % workers]!.push(absolute)
+      })
+      await Promise.all(
+        lanes.map(async (lane) => {
+          for (const next of lane) await attempt(next)
+        })
+      )
+    }
+    await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+    return res
+  }
+
+  /**
+   * Deletes already-sent messages for many recipients in bulk.
+   *
+   * @remarks
+   * Expiry-cleanup counterpart of `renderBroadcastEdit`: same
+   * checkpoint-first resume (`startFrom`), bounded-concurrency stride lanes
+   * (`concurrency`, capped at `10`), pacing (`30`-message free-limit sleep
+   * plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`), and
+   * retryable separation (`retryable[]` with absolute `index` + `chatId` +
+   * `messageId` + `error`, completion order).
+   *
+   * Per-recipient failures are classified via `Ctx.classifySendError`:
+   * `retryable` errors are recorded and the loop continues; `fallback-text`
+   * errors only notify (`notifySendError`) and count as failed. A failed
+   * delete has no text fallback by design — there is no replacement content
+   * to deliver, so no `sendMessage` is attempted on either path.
+   *
+   * @param targets - Stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index).
+   * @param broadcastOpts - Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallbackEdit` is accepted but ignored — deletes have no resend).
+   * @returns Counts plus `retryable[]` for a re-drive pass.
+   *
+   * @example
+   * ```typescript
+   * async handleExpireVip() {
+   *   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
+   *   await this.renderBroadcastDelete(sent)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderBroadcastDelete(targets: ITBroadcastEditTarget[], broadcastOpts?: ITBroadcastEditOpts | null): Promise<ITBroadcastEditResult> {
+    const opts = broadcastOpts ?? {}
+    const onProgress = opts.onProgress ?? null
+    const chunkSize = opts.chunkSize ?? null
+    const chunkDelayMs = opts.chunkDelayMs ?? null
+    const res: ITBroadcastEditResult = {successCount: 0, failedCount: 0, totalCount: targets.length, skippedCount: 0, retryable: []}
+    const limitFree = 30
+    const rawStart = opts.startFrom ?? 0
+    const start = !Number.isFinite(rawStart) ? 0 : Math.min(targets.length, Math.max(0, Math.floor(rawStart)))
+    res.skippedCount += start
+    const rawWorkers = opts.concurrency ?? 1
+    const workers = !Number.isFinite(rawWorkers) ? 1 : Math.min(10, Math.max(1, Math.floor(rawWorkers)))
+    const attempt = async (index: number): Promise<void> => {
+      const target = targets[index]!
+      const chatId = target.chatId
+      const messageId = target.messageId
+      try {
+        await this.api.deleteMessage(chatId, messageId)
+        res.successCount += 1
+      } catch (error) {
+        const kind = Ctx.classifySendError(error)
+        this.notifySendError(error, kind, chatId)
+        if (kind === `fallback-text`) {
+          this.log?.warn(`broadcast delete fallback-text (no text fallback) for ${chatId} page "${this.sendPageName()}"`)
+        } else {
+          res.retryable.push({index, chatId, messageId, error})
+        }
+        res.failedCount += 1
+      }
+      if ((index + 1) % limitFree === 0) {
+        await setTimeout(1200)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < targets.length) {
+        await setTimeout(chunkDelayMs ?? 500)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      }
+    }
+    if (workers <= 1) {
+      for (let index = start; index < targets.length; index++) await attempt(index)
+    } else {
+      const pending: number[] = []
+      for (let index = start; index < targets.length; index++) pending.push(index)
+      const lanes: number[][] = Array.from({length: workers}, (): number[] => [])
+      pending.forEach((absolute, position) => {
+        lanes[position % workers]!.push(absolute)
+      })
+      await Promise.all(
+        lanes.map(async (lane) => {
+          for (const next of lane) await attempt(next)
+        })
+      )
+    }
+    await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+    return res
+  }
+
+  /**
    * Sends a text message reply using the page template.
    *
    * @remarks
@@ -2628,6 +3045,108 @@ export class Ctx extends Context {
       this.log?.warn(`media send fallback-text delivery for page "${this.sendPageName()}" chat ${this.sendChatId()}`)
       return await this.replyFallbackText()
     }
+  }
+
+  /**
+   * Sends a template-driven poll using the page `<g-poll>` block.
+   *
+   * @remarks
+   * Fail-fast validation (`Ctx.assertPoll`) runs BEFORE any API call on the
+   * COMPILED strings — programmer errors always throw, never fall back.
+   * The question is sent with `parse_mode: HTML` so rich HTML tags work;
+   * quiz explanations use `explanation_parse_mode: HTML`.
+   *
+   * There is no `renderPollAuto` / `renderEditPoll`: the Bot API offers no
+   * edit for polls (only `stopPoll`), so polls are send-only.
+   *
+   * Observe-only send-error coverage (mirrors `render`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * There is no degraded fallback content for polls, so after notify+log
+   * the original error is ALWAYS rethrown untouched.
+   *
+   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID position for block poll (or null to use default).
+   * @param options - Optional extra `sendPoll` fields (or null to omit).
+   * @returns The sent poll message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+   *   await this.renderPoll(kb, {topic: "math"})
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * async handleQuiz() {
+   *   // Template: <g-poll type="quiz" correct="0" explanation="Because {{reason}}">
+   *   await this.renderPoll(null, {topic: "2+2", reason: "arithmetic"})
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderPoll(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null) {
+    const poll = this.templateManager.getGPoll(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    Ctx.assertPoll(poll)
+    const chatId = this.sendChatId()
+    if (chatId === undefined) throw new Error(`renderPoll requires a chat id for page "${this.sendPageName()}"`)
+    const correct = poll.correct ?? 0
+    try {
+      return await this.api.sendPoll(chatId, poll.question, poll.options, {
+        question_parse_mode: `HTML`,
+        type: poll.type,
+        ...(poll.type === `quiz` ? {correct_option_id: correct, ...(poll.explanation ? {explanation: poll.explanation, explanation_parse_mode: `HTML` as const} : {})} : {}),
+        is_anonymous: poll.anonymous ?? true,
+        ...(poll.multiple !== undefined ? {allows_multiple_answers: poll.multiple} : {}),
+        reply_markup: keyboard ?? undefined,
+        ...(options ?? {})
+      })
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`poll send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      // No poll fallback for polls: there is no degraded content to deliver, so rethrow after notify+log.
+      this.log?.warn(`poll send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Stops a live poll, closing voting and returning the final results.
+   *
+   * @remarks
+   * Primary form `stopPoll(chatId, messageId, options?)` is a thin
+   * passthrough to `api.stopPoll` — no template involved. Use with a
+   * message previously sent by {@link (Ctx:class).renderPoll}. The
+   * inherited `Context.stopPoll(other?, signal?)` form still works and
+   * stops the poll in the current context.
+   *
+   * @param chatId - Chat holding the poll message, or the inherited `stopPoll` options object.
+   * @param messageId - Message id of the poll to stop, or the inherited abort signal.
+   * @param options - Optional extra `stopPoll` fields (or null to omit).
+   * @returns The stopped poll with final vote counts.
+   *
+   * @example
+   * ```typescript
+   * async handleStopPoll() {
+   *   await this.stopPoll(this.chat!.id, 42)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async stopPoll(chatId?: number | Parameters<Context[`stopPoll`]>[0], messageId?: number | Parameters<Context[`stopPoll`]>[1], options?: Parameters<Ctx[`api`][`stopPoll`]>[2] | null) {
+    if (typeof chatId === `number` && typeof messageId === `number`) {
+      return await this.api.stopPoll(chatId, messageId, {...(options ?? {})})
+    }
+    return await super.stopPoll(chatId as Parameters<Context[`stopPoll`]>[0], messageId as Parameters<Context[`stopPoll`]>[1])
   }
 
   /**

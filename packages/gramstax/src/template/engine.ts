@@ -71,6 +71,41 @@ export type ITMediaBlock = {
   vcard?: string
 }
 
+/**
+ * Represents a poll block configuration for Telegram polls.
+ *
+ * @remarks
+ * This type defines the structure for template-driven polls declared with
+ * `<g-poll>` blocks. The question and options support the same
+ * `{{var|filter}}` interpolation pipeline as media captions; the compiled
+ * strings are length-checked at runtime before any API call (question
+ * 1–300 chars, each option 1–100 chars, 2–10 options, `correct` within
+ * range, explanation at most 200 chars).
+ *
+ * @example
+ * ```typescript
+ * const quiz: ITPollBlock = {
+ *   type: `quiz`,
+ *   question: `What is 2+2?`,
+ *   options: [`3`, `4`],
+ *   correct: 1,
+ *   explanation: `Basic arithmetic`,
+ *   anonymous: true
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITPollBlock = {
+  type: `regular` | `quiz`
+  question: string
+  options: string[]
+  correct?: number
+  explanation?: string
+  anonymous?: boolean
+  multiple?: boolean
+}
+
 type ITTemplateData = Record<string, unknown>
 
 type ITTemplateRenderer<T extends boolean> = T extends true ? (data?: ITTemplateData) => string[] : (data?: ITTemplateData) => string
@@ -311,6 +346,9 @@ export class TemplateEngine {
     `<g-keyboard>`,
     `<g-media>`,
     `<g-media-group>`,
+    `<g-poll>`,
+    `<g-question>`,
+    `<g-option>`,
     `<g-description>`,
     // Logic blocks
     `<g-script>`,
@@ -633,6 +671,10 @@ export class TemplateEngine {
    * - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact
    * - `<g-media shared>` — must be `true` or `false`
    * - `<g-media filename>` — any string, always valid
+   * - `<g-poll type>` — must be `regular` or `quiz`
+   * - `<g-poll correct>` — must be a non-negative option index
+   * - `<g-poll explanation>` — any string, always valid
+   * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
    *
    * Validators are intentionally lenient — they catch obvious bugs (wrong
    * type, invalid value) but do not enforce every framework-level constraint.
@@ -659,6 +701,13 @@ export class TemplateEngine {
       },
       shared: (v) => (v === `true` || v === `false` ? null : `Attribute "shared" on <g-media> must be "true" or "false", got "${v}"`),
       filename: () => null
+    },
+    "g-poll": {
+      type: (v) => (v === `regular` || v === `quiz` ? null : `Attribute "type" on <g-poll> must be "regular" or "quiz", got "${v}"`),
+      correct: (v) => (/^\d+$/.test(v) ? null : `Attribute "correct" on <g-poll> must be a non-negative option index, got "${v}"`),
+      explanation: () => null,
+      anonymous: (v) => (v === `true` || v === `false` ? null : `Attribute "anonymous" on <g-poll> must be "true" or "false", got "${v}"`),
+      multiple: (v) => (v === `true` || v === `false` ? null : `Attribute "multiple" on <g-poll> must be "true" or "false", got "${v}"`)
     }
   }
   /**
@@ -1408,6 +1457,69 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: g-poll
+   * Extracts and parses `<g-poll>` blocks from a template string.
+   *
+   * @remarks
+   * Each block declares one poll per language (`lang` defaults to
+   * `"default"`; last block wins per lang). The inner `<g-question>`
+   * becomes `question`, each inner `<g-option>` becomes one entry of
+   * `options`. `type` defaults to `"regular"`; `correct` is parsed to a
+   * 0-based index when numeric; `anonymous` defaults to `true`.
+   * Structural rules (exactly one question, 2–10 options, quiz/regular
+   * coherence) are enforced by `validateBlockGPollAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-poll>` blocks
+   * @returns An object mapping language keys to their poll configurations
+   *
+   * @example
+   * ```typescript
+   * const polls = TemplateEngine._processGPollBlocks(`<g-poll type="quiz" correct="1"><g-question>Q?</g-question><g-option>A</g-option><g-option>B</g-option></g-poll>`);
+   * // Result: { default: { type: 'quiz', question: 'Q?', options: ['A', 'B'], correct: 1, anonymous: true } }
+   * ```
+   *
+   * @public
+   */
+  static _processGPollBlocks(template: string) {
+    const pollRegex = /<g-poll(?:\s+([^>]*))?>([\s\S]*?)<\/g-poll>/gi
+    const result: {[lang: string]: ITPollBlock} = {}
+    const clean = (raw: string): string => raw.replace(/^[\t ]+/gm, ``).replace(/^\n+/, ``).replace(/\n+$/, ``).trim()
+
+    for (const match of template.matchAll(pollRegex)) {
+      const attributesStr = match[1]
+      const body = match[2] ?? ``
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const type = attrs.type === `quiz` ? `quiz` : `regular`
+      const question = clean(/<g-question(?:\s+[^>]*)?>([\s\S]*?)<\/g-question>/i.exec(body)?.[1] ?? ``)
+      const options: string[] = []
+      for (const optMatch of body.matchAll(/<g-option(?:\s+[^>]*)?>([\s\S]*?)<\/g-option>/gi)) {
+        options.push(clean(optMatch[1] ?? ``))
+      }
+
+      const poll: ITPollBlock = {type, question, options}
+      if (attrs.correct !== undefined && attrs.correct !== ``) {
+        const n = Number(attrs.correct)
+        if (Number.isInteger(n)) poll.correct = n
+      }
+      if (attrs.explanation !== undefined && attrs.explanation !== ``) poll.explanation = attrs.explanation
+      poll.anonymous = attrs.anonymous === undefined ? true : attrs.anonymous !== `false`
+      if (attrs.multiple !== undefined && attrs.multiple !== ``) poll.multiple = attrs.multiple === `true`
+      result[lang] = poll
+    }
+
+    return result
+  }
+
+  /**
    * Parses `<g-media-group>` blocks into Telegram media group item definitions.
    *
    * @remarks
@@ -1966,6 +2078,58 @@ export class TemplateEngine {
           }
           return resolvedBlock
         }
+      }
+    }
+    return result
+  }
+
+  /**
+   * Compiles poll blocks from a template into executable functions.
+   *
+   * @remarks
+   * Parses `<g-poll>` blocks per base and compiles `question`, each
+   * `option`, and `explanation` through the same pipeline as media
+   * captions (script → map → switch → exec → variables), so
+   * `{{var|filter}}` works in all three. Static fields (`type`,
+   * `correct`, `anonymous`, `multiple`) pass through untouched.
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-poll>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled poll functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const polls = TemplateEngine.compileBlockGPoll(`<g-base><g-poll><g-question>Hi {{name}}?</g-question><g-option>Yes</g-option><g-option>No</g-option></g-poll></g-base>`);
+   * const result = polls.default?.default?.({ name: 'Jo' });
+   * // Result: { type: 'regular', question: 'Hi Jo?', options: ['Yes', 'No'], anonymous: true }
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGPoll(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => ITPollBlock
+      }
+    } = {}
+    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
+      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const polls = this._processGPollBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, poll] of Object.entries(polls)) {
+        const questionFn = compileString(poll.question)
+        const optionFns = poll.options.map((opt) => compileString(opt))
+        const explanationFn = poll.explanation !== undefined ? compileString(poll.explanation) : undefined
+        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+          ...poll,
+          question: questionFn(data),
+          options: optionFns.map((fn) => fn(data)),
+          ...(explanationFn ? {explanation: explanationFn(data)} : {})
+        })
       }
     }
     return result
@@ -2678,8 +2842,9 @@ export class TemplateEngine {
    *
    * **Enforced rules:**
    * - `<g-base>` must be at the outermost level and cannot be nested inside any other block.
-   * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
-   * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item.
+    * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
+    * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item.
+    * - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`.
    * - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`.
    * - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`.
    * - `<g-map>` is also allowed inside `<g-case>` and `<g-default>` (explicitly and via
@@ -2735,15 +2900,18 @@ export class TemplateEngine {
       "g-keyboard": new Set([`g-base`]),
       "g-media": new Set([`g-base`, `g-media-group`]),
       "g-media-group": new Set([`g-base`]),
+      "g-poll": new Set([`g-base`]),
+      "g-question": new Set([`g-poll`]),
+      "g-option": new Set([`g-poll`]),
       "g-description": new Set([`g-base`]),
-      "g-switch": new Set([`g-message`, `g-keyboard`, `g-media`, `g-description`]),
+      "g-switch": new Set([`g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description`]),
       "g-case": new Set([`g-switch`]),
       "g-default": new Set([`g-switch`]),
-      "g-map": new Set([`g-message`, `g-keyboard`, `g-media`, `g-description`, `g-case`, `g-default`, `g-map`]),
+      "g-map": new Set([`g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description`, `g-case`, `g-default`, `g-map`]),
       "g-div": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-map`]),
-      "g-script": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-map`, `g-div`]),
+      "g-script": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-poll`, `g-question`, `g-option`, `g-case`, `g-default`, `g-map`, `g-div`]),
       "g-import": new Set([`g-base`]),
-      "g-space": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-switch`, `g-map`, `g-div`])
+      "g-space": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-poll`, `g-question`, `g-option`, `g-case`, `g-default`, `g-switch`, `g-map`, `g-div`])
     }
 
     // Matches all HTML-like tags: <tagname>, <tagname attr="val">, </tagname>, <tagname />
@@ -2882,8 +3050,9 @@ export class TemplateEngine {
    * - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements
    *
    * **Must NOT be self-closing (must use open/close tags):**
-   * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
-   *   `<g-media>...</g-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
+    * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
+    *   `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,
+    *   `<g-option>...</g-option>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
    *   `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,
    *   `<g-map>...</g-map>`, `<g-div>...</g-div>`
    *
@@ -2905,7 +3074,7 @@ export class TemplateEngine {
   static validateFormatBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
     const selfClosingBlocks = new Set([`space`, `import`, `hr`, `img`, `input`, `br`, `tg-map`])
-    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-description`, `g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`])
+    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-description`, `g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`])
 
     const tagRegex = /<(\/?)(\w[\w-]*)([^>]*)>/g
     let match: RegExpExecArray | null
@@ -3449,6 +3618,10 @@ export class TemplateEngine {
    * - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact
    * - `<g-media shared>` — must be `true` or `false`
    * - `<g-media filename>` — any string, always valid
+   * - `<g-poll type>` — must be `regular` or `quiz`
+   * - `<g-poll correct>` — must be a non-negative option index
+   * - `<g-poll explanation>` — any string, always valid
+   * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
    *
    * Tags without value validators (e.g. `<g-message>`, `<g-script>`, `<g-div>`) are
    * skipped. See {@link TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS} for the full spec.
@@ -3598,6 +3771,116 @@ export class TemplateEngine {
     const errors = this._validateBlockAttributes(template, `g-media-group`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-media-group`])
     errors.push(...this._validateMediaGroupItems(template))
     return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes and item constraints on `<g-poll>` blocks.
+   *
+   * @remarks
+   * Checks the block-level attributes (`lang`, `type`, `correct`,
+   * `explanation`, `anonymous`, `multiple`) via `_validateBlockAttributes`,
+   * then delegates structural rules (exactly one `<g-question>`, 2–10
+   * `<g-option>` items, `correct` required and in range for quiz but
+   * rejected on regular, `multiple`/`explanation` quiz/regular coherence,
+   * static Bot API length limits where no `{{}}` interpolation is present)
+   * to {@link TemplateEngine._validatePollItems}. Returns `valid: false`
+   * with per-line errors instead of throwing, so callers can aggregate
+   * across blocks.
+   *
+   * @param template - The raw template source to validate.
+   * @returns `{valid, errors}`; `errors` carry 1-based line numbers.
+   * @public
+   */
+  static validateBlockGPollAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(
+      template,
+      `g-poll`,
+      new Set([`lang`, `type`, `correct`, `explanation`, `anonymous`, `multiple`]),
+      `"lang", "type", "correct", "explanation", "anonymous", and "multiple"`,
+      this._PAGE_ATTR_VALUE_VALIDATORS[`g-poll`]
+    )
+    errors.push(...this._validatePollItems(template))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates `<g-question>` / `<g-option>` items inside `<g-poll>` blocks.
+   *
+   * @remarks
+   * Enforces the Telegram `sendPoll` constraints: exactly one
+   * `<g-question>`, 2–10 `<g-option>` items, quiz-only `correct` (required,
+   * numeric, within the option range) and `explanation` (at most 200
+   * chars), regular-only `multiple`. Static length limits (question 1–300
+   * chars, each option 1–100 chars) apply only when the text carries no
+   * `{{}}` / `{~ ~}` interpolation — dynamic lengths are checked at
+   * runtime on the compiled strings. Called by
+   * {@link TemplateEngine.validateBlockGPollAttributes}; errors carry
+   * 1-based line numbers.
+   *
+   * @param template - The raw template source to inspect.
+   * @returns Validation errors (empty when valid).
+   * @public
+   */
+  static _validatePollItems(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const pollRegex = /<g-poll(?:\s+([^>]*))?>([\s\S]*?)<\/g-poll>/gi
+    const attrValue = (attrsStr: string, name: string): string | undefined => {
+      const m = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`).exec(attrsStr)
+      if (!m) return undefined
+      return m[1] ?? m[2] ?? m[3]
+    }
+    const isDynamic = (s: string): boolean => s.includes(`{{`) || s.includes(`{~`)
+
+    for (const pollMatch of template.matchAll(pollRegex)) {
+      const line = (template.slice(0, pollMatch.index).match(/\n/g) || []).length + 1
+      const attrsStr = pollMatch[1] ?? ``
+      const body = pollMatch[2] ?? ``
+      const type = attrValue(attrsStr, `type`) || `regular`
+      const correct = attrValue(attrsStr, `correct`)
+      const explanation = attrValue(attrsStr, `explanation`)
+      const multiple = attrValue(attrsStr, `multiple`)
+      const questionCount = (body.match(/<g-question(?![\w-])[^>]*>/gi) || []).length
+      const optionMatches = [...body.matchAll(/<g-option(?![\w-])[^>]*>([\s\S]*?)<\/g-option>/gi)]
+      const questionText = /<g-question(?![\w-])[^>]*>([\s\S]*?)<\/g-question>/i.exec(body)?.[1]?.trim() ?? ``
+
+      if (questionCount !== 1) {
+        errors.push({line, message: `<g-poll> must contain exactly one <g-question> (got ${questionCount})`})
+      }
+      if (optionMatches.length < 2 || optionMatches.length > 10) {
+        errors.push({line, message: `<g-poll> must contain 2-10 <g-option> blocks (got ${optionMatches.length})`})
+      }
+      if (type === `quiz`) {
+        if (correct === undefined) {
+          errors.push({line, message: `Attribute "correct" on <g-poll type="quiz"> is required`})
+        } else if (!/^\d+$/.test(correct) || Number(correct) >= optionMatches.length) {
+          errors.push({line, message: `Attribute "correct" on <g-poll> must be an option index 0-${optionMatches.length - 1} (got "${correct}")`})
+        }
+        if (multiple !== undefined) {
+          errors.push({line, message: `Attribute "multiple" on <g-poll> is only allowed for type="regular"`})
+        }
+      } else {
+        if (correct !== undefined) {
+          errors.push({line, message: `Attribute "correct" on <g-poll> is only allowed for type="quiz"`})
+        }
+        if (explanation !== undefined) {
+          errors.push({line, message: `Attribute "explanation" on <g-poll> is only allowed for type="quiz"`})
+        }
+      }
+      if (!isDynamic(questionText) && (questionText.length < 1 || questionText.length > 300)) {
+        errors.push({line, message: `<g-question> must be 1-300 characters (got ${questionText.length})`})
+      }
+      for (const optMatch of optionMatches) {
+        const text = (optMatch[1] ?? ``).trim()
+        if (!isDynamic(text) && (text.length < 1 || text.length > 100)) {
+          errors.push({line, message: `<g-option> must be 1-100 characters (got ${text.length})`})
+        }
+      }
+      if (explanation !== undefined && !isDynamic(explanation) && explanation.length > 200) {
+        errors.push({line, message: `Attribute "explanation" on <g-poll> must be at most 200 characters (got ${explanation.length})`})
+      }
+    }
+
+    return errors
   }
 
   /**
@@ -3883,18 +4166,19 @@ export class TemplateEngine {
    * 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
    * 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
    * 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
-   * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
-   * 13. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
-   * 14. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
-   * 15. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
-   * 16. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
-   * 17. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
-   * 18. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
-   * 19. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
-   * 20. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
-   * 21. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
-   * 22. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-   * 23. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+    * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
+    * 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes
+    * 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
+    * 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
+    * 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
+    * 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
+    * 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
+    * 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
+    * 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
+    * 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
+    * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
+    * 23. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+    * 24. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -4026,18 +4310,19 @@ export class TemplateEngine {
    * 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
    * 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
    * 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
-   * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
-   * 13. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
-   * 14. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
-   * 15. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
-   * 16. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
-   * 17. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
-   * 18. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
-   * 19. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
-   * 20. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
-   * 21. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
-   * 22. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-   * 23. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+    * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
+    * 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes
+    * 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
+    * 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
+    * 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
+    * 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
+    * 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
+    * 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
+    * 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
+    * 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
+    * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
+    * 23. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+    * 24. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -4070,6 +4355,7 @@ export class TemplateEngine {
     const keyboardAttrResult = this.validateBlockGKeyboardAttributes(template)
     const mediaAttrResult = this.validateBlockGMediaAttributes(template)
     const mediaGroupAttrResult = this.validateBlockGMediaGroupAttributes(template)
+    const pollAttrResult = this.validateBlockGPollAttributes(template)
     const descriptionAttrResult = this.validateBlockGDescriptionAttributes(template)
     const scriptAttrResult = this.validateBlockGScriptAttributes(template)
     const switchAttrResult = this.validateBlockGSwitchAttributes(template)
@@ -4098,6 +4384,7 @@ export class TemplateEngine {
       ...keyboardAttrResult.errors,
       ...mediaAttrResult.errors,
       ...mediaGroupAttrResult.errors,
+      ...pollAttrResult.errors,
       ...descriptionAttrResult.errors,
       ...scriptAttrResult.errors,
       ...switchAttrResult.errors,
