@@ -21,7 +21,7 @@
 - `packages/gramstax/skills/`: agent skills (`gramstax-best-practices` router + `references/` rules); `lmdb` and `worker-thread` ship their own skills.
 - `docs/`: documentation and API reference.
 - `docs/AGENTS.md`: API reference; not repo-wide agent guidance.
-- `real-projects/`: standalone (non-workspace) sample apps — currently `private-vip-content-bot` (own `bun.lock`).
+- `real-projects/`: standalone (non-workspace) sample apps — currently `production-vip-content-bot` (own `bun.lock`).
 - `plans/`: numbered implementation plans (`001-` through `007-`, each a `plan.md`).
 - `prompts/`: AI agent prompt templates (`PROMPT.md`, `PROMPT_WITH_VALUE.md`) — consume the gramstax skill router.
 - `scripts/`: root e2e-mirror tooling (`generate-e2e-structure.ts`, `check-e2e-mirror.ts`); mirrored into create-gramstax templates.
