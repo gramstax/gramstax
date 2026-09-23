@@ -20,18 +20,45 @@ documentation = ./packages/gramstax/docs/markdown/\*.md
 | FREE_TEXT_STEPS           | Admin content creation and editing: unique code, title, message body/caption, optional media file ID or media URL, TTL in seconds/minutes, enable/disable status, broadcast draft text/media, and broadcast confirmation. End users do not enter free text except normal invalid input fallback.                            |
 | INLINE_KEYBOARD_ACTIONS   | User: Help, Open another code instruction. Admin: Add content, List content, View content detail, Edit content, Disable/Enable content, Delete content, Set default TTL, Broadcast, Confirm broadcast, Cancel, Stats, Back/Home.                                                                                            |
 | DATA_FIELDS               | User IDs/chat IDs/language/username/full name/first seen/last seen; content unique code/title/body/media type/media source/default or custom TTL/status/view count/createdAt/updatedAt; delivery records with user ID/chat ID/code/message ID/deleteAt/deleted status; broadcast draft/result counters; admin IDs from env. |
-| BOT_LANGUAGE_AND_TONE     | English, concise, trustworthy, operationally clear. Use intentional emojis for headings and buttons, but avoid emoji spam.                                                                                                                                                                                                  |
+| BOT_LANGUAGE_AND_TONE     | English, concise, trustworthy, operationally clear. Use intentional emojis for headings and buttons, but avoid emoji spam.                                                                                                                                                                                                 |
+| MVP_SCOPE               | User `/start <unique_code>` preview delivery with TTL auto-delete plus `/admin` content, broadcast, stats, and TTL-settings management backed by LMDB. Everything in `Product requirements` items 1–10 ships now.                                                                                                                                                            |
+| OUT_OF_SCOPE            | Payment systems, web dashboards, multi-language support, media broadcast beyond text (unless trivial via Gramstax helpers), SQL/Prisma/Redis/cloud databases, auth systems beyond the `TELEGRAM_ADMIN_IDS` guard.                                                                                                                                                              |
 | EXTERNAL_SERVICES_OR_APIS | Telegram Bot API through Gramstax only. No other external API.                                                                                                                                                                                                                                                              |
 | STORAGE_REQUIREMENT       | Use LMDB only. Store users, content records, delivery records, settings, and broadcast metadata in `src/db`. Do not add SQL, Prisma, Redis, cloud databases, or unrelated persistence layers.                                                                                                                               |
 | ENVIRONMENT_VARIABLES     | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_DEPLOY`, `TELEGRAM_ADMIN_IDS`, `DB_PATH`, `DEFAULT_CONTENT_TTL_SECONDS`, `BROADCAST_BATCH_SIZE`, `BROADCAST_BATCH_DELAY_MS`                                                                                                                                                             |
 | PRODUCTION_CONSTRAINTS    | No secrets in source. Admin routes must be guarded. Broadcast must handle blocked/deleted chats gracefully. Auto-delete must not crash the bot if Telegram deletion fails. Content codes must be unique and normalized. TTL must be configurable per content with a safe default.                                           |
 | EXTRA_REQUIREMENTS        | Reference local Gramstax examples before implementing: `example/8-newsletter` for LMDB, admin guard, broadcast flow; `example/1-complex/e2e/start/` and `example/8-newsletter/e2e/broadcast.test.ts` for e2e style; `example/9-substore-bot/test/store.test.ts` for unit-test style.                                       |
+| TEST_COVERAGE_EXPECTATION | E2E for every flow listed in `Testing requirements` plus unit tests for every item listed under `Unit testing`.                                                                                                                                                                                                                  |
 
 ## Target outcome
 
 Create a new Gramstax project named `vip-content-bot` inside `./real` with the official scaffolding package. Then implement a clean, production-quality Telegram bot that delivers short-lived preview content by unique start code and provides an admin manager for content, broadcast, and stats.
 
 The finished project MUST be runnable, lint-clean, type-safe, tested, and aligned with Gramstax page architecture rules.
+
+## Scope freeze
+
+Frozen before scaffolding. Do not start Phase 1 until the freeze below is written out in the working response.
+
+### MVP vs v2
+
+- MVP ships now: `/start` + `/start <unique_code>` delivery, LMDB user registry, content repository with per-content TTL, persistent delivery records, `setTimeout`/scheduler auto-delete with restart recovery, guarded `/admin` (stats, content CRUD, TTL settings, text broadcast with confirmation and result summary).
+- Deferred to v2: media broadcast (unless trivial via Gramstax helpers — then it stays MVP per broadcast requirements), advanced stats beyond the dashboard minimum, multi-language messages, any storage beyond LMDB. Never implement deferred items silently.
+
+### Non-goals (explicitly out of scope)
+
+- ❌ Payment systems, web dashboards, multi-language support, SQL/Prisma/Redis/cloud databases, auth beyond the `TELEGRAM_ADMIN_IDS` guard.
+- ❌ Media broadcast when it is not straightforward via Gramstax helpers — ship text broadcast and document media as unsupported.
+- ❌ Anything not in `Product requirements` items 1–10 or `Admin manager requirements` is out of scope by default. If mid-build work reveals a missing requirement, stop and ask instead of expanding scope unilaterally.
+
+### Assumptions and risks
+
+| #   | Assumption                                                                                  | Risk if wrong                               | Mitigation                                                              |
+| --- | ------------------------------------------------------------------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------- |
+| 1   | Scaffold provides working `bot.ts`, `ctx.ts`, page base, and `e2e/setup.ts`                 | Custom wiring needed                        | Inspect scaffold in Phase 1 and adapt the plan before coding            |
+| 2   | `example/8-newsletter` patterns (LMDB repos, admin guard, broadcast) apply to this project  | Reference mismatch with generated scaffold  | Compare during Phase 1 inspection; scaffold wins on conflict            |
+| 3   | Telegram `deleteMessage` fails for old/already-deleted messages                             | Unhandled deletion errors crash flows       | Persist delivery status (`pending`/`deleted`/`failed`) and never throw  |
+| 4   | `setTimeout` delay must be clamped to safe JS timeout bounds                                | Overflow timers fire immediately or never   | Clamp in a tested scheduler helper; persist records for restart recovery |
 
 ## Starting constraints
 
@@ -325,31 +352,245 @@ Accuracy rules (BLOCKING — the README is not done until all hold):
 - No leftover content from other projects (names, avatars, GIFs, links, comments).
 - Every file, path, command, and script mentioned MUST exist in the generated project.
 
-## Required workflow
+## Poker estimates
 
-1. Confirm this prompt uses concrete real project values and contains no placeholder tokens.
-2. Scaffold with `npx create-gramstax@latest` into `./real/vip-content-bot`.
-3. Inspect the generated project before editing.
-4. Inspect local references before implementing:
-   - `example/8-newsletter/src/db/` (index, schema, repositories)
-   - `example/8-newsletter/src/guards/admin.ts`
-   - `example/8-newsletter/src/pages/broadcast.ts`
-   - `example/1-complex/e2e/start/` and `example/8-newsletter/e2e/broadcast.test.ts` for e2e style
-   - `example/9-substore-bot/test/store.test.ts` for unit-test style
-5. Identify generated Gramstax imports, page base classes, routing hooks, template helpers, context methods, and scripts.
-6. Implement LMDB repositories first with unit tests.
-7. Implement content delivery and auto-delete services with unit tests.
-8. Implement user `/start <unique_code>` flow.
-9. Implement `/admin` manager and guarded broadcast/content/settings flows.
-10. Add e2e tests for user and admin journeys.
-11. Write or update `README.md` per `README requirements` (all 14 sections: header, features, quick start, usage with literal texts, mermaid journey, scripts, structure, full env table, architecture, tested counts, deployment, troubleshooting, tech stack, license), then perform the mandatory second accuracy pass against the code.
-12. Run the project’s available quality checks. Prefer, in order:
-    - package install command from the generated project
-    - lint or lint:fix command if available
-    - TypeScript typecheck if available
-    - tests if available
-    - build command if available
-13. Fix issues caused by your changes and re-run the relevant checks.
+Every phase in the execution plan carries a Fibonacci estimate: `1, 2, 3, 5, 8, 13, 21`.
+
+| Size | Meaning    | Example in this build                                              |
+| ---- | ---------- | ------------------------------------------------------------------ |
+| 1    | Trivial    | One-line config, single message copy fix                           |
+| 2    | Small      | One page file, one keyboard block                                  |
+| 3    | Medium     | One flow (`show` + `process` + template + e2e)                     |
+| 5    | Large      | Admin content CRUD or broadcast flow with confirmation             |
+| 8    | X-Large    | Delivery + auto-delete + restart recovery, or full `/admin` panel  |
+| 13   | Epic chunk | Beyond this bot — split, never plan as one phase                   |
+| 21   | Too big    | **Split into smaller phases**                                      |
+
+Estimates measure relative effort, not hours. Phase 2 is already split into 2A/2B/2C; if any phase still exceeds `8`, split it before starting.
+
+## Execution plan
+
+Execute phases in order. Respect `Depends On`. Phases 2A, 2B, and 2C MAY overlap only when they touch disjoint file sets.
+
+| Phase | Name                              | Depends On   | Estimate | Status |
+| ----- | --------------------------------- | ------------ | -------- | ------ |
+| 0     | Scope freeze                      | -            | 1        | ⬜     |
+| 1     | Scaffold and inspect              | 0            | 3        | ⬜     |
+| 2A    | User delivery and auto-delete     | 1            | 8        | ⬜     |
+| 2B    | Admin manager and broadcast       | 1            | 8        | ⬜     |
+| 2C    | Repositories, helpers, unit tests | 1            | 5        | ⬜     |
+| 3     | Integration and quality gates     | 2A, 2B, 2C   | 5        | ⬜     |
+| 4     | README and accuracy pass          | 3            | 3        | ⬜     |
+| 5     | Final verification and handoff    | 4            | 2        | ⬜     |
+
+**Total estimate**: 35 points (complex bot — Phase 2 split into 2A/2B/2C keeps every phase at `8` or below).
+
+**Legend**: ⬜ Not Started | 🔄 In Progress | ✅ Complete | ⏸️ Blocked
+
+At the end of EVERY phase, emit a phase report and never commit — the user handles git:
+
+```text
+PHASE [X] COMPLETE: <one-line summary>
+Files changed:
+- path/to/file.ts (CREATE/MODIFY)
+Test evidence: <commands run with pass/fail counts>
+Blockers for next phase: <none or explicit list>
+```
+
+### Phase 0: Scope freeze
+
+> **Depends On**: Nothing | **Estimate**: 1 point | **Status**: ⬜
+
+#### Objectives
+
+- [ ] Confirm this prompt uses concrete real project values and contains no placeholder tokens.
+- [ ] Write out the scope freeze: MVP boundaries, non-goals, and the assumptions table.
+- [ ] Record coverage expectation: e2e for every flow in `Testing requirements` plus unit tests for every item under `Unit testing`.
+
+#### Definition of Done
+
+- [ ] No placeholder tokens remain; every value traces to the vip-content-bot project.
+- [ ] MVP covers `Product requirements` items 1–10; media broadcast and extras sit on the `Deferred to v2` list unless trivial via helpers.
+- [ ] `OUT_OF_SCOPE` prohibitions are stated explicitly.
+
+#### Checkpoint
+
+- [ ] **CHECKPOINT: write a 5-line state summary (frozen scope, deferred items, key assumptions, Phase 1 goals, blockers) before scaffolding.**
+
+### Phase 1: Scaffold and inspect
+
+> **Depends On**: Phase 0 | **Estimate**: 3 points | **Status**: ⬜
+
+#### Objectives
+
+- [ ] Scaffold with `npx create-gramstax@latest` into `./real/vip-content-bot`.
+- [ ] Inspect the generated project before editing; identify imports, page base classes, routing hooks, template helpers, context methods, and scripts.
+- [ ] Inspect local references before implementing:
+  - `example/8-newsletter/src/db/` (index, schema, repositories)
+  - `example/8-newsletter/src/guards/admin.ts`
+  - `example/8-newsletter/src/pages/broadcast.ts`
+  - `example/1-complex/e2e/start/` and `example/8-newsletter/e2e/broadcast.test.ts` for e2e style
+  - `example/9-substore-bot/test/store.test.ts` for unit-test style
+
+#### Definition of Done
+
+- [ ] Scaffold exists at `./real/vip-content-bot` and installs cleanly.
+- [ ] Key files table recorded; scaffold wins on any conflict with reference examples.
+- [ ] No manual scaffold files created outside the CLI output.
+
+#### Checkpoint
+
+- [ ] **CHECKPOINT: write a 5-line state summary (scaffold layout, key files, reference deltas, Phase 2 goals, blockers) before implementing.**
+
+### Phase 2A: User delivery and auto-delete
+
+> **Depends On**: Phase 1 | **Can run with**: Phase 2B, 2C on disjoint files | **Estimate**: 8 points | **Status**: ⬜
+
+#### Objectives
+
+- [ ] Implement `start.ts` for plain `/start` (instruction message + user saved) and `/start <unique_code>` (validate, deliver, expiry text, delivery record).
+- [ ] Cover invalid, disabled, and expired codes with clear user-facing messages.
+- [ ] Implement delivery + auto-delete service: schedule on delivery, scan-and-recover pending deliveries on startup, clamp timer delays, persist `pending`/`deleted`/`failed` status.
+- [ ] Write the failing e2e first per `Task micro-structure`, then implement until green.
+
+#### Code deltas
+
+- `src/pages/start.ts (CREATE)` — full `g*` objects and `static template`.
+- `src/services/deletion.ts (CREATE)` — scheduler with clamped delays and startup recovery scan.
+- `src/pages/<name>.ts:40-60 (MODIFY)` — existing file with line range and change description.
+
+#### Definition of Done
+
+- [ ] `/start <unique_code>` delivers correct content, shows expiry, and creates a delivery record; user/chat ID stored in LMDB.
+- [ ] Delivered messages are deleted after TTL with persisted status; restart recovery works.
+- [ ] E2E covers valid code, invalid code, disabled content, and no-code `/start`; red-green evidence recorded.
+- [ ] No placeholder text in user-facing messages.
+
+#### Checkpoint
+
+- [ ] **CHECKPOINT: write a 5-line state summary (flows built, files created, test evidence, Phase 3 needs, blockers) before continuing.**
+
+### Phase 2B: Admin manager and broadcast
+
+> **Depends On**: Phase 1 | **Can run with**: Phase 2A, 2C on disjoint files | **Estimate**: 8 points | **Status**: ⬜
+
+#### Objectives
+
+- [ ] Implement guarded `/admin` dashboard (totals, enabled/disabled counts, deliveries, pending deletes, default TTL) per `Admin manager requirements`.
+- [ ] Implement content CRUD via guided session flows with confirmation on delete; TTL setting with 10-second / 7-day bounds.
+- [ ] Implement broadcast: draft, preview/confirm/cancel, batched fan-out via `BROADCAST_BATCH_SIZE`/`BROADCAST_BATCH_DELAY_MS`, per-chat failure tolerance, unreachable marking, result summary.
+- [ ] Write the failing e2e first per `Task micro-structure`, then implement until green.
+
+#### Code deltas
+
+- `src/pages/admin.ts (CREATE)`, `src/pages/content.ts (CREATE)`, `src/pages/broadcast.ts (CREATE)` — guarded flows with `g*` objects and templates.
+- `src/services/broadcast.ts (CREATE)` — batching helper with failure tolerance.
+
+#### Definition of Done
+
+- [ ] Non-admin access to `/admin` is denied; admin sees the full dashboard.
+- [ ] Content add/list/detail/edit/enable-disable/delete all work with confirmation where required.
+- [ ] Broadcast sends to all reachable stored users, continues past failures, marks unreachable users, and reports counts.
+- [ ] E2E covers admin denial, dashboard, content flows, and broadcast confirmation; red-green evidence recorded.
+
+#### Checkpoint
+
+- [ ] **CHECKPOINT: write a 5-line state summary (flows built, guards wired, test evidence, Phase 3 needs, blockers) before continuing.**
+
+### Phase 2C: Repositories, helpers, unit tests
+
+> **Depends On**: Phase 1 | **Can run with**: Phase 2A, 2B on disjoint files | **Estimate**: 5 points | **Status**: ⬜
+
+#### Objectives
+
+- [ ] Implement `src/db/db.ts` (`Db extends LmdbEnv`), `src/db/schema/*.ts` (`ContentRecord`, `KnownUser`, `DeliveryRecord`, settings), and `src/db/repositories/*.ts` service classes per `LMDB requirements`.
+- [ ] Implement pure helpers: code normalization/validation, TTL parsing/bounds, TTL formatting, delivery ID creation.
+- [ ] Write failing unit tests first per `Task micro-structure` for every item under `Unit testing`, then implement until green using a temporary test DB path.
+
+#### Definition of Done
+
+- [ ] Repository methods exist for users, content, deliveries, settings, and broadcast records with keyset (`start`/`limit`) lists — never deep `offset`.
+- [ ] Unit tests cover normalization, TTL parsing/bounds/formatting, repository CRUD, reachability, pending-delivery selection, batching, and delay clamping.
+- [ ] All unit tests pass with no new warnings; no raw key strings scattered in page files.
+
+#### Checkpoint
+
+- [ ] **CHECKPOINT: write a 5-line state summary (repos/helpers built, test files, coverage note, Phase 3 needs, blockers) before continuing.**
+
+### Phase 3: Integration and quality gates
+
+> **Depends On**: Phase 2A, 2B, 2C | **Estimate**: 5 points | **Status**: ⬜
+
+#### Objectives
+
+- [ ] Wire delivery, admin, broadcast, and scheduler together; confirm `e2e/` mirrors `src/pages/` with `bun run scripts/check-e2e-mirror.ts`.
+- [ ] Run the generated project's quality checks in order: install, lint or lint:fix, typecheck, tests, build.
+- [ ] Fix issues caused by your changes and re-run the relevant checks until green.
+
+#### Definition of Done
+
+- [ ] E2E mirror check passes; full e2e and unit suites pass.
+- [ ] Lint, typecheck, and build commands available in the generated project pass; unavailable commands reported with evidence.
+- [ ] No secrets committed or embedded; env names match `ENVIRONMENT_VARIABLES`.
+
+#### Checkpoint
+
+- [ ] **CHECKPOINT: write a 5-line state summary (integration state, check results, fixes applied, Phase 4 needs, blockers) before documenting.**
+
+### Phase 4: README and accuracy pass
+
+> **Depends On**: Phase 3 | **Estimate**: 3 points | **Status**: ⬜
+
+#### Objectives
+
+- [ ] Write or update `README.md` per `README requirements` (all 14 sections: header, features, quick start, usage with literal texts, mermaid journey, scripts, structure, full env table, architecture, tested counts, deployment, troubleshooting, tech stack, license).
+- [ ] Perform the mandatory second accuracy pass: re-read the README against the code and fix every mismatch.
+
+#### Definition of Done
+
+- [ ] All 14 sections present with literals copied from code or tool output (entry commands `/start` vs `/admin`, message texts, env defaults, test counts, license).
+- [ ] Every mentioned file, path, command, and script exists; no leftover content from other projects.
+
+#### Checkpoint
+
+- [ ] **CHECKPOINT: write a 5-line state summary (README sections, mismatches fixed, verification counts, Phase 5 needs, blockers) before handoff.**
+
+### Phase 5: Final verification and handoff
+
+> **Depends On**: Phase 4 | **Estimate**: 2 points | **Status**: ⬜
+
+#### Objectives
+
+- [ ] Re-run the failing-to-passing evidence for the final state (tests, mirror check, available quality gates).
+- [ ] Confirm `Done when` holds end to end.
+
+#### Definition of Done
+
+- [ ] Every `Done when` bullet holds with evidence cited.
+- [ ] Final response summarizes phase reports, changed files, how to run the bot, required environment variables, `Deferred to v2` items, and exact verification results.
+
+## Task micro-structure (TDD)
+
+Every implementation task inside a phase MUST follow these 5 steps. No pseudocode, no vague paths.
+
+**Task: [name]**
+
+**Files:**
+- Create: `src/pages/start.ts`
+- Modify: `src/core/bot.ts:40-60`
+- Test: `e2e/start.test.ts`
+
+**Step 1: Write the failing test first** — e2e with the `deploy: "test"` harness (`e2e.gmsg()`, `e2e.gkb()`, `e2e.gmedia()`) or a unit test under `test/`; full runnable code only. E2E MUST use short TTL values and avoid slow real waits by testing scheduler helper logic separately.
+
+**Step 2: Run it and confirm FAIL** — record the exact command and the expected failure. If it passes immediately, the test proves nothing; fix the test.
+
+**Step 3: Write the minimal implementation** — the thinnest code that can turn the test green. Page logic stays thin with view logic in the template; never branch on `this.callbackQuery` manually.
+
+**Step 4: Run it and confirm PASS** — same command, plus all other tests still pass with no new warnings.
+
+**Step 5: Record the delta** — list every `path (CREATE/MODIFY)` for the phase report.
+
+For repositories, helpers, and services, Steps 1–4 use unit tests under `test/` with deterministic inputs, a temporary test DB path, and edge cases (empty/invalid codes, TTL bounds, failed lookups, unreachable users, clamped delays).
 
 ## Done when
 
@@ -369,4 +610,4 @@ Accuracy rules (BLOCKING — the README is not done until all hold):
 - Environment variables are documented.
 - `README.md` covers all 14 required sections with literals verified against code (entry commands, message texts, env defaults, test counts, license) and passed the second accuracy pass.
 - Lint/typecheck/build/test commands available in the generated project pass, or any unavailable commands are clearly reported with evidence.
-- The final response summarizes changed files, how to run the bot, required environment variables, and exact verification results.
+- The final response summarizes phase reports, changed files, how to run the bot, required environment variables, `Deferred to v2` items, and exact verification results.
