@@ -7,9 +7,9 @@ export class SubscriberSchema extends LmdbSchema {
   static key = t.number()
   static value = {
     id: t.number(),
-    userName: t.string().nullable(),
-    fullName: t.string().nullable(),
-    language: t.string().nullable(),
+    userName: t.string().optional(),
+    fullName: t.string().optional(),
+    language: t.string().optional(),
     joinedAt: t.number()
   }
 }
