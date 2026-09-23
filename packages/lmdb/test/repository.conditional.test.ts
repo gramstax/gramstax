@@ -6,7 +6,7 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbReadOnlyError} from "../src/errors"
+import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
 import type {LmdbEnvSub} from "../src/sub"
 import {createTestDir, rmWithRetry} from "./test-helpers"
@@ -68,7 +68,7 @@ describe(`LmdbRepository conditional write guards`, () => {
 
       roEnv = new LmdbEnv({path: roTmp, maxDbs: 5, readOnly: true})
       const roRepo = roEnv.register(UserSchema)
-      await expect(roRepo.putIfNotExists(`u2`, {id: `u2`, name: `B`})).rejects.toBeInstanceOf(LmdbReadOnlyError)
+      await expect(roRepo.putIfNotExists(`u2`, {id: `u2`, name: `B`})).rejects.toBeInstanceOf(LmdbError)
     } finally {
       if (roEnv) await roEnv.close()
       await rmWithRetry(roTmp)

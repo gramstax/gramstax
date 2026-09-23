@@ -10,7 +10,7 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbTransactionDoneError, LmdbTransactionError} from "../src/errors"
+import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
 import type {LmdbEnvSub} from "../src/sub"
 import {LmdbTransaction} from "../src/transaction"
@@ -97,15 +97,15 @@ describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
       tx.commit()
       return tx
     })
-    expect(() => tx.commit()).toThrow(LmdbTransactionDoneError)
+    expect(() => tx.commit()).toThrow(LmdbError)
   })
 
-  it(`commit on already-done tx throws LmdbTransactionDoneError`, async () => {
+  it(`commit on already-done tx throws LmdbError`, async () => {
     const tx = await env.transaction((tx) => {
       tx.abort()
       return tx
     })
-    expect(() => tx.commit()).toThrow(LmdbTransactionDoneError)
+    expect(() => tx.commit()).toThrow(LmdbError)
   })
 })
 
@@ -141,7 +141,7 @@ describe(`LmdbTransaction abort (write via env.transaction)`, () => {
     expect(tx.done).toBe(true)
   })
 
-  it(`env.transaction wraps user throws in LmdbTransactionError`, async () => {
+  it(`env.transaction wraps user throws in LmdbError`, async () => {
     try {
       await env.transaction(() => {
         userRepo.put(`u1`, {id: `u1`, name: `Ghost`})
@@ -149,9 +149,9 @@ describe(`LmdbTransaction abort (write via env.transaction)`, () => {
       })
       expect.unreachable()
     } catch (e) {
-      expect(e).toBeInstanceOf(LmdbTransactionError)
-      expect((e as LmdbTransactionError).cause).toBeInstanceOf(Error)
-      expect(((e as LmdbTransactionError).cause as Error).message).toBe(`intentional`)
+      expect(e).toBeInstanceOf(LmdbError)
+      expect((e as LmdbError & {cause?: unknown}).cause).toBeInstanceOf(Error)
+      expect(((e as LmdbError & {cause?: unknown}).cause as Error).message).toBe(`intentional`)
     }
   })
 
@@ -214,7 +214,7 @@ describe(`env.transaction with async callbacks`, () => {
     expect(await userRepo.get(`u3`)).toBeUndefined()
   })
 
-  it(`async throw after an await rolls back and wraps in LmdbTransactionError`, async () => {
+  it(`async throw after an await rolls back and wraps in LmdbError`, async () => {
     try {
       await env.transaction(async () => {
         await userRepo.put(`u2`, {id: `u2`, name: `Partial`})
@@ -222,9 +222,9 @@ describe(`env.transaction with async callbacks`, () => {
       })
       expect.unreachable()
     } catch (e) {
-      expect(e).toBeInstanceOf(LmdbTransactionError)
-      expect((e as LmdbTransactionError).cause).toBeInstanceOf(Error)
-      expect(((e as LmdbTransactionError).cause as Error).message).toBe(`async boom`)
+      expect(e).toBeInstanceOf(LmdbError)
+      expect((e as LmdbError & {cause?: unknown}).cause).toBeInstanceOf(Error)
+      expect(((e as LmdbError & {cause?: unknown}).cause as Error).message).toBe(`async boom`)
     }
     expect(await userRepo.get(`u2`)).toBeUndefined()
   })

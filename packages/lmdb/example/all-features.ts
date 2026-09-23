@@ -21,8 +21,9 @@
 import {existsSync, mkdtempSync, readdirSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
+import {LmdbBackup} from "../src/backup"
 import {LmdbEnv} from "../src/env"
-import {backupWithRetention, LmdbReplica} from "../src/replica"
+import {LmdbReader} from "../src/reader"
 import {LmdbSchema, t} from "../src/schema"
 
 // ── Schemas ─────────────────────────────────────────────────────────
@@ -279,9 +280,9 @@ async function main() {
     console.log(`  size after dequeue:`, await queue.size())
     await queue.clear()
 
-    // ── F11: Replica + backup retention ───────────────────────────
-    console.log(`\n--- F11: Replica (readOnly) + backupWithRetention ---`)
-    const replica = await LmdbReplica.open(dir)
+    // ── F11: Reader + backup retention ───────────────────────────
+    console.log(`\n--- F11: Reader (readOnly) + LmdbBackup ---`)
+    const replica = await LmdbReader.open(dir)
     const replicaUsers = replica.register(UserSchema)
     replica.resetReadTxn()
     console.log(`  replica readOnly:`, replica.readOnly, `peek u10:`, replicaUsers.get(`u10`))
@@ -289,9 +290,9 @@ async function main() {
     if (process.platform !== `win32`) {
       const base = mkdtempSync(join(tmpdir(), `lmdb-backup-demo-`))
       try {
-        await backupWithRetention(env, base, 2)
+        await LmdbBackup.backup(env, base, 2)
         await Bun.sleep(10)
-        await backupWithRetention(env, base, 2)
+        await LmdbBackup.backup(env, base, 2)
         console.log(`  backups kept (keep=2):`, readdirSync(base).length, `expected 2`)
         console.log(`  backup dirs:`, readdirSync(base))
       } finally {

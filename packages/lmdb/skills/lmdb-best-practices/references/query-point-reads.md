@@ -27,3 +27,4 @@ const n = users.count() // O(1) stat, hot-loop safe
 
 - Measured: `getMany(10)` ≈ one batch vs 10 sequential gets (`bench/crud.bench.ts`).
 - `has()` skips decode — prefer it over `get()` for existence probes.
+- `getStrict(key, tx?)` throws `LmdbError` when absent (no `undefined` branch); `getEntry(key)` returns `{version, value}` for version-aware reads.

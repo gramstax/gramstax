@@ -24,5 +24,5 @@ await counters.increment(`msg-total`) // scalar sub, atomic, index-free
 
 ## Notes
 
-- `increment`/`putBinary` throw on indexed subs by design — counters live apart.
+- `increment`/`decrement`/`putBinary` throw on indexed/search subs by design — counters live apart.
 - Measure with `bench/index.bench.ts` (`Index / writes`: indexed vs plain put).

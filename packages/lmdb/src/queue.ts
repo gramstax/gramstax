@@ -1,5 +1,5 @@
 import type {LmdbEnv} from "./env"
-import type {ColumnBuilder, KeyOf, ValueOf} from "./schema"
+import type {IColumnBuilder, KeyOf, ValueOf} from "./schema"
 import {LmdbSchema, t} from "./schema"
 import type {LmdbEnvSub} from "./sub"
 
@@ -13,19 +13,39 @@ import type {LmdbEnvSub} from "./sub"
  * @internal
  */
 class QueueMetaSchema extends LmdbSchema {
+  /**
+   * Counter sub-DB name shared by every queue in the env.
+   *
+   * @internal
+   */
   static db = `__queue_meta`
+  /**
+   * Counter keys (`__queue_seq_<dbName>`) are strings.
+   *
+   * @internal
+   */
   static key = t.string()
+  /**
+   * Counter values are plain numbers.
+   *
+   * @internal
+   */
   static value = t.number()
 }
 
 /**
- * Schema class constraint for {@link LmdbQueue} — the queue key must be a
- * `t.string()` builder (queue ids are zero-padded sequence strings), so
- * `KeyOf<S>` resolves to `string` for the schema-typed sub calls.
+ * Schema class constraint for {@link LmdbQueue} — a structural check, not a base class.
+ *
+ * @remarks
+ * The queue generates zero-padded string ids, so the key must be string-kind:
+ * plain `t.string()` or a string enum (`t.string('a', 'b')`, `t.enum('a', 'b')`)
+ * — both satisfy `ColumnBuilder<'string'>` since literals ride the `V` generic.
+ * Pass your own schema class; do not extend this type. The one `as KeyOf<S>`
+ * per method bridges the generated `string` id to the generic key.
  *
  * @public
  */
-export type QueueSchema = typeof LmdbSchema & {key: ColumnBuilder<`string`>}
+export type IQueueSchema = typeof LmdbSchema & {key: IColumnBuilder<`string`>}
 
 /**
  * FIFO queue over LMDB with single-writer transaction dequeue.
@@ -47,11 +67,39 @@ export type QueueSchema = typeof LmdbSchema & {key: ColumnBuilder<`string`>}
  *
  * @public
  */
-export class LmdbQueue<S extends QueueSchema> {
+export class LmdbQueue<S extends IQueueSchema> {
+  /**
+   * Queue (sub-DB) name, taken from the schema's `static db`.
+   *
+   * @internal
+   */
   private readonly dbName: string
+  /**
+   * Handle to the shared `__queue_meta` counter sub-DB.
+   *
+   * @internal
+   */
   private readonly meta: LmdbEnvSub<typeof QueueMetaSchema>
+  /**
+   * Handle to this queue's payload sub-DB.
+   *
+   * @internal
+   */
   private readonly sub: LmdbEnvSub<S>
 
+  /**
+   * Create a queue bound to a schema's sub-DB.
+   *
+   * @remarks
+   * Registration is idempotent: constructing a second queue with the same
+   * schema reuses the already-created sub instead of throwing.
+   *
+   * @param env - Owning env (must stay open for the queue's lifetime).
+   * @param schema - Payload schema class; its `static db` is the queue name
+   * and its key must be string-kind.
+   *
+   * @public
+   */
   constructor(
     private readonly env: LmdbEnv,
     schema: S
@@ -59,7 +107,7 @@ export class LmdbQueue<S extends QueueSchema> {
     this.dbName = schema.db
     // register is idempotent-safe via isRegistered: a second LmdbQueue with
     // the same schema reuses the already-created sub instead of
-    // throwing LmdbDuplicateDbNameError.
+    // throwing LmdbError.
     if (!env.isRegistered(schema)) env.register(schema)
     if (!env.isRegistered(QueueMetaSchema)) env.register(QueueMetaSchema)
     this.meta = env.sub(QueueMetaSchema)
@@ -75,6 +123,8 @@ export class LmdbQueue<S extends QueueSchema> {
    *
    * @param job - Payload to store.
    * @returns The generated id (zero-padded sequence).
+   *
+   * @public
    */
   async enqueue(job: ValueOf<S>): Promise<string> {
     return this.env.rootTransactionSync(() => {
@@ -90,9 +140,23 @@ export class LmdbQueue<S extends QueueSchema> {
 
   /**
    * Peek at the head without removing.
+   *
+   * @remarks
+   * Synchronous — reads through a cursor plus a point `get`, like
+   * {@link LmdbQueue.dequeue} minus the delete. Never held a write lock.
+   *
+   * @returns The head `[id, job]`, or `undefined` when empty.
+   *
+   * @public
    */
-  async peek(): Promise<[string, ValueOf<S>] | undefined> {
-    return (await this.sub.first()) as [string, ValueOf<S>] | undefined
+  peek(): [string, ValueOf<S>] | undefined {
+    for (const key of this.sub.getKeys({limit: 1})) {
+      const id = key as string
+      const job = this.sub.get(id as KeyOf<S>)
+      if (job === undefined) return undefined
+      return [id, job] as [string, ValueOf<S>]
+    }
+    return undefined
   }
 
   /**
@@ -102,15 +166,19 @@ export class LmdbQueue<S extends QueueSchema> {
    * The first key is read through a synchronous cursor (`getKeys({limit: 1})`)
    * so the write transaction is never held open across a microtask by an
    * async `first()` materialization.
+   *
+   * @returns The dequeued `[id, job]`, or `undefined` when empty.
+   *
+   * @public
    */
   async dequeue(): Promise<[string, ValueOf<S>] | undefined> {
     return this.env.rootTransactionSync(() => {
       for (const key of this.sub.getKeys({limit: 1})) {
-        const id = key as string
-        const job = this.sub.get(id as KeyOf<S>)
+        const id = key as KeyOf<S>
+        const job = this.sub.get(id)
         if (job === undefined) return undefined
-        this.sub.removeSync(id as KeyOf<S>)
-        return [id, job] as [string, ValueOf<S>]
+        this.sub.removeSync(id)
+        return [id as string, job] as [string, ValueOf<S>]
       }
       return undefined
     })
@@ -118,13 +186,22 @@ export class LmdbQueue<S extends QueueSchema> {
 
   /**
    * Number of jobs currently queued.
+   *
+   * @remarks
+   * Synchronous — `count()` is an O(1) stat read.
+   *
+   * @returns Number of jobs currently queued.
+   *
+   * @public
    */
-  async size(): Promise<number> {
+  size(): number {
     return this.sub.count()
   }
 
   /**
    * Drain the queue.
+   *
+   * @public
    */
   async clear(): Promise<void> {
     await this.sub.clear()

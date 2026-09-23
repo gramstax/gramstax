@@ -17,12 +17,15 @@ static indexes = {email: {unique: true}} // removed class-style API
 
 ```typescript
 static value = {
-  id: t.number().unique(), // duplicates → LmdbUniqueConstraintError + rollback
+  id: t.number().unique(), // duplicates → LmdbError + rollback
   email: t.string().index(), // duplicates allowed
   lower: t.string().index(`lowerEmail`), // explicit name, auto-resolved path
-  "profile.email": t.string().index() // dotted paths work
+  "profile.email": t.string().index(), // dotted paths work
+  tenant: t.string().index([`tenant`, `status`]) // composite → queried as {'tenant+status': [...]}
 }
 await users.findByIndex({email: `a@b.com`}) // non-unique → rows
+await users.findByIndex({'tenant+status': [`t1`, `active`]}) // point tuple
+await users.findByIndex({'tenant+status': [`t1`]}) // prefix seek
 await users.reindex() // → {built, skipped}; collisions land in skipped
 ```
 

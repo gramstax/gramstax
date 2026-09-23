@@ -17,7 +17,7 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbLikePatternError} from "../src/errors"
+import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
 import type {LmdbEnvSub} from "../src/sub"
 
@@ -64,7 +64,7 @@ describe(`LmdbRepository.like ReDoS regression`, () => {
   })
 
   it(`wildcard guard still rejects patterns above the limit`, async () => {
-    await expect(plain.like(`***********Z`)).rejects.toBeInstanceOf(LmdbLikePatternError) // 11 wildcards
+    await expect(plain.like(`***********Z`)).rejects.toBeInstanceOf(LmdbError) // 11 wildcards
   })
 })
 

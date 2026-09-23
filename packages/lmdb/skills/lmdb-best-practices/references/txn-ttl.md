@@ -25,5 +25,6 @@ await sessions.purgeExpired() // returns reclaimed count; run on a schedule
 ## Notes
 
 - `putMany` honors the schema default TTL exactly like `put`.
+- `purgeExpired()` returns the reclaimed count (`0` on non-TTL subs); run on a schedule.
 - Purge intra-day on hot subs; purge is for storage, never for correctness.
 - Extractors run on the unwrapped value, so indexes stay consistent through expiry.

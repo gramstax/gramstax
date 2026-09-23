@@ -26,9 +26,9 @@ afterEach(async () => {
 })
 
 describe(`B1+B2 env defaults`, () => {
-  it(`mapSize defaults to 4GB — getMapSizeUsed().total is 4<<30`, () => {
+  it(`mapSize defaults to 4GB — getMapSizeUsed().total is 4 * 1024^3`, () => {
     const usage = env.getMapSizeUsed()
-    expect(usage.total).toBe(4 << 30)
+    expect(usage.total).toBe(4 * 1024 * 1024 * 1024)
     expect(usage.used).toBeGreaterThanOrEqual(0)
     expect(usage.ratio).toBeGreaterThan(0)
     expect(usage.ratio).toBeLessThanOrEqual(1)

@@ -1,246 +1,106 @@
+import {RecordCodec} from "./codec"
 import {LmdbError} from "./errors"
-import type {IIndexDef, ILmdbKey} from "./types"
+import type {IIndexDef} from "./types/indexes"
+import type {ILmdbKey} from "./types/key"
+import type {IAnyColumnBuilder, IAnyShapeParam, IColumnBuilder, IColumnIndexFlag, IColumnKind, IJoinPlus, IShapeElementOf, IShapeMapOf, IShapeValueOf} from "./types/schema"
 
-/**
- * Column value kinds supported by the {@link t} builders.
- *
- * @remarks
- * Each member maps to a TypeScript type in {@link InferSchemaValue} via
- * `TsKind` (see {@link ColumnBuilder}).
- *
- * @public
- */
-export type ColumnKind = `string` | `number` | `bigint` | `boolean` | `object` | `array` | `date` | `buffer` | `any` | `map` | `set`
-
-/**
- * Type-level index marker carried by a {@link ColumnBuilder}.
- *
- * @remarks
- * The runtime flags on a builder are plain `boolean`/`string`, so they widen
- * away any literal information. Each modifier instead re-tags the builder
- * with this literal marker: `.unique()` → `"unique"`, `.index(...)` →
- * `"index"`, base builders stay `"none"`. {@link SchemaIndexesOf} key-remaps
- * columns through the marker to recover literal index keys.
- *
- * @public
- */
-export type ColumnIndexFlag = `none` | `index` | `unique`
-
-/**
- * Any concrete {@link ColumnBuilder} regardless of its literal index marker.
- *
- * @remarks
- * The narrowed defaults (`I = "none"`, `N = undefined`) reject builders
- * tagged `"unique"`/`"index"` by callers, so generic constraints over a
- * column-definition map must widen to this type — the concrete `D` generic
- * still captures the literal markers per column.
- *
- * @public
- */
-export type AnyColumnBuilder = ColumnBuilder<ColumnKind, ColumnIndexFlag, string | undefined, unknown, boolean>
-
-/**
- * Union of accepted runtime shapes for param-based builders —
- * `t.object({...})` / `t.array({...})` / `t.map({key, value})` /
- * `t.set({...})`. A shape is either a single {@link AnyColumnBuilder}
- * (`t.array(t.string())`), an array of builders (`t.array([t.string()])` —
- * element becomes an array of the mapped scalar types), or a value-column
- * map (`t.array({name: t.string()})`).
- *
- * @internal
- */
-export type AnyShapeParam = AnyColumnBuilder | readonly AnyColumnBuilder[] | Record<string, AnyColumnBuilder>
-
-/**
- * Immutable column descriptor produced by the {@link t} builders.
- *
- * @remarks
- * Metadata object carrying the column's kind, index flags, and nullability.
- * Every modifier returns a NEW builder (spread-copy semantics) — the original
- * is never mutated. `kind` is carried as a generic type parameter so
- * {@link ValueOf} can map columns back to their TypeScript types.
- * `I` carries the {@link ColumnIndexFlag} literal and `N` the explicit index
- * name literal, so {@link SchemaIndexesOf} can produce narrow per-index keys.
- * `V` carries the element/value type for `object`/`array` columns — set via
- * `t.object<T>()` / `t.array<T>()` (defaults: `Record<string, unknown>` /
- * `unknown`). `Nl` carries the nullability literal (`false` by default, `true`
- * after `.nullable()`).
- *
- * @typeParam K - The column kind (a member of {@link ColumnKind}).
- * @typeParam I - Literal index marker (`"none"` | `"index"` | `"unique"`).
- * @typeParam N - Literal explicit index name, or `undefined` for the default.
- * @typeParam V - Element/value type for `object`/`array` kinds; unused for other kinds.
- * @typeParam Nl - Nullability literal — `false` (default) or `true` after `.nullable()`.
- *
- * @public
- */
-export interface ColumnBuilder<K extends ColumnKind = ColumnKind, I extends ColumnIndexFlag = `none`, N extends string | undefined = undefined, V = unknown, Nl extends boolean = false> {
-  /** The column's value kind. */
-  readonly kind: K
-  /**
-   * Whether the column participates in a unique index.
-   *
-   * @remarks
-   * Flag form of the {@link ColumnBuilder.unique} modifier — named `isUnique`
-   * so it cannot collide with the `unique()` method on the same object.
-   */
-  readonly isUnique: boolean
-  /**
-   * Explicit index name.
-   *
-   * @remarks
-   * `""` (set by a no-argument `.index()` call) means "index under the column
-   * name" — see {@link LmdbSchema.deriveIndexes}. The literal (when supplied
-   * via `.index("name")`) is carried by the generic `N`.
-   */
-  readonly indexName: N
-  /**
-   * Literal index marker — see {@link ColumnIndexFlag}.
-   *
-   * @remarks
-   * The type-level counterpart of `isUnique`/`indexName`: `"unique"` for
-   * columns built with `.unique()`, `"index"` for columns built with
-   * `.index(...)`, `"none"` otherwise. This is what keeps per-index keys
-   * literal in {@link SchemaIndexesOf}.
-   */
-  readonly indexFlag: I
-  /**
-   * Whether the column accepts `null`/`undefined` values.
-   *
-   * @remarks
-   * Flag form of the {@link ColumnBuilder.nullable} modifier — named
-   * `isNullable` so it cannot collide with the `nullable()` method on the
-   * same object. `false` by default (not nullable); `true` after
-   * `.nullable()`. The literal drives {@link ValueOf} column inference:
-   * nullable columns yield `T | undefined`.
-   */
-  readonly isNullable: Nl
-  /**
-   * Runtime shape for param-based builders — `t.object({...})` /
-   * `t.array(t.string())` / `t.array([t.string()])` /
-   * `t.array({...})`. Stored so registration can reject nested
-   * `unique`/`index` flags (silent-ignore hazard) and so `ValueOf`
-   * inference can recover the element type.
-   *
-   * @internal
-   */
-  readonly shape?: AnyShapeParam
-  /**
-   * Mark the column as a unique index.
-   *
-   * @remarks
-   * Unique indexes ARE indexes — this implies {@link ColumnBuilder.index}:
-   * the column registers as an index with `{unique: true}`.
-   *
-   * @returns A new builder with `isUnique: true`.
-   */
-  unique(): ColumnBuilder<K, `unique`, N, V, Nl>
-  /**
-   * Mark the column as an index.
-   *
-   * @param name - Index name; defaults to the column name when omitted.
-   * @returns A new builder carrying the index flag.
-   */
-  index<N2 extends string | undefined = undefined>(name?: N2): ColumnBuilder<K, I extends `unique` ? `unique` : `index`, N2 extends string ? (N2 extends `` ? undefined : N2) : undefined, V, Nl>
-  /**
-   * Mark the column as nullable.
-   *
-   * @returns A new builder with `isNullable: true`.
-   */
-  nullable(): ColumnBuilder<K, I, N, V, true>
-}
-
-/**
- * Runtime check: is a value a single {@link ColumnBuilder} (scalar) rather
- * than a value-column map?
- *
- * @internal
- */
-function isColumnBuilder(value: unknown): value is AnyColumnBuilder {
-  return typeof value === `object` && value !== null && typeof (value as {kind?: unknown}).kind === `string`
-}
-
-/**
- * Reject nested `unique`/`index` flags inside a param-based builder shape
- * (`t.object({...})` / `t.array({...})`).
- *
- * @remarks
- * Embedded-index detection (`deriveIndexes`) only inspects top-level value
- * columns, so a `unique`/`index` buried inside a shape would be silently
- * ignored — a data-integrity hazard (duplicates would pass). Registration
- * therefore throws instead of ignoring. Nested index intent must use a
- * top-level dotted-path column (`"bio.email": t.string().unique()`).
- *
- * @internal
- */
-function assertNoNestedIndex(builder: AnyColumnBuilder, db: string): void {
-  const shape = builder.shape
-  if (!shape) return
-  const entries: Array<[string, AnyColumnBuilder]> = isColumnBuilder(shape)
-    ? [[`*`, shape]]
-    : Array.isArray(shape)
-      ? shape.map((nested, i): [string, AnyColumnBuilder] => [String(i), nested])
-      : Object.entries(shape).filter((e): e is [string, AnyColumnBuilder] => isColumnBuilder(e[1]))
-  for (const [name, nested] of entries) {
-    if (nested.isUnique || nested.indexName !== undefined) {
-      throw new LmdbError(
-        `Schema '${db}': nested unique/index on '${name}' inside a t.object/t.array shape is not supported — the index would be silently ignored. Declare it as a top-level dotted column instead, e.g. "bio.email": t.string().unique().`
-      )
-    }
-    assertNoNestedIndex(nested, db)
-  }
-}
-
-/**
- * Build a new {@link ColumnBuilder} with the given metadata.
- *
- * @remarks
- * Immutability comes from always constructing a fresh object; the modifier
- * methods delegate here with the updated flag. The `I`/`N` generics re-tag
- * the returned builder with the literal index marker + explicit index name;
- * the inner casts are safe because the runtime flags (`isUnique`,
- * `indexName`) stay plain `boolean`/`string`.
- *
- * @internal
- */
-function makeBuilder<K extends ColumnKind, I extends ColumnIndexFlag = `none`, N extends string | undefined = undefined, V = unknown, Nl extends boolean = false>(kind: K, isUnique = false, indexName: string | undefined = undefined, isNullable: Nl = false as Nl, shape?: AnyShapeParam): ColumnBuilder<K, I, N, V, Nl> {
-  return {
-    kind,
-    isUnique,
-    indexName: indexName as N,
-    indexFlag: (isUnique ? `unique` : indexName !== undefined ? `index` : `none`) as I,
-    isNullable,
-    shape,
-    unique: (): ColumnBuilder<K, `unique`, N, V, Nl> => makeBuilder(kind, true, indexName, isNullable, shape) as ColumnBuilder<K, `unique`, N, V, Nl>,
-    index: <N2 extends string | undefined = undefined>(name?: N2): ColumnBuilder<K, I extends `unique` ? `unique` : `index`, N2 extends string ? (N2 extends `` ? undefined : N2) : undefined, V, Nl> =>
-      makeBuilder(kind, isUnique, name ?? ``, isNullable, shape) as ColumnBuilder<K, I extends `unique` ? `unique` : `index`, N2 extends string ? (N2 extends `` ? undefined : N2) : undefined, V, Nl>,
-    nullable: (): ColumnBuilder<K, I, N, V, true> => makeBuilder(kind, isUnique, indexName, true as true, shape) as ColumnBuilder<K, I, N, V, true>
-  } as ColumnBuilder<K, I, N, V, Nl>
-}
+export type {IAnyColumnBuilder, IAnyShapeParam, IColumnBuilder, IColumnIndexFlag, IColumnKind, IInferSchemaKey, IInferSchemaValue, ISchemaIndexesOf, IShapeElementOf, IShapeMapOf, IShapeValueOf, KeyOf, ValueOf} from "./types/schema"
 
 /**
  * Column type builders.
  *
  * @remarks
- * Each builder creates a {@link ColumnBuilder} of the corresponding kind:
+ * Each builder creates a {@link IColumnBuilder} of the corresponding kind:
  * `t.string()`, `t.number()`, `t.bigint()`, `t.boolean()`, `t.object()`,
  * `t.array()`, `t.date()`, `t.buffer()`. Kind is preserved as a literal type
  * parameter (`ColumnBuilder<`string`>`), which is what drives
- * {@link InferSchemaValue}. `t.object<T>()` / `t.array<T>()` accept an
+ * {@link IInferSchemaValue}. `t.object<T>()` / `t.array<T>()` accept an
  * optional element/value type — `t.object<{bio: string}>()` infers the row
  * field as `{bio: string}` and `t.array<string>()` as `string[]`.
  *
  * @public
  */
 export const t = {
-  /** @returns A `string` column builder. */
-  string: (): ColumnBuilder<`string`> => makeBuilder(`string`),
-  /** @returns A `number` column builder. */
-  number: (): ColumnBuilder<`number`> => makeBuilder(`number`),
-  /** @returns A `bigint` column builder. */
-  bigint: (): ColumnBuilder<`bigint`> => makeBuilder(`bigint`),
-  /** @returns A `boolean` column builder. */
-  boolean: (): ColumnBuilder<`boolean`> => makeBuilder(`boolean`),
+  /**
+   * A `string` column builder with optional literal params (drizzle-style enum).
+   *
+   * @remarks
+   * `t.string()` → `string`, `t.string('active', 'archived')` →
+   * `'active' | 'archived'`. The literals ride the `V` generic so
+   * `ValueOf`/`KeyOf`/`.optional()`/`.unique()`/`.index()` narrow
+   * automatically, and are stored as `enumValues` for runtime validation
+   * (`LmdbError` on out-of-enum writes).
+   *
+   * @param values - Allowed literals (empty call stays a wide `string`).
+   * @returns A `string` column builder, narrowed to the literals union when given.
+   */
+  string: ((...values: Array<string>) => (values.length === 0 ? LmdbSchema.makeBuilder(`string`) : LmdbSchema.makeBuilder(`string`, false, undefined, false, undefined, values))) as {
+    (): IColumnBuilder<`string`>
+    <T extends string>(...values: T[]): IColumnBuilder<`string`, `none`, undefined, T>
+  },
+  /**
+   * A `number` column builder with optional literal params.
+   *
+   * @remarks
+   * `t.number()` → `number`, `t.number(1, 2)` → `1 | 2`. Literals are
+   * stored as `enumValues` for runtime validation.
+   *
+   * @param values - Allowed literals (empty call stays a wide `number`).
+   * @returns A `number` column builder, narrowed to the literals union when given.
+   */
+  number: ((...values: Array<number>) => (values.length === 0 ? LmdbSchema.makeBuilder(`number`) : LmdbSchema.makeBuilder(`number`, false, undefined, false, undefined, values))) as {
+    (): IColumnBuilder<`number`>
+    <T extends number>(...values: T[]): IColumnBuilder<`number`, `none`, undefined, T>
+  },
+  /**
+   * A `bigint` column builder with optional literal params.
+   *
+   * @remarks
+   * `t.bigint()` → `bigint`, `t.bigint(1n, 2n)` → `1n | 2n`. Literals are
+   * stored as `enumValues` for runtime validation.
+   *
+   * @param values - Allowed literals (empty call stays a wide `bigint`).
+   * @returns A `bigint` column builder, narrowed to the literals union when given.
+   */
+  bigint: ((...values: Array<bigint>) => (values.length === 0 ? LmdbSchema.makeBuilder(`bigint`) : LmdbSchema.makeBuilder(`bigint`, false, undefined, false, undefined, values))) as {
+    (): IColumnBuilder<`bigint`>
+    <T extends bigint>(...values: T[]): IColumnBuilder<`bigint`, `none`, undefined, T>
+  },
+  /**
+   * A homogen enum column builder across `string` | `number` | `bigint`
+   * (drizzle-style).
+   *
+   * @remarks
+   * One builder for all three scalar kinds — the `kind` is inferred from
+   * the first value: `t.enum('a', 'b')` → kind `string`,
+   * `t.enum(1, 2)` → kind `number`, `t.enum(1n, 2n)` → kind `bigint`.
+   * Homogen only: mixed kinds (`t.enum('a', 1)`) throw `LmdbError`, as
+   * does the empty call (`t.enum()`). Allowed values are stored as
+   * `enumValues` for runtime validation.
+   *
+   * @param values - Allowed literals, all of one kind (non-empty).
+   * @returns A column builder of the inferred kind, narrowed to the literals union.
+   */
+  enum: ((...values: Array<string | number | bigint>) => {
+    if (values.length === 0) throw new LmdbError(`t.enum() requires at least one value, e.g. t.enum('active', 'archived').`)
+    const first = typeof values[0]
+    if (first !== `string` && first !== `number` && first !== `bigint`) throw new LmdbError(`t.enum() supports string, number and bigint values only — received '${first}'.`)
+    for (const v of values) {
+      if (typeof v !== first) throw new LmdbError(`t.enum() requires homogen values of one kind — received mixed '${first}' and '${typeof v}'.`)
+    }
+    return LmdbSchema.makeBuilder(first as IColumnKind, false, undefined, false, undefined, values)
+  }) as {
+    (): never
+    <T extends string>(...values: T[]): IColumnBuilder<`string`, `none`, undefined, T>
+    <T extends number>(...values: T[]): IColumnBuilder<`number`, `none`, undefined, T>
+    <T extends bigint>(...values: T[]): IColumnBuilder<`bigint`, `none`, undefined, T>
+  },
+  /**
+   * A `boolean` column builder.
+   *
+   * @returns A `boolean` column builder.
+   */
+  boolean: (): IColumnBuilder<`boolean`> => LmdbSchema.makeBuilder(`boolean`),
   /**
    * An `object` column builder.
    *
@@ -248,10 +108,8 @@ export const t = {
    * @returns A `Record<string, unknown>` column builder, or a builder of the
    * given `T` when supplied via `t.object<T>()`.
    */
-  object: <T = Record<string, unknown>, S extends Record<string, AnyColumnBuilder> | undefined = undefined>(
-    shape?: S
-  ): ColumnBuilder<`object`, `none`, undefined, [S] extends [undefined] ? T : ShapeValueOf<S>> =>
-    makeBuilder(`object`, false, undefined, false, shape) as ColumnBuilder<`object`, `none`, undefined, [S] extends [undefined] ? T : ShapeValueOf<S>>,
+  object: <T = Record<string, unknown>, S extends Record<string, IAnyColumnBuilder> | undefined = undefined>(shape?: S): IColumnBuilder<`object`, `none`, undefined, [S] extends [undefined] ? T : IShapeValueOf<S>> =>
+    LmdbSchema.makeBuilder(`object`, false, undefined, false, shape) as IColumnBuilder<`object`, `none`, undefined, [S] extends [undefined] ? T : IShapeValueOf<S>>,
   /**
    * An `array` column builder.
    *
@@ -262,26 +120,35 @@ export const t = {
    * `string[][]` (nested arrays), `t.array({name: t.string()})` →
    * `{name: string}[]`.
    */
-  array: <T = unknown, S extends AnyShapeParam | undefined = undefined>(
-    shape?: S
-  ): ColumnBuilder<`array`, `none`, undefined, [S] extends [undefined] ? T : ShapeElementOf<S>> =>
-    makeBuilder(`array`, false, undefined, false, shape) as ColumnBuilder<`array`, `none`, undefined, [S] extends [undefined] ? T : ShapeElementOf<S>>,
-  /** @returns A `Date` column builder. */
-  date: (): ColumnBuilder<`date`> => makeBuilder(`date`),
-  /** @returns A `Uint8Array` column builder. */
-  buffer: (): ColumnBuilder<`buffer`> => makeBuilder(`buffer`),
-  /** @returns An `any` column builder (type `unknown`). */
-  any: (): ColumnBuilder<`any`> => makeBuilder(`any`),
+  array: <T = unknown, S extends IAnyShapeParam | undefined = undefined>(shape?: S): IColumnBuilder<`array`, `none`, undefined, [S] extends [undefined] ? T : IShapeElementOf<S>> =>
+    LmdbSchema.makeBuilder(`array`, false, undefined, false, shape) as IColumnBuilder<`array`, `none`, undefined, [S] extends [undefined] ? T : IShapeElementOf<S>>,
+  /**
+   * A `Date` column builder (msgpack-native).
+   *
+   * @returns A `Date` column builder.
+   */
+  date: (): IColumnBuilder<`date`> => LmdbSchema.makeBuilder(`date`),
+  /**
+   * A `Uint8Array` column builder.
+   *
+   * @returns A `Uint8Array` column builder.
+   */
+  buffer: (): IColumnBuilder<`buffer`> => LmdbSchema.makeBuilder(`buffer`),
+  /**
+   * An `any` column builder (type `unknown`).
+   *
+   * @returns An `unknown`-typed column builder.
+   */
+  any: (): IColumnBuilder<`any`> => LmdbSchema.makeBuilder(`any`),
   /**
    * A `Map` column builder.
    *
    * @typeParam K - Key type (default `unknown`).
    * @typeParam V - Value type (default `unknown`).
+   * @returns A `Map` column builder, typed from `K`/`V` or the shape.
    */
-  map: <K = unknown, V = unknown, S extends {key: AnyColumnBuilder; value: AnyColumnBuilder} | undefined = undefined>(
-    shape?: S
-  ): ColumnBuilder<`map`, `none`, undefined, [S] extends [undefined] ? Map<K, V> : ShapeMapOf<S>> =>
-    makeBuilder(`map`, false, undefined, false, shape) as ColumnBuilder<`map`, `none`, undefined, [S] extends [undefined] ? Map<K, V> : ShapeMapOf<S>>,
+  map: <K = unknown, V = unknown, S extends {key: IAnyColumnBuilder; value: IAnyColumnBuilder} | undefined = undefined>(shape?: S): IColumnBuilder<`map`, `none`, undefined, [S] extends [undefined] ? Map<K, V> : IShapeMapOf<S>> =>
+    LmdbSchema.makeBuilder(`map`, false, undefined, false, shape) as IColumnBuilder<`map`, `none`, undefined, [S] extends [undefined] ? Map<K, V> : IShapeMapOf<S>>,
   /**
    * A `Set` column builder.
    *
@@ -292,10 +159,8 @@ export const t = {
    * `t.set([t.string()])` → `Set<string[]>`, `t.set({name: t.string()})` →
    * `Set<{name: string}>`.
    */
-  set: <T = unknown, S extends AnyShapeParam | undefined = undefined>(
-    shape?: S
-  ): ColumnBuilder<`set`, `none`, undefined, [S] extends [undefined] ? Set<T> : Set<ShapeElementOf<S>>> =>
-    makeBuilder(`set`, false, undefined, false, shape) as ColumnBuilder<`set`, `none`, undefined, [S] extends [undefined] ? Set<T> : Set<ShapeElementOf<S>>>
+  set: <T = unknown, S extends IAnyShapeParam | undefined = undefined>(shape?: S): IColumnBuilder<`set`, `none`, undefined, [S] extends [undefined] ? Set<T> : Set<IShapeElementOf<S>>> =>
+    LmdbSchema.makeBuilder(`set`, false, undefined, false, shape) as IColumnBuilder<`set`, `none`, undefined, [S] extends [undefined] ? Set<T> : Set<IShapeElementOf<S>>>
 }
 
 /**
@@ -303,9 +168,9 @@ export const t = {
  *
  * @remarks
  * Subclass with `static db` (used as the collection's `dbName`),
- * `static key` (a single {@link ColumnBuilder} from the {@link t} builders
+ * `static key` (a single {@link IColumnBuilder} from the {@link t} builders
  * for the primary key), and `static value` (a map of value columns, each a
- * {@link ColumnBuilder}). The `key` column must NOT carry `unique`/`index` —
+ * {@link IColumnBuilder}). The `key` column must NOT carry `unique`/`index` —
  * the key is implicitly the primary index and is excluded from the derived
  * `indexes`.
  *
@@ -320,7 +185,7 @@ export const t = {
  *     id: t.number().unique(),
  *     username: t.string().index(),
  *     email: t.string(),
- *     tags: t.array().nullable(),
+ *     tags: t.array().optional(),
  *     createdAt: t.date()
  *   }
  * }
@@ -350,29 +215,34 @@ export const t = {
  * @public
  */
 export abstract class LmdbSchema {
-  /** Sub-database name — used as the registered collection's `dbName`. */
+  /**
+   * Sub-database name — used as the registered collection's `dbName`.
+   *
+   * @remarks
+   * Required on every schema subclass; must be unique per env.
+   */
   static db: string
   /**
    * Key column builder — the collection's primary key.
    *
    * @remarks
-   * Must be a single {@link ColumnBuilder} (from the {@link t} builders).
+   * Must be a single {@link IColumnBuilder} (from the {@link t} builders).
    * Must NOT carry `unique`/`index` — the key is implicitly the primary
    * index and is excluded from the derived `indexes`.
    */
-  static key: AnyColumnBuilder
+  static key: IAnyColumnBuilder
   /**
-   * Value column definition — either a single {@link ColumnBuilder} (scalar
+   * Value column definition — either a single {@link IColumnBuilder} (scalar
    * value collections: `static value = t.number()`, `t.buffer()`,
-   * `t.array<T>()`, `t.object<T>()`) or a map of {@link ColumnBuilder}s
+   * `t.array<T>()`, `t.object<T>()`) or a map of {@link IColumnBuilder}s
    * (row-shaped collections). Scalar values carry no derived indexes.
    *
    * @remarks
    * Each map column maps to a field of the row value type via
-   * {@link InferSchemaValue}; columns carrying `.unique()`/`.index(...)`
+   * {@link IInferSchemaValue}; columns carrying `.unique()`/`.index(...)`
    * become derived indexes (see {@link LmdbSchema.deriveIndexes}).
    */
-  static value: AnyColumnBuilder | Record<string, AnyColumnBuilder>
+  static value: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>
   /**
    * Optional `dupSort` flag for the underlying sub-DB.
    *
@@ -436,10 +306,194 @@ export abstract class LmdbSchema {
    */
   static ttl?: number
   /**
+   * Optional shape version for migration transforms.
+   *
+   * @remarks
+   * Declares the row-shape version this schema class models. Transform
+   * steps name the version they produce (`schemaVersion`); the runner
+   * refuses skewed steps whose target disagrees with this declaration.
+   * Unversioned schemas skip the check.
+   */
+  static version?: number
+  /**
    * Runtime discriminator for {@link LmdbEnv.register} — inherited by
    * subclasses, never read by user code.
    */
   static readonly _schemaBrand = true as const
+
+  /**
+   * Build the ordered tuple for a composite index from a row.
+   *
+   * @remarks
+   * Walks each component (dotted paths supported via
+   * {@link RecordCodec._getPath}); a `null`/`undefined` component — or a
+   * non-object row — skips the entry, mirroring how null extracts skip
+   * embedded indexes.
+   *
+   * @param value - The row value to extract from.
+   * @param components - Ordered component column names (dotted paths allowed).
+   * @returns The ordered tuple, or `null` when a component is absent.
+   *
+   * @internal
+   */
+  static compositeTuple(value: unknown, components: Array<string>): Array<ILmdbKey> | null {
+    if (value === null || typeof value !== `object`) return null
+    const row = value as Record<string, unknown>
+    const tuple: Array<ILmdbKey> = []
+    for (const component of components) {
+      const part = RecordCodec._getPath(row, component)
+      if (part === undefined || part === null) return null
+      tuple.push(part as ILmdbKey)
+    }
+    return tuple
+  }
+
+  /**
+   * Runtime check: is a value a single {@link IColumnBuilder} (scalar) rather
+   * than a value-column map?
+   *
+   * @param value - The `static value` to inspect.
+   * @returns `true` for a single builder, `false` for a column map.
+   *
+   * @public
+   */
+  static isColumnBuilder(value: unknown): value is IAnyColumnBuilder {
+    return typeof value === `object` && value !== null && typeof (value as {kind?: unknown}).kind === `string`
+  }
+
+  /**
+   * Reject nested `unique`/`index` flags inside a param-based builder shape
+   * (`t.object({...})` / `t.array({...})`).
+   *
+   * @remarks
+   * Embedded-index detection (`deriveIndexes`) only inspects top-level value
+   * columns, so a `unique`/`index` buried inside a shape would be silently
+   * ignored — a data-integrity hazard (duplicates would pass). Registration
+   * therefore throws instead of ignoring. Nested index intent must use a
+   * top-level dotted-path column (`"bio.email": t.string().unique()`).
+   *
+   * @param builder - The builder (or nested shape member) to inspect.
+   * @param db - Owning sub-DB name, used in thrown messages.
+   *
+   * @internal
+   */
+  private static assertNoNestedIndex(builder: IAnyColumnBuilder, db: string): void {
+    const shape = builder.shape
+    if (!shape) return
+    const entries: Array<[string, IAnyColumnBuilder]> = LmdbSchema.isColumnBuilder(shape)
+      ? [[`*`, shape]]
+      : Array.isArray(shape)
+        ? shape.map((nested, i): [string, IAnyColumnBuilder] => [String(i), nested])
+        : Object.entries(shape).filter((e): e is [string, IAnyColumnBuilder] => LmdbSchema.isColumnBuilder(e[1]))
+    for (const [name, nested] of entries) {
+      // Composite first: every composite marker also sets an indexName, so the
+      // unique/index branch below would swallow it with the wrong message.
+      if (nested.compositeColumns !== undefined) {
+        throw new LmdbError(`Schema '${db}': nested composite index on '${name}' inside a t.object/t.array shape is not supported — the marker would be silently ignored. Declare it as a top-level column instead.`)
+      }
+      if (nested.isUnique || nested.indexName !== undefined) {
+        throw new LmdbError(`Schema '${db}': nested unique/index on '${name}' inside a t.object/t.array shape is not supported — the index would be silently ignored. Declare it as a top-level dotted column instead, e.g. "bio.email": t.string().unique().`)
+      }
+      if (nested.isSearchable === true) {
+        throw new LmdbError(`Schema '${db}': nested .search() on '${name}' inside a t.object/t.array shape is not supported — the marker would be silently ignored. Declare it as a top-level string column instead.`)
+      }
+      LmdbSchema.assertNoNestedIndex(nested, db)
+    }
+  }
+
+  /**
+   * Validate a `.default(value)` candidate against its column kind + enum.
+   *
+   * @remarks
+   * Extracted from `LmdbSchema.makeBuilder` so future column markers (search,
+   * composite) share the same declaration-time gate without duplicating the
+   * checks.
+   *
+   * @throws {LmdbError} when the value mismatches the scalar kind or enum.
+   *
+   * @param kind - The column kind to check against.
+   * @param value - The `.default()` candidate.
+   * @param enumValues - Allowed enum values, if the column is an enum.
+   *
+   * @internal
+   */
+  private static validateDefaultValue(kind: IColumnKind, value: unknown, enumValues: readonly unknown[] | undefined): void {
+    if ((kind === `string` || kind === `number` || kind === `bigint` || kind === `boolean`) && typeof value !== kind) {
+      throw new LmdbError(`.default() value for a '${kind}' column must be a ${kind} — received '${typeof value}'.`)
+    }
+    if (enumValues !== undefined && !enumValues.includes(value as unknown)) {
+      throw new LmdbError(`.default() value '${String(value)}' is outside the column enum — allowed: ${enumValues.map((v) => String(v)).join(`, `)}.`)
+    }
+  }
+
+  /**
+   * Build a new {@link IColumnBuilder} with the given metadata.
+   *
+   * @remarks
+   * Immutability comes from always constructing a fresh object; the modifier
+   * methods delegate here with the updated flag. The `I`/`N` generics re-tag
+   * the returned builder with the literal index marker + explicit index name;
+   * the inner casts are safe because the runtime flags (`isUnique`,
+   * `indexName`) stay plain `boolean`/`string`.
+   *
+   * @param kind - Column value kind.
+   * @param isUnique - Whether `.unique()` was applied.
+   * @param indexName - Explicit index name or composite `a+b` name, if any.
+   * @param isOptional - Whether `.optional()` was applied.
+   * @param shape - Runtime shape for param-based builders, if any.
+   * @param enumValues - Allowed enum values, if the column is an enum.
+   * @param defaults - Static or factory default declaration, if any.
+   * @param isSearchable - Whether `.search()` was applied.
+   * @param compositeColumns - Composite member list for `.index([...])`, if any.
+   * @returns A new immutable {@link IColumnBuilder} carrying the metadata.
+   *
+   * @internal
+   */
+  static makeBuilder<K extends IColumnKind, I extends IColumnIndexFlag = `none`, N extends string | undefined = undefined, V = unknown, Nl extends boolean = false>(
+    kind: K,
+    isUnique = false,
+    indexName: string | undefined = undefined,
+    isOptional: Nl = false as Nl,
+    shape?: IAnyShapeParam,
+    enumValues?: readonly unknown[],
+    defaults?: {value?: unknown; has: boolean; fn?: () => unknown},
+    isSearchable = false,
+    compositeColumns?: Array<string>
+  ): IColumnBuilder<K, I, N, V, Nl> {
+    return {
+      kind,
+      isUnique,
+      indexName: indexName as N,
+      indexFlag: (isUnique ? `unique` : indexName !== undefined ? `index` : `none`) as I,
+      isOptional,
+      isSearchable,
+      ...(compositeColumns !== undefined ? {compositeColumns} : {}),
+      shape,
+      ...(enumValues !== undefined ? {enumValues} : {}),
+      ...(defaults?.has ? {defaultValue: defaults.value, hasDefault: true as const, defaultFn: defaults.fn} : {}),
+      unique: (): IColumnBuilder<K, `unique`, N, V, Nl> => LmdbSchema.makeBuilder(kind, true, indexName, isOptional, shape, enumValues, defaults, isSearchable, undefined) as IColumnBuilder<K, `unique`, N, V, Nl>,
+      index: <N2 extends string | undefined = undefined, const Cc extends readonly [string, ...string[]] | undefined = undefined>(
+        name?: N2 | Cc
+      ): [Cc] extends [undefined] ? IColumnBuilder<K, I extends `unique` ? `unique` : `index`, N2 extends string ? (N2 extends `` ? undefined : N2) : undefined, V, Nl, unknown> : IColumnBuilder<K, `index`, IJoinPlus<NonNullable<Cc>>, V, Nl, NonNullable<Cc>> => {
+        if (Array.isArray(name)) {
+          const columns = name.filter((c): c is string => typeof c === `string`)
+          return LmdbSchema.makeBuilder(kind, false, columns.join(`+`), isOptional, shape, enumValues, defaults, isSearchable, columns) as [Cc] extends [undefined]
+            ? IColumnBuilder<K, I extends `unique` ? `unique` : `index`, N2 extends string ? (N2 extends `` ? undefined : N2) : undefined, V, Nl, unknown>
+            : IColumnBuilder<K, `index`, IJoinPlus<NonNullable<Cc>>, V, Nl, NonNullable<Cc>>
+        }
+        return LmdbSchema.makeBuilder(kind, isUnique, typeof name === `string` ? name : ``, isOptional, shape, enumValues, defaults, isSearchable, undefined) as [Cc] extends [undefined]
+          ? IColumnBuilder<K, I extends `unique` ? `unique` : `index`, N2 extends string ? (N2 extends `` ? undefined : N2) : undefined, V, Nl, unknown>
+          : IColumnBuilder<K, `index`, IJoinPlus<NonNullable<Cc>>, V, Nl, NonNullable<Cc>>
+      },
+      search: (): IColumnBuilder<K, I, N, V, Nl> => LmdbSchema.makeBuilder(kind, isUnique, indexName, isOptional, shape, enumValues, defaults, true, compositeColumns) as IColumnBuilder<K, I, N, V, Nl>,
+      optional: (): IColumnBuilder<K, I, N, V, true> => LmdbSchema.makeBuilder(kind, isUnique, indexName, true as true, shape, enumValues, defaults, isSearchable, compositeColumns) as IColumnBuilder<K, I, N, V, true>,
+      default: (value: unknown): IColumnBuilder<K, I, N, V, true> => {
+        LmdbSchema.validateDefaultValue(kind, value, enumValues)
+        return LmdbSchema.makeBuilder(kind, isUnique, indexName, true as true, shape, enumValues, {value, has: true}, isSearchable, compositeColumns) as IColumnBuilder<K, I, N, V, true>
+      },
+      $defaultFn: (fn: () => unknown): IColumnBuilder<K, I, N, V, true> => LmdbSchema.makeBuilder(kind, isUnique, indexName, true as true, shape, enumValues, {value: undefined, has: true, fn}, isSearchable, compositeColumns) as IColumnBuilder<K, I, N, V, true>
+    } as IColumnBuilder<K, I, N, V, Nl>
+  }
 
   /**
    * Validate a schema subclass before registration.
@@ -473,15 +527,18 @@ export abstract class LmdbSchema {
     if (hasWriteHook !== hasReadHook) {
       throw new LmdbError(`Schema '${db}' (class '${className}'): static hookBeforeWrite and static hookBeforeRead must be declared together.`)
     }
+    if (schemaClass.version !== undefined && (typeof schemaClass.version !== `number` || !Number.isInteger(schemaClass.version))) {
+      throw new LmdbError(`Schema '${db}' (class '${className}'): static version must be an integer.`)
+    }
     const key = schemaClass.key
     if (key === undefined) {
       throw new LmdbError(`Schema '${db}' (class '${className}'): missing required static 'key'. Declare it, e.g. static key = t.number().`)
     }
-    if (key.isUnique || key.indexName !== undefined) {
+    if (key.isUnique || key.indexName !== undefined || key.compositeColumns !== undefined) {
       throw new LmdbError(`Schema '${db}': the 'key' column must not be unique or indexed — the key is the primary key and is not part of the derived indexes.`)
     }
     const value = schemaClass.value
-    const isScalar = isColumnBuilder(value)
+    const isScalar = LmdbSchema.isColumnBuilder(value)
     if (value === undefined || value === null) {
       throw new LmdbError(`Schema '${db}' (class '${className}'): missing required static 'value'. Declare it, e.g. static value = {id: t.number(), ...} or static value = t.number().`)
     }
@@ -492,12 +549,33 @@ export abstract class LmdbSchema {
       throw new LmdbError(`Schema '${db}' (class '${className}'): static dupSort = true requires a scalar static value (e.g. static value = t.string()).`)
     }
     if (isScalar) {
-      assertNoNestedIndex(value, db)
+      LmdbSchema.assertNoNestedIndex(value, db)
+      if (value.isSearchable === true) {
+        throw new LmdbError(`Schema '${db}': .search() requires a row-shaped static value — scalar values carry no searchable columns. Declare static value as a map, e.g. static value = {bio: t.string().search()}.`)
+      }
+      if (value.compositeColumns !== undefined) {
+        throw new LmdbError(`Schema '${db}': composite index [${value.compositeColumns.join(`+`)}] requires a row-shaped static value — scalar values (including dupSort subs) carry no columns to compose.`)
+      }
       return
     }
     const seen = new Set<string>()
+    const columns = value as Record<string, IAnyColumnBuilder>
     for (const [columnName, column] of Object.entries(value)) {
-      assertNoNestedIndex(column, db)
+      LmdbSchema.assertNoNestedIndex(column, db)
+      if (column.isSearchable === true && column.kind !== `string`) {
+        throw new LmdbError(`Schema '${db}': .search() is only supported on string columns — column '${columnName}' is '${column.kind}'.`)
+      }
+      if (column.compositeColumns !== undefined) {
+        const components = column.compositeColumns
+        if (components.length < 2) {
+          throw new LmdbError(`Schema '${db}': composite index on '${columnName}' requires at least 2 columns — received [${components.join(`,`)}].`)
+        }
+        for (const component of components) {
+          if (!(component in columns)) {
+            throw new LmdbError(`Schema '${db}': composite index [${components.join(`+`)}] lists unknown column '${component}'.`)
+          }
+        }
+      }
       if (column.isUnique || column.indexName !== undefined) {
         const indexName = column.indexName || columnName
         if (seen.has(indexName)) {
@@ -523,10 +601,21 @@ export abstract class LmdbSchema {
    *
    * @public
    */
-  static deriveIndexes(columns: AnyColumnBuilder | Record<string, AnyColumnBuilder>): Array<{name: string; def: IIndexDef<unknown, ILmdbKey>; dbName?: string}> {
+  static deriveIndexes(columns: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>): Array<{name: string; def: IIndexDef<unknown, ILmdbKey>; dbName?: string}> {
     const indexes: Array<{name: string; def: IIndexDef<unknown, ILmdbKey>; dbName?: string}> = []
-    if (isColumnBuilder(columns)) return indexes // scalar values carry no derived indexes
+    if (LmdbSchema.isColumnBuilder(columns)) return indexes // scalar values carry no derived indexes
     for (const [columnName, column] of Object.entries(columns)) {
+      // Composite markers resolve independently of the legacy `key` skip —
+      // dropping a component would corrupt the positional layout.
+      if (column.compositeColumns !== undefined) {
+        const components = [...column.compositeColumns]
+        indexes.push({
+          name: column.indexName || components.join(`+`),
+          def: {unique: false, extractor: (value: unknown) => LmdbSchema.compositeTuple(value, components), composite: components},
+          dbName: undefined
+        })
+        continue
+      }
       if (columnName === `key`) continue
       if (column.isUnique || column.indexName !== undefined) {
         indexes.push({name: column.indexName || columnName, def: {unique: column.isUnique}, dbName: undefined})
@@ -534,264 +623,46 @@ export abstract class LmdbSchema {
     }
     return indexes
   }
+
+  /**
+   * Derive searchable column names from a schema's columns.
+   *
+   * @remarks
+   * Every top-level value column carrying `.search()` becomes one posting
+   * table (`{db}:search:{column}`). Called by {@link LmdbEnv.register}
+   * after {@link LmdbSchema.validate}; validation already guarantees
+   * string-kind row-shaped columns, so this never throws.
+   *
+   * @param columns - The schema's `static value` map.
+   * @returns Searchable column names in declaration order.
+   *
+   * @public
+   */
+  static deriveSearch(columns: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>): Array<string> {
+    if (LmdbSchema.isColumnBuilder(columns)) return [] // scalar values carry no searchable columns
+    const names: Array<string> = []
+    for (const [columnName, column] of Object.entries(columns)) {
+      if (columnName === `key`) continue
+      if (column.isSearchable === true) names.push(columnName)
+    }
+    return names
+  }
+
+  /**
+   * Derive positional record columns from a schema's value map.
+   *
+   * @remarks
+   * Every key in declaration order — unlike {@link LmdbSchema.deriveIndexes}
+   * nothing is skipped, since dropping a column would corrupt the positional
+   * layout. Scalar values carry no columns (no codec).
+   *
+   * @param columns - The schema's `static value` map.
+   * @returns Column names in declaration order, or `[]` for scalars.
+   *
+   * @public
+   */
+  static deriveRecordColumns(columns: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>): Array<string> {
+    if (LmdbSchema.isColumnBuilder(columns)) return []
+    return Object.keys(columns)
+  }
 }
-
-/**
- * Value type inferred from a schema class's value columns.
- *
- * @remarks
- * Maps every value column to its TypeScript type — `T` by default,
- * `T | undefined` for nullable (`.nullable()`) columns. Prefer the short
- * alias {@link ValueOf} (`ValueOf<typeof UserSchema>`) over spelling this
- * out — `InferSchemaValue<typeof UserSchema.value>` resolves to the same
- * value type, so values stay in sync with the schema definition without
- * manual interfaces.
- *
- * @typeParam D - Value column definition map (from `static value`).
- *
- * @public
- */
-export type InferSchemaValue<D extends Record<string, AnyColumnBuilder>> = {
-  [K in keyof D]: ColumnKindToTs<D[K][`kind`], D[K][`isNullable`], ColumnElementOf<D[K]>>
-}
-
-/**
- * Resolve a column kind + nullability to its TypeScript type.
- *
- * @remarks
- * `N` is a literal `false` (default) or `true` (after `.nullable()`). When
- * `N` is `true` the result includes `| undefined`; otherwise it is the bare
- * TypeScript type. If `N` is `boolean` (e.g. inside a generic schema class
- * whose value columns are not fully resolved), the conditional distributes
- * and yields `T | undefined` as a safe fallback.
- *
- * @internal
- */
-type ColumnKindToTs<K, N, V> = N extends true ? TsKind<K, V> | undefined : TsKind<K, V>
-
-/**
- * Value type inferred from a param-based builder shape — `t.object({...})`
- * / `t.array({...})`. Maps each shape field through the same
- * {@link ColumnKindToTs} machinery as {@link InferSchemaValue}, so
- * `.nullable()` fields resolve to `T | undefined` and nested shapes
- * recursively to their object type.
- *
- * @internal
- */
-export type ShapeValueOf<S extends Record<string, AnyColumnBuilder> | undefined> = S extends Record<string, AnyColumnBuilder>
-  ? {[K in keyof S]: ColumnKindToTs<S[K][`kind`], S[K][`isNullable`], ColumnElementOf<S[K]>>}
-  : never
-
-/**
- * Value type inferred from a param-based `t.map({key, value})` shape.
- *
- * @internal
- */
-export type ShapeMapOf<S extends {key: AnyColumnBuilder; value: AnyColumnBuilder} | undefined> = S extends {key: AnyColumnBuilder; value: AnyColumnBuilder}
-  ? Map<ColumnKindToTs<S[`key`][`kind`], S[`key`][`isNullable`], ColumnElementOf<S[`key`]>>, ColumnKindToTs<S[`value`][`kind`], S[`value`][`isNullable`], ColumnElementOf<S[`value`]>>>
-  : never
-
-/**
- * Element type inferred from a param-based `t.array`/`t.set` shape — a bare
- * builder (`t.array(t.string())` → `string`), an array of builders
- * (`t.array([t.string()])` → `string[]`, i.e. nested arrays), or a field map
- * (`t.array({name: t.string()})` → `{name: string}`).
- *
- * @internal
- */
-export type ShapeElementOf<S extends AnyShapeParam | undefined> = S extends AnyColumnBuilder
-  ? ScalarValueOf<S>
-  : S extends readonly AnyColumnBuilder[]
-    ? Array<ScalarValueOf<S[number]>>
-    : S extends Record<string, AnyColumnBuilder>
-      ? ShapeValueOf<S>
-      : never
-
-/**
- * Map a column kind to its TypeScript type.
- *
- * @remarks
- * `object` columns map to their carried value type `V` (falling back to
- * `Record<string, unknown>` for a bare `unknown`); `array` columns map to
- * `V[]`; `map`/`set` map to their carried type `V`.
- *
- * @internal
- */
-type TsKind<K, V = unknown> = K extends `string`
-  ? string
-  : K extends `number`
-    ? number
-    : K extends `bigint`
-      ? bigint
-      : K extends `boolean`
-        ? boolean
-        : K extends `object`
-          ? unknown extends V
-            ? Record<string, unknown>
-            : V
-          : K extends `array`
-            ? V[]
-            : K extends `date`
-              ? Date
-              : K extends `buffer`
-                ? Uint8Array
-                : K extends `any`
-                  ? unknown
-                  : K extends `map`
-                    ? V
-                    : K extends `set`
-                      ? V
-                      : never
-
-/**
- * Recover the element/value type carried by a {@link ColumnBuilder}'s `V`
- * generic (`t.object<T>()` / `t.array<T>()`).
- *
- * @internal
- */
-type ColumnElementOf<C> = C extends ColumnBuilder<ColumnKind, ColumnIndexFlag, string | undefined, infer V, boolean> ? V : unknown
-
-/**
- * Key type inferred from a schema class's `key` builder.
- *
- * @remarks
- * Gives the key VALUE type (`bigint` for `key: t.bigint()`), usable as
- * `KeyOf<S>`'s key parameter. Prefer the short alias {@link KeyOf}
- * (`KeyOf<typeof UserSchema>`) — it intersects with `ILmdbKey` exactly like
- * the runtime {@link LmdbEnv.register} overload does.
- *
- * @typeParam C - The key column builder (from `static key`).
- *
- * @public
- */
-export type InferSchemaKey<C extends AnyColumnBuilder> = C extends {kind: infer K} ? TsKind<K> : never
-
-/**
- * Index-definition map of a schema's VALUE columns.
- *
- * @remarks
- * Key-remaps a value-column definition map `D` (whose keys are literal when
- * the user declares `static value` as an object literal) into an
- * `IIndexDefs`-compatible map (`Record<string, IIndexDef<unknown, ILmdbKey>>`),
- * i.e. the schema index map (`SchemaIndexesOf`). Only columns whose
- * {@link ColumnBuilder.indexFlag} is `"index"` or `"unique"` produce entries;
- * the index name is the explicit `.index("name")` literal when set, otherwise
- * the column key. Unique columns carry `{unique: true}` so `findByIndex`'s
- * return type narrows per query exactly like a class collection's
- * `as const` `static indexes`. Unknown keys (`coll.findByIndex({nope: 1})`)
- * are therefore compile errors instead of silently passing. Scalar schemas
- * (`static value = t.number()`) yield the empty map `{}`.
- *
- * @typeParam D - Value column definition map (each entry a {@link ColumnBuilder}).
- *
- * @public
- */
-export type SchemaIndexesOf<D extends AnyColumnBuilder | Record<string, AnyColumnBuilder>> = IndexMapOf<D>
-
-/**
- * Index-map dispatch helper — scalar builders yield `{}`, column maps yield
- * the remapped index map. The generic `V` makes the conditional distribute
- * when `V` is a union (e.g. `S['value']` on a generic schema class).
- *
- * @internal
- */
-type IndexMapOf<V> = V extends {kind: ColumnKind} ? object : V extends Record<string, AnyColumnBuilder> ? {
-  [K in keyof V as V[K][`indexFlag`] extends `unique` ? (V[K][`indexName`] extends string ? V[K][`indexName`] : K) : V[K][`indexFlag`] extends `index` ? (V[K][`indexName`] extends string ? V[K][`indexName`] : K) : never]: V[K][`indexFlag`] extends `unique`
-    ? IIndexDef<unknown, ILmdbKey> & {unique: true}
-    : IIndexDef<unknown, ILmdbKey>
-} : never
-
-/**
- * Row value of a schema's `static value` — dispatches scalar builders to
- * their scalar type and column maps to {@link InferSchemaValue}. The
- * generic `V` makes the conditional distribute when `V` is a union (e.g.
- * `S['value']` on a generic schema class).
- *
- * @internal
- */
-type ValueOfDispatch<V> = V extends {kind: ColumnKind} ? ScalarValueOf<Extract<V, AnyColumnBuilder>> : V extends Record<string, AnyColumnBuilder> ? InferSchemaValue<V> : never
-
-/**
- * Value type inferred from a schema class.
- *
- * @remarks
- * Short alias for `InferSchemaValue<typeof X.value>` — the value type
- * derived from a schema class's `static value` columns. For scalar schemas
- * (`static value = t.number()`), resolves to the scalar's TypeScript type:
- *
- * ```typescript
- * type UserValue = ValueOf<typeof UserSchema>
- * type CounterValue = ValueOf<typeof CounterSchema> // number
- * ```
- *
- * Columns are `T` by default and become `T | undefined` only when declared
- * nullable (`.nullable()`).
- *
- * @typeParam S - The schema class (a `typeof LmdbSchema` subclass).
- *
- * @public
- */
-export type ValueOf<S extends typeof LmdbSchema> = ValueOfDispatch<S[`value`]>
-
-/**
- * Scalar value type of a {@link ColumnBuilder} — maps a scalar column's kind
- * + nullability + carried element type to its TypeScript type (used by
- * {@link ValueOf} for scalar-value schemas).
- *
- * @internal
- */
-type ScalarValueOf<C extends AnyColumnBuilder> = ColumnKindToTs<C[`kind`], C[`isNullable`], ColumnElementOf<C>>
-
-/**
- * Key type inferred from a schema class.
- *
- * @remarks
- * Short alias for `InferSchemaKey<typeof X.key> & ILmdbKey` — the key value
- * type intersected with `ILmdbKey`, mirroring the runtime
- * {@link LmdbEnv.register} overload (lmdb-js keys are
- * `Key[] | string | symbol | number | boolean | Uint8Array`), so a
- * `t.bigint()` key column degrades to `never` at the type level:
- *
- * ```typescript
- * type UserKey = KeyOf<typeof UserSchema>
- * ```
- *
- * @typeParam S - The schema class (a `typeof LmdbSchema` subclass).
- *
- * @public
- */
-export type KeyOf<S extends typeof LmdbSchema> = InferSchemaKey<S[`key`]> & ILmdbKey
-
-/**
- * Collection type materialized from a schema class.
- *
- * @remarks
- * Resolves the schema-derived types (`ValueOf`/`KeyOf`/`SchemaIndexesOf`) when
- * passed to {@link LmdbEnv.register} — the value type (via {@link ValueOf}),
- * the key type (via {@link KeyOf}, intersected with `ILmdbKey` to mirror the
- * runtime `register` overload), and the narrow per-index definitions from
- * {@link SchemaIndexesOf}. Prefer this over spelling out the three type
- * parameters by hand. This is also the fallback when you want a single alias
- * instead of a `typeof X.$infer`-style helper — TypeScript does not polymorph
- * `this` in static getters, so the value type stays `ValueOf<typeof X>` while
- * `env` methods accept the schema class directly:
- *
- * ```typescript
- * class UserSchema extends LmdbSchema {
- *   static db = `users`
- *   static key = t.number()
- *   static value = {
- *     id: t.number().unique(),
- *     username: t.string().index(),
- *     email: t.string()
- *   }
- * }
- *
- * type UserColl = LmdbSchema
- * env.register(UserSchema)
- * ```
- *
- * @typeParam S - The schema class (a `typeof LmdbSchema` subclass).
- *
- * @public
- */

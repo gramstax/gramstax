@@ -6,7 +6,7 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbQueue} from "../src/queue"
+import {type IQueueSchema, LmdbQueue} from "../src/queue"
 import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
@@ -76,5 +76,30 @@ describe(`LmdbQueue`, () => {
     await queue.dequeue()
     await queue.enqueue({id: `j2`, payload: `b`})
     expect((await queue.peek())?.[1]).toEqual({id: `j2`, payload: `b`})
+  })
+
+  it(`peek and size are synchronous`, () => {
+    expect(typeof queue.peek).toBe(`function`)
+    const peeked: ReturnType<typeof queue.peek> = queue.peek()
+    expect(peeked).toBeUndefined()
+    const n: number = queue.size()
+    expect(n).toBe(0)
+  })
+
+  it(`string enum keys satisfy QueueSchema`, () => {
+    class EnumKeyJobsSchema extends LmdbSchema {
+      static db = `enum-jobs`
+      static key = t.enum(`a`, `b`)
+      static value = t.object<Job>()
+    }
+    const check: IQueueSchema = EnumKeyJobsSchema
+    expect(check.db).toBe(`enum-jobs`)
+  })
+
+  it(`second queue on same schema reuses registration`, async () => {
+    const other = new LmdbQueue(env, JobsSchema)
+    await other.enqueue({id: `j9`, payload: `z`})
+    expect(await queue.size()).toBe(1)
+    expect((await queue.dequeue())?.[1]).toEqual({id: `j9`, payload: `z`})
   })
 })

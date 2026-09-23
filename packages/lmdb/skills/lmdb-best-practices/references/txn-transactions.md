@@ -19,12 +19,13 @@ await env.transaction(async () => { await users.put(`a`, x); await logs.put(`b`,
 ## Correct
 
 ```typescript
-await env.transaction(() => {
-  const cur = users.get(`k0`, undefined) // reads see the txn snapshot via tx passthrough where needed
+await env.transaction((tx) => {
+  const cur = users.get(`k0`, tx) // reads see the txn snapshot via tx passthrough
   users.putSync(`k0`, {...cur, age: (cur?.age ?? 0) + 1})
 })
-await env.readTransaction(async () => {
+await env.readTransaction(async (tx) => {
   // every read pinned to one snapshot — batch reports and exports
+  await users.entries({}, tx)
 })
 ```
 
@@ -33,3 +34,4 @@ await env.readTransaction(async () => {
 - Cross-repo atomicity is free inside one `env.transaction()` — no 2PC.
 - `findByIndex(query, tx, {limit})` keeps point reads and batch fetches on the snapshot; the sequential path is used under pinning because native batch cannot take a txn.
 - Never `await` inside a transaction callback unless you accept holding the writer lock.
+- Commits publish CDC outbox rows staged in the same txn (`cdc.md`); aborted txns publish nothing.

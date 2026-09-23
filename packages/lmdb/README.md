@@ -49,7 +49,7 @@ class UserSchema extends LmdbSchema {
   static db = `user`;
   static key = t.number();
   static value = {
-    id: t.number().unique(),   // SQL UNIQUE INDEX — duplicates throw LmdbUniqueConstraintError
+    id: t.number().unique(),   // SQL UNIQUE INDEX — duplicates throw LmdbError
     name: t.string(),
     age: t.number()
   };
@@ -84,6 +84,8 @@ db.users.put(1, user)                    // handle: schema pre-bound
 db.sub(UserSchema).get(1)                // cached handle fetch + call
 ```
 
+Beyond point reads: full-text search (`t.string().search()` + `sub.search()`), concatenated-key composite indexes (`.index([`a`, `b`])`), change-data-capture (`env.subscribe` / `tailCdc` / `ackCdc` / `pruneCdc`), managed migrations (`env.migrate` with transform backfills), differential sync (`sub.syncTo`), and sorted bulk import (`putMany(entries, chunkSize?, {sorted: true})`) — see [Embedded Indexes](#embedded-indexes), [LmdbSchema](#lmdbschema), and `example/search-cdc-demo.ts`.
+
 ## Lifecycle
 
 The native LMDB environment opens during construction — the `open()` system call happens synchronously inside `new LmdbEnv(...)`. No explicit `await env.open()` is needed. Closing flushes pending writes and releases the memory-mapped region, and also purges this env's handles from lmdb-js's internal `allDbs` registry so repeated open/close cycles do not accumulate process-lifetime references.
@@ -93,14 +95,14 @@ The native LMDB environment opens during construction — the `open()` system ca
 const db = new Db(`./data`);
 
 // 2. Use — env is immediately operational
-await db.users.put(1, { id: 1, name: `Alice` });
+await db.users.put(1, { id: 1, name: `Alice`, age: 30 });
 const user = db.users.get(1); // synchronous read
 
 // 3. Close — flush + release mmap
 await db.close();
 ```
 
-After `close()` every entry point throws `LmdbEnvClosedError` (sub reads/writes, env-level data ops, transactions) instead of surfacing raw lmdb native errors.
+After `close()` every data/transaction entry point throws `LmdbError` (sub reads/writes, env-level data ops, transactions) instead of surfacing raw lmdb native errors. Exceptions: `resetReadTxn()` is an intentional no-op after `close`, and `isRegistered()` never throws.
 
 ## Sub-Database Isolation
 
@@ -120,9 +122,9 @@ flowchart TB
         Config["config (sub-DB)"]
     end
 
-    UserSchema -->|register/get| Users
-    SessionSchema -->|register/get| Sessions
-    ConfigSchema -->|register/get| Config
+    UserSchema -->|register/sub| Users
+    SessionSchema -->|register/sub| Sessions
+    ConfigSchema -->|register/sub| Config
 ```
 
 ## Transaction Model
@@ -173,7 +175,7 @@ Every option maps directly to lmdb-js `open()` parameters:
 | ------------------- | ---------------- | ---------------- | ------------------------------------------------------- |
 | `path`              | string           | **required**     | Filesystem path for data files                          |
 | `maxDbs`            | number           | `128`            | Max sub-databases                                       |
-| `encoding`          | string           | `msgpack`        | `msgpack`, `json`, `binary`, `string`, `ordered-binary` |
+| `encoding`          | string           | `msgpack`        | `msgpack`, `json`, `cbor`, `binary`, `string`, `ordered-binary` |
 | `compression`       | boolean / object | `false`          | LZ4 compression (off-thread)                            |
 | `readOnly`          | boolean          | `false`          | Open in read-only mode                                  |
 | `mapSize`           | number           | `4 GB`           | Virtual memory mapping in bytes                         |
@@ -197,13 +199,13 @@ Repositories are declared as schema classes and registered against the env:
 ```
 class UserSchema extends LmdbSchema { static db; static key; static value }  // declaration
 env.register(UserSchema)                    // → typed handle — validates + attaches derived indexes
-env.sub(UserSchema)                         // → the same cached instance (throws LmdbSchemaNotRegisteredError if absent)
+env.sub(UserSchema)                         // → the same cached instance (throws LmdbError if absent)
 env.isRegistered(UserSchema)                // → boolean — registered or not
 ```
 
-- `register(SchemaClass)` is strict: re-registering the same class throws `LmdbSchemaAlreadyRegisteredError`; a second schema with the same `static db` throws `LmdbDuplicateDbNameError`.
+- `register(SchemaClass)` is strict: re-registering the same class throws `LmdbError`; a second schema with the same `static db` throws `LmdbError`.
 - `env.sub(SchemaClass)` fetches the cached handle by its schema class; `env.isRegistered(SchemaClass)` checks whether it was registered — useful inside transactions and migrations, where the handle is not in scope.
-- TTL: a schema with `static ttl` (ms) materializes a TTL repository (see [Custom transforms](#custom-transforms-writeread-hooks) and the TTL note in [LmdbSchema](#lmdbschema)).
+- TTL: a schema with `static ttl` (ms) materializes a TTL repository (see the TTL note in [LmdbSchema](#lmdbschema)).
 
 ### Repository Handle Dispatch Model
 
@@ -213,20 +215,27 @@ Sub methods dispatch to one of two LMDB code paths depending on whether the unde
 
 ```
 repo.get(key, tx?)       → T | undefined       // mdb_get, sync
-repo.getStrict(key, tx?) → T                    // like get, throws LmdbKeyNotFoundError
+repo.getStrict(key, tx?) → T                    // like get, throws LmdbError
 repo.has(key, tx?)       → boolean              // mdb_get existence probe, sync
 repo.count(tx?)          → number               // mdb_env_stat entry count, sync
+repo.getKeys(options?)   → Iterable<K>          // sync cursor walk, never guarded
+repo.getEntry(key)       → {version, value} | undefined  // sync, with version
 ```
 
 **Asynchronous** (returns a Promise — write operations queue through lmdb-js async batching, range materialization drains a lazy `RangeIterable`):
 
 ```
 await repo.put(key, value, ttlOrTx?) → void      // queued put
+await repo.putIfNotExists(key, value) → boolean // queued conditional put
 await repo.delete(key, tx?)          → boolean   // queued remove
 await repo.clear(tx?)                → void      // queued clearAsync
 await repo.drop()                    → void      // queued sub-DB drop
 await repo.prefetch(keys)            → void      // async page-fault
+repo.putSync(key, value)             → void      // sync write, for transaction callbacks
+repo.removeSync(key)                 → boolean   // sync remove, for transaction callbacks
 
+await repo.putMany(entries, chunk?, {sorted?, onProgress?}) → void  // chunked batch; {sorted} uses MDB_APPEND
+await repo.importJSONL(jsonl, {sorted?, onProgress?}) → number       // per committed chunk
 await repo.keys(options, tx?)        → K[]       // RangeIterable.asArray
 await repo.values(options, tx?)      → T[]       // RangeIterable.asArray
 await repo.entries(options, tx?)     → [K, T][]  // RangeIterable.asArray
@@ -234,12 +243,27 @@ await repo.first(tx?)                → [K, T] | undefined
 await repo.last(tx?)                 → [K, T] | undefined
 await repo.getMany(keys)             → (T | undefined)[]
 
-await repo.like(pattern)         → [K, T][]
-await repo.findByPrefix(prefix)  → [K, T][]
+await repo.like(pattern, options?, tx?)         → [K, T][]  // past 10 wildcards rejects
+await repo.findByPrefix(prefix, options?, tx?)  → [K, T][]
 await repo.countByPrefix(prefix) → Promise<number>
-await repo.deleteByPrefix(prefix)→ number     // rejects LmdbEmptyPrefixError on empty prefix
+await repo.deleteByPrefix(prefix) → Promise<number>  // rejects LmdbError on empty prefix
+await repo.findByIndex(query, tx?, {limit}?) → T[] | T | undefined  // unique-only → T | undefined
+await repo.search(query, {limit}?) → K[]        // ranked full-text PKs
+await repo.reindex(name?) → {built, skipped}    // rebuilds; unique collisions land in skipped
+await repo.syncTo(dest, {name?, checkpoint?, limit?, verify?}) → {copied, checkpoint, verified}
+await repo.increment(key, delta?) → number     // bare-number subs; forbidden on indexed/search subs
+await repo.decrement(key, amount?) → number     // same guard as increment
+await repo.addValue(key, value) → void          // dupSort-only
+await repo.getValues(key) → T[]                 // dupSort-only
+repo.getValuesCount(key) → number               // dupSort-only, sync
+await repo.removeValue(key, value) → boolean    // dupSort-only
+await repo.putBinary(key, buf) → void           // forbidden on indexed/search subs
+await repo.getBinary(key) → Buffer | undefined
+await repo.getBinaryFast(key) → Buffer | undefined
+await repo.exportJSONL() → string
+await repo.purgeExpired() → number              // 0 on non-TTL subs
 
-for await (const [k, v] of repo.iterate(options))  // lazy async generator
+for await (const [k, v] of repo.iterate(options?, tx?))  // lazy async generator, never guarded
 ```
 
 The `owner` property is public, giving access to transaction boundaries:
@@ -262,14 +286,40 @@ tx.commit()       → marks wrapper committed (auto-commits on callback return)
 tx.abort()        → rolls back the native transaction
 ```
 
+### Env-Level Operations
+
+```typescript
+// Transactions
+await env.transaction((tx) => { ... })       // → T; sync callback commits same-turn
+await env.readTransaction(async (tx) => { ... }) // → T; reads take tx for the snapshot
+env.rootTransactionSync(() => { ... })       // → T; sync, joins the write txn
+
+// Change-data-capture
+env.subscribe(filter, cb)                    // → unsubscribe; filter is `db` or {db, op?}
+await env.tailCdc({consumer?, from?, limit?}) // → ICdcRecord[] ({seq, db, type, key, value})
+await env.ackCdc(consumer, seq)              // → void; unknown consumer throws LmdbError
+await env.pruneCdc(keep?)                    // → number pruned; default keep 10000
+
+// Migrations
+await env.migrate(steps)                     // → {applied, currentVersion}
+env.getMigrationVersion()                    // → number, sync
+
+// Commit hooks + utilities
+env.on(`aftercommit`, cb) / env.off(`aftercommit`, cb)
+env.getMapSizeUsed()                         // → {total, used, free, ratio}, sync
+```
+
+Helper classes (all exported from the package root): `LmdbSearch` (`tokenize`/`fingerprintPk` statics), `RecordCodec` (positional row storage), `LmdbSyncStream` (`hashRowValue` static; `syncTo` runs one per call), `Cdc`/`CdcHub`/`CdcStore` (per-env CDC state; prefer `env.subscribe`/`tailCdc`), `LmdbBackup` (`backup`/`list`/`prune`/`restore`/`snapshot`/`start` + S3 companions), `LmdbReader.open(path, {maxDbs?, pollMs?})` (read-only replica env).
+
 ## Encoding Architecture
 
-LMDB natively serializes values using one of five encoders set per sub-DB at `openDB()` time. The encoding is NOT inherited from the root env — the wrapper explicitly forwards it to each sub-DB.
+LMDB natively serializes values using one of six encoders set per sub-DB at `openDB()` time. The encoding is NOT inherited from the root env — the wrapper explicitly forwards it to every sub-DB.
 
 | Encoder             | Serializer                 | Use case                                        |
 | ------------------- | -------------------------- | ----------------------------------------------- |
 | `msgpack` (default) | msgpackr (binary)          | Default — fastest, supports Date/Map/Set/BigInt |
 | `json`              | `JSON.stringify` / `parse` | Human-readable, V8-optimized for small objects  |
+| `cbor`              | cbor-x (custom encoder path) | Compact binary alternative to msgpack          |
 | `binary`            | Raw `Buffer`               | Already-encoded binary payloads                 |
 | `string`            | UTF-8 string               | String-only values                              |
 | `ordered-binary`    | Same encoding as keys      | `dupSort` index values                          |
@@ -306,7 +356,7 @@ class UserSchema extends LmdbSchema {
   static db = `users`;
   static key = t.number();
 
-  // id: SQL CREATE UNIQUE INDEX — duplicates throw LmdbUniqueConstraintError
+  // id: SQL CREATE UNIQUE INDEX — duplicates throw LmdbError
   // email: SQL CREATE INDEX — duplicates allowed (many users, one address)
   // lowerEmail: `.index(name)` overrides the derived index name (auto-resolves value.lowerEmail)
   static value = {
@@ -342,15 +392,43 @@ Semantics:
   - multi-key queries AND the keys — the driver key (unique indexes tried first, then non-unique) seeds the candidates and the remaining keys filter them; contradictory keys yield no match (`undefined`/`[]`), never an error.
   - `{}` (no keys), a `null`/`undefined` value, or an undeclared index name each throw `LmdbError`. Unknown query keys are also compile errors: the schema's index map (`SchemaIndexesOf`) types `findByIndex` per schema.
 - **Auto-resolved paths.** Without an `extractor`, the index name is treated as a field path on the value. Dotted paths work: `"profile.email": t.string().index()` indexes `value.profile.email`. A field resolving to `undefined` or `null` skips the entry, so that record is findable only by primary key. (Class-style custom `extractor`s are gone — schema indexes auto-resolve field paths only.)
-- **Unique conflicts throw.** A write whose unique index value is already owned by a different primary key rejects with `LmdbUniqueConstraintError` and rolls back. Re-putting the same key with the same value (self-update) is allowed.
+- **Unique conflicts throw.** A write whose unique index value is already owned by a different primary key rejects with `LmdbError` and rolls back. Re-putting the same key with the same value (self-update) is allowed.
 - **Atomic writes.** Primary value and index rows land in one writer transaction, so concurrent writers can never leave them inconsistent.
 - **Updates free the old value.** Changing an indexed field removes the old index row and inserts the new one in the same transaction.
-- **`reindex()` rebuilds.** `await repo.reindex()` clears and rebuilds every index from primary data, resolving `{ built, skipped }`; `reindex(name)` rebuilds one index. Records whose value collides on a unique index are reported in `skipped` instead of failing the rebuild.
-- **Bulk deletes clean indexes.** `deleteByPrefix()` and `clear()` remove the index rows of every deleted record; `putMany` and `update` maintain indexes per entry.
+- **`reindex()` rebuilds.** `await repo.reindex()` clears and rebuilds every index from primary data, resolving `{built, skipped}` (`skipped` lists unique-conflict records); `reindex(name)` rebuilds one index (an embedded index, a searched column, or both). Records whose value collides on a unique index are reported in `skipped` instead of failing the rebuild.
+- **Bulk deletes clean indexes.** `deleteByPrefix()` and `clear()` remove the index rows of every deleted record; `putMany` and `putIfNotExists` maintain indexes per entry.
 - **TTL repos supported.** Extractors run on the unwrapped value (before the expiry envelope), and `purgeExpired` removes index rows with the record.
-- **`increment`/`putBinary` forbidden.** Both reject with `LmdbError` on indexed subs, since they would leave the index stale. Keep counters in a separate non-indexed sub.
+- **`increment`/`decrement`/`putBinary` forbidden.** All three reject with `LmdbError` on indexed/search subs, since they would leave the index stale. Keep counters in a separate non-indexed sub.
 - **Unknown index names throw.** An undeclared query key throws `LmdbError` listing the declared indexes.
-- **`useVersions` note.** Unique index sub-DBs inherit the env's versions; non-unique (dupSort) index sub-DBs opt out (`useVersions: false` in construction opts), because LMDB rejects `dupSort` combined with versions. `compareAndSet` works on indexed subs opened with `useVersions: true`.
+- **`useVersions` note.** All embedded-index sub-DBs (unique and non-unique alike) are created with `useVersions: false`, because LMDB rejects `dupSort` combined with versions.
+
+### Composite Indexes
+
+`.index([`a`, `b`])` on the first column by convention declares one concatenated-key sub-DB (`{db}:idx:{a+b}`, ordered-binary keys) keyed by the ordered tuple. Query with full tuples (point), short tuples (prefix seek), or `{start, end}` bounds (range) — at most one composite key per query:
+
+```typescript
+static value = {
+  tenant: t.string().index([`tenant`, `status`]),
+  status: t.string()
+};
+
+await orders.findByIndex({ [`tenant+status`]: [`t1`, `active`] }); // point
+await orders.findByIndex({ [`tenant+status`]: [`t1`] }); // prefix seek
+await orders.findByIndex({ [`tenant+status`]: { start: [`t1`], end: [`t2`] } }); // range
+```
+
+Maintenance (put/delete/clear/reindex) mirrors single-column behavior.
+
+### Full-Text Search
+
+`t.string().search()` marks a searchable column (storage-only — the row type is unchanged) backed by a `{db}:search:{column}` term→PK posting table maintained in the write transaction. `sub.search(query, {limit?})` ANDs tokenized terms (lowercase + non-alphanumeric split, no stemming) across all searched columns, ranked by per-column hits:
+
+```typescript
+static value = { title: t.string().search(), body: t.string().search() };
+
+await docs.search(`hello world`); // ranked PKs across title + body
+await docs.search(`hello`, { limit: 10 });
+```
 
 ## LmdbSchema
 
@@ -363,10 +441,10 @@ class UserSchema extends LmdbSchema {
 
   static key = t.number()              // primary key — required, never unique/indexed
   static value = {
-    id: t.number().unique(),      // SQL CREATE UNIQUE INDEX — duplicates throw LmdbUniqueConstraintError
+    id: t.number().unique(),      // SQL CREATE UNIQUE INDEX — duplicates throw LmdbError
     username: t.string().index(), // SQL CREATE INDEX — duplicates allowed
     email: t.string(),
-    tags: t.array().nullable(),   // undefined values are stored as absent
+    tags: t.array().optional(),   // omit-able — absent or undefined values are stored as absent
     createdAt: t.date()
   } // no `as const` needed — builder generics carry the literal index markers
 }
@@ -389,7 +467,7 @@ await users.findByIndex({ id: 1 })             // unique key → user | undefine
 await users.findByIndex({ username: `damar` }) // non-unique key → user[]
 ```
 
-**Column builders** — every kind maps to a TypeScript type; `.nullable()` on any builder widens it with `| undefined`:
+**Column builders** — every kind maps to a TypeScript type; `.optional()` on any builder makes the field omit-able (`field?: T | undefined`):
 
 | Builder       | Value type                | Notes          |
 | ------------- | ------------------------- | -------------- |
@@ -401,18 +479,26 @@ await users.findByIndex({ username: `damar` }) // non-unique key → user[]
 | `t.array()`   | `unknown[]`               | Generic `t.array<T>()` narrows to `T[]` |
 | `t.date()`    | `Date`                    | msgpack-native |
 | `t.buffer()`  | `Uint8Array`              |                |
+| `t.enum(...vals)` | `string \| number \| bigint` union | homogen only; empty/mixed throws `LmdbError`; runtime-validated |
+| `t.any()`     | `unknown`                 | passthrough    |
+| `t.map<K,V>(shape?)` | `Map<K, V>`          | generic or shape-inferred |
+| `t.set<T>(shape?)` | `Set<T>`              | generic or shape-inferred |
 
-**Index declaration.** `.unique()` marks the column as a unique index (implies indexed); `.index(name?)` marks it as a non-unique index under an explicit name (defaults to the column name). The `static key` is the primary key and must not be indexed. Derived indexes ride the same embedded-index machinery as the removed `static indexes` block, so every semantics carries over: atomic maintenance with primary writes, `LmdbUniqueConstraintError` on unique conflict, `reindex()` rebuilds, `delete` cleans index rows.
+**Index declaration.** `.unique()` marks the column as a unique index (implies indexed); `.index(name?)` marks it as a non-unique index under an explicit name (defaults to the column name). The `static key` is the primary key and must not be indexed. Derived indexes ride the same embedded-index machinery as the removed `static indexes` block, so every semantics carries over: atomic maintenance with primary writes, `LmdbError` on unique conflict, `reindex()` rebuilds, `delete` cleans index rows.
+
+**Composite and search markers.** `.index([`a`, `b`])` declares a concatenated-key composite named `a+b` (queried with tuples, prefixes, or `{start, end}` — see [Composite Indexes](#composite-indexes)); `t.string().search()` marks a full-text column (see [Full-Text Search](#full-text-search)). Both are storage-only and preserve the row type.
+
+**Record codec.** Row schemas without custom hooks store positionally (arrays in column order, no field names) — ~1.5x faster decode, ~20% smaller, zero type change. Custom-hook, TTL, and scalar schemas bypass it.
+
+**Shape versions.** Optional `static version` (integer) declares the row-shape version; migration transforms name the version they produce and the runner refuses skewed steps with `LmdbError`.
 
 **Type inference.** `ValueOf<typeof UserSchema>` is the row value type; `KeyOf` and `SchemaIndexesOf` supply the key type and index map — `env.sub(UserSchema).put(...)` / `env.sub(UserSchema).findByIndex(...)` are fully typed from the schema class. No `as const` is needed on `static value` — the builder generics carry the literal index markers, so `unique: true`-style narrowing keeps working. All of these are type-level only — nothing exists at runtime to dereference.
 
 **Custom transforms.** Optional `static hookBeforeWrite` / `static hookBeforeRead` functions transform rows at the repository boundary — `hookBeforeWrite` runs before LMDB serializes the value, `hookBeforeRead` after it deserializes it (e.g. storing a `Date` field as a ms `number`). They must be declared **together** or registration throws `LmdbError` — see [Custom transforms](#custom-transforms-writeread-hooks).
 
-**TTL.** Optional `static ttl` (ms) materializes a TTL sub: every `put` stores an expiry envelope and reads (`get`/`has`) treat expired entries as missing. Priority: per-put `{ttlMs}` override → `static ttl` → never expires. Declaring `static ttl = 0` still materializes a TTL sub (so per-call `{ttlMs}` and `purgeExpired` are available) but adds no default expiry. The TTL-specific members (`put(..., {ttlMs})`, `purgeExpired`) are typed via `LmdbTtlCollection`; narrow the registered handle with a cast when you need them:
+**TTL.** Optional `static ttl` (ms) materializes a TTL sub: every `put` stores an expiry envelope and reads (`get`/`has`) treat expired entries as missing. Priority: per-put `{ttlMs}` override → `static ttl` → never expires. Declaring `static ttl = 0` still materializes a TTL sub (so per-call `{ttlMs}` and `purgeExpired` are available) but adds no default expiry. The TTL-specific members (`put(..., {ttlMs})`, `purgeExpired()`) live directly on the `LmdbEnvSub` handle — no cast needed:
 
 ```typescript
-import { LmdbTtlCollection } from "@gramstax/lmdb";
-
 class SessionSchema extends LmdbSchema {
   static db = `sessions`
   static key = t.string()
@@ -420,9 +506,9 @@ class SessionSchema extends LmdbSchema {
   static ttl = 0 // TTL repository, no default expiry
 }
 
-const sessions = env.register(SessionSchema) as unknown as LmdbTtlCollection<ValueOf<typeof SessionSchema>, KeyOf<typeof SessionSchema>>
+const sessions = env.register(SessionSchema)
 await sessions.put(`s1`, { userId: `u1`, token: `tok` }, { ttlMs: 80 })
-const purged = await sessions.purgeExpired()
+const purged = await sessions.purgeExpired() // → number (0 on non-TTL subs)
 ```
 
 **Key types.** lmdb-js keys are `Key[] | string | symbol | number | boolean | Uint8Array`, and `register(SchemaClass)` intersects the inferred key with that union. `t.string()`, `t.number()`, `t.boolean()`, `t.array()` (composite keys like `["tenant-a", "u1"]`), and `t.buffer()` keys are valid; a `t.bigint()` key column degrades to `never` at the type level through the `KeyOf` intersection (runtime unchanged) — prefer number/string keys.
@@ -503,7 +589,7 @@ Measured in `bench/range.bench.ts` (`Range / pagination` group) — the gap grow
 
 ### Materialization Guardrail
 
-`keys()`/`values()`/`entries()`/`like()`/`findByPrefix()`/`deleteByPrefix()` materialize the entire result set into memory, so `MAX_MATERIALIZE` caps them at `100_000` entries. Any call that would return more entries than the cap — or that passes a `{limit}` above it — rejects with `LmdbMaterializationError`.
+`keys()`/`values()`/`entries()`/`like()`/`findByPrefix()`/`deleteByPrefix()` materialize the entire result set into memory, so `MAX_MATERIALIZE` caps them at `100_000` entries. Any call that would return more entries than the cap — or that passes a `{limit}` above it — rejects with `LmdbError`.
 
 **For result sets larger than 100k entries, use `iterate()`** — it streams entries lazily and is never guarded:
 
@@ -512,13 +598,13 @@ for await (const [k, v] of repo.iterate()) {
   // one entry at a time — no array materialization
 }
 
-// ❌ LmdbMaterializationError: would materialize more than 100_000 entries
+// ❌ LmdbError: would materialize more than 100_000 entries
 // await repo.values();
 ```
 
 ## Queues
 
-`LmdbQueue` is a FIFO queue over a dedicated sub-DB per queue name. The queue is declared as a schema class — its `static db` is the queue name and its value shape is the payload row. Enqueue bumps a monotonic sequence counter (kept in a shared `__queue_meta` sub-DB) and writes the payload in **one synchronous transaction** (`env.transactionSync`) — the generated zero-padded id and the payload commit atomically, so FIFO order is preserved even across processes. Dequeue reads the head through a synchronous cursor and removes it in one synchronous transaction (at-least-once semantics).
+`LmdbQueue` is a FIFO queue over a dedicated sub-DB per queue name. The queue is declared as a schema class — its `static db` is the queue name and its value shape is the payload row. Enqueue bumps a monotonic sequence counter (kept in a shared `__queue_meta` sub-DB under key `__queue_seq_<db>`) and writes the payload in **one synchronous transaction** (`env.rootTransactionSync`) — the generated zero-padded id (`String(n).padStart(12, `0`)`) and the payload commit atomically, so FIFO order is preserved even across processes. Dequeue reads the head through a synchronous cursor and removes it in one synchronous transaction (at-least-once semantics).
 
 ```typescript
 import { LmdbEnv, LmdbQueue, LmdbSchema, t } from "@gramstax/lmdb";
@@ -536,15 +622,15 @@ const env = new LmdbEnv({ path: `./data` });
 const queue = new LmdbQueue(env, JobSchema);
 
 // Single-transaction enqueue — counter bump + payload write commit together
-const id = await queue.enqueue({ type: `email`, data: { to: `a@b.c` } });
+const id = await queue.enqueue({ type: `email`, data: { to: `a@b.c` } }); // → zero-padded id
 
-const head = await queue.peek();    // head without removing
-const job = await queue.dequeue();  // atomic read + delete (single txn)
-const size = await queue.size();    // number of queued jobs
-await queue.clear();                // drain the queue
+const head = queue.peek();    // sync [id, job] | undefined — head without removing
+const job = await queue.dequeue();  // async [id, job] | undefined — atomic read + delete (single txn)
+const size = queue.size();    // sync number of queued jobs
+await queue.clear();          // async drain
 ```
 
-Constructing a second `LmdbQueue` with the same schema is idempotent — it reuses the already-registered sub instead of throwing `LmdbDuplicateDbNameError`.
+Constructing a second `LmdbQueue` with the same schema is idempotent — it reuses the already-registered sub instead of throwing `LmdbError`.
 
 ## License
 

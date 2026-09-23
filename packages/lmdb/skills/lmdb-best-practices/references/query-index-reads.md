@@ -20,6 +20,8 @@ await users.findByIndex({username: `damar`}) // unique → row | undefined
 await users.findByIndex({email: `a@b.com`}) // non-unique → rows
 await users.findByIndex({subscribed: true}, undefined, {limit: 1000}) // bounded
 await users.findByIndex({email, username}) // multi-key AND, driver + verify
+await orders.findByIndex({'tenant+status': [`t1`, `active`]}) // composite point
+await orders.findByIndex({'tenant+status': {start: [`t1`], end: [`t2`]}}) // composite range
 ```
 
 ## Notes

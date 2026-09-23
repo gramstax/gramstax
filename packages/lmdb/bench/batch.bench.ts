@@ -6,11 +6,17 @@
  * so every iteration measures a real insert; the overwrite bench reuses a
  * fixed window to keep DB size flat.
  *
+ * The sorted-append proof (plan 017 Phase 5) runs as standalone wall-clock
+ * comparisons (100k single-shot imports would explode mitata's adaptive
+ * iteration budget): ordered `{sorted: true}` vs deterministically shuffled
+ * plain putMany, fresh env per side.
+ *
  * Run: bun run packages/lmdb/bench/batch.bench.ts
  *
  * @internal
  */
 
+import {rmSync} from "node:fs"
 import {bench, do_not_optimize, group} from "mitata"
 import {LmdbSchema, t} from "../src"
 import {benchSize, populateSync, runBench, setupEnv} from "./_setup"
@@ -30,6 +36,60 @@ class CounterSchema extends LmdbSchema {
   static db = `bench-batch-counter`
   static key = t.string()
   static value = t.number()
+}
+
+class SortedItemSchema extends LmdbSchema {
+  static db = `bench-batch-sorted`
+  static key = t.string()
+  static value = {
+    id: t.string(),
+    value: t.number()
+  }
+}
+
+function mulberry32(seed: number): () => number {
+  let s = seed | 0
+  return () => {
+    s = (s + 0x6d2b79f5) | 0
+    let t = Math.imul(s ^ (s >>> 15), 1 | s)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+async function sortedAppendProof(): Promise<void> {
+  const N = benchSize(100_000)
+  const keys: Array<string> = []
+  for (let i = 0; i < N; i++) keys.push(`bulk:${String(i).padStart(7, `0`)}`)
+  const shuffled = [...keys]
+  const rand = mulberry32(42)
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    const tmp = shuffled[i]!
+    shuffled[i] = shuffled[j]!
+    shuffled[j] = tmp
+  }
+  const timeImport = async (ordered: boolean): Promise<number> => {
+    const {env, tmp} = setupEnv(`lmdb-bench-sorted-`, 5)
+    try {
+      const subs = env.register(SortedItemSchema)
+      const source = ordered ? keys : shuffled
+      const entries = source.map((k, i) => [k, {id: k, value: i}] as [string, {id: string; value: number}])
+      const t0 = performance.now()
+      await subs.putMany(entries, 500, ordered ? {sorted: true} : undefined)
+      return performance.now() - t0
+    } finally {
+      await env.close()
+      rmSync(tmp, {recursive: true, force: true})
+    }
+  }
+  const sortedMs = await timeImport(true)
+  const plainMs = await timeImport(false)
+  console.log(`--- Sorted append (${N} rows) ---`)
+  console.log(`  sorted putMany:   ${sortedMs.toFixed(0)}ms`)
+  console.log(`  shuffled putMany: ${plainMs.toFixed(0)}ms`)
+  console.log(`  speedup: ${(plainMs / sortedMs).toFixed(2)}x`)
+  console.log(``)
 }
 
 // ---------------------------------------------------------------------------
@@ -79,6 +139,8 @@ async function main(): Promise<void> {
       do_not_optimize(await counters.decrement(`ctr`))
     })
   })
+
+  await sortedAppendProof()
 
   await runBench()
 

@@ -18,7 +18,7 @@
 
 import {bench, do_not_optimize, group} from "mitata"
 import {LmdbSchema, t} from "../src"
-import {MAX_MATERIALIZE} from "../src/types"
+import {MAX_MATERIALIZE} from "../src/sub"
 import {benchSize, populateSync, runBench, setupEnv} from "./_setup"
 
 const POPULATE = benchSize(500_000)
@@ -107,7 +107,7 @@ async function main(): Promise<void> {
   })
 
   // Guardrail (B4): a limit above MAX_MATERIALIZE rejects with
-  // LmdbMaterializationError while iterate() remains the escape hatch.
+  // LmdbError while iterate() remains the escape hatch.
   const cap = MAX_MATERIALIZE ?? 100_000
   group(`Decode / guardrail ${cap} (materialize vs iterate)`, () => {
     bench(`values({limit:${cap}}) [at cap, allowed] (1 req)`, async () => do_not_optimize(await plain.values({limit: cap}))).gc(`inner`)
@@ -115,7 +115,7 @@ async function main(): Promise<void> {
       try {
         await plain.values({limit: cap + 1})
       } catch {
-        /* expected LmdbMaterializationError */
+        /* expected LmdbError */
       }
     })
     bench(`iterate({limit:${cap}}) [lazy stream] (1 req)`, async () => {
@@ -167,7 +167,7 @@ async function main(): Promise<void> {
   } catch (err) {
     guardErr = err instanceof Error ? err.name : String(err)
   }
-  console.log(`\nGuardrail: values({limit:${cap + 1}}) -> ${guardErr ?? `NO ERROR (guardrail off)`} (expected LmdbMaterializationError)`)
+  console.log(`\nGuardrail: values({limit:${cap + 1}}) -> ${guardErr ?? `NO ERROR (guardrail off)`} (expected LmdbError)`)
 
   await env.close()
   console.log(`\nDone. Compare: raw vs plain vs date. Identity overhead = plain - raw.`)

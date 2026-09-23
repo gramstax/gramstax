@@ -8,8 +8,8 @@
  *   - Queue v2: enqueue writes id + payload in ONE synchronous transaction
  *
  * The README.md, AGENTS.md, and src/env.ts JSDoc must stay in sync with the
- * source (env.ts constructor: `mapSize ?? 4 << 30`, `maxDbs ?? 128`,
- * LmdbRepository.MAX_MATERIALIZE = 100_000, LmdbQueue.transactionSync).
+ * source (env.ts constructor: `mapSize ?? 4 * 1024 * 1024 * 1024`, `maxDbs ?? 128`,
+ * sub.ts MAX_MATERIALIZE = 100_000, LmdbQueue via rootTransactionSync).
  */
 
 import {describe, expect, it} from "bun:test"
@@ -35,12 +35,12 @@ describe(`docs contract (B4)`, () => {
   it(`README documents the materialization guardrail — use iterate() for > 100k`, () => {
     expect(readme).toContain(`iterate()`)
     expect(readme).toContain(`100_000`)
-    expect(readme).toContain(`LmdbMaterializationError`)
+    expect(readme).toContain(`LmdbError`)
   })
 
   it(`README documents Queue v2 — enqueue commits id + payload in one synchronous transaction`, () => {
     expect(readme).toContain(`LmdbQueue`)
-    expect(readme).toContain(`transactionSync`)
+    expect(readme).toContain(`rootTransactionSync`)
   })
 
   it(`AGENTS.md documents the new defaults (4 GB / 128), guardrail, and Queue v2`, () => {
@@ -48,7 +48,7 @@ describe(`docs contract (B4)`, () => {
     expect(agents).toContain(`128`)
     expect(agents).toContain(`iterate()`)
     expect(agents).toContain(`100_000`)
-    expect(agents).toContain(`transactionSync`)
+    expect(agents).toContain(`rootTransactionSync`)
   })
 
   it(`env.ts JSDoc documents the new defaults — mapSize 4 GB and maxDbs 128`, () => {

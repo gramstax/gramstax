@@ -7,7 +7,7 @@
  * `findByIndex({id: 1})` (unique column) resolves a scalar while `findByIndex({username: damar})`
  * (non-unique index) resolves an array. Derived indexes share every embedded-index behavior:
  * atomic maintenance with primary writes, unique conflicts throw
- * LmdbUniqueConstraintError, `reindex()` rebuilds from primary data, and `delete` cleans index rows.
+ * LmdbError, `reindex()` rebuilds from primary data, and `delete` cleans index rows.
  *
  * Run with: `bun run packages/lmdb/example/schema.ts`
  */
@@ -22,13 +22,13 @@ class UsersSchema extends LmdbSchema {
   static db = `users`
   static key = t.number()
   static value = {
-    id: t.number().unique(), // SQL UNIQUE — duplicates throw LmdbUniqueConstraintError
+    id: t.number().unique(), // SQL UNIQUE — duplicates throw LmdbError
     username: t.string().index(), // SQL INDEX — duplicates allowed
     email: t.string(),
-    tags: t.array().nullable(), // undefined values are stored as absent
+    tags: t.array().optional(), // undefined values are stored as absent
     createdAt: t.date(),
     others: t.object({
-      id: t.string().nullable(),
+      id: t.string().optional(),
       lain: t.map({key: t.string(), value: t.array(t.string())})
     })
   }
@@ -40,7 +40,8 @@ async function main() {
     const env = new LmdbEnv({path: dir, maxDbs: 10})
     const users = env.register(UsersSchema)
 
-    await users.put(1, {      id: 1,
+    await users.put(1, {
+      id: 1,
       username: `damar`,
       email: `damar@example.com`,
       tags: [`admin`, `beta`],
@@ -68,7 +69,7 @@ async function main() {
     console.log(`  findByIndex({username: damar}):`, await users.findByIndex({username: `damar`}))
     console.log(`  findByIndex({username: nobody}):`, await users.findByIndex({username: `nobody`}))
 
-    console.log(`\n--- unique conflict throws LmdbUniqueConstraintError ---\n`)
+    console.log(`\n--- unique conflict throws LmdbError ---\n`)
     try {
       await users.put(3, {id: 1, username: `citra`, email: `citra@example.com`, tags: undefined, createdAt: new Date(), others: {id: `y`, lain: new Map()}})
       console.log(`  unexpected: duplicate id was accepted`)

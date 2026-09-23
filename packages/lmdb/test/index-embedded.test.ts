@@ -2,7 +2,7 @@
  * Embedded indexes — declarative schema columns (`t.string().unique()` /
  * `t.string().index()`) on LmdbSchema (SQL: CREATE INDEX / CREATE UNIQUE
  * INDEX). Index sub-DBs are auto-created and maintained atomically with
- * primary writes; unique constraints throw LmdbUniqueConstraintError; reads
+ * primary writes; unique constraints throw LmdbError; reads
  * via the unified object-query findByIndex (unique keys → T | undefined,
  * non-unique → T[], multi-key AND semantics); repair via reindex. Covers
  * auto-resolved field paths (plain + dotted), explicit extractors (attached
@@ -13,7 +13,7 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbError, LmdbUniqueConstraintError} from "../src/errors"
+import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
@@ -130,18 +130,21 @@ class CasEmailSchema extends LmdbSchema {
   }
 }
 
-// Unique violations surface as the raw LmdbUniqueConstraintError (the
-// transaction layer unwraps it) — but accept the wrapped form defensively.
+// Unique violations surface with the raw index message (the transaction layer
+// unwraps it) — but accept the wrapped form defensively.
 // (bun's rejects.toSatisfy does not unwrap promises, so use an explicit helper.)
 async function expectUniqueViolation(p: Promise<unknown>): Promise<void> {
+  const messages: Array<string> = []
   try {
     await p
   } catch (err) {
-    if (err instanceof LmdbUniqueConstraintError) return
-    if ((err as {cause?: unknown}).cause instanceof LmdbUniqueConstraintError) return
-    throw new Error(`Expected LmdbUniqueConstraintError, got: ${String(err)}`)
+    if (err instanceof LmdbError) messages.push(err.message)
+    const cause = (err as {cause?: unknown}).cause
+    if (cause instanceof LmdbError) messages.push(cause.message)
+    if (messages.some((m) => m.includes(`Unique index `))) return
+    throw new Error(`Expected unique-violation LmdbError, got: ${String(err)}`)
   }
-  throw new Error(`Expected LmdbUniqueConstraintError, but the promise resolved`)
+  throw new Error(`Expected unique-violation LmdbError, but the promise resolved`)
 }
 
 let tmpDir: string
@@ -190,7 +193,7 @@ describe(`embedded indexes`, () => {
 
   it(`throws LmdbError on first put when an auto-resolved field is missing`, async () => {
     // extractor `value.nope` — field absent → LmdbError wrapped by the
-    // transaction layer (LmdbTransactionError extends LmdbError)
+    // transaction layer (LmdbError extends LmdbError)
     await expect(env.sub(MissingFieldSchema).put(1, {username: `x`, email: `x@y.z`} as any)).rejects.toThrow(LmdbError)
     // nothing was written, and the index is untouched
     expect(env.sub(MissingFieldSchema).count()).toBe(0)

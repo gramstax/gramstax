@@ -2,16 +2,16 @@
  * B4 — Materialization guardrail (Phase 2).
  *
  * Range queries that would materialize an unbounded or oversized array into
- * memory are rejected with LmdbMaterializationError; iterate() remains the
+ * memory are rejected with LmdbError; iterate() remains the
  * escape hatch. The guard is size-aware: an unbounded query only trips when
  * the repository actually holds more than MAX_MATERIALIZE entries, so small
  * repositories keep working without a limit.
  */
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbMaterializationError} from "../src/errors"
+import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
-import {MAX_MATERIALIZE} from "../src/types"
+import {MAX_MATERIALIZE} from "../src/sub"
 import type {LmdbEnvSub} from "../src/sub"
 
 import {createTestDir, rmWithRetry} from "./test-helpers"
@@ -61,7 +61,7 @@ describe(`LmdbRepository materialization guardrail`, () => {
     })
 
     it(`a limit above MAX_MATERIALIZE is rejected even on a small repo`, async () => {
-      await expect(repo.values({limit: MAX + 1})).rejects.toBeInstanceOf(LmdbMaterializationError)
+      await expect(repo.values({limit: MAX + 1})).rejects.toBeInstanceOf(LmdbError)
       await expect(repo.values({limit: MAX + 1})).rejects.toThrow(/use {limit} or iterate\(\)/)
     })
 
@@ -95,19 +95,19 @@ describe(`LmdbRepository materialization guardrail`, () => {
       await rmWithRetry(tmpDir)
     })
 
-    it(`values() without a limit rejects with LmdbMaterializationError`, async () => {
-      await expect(repo.values()).rejects.toBeInstanceOf(LmdbMaterializationError)
+    it(`values() without a limit rejects with LmdbError`, async () => {
+      await expect(repo.values()).rejects.toBeInstanceOf(LmdbError)
       await expect(repo.values()).rejects.toThrow(/use {limit} or iterate\(\)/)
     })
 
-    it(`keys() and entries() without a limit reject with LmdbMaterializationError`, async () => {
-      await expect(repo.keys()).rejects.toBeInstanceOf(LmdbMaterializationError)
-      await expect(repo.entries()).rejects.toBeInstanceOf(LmdbMaterializationError)
+    it(`keys() and entries() without a limit reject with LmdbError`, async () => {
+      await expect(repo.keys()).rejects.toBeInstanceOf(LmdbError)
+      await expect(repo.entries()).rejects.toBeInstanceOf(LmdbError)
     })
 
-    it(`like() and findByPrefix() without a limit reject with LmdbMaterializationError`, async () => {
-      await expect(repo.like(`pref-*`)).rejects.toBeInstanceOf(LmdbMaterializationError)
-      await expect(repo.findByPrefix(`pref-`)).rejects.toBeInstanceOf(LmdbMaterializationError)
+    it(`like() and findByPrefix() without a limit reject with LmdbError`, async () => {
+      await expect(repo.like(`pref-*`)).rejects.toBeInstanceOf(LmdbError)
+      await expect(repo.findByPrefix(`pref-`)).rejects.toBeInstanceOf(LmdbError)
     })
 
     it(`bounded scans below the cap pass on an oversized repo (bounded guard)`, async () => {
@@ -117,8 +117,8 @@ describe(`LmdbRepository materialization guardrail`, () => {
       expect(await repo.values({start: `zzz-`, end: `zzz0`})).toHaveLength(0)
     })
 
-    it(`deleteByPrefix() over the cap rejects with LmdbMaterializationError`, async () => {
-      await expect(repo.deleteByPrefix(`pref-`)).rejects.toBeInstanceOf(LmdbMaterializationError)
+    it(`deleteByPrefix() over the cap rejects with LmdbError`, async () => {
+      await expect(repo.deleteByPrefix(`pref-`)).rejects.toBeInstanceOf(LmdbError)
     })
 
     it(`values({limit: 10}) passes the guard`, async () => {

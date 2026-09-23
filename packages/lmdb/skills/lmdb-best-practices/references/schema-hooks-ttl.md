@@ -36,3 +36,4 @@ await sessions.put(`s1`, row, {ttlMs: 80})
 
 - Hooks receive the `{v, exp}` envelope on TTL subs — write them envelope-aware.
 - Reads treat expired rows as missing (lazy delete); `purgeExpired()` reclaims storage.
+- Custom-hook, TTL, and scalar-value schemas bypass the automatic record codec (positional array storage) — plain row schemas get it with no type change.

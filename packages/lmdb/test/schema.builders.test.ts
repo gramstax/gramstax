@@ -1,6 +1,6 @@
 import {describe, expect, it} from "bun:test"
-import {LmdbError} from "../src/errors"
 import {LmdbEnv} from "../src/env"
+import {LmdbError} from "../src/errors"
 import {LmdbSchema, t, type ValueOf} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
@@ -89,16 +89,16 @@ describe(`t.* builders — expanded kinds`, () => {
 })
 
 describe(`t.object({...}) / t.array({...}) param-based`, () => {
-  it(`infers value type from the shape (nullable fields honored)`, () => {
+  it(`infers value type from the shape (optional fields honored)`, () => {
     class UserSchema extends LmdbSchema {
       static db = `shape-users`
       static key = t.string()
       static value = {
-        bio: t.object({age: t.string().nullable(), location: t.string()})
+        bio: t.object({age: t.string().optional(), location: t.string()})
       }
     }
     type V = ValueOf<typeof UserSchema>
-    // location is non-nullable → string; age is nullable → string | undefined
+    // location is non-optional → string; age is optional → string | undefined
     const ok: V = {bio: {age: `25`, location: `jkt`}}
     const withUndef: V = {bio: {age: undefined, location: `jkt`}}
     expect(ok.bio.location).toBe(`jkt`)
@@ -170,7 +170,7 @@ describe(`t.object({...}) / t.array({...}) param-based`, () => {
         static db = `shape-roundtrip`
         static key = t.string()
         static value = {
-          bio: t.object({age: t.number().nullable(), location: t.string()})
+          bio: t.object({age: t.number().optional(), location: t.string()})
         }
       }
       const users = env.register(UserSchema)

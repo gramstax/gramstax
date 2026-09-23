@@ -25,6 +25,8 @@ Map of rule files by category prefix. Read only the files relevant to the task �
 ## schema- (HIGH)
 
 - `schema-design.md` — declaration path, keys, values, scalar/dupSort shapes
+- `schema-enum.md` — `t.enum` closed sets, literal params, write-time validation
+- `schema-defaults.md` — required-by-default, `.optional()`, `.default()` fill
 - `schema-hooks-ttl.md` — hook pairs, TTL envelope, `putMany` TTL semantics
 
 ## txn- (MEDIUM-HIGH)
@@ -41,3 +43,10 @@ Map of rule files by category prefix. Read only the files relevant to the task �
 ## maintain- (LOW-MEDIUM)
 
 - `maintain-style-tests.md` — `bun:test` layout, Biome style, lifecycle, docs co-location
+
+## cross-cutting (HIGH)
+
+- `search.md` — `.search()` markers, posting tables, ranked `sub.search()` reads
+- `cdc.md` — outbox capture, subscribe/tail/ack/prune, consumer groups
+- `migrate.md` — idempotent transform backfills, skew checks, progress
+- `sync.md` — checkpointed keyset copy, resume, count+hash verify

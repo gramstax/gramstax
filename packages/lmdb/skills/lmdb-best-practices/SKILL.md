@@ -1,6 +1,6 @@
 ---
 name: lmdb-best-practices
-description: Best practices for @gramstax/lmdb (LMDB key-value store): schema design, embedded unique/non-unique indexes, production env sizing (mapSize, maxDbs), high-performance query patterns, transactions, TTL, queues, and mitata benchmarking. Use when working in packages/lmdb, designing schemas or indexes, tuning LMDB performance, debugging slow queries, sizing databases for production scale, or writing bench files.
+description: Best practices for @gramstax/lmdb (LMDB key-value store): schema design, embedded unique/non-unique/composite indexes, full-text search, CDC subscriptions, migrations, differential sync, sorted bulk import, production env sizing (mapSize, maxDbs), high-performance query patterns, transactions, TTL, queues, and mitata benchmarking. Use when working in packages/lmdb, designing schemas or indexes, tuning LMDB performance, debugging slow queries, sizing databases for production scale, syncing data, or writing bench files.
 compatibility: Bun >= 1.0.0 or Node.js >= 18; @gramstax/lmdb workspace (packages/lmdb)
 metadata:
   author: gramstax
@@ -16,10 +16,10 @@ Performance and maintenance rules for `@gramstax/lmdb`, distilled from productio
 
 Reference these rules when:
 - Designing schemas, keys, or value shapes
-- Adding unique/non-unique embedded indexes
+- Adding unique/non-unique/composite embedded indexes or search markers
 - Diagnosing slow queries or write amplification
 - Sizing `mapSize`/`maxDbs` for production
-- Writing transactions, TTL, or queue code
+- Writing transactions, TTL, CDC, migration, sync, or queue code
 - Writing or interpreting mitata benchmarks
 - Reviewing storage code for maintenance risk
 

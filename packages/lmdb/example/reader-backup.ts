@@ -1,18 +1,19 @@
 /**
- * Replica + Backup Retention (LmdbReplica / backupWithRetention) — use for 1-writer N-reader deployments and
- * operational safety. Why: `LmdbReplica.open(path)` opens the same file readOnly with optional `pollMs` polling via
- * `resetReadTxn` (readers otherwise see a stale snapshot until next event turn); `backupWithRetention(env, baseDir, keep)`
+ * Reader + Backup Retention (LmdbReader / LmdbBackup) — use for 1-writer N-reader deployments and
+ * operational safety. Why: `LmdbReader.open(path)` opens the same file readOnly with optional `pollMs` polling via
+ * `resetReadTxn` (readers otherwise see a stale snapshot until next event turn); `LmdbBackup.backup(env, baseDir, keep)`
  * creates timestamped `backup-…` subdirs via `env.backup` and prunes oldest beyond `keep` by `mtimeMs` sort.
  * Readers never block the writer; backups are crash-consistent snapshots.
  *
- * Run with: `bun run packages/lmdb/example/replica-backup.ts`
+ * Run with: `bun run packages/lmdb/example/reader-backup.ts`
  * Note: backup is skipped on win32 in this demo (native LMDB mmap file-lock race, as in env.test.ts).
  */
 import {existsSync, mkdtempSync, readdirSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
+import {LmdbBackup} from "../src/backup"
 import {LmdbEnv} from "../src/env"
-import {backupWithRetention, LmdbReplica} from "../src/replica"
+import {LmdbReader} from "../src/reader"
 import {LmdbSchema, t} from "../src/schema"
 
 class UserSchema extends LmdbSchema {
@@ -33,7 +34,7 @@ async function main() {
     await env.committed
 
     console.log(`--- Replica (readOnly) ---\n`)
-    const replica = await LmdbReplica.open(dir)
+    const replica = await LmdbReader.open(dir)
     const replicaUsers = replica.register(UserSchema)
     replica.resetReadTxn()
     console.log(`  replica readOnly:`, replica.readOnly)
@@ -54,18 +55,18 @@ async function main() {
     await replica.close()
     console.log(`  replica closed`)
 
-    console.log(`\n--- backupWithRetention (keep=2) ---\n`)
+    console.log(`\n--- LmdbBackup.backup (keep=2) ---\n`)
     if (process.platform === `win32`) {
       console.log(`  skipped on win32 (native flakiness, as in env.test.ts)`)
       console.log(`  env path exists:`, existsSync(dir))
     } else {
       const base = mkdtempSync(join(tmpdir(), `lmdb-backup-demo-`))
       try {
-        await backupWithRetention(env, base, 2)
+        await LmdbBackup.backup(env, base, 2)
         await Bun.sleep(10)
-        await backupWithRetention(env, base, 2)
+        await LmdbBackup.backup(env, base, 2)
         await Bun.sleep(10)
-        await backupWithRetention(env, base, 2)
+        await LmdbBackup.backup(env, base, 2)
         const entries = readdirSync(base)
         console.log(`  backups kept (keep=2):`, entries.length, `(expected 2)`)
         for (const e of entries) {

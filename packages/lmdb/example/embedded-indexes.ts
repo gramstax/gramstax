@@ -1,6 +1,6 @@
 /**
  * Embedded Indexes — declared via schema value columns (SQL: CREATE INDEX / CREATE UNIQUE INDEX).
- * `.unique()` marks a column as a unique index (duplicates throw LmdbUniqueConstraintError);
+ * `.unique()` marks a column as a unique index (duplicates throw LmdbError);
  * `.index()` marks it as a non-unique index (duplicates allowed). Index sub-DBs are auto-created
  * at registration and maintained atomically with primary writes. `findByIndex({...})` is the single
  * object-query read: unique index keys resolve `T | undefined`, non-unique keys resolve `T[]`, and
@@ -13,14 +13,14 @@ import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
-import {LmdbUniqueConstraintError} from "../src/errors"
+import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
 
 class UsersSchema extends LmdbSchema {
   static db = `users`
   static key = t.number()
   static value = {
-    id: t.number().unique(), // SQL UNIQUE — duplicates throw LmdbUniqueConstraintError
+    id: t.number().unique(), // SQL UNIQUE — duplicates throw LmdbError
     username: t.string().unique(), // SQL UNIQUE — one username per account
     email: t.string().index(), // SQL INDEX — many users may share one email
     name: t.string()
@@ -41,12 +41,12 @@ async function main() {
     console.log(`  findByIndex({username: damar}):`, await users.findByIndex({username: `damar`}))
     console.log(`  findByIndex({email: missing@example.com}):`, await users.findByIndex({email: `missing@example.com`}))
 
-    console.log(`\n--- Unique conflict throws LmdbUniqueConstraintError ---\n`)
+    console.log(`\n--- Unique conflict throws LmdbError ---\n`)
     try {
       await users.put(4, {id: 4, username: `damar`, email: `dup@example.com`, name: `Dup`})
       console.log(`  unexpected: duplicate username was accepted`)
     } catch (err) {
-      console.log(`  caught:`, err instanceof LmdbUniqueConstraintError ? err.message : String(err))
+      console.log(`  caught:`, err instanceof LmdbError ? err.message : String(err))
     }
 
     console.log(`\n--- Update frees the old index value ---\n`)

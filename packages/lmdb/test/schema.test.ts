@@ -5,7 +5,7 @@
  * descriptors (`LmdbSchema.deriveIndexes`) are attached exactly like a
  * `static indexes` map. Covers schema validation at registration time
  * (derived indexes, key restrictions, duplicate names, write/read hook pairing),
- * msgpack roundtrips for all 8 column kinds + nullable, `ValueOf` type-level row
+ * msgpack roundtrips for all 8 column kinds + optional, `ValueOf` type-level row
  * inference, unique conflicts, findByIndex narrowing (unique → scalar, index
  * → array, unknown key rejection), schema/schema coexistence in one env,
  * multi-key AND queries, and reindex. TTL schema integration is
@@ -13,7 +13,7 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbDuplicateDbNameError, LmdbError, LmdbUniqueConstraintError} from "../src/errors"
+import {LmdbError} from "../src/errors"
 import type {ValueOf} from "../src/schema"
 import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
@@ -28,7 +28,7 @@ class ClassUsersSchema extends LmdbSchema {
   }
 }
 
-// Schema covering all 8 column kinds + a nullable column (roundtrip + ValueOf).
+// Schema covering all 8 column kinds + a optional column (roundtrip + ValueOf).
 class FullKindsSchema extends LmdbSchema {
   static db = `full-kinds`
   static key = t.number()
@@ -41,7 +41,7 @@ class FullKindsSchema extends LmdbSchema {
     arr: t.array(),
     date: t.date(),
     buf: t.buffer(),
-    nullableStr: t.string().nullable()
+    optionalStr: t.string().optional()
   }
 }
 
@@ -112,7 +112,7 @@ class ReindexSchema extends LmdbSchema {
   }
 }
 
-// Same dbName as ClassUserRepo — registration must throw LmdbDuplicateDbNameError.
+// Same dbName as ClassUserRepo — registration must throw LmdbError.
 class CollidingSchema extends LmdbSchema {
   static db = `class-users`
   static key = t.number()
@@ -184,17 +184,20 @@ class GenericValueSchema extends LmdbSchema {
   }
 }
 
-// Unique violations surface as the raw LmdbUniqueConstraintError (the
-// transaction layer unwraps it) — but accept the wrapped form defensively.
+// Unique violations surface with the raw index message (the transaction layer
+// unwraps it) — but accept the wrapped form defensively.
 async function expectUniqueViolation(p: Promise<unknown>): Promise<void> {
+  const messages: Array<string> = []
   try {
     await p
   } catch (err) {
-    if (err instanceof LmdbUniqueConstraintError) return
-    if ((err as {cause?: unknown}).cause instanceof LmdbUniqueConstraintError) return
-    throw new Error(`Expected LmdbUniqueConstraintError, got: ${String(err)}`)
+    if (err instanceof LmdbError) messages.push(err.message)
+    const cause = (err as {cause?: unknown}).cause
+    if (cause instanceof LmdbError) messages.push(cause.message)
+    if (messages.some((m) => m.includes(`Unique index `))) return
+    throw new Error(`Expected unique-violation LmdbError, got: ${String(err)}`)
   }
-  throw new Error(`Expected LmdbUniqueConstraintError, but the promise resolved`)
+  throw new Error(`Expected unique-violation LmdbError, but the promise resolved`)
 }
 
 let tmpDir: string
@@ -260,7 +263,7 @@ describe(`schema repository roundtrip`, () => {
       arr: [1, `two`, {three: 3}],
       date: new Date(`2024-01-01T00:00:00.000Z`),
       buf: new Uint8Array([1, 2, 3, 255]),
-      nullableStr: `present`
+      optionalStr: `present`
     }
     await env.sub(FullKindsSchema).put(1, row)
     const back = env.sub(FullKindsSchema).get(1)
@@ -271,7 +274,7 @@ describe(`schema repository roundtrip`, () => {
     expect(back?.buf).toBeInstanceOf(Uint8Array)
   })
 
-  it(`stores an undefined nullable column as absent`, async () => {
+  it(`stores an undefined optional column as absent`, async () => {
     await env.sub(FullKindsSchema).put(1, {
       str: `x`,
       num: 0,
@@ -281,9 +284,9 @@ describe(`schema repository roundtrip`, () => {
       arr: [],
       date: new Date(0),
       buf: new Uint8Array(),
-      nullableStr: undefined
+      optionalStr: undefined
     })
-    expect(env.sub(FullKindsSchema).get(1)?.nullableStr).toBeUndefined()
+    expect(env.sub(FullKindsSchema).get(1)?.optionalStr).toBeUndefined()
   })
 
   it(`ValueOf exposes the row value type`, () => {
@@ -297,10 +300,10 @@ describe(`schema repository roundtrip`, () => {
       arr: [`x`],
       date: new Date(0),
       buf: new Uint8Array([1]),
-      nullableStr: undefined
+      optionalStr: undefined
     }
-    // @ts-expect-error `nullableStr` accepts string | undefined, not number
-    const bad: Row = {...row, nullableStr: 123}
+    // @ts-expect-error `optionalStr` accepts string | undefined, not number
+    const bad: Row = {...row, optionalStr: 123}
     void bad
     expect(row.buf).toBeInstanceOf(Uint8Array)
   })
@@ -346,7 +349,7 @@ describe(`schema coexistence`, () => {
   })
 
   it(`rejects a schema whose name collides with another schema's dbName`, () => {
-    expect(() => env.register(CollidingSchema)).toThrow(LmdbDuplicateDbNameError)
+    expect(() => env.register(CollidingSchema)).toThrow(LmdbError)
   })
 })
 

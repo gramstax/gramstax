@@ -1,75 +1,28 @@
 import {statSync} from "node:fs"
 import {basename, extname, join} from "node:path"
-import type {Database, DatabaseOptions, GetOptions, Key, PutOptions, RangeIterable, RangeOptions, RootDatabase, RootDatabaseOptionsWithPath, TransactionFlags} from "lmdb"
+import type {Database, DatabaseOptions, GetOptions, Key, PutOptions, RangeIterable, RangeOptions, RootDatabaseOptionsWithPath, TransactionFlags} from "lmdb"
 import * as lmdbModule from "lmdb"
 import {ABORT, open} from "lmdb"
-import {
-  LmdbEnvClosedError,
-  LmdbEnvNotOpenError,
-  LmdbError,
-  LmdbReadOnlyError,
-  LmdbTransactionError
-} from "./errors"
+import type {ICdcCallback, ICdcFilter, ICdcRecord, ICdcTailOptions} from "./cdc"
+import {Cdc} from "./cdc"
+import {LmdbError} from "./errors"
 import type {LmdbSchema} from "./schema"
-import {LmdbTransaction} from "./transaction"
 import type {LmdbEnvSub} from "./sub"
 import {LmdbEnvSubManager} from "./sub-manager"
-import type {IIndexDef, ILmdbEncoding, ILmdbEnvOptions, ILmdbEnvState, ILmdbKey} from "./types"
-
-// lmdb-js tracks every opened store in a module-level Map (runtime export,
-// absent from its d.ts). It never deletes entries — this wrapper purges its
-// own keys on close (plan 007 L2).
-const allDbsFromLmdb = (lmdbModule as unknown as {allDbs?: Map<string, unknown>}).allDbs ?? new Map<string, unknown>()
-
-/**
- * A single schema migration step.
- *
- * @public
- */
-export interface LmdbMigration {
-  /** Monotonic version number — must be unique across the array passed to {@link LmdbEnv.migrate}. */
-  version: number
-  /** Human-readable name for logging / history. */
-  name: string
-  /**
-   * Migration logic — receives the owning {@link LmdbEnv} so it can use
-   * registered subs (`env.sub(SomeSchema)`). The runner executes each `up`
-   * inside its own writer transaction and bumps the stored version only on
-   * success.
-   */
-  up: (env: LmdbEnv) => Promise<void> | void
-}
+import {LmdbTransaction} from "./transaction"
+import type {ILmdbEncoding, ILmdbEnvOptions, ILmdbEnvState} from "./types/env"
+import type {IIndexDef} from "./types/indexes"
+import type {ILmdbKey} from "./types/key"
+import type {IMapUsage, IMigration, IRootStore, ITransformStep} from "./types/env"
 
 /**
- * Map usage snapshot returned by {@link LmdbEnv.getMapSizeUsed}.
- * @public
- */
-export interface LmdbMapUsage {
-  /** Configured virtual map size in bytes. */
-  total: number
-  /** Current on-disk size of the LMDB data file in bytes. */
-  used: number
-  /** `total - used`, floored at 0. */
-  free: number
-  /** `free / total` — `1` when the data file cannot be measured. */
-  ratio: number
-}
-
-/**
- * Per-instance root store type.
+ * lmdb-js's module-level handle registry.
  *
  * @remarks
- * Wraps lmdb's `RootDatabase` with additional runtime methods that exist
- * on the prototype but are absent from the published type declarations
- * (`sync`, `isOperational`).
- *
- * @internal
+ * Tracked via a runtime export absent from its d.ts; lmdb-js never deletes
+ * entries, so this wrapper purges its own keys on close.
  */
-interface LmdbRootStore extends RootDatabase<unknown, Key> {
-  sync(callback?: (error: unknown) => void): Promise<void>
-  isOperational(): boolean
-  off(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void
-}
+const allDbsFromLmdb = (lmdbModule as unknown as {allDbs?: Map<string, unknown>}).allDbs ?? new Map<string, unknown>()
 
 /**
  * The root handle for one LMDB environment and its registered subs.
@@ -93,50 +46,158 @@ interface LmdbRootStore extends RootDatabase<unknown, Key> {
  * @public
  */
 export class LmdbEnv {
-  /** @internal */
-  private _state: ILmdbEnvState = `open`
+  /**
+   * Internal sub-DB holding the migration version plus per-step markers.
+   *
+   * @internal
+   */
+  static readonly _MIGRATIONS_DB = `__migrations`
+  /**
+   * Meta key for the applied migration version.
+   *
+   * @internal
+   */
+  static readonly _VERSION_KEY = `__version`
+  /**
+   * Meta key prefix for per-step transform completion markers.
+   *
+   * @internal
+   */
+  static readonly _TRANSFORM_PREFIX = `transform:`
 
-  /** @internal Per-instance lmdb root store */
-  private readonly _root: LmdbRootStore
+  /**
+   * Current lifecycle state (`open` | `closing` | `closed`).
+   *
+   * @internal
+   */
+  _state: ILmdbEnvState = `open`
 
-  /** @internal Serializes concurrent write transactions (B1 fix — prevents lmdb-js child-txn nesting). */
-  private _txQueue: Promise<unknown> = Promise.resolve()
+  /**
+   * Serializes concurrent write transactions.
+   *
+   * @remarks
+   * Prevents lmdb-js child-txn nesting, where an outer abort would roll back
+   * an inner txn's already-"committed" writes.
+   *
+   * @internal
+   */
+  _txQueue: Promise<unknown> = Promise.resolve()
 
-  /** @internal True while a transaction callback is executing (nesting detection). */
-  private _txInProgress = false
+  /**
+   * True while a transaction callback is executing (nesting detection).
+   *
+   * @internal
+   */
+  _txInProgress = false
 
-  /** @internal Sub registry + state factory. */
-  private readonly _subs: LmdbEnvSubManager
+  /**
+   * Per-instance lmdb root store.
+   *
+   * @remarks
+   * Isolates sub-DB handle caches across envs in the same process.
+   *
+   * @internal
+   */
+  readonly _root: IRootStore
 
-  /** Path where LMDB stores its data files. */
+  /**
+   * Sub registry plus state factory.
+   *
+   * @internal
+   */
+  readonly _subs: LmdbEnvSubManager
+
+  /**
+   * Configured virtual map size in bytes.
+   *
+   * @remarks
+   * Used by {@link getMapSizeUsed} to report usage against the cap.
+   *
+   * @internal
+   */
+  readonly _mapSize: number
+
+  /**
+   * Sub-DB options extracted from env options.
+   *
+   * @remarks
+   * Forwarded to every `openDB` call, since lmdb does not inherit them
+   * from the root env.
+   *
+   * @internal
+   */
+  readonly _dbOpts: DatabaseOptions
+
+  /**
+   * Sub-DB handle cache (one LMDBStore wrapper per name plus encoding).
+   *
+   * @internal
+   */
+  readonly _subDbCache = new Map<string, Database<unknown, Key>>()
+
+  /**
+   * Sub-DB handles opened via this env.
+   *
+   * @remarks
+   * Used to purge this env's entries from lmdb-js `allDbs` on close.
+   *
+   * @internal
+   */
+  readonly _subDbNames = new Map<string, Database<unknown, Key>>()
+
+  /**
+   * Commit-event listeners (user callback to registered wrapper).
+   *
+   * @internal
+   */
+  readonly _commitListeners = new Map<`beforecommit` | `aftercommit`, Map<(event: unknown) => void, (event: unknown) => void>>()
+
+  /**
+   * Path where LMDB stores its data files.
+   *
+   * @public
+   */
   readonly path: string
 
-  /** Maximum number of sub-databases (mirrors {@link ILmdbEnvOptions.maxDbs}). */
+  /**
+   * Maximum number of sub-databases.
+   *
+   * @remarks
+   * Mirrors {@link ILmdbEnvOptions.maxDbs}.
+   *
+   * @public
+   */
   readonly maxDbs: number
 
-  /** @internal Configured virtual map size in bytes — used by {@link getMapSizeUsed}. */
-  private readonly _mapSize: number
-
-  /** Whether the env is read-only (mirrors {@link ILmdbEnvOptions.readOnly}). */
+  /**
+   * Whether the env is read-only.
+   *
+   * @remarks
+   * Mirrors {@link ILmdbEnvOptions.readOnly}.
+   *
+   * @public
+   */
   readonly readOnly: boolean
 
-  /** Default LMDB value encoding for all sub-DBs (mirrors {@link ILmdbEnvOptions.encoding}). */
+  /**
+   * Default LMDB value encoding for all sub-DBs.
+   *
+   * @remarks
+   * Mirrors {@link ILmdbEnvOptions.encoding}.
+   *
+   * @public
+   */
   readonly encoding: ILmdbEncoding | undefined
 
-  /** Whether record versioning is enabled (mirrors {@link ILmdbEnvOptions.useVersions}). */
+  /**
+   * Whether record versioning is enabled.
+   *
+   * @remarks
+   * Mirrors {@link ILmdbEnvOptions.useVersions}.
+   *
+   * @public
+   */
   readonly useVersions: boolean
-
-  /** @internal Sub-DB options extracted from env options — forwarded to every openDB call. */
-  private readonly _dbOpts: DatabaseOptions
-
-  /** @internal Sub-DB handle cache (L3 fix — one LMDBStore wrapper per name+encoding). */
-  private readonly _subDbCache = new Map<string, Database<unknown, Key>>()
-
-  /** @internal Sub-DB handles opened via this env — used to purge this env's entries from lmdb-js `allDbs` on close. */
-  private readonly _subDbNames = new Map<string, Database<unknown, Key>>()
-
-  /** @internal Commit-event listeners: user callback → registered wrapper (plan 007 L5). */
-  private readonly _commitListeners = new Map<`beforecommit` | `aftercommit`, Map<(event: unknown) => void, (event: unknown) => void>>()
 
   /**
    * Construct a new LmdbEnv and open the underlying LMDB environment.
@@ -144,7 +205,7 @@ export class LmdbEnv {
    * @remarks
    * Construction opens the env immediately. The `path` is required and
    * flows through to lmdb's native `open()`. No explicit `open()` call
-   * is needed. Defaults: `mapSize` = 4 GB (`4 << 30` bytes), `maxDbs` = 128.
+   * is needed. Defaults: `mapSize` = 4 GB (`4 * 1024 * 1024 * 1024` bytes), `maxDbs` = 128.
    *
    * @param options - Env configuration. Supports the full set of LMDB
    * `open()` parameters via {@link ILmdbEnvOptions}.
@@ -168,7 +229,7 @@ export class LmdbEnv {
    * @public
    */
   constructor(options: ILmdbEnvOptions) {
-    const mapSize = options.mapSize ?? 4 << 30
+    const mapSize = options.mapSize ?? 4 * 1024 * 1024 * 1024
     const maxDbs = options.maxDbs ?? 128
     const opts: RootDatabaseOptionsWithPath = {
       ...(options as unknown as RootDatabaseOptionsWithPath),
@@ -178,7 +239,7 @@ export class LmdbEnv {
     } as unknown as RootDatabaseOptionsWithPath
     // Per-instance root store. Each env calls open() independently so
     // sub-database handle caches are naturally isolated across envs.
-    this._root = open(opts) as unknown as LmdbRootStore
+    this._root = open(opts) as unknown as IRootStore
     this.path = options.path
     this.maxDbs = maxDbs
     this._mapSize = mapSize
@@ -222,14 +283,14 @@ export class LmdbEnv {
    * Guard: require the env to be open before an operation.
    *
    * @remarks
-   * Throws {@link LmdbEnvClosedError} when the env was closed (permanent),
-   * or {@link LmdbEnvNotOpenError} for any other non-open state.
+   * Throws {@link LmdbError} when the env was closed (permanent),
+   * or {@link LmdbError} for any other non-open state.
    *
    * @internal
    */
-  private _assertOpen(): void {
-    if (this._state === `closed`) throw new LmdbEnvClosedError()
-    if (this._state !== `open`) throw new LmdbEnvNotOpenError()
+  _assertOpen(): void {
+    if (this._state === `closed`) throw new LmdbError(`LmdbEnv has been closed and cannot be reused. Create a new instance.`)
+    if (this._state !== `open`) throw new LmdbError(`LmdbEnv is not open. The env must be in 'open' state before performing operations.`)
   }
 
   /**
@@ -260,8 +321,12 @@ export class LmdbEnv {
     }
   }
 
-  /** @internal Remove handles for this env from lmdb-js's module-level `allDbs` map. */
-  private _purgeAllDbs(): void {
+  /**
+   * Remove handles for this env from lmdb-js's module-level `allDbs` map.
+   *
+   * @internal
+   */
+  _purgeAllDbs(): void {
     const key = this._lmdbKeyName()
     // Identity check: only delete if the entry belongs to THIS env, so
     // closing one env does not corrupt another env with the same basename
@@ -277,8 +342,17 @@ export class LmdbEnv {
     }
   }
 
-  /** @internal lmdb-js computes `name = basename(path, extname(path))` for its allDbs key. */
-  private _lmdbKeyName(): string {
+  /**
+   * Compute this env's key inside lmdb-js's `allDbs` map.
+   *
+   * @remarks
+   * lmdb-js derives it as `basename(path, extname(path))`.
+   *
+   * @returns The registry key for this env's root handle.
+   *
+   * @internal
+   */
+  _lmdbKeyName(): string {
     const ext = extname(this.path)
     return basename(this.path, ext)
   }
@@ -343,8 +417,8 @@ export class LmdbEnv {
    * value})` queries type-check against the declared index names.
    *
    * Registration is STRICT: re-registering the same schema class throws
-   * {@link LmdbSchemaAlreadyRegisteredError}, and a schema whose `static db`
-   * is already taken throws {@link LmdbDuplicateDbNameError}. `register` is
+   * {@link LmdbError}, and a schema whose `static db`
+   * is already taken throws {@link LmdbError}. `register` is
    * the ONLY registration path.
    *
    * @param schemaClass - The {@link LmdbSchema} subclass.
@@ -354,8 +428,8 @@ export class LmdbEnv {
    * @throws {LmdbError} When the schema fails {@link LmdbSchema.validate}
    * (missing `db`/`key`/`value`, encode without decode or vice versa, a
    * unique or indexed `key`, duplicate index names).
-   * @throws {@link LmdbSchemaAlreadyRegisteredError} if the same schema class is registered twice.
-   * @throws {@link LmdbDuplicateDbNameError} if another sub uses the same `db`.
+   * @throws {@link LmdbError} if the same schema class is registered twice.
+   * @throws {@link LmdbError} if another sub uses the same `db`.
    *
    * @example
    * ```typescript
@@ -380,7 +454,7 @@ export class LmdbEnv {
    * @param schemaClass - The {@link LmdbSchema} subclass.
    * @returns The cached {@link LmdbEnvSub} handle — the same instance
    * `register` returned.
-   * @throws {LmdbSchemaNotRegisteredError} when the schema is not registered.
+   * @throws {LmdbError} when the schema is not registered.
    *
    * @public
    */
@@ -412,6 +486,81 @@ export class LmdbEnv {
    */
   _attachIndexes(dbName: string, defs: Array<{name: string; def: IIndexDef<unknown, ILmdbKey>; dbName: string}>): void {
     this._subs.attachIndexes(dbName, defs)
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Change-data-capture
+  // ──────────────────────────────────────────────────────────────────
+
+  /**
+   * Subscribe to committed writes on a sub-DB.
+   *
+   * @remarks
+   * Delivery rides the `aftercommit` tail: events fire only for committed
+   * transactions (aborts publish nothing), in outbox sequence order.
+   * Subscriptions are from-now — earlier history is available via
+   * {@link LmdbEnv.tailCdc}. Returns an idempotent unsubscribe; the last
+   * unsubscribe detaches the commit hook.
+   *
+   * @param filter - Sub-DB name, or `{db, op?}` to narrow the operation.
+   * @param cb - Invoked per matching event as `{type, key, value}`.
+   * @returns Unsubscribe function.
+   * @throws {LmdbError} On malformed filters.
+   * @public
+   */
+  subscribe(filter: ICdcFilter, cb: ICdcCallback): () => void {
+    return Cdc.for(this).hub.subscribe(filter, cb)
+  }
+
+  /**
+   * Tail the durable outbox above a floor.
+   *
+   * @remarks
+   * A named consumer auto-registers on first tail and resumes past its ack
+   * on later tails (including across restarts — acks persist in
+   * `__cdc_meta`). An explicit `from` repositions forward past the ack but
+   * never backward. Returns `{seq, db, type, key, value}` records for
+   * {@link LmdbEnv.ackCdc}.
+   *
+   * @param options - `{consumer?, from?, limit?}`.
+   * @returns Outbox records above the floor, oldest first.
+   * @public
+   */
+  async tailCdc(options?: ICdcTailOptions): Promise<Array<ICdcRecord>> {
+    return Cdc.for(this).hub.tail(options)
+  }
+
+  /**
+   * Persist a consumer's position in the outbox.
+   *
+   * @param consumer - Name previously registered by {@link LmdbEnv.tailCdc}.
+   * @param seq - Last consumed sequence.
+   * @throws {LmdbError} For unknown consumers.
+   * @public
+   */
+  async ackCdc(consumer: string, seq: number): Promise<void> {
+    return Cdc.for(this).hub.ack(consumer, seq)
+  }
+
+  /**
+   * Delete outbox records at or below the retention cutoff.
+   *
+   * @remarks
+   * Cutoff is `min(minAck, newest - keep)`: entries consumed by every
+   * registered consumer go, the newest `keep` entries always stay, and an
+   * unacked consumer blocks pruning below its start. With no consumers the
+   * keep window alone bounds growth — call periodically (like
+   * `purgeExpired`) when producing without persistent followers.
+   *
+   * @param keep - Newest entries to retain regardless of acks (default `10000`).
+   * @returns The number of records removed.
+   * @throws {LmdbError} On negative keeps.
+   * @public
+   */
+  pruneCdc(keep?: number): Promise<number> {
+    const {store, hub} = Cdc.for(this)
+    hub.activate()
+    return store.prune(keep)
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -451,7 +600,7 @@ export class LmdbEnv {
    * @param fn - Callback receiving the {@link LmdbTransaction} wrapper.
    * @returns The callback's resolved value.
    *
-   * @throws {@link LmdbReadOnlyError} if the env is read-only.
+   * @throws {@link LmdbError} if the env is read-only.
    *
    * @example
    * ```typescript
@@ -469,7 +618,7 @@ export class LmdbEnv {
    */
   async transaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
     this._assertOpen()
-    if (this.readOnly) throw new LmdbReadOnlyError(`transaction`)
+    if (this.readOnly) throw new LmdbError(`Cannot perform 'transaction' on a read-only env.`)
     // Nesting (called from inside another transaction callback): run directly.
     // lmdb-js treats this as a child txn of the active write transaction.
     if (this._txInProgress) {
@@ -483,11 +632,41 @@ export class LmdbEnv {
     return run
   }
 
-  private async _runTransaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
+  /**
+   * Publish staged CDC events after an outermost commit.
+   *
+   * @remarks
+   * No-op without subscribers; nested completions skip it — only the
+   * outermost frame drains.
+   *
+   * @internal
+   */
+  _drainCdc(): void {
+    Cdc.for(this).hub.drain()
+  }
+
+  /**
+   * Execute a callback inside the native write transaction.
+   *
+   * @remarks
+   * Nested calls join the outer transaction (no separate commit); only the
+   * outermost completion publishes staged CDC events. Callback throws other
+   * than the internal abort sentinel surface as `LmdbError` carrying the
+   * original error as `cause`.
+   *
+   * @param fn - Callback receiving the {@link LmdbTransaction} wrapper.
+   * @returns The callback's resolved value.
+   *
+   * @internal
+   */
+  async _runTransaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
     const tx = new LmdbTransaction()
     let syncResult: T | undefined
     let abortedValue: T | undefined
 
+    // Nested calls join the outer txn (no separate commit) — only the
+    // outermost completion publishes staged CDC events.
+    const nested = this._txInProgress
     this._txInProgress = true
     try {
       const result = this._root.transactionSync(() => {
@@ -509,16 +688,22 @@ export class LmdbEnv {
       })
       if (result && typeof (result as Promise<T>).then === `function`) {
         const final = (await result) as T | typeof ABORT
-        return final === ABORT ? (abortedValue as T) : (final as T)
+        if (final === ABORT) return abortedValue as T
+        if (!nested) this._drainCdc()
+        return final as T
       }
+      if (!nested) this._drainCdc()
       return result as T
     } catch (err) {
       if (err === ABORT) {
         return syncResult as T
       }
-      throw new LmdbTransactionError(`Transaction failed`, err)
+      throw new LmdbError(`Transaction failed`, err instanceof Error ? {cause: err} : undefined)
     } finally {
-      this._txInProgress = false
+      // Reset only for the outermost frame — a nested completion must not
+      // clear the flag while the outer transaction still runs (that hole
+      // also deadlocked queued nested transactions and published early).
+      if (!nested) this._txInProgress = false
     }
   }
 
@@ -591,6 +776,18 @@ export class LmdbEnv {
     return this._root.committed
   }
 
+  /**
+   * Promise resolving when all previous writes have been flushed to disk.
+   *
+   * @remarks
+   * Forwards to the inherited lmdb root-store `flushed`. Stronger than
+   * {@link committed} (visibility to readers): await this when durability
+   * across process crashes matters.
+   *
+   * @returns Whether the flush completed.
+   *
+   * @public
+   */
   get flushed(): Promise<boolean> {
     this._assertOpen()
     return this._root.flushed
@@ -654,16 +851,39 @@ export class LmdbEnv {
   }
 
   /**
-   * Store a value at the given key.
+   * Store a value at the given key, unconditionally.
+   *
    * @param id - The key.
    * @param value - The value to store.
-   * @param version - Optional version number (requires `useVersions`).
-   * @param ifVersion - Optional: only write if existing version matches.
-   * @returns `true` if written, `false` if conditional check failed.
+   * @returns Resolves `true` once the write is queued for commit.
    * @public
    */
   rootPut(id: Key, value: unknown): Promise<boolean>
+  /**
+   * Store a value only when its version check passes.
+   *
+   * @remarks
+   * Requires the env to be opened with `useVersions`. The write applies and
+   * stamps `version` when the stored version equals `ifVersion` (or when the
+   * key holds no version yet); otherwise the write is skipped.
+   *
+   * @param id - The key.
+   * @param value - The value to store.
+   * @param version - Version number stamped on a successful write.
+   * @param ifVersion - Only write when the existing version matches this.
+   * @returns Resolves `true` when written, `false` when the version check failed.
+   * @public
+   */
   rootPut(id: Key, value: unknown, version: number, ifVersion?: number): Promise<boolean>
+  /**
+   * Store a value with native put options.
+   *
+   * @param id - The key.
+   * @param value - The value to store.
+   * @param options - {@link PutOptions} forwarded to the native `put`.
+   * @returns Resolves `true` once the write is queued for commit.
+   * @public
+   */
   rootPut(id: Key, value: unknown, options: PutOptions): Promise<boolean>
   rootPut(id: Key, value: unknown, versionOrOptions?: number | PutOptions, ifVersion?: number): Promise<boolean> {
     this._assertOpen()
@@ -672,13 +892,34 @@ export class LmdbEnv {
 
   /**
    * Synchronously store a value (blocks until written).
+   *
    * @param id - The key.
    * @param value - The value to store.
-   * @param versionOrOptions - Optional version number or {@link PutOptions}.
    * @public
    */
   rootPutSync(id: Key, value: unknown): void
+  /**
+   * Synchronously store a value with an explicit version.
+   *
+   * @remarks
+   * Requires the env to be opened with `useVersions`. Unlike the async
+   * {@link rootPut} conditional form there is no `ifVersion` gate — `version`
+   * is stamped on the write.
+   *
+   * @param id - The key.
+   * @param value - The value to store.
+   * @param version - Version number stamped on the write.
+   * @public
+   */
   rootPutSync(id: Key, value: unknown, version: number): void
+  /**
+   * Synchronously store a value with native put options.
+   *
+   * @param id - The key.
+   * @param value - The value to store.
+   * @param options - {@link PutOptions} forwarded to the native `putSync`.
+   * @public
+   */
   rootPutSync(id: Key, value: unknown, options: PutOptions): void
   rootPutSync(id: Key, value: unknown, versionOrOptions?: number | PutOptions): void {
     this._assertOpen()
@@ -717,14 +958,35 @@ export class LmdbEnv {
   }
 
   /**
-   * Check if an entry exists.
+   * Check whether a key holds at least one entry.
+   *
    * @param key - The key to check.
-   * @param valueOrVersion - Optional: check value (dupSort) or version.
-   * @param options - Optional read transaction.
+   * @returns `true` when the key exists.
    * @public
    */
   rootDoesExist(key: Key): boolean
+  /**
+   * Check whether a duplicate value exists under a key.
+   *
+   * @remarks
+   * For `dupSort` sub-DBs: probes one value among the key's duplicates
+   * instead of merely probing the key.
+   *
+   * @param key - The key to check.
+   * @param value - The duplicate value to probe.
+   * @param options - Optional read transaction.
+   * @returns `true` when the value exists under the key.
+   * @public
+   */
   rootDoesExist(key: Key, value: unknown, options?: GetOptions): boolean
+  /**
+   * Check whether an entry's version matches.
+   *
+   * @param key - The key to check.
+   * @param version - The expected version number.
+   * @returns `true` when the stored version equals `version`.
+   * @public
+   */
   rootDoesExist(key: Key, version: number): boolean
   rootDoesExist(key: Key, valueOrVersion?: unknown, options?: GetOptions): boolean {
     this._assertOpen()
@@ -740,7 +1002,15 @@ export class LmdbEnv {
    */
   rootTransactionSync<T>(action: () => T, flags?: TransactionFlags): T {
     this._assertOpen()
-    return this._root.transactionSync(action, flags)
+    const nested = this._txInProgress
+    this._txInProgress = true
+    try {
+      const result = this._root.transactionSync(action, flags)
+      if (!nested) this._drainCdc()
+      return result
+    } finally {
+      if (!nested) this._txInProgress = false
+    }
   }
 
   /**
@@ -762,7 +1032,7 @@ export class LmdbEnv {
    *
    * @public
    */
-  getMapSizeUsed(): LmdbMapUsage {
+  getMapSizeUsed(): IMapUsage {
     const total = this._mapSize
     try {
       const pathStat = statSync(this.path)
@@ -805,6 +1075,13 @@ export class LmdbEnv {
       this._commitListeners.set(event, registry)
     }
     if (!registry.has(callback)) {
+      /**
+       * Invoke the user callback only while still registered.
+       *
+       * @remarks
+       * Dropping from the registry (via `off` or `close`) stops invocation
+       * and frees the callback, since lmdb-js offers no removal API.
+       */
       const wrapper = (e: unknown) => {
         if (registry!.has(callback)) callback(e)
       }
@@ -828,8 +1105,15 @@ export class LmdbEnv {
     registry.delete(callback)
   }
 
-  /** @internal Detach all tracked commit listeners (called from {@link close}). */
-  private _removeAllCommitListeners(): void {
+  /**
+   * Detach all tracked commit listeners.
+   *
+   * @remarks
+   * Called from {@link close} so user callbacks can be garbage-collected.
+   *
+   * @internal
+   */
+  _removeAllCommitListeners(): void {
     this._commitListeners.clear()
   }
 
@@ -841,13 +1125,6 @@ export class LmdbEnv {
     this._assertOpen()
     return this._root.getWriteTxnId()
   }
-
-  // ──────────────────────────────────────────────────────────────────
-  // Migrations
-  // ──────────────────────────────────────────────────────────────────
-
-  private static readonly _MIGRATIONS_DB = `__migrations`
-  private static readonly _VERSION_KEY = `__version`
 
   /**
    * Current schema version as recorded by {@link migrate}.
@@ -864,22 +1141,74 @@ export class LmdbEnv {
   }
 
   /**
+   * Backfill one transform step in 500-row transactions with progress.
+   *
+   * @remarks
+   * Reads the sub lazily (`iterate`), rewrites every row through `map`,
+   * and commits per chunk. A crash repeats the step from scratch on the
+   * next `migrate()` (rows are keyed, so no duplicates) — `map` must be
+   * idempotent. Skew (step target vs declared schema version) throws
+   * `LmdbError` before touching any row.
+   *
+   * @internal
+   */
+  async _runTransformStep(m: IMigration, step: ITransformStep): Promise<void> {
+    const handle = this.sub(step.schema) as unknown as {
+      count(): number
+      iterate(): AsyncIterableIterator<[ILmdbKey, unknown]>
+      putMany(entries: Array<[ILmdbKey, unknown]>): Promise<void>
+    }
+    const declared = step.schema.version
+    if (declared !== undefined && step.schemaVersion !== declared) {
+      throw new LmdbError(`migration v${m.version} ('${m.name}'): transform targets schema version ${String(step.schemaVersion)} but '${step.schema.db}' declares version ${declared}`)
+    }
+    const total = handle.count()
+    let done = 0
+    const CHUNK = 500
+    let batch: Array<[ILmdbKey, unknown]> = []
+    /**
+     * Commit the current batch and report progress.
+     *
+     * @remarks
+     * No-op on an empty batch; advances the completed count and fires
+     * `onProgress` per committed chunk.
+     */
+    const flush = async (): Promise<void> => {
+      if (batch.length === 0) return
+      const chunk = batch
+      batch = []
+      await handle.putMany(chunk)
+      done += chunk.length
+      step.onProgress?.(done, total)
+    }
+    for await (const [key, row] of handle.iterate()) {
+      batch.push([key, step.map(row as never)])
+      if (batch.length >= CHUNK) await flush()
+    }
+    await flush()
+  }
+
+  /**
    * Apply pending schema migrations.
    *
    * @remarks
    * Each migration's `up` runs inside its own writer transaction and the
-   * stored version is bumped only on success. Concurrent callers are
-   * serialized via LMDB's single-writer lock — the second caller re-checks
-   * the version inside the transaction and skips already-applied steps.
+   * stored version is bumped only on success. `transform` steps backfill
+   * first (chunked top-level transactions, resumable), then `up` runs, then
+   * the version bump and the per-step completion marker commit together.
+   * Concurrent callers are serialized via LMDB's single-writer lock — the
+   * second caller re-checks the version inside the transaction and skips
+   * already-applied steps.
    *
    * @param migrations - Array of migrations with unique monotonic `version`.
    * @returns The list of actually applied migrations and the current version.
    *
-   * @throws {@link LmdbError} for duplicate versions.
+   * @throws {@link LmdbError} for duplicate versions and steps with neither `up` nor `transform`.
+   * @throws {@link LmdbError} for transform/schema version skew.
    *
    * @public
    */
-  async migrate(migrations: LmdbMigration[]): Promise<{applied: LmdbMigration[]; currentVersion: number}> {
+  async migrate(migrations: IMigration[]): Promise<{applied: IMigration[]; currentVersion: number}> {
     this._assertOpen()
     if (!Array.isArray(migrations)) throw new LmdbError(`migrations must be an array`)
     const seen = new Set<number>()
@@ -891,25 +1220,33 @@ export class LmdbEnv {
       seen.add(m.version)
     }
     const sorted = [...migrations].sort((a, b) => a.version - b.version)
-    const applied: LmdbMigration[] = []
+    const applied: IMigration[] = []
     for (const m of sorted) {
       if (this.getMigrationVersion() >= m.version) continue
+      if (m.up === undefined && m.transform === undefined) {
+        throw new LmdbError(`migration v${m.version} ('${m.name}') has neither up nor transform — declare at least one`)
+      }
+      if (m.transform !== undefined) await this._runTransformStep(m, m.transform)
       try {
         await this.transaction(async () => {
           const meta = this.getDb(LmdbEnv._MIGRATIONS_DB)
           const insideRaw = meta.get(LmdbEnv._VERSION_KEY) as number | undefined
           const inside = typeof insideRaw === `number` ? insideRaw : 0
           if (inside >= m.version) return
-          await m.up(this)
+          if (m.up !== undefined) await m.up(this)
           const putSync = (meta as unknown as {putSync: (k: Key, v: unknown) => void}).putSync
           if (typeof putSync === `function` && this._txInProgress) {
             putSync.call(meta, LmdbEnv._VERSION_KEY, m.version)
+            if (m.transform !== undefined) putSync.call(meta, `${LmdbEnv._TRANSFORM_PREFIX}${m.version}`, Date.now())
           } else {
             await (meta as unknown as {put: (k: Key, v: unknown) => Promise<void>}).put(LmdbEnv._VERSION_KEY, m.version)
+            if (m.transform !== undefined) {
+              await (meta as unknown as {put: (k: Key, v: unknown) => Promise<void>}).put(`${LmdbEnv._TRANSFORM_PREFIX}${m.version}`, Date.now())
+            }
           }
         })
       } catch (err) {
-        if (err instanceof LmdbTransactionError && (err as unknown as {cause?: unknown}).cause) {
+        if (err instanceof LmdbError && (err as unknown as {cause?: unknown}).cause) {
           throw (err as unknown as {cause: unknown}).cause
         }
         throw err
@@ -931,7 +1268,16 @@ export class LmdbEnv {
  * @public
  */
 export type IEnvForSub = Database<unknown, Key> & {
+  /**
+   * Write-transaction runner bound to the owning env.
+   */
   transaction: LmdbEnv[`transaction`]
+  /**
+   * Read-transaction runner bound to the owning env.
+   */
   readTransaction: LmdbEnv[`readTransaction`]
+  /**
+   * Whether the owning env is read-only.
+   */
   readOnly: boolean
 }

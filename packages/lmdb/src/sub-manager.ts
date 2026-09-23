@@ -1,11 +1,12 @@
-
-import {LmdbError, LmdbDuplicateDbNameError, LmdbMapFullError, LmdbSchemaAlreadyRegisteredError, LmdbSchemaNotRegisteredError} from "./errors"
-import {LmdbSchema, } from "./schema"
-import {LmdbEnvSub} from "./sub"
-import type {ICodec, IIndexDef, ILmdbKey, LmdbSubState} from "./types"
+import {RecordCodec} from "./codec"
 import type {LmdbEnv} from "./env"
-
-type LmdbSchemaConstructor = typeof LmdbSchema
+import {LmdbError} from "./errors"
+import {LmdbSchema} from "./schema"
+import {LmdbEnvSub} from "./sub"
+import type {IIndexDef} from "./types/indexes"
+import type {ILmdbKey} from "./types/key"
+import type {LmdbSubState} from "./types/sub-state"
+import type {IResolvedIndexDef, ISchemaConstructor, ISubStateOptions} from "./types/sub-manager"
 
 /**
  * Registry + state factory for schema-registered sub-DBs.
@@ -19,15 +20,34 @@ type LmdbSchemaConstructor = typeof LmdbSchema
  * @internal
  */
 export class LmdbEnvSubManager {
-  /** @internal Sub states keyed by sub-DB name. */
+  /**
+   * Sub states keyed by sub-DB name.
+   *
+   * @internal
+   */
   private readonly _subStates = new Map<string, LmdbSubState>()
 
-  /** @internal Schema class -> state lookup alias. */
-  private readonly _stateBySchema = new Map<LmdbSchemaConstructor, LmdbSubState>()
+  /**
+   * Schema class to state lookup.
+   *
+   * @internal
+   */
+  private readonly _stateBySchema = new Map<ISchemaConstructor, LmdbSubState>()
 
-  /** @internal Schema class -> cached typed handle (1 schema = 1 handle). */
-  private readonly _subCache = new Map<LmdbSchemaConstructor, LmdbEnvSub<typeof LmdbSchema>>()
+  /**
+   * Schema class to cached typed handle (1 schema = 1 handle).
+   *
+   * @internal
+   */
+  private readonly _subCache = new Map<ISchemaConstructor, LmdbEnvSub<typeof LmdbSchema>>()
 
+  /**
+   * Create a registry bound to an env.
+   *
+   * @param env - Owning env (provides transactions, map sizing, read-only flag).
+   *
+   * @internal
+   */
   constructor(private readonly env: LmdbEnv) {}
 
   /**
@@ -36,22 +56,33 @@ export class LmdbEnvSubManager {
    * @param schemaClass - The {@link LmdbSchema} subclass.
    * @returns A typed {@link LmdbEnvSub} handle — cached, so repeated calls
    * for the same schema return the same instance.
-   * @throws {LmdbSchemaAlreadyRegisteredError} when the same class registers twice.
-   * @throws {LmdbDuplicateDbNameError} when another sub uses the same `db`.
+   * @throws {LmdbError} when the same class registers twice.
+   * @throws {LmdbError} when another sub uses the same `db`.
+   *
+   * @internal
    */
   register<S extends typeof LmdbSchema>(schemaClass: S): LmdbEnvSub<S> {
-    if (this._stateBySchema.has(schemaClass as unknown as LmdbSchemaConstructor)) {
-      throw new LmdbSchemaAlreadyRegisteredError(schemaClass.name)
+    if (this._stateBySchema.has(schemaClass as unknown as ISchemaConstructor)) {
+      throw new LmdbError(`LmdbSchema class '${schemaClass.name}' is already registered.`)
     }
     LmdbSchema.validate(schemaClass) // throws LmdbError on invalid schema
     if (this._subStates.has(schemaClass.db)) {
-      throw new LmdbDuplicateDbNameError(schemaClass.db)
+      throw new LmdbError(`A sub with dbName '${schemaClass.db}' is already registered. Use a different dbName.`)
     }
-    const opts: {codec?: ICodec<unknown>; ttlMs?: number; dupSort?: boolean; useVersions?: boolean; encoding?: string} = {}
+    const opts: ISubStateOptions = {}
     if (typeof schemaClass.hookBeforeWrite === `function`) {
       opts.codec = {
         hookBeforeWrite: schemaClass.hookBeforeWrite as (value: unknown) => unknown,
         hookBeforeRead: schemaClass.hookBeforeRead as (raw: unknown) => unknown
+      }
+    } else if (schemaClass.ttl === undefined) {
+      // Record codec: positional array storage for row schemas, bridged
+      // through the hook slot (zero read/write path changes). Skipped for
+      // TTL subs — the expiry envelope would need duck-typing — and for
+      // scalar values, which carry no columns to position.
+      const recordColumns = LmdbSchema.deriveRecordColumns(schemaClass.value)
+      if (recordColumns.length > 0) {
+        opts.codec = new RecordCodec(recordColumns)
       }
     }
     if (schemaClass.ttl !== undefined) opts.ttlMs = schemaClass.ttl
@@ -70,13 +101,28 @@ export class LmdbEnvSubManager {
     // attachIndexes would silently share a sub-DB handle between two owners.
     for (const {dbName: indexDbName} of defs) {
       if (this._subStates.has(indexDbName)) {
-        throw new LmdbDuplicateDbNameError(indexDbName)
+        throw new LmdbError(`A sub with dbName '${indexDbName}' is already registered. Use a different dbName.`)
       }
     }
     this._attachIndexesTo(state, defs)
-    this._stateBySchema.set(schemaClass as unknown as LmdbSchemaConstructor, state)
+    // Provision one posting table per searched column (schema search columns
+    // carry none of the index derivation, so they resolve here).
+    const searchColumns = LmdbSchema.deriveSearch(schemaClass.value)
+    const searchDbNames = searchColumns.map((column) => `${schemaClass.db}:search:${column}`)
+    // Same collision guardrail as embedded indexes — a posting table must
+    // not share a sub-DB handle with another owner.
+    for (const searchDbName of searchDbNames) {
+      if (this._subStates.has(searchDbName)) {
+        throw new LmdbError(`A sub with dbName '${searchDbName}' is already registered. Use a different dbName.`)
+      }
+    }
+    for (let i = 0; i < searchColumns.length; i++) {
+      const searchState = this._createSubState(searchDbNames[i]!, {dupSort: true, useVersions: false})
+      state.searchTables.push({column: searchColumns[i]!, state: searchState})
+    }
+    this._stateBySchema.set(schemaClass as unknown as ISchemaConstructor, state)
     const sub = new LmdbEnvSub(this.env, schemaClass, state)
-    this._subCache.set(schemaClass as unknown as LmdbSchemaConstructor, sub as LmdbEnvSub<typeof LmdbSchema>)
+    this._subCache.set(schemaClass as unknown as ISchemaConstructor, sub as LmdbEnvSub<typeof LmdbSchema>)
     return sub
   }
 
@@ -85,44 +131,81 @@ export class LmdbEnvSubManager {
    *
    * @param schemaClass - The {@link LmdbSchema} subclass.
    * @returns The cached {@link LmdbEnvSub} handle.
-   * @throws {LmdbSchemaNotRegisteredError} when the schema is not registered.
+   * @throws {LmdbError} when the schema is not registered.
+   *
+   * @internal
    */
   sub<S extends typeof LmdbSchema>(schemaClass: S): LmdbEnvSub<S> {
-    const cached = this._subCache.get(schemaClass as unknown as LmdbSchemaConstructor)
-    if (!cached) throw new LmdbSchemaNotRegisteredError(schemaClass.name)
+    const cached = this._subCache.get(schemaClass as unknown as ISchemaConstructor)
+    if (!cached) throw new LmdbError(`LmdbSchema class '${schemaClass.name}' is not registered. Call env.register(SchemaClass) first.`)
     return cached as LmdbEnvSub<S>
   }
 
-  /** Whether a schema class has been registered. */
+  /**
+   * Whether a schema class has been registered.
+   *
+   * @param schemaClass - The {@link LmdbSchema} subclass.
+   * @returns `true` when registered, `false` otherwise.
+   *
+   * @internal
+   */
   isRegistered(schemaClass: typeof LmdbSchema): boolean {
-    return this._stateBySchema.has(schemaClass as unknown as LmdbSchemaConstructor)
+    return this._stateBySchema.has(schemaClass as unknown as ISchemaConstructor)
   }
 
-  /** Attach embedded-index descriptors to an already-registered sub (tests with custom extractors). */
-  attachIndexes(dbName: string, defs: Array<{name: string; def: IIndexDef<unknown, ILmdbKey>; dbName: string}>): void {
+  /**
+   * Attach embedded-index descriptors to an already-registered sub.
+   *
+   * @remarks
+   * Used by tests that need custom extractors schemas cannot express. The
+   * sub-DB must already be registered.
+   *
+   * @param dbName - Target sub-DB name.
+   * @param defs - Index descriptors with resolved sub-DB names.
+   *
+   * @internal
+   */
+  attachIndexes(dbName: string, defs: Array<IResolvedIndexDef>): void {
     const state = this._subStates.get(dbName)
     if (!state) throw new LmdbError(`No sub registered for '${dbName}'`)
     this._attachIndexesTo(state, defs)
   }
 
-  private _createSubState(dbName: string, opts?: {dupSort?: boolean; useVersions?: boolean; encoding?: string; codec?: ICodec<unknown>; ttlMs?: number}): LmdbSubState {
+  /**
+   * Get or create the sub-DB state for a name.
+   *
+   * @remarks
+   * Idempotent: an existing state is reused. Refuses to open a new sub-DB
+   * when the map is nearly full (free ratio below 10%) to fail early
+   * instead of hitting `MDB_MAP_FULL`, and warns once when sub-DB slots
+   * run low.
+   *
+   * @param dbName - Sub-DB name.
+   * @param opts - Construction options (dupSort, versions, encodings, codec, TTL).
+   * @returns The sub-DB state, cached by name.
+   *
+   * @internal
+   */
+  private _createSubState(dbName: string, opts?: ISubStateOptions): LmdbSubState {
     const existing = this._subStates.get(dbName)
     if (existing) return existing
     // B2 guardrail — refuse to open a new sub-DB when the map is nearly full
     // (free ratio below 10%) to fail early instead of hitting MDB_MAP_FULL.
     const usage = this.env.getMapSizeUsed()
     if (usage.ratio < 0.1) {
-      throw new LmdbMapFullError(usage.ratio)
+      throw new LmdbError(`MDB_MAP_FULL risk — free ratio ${usage.ratio.toFixed(3)} is below 10%. Increase mapSize or prune data.`)
     }
     const dupSort = opts?.dupSort
     const encoding = opts?.encoding
     const useVersions = opts?.useVersions
+    const keyEncoding = opts?.keyEncoding
     const dbOverrides: Record<string, unknown> =
-      dupSort !== undefined || encoding !== undefined || useVersions !== undefined
+      dupSort !== undefined || encoding !== undefined || useVersions !== undefined || keyEncoding !== undefined
         ? {
             ...(dupSort !== undefined ? {dupSort} : {}),
             ...(encoding !== undefined ? {encoding} : {}),
-            ...(useVersions !== undefined ? {useVersions} : {})
+            ...(useVersions !== undefined ? {useVersions} : {}),
+            ...(keyEncoding !== undefined ? {keyEncoding} : {})
           }
         : {}
     const subDb = Object.keys(dbOverrides).length ? this.env.getDb(dbName, dbOverrides as never) : this.env.getDb(dbName)
@@ -137,6 +220,7 @@ export class LmdbEnvSubManager {
       hookBeforeRead: opts?.codec ? (raw: unknown) => opts.codec!.hookBeforeRead(raw) : (raw: unknown) => raw,
       indexes: [],
       indexByName: new Map(),
+      searchTables: [],
       opts: {
         dupSort: opts?.dupSort ?? false,
         useVersions: opts?.useVersions ?? false,
@@ -151,8 +235,23 @@ export class LmdbEnvSubManager {
     return state
   }
 
+  /**
+   * Whether the maxDbs pressure warning already fired (warn once).
+   *
+   * @internal
+   */
   private _maxDbsWarned = false
 
+  /**
+   * Warn once when sub-DB slots run low.
+   *
+   * @remarks
+   * Production-scale configs only (tests use tiny `maxDbs`): warns when
+   * fewer than 32 slots remain. Every schema, index, queue, and TTL helper
+   * consumes slots, and breaching `maxDbs` throws mid-registration.
+   *
+   * @internal
+   */
   private _warnMaxDbs(): void {
     // Production-scale configs only (tests use tiny maxDbs): warn once when
     // fewer than 32 sub-DB slots remain. Every schema, index, queue, and TTL
@@ -167,9 +266,24 @@ export class LmdbEnvSubManager {
     }
   }
 
-  private _attachIndexesTo(state: LmdbSubState, defs: Array<{name: string; def: IIndexDef<unknown, ILmdbKey>; dbName: string}>): void {
+  /**
+   * Attach derived index tables to a sub state.
+   *
+   * @remarks
+   * Composite tables pin ordered-binary key/value encoding so tuple keys
+   * seek natively regardless of the env's `keyEncoding`.
+   *
+   * @param state - Target sub-DB state.
+   * @param defs - Index descriptors with resolved sub-DB names.
+   *
+   * @internal
+   */
+  private _attachIndexesTo(state: LmdbSubState, defs: Array<IResolvedIndexDef>): void {
     for (const {name, def, dbName} of defs) {
-      const indexState = this._createSubState(dbName, {dupSort: !def.unique, useVersions: false})
+      // Composite tables pin ordered-binary key/value encoding so tuple keys
+      // seek natively regardless of the env's keyEncoding (new tables only —
+      // single-column tables keep their inherited encodings for stability).
+      const indexState = def.composite !== undefined ? this._createSubState(dbName, {dupSort: !def.unique, useVersions: false, encoding: `ordered-binary`, keyEncoding: `ordered-binary`}) : this._createSubState(dbName, {dupSort: !def.unique, useVersions: false})
       let extractor: (value: unknown) => ILmdbKey | undefined | null
       let autoResolved = false
       if (def.extractor) {
@@ -192,7 +306,7 @@ export class LmdbEnvSubManager {
           return current as ILmdbKey
         }
       }
-      state.indexes.push({name, extractor, unique: def.unique ?? false, state: indexState, autoResolved})
+      state.indexes.push({name, extractor, unique: def.unique ?? false, state: indexState, autoResolved, composite: def.composite})
       state.indexByName.set(name, state.indexes[state.indexes.length - 1]!)
     }
   }

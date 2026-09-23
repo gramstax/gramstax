@@ -1,22 +1,7 @@
-import type {Transaction} from "lmdb"
-import {LmdbTransactionDoneError} from "./errors"
+import {LmdbError} from "./errors"
+import type {IRawReadTransaction, ITransactionLifecycle} from "./types/transaction"
 
-type RawReadTransaction = Transaction & {
-  done?: () => void
-  abort?: () => void
-}
-
-/**
- * Lifecycle of a {@link LmdbTransaction}.
- *
- * @remarks
- * `released` is used for read transactions that finished normally — the raw
- * LMDB read transaction is freed but the wrapper was NOT aborted by user
- * code. Distinguishing it from `aborted` matters for `isAborted` consumers.
- *
- * @public
- */
-export type TransactionLifecycle = `active` | `committed` | `aborted` | `released`
+export type {IRawReadTransaction, ITransactionLifecycle} from "./types/transaction"
 
 /**
  * Wraps the underlying `lmdb` transaction lifecycle with a stable API.
@@ -41,21 +26,40 @@ export type TransactionLifecycle = `active` | `committed` | `aborted` | `release
  * @public
  */
 export class LmdbTransaction {
-  /** @internal */
-  private _lifecycle: TransactionLifecycle = `active`
+  /**
+   * Current lifecycle state.
+   *
+   * @internal
+   */
+  private _lifecycle: ITransactionLifecycle = `active`
 
-  /** @internal */
-  private readonly _rawReadTxn: RawReadTransaction | undefined
+  /**
+   * The wrapped raw read transaction, if any.
+   *
+   * @internal
+   */
+  private readonly _rawReadTxn: IRawReadTransaction | undefined
 
-  /** @internal Guard so the raw read txn is released at most once. */
+  /**
+   * Guard so the raw read txn is released at most once.
+   *
+   * @internal
+   */
   private _rawReleased = false
 
   /**
+   * Create a transaction wrapper.
+   *
+   * @remarks
+   * Called by {@link LmdbEnv.transaction} (no raw txn) and
+   * {@link LmdbEnv.readTransaction} (with the raw read txn) — never
+   * construct directly.
+   *
    * @param rawReadTxn - The raw LMDB read transaction (from
    * `db.useReadTransaction()`), or `undefined` for write transactions.
    * @internal
    */
-  constructor(rawReadTxn?: RawReadTransaction) {
+  constructor(rawReadTxn?: IRawReadTransaction) {
     this._rawReadTxn = rawReadTxn
   }
 
@@ -64,7 +68,7 @@ export class LmdbTransaction {
    *
    * @public
    */
-  get lifecycle(): TransactionLifecycle {
+  get lifecycle(): ITransactionLifecycle {
     return this._lifecycle
   }
 
@@ -107,7 +111,7 @@ export class LmdbTransaction {
    *
    * @public
    */
-  get raw(): RawReadTransaction | undefined {
+  get raw(): IRawReadTransaction | undefined {
     return this._rawReadTxn
   }
 
@@ -126,7 +130,7 @@ export class LmdbTransaction {
    * a no-op — the raw LMDB read transaction is released automatically when
    * the wrapper returns.
    *
-   * @throws {@link LmdbTransactionDoneError} if already committed or aborted.
+   * @throws {@link LmdbError} if already committed or aborted.
    *
    * @example
    * ```typescript
@@ -141,7 +145,7 @@ export class LmdbTransaction {
    */
   commit(): void {
     if (this.done) {
-      throw new LmdbTransactionDoneError()
+      throw new LmdbError(`Transaction has already been committed or aborted and cannot be reused.`)
     }
     this._lifecycle = `committed`
   }

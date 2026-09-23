@@ -10,7 +10,7 @@ import {existsSync} from "node:fs"
 import {basename, extname, join} from "node:path"
 import * as lmdbNs from "lmdb"
 import {LmdbEnv} from "../src/env"
-import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbError, LmdbReadOnlyError, LmdbSchemaAlreadyRegisteredError, LmdbSchemaNotRegisteredError} from "../src/errors"
+import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
@@ -144,13 +144,13 @@ describe(`LmdbEnv.register / get / has`, () => {
     expect(env.isRegistered(UserSchema)).toBe(true)
   })
 
-  it(`sub throws LmdbSchemaNotRegisteredError for unknown schema class`, () => {
-    expect(() => env.sub(SessionSchema)).toThrow(LmdbSchemaNotRegisteredError)
+  it(`sub throws LmdbError for unknown schema class`, () => {
+    expect(() => env.sub(SessionSchema)).toThrow(LmdbError)
   })
 
   it(`registering the same schema class twice throws`, () => {
     env.register(UserSchema)
-    expect(() => env.register(UserSchema)).toThrow(LmdbSchemaAlreadyRegisteredError)
+    expect(() => env.register(UserSchema)).toThrow(LmdbError)
   })
 
   it(`register rejects a schema without static db`, () => {
@@ -159,7 +159,7 @@ describe(`LmdbEnv.register / get / has`, () => {
 
   it(`register rejects collision with an existing dbName`, () => {
     env.register(UserSchema)
-    expect(() => env.register(SameDbNameSchema)).toThrow(LmdbDuplicateDbNameError)
+    expect(() => env.register(SameDbNameSchema)).toThrow(LmdbError)
   })
 
   it(`two different schemas with distinct dbNames can coexist`, async () => {
@@ -185,9 +185,9 @@ describe(`LmdbEnv read-only mode`, () => {
       expect(roEnv.readOnly).toBe(true)
       roEnv.register(UserSchema)
       expect(roEnv.sub(UserSchema).get(`u1`)?.name).toBe(`A`)
-      await expect(roEnv.sub(UserSchema).put(`u2`, {id: `u2`, name: `B`})).rejects.toThrow(LmdbReadOnlyError)
-      await expect(roEnv.sub(UserSchema).delete(`u1`)).rejects.toThrow(LmdbReadOnlyError)
-      await expect(roEnv.sub(UserSchema).clear()).rejects.toThrow(LmdbReadOnlyError)
+      await expect(roEnv.sub(UserSchema).put(`u2`, {id: `u2`, name: `B`})).rejects.toThrow(LmdbError)
+      await expect(roEnv.sub(UserSchema).delete(`u1`)).rejects.toThrow(LmdbError)
+      await expect(roEnv.sub(UserSchema).clear()).rejects.toThrow(LmdbError)
     } finally {
       await roEnv.close()
       await rmWithRetry(dir)
@@ -205,7 +205,7 @@ describe(`LmdbEnv read-only mode`, () => {
         roEnv.transaction(async () => {
           // never runs
         })
-      ).rejects.toThrow(LmdbReadOnlyError)
+      ).rejects.toThrow(LmdbError)
     } finally {
       await roEnv.close()
       await rmWithRetry(dir)
@@ -235,39 +235,39 @@ describe(`LmdbEnv operations after close`, () => {
     await env.close()
   })
 
-  it(`register throws LmdbEnvClosedError`, () => {
-    expect(() => env.register(UserSchema)).toThrow(LmdbEnvClosedError)
+  it(`register throws LmdbError`, () => {
+    expect(() => env.register(UserSchema)).toThrow(LmdbError)
   })
 
-  it(`getDb throws LmdbEnvClosedError`, () => {
-    expect(() => env.getDb(`x`)).toThrow(LmdbEnvClosedError)
+  it(`getDb throws LmdbError`, () => {
+    expect(() => env.getDb(`x`)).toThrow(LmdbError)
   })
 
-  it(`transaction throws LmdbEnvClosedError`, async () => {
-    await expect(env.transaction(() => {})).rejects.toThrow(LmdbEnvClosedError)
+  it(`transaction throws LmdbError`, async () => {
+    await expect(env.transaction(() => {})).rejects.toThrow(LmdbError)
   })
 
-  it(`readTransaction throws LmdbEnvClosedError`, async () => {
-    await expect(env.readTransaction(async () => {})).rejects.toThrow(LmdbEnvClosedError)
+  it(`readTransaction throws LmdbError`, async () => {
+    await expect(env.readTransaction(async () => {})).rejects.toThrow(LmdbError)
   })
 
-  it(`backup throws LmdbEnvClosedError`, async () => {
-    await expect(env.backup(`somewhere`)).rejects.toThrow(LmdbEnvClosedError)
+  it(`backup throws LmdbError`, async () => {
+    await expect(env.backup(`somewhere`)).rejects.toThrow(LmdbError)
   })
 
-  it(`env-level data ops throw LmdbEnvClosedError (B2)`, () => {
-    expect(() => env.rootGetEntry(`k`)).toThrow(LmdbEnvClosedError)
-    expect(() => env.rootGetRange()).toThrow(LmdbEnvClosedError)
-    expect(() => env.rootGetCount()).toThrow(LmdbEnvClosedError)
-    expect(() => env.rootDoesExist(`k`)).toThrow(LmdbEnvClosedError)
-    expect(() => env.rootGetKeys()).toThrow(LmdbEnvClosedError)
-    expect(() => env.openDB(`x`)).toThrow(LmdbEnvClosedError)
+  it(`env-level data ops throw LmdbError (B2)`, () => {
+    expect(() => env.rootGetEntry(`k`)).toThrow(LmdbError)
+    expect(() => env.rootGetRange()).toThrow(LmdbError)
+    expect(() => env.rootGetCount()).toThrow(LmdbError)
+    expect(() => env.rootDoesExist(`k`)).toThrow(LmdbError)
+    expect(() => env.rootGetKeys()).toThrow(LmdbError)
+    expect(() => env.openDB(`x`)).toThrow(LmdbError)
   })
 
-  it(`transaction on a closed read-only env throws LmdbEnvClosedError, not LmdbReadOnlyError (B9)`, async () => {
+  it(`transaction on a closed read-only env throws LmdbError, not LmdbError (B9)`, async () => {
     const roEnv = new LmdbEnv({path: env.path, maxDbs: 5, readOnly: true})
     await roEnv.close()
-    await expect(roEnv.transaction(() => {})).rejects.toThrow(LmdbEnvClosedError)
+    await expect(roEnv.transaction(() => {})).rejects.toThrow(LmdbError)
   })
 })
 

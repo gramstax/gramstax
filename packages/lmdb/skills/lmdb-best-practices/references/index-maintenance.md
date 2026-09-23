@@ -4,7 +4,7 @@ Indexes maintain themselves — except when they must not.
 
 ## Why
 
-`put`/`putMany`/`update`/`putIfNotExists`/`delete`/`deleteByPrefix`/`clear` all maintain index rows in the writer transaction; `purgeExpired` cleans them with the record; updates free the old value. The only manual operation is `reindex()` after out-of-band changes.
+`put`/`putMany`/`putIfNotExists`/`delete`/`deleteByPrefix`/`clear` all maintain index rows in the writer transaction; `purgeExpired` cleans them with the record; updates free the old value. The only manual operation is `reindex()` after out-of-band changes.
 
 ## Incorrect
 
@@ -24,6 +24,7 @@ await users.reindex(`email`) // single index rebuild
 
 ## Notes
 
-- dupSort (non-unique) index subs opt out of versions — LMDB forbids the combination.
+- Every embedded-index sub-DB (unique and non-unique alike) is created with `useVersions: false` — LMDB forbids dupSort+versions.
 - Extractors run on the unwrapped value for TTL subs.
 - Self-update (same key, same value) is allowed through unique indexes.
+- Composite tuple rows maintain exactly like single-column rows (put/delete/clear/reindex); search posting tables (`search.md`) follow the same same-txn rule.

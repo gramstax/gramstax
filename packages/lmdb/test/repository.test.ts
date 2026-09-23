@@ -7,7 +7,7 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbKeyNotFoundError, LmdbLikePatternError, LmdbReadOnlyError} from "../src/errors"
+import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
 import {LmdbTransaction} from "../src/transaction"
 import {createTestDir, rmWithRetry} from "./test-helpers"
@@ -355,7 +355,7 @@ describe(`LmdbRepository read-only env`, () => {
     const roEnv = new LmdbEnv({path: tmpDir, maxDbs: 10, readOnly: true})
     try {
       roEnv.register(UserSchema)
-      await expect(roEnv.sub(UserSchema).put(`u1`, {id: `u1`, name: `A`, age: 1})).rejects.toThrow(LmdbReadOnlyError)
+      await expect(roEnv.sub(UserSchema).put(`u1`, {id: `u1`, name: `A`, age: 1})).rejects.toThrow(LmdbError)
     } finally {
       await roEnv.close()
     }
@@ -564,8 +564,8 @@ describe(`LmdbRepository.getStrict`, () => {
     expect(env.sub(UserSchema).getStrict(`u1`)?.name).toBe(`A`)
   })
 
-  it(`throws LmdbKeyNotFoundError when the key is absent`, () => {
-    expect(() => env.sub(UserSchema).getStrict(`missing`)).toThrow(LmdbKeyNotFoundError)
+  it(`throws LmdbError when the key is absent`, () => {
+    expect(() => env.sub(UserSchema).getStrict(`missing`)).toThrow(LmdbError)
   })
 
   it(`supports a read transaction`, async () => {
@@ -675,7 +675,7 @@ describe(`LmdbRepository.drop (sub-DB removal)`, () => {
     const roEnv = new LmdbEnv({path: tmpDir, readOnly: true})
     try {
       roEnv.register(UserSchema)
-      await expect(roEnv.sub(UserSchema).drop()).rejects.toThrow(LmdbReadOnlyError)
+      await expect(roEnv.sub(UserSchema).drop()).rejects.toThrow(LmdbError)
     } finally {
       await roEnv.close()
     }
@@ -683,21 +683,21 @@ describe(`LmdbRepository.drop (sub-DB removal)`, () => {
 })
 
 describe(`LmdbRepository operations after close`, () => {
-  it(`get throws LmdbEnvClosedError, not a raw native error`, async () => {
+  it(`get throws LmdbError, not a raw native error`, async () => {
     await env.sub(UserSchema).put(`u1`, {id: `u1`, name: `A`, age: 1})
     await env.close()
-    expect(() => env.sub(UserSchema).get(`u1`)).toThrow(LmdbEnvClosedError)
+    expect(() => env.sub(UserSchema).get(`u1`)).toThrow(LmdbError)
   })
 
-  it(`put after close rejects with LmdbEnvClosedError`, async () => {
+  it(`put after close rejects with LmdbError`, async () => {
     await env.close()
-    expect(() => env.sub(UserSchema).put(`u1`, {id: `u1`, name: `A`, age: 1})).toThrow(LmdbEnvClosedError)
+    expect(() => env.sub(UserSchema).put(`u1`, {id: `u1`, name: `A`, age: 1})).toThrow(LmdbError)
   })
 
-  it(`has and count after close throw LmdbEnvClosedError`, async () => {
+  it(`has and count after close throw LmdbError`, async () => {
     await env.close()
-    expect(() => env.sub(UserSchema).has(`u1`)).toThrow(LmdbEnvClosedError)
-    expect(() => env.sub(UserSchema).count()).toThrow(LmdbEnvClosedError)
+    expect(() => env.sub(UserSchema).has(`u1`)).toThrow(LmdbError)
+    expect(() => env.sub(UserSchema).count()).toThrow(LmdbError)
   })
 })
 
@@ -740,7 +740,7 @@ describe(`LmdbRepository key-type aware prefix helpers`, () => {
 
   it(`deleteByPrefix('') on a Buffer-keyed repo is rejected, not a silent no-op`, async () => {
     await env.sub(BufferKeyUserSchema).put(Buffer.from(`a`), {id: `a`, name: `A`, age: 1})
-    await expect(env.sub(BufferKeyUserSchema).deleteByPrefix(`` as any)).rejects.toBeInstanceOf(LmdbEmptyPrefixError)
+    await expect(env.sub(BufferKeyUserSchema).deleteByPrefix(`` as any)).rejects.toBeInstanceOf(LmdbError)
     expect(await env.sub(BufferKeyUserSchema).count()).toBe(1)
   })
 })
@@ -748,12 +748,12 @@ describe(`LmdbRepository key-type aware prefix helpers`, () => {
 describe(`LmdbRepository.deleteByPrefix empty-prefix guard`, () => {
   it(`rejects empty string prefix`, async () => {
     await env.sub(UserSchema).put(`u1`, {id: `u1`, name: `A`, age: 1})
-    await expect(env.sub(UserSchema).deleteByPrefix(``)).rejects.toBeInstanceOf(LmdbEmptyPrefixError)
+    await expect(env.sub(UserSchema).deleteByPrefix(``)).rejects.toBeInstanceOf(LmdbError)
     expect(env.sub(UserSchema).has(`u1`)).toBe(true)
   })
 
   it(`rejects zero-length Buffer prefix`, async () => {
-    await expect(env.sub(BufferKeyUserSchema).deleteByPrefix(Buffer.alloc(0))).rejects.toBeInstanceOf(LmdbEmptyPrefixError)
+    await expect(env.sub(BufferKeyUserSchema).deleteByPrefix(Buffer.alloc(0))).rejects.toBeInstanceOf(LmdbError)
   })
 })
 
@@ -768,7 +768,7 @@ describe(`LmdbRepository.countByPrefix async contract`, () => {
 
 describe(`LmdbRepository.like ReDoS guard`, () => {
   it(`rejects patterns with too many wildcards`, async () => {
-    await expect(env.sub(UserSchema).like(`a*a*a*a*a*a*a*a*a*a*a*x`)).rejects.toBeInstanceOf(LmdbLikePatternError)
+    await expect(env.sub(UserSchema).like(`a*a*a*a*a*a*a*a*a*a*a*x`)).rejects.toBeInstanceOf(LmdbError)
   })
 
   it(`allows patterns up to the wildcard limit`, async () => {

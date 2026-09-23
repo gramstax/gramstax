@@ -27,6 +27,6 @@ await runBench() // honors BENCH_FILTER regex
 
 ## Notes
 
-- Scripts: `bench:<name>` per file, `bench:quick` (`BENCH_N=1000` subset), `bench:all` (full suite; decode defaults to 500k rows).
-- Extra knobs: `BENCH_CONC` (csv concurrency, concurrent bench only).
+- Scripts: `bench:<name>` per file, `bench:quick` (`BENCH_N=1000` on crud+transaction+ttl; crud also `BENCH_CONC=10`), `bench:all` (full suite; decode defaults to 500k rows).
+- Extra knobs: `BENCH_CONC` (csv list, concurrent bench only, default `10,50,100`).
 - Benches are `@internal` scripts — excluded from `bun test` and CI.

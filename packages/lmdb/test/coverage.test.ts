@@ -1,9 +1,10 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {existsSync, mkdirSync, readdirSync, utimesSync} from "node:fs"
 import {join} from "node:path"
+import {LmdbBackup} from "../src/backup"
 import {LmdbEnv} from "../src/env"
-import {LmdbMapFullError, LmdbUseVersionsRequiredError} from "../src/errors"
-import {backupWithRetention, LmdbReplica} from "../src/replica"
+import {LmdbError} from "../src/errors"
+import {LmdbReader} from "../src/reader"
 import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
@@ -36,8 +37,8 @@ afterEach(async () => {
 
 describe(`coverage-errors`, () => {
   it(`constructs version and map-full errors`, () => {
-    expect(new LmdbUseVersionsRequiredError(`compareAndSet`).message).toContain(`useVersions`)
-    expect(new LmdbMapFullError(0.05).message).toContain(`0.050`)
+    expect(new LmdbError(`Cannot perform 'compareAndSet' because the env was not opened with useVersions: true.`).message).toContain(`useVersions`)
+    expect(new LmdbError(`MDB_MAP_FULL risk — free ratio 0.050 is below 10%. Increase mapSize or prune data.`).message).toContain(`0.050`)
   })
 })
 
@@ -66,14 +67,14 @@ describe(`coverage-sub`, () => {
 
 describe(`coverage-replica`, () => {
   it(`open with pollMs resets periodically and clears timer on close`, async () => {
-    const replica = await LmdbReplica.open(tmpDir, {pollMs: 10, maxDbs: 5})
+    const replica = await LmdbReader.open(tmpDir, {pollMs: 10, maxDbs: 5})
     expect(replica.readOnly).toBe(true)
     await new Promise((resolve) => setTimeout(resolve, 50))
     await replica.close()
     await replica.close()
   })
 
-  it(`backupWithRetention prunes deterministic old entries`, async () => {
+  it(`LmdbBackup.backup prunes deterministic old entries`, async () => {
     await env.sub(CovUserSchema).put(`u1`, {name: `Alice`})
     await env.committed
     const base = createTestDir(`lmdb-cov-backup-`)
@@ -83,7 +84,7 @@ describe(`coverage-replica`, () => {
         mkdirSync(join(base, name), {recursive: true})
         utimesSync(join(base, name), old, old)
       }
-      const dest = await backupWithRetention(env, base, 2)
+      const dest = await LmdbBackup.backup(env, base, 2)
       expect(dest.startsWith(base)).toBe(true)
       const entries = readdirSync(base)
       expect(entries.length).toBe(2)

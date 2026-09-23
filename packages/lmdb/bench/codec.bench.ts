@@ -11,6 +11,10 @@
  * measurement stay outside the measured closures; only a bounded 500-key
  * write window and its sequential reads are timed.
  *
+ * The ROW section proves the record codec (plan 017 Phase 2): a plain row
+ * schema gets positional array storage automatically, while identity hooks
+ * (or a json encoding + identity hooks) measure the uncompressed baseline.
+ *
  * Run: bun run packages/lmdb/bench/codec.bench.ts
  *
  * @internal
@@ -185,6 +189,60 @@ async function setupEncoding<T>(data: T, encoding: `msgpack` | `json`): Promise<
   return {env, bench, dir}
 }
 
+function makeRowSchema(dbName: string, encoding?: string, identityHooks = false) {
+  class RowSchema extends LmdbSchema {
+    static db = dbName
+    static key = t.string()
+    static value = {
+      id: t.string(),
+      name: t.string(),
+      email: t.string(),
+      bio: t.string(),
+      age: t.number(),
+      score: t.number(),
+      active: t.boolean(),
+      verified: t.boolean(),
+      tags: t.array<string>(),
+      roles: t.array<string>(),
+      address: t.object<{street: string; city: string; country: string; zip: string}>(),
+      meta: t.object<{loginCount: number; lastSeen: number}>()
+    }
+  }
+  if (encoding !== undefined) RowSchema.encoding = encoding
+  if (identityHooks) {
+    RowSchema.hookBeforeWrite = (value: unknown): unknown => value
+    RowSchema.hookBeforeRead = (raw: unknown): unknown => raw
+  }
+  return RowSchema
+}
+
+async function setupRowVariant<T>(data: T, variant: `record` | `plain` | `json`): Promise<Prepared> {
+  const dir = mkdtempSync(join(tmpdir(), `rec-${variant}-`))
+  const env = new LmdbEnv({path: dir, maxDbs: 5})
+  // `record` registers the bare row schema (codec auto-installed); the
+  // baselines add identity hooks to bypass it, `json` also flips encoding.
+  const bench = env.register(makeRowSchema(`bench-row-${variant}`, variant === `json` ? `json` : undefined, variant !== `record`)) as unknown as BenchHandle
+
+  const CHUNK = 500
+  for (let start = 0; start < WARMUP; start += CHUNK) {
+    const end = Math.min(start + CHUNK, WARMUP)
+    env.rootTransactionSync(() => {
+      for (let j = start; j < end; j++) bench.putSync(`w${j}`, data)
+    })
+  }
+  for (let i = 0; i < WARMUP; i++) await bench.get(`w${i}`)
+
+  for (let start = 0; start < N; start += CHUNK) {
+    const end = Math.min(start + CHUNK, N)
+    env.rootTransactionSync(() => {
+      for (let j = start; j < end; j++) bench.putSync(`k${j}`, data)
+    })
+  }
+  for (let i = 0; i < N; i++) await bench.get(`k${i}`)
+
+  return {env, bench, dir}
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -228,6 +286,27 @@ async function main(): Promise<void> {
     console.log(`  bytes/val: msgpack=${fmtBytes(mp)}  json=${fmtBytes(js)}  (json=${((js / mp) * 100).toFixed(0)}% of msgpack)`)
     console.log(``)
   }
+
+  console.log(`--- ROW (bot-shaped, 12 fields) record vs plain ---`)
+  const rowBytes: Record<string, number> = {}
+  for (const variant of [`record`, `plain`, `json`] as const) {
+    const p = await setupRowVariant(MEDIUM, variant)
+    prepared.push(p)
+    rowBytes[variant] = dirSize(p.dir) / N
+
+    group(`ROW / ${variant}`, () => {
+      bench(`ROW write window (500 puts/1 txn)`, () => {
+        p.env.rootTransactionSync(() => {
+          for (let j = 0; j < WINDOW; j++) p.bench.putSync(`r${j}`, MEDIUM)
+        })
+      })
+      bench(`ROW read sequential (500 gets/500 reqs)`, async () => {
+        for (let j = 0; j < WINDOW; j++) do_not_optimize(await p.bench.get(`r${j}`))
+      }).gc(`inner`)
+    })
+  }
+  console.log(`  bytes/val: record=${fmtBytes(rowBytes.record!)}  plain=${fmtBytes(rowBytes.plain!)}  json=${fmtBytes(rowBytes.json!)}`)
+  console.log(``)
 
   await runBench()
 

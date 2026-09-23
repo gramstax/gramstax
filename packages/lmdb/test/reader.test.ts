@@ -1,13 +1,14 @@
 /**
  * F12 — Replica attach sugar + backup retention.
  *
- * Read-only replica polling via resetReadTxn, backupWithRetention pruning.
+ * Read-only replica polling via resetReadTxn, backup pruning.
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {existsSync, readdirSync} from "node:fs"
 import {join} from "node:path"
+import {LmdbBackup} from "../src/backup"
 import {LmdbEnv} from "../src/env"
-import {backupWithRetention, LmdbReplica} from "../src/replica"
+import {LmdbReader} from "../src/reader"
 import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
@@ -31,12 +32,12 @@ afterEach(async () => {
   await rmWithRetry(tmpDir)
 })
 
-describe(`LmdbReplica`, () => {
+describe(`LmdbReader`, () => {
   it(`opens a read-only replica that sees writer data after resetReadTxn`, async () => {
     await env.sub(UserSchema).put(`u1`, {name: `Alice`})
     await env.committed
 
-    const replica = await LmdbReplica.open(tmpDir)
+    const replica = await LmdbReader.open(tmpDir)
     replica.register(UserSchema)
     const roRepo = replica.sub(UserSchema)
     // Initially may see u1, or need reset after writer commit
@@ -54,7 +55,7 @@ describe(`LmdbReplica`, () => {
   })
 
   it(`replica rejects writes`, async () => {
-    const replica = await LmdbReplica.open(tmpDir)
+    const replica = await LmdbReader.open(tmpDir)
     replica.register(UserSchema)
     const roRepo = replica.sub(UserSchema)
     await expect(roRepo.put(`u1`, {name: `Alice`})).rejects.toThrow()
@@ -64,18 +65,18 @@ describe(`LmdbReplica`, () => {
 
 const skipBackup = process.platform === `win32`
 
-describe(`backupWithRetention`, () => {
+describe(`backup`, () => {
   ;(skipBackup ? it.skip : it)(`creates a backup and prunes to keep N`, async () => {
     await env.sub(UserSchema).put(`u1`, {name: `Alice`})
     await env.committed
 
     const base = createTestDir(`lmdb-backup-retention-`)
     try {
-      await backupWithRetention(env, base, 2)
+      await LmdbBackup.backup(env, base, 2)
       await Bun.sleep(15)
-      await backupWithRetention(env, base, 2)
+      await LmdbBackup.backup(env, base, 2)
       await Bun.sleep(15)
-      await backupWithRetention(env, base, 2)
+      await LmdbBackup.backup(env, base, 2)
       // After 3 backups with keep=2, only 2 should remain
       const entries = readdirSync(base)
       expect(entries.length).toBe(2)
@@ -91,7 +92,7 @@ describe(`backupWithRetention`, () => {
   ;(skipBackup ? it.skip : it)(`single backup with keep=1 leaves one entry`, async () => {
     const base = createTestDir(`lmdb-backup-single-`)
     try {
-      await backupWithRetention(env, base, 1)
+      await LmdbBackup.backup(env, base, 1)
       expect(readdirSync(base).length).toBe(1)
     } finally {
       await rmWithRetry(base)

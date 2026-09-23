@@ -25,7 +25,7 @@ class UserSchema extends LmdbSchema {
     id: t.number().unique(),
     username: t.string().index(),
     email: t.string(),
-    tags: t.array<string>().nullable(),
+    tags: t.array<string>().optional(),
     createdAt: t.date()
   }
 }
@@ -41,5 +41,7 @@ class Db extends LmdbEnv {
 ## Notes
 
 - Key types that survive `KeyOf`: string, number, boolean, array (composite), buffer. `t.bigint()` keys degrade to `never`.
-- `ValueOf` columns are nullable-by-default (`T | undefined`).
-- Scalar `static value` (`t.number()`, `t.string()`) for counters/blobs; `static dupSort = true` for one-key-to-many tables.
+- Scalar `static value` (`t.number()`, `t.string()`) for counters/blobs; `static dupSort = true` for one-key-to-many tables (`addValue`/`getValues`/`getValuesCount`/`removeValue`, dupSort-only).
+- Closed sets → `schema-enum.md`; omit-able fields and write-time fill → `schema-defaults.md`.
+- Row schemas store positionally (record codec) with zero type change — custom-hook, TTL, and scalar-value schemas bypass it; see `schema-hooks-ttl.md`.
+- Full-text columns → `search.md` (`.search()` marker); concatenated keys → `index-declaration.md` (`.index([a, b])`); shape versions for migrations → `migrate.md` (`static version`).

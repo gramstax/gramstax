@@ -13,6 +13,6 @@ export default defineConfig({
   shims: true,
   platform: `node`,
   target: `esnext`,
-  external: [`lmdb`],
+  external: [`lmdb`, `tar`, `@aws-sdk/client-s3`],
   tsconfig: `./tsconfig.build.json`
 })
