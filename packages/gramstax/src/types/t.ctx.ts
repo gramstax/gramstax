@@ -279,6 +279,36 @@ export type ITOptEditMedia1 = Parameters<Context[`editMessageMedia`]>[0]
 export type ITOptEditMedia2 = Parameters<Context[`editMessageMedia`]>[1]
 
 /**
+ * Signal for editing message captions.
+ *
+ * @remarks
+ * Extracted from `Context.editMessageCaption()` method signal parameter.
+ *
+ * @public
+ */
+export type ITOptEditCaption = Parameters<Context[`editMessageCaption`]>[1]
+
+/**
+ * Signal for editing message reply markup (inline keyboard only).
+ *
+ * @remarks
+ * Extracted from `Context.editMessageReplyMarkup()` method signal parameter.
+ *
+ * @public
+ */
+export type ITOptEditKeyboard = Parameters<Context[`editMessageReplyMarkup`]>[1]
+
+/**
+ * Options for sending a Telegram gift.
+ *
+ * @remarks
+ * Extracted from `Context.replyWithGift()` method options parameter.
+ *
+ * @public
+ */
+export type ITOptGift = Parameters<Context[`replyWithGift`]>[1]
+
+/**
  * Type of chat action to send.
  *
  * @remarks

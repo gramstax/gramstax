@@ -36,9 +36,12 @@ import type {
   ITKbCols,
   ITKbDest,
   ITOptEdit,
+  ITOptEditCaption,
+  ITOptEditKeyboard,
   ITOptEditMedia1,
   ITOptEditMedia2,
   ITOptFallbackEdit,
+  ITOptGift,
   ITOptReply,
   ITOptReplyAnimation,
   ITOptReplyAudio,
@@ -1332,6 +1335,8 @@ export class Ctx extends Context {
     `sendChatAction`,
     `sendInvoice`,
     `sendGame`,
+    `sendGift`,
+    `sendGiftToChannel`,
     `sendMessageDraft`,
     `sendRichMessage`,
     `sendRichMessageDraft`,
@@ -2922,6 +2927,199 @@ export class Ctx extends Context {
       }
       // No text fallback for text: there is no degraded content to deliver, so rethrow after notify+log.
       this.log?.warn(`text send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Detects forum-topic errors that deserve a single general-topic fallback.
+   *
+   * @param error - The send error to inspect.
+   * @returns `true` when the error is a topic/thread `400`.
+   */
+  private static isTopicInvalidError(error: unknown): boolean {
+    if (error instanceof GrammyError) {
+      if (error.error_code !== 400) return false
+      return /thread|topic/i.test(`${error.description ?? ``} ${error.message ?? ``}`)
+    }
+    return /thread|topic|message_thread_id/i.test(String((error as {message?: unknown})?.message ?? String(error)))
+  }
+
+  /**
+   * Sends a text message reply into a forum topic using the page template.
+   *
+   * @remarks
+   * Mirrors `render` but targets a forum topic via `message_thread_id`.
+   * When the topic is invalid (thread/topic `400`) it falls back ONCE to
+   * plain `render` (general topic); the fallback never retries the topic.
+   * Other errors follow the standard path: classified via
+   * `Ctx.classifySendError`, reported to `notifySendError`, logged, rethrown.
+   *
+   * @param threadId - Forum topic thread id (`message_thread_id`).
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position for block message.
+   * @param options - Optional reply options (or null to omit).
+   * @returns The sent message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderThread(123, undefined, undefined, `topic-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderThread(threadId: number, keyboard: ITInBoKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptReply | null) {
+    try {
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+      return await this.reply(msg, {
+        parse_mode: `HTML`,
+        reply_markup: keyboard ?? undefined,
+        ...(options ?? {}),
+        message_thread_id: threadId
+      })
+    } catch (error) {
+      if (Ctx.isTopicInvalidError(error)) {
+        this.log?.warn(`renderThread invalid topic, falling back to general topic for page "${this.sendPageName()}"`)
+        return await this.render(keyboard, data, AGBaseId, options)
+      }
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`thread send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`thread send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Sends a long template text as sequential chunks using the page template.
+   *
+   * @remarks
+   * Renders the full block FIRST (placeholders never split), then splits
+   * deterministically (boundary priority `\n\n` → `\n` → space → hard-cut,
+   * pieces trimmed, empties skipped) and sends sequentially with the keyboard
+   * ONLY on the last chunk. On mid-loop failure the error is classified,
+   * reported to `notifySendError`, stamped with `chunkIndex`, logged, rethrown.
+   *
+   * @param keyboard - Optional keyboard markup, sent only on the last chunk (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position for block message.
+   * @param options - Optional reply options (or null to omit).
+   * @param chunkSize - Max chars per chunk (defaults to `4096`).
+   * @returns The sent message objects in order.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderChunked(undefined, undefined, `long-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderChunked(keyboard: ITInBoKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptReply | null, chunkSize = 4096) {
+    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    const size = Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096
+    const chunks: string[] = []
+    let rest = msg
+    while (rest.length > 0) {
+      if (rest.length <= size) {
+        const tail = rest.trim()
+        if (tail !== ``) chunks.push(tail)
+        break
+      }
+      const window = rest.slice(0, size)
+      let cut = size
+      const atDouble = window.lastIndexOf(`\n\n`)
+      if (atDouble > 0) cut = atDouble
+      else {
+        const atSingle = window.lastIndexOf(`\n`)
+        if (atSingle > 0) cut = atSingle
+        else {
+          const atSpace = window.lastIndexOf(` `)
+          if (atSpace > 0) cut = atSpace
+        }
+      }
+      const piece = rest.slice(0, cut).trim()
+      if (piece !== ``) chunks.push(piece)
+      rest = rest.slice(cut).trimStart()
+    }
+    const out: Array<Awaited<ReturnType<Ctx[`reply`]>>> = []
+    for (let index = 0; index < chunks.length; index++) {
+      const last = index === chunks.length - 1
+      try {
+        out.push(
+          await this.reply(chunks[index]!, {
+            parse_mode: `HTML`,
+            reply_markup: last ? (keyboard ?? undefined) : undefined,
+            ...(options ?? {})
+          })
+        )
+      } catch (error) {
+        const kind = Ctx.classifySendError(error)
+        this.notifySendError(error, kind, this.sendChatId())
+        if (typeof error === `object` && error !== null) (error as {chunkIndex?: number}).chunkIndex = index
+        this.log?.error(`chunked send error at chunk ${index} for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+    }
+    return out
+  }
+
+  /**
+   * Sends a Telegram gift with card text from the page template.
+   *
+   * @remarks
+   * Card text comes from the `<g-base id>` block via `getGMessage` (the
+   * `text` param on `sendGift` is what qualifies this as `render*`) and is
+   * sent via `api.sendGift`. `target` (user id) is explicit because gifts do
+   * not always go to the active chat — unlike every other render method.
+   *
+   * Failure rule: insufficient Stars balance (`400`) throws after notify — a
+   * failed gift MUST NOT degrade into sending the card as plain text (that
+   * would deceive the user). No silent fallback on any path.
+   *
+   * @param target - Gift recipient user id.
+   * @param giftId - Telegram gift identifier.
+   * @param keyboard - Must stay null: `sendGift` carries no reply markup, so a non-null keyboard throws before any API call (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position for block message.
+   * @param options - Optional gift options (or null to omit).
+   * @returns `true` on success.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderGift(123456, `gift-id`, undefined, undefined, `gift-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderGift(target: number, giftId: string, keyboard: ITInlineKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptGift | null) {
+    if (keyboard !== undefined && keyboard !== null) throw new Error(`renderGift does not support keyboards: sendGift carries no reply markup (target ${target})`)
+    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    try {
+      const extra: Parameters<Ctx[`api`][`sendGift`]>[2] = {
+        text: msg,
+        text_parse_mode: `HTML`,
+        ...(options ?? {})
+      }
+      return await this.api.sendGift(target, giftId, extra)
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, target)
+      if (kind === `retryable`) {
+        this.log?.error(`gift send retryable error for page "${this.sendPageName()}" target ${target}: ${String(error)}`)
+        throw error
+      }
+      // A failed gift must never degrade into sending the card as plain text.
+      this.log?.warn(`gift send fallback-text error for page "${this.sendPageName()}" target ${target}: ${String(error)}`)
       throw error
     }
   }
@@ -4949,6 +5147,115 @@ export class Ctx extends Context {
         }
       }
       return await this.render(keyboardInline, data, AGBaseId, options)
+    }
+  }
+
+  /**
+   * Edits a media message caption using the page template.
+   *
+   * @remarks
+   * Caption text comes from the `<g-base id>` block via `getGMessage` and is
+   * sent via `editMessageCaption`. Fallback modes mirror `renderEdit`:
+   * `delete-reply`/`reply` resend the caption as plain text, `disable` throws.
+   *
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position for block message.
+   * @param options - Optional abort signal for the edit call (or null to omit).
+   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
+   *                        the original message then sends a new one; `reply` sends without
+   *                        deleting; `disable` rethrows the error.
+   * @returns The edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.renderEditCaption(undefined, undefined, `photo-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderEditCaption(keyboardInline: ITInlineKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptEditCaption | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+    try {
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+      return await this.editMessageCaption(
+        {
+          caption: msg,
+          parse_mode: `HTML`,
+          reply_markup: keyboardInline ?? undefined
+        },
+        options ?? undefined
+      )
+    } catch (error) {
+      if (fallbackEdit === `disable`) {
+        throw error
+      }
+      this.log?.warn(`renderEditCaption fallback reply for page "${this.sendPageName()}"`)
+      if (options !== undefined && options !== null) this.log?.warn(`renderEditCaption dropping abort signal on fallback reply for page "${this.sendPageName()}"`)
+      if (fallbackEdit === `delete-reply`) {
+        try {
+          await this.deleteMessage()
+        } catch {
+          // delete failure (e.g. already deleted) must not block the fallback reply
+        }
+      }
+      return await this.render(keyboardInline, data, AGBaseId)
+    }
+  }
+
+  /**
+   * Edits only the inline keyboard using the page template.
+   *
+   * @remarks
+   * Sent via `editMessageReplyMarkup` — never touches message text. When
+   * `keyboardInline` is null, the markup resolves from the `<g-keyboard>`
+   * block of the given `AGBaseId` itself (via `getGKeyboard` with `data` for
+   * dynamic labels), which is what makes `AGBaseId` meaningful here. No
+   * send-fallback (nothing new to send): failures are classified via
+   * `Ctx.classifySendError`, reported to `notifySendError`, logged, rethrown.
+   *
+   * @param keyboardInline - Optional inline keyboard markup, or null to resolve it from the block.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position for block keyboard.
+   * @param options - Optional abort signal for the edit call (or null to omit).
+   * @returns The edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.renderEditKeyboard(null, undefined, `photo-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderEditKeyboard(keyboardInline: ITInlineKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptEditKeyboard | null) {
+    try {
+      let resolved = keyboardInline ?? undefined
+      if (resolved === undefined) {
+        const labels = this.templateManager.getGKeyboard(this.data.name, AGBaseId, this.from?.language_code, `inline`, data ?? undefined)
+        if (labels.length > 0) {
+          const built = new InlineKeyboard()
+          for (const label of labels) built.text(label, label)
+          resolved = built as ITInlineKb
+        }
+      }
+      return await this.editMessageReplyMarkup(
+        {
+          reply_markup: resolved ?? undefined
+        },
+        options ?? undefined
+      )
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`keyboard edit retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`keyboard edit fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
     }
   }
 
