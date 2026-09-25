@@ -15,7 +15,7 @@ import {setTimeout} from "node:timers/promises"
 import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
-import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent} from "grammy/types"
+import type {EphemeralMessageParameters, InlineQueryResult, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent} from "grammy/types"
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
 import {TemplateEngine, type ITInvoiceBlock, type ITMediaBlock, type ITPaidMediaBlock, type ITPollBlock} from "~/template/engine"
@@ -35,6 +35,7 @@ import type {
   ITInlineKbParams,
   ITKbCols,
   ITKbDest,
+  ITOptCallbackAnswer,
   ITOptEdit,
   ITOptEditCaption,
   ITOptEditKeyboard,
@@ -42,6 +43,9 @@ import type {
   ITOptEditMedia2,
   ITOptFallbackEdit,
   ITOptGift,
+  ITOptGuestAnswer,
+  ITOptInlineAnswer,
+  ITOptPreCheckout,
   ITOptReply,
   ITOptReplyAnimation,
   ITOptReplyAudio,
@@ -54,6 +58,8 @@ import type {
   ITOptReplyVideo,
   ITOptReplyVideoNote,
   ITOptReplyVoice,
+  ITOptShipping,
+  ITOptWebAppAnswer,
   ITPageData,
   ITPageDataBase,
   ITSendErrorHook,
@@ -2253,6 +2259,7 @@ export class Ctx extends Context {
   /**
    * Sends a message to multiple users in bulk.
    *
+   * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
    * Automatically throttles after 30 messages to respect Telegram rate limits.
    * Uses each user's specified language code for template rendering.
@@ -2574,6 +2581,7 @@ export class Ctx extends Context {
   /**
    * Edits already-sent messages for many recipients in bulk.
    *
+   * Template block: `<g-media>` (read via `getGMedia`).
    * @remarks
    * Mass typo-fix / content-revision counterpart of `renderBroadcastMedia`:
    * same checkpoint-first resume (`startFrom`), bounded-concurrency stride
@@ -2791,6 +2799,7 @@ export class Ctx extends Context {
   /**
    * Deletes already-sent messages for many recipients in bulk.
    *
+   * Template block: none — operates on message ids, reads no template block.
    * @remarks
    * Expiry-cleanup counterpart of `renderBroadcastEdit`: same
    * checkpoint-first resume (`startFrom`), bounded-concurrency stride lanes
@@ -2879,6 +2888,7 @@ export class Ctx extends Context {
   /**
    * Sends a text message reply using the page template.
    *
+   * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
    * Observe-only send-error coverage (mirrors `renderMedia`): failures are
    * classified via `Ctx.classifySendError`, reported to `notifySendError`,
@@ -2948,6 +2958,7 @@ export class Ctx extends Context {
   /**
    * Sends a text message reply into a forum topic using the page template.
    *
+   * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
    * Mirrors `render` but targets a forum topic via `message_thread_id`.
    * When the topic is invalid (thread/topic `400`) it falls back ONCE to
@@ -2999,6 +3010,7 @@ export class Ctx extends Context {
   /**
    * Sends a long template text as sequential chunks using the page template.
    *
+   * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
    * Renders the full block FIRST (placeholders never split), then splits
    * deterministically (boundary priority `\n\n` → `\n` → space → hard-cut,
@@ -3074,8 +3086,9 @@ export class Ctx extends Context {
   /**
    * Sends a Telegram gift with card text from the page template.
    *
+   * Template block: `<g-gift>` (read via `getGGift`).
    * @remarks
-   * Card text comes from the `<g-base id>` block via `getGMessage` (the
+   * Card text comes from the `<g-gift>` block via `getGGift` (the
    * `text` param on `sendGift` is what qualifies this as `render*`) and is
    * sent via `api.sendGift`. `target` (user id) is explicit because gifts do
    * not always go to the active chat — unlike every other render method.
@@ -3103,7 +3116,7 @@ export class Ctx extends Context {
    */
   async renderGift(target: number, giftId: string, keyboard: ITInlineKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptGift | null) {
     if (keyboard !== undefined && keyboard !== null) throw new Error(`renderGift does not support keyboards: sendGift carries no reply markup (target ${target})`)
-    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    const msg = this.templateManager.getGGift(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
       const extra: Parameters<Ctx[`api`][`sendGift`]>[2] = {
         text: msg,
@@ -3120,6 +3133,300 @@ export class Ctx extends Context {
       }
       // A failed gift must never degrade into sending the card as plain text.
       this.log?.warn(`gift send fallback-text error for page "${this.sendPageName()}" target ${target}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Answers the active callback query with template text.
+   *
+   * @remarks
+   * Template-backed counterpart to answering inline-button taps: the
+   * `<g-callback-answer>` block supplies the notification text (multilang via
+   * `data`), shown either as a toast or as an alert. There is no message
+   * to send, so this takes no keyboard and never falls back to a reply.
+   *
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * After notify+log the original error is ALWAYS rethrown untouched.
+   *
+   * Toast text is limited by Telegram to 200 characters — keep the block short.
+   *
+   * @param showAlert - Whether to show an alert instead of a toast notification.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position for the notification text.
+   * @param options - Optional answer options such as `cache_time` (or null to omit).
+   * @returns True on success.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderCallbackAnswer(false, undefined, `tap-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderCallbackAnswer(showAlert: boolean, data: ITData | null | undefined, AGBaseId: string, options?: ITOptCallbackAnswer | null) {
+    const msg = this.templateManager.getGCallbackAnswer(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    try {
+      return await this.answerCallbackQuery({text: msg, show_alert: showAlert, ...((typeof options === `object` ? options : {}) ?? {})})
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`callback answer retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`callback answer fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Answers the active pre-checkout query with a template-backed error message.
+   *
+   * @remarks
+   * Template-backed counterpart to {@link (Ctx:class).answerPreCheckout}:
+   * the `<g-precheckout-error>` block supplies the `error_message` shown when payment
+   * is declined (multilang via `data`). The block is always resolved — even
+   * for `ok=true` — as fail-fast validation that the template exists.
+   * A string `options` overrides the block text as the error message.
+   *
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * After notify+log the original error is ALWAYS rethrown untouched.
+   *
+   * Telegram requires the answer within 10 seconds of the query.
+   *
+   * @param ok - Whether to approve the checkout.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position for the error message.
+   * @param options - Optional answer options, or a string overriding the error message (or null to omit).
+   * @returns True on success.
+   *
+   * @example
+   * ```typescript
+   * async handlePreCheckout() {
+   *   await this.renderPreCheckout(false, undefined, `pay-declined-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderPreCheckout(ok: boolean, data: ITData | null | undefined, AGBaseId: string, options?: ITOptPreCheckout | null) {
+    const msg = this.templateManager.getGPrecheckoutError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    try {
+      if (ok) return await this.answerPreCheckoutQuery(true, ((typeof options === `object` ? options : {}) ?? {}) as ITOptPreCheckout)
+      const errorMessage = typeof options === `string` ? options : msg
+      return await this.answerPreCheckoutQuery(false, {error_message: errorMessage, ...((typeof options === `object` ? options : {}) ?? {})})
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`pre-checkout answer retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`pre-checkout answer fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Answers the active shipping query with a template-backed error message.
+   *
+   * @remarks
+   * The `<g-shipping-error>` block supplies the `error_message` shown when the
+   * shipping address is rejected (multilang via `data`). The block is always
+   * resolved — even for `ok=true` — as fail-fast validation that the
+   * template exists.
+   *
+   * Observe-only send-error coverage (mirrors `renderPreCheckout`):
+   * failures are classified via `Ctx.classifySendError`, reported to
+   * `notifySendError`, and logged (`retryable` → `log.error`,
+   * `fallback-text` → `log.warn`). After notify+log the original error is
+   * ALWAYS rethrown untouched.
+   *
+   * @param ok - Whether the shipping address is acceptable.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position for the error message.
+   * @param options - Optional answer options such as `shipping_options` (or null to omit).
+   * @returns True on success.
+   *
+   * @example
+   * ```typescript
+   * async handleShipping() {
+   *   await this.renderShipping(false, undefined, `ship-rejected-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderShipping(ok: boolean, data: ITData | null | undefined, AGBaseId: string, options?: ITOptShipping | null) {
+    const msg = this.templateManager.getGShippingError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    try {
+      if (ok) return await this.answerShippingQuery(true, (options ?? {}) as ITOptShipping)
+      return await this.answerShippingQuery(false, {error_message: msg, ...(options ?? {})})
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`shipping answer retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`shipping answer fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Answers the active inline query with caller-built results and template button text.
+   *
+   * @remarks
+   * Result contents are built by the caller from `data` (multilang payloads);
+   * the `<g-inline-button>` block supplies the default `button.text` label
+   * and `start_parameter`. Precedence: a caller-supplied `options.button`
+   * wins first, then the explicit `buttonStartParameter`, then the block's
+   * own `start-parameter`. The block is always resolved — even when no
+   * button is built — as fail-fast validation that the template exists.
+   *
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * After notify+log the original error is ALWAYS rethrown untouched.
+   *
+   * Telegram caps answers at 50 results; cache them with `cache_time` for
+   * identical queries.
+   *
+   * @param results - Inline results built by the caller (up to 50).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position for the button text.
+   * @param options - Optional answer options (or null to omit).
+   * @param buttonStartParameter - Optional deep-link start parameter; enables the block-text button (or null to omit).
+   * @returns True on success.
+   *
+   * @example
+   * ```typescript
+   * async handleInlineQuery() {
+   *   await this.renderInlineAnswer([article], {name: `Ani`}, `inline-card`, undefined, `start=1`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderInlineAnswer(results: readonly InlineQueryResult[], data: ITData | null | undefined, AGBaseId: string, options?: ITOptInlineAnswer | null, buttonStartParameter?: string | null) {
+    const button = this.templateManager.getGInlineButton(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    try {
+      const extra: ITOptInlineAnswer = {...(options ?? {})}
+      if (extra.button === undefined) {
+        const startParameter = buttonStartParameter ?? button.startParameter
+        if (startParameter !== undefined) {
+          extra.button = {text: button.text, start_parameter: startParameter}
+        }
+      }
+      return await this.answerInlineQuery(results, extra)
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`inline answer retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`inline answer fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Answers the active guest message query with a caller-built result.
+   *
+   * @remarks
+   * The result content is built by the caller from `data` (multilang
+   * payloads); the `<g-answer-note>` block is resolved as fail-fast validation
+   * that the template exists, per the AGBaseId-required policy.
+   *
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * After notify+log the original error is ALWAYS rethrown untouched.
+   *
+   * @param result - Inline result built by the caller.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position (resolved for validation).
+   * @param options - Optional abort signal (or null to omit).
+   * @returns The sent guest message object.
+   *
+   * @example
+   * ```typescript
+   * async handleGuestMessage() {
+   *   await this.renderGuestAnswer(article, undefined, `guest-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderGuestAnswer(result: InlineQueryResult, data: ITData | null | undefined, AGBaseId: string, options?: ITOptGuestAnswer | null) {
+    void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    try {
+      return await this.answerGuestQuery(result, options ?? undefined)
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`guest answer retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`guest answer fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
+   * Answers a web app query via the Bot API with a caller-built result.
+   *
+   * @remarks
+   * Unlike the other answers this carries an explicit query id (there is no
+   * context-aware alias — web app queries arrive without an answerable
+   * update), mirroring `renderGift`'s explicit target. The result content is
+   * built by the caller from `data` (multilang payloads); the `<g-answer-note>`
+   * block is resolved as fail-fast validation that the template exists, per
+   * the AGBaseId-required policy.
+   *
+   * Observe-only send-error coverage (mirrors `renderGift`): failures are
+   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
+   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
+   * After notify+log the original error is ALWAYS rethrown untouched.
+   *
+   * @param webAppQueryId - Unique identifier for the query to answer.
+   * @param result - Inline result built by the caller.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Template base ID position (resolved for validation).
+   * @param options - Optional abort signal (or null to omit).
+   * @returns The sent web app message object.
+   *
+   * @example
+   * ```typescript
+   * async handleWebAppData() {
+   *   await this.renderWebAppAnswer(queryId, article, undefined, `webapp-card`)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderWebAppAnswer(webAppQueryId: string, result: InlineQueryResult, data: ITData | null | undefined, AGBaseId: string, options?: ITOptWebAppAnswer | null) {
+    void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    try {
+      return await this.api.answerWebAppQuery(webAppQueryId, result, options ?? undefined)
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`webapp answer retryable error for page "${this.sendPageName()}" query ${webAppQueryId}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`webapp answer fallback-text error for page "${this.sendPageName()}" query ${webAppQueryId}: ${String(error)}`)
       throw error
     }
   }
@@ -3228,6 +3535,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderRich} and {@link (Ctx:class).renderEditRich},
    * auto-detected from `!!this.callbackQuery`.
    *
+   * Template block: `<g-message>` (read via `renderEditRich/renderRich`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID (or null to use default).
@@ -3257,6 +3565,7 @@ export class Ctx extends Context {
   /**
    * Edits an existing message with rich content using the page template.
    *
+   * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
    * Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API
    * {@link TemplateEngine.BOT_API_VERSION}). This method can edit both text and
@@ -3322,6 +3631,7 @@ export class Ctx extends Context {
   /**
    * Sends a media message reply with dynamic type selection.
    *
+   * Template block: `<g-media>` (read via `getGMedia`).
    * @remarks
    * This is the base method for all media reply methods. Use specific methods
    * like {@link (Ctx:class).renderPhoto} or {@link (Ctx:class).renderVideo} for simpler usage.
@@ -3597,6 +3907,7 @@ export class Ctx extends Context {
   /**
    * Sends a template poll to multiple users in bulk.
    *
+   * Template block: `<g-poll>` (read via `getGPoll`).
    * @remarks
    * Poll counterpart of `renderBroadcastMedia`: the same checkpoint-first loop
    * (per-language `getGPoll` compilation, fail-fast `Ctx.assertPoll` for every
@@ -3984,6 +4295,7 @@ export class Ctx extends Context {
   /**
    * Sends a photo message using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
@@ -4006,6 +4318,7 @@ export class Ctx extends Context {
   /**
    * Sends a photo media group using pipe-delimited `src` values from the page template.
    *
+   * Template block: `<g-media>` (read via `renderMediaGroup`).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
    * @param options - Optional photo-specific options (or null to omit).
@@ -4027,6 +4340,7 @@ export class Ctx extends Context {
   /**
    * Sends a video message using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
@@ -4049,6 +4363,7 @@ export class Ctx extends Context {
   /**
    * Sends a video media group using pipe-delimited `src` values from the page template.
    *
+   * Template block: `<g-media>` (read via `renderMediaGroup`).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
    * @param options - Optional video-specific options (or null to omit).
@@ -4070,6 +4385,7 @@ export class Ctx extends Context {
   /**
    * Sends an audio message using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
@@ -4092,6 +4408,7 @@ export class Ctx extends Context {
   /**
    * Sends an audio media group using pipe-delimited `src` values from the page template.
    *
+   * Template block: `<g-media>` (read via `renderMediaGroup`).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
    * @param options - Optional audio-specific options (or null to omit).
@@ -4113,6 +4430,7 @@ export class Ctx extends Context {
   /**
    * Sends a document message using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
@@ -4135,6 +4453,7 @@ export class Ctx extends Context {
   /**
    * Sends a document media group using pipe-delimited `src` values from the page template.
    *
+   * Template block: `<g-media>` (read via `renderMediaGroup`).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
    * @param options - Optional document-specific options (or null to omit).
@@ -4156,6 +4475,7 @@ export class Ctx extends Context {
   /**
    * Sends an animation/GIF message using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).
@@ -4178,6 +4498,7 @@ export class Ctx extends Context {
   /**
    * Sends a voice message using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).
@@ -4200,6 +4521,7 @@ export class Ctx extends Context {
   /**
    * Sends a video note (circular video) using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).
@@ -4222,6 +4544,7 @@ export class Ctx extends Context {
   /**
    * Sends a sticker using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).
@@ -4244,6 +4567,7 @@ export class Ctx extends Context {
   /**
    * Sends a location using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @remarks
    * When the template `<g-media type="location">` carries a `live` attribute
    * (seconds), it is validated by `Ctx.assertLivePeriod` and sent as Bot API
@@ -4271,6 +4595,7 @@ export class Ctx extends Context {
   /**
    * Sends a contact using the page template.
    *
+   * Template block: `<g-media>` (read via `renderMedia`).
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).
@@ -4691,6 +5016,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).render} and {@link (Ctx:class).renderEdit} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-message>` (read via `renderEdit/render`).
    * @remarks
    * When a callback query is present, delegates to `renderEdit` (inline keyboard only).
    * Otherwise, delegates to `render` (inline or bottom keyboard).
@@ -4727,6 +5053,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderMedia} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia/renderMedia`).
    * @typeParam T - The media type (photo, video, audio, etc.)
    * @param type - The media type.
    * @param keyboard - Optional keyboard markup (or null to omit).
@@ -4804,6 +5131,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderPhoto} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -4834,6 +5162,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderVideo} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -4864,6 +5193,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderAudio} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -4894,6 +5224,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderDocument} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -4924,6 +5255,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderAnimation} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -4954,6 +5286,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderVoice} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -4984,6 +5317,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderVideoNote} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -5014,6 +5348,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderSticker} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -5044,6 +5379,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderLocation} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -5074,6 +5410,7 @@ export class Ctx extends Context {
    * between {@link (Ctx:class).renderContact} and {@link (Ctx:class).renderEditMedia} based on
    * `!!this.callbackQuery`.
    *
+   * Template block: `<g-media>` (read via `renderAutoMedia`).
    * @remarks
    * Callback-query updates edit in place while plain messages reply.
    *
@@ -5102,6 +5439,7 @@ export class Ctx extends Context {
   /**
    * Edits an existing message text using the page template.
    *
+   * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
    * If editing fails (e.g., message too old), the fallback behavior is controlled
    * by `fallbackEdit` (default `delete-reply`: deletes the original message and
@@ -5153,6 +5491,7 @@ export class Ctx extends Context {
   /**
    * Edits a media message caption using the page template.
    *
+   * Template block: `<g-message + g-keyboard>` (read via `getGMessage/getGKeyboard`).
    * @remarks
    * Caption text comes from the `<g-base id>` block via `getGMessage` and is
    * sent via `editMessageCaption`. Fallback modes mirror `renderEdit`:
@@ -5262,6 +5601,7 @@ export class Ctx extends Context {
   /**
    * Edits an existing media message with dynamic type selection.
    *
+   * Template block: `<g-media>` (read via `getGMedia`).
    * @remarks
    * For media types that cannot be edited (voice, video_note, sticker, location, contact),
    * the original message is deleted and a new one is sent. Multi-src media groups cannot
@@ -5387,6 +5727,7 @@ export class Ctx extends Context {
   /**
    * Edits an existing message to show a photo.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @param keyboardInline - Optional inline keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
@@ -5413,6 +5754,7 @@ export class Ctx extends Context {
   /**
    * Edits an existing message to show a video.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @param keyboardInline - Optional inline keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
@@ -5439,6 +5781,7 @@ export class Ctx extends Context {
   /**
    * Edits an existing message to show an audio.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @param keyboardInline - Optional inline keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
@@ -5465,6 +5808,7 @@ export class Ctx extends Context {
   /**
    * Edits an existing message to show a document.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @param keyboardInline - Optional inline keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
@@ -5552,6 +5896,7 @@ export class Ctx extends Context {
   /**
    * Replaces the current message with a photo media group.
    *
+   * Template block: `<g-media>` (read via `renderEditMediaGroup`).
    * @remarks
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
    * Useful when the template uses pipe-delimited `src` values.
@@ -5580,6 +5925,7 @@ export class Ctx extends Context {
   /**
    * Replaces the current message with a video media group.
    *
+   * Template block: `<g-media>` (read via `renderEditMediaGroup`).
    * @remarks
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
    * Useful when the template uses pipe-delimited `src` values.
@@ -5608,6 +5954,7 @@ export class Ctx extends Context {
   /**
    * Replaces the current message with an audio media group.
    *
+   * Template block: `<g-media>` (read via `renderEditMediaGroup`).
    * @remarks
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
    * Useful when the template uses pipe-delimited `src` values.
@@ -5636,6 +5983,7 @@ export class Ctx extends Context {
   /**
    * Replaces the current message with a document media group.
    *
+   * Template block: `<g-media>` (read via `renderEditMediaGroup`).
    * @remarks
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
    * Useful when the template uses pipe-delimited `src` values.
@@ -5664,6 +6012,7 @@ export class Ctx extends Context {
   /**
    * Edits an existing message to show an animation.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @param keyboardInline - Optional inline keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).
@@ -5690,6 +6039,7 @@ export class Ctx extends Context {
   /**
    * Replaces the current message with a voice message.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @remarks
    * Voice messages cannot be edited in-place, so this deletes the original and sends a new one.
    *
@@ -5711,6 +6061,7 @@ export class Ctx extends Context {
   /**
    * Replaces the current message with a video note.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @remarks
    * Video notes cannot be edited in-place, so this deletes the original and sends a new one.
    *
@@ -5732,6 +6083,7 @@ export class Ctx extends Context {
   /**
    * Replaces the current message with a sticker.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @remarks
    * Stickers cannot be edited in-place, so this deletes the original and sends a new one.
    *
@@ -5753,6 +6105,7 @@ export class Ctx extends Context {
   /**
    * Replaces the current message with a location.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @remarks
    * Locations cannot be edited in-place, so this deletes the original and sends a new one.
    *
@@ -5774,6 +6127,7 @@ export class Ctx extends Context {
   /**
    * Replaces the current message with a contact.
    *
+   * Template block: `<g-media>` (read via `renderEditMedia`).
    * @remarks
    * Contacts cannot be edited in-place, so this deletes the original and sends a new one.
    *

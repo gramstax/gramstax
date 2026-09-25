@@ -222,6 +222,148 @@ export type ITDiceBlock = {
   emoji: string
 }
 
+/**
+ * Represents a callback-answer block for Telegram inline-button feedback.
+ *
+ * @remarks
+ * This type defines the structure for template-driven callback answers
+ * declared with `<g-callback-answer>` blocks. `text` supports the same
+ * `{{var|filter}}` interpolation pipeline as poll questions; the compiled
+ * value is length-checked at runtime before any API call (toast text at
+ * most 200 chars, plain text without HTML per the Bot API
+ * `answerCallbackQuery` limits).
+ *
+ * @example
+ * ```typescript
+ * const answer: ITCallbackAnswerBlock = {
+ *   text: `Pesanan {{orderId}} diproses`
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITCallbackAnswerBlock = {
+  text: string
+}
+
+/**
+ * Represents a pre-checkout error block for Telegram payments.
+ *
+ * @remarks
+ * This type defines the structure for template-driven pre-checkout errors
+ * declared with `<g-precheckout-error>` blocks. `text` supports the same
+ * `{{var|filter}}` interpolation pipeline as poll questions and becomes
+ * the `error_message` shown when payment is declined (plain text without
+ * HTML per the Bot API `answerPreCheckoutQuery` limits).
+ *
+ * @example
+ * ```typescript
+ * const declined: ITPrecheckoutErrorBlock = {
+ *   text: `Stok {{item}} habis`
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITPrecheckoutErrorBlock = {
+  text: string
+}
+
+/**
+ * Represents a shipping error block for Telegram payments.
+ *
+ * @remarks
+ * This type defines the structure for template-driven shipping errors
+ * declared with `<g-shipping-error>` blocks. `text` supports the same
+ * `{{var|filter}}` interpolation pipeline as poll questions and becomes
+ * the `error_message` shown when the address is rejected (plain text
+ * without HTML per the Bot API `answerShippingQuery` limits).
+ *
+ * @example
+ * ```typescript
+ * const rejected: ITShippingErrorBlock = {
+ *   text: `Di luar zona {{city}}`
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITShippingErrorBlock = {
+  text: string
+}
+
+/**
+ * Represents an inline-button block for Telegram inline query answers.
+ *
+ * @remarks
+ * This type defines the structure for template-driven inline buttons
+ * declared with `<g-inline-button>` blocks. `text` supports the same
+ * `{{var|filter}}` interpolation pipeline as poll questions and becomes
+ * the `button.text` label; `startParameter` maps the `start-parameter`
+ * attribute and follows the Bot API deep-link format (`[A-Za-z0-9_-]`,
+ * at most 64 chars).
+ *
+ * @example
+ * ```typescript
+ * const button: ITInlineButtonBlock = {
+ *   text: `Lihat detail`,
+ *   startParameter: `start=1`
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITInlineButtonBlock = {
+  text: string
+  startParameter?: string
+}
+
+/**
+ * Represents an answer-note block for query answers without template content.
+ *
+ * @remarks
+ * This type defines the structure for validation-marker blocks declared
+ * with `<g-answer-note>` blocks. Guest and web app answers carry caller-built
+ * results, so the block exists only as fail-fast validation that the
+ * template provides the required `AGBaseId` (plus a future content slot).
+ * `text` supports the same `{{var|filter}}` interpolation pipeline as poll
+ * questions.
+ *
+ * @example
+ * ```typescript
+ * const note: ITAnswerNoteBlock = {
+ *   text: `Guest answer`
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITAnswerNoteBlock = {
+  text: string
+}
+
+/**
+ * Represents a gift block for Telegram gifts.
+ *
+ * @remarks
+ * This type defines the structure for template-driven gift card text
+ * declared with `<g-gift>` blocks. `text` supports the same
+ * `{{var|filter}}` interpolation pipeline as poll questions including
+ * HTML markup (`renderGift` sends with `text_parse_mode: HTML`).
+ *
+ * @example
+ * ```typescript
+ * const gift: ITGiftBlock = {
+ *   text: `Hadiah <b>{{item}}</b> untukmu!`
+ * };
+ * ```
+ *
+ * @public
+ */
+export type ITGiftBlock = {
+  text: string
+}
+
 type ITTemplateData = Record<string, unknown>
 
 type ITTemplateRenderer<T extends boolean> = T extends true ? (data?: ITTemplateData) => string[] : (data?: ITTemplateData) => string
@@ -507,6 +649,12 @@ export class TemplateEngine {
     `<g-venue>`,
     `<g-dice>`,
     `<g-description>`,
+    `<g-callback-answer>`,
+    `<g-precheckout-error>`,
+    `<g-shipping-error>`,
+    `<g-inline-button>`,
+    `<g-answer-note>`,
+    `<g-gift>`,
     // Logic blocks
     `<g-script>`,
     `<g-switch>`,
@@ -2106,10 +2254,316 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: g-callback-answer
+   * Extracts `<g-callback-answer>` plain-text blocks from a template string.
+   *
+   * @remarks
+   * Children form only (`<g-callback-answer>text</g-callback-answer>`);
+   * content is cleaned exactly like `<g-message>` (leading indent stripped,
+   * surrounding newlines trimmed) and keyed by `lang` (`"default"` when
+   * absent; last block wins per lang). Raw content is preserved verbatim
+   * (including `{{var|filter}}` spans) for later compilation. Plain-text
+   * and length rules are enforced by
+   * `validateBlockGCallbackAnswerAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-callback-answer>` blocks
+   * @returns An object mapping language keys to their raw text content
+   *
+   * @example
+   * ```typescript
+   * const blocks = TemplateEngine._processGCallbackAnswerBlocks(`<g-callback-answer>Pesanan {{orderId}} diproses</g-callback-answer>`);
+   * // Result: { default: 'Pesanan {{orderId}} diproses' }
+   * ```
+   *
+   * @public
+   */
+  static _processGCallbackAnswerBlocks(template: string) {
+    const blockRegex = /<g-callback-answer(?:\s+([^>]*))?>([\s\S]*?)<\/g-callback-answer>/gi
+    const result: {
+      [lang: string]: string
+    } = {}
+
+    for (const [, attributesStr, rawContent] of template.matchAll(blockRegex)) {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const cleaned = rawContent!
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+      result[lang] = cleaned
+    }
+    return result
+  }
+
+  /**
+   * Block: g-precheckout-error
+   * Extracts `<g-precheckout-error>` plain-text blocks from a template string.
+   *
+   * @remarks
+   * Children form only; content is cleaned exactly like `<g-message>` and
+   * keyed by `lang` (`"default"` when absent; last block wins per lang).
+   * Raw content is preserved verbatim (including `{{var|filter}}` spans)
+   * for later compilation. Plain-text rules are enforced by
+   * `validateBlockGPrecheckoutErrorAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-precheckout-error>` blocks
+   * @returns An object mapping language keys to their raw text content
+   *
+   * @example
+   * ```typescript
+   * const blocks = TemplateEngine._processGPrecheckoutErrorBlocks(`<g-precheckout-error>Stok {{item}} habis</g-precheckout-error>`);
+   * // Result: { default: 'Stok {{item}} habis' }
+   * ```
+   *
+   * @public
+   */
+  static _processGPrecheckoutErrorBlocks(template: string) {
+    const blockRegex = /<g-precheckout-error(?:\s+([^>]*))?>([\s\S]*?)<\/g-precheckout-error>/gi
+    const result: {
+      [lang: string]: string
+    } = {}
+
+    for (const [, attributesStr, rawContent] of template.matchAll(blockRegex)) {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const cleaned = rawContent!
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+      result[lang] = cleaned
+    }
+    return result
+  }
+
+  /**
+   * Block: g-shipping-error
+   * Extracts `<g-shipping-error>` plain-text blocks from a template string.
+   *
+   * @remarks
+   * Children form only; content is cleaned exactly like `<g-message>` and
+   * keyed by `lang` (`"default"` when absent; last block wins per lang).
+   * Raw content is preserved verbatim (including `{{var|filter}}` spans)
+   * for later compilation. Plain-text rules are enforced by
+   * `validateBlockGShippingErrorAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-shipping-error>` blocks
+   * @returns An object mapping language keys to their raw text content
+   *
+   * @example
+   * ```typescript
+   * const blocks = TemplateEngine._processGShippingErrorBlocks(`<g-shipping-error>Di luar zona {{city}}</g-shipping-error>`);
+   * // Result: { default: 'Di luar zona {{city}}' }
+   * ```
+   *
+   * @public
+   */
+  static _processGShippingErrorBlocks(template: string) {
+    const blockRegex = /<g-shipping-error(?:\s+([^>]*))?>([\s\S]*?)<\/g-shipping-error>/gi
+    const result: {
+      [lang: string]: string
+    } = {}
+
+    for (const [, attributesStr, rawContent] of template.matchAll(blockRegex)) {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const cleaned = rawContent!
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+      result[lang] = cleaned
+    }
+    return result
+  }
+
+  /**
+   * Block: g-inline-button
+   * Extracts `<g-inline-button>` definitions from a template string.
+   *
+   * @remarks
+   * Attribute form only (`<g-inline-button text="..." start-parameter="..."/>`,
+   * both pair and self-closing spellings parse identically); the block
+   * carries no children. `text` becomes the inline `button.text` label and
+   * `start-parameter` (optional) the deep-link `start_parameter`. Raw
+   * attribute strings are preserved verbatim (including `{{var|filter}}`
+   * spans) for later compilation. Blocks are keyed by `lang` (`"default"`
+   * when absent; last block wins per lang). Structural rules (required
+   * `text`, `start_parameter` format) are enforced by
+   * `validateBlockGInlineButtonAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-inline-button>` blocks
+   * @returns An object mapping language keys to their button definitions
+   *
+   * @example
+   * ```typescript
+   * const blocks = TemplateEngine._processGInlineButtonBlocks(`<g-inline-button text="Lihat {{item}}" start-parameter="detail-1"/>`);
+   * // Result: { default: { text: 'Lihat {{item}}', startParameter: 'detail-1' } }
+   * ```
+   *
+   * @public
+   */
+  static _processGInlineButtonBlocks(template: string) {
+    const buttonRegex = /<g-inline-button\b([^>]*?)\/?>/gi
+    const result: {[lang: string]: ITInlineButtonBlock} = {}
+    const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+      return attrs
+    }
+
+    for (const match of template.matchAll(buttonRegex)) {
+      const attrs = parseAttrs(match[1])
+      const block: ITInlineButtonBlock = {text: attrs.text ?? ``}
+      if (attrs[`start-parameter`] !== undefined && attrs[`start-parameter`] !== ``) {
+        block.startParameter = attrs[`start-parameter`]
+      }
+      result[attrs.lang || `default`] = block
+    }
+
+    return result
+  }
+
+  /**
+   * Block: g-answer-note
+   * Extracts `<g-answer-note>` plain-text blocks from a template string.
+   *
+   * @remarks
+   * Children form only; content is cleaned exactly like `<g-message>` and
+   * keyed by `lang` (`"default"` when absent; last block wins per lang).
+   * Raw content is preserved verbatim (including `{{var|filter}}` spans)
+   * for later compilation. The block is a validation marker for answers
+   * whose content comes from the caller (guest, web app), not the template.
+   * Plain-text rules are enforced by
+   * `validateBlockGAnswerNoteAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-answer-note>` blocks
+   * @returns An object mapping language keys to their raw text content
+   *
+   * @example
+   * ```typescript
+   * const blocks = TemplateEngine._processGAnswerNoteBlocks(`<g-answer-note>Guest fallback {{kind}}</g-answer-note>`);
+   * // Result: { default: 'Guest fallback {{kind}}' }
+   * ```
+   *
+   * @public
+   */
+  static _processGAnswerNoteBlocks(template: string) {
+    const blockRegex = /<g-answer-note(?:\s+([^>]*))?>([\s\S]*?)<\/g-answer-note>/gi
+    const result: {
+      [lang: string]: string
+    } = {}
+
+    for (const [, attributesStr, rawContent] of template.matchAll(blockRegex)) {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const cleaned = rawContent!
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+      result[lang] = cleaned
+    }
+    return result
+  }
+
+  /**
+   * Block: g-gift
+   * Extracts `<g-gift>` card-text blocks from a template string.
+   *
+   * @remarks
+   * Children form only; content is cleaned exactly like `<g-message>` and
+   * keyed by `lang` (`"default"` when absent; last block wins per lang).
+   * Raw content is preserved verbatim (including `{{var|filter}}` spans
+   * and HTML markup — gifts render with `text_parse_mode: HTML`) for
+   * later compilation. Only attribute rules are enforced by
+   * `validateBlockGGiftAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-gift>` blocks
+   * @returns An object mapping language keys to their raw text content
+   *
+   * @example
+   * ```typescript
+   * const blocks = TemplateEngine._processGGiftBlocks(`<g-gift>Hadiah <b>{{item}}</b>!</g-gift>`);
+   * // Result: { default: 'Hadiah <b>{{item}}</b>!' }
+   * ```
+   *
+   * @public
+   */
+  static _processGGiftBlocks(template: string) {
+    const blockRegex = /<g-gift(?:\s+([^>]*))?>([\s\S]*?)<\/g-gift>/gi
+    const result: {
+      [lang: string]: string
+    } = {}
+
+    for (const [, attributesStr, rawContent] of template.matchAll(blockRegex)) {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const cleaned = rawContent!
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+      result[lang] = cleaned
+    }
+    return result
+  }
+
+  /**
    * Block: g-description
    * Extracts and parses `<g-description>` blocks from a template string.
    *
-   * @remarks
    * This internal method identifies all `<g-description>` blocks and extracts their
    * content organized by language and scope. Blocks without a `lang` attribute
    * are stored under `"default"` language, and blocks without a `scope` attribute
@@ -2836,6 +3290,282 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, content] of Object.entries(messages)) {
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        result[AGBaseId][ALang] = this._compileToFunction(processed, false)
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Compiles callback-answer blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<g-callback-answer>` blocks from the template and
+   * compiles them into functions that generate rendered toast text. The
+   * result is organized by base ID and language. Each content string runs
+   * the same pipeline as `<g-message>` (script → map → switch → scope-exec
+   * → scope-variables → function).
+   *
+   * Output shape:
+   * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `ALang` (from `lang="..."`, or `"default"` if omitted)
+   * - Value: `(data?: Record<string, unknown>) => string`
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-callback-answer>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled callback-answer functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const compiled = TemplateEngine.compileBlockGCallbackAnswer(`<g-base><g-callback-answer>Hi {{name}}</g-callback-answer></g-base>`);
+   * const text = compiled.default?.default?.({name: `Ani`});
+   * // Result: 'Hi Ani'
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGCallbackAnswer(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => string
+      }
+    } = {}
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const blocks = this._processGCallbackAnswerBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, content] of Object.entries(blocks)) {
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        result[AGBaseId][ALang] = this._compileToFunction(processed, false)
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Compiles precheckout-error blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<g-precheckout-error>` blocks from the template and
+   * compiles them into functions that generate rendered decline messages.
+   * Same organization and pipeline as `compileBlockGCallbackAnswer`.
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-precheckout-error>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled precheckout-error functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const compiled = TemplateEngine.compileBlockGPrecheckoutError(`<g-base><g-precheckout-error>Stok {{item}} habis</g-precheckout-error></g-base>`);
+   * const text = compiled.default?.default?.({item: `kopi`});
+   * // Result: 'Stok kopi habis'
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGPrecheckoutError(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => string
+      }
+    } = {}
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const blocks = this._processGPrecheckoutErrorBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, content] of Object.entries(blocks)) {
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        result[AGBaseId][ALang] = this._compileToFunction(processed, false)
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Compiles shipping-error blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<g-shipping-error>` blocks from the template and
+   * compiles them into functions that generate rendered rejection messages.
+   * Same organization and pipeline as `compileBlockGCallbackAnswer`.
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-shipping-error>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled shipping-error functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const compiled = TemplateEngine.compileBlockGShippingError(`<g-base><g-shipping-error>Di luar {{city}}</g-shipping-error></g-base>`);
+   * const text = compiled.default?.default?.({city: `Bandung`});
+   * // Result: 'Di luar Bandung'
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGShippingError(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => string
+      }
+    } = {}
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const blocks = this._processGShippingErrorBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, content] of Object.entries(blocks)) {
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        result[AGBaseId][ALang] = this._compileToFunction(processed, false)
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Compiles inline-button blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<g-inline-button>` blocks from the template and
+   * compiles them into functions that generate button definitions. Both
+   * `text` and `start-parameter` run the string pipeline (script → map →
+   * switch → scope-exec → scope-variables → function), so either may carry
+   * `{{var|filter}}` spans; static `start_parameter` format is enforced by
+   * `validateBlockGInlineButtonAttributes`, dynamic values at runtime by the
+   * caller. The result is organized by base ID and language.
+   *
+   * Output shape:
+   * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `ALang` (from `lang="..."`, or `"default"` if omitted)
+   * - Value: `(data?: Record<string, unknown>) => ITInlineButtonBlock`
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-inline-button>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled inline-button functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const compiled = TemplateEngine.compileBlockGInlineButton(`<g-base><g-inline-button text="Lihat {{item}}" start-parameter="d-1"/></g-base>`);
+   * const button = compiled.default?.default?.({item: `kopi`});
+   * // Result: { text: 'Lihat kopi', startParameter: 'd-1' }
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGInlineButton(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => ITInlineButtonBlock
+      }
+    } = {}
+    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
+      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const blocks = this._processGInlineButtonBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, block] of Object.entries(blocks)) {
+        const textFn = compileString(block.text)
+        const paramFn = block.startParameter !== undefined ? compileString(block.startParameter) : undefined
+        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+          text: textFn(data),
+          ...(paramFn ? {startParameter: paramFn(data)} : {})
+        })
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Compiles answer-note blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<g-answer-note>` blocks from the template and
+   * compiles them into functions that generate rendered note text. Same
+   * organization and pipeline as `compileBlockGCallbackAnswer`. The note
+   * is a validation marker for answers whose content comes from the caller.
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-answer-note>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled answer-note functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const compiled = TemplateEngine.compileBlockGAnswerNote(`<g-base><g-answer-note>Note {{kind}}</g-answer-note></g-base>`);
+   * const text = compiled.default?.default?.({kind: `vip`});
+   * // Result: 'Note vip'
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGAnswerNote(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => string
+      }
+    } = {}
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const blocks = this._processGAnswerNoteBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, content] of Object.entries(blocks)) {
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        result[AGBaseId][ALang] = this._compileToFunction(processed, false)
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Compiles gift blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<g-gift>` blocks from the template and compiles
+   * them into functions that generate rendered card text. Same
+   * organization and pipeline as `compileBlockGCallbackAnswer`. HTML
+   * markup is preserved — gifts render with `text_parse_mode: HTML`.
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-gift>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled gift functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const compiled = TemplateEngine.compileBlockGGift(`<g-base><g-gift>Hadiah <b>{{item}}</b>!</g-gift></g-base>`);
+   * const text = compiled.default?.default?.({item: `kopi`});
+   * // Result: 'Hadiah <b>kopi</b>!'
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGGift(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITTemplateData) => string
+      }
+    } = {}
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const blocks = this._processGGiftBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, content] of Object.entries(blocks)) {
         const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
         result[AGBaseId][ALang] = this._compileToFunction(processed, false)
       }
@@ -5017,6 +5747,233 @@ export class TemplateEngine {
   }
 
   /**
+   * Validates plain-text content of answer blocks.
+   *
+   * @remarks
+   * Answer payloads (`<g-callback-answer>`, `<g-precheckout-error>`,
+   * `<g-shipping-error>`) reach Telegram fields that accept no HTML
+   * (toast text, `error_message`), so any static markup tag inside the
+   * block body is rejected. `{{}}` / `{~ ~}` spans are stripped before
+   * checking (runtime data is the caller's responsibility, mirroring the
+   * `_validateDiceItems` static/dynamic split). When `maxLength` is set,
+   * the stripped static length is capped (toast text at most 200 chars
+   * per the Bot API `answerCallbackQuery` limits). Errors carry 1-based
+   * line numbers.
+   *
+   * @param template - The raw template source to inspect.
+   * @param tag - The block tag name without brackets (e.g. `g-callback-answer`).
+   * @param maxLength - Optional static-length cap (or null to skip).
+   * @returns Validation errors (empty when valid).
+   * @public
+   */
+  static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const blockRegex = new RegExp(`<${tag}(?:\\s+([^>]*))?>([\\s\\S]*?)<\\/${tag}>`, `gi`)
+
+    for (const blockMatch of template.matchAll(blockRegex)) {
+      const line = (template.slice(0, blockMatch.index).match(/\n/g) || []).length + 1
+      const raw = blockMatch[2] ?? ``
+      const stripped = raw.replace(/{{[\s\S]*?}}/g, ``).replace(/{~[\s\S]*?~}/g, ``)
+      if (/<[a-zA-Z][^>]*>/.test(stripped)) {
+        errors.push({line, message: `Content of <${tag}> must be plain text without HTML (toast and error_message accept no markup)`})
+      }
+      if (maxLength !== undefined && maxLength !== null && stripped.trim().length > maxLength) {
+        errors.push({line, message: `Content of <${tag}> exceeds ${maxLength} character limit (got ${stripped.trim().length})`})
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates attributes and content on `<g-callback-answer>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang` only. Content must be plain text without
+   * HTML and at most 200 chars of static text (Bot API toast limits);
+   * `{{}}` spans skip the static checks (runtime-enforced).
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGCallbackAnswerAttributes(`<g-base><g-callback-answer>OK</g-callback-answer></g-base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGCallbackAnswerAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-callback-answer`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-callback-answer`])
+    errors.push(...this._validateAnswerTextContent(template, `g-callback-answer`, 200))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes and content on `<g-precheckout-error>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang` only. Content must be plain text without
+   * HTML (`error_message` accepts no markup); `{{}}` spans skip the static
+   * checks (runtime-enforced).
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGPrecheckoutErrorAttributes(`<g-base><g-precheckout-error>Habis</g-precheckout-error></g-base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGPrecheckoutErrorAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-precheckout-error`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-precheckout-error`])
+    errors.push(...this._validateAnswerTextContent(template, `g-precheckout-error`))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes and content on `<g-shipping-error>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang` only. Content must be plain text without
+   * HTML (`error_message` accepts no markup); `{{}}` spans skip the static
+   * checks (runtime-enforced).
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGShippingErrorAttributes(`<g-base><g-shipping-error>Jauh</g-shipping-error></g-base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGShippingErrorAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-shipping-error`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-shipping-error`])
+    errors.push(...this._validateAnswerTextContent(template, `g-shipping-error`))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<g-inline-button>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang`, `text`, and `start-parameter`. `text`
+   * is required and must be non-empty; a static `start-parameter` must
+   * match the Bot API deep-link format (`[A-Za-z0-9_-]`, at most 64 chars)
+   * while `{{}}` / `{~ ~}` spans skip the static check (runtime-enforced,
+   * mirroring the `_validateDiceItems` static/dynamic split).
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGInlineButtonAttributes(`<g-base><g-inline-button text="Lihat" start-parameter="d-1"/></g-base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGInlineButtonAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-inline-button`, new Set([`lang`, `text`, `start-parameter`]), `"lang", "text" and "start-parameter"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-inline-button`])
+    errors.push(...this._validateInlineButtonItems(template))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates `<g-inline-button>` items beyond attribute names.
+   *
+   * @remarks
+   * Enforces the structural rules: every block needs a non-empty `text`,
+   * and every static `start-parameter` must match the Bot API deep-link
+   * format. Called by `validateBlockGInlineButtonAttributes`; errors carry
+   * 1-based line numbers.
+   *
+   * @param template - The raw template source to inspect.
+   * @returns Validation errors (empty when valid).
+   * @public
+   */
+  static _validateInlineButtonItems(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const buttonRegex = /<g-inline-button\b([^>]*?)\/?>/gi
+    const attrValue = (attrsStr: string, name: string): string | undefined => {
+      const m = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`).exec(attrsStr)
+      if (!m) return undefined
+      return m[1] ?? m[2] ?? m[3]
+    }
+    const isDynamic = (s: string): boolean => s.includes(`{{`) || s.includes(`{~`)
+
+    for (const buttonMatch of template.matchAll(buttonRegex)) {
+      const line = (template.slice(0, buttonMatch.index).match(/\n/g) || []).length + 1
+      const text = attrValue(buttonMatch[1] ?? ``, `text`)
+      if (text === undefined || text.trim() === ``) {
+        errors.push({line, message: `Missing required attribute "text" on <g-inline-button>`})
+      }
+      const param = attrValue(buttonMatch[1] ?? ``, `start-parameter`)
+      if (param !== undefined && param !== `` && !isDynamic(param) && !/^[A-Za-z0-9_-]{1,64}$/.test(param)) {
+        errors.push({line, message: `Attribute "start-parameter" on <g-inline-button> must match [A-Za-z0-9_-] at most 64 chars (got "${param}")`})
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates attributes and content on `<g-answer-note>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang` only. Content must be plain text without
+   * HTML; `{{}}` spans skip the static checks (runtime-enforced).
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGAnswerNoteAttributes(`<g-base><g-answer-note>Note</g-answer-note></g-base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGAnswerNoteAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-answer-note`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-answer-note`])
+    errors.push(...this._validateAnswerTextContent(template, `g-answer-note`))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<g-gift>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang` only. Unlike the answer payload blocks,
+   * HTML markup inside `<g-gift>` is legal (`renderGift` sends with
+   * `text_parse_mode: HTML`), so no content check runs here.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGGiftAttributes(`<g-base><g-gift>Hadiah <b>x</b>!</g-gift></g-base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGGiftAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-gift`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-gift`])
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
    * Validates attributes on `<g-script>` blocks.
    *
    * @remarks
@@ -5222,8 +6179,14 @@ export class TemplateEngine {
     * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
     * 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
     * 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
-    * 25. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-    * 26. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+    * 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content
+    * 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
+    * 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
+    * 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
+    * 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
+    * 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
+    * 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+    * 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -5368,8 +6331,14 @@ export class TemplateEngine {
     * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
     * 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
     * 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
-    * 25. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-    * 26. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+    * 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content
+    * 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
+    * 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
+    * 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
+    * 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
+    * 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
+    * 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+    * 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -5417,6 +6386,12 @@ export class TemplateEngine {
     const divAttrResult = this.validateBlockGDivAttributes(template)
     const importAttrResult = this.validateBlockGImportAttributes(template)
     const spaceAttrResult = this.validateBlockGSpaceAttributes(template)
+    const callbackAnswerAttrResult = this.validateBlockGCallbackAnswerAttributes(template)
+    const precheckoutErrorAttrResult = this.validateBlockGPrecheckoutErrorAttributes(template)
+    const shippingErrorAttrResult = this.validateBlockGShippingErrorAttributes(template)
+    const inlineButtonAttrResult = this.validateBlockGInlineButtonAttributes(template)
+    const answerNoteAttrResult = this.validateBlockGAnswerNoteAttributes(template)
+    const giftAttrResult = this.validateBlockGGiftAttributes(template)
     const pageAttrResult = this.validatePageAttributesBlock(template)
     const pageValueResult = this.validatePageAttributeValuesBlock(template)
 
@@ -5451,6 +6426,12 @@ export class TemplateEngine {
       ...divAttrResult.errors,
       ...importAttrResult.errors,
       ...spaceAttrResult.errors,
+      ...callbackAnswerAttrResult.errors,
+      ...precheckoutErrorAttrResult.errors,
+      ...shippingErrorAttrResult.errors,
+      ...inlineButtonAttrResult.errors,
+      ...answerNoteAttrResult.errors,
+      ...giftAttrResult.errors,
       ...pageAttrResult.errors,
       ...pageValueResult.errors,
       ...richMsgResult.errors

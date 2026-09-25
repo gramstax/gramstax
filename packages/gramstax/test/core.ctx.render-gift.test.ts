@@ -29,7 +29,7 @@ function createTestCtx(extra?: {onSendError?: unknown}) {
     cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
     templateManager: {
-      getGMessage: () => `gift card hello`
+      getGGift: () => `gift card hello`
     } as unknown as ITCtxParams[`templateManager`],
     onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}

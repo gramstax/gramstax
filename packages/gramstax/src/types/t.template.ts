@@ -19,6 +19,18 @@ export type ITCompiledTemplate = {
   venue: ReturnType<typeof TemplateEngine.compileBlockGVenue>
   /** Compiled dice blocks indexed by base ID and language */
   dice: ReturnType<typeof TemplateEngine.compileBlockGDice>
+  /** Compiled callback-answer blocks indexed by base ID and language */
+  callbackAnswer: ReturnType<typeof TemplateEngine.compileBlockGCallbackAnswer>
+  /** Compiled precheckout-error blocks indexed by base ID and language */
+  precheckoutError: ReturnType<typeof TemplateEngine.compileBlockGPrecheckoutError>
+  /** Compiled shipping-error blocks indexed by base ID and language */
+  shippingError: ReturnType<typeof TemplateEngine.compileBlockGShippingError>
+  /** Compiled inline-button blocks indexed by base ID and language */
+  inlineButton: ReturnType<typeof TemplateEngine.compileBlockGInlineButton>
+  /** Compiled answer-note blocks indexed by base ID and language */
+  answerNote: ReturnType<typeof TemplateEngine.compileBlockGAnswerNote>
+  /** Compiled gift blocks indexed by base ID and language */
+  gift: ReturnType<typeof TemplateEngine.compileBlockGGift>
   /** Compiled invoice blocks indexed by base ID and language */
   invoice: ReturnType<typeof TemplateEngine.compileBlockGInvoice>
   /** Compiled Stars paid-media blocks indexed by base ID and language */

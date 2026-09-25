@@ -803,6 +803,30 @@ export class TemplateManager {
       compiled.dice = TemplateEngine.compileBlockGDice(processedTemplate, baseBlocks)
       updated = true
     }
+    if (keepIfExist === undefined || keepIfExist?.callbackAnswer === false || existing?.callbackAnswer === undefined) {
+      compiled.callbackAnswer = TemplateEngine.compileBlockGCallbackAnswer(processedTemplate, baseBlocks)
+      updated = true
+    }
+    if (keepIfExist === undefined || keepIfExist?.precheckoutError === false || existing?.precheckoutError === undefined) {
+      compiled.precheckoutError = TemplateEngine.compileBlockGPrecheckoutError(processedTemplate, baseBlocks)
+      updated = true
+    }
+    if (keepIfExist === undefined || keepIfExist?.shippingError === false || existing?.shippingError === undefined) {
+      compiled.shippingError = TemplateEngine.compileBlockGShippingError(processedTemplate, baseBlocks)
+      updated = true
+    }
+    if (keepIfExist === undefined || keepIfExist?.inlineButton === false || existing?.inlineButton === undefined) {
+      compiled.inlineButton = TemplateEngine.compileBlockGInlineButton(processedTemplate, baseBlocks)
+      updated = true
+    }
+    if (keepIfExist === undefined || keepIfExist?.answerNote === false || existing?.answerNote === undefined) {
+      compiled.answerNote = TemplateEngine.compileBlockGAnswerNote(processedTemplate, baseBlocks)
+      updated = true
+    }
+    if (keepIfExist === undefined || keepIfExist?.gift === false || existing?.gift === undefined) {
+      compiled.gift = TemplateEngine.compileBlockGGift(processedTemplate, baseBlocks)
+      updated = true
+    }
     if (keepIfExist === undefined || keepIfExist?.invoice === false || existing?.invoice === undefined) {
       compiled.invoice = TemplateEngine.compileBlockGInvoice(processedTemplate, baseBlocks)
       updated = true
@@ -956,6 +980,134 @@ export class TemplateManager {
 
     if (!func) {
       throw new Error(`Dice function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled text from block <g-callback-answer>.
+   *
+   * @remarks
+   * Strict lookup (mirrors `getGDice`): a missing block throws instead of
+   * returning an empty string, because callback answers always need text.
+   *
+   * @public
+   */
+  getGCallbackAnswer(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+    const map = this._map.get(key)
+    const one = map?.callbackAnswer?.[AGBaseId] ?? map?.callbackAnswer?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`CallbackAnswer function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled text from block <g-precheckout-error>.
+   *
+   * @remarks
+   * Strict lookup (mirrors `getGDice`): a missing block throws instead of
+   * returning an empty string, because declined payments need an error message.
+   *
+   * @public
+   */
+  getGPrecheckoutError(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+    const map = this._map.get(key)
+    const one = map?.precheckoutError?.[AGBaseId] ?? map?.precheckoutError?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`PrecheckoutError function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled text from block <g-shipping-error>.
+   *
+   * @remarks
+   * Strict lookup (mirrors `getGDice`): a missing block throws instead of
+   * returning an empty string, because rejected shipping needs an error message.
+   *
+   * @public
+   */
+  getGShippingError(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+    const map = this._map.get(key)
+    const one = map?.shippingError?.[AGBaseId] ?? map?.shippingError?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`ShippingError function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled button from block <g-inline-button>.
+   *
+   * @remarks
+   * Strict lookup (mirrors `getGDice`): a missing block throws instead of
+   * returning an empty definition, because inline answers consume the
+   * block-text button only when the caller opts in via a start parameter.
+   *
+   * @public
+   */
+  getGInlineButton(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`inlineButton`][`default`][`default`]> {
+    const map = this._map.get(key)
+    const one = map?.inlineButton?.[AGBaseId] ?? map?.inlineButton?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`InlineButton function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled text from block <g-answer-note>.
+   *
+   * @remarks
+   * Strict lookup (mirrors `getGDice`): a missing block throws instead of
+   * returning an empty string, because guest and web app answers require
+   * the validation marker block.
+   *
+   * @public
+   */
+  getGAnswerNote(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+    const map = this._map.get(key)
+    const one = map?.answerNote?.[AGBaseId] ?? map?.answerNote?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`AnswerNote function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return func(data)
+  }
+
+  /**
+   * Gets compiled text from block <g-gift>.
+   *
+   * @remarks
+   * Strict lookup (mirrors `getGDice`): a missing block throws instead of
+   * returning an empty string, because gifts always need card text.
+   *
+   * @public
+   */
+  getGGift(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+    const map = this._map.get(key)
+    const one = map?.gift?.[AGBaseId] ?? map?.gift?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`Gift function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
     return func(data)

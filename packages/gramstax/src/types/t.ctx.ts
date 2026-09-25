@@ -309,6 +309,66 @@ export type ITOptEditKeyboard = Parameters<Context[`editMessageReplyMarkup`]>[1]
 export type ITOptGift = Parameters<Context[`replyWithGift`]>[1]
 
 /**
+ * Options for answering a callback query.
+ *
+ * @remarks
+ * Extracted from `Context.answerCallbackQuery()` method options parameter.
+ *
+ * @public
+ */
+export type ITOptCallbackAnswer = Parameters<Context[`answerCallbackQuery`]>[0]
+
+/**
+ * Options for answering a pre-checkout query.
+ *
+ * @remarks
+ * Extracted from `Context.answerPreCheckoutQuery()` method options parameter.
+ *
+ * @public
+ */
+export type ITOptPreCheckout = Parameters<Context[`answerPreCheckoutQuery`]>[1]
+
+/**
+ * Options for answering a shipping query.
+ *
+ * @remarks
+ * Extracted from `Context.answerShippingQuery()` method options parameter.
+ *
+ * @public
+ */
+export type ITOptShipping = Parameters<Context[`answerShippingQuery`]>[1]
+
+/**
+ * Options for answering an inline query.
+ *
+ * @remarks
+ * Extracted from `Context.answerInlineQuery()` method options parameter.
+ *
+ * @public
+ */
+export type ITOptInlineAnswer = Parameters<Context[`answerInlineQuery`]>[1]
+
+/**
+ * Signal for answering a guest query.
+ *
+ * @remarks
+ * Extracted from `Context.answerGuestQuery()` method signal parameter.
+ *
+ * @public
+ */
+export type ITOptGuestAnswer = Parameters<Context[`answerGuestQuery`]>[1]
+
+/**
+ * Signal for answering a web app query.
+ *
+ * @remarks
+ * Extracted from `Api.answerWebAppQuery()` method signal parameter.
+ *
+ * @public
+ */
+export type ITOptWebAppAnswer = Parameters<Ctx[`api`][`answerWebAppQuery`]>[2]
+
+/**
  * Type of chat action to send.
  *
  * @remarks
