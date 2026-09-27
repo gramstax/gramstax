@@ -338,12 +338,13 @@ describe(`lmdb prune`, () => {
 
 describe(`workers scaffold`, () => {
   it(`ships a minimal WorkerThreadInit subclass with one mtd method`, () => {
-    const examplePath = join(import.meta.dir, `..`, `src`, `templates`, `src`, `workers`, `example.ts`)
+    const examplePath = join(import.meta.dir, `..`, `src`, `templates`, `src`, `workers`, `job.ts`)
     expect(existsSync(examplePath)).toBe(true)
     const content = readFileSync(examplePath, `utf-8`)
     expect(content).toContain(`WorkerThreadInit`)
     expect(content).toMatch(/mtd\w+/)
     expect(content).toContain(`extends WorkerThreadInit`)
+    expect(content).toContain(`WorkerThreadExport`)
   })
 
   it(`declares @gramstax/worker-thread as workspace:* in the template`, () => {

@@ -1,5 +1,4 @@
-import {PageBase} from "~/base/page"
-import {AdminGuard} from "~/guards/admin"
+import {PageAdminBase} from "~/base/page-admin"
 import {StartPage} from "./start"
 
 type ISPBroadcast = {
@@ -30,12 +29,8 @@ class Base {
   static kbConfirm = `kc`
 }
 
-export class BroadcastPage extends PageBase {
+export class BroadcastPage extends PageAdminBase {
   static data = this.buildData((step?: string, action?: string) => [step, action])
-
-  async hookBeforeRoute() {
-    return AdminGuard.isAdmin(this)
-  }
 
   async handleCallbackQueryData() {
     await this.gindex.show(`-`, false)

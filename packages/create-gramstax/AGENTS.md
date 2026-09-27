@@ -25,7 +25,7 @@ packages/create-gramstax/src/
 │   │   ├── db/index.ts        LmdbEnv subclass (only when LMDB enabled)
 │   │   ├── db/schema/user.ts
 │   │   ├── db/repositories/user.ts
-│   │   ├── workers/example.ts   WorkerThreadInit sample (only when workers enabled)
+│   │   ├── workers/job.ts     Worker (mtdStart/mtdStop/mtdPing + onBeforeExit) + JobWorker export (only when workers enabled)
 │   │   ├── pages/*            9 page templates (nested start/random)
 │   │   └── utils/array.ts
 │   ├── test/.gitkeep
