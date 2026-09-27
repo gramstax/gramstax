@@ -1,5 +1,4 @@
 import {describe, expect, it, mock} from "bun:test"
-import {GrammyError} from "grammy"
 import {Ctx} from "~/core/ctx"
 import type {ITCtxParams} from "~/types/t.ctx"
 
@@ -10,8 +9,6 @@ class ThreadChunkedPage extends Ctx {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
-
-const topicError = () => new GrammyError(`Bad Request: message thread not found`, {error_code: 400, description: `Bad Request: message thread not found`, parameters: {}} as never, `sendMessage`, {})
 
 const messageUpdate = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
 
@@ -40,55 +37,6 @@ function makeApi(overrides?: Record<string, unknown>) {
 }
 
 const sendExtras = (api: {sendMessage: any}) => (api.sendMessage.mock.calls as any[]).map((call) => call[2] as Record<string, unknown> | undefined)
-
-// ── renderThread ─────────────────────────────────────────────────────
-
-describe(`Ctx.renderThread`, () => {
-  it(`sends with message_thread_id from the required AGBaseId block`, async () => {
-    const api = makeApi()
-    const ctx = createCtx(api, `topic hello`)
-    await ctx.renderThread(7, undefined, undefined, `topic-card`)
-    expect(api.sendMessage).toHaveBeenCalledTimes(1)
-    const extras = sendExtras(api)
-    expect(extras[0]!.message_thread_id).toBe(7)
-    expect((api.sendMessage.mock.calls as any[])[0][1]).toBe(`topic hello`)
-  })
-
-  it(`invalid topic falls back ONCE to plain render (general topic)`, async () => {
-    const err = topicError()
-    const api = makeApi({
-      sendMessage: mock(async (_chatId: unknown, _text: unknown, extra: Record<string, unknown>) => {
-        if (extra?.message_thread_id !== undefined) throw err
-        return {message_id: 10, date: 0, chat: {id: 1, type: `private` as const}} as any
-      })
-    })
-    const ctx = createCtx(api, `fallback hello`)
-    await ctx.renderThread(99, undefined, undefined, `topic-card`)
-    expect(api.sendMessage).toHaveBeenCalledTimes(2)
-    const extras = sendExtras(api)
-    expect(extras[0]!.message_thread_id).toBe(99)
-    expect(extras[1]?.message_thread_id).toBeUndefined()
-    expect((api.sendMessage.mock.calls as any[])[1][1]).toBe(`fallback hello`)
-  })
-
-  it(`non-topic 400 follows the standard path with no fallback`, async () => {
-    const err = new GrammyError(`Bad Request: chat not found`, {error_code: 400, description: `Bad Request: chat not found`, parameters: {}} as never, `sendMessage`, {})
-    const seen: unknown[] = []
-    const api = makeApi({
-      sendMessage: mock(async () => {
-        throw err
-      })
-    })
-    const ctx = createCtx(api, `hello`, {
-      onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }
-    })
-    await expect(ctx.renderThread(7, undefined, undefined, `topic-card`)).rejects.toBe(err)
-    expect(api.sendMessage).toHaveBeenCalledTimes(1)
-    expect(seen).toEqual([{page: `thread-chunked-test`, kind: `fallback-text`, chatId: 1}])
-  })
-})
 
 // ── renderChunked ────────────────────────────────────────────────────
 

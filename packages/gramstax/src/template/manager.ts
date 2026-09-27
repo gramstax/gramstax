@@ -437,7 +437,7 @@ export class TemplateManager {
 
           if (entry.isDirectory()) {
             walkDir(fullPath, parentKey ? `${parentKey}/${entry.name}` : entry.name)
-          } else if (entry.isFile() && this._isValidFile(entry.name) && !this.isLayoutFile(entry.name)) {
+          } else if (entry.isFile() && this._isValidFile(entry.name)) {
             const isIndex = /^index\.(ts|js|html)$/.test(entry.name)
             const key = isIndex && parentKey ? parentKey : `${parentKey ? `${parentKey}/` : ``}${this._getKey(entry.name)}`
             const ext = this._getExtension(entry.name)
@@ -500,9 +500,6 @@ export class TemplateManager {
       const path = join(it, filename)
       if (!existsSync(path)) {
         continue
-      }
-      if (this.isLayoutFile(filename)) {
-        break
       }
       const ext = this._getExtension(filename)
       const key = this._getKey(filename)
@@ -1416,96 +1413,6 @@ export class TemplateManager {
    */
   has(key: string): boolean {
     return this._map.has(key)
-  }
-
-  /**
-   * Reserved namespace prefix for Next.js-style segment layout fragments.
-   *
-   * @remarks
-   * Layout keys (`_layout:<group>`) never originate from the filesystem walk
-   * (`_getKey` strips only the last extension and no page file maps to this
-   * prefix), so the namespace is collision-free by construction.
-   *
-   * @public
-   */
-  readonly LAYOUT_KEY_PREFIX = `_layout:`
-
-  /**
-   * Derives the reserved template key for a layout group.
-   *
-   * @param group - Layout group name (e.g. `admin`)
-   * @returns Reserved key (e.g. `_layout:admin`)
-   *
-   * @public
-   */
-  layoutKey(group: string): string {
-    return `${this.LAYOUT_KEY_PREFIX}${group}`
-  }
-
-  /**
-   * Checks whether a template key belongs to the layout namespace.
-   *
-   * @param key - Template cache key to inspect
-   * @returns `true` when the key is a non-empty `_layout:` key
-   *
-   * @public
-   */
-  isLayoutKey(key: string): boolean {
-    return key.startsWith(this.LAYOUT_KEY_PREFIX) && key.length > this.LAYOUT_KEY_PREFIX.length
-  }
-
-  /**
-   * Checks whether a filename is a reserved segment-layout file.
-   *
-   * @param name - Filename or relative path (e.g. `layout.ts`, `admin/layout.html`)
-   * @returns `true` when the basename without extension is exactly `layout`
-   *
-   * @remarks
-   * Layout files are never compiled from disk: segment layouts own no page
-   * route and their fragments enter the cache only via `compileLayout`.
-   * The check runs before any `require`, so unresolvable layout-only
-   * imports can never break the template walk.
-   *
-   * @public
-   */
-  isLayoutFile(name: string): boolean {
-    return basename(name, extname(name).toLowerCase()) === `layout`
-  }
-
-  /**
-   * Compiles a layout fragment under the reserved `_layout:<group>` key.
-   *
-   * @param group - Layout group name (must not be empty and must not contain `/` or `.`)
-   * @param template - Raw template HTML string for the layout fragment
-   * @returns The reserved key the fragment was stored under
-   *
-   * @example
-   * ```typescript
-   * tm.compileLayout(`admin`, `<g-base><g-message>NAV</g-message></g-base>`)
-   * tm.getGMessage(`_layout:admin`) // => "NAV"
-   * ```
-   *
-   * @public
-   */
-  compileLayout(group: string, template: string): string {
-    if (group.length === 0 || group.includes(`/`) || group.includes(`.`)) {
-      throw new Error(`Invalid layout group "${group}": must be non-empty and must not contain "/" or "."`)
-    }
-    const key = this.layoutKey(group)
-    this._compile(key, template)
-    return key
-  }
-
-  /**
-   * Checks if a layout fragment exists in the cache.
-   *
-   * @param group - Layout group name (e.g. `admin`)
-   * @returns `true` when a fragment was compiled for the group
-   *
-   * @public
-   */
-  hasLayout(group: string): boolean {
-    return this._map.has(this.layoutKey(group))
   }
 
   async closeWatchers(): Promise<void> {
