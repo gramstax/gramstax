@@ -77,3 +77,19 @@ export type ITTemplateOptions = {
    */
   onReload?: () => void
 }
+
+/**
+ * Layout fragment holder for Next.js-style segment layouts.
+ *
+ * @remarks
+ * A layout fragment is a plain template string (compiled from the same
+ * `<g-base>` blocks as pages) stored under a reserved `_layout:<group>`
+ * key via `TemplateManager.compileLayout`. The holder needs only the
+ * `template` shape — it is never registered as a routable page.
+ *
+ * @public
+ */
+export type ITLayoutFragment = {
+  /** Raw template source for the layout group fragment */
+  template: string
+}

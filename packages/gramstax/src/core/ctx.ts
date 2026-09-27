@@ -2942,6 +2942,25 @@ export class Ctx extends Context {
   }
 
   /**
+   * Reads a layout fragment message for a segment group.
+   *
+   * @param group - Layout group name (e.g. `admin`, compiled via `compileLayout`)
+   * @param AGBaseId - Optional template base ID position for block message (or null to use default)
+   * @param data - Optional template interpolation data (or null to omit)
+   * @returns The compiled fragment string, or `` when the group was never compiled
+   *
+   * @example
+   * ```typescript
+   * const nav = this.getLayoutMessage(`admin`, `navbar`, {user: `Ann`})
+   * ```
+   *
+   * @public
+   */
+  getLayoutMessage(group: string, AGBaseId?: string | null, data?: ITData | null): string {
+    return this.templateManager.getGMessage(this.templateManager.layoutKey(group), AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+  }
+
+  /**
    * Detects forum-topic errors that deserve a single general-topic fallback.
    *
    * @param error - The send error to inspect.
