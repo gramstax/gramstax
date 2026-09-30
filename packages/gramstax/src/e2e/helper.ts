@@ -1,3 +1,6 @@
+import type {Gramstax} from "~/core/bot"
+import type {IE2eApiCall, IE2eCallbackQueryOptions, IE2eChat, IE2eChatMemberOptions, IE2eContactOptions, IE2eDiceOptions, IE2eLocationOptions, IE2eMediaOptions, IE2eUpdateOptions, IE2eUser} from "~/types/e2e"
+
 /**
  * In-process E2E testing helper — simulates Telegram updates without HTTP.
  *
@@ -6,6 +9,9 @@
  * for E2E tests. Uses `bot.api.config.use()` to intercept all outbound
  * Bot API calls in memory (0 HTTP, 0 Bun.serve), and injects Telegram
  * Update objects directly via `bot.bot.handleUpdate()`.
+ *
+ * Attached to `Gramstax.e2e` when the bot is created with `deploy: "test"`.
+ * All methods simulate Telegram updates without any HTTP server or port binding.
  *
  * **Typical usage:**
  *
@@ -21,44 +27,6 @@
  *
  * @public
  */
-
-import type {Gramstax} from "~/core/bot"
-import type {ITE2eCallbackQueryOptions, ITE2eChat, ITE2eChatMemberOptions, ITE2eContactOptions, ITE2eDiceOptions, ITE2eLocationOptions, ITE2eMediaOptions, ITE2eUpdateOptions, ITE2eUser} from "~/types/t.e2e"
-
-/**
- * Captured outbound Bot API call record.
- *
- * @remarks
- * Each entry represents one call made by the bot handler (e.g. `sendMessage`,
- * `answerCallbackQuery`, `editMessageText`). Access fields by iterating
- * `e2e.calls` or using `e2e.lastCall(method)`.
- *
- * @example
- * ```typescript
- * const sendMsg = e2e.lastCall("sendMessage")
- * expect(sendMsg?.body?.text).toBe("Hello")
- * ```
- *
- * @public
- */
-export type ITE2eApiCall = {
-  /** Telegram Bot API method name, e.g. `sendMessage`. */
-  method: string
-  /** Parameters sent to the API method (chat_id, text, reply_markup, etc.). */
-  body: any
-  /** Unix timestamp when the call was captured. */
-  timestamp: number
-}
-
-/**
- * In-process E2E testing helper for Gramstax bots.
- *
- * @remarks
- * Attached to `Gramstax.e2e` when the bot is created with `deploy: "test"`.
- * All methods simulate Telegram updates without any HTTP server or port binding.
- *
- * @public
- */
 export class E2eHelper {
   /**
    * All captured outbound Bot API calls (sendMessage, answerCallbackQuery, etc.).
@@ -67,17 +35,18 @@ export class E2eHelper {
    * Cleared automatically between tests. Each entry includes the API method,
    * the parameters object, and a timestamp.
    */
-  calls: ITE2eApiCall[] = []
+  calls: IE2eApiCall[] = []
 
-  private _nextUpdateId = 1
-  private _nextMessageId = 1
-  private _nextApiMsgId = 1
+  _nextUpdateId = 1
+  _nextMessageId = 1
+  _nextApiMsgId = 1
+  _initialized = false
 
   /** Bot API methods treated as internal: answered but never recorded in `calls`. Mirrors the mock allowlist. */
-  private static readonly _INTERNAL_METHODS = new Set([`getMe`, `getWebhookInfo`, `setWebhook`, `getMyCommands`, `getUpdates`])
+  static readonly _INTERNAL_METHODS = new Set([`getMe`, `getWebhookInfo`, `setWebhook`, `getMyCommands`, `getUpdates`])
 
   /** @param bot - The parent Gramstax instance. */
-  constructor(private bot: Gramstax) {
+  constructor(public bot: Gramstax) {
     ;(this.bot.bot.api.config.use as unknown as (fn: (prev: unknown, method: string, payload: unknown) => Promise<unknown>) => void)(async (_prev, method, payload) => {
       if (E2eHelper._INTERNAL_METHODS.has(method)) {
         return this._internalResponse(method)
@@ -125,13 +94,7 @@ export class E2eHelper {
           }
         } as unknown as never
       }
-      if (
-        method === `editEphemeralMessageText` ||
-        method === `editEphemeralMessageCaption` ||
-        method === `editEphemeralMessageMedia` ||
-        method === `editEphemeralMessageReplyMarkup` ||
-        method === `deleteEphemeralMessage`
-      ) {
+      if (method === `editEphemeralMessageText` || method === `editEphemeralMessageCaption` || method === `editEphemeralMessageMedia` || method === `editEphemeralMessageReplyMarkup` || method === `deleteEphemeralMessage`) {
         return {ok: true, result: true} as unknown as never
       }
       if (method === `promoteChatMember`) {
@@ -152,7 +115,7 @@ export class E2eHelper {
     })
   }
 
-  private _internalResponse(method: string): unknown {
+  _internalResponse(method: string): unknown {
     if (method === `getMe`) {
       return {ok: true, result: {id: 123456789, is_bot: true, first_name: `GramstaxMock`, username: `gramstax_mock_bot`}}
     }
@@ -168,16 +131,12 @@ export class E2eHelper {
     return {ok: true, result: []}
   }
 
-  private _initialized = false
-
   /** @internal Ensure bot is initialized before handling updates. */
-  private async _ensureInit(): Promise<void> {
+  async _ensureInit(): Promise<void> {
     if (this._initialized) return
     this._initialized = true
     await this.bot.bot.init()
   }
-
-  // ── inspection ────────────────────────────────────────────────
 
   /**
    * Find the most recent captured API call.
@@ -275,7 +234,7 @@ export class E2eHelper {
    * @param call - Captured API call.
    * @returns The message text, or `undefined` if neither field is present.
    */
-  extractText(call: ITE2eApiCall): string | undefined {
+  extractText(call: IE2eApiCall): string | undefined {
     const body = call?.body as {text?: string; caption?: string; rich_message?: {html?: string; markdown?: string}} | undefined
     return body?.rich_message?.html ?? body?.rich_message?.markdown ?? body?.text ?? body?.caption
   }
@@ -286,16 +245,14 @@ export class E2eHelper {
    * @param call - Captured API call (e.g. from `sendText` response array).
    * @returns Flat array of button text labels.
    */
-  extractButtonLabels(call: ITE2eApiCall): string[] {
+  extractButtonLabels(call: IE2eApiCall): string[] {
     const markup = (call?.body as {reply_markup?: {inline_keyboard?: unknown[][]; keyboard?: unknown[][]}} | undefined)?.reply_markup
-    const inline = markup?.inline_keyboard?.flat().map((b) => (typeof b === `string` ? b : (b as {text?: string} | null | undefined)?.text ?? ``)) ?? []
-    const bottom = markup?.keyboard?.flat().map((b) => (typeof b === `string` ? b : (b as {text?: string} | null | undefined)?.text ?? ``)) ?? []
+    const inline = markup?.inline_keyboard?.flat().map((b) => (typeof b === `string` ? b : ((b as {text?: string} | null | undefined)?.text ?? ``))) ?? []
+    const bottom = markup?.keyboard?.flat().map((b) => (typeof b === `string` ? b : ((b as {text?: string} | null | undefined)?.text ?? ``))) ?? []
     return [...inline, ...bottom].filter((label) => label !== ``)
   }
 
-  // ── update build helpers ──────────────────────────────────────
-
-  private _defaultUser(user?: ITE2eUser) {
+  _defaultUser(user?: IE2eUser) {
     return {
       id: user !== undefined && `id` in user ? user.id : 1001,
       is_bot: user !== undefined && `is_bot` in user ? user.is_bot : false,
@@ -306,7 +263,7 @@ export class E2eHelper {
     }
   }
 
-  private _defaultChat(chat?: ITE2eChat) {
+  _defaultChat(chat?: IE2eChat) {
     return {
       id: chat !== undefined && `id` in chat ? chat.id : 1001,
       type: chat !== undefined && `type` in chat ? chat.type : `private`,
@@ -317,7 +274,7 @@ export class E2eHelper {
     }
   }
 
-  private _nextIds(options?: ITE2eUpdateOptions) {
+  _nextIds(options?: IE2eUpdateOptions) {
     return {
       updateId: this._nextUpdateId++,
       messageId: options !== undefined && `message_id` in options ? options.message_id : this._nextMessageId++,
@@ -325,11 +282,11 @@ export class E2eHelper {
     }
   }
 
-  private _settleFrom(options: ITE2eUpdateOptions | undefined): number {
+  _settleFrom(options: IE2eUpdateOptions | undefined): number {
     return (options as {settleMs?: number} | undefined)?.settleMs ?? 0
   }
 
-  private _buildMessageUpdate(message: Record<string, unknown>, options?: ITE2eUpdateOptions) {
+  _buildMessageUpdate(message: Record<string, unknown>, options?: IE2eUpdateOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
     return {
       update_id: updateId,
@@ -349,7 +306,7 @@ export class E2eHelper {
    * @param update - A raw Telegram Update object.
    * @returns All API calls made while processing this update.
    */
-  async handleUpdate(update: Record<string, unknown>, settleMs = 0): Promise<ITE2eApiCall[]> {
+  async handleUpdate(update: Record<string, unknown>, settleMs = 0): Promise<IE2eApiCall[]> {
     await this._ensureInit()
     const startIndex = this.calls.length
     await this.bot.bot.handleUpdate(update as unknown as Parameters<Gramstax[`bot`][`handleUpdate`]>[0])
@@ -367,7 +324,7 @@ export class E2eHelper {
    * @param options - User, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendText(text: string, options?: ITE2eUpdateOptions) {
+  async sendText(text: string, options?: IE2eUpdateOptions) {
     const entities = text.startsWith(`/`) ? [{offset: 0, length: text.split(` `)[0]?.length ?? text.length, type: `bot_command`}] : undefined
     return await this.handleUpdate(this._buildMessageUpdate({text, ...(entities ? {entities} : {})}, options), this._settleFrom(options))
   }
@@ -378,7 +335,7 @@ export class E2eHelper {
    * @param options - Caption, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendPhoto(options?: ITE2eMediaOptions) {
+  async sendPhoto(options?: IE2eMediaOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({photo: [{file_id: `mock-photo-file-id`, file_unique_id: `mock-photo-unique-id`, width: 1, height: 1}], ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
@@ -388,7 +345,7 @@ export class E2eHelper {
    * @param options - Caption, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendVideo(options?: ITE2eMediaOptions) {
+  async sendVideo(options?: IE2eMediaOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({video: {file_id: `mock-video-file-id`, file_unique_id: `mock-video-unique-id`, width: 1, height: 1, duration: 1}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
@@ -398,7 +355,7 @@ export class E2eHelper {
    * @param options - Caption, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendAudio(options?: ITE2eMediaOptions) {
+  async sendAudio(options?: IE2eMediaOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({audio: {file_id: `mock-audio-file-id`, file_unique_id: `mock-audio-unique-id`, duration: 1}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
@@ -408,7 +365,7 @@ export class E2eHelper {
    * @param options - Caption, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendDocument(options?: ITE2eMediaOptions) {
+  async sendDocument(options?: IE2eMediaOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({document: {file_id: `mock-document-file-id`, file_unique_id: `mock-document-unique-id`, file_name: `mock.txt`}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
@@ -418,8 +375,11 @@ export class E2eHelper {
    * @param options - Caption, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendAnimation(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(this._buildMessageUpdate({animation: {file_id: `mock-animation-file-id`, file_unique_id: `mock-animation-unique-id`, width: 1, height: 1, duration: 1}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
+  async sendAnimation(options?: IE2eMediaOptions) {
+    return await this.handleUpdate(
+      this._buildMessageUpdate({animation: {file_id: `mock-animation-file-id`, file_unique_id: `mock-animation-unique-id`, width: 1, height: 1, duration: 1}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options),
+      this._settleFrom(options)
+    )
   }
 
   /**
@@ -428,7 +388,7 @@ export class E2eHelper {
    * @param options - Caption, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendVoice(options?: ITE2eMediaOptions) {
+  async sendVoice(options?: IE2eMediaOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({voice: {file_id: `mock-voice-file-id`, file_unique_id: `mock-voice-unique-id`, duration: 1}, ...(options !== undefined && `caption` in options ? {caption: options.caption} : {})}, options), this._settleFrom(options))
   }
 
@@ -438,7 +398,7 @@ export class E2eHelper {
    * @param options - User, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendVideoNote(options?: ITE2eUpdateOptions) {
+  async sendVideoNote(options?: IE2eUpdateOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({video_note: {file_id: `mock-video-note-file-id`, file_unique_id: `mock-video-note-unique-id`, length: 1, duration: 1}}, options), this._settleFrom(options))
   }
 
@@ -448,7 +408,7 @@ export class E2eHelper {
    * @param options - User, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendSticker(options?: ITE2eUpdateOptions) {
+  async sendSticker(options?: IE2eUpdateOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({sticker: {file_id: `mock-sticker-file-id`, file_unique_id: `mock-sticker-unique-id`, type: `regular`, width: 1, height: 1, is_animated: false, is_video: false}}, options), this._settleFrom(options))
   }
 
@@ -458,7 +418,7 @@ export class E2eHelper {
    * @param options - Latitude, longitude, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendLocation(options?: ITE2eLocationOptions) {
+  async sendLocation(options?: IE2eLocationOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({location: {latitude: options !== undefined && `latitude` in options ? options.latitude : 0, longitude: options !== undefined && `longitude` in options ? options.longitude : 0}}, options), this._settleFrom(options))
   }
 
@@ -468,7 +428,7 @@ export class E2eHelper {
    * @param options - Phone number, name, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendContact(options?: ITE2eContactOptions) {
+  async sendContact(options?: IE2eContactOptions) {
     return await this.handleUpdate(
       this._buildMessageUpdate(
         {
@@ -492,23 +452,26 @@ export class E2eHelper {
    * @param options - Callback ID, message text, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendCallbackQuery(data: string, options?: ITE2eCallbackQueryOptions) {
+  async sendCallbackQuery(data: string, options?: IE2eCallbackQueryOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
-    return await this.handleUpdate({
-      update_id: updateId,
-      callback_query: {
-        id: options !== undefined && `id` in options ? options.id : `mock-callback-${updateId}`,
-        from: this._defaultUser(options?.user),
-        message: {
-          message_id: messageId,
-          date,
-          chat: this._defaultChat(options?.chat),
-          text: options !== undefined && `messageText` in options ? options.messageText : `Mock message`
-        },
-        chat_instance: `mock-chat-instance`,
-        data
-      }
-    }, this._settleFrom(options))
+    return await this.handleUpdate(
+      {
+        update_id: updateId,
+        callback_query: {
+          id: options !== undefined && `id` in options ? options.id : `mock-callback-${updateId}`,
+          from: this._defaultUser(options?.user),
+          message: {
+            message_id: messageId,
+            date,
+            chat: this._defaultChat(options?.chat),
+            text: options !== undefined && `messageText` in options ? options.messageText : `Mock message`
+          },
+          chat_instance: `mock-chat-instance`,
+          data
+        }
+      },
+      this._settleFrom(options)
+    )
   }
 
   /**
@@ -517,7 +480,7 @@ export class E2eHelper {
    * @param options - Dice emoji, user, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendDice(options?: ITE2eDiceOptions) {
+  async sendDice(options?: IE2eDiceOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({dice: {emoji: options !== undefined && `emoji` in options ? options.emoji : `🎲`, value: 1}}, options), this._settleFrom(options))
   }
 
@@ -528,19 +491,22 @@ export class E2eHelper {
    * @param options - User, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendEditedText(text: string, options?: ITE2eUpdateOptions) {
+  async sendEditedText(text: string, options?: IE2eUpdateOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
-    return await this.handleUpdate({
-      update_id: updateId,
-      edited_message: {
-        message_id: messageId,
-        date,
-        chat: this._defaultChat(options?.chat),
-        from: this._defaultUser(options?.user),
-        text,
-        edit_date: Math.floor(Date.now() / 1000)
-      }
-    }, this._settleFrom(options))
+    return await this.handleUpdate(
+      {
+        update_id: updateId,
+        edited_message: {
+          message_id: messageId,
+          date,
+          chat: this._defaultChat(options?.chat),
+          from: this._defaultUser(options?.user),
+          text,
+          edit_date: Math.floor(Date.now() / 1000)
+        }
+      },
+      this._settleFrom(options)
+    )
   }
 
   /**
@@ -549,7 +515,7 @@ export class E2eHelper {
    * @param options - User, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendNewChatMembers(options?: ITE2eUpdateOptions) {
+  async sendNewChatMembers(options?: IE2eUpdateOptions) {
     const user = this._defaultUser(options?.user)
     return await this.handleUpdate(this._buildMessageUpdate({new_chat_members: [user]}, options), this._settleFrom(options))
   }
@@ -561,18 +527,21 @@ export class E2eHelper {
    * @param options - User, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendChannelPost(text: string, options?: ITE2eUpdateOptions) {
+  async sendChannelPost(text: string, options?: IE2eUpdateOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
-    return await this.handleUpdate({
-      update_id: updateId,
-      channel_post: {
-        message_id: messageId,
-        date,
-        chat: this._defaultChat(options?.chat),
-        text,
-        ...(text.startsWith(`/`) ? {entities: [{offset: 0, length: text.split(` `)[0]?.length ?? text.length, type: `bot_command`}]} : {})
-      }
-    }, this._settleFrom(options))
+    return await this.handleUpdate(
+      {
+        update_id: updateId,
+        channel_post: {
+          message_id: messageId,
+          date,
+          chat: this._defaultChat(options?.chat),
+          text,
+          ...(text.startsWith(`/`) ? {entities: [{offset: 0, length: text.split(` `)[0]?.length ?? text.length, type: `bot_command`}]} : {})
+        }
+      },
+      this._settleFrom(options)
+    )
   }
 
   /**
@@ -583,16 +552,19 @@ export class E2eHelper {
    * @param options - User, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendPollAnswer(pollId: string, optionIds: number[], options?: ITE2eUpdateOptions) {
+  async sendPollAnswer(pollId: string, optionIds: number[], options?: IE2eUpdateOptions) {
     const {updateId} = this._nextIds(options)
-    return await this.handleUpdate({
-      update_id: updateId,
-      poll_answer: {
-        poll_id: pollId,
-        user: this._defaultUser(options?.user),
-        option_ids: optionIds
-      }
-    }, this._settleFrom(options))
+    return await this.handleUpdate(
+      {
+        update_id: updateId,
+        poll_answer: {
+          poll_id: pollId,
+          user: this._defaultUser(options?.user),
+          option_ids: optionIds
+        }
+      },
+      this._settleFrom(options)
+    )
   }
 
   /**
@@ -602,17 +574,20 @@ export class E2eHelper {
    * @param options - User, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendInlineQuery(query: string, options?: ITE2eUpdateOptions) {
+  async sendInlineQuery(query: string, options?: IE2eUpdateOptions) {
     const {updateId} = this._nextIds(options)
-    return await this.handleUpdate({
-      update_id: updateId,
-      inline_query: {
-        id: `mock-inline-${updateId}`,
-        from: this._defaultUser(options?.user),
-        query,
-        offset: ``
-      }
-    }, this._settleFrom(options))
+    return await this.handleUpdate(
+      {
+        update_id: updateId,
+        inline_query: {
+          id: `mock-inline-${updateId}`,
+          from: this._defaultUser(options?.user),
+          query,
+          offset: ``
+        }
+      },
+      this._settleFrom(options)
+    )
   }
 
   /**
@@ -623,16 +598,19 @@ export class E2eHelper {
    * @param options - User, chat, and response options.
    * @returns API calls made while processing this update.
    */
-  async sendChosenInlineResult(resultId: string, query: string, options?: ITE2eUpdateOptions) {
+  async sendChosenInlineResult(resultId: string, query: string, options?: IE2eUpdateOptions) {
     const {updateId} = this._nextIds(options)
-    return await this.handleUpdate({
-      update_id: updateId,
-      chosen_inline_result: {
-        result_id: resultId,
-        from: this._defaultUser(options?.user),
-        query
-      }
-    }, this._settleFrom(options))
+    return await this.handleUpdate(
+      {
+        update_id: updateId,
+        chosen_inline_result: {
+          result_id: resultId,
+          from: this._defaultUser(options?.user),
+          query
+        }
+      },
+      this._settleFrom(options)
+    )
   }
 
   // ── chat member helpers ────────────────────────────────────────
@@ -655,30 +633,33 @@ export class E2eHelper {
    * @param options - Old/new statuses and user/chat configuration.
    * @returns API calls made while processing this update.
    */
-  async sendChatMemberUpdate(options?: ITE2eChatMemberOptions) {
+  async sendChatMemberUpdate(options?: IE2eChatMemberOptions) {
     const {updateId} = this._nextIds(options)
     const botId = options !== undefined && `botId` in options ? options.botId : (this.bot.bot.botInfo?.id ?? 123456789)
     const userId = options?.user !== undefined && `id` in options.user ? options.user.id : 1001
     const oldStatus = options !== undefined && `oldStatus` in options ? options.oldStatus : `kicked`
     const newStatus = options !== undefined && `newStatus` in options ? options.newStatus : `member`
-    return await this.handleUpdate({
-      update_id: updateId,
-      chat_member: {
-        chat: this._defaultChat({...options?.chat, type: options?.chat?.type ?? `supergroup`}),
-        from: this._defaultUser(options?.user),
-        date: options !== undefined && `date` in options ? options.date : Math.floor(Date.now() / 1000),
-        old_chat_member: {
-          user: {id: userId, is_bot: userId === botId, first_name: `User`},
-          status: oldStatus,
-          ...(oldStatus === `restricted` ? {is_member: options !== undefined && `oldIsMember` in options ? options.oldIsMember : false} : {})
-        },
-        new_chat_member: {
-          user: {id: userId, is_bot: userId === botId, first_name: `User`},
-          status: newStatus,
-          ...(newStatus === `restricted` ? {is_member: options !== undefined && `newIsMember` in options ? options.newIsMember : true} : {})
+    return await this.handleUpdate(
+      {
+        update_id: updateId,
+        chat_member: {
+          chat: this._defaultChat({...options?.chat, type: options?.chat?.type ?? `supergroup`}),
+          from: this._defaultUser(options?.user),
+          date: options !== undefined && `date` in options ? options.date : Math.floor(Date.now() / 1000),
+          old_chat_member: {
+            user: {id: userId, is_bot: userId === botId, first_name: `User`},
+            status: oldStatus,
+            ...(oldStatus === `restricted` ? {is_member: options !== undefined && `oldIsMember` in options ? options.oldIsMember : false} : {})
+          },
+          new_chat_member: {
+            user: {id: userId, is_bot: userId === botId, first_name: `User`},
+            status: newStatus,
+            ...(newStatus === `restricted` ? {is_member: options !== undefined && `newIsMember` in options ? options.newIsMember : true} : {})
+          }
         }
-      }
-    }, this._settleFrom(options))
+      },
+      this._settleFrom(options)
+    )
   }
 
   /**
@@ -698,27 +679,30 @@ export class E2eHelper {
    * @param options - Old/new statuses and chat configuration.
    * @returns API calls made while processing this update.
    */
-  async sendMyChatMemberUpdate(options?: ITE2eChatMemberOptions) {
+  async sendMyChatMemberUpdate(options?: IE2eChatMemberOptions) {
     const {updateId} = this._nextIds(options)
     const botId = options !== undefined && `botId` in options ? options.botId : (this.bot.bot.botInfo?.id ?? 123456789)
     const oldStatus = options !== undefined && `oldStatus` in options ? options.oldStatus : `left`
     const newStatus = options !== undefined && `newStatus` in options ? options.newStatus : `member`
-    return await this.handleUpdate({
-      update_id: updateId,
-      my_chat_member: {
-        chat: this._defaultChat({...options?.chat, type: options?.chat?.type ?? `supergroup`}),
-        from: {id: botId, is_bot: true, first_name: `GramstaxBot`},
-        date: options !== undefined && `date` in options ? options.date : Math.floor(Date.now() / 1000),
-        old_chat_member: {
-          user: {id: botId, is_bot: true, first_name: `GramstaxBot`},
-          status: oldStatus
-        },
-        new_chat_member: {
-          user: {id: botId, is_bot: true, first_name: `GramstaxBot`},
-          status: newStatus
+    return await this.handleUpdate(
+      {
+        update_id: updateId,
+        my_chat_member: {
+          chat: this._defaultChat({...options?.chat, type: options?.chat?.type ?? `supergroup`}),
+          from: {id: botId, is_bot: true, first_name: `GramstaxBot`},
+          date: options !== undefined && `date` in options ? options.date : Math.floor(Date.now() / 1000),
+          old_chat_member: {
+            user: {id: botId, is_bot: true, first_name: `GramstaxBot`},
+            status: oldStatus
+          },
+          new_chat_member: {
+            user: {id: botId, is_bot: true, first_name: `GramstaxBot`},
+            status: newStatus
+          }
         }
-      }
-    }, this._settleFrom(options))
+      },
+      this._settleFrom(options)
+    )
   }
 
   // ── Bot API 10.3 helpers ──────────────────────────────────────
@@ -730,16 +714,19 @@ export class E2eHelper {
    * @returns API calls made while processing this update
    * @public
    */
-  async sendStoppedGeneration(options?: ITE2eUpdateOptions & {chat?: ITE2eChat; draft_id?: number; message_thread_id?: number}) {
+  async sendStoppedGeneration(options?: IE2eUpdateOptions & {chat?: IE2eChat; draft_id?: number; message_thread_id?: number}) {
     const {updateId} = this._nextIds(options)
-    return await this.handleUpdate({
-      update_id: updateId,
-      stopped_message_generation: {
-        chat: this._defaultChat(options?.chat),
-        draft_id: options !== undefined && `draft_id` in options ? options.draft_id : 1,
-        ...(options?.message_thread_id !== undefined ? {message_thread_id: options.message_thread_id} : {})
-      }
-    }, this._settleFrom(options))
+    return await this.handleUpdate(
+      {
+        update_id: updateId,
+        stopped_message_generation: {
+          chat: this._defaultChat(options?.chat),
+          draft_id: options !== undefined && `draft_id` in options ? options.draft_id : 1,
+          ...(options?.message_thread_id !== undefined ? {message_thread_id: options.message_thread_id} : {})
+        }
+      },
+      this._settleFrom(options)
+    )
   }
 
   /**
@@ -749,7 +736,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update
    * @public
    */
-  async sendStoppedMessageGeneration(options?: ITE2eUpdateOptions & {chat?: ITE2eChat; draft_id?: number; message_thread_id?: number}) {
+  async sendStoppedMessageGeneration(options?: IE2eUpdateOptions & {chat?: IE2eChat; draft_id?: number; message_thread_id?: number}) {
     return await this.sendStoppedGeneration(options)
   }
 
@@ -760,7 +747,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update
    * @public
    */
-  async sendCommunityChatJoined(options?: ITE2eUpdateOptions & {community?: {id?: number; name?: string}}) {
+  async sendCommunityChatJoined(options?: IE2eUpdateOptions & {community?: {id?: number; name?: string}}) {
     return await this.handleUpdate(this._buildMessageUpdate({community_chat_joined: {community: options !== undefined && `community` in options ? options.community : {id: 1, name: `Test Community`}}}, options), this._settleFrom(options))
   }
 
@@ -772,7 +759,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update
    * @public
    */
-  async sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITE2eUpdateOptions) {
+  async sendGiftInfo(giftInfo: Record<string, unknown>, options?: IE2eUpdateOptions) {
     return await this.handleUpdate(this._buildMessageUpdate({unique_gift: giftInfo}, options), this._settleFrom(options))
   }
 
@@ -787,8 +774,23 @@ export class E2eHelper {
    *
    * @returns Array of stream-related API calls.
    */
-  streamCalls(): ITE2eApiCall[] {
-    return this.calls.filter((c) => c.method === `sendMessageDraft` || c.method === `sendRichMessageDraft` || c.method === `sendRichMessage` || c.method === `sendMessage` || c.method === `editMessageText` || c.method === `editMessageCaption` || c.method === `editMessageMedia` || c.method === `editMessageReplyMarkup` || c.method === `editEphemeralMessageText` || c.method === `editEphemeralMessageCaption` || c.method === `editEphemeralMessageMedia` || c.method === `editEphemeralMessageReplyMarkup` || c.method === `deleteEphemeralMessage`)
+  streamCalls(): IE2eApiCall[] {
+    return this.calls.filter(
+      (c) =>
+        c.method === `sendMessageDraft` ||
+        c.method === `sendRichMessageDraft` ||
+        c.method === `sendRichMessage` ||
+        c.method === `sendMessage` ||
+        c.method === `editMessageText` ||
+        c.method === `editMessageCaption` ||
+        c.method === `editMessageMedia` ||
+        c.method === `editMessageReplyMarkup` ||
+        c.method === `editEphemeralMessageText` ||
+        c.method === `editEphemeralMessageCaption` ||
+        c.method === `editEphemeralMessageMedia` ||
+        c.method === `editEphemeralMessageReplyMarkup` ||
+        c.method === `deleteEphemeralMessage`
+    )
   }
 
   /**

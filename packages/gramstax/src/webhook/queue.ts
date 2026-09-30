@@ -6,23 +6,18 @@
  * they are processed sequentially. Useful for long-polling fallback or
  * rate-limited webhook processing.
  *
- * @public
- */
-
-/**
- * In-memory bounded queue for webhook updates.
- *
  * @typeParam T - Queue item type.
+ *
  * @public
  */
 export class WebhookQueue<T = unknown> {
-  private items: Array<T | undefined>
-  private head = 0
-  private tail = 0
-  private lengthCount = 0
-  private waitEnqueue: Array<{resolve: () => void; reject: (error: Error) => void}> = []
-  private waitDequeue: Array<(value: T) => void> = []
-  private closed = false
+  _items: Array<T | undefined>
+  _head = 0
+  _tail = 0
+  _lengthCount = 0
+  _waitEnqueue: Array<{resolve: () => void; reject: (error: Error) => void}> = []
+  _waitDequeue: Array<(value: T) => void> = []
+  _closed = false
 
   /**
    * Create a new queue with a maximum size.
@@ -35,7 +30,7 @@ export class WebhookQueue<T = unknown> {
     if (!Number.isFinite(maxSize) || maxSize <= 0) {
       throw new Error(`WebhookQueue maxSize must be a positive number`)
     }
-    this.items = new Array<T | undefined>(maxSize)
+    this._items = new Array<T | undefined>(maxSize)
   }
 
   /**
@@ -46,10 +41,10 @@ export class WebhookQueue<T = unknown> {
    */
   getStats() {
     return {
-      length: this.lengthCount,
+      length: this._lengthCount,
       maxSize: this.maxSize,
-      waitingEnqueue: this.waitEnqueue.length,
-      waitingDequeue: this.waitDequeue.length
+      waitingEnqueue: this._waitEnqueue.length,
+      waitingDequeue: this._waitDequeue.length
     }
   }
 
@@ -59,7 +54,7 @@ export class WebhookQueue<T = unknown> {
    * @public
    */
   get length() {
-    return this.lengthCount
+    return this._lengthCount
   }
 
   /**
@@ -72,11 +67,11 @@ export class WebhookQueue<T = unknown> {
    * @public
    */
   async enqueue(value: T, signal?: AbortSignal) {
-    if (this.closed) {
+    if (this._closed) {
       throw new Error(`WebhookQueue is closed`)
     }
 
-    if (this.lengthCount >= this.maxSize) {
+    if (this._lengthCount >= this.maxSize) {
       if (signal?.aborted) {
         throw new Error(`WebhookQueue enqueue aborted`)
       }
@@ -85,13 +80,13 @@ export class WebhookQueue<T = unknown> {
         await new Promise<void>((resolve, reject) => {
           const waiter = {resolve, reject}
           onAbort = () => {
-            const index = this.waitEnqueue.indexOf(waiter)
+            const index = this._waitEnqueue.indexOf(waiter)
             if (index >= 0) {
-              this.waitEnqueue.splice(index, 1)
+              this._waitEnqueue.splice(index, 1)
             }
             reject(new Error(`WebhookQueue enqueue aborted`))
           }
-          this.waitEnqueue.push(waiter)
+          this._waitEnqueue.push(waiter)
           signal?.addEventListener(`abort`, onAbort, {once: true})
         })
       } finally {
@@ -101,19 +96,19 @@ export class WebhookQueue<T = unknown> {
       }
     }
 
-    if (this.closed) {
+    if (this._closed) {
       throw new Error(`WebhookQueue is closed`)
     }
 
-    if (this.waitDequeue.length > 0) {
-      const resolve = this.waitDequeue.shift()!
+    if (this._waitDequeue.length > 0) {
+      const resolve = this._waitDequeue.shift()!
       resolve(value)
       return
     }
 
-    this.items[this.tail] = value
-    this.tail = (this.tail + 1) % this.maxSize
-    this.lengthCount++
+    this._items[this._tail] = value
+    this._tail = (this._tail + 1) % this.maxSize
+    this._lengthCount++
   }
 
   /**
@@ -125,20 +120,20 @@ export class WebhookQueue<T = unknown> {
    * @public
    */
   tryEnqueue(value: T): boolean {
-    if (this.closed) {
+    if (this._closed) {
       return false
     }
-    if (this.waitDequeue.length > 0) {
-      const resolve = this.waitDequeue.shift()!
+    if (this._waitDequeue.length > 0) {
+      const resolve = this._waitDequeue.shift()!
       resolve(value)
       return true
     }
-    if (this.lengthCount >= this.maxSize) {
+    if (this._lengthCount >= this.maxSize) {
       return false
     }
-    this.items[this.tail] = value
-    this.tail = (this.tail + 1) % this.maxSize
-    this.lengthCount++
+    this._items[this._tail] = value
+    this._tail = (this._tail + 1) % this.maxSize
+    this._lengthCount++
     return true
   }
 
@@ -150,17 +145,17 @@ export class WebhookQueue<T = unknown> {
    * @public
    */
   async dequeue(signal?: AbortSignal): Promise<T | undefined> {
-    if (this.lengthCount > 0) {
-      const value = this.items[this.head] as T
-      this.items[this.head] = undefined
-      this.head = (this.head + 1) % this.maxSize
-      this.lengthCount--
-      const waiter = this.waitEnqueue.shift()
+    if (this._lengthCount > 0) {
+      const value = this._items[this._head] as T
+      this._items[this._head] = undefined
+      this._head = (this._head + 1) % this.maxSize
+      this._lengthCount--
+      const waiter = this._waitEnqueue.shift()
       waiter?.resolve()
       return value
     }
 
-    if (this.closed) {
+    if (this._closed) {
       return undefined
     }
 
@@ -185,13 +180,13 @@ export class WebhookQueue<T = unknown> {
           return
         }
         settled = true
-        const index = this.waitDequeue.indexOf(waiter)
+        const index = this._waitDequeue.indexOf(waiter)
         if (index >= 0) {
-          this.waitDequeue.splice(index, 1)
+          this._waitDequeue.splice(index, 1)
         }
         reject(new Error(`WebhookQueue dequeue aborted`))
       }
-      this.waitDequeue.push(waiter)
+      this._waitDequeue.push(waiter)
       signal?.addEventListener(`abort`, onAbort, {once: true})
     })
   }
@@ -206,10 +201,10 @@ export class WebhookQueue<T = unknown> {
    * @public
    */
   close(): void {
-    if (this.closed) return
-    this.closed = true
-    const dequeuers = this.waitDequeue.splice(0)
-    const enqueuers = this.waitEnqueue.splice(0)
+    if (this._closed) return
+    this._closed = true
+    const dequeuers = this._waitDequeue.splice(0)
+    const enqueuers = this._waitEnqueue.splice(0)
     dequeuers.forEach((resolve) => {
       resolve(undefined as T)
     })
@@ -224,6 +219,6 @@ export class WebhookQueue<T = unknown> {
    * @public
    */
   get isClosed(): boolean {
-    return this.closed
+    return this._closed
   }
 }

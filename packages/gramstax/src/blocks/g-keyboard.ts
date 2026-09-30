@@ -1,14 +1,3 @@
-/**
- * Keyboard block builder — generates `<g-keyboard>` template blocks.
- *
- * @remarks
- * Converts {@link LabelGKeyboard} definitions into HTML-like template strings
- * for the template engine. Requires `BlockGKeyboard.label` to be set before
- * calling build methods.
- *
- * @public
- */
-
 import type {LabelGKeyboard} from "~/labels/g-keyboard"
 
 /**

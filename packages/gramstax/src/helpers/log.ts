@@ -1,14 +1,3 @@
-/**
- * Logging helper — wrapped `LoggingPretty` for the Gramstax bot.
- *
- * @remarks
- * Provides structured logging with prefix support (R/W/E for Read/Write/Error)
- * and automatic caller detection. Used throughout the framework for
- * consistent log output.
- *
- * @public
- */
-
 import {LoggingPretty} from "logging-pretty"
 
 /**
@@ -43,7 +32,7 @@ export class LoggingHelper extends LoggingPretty {
    * Internal map to store timing labels and their start timestamps.
    * @internal
    */
-  private timers: Map<string, bigint> = new Map()
+  _timers: Map<string, bigint> = new Map()
 
   /**
    * Log a formatted error message with optional class and function context.
@@ -104,7 +93,7 @@ export class LoggingHelper extends LoggingPretty {
    * @public
    */
   time(label: string) {
-    this.timers.set(label, process.hrtime.bigint())
+    this._timers.set(label, process.hrtime.bigint())
   }
 
   /**
@@ -131,14 +120,14 @@ export class LoggingHelper extends LoggingPretty {
    * @public
    */
   timeEnd(label: string, message?: string) {
-    const startTime = this.timers.get(label)
+    const startTime = this._timers.get(label)
     if (startTime === undefined) {
       this.debug(`${label}: Timer was never started`)
       return
     }
 
     const duration = (Number(process.hrtime.bigint() - startTime) / 1e6).toFixed(3)
-    this.timers.delete(label)
+    this._timers.delete(label)
     if (message) {
       this.debug(`${message} (took ${duration}ms)`)
     } else {
@@ -167,7 +156,7 @@ export class LoggingHelper extends LoggingPretty {
    * @public
    */
   timeCheck(label: string): string | undefined {
-    const startTime = this.timers.get(label)
+    const startTime = this._timers.get(label)
     if (startTime === undefined) {
       return undefined
     }
@@ -228,7 +217,7 @@ export class LoggingHelper extends LoggingPretty {
    * @public
    */
   timeClear() {
-    this.timers.clear()
+    this._timers.clear()
   }
 
   /**
@@ -249,7 +238,7 @@ export class LoggingHelper extends LoggingPretty {
    * @public
    */
   timeActive(): string[] {
-    return Array.from(this.timers.keys())
+    return Array.from(this._timers.keys())
   }
 }
 

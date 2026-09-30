@@ -1,6 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 // ── Test page class ──────────────────────────────────────────────────
 
@@ -17,13 +17,13 @@ function createCtx(api: Record<string, unknown>, text = `hello`, extra?: {onSend
     api,
     me: {id: 9, is_bot: true, first_name: `Bot`} as any,
     update: messageUpdate as any
-  } as unknown as ITCtxParams[`ct`]
+  } as unknown as ICtxParams[`ct`]
   return new ThreadChunkedPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {getGMessage: () => text, getGKeyboard: () => []} as unknown as ITCtxParams[`templateManager`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    templateManager: {getGMessage: () => text, getGKeyboard: () => []} as unknown as ICtxParams[`templateManager`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }

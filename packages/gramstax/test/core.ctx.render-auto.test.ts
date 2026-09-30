@@ -1,7 +1,7 @@
 import {describe, expect, it, mock} from "bun:test"
 import {InlineKeyboard} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 // ── Test page class (simulates user's PageBase pattern) ────────────
 
@@ -21,8 +21,8 @@ function createMockApi() {
   type TransformerFn = (prev: (method: string, payload: unknown[], signal?: any) => any, method: string, payload: unknown[], signal?: any) => any
   const installed: TransformerFn[] = []
 
-  const sendMessage = mock(() => ({message_id: 1, date: 0, chat: {id: 1, type: `private` as const}} as any))
-  const editMessageText = mock(() => ({message_id: 1, date: 0, chat: {id: 1, type: `private` as const}} as any))
+  const sendMessage = mock(() => ({message_id: 1, date: 0, chat: {id: 1, type: `private` as const}}) as any)
+  const editMessageText = mock(() => ({message_id: 1, date: 0, chat: {id: 1, type: `private` as const}}) as any)
 
   return {
     api: {
@@ -42,16 +42,14 @@ function createTestCtx(hasCallbackQuery = false) {
   const ct = {
     api,
     me: {id: 1, is_bot: true, first_name: `Bot`} as any,
-    update: hasCallbackQuery
-      ? ({callback_query: {id: `999`, from: {id: 1, is_bot: false, first_name: `Test`}, data: `test`}} as any)
-      : ({message: {chat: {id: 1, type: `private`}, text: `test`, from: {id: 1, is_bot: false, first_name: `Test`}}} as any)
-  } as unknown as ITCtxParams[`ct`]
+    update: hasCallbackQuery ? ({callback_query: {id: `999`, from: {id: 1, is_bot: false, first_name: `Test`}, data: `test`}} as any) : ({message: {chat: {id: 1, type: `private`}, text: `test`, from: {id: 1, is_bot: false, first_name: `Test`}}} as any)
+  } as unknown as ICtxParams[`ct`]
 
   const ctx = new TestPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {} as unknown as ITCtxParams[`templateManager`],
+    templateManager: {} as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 

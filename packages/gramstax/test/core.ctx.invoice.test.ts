@@ -1,8 +1,8 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError, HttpError} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITInvoiceBlock} from "~/template/engine"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
+import type {IInvoiceBlock} from "~/types/template"
 
 class InvoicePage extends Ctx {
   static data = Ctx.buildData({name: `invoicepage`})
@@ -12,9 +12,9 @@ const grammyError = (code: number) => new GrammyError(`Call failed!`, {error_cod
 
 const httpError = () => new HttpError(`net down`, new Error(`socket`))
 
-const starsInvoice: ITInvoiceBlock = {title: `VIP 30 hari`, description: `Akses semua konten`, payload: `o-1`, currency: `XTR`, prices: [{label: `VIP 30 hari`, amount: 100}]}
+const starsInvoice: IInvoiceBlock = {title: `VIP 30 hari`, description: `Akses semua konten`, payload: `o-1`, currency: `XTR`, prices: [{label: `VIP 30 hari`, amount: 100}]}
 
-const fiatInvoice: ITInvoiceBlock = {title: `Pro plan`, description: `Monthly access`, payload: `o-2`, currency: `USD`, prices: [{label: `Pro`, amount: 499}]}
+const fiatInvoice: IInvoiceBlock = {title: `Pro plan`, description: `Monthly access`, payload: `o-2`, currency: `USD`, prices: [{label: `Pro`, amount: 499}]}
 
 const makeApi = (overrides?: Record<string, unknown>) => ({
   config: {use: () => {}},
@@ -29,16 +29,16 @@ const noChatUpdate = {message: {message_id: 1, date: 1, text: `hi`, from: {id: 1
 
 const preCheckoutUpdate = {pre_checkout_query: {id: `q-1`, from: {id: 1, is_bot: false, first_name: `A`}, currency: `XTR`, total_amount: 100, invoice_payload: `o-1`}}
 
-const makeCtx = (api: Record<string, unknown>, invoice: ITInvoiceBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
+const makeCtx = (api: Record<string, unknown>, invoice: IInvoiceBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
   const tm = {getGInvoice: mock(() => invoice)} as never
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new InvoicePage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: (extra?.log ?? null) as unknown as ITCtxParams[`log`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as unknown as ICtxParams[`log`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -64,14 +64,14 @@ describe(`invoice-render`, () => {
     const api = makeApi()
     const getGInvoice = mock(() => starsInvoice)
     const tm = {getGInvoice} as never
-    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ITCtxParams[`ct`]
+    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ICtxParams[`ct`]
     const ctx = new InvoicePage({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: tm as ITCtxParams[`templateManager`],
-      log: null as unknown as ITCtxParams[`log`],
-      onSendError: null as unknown as ITCtxParams[`onSendError`],
+      templateManager: tm as ICtxParams[`templateManager`],
+      log: null as unknown as ICtxParams[`log`],
+      onSendError: null as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     await ctx.renderInvoice(null, {orderId: `o-1`}, `promo`)
@@ -158,9 +158,12 @@ describe(`invoice-render`, () => {
       })
     })
     await expect(
-      makeCtx(api, starsInvoice, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).renderInvoice()
+      makeCtx(api, starsInvoice, {
+        log: {warn, error},
+        onSendError: (e: unknown, info: unknown) => {
+          seen.push({err: e, info})
+        }
+      }).renderInvoice()
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -181,9 +184,12 @@ describe(`invoice-render`, () => {
       })
     })
     await expect(
-      makeCtx(api, starsInvoice, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).renderInvoice()
+      makeCtx(api, starsInvoice, {
+        log: {warn, error},
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).renderInvoice()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `invoicepage`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)

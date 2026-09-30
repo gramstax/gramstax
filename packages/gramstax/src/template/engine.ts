@@ -1,372 +1,9 @@
-/**
- * Template engine — parse and render Gramstax template files.
- *
- * @remarks
- * The core template parsing and rendering engine. Converts `.gts`/`.grm`
- * template files into an AST, validates structure, and renders Telegram
- * message objects (text, keyboard, media, etc.) with dynamic data binding.
- *
- * @public
- */
-
 import type {InputFile} from "grammy"
+import type {IDiceBlock, IInlineButtonBlock, IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock, IVenueBlock} from "~/types/template"
 
-/**
- * Represents a media block configuration for Telegram messages.
- *
- * @remarks
- * This type defines the structure for various media types supported by Telegram,
- * including file-based media (photo, video, audio, document, animation, voice,
- * video_note, sticker), location, and contact.
- * Pipe-delimited `src` values such as `a.jpg|b.jpg` are also exposed as
- * `srcList` for Telegram media groups. `<g-media-group>` blocks are exposed as
- * `mediaGroup` items and may mix photo/video items. Telegram media groups
- * support up to 10 items and only for photo, video, audio, and document media.
- *
- * @example
- * ```typescript
- * const photoMedia: ITMediaBlock = {
- *   type: 'photo',
- *   src: 'path/to/image.jpg',
- *   caption: 'A beautiful sunset'
- * };
- *
- * const albumMedia: ITMediaBlock = {
- *   type: 'photo',
- *   src: 'one.jpg|two.jpg',
- *   srcList: ['one.jpg', 'two.jpg'],
- *   caption: 'Photo album'
- * };
- *
- * const locationMedia: ITMediaBlock = {
- *   type: 'location',
- *   latitude: '37.7749',
- *   longitude: '-122.4194'
- * };
- *
- * const contactMedia: ITMediaBlock = {
- *   type: 'contact',
- *   phone: '+1234567890',
- *   first_name: 'John',
- *   last_name: 'Doe'
- * };
- * ```
- *
- * @public
- */
-export type ITMediaBlock = {
-  type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact` | `group`
-  src?: string | InputFile | Buffer | Uint8Array
-  srcList?: string[]
-  mediaGroup?: Array<{type: `photo` | `video` | `audio` | `document`; src: string | InputFile | Buffer | Uint8Array; caption?: string}>
-  caption?: string
-  filename?: string
-  // for location
-  latitude?: string
-  longitude?: string
-  live?: string
-  // for contact
-  phone?: string
-  first_name?: string
-  last_name?: string
-  vcard?: string
-}
+type ITemplateData = Record<string, unknown>
 
-/**
- * Represents a poll block configuration for Telegram polls.
- *
- * @remarks
- * This type defines the structure for template-driven polls declared with
- * `<g-poll>` blocks. The question and options support the same
- * `{{var|filter}}` interpolation pipeline as media captions; the compiled
- * strings are length-checked at runtime before any API call (question
- * 1–300 chars, each option 1–100 chars, 2–10 options, `correct` within
- * range, explanation at most 200 chars).
- *
- * @example
- * ```typescript
- * const quiz: ITPollBlock = {
- *   type: `quiz`,
- *   question: `What is 2+2?`,
- *   options: [`3`, `4`],
- *   correct: 1,
- *   explanation: `Basic arithmetic`,
- *   anonymous: true
- * };
- * ```
- *
- * @public
- */
-export type ITPollBlock = {
-  type: `regular` | `quiz`
-  question: string
-  options: string[]
-  correct?: number
-  explanation?: string
-  anonymous?: boolean
-  multiple?: boolean
-}
-
-/**
- * Represents an invoice block configuration for Telegram payments.
- *
- * @remarks
- * This type defines the structure for template-driven invoices declared with
- * `<g-invoice>` blocks. The title, description, payload, and price labels
- * support the same `{{var|filter}}` interpolation pipeline as poll questions;
- * the compiled strings are length-checked at runtime before any API call
- * (title 1–32 chars, description 1–255 chars, payload 1–128 bytes per the
- * Bot API `sendInvoice` limits). `currency` is a 3-letter code (`XTR` for
- * Telegram Stars, otherwise an ISO 4217 fiat code). `prices` holds 1 or more
- * line items with positive integer `amount` values in the smallest currency
- * units. Provider tokens are NEVER part of this type — they must come from
- * `renderInvoice` options, never templates.
- *
- * @example
- * ```typescript
- * const stars: ITInvoiceBlock = {
- *   title: `VIP 30 hari`,
- *   description: `Akses semua konten`,
- *   payload: `order-1`,
- *   currency: `XTR`,
- *   prices: [{label: `VIP 30 hari`, amount: 100}]
- * };
- * ```
- *
- * @public
- */
-export type ITInvoiceBlock = {
-  title: string
-  description: string
-  payload: string
-  currency: string
-  prices: Array<{label: string; amount: number}>
-}
-
-/**
- * Represents a Stars paid-media block for Telegram paywalls.
- *
- * @remarks
- * This type defines the structure for template-driven paid media declared
- * with `<g-paid-media>` blocks. `stars` is the Stars price unlocking the
- * content (1–25000 per the Bot API `sendPaidMedia` limit); `media` holds
- * 1–10 items of type `photo` or `video` only. Item `src` and `caption`
- * support the same `{{var|filter}}` interpolation pipeline as media
- * captions; the compiled strings are length-checked at runtime before any
- * API call (non-empty `src`, caption at most 1024 chars).
- *
- * @example
- * ```typescript
- * const paywall: ITPaidMediaBlock = {
- *   stars: 100,
- *   media: [{type: `photo`, src: `teaser.jpg`, caption: `Bayar untuk membuka`}]
- * };
- * ```
- *
- * @public
- */
-export type ITPaidMediaBlock = {
-  stars: number
-  media: Array<{type: `photo` | `video`; src: string; caption?: string}>
-}
-
-/**
- * Represents a venue block configuration for Telegram venues.
- *
- * @remarks
- * This type defines the structure for template-driven venues declared with
- * `<g-venue>` blocks. All four fields support the same `{{var|filter}}`
- * interpolation pipeline as poll questions; the compiled strings are
- * validated at runtime before any API call (non-empty title/address plus
- * `Ctx.assertLocation` range checks on the coordinates).
- *
- * @example
- * ```typescript
- * const venue: ITVenueBlock = {
- *   title: `Cafe {{name}}`,
- *   address: `Jl. Merdeka 1`,
- *   latitude: `-6.2`,
- *   longitude: `106.8`
- * };
- * ```
- *
- * @public
- */
-export type ITVenueBlock = {
-  title: string
-  address: string
-  latitude: string
-  longitude: string
-}
-
-/**
- * Represents a dice block configuration for Telegram dice animations.
- *
- * @remarks
- * This type defines the structure for template-driven dice declared with
- * `<g-dice>` blocks. `emoji` supports the same `{{var|filter}}`
- * interpolation pipeline as poll questions and defaults to `🎲` when the
- * attribute is absent; the compiled value is checked at runtime by
- * `Ctx.assertDiceEmoji` before any API call.
- *
- * @example
- * ```typescript
- * const dice: ITDiceBlock = {
- *   emoji: `🎯`
- * };
- * ```
- *
- * @public
- */
-export type ITDiceBlock = {
-  emoji: string
-}
-
-/**
- * Represents a callback-answer block for Telegram inline-button feedback.
- *
- * @remarks
- * This type defines the structure for template-driven callback answers
- * declared with `<g-callback-answer>` blocks. `text` supports the same
- * `{{var|filter}}` interpolation pipeline as poll questions; the compiled
- * value is length-checked at runtime before any API call (toast text at
- * most 200 chars, plain text without HTML per the Bot API
- * `answerCallbackQuery` limits).
- *
- * @example
- * ```typescript
- * const answer: ITCallbackAnswerBlock = {
- *   text: `Pesanan {{orderId}} diproses`
- * };
- * ```
- *
- * @public
- */
-export type ITCallbackAnswerBlock = {
-  text: string
-}
-
-/**
- * Represents a pre-checkout error block for Telegram payments.
- *
- * @remarks
- * This type defines the structure for template-driven pre-checkout errors
- * declared with `<g-precheckout-error>` blocks. `text` supports the same
- * `{{var|filter}}` interpolation pipeline as poll questions and becomes
- * the `error_message` shown when payment is declined (plain text without
- * HTML per the Bot API `answerPreCheckoutQuery` limits).
- *
- * @example
- * ```typescript
- * const declined: ITPrecheckoutErrorBlock = {
- *   text: `Stok {{item}} habis`
- * };
- * ```
- *
- * @public
- */
-export type ITPrecheckoutErrorBlock = {
-  text: string
-}
-
-/**
- * Represents a shipping error block for Telegram payments.
- *
- * @remarks
- * This type defines the structure for template-driven shipping errors
- * declared with `<g-shipping-error>` blocks. `text` supports the same
- * `{{var|filter}}` interpolation pipeline as poll questions and becomes
- * the `error_message` shown when the address is rejected (plain text
- * without HTML per the Bot API `answerShippingQuery` limits).
- *
- * @example
- * ```typescript
- * const rejected: ITShippingErrorBlock = {
- *   text: `Di luar zona {{city}}`
- * };
- * ```
- *
- * @public
- */
-export type ITShippingErrorBlock = {
-  text: string
-}
-
-/**
- * Represents an inline-button block for Telegram inline query answers.
- *
- * @remarks
- * This type defines the structure for template-driven inline buttons
- * declared with `<g-inline-button>` blocks. `text` supports the same
- * `{{var|filter}}` interpolation pipeline as poll questions and becomes
- * the `button.text` label; `startParameter` maps the `start-parameter`
- * attribute and follows the Bot API deep-link format (`[A-Za-z0-9_-]`,
- * at most 64 chars).
- *
- * @example
- * ```typescript
- * const button: ITInlineButtonBlock = {
- *   text: `Lihat detail`,
- *   startParameter: `start=1`
- * };
- * ```
- *
- * @public
- */
-export type ITInlineButtonBlock = {
-  text: string
-  startParameter?: string
-}
-
-/**
- * Represents an answer-note block for query answers without template content.
- *
- * @remarks
- * This type defines the structure for validation-marker blocks declared
- * with `<g-answer-note>` blocks. Guest and web app answers carry caller-built
- * results, so the block exists only as fail-fast validation that the
- * template provides the required `AGBaseId` (plus a future content slot).
- * `text` supports the same `{{var|filter}}` interpolation pipeline as poll
- * questions.
- *
- * @example
- * ```typescript
- * const note: ITAnswerNoteBlock = {
- *   text: `Guest answer`
- * };
- * ```
- *
- * @public
- */
-export type ITAnswerNoteBlock = {
-  text: string
-}
-
-/**
- * Represents a gift block for Telegram gifts.
- *
- * @remarks
- * This type defines the structure for template-driven gift card text
- * declared with `<g-gift>` blocks. `text` supports the same
- * `{{var|filter}}` interpolation pipeline as poll questions including
- * HTML markup (`renderGift` sends with `text_parse_mode: HTML`).
- *
- * @example
- * ```typescript
- * const gift: ITGiftBlock = {
- *   text: `Hadiah <b>{{item}}</b> untukmu!`
- * };
- * ```
- *
- * @public
- */
-export type ITGiftBlock = {
-  text: string
-}
-
-type ITTemplateData = Record<string, unknown>
-
-type ITTemplateRenderer<T extends boolean> = T extends true ? (data?: ITTemplateData) => string[] : (data?: ITTemplateData) => string
+type ITemplateRenderer<T extends boolean> = T extends true ? (data?: ITemplateData) => string[] : (data?: ITemplateData) => string
 
 /**
  * A whitelisted post-processing function applied to a `{{var|filter:arg}}` expression.
@@ -377,7 +14,7 @@ type ITTemplateRenderer<T extends boolean> = T extends true ? (data?: ITTemplate
  *
  * @public
  */
-type ITTemplateFilter = (value: unknown, ...args: string[]) => unknown
+type ITemplateFilter = (value: unknown, ...args: string[]) => unknown
 
 /**
  * Built-in `{{var|filter}}` pipes. Unknown filter names render empty and
@@ -388,7 +25,7 @@ type ITTemplateFilter = (value: unknown, ...args: string[]) => unknown
  *
  * @public
  */
-export const DEFAULT_FILTERS: Record<string, ITTemplateFilter> = {
+export const DEFAULT_FILTERS: Record<string, ITemplateFilter> = {
   upper: (value) => String(value ?? ``).toUpperCase(),
   lower: (value) => String(value ?? ``).toLowerCase(),
   // Non-numeric input renders empty (never "NaN").
@@ -979,16 +616,16 @@ export class TemplateEngine {
    * - `<g-poll type>` — must be `regular` or `quiz`
    * - `<g-poll correct>` — must be a non-negative option index
    * - `<g-poll explanation>` — any string, always valid
-     * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
-     * - `<g-venue title>` / `<g-venue address>` — any string, always valid
-     * - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced)
-     * - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced)
-     * - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced)
-    * - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced)
-     * - `<g-price amount>` — must be a positive integer in smallest currency units
-     * - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)
-    *
-    * Validators are intentionally lenient — they catch obvious bugs (wrong
+   * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+   * - `<g-venue title>` / `<g-venue address>` — any string, always valid
+   * - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-price amount>` — must be a positive integer in smallest currency units
+   * - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)
+   *
+   * Validators are intentionally lenient — they catch obvious bugs (wrong
    * type, invalid value) but do not enforce every framework-level constraint.
    *
    * @example
@@ -1023,13 +660,13 @@ export class TemplateEngine {
       multiple: (v) => (v === `true` || v === `false` ? null : `Attribute "multiple" on <g-poll> must be "true" or "false", got "${v}"`)
     },
     "g-invoice": {
-      currency: (v) => (v.includes(`{{`) || v.includes(`{~`) ? null : (/^[A-Z]{3}$/.test(v) ? null : `Attribute "currency" on <g-invoice> must be a 3-letter code (got "${v}")`))
+      currency: (v) => (v.includes(`{{`) || v.includes(`{~`) ? null : /^[A-Z]{3}$/.test(v) ? null : `Attribute "currency" on <g-invoice> must be a 3-letter code (got "${v}")`)
     },
     "g-price": {
       amount: (v) => (/^[1-9]\d*$/.test(v) ? null : `Attribute "amount" on <g-price> must be a positive integer in smallest units (got "${v}")`)
     },
     "g-paid-media": {
-      stars: (v) => (v.includes(`{{`) || v.includes(`{~`) ? null : (/^[1-9]\d*$/.test(v) && Number(v) <= 25000 ? null : `Attribute "stars" on <g-paid-media> must be a positive integer 1-25000 (got "${v}")`))
+      stars: (v) => (v.includes(`{{`) || v.includes(`{~`) ? null : /^[1-9]\d*$/.test(v) && Number(v) <= 25000 ? null : `Attribute "stars" on <g-paid-media> must be a positive integer 1-25000 (got "${v}")`)
     },
     "g-venue": {
       title: () => null,
@@ -1719,7 +1356,7 @@ export class TemplateEngine {
    */
   static _processGMediaBlocks(template: string) {
     const mediaRegex = /<g-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-media>/gi
-    const result: {[lang: string]: ITMediaBlock} = {}
+    const result: {[lang: string]: IMediaBlock} = {}
 
     for (const match of template.matchAll(mediaRegex)) {
       const attributesStr = match[1]
@@ -1747,7 +1384,7 @@ export class TemplateEngine {
         .trim()
 
       // Build media block based on type
-      const mediaBlock: ITMediaBlock = {type: type as ITMediaBlock[`type`]}
+      const mediaBlock: IMediaBlock = {type: type as IMediaBlock[`type`]}
 
       // Media with file src (photo, video, audio, document, animation, voice, video_note, sticker)
       if (attrs.src) {
@@ -1825,8 +1462,13 @@ export class TemplateEngine {
    */
   static _processGPollBlocks(template: string) {
     const pollRegex = /<g-poll(?:\s+([^>]*))?>([\s\S]*?)<\/g-poll>/gi
-    const result: {[lang: string]: ITPollBlock} = {}
-    const clean = (raw: string): string => raw.replace(/^[\t ]+/gm, ``).replace(/^\n+/, ``).replace(/\n+$/, ``).trim()
+    const result: {[lang: string]: IPollBlock} = {}
+    const clean = (raw: string): string =>
+      raw
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
 
     for (const match of template.matchAll(pollRegex)) {
       const attributesStr = match[1]
@@ -1848,7 +1490,7 @@ export class TemplateEngine {
         options.push(clean(optMatch[1] ?? ``))
       }
 
-      const poll: ITPollBlock = {type, question, options}
+      const poll: IPollBlock = {type, question, options}
       if (attrs.correct !== undefined && attrs.correct !== ``) {
         const n = Number(attrs.correct)
         if (Number.isInteger(n)) poll.correct = n
@@ -1889,7 +1531,7 @@ export class TemplateEngine {
    */
   static _processGVenueBlocks(template: string) {
     const venueRegex = /<g-venue\b([^>]*?)\/?>/gi
-    const result: {[lang: string]: ITVenueBlock} = {}
+    const result: {[lang: string]: IVenueBlock} = {}
     const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
       const attrs: {[key: string]: string} = {}
       const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
@@ -1941,7 +1583,7 @@ export class TemplateEngine {
    */
   static _processGDiceBlocks(template: string) {
     const diceRegex = /<g-dice\b([^>]*?)\/?>/gi
-    const result: {[lang: string]: ITDiceBlock} = {}
+    const result: {[lang: string]: IDiceBlock} = {}
     const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
       const attrs: {[key: string]: string} = {}
       const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
@@ -1987,7 +1629,7 @@ export class TemplateEngine {
    */
   static _processGInvoiceBlocks(template: string) {
     const invoiceRegex = /<g-invoice(?:\s+([^>]*))?>([\s\S]*?)<\/g-invoice>/gi
-    const result: {[lang: string]: ITInvoiceBlock} = {}
+    const result: {[lang: string]: IInvoiceBlock} = {}
     const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
       const attrs: {[key: string]: string} = {}
       const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
@@ -2047,7 +1689,7 @@ export class TemplateEngine {
    */
   static _processGPaidMediaBlocks(template: string) {
     const paidMediaRegex = /<g-paid-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-paid-media>/gi
-    const result: {[lang: string]: ITPaidMediaBlock} = {}
+    const result: {[lang: string]: IPaidMediaBlock} = {}
     const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
       const attrs: {[key: string]: string} = {}
       const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
@@ -2106,7 +1748,7 @@ export class TemplateEngine {
    */
   static _processGMediaGroupBlocks(template: string) {
     const mediaGroupRegex = /<g-media-group(?:\s+([^>]*))?>([\s\S]*?)<\/g-media-group>/gi
-    const result: {[lang: string]: ITMediaBlock} = {}
+    const result: {[lang: string]: IMediaBlock} = {}
 
     for (const match of template.matchAll(mediaGroupRegex)) {
       const attributesStr = match[1]
@@ -2433,7 +2075,7 @@ export class TemplateEngine {
    */
   static _processGInlineButtonBlocks(template: string) {
     const buttonRegex = /<g-inline-button\b([^>]*?)\/?>/gi
-    const result: {[lang: string]: ITInlineButtonBlock} = {}
+    const result: {[lang: string]: IInlineButtonBlock} = {}
     const parseAttrs = (attributesStr: string | undefined): {[key: string]: string} => {
       const attrs: {[key: string]: string} = {}
       const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
@@ -2447,7 +2089,7 @@ export class TemplateEngine {
 
     for (const match of template.matchAll(buttonRegex)) {
       const attrs = parseAttrs(match[1])
-      const block: ITInlineButtonBlock = {text: attrs.text ?? ``}
+      const block: IInlineButtonBlock = {text: attrs.text ?? ``}
       if (attrs[`start-parameter`] !== undefined && attrs[`start-parameter`] !== ``) {
         block.startParameter = attrs[`start-parameter`]
       }
@@ -2830,24 +2472,24 @@ export class TemplateEngine {
    */
   static __linkHook?: (body: string, isArray: boolean) => (...args: unknown[]) => unknown
 
-  static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T> {
+  static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITemplateRenderer<T> {
     const functionBody = this._buildFunctionBody(template, isArray)
     if (this.__linkHook !== undefined && this.__emitHook !== undefined) {
       throw new Error(`TemplateEngine __linkHook and __emitHook must never be set simultaneously (AOT collect vs link phase confusion)`)
     }
     if (this.__linkHook !== undefined) {
-      return this.__linkHook(functionBody, isArray) as unknown as ITTemplateRenderer<T>
+      return this.__linkHook(functionBody, isArray) as unknown as ITemplateRenderer<T>
     }
     if (this.__emitHook !== undefined) {
-      return this.__emitHook(functionBody, {isArray}) as unknown as ITTemplateRenderer<T>
+      return this.__emitHook(functionBody, {isArray}) as unknown as ITemplateRenderer<T>
     }
 
     if (isArray) {
-      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string, filters: Record<string, ITTemplateFilter>) => string[]
-      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData, DEFAULT_FILTERS)) as unknown as ITTemplateRenderer<T>
+      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string, filters: Record<string, ITemplateFilter>) => string[]
+      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData, DEFAULT_FILTERS)) as unknown as ITemplateRenderer<T>
     } else {
-      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string, filters: Record<string, ITTemplateFilter>) => string
-      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData, DEFAULT_FILTERS)) as unknown as ITTemplateRenderer<T>
+      const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string, filters: Record<string, ITemplateFilter>) => string
+      return ((data: Record<string, unknown> | undefined) => fn(data, this._escapeData, DEFAULT_FILTERS)) as unknown as ITemplateRenderer<T>
     }
   }
 
@@ -2878,7 +2520,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static _resolveMediaDataPath(data: ITTemplateData | undefined, path: string): unknown {
+  static _resolveMediaDataPath(data: ITemplateData | undefined, path: string): unknown {
     let current: unknown = data
     for (const part of path.split(`.`)) {
       if (current === null || current === undefined) return undefined
@@ -2902,10 +2544,10 @@ export class TemplateEngine {
    *
    * @public
    */
-  static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITTemplateData) => string): (data?: ITTemplateData) => string | InputFile | Buffer | Uint8Array {
+  static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITemplateData) => string): (data?: ITemplateData) => string | InputFile | Buffer | Uint8Array {
     const path = this._matchBareMediaPlaceholder(rawSrc)
     if (path === null) return stringFn
-    return (data?: ITTemplateData) => {
+    return (data?: ITemplateData) => {
       const value = this._resolveMediaDataPath(data, path)
       if (typeof value === `string` || value === null || value === undefined) return stringFn(data)
       return value as InputFile | Buffer | Uint8Array
@@ -2942,7 +2584,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => ITMediaBlock
+        [ALang: string]: (data?: ITemplateData) => IMediaBlock
       }
     } = {}
 
@@ -2951,7 +2593,7 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, mediaBlock] of Object.entries(mediaBlocks)) {
-        const compiledProps: Record<string, (data?: ITTemplateData) => string | InputFile | Buffer | Uint8Array> = {}
+        const compiledProps: Record<string, (data?: ITemplateData) => string | InputFile | Buffer | Uint8Array> = {}
         const compiledMediaGroup = mediaBlock.mediaGroup?.map((item) => {
           const rawSrc = item.src as string
           const stringSrc = this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(rawSrc))))), false)
@@ -2970,8 +2612,8 @@ export class TemplateEngine {
           compiledProps[key] = key === `src` ? this._compileMediaSrc(value, stringFn) : stringFn
         }
 
-        result[AGBaseId][ALang] = (data?: ITTemplateData) => {
-          const resolvedBlock = {...mediaBlock} as ITMediaBlock & Record<string, unknown>
+        result[AGBaseId][ALang] = (data?: ITemplateData) => {
+          const resolvedBlock = {...mediaBlock} as IMediaBlock & Record<string, unknown>
           for (const [key, fn] of Object.entries(compiledProps)) {
             resolvedBlock[key] = fn(data)
           }
@@ -3023,11 +2665,10 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => ITPollBlock
+        [ALang: string]: (data?: ITemplateData) => IPollBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
-      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const polls = this._processGPollBlocks(baseContent)
@@ -3037,7 +2678,7 @@ export class TemplateEngine {
         const questionFn = compileString(poll.question)
         const optionFns = poll.options.map((opt) => compileString(opt))
         const explanationFn = poll.explanation !== undefined ? compileString(poll.explanation) : undefined
-        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+        result[AGBaseId][ALang] = (data?: ITemplateData) => ({
           ...poll,
           question: questionFn(data),
           options: optionFns.map((fn) => fn(data)),
@@ -3074,11 +2715,10 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => ITVenueBlock
+        [ALang: string]: (data?: ITemplateData) => IVenueBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
-      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const venues = this._processGVenueBlocks(baseContent)
@@ -3089,7 +2729,7 @@ export class TemplateEngine {
         const addressFn = compileString(venue.address)
         const latitudeFn = compileString(venue.latitude)
         const longitudeFn = compileString(venue.longitude)
-        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+        result[AGBaseId][ALang] = (data?: ITemplateData) => ({
           title: titleFn(data),
           address: addressFn(data),
           latitude: latitudeFn(data),
@@ -3125,11 +2765,10 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => ITDiceBlock
+        [ALang: string]: (data?: ITemplateData) => IDiceBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
-      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const blocks = this._processGDiceBlocks(baseContent)
@@ -3137,7 +2776,7 @@ export class TemplateEngine {
 
       for (const [ALang, block] of Object.entries(blocks)) {
         const emojiFn = compileString(block.emoji)
-        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({emoji: emojiFn(data)})
+        result[AGBaseId][ALang] = (data?: ITemplateData) => ({emoji: emojiFn(data)})
       }
     }
     return result
@@ -3184,11 +2823,10 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => ITInvoiceBlock
+        [ALang: string]: (data?: ITemplateData) => IInvoiceBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
-      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const invoices = this._processGInvoiceBlocks(baseContent)
@@ -3199,7 +2837,7 @@ export class TemplateEngine {
         const descriptionFn = compileString(invoice.description)
         const payloadFn = compileString(invoice.payload)
         const labelFns = invoice.prices.map((price) => compileString(price.label))
-        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+        result[AGBaseId][ALang] = (data?: ITemplateData) => ({
           ...invoice,
           title: titleFn(data),
           description: descriptionFn(data),
@@ -3251,11 +2889,10 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => ITPaidMediaBlock
+        [ALang: string]: (data?: ITemplateData) => IPaidMediaBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
-      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const walls = this._processGPaidMediaBlocks(baseContent)
@@ -3264,7 +2901,7 @@ export class TemplateEngine {
       for (const [ALang, paidMedia] of Object.entries(walls)) {
         const srcFns = paidMedia.media.map((item) => compileString(item.src))
         const captionFns = paidMedia.media.map((item) => (item.caption === undefined ? undefined : compileString(item.caption)))
-        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+        result[AGBaseId][ALang] = (data?: ITemplateData) => ({
           stars: paidMedia.stars,
           media: paidMedia.media.map((item, index) => ({
             type: item.type,
@@ -3321,7 +2958,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => string
+        [ALang: string]: (data?: ITemplateData) => string
       }
     } = {}
 
@@ -3370,7 +3007,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => string
+        [ALang: string]: (data?: ITemplateData) => string
       }
     } = {}
 
@@ -3412,7 +3049,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => string
+        [ALang: string]: (data?: ITemplateData) => string
       }
     } = {}
 
@@ -3454,7 +3091,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => string
+        [ALang: string]: (data?: ITemplateData) => string
       }
     } = {}
 
@@ -3505,11 +3142,10 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => ITInlineButtonBlock
+        [ALang: string]: (data?: ITemplateData) => IInlineButtonBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITTemplateData) => string) =>
-      this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const blocks = this._processGInlineButtonBlocks(baseContent)
@@ -3518,7 +3154,7 @@ export class TemplateEngine {
       for (const [ALang, block] of Object.entries(blocks)) {
         const textFn = compileString(block.text)
         const paramFn = block.startParameter !== undefined ? compileString(block.startParameter) : undefined
-        result[AGBaseId][ALang] = (data?: ITTemplateData) => ({
+        result[AGBaseId][ALang] = (data?: ITemplateData) => ({
           text: textFn(data),
           ...(paramFn ? {startParameter: paramFn(data)} : {})
         })
@@ -3554,7 +3190,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => string
+        [ALang: string]: (data?: ITemplateData) => string
       }
     } = {}
 
@@ -3597,7 +3233,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITTemplateData) => string
+        [ALang: string]: (data?: ITemplateData) => string
       }
     } = {}
 
@@ -3660,7 +3296,7 @@ export class TemplateEngine {
     const result: {
       [AGBaseId: string]: {
         [AScope: string]: {
-          [ALang: string]: (data?: ITTemplateData) => string
+          [ALang: string]: (data?: ITemplateData) => string
         }
       }
     } = {}
@@ -3802,8 +3438,8 @@ export class TemplateEngine {
     const result: {
       [AGBaseId: string]: {
         [ALang: string]: {
-          inline?: (data?: ITTemplateData) => string[]
-          bottom?: (data?: ITTemplateData) => string[]
+          inline?: (data?: ITemplateData) => string[]
+          bottom?: (data?: ITemplateData) => string[]
         }
       }
     } = {}
@@ -4260,10 +3896,10 @@ export class TemplateEngine {
    *
    * **Enforced rules:**
    * - `<g-base>` must be at the outermost level and cannot be nested inside any other block.
-     * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-invoice>`, `<g-paid-media>`, `<g-venue>`, `<g-dice>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
-      * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a paywall item.
-     * - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`.
-     * - `<g-price>` can only appear directly inside `<g-invoice>`.
+   * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-invoice>`, `<g-paid-media>`, `<g-venue>`, `<g-dice>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
+   * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a paywall item.
+   * - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`.
+   * - `<g-price>` can only appear directly inside `<g-invoice>`.
    * - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`.
    * - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`.
    * - `<g-map>` is also allowed inside `<g-case>` and `<g-default>` (explicitly and via
@@ -4474,9 +4110,9 @@ export class TemplateEngine {
    * - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements
    *
    * **Must NOT be self-closing (must use open/close tags):**
-     * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
-     *   `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,
-      *   `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
+   * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
+   *   `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,
+   *   `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
    *   `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,
    *   `<g-map>...</g-map>`, `<g-div>...</g-div>`
    *
@@ -5045,16 +4681,16 @@ export class TemplateEngine {
    * - `<g-poll type>` — must be `regular` or `quiz`
    * - `<g-poll correct>` — must be a non-negative option index
    * - `<g-poll explanation>` — any string, always valid
-     * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
-     * - `<g-venue title>` / `<g-venue address>` — any string, always valid
-     * - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced)
-     * - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced)
-     * - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced)
-    * - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced)
-     * - `<g-price amount>` — must be a positive integer in smallest currency units
-     * - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)
-    *
-    * Tags without value validators (e.g. `<g-message>`, `<g-script>`, `<g-div>`) are
+   * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+   * - `<g-venue title>` / `<g-venue address>` — any string, always valid
+   * - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-price amount>` — must be a positive integer in smallest currency units
+   * - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)
+   *
+   * Tags without value validators (e.g. `<g-message>`, `<g-script>`, `<g-div>`) are
    * skipped. See {@link TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS} for the full spec.
    *
    * @param template - The raw template string to validate
@@ -5223,13 +4859,7 @@ export class TemplateEngine {
    * @public
    */
   static validateBlockGPollAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(
-      template,
-      `g-poll`,
-      new Set([`lang`, `type`, `correct`, `explanation`, `anonymous`, `multiple`]),
-      `"lang", "type", "correct", "explanation", "anonymous", and "multiple"`,
-      this._PAGE_ATTR_VALUE_VALIDATORS[`g-poll`]
-    )
+    const errors = this._validateBlockAttributes(template, `g-poll`, new Set([`lang`, `type`, `correct`, `explanation`, `anonymous`, `multiple`]), `"lang", "type", "correct", "explanation", "anonymous", and "multiple"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-poll`])
     errors.push(...this._validatePollItems(template))
     return {valid: errors.length === 0, errors}
   }
@@ -5333,13 +4963,7 @@ export class TemplateEngine {
    * @public
    */
   static validateBlockGVenueAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(
-      template,
-      `g-venue`,
-      new Set([`lang`, `title`, `address`, `latitude`, `longitude`]),
-      `"lang", "title", "address", "latitude", and "longitude"`,
-      this._PAGE_ATTR_VALUE_VALIDATORS[`g-venue`]
-    )
+    const errors = this._validateBlockAttributes(template, `g-venue`, new Set([`lang`, `title`, `address`, `latitude`, `longitude`]), `"lang", "title", "address", "latitude", and "longitude"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-venue`])
     errors.push(...this._validateVenueItems(template))
     return {valid: errors.length === 0, errors}
   }
@@ -5551,13 +5175,7 @@ export class TemplateEngine {
    * @public
    */
   static validateBlockGInvoiceAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(
-      template,
-      `g-invoice`,
-      new Set([`lang`, `title`, `description`, `payload`, `currency`, `provider_token`]),
-      `"lang", "title", "description", "payload", and "currency"`,
-      this._PAGE_ATTR_VALUE_VALIDATORS[`g-invoice`]
-    )
+    const errors = this._validateBlockAttributes(template, `g-invoice`, new Set([`lang`, `title`, `description`, `payload`, `currency`, `provider_token`]), `"lang", "title", "description", "payload", and "currency"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-invoice`])
     errors.push(...this._validateInvoiceItems(template))
     return {valid: errors.length === 0, errors}
   }
@@ -5691,13 +5309,7 @@ export class TemplateEngine {
    * @public
    */
   static validateBlockGPaidMediaAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(
-      template,
-      `g-paid-media`,
-      new Set([`lang`, `stars`]),
-      `"lang" and "stars"`,
-      this._PAGE_ATTR_VALUE_VALIDATORS[`g-paid-media`]
-    )
+    const errors = this._validateBlockAttributes(template, `g-paid-media`, new Set([`lang`, `stars`]), `"lang" and "stars"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-paid-media`])
     errors.push(...this._validatePaidMediaItems(template))
     return {valid: errors.length === 0, errors}
   }
@@ -6206,27 +5818,27 @@ export class TemplateEngine {
    * 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
    * 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
    * 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
-    * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
-    * 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes
-    * 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
-    * 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
-    * 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
-    * 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
-    * 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
-    * 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
-    * 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
-    * 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
-    * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
-    * 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
-    * 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
-    * 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content
-    * 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
-    * 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
-    * 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
-    * 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
-    * 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
-    * 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-    * 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
+   * 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes
+   * 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
+   * 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
+   * 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
+   * 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
+   * 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
+   * 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
+   * 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
+   * 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
+   * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
+   * 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
+   * 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
+   * 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content
+   * 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
+   * 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
+   * 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
+   * 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
+   * 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
+   * 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -6358,27 +5970,27 @@ export class TemplateEngine {
    * 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
    * 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
    * 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
-    * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
-    * 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes
-    * 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
-    * 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
-    * 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
-    * 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
-    * 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
-    * 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
-    * 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
-    * 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
-    * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
-    * 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
-    * 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
-    * 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content
-    * 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
-    * 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
-    * 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
-    * 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
-    * 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
-    * 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-    * 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
+   * 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes
+   * 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
+   * 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
+   * 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
+   * 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
+   * 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
+   * 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
+   * 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
+   * 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
+   * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
+   * 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
+   * 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
+   * 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content
+   * 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
+   * 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
+   * 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
+   * 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
+   * 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
+   * 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *

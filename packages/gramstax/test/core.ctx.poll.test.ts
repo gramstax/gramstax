@@ -1,8 +1,8 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError, HttpError} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITPollBlock} from "~/template/engine"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
+import type {IPollBlock} from "~/types/template"
 
 class PollPage extends Ctx {
   static data = Ctx.buildData({name: `pollpage`})
@@ -12,9 +12,9 @@ const grammyError = (code: number) => new GrammyError(`Call failed!`, {error_cod
 
 const httpError = () => new HttpError(`net down`, new Error(`socket`))
 
-const regularPoll: ITPollBlock = {type: `regular`, question: `Pick one?`, options: [`Alpha`, `Beta`], anonymous: true}
+const regularPoll: IPollBlock = {type: `regular`, question: `Pick one?`, options: [`Alpha`, `Beta`], anonymous: true}
 
-const quizPoll: ITPollBlock = {type: `quiz`, question: `What is 2+2?`, options: [`3`, `4`], correct: 1, explanation: `Arithmetic`, anonymous: true}
+const quizPoll: IPollBlock = {type: `quiz`, question: `What is 2+2?`, options: [`3`, `4`], correct: 1, explanation: `Arithmetic`, anonymous: true}
 
 const makeApi = (overrides?: Record<string, unknown>) => ({
   config: {use: () => {}},
@@ -27,16 +27,16 @@ const messageUpdate = {message: {message_id: 1, date: 1, chat: {id: 1, type: `pr
 
 const noChatUpdate = {message: {message_id: 1, date: 1, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
 
-const makeCtx = (api: Record<string, unknown>, poll: ITPollBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
+const makeCtx = (api: Record<string, unknown>, poll: IPollBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
   const tm = {getGPoll: mock(() => poll)} as never
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new PollPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: (extra?.log ?? null) as unknown as ITCtxParams[`log`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as unknown as ICtxParams[`log`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -115,9 +115,12 @@ describe(`poll-render`, () => {
       })
     })
     await expect(
-      makeCtx(api, regularPoll, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).renderPoll()
+      makeCtx(api, regularPoll, {
+        log: {warn, error},
+        onSendError: (e: unknown, info: unknown) => {
+          seen.push({err: e, info})
+        }
+      }).renderPoll()
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -138,9 +141,12 @@ describe(`poll-render`, () => {
       })
     })
     await expect(
-      makeCtx(api, regularPoll, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).renderPoll()
+      makeCtx(api, regularPoll, {
+        log: {warn, error},
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).renderPoll()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `pollpage`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)

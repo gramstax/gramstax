@@ -2,14 +2,14 @@ import {describe, expect, it, mock} from "bun:test"
 import {readFileSync} from "node:fs"
 import {InputFile} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITPollBlock} from "~/template/engine"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
+import type {IPollBlock} from "~/types/template"
 
 class DedupPage extends Ctx {
   static data = Ctx.buildData({name: `deduppage`})
 }
 
-const regularPoll: ITPollBlock = {type: `regular`, question: `Pick one?`, options: [`Alpha`, `Beta`], anonymous: true}
+const regularPoll: IPollBlock = {type: `regular`, question: `Pick one?`, options: [`Alpha`, `Beta`], anonymous: true}
 
 const makeApi = (overrides?: Record<string, unknown>) => ({
   config: {use: () => {}},
@@ -21,16 +21,16 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
 
 const messageUpdate = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
 
-const makeCtx = (api: Record<string, unknown>, poll: ITPollBlock = regularPoll) => {
+const makeCtx = (api: Record<string, unknown>, poll: IPollBlock = regularPoll) => {
   const tm = {getGPoll: mock(() => poll)} as never
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ICtxParams[`ct`]
   return new DedupPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: null as unknown as ITCtxParams[`log`],
-    onSendError: null as unknown as ITCtxParams[`onSendError`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: null as unknown as ICtxParams[`log`],
+    onSendError: null as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }

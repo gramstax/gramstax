@@ -1,5 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
-import {SessionLock, type IRedisLockClient} from "~/core/session-lock"
+import {SessionLock} from "~/core/session-lock"
+import type {IRedisLockClient} from "~/types/session-lock"
 
 const createLock = (overrides: {leaseMs?: number; onContended?: `skip` | `wait` | `serialize`} = {}, clientOverrides: Record<string, unknown> = {}) => {
   const client = {

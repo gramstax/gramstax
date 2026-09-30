@@ -1,6 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 // ── Test page class ────────────────────────────────────────────────
 
@@ -21,24 +21,24 @@ function createTestCtx() {
     editMessageMedia: mock(() => {
       throw editError
     }),
-    deleteMessage: mock(() => ({ok: true} as any)),
-    sendMessage: mock(() => ({message_id: 2, date: 0, chat: {id: 1, type: `private` as const}} as any))
+    deleteMessage: mock(() => ({ok: true}) as any),
+    sendMessage: mock(() => ({message_id: 2, date: 0, chat: {id: 1, type: `private` as const}}) as any)
   }
 
   const ct = {
     api,
     me: {id: 1, is_bot: true, first_name: `Bot`} as any,
-    update: ({message: {message_id: 1, chat: {id: 1, type: `private`}, text: `test`, from: {id: 1, is_bot: false, first_name: `Test`}}} as any)
-  } as unknown as ITCtxParams[`ct`]
+    update: {message: {message_id: 1, chat: {id: 1, type: `private`}, text: `test`, from: {id: 1, is_bot: false, first_name: `Test`}}} as any
+  } as unknown as ICtxParams[`ct`]
 
   const ctx = new TestPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
     templateManager: {
       getGMessage: () => `hello`,
       getGMedia: () => ({src: `https://example.com/a.jpg`, caption: `hi`})
-    } as unknown as ITCtxParams[`templateManager`],
+    } as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 

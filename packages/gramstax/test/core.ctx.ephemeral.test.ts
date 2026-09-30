@@ -1,6 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 function createMockApi() {
   const calls: Array<{method: string; body: unknown}> = []
@@ -68,12 +68,12 @@ function createMockApi() {
 
 function createCtx() {
   const {api, calls, mocks, rawInvoke} = createMockApi()
-  const ct = {api, update: {message: {chat: {id: 1, type: `private`}, from: {id: 1, first_name: `Test`}}}, me: {id: 1, is_bot: true, first_name: `Bot`}} as unknown as ITCtxParams[`ct`]
+  const ct = {api, update: {message: {chat: {id: 1, type: `private`}, from: {id: 1, first_name: `Test`}}}, me: {id: 1, is_bot: true, first_name: `Bot`}} as unknown as ICtxParams[`ct`]
   const ctx = new Ctx({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {getGMessage: () => `hello`} as unknown as ITCtxParams[`templateManager`],
+    templateManager: {getGMessage: () => `hello`} as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
   return {ctx, calls, mocks, api, rawInvoke}

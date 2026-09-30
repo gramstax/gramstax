@@ -6,7 +6,7 @@ import {InlineKeyboard, InputFile} from "grammy"
 import {Ctx} from "~/core/ctx"
 import {TemplateManager} from "~/template/manager"
 
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 const TEST_DIR = join(import.meta.dir, `ctx_coverage_views`)
 
@@ -37,22 +37,22 @@ class PlainPage extends Ctx {
 
 const makeApi = () => ({
   config: {use: () => {}},
-  sendMessage: mock(async () => ({message_id: 1} as never)),
+  sendMessage: mock(async () => ({message_id: 1}) as never),
   sendMediaGroup: mock(async () => [{message_id: 1}] as never),
-  editMessageMedia: mock(async () => ({message_id: 1} as never)),
-  editMessageText: mock(async () => ({message_id: 1} as never)),
+  editMessageMedia: mock(async () => ({message_id: 1}) as never),
+  editMessageText: mock(async () => ({message_id: 1}) as never),
   deleteMessage: mock(async () => true as never),
-  sendPhoto: mock(async () => ({message_id: 1} as never)),
-  sendVideo: mock(async () => ({message_id: 1} as never)),
-  sendAudio: mock(async () => ({message_id: 1} as never)),
-  sendDocument: mock(async () => ({message_id: 1} as never)),
-  sendAnimation: mock(async () => ({message_id: 1} as never)),
-  sendVoice: mock(async () => ({message_id: 1} as never)),
-  sendVideoNote: mock(async () => ({message_id: 1} as never)),
-  sendSticker: mock(async () => ({message_id: 1} as never)),
-  sendLocation: mock(async () => ({message_id: 1} as never)),
-  sendContact: mock(async () => ({message_id: 1} as never)),
-  sendRichMessage: mock(async () => ({message_id: 1} as never))
+  sendPhoto: mock(async () => ({message_id: 1}) as never),
+  sendVideo: mock(async () => ({message_id: 1}) as never),
+  sendAudio: mock(async () => ({message_id: 1}) as never),
+  sendDocument: mock(async () => ({message_id: 1}) as never),
+  sendAnimation: mock(async () => ({message_id: 1}) as never),
+  sendVoice: mock(async () => ({message_id: 1}) as never),
+  sendVideoNote: mock(async () => ({message_id: 1}) as never),
+  sendSticker: mock(async () => ({message_id: 1}) as never),
+  sendLocation: mock(async () => ({message_id: 1}) as never),
+  sendContact: mock(async () => ({message_id: 1}) as never),
+  sendRichMessage: mock(async () => ({message_id: 1}) as never)
 })
 
 const makeCtx = (Page: typeof Ctx, update: Record<string, unknown>, tm: unknown, api: Record<string, unknown>, lang = `en`) => {
@@ -72,12 +72,12 @@ const makeCtx = (Page: typeof Ctx, update: Record<string, unknown>, tm: unknown,
       if (cbMsg.chat === undefined) cbMsg.chat = {id: 1, type: `private`}
     }
   }
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: withFrom} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: withFrom} as unknown as ICtxParams[`ct`]
   return new Page({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
+    templateManager: tm as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -93,12 +93,7 @@ describe(`ctx-coverage-getters`, () => {
 
   it(`reads convenience getters from message, caption, and callback updates`, () => {
     const tm = {getGMessage: () => ``} as never
-    const ctx = makeCtx(
-      CovPage,
-      {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `/cmd a b c`, caption: `cap x y`}},
-      tm,
-      makeApi()
-    )
+    const ctx = makeCtx(CovPage, {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `/cmd a b c`, caption: `cap x y`}}, tm, makeApi())
     expect(ctx.fromFullName).toBe(`Alya Putri`)
     expect(ctx.msgTextArgs).toEqual([`a`, `b`, `c`])
     expect(ctx.msgTextArg).toBe(`a`)
@@ -154,10 +149,7 @@ describe(`ctx-coverage-keyboards`, () => {
   it(`builds template and manual keyboards with page labels`, async () => {
     const dir = join(TEST_DIR, `kb`)
     await mkdir(dir, {recursive: true})
-    await writeFile(
-      join(dir, `cov.html`),
-      `<g-base><g-message>Hi</g-message><g-keyboard lang="en" type="inline">B1,B2,B3</g-keyboard><g-keyboard lang="en" type="bottom">C1,C2</g-keyboard><g-keyboard type="bottom">D1</g-keyboard></g-base>`
-    )
+    await writeFile(join(dir, `cov.html`), `<g-base><g-message>Hi</g-message><g-keyboard lang="en" type="inline">B1,B2,B3</g-keyboard><g-keyboard lang="en" type="bottom">C1,C2</g-keyboard><g-keyboard type="bottom">D1</g-keyboard></g-base>`)
     const tm = new TemplateManager({path: [dir]})
     try {
       const api = makeApi()
@@ -329,9 +321,7 @@ describe(`ctx-coverage-edit`, () => {
       })
       await makeCtx(pageFor(`single`), msg, tm, failingDelete).renderEditMedia(`photo`)
       await makeCtx(pageFor(`single`), msg, tm, failing).renderEditMedia(`photo`, null, null, null, null, null, `reply`)
-      await expect(makeCtx(pageFor(`single`), msg, tm, failing).renderEditMedia(`photo`, null, null, null, null, null, `disable`)).rejects.toThrow(
-        `too old`
-      )
+      await expect(makeCtx(pageFor(`single`), msg, tm, failing).renderEditMedia(`photo`, null, null, null, null, null, `disable`)).rejects.toThrow(`too old`)
       expect(api.sendMediaGroup).toHaveBeenCalled()
     } finally {
       await tm.destroy()
@@ -395,12 +385,12 @@ describe(`ctx-coverage-session-members`, () => {
       api: {config: {use: () => {}}},
       me: {id: 1, is_bot: true, first_name: `Bot`},
       update: {message: {chat: {id: 7, type: `private`}, text: `hi`, from: {id: 3, is_bot: false, first_name: `U`}}}
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
     const ctx = new SessPage({
       ct,
-      cacheSession: cacheSession as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: cacheSession as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: {} as unknown as ITCtxParams[`templateManager`],
+      templateManager: {} as unknown as ICtxParams[`templateManager`],
       temp: {isAnswer: false, session: {}, data: {}}
     }) as never as Ctx & {
       handleSessionChatMemberOutIn: (...a: unknown[]) => unknown

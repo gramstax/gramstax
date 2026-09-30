@@ -1,14 +1,3 @@
-/**
- * Page manager — discovers and loads template pages from the filesystem.
- *
- * @remarks
- * Scans the `pages/` directory for `.gts`, `.grm`, `.html` and other
- * template files, parses them into AST, and registers route handlers
- * for each page discovered.
- *
- * @public
- */
-
 import {existsSync, readdirSync} from "node:fs"
 import {createRequire} from "node:module"
 import {join} from "node:path"
@@ -151,17 +140,17 @@ export class PageManager {
    * @throws Error if directory does not exist.
    * @throws Error if a file and a directory-index share the same route name.
    *
-    * @example
-    * ```typescript
-    * const pages = PageManager.getFileManySync();
-    * // => [
-    * //   { path: "/path/to/start.ts",          page: StartPage,   routeName: "start" },
-    * //   { path: "/path/to/settings.ts",       page: SettingsPage, routeName: "settings" },
-    * //   { path: "/path/to/start/help.ts",     page: HelpPage,    routeName: "start/help" },
-    * //   { path: "/path/to/start/help/index.ts", page: HelpPage,  routeName: "start/help" },
-    * //                                        ↑ identical route — duplicate error if both exist
-    * // ]
-    * ```
+   * @example
+   * ```typescript
+   * const pages = PageManager.getFileManySync();
+   * // => [
+   * //   { path: "/path/to/start.ts",          page: StartPage,   routeName: "start" },
+   * //   { path: "/path/to/settings.ts",       page: SettingsPage, routeName: "settings" },
+   * //   { path: "/path/to/start/help.ts",     page: HelpPage,    routeName: "start/help" },
+   * //   { path: "/path/to/start/help/index.ts", page: HelpPage,  routeName: "start/help" },
+   * //                                        ↑ identical route — duplicate error if both exist
+   * // ]
+   * ```
    * @public
    */
   static getFileManySync(path?: string, positionModule = 0) {
@@ -195,10 +184,7 @@ export class PageManager {
           const indexJsPath = join(dir, baseName, `index.js`)
           if (existsSync(indexTsPath) || existsSync(indexJsPath)) {
             const conflictPath = existsSync(indexTsPath) ? indexTsPath : indexJsPath
-            throw new Error(
-              `Duplicate page: "${join(dir, fileName)}" and "${conflictPath}" both define the route "${parentRoute ? `${parentRoute}/` : ``}${baseName}". ` +
-              `Use either a flat file ("${fileName}") or a directory with an index file ("${baseName}/index.ts"), not both.`
-            )
+            throw new Error(`Duplicate page: "${join(dir, fileName)}" and "${conflictPath}" both define the route "${parentRoute ? `${parentRoute}/` : ``}${baseName}". ` + `Use either a flat file ("${fileName}") or a directory with an index file ("${baseName}/index.ts"), not both.`)
           }
         }
       }
@@ -211,11 +197,7 @@ export class PageManager {
         if (!/\.(ts|js)$/.test(fileName)) continue
 
         const isIndex = /^index\.(ts|js)$/.test(fileName)
-        const routeName = isIndex
-          ? parentRoute
-          : parentRoute
-            ? `${parentRoute}/${fileName.replace(/\.(ts|js)$/, ``)}`
-            : fileName.replace(/\.(ts|js)$/, ``)
+        const routeName = isIndex ? parentRoute : parentRoute ? `${parentRoute}/${fileName.replace(/\.(ts|js)$/, ``)}` : fileName.replace(/\.(ts|js)$/, ``)
 
         if (!routeName) {
           throw new Error(`Empty routeName for "${join(dir, fileName)}" — a root-level index.ts/index.js has no parent route. Rename it to a named page file (e.g. "start.ts").`)

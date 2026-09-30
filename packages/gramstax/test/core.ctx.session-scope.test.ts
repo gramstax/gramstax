@@ -1,6 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 class TestPage extends Ctx {
   static data = this.buildData({name: `session-scope-test`})
@@ -11,7 +11,7 @@ function createTestCtx(chatId: number, storage: Map<string, unknown>) {
     api: {config: {use: () => {}}},
     me: {id: 1, is_bot: true, first_name: `Bot`} as any,
     update: {message: {chat: {id: chatId, type: `private`}, text: `test`, from: {id: 1, is_bot: false, first_name: `Test`}}} as any
-  } as unknown as ITCtxParams[`ct`]
+  } as unknown as ICtxParams[`ct`]
 
   const cacheSession = {
     get: mock(async (key: string) => (storage.get(key) as unknown) ?? null),
@@ -28,9 +28,9 @@ function createTestCtx(chatId: number, storage: Map<string, unknown>) {
 
   return new TestPage({
     ct,
-    cacheSession: cacheSession as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: cacheSession as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {} as unknown as ITCtxParams[`templateManager`],
+    templateManager: {} as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -92,7 +92,7 @@ describe(`Ctx clearSession scoping (K4)`, () => {
       api: {config: {use: () => {}}},
       me: {id: 1, is_bot: true, first_name: `Bot`} as any,
       update: {} as any
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
 
     const cacheSession = {
       get: mock(async () => null),
@@ -102,9 +102,9 @@ describe(`Ctx clearSession scoping (K4)`, () => {
 
     const ctx = new TestPage({
       ct,
-      cacheSession: cacheSession as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: cacheSession as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: {} as unknown as ITCtxParams[`templateManager`],
+      templateManager: {} as unknown as ICtxParams[`templateManager`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
 

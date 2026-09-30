@@ -1,7 +1,7 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 // ── Test page class ──────────────────────────────────────────────────
 
@@ -22,13 +22,13 @@ function createCtx(api: Record<string, unknown>, update: unknown, text = `hello`
     api,
     me: {id: 9, is_bot: true, first_name: `Bot`} as any,
     update: update as any
-  } as unknown as ITCtxParams[`ct`]
+  } as unknown as ICtxParams[`ct`]
   return new CallbackPaymentPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {getGCallbackAnswer: () => text, getGPrecheckoutError: () => text, getGShippingError: () => text, getGKeyboard: () => []} as unknown as ITCtxParams[`templateManager`],
-    onSendError: null as unknown as ITCtxParams[`onSendError`],
+    templateManager: {getGCallbackAnswer: () => text, getGPrecheckoutError: () => text, getGShippingError: () => text, getGKeyboard: () => []} as unknown as ICtxParams[`templateManager`],
+    onSendError: null as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -76,13 +76,13 @@ describe(`Ctx.renderCallbackAnswer`, () => {
       api,
       me: {id: 9, is_bot: true, first_name: `Bot`} as any,
       update: callbackUpdate as any
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
     const ctx = new CallbackPaymentPage({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: {getGCallbackAnswer: () => `tap`, getGPrecheckoutError: () => `tap`, getGShippingError: () => `tap`, getGKeyboard: () => []} as unknown as ITCtxParams[`templateManager`],
-      onSendError: ((e: unknown) => seen.push(e)) as unknown as ITCtxParams[`onSendError`],
+      templateManager: {getGCallbackAnswer: () => `tap`, getGPrecheckoutError: () => `tap`, getGShippingError: () => `tap`, getGKeyboard: () => []} as unknown as ICtxParams[`templateManager`],
+      onSendError: ((e: unknown) => seen.push(e)) as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     await expect(ctx.renderCallbackAnswer(false, undefined, `tap-card`)).rejects.toThrow(err)

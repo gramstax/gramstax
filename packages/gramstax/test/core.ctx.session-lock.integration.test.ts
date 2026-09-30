@@ -5,8 +5,8 @@ import {join} from "node:path"
 import KeyvRedis from "@keyv/redis"
 import {CacheExternal} from "~/cache/external"
 import {Gramstax} from "~/core/bot"
-import type {IRedisLockClient} from "~/core/session-lock"
 import {TemplateManager} from "~/template/manager"
+import type {IRedisLockClient} from "~/types/session-lock"
 
 const TEST_PAGES_DIR = join(import.meta.dir, `session-lock-integration-pages`)
 

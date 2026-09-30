@@ -1,3 +1,5 @@
+import type {IMetricsQueueStats} from "~/types/metrics"
+
 /**
  * Lightweight in-process metrics store for runtime observability.
  *
@@ -84,18 +86,6 @@ export class MetricsStore {
 }
 
 /**
- * Queue statistics accepted by {@link metricsToPrometheus}.
- *
- * @public
- */
-export type ITMetricsQueueStats = {
-  length?: number
-  maxSize?: number
-  waitingEnqueue?: number
-  waitingDequeue?: number
-}
-
-/**
  * Serializes a {@link MetricsStore} snapshot into Prometheus text format.
  *
  * @remarks
@@ -109,7 +99,7 @@ export type ITMetricsQueueStats = {
  *
  * @public
  */
-export function metricsToPrometheus(snapshot: ReturnType<MetricsStore[`snapshot`]>, queueStats?: ITMetricsQueueStats | null): string {
+export function metricsToPrometheus(snapshot: ReturnType<MetricsStore[`snapshot`]>, queueStats?: IMetricsQueueStats | null): string {
   const lines: string[] = []
   lines.push(`# HELP gramstax_updates_total Total updates processed`)
   lines.push(`# TYPE gramstax_updates_total counter`)

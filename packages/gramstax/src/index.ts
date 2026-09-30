@@ -1,15 +1,3 @@
-/**
- * @gramstax/gramstax — declarative Telegram bot framework.
- *
- * @remarks
- * Provides template-driven page routing, session management, inline
- * keyboard helpers, caching, and mock Telegram server for testing.
- * Built on top of the Telegram Bot API framework with page-based routing.
- *
- * @packageDocumentation
- * @public
- */
-
 export {InputMediaBuilder} from "grammy"
 
 import {DEFAULT_FILTERS, TemplateEngine} from "./template/engine"
@@ -46,13 +34,21 @@ export * from "./helpers/metrics"
 export * from "./labels/g-keyboard"
 export * from "./mock/telegram-server"
 export * from "./page/manager"
-export * from "./page/manifest"
 export * from "./template/engine"
 export * from "./template/manager"
+export * from "./types/bot"
+export * from "./types/cache"
+export * from "./types/cli"
+
 // type
-export type {GramstaxConfig} from "./cli/config"
-export * from "./types/t.bot"
-export * from "./types/t.ctx"
-export * from "./types/t.e2e"
-export * from "./types/t.template"
+export type {GramstaxConfig} from "./types/config"
+export * from "./types/config"
+export * from "./types/ctx"
+export * from "./types/e2e"
+export * from "./types/manifest"
+export * from "./types/manifest"
+export * from "./types/metrics"
+export * from "./types/mock"
+export * from "./types/session-lock"
+export * from "./types/template"
 export * from "./webhook/queue"

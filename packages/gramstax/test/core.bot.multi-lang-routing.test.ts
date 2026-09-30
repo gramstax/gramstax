@@ -5,8 +5,7 @@ import {join} from "node:path"
 import {Gramstax} from "~/core/bot"
 import {Ctx} from "~/core/ctx"
 import {TemplateManager} from "~/template/manager"
-import type {ITPageData} from "~/types/t.ctx"
-
+import type {IPageData} from "~/types/ctx"
 
 function makePages() {
   const listRouteStatic = [
@@ -43,8 +42,7 @@ function makePages() {
     `handleCaptionArgsVoice`,
     `handleCommandCaptionArgsVoice`
   ] as const
-  const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} =>
-    Object.fromEntries(keys.map((k) => [k, val()])) as any
+  const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as any
 
   return {
     all: {} as Record<string, typeof Ctx>,
@@ -77,19 +75,21 @@ function makePages() {
   }
 }
 
-function makePageData(overrides?: Partial<ITPageData<any>>): ITPageData<any> {
+function makePageData(overrides?: Partial<IPageData<any>>): IPageData<any> {
   return {
     name: `test`,
     intentText: `test`,
     intentCommandText: `test`,
     intentCallbackQueryData: `test`,
-    callbackQueryData() {return {result: `test`, page: undefined as any, args: []} as any},
+    callbackQueryData() {
+      return {result: `test`, page: undefined as any, args: []} as any
+    },
     _positionArgText: 1,
     ...overrides
-  } as ITPageData<any>
+  } as IPageData<any>
 }
 
-function makePage(name: string, data: ITPageData<any>) {
+function makePage(name: string, data: IPageData<any>) {
   const page = class extends Ctx {
     static data = data
     static template = ``

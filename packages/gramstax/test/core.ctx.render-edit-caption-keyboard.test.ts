@@ -1,6 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 // ── Test page class ──────────────────────────────────────────────────
 
@@ -26,16 +26,16 @@ function createTestCtx() {
     api,
     me: {id: 1, is_bot: true, first_name: `Bot`} as any,
     update: {callback_query: {id: `q`, data: `x`, chat_instance: `ci`, message: {message_id: 2, date: 2, text: `m`, chat: {id: 1, type: `private`}, from: {id: 1, is_bot: false, first_name: `Test`}}}} as any
-  } as unknown as ITCtxParams[`ct`]
+  } as unknown as ICtxParams[`ct`]
 
   const ctx = new EditCaptionKeyboardPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
     templateManager: {
       getGMessage: () => `caption hello`,
       getGKeyboard: () => [`Alpha`, `Beta`]
-    } as unknown as ITCtxParams[`templateManager`],
+    } as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 
@@ -121,16 +121,16 @@ describe(`Ctx.renderEditKeyboard`, () => {
         api,
         me: {id: 1, is_bot: true, first_name: `Bot`} as any,
         update: {callback_query: {id: `q`, data: `x`, chat_instance: `ci`, message: {message_id: 2, date: 2, text: `m`, chat: {id: 1, type: `private`}, from: {id: 1, is_bot: false, first_name: `Test`}}}} as any
-      } as unknown as ITCtxParams[`ct`],
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      } as unknown as ICtxParams[`ct`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager: {
         getGMessage: () => `caption hello`,
         getGKeyboard: () => [`Alpha`]
-      } as unknown as ITCtxParams[`templateManager`],
+      } as unknown as ICtxParams[`templateManager`],
       onSendError: ((_e: unknown, info: unknown) => {
         seen.push(info)
-      }) as unknown as ITCtxParams[`onSendError`],
+      }) as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     await expect(probed.renderEditKeyboard(undefined, undefined, `photo-card`)).rejects.toBe(editError)

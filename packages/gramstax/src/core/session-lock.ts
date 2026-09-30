@@ -1,62 +1,5 @@
 import {randomUUID} from "node:crypto"
-import type {Ctx} from "./ctx"
-
-/**
- * Minimal Redis client surface used by {@link SessionLock}.
- *
- * @remarks
- * Structurally compatible with the official `@redis/client` (`RedisClientType`)
- * that backs the `@keyv/redis` store — only `set` (with `NX`/`PX`) and `eval`
- * are required. Keeping a minimal structural type decouples the lock from
- * concrete Redis client versions.
- *
- * @public
- */
-export type IRedisLockClient = {
-  set(key: string, value: string, options?: {PX?: number; NX?: boolean}): Promise<string | null>
-  eval(script: string, options: {keys: string[]; arguments: string[]}): Promise<unknown>
-}
-
-/**
- * Contention policy when the session lease cannot be acquired.
- *
- * @public
- */
-export type ITSessionLockOnContended = `skip` | `wait` | `serialize`
-
-/**
- * Configuration for the distributed session lock.
- *
- * @remarks
- * Redis-only: the lock uses atomic `SET NX PX` leases on the session key so
- * concurrent updates for the same user/chat are serialized or skipped across
- * instances. When the bot's cache is NOT Redis-backed, the feature is
- * auto-disabled with a warning (single-instance deployments do not need it).
- *
- * @public
- */
-export type ITSessionLockOptions = {
-  /**
-   * Explicitly disable (default: enabled when present).
-   */
-  enabled?: boolean
-  /**
-   * Lock lease duration in milliseconds. Default 5000.
-   *
-   * @defaultValue 5000
-   */
-  leaseMs?: number
-  /**
-   * Behavior when the lease is contended. Default `skip`.
-   *
-   * @defaultValue `"skip"`
-   */
-  onContended?: ITSessionLockOnContended
-  /**
-   * Custom lock key from the page context. Defaults to `ctx.sessionKey()`.
-   */
-  key?: (ctx: Ctx) => string
-}
+import type {IRedisLockClient, ISessionLockOnContended} from "~/types/session-lock"
 
 const RELEASE_SCRIPT = `if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) else return 0 end`
 
@@ -71,14 +14,14 @@ const RELEASE_SCRIPT = `if redis.call("get", KEYS[1]) == ARGV[1] then return red
  * @public
  */
 export class SessionLock {
-  private _queues = new Map<string, Promise<unknown>>()
+  _queues = new Map<string, Promise<unknown>>()
 
   constructor(
-    private redis: IRedisLockClient,
-    private options: {leaseMs: number; onContended: ITSessionLockOnContended}
+    public redis: IRedisLockClient,
+    public options: {leaseMs: number; onContended: ISessionLockOnContended}
   ) {}
 
-  private _lockKey(sessionKey: string): string {
+  _lockKey(sessionKey: string): string {
     return `lock:${sessionKey}`
   }
 

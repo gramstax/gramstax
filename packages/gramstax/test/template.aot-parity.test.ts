@@ -3,9 +3,9 @@ import {mkdtempSync, readFileSync, rmSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
-import {AotEmitter} from "../scripts/aot-emit"
 import {TemplateManager} from "~/template/manager"
-import type {ITCompiledTemplate} from "~/types/t.template"
+import type {ICompiledTemplate} from "~/types/template"
+import {AotEmitter} from "../scripts/aot-emit"
 
 const SRC_INDEX = pathToFileURL(join(import.meta.dir, `..`, `src`, `index.ts`)).href
 const CODEGEN_TOKENS = [`new Function`, `Function(`, `eval(`]
@@ -21,7 +21,12 @@ const ENTRIES: Entry[] = [
   {block: `message`, datasets: [{name: `ann`}, {}], render: (manager, data) => manager.getGMessage(`parity-message`, `default`, `default`, data), template: `<g-base><g-message>Hello {{name|upper}}!</g-message></g-base>`},
   {block: `keyboard`, datasets: [{rows: [{name: `A`}, {name: `B`}]}, {}], render: (manager, data) => manager.getGKeyboard(`parity-keyboard`, `default`, `default`, `inline`, data), template: `<g-base><g-keyboard><g-map src="rows">{{e.name}}</g-map></g-keyboard></g-base>`},
   {block: `media`, datasets: [{name: `ann`, photo: `p.jpg`}, {}], render: (manager, data) => manager.getGMedia(`parity-media`, `default`, `default`, data), template: `<g-base><g-media type="photo" src="{{photo}}">Shot by {{name}}</g-media></g-base>`},
-  {block: `poll`, datasets: [{choice: `b variant`, reason: `it is`, topic: `math`}, {}], render: (manager, data) => manager.getGPoll(`parity-poll`, `default`, `default`, data), template: `<g-base><g-poll type="quiz" correct="0" explanation="Because {{reason}}"><g-question>What is {{topic}}?</g-question><g-option>Answer A</g-option><g-option>{{choice|upper}}</g-option></g-poll></g-base>`},
+  {
+    block: `poll`,
+    datasets: [{choice: `b variant`, reason: `it is`, topic: `math`}, {}],
+    render: (manager, data) => manager.getGPoll(`parity-poll`, `default`, `default`, data),
+    template: `<g-base><g-poll type="quiz" correct="0" explanation="Because {{reason}}"><g-question>What is {{topic}}?</g-question><g-option>Answer A</g-option><g-option>{{choice|upper}}</g-option></g-poll></g-base>`
+  },
   {block: `venue`, datasets: [{name: `Cafe`}, {}], render: (manager, data) => manager.getGVenue(`parity-venue`, `default`, `default`, data), template: `<g-base><g-venue title="{{name}}" address="Jl. Merdeka 1" latitude="-6.2" longitude="106.8"/></g-base>`},
   {block: `dice`, datasets: [{dice: `🎯`}, {}], render: (manager, data) => manager.getGDice(`parity-dice`, `default`, `default`, data), template: `<g-base><g-dice emoji="{{dice}}"/></g-base>`},
   {block: `callbackAnswer`, datasets: [{orderId: `o-1`}, {}], render: (manager, data) => manager.getGCallbackAnswer(`parity-callbackAnswer`, `default`, `default`, data), template: `<g-base><g-callback-answer>Pesanan {{orderId}} diproses</g-callback-answer></g-base>`},
@@ -30,8 +35,18 @@ const ENTRIES: Entry[] = [
   {block: `inlineButton`, datasets: [{item: `Pro`}, {}], render: (manager, data) => manager.getGInlineButton(`parity-inlineButton`, `default`, `default`, data), template: `<g-base><g-inline-button text="Lihat {{item}}" start-parameter="detail-1"/></g-base>`},
   {block: `answerNote`, datasets: [{kind: `guest`}, {}], render: (manager, data) => manager.getGAnswerNote(`parity-answerNote`, `default`, `default`, data), template: `<g-base><g-answer-note>Guest fallback {{kind}}</g-answer-note></g-base>`},
   {block: `gift`, datasets: [{item: `stars`}, {}], render: (manager, data) => manager.getGGift(`parity-gift`, `default`, `default`, data), template: `<g-base><g-gift>Hadiah <b>{{item}}</b> untukmu!</g-gift></g-base>`},
-  {block: `invoice`, datasets: [{days: `30`, orderId: `o-9`}, {}], render: (manager, data) => manager.getGInvoice(`parity-invoice`, `default`, `default`, data), template: `<g-base><g-invoice title="VIP {{days}} hari" description="Akses semua konten" payload="{{orderId}}" currency="XTR"><g-price label="VIP {{days}} hari" amount="100"/></g-invoice></g-base>`},
-  {block: `paidMedia`, datasets: [{full: `v.mp4`, teaser: `t.jpg`}, {}], render: (manager, data) => manager.getGPaidMedia(`parity-paidMedia`, `default`, `default`, data), template: `<g-base><g-paid-media stars="100"><g-media type="photo" src="{{teaser}}">Bayar untuk membuka</g-media><g-media type="video" src="{{full}}">Konten full</g-media></g-paid-media></g-base>`},
+  {
+    block: `invoice`,
+    datasets: [{days: `30`, orderId: `o-9`}, {}],
+    render: (manager, data) => manager.getGInvoice(`parity-invoice`, `default`, `default`, data),
+    template: `<g-base><g-invoice title="VIP {{days}} hari" description="Akses semua konten" payload="{{orderId}}" currency="XTR"><g-price label="VIP {{days}} hari" amount="100"/></g-invoice></g-base>`
+  },
+  {
+    block: `paidMedia`,
+    datasets: [{full: `v.mp4`, teaser: `t.jpg`}, {}],
+    render: (manager, data) => manager.getGPaidMedia(`parity-paidMedia`, `default`, `default`, data),
+    template: `<g-base><g-paid-media stars="100"><g-media type="photo" src="{{teaser}}">Bayar untuk membuka</g-media><g-media type="video" src="{{full}}">Konten full</g-media></g-paid-media></g-base>`
+  },
   {block: `description`, datasets: [{x: `y`}, {}], render: (manager, data) => manager.getGDescription(`parity-description`, `default`, `default`, `default`, data), template: `<g-base><g-description>Desc {{x}}</g-description></g-base>`}
 ]
 
@@ -57,7 +72,7 @@ async function checkParity(entry: Entry, sabotage: boolean): Promise<void> {
   } finally {
     emitter.endCollect()
   }
-  const compiled = (scratch as unknown as {_map: Map<string, ITCompiledTemplate>})._map.get(key)
+  const compiled = (scratch as unknown as {_map: Map<string, ICompiledTemplate>})._map.get(key)
   if (compiled === undefined) throw new Error(`no compiled template for ${key}`)
   const source = emitter.emitModule(key, entry.template, compiled)
   for (const token of CODEGEN_TOKENS) expect(source).not.toContain(token)
@@ -71,7 +86,7 @@ async function checkParity(entry: Entry, sabotage: boolean): Promise<void> {
     }) as unknown as FunctionConstructor
   }
   try {
-    const loaded = (await import(pathToFileURL(file).href)) as {template?: ITCompiledTemplate}
+    const loaded = (await import(pathToFileURL(file).href)) as {template?: ICompiledTemplate}
     if (loaded.template === undefined) throw new Error(`no template export in ${file}`)
     const aot = new TemplateManager({path: [emptyDir]})
     aot._registerCompiled(key, loaded.template)

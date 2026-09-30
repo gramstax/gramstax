@@ -5,7 +5,7 @@ import {join} from "node:path"
 import {InlineKeyboard} from "grammy"
 import {Ctx} from "~/core/ctx"
 import {TemplateManager} from "~/template/manager"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 const TEST_DIR = join(import.meta.dir, `ctx_broadcast_views`)
 
@@ -45,11 +45,11 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       api: {
         sendPhoto
       }
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -81,11 +81,11 @@ describe(`Ctx.renderBroadcastMedia`, () => {
         sendPhoto,
         sendMediaGroup
       }
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -121,11 +121,11 @@ describe(`Ctx.renderBroadcastMedia`, () => {
         sendAnimation,
         sendMediaGroup
       }
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -156,11 +156,11 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       from: {language_code: `default`},
       update: {message: {chat: {id: 1}, from: {language_code: `default`}, message_id: 1}},
       api: {sendDocument: replyWithDocument, sendMediaGroup: replyWithMediaGroup}
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -182,7 +182,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       from: {language_code: `default`},
       update: {message: {chat: {id: 1}, from: {language_code: `default`}, message_id: 1}},
       api: {sendMediaGroup}
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
     const templateManager = {
       getGMedia: mock((key: string) => ({
         type: key.replace(`Group`, ``),
@@ -207,7 +207,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
 
     const params = {
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -219,10 +219,22 @@ describe(`Ctx.renderBroadcastMedia`, () => {
     await new DocumentGroupCtx(params).renderDocumentGroup()
 
     expect(sendMediaGroup).toHaveBeenCalledTimes(4)
-    expect(sendMediaGroup.mock.calls[0]![1]).toEqual([{type: `photo`, media: `one`, caption: `photoGroup`, parse_mode: `HTML`}, {type: `photo`, media: `two`}])
-    expect(sendMediaGroup.mock.calls[1]![1]).toEqual([{type: `video`, media: `one`, caption: `videoGroup`, parse_mode: `HTML`}, {type: `video`, media: `two`}])
-    expect(sendMediaGroup.mock.calls[2]![1]).toEqual([{type: `audio`, media: `one`, caption: `audioGroup`, parse_mode: `HTML`}, {type: `audio`, media: `two`}])
-    expect(sendMediaGroup.mock.calls[3]![1]).toEqual([{type: `document`, media: `one`, caption: `documentGroup`, parse_mode: `HTML`}, {type: `document`, media: `two`}])
+    expect(sendMediaGroup.mock.calls[0]![1]).toEqual([
+      {type: `photo`, media: `one`, caption: `photoGroup`, parse_mode: `HTML`},
+      {type: `photo`, media: `two`}
+    ])
+    expect(sendMediaGroup.mock.calls[1]![1]).toEqual([
+      {type: `video`, media: `one`, caption: `videoGroup`, parse_mode: `HTML`},
+      {type: `video`, media: `two`}
+    ])
+    expect(sendMediaGroup.mock.calls[2]![1]).toEqual([
+      {type: `audio`, media: `one`, caption: `audioGroup`, parse_mode: `HTML`},
+      {type: `audio`, media: `two`}
+    ])
+    expect(sendMediaGroup.mock.calls[3]![1]).toEqual([
+      {type: `document`, media: `one`, caption: `documentGroup`, parse_mode: `HTML`},
+      {type: `document`, media: `two`}
+    ])
   })
 
   it(`should reply with mixed photo and video media-group block`, async () => {
@@ -246,11 +258,11 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       from: {language_code: `default`},
       update: {message: {chat: {id: 1}, from: {language_code: `default`}, message_id: 1}},
       api: {sendMediaGroup: replyWithMediaGroup}
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -286,11 +298,11 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       from: {language_code: `default`},
       update: {message: {chat: {id: 1}, from: {language_code: `default`}, message_id: 1}},
       api: {sendMediaGroup: replyWithMediaGroup}
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
 
     const ctxDefault = new BroadcastCtx({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -325,11 +337,11 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       from: {language_code: `default`},
       update: {message: {chat: {id: 1}, message_id: 1}},
       api: {deleteMessage, editMessageMedia, sendMediaGroup: replyWithMediaGroup}
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -352,7 +364,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       from: {language_code: `default`},
       update: {message: {chat: {id: 1}, message_id: 1}},
       api: {deleteMessage, sendMediaGroup: replyWithMediaGroup}
-    } as unknown as ITCtxParams[`ct`]
+    } as unknown as ICtxParams[`ct`]
     const templateManager = {
       getGMedia: mock((key: string) => ({
         type: key.replace(/Media/, ``),
@@ -377,7 +389,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
 
     const params = {
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -391,9 +403,21 @@ describe(`Ctx.renderBroadcastMedia`, () => {
     expect(deleteMessage).toHaveBeenCalledTimes(4)
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(4)
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(4)
-    expect(replyWithMediaGroup.mock.calls[0]![1]).toEqual([{type: `photo`, media: `one`, caption: `photoGroupEdit`, parse_mode: `HTML`}, {type: `photo`, media: `two`}])
-    expect(replyWithMediaGroup.mock.calls[1]![1]).toEqual([{type: `video`, media: `one`, caption: `videoGroupEdit`, parse_mode: `HTML`}, {type: `video`, media: `two`}])
-    expect(replyWithMediaGroup.mock.calls[2]![1]).toEqual([{type: `audio`, media: `one`, caption: `audioGroupEdit`, parse_mode: `HTML`}, {type: `audio`, media: `two`}])
-    expect(replyWithMediaGroup.mock.calls[3]![1]).toEqual([{type: `document`, media: `one`, caption: `documentGroupEdit`, parse_mode: `HTML`}, {type: `document`, media: `two`}])
+    expect(replyWithMediaGroup.mock.calls[0]![1]).toEqual([
+      {type: `photo`, media: `one`, caption: `photoGroupEdit`, parse_mode: `HTML`},
+      {type: `photo`, media: `two`}
+    ])
+    expect(replyWithMediaGroup.mock.calls[1]![1]).toEqual([
+      {type: `video`, media: `one`, caption: `videoGroupEdit`, parse_mode: `HTML`},
+      {type: `video`, media: `two`}
+    ])
+    expect(replyWithMediaGroup.mock.calls[2]![1]).toEqual([
+      {type: `audio`, media: `one`, caption: `audioGroupEdit`, parse_mode: `HTML`},
+      {type: `audio`, media: `two`}
+    ])
+    expect(replyWithMediaGroup.mock.calls[3]![1]).toEqual([
+      {type: `document`, media: `one`, caption: `documentGroupEdit`, parse_mode: `HTML`},
+      {type: `document`, media: `two`}
+    ])
   })
 })

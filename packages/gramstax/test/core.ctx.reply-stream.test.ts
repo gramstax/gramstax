@@ -1,6 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 // ── Mock API with stream methods ──────────────────────────────────
 
@@ -32,13 +32,13 @@ function createTestCtx(update: Record<string, unknown> = {}) {
       message: {message_id: 1, chat: {id: 7, type: `private`}, text: `test`, from: {id: 2, is_bot: false, first_name: `Test`}},
       ...update
     } as any
-  } as unknown as ITCtxParams[`ct`]
+  } as unknown as ICtxParams[`ct`]
 
   const ctx = new Ctx({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {} as unknown as ITCtxParams[`templateManager`],
+    templateManager: {} as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 

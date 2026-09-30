@@ -1,6 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 // ── Test page class ────────────────────────────────────────────────
 
@@ -15,9 +15,9 @@ function createTestCtx(hasCallbackQuery = false, editMessageMediaImpl?: () => un
   const api = {
     config: {use: () => {}},
     editMessageMedia,
-    deleteMessage: mock(() => ({ok: true} as any)),
-    sendMessage: mock(() => ({message_id: 2, date: 0, chat: {id: 1, type: `private` as const}} as any)),
-    sendDocument: mock(() => ({message_id: 2} as any))
+    deleteMessage: mock(() => ({ok: true}) as any),
+    sendMessage: mock(() => ({message_id: 2, date: 0, chat: {id: 1, type: `private` as const}}) as any),
+    sendDocument: mock(() => ({message_id: 2}) as any)
   }
 
   const ct = {
@@ -26,16 +26,16 @@ function createTestCtx(hasCallbackQuery = false, editMessageMediaImpl?: () => un
     update: hasCallbackQuery
       ? ({callback_query: {id: `999`, from: {id: 1, is_bot: false, first_name: `Test`}, message: {message_id: 1, chat: {id: 1, type: `private`}}, data: `test`}} as any)
       : ({message: {message_id: 1, chat: {id: 1, type: `private`}, text: `test`, from: {id: 1, is_bot: false, first_name: `Test`}}} as any)
-  } as unknown as ITCtxParams[`ct`]
+  } as unknown as ICtxParams[`ct`]
 
   const ctx = new TestPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
     templateManager: {
       getGMessage: () => `hello`,
       getGMedia: () => ({src: `https://example.com/a.jpg`, caption: `hi`, filename: `a.jpg`})
-    } as unknown as ITCtxParams[`templateManager`],
+    } as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 

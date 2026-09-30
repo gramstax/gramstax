@@ -1,24 +1,7 @@
-/**
- * External cache adapter — wraps `keyv` for Redis/Keyv-backed caching.
- *
- * @remarks
- * Provides a unified cache interface using the `keyv` library with optional
- * Redis backend via `@keyv/redis`. Used internally by the bot for session
- * and state storage.
- *
- * @public
- */
-
 import KeyvRedis from "@keyv/redis"
 import {Keyv} from "keyv"
 
-type ITMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `namespace` | `ttl`> & {forceStore?: unknown | Record<string, unknown>}
-
-/**
- * RPC cache request structure.
- * @public
- */
-export type ITCacheRpc = {method: string | string[]; params: Record<string, unknown>; [moreRoot: string]: unknown | string}
+type IMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `namespace` | `ttl`> & {forceStore?: unknown | Record<string, unknown>}
 
 /**
  * Extends {@link https://github.com/jaredwray/keyv | Keyv} to provide a unified caching interface
@@ -53,7 +36,8 @@ export type ITCacheRpc = {method: string | string[]; params: Record<string, unkn
  * @public
  */
 export class CacheExternal<V = unknown> extends Keyv<V> {
-  public url: string
+  url: string
+
   /**
    * Creates a new CacheExternal instance.
    *
@@ -62,12 +46,7 @@ export class CacheExternal<V = unknown> extends Keyv<V> {
    * @param namespace - Key namespace prefix. Isolates keys by namespace.
    * @param more - Additional Keyv options. Use `forceStore` to override automatic store selection.
    */
-  constructor(
-    url: string = `memory`,
-    ttl?: number,
-    namespace?: string,
-    more?: ITMore
-  ) {
+  constructor(url: string = `memory`, ttl?: number, namespace?: string, more?: IMore) {
     let store: unknown
     if (more?.forceStore !== undefined && more?.forceStore !== null) {
       store = more.forceStore

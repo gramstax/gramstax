@@ -3,11 +3,11 @@ import {cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, r
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
-import {generate} from "../scripts/build-manifest"
 import {GramstaxBuild} from "~/cli/build"
 import {Gramstax} from "~/core/bot"
-import type {ITAppManifest} from "~/page/manifest"
 import {TemplateManager} from "~/template/manager"
+import type {IAppManifest} from "~/types/manifest"
+import {generate} from "../scripts/build-manifest"
 
 const FIXTURES = join(import.meta.dir, `fixtures`, `manifest`, `pages`)
 const CTX_ABS = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
@@ -71,8 +71,8 @@ function captureConsole(): {logs: string[]; errors: string[]; restore: () => voi
   }
 }
 
-async function loadManifestJs(outDir: string): Promise<ITAppManifest> {
-  const loaded = (await import(pathToFileURL(join(outDir, `manifest.js`)).href)) as {default?: ITAppManifest}
+async function loadManifestJs(outDir: string): Promise<IAppManifest> {
+  const loaded = (await import(pathToFileURL(join(outDir, `manifest.js`)).href)) as {default?: IAppManifest}
   const manifest = loaded.default
   if (manifest === undefined) throw new Error(`manifest.js has no default export`)
   return manifest

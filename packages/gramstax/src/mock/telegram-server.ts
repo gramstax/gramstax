@@ -1,214 +1,18 @@
-/**
- * Mock Telegram server — simulates the Telegram Bot API for testing.
- *
- * @remarks
- * Provides a lightweight HTTP server that mimics Telegram's Bot API
- * endpoints, enabling offline integration testing without a real
- * Telegram connection.
- *
- * @public
- */
-
-import {type LoggingHelper, log} from "~/helpers/log"
-
-/**
- * Telegram JSON response shape for mock server responses.
- *
- * @remarks
- * This is the minimal Bot API response contract used by the mock server:
- * `ok` indicates success and `result` contains the payload.
- *
- * @example
- * ```typescript
- * const response: ITTelegramJson = {ok: true, result: {foo: `bar`}}
- * ```
- *
- * @public
- */
-export type ITMockTelegramJson = {
-  /** Indicates whether the mock request is successful. */
-  ok: boolean
-  /** Result payload returned by the mock method. */
-  result?: unknown
-  /** Error description when the request fails. */
-  description?: string
-}
-
-/**
- * Handler signature for mock Telegram methods.
- *
- * @remarks
- * Return a Bot API-like JSON object. `method` is the Telegram method name
- * extracted from the URL path (e.g. `getMe`, `setWebhook`).
- *
- * @example
- * ```typescript
- * const handler: ITMockTelegramHandler = ({method}) => ({ok: true, result: {method}})
- * ```
- *
- * @public
- */
-export type ITMockTelegramHandler = (payload: {method: string; request: Request}) => Promise<ITMockTelegramJson> | ITMockTelegramJson
-
-/**
- * Recorded outbound Bot API request captured by the mock server.
- *
- * @remarks
- * Each entry represents one HTTP request made by the bot under test to the mock server.
- * Access via `mockServer.requests` or `mockServer.lastRequest(method)`.
- *
- * @public
- */
-export type ITMockTelegramRequestRecord = {
-  /** Telegram Bot API method name, e.g. `sendMessage`. */
-  method: string
-  /** Parsed request body when available. */
-  body: any
-  /** Request URL. */
-  url: string
-  /** Request HTTP method. */
-  requestMethod: string
-  /** Request headers copied into a plain object. */
-  headers: Record<string, string>
-}
-
-/**
- * Basic Telegram mock user profile used when generating updates.
- *
- * @remarks
- * Mirrors the Telegram Bot API `User` object. Used by `sendText`, `sendPhoto`,
- * `sendCallbackQuery`, and other helper methods to construct mock message updates.
- * The mock server fills missing fields with defaults (e.g. `language_code: "en"`).
- *
- * @public
- */
-export type ITMockTelegramUser = {
-  /** Unique identifier for the user. Defaults to `1001`. */
-  id?: number
-  /** `true` if this user is a bot. Defaults to `false`. */
-  is_bot?: boolean
-  /** First name of the user. Defaults to `"Test"`. */
-  first_name?: string
-  /** Last name of the user. */
-  last_name?: string
-  /** Username of the user. Required by bots that use `UserGuard`. */
-  username?: string
-  /** IETF language tag of the user's locale. Defaults to `"en"`. */
-  language_code?: string
-}
-
-/**
- * Basic Telegram mock chat profile used when generating message updates.
- *
- * @remarks
- * Mirrors the Telegram Bot API `Chat` object. Used alongside `ITMockTelegramUser`
- * to construct mock message updates sent to the bot's webhook.
- *
- * @public
- */
-export type ITMockTelegramChat = {
-  /** Unique identifier for the chat. Defaults to `1001`. */
-  id?: number
-  /** Type of the chat. Defaults to `"private"`. */
-  type?: `private` | `group` | `supergroup` | `channel`
-  /** First name for private chats. Defaults to `"Test"`. */
-  first_name?: string
-  /** Last name for private chats. */
-  last_name?: string
-  /** Username for private chats, supergroups, or channels. */
-  username?: string
-  /** Title for group, supergroup, or channel chats. */
-  title?: string
-}
-
-/**
- * Shared options for generated mock updates.
- *
- * @remarks
- * Base options object passed to all `send*` helper methods on `MockTelegramServer`.
- * Controls the simulated user, chat context, and response wait behavior.
- *
- * @public
- */
-export type ITMockTelegramUpdateOptions = {
-  /** Simulated user profile. Merged with mock server defaults. */
-  user?: ITMockTelegramUser
-  /** Simulated chat profile. Merged with mock server defaults. */
-  chat?: ITMockTelegramChat
-  /** Unix timestamp for the message date. Defaults to `Date.now()`. */
-  date?: number
-  /** Message ID for the update. Auto-incremented if not provided. */
-  message_id?: number
-  /** Time to wait for outbound Bot API calls after posting the update to the webhook. Defaults to 1000ms. Use 0 to disable waiting. */
-  responseTimeoutMs?: number
-}
-
-/**
- * Options for generated mock media message updates.
- *
- * @remarks
- * Extends `ITMockTelegramUpdateOptions` with a `caption` field.
- * Used by `sendPhoto`, `sendVideo`, `sendAudio`, `sendDocument`,
- * `sendAnimation`, and `sendVoice`.
- *
- * @public
- */
-export type ITMockTelegramMediaOptions = ITMockTelegramUpdateOptions & {
-  /** Caption text displayed below the media. */
-  caption?: string
-}
-
-/**
- * Options for generated mock location updates.
- *
- * @remarks
- * Extends `ITMockTelegramUpdateOptions` with `latitude` and `longitude`.
- * Used by `sendLocation`.
- *
- * @public
- */
-export type ITMockTelegramLocationOptions = ITMockTelegramUpdateOptions & {
-  /** Latitude of the location. Defaults to `0`. */
-  latitude?: number
-  /** Longitude of the location. Defaults to `0`. */
-  longitude?: number
-}
-
-/**
- * Options for generated mock contact updates.
- *
- * @remarks
- * Extends `ITMockTelegramUpdateOptions` with contact fields.
- * Used by `sendContact`.
- *
- * @public
- */
-export type ITMockTelegramContactOptions = ITMockTelegramUpdateOptions & {
-  /** Contact phone number. Defaults to `"+10000000000"`. */
-  phone_number?: string
-  /** Contact first name. Defaults to `"Test"`. */
-  first_name?: string
-  /** Contact last name. */
-  last_name?: string
-  /** Telegram user ID associated with the contact. */
-  user_id?: number
-}
-
-/**
- * Options for generated mock callback query updates.
- *
- * @remarks
- * Extends `ITMockTelegramUpdateOptions` with callback-specific fields.
- * Used by `sendCallbackQuery`.
- *
- * @public
- */
-export type ITMockTelegramCallbackQueryOptions = ITMockTelegramUpdateOptions & {
-  /** Callback query ID. Defaults to `"mock-callback-{updateId}"`. */
-  id?: string
-  /** Text of the message the callback was attached to. Defaults to `"Mock message"`. */
-  messageText?: string
-}
+import {log} from "~/helpers/log"
+import type {
+  IMockTelegramCallbackQueryOptions,
+  IMockTelegramChat,
+  IMockTelegramContactOptions,
+  IMockTelegramHandler,
+  IMockTelegramJson,
+  IMockTelegramLocationOptions,
+  IMockTelegramLog,
+  IMockTelegramMediaOptions,
+  IMockTelegramRequestRecord,
+  IMockTelegramServerOptions,
+  IMockTelegramUpdateOptions,
+  IMockTelegramUser
+} from "~/types/mock"
 
 type ITMockTelegramReadableRequest = {
   method: string
@@ -218,40 +22,6 @@ type ITMockTelegramReadableRequest = {
   json(): Promise<unknown>
   formData(): Promise<{entries(): Iterable<[string, unknown]>}>
   text(): Promise<string>
-}
-
-type ITMockTelegramLog = Pick<LoggingHelper, `info` | `debug` | `success` | `error`>
-
-/**
- * Options for configuring the mock Telegram server.
- *
- * @remarks
- * Use `handlers` to override specific methods, and
- * `defaultHandler` as a fallback for any unmatched method.
- *
- * @example
- * ```typescript
- * const options: ITMockTelegramServerOptions = {
- *   port: 0,
- *   handlers: {
- *     getMe: () => ({ok: true, result: {is_bot: true}})
- *   }
- * }
- * ```
- *
- * @public
- */
-export type ITMockTelegramServerOptions = {
-  /** Hostname for the local server (defaults to 127.0.0.1). */
-  hostname?: string
-  /** Port for the local server (0 selects a random free port). */
-  port?: number
-  /** Logger configuration. Pass true to use the default Gramstax logger. */
-  log?: ITMockTelegramLog | boolean | null
-  /** Per-method handlers keyed by Telegram method name (e.g. getMe). */
-  handlers?: Record<string, ITMockTelegramHandler>
-  /** Fallback handler used when a method has no specific handler. */
-  defaultHandler?: ITMockTelegramHandler
 }
 
 /**
@@ -279,25 +49,26 @@ export class MockTelegramServer {
   /** Port for the local server (0 selects a random free port). */
   port: number
   /** Optional logger for mock server lifecycle and request events. */
-  log?: ITMockTelegramLog
+  log?: IMockTelegramLog
   /** Custom handlers for specific Telegram methods (e.g. getMe). */
-  handlers: Record<string, ITMockTelegramHandler>
+  handlers: Record<string, IMockTelegramHandler>
   /** Default handler when a method has no specific handler. */
-  defaultHandler?: ITMockTelegramHandler
+  defaultHandler?: IMockTelegramHandler
   /** Base URL for API calls (e.g. http://127.0.0.1:1234). */
   apiRoot = ``
   /** Webhook URL set through `setWebhook`. */
   webhookUrl = ``
   /** Captured outbound Bot API requests made by the bot under test. */
-  requests: ITMockTelegramRequestRecord[] = []
+  requests: IMockTelegramRequestRecord[] = []
   /** Captured inbound updates generated by helper methods. */
   updates: Record<string, unknown>[] = []
   /** Underlying Bun server instance (set after start). */
   server?: {port?: number; stop: () => void}
-  private _nextUpdateId = 1
-  private _nextMessageId = 1
-  private _onSigint?: () => void
-  private _onSigterm?: () => void
+
+  _nextUpdateId = 1
+  _nextMessageId = 1
+  _onSigint?: () => void
+  _onSigterm?: () => void
 
   static userResponsePrefixes = [`send`, `edit`, `answer`, `delete`, `copy`, `forward`, `pin`, `unpin`, `setMessageReaction`]
   static userResponseMethods = [`pinChatMessage`, `unpinChatMessage`, `setMessageReaction`, `answerInlineQuery`]
@@ -316,7 +87,7 @@ export class MockTelegramServer {
    * @param options - Server options.
    * @public
    */
-  constructor(options: ITMockTelegramServerOptions = {}) {
+  constructor(options: IMockTelegramServerOptions = {}) {
     this.hostname = options.hostname ?? `127.0.0.1`
     this.port = options.port ?? 0
     this.log = options.log === true ? log : !options.log ? undefined : options.log
@@ -346,8 +117,12 @@ export class MockTelegramServer {
 
     this.server = server
     this.apiRoot = `http://${this.hostname}:${server.port ?? this.port}`
-    this._onSigint = () => { void this.stop() }
-    this._onSigterm = () => { void this.stop() }
+    this._onSigint = () => {
+      void this.stop()
+    }
+    this._onSigterm = () => {
+      void this.stop()
+    }
     process.once(`SIGINT`, this._onSigint)
     process.once(`SIGTERM`, this._onSigterm)
     this.log?.info?.(`Mock Telegram server started: ${this.apiRoot}`)
@@ -378,7 +153,7 @@ export class MockTelegramServer {
     this.log?.info?.(`Mock Telegram server stopped`)
   }
 
-  private _json(payload: ITMockTelegramJson) {
+  _json(payload: IMockTelegramJson) {
     return new Response(JSON.stringify(payload), {
       status: 200,
       headers: {"Content-Type": `application/json`}
@@ -460,7 +235,7 @@ export class MockTelegramServer {
     this.webhookUrl = ``
   }
 
-  private _isLoopbackUrl(url: string): boolean {
+  _isLoopbackUrl(url: string): boolean {
     try {
       const host = new URL(url).hostname
       return host === `127.0.0.1` || host === `localhost` || host === `[::1]` || host === `::1`
@@ -469,7 +244,7 @@ export class MockTelegramServer {
     }
   }
 
-  private _defaultResponse(method: string, body?: unknown): ITMockTelegramJson {
+  _defaultResponse(method: string, body?: unknown): IMockTelegramJson {
     if (method === `getMe`) {
       return {
         ok: true,
@@ -510,19 +285,15 @@ export class MockTelegramServer {
       return {ok: true, result: {url: this.webhookUrl}}
     }
 
-    if (
-      method === `editEphemeralMessageText` ||
-      method === `editEphemeralMessageCaption` ||
-      method === `editEphemeralMessageMedia` ||
-      method === `editEphemeralMessageReplyMarkup` ||
-      method === `deleteEphemeralMessage`
-    ) {
-      const data = this._bodyRecord(body) as unknown as {
-        ephemeral_message_parameters?: unknown
-        replace_callback_query_message?: unknown
-        rich_message?: unknown
-        show_caption_above_media?: unknown
-      } | undefined
+    if (method === `editEphemeralMessageText` || method === `editEphemeralMessageCaption` || method === `editEphemeralMessageMedia` || method === `editEphemeralMessageReplyMarkup` || method === `deleteEphemeralMessage`) {
+      const data = this._bodyRecord(body) as unknown as
+        | {
+            ephemeral_message_parameters?: unknown
+            replace_callback_query_message?: unknown
+            rich_message?: unknown
+            show_caption_above_media?: unknown
+          }
+        | undefined
       return {
         ok: true,
         result: true,
@@ -530,7 +301,7 @@ export class MockTelegramServer {
         ...(data?.replace_callback_query_message !== undefined ? {replace_callback_query_message: data.replace_callback_query_message} : {}),
         ...(data?.rich_message ? {rich_message: data.rich_message} : {}),
         ...(data?.show_caption_above_media !== undefined ? {show_caption_above_media: data.show_caption_above_media} : {})
-      } as unknown as ITMockTelegramJson
+      } as unknown as IMockTelegramJson
     }
 
     if (method === `promoteChatMember`) {
@@ -539,15 +310,10 @@ export class MockTelegramServer {
         ok: true,
         result: true,
         ...(data?.can_send_welcome_messages !== undefined ? {can_send_welcome_messages: data.can_send_welcome_messages} : {})
-      } as unknown as ITMockTelegramJson
+      } as unknown as IMockTelegramJson
     }
 
-    if (
-      method.startsWith(`send`) &&
-      body !== null &&
-      typeof body === `object` &&
-      `ephemeral_message_parameters` in (body as Record<string, unknown>)
-    ) {
+    if (method.startsWith(`send`) && body !== null && typeof body === `object` && `ephemeral_message_parameters` in (body as Record<string, unknown>)) {
       const data = body as unknown as {chat_id?: number; ephemeral_message_parameters?: unknown}
       return {
         ok: true,
@@ -575,7 +341,7 @@ export class MockTelegramServer {
     return {ok: true, result: true}
   }
 
-  private async _handleRequest(request: Request) {
+  async _handleRequest(request: Request) {
     const {pathname} = new URL(request.url)
     const match = pathname.match(/^\/bot([^/]+)\/(.+)$/)
     if (!match) {
@@ -609,11 +375,11 @@ export class MockTelegramServer {
     }
   }
 
-  private _bodyRecord(body: unknown): Record<string, unknown> | undefined {
+  _bodyRecord(body: unknown): Record<string, unknown> | undefined {
     return body && typeof body === `object` && !Array.isArray(body) ? (body as Record<string, unknown>) : undefined
   }
 
-  private async _readBody(request: ITMockTelegramReadableRequest): Promise<unknown> {
+  async _readBody(request: ITMockTelegramReadableRequest): Promise<unknown> {
     if (request.method === `GET` || request.method === `HEAD`) {
       return undefined
     }
@@ -653,7 +419,7 @@ export class MockTelegramServer {
     }
   }
 
-  private _defaultUser(user?: ITMockTelegramUser) {
+  _defaultUser(user?: IMockTelegramUser) {
     return {
       id: user?.id ?? 1001,
       is_bot: user?.is_bot ?? false,
@@ -664,7 +430,7 @@ export class MockTelegramServer {
     }
   }
 
-  private _defaultChat(chat?: ITMockTelegramChat) {
+  _defaultChat(chat?: IMockTelegramChat) {
     return {
       id: chat?.id ?? 1001,
       type: chat?.type ?? `private`,
@@ -675,7 +441,7 @@ export class MockTelegramServer {
     }
   }
 
-  private _nextIds(options?: ITMockTelegramUpdateOptions) {
+  _nextIds(options?: IMockTelegramUpdateOptions) {
     return {
       updateId: this._nextUpdateId++,
       messageId: options?.message_id ?? this._nextMessageId++,
@@ -683,7 +449,7 @@ export class MockTelegramServer {
     }
   }
 
-  private _buildMessageUpdate(message: Record<string, unknown>, options?: ITMockTelegramUpdateOptions) {
+  _buildMessageUpdate(message: Record<string, unknown>, options?: IMockTelegramUpdateOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
     return {
       update_id: updateId,
@@ -697,7 +463,7 @@ export class MockTelegramServer {
     }
   }
 
-  private async _postUpdate(update: Record<string, unknown>, options?: ITMockTelegramUpdateOptions) {
+  async _postUpdate(update: Record<string, unknown>, options?: IMockTelegramUpdateOptions) {
     await this._waitForWebhookUrl(options?.responseTimeoutMs ?? 1000)
     if (!this.webhookUrl) {
       throw new Error(`Webhook URL is not set. Call setWebhook first or assign mockServer.webhookUrl.`)
@@ -721,7 +487,7 @@ export class MockTelegramServer {
     return responses
   }
 
-  private async _waitForWebhookUrl(timeoutMs: number) {
+  async _waitForWebhookUrl(timeoutMs: number) {
     if (this.webhookUrl || timeoutMs <= 0) {
       return this.webhookUrl
     }
@@ -737,7 +503,7 @@ export class MockTelegramServer {
     return this.webhookUrl
   }
 
-  private async _waitForResponses(requestStartIndex: number, responseTimeoutMs: number) {
+  async _waitForResponses(requestStartIndex: number, responseTimeoutMs: number) {
     if (responseTimeoutMs <= 0) {
       return this._userResponseRequests(requestStartIndex)
     }
@@ -757,11 +523,11 @@ export class MockTelegramServer {
     return this._userResponseRequests(requestStartIndex)
   }
 
-  private _userResponseRequests(requestStartIndex: number) {
+  _userResponseRequests(requestStartIndex: number) {
     return this.requests.slice(requestStartIndex).filter((request) => this._isUserResponseMethod(request.method))
   }
 
-  private _isUserResponseMethod(method: string) {
+  _isUserResponseMethod(method: string) {
     return method.startsWith(`send`) || method.startsWith(`edit`) || method.startsWith(`answer`) || method.startsWith(`delete`) || method.startsWith(`copy`) || method.startsWith(`forward`) || method === `pinChatMessage` || method === `unpinChatMessage` || method === `setMessageReaction`
   }
 
@@ -777,7 +543,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses from the bot under test.
    * @public
    */
-  async sendText(text: string, options?: ITMockTelegramUpdateOptions) {
+  async sendText(text: string, options?: IMockTelegramUpdateOptions) {
     const entities = text.startsWith(`/`) ? [{offset: 0, length: text.split(` `)[0]?.length ?? text.length, type: `bot_command`}] : undefined
     return await this._postUpdate(this._buildMessageUpdate({text, ...(entities ? {entities} : {})}, options), options)
   }
@@ -789,7 +555,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendPhoto(options?: ITMockTelegramMediaOptions) {
+  async sendPhoto(options?: IMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({photo: [{file_id: `mock-photo-file-id`, file_unique_id: `mock-photo-unique-id`, width: 1, height: 1}], ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
@@ -800,7 +566,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendVideo(options?: ITMockTelegramMediaOptions) {
+  async sendVideo(options?: IMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({video: {file_id: `mock-video-file-id`, file_unique_id: `mock-video-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
@@ -811,7 +577,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendAudio(options?: ITMockTelegramMediaOptions) {
+  async sendAudio(options?: IMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({audio: {file_id: `mock-audio-file-id`, file_unique_id: `mock-audio-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
@@ -822,7 +588,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendDocument(options?: ITMockTelegramMediaOptions) {
+  async sendDocument(options?: IMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({document: {file_id: `mock-document-file-id`, file_unique_id: `mock-document-unique-id`, file_name: `mock.txt`}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
@@ -833,7 +599,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendAnimation(options?: ITMockTelegramMediaOptions) {
+  async sendAnimation(options?: IMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({animation: {file_id: `mock-animation-file-id`, file_unique_id: `mock-animation-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
@@ -844,7 +610,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendVoice(options?: ITMockTelegramMediaOptions) {
+  async sendVoice(options?: IMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({voice: {file_id: `mock-voice-file-id`, file_unique_id: `mock-voice-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
@@ -855,7 +621,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendVideoNote(options?: ITMockTelegramUpdateOptions) {
+  async sendVideoNote(options?: IMockTelegramUpdateOptions) {
     return await this._postUpdate(this._buildMessageUpdate({video_note: {file_id: `mock-video-note-file-id`, file_unique_id: `mock-video-note-unique-id`, length: 1, duration: 1}}, options), options)
   }
 
@@ -866,7 +632,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendSticker(options?: ITMockTelegramUpdateOptions) {
+  async sendSticker(options?: IMockTelegramUpdateOptions) {
     return await this._postUpdate(this._buildMessageUpdate({sticker: {file_id: `mock-sticker-file-id`, file_unique_id: `mock-sticker-unique-id`, type: `regular`, width: 1, height: 1, is_animated: false, is_video: false}}, options), options)
   }
 
@@ -877,7 +643,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendLocation(options?: ITMockTelegramLocationOptions) {
+  async sendLocation(options?: IMockTelegramLocationOptions) {
     return await this._postUpdate(this._buildMessageUpdate({location: {latitude: options?.latitude ?? 0, longitude: options?.longitude ?? 0}}, options), options)
   }
 
@@ -888,7 +654,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendContact(options?: ITMockTelegramContactOptions) {
+  async sendContact(options?: IMockTelegramContactOptions) {
     return await this._postUpdate(
       this._buildMessageUpdate(
         {
@@ -917,7 +683,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendCallbackQuery(data: string, options?: ITMockTelegramCallbackQueryOptions) {
+  async sendCallbackQuery(data: string, options?: IMockTelegramCallbackQueryOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
     return await this._postUpdate(
       {
@@ -946,7 +712,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses
    * @public
    */
-  async sendStoppedGeneration(options?: ITMockTelegramUpdateOptions & {chat?: ITMockTelegramChat; draft_id?: number; message_thread_id?: number}) {
+  async sendStoppedGeneration(options?: IMockTelegramUpdateOptions & {chat?: IMockTelegramChat; draft_id?: number; message_thread_id?: number}) {
     const {updateId} = this._nextIds(options)
     return await this._postUpdate(
       {
@@ -968,7 +734,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses
    * @public
    */
-  async sendStoppedMessageGeneration(options?: ITMockTelegramUpdateOptions & {chat?: ITMockTelegramChat; draft_id?: number; message_thread_id?: number}) {
+  async sendStoppedMessageGeneration(options?: IMockTelegramUpdateOptions & {chat?: IMockTelegramChat; draft_id?: number; message_thread_id?: number}) {
     return await this.sendStoppedGeneration(options)
   }
 
@@ -979,7 +745,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses
    * @public
    */
-  async sendCommunityChatJoined(options?: ITMockTelegramUpdateOptions & {community?: {id?: number; name?: string}}) {
+  async sendCommunityChatJoined(options?: IMockTelegramUpdateOptions & {community?: {id?: number; name?: string}}) {
     return await this._postUpdate(this._buildMessageUpdate({community_chat_joined: {community: (options as unknown as {community?: unknown})?.community ?? {id: 1, name: `Test Community`}}}, options), options)
   }
 
@@ -991,7 +757,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses
    * @public
    */
-  async sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITMockTelegramUpdateOptions) {
+  async sendGiftInfo(giftInfo: Record<string, unknown>, options?: IMockTelegramUpdateOptions) {
     return await this._postUpdate(this._buildMessageUpdate({unique_gift: giftInfo}, options), options)
   }
 
@@ -1003,7 +769,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendEditedText(text: string, options?: ITMockTelegramUpdateOptions) {
+  async sendEditedText(text: string, options?: IMockTelegramUpdateOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
     return await this._postUpdate(
       {
@@ -1027,7 +793,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendNewChatMembers(options?: ITMockTelegramUpdateOptions) {
+  async sendNewChatMembers(options?: IMockTelegramUpdateOptions) {
     return await this._postUpdate(this._buildMessageUpdate({new_chat_members: [this._defaultUser(options?.user)]}, options), options)
   }
 
@@ -1039,7 +805,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendChannelPost(text: string, options?: ITMockTelegramUpdateOptions) {
+  async sendChannelPost(text: string, options?: IMockTelegramUpdateOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
     return await this._postUpdate(
       {
@@ -1064,7 +830,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendPollAnswer(pollId: string, optionIds: number[], options?: ITMockTelegramUpdateOptions) {
+  async sendPollAnswer(pollId: string, optionIds: number[], options?: IMockTelegramUpdateOptions) {
     const {updateId} = this._nextIds(options)
     return await this._postUpdate(
       {
@@ -1087,7 +853,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendInlineQuery(query: string, options?: ITMockTelegramUpdateOptions) {
+  async sendInlineQuery(query: string, options?: IMockTelegramUpdateOptions) {
     const {updateId} = this._nextIds(options)
     return await this._postUpdate(
       {
@@ -1112,7 +878,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendChosenInlineResult(resultId: string, query: string, options?: ITMockTelegramUpdateOptions) {
+  async sendChosenInlineResult(resultId: string, query: string, options?: IMockTelegramUpdateOptions) {
     const {updateId} = this._nextIds(options)
     return await this._postUpdate(
       {
@@ -1134,7 +900,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendChatMemberUpdate(options?: ITMockTelegramUpdateOptions & {oldStatus?: string; newStatus?: string}) {
+  async sendChatMemberUpdate(options?: IMockTelegramUpdateOptions & {oldStatus?: string; newStatus?: string}) {
     const {updateId, date} = this._nextIds(options)
     const user = this._defaultUser(options?.user)
     return await this._postUpdate(
@@ -1159,7 +925,7 @@ export class MockTelegramServer {
    * @returns Array of captured Bot API responses.
    * @public
    */
-  async sendMyChatMemberUpdate(options?: ITMockTelegramUpdateOptions & {oldStatus?: string; newStatus?: string}) {
+  async sendMyChatMemberUpdate(options?: IMockTelegramUpdateOptions & {oldStatus?: string; newStatus?: string}) {
     const {updateId, date} = this._nextIds(options)
     const user = this._defaultUser(options?.user)
     return await this._postUpdate(

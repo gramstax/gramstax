@@ -1,6 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 /**
  * Mock API that simulates grammY's per-request Api + transformer chain.
@@ -8,11 +8,11 @@ import type {ITCtxParams} from "~/types/t.ctx"
  * before delegating to the underlying mock implementation.
  */
 function createMockApi() {
-  const sendMessage = mock(() => ({message_id: 1, date: 0, chat: {id: 1, type: `private` as const}} as any))
+  const sendMessage = mock(() => ({message_id: 1, date: 0, chat: {id: 1, type: `private` as const}}) as any)
   const answerCallbackQuery = mock(() => true as any)
   const editMessageText = mock(() => true as any)
   const deleteMessage = mock(() => true as any)
-  const getMe = mock(() => ({id: 1, is_bot: true, first_name: `Bot`} as any))
+  const getMe = mock(() => ({id: 1, is_bot: true, first_name: `Bot`}) as any)
 
   type TransformerFn = (prev: (method: string, payload: unknown[], signal?: any) => any, method: string, payload: unknown[], signal?: any) => any
   const installed: TransformerFn[] = []
@@ -47,13 +47,13 @@ function createMockApi() {
 
 function createTestCtx() {
   const {api, mocks} = createMockApi()
-  const ct = {api} as unknown as ITCtxParams[`ct`]
+  const ct = {api} as unknown as ICtxParams[`ct`]
 
   const ctx = new Ctx({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {} as unknown as ITCtxParams[`templateManager`],
+    templateManager: {} as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 

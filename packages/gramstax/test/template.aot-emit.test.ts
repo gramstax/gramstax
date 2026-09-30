@@ -1,14 +1,14 @@
-import {spawnSync} from "node:child_process"
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
+import {spawnSync} from "node:child_process"
 import {cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
-import {AotEmitter} from "../scripts/aot-emit"
-import {generate} from "../scripts/build-manifest"
 import {TemplateEngine} from "~/template/engine"
 import {TemplateManager} from "~/template/manager"
-import type {ITCompiledTemplate} from "~/types/t.template"
+import type {ICompiledTemplate} from "~/types/template"
+import {AotEmitter} from "../scripts/aot-emit"
+import {generate} from "../scripts/build-manifest"
 
 const FIXTURES = join(import.meta.dir, `fixtures`, `manifest`, `pages`)
 const CTX_ABS = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
@@ -47,13 +47,13 @@ function relinkCtx(root: string): void {
   walk(root)
 }
 
-function buildDeclarative(): ITCompiledTemplate {
+function buildDeclarative(): ICompiledTemplate {
   const bases = TemplateEngine._processGBaseBlocks(DECLARATIVE)
   return {
     keyboard: TemplateEngine.compileBlockGKeyboards(DECLARATIVE, bases),
     media: TemplateEngine.compileBlockGMedia(DECLARATIVE, bases),
     message: TemplateEngine.compileBlockGMessage(DECLARATIVE, bases)
-  } as unknown as ITCompiledTemplate
+  } as unknown as ICompiledTemplate
 }
 
 function renderAll(manager: TemplateManager, key: string, data: Record<string, unknown>): unknown {
@@ -86,7 +86,7 @@ describe(`AOT emitter`, () => {
   it(`emits an importable module with JIT-identical output`, async () => {
     const emitter = new AotEmitter()
     emitter.beginCollect()
-    let compiled: ITCompiledTemplate
+    let compiled: ICompiledTemplate
     try {
       compiled = buildDeclarative()
     } finally {
@@ -112,7 +112,7 @@ describe(`AOT emitter`, () => {
     const jit = new TemplateManager({path: [emptyDir]})
     jit._compile(`jit`, DECLARATIVE)
     const aot = new TemplateManager({path: [emptyDir]})
-    const loaded = (await import(pathToFileURL(join(dir, `demo.g.js`)).href)) as {template?: ITCompiledTemplate}
+    const loaded = (await import(pathToFileURL(join(dir, `demo.g.js`)).href)) as {template?: ICompiledTemplate}
     if (loaded.template === undefined) throw new Error(`demo.g.js has no template export`)
     aot._registerCompiled(`aot`, loaded.template)
     expect(renderAll(aot, `aot`, DATA_EN)).toEqual(renderAll(jit, `jit`, DATA_EN))
@@ -120,10 +120,7 @@ describe(`AOT emitter`, () => {
   })
 
   it(`with-guard rejects script blocks naming key and ESM reason`, () => {
-    for (const template of [
-      `<g-base><g-message>Hi {{~~ name ~~}}!</g-message></g-base>`,
-      `<g-base><g-message>Hi <g-script>return name;</g-script>!</g-message></g-base>`
-    ]) {
+    for (const template of [`<g-base><g-message>Hi {{~~ name ~~}}!</g-message></g-base>`, `<g-base><g-message>Hi <g-script>return name;</g-script>!</g-message></g-base>`]) {
       const emitter = new AotEmitter()
       emitter.beginCollect()
       try {
@@ -149,7 +146,7 @@ describe(`AOT emitter`, () => {
     const untagged = (): string => `untagged`
     let fnMessage = ``
     try {
-      emitter.collectBodies({message: untagged} as unknown as ITCompiledTemplate)
+      emitter.collectBodies({message: untagged} as unknown as ICompiledTemplate)
     } catch (error: unknown) {
       fnMessage = error instanceof Error ? error.message : String(error)
     }
@@ -157,7 +154,7 @@ describe(`AOT emitter`, () => {
     expect(fnMessage).toContain(`message`)
     let dateMessage = ``
     try {
-      emitter.collectBodies({message: new Date(0)} as unknown as ITCompiledTemplate)
+      emitter.collectBodies({message: new Date(0)} as unknown as ICompiledTemplate)
     } catch (error: unknown) {
       dateMessage = error instanceof Error ? error.message : String(error)
     }
@@ -202,7 +199,7 @@ describe(`AOT emitter`, () => {
       for (const entry of readdirSync(join(outDir, `gen`))) {
         if (entry.endsWith(`.g.js`)) relinkGramstaxToSrc(join(outDir, `gen`, entry))
       }
-      const loaded = (await import(pathToFileURL(join(outDir, `gen`, `manifest.js`)).href)) as {templates?: Record<string, ITCompiledTemplate>}
+      const loaded = (await import(pathToFileURL(join(outDir, `gen`, `manifest.js`)).href)) as {templates?: Record<string, ICompiledTemplate>}
       if (loaded.templates === undefined) throw new Error(`gen/manifest.js has no templates export`)
       expect(Object.keys(loaded.templates).sort()).toEqual([`admin/users`, `card`, `start`, `sub/note`])
       const aot = new TemplateManager({path: [emptyDir]})
@@ -245,7 +242,7 @@ describe(`AOT emitter`, () => {
         throw new Error(`codegen disabled on edge`)
       }) as unknown as FunctionConstructor
       try {
-        const loaded = (await import(pathToFileURL(join(genDir, `manifest.js`)).href)) as {templates?: Record<string, ITCompiledTemplate>}
+        const loaded = (await import(pathToFileURL(join(genDir, `manifest.js`)).href)) as {templates?: Record<string, ICompiledTemplate>}
         if (loaded.templates?.showcase === undefined) throw new Error(`showcase missing from gen manifest`)
         const aot = new TemplateManager({path: [emptyDir]})
         aot._registerCompiled(`showcase`, loaded.templates.showcase)

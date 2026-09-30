@@ -18,7 +18,7 @@ packages/gramstax/src/
 ├── webhook/queue.ts    WebhookQueue (bounded concurrent queue)
 ├── mock/telegram-server.ts MockTelegramServer
 ├── e2e/helper.ts       E2eHelper (in-process test harness)
-├── types/              t.bot.ts, t.ctx.ts, t.template.ts, t.e2e.ts
+├── types/              bot.ts, ctx.ts, template.ts, e2e.ts, config.ts, cli.ts, manifest.ts, mock.ts, cache.ts, session-lock.ts, metrics.ts
 └── index.ts            Public barrel (runtime exports, then types with `// type` separator)
 ```
 
@@ -40,7 +40,7 @@ security-poc/           Standalone numbered TemplateEngine PoCs (breakout/inject
 | Webhook request queuing                      | `webhook/queue.ts`                         |
 | Mock Telegram API for tests                  | `mock/telegram-server.ts`                  |
 | E2E test helpers                             | `e2e/helper.ts`                            |
-| Public TypeScript types                      | `types/t.*.ts`                             |
+| Public TypeScript types                      | `types/*.ts` (11 files)                        |
 
 ## Exports
 

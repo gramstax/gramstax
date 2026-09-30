@@ -4,7 +4,7 @@ import {join} from "node:path"
 import {GrammyError, InputFile} from "grammy"
 import {Gramstax} from "~/core/bot"
 import {Ctx} from "~/core/ctx"
-import type {ITCt, ITCtxParams, ITSendErrorInfo} from "~/types/t.ctx"
+import type {ICt, ICtxParams, ISendErrorInfo} from "~/types/ctx"
 
 const TEST_DIR = join(import.meta.dir, `ctx_send_phase45`)
 
@@ -42,15 +42,15 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
 const makeCtx = (med: unknown, api: Record<string, unknown>, extra?: {log?: unknown; mediaRoots?: string[] | null; onSendError?: unknown}) => {
   const tm = {getGMedia: mock(() => med), getGMessage: mock(() => `hello`)} as never
   const update = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new JailPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: (extra?.log ?? null) as unknown as ITCtxParams[`log`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as unknown as ICtxParams[`log`],
     mediaRoots: extra?.mediaRoots ?? null,
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -253,13 +253,13 @@ describe(`observe-log`, () => {
     })
     const tm = {getGMessage: mock(() => `hello`)} as never
     const update = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
-    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
     const ctx = new JailPage({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: tm as ITCtxParams[`templateManager`],
-      log: {warn} as unknown as ITCtxParams[`log`],
+      templateManager: tm as ICtxParams[`templateManager`],
+      log: {warn} as unknown as ICtxParams[`log`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     await ctx.renderBroadcast([7], [`en`])
@@ -287,13 +287,13 @@ describe(`observe-log`, () => {
     const tm = {getGMessage: mock(() => `hello`), getGMedia: mock(() => photoMed())} as never
     const update = {callback_query: {id: `q`, data: `x`, chat_instance: `ci`, message: {message_id: 2, date: 2, text: `m`, chat: {id: 1, type: `private`}}}}
     const mkEditCtx = (api: Record<string, unknown>, log: unknown) => {
-      const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+      const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
       return new JailPage({
         ct,
-        cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+        cacheSession: {} as unknown as ICtxParams[`cacheSession`],
         cacheKeyboard: new Map(),
-        templateManager: tm as ITCtxParams[`templateManager`],
-        log: log as unknown as ITCtxParams[`log`],
+        templateManager: tm as ICtxParams[`templateManager`],
+        log: log as unknown as ICtxParams[`log`],
         temp: {isAnswer: false, session: {}, data: {}}
       })
     }
@@ -305,13 +305,13 @@ describe(`observe-log`, () => {
     const group = {type: `group`, mediaGroup: [{type: `photo`, src: `a.jpg`}], caption: `Cap`}
     const tmGroup = {getGMessage: mock(() => `hello`), getGMedia: mock(() => group)} as never
     const mkGroupCtx = (api: Record<string, unknown>, log: unknown) => {
-      const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+      const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
       return new JailPage({
         ct,
-        cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+        cacheSession: {} as unknown as ICtxParams[`cacheSession`],
         cacheKeyboard: new Map(),
-        templateManager: tmGroup as ITCtxParams[`templateManager`],
-        log: log as unknown as ITCtxParams[`log`],
+        templateManager: tmGroup as ICtxParams[`templateManager`],
+        log: log as unknown as ICtxParams[`log`],
         temp: {isAnswer: false, session: {}, data: {}}
       })
     }
@@ -428,7 +428,7 @@ describe(`observe-hook`, () => {
 describe(`observe-bot-channel`, () => {
   class SendHookBot extends Gramstax {
     seen: Array<{err: unknown; info: unknown}> = []
-    override hookSendError = (err: unknown, info: ITSendErrorInfo): void => {
+    override hookSendError = (err: unknown, info: ISendErrorInfo): void => {
       this.seen.push({err, info})
     }
   }
@@ -436,18 +436,18 @@ describe(`observe-bot-channel`, () => {
   class ThisBot extends Gramstax {
     seenSelf: unknown = undefined
     seen: Array<{err: unknown; info: unknown}> = []
-    override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+    override hookSendError(err: unknown, info: ISendErrorInfo): void {
       this.seenSelf = this
       this.seen.push({err, info})
     }
   }
 
-  const makeBotCt = (api: Record<string, unknown>): ITCt =>
+  const makeBotCt = (api: Record<string, unknown>): ICt =>
     ({
       api,
       me: {id: 9, is_bot: true, first_name: `Bot`},
       update: {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
-    }) as unknown as ITCt
+    }) as unknown as ICt
 
   it(`forwards mediaRoots and hookSendError from Gramstax into createCtx`, () => {
     const bot = new SendHookBot({token: `123:abc`, deploy: `raw`, log: false, mediaRoots: [`r`]})
@@ -456,7 +456,7 @@ describe(`observe-bot-channel`, () => {
     expect(ctx.mediaRoots).toEqual([`r`])
     expect(typeof ctx.onSendError).toBe(`function`)
     const err = new Error(`x`)
-    const info = {page: `p`, kind: `fallback-text`, chatId: 1} as ITSendErrorInfo
+    const info = {page: `p`, kind: `fallback-text`, chatId: 1} as ISendErrorInfo
     ctx.onSendError?.(err, info)
     expect(bot.seen).toEqual([{err, info}])
   })

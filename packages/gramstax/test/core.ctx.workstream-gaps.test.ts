@@ -2,7 +2,7 @@ import {describe, expect, it, mock} from "bun:test"
 import {InputFile} from "grammy"
 import {Ctx} from "~/core/ctx"
 import {TemplateEngine} from "~/template/engine"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 class GapPage extends Ctx {
   static data = Ctx.buildData({name: `gapscan`})
@@ -10,14 +10,14 @@ class GapPage extends Ctx {
 
 const makeCtx = (update: Record<string, unknown>, extra?: {log?: unknown; onSendError?: unknown}): GapPage => {
   const tm = {getGMessage: mock(() => `hello`), getGMedia: mock(() => undefined)} as never
-  const ct = {api: {config: {use: () => {}}}, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api: {config: {use: () => {}}}, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new GapPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: ((extra?.log ?? null) as ITCtxParams[`log`]),
-    onSendError: ((extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`]),
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as ICtxParams[`log`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }

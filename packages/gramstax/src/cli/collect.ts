@@ -1,13 +1,13 @@
 import {mkdirSync, renameSync, writeFileSync} from "node:fs"
 import {join, relative, resolve, sep} from "node:path"
 import {PageManager} from "~/page/manager"
-import type {ITRouteManifestEntry} from "~/page/manifest"
+import type {IRouteManifestEntry} from "~/types/manifest"
 
 export class RouteCollector {
-  collect(pagesDir: string): Array<ITRouteManifestEntry> {
+  collect(pagesDir: string): Array<IRouteManifestEntry> {
     const root = resolve(pagesDir)
     const seen = new Map<string, string>()
-    const routes: Array<ITRouteManifestEntry> = []
+    const routes: Array<IRouteManifestEntry> = []
     for (const {path, page, routeName} of PageManager.getFileManySync(root)) {
       const file = relative(root, path).split(sep).join(`/`)
       const first = seen.get(routeName)
@@ -20,7 +20,7 @@ export class RouteCollector {
     return routes
   }
 
-  write(outDir: string, routes: Array<ITRouteManifestEntry>): void {
+  write(outDir: string, routes: Array<IRouteManifestEntry>): void {
     const dir = resolve(outDir)
     mkdirSync(dir, {recursive: true})
     const final = join(dir, `routes.json`)

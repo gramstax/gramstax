@@ -1,7 +1,7 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError, HttpError} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 class TextObservePage extends Ctx {
   static data = Ctx.buildData({name: `textobserve`})
@@ -26,14 +26,14 @@ const editUpdate = {callback_query: {id: `q`, data: `x`, chat_instance: `ci`, me
 
 const makeCtx = (api: Record<string, unknown>, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
   const tm = {getGMessage: mock(() => `hello`), getGMedia: mock(() => ({type: `photo`, src: `pic.jpg`, caption: `Hi`}))} as never
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new TextObservePage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: (extra?.log ?? null) as unknown as ITCtxParams[`log`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as unknown as ICtxParams[`log`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -50,9 +50,12 @@ describe(`text-render-observe`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).render()
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (e: unknown, info: unknown) => {
+          seen.push({err: e, info})
+        }
+      }).render()
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -73,9 +76,12 @@ describe(`text-render-observe`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).render()
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).render()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)
@@ -96,9 +102,12 @@ describe(`text-render-observe`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).renderRich()
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (e: unknown, info: unknown) => {
+          seen.push({err: e, info})
+        }
+      }).renderRich()
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -119,9 +128,12 @@ describe(`text-render-observe`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).renderRich()
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).renderRich()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)
@@ -136,7 +148,7 @@ describe(`text-render-observe`, () => {
       })
     })
     await expect(makeCtx(api).render()).rejects.toBe(err)
-    expect(await makeCtx(api).renderRich() as unknown).toEqual({message_id: 9})
+    expect((await makeCtx(api).renderRich()) as unknown).toEqual({message_id: 9})
   })
 })
 
@@ -149,7 +161,7 @@ describe(`text-edit-observe`, () => {
         throw new Error(`too old`)
       })
     })
-    const result = await makeCtx(api, {log: {warn}, onSendError: hook}, editUpdate).renderEdit(null) as unknown
+    const result = (await makeCtx(api, {log: {warn}, onSendError: hook}, editUpdate).renderEdit(null)) as unknown
     expect(result).toEqual({message_id: 9})
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
     expect(warn).toHaveBeenCalledTimes(1)
@@ -169,9 +181,15 @@ describe(`text-edit-observe`, () => {
       })
     })
     await expect(
-      makeCtx(api, {onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}, editUpdate).renderEdit(null)
+      makeCtx(
+        api,
+        {
+          onSendError: (_e: unknown, info: unknown) => {
+            seen.push(info)
+          }
+        },
+        editUpdate
+      ).renderEdit(null)
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `fallback-text`, chatId: 1}])
   })
@@ -190,9 +208,16 @@ describe(`text-edit-observe`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}, editUpdate).renderEdit(null)
+      makeCtx(
+        api,
+        {
+          log: {warn, error},
+          onSendError: (_e: unknown, info: unknown) => {
+            seen.push(info)
+          }
+        },
+        editUpdate
+      ).renderEdit(null)
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)
@@ -219,7 +244,7 @@ describe(`text-edit-observe`, () => {
         throw new Error(`too old`)
       })
     })
-    const result = await makeCtx(api, {log: {warn}, onSendError: hook}, editUpdate).renderEditRich(null) as unknown
+    const result = (await makeCtx(api, {log: {warn}, onSendError: hook}, editUpdate).renderEditRich(null)) as unknown
     expect(result).toEqual({message_id: 9})
     expect(api.sendRichMessage).toHaveBeenCalledTimes(1)
     expect(warn).toHaveBeenCalledTimes(1)
@@ -238,9 +263,15 @@ describe(`text-edit-observe`, () => {
       })
     })
     await expect(
-      makeCtx(api, {onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}, editUpdate).renderEditRich(null)
+      makeCtx(
+        api,
+        {
+          onSendError: (_e: unknown, info: unknown) => {
+            seen.push(info)
+          }
+        },
+        editUpdate
+      ).renderEditRich(null)
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `fallback-text`, chatId: 1}])
   })
@@ -257,9 +288,15 @@ describe(`text-edit-observe`, () => {
       })
     })
     await expect(
-      makeCtx(api, {onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}, editUpdate).renderEditRich(null)
+      makeCtx(
+        api,
+        {
+          onSendError: (_e: unknown, info: unknown) => {
+            seen.push(info)
+          }
+        },
+        editUpdate
+      ).renderEditRich(null)
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `retryable`, chatId: 1}])
   })
@@ -275,9 +312,11 @@ describe(`text-auto-observe-once`, () => {
       })
     })
     await expect(
-      makeCtx(api, {onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).renderAuto()
+      makeCtx(api, {
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).renderAuto()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `fallback-text`, chatId: 1}])
   })
@@ -294,9 +333,15 @@ describe(`text-auto-observe-once`, () => {
       })
     })
     await expect(
-      makeCtx(api, {onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}, editUpdate).renderAuto()
+      makeCtx(
+        api,
+        {
+          onSendError: (_e: unknown, info: unknown) => {
+            seen.push(info)
+          }
+        },
+        editUpdate
+      ).renderAuto()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `retryable`, chatId: 1}])
   })
@@ -310,9 +355,11 @@ describe(`text-auto-observe-once`, () => {
       })
     })
     await expect(
-      makeCtx(api, {onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).renderAutoRich()
+      makeCtx(api, {
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).renderAutoRich()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `fallback-text`, chatId: 1}])
   })
@@ -329,9 +376,15 @@ describe(`text-auto-observe-once`, () => {
       })
     })
     await expect(
-      makeCtx(api, {onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}, editUpdate).renderAutoRich()
+      makeCtx(
+        api,
+        {
+          onSendError: (_e: unknown, info: unknown) => {
+            seen.push(info)
+          }
+        },
+        editUpdate
+      ).renderAutoRich()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `textobserve`, kind: `retryable`, chatId: 1}])
   })

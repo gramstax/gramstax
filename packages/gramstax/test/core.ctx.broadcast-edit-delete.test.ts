@@ -1,7 +1,7 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 class EditPage extends Ctx {
   static data = Ctx.buildData({name: `broadcast-edit`})
@@ -31,13 +31,13 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
 const makeCtx = (med: unknown, api: Record<string, unknown>, log?: unknown) => {
   const tm = {getGMessage: mock(() => `hello`), getGMedia: mock(() => med)}
   const update = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new EditPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as unknown as ITCtxParams[`templateManager`],
-    log: (log ?? null) as ITCtxParams[`log`],
+    templateManager: tm as unknown as ICtxParams[`templateManager`],
+    log: (log ?? null) as ICtxParams[`log`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -143,7 +143,11 @@ describe(`broadcast-edit-resume-progress-concurrency`, () => {
     const res = await makeCtx(photoMed(), api).renderBroadcastEdit(targets(6), `photo`, null, null, null, null, null, {concurrency: 3})
     expect(res).toEqual({successCount: 6, failedCount: 0, totalCount: 6, skippedCount: 0, retryable: []})
     expect(api.editMessageMedia).toHaveBeenCalledTimes(6)
-    expect(calls(api, `editMessageMedia`).map((c) => c[0]).sort()).toEqual([101, 102, 103, 104, 105, 106])
+    expect(
+      calls(api, `editMessageMedia`)
+        .map((c) => c[0])
+        .sort()
+    ).toEqual([101, 102, 103, 104, 105, 106])
   })
 
   it(`fires at the free-limit boundary and at completion`, async () => {
@@ -337,7 +341,11 @@ describe(`broadcast-delete`, () => {
     const api = makeApi()
     const res = await makeCtx(photoMed(), api).renderBroadcastDelete(targets(4), {concurrency: 2})
     expect(res).toEqual({successCount: 4, failedCount: 0, totalCount: 4, skippedCount: 0, retryable: []})
-    expect(calls(api, `deleteMessage`).map((c) => c[0]).sort()).toEqual([101, 102, 103, 104])
+    expect(
+      calls(api, `deleteMessage`)
+        .map((c) => c[0])
+        .sort()
+    ).toEqual([101, 102, 103, 104])
   })
 
   it(`fires at the free-limit boundary and at completion`, async () => {

@@ -5,7 +5,7 @@ import {join} from "node:path"
 import {Gramstax} from "~/core/bot"
 import {Ctx} from "~/core/ctx"
 import {TemplateManager} from "~/template/manager"
-import type {ITCt, ITCtxParams} from "~/types/t.ctx"
+import type {ICt, ICtxParams} from "~/types/ctx"
 
 const TEST_PAGES_DIR = join(import.meta.dir, `ctx-plumbing-pages`)
 
@@ -32,15 +32,15 @@ type FakeDb = {ping: string}
 class DbBot extends PlumbingBot {
   db: FakeDb = {ping: `pong`}
   // Generic signature is required: a concrete return cannot extend the base `ITCtxParams & T` for all T.
-  override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, _extra?: T): ITCtxParams & T & {db: FakeDb} {
-    return super.buildCtxParams(ct, {db: this.db}) as ITCtxParams & T & {db: FakeDb}
+  override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ICt, _extra?: T): ICtxParams & T & {db: FakeDb} {
+    return super.buildCtxParams(ct, {db: this.db}) as ICtxParams & T & {db: FakeDb}
   }
 }
 
 class DbPage extends Ctx {
   static data = {name: `dbpage`} as never
   declare db: FakeDb
-  constructor(params: ITCtxParams & {db: FakeDb}) {
+  constructor(params: ICtxParams & {db: FakeDb}) {
     super(params)
     this.db = params.db
   }
@@ -48,7 +48,7 @@ class DbPage extends Ctx {
 
 const BOT_INFO = {id: 123456789, is_bot: true, first_name: `Bot`, username: `test_bot`}
 
-const makeBot = (extra: Record<string, unknown> = {}, hook?: NonNullable<ITCtxParams[`onSendError`]>): PlumbingBot => {
+const makeBot = (extra: Record<string, unknown> = {}, hook?: NonNullable<ICtxParams[`onSendError`]>): PlumbingBot => {
   const tm = new TemplateManager({path: [TEST_PAGES_DIR]})
   const bot = new PlumbingBot({
     token: `test:token`,
@@ -62,14 +62,14 @@ const makeBot = (extra: Record<string, unknown> = {}, hook?: NonNullable<ITCtxPa
   return bot
 }
 
-const makeCt = (): ITCt =>
+const makeCt = (): ICt =>
   ({
     api: {config: {use: () => {}}},
     me: {id: 9, is_bot: true, first_name: `Bot`},
     update: {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
-  }) as unknown as ITCt
+  }) as unknown as ICt
 
-type BuildFn = <T extends Record<string, unknown>>(ct: ITCt, extra?: T) => ITCtxParams & T
+type BuildFn = <T extends Record<string, unknown>>(ct: ICt, extra?: T) => ICtxParams & T
 
 const buildOf = (bot: PlumbingBot): BuildFn => (bot as never as {buildCtxParams: BuildFn}).buildCtxParams.bind(bot)
 
@@ -92,7 +92,7 @@ describe(`ctx-plumbing-builder`, () => {
   it(`preserves null-semantics per field`, () => {
     const roots = [`./a`]
     const seen: Array<{err: unknown; info: unknown}> = []
-    const hook: NonNullable<ITCtxParams[`onSendError`]> = (err, info) => {
+    const hook: NonNullable<ICtxParams[`onSendError`]> = (err, info) => {
       seen.push({err, info})
     }
     const keyboard = new Map<string, unknown>()
@@ -101,7 +101,7 @@ describe(`ctx-plumbing-builder`, () => {
     expect(params.mediaRoots).toBe(roots)
     expect(typeof params.onSendError).toBe(`function`)
     const err = new Error(`x`)
-    const info = {page: `p`, kind: `fallback-text`, chatId: 1} as Parameters<NonNullable<ITCtxParams[`onSendError`]>>[1]
+    const info = {page: `p`, kind: `fallback-text`, chatId: 1} as Parameters<NonNullable<ICtxParams[`onSendError`]>>[1]
     params.onSendError?.(err, info)
     expect(seen).toEqual([{err, info}])
     expect(params.cacheKeyboard).toBe(keyboard)
@@ -141,7 +141,7 @@ describe(`ctx-plumbing-extra`, () => {
 
   it(`manual subclass assignment wires db with identity and typing`, () => {
     const bot = makeDbBot()
-    const params = buildOf(bot)(makeCt()) as ITCtxParams & {db: FakeDb}
+    const params = buildOf(bot)(makeCt()) as ICtxParams & {db: FakeDb}
     expect(params.db).toBe(bot.db)
     const page = new DbPage(params)
     expect(page.db).toBe(bot.db)

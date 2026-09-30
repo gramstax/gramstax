@@ -1,7 +1,7 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError, HttpError, InputFile} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 class GiveawayStoryPage extends Ctx {
   static data = Ctx.buildData({name: `giveawaystory`})
@@ -25,14 +25,14 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
 })
 
 const makeCtx = (api: Record<string, unknown>, extra?: {log?: unknown; onSendError?: unknown}) => {
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ICtxParams[`ct`]
   return new GiveawayStoryPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {} as unknown as ITCtxParams[`templateManager`],
-    log: (extra?.log ?? null) as unknown as ITCtxParams[`log`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    templateManager: {} as unknown as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as unknown as ICtxParams[`log`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -108,14 +108,19 @@ describe(`giveaway-start`, () => {
     const warn = mock(() => {})
     const error = mock(() => {})
     const api = makeApi({
-      raw: {sendGiveaway: mock(async () => {
-        throw err
-      })}
+      raw: {
+        sendGiveaway: mock(async () => {
+          throw err
+        })
+      }
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).startGiveaway(giveawayParams())
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (e: unknown, info: unknown) => {
+          seen.push({err: e, info})
+        }
+      }).startGiveaway(giveawayParams())
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -130,14 +135,19 @@ describe(`giveaway-start`, () => {
     const warn = mock(() => {})
     const error = mock(() => {})
     const api = makeApi({
-      raw: {sendGiveaway: mock(async () => {
-        throw err
-      })}
+      raw: {
+        sendGiveaway: mock(async () => {
+          throw err
+        })
+      }
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).startGiveaway(giveawayParams())
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).startGiveaway(giveawayParams())
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `giveawaystory`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)
@@ -222,9 +232,12 @@ describe(`business-story-post`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).postBusinessStory(`conn-1`, {type: `photo`, src: `AgAC123`}, 86400)
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (e: unknown, info: unknown) => {
+          seen.push({err: e, info})
+        }
+      }).postBusinessStory(`conn-1`, {type: `photo`, src: `AgAC123`}, 86400)
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -244,9 +257,12 @@ describe(`business-story-post`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).postBusinessStory(`conn-1`, {type: `photo`, src: `AgAC123`}, 86400)
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).postBusinessStory(`conn-1`, {type: `photo`, src: `AgAC123`}, 86400)
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `giveawaystory`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)
@@ -307,9 +323,12 @@ describe(`business-story-edit`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).editBusinessStory(`conn-1`, 21, {type: `photo`, src: `AgAC9`})
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (e: unknown, info: unknown) => {
+          seen.push({err: e, info})
+        }
+      }).editBusinessStory(`conn-1`, 21, {type: `photo`, src: `AgAC9`})
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -329,9 +348,12 @@ describe(`business-story-edit`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).editBusinessStory(`conn-1`, 21, {type: `photo`, src: `AgAC9`})
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).editBusinessStory(`conn-1`, 21, {type: `photo`, src: `AgAC9`})
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `giveawaystory`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)
@@ -371,9 +393,12 @@ describe(`business-story-delete`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).deleteBusinessStory(`conn-1`, 21)
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (e: unknown, info: unknown) => {
+          seen.push({err: e, info})
+        }
+      }).deleteBusinessStory(`conn-1`, 21)
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -393,9 +418,12 @@ describe(`business-story-delete`, () => {
       })
     })
     await expect(
-      makeCtx(api, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }      }).deleteBusinessStory(`conn-1`, 21)
+      makeCtx(api, {
+        log: {warn, error},
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).deleteBusinessStory(`conn-1`, 21)
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `giveawaystory`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)
@@ -408,7 +436,7 @@ describe(`stars-transactions`, () => {
     const api = makeApi({getStarTransactions: mock(async () => ({transactions: []}) as never)})
     const res = await makeCtx(api).getStarTransactions({limit: 100})
     expect(res).toEqual({transactions: []})
-    const calls = ((api as any).getStarTransactions.mock.calls as any)
+    const calls = (api as any).getStarTransactions.mock.calls as any
     expect(calls).toHaveLength(1)
     expect(calls[0][0]).toEqual({limit: 100})
   })
@@ -416,6 +444,6 @@ describe(`stars-transactions`, () => {
   it(`calls without options`, async () => {
     const api = makeApi({getStarTransactions: mock(async () => ({transactions: []}) as never)})
     await makeCtx(api).getStarTransactions()
-    expect(((api as any).getStarTransactions.mock.calls as any)).toHaveLength(1)
+    expect((api as any).getStarTransactions.mock.calls as any).toHaveLength(1)
   })
 })

@@ -2,8 +2,8 @@ import {describe, expect, it, mock} from "bun:test"
 import {GrammyError, HttpError} from "grammy"
 import {Ctx} from "~/core/ctx"
 import {TemplateEngine} from "~/template/engine"
-import type {ITDiceBlock, ITPollBlock, ITVenueBlock} from "~/template/engine"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
+import type {IDiceBlock, IPollBlock, IVenueBlock} from "~/types/template"
 
 class ExtraPage extends Ctx {
   static data = Ctx.buildData({name: `extrapage`})
@@ -13,9 +13,9 @@ const grammyError = (code: number) => new GrammyError(`Call failed!`, {error_cod
 
 const httpError = () => new HttpError(`net down`, new Error(`socket`))
 
-const regularPoll: ITPollBlock = {type: `regular`, question: `Pick one?`, options: [`Alpha`, `Beta`], anonymous: true}
+const regularPoll: IPollBlock = {type: `regular`, question: `Pick one?`, options: [`Alpha`, `Beta`], anonymous: true}
 
-const quizPoll: ITPollBlock = {type: `quiz`, question: `What is 2+2?`, options: [`3`, `4`], correct: 1, explanation: `Arithmetic`, anonymous: true}
+const quizPoll: IPollBlock = {type: `quiz`, question: `What is 2+2?`, options: [`3`, `4`], correct: 1, explanation: `Arithmetic`, anonymous: true}
 
 const messageUpdate = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
 
@@ -33,19 +33,19 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
 })
 
 const makeCtx = (tm: unknown, api: Record<string, unknown>, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new ExtraPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: (extra?.log ?? null) as unknown as ITCtxParams[`log`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as unknown as ICtxParams[`log`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
 
-const makePollCtx = (api: Record<string, unknown>, poll: ITPollBlock, extra?: {log?: unknown; onSendError?: unknown}) => makeCtx({getGPoll: mock(() => poll), getGMedia: mock(() => undefined)}, api, extra)
+const makePollCtx = (api: Record<string, unknown>, poll: IPollBlock, extra?: {log?: unknown; onSendError?: unknown}) => makeCtx({getGPoll: mock(() => poll), getGMedia: mock(() => undefined)}, api, extra)
 
 const makeMediaCtx = (api: Record<string, unknown>, med: unknown, extra?: {log?: unknown; onSendError?: unknown}) => makeCtx({getGPoll: mock(() => regularPoll), getGMedia: mock(() => med)}, api, extra)
 
@@ -123,9 +123,11 @@ describe(`broadcast-poll`, () => {
         throw err
       })
     })
-    await makePollCtx(api, regularPoll, {onSendError: (_e: unknown, info: unknown) => {
-      seen.push(info)
-    }}).renderBroadcastPoll([5], [`en`])
+    await makePollCtx(api, regularPoll, {
+      onSendError: (_e: unknown, info: unknown) => {
+        seen.push(info)
+      }
+    }).renderBroadcastPoll([5], [`en`])
     expect(seen).toEqual([{page: `extrapage`, kind: `retryable`, chatId: 5}])
   })
 
@@ -156,7 +158,10 @@ describe(`broadcast-poll`, () => {
     const progress = mock(() => {})
     const res = await makePollCtx(api, regularPoll).renderBroadcastPoll([1, 2, 3, 4], [`en`, `en`, `en`, `en`], null, null, null, null, false, 2, 1, null, progress)
     expect(res.successCount).toBe(4)
-    expect(progress.mock.calls as Array<Array<number>>).toEqual([[2, 4], [4, 4]])
+    expect(progress.mock.calls as Array<Array<number>>).toEqual([
+      [2, 4],
+      [4, 4]
+    ])
   })
 
   it(`paces at the free limit`, async () => {
@@ -175,7 +180,9 @@ describe(`broadcast-poll`, () => {
         throw err
       })
     })
-    const caught = await makePollCtx(api, regularPoll).renderBroadcastPoll([1], [`en`], null, null, null, null, true).catch((e: unknown) => e)
+    const caught = await makePollCtx(api, regularPoll)
+      .renderBroadcastPoll([1], [`en`], null, null, null, null, true)
+      .catch((e: unknown) => e)
     expect((caught as {failedCount: number}).failedCount).toBe(1)
     expect((caught as {err: unknown}).err).toBe(err)
   })
@@ -243,36 +250,36 @@ describe(`live-location`, () => {
   })
 })
 
-const makeVenueCtx = (api: Record<string, unknown>, venue: ITVenueBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
+const makeVenueCtx = (api: Record<string, unknown>, venue: IVenueBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
   const tm = {getGVenue: mock(() => venue)} as never
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new ExtraPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: (extra?.log ?? null) as unknown as ITCtxParams[`log`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as unknown as ICtxParams[`log`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
 
-const makeDiceCtx = (api: Record<string, unknown>, dice: ITDiceBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
+const makeDiceCtx = (api: Record<string, unknown>, dice: IDiceBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
   const tm = {getGDice: mock(() => dice)} as never
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new ExtraPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: (extra?.log ?? null) as unknown as ITCtxParams[`log`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as unknown as ICtxParams[`log`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
 
 describe(`venue-render`, () => {
-  const venueBlock: ITVenueBlock = {title: `Cafe`, address: `Jl. Merdeka 1`, latitude: `-6.2`, longitude: `106.8`}
+  const venueBlock: IVenueBlock = {title: `Cafe`, address: `Jl. Merdeka 1`, latitude: `-6.2`, longitude: `106.8`}
 
   it(`sends a venue from the compiled block with keyboard and options passthrough`, async () => {
     const api = makeApi()
@@ -287,14 +294,14 @@ describe(`venue-render`, () => {
   it(`forwards base id data and language to getGVenue`, async () => {
     const api = makeApi()
     const tm = {getGVenue: mock(() => venueBlock)}
-    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`, language_code: `id`}}}} as unknown as ITCtxParams[`ct`]
+    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`, language_code: `id`}}}} as unknown as ICtxParams[`ct`]
     const ctx = new ExtraPage({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: tm as unknown as ITCtxParams[`templateManager`],
-      log: null as unknown as ITCtxParams[`log`],
-      onSendError: null as unknown as ITCtxParams[`onSendError`],
+      templateManager: tm as unknown as ICtxParams[`templateManager`],
+      log: null as unknown as ICtxParams[`log`],
+      onSendError: null as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     await ctx.renderVenue(null, {name: `Kafe`}, `promo`)
@@ -329,17 +336,19 @@ describe(`venue-render`, () => {
 
   it(`throws before any api call when the block is missing`, async () => {
     const api = makeApi()
-    const tm = {getGVenue: mock(() => {
-      throw new Error(`Venue function not found for template "extrapage" (base "default", lang "default")`)
-    })}
-    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ITCtxParams[`ct`]
+    const tm = {
+      getGVenue: mock(() => {
+        throw new Error(`Venue function not found for template "extrapage" (base "default", lang "default")`)
+      })
+    }
+    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ICtxParams[`ct`]
     const ctx = new ExtraPage({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: tm as unknown as ITCtxParams[`templateManager`],
-      log: null as unknown as ITCtxParams[`log`],
-      onSendError: null as unknown as ITCtxParams[`onSendError`],
+      templateManager: tm as unknown as ICtxParams[`templateManager`],
+      log: null as unknown as ICtxParams[`log`],
+      onSendError: null as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     await expect(ctx.renderVenue()).rejects.toThrow(/Venue function not found/)
@@ -357,9 +366,12 @@ describe(`venue-render`, () => {
       })
     })
     await expect(
-      makeVenueCtx(api, venueBlock, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).renderVenue()
+      makeVenueCtx(api, venueBlock, {
+        log: {warn, error},
+        onSendError: (e: unknown, info: unknown) => {
+          seen.push({err: e, info})
+        }
+      }).renderVenue()
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -379,9 +391,12 @@ describe(`venue-render`, () => {
       })
     })
     await expect(
-      makeVenueCtx(api, venueBlock, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).renderVenue()
+      makeVenueCtx(api, venueBlock, {
+        log: {warn, error},
+        onSendError: (_e: unknown, info: unknown) => {
+          seen.push(info)
+        }
+      }).renderVenue()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `extrapage`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)
@@ -413,14 +428,14 @@ describe(`dice-render`, () => {
   it(`forwards base id data and language to getGDice`, async () => {
     const api = makeApi()
     const tm = {getGDice: mock(() => ({emoji: `🏀`}))}
-    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`, language_code: `id`}}}} as unknown as ITCtxParams[`ct`]
+    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`, language_code: `id`}}}} as unknown as ICtxParams[`ct`]
     const ctx = new ExtraPage({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: tm as unknown as ITCtxParams[`templateManager`],
-      log: null as unknown as ITCtxParams[`log`],
-      onSendError: null as unknown as ITCtxParams[`onSendError`],
+      templateManager: tm as unknown as ICtxParams[`templateManager`],
+      log: null as unknown as ICtxParams[`log`],
+      onSendError: null as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     await ctx.renderDice(null, {dice: `🏀`}, `lucky`)
@@ -442,17 +457,19 @@ describe(`dice-render`, () => {
 
   it(`throws before any api call when the block is missing`, async () => {
     const api = makeApi()
-    const tm = {getGDice: mock(() => {
-      throw new Error(`Dice function not found for template "extrapage" (base "default", lang "default")`)
-    })}
-    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ITCtxParams[`ct`]
+    const tm = {
+      getGDice: mock(() => {
+        throw new Error(`Dice function not found for template "extrapage" (base "default", lang "default")`)
+      })
+    }
+    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ICtxParams[`ct`]
     const ctx = new ExtraPage({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: tm as unknown as ITCtxParams[`templateManager`],
-      log: null as unknown as ITCtxParams[`log`],
-      onSendError: null as unknown as ITCtxParams[`onSendError`],
+      templateManager: tm as unknown as ICtxParams[`templateManager`],
+      log: null as unknown as ICtxParams[`log`],
+      onSendError: null as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     await expect(ctx.renderDice()).rejects.toThrow(/Dice function not found/)
@@ -470,9 +487,16 @@ describe(`dice-render`, () => {
       })
     })
     await expect(
-      makeDiceCtx(api, {emoji: `🎰`}, {log: {warn, error}, onSendError: (e: unknown, info: unknown) => {
-        seen.push({err: e, info})
-      }}).renderDice()
+      makeDiceCtx(
+        api,
+        {emoji: `🎰`},
+        {
+          log: {warn, error},
+          onSendError: (e: unknown, info: unknown) => {
+            seen.push({err: e, info})
+          }
+        }
+      ).renderDice()
     ).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
@@ -492,9 +516,16 @@ describe(`dice-render`, () => {
       })
     })
     await expect(
-      makeDiceCtx(api, {emoji: `🎲`}, {log: {warn, error}, onSendError: (_e: unknown, info: unknown) => {
-        seen.push(info)
-      }}).renderDice()
+      makeDiceCtx(
+        api,
+        {emoji: `🎲`},
+        {
+          log: {warn, error},
+          onSendError: (_e: unknown, info: unknown) => {
+            seen.push(info)
+          }
+        }
+      ).renderDice()
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `extrapage`, kind: `retryable`, chatId: 1}])
     expect(error).toHaveBeenCalledTimes(1)

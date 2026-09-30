@@ -1,12 +1,11 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
-import {cpSync, mkdtempSync, rmSync} from "node:fs"
-import {readFileSync, readdirSync, statSync, writeFileSync} from "node:fs"
+import {cpSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
 import {Gramstax} from "~/core/bot"
-import type {ITAppManifest} from "~/page/manifest"
 import {TemplateManager} from "~/template/manager"
+import type {IAppManifest} from "~/types/manifest"
 
 const FIXTURES = join(import.meta.dir, `fixtures`, `manifest`, `pages`)
 const CTX_ABS = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
@@ -30,10 +29,10 @@ function snapPages(bot: Gramstax) {
 
 function templateKeys(bot: Gramstax) {
   const tm = (bot as unknown as {templateManager: TemplateManager}).templateManager
-  return [...((tm as unknown as {_map: Map<string, unknown>})._map.keys())].sort()
+  return [...(tm as unknown as {_map: Map<string, unknown>})._map.keys()].sort()
 }
 
-async function buildManifest(root: string): Promise<ITAppManifest> {
+async function buildManifest(root: string): Promise<IAppManifest> {
   const start = (await import(join(root, `start.ts`))) as {MStartPage: typeof import("~/core/ctx").Ctx}
   const users = (await import(join(root, `admin`, `users.ts`))) as {MUsersPage: typeof import("~/core/ctx").Ctx}
   const card = (await import(join(root, `card.ts`))) as {MCardPage: typeof import("~/core/ctx").Ctx}

@@ -1,7 +1,7 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 // ── Test page class ──────────────────────────────────────────────────
 
@@ -22,16 +22,16 @@ function createTestCtx(extra?: {onSendError?: unknown}) {
     api,
     me: {id: 1, is_bot: true, first_name: `Bot`} as any,
     update: {message: {message_id: 1, chat: {id: 1, type: `private`}, text: `test`, from: {id: 1, is_bot: false, first_name: `Test`}}} as any
-  } as unknown as ITCtxParams[`ct`]
+  } as unknown as ICtxParams[`ct`]
 
   const ctx = new GiftPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
     templateManager: {
       getGGift: () => `gift card hello`
-    } as unknown as ITCtxParams[`templateManager`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    } as unknown as ICtxParams[`templateManager`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 

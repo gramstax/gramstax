@@ -1,13 +1,12 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {spawnSync} from "node:child_process"
-import {cpSync, mkdtempSync, rmSync} from "node:fs"
-import {mkdirSync, readFileSync, readdirSync, statSync, writeFileSync} from "node:fs"
+import {cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
 import {Gramstax} from "~/core/bot"
-import type {ITAppManifest} from "~/page/manifest"
 import {TemplateManager} from "~/template/manager"
+import type {IAppManifest} from "~/types/manifest"
 
 const FIXTURES = join(import.meta.dir, `fixtures`, `manifest`, `pages`)
 const CTX_ABS = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
@@ -65,8 +64,8 @@ describe(`build-manifest generator`, () => {
     expect(stats.pages).toBe(3)
     expect(stats.templates).toBe(1)
 
-    const manifest = (await import(outFile)) as {default?: ITAppManifest} & ITAppManifest
-    const data: ITAppManifest = manifest.default ?? manifest
+    const manifest = (await import(outFile)) as {default?: IAppManifest} & IAppManifest
+    const data: IAppManifest = manifest.default ?? manifest
     expect(data.pages.map((entry) => entry.routeName).sort()).toEqual([`admin/users`, `card`, `start`])
     expect(data.templates.map((entry) => entry.key)).toEqual([`card`])
     expect(data.templates[0]!.template).toBe(readFileSync(join(genDir, `card.html`), `utf-8`))

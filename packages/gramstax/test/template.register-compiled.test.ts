@@ -2,10 +2,10 @@ import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
-import {FILTERS, __esc} from "~/index"
+import {__esc, FILTERS} from "~/index"
 import {TemplateEngine} from "~/template/engine"
 import {TemplateManager} from "~/template/manager"
-import type {ITCompiledTemplate} from "~/types/t.template"
+import type {ICompiledTemplate} from "~/types/template"
 
 const TEMPLATE = [`<g-base>`, `  <g-message>Hello {{name|upper}}!</g-message>`, `  <g-keyboard>`, `    <g-map src="rows">{{e.name}}</g-map>`, `  </g-keyboard>`, `</g-base>`].join(`\n`)
 
@@ -13,12 +13,12 @@ const DATA = {name: `ann`, rows: [{name: `Alice`}, {name: `Bob`}]}
 
 let dir: string
 
-function buildCompiled(template: string): ITCompiledTemplate {
+function buildCompiled(template: string): ICompiledTemplate {
   const baseBlocks = TemplateEngine._processGBaseBlocks(template)
   return {
     keyboard: TemplateEngine.compileBlockGKeyboards(template, baseBlocks),
     message: TemplateEngine.compileBlockGMessage(template, baseBlocks)
-  } as unknown as ITCompiledTemplate
+  } as unknown as ICompiledTemplate
 }
 
 beforeEach(() => {
@@ -50,9 +50,12 @@ describe(`_registerCompiled`, () => {
 
   it(`fills _map with no validation and no reload`, () => {
     let reloads = 0
-    const manager = new TemplateManager({path: [dir], onReload: () => {
-      reloads += 1
-    }})
+    const manager = new TemplateManager({
+      path: [dir],
+      onReload: () => {
+        reloads += 1
+      }
+    })
     let validations = 0
     const original = manager._validateTemplate.bind(manager)
     manager._validateTemplate = ((...args: Parameters<typeof manager._validateTemplate>): void => {

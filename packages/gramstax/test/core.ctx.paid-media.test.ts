@@ -1,8 +1,8 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError, HttpError, InputFile} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITPaidMediaBlock} from "~/template/engine"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
+import type {IPaidMediaBlock} from "~/types/template"
 
 class PaidMediaPage extends Ctx {
   static data = Ctx.buildData({name: `paidmediapage`})
@@ -12,7 +12,7 @@ const grammyError = (code: number) => new GrammyError(`Call failed!`, {error_cod
 
 const httpError = () => new HttpError(`net down`, new Error(`socket`))
 
-const wall: ITPaidMediaBlock = {
+const wall: IPaidMediaBlock = {
   stars: 100,
   media: [
     {type: `photo`, src: `file_1`, caption: `Bayar untuk membuka`},
@@ -31,16 +31,16 @@ const messageUpdate = {message: {message_id: 1, date: 1, chat: {id: 1, type: `pr
 
 const noChatUpdate = {message: {message_id: 1, date: 1, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
 
-const makeCtx = (api: Record<string, unknown>, paidMedia: ITPaidMediaBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
+const makeCtx = (api: Record<string, unknown>, paidMedia: IPaidMediaBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
   const tm = {getGPaidMedia: mock(() => paidMedia)} as never
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new PaidMediaPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: (extra?.log ?? null) as unknown as ITCtxParams[`log`],
-    onSendError: (extra?.onSendError ?? null) as unknown as ITCtxParams[`onSendError`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (extra?.log ?? null) as unknown as ICtxParams[`log`],
+    onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -63,7 +63,7 @@ describe(`paid-media-render`, () => {
 
   it(`resolves a local file src into an InputFile upload`, async () => {
     const api = makeApi()
-    const local: ITPaidMediaBlock = {stars: 100, media: [{type: `photo`, src: import.meta.path, caption: `Lokal`}]}
+    const local: IPaidMediaBlock = {stars: 100, media: [{type: `photo`, src: import.meta.path, caption: `Lokal`}]}
     await makeCtx(api, local).renderPaidMedia()
     const args = (api.sendPaidMedia.mock.calls as any)[0]
     expect(args[2][0].media instanceof InputFile).toBe(true)
@@ -75,14 +75,14 @@ describe(`paid-media-render`, () => {
     const api = makeApi()
     const getGPaidMedia = mock(() => wall)
     const tm = {getGPaidMedia} as never
-    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ITCtxParams[`ct`]
+    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update: messageUpdate} as unknown as ICtxParams[`ct`]
     const ctx = new PaidMediaPage({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: tm as ITCtxParams[`templateManager`],
-      log: null as unknown as ITCtxParams[`log`],
-      onSendError: null as unknown as ITCtxParams[`onSendError`],
+      templateManager: tm as ICtxParams[`templateManager`],
+      log: null as unknown as ICtxParams[`log`],
+      onSendError: null as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     await ctx.renderPaidMedia(null, {teaser: `t.jpg`}, `promo`, {payload: `p`} as never)
@@ -123,14 +123,14 @@ describe(`paid-media-render`, () => {
   it(`throws before any api call when media exceed ten items`, async () => {
     const api = makeApi()
     const media = Array.from({length: 11}, () => ({type: `photo`, src: `f`, caption: undefined}))
-    await expect(makeCtx(api, {stars: 100, media: media as ITPaidMediaBlock[`media`]}).renderPaidMedia()).rejects.toThrow(/1-10 items/)
+    await expect(makeCtx(api, {stars: 100, media: media as IPaidMediaBlock[`media`]}).renderPaidMedia()).rejects.toThrow(/1-10 items/)
     expect(api.sendPaidMedia).not.toHaveBeenCalled()
   })
 
   it(`throws before any api call when an item type is not photo or video`, async () => {
     const api = makeApi()
     const bad = {stars: 100, media: [{type: `audio`, src: `a.mp3`} as any]}
-    await expect(makeCtx(api, bad as ITPaidMediaBlock).renderPaidMedia()).rejects.toThrow(/must be "photo" or "video"/)
+    await expect(makeCtx(api, bad as IPaidMediaBlock).renderPaidMedia()).rejects.toThrow(/must be "photo" or "video"/)
     expect(api.sendPaidMedia).not.toHaveBeenCalled()
   })
 

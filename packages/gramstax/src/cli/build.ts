@@ -1,17 +1,12 @@
 import {existsSync, readFileSync, rmSync} from "node:fs"
 import {join, resolve} from "node:path"
 import {pathToFileURL} from "node:url"
+import type {IGramstaxBuildOptions, IGramstaxBuildPlan} from "~/types/cli"
+import type {IGramstaxConfig} from "~/types/config"
 import {generate} from "../../scripts/build-manifest"
-import type {ITGramstaxConfig} from "./config"
 import {CONFIG_OVERRIDE_SLOTS, GramstaxConfigLoader} from "./config"
 import {LambdaTarget} from "./targets/lambda"
 import {WorkerTarget} from "./targets/worker"
-
-export type ITGramstaxBuildOptions = {dryRun?: boolean; raw?: boolean; target?: string; bundle?: boolean}
-
-export type ITGramstaxPlanSource = `config` | `default`
-
-export type ITGramstaxBuildPlan = {pagesDir: string; outDir: string; targets: string[]; deploy: string; deploySource: ITGramstaxPlanSource; adapter: string; adapterSource: ITGramstaxPlanSource | `flag`; name: string; nameSource: ITGramstaxPlanSource; url: string; urlSource: ITGramstaxPlanSource}
 
 const BUILD_TARGETS = [`lambda`, `cloudflare-workers`]
 
@@ -21,7 +16,7 @@ export class GramstaxBuild {
     if (options.target !== undefined && BUILD_TARGETS.includes(options.target) === false) {
       throw new Error(`gramstax build: unknown target ${options.target} (supported: ${BUILD_TARGETS.join(`, `)})`)
     }
-    const config: ITGramstaxConfig = await new GramstaxConfigLoader().loadConfig(cwd)
+    const config: IGramstaxConfig = await new GramstaxConfigLoader().loadConfig(cwd)
     const pagesDir = `src/pages`
     const outDir = `.gramstax`
     if (options.raw === true) {
@@ -61,7 +56,7 @@ export class GramstaxBuild {
     }
     const resolved = this._resolveDeployTargets(options.target, config.optionsDeploy)
     if (resolved.targets.includes(`cloudflare-workers`) === true) {
-      const ignored = CONFIG_OVERRIDE_SLOTS.filter((slot) => config[slot as keyof ITGramstaxConfig] !== undefined)
+      const ignored = CONFIG_OVERRIDE_SLOTS.filter((slot) => config[slot as keyof IGramstaxConfig] !== undefined)
       for (const slot of ignored) {
         console.warn(`gramstax build: custom \`${slot}\` ignored on cloudflare-workers (edge boots from frozen manifest output)`)
       }
@@ -73,7 +68,7 @@ export class GramstaxBuild {
     return typeof url === `string` && /^https?:\/\/.+/.test(url) && url.includes(`<`) === false
   }
 
-  _resolveDeployTargets(target: string | undefined, optionsDeploy: ITGramstaxConfig[`optionsDeploy`]): {targets: string[]; adapter?: string; name?: string; url?: string} {
+  _resolveDeployTargets(target: string | undefined, optionsDeploy: IGramstaxConfig[`optionsDeploy`]): {targets: string[]; adapter?: string; name?: string; url?: string} {
     const fromTarget = target === `cloudflare-workers` ? `cloudflare-mod` : target === `lambda` ? `aws-lambda-async` : undefined
     const adapter = optionsDeploy?.adapter
     if (fromTarget !== undefined) {
@@ -152,8 +147,8 @@ export class GramstaxBuild {
     }
   }
 
-  _parseArgv(argv: string[]): ITGramstaxBuildOptions {
-    const options: ITGramstaxBuildOptions = {}
+  _parseArgv(argv: string[]): IGramstaxBuildOptions {
+    const options: IGramstaxBuildOptions = {}
     let index = 0
     while (index < argv.length) {
       const arg = argv[index] ?? ``
@@ -177,7 +172,7 @@ export class GramstaxBuild {
     return options
   }
 
-  _printPlan(plan: ITGramstaxBuildPlan): void {
+  _printPlan(plan: IGramstaxBuildPlan): void {
     console.log(`gramstax build plan`)
     console.log(`pagesDir: ${plan.pagesDir}`)
     console.log(`outDir: ${plan.outDir}`)

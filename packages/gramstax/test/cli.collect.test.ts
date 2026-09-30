@@ -1,13 +1,13 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
-import {cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync} from "node:fs"
+import {cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
 import {RouteCollector} from "~/cli/collect"
 import {Gramstax} from "~/core/bot"
-import type {ITAppManifest} from "~/page/manifest"
 import {PageManager} from "~/page/manager"
 import {TemplateManager} from "~/template/manager"
+import type {IAppManifest} from "~/types/manifest"
 
 const FIXTURES = join(import.meta.dir, `fixtures`, `manifest`, `pages`)
 const CTX_ABS = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
@@ -125,7 +125,7 @@ describe(`RouteCollector`, () => {
     const start = (await import(join(manifestDir, `start.ts`))) as {MStartPage: typeof import("~/core/ctx").Ctx}
     const users = (await import(join(manifestDir, `admin`, `users.ts`))) as {MUsersPage: typeof import("~/core/ctx").Ctx}
     const card = (await import(join(manifestDir, `card.ts`))) as {MCardPage: typeof import("~/core/ctx").Ctx}
-    const manifest: ITAppManifest = {
+    const manifest: IAppManifest = {
       pages: [
         {path: `src/pages/start.ts`, routeName: `start`, page: start.MStartPage},
         {path: `src/pages/admin/users.ts`, routeName: `admin/users`, page: users.MUsersPage},
@@ -155,7 +155,7 @@ describe(`RouteCollector`, () => {
   })
 
   it(`manifest.routes entry without matching page throws`, () => {
-    const manifest: ITAppManifest = {pages: [], routes: [{file: `ghost.ts`, name: `TGhostPage`, routeName: `ghost`}], templates: []}
+    const manifest: IAppManifest = {pages: [], routes: [{file: `ghost.ts`, name: `TGhostPage`, routeName: `ghost`}], templates: []}
     let message = ``
     try {
       new Gramstax({token: `test`, deploy: `test`, templateManager: new TemplateManager({path: [emptyDir]}), log: false, manifest})

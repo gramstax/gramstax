@@ -3,19 +3,16 @@ import {createRequire} from "node:module"
 import {join, resolve} from "node:path"
 import {fileURLToPath, pathToFileURL} from "node:url"
 import {watch} from "chokidar"
+import type {IGramstaxParams} from "~/types/bot"
+import type {IGramstaxBotClass, IGramstaxStartOptions} from "~/types/cli"
+import type {IGramstaxCacheKeyboardRef, IGramstaxCacheSessionRef, IGramstaxConfig, IGramstaxLogRef, IGramstaxModuleRef, IGramstaxPathRef, IGramstaxSessionLockRef, IGramstaxTemplateManagerRef} from "~/types/config"
+import type {ISessionLockOptions} from "~/types/session-lock"
 import {CacheExternal} from "../cache/external"
 import {Gramstax} from "../core/bot"
 import type {Ctx} from "../core/ctx"
-import type {ITSessionLockOptions} from "../core/session-lock"
 import {log as defaultLog, LoggingHelper} from "../helpers/log"
 import {TemplateManager} from "../template/manager"
-import type {ITGramstaxParams} from "../types/t.bot"
-import type {ITGramstaxCacheKeyboardRef, ITGramstaxCacheSessionRef, ITGramstaxConfig, ITGramstaxLogRef, ITGramstaxModuleRef, ITGramstaxPathRef, ITGramstaxSessionLockRef, ITGramstaxTemplateManagerRef} from "./config"
 import {GramstaxConfigLoader} from "./config"
-
-export type ITGramstaxStartOptions = {deploy?: string; watch?: boolean}
-
-export type ITGramstaxBotClass = new (params: ITGramstaxParams) => Gramstax
 
 export class GramstaxStart {
   async run(argv: string[], cwd: string = process.cwd()): Promise<number> {
@@ -29,7 +26,7 @@ export class GramstaxStart {
 
   async boot(argv: string[], cwd: string = process.cwd()): Promise<Gramstax> {
     const options = this._parseArgv(argv)
-    const config: ITGramstaxConfig = await new GramstaxConfigLoader().loadConfig(cwd)
+    const config: IGramstaxConfig = await new GramstaxConfigLoader().loadConfig(cwd)
     const token = this._resolveToken(config)
     const deploy = this._resolveDeploy(options.deploy, config.deploy)
     const BotCore = await this._discoverBotCore(cwd)
@@ -37,7 +34,7 @@ export class GramstaxStart {
     return new BotCore(params)
   }
 
-  _resolveToken(config: ITGramstaxConfig): string {
+  _resolveToken(config: IGramstaxConfig): string {
     // Empty allowed at load since `process.env.X ?? ""` yields `""` when unset and env-less `gramstax build` must keep working; start enforces non-empty here.
     const token = config.token ?? ``
     if (token.length === 0) {
@@ -46,7 +43,7 @@ export class GramstaxStart {
     return token
   }
 
-  _resolveDeploy(flag: string | undefined, configured: ITGramstaxConfig[`deploy`]): ITGramstaxParams[`deploy`] {
+  _resolveDeploy(flag: string | undefined, configured: IGramstaxConfig[`deploy`]): IGramstaxParams[`deploy`] {
     if (flag !== undefined && flag.includes(`:`)) {
       throw new Error(`gramstax start: --deploy must be one of polling, webhook, serverless, raw, test with optionsDeploy {adapter, name, url} from gramstax.config.ts (legacy colon forms are removed, got "${flag}")`)
     }
@@ -57,7 +54,7 @@ export class GramstaxStart {
     throw new Error(`gramstax start: --deploy / config deploy must be one of polling, webhook, serverless, raw, test (got "${deploy}")`)
   }
 
-  async _discoverBotCore(cwd: string): Promise<ITGramstaxBotClass> {
+  async _discoverBotCore(cwd: string): Promise<IGramstaxBotClass> {
     const candidates = [join(cwd, `src`, `core`, `bot.ts`), join(cwd, `src`, `core`, `bot.js`)]
     const file = candidates.find((candidate) => existsSync(candidate))
     if (file === undefined) {
@@ -69,7 +66,7 @@ export class GramstaxStart {
     })
     for (const value of Object.values(loaded)) {
       if (typeof value === `function` && (value as {prototype?: unknown}).prototype instanceof Gramstax) {
-        return value as ITGramstaxBotClass
+        return value as IGramstaxBotClass
       }
     }
     throw new Error(
@@ -85,8 +82,8 @@ export class GramstaxStart {
     }
   }
 
-  async _buildParams(config: ITGramstaxConfig, token: string, deploy: ITGramstaxParams[`deploy`], cwd: string): Promise<ITGramstaxParams> {
-    const params: ITGramstaxParams = {deploy, token}
+  async _buildParams(config: IGramstaxConfig, token: string, deploy: IGramstaxParams[`deploy`], cwd: string): Promise<IGramstaxParams> {
+    const params: IGramstaxParams = {deploy, token}
     if (config.optionsDeploy !== undefined) params.optionsDeploy = config.optionsDeploy
     if (config.mediaRoots !== undefined) params.mediaRoots = config.mediaRoots
     if (config.botConfig !== undefined) params.botConfig = config.botConfig
@@ -126,7 +123,7 @@ export class GramstaxStart {
     return loaded
   }
 
-  async _resolveExport(ref: ITGramstaxPathRef, cwd: string, slot: string): Promise<{label: string; value: unknown}> {
+  async _resolveExport(ref: IGramstaxPathRef, cwd: string, slot: string): Promise<{label: string; value: unknown}> {
     if (typeof ref === `string`) {
       const file = resolve(cwd, ref)
       const mod = await this._loadModule(file, slot)
@@ -153,16 +150,16 @@ export class GramstaxStart {
     return instance
   }
 
-  _refArgs(ref: ITGramstaxPathRef): unknown[] {
+  _refArgs(ref: IGramstaxPathRef): unknown[] {
     if (typeof ref === `string`) return []
-    return (ref as ITGramstaxModuleRef).args ?? []
+    return (ref as IGramstaxModuleRef).args ?? []
   }
 
-  _isModuleRef(value: unknown): value is ITGramstaxModuleRef {
+  _isModuleRef(value: unknown): value is IGramstaxModuleRef {
     return typeof value === `object` && value !== null && Array.isArray(value) === false && typeof (value as Record<string, unknown>).module === `string`
   }
 
-  async _materializeCacheSession(value: ITGramstaxCacheSessionRef | undefined, cwd: string): Promise<CacheExternal | undefined> {
+  async _materializeCacheSession(value: IGramstaxCacheSessionRef | undefined, cwd: string): Promise<CacheExternal | undefined> {
     if (value === undefined) return undefined
     if (typeof value === `string` || this._isModuleRef(value)) {
       const resolved = await this._resolveExport(value, cwd, `cacheSession`)
@@ -171,7 +168,7 @@ export class GramstaxStart {
     return new CacheExternal(value.store, value.ttlMs, value.namespace)
   }
 
-  async _materializeCacheKeyboard(value: ITGramstaxCacheKeyboardRef | undefined, cwd: string): Promise<Map<string, unknown> | undefined> {
+  async _materializeCacheKeyboard(value: IGramstaxCacheKeyboardRef | undefined, cwd: string): Promise<Map<string, unknown> | undefined> {
     if (value === undefined) return undefined
     if (typeof value === `string` || this._isModuleRef(value)) {
       const resolved = await this._resolveExport(value, cwd, `cacheKeyboard`)
@@ -181,7 +178,7 @@ export class GramstaxStart {
     return new Map<string, unknown>(Object.entries(value))
   }
 
-  async _materializeTemplateManager(value: ITGramstaxTemplateManagerRef | undefined, cwd: string): Promise<TemplateManager | undefined> {
+  async _materializeTemplateManager(value: IGramstaxTemplateManagerRef | undefined, cwd: string): Promise<TemplateManager | undefined> {
     if (value === undefined) return undefined
     if (typeof value === `string` || this._isModuleRef(value)) {
       const resolved = await this._resolveExport(value, cwd, `templateManager`)
@@ -190,7 +187,7 @@ export class GramstaxStart {
     return new TemplateManager(value)
   }
 
-  async _materializeLog(value: ITGramstaxLogRef | undefined, cwd: string): Promise<LoggingHelper | undefined> {
+  async _materializeLog(value: IGramstaxLogRef | undefined, cwd: string): Promise<LoggingHelper | undefined> {
     if (value === undefined || value === false) return undefined
     if (value === true) return defaultLog
     if (typeof value === `string` || this._isModuleRef(value)) {
@@ -200,14 +197,14 @@ export class GramstaxStart {
     return new LoggingHelper(value)
   }
 
-  async _materializeSessionLock(value: ITGramstaxSessionLockRef | undefined, cwd: string): Promise<ITSessionLockOptions | undefined> {
+  async _materializeSessionLock(value: IGramstaxSessionLockRef | undefined, cwd: string): Promise<ISessionLockOptions | undefined> {
     if (value === undefined) return undefined
-    const lock: ITSessionLockOptions = {}
+    const lock: ISessionLockOptions = {}
     if (value.enabled !== undefined) lock.enabled = value.enabled
     if (value.leaseMs !== undefined) lock.leaseMs = value.leaseMs
     if (value.onContended !== undefined) lock.onContended = value.onContended
     if (value.key !== undefined) {
-      if (typeof value.key !== `string` && (value.key as ITGramstaxModuleRef).args !== undefined) {
+      if (typeof value.key !== `string` && (value.key as IGramstaxModuleRef).args !== undefined) {
         throw new Error(`gramstax start: invalid \`sessionLock.key\` — args are not supported, the ref must resolve to a \`(ctx) => string\` factory`)
       }
       const resolved = await this._resolveExport(value.key, cwd, `sessionLock.key`)
@@ -245,8 +242,8 @@ export class GramstaxStart {
     })
   }
 
-  _parseArgv(argv: string[]): ITGramstaxStartOptions {
-    const options: ITGramstaxStartOptions = {}
+  _parseArgv(argv: string[]): IGramstaxStartOptions {
+    const options: IGramstaxStartOptions = {}
     let index = 0
     while (index < argv.length) {
       const arg = argv[index] ?? ``

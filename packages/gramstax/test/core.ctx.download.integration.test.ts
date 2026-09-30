@@ -3,8 +3,8 @@ import {existsSync} from "node:fs"
 import {mkdir, rm} from "node:fs/promises"
 import {join} from "node:path"
 import {Gramstax} from "~/core/bot"
-import type {ITCt} from "~/types/t.ctx"
 import {TemplateManager} from "~/template/manager"
+import type {ICt} from "~/types/ctx"
 
 const TEST_PAGES_DIR = join(import.meta.dir, `download-integration-pages`)
 
@@ -44,7 +44,7 @@ describe(`file download — full Gramstax pipeline integration`, () => {
       update: {message: {chat: {id: 1, type: `private`}, text: `x`, from: {id: 1, is_bot: false, first_name: `T`}}},
       api: {config: {use: () => {}}},
       me: {id: 1, is_bot: true, first_name: `Bot`}
-    } as unknown as ITCt
+    } as unknown as ICt
 
     const ctx = bot.createCtx(ct)
     const downloadMock = mock(async (path?: string) => path ?? `/tmp/file.bin`)
@@ -61,7 +61,7 @@ describe(`file download — full Gramstax pipeline integration`, () => {
       update: {message: {chat: {id: 1, type: `private`}, text: `x`, from: {id: 1, is_bot: false, first_name: `T`}}},
       api: {config: {use: () => {}}},
       me: {id: 1, is_bot: true, first_name: `Bot`}
-    } as unknown as ITCt
+    } as unknown as ICt
 
     const ctx = bot.createCtx(ct)
     const downloadMock = mock(async (path?: string) => path ?? `/tmp/file.bin`)

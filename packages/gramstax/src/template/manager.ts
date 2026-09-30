@@ -1,19 +1,8 @@
-/**
- * Template manager — load, cache, and watch template files.
- *
- * @remarks
- * Manages template loading from the filesystem, including caching,
- * file watching via `chokidar`, and hot-reload of modified templates.
- * Delegates parsing and rendering to {@link TemplateEngine}.
- *
- * @public
- */
-
 import {existsSync, readdirSync, readFileSync, statSync, writeFileSync} from "node:fs"
 import {basename, extname, join, relative, resolve} from "node:path"
 import {type FSWatcher, watch} from "chokidar"
 import {PageManager} from "~/page/manager"
-import type {ITCompiledTemplate, ITTemplateOptions} from "~/types/t.template"
+import type {ICompiledTemplate, ITemplateOptions} from "~/types/template"
 import {TemplateEngine} from "./engine"
 
 /**
@@ -50,9 +39,9 @@ export class TemplateManager {
    * Map of compiled templates keyed by filename (without extension).
    *
    * @remarks
-   * Values are {@link ITCompiledTemplate} compiled results.
+   * Values are {@link ICompiledTemplate} compiled results.
    */
-  _map = new Map<string, ITCompiledTemplate>()
+  _map = new Map<string, ICompiledTemplate>()
 
   /**
    * Reference to the TemplateEngine class for compilation.
@@ -128,7 +117,7 @@ export class TemplateManager {
    * Derived from `ITTemplateOptions.path`.
    * @readonly
    */
-  readonly _path: ITTemplateOptions[`path`]
+  readonly _path: ITemplateOptions[`path`]
 
   /**
    * Flag indicating if file watching is enabled.
@@ -137,7 +126,7 @@ export class TemplateManager {
    * Derived from `ITTemplateOptions.enableWatch`.
    * @readonly
    */
-  readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`]
+  readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
 
   /**
    * Hook invoked after a template file is (re)compiled.
@@ -169,7 +158,7 @@ export class TemplateManager {
    * @throws Error if path is not a valid string array
    * @throws Error if any path does not exist or is not a directory
    */
-  constructor(options: ITTemplateOptions) {
+  constructor(options: ITemplateOptions) {
     const {path, enableWatch = false, onReload} = options
 
     this._path = path
@@ -760,9 +749,9 @@ export class TemplateManager {
    *
    * @public
    */
-  _compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ITCompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename: string = key) {
+  _compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ICompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename: string = key) {
     const existing = this._map.get(key)
-    const compiled = existing || ({} as ITCompiledTemplate)
+    const compiled = existing || ({} as ICompiledTemplate)
     let updated = false
 
     this._validateTemplate(key, template, filename)
@@ -866,7 +855,7 @@ export class TemplateManager {
    *
    * @public
    */
-  _registerCompiled(key: string, compiled: ITCompiledTemplate): void {
+  _registerCompiled(key: string, compiled: ICompiledTemplate): void {
     this._map.set(key, compiled)
   }
 
@@ -891,7 +880,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]> {
+  getGMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.media?.[AGBaseId] ?? map?.media?.default
     const func = one?.[ALang] ?? one?.default
@@ -924,7 +913,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGPoll(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`poll`][`default`][`default`]> {
+  getGPoll(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`poll`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.poll?.[AGBaseId] ?? map?.poll?.default
     const func = one?.[ALang] ?? one?.default
@@ -957,7 +946,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGVenue(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`venue`][`default`][`default`]> {
+  getGVenue(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`venue`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.venue?.[AGBaseId] ?? map?.venue?.default
     const func = one?.[ALang] ?? one?.default
@@ -990,7 +979,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGDice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`dice`][`default`][`default`]> {
+  getGDice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`dice`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.dice?.[AGBaseId] ?? map?.dice?.default
     const func = one?.[ALang] ?? one?.default
@@ -1075,7 +1064,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGInlineButton(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`inlineButton`][`default`][`default`]> {
+  getGInlineButton(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`inlineButton`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.inlineButton?.[AGBaseId] ?? map?.inlineButton?.default
     const func = one?.[ALang] ?? one?.default
@@ -1151,7 +1140,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGInvoice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`invoice`][`default`][`default`]> {
+  getGInvoice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`invoice`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.invoice?.[AGBaseId] ?? map?.invoice?.default
     const func = one?.[ALang] ?? one?.default
@@ -1185,7 +1174,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGPaidMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`paidMedia`][`default`][`default`]> {
+  getGPaidMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`paidMedia`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.paidMedia?.[AGBaseId] ?? map?.paidMedia?.default
     const func = one?.[ALang] ?? one?.default

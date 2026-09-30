@@ -1,18 +1,18 @@
 import {describe, expect, it, mock} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 const createCtx = () => {
   const ct = {
     api: {config: {use: () => {}}},
     me: {id: 1, is_bot: true, first_name: `Bot`},
     update: {message: {chat: {id: 1, type: `private`}, text: `x`, from: {id: 1, is_bot: false, first_name: `T`}}}
-  } as unknown as ITCtxParams[`ct`]
+  } as unknown as ICtxParams[`ct`]
   return new Ctx({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {} as unknown as ITCtxParams[`templateManager`],
+    templateManager: {} as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }

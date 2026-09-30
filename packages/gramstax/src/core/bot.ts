@@ -23,15 +23,17 @@ import {apiThrottler} from "@grammyjs/transformer-throttler"
 import KeyvRedis from "@keyv/redis"
 import {API_CONSTANTS, Bot, type BotConfig, type BotError, type Context, type Middleware, webhookCallback} from "grammy"
 import type {BotCommandScope, LanguageCode, Update, UserFromGetMe} from "grammy/types"
-import {CacheExternal, type ITCacheRpc} from "~/cache/external"
-import {type IRedisLockClient, SessionLock} from "~/core/session-lock"
+import {CacheExternal} from "~/cache/external"
+import {SessionLock} from "~/core/session-lock"
 import {type LoggingHelper, log} from "~/helpers/log"
 import {MetricsStore, metricsToPrometheus} from "~/helpers/metrics"
 import {PageManager} from "~/page/manager"
-import type {ITAppManifest} from "~/page/manifest"
 import {TemplateManager} from "~/template/manager"
-import type {ITGramstaxCtxScope, ITGramstaxParams, ITUpdateErrorEvent, ITUpdateSuccessEvent, ITWebhookQueueConfig} from "~/types/t.bot"
-import type {ITCt, ITCtMiddleware, ITCtxParams, ITSendErrorHook} from "~/types/t.ctx"
+import type {IGramstaxCtxScope, IGramstaxParams, IUpdateErrorEvent, IUpdateSuccessEvent, IWebhookQueueConfig} from "~/types/bot"
+import type {ICacheRpc} from "~/types/cache"
+import type {ICt, ICtMiddleware, ICtxParams, ISendErrorHook} from "~/types/ctx"
+import type {IAppManifest} from "~/types/manifest"
+import type {IRedisLockClient} from "~/types/session-lock"
 import {WebhookQueue} from "~/webhook/queue"
 import {E2eHelper} from "../e2e/helper"
 import {Ctx} from "./ctx"
@@ -40,7 +42,7 @@ type ITCustomRouteEntry = {
   name: string
   routeName: string
   listenerName: string
-  event: Parameters<Bot<ITCt>[`on`]>[0]
+  event: Parameters<Bot<ICt>[`on`]>[0]
   filter: (ctx: Ctx) => boolean
   shouldCheckNotFound?: boolean
 }
@@ -168,7 +170,7 @@ const __PKG_VERSION__: string = (() => {
  * below turns a non-empty union into a `tsc` error naming the field, so a
  * forgotten forward fails the build instead of shipping `undefined`.
  */
-type _MissingCtxScopeFields = Exclude<keyof ITCtxParams, keyof ITGramstaxCtxScope | `ct` | `temp`>
+type _MissingCtxScopeFields = Exclude<keyof ICtxParams, keyof IGramstaxCtxScope | `ct` | `temp`>
 const _assertCtxScopeComplete: _MissingCtxScopeFields extends never ? [] : [`ctxScope misses ITCtxParams field(s):`, _MissingCtxScopeFields] = []
 
 /**
@@ -215,9 +217,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * External cache for user session data.
    *
    * @remarks
-   * Uses {@link CacheExternal} with {@link ITCacheRpc} transport for persistence.
+   * Uses {@link CacheExternal} with {@link ICacheRpc} transport for persistence.
    */
-  cacheSession: CacheExternal<ITCacheRpc>
+  cacheSession: CacheExternal<ICacheRpc>
 
   /**
    * Loaded and sorted page routes.
@@ -272,7 +274,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * 4. copy it field-by-field in the `Ctx` constructor.
    * Skipping step 2 fails `tsc` with the missing field name.
    */
-  ctxScope!: ITGramstaxCtxScope
+  ctxScope!: IGramstaxCtxScope
 
   /**
    * The underlying Bot instance.
@@ -280,7 +282,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Instance of the `Bot`.
    */
-  bot: Bot<ITCt>
+  bot: Bot<ICt>
 
   /**
    * Optional bot configuration.
@@ -288,15 +290,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Configuration object for `BotConfig` and `Context`.
    */
-  botConfig?: BotConfig<ITCt>
+  botConfig?: BotConfig<ICt>
 
   /**
    * Webhook queue configuration.
    *
    * @remarks
-   * See {@link ITWebhookQueueConfig} for queue settings.
+   * See {@link IWebhookQueueConfig} for queue settings.
    */
-  webhookQueue?: ITWebhookQueueConfig
+  webhookQueue?: IWebhookQueueConfig
 
   /**
    * Active webhook queue instance.
@@ -407,7 +409,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   /**
    * Creates a new Gramstax bot instance.
    *
-   * @param params - Configuration options. See {@link ITGramstaxParams} for all available options.
+   * @param params - Configuration options. See {@link IGramstaxParams} for all available options.
    *
    * @example
    * ```typescript
@@ -495,7 +497,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  constructor(params: ITGramstaxParams) {
+  constructor(params: IGramstaxParams) {
     if (!params?.token || params?.token?.length === 0) {
       throw new Error(`Token is not valid or empty`)
     }
@@ -507,7 +509,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.log = params.log === true ? log : !params.log ? undefined : params.log
     this.log?.info?.(`Gramstax v${__PKG_VERSION__}`)
     this.mediaRoots = params.mediaRoots ?? null
-    const buildScope = (): ITGramstaxCtxScope => ({
+    const buildScope = (): IGramstaxCtxScope => ({
       cacheSession: this.cacheSession,
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
@@ -552,7 +554,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const getRateCtx = (raw: Context): ICtx => {
         let cached = rateCtxCache.get(raw)
         if (!cached) {
-          cached = this.createCtx(raw as unknown as ITCt)
+          cached = this.createCtx(raw as unknown as ICt)
           rateCtxCache.set(raw, cached)
         }
         return cached
@@ -791,7 +793,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param params - Constructor parameters.
    * @internal
    */
-  _validateConfig(params: ITGramstaxParams): void {
+  _validateConfig(params: IGramstaxParams): void {
     if (params.updateTimeoutMs !== undefined && (!Number.isFinite(params.updateTimeoutMs) || params.updateTimeoutMs < 0)) {
       throw new Error(`updateTimeoutMs must be a non-negative number`)
     }
@@ -921,7 +923,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /** Emits a structured update error event via metrics + `hookUpdateError`. @internal */
-  _emitUpdateError(event: ITUpdateErrorEvent): void {
+  _emitUpdateError(event: IUpdateErrorEvent): void {
     try {
       this.hookUpdateError?.(event)
     } catch (error) {
@@ -936,7 +938,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  _onCatch(error: BotError<ITCt>) {
+  _onCatch(error: BotError<ICt>) {
     this.metrics.counts.updatesFailed += 1
     const traceId = String(error.ctx?.update?.update_id ?? ``)
     if (this.log?.errorMake) {
@@ -1217,7 +1219,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * dashboard ← `hookTrace`. One incident (e.g. a 403) can fire all three
    * in sequence — do not forward all three to the same alert.
    *
-   * @param event - The structured error event. See {@link ITUpdateErrorEvent}.
+   * @param event - The structured error event. See {@link IUpdateErrorEvent}.
    *
    * @example
    * ```typescript
@@ -1231,7 +1233,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  hookUpdateError?(event: ITUpdateErrorEvent): void
+  hookUpdateError?(event: IUpdateErrorEvent): void
 
   /**
    * Hook invoked with a structured success event after every routed update.
@@ -1240,7 +1242,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Audit trail counterpart of `hookUpdateError`. Fires for matched, no-match,
    * no-handler and blocked states (not for errors/timeouts).
    *
-   * @param event - The structured success event. See {@link ITUpdateSuccessEvent}.
+   * @param event - The structured success event. See {@link IUpdateSuccessEvent}.
    *
    * @example
    * ```typescript
@@ -1254,7 +1256,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  hookUpdate?(event: ITUpdateSuccessEvent): void
+  hookUpdate?(event: IUpdateSuccessEvent): void
 
   /**
    * Optional OTel-style trace export hook.
@@ -1293,7 +1295,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Flows into every page `Ctx` via `createCtx` (mirrors the `log`
    * channel). Invoked with `{page, kind, chatId}` at every site where a
    * send error is classified; a throwing hook is swallowed. See
-   * {@link ITSendErrorHook}.
+   * {@link ISendErrorHook}.
    *
    * @remarks
    * Sibling hooks: `hookUpdateError` (dead updates — terminal) and `hookTrace`
@@ -1303,7 +1305,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Sentry ← `hookUpdateError`, dashboard ← `hookTrace`.
    *
    * @param err - The send error.
-   * @param info - The send-error info (`page`, `kind`, `chatId`). See {@link ITSendErrorHook}.
+   * @param info - The send-error info (`page`, `kind`, `chatId`). See {@link ISendErrorHook}.
    *
    * @example
    * ```typescript
@@ -1343,7 +1345,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  hookSendError?(...args: Parameters<ITSendErrorHook>): void
+  hookSendError?(...args: Parameters<ISendErrorHook>): void
 
   /**
    * Creates the Bot instance.
@@ -1353,8 +1355,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  createBot(token: string): Bot<ITCt> {
-    return new Bot<ITCt>(token, this.botConfig)
+  createBot(token: string): Bot<ICt> {
+    return new Bot<ICt>(token, this.botConfig)
   }
 
   /**
@@ -1393,9 +1395,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, extra?: T): ITCtxParams & T {
+  buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ICt, extra?: T): ICtxParams & T {
     if (extra && (`ct` in extra || `temp` in extra)) throw new Error(`Ctx extra must not override reserved key: ${`ct` in extra ? `ct` : `temp`}`)
-    return {ct, ...this.ctxScope, ...extra, onSendError: this.hookSendError?.bind(this) ?? null, temp: {isAnswer: false, session: {}, data: {}}} as ITCtxParams & T
+    return {ct, ...this.ctxScope, ...extra, onSendError: this.hookSendError?.bind(this) ?? null, temp: {isAnswer: false, session: {}, data: {}}} as ICtxParams & T
   }
 
   /**
@@ -1406,7 +1408,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  createCtx(ct: ITCt): ICtx {
+  createCtx(ct: ICt): ICtx {
     return new Ctx(this.buildCtxParams(ct)) as unknown as ICtx
   }
 
@@ -1827,12 +1829,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  _pageRegisterEntry(
-    entry: {path: string; page: typeof Ctx; routeName: string},
-    pages: typeof Gramstax.prototype.pages,
-    index: number,
-    seen: {names: Set<string>; intentText: Set<string>; intentCommandText: Set<string>; intentCallbackQueryData: Set<string>}
-  ): void {
+  _pageRegisterEntry(entry: {path: string; page: typeof Ctx; routeName: string}, pages: typeof Gramstax.prototype.pages, index: number, seen: {names: Set<string>; intentText: Set<string>; intentCommandText: Set<string>; intentCallbackQueryData: Set<string>}): void {
     const {path, page, routeName} = entry
     this._pageBuildData(page, path, routeName)
 
@@ -2461,22 +2458,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  _loadBuildManifest(deploy: string): ITAppManifest | undefined {
-    if (deploy === `serverless` === false) return undefined
+  _loadBuildManifest(deploy: string): IAppManifest | undefined {
+    if ((deploy === `serverless`) === false) return undefined
     try {
       const base = join(process.cwd(), `.gramstax`)
       if (existsSync(join(base, `manifest.js`)) === false || existsSync(join(base, `routes.json`)) === false) return undefined
       const require = createRequire(pathToFileURL(join(process.cwd(), `package.json`)))
-      const loaded = require(join(base, `manifest.js`)) as {default?: ITAppManifest} & Partial<ITAppManifest>
-      const manifest = (loaded.default ?? loaded) as ITAppManifest
-      const routes = require(join(base, `routes.json`)) as ITAppManifest[`routes`]
+      const loaded = require(join(base, `manifest.js`)) as {default?: IAppManifest} & Partial<IAppManifest>
+      const manifest = (loaded.default ?? loaded) as IAppManifest
+      const routes = require(join(base, `routes.json`)) as IAppManifest[`routes`]
       return {...manifest, routes: routes ?? manifest.routes}
     } catch {
       return undefined
     }
   }
 
-  _pageLoadsFromManifest(manifest: ITAppManifest) {
+  _pageLoadsFromManifest(manifest: IAppManifest) {
     this.log?.info?.(`Load pages from manifest..`)
 
     const pages = this._buildEmptyPages()
@@ -2890,7 +2887,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
   }
 
-  async _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
+  async _onHandle(ct: ICt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
     const startedAt = Date.now()
     const updateId = ct.update?.update_id
     const traceId = updateId !== undefined ? `u${updateId}` : `c${++this._traceSeq}`
@@ -3029,7 +3026,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * (sessions, i18n, rate limiting, logging, authentication, etc.) into the
    * underlying bot instance.
    *
-   * Each element of the returned array is a {@link ITCtMiddleware} value (either a
+   * Each element of the returned array is a {@link ICtMiddleware} value (either a
    * `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that
    * The array elements are passed to `this.bot.use(...)`. It is meant to be
    * spread into `bot.use`, so the order of elements determines the order in
@@ -3049,7 +3046,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * contribute their own plugins. Returning an empty array (or not
    * overriding) installs no plugins, which is the default behavior.
    *
-   * @returns Array of {@link ITCtMiddleware}
+   * @returns Array of {@link ICtMiddleware}
    * values, ready to be spread into `this.bot.use(...result)`.
    *
    * @example
@@ -3075,7 +3072,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  registerLowPlugin?(): Array<ITCtMiddleware<ITCt>>
+  registerLowPlugin?(): Array<ICtMiddleware<ICt>>
 
   /**
    * Registers a custom filter-based route entry with automatic listener subscription.

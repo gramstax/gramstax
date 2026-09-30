@@ -16,167 +16,70 @@ import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
 import type {EphemeralMessageParameters, InlineQueryResult, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent} from "grammy/types"
-import type {CacheExternal, ITCacheRpc} from "~/cache/external"
+import type {CacheExternal} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
-import {TemplateEngine, type ITInvoiceBlock, type ITMediaBlock, type ITPaidMediaBlock, type ITPollBlock} from "~/template/engine"
+import {TemplateEngine} from "~/template/engine"
 import type {TemplateManager} from "~/template/manager"
+import type {ICacheRpc} from "~/types/cache"
 import type {
-  _KbButtonWithPageText,
-  _KbCallbackData,
-  _KbPageLike,
-  ITBottomKb,
-  ITBottomKbParams,
-  ITBuildDataOptions,
-  ITCt,
-  ITCtxParams,
-  ITData,
-  ITInBoKb,
-  ITInlineKb,
-  ITInlineKbParams,
-  ITKbCols,
-  ITKbDest,
-  ITOptCallbackAnswer,
-  ITOptEdit,
-  ITOptEditCaption,
-  ITOptEditKeyboard,
-  ITOptEditMedia1,
-  ITOptEditMedia2,
-  ITOptFallbackEdit,
-  ITOptGift,
-  ITOptGuestAnswer,
-  ITOptInlineAnswer,
-  ITOptPreCheckout,
-  ITOptReply,
-  ITOptReplyAnimation,
-  ITOptReplyAudio,
-  ITOptReplyContact,
-  ITOptReplyDocument,
-  ITOptReplyLocation,
-  ITOptReplyPhoto,
-  ITOptReplyRich,
-  ITOptReplySticker,
-  ITOptReplyVideo,
-  ITOptReplyVideoNote,
-  ITOptReplyVoice,
-  ITOptShipping,
-  ITOptWebAppAnswer,
-  ITPageData,
-  ITPageDataBase,
-  ITSendErrorHook,
-  ITSendErrorInfo,
-  ITTemp
-} from "../types/t.ctx"
+  IBottomKb,
+  IBottomKbParams,
+  IBroadcastEditOpts,
+  IBroadcastEditResult,
+  IBroadcastEditTarget,
+  IBuildDataOptions,
+  ICt,
+  ICtxParams,
+  IData,
+  IGiveawayOptions,
+  IGiveawayParams,
+  IInBoKb,
+  IInlineKb,
+  IInlineKbParams,
+  IKbButtonWithPageText,
+  IKbCallbackData,
+  IKbCols,
+  IKbDest,
+  IKbPageLike,
+  IOptCallbackAnswer,
+  IOptEdit,
+  IOptEditCaption,
+  IOptEditKeyboard,
+  IOptEditMedia1,
+  IOptEditMedia2,
+  IOptFallbackEdit,
+  IOptGift,
+  IOptGuestAnswer,
+  IOptInlineAnswer,
+  IOptPreCheckout,
+  IOptReply,
+  IOptReplyAnimation,
+  IOptReplyAudio,
+  IOptReplyContact,
+  IOptReplyDocument,
+  IOptReplyLocation,
+  IOptReplyPhoto,
+  IOptReplyRich,
+  IOptReplySticker,
+  IOptReplyVideo,
+  IOptReplyVideoNote,
+  IOptReplyVoice,
+  IOptShipping,
+  IOptWebAppAnswer,
+  IPageData,
+  IPageDataBase,
+  ISendErrorHook,
+  ISendErrorInfo,
+  IStoryContent,
+  ITemp
+} from "~/types/ctx"
+import type {IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock} from "~/types/template"
 
-type ITMediaGroupType = Extract<ITMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
+type ITMediaGroupType = Extract<IMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
 type ITMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
-type ITMediaGroupItem = NonNullable<ITMediaBlock[`mediaGroup`]>[number]
+type ITMediaGroupItem = NonNullable<IMediaBlock[`mediaGroup`]>[number]
 
 export type {EphemeralMessageParameters}
-
-/**
- * One already-sent message to revise or remove in bulk.
- *
- * @remarks
- * Matches the downstream `SentRepository` row shape (`chatId` + `messageId`
- * per content code): list stored rows and pass them back to
- * `renderBroadcastEdit` / `renderBroadcastDelete`.
- *
- * @public
- */
-export type ITBroadcastEditTarget = {
-  chatId: number
-  messageId: number
-}
-
-/**
- * Broadcast controls shared by `renderBroadcastEdit` and `renderBroadcastDelete`.
- *
- * @remarks
- * All fields are optional: defaults mirror broadcast-send behavior
- * (sequential pool, `delete-reply` edit fallback). Checkpoint-first —
- * `startFrom` resumes after a restart without re-editing (indexes below
- * count as skipped).
- *
- * @public
- */
-export type ITBroadcastEditOpts = {
-  onProgress?: ((done: number, total: number) => void | Promise<void>) | null
-  startFrom?: number | null
-  concurrency?: number | null
-  chunkSize?: number | null
-  chunkDelayMs?: number | null
-  fallbackEdit?: ITOptFallbackEdit | null
-}
-
-/**
- * Bulk edit/delete result with a re-drive list.
- *
- * @remarks
- * Mirrors the broadcast-send result shape: counts plus `retryable[]`
- * (absolute `index` + `chatId` + `messageId` + `error`, completion order)
- * for a fresh retry pass, and `skippedCount` for resumed indexes.
- *
- * @public
- */
-export type ITBroadcastEditResult = {
-  successCount: number
-  failedCount: number
-  totalCount: number
-  skippedCount: number
-  retryable: Array<{index: number; chatId: number; messageId: number; error: unknown}>
-}
-
-/**
- * Giveaway params accepted by {@link (Ctx:class).startGiveaway}.
- *
- * @remarks
-   * Data-driven by design: `sendGiveaway` carries no
- * `parse_mode`, so a template block would add surface without value.
- *
- * @public
- */
-export type ITGiveawayParams = {
-  channels: Array<number | string> | string
-  date: number
-  winners: number
-  prize: string
-}
-
-/**
- * Optional giveaway flags accepted by {@link (Ctx:class).startGiveaway}.
- *
- * @remarks
- * Passthrough for the remaining `sendGiveaway` flags; combination rules
- * (for example `prizeStarCount` versus `premiumMonths`) are adjudicated by
- * the Bot API, not validated here.
- *
- * @public
- */
-export type ITGiveawayOptions = {
-  onlyNewMembers?: boolean | null
-  hasPublicWinners?: boolean | null
-  prizeStarCount?: number | null
-  premiumMonths?: number | null
-}
-
-/**
- * Story content accepted by {@link (Ctx:class).postBusinessStory} and {@link (Ctx:class).editBusinessStory}.
- *
- * @remarks
- * Photo or video only; `src` resolves through {@link (Ctx:class).resolveMedia}
- * then converts to an upload (`InputFile` as-is, URLs via `{url}`); residual
- * strings are `file_id` values the Bot API resolves server-side (the
- * installed typings only model uploads, hence one narrow documented cast).
- * Areas and captions ride on `options`; duration rules beyond presence are
- * adjudicated by the Bot API.
- *
- * @public
- */
-export type ITStoryContent = {
-  type: `photo` | `video`
-  src: string | InputFile | Buffer | Uint8Array
-  duration?: number | null
-}
 
 /**
  * Extended `InlineKeyboard` — overrides `.text()` so the `data` parameter
@@ -205,7 +108,7 @@ class GramstaxInlineKeyboard extends InlineKeyboard {
    *
    * @internal
    */
-  override text(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | _KbPageLike): this {
+  override text(text: Parameters<InlineKeyboard[`text`]>[0] | IKbPageLike | IKbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | IKbPageLike): this {
     let label: Parameters<InlineKeyboard[`text`]>[0] = text as Parameters<InlineKeyboard[`text`]>[0]
     if (typeof label === `function` || label instanceof Ctx) {
       const PageClass = (typeof label === `function` ? label : label.constructor) as typeof Ctx
@@ -221,12 +124,12 @@ class GramstaxInlineKeyboard extends InlineKeyboard {
     }
     if (data !== undefined && typeof data !== `string`) {
       if (`result` in data && `page` in data && `args` in data) {
-        const cb = data as unknown as _KbCallbackData
+        const cb = data as unknown as IKbCallbackData
         return super.text(label, cb.result)
       }
       const PageClass = (typeof data === `function` ? data : data.constructor) as typeof Ctx
       Helper.ensurePageHasCallback(PageClass)
-      const cb = (PageClass.data as unknown as {callbackQueryData: () => _KbCallbackData<typeof Ctx, []>}).callbackQueryData()
+      const cb = (PageClass.data as unknown as {callbackQueryData: () => IKbCallbackData<typeof Ctx, []>}).callbackQueryData()
       return super.text(label, cb.result)
     }
     return super.text(label, data as Parameters<InlineKeyboard[`text`]>[1])
@@ -1061,7 +964,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static assertPoll(poll: ITPollBlock): void {
+  static assertPoll(poll: IPollBlock): void {
     if (poll.question.length < 1 || poll.question.length > Ctx.POLL_QUESTION_LIMIT) throw new Error(`Poll question must be 1-${Ctx.POLL_QUESTION_LIMIT} characters (got ${poll.question.length})`)
     if (poll.options.length < Ctx.POLL_OPTIONS_MIN || poll.options.length > Ctx.POLL_OPTIONS_MAX) throw new Error(`Poll must contain ${Ctx.POLL_OPTIONS_MIN}-${Ctx.POLL_OPTIONS_MAX} options (got ${poll.options.length})`)
     for (const option of poll.options) {
@@ -1088,7 +991,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static assertInvoice(invoice: ITInvoiceBlock): void {
+  static assertInvoice(invoice: IInvoiceBlock): void {
     if (invoice.title.length < 1 || invoice.title.length > Ctx.INVOICE_TITLE_LIMIT) throw new Error(`Invoice title must be 1-${Ctx.INVOICE_TITLE_LIMIT} characters (got ${invoice.title.length})`)
     if (invoice.description.length < 1 || invoice.description.length > Ctx.INVOICE_DESCRIPTION_LIMIT) throw new Error(`Invoice description must be 1-${Ctx.INVOICE_DESCRIPTION_LIMIT} characters (got ${invoice.description.length})`)
     if (invoice.payload.length < 1 || Buffer.byteLength(invoice.payload, `utf8`) > Ctx.INVOICE_PAYLOAD_LIMIT) throw new Error(`Invoice payload must be 1-${Ctx.INVOICE_PAYLOAD_LIMIT} bytes (got ${Buffer.byteLength(invoice.payload, `utf8`)})`)
@@ -1116,7 +1019,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static assertPaidMedia(paidMedia: ITPaidMediaBlock): void {
+  static assertPaidMedia(paidMedia: IPaidMediaBlock): void {
     if (!Number.isInteger(paidMedia.stars) || paidMedia.stars < Ctx.PAID_MEDIA_STARS_MIN || paidMedia.stars > Ctx.PAID_MEDIA_STARS_MAX) throw new Error(`Paid media stars must be an integer ${Ctx.PAID_MEDIA_STARS_MIN}-${Ctx.PAID_MEDIA_STARS_MAX} (got ${String(paidMedia.stars)})`)
     if (paidMedia.media.length < Ctx.PAID_MEDIA_ITEMS_MIN || paidMedia.media.length > Ctx.PAID_MEDIA_ITEMS_MAX) throw new Error(`Paid media must contain ${Ctx.PAID_MEDIA_ITEMS_MIN}-${Ctx.PAID_MEDIA_ITEMS_MAX} items (got ${paidMedia.media.length})`)
     for (const item of paidMedia.media) {
@@ -1280,7 +1183,7 @@ export class Ctx extends Context {
   notifySendError(err: unknown, kind: `fallback-text` | `retryable`, chatId?: number): void {
     const hook = this.onSendError
     if (hook === undefined || hook === null) return
-    const info: ITSendErrorInfo = {page: this.sendPageName(), kind, chatId}
+    const info: ISendErrorInfo = {page: this.sendPageName(), kind, chatId}
     try {
       hook(err, info)
     } catch {
@@ -1407,7 +1310,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static data?: ITPageDataBase
+  static data?: IPageDataBase
 
   /**
    * Instance-level access to the page routing data.
@@ -1427,7 +1330,7 @@ export class Ctx extends Context {
    * @readonly
    * @public
    */
-  data = (this.constructor as unknown as {data: ITPageData}).data
+  data = (this.constructor as unknown as {data: IPageData}).data
 
   /**
    * Streams an iterator of message pieces to the current chat, making
@@ -2065,7 +1968,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  cacheSession: CacheExternal<ITCacheRpc>
+  cacheSession: CacheExternal<ICacheRpc>
 
   /**
    * Cache for keyboard instances.
@@ -2112,14 +2015,14 @@ export class Ctx extends Context {
    *
    * @public
    */
-  onSendError?: ITSendErrorHook | null
+  onSendError?: ISendErrorHook | null
 
   /**
    * Temporary state storage for the current request.
    *
    * @public
    */
-  temp: ITTemp
+  temp: ITemp
 
   /**
    * Per-request session fetch memoization.
@@ -2137,7 +2040,7 @@ export class Ctx extends Context {
    *
    * @internal
    */
-  memoization: {sessionLoaded: boolean; sessionValue: ITCacheRpc | null} = {sessionLoaded: false, sessionValue: null}
+  memoization: {sessionLoaded: boolean; sessionValue: ICacheRpc | null} = {sessionLoaded: false, sessionValue: null}
 
   /**
    * Tracks per-request Api instances where the answer guard transformer has already been installed
@@ -2151,12 +2054,12 @@ export class Ctx extends Context {
    * **note:**
    * For most pages do not define a constructor
    *
-   * @param params - The initialization parameters. See {@link ITCtxParams} for details.
+   * @param params - The initialization parameters. See {@link ICtxParams} for details.
    *
    * @public
    */
-  constructor(params: ITCtxParams) {
-    const ct: ITCt = params.ct ?? (params as unknown as ITCt)
+  constructor(params: ICtxParams) {
+    const ct: ICt = params.ct ?? (params as unknown as ICt)
     super(ct.update, ct.api, ct.me)
     if (this.api?.config?.use && !Ctx._answerApiGuard.has(this.api)) {
       Ctx._answerApiGuard.add(this.api)
@@ -2308,10 +2211,10 @@ export class Ctx extends Context {
   async renderBroadcast(
     ids: number[],
     languageCode: string[],
-    keyboard?: ITInBoKb | null,
-    data?: ITData | null,
+    keyboard?: IInBoKb | null,
+    data?: IData | null,
     AGBaseId?: string | null,
-    options?: ITOptReply | null,
+    options?: IOptReply | null,
     throwError: boolean | null = false,
     chunkSize: number | null = null,
     chunkDelayMs: number | null = null,
@@ -2455,10 +2358,10 @@ export class Ctx extends Context {
   async renderBroadcastMedia(
     ids: number[],
     languageCode: string[],
-    keyboard?: ITInBoKb | null,
-    data?: ITData | null,
+    keyboard?: IInBoKb | null,
+    data?: IData | null,
     AGBaseId?: string | null,
-    options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact | null,
+    options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact | null,
     throwError: boolean | null = false,
     chunkSize: number | null = null,
     chunkDelayMs: number | null = null,
@@ -2635,35 +2538,35 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderBroadcastEdit<T extends Exclude<ITMediaBlock[`type`], `group`>>(
-    targets: ITBroadcastEditTarget[],
+  async renderBroadcastEdit<T extends Exclude<IMediaBlock[`type`], `group`>>(
+    targets: IBroadcastEditTarget[],
     type: T,
-    keyboardInline?: ITInlineKb | null,
-    data?: ITData | null,
+    keyboardInline?: IInlineKb | null,
+    data?: IData | null,
     AGBaseId?: string | null,
     options1?:
       | (T extends `voice`
-          ? ITOptReplyVoice
+          ? IOptReplyVoice
           : T extends `video_note`
-            ? ITOptReplyVideoNote
+            ? IOptReplyVideoNote
             : T extends `sticker`
-              ? ITOptReplySticker
+              ? IOptReplySticker
               : T extends `location`
-                ? ITOptReplyLocation
+                ? IOptReplyLocation
                 : T extends `contact`
-                  ? ITOptReplyContact
+                  ? IOptReplyContact
                   : //
-                    ITOptEditMedia1)
+                    IOptEditMedia1)
       | null,
-    options2?: ITOptEditMedia2 | null,
-    broadcastOpts?: ITBroadcastEditOpts | null
-  ): Promise<ITBroadcastEditResult> {
+    options2?: IOptEditMedia2 | null,
+    broadcastOpts?: IBroadcastEditOpts | null
+  ): Promise<IBroadcastEditResult> {
     const opts = broadcastOpts ?? {}
     const fallbackEdit = opts.fallbackEdit ?? `delete-reply`
     const onProgress = opts.onProgress ?? null
     const chunkSize = opts.chunkSize ?? null
     const chunkDelayMs = opts.chunkDelayMs ?? null
-    const res: ITBroadcastEditResult = {successCount: 0, failedCount: 0, totalCount: targets.length, skippedCount: 0, retryable: []}
+    const res: IBroadcastEditResult = {successCount: 0, failedCount: 0, totalCount: targets.length, skippedCount: 0, retryable: []}
     const limitFree = 30
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     if (!med) throw new Error(`Media not found for template "${this.data.name}"`)
@@ -2828,12 +2731,12 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderBroadcastDelete(targets: ITBroadcastEditTarget[], broadcastOpts?: ITBroadcastEditOpts | null): Promise<ITBroadcastEditResult> {
+  async renderBroadcastDelete(targets: IBroadcastEditTarget[], broadcastOpts?: IBroadcastEditOpts | null): Promise<IBroadcastEditResult> {
     const opts = broadcastOpts ?? {}
     const onProgress = opts.onProgress ?? null
     const chunkSize = opts.chunkSize ?? null
     const chunkDelayMs = opts.chunkDelayMs ?? null
-    const res: ITBroadcastEditResult = {successCount: 0, failedCount: 0, totalCount: targets.length, skippedCount: 0, retryable: []}
+    const res: IBroadcastEditResult = {successCount: 0, failedCount: 0, totalCount: targets.length, skippedCount: 0, retryable: []}
     const limitFree = 30
     const rawStart = opts.startFrom ?? 0
     const start = !Number.isFinite(rawStart) ? 0 : Math.min(targets.length, Math.max(0, Math.floor(rawStart)))
@@ -2920,7 +2823,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async render(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null) {
+  async render(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReply | null) {
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
       return await this.reply(msg, {
@@ -2968,7 +2871,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderChunked(keyboard: ITInBoKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptReply | null, chunkSize = 4096) {
+  async renderChunked(keyboard: IInBoKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptReply | null, chunkSize = 4096) {
     const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     const size = Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096
     const chunks: string[] = []
@@ -3048,7 +2951,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderGift(target: number, giftId: string, keyboard: ITInlineKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptGift | null) {
+  async renderGift(target: number, giftId: string, keyboard: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptGift | null) {
     if (keyboard !== undefined && keyboard !== null) throw new Error(`renderGift does not support keyboards: sendGift carries no reply markup (target ${target})`)
     const msg = this.templateManager.getGGift(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
@@ -3102,7 +3005,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderCallbackAnswer(showAlert: boolean, data: ITData | null | undefined, AGBaseId: string, options?: ITOptCallbackAnswer | null) {
+  async renderCallbackAnswer(showAlert: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptCallbackAnswer | null) {
     const msg = this.templateManager.getGCallbackAnswer(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
       return await this.answerCallbackQuery({text: msg, show_alert: showAlert, ...((typeof options === `object` ? options : {}) ?? {})})
@@ -3150,10 +3053,10 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPreCheckout(ok: boolean, data: ITData | null | undefined, AGBaseId: string, options?: ITOptPreCheckout | null) {
+  async renderPreCheckout(ok: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptPreCheckout | null) {
     const msg = this.templateManager.getGPrecheckoutError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
-      if (ok) return await this.answerPreCheckoutQuery(true, ((typeof options === `object` ? options : {}) ?? {}) as ITOptPreCheckout)
+      if (ok) return await this.answerPreCheckoutQuery(true, ((typeof options === `object` ? options : {}) ?? {}) as IOptPreCheckout)
       const errorMessage = typeof options === `string` ? options : msg
       return await this.answerPreCheckoutQuery(false, {error_message: errorMessage, ...((typeof options === `object` ? options : {}) ?? {})})
     } catch (error) {
@@ -3198,10 +3101,10 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderShipping(ok: boolean, data: ITData | null | undefined, AGBaseId: string, options?: ITOptShipping | null) {
+  async renderShipping(ok: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptShipping | null) {
     const msg = this.templateManager.getGShippingError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
-      if (ok) return await this.answerShippingQuery(true, (options ?? {}) as ITOptShipping)
+      if (ok) return await this.answerShippingQuery(true, (options ?? {}) as IOptShipping)
       return await this.answerShippingQuery(false, {error_message: msg, ...(options ?? {})})
     } catch (error) {
       const kind = Ctx.classifySendError(error)
@@ -3250,10 +3153,10 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderInlineAnswer(results: readonly InlineQueryResult[], data: ITData | null | undefined, AGBaseId: string, options?: ITOptInlineAnswer | null, buttonStartParameter?: string | null) {
+  async renderInlineAnswer(results: readonly InlineQueryResult[], data: IData | null | undefined, AGBaseId: string, options?: IOptInlineAnswer | null, buttonStartParameter?: string | null) {
     const button = this.templateManager.getGInlineButton(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
-      const extra: ITOptInlineAnswer = {...(options ?? {})}
+      const extra: IOptInlineAnswer = {...(options ?? {})}
       if (extra.button === undefined) {
         const startParameter = buttonStartParameter ?? button.startParameter
         if (startParameter !== undefined) {
@@ -3301,7 +3204,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderGuestAnswer(result: InlineQueryResult, data: ITData | null | undefined, AGBaseId: string, options?: ITOptGuestAnswer | null) {
+  async renderGuestAnswer(result: InlineQueryResult, data: IData | null | undefined, AGBaseId: string, options?: IOptGuestAnswer | null) {
     void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
       return await this.answerGuestQuery(result, options ?? undefined)
@@ -3349,7 +3252,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderWebAppAnswer(webAppQueryId: string, result: InlineQueryResult, data: ITData | null | undefined, AGBaseId: string, options?: ITOptWebAppAnswer | null) {
+  async renderWebAppAnswer(webAppQueryId: string, result: InlineQueryResult, data: IData | null | undefined, AGBaseId: string, options?: IOptWebAppAnswer | null) {
     void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
       return await this.api.answerWebAppQuery(webAppQueryId, result, options ?? undefined)
@@ -3441,7 +3344,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | null) {
+  async renderRich(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0] | null, options2?: IOptReplyRich[1] | null) {
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
       return await this.replyWithRichMessage(
@@ -3488,12 +3391,12 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderAutoRich(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0] | null, options2?: IOptReplyRich[1] | IOptEdit | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     const edit = !!this.callbackQuery
     if (edit) {
-      return await this.renderEditRich(keyboard as ITInlineKb, data, AGBaseId, options1, options2 as unknown as ITOptEdit, fallbackEdit)
+      return await this.renderEditRich(keyboard as IInlineKb, data, AGBaseId, options1, options2 as unknown as IOptEdit, fallbackEdit)
     }
-    return await this.renderRich(keyboard, data, AGBaseId, options1, options2 as ITOptReplyRich[1])
+    return await this.renderRich(keyboard, data, AGBaseId, options1, options2 as IOptReplyRich[1])
   }
 
   /**
@@ -3536,7 +3439,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditRich(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0] | null, options2?: IOptEdit | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
       return await this.editMessageText(
@@ -3594,32 +3497,32 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
+  async renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(
     type: T,
-    keyboard?: ITInBoKb | null,
-    data?: ITData | null,
+    keyboard?: IInBoKb | null,
+    data?: IData | null,
     AGBaseId?: string | null,
     options?:
       | (T extends `photo`
-          ? ITOptReplyPhoto
+          ? IOptReplyPhoto
           : T extends `video`
-            ? ITOptReplyVideo
+            ? IOptReplyVideo
             : T extends `audio`
-              ? ITOptReplyAudio
+              ? IOptReplyAudio
               : T extends `document`
-                ? ITOptReplyDocument
+                ? IOptReplyDocument
                 : T extends `animation`
-                  ? ITOptReplyAnimation
+                  ? IOptReplyAnimation
                   : T extends `voice`
-                    ? ITOptReplyVoice
+                    ? IOptReplyVoice
                     : T extends `video_note`
-                      ? ITOptReplyVideoNote
+                      ? IOptReplyVideoNote
                       : T extends `sticker`
-                        ? ITOptReplySticker
+                        ? IOptReplySticker
                         : T extends `location`
-                          ? ITOptReplyLocation
+                          ? IOptReplyLocation
                           : T extends `contact`
-                            ? ITOptReplyContact
+                            ? IOptReplyContact
                             : undefined)
       | null
   ) {
@@ -3691,7 +3594,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null) {
+  async renderMediaGroup(type?: ITMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const opt = {parse_mode: `HTML`, ...(options ?? {})} as Record<string, unknown>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
@@ -3778,7 +3681,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPoll(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null) {
+  async renderPoll(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null) {
     const poll = this.templateManager.getGPoll(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertPoll(poll)
     const correct = poll.correct ?? 0
@@ -3885,8 +3788,8 @@ export class Ctx extends Context {
   async renderBroadcastPoll(
     ids: number[],
     languageCode: string[],
-    keyboard?: ITInBoKb | null,
-    data?: ITData | null,
+    keyboard?: IInBoKb | null,
+    data?: IData | null,
     AGBaseId?: string | null,
     options?: Parameters<Ctx[`replyWithPoll`]>[2] | null,
     throwError: boolean | null = false,
@@ -4041,7 +3944,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderInvoice(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {provider_token?: string}) | null) {
+  async renderInvoice(keyboard?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {provider_token?: string}) | null) {
     const invoice = this.templateManager.getGInvoice(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertInvoice(invoice)
     const providerToken = options?.provider_token
@@ -4107,7 +4010,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPaidMedia(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null) {
+  async renderPaidMedia(keyboard?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null) {
     const paidMedia = this.templateManager.getGPaidMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertPaidMedia(paidMedia)
     const media = paidMedia.media.map((item) => ({
@@ -4245,7 +4148,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPhoto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null) {
+  async renderPhoto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null) {
     return this.renderMedia(`photo`, keyboard, data, AGBaseId, options)
   }
 
@@ -4267,7 +4170,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null) {
+  async renderPhotoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null) {
     return this.renderMediaGroup(`photo`, data, AGBaseId, options)
   }
 
@@ -4290,7 +4193,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideo(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null) {
+  async renderVideo(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null) {
     return this.renderMedia(`video`, keyboard, data, AGBaseId, options)
   }
 
@@ -4312,7 +4215,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null) {
+  async renderVideoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null) {
     return this.renderMediaGroup(`video`, data, AGBaseId, options)
   }
 
@@ -4335,7 +4238,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAudio(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null) {
+  async renderAudio(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null) {
     return this.renderMedia(`audio`, keyboard, data, AGBaseId, options)
   }
 
@@ -4357,7 +4260,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null) {
+  async renderAudioGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null) {
     return this.renderMediaGroup(`audio`, data, AGBaseId, options)
   }
 
@@ -4380,7 +4283,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderDocument(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null) {
+  async renderDocument(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null) {
     return this.renderMedia(`document`, keyboard, data, AGBaseId, options)
   }
 
@@ -4402,7 +4305,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null) {
+  async renderDocumentGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null) {
     return this.renderMediaGroup(`document`, data, AGBaseId, options)
   }
 
@@ -4425,7 +4328,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAnimation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAnimation | null) {
+  async renderAnimation(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAnimation | null) {
     return this.renderMedia(`animation`, keyboard, data, AGBaseId, options)
   }
 
@@ -4448,7 +4351,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVoice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVoice | null) {
+  async renderVoice(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVoice | null) {
     return this.renderMedia(`voice`, keyboard, data, AGBaseId, options)
   }
 
@@ -4471,7 +4374,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideoNote(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideoNote | null) {
+  async renderVideoNote(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideoNote | null) {
     return this.renderMedia(`video_note`, keyboard, data, AGBaseId, options)
   }
 
@@ -4494,7 +4397,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderSticker(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplySticker | null) {
+  async renderSticker(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplySticker | null) {
     return this.renderMedia(`sticker`, keyboard, data, AGBaseId, options)
   }
 
@@ -4522,7 +4425,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderLocation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyLocation | null) {
+  async renderLocation(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyLocation | null) {
     return this.renderMedia(`location`, keyboard, data, AGBaseId, options)
   }
 
@@ -4545,7 +4448,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderContact(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyContact | null) {
+  async renderContact(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyContact | null) {
     return this.renderMedia(`contact`, keyboard, data, AGBaseId, options)
   }
 
@@ -4616,7 +4519,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVenue(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithVenue`]>[4] | null) {
+  async renderVenue(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithVenue`]>[4] | null) {
     const venue = this.templateManager.getGVenue(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const checked = Ctx.assertVenue(venue)
     try {
@@ -4675,7 +4578,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderDice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithDice`]>[1] | null) {
+  async renderDice(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithDice`]>[1] | null) {
     const dice = this.templateManager.getGDice(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const resolved = Ctx.assertDiceEmoji(dice.emoji)
     try {
@@ -4731,7 +4634,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async startGiveaway(params?: ITGiveawayParams | null, options?: ITGiveawayOptions | null) {
+  async startGiveaway(params?: IGiveawayParams | null, options?: IGiveawayOptions | null) {
     if (params === undefined || params === null) throw new Error(`startGiveaway requires giveaway params for page "${this.sendPageName()}"`)
     const raw = typeof params.channels === `string` ? params.channels.split(`,`) : params.channels
     if (!Array.isArray(raw)) throw new Error(`startGiveaway requires channels as chat ids for page "${this.sendPageName()}"`)
@@ -4817,7 +4720,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async postBusinessStory(businessConnectionId?: string | null, content?: ITStoryContent | null, activePeriod?: number | null, options?: Parameters<Ctx[`api`][`postStory`]>[3] | null) {
+  async postBusinessStory(businessConnectionId?: string | null, content?: IStoryContent | null, activePeriod?: number | null, options?: Parameters<Ctx[`api`][`postStory`]>[3] | null) {
     if (typeof businessConnectionId !== `string` || businessConnectionId.length < 1) throw new Error(`postBusinessStory requires a business connection id for page "${this.sendPageName()}" (stories are business-connection-only)`)
     if (content === undefined || content === null) throw new Error(`postBusinessStory requires story content for page "${this.sendPageName()}"`)
     if (content.type !== `photo` && content.type !== `video`) throw new Error(`postBusinessStory requires content type "photo" or "video" for page "${this.sendPageName()}" (got "${String(content.type)}")`)
@@ -4874,7 +4777,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async editBusinessStory(businessConnectionId?: string | null, storyId?: number | null, content?: ITStoryContent | null, options?: Parameters<Ctx[`api`][`editStory`]>[3] | null) {
+  async editBusinessStory(businessConnectionId?: string | null, storyId?: number | null, content?: IStoryContent | null, options?: Parameters<Ctx[`api`][`editStory`]>[3] | null) {
     if (typeof businessConnectionId !== `string` || businessConnectionId.length < 1) throw new Error(`editBusinessStory requires a business connection id for page "${this.sendPageName()}" (stories are business-connection-only)`)
     if (typeof storyId !== `number` || !Number.isInteger(storyId) || storyId <= 0) throw new Error(`editBusinessStory requires storyId as a positive integer for page "${this.sendPageName()}" (got "${String(storyId)}")`)
     if (content === undefined || content === null) throw new Error(`editBusinessStory requires story content for page "${this.sendPageName()}"`)
@@ -4974,12 +4877,12 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEdit | IOptReply | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     const edit = !!this.callbackQuery
     if (edit) {
-      return await this.renderEdit(keyboard as ITInlineKb, data, AGBaseId, options as ITOptEdit, fallbackEdit)
+      return await this.renderEdit(keyboard as IInlineKb, data, AGBaseId, options as IOptEdit, fallbackEdit)
     }
-    return await this.render(keyboard, data, AGBaseId, options as ITOptReply)
+    return await this.render(keyboard, data, AGBaseId, options as IOptReply)
   }
 
   /**
@@ -5001,40 +4904,40 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAutoMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
+  async renderAutoMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(
     type: T,
-    keyboard?: ITInBoKb | null,
-    data?: ITData | null,
+    keyboard?: IInBoKb | null,
+    data?: IData | null,
     AGBaseId?: string | null,
     options1?:
       | (T extends `photo`
-          ? ITOptReplyPhoto
+          ? IOptReplyPhoto
           : T extends `video`
-            ? ITOptReplyVideo
+            ? IOptReplyVideo
             : T extends `audio`
-              ? ITOptReplyAudio
+              ? IOptReplyAudio
               : T extends `document`
-                ? ITOptReplyDocument
+                ? IOptReplyDocument
                 : T extends `animation`
-                  ? ITOptReplyAnimation
+                  ? IOptReplyAnimation
                   : T extends `voice`
-                    ? ITOptReplyVoice
+                    ? IOptReplyVoice
                     : T extends `video_note`
-                      ? ITOptReplyVideoNote
+                      ? IOptReplyVideoNote
                       : T extends `sticker`
-                        ? ITOptReplySticker
+                        ? IOptReplySticker
                         : T extends `location`
-                          ? ITOptReplyLocation
+                          ? IOptReplyLocation
                           : T extends `contact`
-                            ? ITOptReplyContact
+                            ? IOptReplyContact
                             : undefined)
       | null,
-    options2?: ITOptEditMedia2 | null,
-    fallbackEdit: ITOptFallbackEdit = `delete-reply`
+    options2?: IOptEditMedia2 | null,
+    fallbackEdit: IOptFallbackEdit = `delete-reply`
   ) {
     const edit = !!this.callbackQuery
     if (edit) {
-      return await this.renderEditMedia(type, keyboard as ITInlineKb, data, AGBaseId, options1 as never, options2, fallbackEdit)
+      return await this.renderEditMedia(type, keyboard as IInlineKb, data, AGBaseId, options1 as never, options2, fallbackEdit)
     }
     return await this.renderMedia(type, keyboard, data, AGBaseId, options1)
   }
@@ -5052,7 +4955,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null) {
+  async renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null) {
     const edit = !!this.callbackQuery
     if (edit) {
       return await this.renderEditMediaGroup(type, data, AGBaseId, options)
@@ -5087,7 +4990,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPhotoAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyPhoto | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderPhotoAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyPhoto | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`photo`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5118,7 +5021,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideoAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVideo | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderVideoAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyVideo | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`video`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5149,7 +5052,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAudioAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyAudio | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderAudioAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyAudio | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`audio`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5180,7 +5083,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderDocumentAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyDocument | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderDocumentAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyDocument | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`document`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5211,7 +5114,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAnimationAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyAnimation | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderAnimationAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyAnimation | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`animation`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5242,7 +5145,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVoiceAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVoice | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderVoiceAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyVoice | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`voice`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5273,7 +5176,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideoNoteAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVideoNote | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderVideoNoteAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyVideoNote | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`video_note`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5304,7 +5207,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderStickerAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplySticker | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderStickerAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplySticker | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`sticker`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5335,7 +5238,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderLocationAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyLocation | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderLocationAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyLocation | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`location`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5366,7 +5269,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderContactAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyContact | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderContactAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyContact | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderAutoMedia(`contact`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5398,7 +5301,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEdit(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEdit | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
       return await this.editMessageText(msg, {
@@ -5449,7 +5352,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditCaption(keyboardInline: ITInlineKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptEditCaption | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditCaption(keyboardInline: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptEditCaption | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
       return await this.editMessageCaption(
@@ -5503,7 +5406,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditKeyboard(keyboardInline: ITInlineKb | null | undefined, data: ITData | null | undefined, AGBaseId: string, options?: ITOptEditKeyboard | null) {
+  async renderEditKeyboard(keyboardInline: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptEditKeyboard | null) {
     try {
       let resolved = keyboardInline ?? undefined
       if (resolved === undefined) {
@@ -5511,7 +5414,7 @@ export class Ctx extends Context {
         if (labels.length > 0) {
           const built = new InlineKeyboard()
           for (const label of labels) built.text(label, label)
-          resolved = built as ITInlineKb
+          resolved = built as IInlineKb
         }
       }
       return await this.editMessageReplyMarkup(
@@ -5573,27 +5476,27 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
+  async renderEditMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(
     type: T,
-    keyboardInline?: ITInlineKb | null,
-    data?: ITData | null,
+    keyboardInline?: IInlineKb | null,
+    data?: IData | null,
     AGBaseId?: string | null,
     options1?:
       | (T extends `voice`
-          ? ITOptReplyVoice
+          ? IOptReplyVoice
           : T extends `video_note`
-            ? ITOptReplyVideoNote
+            ? IOptReplyVideoNote
             : T extends `sticker`
-              ? ITOptReplySticker
+              ? IOptReplySticker
               : T extends `location`
-                ? ITOptReplyLocation
+                ? IOptReplyLocation
                 : T extends `contact`
-                  ? ITOptReplyContact
+                  ? IOptReplyContact
                   : //
-                    ITOptEditMedia1)
+                    IOptEditMedia1)
       | null,
-    options2?: ITOptEditMedia2 | null,
-    fallbackEdit: ITOptFallbackEdit = `delete-reply`
+    options2?: IOptEditMedia2 | null,
+    fallbackEdit: IOptFallbackEdit = `delete-reply`
   ) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertMediaPreconditions(type, med)
@@ -5681,7 +5584,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditPhoto(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`photo`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5708,7 +5611,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditVideo(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`video`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5735,7 +5638,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditAudio(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`audio`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5762,7 +5665,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditDocument(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`document`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5803,7 +5706,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditMediaGroup(type?: ITMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     try {
       try {
         await this.deleteMessage()
@@ -5852,7 +5755,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditPhotoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderEditMediaGroup(`photo`, data, AGBaseId, options, fallbackEdit)
   }
 
@@ -5881,7 +5784,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditVideoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderEditMediaGroup(`video`, data, AGBaseId, options, fallbackEdit)
   }
 
@@ -5910,7 +5813,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditAudioGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderEditMediaGroup(`audio`, data, AGBaseId, options, fallbackEdit)
   }
 
@@ -5939,7 +5842,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditDocumentGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return this.renderEditMediaGroup(`document`, data, AGBaseId, options, fallbackEdit)
   }
 
@@ -5966,7 +5869,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditAnimation(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`animation`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
   }
 
@@ -5988,7 +5891,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditVoice(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`voice`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
@@ -6010,7 +5913,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditVideoNote(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`video_note`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
@@ -6032,7 +5935,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditSticker(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`sticker`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
@@ -6054,7 +5957,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditLocation(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`location`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
@@ -6076,7 +5979,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit: ITOptFallbackEdit = `delete-reply`) {
+  async renderEditContact(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     return await this.renderEditMedia(`contact`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
@@ -6128,7 +6031,7 @@ export class Ctx extends Context {
       if (result) {
         this.temp.session = value
         this.memoization.sessionLoaded = true
-        this.memoization.sessionValue = value as ITCacheRpc
+        this.memoization.sessionValue = value as ICacheRpc
       }
       return result
     } catch {
@@ -6154,7 +6057,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async getSession(): Promise<ITCacheRpc | null> {
+  async getSession(): Promise<ICacheRpc | null> {
     if (this.memoization.sessionLoaded) return this.memoization.sessionValue
     this.memoization.sessionLoaded = true
     try {
@@ -6246,36 +6149,36 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static buildData<C extends (...args: string[]) => Array<string | undefined>>(callbackQueryData: C): ITPageData<Parameters<C>>
+  static buildData<C extends (...args: string[]) => Array<string | undefined>>(callbackQueryData: C): IPageData<Parameters<C>>
 
   /**
    * Creates page routing data configuration with options.
    *
-   * @param options - Configuration options (or null to use defaults). See {@link ITBuildDataOptions} for details.
+   * @param options - Configuration options (or null to use defaults). See {@link IBuildDataOptions} for details.
    * @returns The page data configuration object.
    *
    * @public
    */
-  static buildData<C extends (...args: string[]) => Array<string | undefined>>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>
+  static buildData<C extends (...args: string[]) => Array<string | undefined>>(options: IBuildDataOptions<C> | null): IPageData<Parameters<C>>
 
   /**
    * Creates page routing data configuration without a callback arg.
    *
-   * @param options - Configuration options without `callbackQueryData` (or null to use defaults). See {@link ITBuildDataOptions} for details.
+   * @param options - Configuration options without `callbackQueryData` (or null to use defaults). See {@link IBuildDataOptions} for details.
    * @returns The page data configuration object.
    *
    * @public
    */
-  static buildData(options: ITBuildDataOptions | null): ITPageData<[]>
+  static buildData(options: IBuildDataOptions | null): IPageData<[]>
 
   /**
    * Creates default page routing data configuration.
    * @public
    */
-  static buildData(): ITPageData<[]>
-  static buildData(params?: unknown | null): ITPageData {
+  static buildData(): IPageData<[]>
+  static buildData(params?: unknown | null): IPageData {
     const isFunc = typeof params === `function`
-    const options = (isFunc ? {callbackQueryData: params} : (params ?? {})) as ITBuildDataOptions
+    const options = (isFunc ? {callbackQueryData: params} : (params ?? {})) as IBuildDataOptions
     const cbd = options.callbackQueryData //as ((...args: string[]) => string) | null | undefined
     const addPld = this.prototype.addArgs.bind(this.prototype)
     const PageClass = this
@@ -6294,18 +6197,18 @@ export class Ctx extends Context {
     const intentCommandText = cmdTextIsObj ? (rawCmdText.default ?? name) : rawCmdText
     const intentCommandTextMap = cmdTextIsObj ? rawCmdText : undefined
 
-    const data: ITPageData = {
+    const data: IPageData = {
       name,
       intentText,
       intentCommandText,
       intentCallbackQueryData: name,
       callbackQueryData: (cbd
-        ? function (this: ITPageData, ...args: string[]): _KbCallbackData<typeof Ctx, string[]> {
+        ? function (this: IPageData, ...args: string[]): IKbCallbackData<typeof Ctx, string[]> {
             return {result: addPld(this.intentCallbackQueryData, `colon`, cbd(...args)), page: PageClass, args}
           }
-        : function (this: ITPageData): _KbCallbackData<typeof Ctx, []> {
+        : function (this: IPageData): IKbCallbackData<typeof Ctx, []> {
             return {result: this.intentCallbackQueryData, page: PageClass, args: []}
-          }) as ITPageData[`callbackQueryData`],
+          }) as IPageData[`callbackQueryData`],
       _positionArgText: intentText ? intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as unknown as number)
     }
     if (intentTextMap) data.intentTextMap = intentTextMap
@@ -6336,7 +6239,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  keyboardCols<T = unknown>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => unknown): T {
+  keyboardCols<T = unknown>(k: T, l: string[], layout: IKbCols, cb: (e: string, i: number) => unknown): T {
     const [colsStr, lastRowStr] = layout.split(`-`)
     const cols = parseInt(colsStr!)
     const lastRow = lastRowStr ? parseInt(lastRowStr) : null
@@ -6389,13 +6292,13 @@ export class Ctx extends Context {
    *
    * @public
    */
-  bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb
-  bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb
-  bottomKeyboardT(PageDestOrLayout?: unknown, layout?: unknown, AGBaseId?: unknown, data?: unknown): ITBottomKb {
+  bottomKeyboardT(layout: IKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): IBottomKb
+  bottomKeyboardT(PageDest: IKbDest[], layout?: IKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): IBottomKb
+  bottomKeyboardT(PageDestOrLayout?: unknown, layout?: unknown, AGBaseId?: unknown, data?: unknown): IBottomKb {
     // PageDest-based overload
     if (Array.isArray(PageDestOrLayout)) {
-      const PageDest = PageDestOrLayout as ITKbDest[]
-      const ly = (layout ?? `1`) as ITKbCols
+      const PageDest = PageDestOrLayout as IKbDest[]
+      const ly = (layout ?? `1`) as IKbCols
       return this.bottomKeyboard(
         (k, a) => {
           return this.keyboardCols(k, a, ly, (_e, i) => {
@@ -6403,7 +6306,7 @@ export class Ctx extends Context {
             const lang = this.from?.language_code
             if (typeof page !== `string`) {
               if (`result` in page && `page` in page && `args` in page) {
-                const cb = page as unknown as _KbCallbackData
+                const cb = page as unknown as IKbCallbackData
                 k.text(cb.result)
               } else {
                 k.text(Helper.resolvePageTextLang(page, lang))
@@ -6413,16 +6316,16 @@ export class Ctx extends Context {
             }
           })
         },
-        {AGBaseId: (AGBaseId ?? undefined) as string | undefined, data: (data ?? undefined) as ITData | undefined}
+        {AGBaseId: (AGBaseId ?? undefined) as string | undefined, data: (data ?? undefined) as IData | undefined}
       )
     }
     // Template-based overload (existing)
-    const ly = (PageDestOrLayout ?? `1`) as ITKbCols
+    const ly = (PageDestOrLayout ?? `1`) as IKbCols
     return this.bottomKeyboard(
       (k, a) => {
         return this.keyboardCols(k, a, ly, (e) => k.text(e))
       },
-      {AGBaseId: (AGBaseId ?? undefined) as string | undefined, data: (data ?? undefined) as ITData | undefined}
+      {AGBaseId: (AGBaseId ?? undefined) as string | undefined, data: (data ?? undefined) as IData | undefined}
     )
   }
 
@@ -6455,20 +6358,20 @@ export class Ctx extends Context {
    *
    * @public
    */
-  inlineKeyboardT(PageDest: ITKbDest[], layout: ITKbCols = `1`, AGBaseId?: string | null, data?: ITData | null) {
+  inlineKeyboardT(PageDest: IKbDest[], layout: IKbCols = `1`, AGBaseId?: string | null, data?: IData | null) {
     return this.inlineKeyboard(
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e, i) => {
           const page = PageDest[i]!
           if (typeof page !== `string`) {
             if (`result` in page && `page` in page && `args` in page) {
-              const cb = page as unknown as _KbCallbackData
+              const cb = page as unknown as IKbCallbackData
               k.text(e, cb.result)
               return
             }
             const PageClass = typeof page === `function` ? page : (page.constructor as typeof Ctx)
             Helper.ensurePageHasCallback(PageClass)
-            const cb = (PageClass.data as unknown as {callbackQueryData: () => _KbCallbackData<typeof Ctx, []>}).callbackQueryData()
+            const cb = (PageClass.data as unknown as {callbackQueryData: () => IKbCallbackData<typeof Ctx, []>}).callbackQueryData()
             k.text(e, cb.result)
             return
           }
@@ -6487,7 +6390,7 @@ export class Ctx extends Context {
    * from the template. Supports optional caching for performance.
    *
    * @param callback - Builder function that receives keyboard and labels.
-   * @param params - Optional parameters (or null to omit). {@link ITInlineKbParams} for details.
+   * @param params - Optional parameters (or null to omit). {@link IInlineKbParams} for details.
    * @returns The inline keyboard instance.
    *
    * @example
@@ -6503,7 +6406,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null): ITInlineKb {
+  inlineKeyboard(callback: (k: IInlineKb, l: string[]) => IInlineKb, params?: IInlineKbParams | null): IInlineKb {
     const tkey = this.data.name
     if (params?.cache === true && !params?.data) {
       const key = `${tkey}:${params?.AGBaseId ?? `default`}:${this.from?.language_code ?? `default`}:i`
@@ -6515,7 +6418,7 @@ export class Ctx extends Context {
         this.cacheKeyboard.set(key, rkb)
         return rkb
       }
-      return ckb as ITInlineKb
+      return ckb as IInlineKb
     }
     const ikb = new GramstaxInlineKeyboard()
     const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined)
@@ -6531,7 +6434,7 @@ export class Ctx extends Context {
    * from the template. Automatically applies `resized()` to the keyboard.
    *
    * @param callback - Builder function that receives keyboard and labels.
-   * @param params - Optional parameters (or null to omit). {@link ITBottomKbParams} for details.
+   * @param params - Optional parameters (or null to omit). {@link IBottomKbParams} for details.
    * @returns The bottom keyboard instance.
    *
    * @example
@@ -6547,7 +6450,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb {
+  bottomKeyboard(callback: (k: IBottomKb, l: string[]) => IBottomKb, params?: IBottomKbParams | null): IBottomKb {
     const tkey = this.data.name
     if (params?.cache === true && !params?.data) {
       const key = `${tkey}:${params?.AGBaseId ?? `default`}:${this.from?.language_code ?? `default`}:b`
@@ -6560,7 +6463,7 @@ export class Ctx extends Context {
         this.cacheKeyboard.set(key, rkb)
         return rkb
       }
-      return ckb as ITBottomKb
+      return ckb as IBottomKb
     }
     const kb = new GramstaxKeyboard()
     const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined)

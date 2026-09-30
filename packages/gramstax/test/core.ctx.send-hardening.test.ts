@@ -3,7 +3,7 @@ import {mkdir, rm, writeFile} from "node:fs/promises"
 import {join} from "node:path"
 import {GrammyError, HttpError, InputFile} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 const TEST_DIR = join(import.meta.dir, `ctx_send_hardening`)
 
@@ -40,13 +40,13 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
 const makeCtx = (med: unknown, api: Record<string, unknown>, log?: unknown) => {
   const tm = {getGMedia: mock(() => med), getGMessage: mock(() => `hello`)} as never
   const update = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
-  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+  const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new HardPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: tm as ITCtxParams[`templateManager`],
-    log: (log ?? null) as ITCtxParams[`log`],
+    templateManager: tm as ICtxParams[`templateManager`],
+    log: (log ?? null) as ICtxParams[`log`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
@@ -346,12 +346,12 @@ describe(`send-broadcast-fallback`, () => {
     })
     const tm = {getGMessage: mock(() => `hello`)} as never
     const update = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
-    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ITCtxParams[`ct`]
+    const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
     const ctx = new HardPage({
       ct,
-      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: tm as ITCtxParams[`templateManager`],
+      templateManager: tm as ICtxParams[`templateManager`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
     const res = await ctx.renderBroadcast([1], [`en`])

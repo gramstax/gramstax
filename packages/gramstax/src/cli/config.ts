@@ -1,124 +1,10 @@
 import {existsSync} from "node:fs"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
-import type {APIThrottlerOptions} from "@grammyjs/transformer-throttler"
-import type {BotConfig, Context} from "grammy"
-import type {ITSessionLockOnContended} from "../core/session-lock"
-import type {ITRateLimitOptions, ITWebhookQueueConfig} from "../types/t.bot"
-import type {ITTemplateOptions} from "../types/t.template"
-
-/**
- * File-path reference to a class or value living in a project module.
- *
- * @remarks
- * A bare string resolves the module's default export with zero arguments.
- * The object form picks a named export and spreads `args` into the
- * constructor. Paths resolve relative to the project root (cwd).
- * Materialized only by `gramstax start` — never by `gramstax build`.
- *
- * @public
- */
-export type ITGramstaxModuleRef = {
-  /** Module path relative to the project root, e.g. `./src/cache.ts`. */
-  module: string
-  /** Named export to use (`default` when omitted). */
-  export?: string
-  /** Constructor arguments spread into `new Export(...args)`. */
-  args?: unknown[]
-}
-
-/**
- * Either a bare module path (default export, zero-arg) or a full module ref.
- *
- * @public
- */
-export type ITGramstaxPathRef = string | ITGramstaxModuleRef
-
-/**
- * `cacheSession` slot: a path-ref to a `CacheExternal` subclass, or builtin
- * params mirrored from the real constructor `(store, ttlMs, namespace?)`.
- *
- * @public
- */
-export type ITGramstaxCacheSessionRef = ITGramstaxPathRef | {store: string; ttlMs?: number; namespace?: string}
-
-/**
- * `cacheKeyboard` slot: a path-ref to a `Map` subclass, an entries array, or
- * a plain object (entries via `Object.entries`).
- *
- * @public
- */
-export type ITGramstaxCacheKeyboardRef = ITGramstaxPathRef | Array<[string, unknown]> | Record<string, unknown>
-
-/**
- * `templateManager` slot: a path-ref to a `TemplateManager` subclass, or
- * builtin `ITTemplateOptions` passed to `new TemplateManager(params)`.
- *
- * @public
- */
-export type ITGramstaxTemplateManagerRef = ITGramstaxPathRef | ITTemplateOptions
-
-/**
- * `log` slot: `true` for the default logger, `false`/omitted for silent,
- * otherwise a path-ref (or logger options) resolving to a `LoggingHelper`.
- *
- * @public
- */
-export type ITGramstaxLogRef = boolean | ITGramstaxPathRef | {pathFile?: string | null; force?: `console` | `file` | `all`; formatTime?: string}
-
-/**
- * `sessionLock` slot: scalars plus an optional `key` factory given as a
- * path-ref resolving to `(ctx) => string`.
- *
- * @public
- */
-export type ITGramstaxSessionLockRef = {
-  enabled?: boolean
-  leaseMs?: number
-  onContended?: ITSessionLockOnContended
-  key?: ITGramstaxPathRef
-}
-
-export type ITGramstaxConfig = {
-  /** Bot token value (author-written env-or-literal, mirrors `ITGramstaxParams.token`). Optional at load so `gramstax build` stays zero-config. */
-  token?: string
-  /** Deploy mode. Plain `string` (not a literal union) so author-written env expressions like `process.env.X ?? "polling"` typecheck — membership in polling, webhook, serverless, raw, test is enforced by the loader below. CLI `--deploy` wins. */
-  deploy?: string
-  /** Structured deploy options for `webhook`/`serverless` modes (mirrors `ITGramstaxParams.optionsDeploy`). */
-  optionsDeploy?: {adapter?: string; name?: string; url?: string}
-  mediaRoots?: string[] | null
-  botConfig?: BotConfig<Context>
-  webhookQueue?: ITWebhookQueueConfig
-  autoRetry?: boolean
-  autoRetryOptions?: {maxRetryAttempts?: number; retryOnInternalServerErrors?: boolean}
-  rateLimit?: ITRateLimitOptions
-  throttle?: APIThrottlerOptions
-  updateTimeoutMs?: number
-  skipDuplicateUpdate?: boolean
-  /** Webhook secret token value (mirrors `ITGramstaxParams.webhookSecretToken`). */
-  webhookSecretToken?: string
-  maxTextLength?: number
-  statusServerPort?: number
-  statusServerHostname?: string
-  pollingMaxRetries?: number
-  optionsPage?: {shortCallbackQueryData?: boolean}
-  cacheSession?: ITGramstaxCacheSessionRef
-  cacheKeyboard?: ITGramstaxCacheKeyboardRef
-  templateManager?: ITGramstaxTemplateManagerRef
-  log?: ITGramstaxLogRef
-  sessionLock?: ITGramstaxSessionLockRef
-}
-
-/**
- * NextConfig-style alias for the `gramstax.config.ts` shape.
- *
- * @remarks
- * Thin alias of `ITGramstaxConfig` so scaffolded projects can write
- * `const config: GramstaxConfig = {...}` and get typo-checking on every key.
- *
- * @public
- */
-export type GramstaxConfig = ITGramstaxConfig
+import type {IRateLimitOptions, IWebhookQueueConfig} from "~/types/bot"
+import type {IGramstaxCacheKeyboardRef, IGramstaxCacheSessionRef, IGramstaxConfig, IGramstaxExplicitBuildKeys, IGramstaxLogRef, IGramstaxModuleRef, IGramstaxPathRef, IGramstaxSessionLockRef, IGramstaxTemplateManagerRef} from "~/types/config"
+import type {ISessionLockOnContended} from "~/types/session-lock"
+import type {ITemplateOptions} from "~/types/template"
 
 const VALID_ADAPTERS = [`cloudflare-mod`, `aws-lambda-async`]
 const VALID_DEPLOYS = [`polling`, `webhook`, `serverless`, `raw`, `test`]
@@ -149,25 +35,10 @@ const TOP_LEVEL_FIELDS = [
 ]
 const OVERRIDE_SLOTS = [`cacheSession`, `cacheKeyboard`, `templateManager`, `log`, `sessionLock`]
 
-export const DEFAULT_CONFIG: ITGramstaxConfig = {deploy: `polling`}
-
-/**
- * Which build-relevant keys a `gramstax.config.ts` file explicitly defines.
- *
- * @remarks
- * The merged `loadConfig` result cannot distinguish "from file" vs "default",
- * so `gramstax build --dry-run` consults this helper to annotate each printed
- * value with its source (`flag` wins, else `config` when the file exists and
- * defines the key, else `default`). Reads the raw default export without
- * validation — callers must `loadConfig` first so invalid shapes still throw
- * the usual `Invalid gramstax config` error.
- *
- * @public
- */
-export type ITGramstaxExplicitBuildKeys = {hasFile: boolean; deploy: boolean; adapter: boolean; name: boolean; url: boolean}
+export const DEFAULT_CONFIG: IGramstaxConfig = {deploy: `polling`}
 
 export class GramstaxConfigLoader {
-  async loadConfig(cwd: string): Promise<ITGramstaxConfig> {
+  async loadConfig(cwd: string): Promise<IGramstaxConfig> {
     const file = join(cwd, `gramstax.config.ts`)
     if (existsSync(file) === false) return {deploy: DEFAULT_CONFIG.deploy}
     const imported: {default?: unknown} = await import(pathToFileURL(file).href).catch((error: unknown) => {
@@ -177,8 +48,8 @@ export class GramstaxConfigLoader {
     return this._validateConfig(file, imported.default)
   }
 
-  async loadExplicitBuildKeys(cwd: string): Promise<ITGramstaxExplicitBuildKeys> {
-    const absent: ITGramstaxExplicitBuildKeys = {hasFile: false, deploy: false, adapter: false, name: false, url: false}
+  async loadExplicitBuildKeys(cwd: string): Promise<IGramstaxExplicitBuildKeys> {
+    const absent: IGramstaxExplicitBuildKeys = {hasFile: false, deploy: false, adapter: false, name: false, url: false}
     const file = join(cwd, `gramstax.config.ts`)
     if (existsSync(file) === false) return absent
     const imported: {default?: unknown} = await import(pathToFileURL(file).href).catch(() => ({default: undefined}))
@@ -189,7 +60,7 @@ export class GramstaxConfigLoader {
     return {hasFile: true, deploy: raw.deploy !== undefined, adapter: optionsDeploy?.adapter !== undefined, name: optionsDeploy?.name !== undefined, url: optionsDeploy?.url !== undefined}
   }
 
-  _validateConfig(file: string, loaded: unknown): ITGramstaxConfig {
+  _validateConfig(file: string, loaded: unknown): IGramstaxConfig {
     if (loaded === undefined || loaded === null || typeof loaded !== `object`) {
       throw new Error(`Invalid gramstax config at ${file}: default export must be an object with optional \`deploy\`, \`token\` and \`optionsDeploy\` sections`)
     }
@@ -199,7 +70,7 @@ export class GramstaxConfigLoader {
         throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` (supported: ${TOP_LEVEL_FIELDS.join(`, `)})`)
       }
     }
-    const config: ITGramstaxConfig = {deploy: DEFAULT_CONFIG.deploy}
+    const config: IGramstaxConfig = {deploy: DEFAULT_CONFIG.deploy}
     // Empty allowed here: author pattern `process.env.X ?? ""` yields `""` when unset and env-less `gramstax build` must keep working.
     const token = record.token
     if (token !== undefined) {
@@ -224,14 +95,14 @@ export class GramstaxConfigLoader {
       if (mediaRoots !== null && (Array.isArray(mediaRoots) === false || (mediaRoots as Array<unknown>).some((root) => typeof root !== `string` || (root as string).length === 0))) {
         throw new Error(`Invalid gramstax config at ${file}: \`mediaRoots\` must be an array of non-empty strings or null`)
       }
-      config.mediaRoots = mediaRoots as ITGramstaxConfig[`mediaRoots`]
+      config.mediaRoots = mediaRoots as IGramstaxConfig[`mediaRoots`]
     }
     const botConfig = record.botConfig
     if (botConfig !== undefined) {
       if (this._isRecord(botConfig) === false) {
         throw new Error(`Invalid gramstax config at ${file}: \`botConfig\` must be an object`)
       }
-      config.botConfig = botConfig as ITGramstaxConfig[`botConfig`]
+      config.botConfig = botConfig as IGramstaxConfig[`botConfig`]
     }
     const webhookQueue = record.webhookQueue
     if (webhookQueue !== undefined) {
@@ -257,7 +128,7 @@ export class GramstaxConfigLoader {
       if (this._isRecord(throttle) === false) {
         throw new Error(`Invalid gramstax config at ${file}: \`throttle\` must be an object`)
       }
-      config.throttle = throttle as ITGramstaxConfig[`throttle`]
+      config.throttle = throttle as IGramstaxConfig[`throttle`]
     }
     const updateTimeoutMs = record.updateTimeoutMs
     if (updateTimeoutMs !== undefined) {
@@ -370,7 +241,7 @@ export class GramstaxConfigLoader {
     return typeof value === `object` && value !== null && Array.isArray(value) === false
   }
 
-  _validatePathRef(file: string, field: string, value: unknown): ITGramstaxPathRef {
+  _validatePathRef(file: string, field: string, value: unknown): IGramstaxPathRef {
     if (typeof value === `string`) {
       if (value.length === 0 || value.trim().length === 0) {
         throw new Error(`Invalid gramstax config at ${file}: \`${field}\` path must be a non-empty string`)
@@ -380,7 +251,7 @@ export class GramstaxConfigLoader {
     if (this._isRecord(value) === false || typeof value.module !== `string` || value.module.length === 0) {
       throw new Error(`Invalid gramstax config at ${file}: \`${field}\` must be a module path string or \`{module, export?, args?}\``)
     }
-    const ref: ITGramstaxModuleRef = {module: value.module}
+    const ref: IGramstaxModuleRef = {module: value.module}
     if (value.export !== undefined) {
       if (typeof value.export !== `string` || value.export.length === 0) {
         throw new Error(`Invalid gramstax config at ${file}: \`${field}.export\` must be a non-empty string`)
@@ -401,7 +272,7 @@ export class GramstaxConfigLoader {
     return ref
   }
 
-  _validateWebhookQueue(file: string, value: unknown): ITWebhookQueueConfig {
+  _validateWebhookQueue(file: string, value: unknown): IWebhookQueueConfig {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`webhookQueue\` must be an object`)
     }
@@ -431,7 +302,7 @@ export class GramstaxConfigLoader {
     if (value.waiterTimeoutMs !== undefined && (typeof value.waiterTimeoutMs !== `number` || Number.isFinite(value.waiterTimeoutMs) === false || (value.waiterTimeoutMs as number) < 0)) {
       throw new Error(`Invalid gramstax config at ${file}: \`webhookQueue.waiterTimeoutMs\` must be a non-negative number`)
     }
-    return value as ITWebhookQueueConfig
+    return value as IWebhookQueueConfig
   }
 
   _validateAutoRetryOptions(file: string, value: unknown): {maxRetryAttempts?: number; retryOnInternalServerErrors?: boolean} {
@@ -452,7 +323,7 @@ export class GramstaxConfigLoader {
     return value as {maxRetryAttempts?: number; retryOnInternalServerErrors?: boolean}
   }
 
-  _validateRateLimit(file: string, value: unknown): ITRateLimitOptions {
+  _validateRateLimit(file: string, value: unknown): IRateLimitOptions {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`rateLimit\` must be an object`)
     }
@@ -467,7 +338,7 @@ export class GramstaxConfigLoader {
     if (typeof value.max !== `number` || Number.isFinite(value.max) === false || (value.max as number) <= 0) {
       throw new Error(`Invalid gramstax config at ${file}: \`rateLimit.max\` must be a positive number`)
     }
-    return value as ITRateLimitOptions
+    return value as IRateLimitOptions
   }
 
   _validateOptionsPage(file: string, value: unknown): {shortCallbackQueryData?: boolean} {
@@ -485,7 +356,7 @@ export class GramstaxConfigLoader {
     return value as {shortCallbackQueryData?: boolean}
   }
 
-  _validateCacheSession(file: string, value: unknown): ITGramstaxCacheSessionRef {
+  _validateCacheSession(file: string, value: unknown): IGramstaxCacheSessionRef {
     if (typeof value === `string` || (this._isRecord(value) === true && `module` in value)) {
       return this._validatePathRef(file, `cacheSession`, value)
     }
@@ -509,18 +380,18 @@ export class GramstaxConfigLoader {
     return value as {store: string; ttlMs?: number; namespace?: string}
   }
 
-  _validateCacheKeyboard(file: string, value: unknown): ITGramstaxCacheKeyboardRef {
+  _validateCacheKeyboard(file: string, value: unknown): IGramstaxCacheKeyboardRef {
     if (typeof value === `string` || (this._isRecord(value) === true && `module` in value)) {
-      return this._validatePathRef(file, `cacheKeyboard`, value) as ITGramstaxCacheKeyboardRef
+      return this._validatePathRef(file, `cacheKeyboard`, value) as IGramstaxCacheKeyboardRef
     }
     if (Array.isArray(value) === true) return value as Array<[string, unknown]>
     if (this._isRecord(value) === true) return value as Record<string, unknown>
     throw new Error(`Invalid gramstax config at ${file}: \`cacheKeyboard\` must be a module path string, \`{module, export?, args?}\`, an entries array, or a plain object`)
   }
 
-  _validateTemplateManager(file: string, value: unknown): ITGramstaxTemplateManagerRef {
+  _validateTemplateManager(file: string, value: unknown): IGramstaxTemplateManagerRef {
     if (typeof value === `string` || (this._isRecord(value) === true && `module` in value)) {
-      return this._validatePathRef(file, `templateManager`, value) as ITGramstaxTemplateManagerRef
+      return this._validatePathRef(file, `templateManager`, value) as IGramstaxTemplateManagerRef
     }
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`templateManager\` must be a module path string, \`{module, export?, args?}\`, or template options with \`path\``)
@@ -542,13 +413,13 @@ export class GramstaxConfigLoader {
     if (value.onReload !== undefined && typeof value.onReload !== `function`) {
       throw new Error(`Invalid gramstax config at ${file}: \`templateManager.onReload\` must be a function`)
     }
-    return value as unknown as ITTemplateOptions
+    return value as unknown as ITemplateOptions
   }
 
-  _validateLog(file: string, value: unknown): ITGramstaxLogRef {
+  _validateLog(file: string, value: unknown): IGramstaxLogRef {
     if (typeof value === `boolean`) return value
     if (typeof value === `string` || (this._isRecord(value) === true && `module` in value)) {
-      return this._validatePathRef(file, `log`, value) as ITGramstaxLogRef
+      return this._validatePathRef(file, `log`, value) as IGramstaxLogRef
     }
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`log\` must be a boolean, a module path string, \`{module, export?, args?}\`, or logger options`)
@@ -570,7 +441,7 @@ export class GramstaxConfigLoader {
     return value as {pathFile?: string | null; force?: `console` | `file` | `all`; formatTime?: string}
   }
 
-  _validateSessionLock(file: string, value: unknown): ITGramstaxSessionLockRef {
+  _validateSessionLock(file: string, value: unknown): IGramstaxSessionLockRef {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`sessionLock\` must be an object`)
     }
@@ -588,10 +459,10 @@ export class GramstaxConfigLoader {
     if (value.onContended !== undefined && value.onContended !== `skip` && value.onContended !== `wait` && value.onContended !== `serialize`) {
       throw new Error(`Invalid gramstax config at ${file}: \`sessionLock.onContended\` must be one of \`skip\`, \`wait\`, \`serialize\``)
     }
-    const ref: ITGramstaxSessionLockRef = {}
+    const ref: IGramstaxSessionLockRef = {}
     if (value.enabled !== undefined) ref.enabled = value.enabled as boolean
     if (value.leaseMs !== undefined) ref.leaseMs = value.leaseMs as number
-    if (value.onContended !== undefined) ref.onContended = value.onContended as ITSessionLockOnContended
+    if (value.onContended !== undefined) ref.onContended = value.onContended as ISessionLockOnContended
     if (value.key !== undefined) ref.key = this._validatePathRef(file, `sessionLock.key`, value.key)
     return ref
   }

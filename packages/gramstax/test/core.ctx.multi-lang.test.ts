@@ -1,6 +1,6 @@
-import {describe, expect, it } from "bun:test"
+import {describe, expect, it} from "bun:test"
 import {Ctx} from "~/core/ctx"
-import type {ITPageData} from "~/types/t.ctx"
+import type {IPageData} from "~/types/ctx"
 
 function makePage(name: string, overrides?: Record<string, any>): typeof Ctx {
   const data = {
@@ -8,10 +8,12 @@ function makePage(name: string, overrides?: Record<string, any>): typeof Ctx {
     intentText: name,
     intentCommandText: name,
     intentCallbackQueryData: name,
-    callbackQueryData() {return {result: name, page: undefined as any, args: []} as any},
+    callbackQueryData() {
+      return {result: name, page: undefined as any, args: []} as any
+    },
     _positionArgText: 1,
     ...overrides
-  } as unknown as ITPageData<any>
+  } as unknown as IPageData<any>
   const page = class extends Ctx {
     static data = data as any
     static template = ``
@@ -27,8 +29,10 @@ describe(`GramstaxInlineKeyboard.text() — page class as data`, () => {
 
   it(`should accept page with handleArgsCallbackQueryData`, () => {
     const Page = makePage(`detail`, {
-      callbackQueryData(id: string) {return {result: `detail:${id}`, page: this, args: [id]} as any}
-    }) as unknown as {data: ITPageData<any>}
+      callbackQueryData(id: string) {
+        return {result: `detail:${id}`, page: this, args: [id]} as any
+      }
+    }) as unknown as {data: IPageData<any>}
     expect(Page.data!.callbackQueryData(`42`).result).toBe(`detail:42`)
     expect(Page.data!.callbackQueryData(`42`).args).toEqual([`42`])
   })
@@ -42,12 +46,14 @@ describe(`Ctx multi-language intentText`, () => {
   })
 
   it(`should store intentTextMap when Record is passed`, () => {
-    const data: ITPageData<any> = {
+    const data: IPageData<any> = {
       name: `balance`,
       intentText: `Balance`,
       intentCommandText: `balance`,
       intentCallbackQueryData: `balance`,
-      callbackQueryData() {return {result: `balance`, page: undefined as any, args: []} as any},
+      callbackQueryData() {
+        return {result: `balance`, page: undefined as any, args: []} as any
+      },
       _positionArgText: 1,
       intentTextMap: {default: `Balance`, id: `Saldo`}
     }
@@ -57,12 +63,14 @@ describe(`Ctx multi-language intentText`, () => {
   })
 
   it(`should derive intentText from map.default`, () => {
-    const data: ITPageData<any> = {
+    const data: IPageData<any> = {
       name: `balance`,
       intentText: `Balance`,
       intentCommandText: `balance`,
       intentCallbackQueryData: `balance`,
-      callbackQueryData() {return {result: `balance`, page: undefined as any, args: []} as any},
+      callbackQueryData() {
+        return {result: `balance`, page: undefined as any, args: []} as any
+      },
       _positionArgText: 1,
       intentTextMap: {default: `Balance`, id: `Saldo`}
     }
@@ -70,12 +78,14 @@ describe(`Ctx multi-language intentText`, () => {
   })
 
   it(`should handle intentCommandText Record`, () => {
-    const data: ITPageData<any> = {
+    const data: IPageData<any> = {
       name: `balance`,
       intentText: `Balance`,
       intentCommandText: `balance`,
       intentCallbackQueryData: `balance`,
-      callbackQueryData() {return {result: `balance`, page: undefined as any, args: []} as any},
+      callbackQueryData() {
+        return {result: `balance`, page: undefined as any, args: []} as any
+      },
       _positionArgText: 1,
       intentCommandTextMap: {default: `balance`, id: `saldo`}
     }
@@ -90,12 +100,14 @@ describe(`GramstaxKeyboard.text() — page class as label`, () => {
   })
 
   it(`should resolve language-specific intentText`, () => {
-    const data: ITPageData<any> = {
+    const data: IPageData<any> = {
       name: `start`,
       intentText: `Start`,
       intentCommandText: `start`,
       intentCallbackQueryData: `start`,
-      callbackQueryData() {return {result: `start`, page: undefined as any, args: []} as any},
+      callbackQueryData() {
+        return {result: `start`, page: undefined as any, args: []} as any
+      },
       _positionArgText: 1,
       intentTextMap: {default: `Start`, id: `Mulai`}
     }

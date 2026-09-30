@@ -1,7 +1,7 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ITCtxParams} from "~/types/t.ctx"
+import type {ICtxParams} from "~/types/ctx"
 
 // ── Test page class ──────────────────────────────────────────────────
 
@@ -24,13 +24,13 @@ function createCtx(api: Record<string, unknown>, update: unknown, text = `hello`
     api,
     me: {id: 9, is_bot: true, first_name: `Bot`} as any,
     update: update as any
-  } as unknown as ITCtxParams[`ct`]
+  } as unknown as ICtxParams[`ct`]
   return new InlineAnswerPage({
     ct,
-    cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+    cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {getGInlineButton: () => button, getGAnswerNote: () => text, getGKeyboard: () => []} as unknown as ITCtxParams[`templateManager`],
-    onSendError: onSendError as unknown as ITCtxParams[`onSendError`],
+    templateManager: {getGInlineButton: () => button, getGAnswerNote: () => text, getGKeyboard: () => []} as unknown as ICtxParams[`templateManager`],
+    onSendError: onSendError as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
 }
