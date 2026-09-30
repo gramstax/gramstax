@@ -10,7 +10,7 @@
  * reflect framework overhead, not app logic.
  *
  * Deploy mode (production intake path, over real HTTP):
- * - `webhook-queue` — a real `Gramstax({deploy: "webhook:<url>"})` with
+ * - `webhook-queue` — a real `Gramstax({deploy: "webhook", optionsDeploy: {url}})` with
  *   `webhookQueue: {enabled: true, ...}` serves updates over HTTP. POST
  *   returns 200 OK on ENQUEUE (see `Gramstax._runWebhook` in
  *   `packages/gramstax/src/core/bot.ts`); a worker pool
@@ -70,12 +70,12 @@ async function runWebhookQueueLevel(conc: number): Promise<LevelResult> {
   const port = await getFreePort()
   const path = `/bench-hook`
   const bot = new BenchBot(
-    botParams(TOKEN, `webhook:http://127.0.0.1:${port}${path}`, mock.apiRoot, manager, {
+    botParams(TOKEN, `webhook`, mock.apiRoot, manager, {
       enabled: true,
       workerCount: QUEUE_WORKERS,
       perChatConcurrency: QUEUE_PER_CHAT,
       maxQueueSize: QUEUE_MAX
-    })
+    }, {url: `http://127.0.0.1:${port}${path}`})
   )
   registerBenchPage(bot)
 

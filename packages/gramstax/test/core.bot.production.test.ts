@@ -145,9 +145,10 @@ describe(`Gramstax startup config validation`, () => {
       () =>
         new Gramstax({
           token: `t`,
-          deploy: `webhook:not-a-url`,
+          deploy: `webhook`,
+          optionsDeploy: {url: `not-a-url`},
           log: false
-        } as any)
+        } as never)
     ).toThrow(/webhook URL/)
   })
 

@@ -8,8 +8,8 @@
  * future webhook throughput numbers are not self-contended.
  *
  * Target shape (mirrors `runWebhookLevel` in `concurrent.bench.ts`):
- * - The bot is started with `deploy: "webhook:<fullUrl>"`, e.g.
- *   `webhook:http://127.0.0.1:3000/bench-hook`. k6 POSTs to exactly that
+ * - The bot is started with `deploy: "webhook"` plus
+ *   `optionsDeploy: {url: "http://127.0.0.1:3000/bench-hook"}`. k6 POSTs to exactly that
  *   `<fullUrl>` (pathname match; anything else is a 404). Pass it via
  *   `WEBHOOK_URL`. The bot also serves `GET /health` on the same origin.
  * - `Content-Type: application/json`. When the bot is constructed with the

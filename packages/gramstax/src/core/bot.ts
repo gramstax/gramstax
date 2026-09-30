@@ -10,9 +10,10 @@
  */
 
 import {timingSafeEqual} from "node:crypto"
-import {readFileSync} from "node:fs"
+import {existsSync, readFileSync} from "node:fs"
+import {createRequire} from "node:module"
 import {dirname, join, parse} from "node:path"
-import {fileURLToPath} from "node:url"
+import {fileURLToPath, pathToFileURL} from "node:url"
 import {autoRetry} from "@grammyjs/auto-retry"
 import {chatMemberFilter, myChatMemberFilter} from "@grammyjs/chat-members"
 import {hydrateFiles} from "@grammyjs/files"
@@ -27,6 +28,7 @@ import {type IRedisLockClient, SessionLock} from "~/core/session-lock"
 import {type LoggingHelper, log} from "~/helpers/log"
 import {MetricsStore, metricsToPrometheus} from "~/helpers/metrics"
 import {PageManager} from "~/page/manager"
+import type {ITAppManifest} from "~/page/manifest"
 import {TemplateManager} from "~/template/manager"
 import type {ITGramstaxCtxScope, ITGramstaxParams, ITUpdateErrorEvent, ITUpdateSuccessEvent, ITWebhookQueueConfig} from "~/types/t.bot"
 import type {ITCt, ITCtMiddleware, ITCtxParams, ITSendErrorHook} from "~/types/t.ctx"
@@ -148,16 +150,15 @@ const _BUILT_IN_FILTER = new Map<string, string>([
   [`message:pinned_message`, `pinmessage`]
 ])
 
-const __dirname = dirname(
-  (() => {
-    try {
-      return __filename
-    } catch {
-      return fileURLToPath(import.meta.url)
-    }
-  })()
-)
-const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
+const __HERE: string | undefined = typeof import.meta.url === `string` ? fileURLToPath(import.meta.url) : undefined
+const __PKG_VERSION__: string = (() => {
+  try {
+    if (__HERE === undefined) throw new Error(`no module path (fs-less runtime)`)
+    return JSON.parse(readFileSync(join(dirname(__HERE), `../../package.json`), `utf-8`)).version as string
+  } catch {
+    return `unknown`
+  }
+})()
 
 /**
  * Keys of `ITCtxParams` (except `ct` and `temp`) missing from `ITGramstaxCtxScope`.
@@ -414,12 +415,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * new Gramstax({token: "BOT_TOKEN", deploy: "polling"})
    *
    * // Webhook mode with Bun's HTTP server
-   * new Gramstax({token: "BOT_TOKEN", deploy: "webhook:https://example.com/bot"})
+   * new Gramstax({token: "BOT_TOKEN", deploy: "webhook", optionsDeploy: {url: "https://example.com/bot"}})
    * ```
    *
    * @example
    * ```typescript
-   * // Serverless mode — Bun std/http adapter
+   * // Serverless mode — worker adapter
    * //
    * // The bot does NOT self-host; instead it sets up handlerBotUpdate
    * // for your serverless runtime. Export the handler and let your
@@ -428,7 +429,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * // bot.ts — instantiation
    * const bot = new Gramstax({
    *   token: process.env.BOT_TOKEN!,
-   *   deploy: "serverless:std/http"
+   *   deploy: "serverless",
+   *   optionsDeploy: {adapter: "cloudflare-mod", url: "https://example.com/webhook"}
    * })
    *
    * // handler.ts — server entry point
@@ -455,7 +457,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * // bot.ts
    * const bot = new Gramstax({
    *   token: process.env.BOT_TOKEN!,
-   *   deploy: "serverless:aws-lambda"
+   *   deploy: "serverless",
+   *   optionsDeploy: {adapter: "aws-lambda-async", url: "https://example.com/webhook"}
    * })
    *
    * // lambda.ts
@@ -474,7 +477,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * // Serverless mode — Cloudflare Workers
    * //
    * // bot.ts
-   * const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless:cloudflare-workers-mod"})
+   * const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless", optionsDeploy: {adapter: "cloudflare-mod", url: "https://example.com/webhook"}})
    *
    * // worker.ts
    * import {bot} from "./bot"
@@ -696,8 +699,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.on(`message:community_chat_joined`, (ctx) => this._onHandle(ctx, `communitychatjoined`, false))
     this.bot.on(`stopped_message_generation`, (ctx) => this._onHandle(ctx, `stoppedgeneration`, false))
 
-    // Load pages AFTER templateManager is initialized
-    this.pages = this._pageLoads(this.templateManager._path?.[0])
+    // Load pages AFTER templateManager is initialized.
+    // Serverless deploys run where no pages directory exists, so when the
+    // caller passes no manifest we auto-load the frozen .gramstax/ output
+    // (built by `gramstax build`) instead of walking the filesystem.
+    // Every other deploy keeps the previous behavior byte-identical.
+    const manifest = params.manifest ?? this._loadBuildManifest(params.deploy)
+    if (manifest !== undefined) {
+      this.log?.info?.(`Load pages from .gramstax build output (auto-detected ${params.deploy} deploy)..`)
+    }
+    this.pages = manifest !== undefined ? this._pageLoadsFromManifest(manifest) : this._pageLoads(this.templateManager._path?.[0])
 
     // Pre-compute chat member filter functions
     if (this.pages.routeChatMember?.length > 0) {
@@ -707,27 +718,37 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     }
 
-    if (params.deploy.startsWith(`polling`)) {
-      this.deployType = `polling`
-      void this._runPolling().catch((error) => this._onStartupError(error))
-    } else if (params.deploy.startsWith(`webhook:`)) {
-      this.deployType = `webhook`
-      void this._runWebhook(params.deploy.split(`webhook:`)[1] as string).catch((error) => this._onStartupError(error))
-    } else if (params.deploy.startsWith(`serverless:`)) {
-      this.deployType = `serverless`
-      void this._runServerless(params.deploy.split(`serverless:`)[1] as string).catch((error) => this._onStartupError(error))
-    } else if (params.deploy.startsWith(`test`)) {
-      this.deployType = `test`
-      const beforeHook = this.hookBeforeStart
-      const afterHook = this.hookAfterStart
-      this.e2e = new E2eHelper(this)
-      this.ready = (async () => {
-        await beforeHook?.call(this)
-        await afterHook?.call(this)
-      })()
-      // nothing, for test unit internal area
-    } else {
-      throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>, raw`)
+    switch (params.deploy) {
+      case `polling`: {
+        this.deployType = `polling`
+        void this._runPolling().catch((error) => this._onStartupError(error))
+        break
+      }
+      case `webhook`: {
+        this.deployType = `webhook`
+        void this._runWebhook(params.optionsDeploy?.url as string).catch((error) => this._onStartupError(error))
+        break
+      }
+      case `serverless`: {
+        this.deployType = `serverless`
+        void this._runServerless(params.optionsDeploy?.adapter as string, params.optionsDeploy?.url).catch((error) => this._onStartupError(error))
+        break
+      }
+      case `test`: {
+        this.deployType = `test`
+        const beforeHook = this.hookBeforeStart
+        const afterHook = this.hookAfterStart
+        this.e2e = new E2eHelper(this)
+        this.ready = (async () => {
+          await beforeHook?.call(this)
+          await afterHook?.call(this)
+        })()
+        // nothing, for test unit internal area
+        break
+      }
+      default: {
+        throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test (got "${params.deploy}")`)
+      }
     }
 
     this._startStatusServer()
@@ -792,15 +813,42 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (params.webhookQueue?.enqueueTimeoutMs !== undefined && (!Number.isFinite(params.webhookQueue.enqueueTimeoutMs) || params.webhookQueue.enqueueTimeoutMs < 0)) {
       throw new Error(`webhookQueue.enqueueTimeoutMs must be a non-negative number`)
     }
-    if (params.deploy.startsWith(`webhook:`)) {
+    if (typeof params.deploy === `string` && params.deploy.includes(`:`)) {
+      throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test with optionsDeploy {adapter, name, url} (legacy colon forms are removed, got "${params.deploy}")`)
+    }
+    const modes = [`polling`, `webhook`, `serverless`, `raw`, `test`]
+    if (modes.includes(params.deploy) === false) {
+      throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test (got "${params.deploy}")`)
+    }
+    const adapters = [`cloudflare-mod`, `aws-lambda-async`]
+    const defined = params.optionsDeploy !== undefined && (params.optionsDeploy.adapter !== undefined || params.optionsDeploy.name !== undefined || params.optionsDeploy.url !== undefined)
+    const isRealUrl = (url: unknown): url is string => typeof url === `string` && /^https?:\/\/.+/.test(url) && url.includes(`<`) === false
+    if (params.deploy === `serverless`) {
+      if (params.optionsDeploy?.adapter === undefined || adapters.includes(params.optionsDeploy.adapter) === false) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.adapter to be one of cloudflare-mod, aws-lambda-async (got "${params.optionsDeploy?.adapter ?? ``}")`)
+      }
+      if (isRealUrl(params.optionsDeploy?.url) === false) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.url to be a real http(s) URL with no placeholder (got "${params.optionsDeploy?.url ?? ``}")`)
+      }
+    } else if (params.deploy === `webhook`) {
+      if (params.optionsDeploy?.adapter !== undefined || params.optionsDeploy?.name !== undefined) {
+        throw new Error(`Params deploy webhook forbids optionsDeploy.adapter and optionsDeploy.name (webhook needs optionsDeploy.url only)`)
+      }
+      if (isRealUrl(params.optionsDeploy?.url) === false) {
+        throw new Error(`deploy webhook URL is not valid: "${params.optionsDeploy?.url ?? ``}"`)
+      }
       let parsed: URL
       try {
-        parsed = new URL(params.deploy.split(`webhook:`)[1] as string)
+        parsed = new URL(params.optionsDeploy.url as string)
       } catch {
-        throw new Error(`deploy webhook URL is not valid: "${params.deploy}"`)
+        throw new Error(`deploy webhook URL is not valid: "${params.optionsDeploy?.url ?? ``}"`)
       }
       if (parsed.protocol !== `https:` && parsed.protocol !== `http:`) {
-        throw new Error(`deploy webhook URL must use http(s): "${params.deploy}"`)
+        throw new Error(`deploy webhook URL must use http(s): "${params.optionsDeploy?.url ?? ``}"`)
+      }
+    } else if (params.deploy === `polling` || params.deploy === `raw` || params.deploy === `test`) {
+      if (defined) {
+        throw new Error(`Params deploy "${params.deploy}" forbids non-empty optionsDeploy (got adapter/name/url, use deploy "webhook" or "serverless" for deploy options)`)
       }
     }
   }
@@ -1713,14 +1761,27 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @remarks
    * Configures the handler for serverless adapters (e.g., AWS Lambda, Cloudflare Workers).
+   * When a public URL is given (`serverless` with `optionsDeploy.url`), registers it
+   * via `setWebhook` unless already set — mirroring `_runWebhook`.
    *
-   * @param adapter - The adapter name (e.g., "std/http", "aws-lambda").
+   * @param adapter - The adapter name (e.g., "cloudflare-mod", "aws-lambda-async").
+   * @param publicUrl - Optional full public webhook URL to register.
    *
    * @internal
    */
-  async _runServerless(adapter: string): Promise<void> {
+  async _runServerless(adapter: string, publicUrl?: string): Promise<void> {
     await this.hookBeforeStart?.()
     this.handlerBotUpdate = webhookCallback(this.bot, adapter as string as Parameters<typeof webhookCallback>[1])
+    if (publicUrl !== undefined) {
+      const data = await this.bot.api.getWebhookInfo()
+      if (data.url !== publicUrl) {
+        if (this._webhookSecretToken) {
+          await this.bot.api.setWebhook(publicUrl, {secret_token: this._webhookSecretToken})
+        } else {
+          await this.bot.api.setWebhook(publicUrl)
+        }
+      }
+    }
     const botInfo = await this.bot.api.getMe()
     await this._onStart(botInfo, `serverless`, adapter)
   }
@@ -1754,6 +1815,66 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       if (!d.intentCommandText) d.intentCommandText = d.name
       if (!d.intentCallbackQueryData) d.intentCallbackQueryData = d.name
     }
+  }
+
+  /**
+   * Registers one page entry into the routing tables.
+   *
+   * @remarks
+   * Shared by disk scan (`_pageLoads`) and manifest boot
+   * (`_pageLoadsFromManifest`) so both paths enforce identical
+   * uniqueness rules and route sorting.
+   *
+   * @internal
+   */
+  _pageRegisterEntry(
+    entry: {path: string; page: typeof Ctx; routeName: string},
+    pages: typeof Gramstax.prototype.pages,
+    index: number,
+    seen: {names: Set<string>; intentText: Set<string>; intentCommandText: Set<string>; intentCallbackQueryData: Set<string>}
+  ): void {
+    const {path, page, routeName} = entry
+    this._pageBuildData(page, path, routeName)
+
+    const pd = page.data!
+    if (seen.names.has(pd.name)) {
+      throw new Error(`Duplicate page name "${pd.name}" in ${path} (${page.name}). Each page must have a unique name set via buildData({name: ...}) or derived from the filename.`)
+    }
+    seen.names.add(pd.name)
+
+    // Check uniqueness against the final routing keys (with `/` and `lang:` prefixes)
+    const _checkIntentVariants = (variant: string, seenSet: Set<string>, label: string) => {
+      if (seenSet.has(variant)) {
+        throw new Error(`Duplicate ${label} "${variant}" in ${path} (${page.name}). Each intentText/intentCommandText variant must be unique across all pages.`)
+      }
+      seenSet.add(variant)
+    }
+    if (pd.intentTextMap) {
+      for (const [lang, intent] of Object.entries(pd.intentTextMap)) {
+        _checkIntentVariants(`${lang}:${intent}`, seen.intentText, `intentText variant`)
+      }
+    } else if (pd.intentText) {
+      _checkIntentVariants(pd.intentText, seen.intentText, `intentText`)
+    }
+    if (pd.intentCommandTextMap) {
+      for (const [, intent] of Object.entries(pd.intentCommandTextMap)) {
+        if (intent) _checkIntentVariants(`/${intent}`, seen.intentCommandText, `intentCommandText variant`)
+      }
+    } else if (pd.intentCommandText) {
+      _checkIntentVariants(`/${pd.intentCommandText}`, seen.intentCommandText, `intentCommandText`)
+    }
+
+    this._pageSorts(page, pages, index) // sort route method
+
+    // Callback duplicate check runs AFTER the short-id mutation above so it
+    // compares the final routing keys (the index scheme is preserved).
+    if (pd.intentCallbackQueryData) {
+      if (seen.intentCallbackQueryData.has(pd.intentCallbackQueryData)) {
+        throw new Error(`Duplicate intentCallbackQueryData "${pd.intentCallbackQueryData}" in ${path} (${page.name}). Pages must have unique intentCallbackQueryData values for callback query routing. Override via buildData({callbackQueryData: ...}).`)
+      }
+      seen.intentCallbackQueryData.add(pd.intentCallbackQueryData)
+    }
+    delete page.template // delete template for efficient memory
   }
 
   /**
@@ -2307,49 +2428,95 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const seenIntentCommandText = new Set<string>()
     const seenIntentCallbackQueryData = new Set<string>()
 
-    PageManager.getFileManySync(pagesPath).forEach(({path, page, routeName}, index) => {
-      this._pageBuildData(page, path, routeName)
-
-      const pd = page.data!
-      if (seenNames.has(pd.name)) {
-        throw new Error(`Duplicate page name "${pd.name}" in ${path} (${page.name}). Each page must have a unique name set via buildData({name: ...}) or derived from the filename.`)
-      }
-      seenNames.add(pd.name)
-
-      // Check uniqueness against the final routing keys (with `/` and `lang:` prefixes)
-      const _checkIntentVariants = (variant: string, seen: Set<string>, label: string) => {
-        if (seen.has(variant)) {
-          throw new Error(`Duplicate ${label} "${variant}" in ${path} (${page.name}). Each intentText/intentCommandText variant must be unique across all pages.`)
-        }
-        seen.add(variant)
-      }
-      if (pd.intentTextMap) {
-        for (const [lang, intent] of Object.entries(pd.intentTextMap)) {
-          _checkIntentVariants(`${lang}:${intent}`, seenIntentText, `intentText variant`)
-        }
-      } else if (pd.intentText) {
-        _checkIntentVariants(pd.intentText, seenIntentText, `intentText`)
-      }
-      if (pd.intentCommandTextMap) {
-        for (const [, intent] of Object.entries(pd.intentCommandTextMap)) {
-          if (intent) _checkIntentVariants(`/${intent}`, seenIntentCommandText, `intentCommandText variant`)
-        }
-      } else if (pd.intentCommandText) {
-        _checkIntentVariants(`/${pd.intentCommandText}`, seenIntentCommandText, `intentCommandText`)
-      }
-
-      this._pageSorts(page, pages, index) // sort route method
-
-      // Callback duplicate check runs AFTER the short-id mutation above so it
-      // compares the final routing keys (the index scheme is preserved).
-      if (pd.intentCallbackQueryData) {
-        if (seenIntentCallbackQueryData.has(pd.intentCallbackQueryData)) {
-          throw new Error(`Duplicate intentCallbackQueryData "${pd.intentCallbackQueryData}" in ${path} (${page.name}). Pages must have unique intentCallbackQueryData values for callback query routing. Override via buildData({callbackQueryData: ...}).`)
-        }
-        seenIntentCallbackQueryData.add(pd.intentCallbackQueryData)
-      }
-      delete page.template // delete template for efficient memory
+    const seen = {names: seenNames, intentText: seenIntentText, intentCommandText: seenIntentCommandText, intentCallbackQueryData: seenIntentCallbackQueryData}
+    PageManager.getFileManySync(pagesPath).forEach((entry, index) => {
+      this._pageRegisterEntry(entry, pages, index, seen)
     })
+
+    this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
+    return pages
+  }
+
+  /**
+   * Registers pages from a static manifest (filesystem-less boot).
+   *
+   * @remarks
+   * Same tables as `_pageLoads` via the shared `_pageRegisterEntry`;
+   * class-inline templates compile under the entry routeName (equal to
+   * the walk-derived template key), `.html` fragments come from
+   * `manifest.templates`. No directory is read.
+   *
+   * @internal
+   */
+  /**
+   * Best-effort load of frozen `.gramstax/` build output for serverless deploys.
+   *
+   * @remarks
+   * Attempted only when `deploy` is `serverless` and the caller
+   * passed no `manifest`. Returns undefined (the caller falls back to the
+   * filesystem walk) when the output is absent or unreadable — it never
+   * throws, so all other deploys behave exactly as before. Edge runtimes
+   * bundle the manifest through the emitted server entry instead; this
+   * path only runs where a real filesystem exists.
+   *
+   * @internal
+   */
+  _loadBuildManifest(deploy: string): ITAppManifest | undefined {
+    if (deploy === `serverless` === false) return undefined
+    try {
+      const base = join(process.cwd(), `.gramstax`)
+      if (existsSync(join(base, `manifest.js`)) === false || existsSync(join(base, `routes.json`)) === false) return undefined
+      const require = createRequire(pathToFileURL(join(process.cwd(), `package.json`)))
+      const loaded = require(join(base, `manifest.js`)) as {default?: ITAppManifest} & Partial<ITAppManifest>
+      const manifest = (loaded.default ?? loaded) as ITAppManifest
+      const routes = require(join(base, `routes.json`)) as ITAppManifest[`routes`]
+      return {...manifest, routes: routes ?? manifest.routes}
+    } catch {
+      return undefined
+    }
+  }
+
+  _pageLoadsFromManifest(manifest: ITAppManifest) {
+    this.log?.info?.(`Load pages from manifest..`)
+
+    const pages = this._buildEmptyPages()
+
+    const seen = {
+      names: new Set<string>(),
+      intentText: new Set<string>(),
+      intentCommandText: new Set<string>(),
+      intentCallbackQueryData: new Set<string>()
+    }
+
+    if (manifest.routes !== undefined) {
+      const byRoute = new Map(manifest.pages.map((entry) => [entry.routeName, entry]))
+      manifest.routes.forEach((route, index) => {
+        const found = byRoute.get(route.routeName)
+        if (found === undefined) {
+          throw new Error(`Route "${route.routeName}" in manifest.routes has no matching page in manifest.pages (file "${route.file}"). Regenerate the manifest.`)
+        }
+        const inline = found.page.template
+        this._pageRegisterEntry({page: found.page, path: route.file, routeName: route.routeName}, pages, index, seen)
+        if (inline !== undefined) {
+          this.templateManager._compile(route.routeName, inline)
+        }
+      })
+    } else {
+      manifest.pages.forEach((entry, index) => {
+        if (entry.routeName.length === 0) {
+          throw new Error(`Empty routeName for "${entry.path}" — manifest entries need the walk-derived route (index files use the parent route).`)
+        }
+        const inline = entry.page.template
+        this._pageRegisterEntry(entry, pages, index, seen)
+        if (inline !== undefined) {
+          this.templateManager._compile(entry.routeName, inline)
+        }
+      })
+    }
+
+    for (const {key, template} of manifest.templates) {
+      this.templateManager._compile(key, template)
+    }
 
     this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
     return pages

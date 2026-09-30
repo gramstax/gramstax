@@ -4,6 +4,7 @@ import type {CacheExternal} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
 import type {ITSessionLockOptions} from "~/core/session-lock"
 import type {LoggingHelper} from "~/helpers/log"
+import type {ITAppManifest} from "~/page/manifest"
 import type {TemplateManager} from "~/template/manager"
 import type {ITCtxParams} from "./t.ctx"
 
@@ -214,8 +215,8 @@ export type ITGramstaxParams = {
    * @remarks
    * Supported modes:
    * - `"polling"` - Long polling mode for development
-   * - `"webhook:<url>"` - Webhook mode with specified URL
-   * - `"serverless:<adapter>"` - Serverless mode with specified adapter
+   * - `"webhook"` - Webhook mode with the public URL in `optionsDeploy.url`
+   * - `"serverless"` - Serverless mode with `optionsDeploy.adapter` + `optionsDeploy.url`
    * - `"test"` - Test mode with E2eHelper
    * - `"raw"` - Bare bot: no pages, no templates, no Gramstax routing.
    *   The constructor builds `this.bot` (`Bot`) and returns without
@@ -223,16 +224,37 @@ export type ITGramstaxParams = {
    *   `bot.bot.start()` (or `bot.bot.startWebhook(...)`) yourself.
    *   `templateManager` is left undefined.
    *
+    * @example
+    * ```typescript
+    * deploy: "polling"
+    * deploy: "webhook"
+    * deploy: "serverless"
+    * deploy: "test"
+    * deploy: "raw"
+    * ```
+    *
+    * Plain `string` (not a literal union) so author-written env expressions
+    * like `process.env.X` typecheck — membership is enforced by the constructor
+    * at runtime with explicit errors.
+    */
+  deploy: string
+
+  /**
+   * Structured deploy options for `webhook` and `serverless` modes.
+   *
+   * @remarks
+   * - `serverless` requires `adapter` (`cloudflare-mod` or `aws-lambda-async`)
+   *   plus a real `url` (`https?://` with no `<` placeholder).
+   * - `webhook` requires a real `url` and forbids `adapter`/`name`.
+   * - `polling`, `raw` and `test` require every field to stay undefined.
+   *
    * @example
    * ```typescript
-   * deploy: "polling"
-   * deploy: "webhook:https://example.com/bot"
-   * deploy: "serverless:std/http"
-   * deploy: "test"
-   * deploy: "raw"
+   * optionsDeploy: {url: `https://example.com/bot`}
+   * optionsDeploy: {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`}
    * ```
    */
-  deploy: string
+  optionsDeploy?: {adapter?: string; name?: string; url?: string}
 
   /**
    * Logger configuration.
@@ -308,6 +330,16 @@ export type ITGramstaxParams = {
    * Allows customization of message template rendering and management.
    */
   templateManager?: TemplateManager
+
+  /**
+   * Static page/template manifest for filesystem-less boot.
+   *
+   * @remarks
+   * When provided, pages register from the manifest instead of scanning
+   * the pages directory (Cloudflare Workers and other fs-less runtimes).
+   * Omit for polling/webhook/test file discovery (unchanged default).
+   */
+  manifest?: ITAppManifest
 
   /**
    * Enable/disable the auto-retry plugin.
@@ -405,7 +437,7 @@ export type ITGramstaxParams = {
   /**
    * Optional HTTP port that serves `GET /health` (liveness) and `GET /stats`
    * (metrics) in any deploy mode. When unset, these routes are only available
-   * on the webhook server (if deployed via `webhook:`).
+   * on the webhook server (if deployed via `webhook`).
    */
   statusServerPort?: number
 

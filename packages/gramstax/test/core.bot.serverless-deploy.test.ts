@@ -27,16 +27,18 @@ class TestGramstax extends Gramstax {
 const mockGrammyBot = () => {
   const realBot = new Bot(`test`) as unknown as Record<string, unknown>
   const handleUpdate = mock(async () => new Response(`OK`, {status: 200}))
+  const setWebhook = mock(async () => true)
   Object.defineProperty(realBot, `api`, {
     value: {
       getMe: mock(async () => ({id: 1, is_bot: true, first_name: `Test`, username: `test`})),
-      getWebhookInfo: mock(async () => ({url: ``}))
+      getWebhookInfo: mock(async () => ({url: ``})),
+      setWebhook
     },
     writable: true
   })
   realBot.init = mock(() => Promise.resolve())
   realBot.handleUpdate = handleUpdate
-  return {realBot, handleUpdate}
+  return {realBot, handleUpdate, setWebhook}
 }
 
 describe(`Gramstax deploy:"serverless"`, () => {
@@ -70,18 +72,20 @@ describe(`Gramstax deploy:"serverless"`, () => {
     }
     const bot = new HookBot({
       token: `test`,
-      deploy: `serverless:std/http`,
+      deploy: `serverless`,
+      optionsDeploy: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`},
       templateManager: new TemplateManager({path: [TEST_DIR]}),
       log: false
     })
     expect(bot.deployType).toBe(`serverless`)
-    const {realBot} = mockGrammyBot()
+    const {realBot, setWebhook} = mockGrammyBot()
     bot.bot = realBot as never
     releaseGate()
     await waitFor(() => (bot as unknown as {handlerBotUpdate?: unknown}).handlerBotUpdate !== undefined)
     expect(typeof (bot as unknown as {handlerBotUpdate: unknown}).handlerBotUpdate).toBe(`function`)
     await waitFor(() => order.includes(`after`))
     expect(order).toEqual([`before`, `after`])
+    expect(setWebhook).toHaveBeenCalledWith(`https://example.com/webhook`)
     await bot.stop()
   })
 
@@ -97,7 +101,8 @@ describe(`Gramstax deploy:"serverless"`, () => {
     }
     const bot = new BoomBot({
       token: `test`,
-      deploy: `serverless:std/http`,
+      deploy: `serverless`,
+      optionsDeploy: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`},
       templateManager: new TemplateManager({path: [TEST_DIR]}),
       log: false
     })
@@ -121,7 +126,7 @@ describe(`Gramstax deploy:"serverless"`, () => {
     bot.bot = realBot as never
     await bot.ready
     order.length = 0
-    await bot._runServerless(`std/http`)
+    await bot._runServerless(`cloudflare-mod`)
     expect(order).toEqual([`before`, `after`])
     const handler = (bot as unknown as {handlerBotUpdate: (req: Request) => Promise<Response>}).handlerBotUpdate
     expect(typeof handler).toBe(`function`)
@@ -135,7 +140,7 @@ describe(`Gramstax deploy:"serverless"`, () => {
 
   it(`rejects unknown deploy values`, () => {
     expect(
-      () => new TestGramstax({token: `test`, deploy: `bogus`, templateManager: new TemplateManager({path: [TEST_DIR]}), log: false})
+      () => new TestGramstax({token: `test`, deploy: `bogus`, templateManager: new TemplateManager({path: [TEST_DIR]}), log: false} as never)
     ).toThrow(/deploy/)
   })
 })

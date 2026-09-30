@@ -24,7 +24,7 @@ k6 version
 k6 only hammers HTTP — a Gramstax bot must already be listening. Reuse the
 bench's startup pattern (thin template-reply page, queue disabled):
 
-- `deploy: "webhook:http://127.0.0.1:<port>/<path>"` (e.g. `/bench-hook`).
+- `deploy: "webhook"` with `optionsDeploy: {url: "http://127.0.0.1:<port>/<path>"}` (e.g. `/bench-hook`).
   k6 must POST to exactly that full URL — any other path is a 404.
 - `webhookQueue: {enabled: false}` (required — see below).
 - `botConfig.client.apiRoot` wired to a `MockTelegramServer` (same as
@@ -40,7 +40,7 @@ bench's startup pattern (thin template-reply page, queue disabled):
 
 | Var | Default | Meaning |
 |-----|---------|---------|
-| `WEBHOOK_URL` | `http://127.0.0.1:3000/bench-hook` | Exact webhook URL from `deploy` |
+| `WEBHOOK_URL` | `http://127.0.0.1:3000/bench-hook` | Exact webhook URL from `optionsDeploy.url` |
 | `SECRET_TOKEN` | (empty = header omitted) | Must match bot `webhookSecretToken` when set |
 | `VUS` | `20` | Virtual users (ramping target / pre-allocated VUs) |
 | `DURATION` | `60s` (`Ns` or `Nm`, total ≤90s by default) | Total run time; split 25/50/25 ramp/hold/down (min 5s each) |

@@ -10,7 +10,7 @@
  * reflect framework overhead, not app logic.
  *
  * Deploy mode (production intake path, over real HTTP):
- * - `webhook` — a real `Gramstax({deploy: "webhook:<url>"})` serves updates
+ * - `webhook` — a real `Gramstax({deploy: "webhook", optionsDeploy: {url}})` serves updates
  *   over HTTP (queue disabled, so the 200 OK is sent after the handler
  *   finishes). N virtual users POST concurrently; per-user latency is
  *   measured from POST start to 200 OK.
@@ -54,7 +54,7 @@ async function runWebhookLevel(conc: number): Promise<LevelResult> {
   await mock.start()
   const port = await getFreePort()
   const path = `/bench-hook`
-  const bot = new BenchBot(botParams(TOKEN, `webhook:http://127.0.0.1:${port}${path}`, mock.apiRoot, manager))
+  const bot = new BenchBot(botParams(TOKEN, `webhook`, mock.apiRoot, manager, undefined, {url: `http://127.0.0.1:${port}${path}`}))
   registerBenchPage(bot)
 
   const base: Omit<LevelResult, `throughput` | `p50` | `p99`> = {mode: `webhook`, conc, total, errors: 0, durationMs: 0, note: null}

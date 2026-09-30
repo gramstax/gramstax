@@ -93,7 +93,7 @@ export function registerBenchPage(bot: BenchBot): void {
   bot._pageSorts(BenchPage, bot.pages, 0)
 }
 
-export function botParams(token: string, deploy: string, apiRoot: string, templateManager: TemplateManager, webhookQueue?: ITWebhookQueueConfig) {
+export function botParams(token: string, deploy: `polling` | `webhook` | `serverless` | `raw` | `test`, apiRoot: string, templateManager: TemplateManager, webhookQueue?: ITWebhookQueueConfig, optionsDeploy?: {adapter?: string; name?: string; url?: string}) {
   return {
     token,
     deploy,
@@ -104,6 +104,7 @@ export function botParams(token: string, deploy: string, apiRoot: string, templa
         apiRoot
       }
     },
+    ...(optionsDeploy === undefined ? {} : {optionsDeploy}),
     ...(webhookQueue === undefined ? {} : {webhookQueue})
   }
 }
