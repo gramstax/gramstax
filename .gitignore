@@ -3,6 +3,7 @@ real-projects
 database
 data
 *.mdb
+.wrangler
 
 # dependencies (bun install)
 node_modules
@@ -10,6 +11,7 @@ node_modules
 # output
 out
 dist
+.gramstax
 .claude/skills/gramstax/assets/
 docs/plans
 *.tgz

@@ -85,6 +85,9 @@
     },
     {
       "path": "./example/10-http-request"
+    },
+    {
+      "path": "./example/11-cloudflare-worker"
     }
   ],
 }

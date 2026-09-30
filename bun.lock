@@ -34,6 +34,12 @@
         "gramstax": "workspace:*",
       },
     },
+    "example/11-cloudflare-worker": {
+      "name": "example-11-cloudflare-worker",
+      "dependencies": {
+        "gramstax": "workspace:*",
+      },
+    },
     "example/2-helloworld": {
       "name": "example-2-helloworld",
       "dependencies": {
@@ -112,6 +118,7 @@
         "@grammyjs/transformer-throttler": "^1.2.1",
         "@keyv/redis": "^5.1.4",
         "chokidar": "^4.0.3",
+        "commander": "^14.0.2",
         "grammy": "^1.46.0",
         "keyv": "^5.5.4",
         "logging-pretty": "^3.0.0",
@@ -139,11 +146,15 @@
         "tsup": "^8.5.1",
       },
       "peerDependencies": {
+        "@aws-sdk/client-s3": "^3.0.0",
         "cbor-x": "^1.6.5",
+        "tar": "^7.0.0",
         "typescript": "^6.0.3",
       },
       "optionalPeers": [
+        "@aws-sdk/client-s3",
         "cbor-x",
+        "tar",
       ],
     },
     "packages/worker-thread": {
@@ -889,6 +900,8 @@
 
     "example-10-http-request": ["example-10-http-request@workspace:example/10-http-request"],
 
+    "example-11-cloudflare-worker": ["example-11-cloudflare-worker@workspace:example/11-cloudflare-worker"],
+
     "example-2-helloworld": ["example-2-helloworld@workspace:example/2-helloworld"],
 
     "example-3-helloworld-js": ["example-3-helloworld-js@workspace:example/3-helloworld-js"],
@@ -1239,7 +1252,7 @@
 
     "cosmiconfig/yaml": ["yaml@1.10.3", "", {}, "sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA=="],
 
-    "gramstax/@types/bun": ["@types/bun@1.4.0", "", { "dependencies": { "bun-types": "1.4.0" } }, "sha512-K+lZULY23vRgK/CfTjFIV+tyifaNdSMlPh9j+6mQ/cLfpOznLyAuzgV/JQysyECpkBQLVMSyvjlr2fBUSA9wFQ=="],
+    "gramstax/@types/bun": ["@types/bun@1.4.2", "", { "dependencies": { "bun-types": "1.4.2" } }, "sha512-GimotNn7+ZV0uVArItBbriZsR1oNf0+WTzPkdcFrzShI7k2norL0uzEaJT8T33dWr7O/c9ZDuAFQrctKCi72oQ=="],
 
     "import-fresh/resolve-from": ["resolve-from@4.0.0", "", {}, "sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g=="],
 
@@ -1269,7 +1282,7 @@
 
     "@swc-node/sourcemap-support/source-map-support/source-map": ["source-map@0.6.1", "", {}, "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g=="],
 
-    "gramstax/@types/bun/bun-types": ["bun-types@1.4.0", "", { "dependencies": { "@types/node": "*" } }, "sha512-iIKw23BspnQQYd3prITOBxeUsxBHnwzX6YJfGMuNOZzeNcMmVqzIIVGRm1l69ogaPQmb4wB6BN8mA5bE9YuC5Q=="],
+    "gramstax/@types/bun/bun-types": ["bun-types@1.4.2", "", { "dependencies": { "@types/node": "*" } }, "sha512-bxV1FgK7yBIzjRe5zBozIM4Bem11ZJcCXSrjWRG3YWLt8yFDePu4cLjpebO8OvPeIE9trbyPF4fuj3Cia4Fj3w=="],
 
     "tsx/esbuild/@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.28.1", "", { "os": "aix", "cpu": "ppc64" }, "sha512-Svl7tq8k/08+p6CXPpRjQ1fKX+1odH/BQbb48fV6fj3CWHhsoIOoY87w1oHXm0qEpkIK3ZfVgp0hed3XBXzXMQ=="],
 
