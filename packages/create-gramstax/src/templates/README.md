@@ -51,9 +51,9 @@ Open Telegram, find your bot, and send `/start`.
 
 | Script          | Description                              |
 | :-------------- | :--------------------------------------- |
-| `dev`           | Start with file watching                 |
-| `start`         | Start in production mode                 |
-| `build`         | Bundle to `dist/`                        |
+| `dev`           | Start with file watching (`gramstax start --watch`) |
+| `start`         | Start in production mode (`gramstax start`) |
+| `build:gramstax`| Freeze pages into `.gramstax/`           |
 | `typecheck`     | Type-check with `tsc --noEmit`           |
 | `lint`          | Lint with Biome                          |
 | `lint:fix`      | Lint and auto-fix with Biome             |
@@ -65,6 +65,7 @@ Open Telegram, find your bot, and send `/start`.
 ## Project Structure
 
 ```
+├── gramstax.config.ts # Bot composition (token env name, deploy, caches) — `gramstax start` boots from this file, no `src/index.ts`
 ├── src/
 │   ├── base/          # Shared base classes (PageBase, GuardBase)
 │   ├── blocks/        # Reusable keyboard block builders
@@ -74,9 +75,7 @@ Open Telegram, find your bot, and send `/start`.
 │   ├── helpers/       # Domain helpers (logging, formatting)
 │   ├── pages/         # Bot screens — one file (or folder) per route
 │   ├── utils/         # Pure generic utilities
-│   ├── workers/       # Background jobs (if enabled)
-│   ├── env.ts         # Typed environment config
-│   └── index.ts       # Entrypoint
+│   └── workers/       # Background jobs (if enabled)
 ├── e2e/               # End-to-end tests (mirrors src/pages/)
 ├── test/              # Unit tests for pure logic
 ├── scripts/           # e2e mirror check + structure generator
@@ -87,12 +86,12 @@ New page? Create `src/pages/my-page.ts` plus `e2e/my-page.test.ts` — the mirro
 
 ## Configuration
 
-All settings live in `.env` and are read typed via `src/env.ts`:
+All settings live in `.env` and are wired through `gramstax.config.ts` (`token` holds the token value via `process.env.TELEGRAM_BOT_TOKEN ?? ```, `deploy` and the session cache read their vars with local defaults):
 
 | Variable                 | Required | Description                                                     |
 | :----------------------- | :------- | :-------------------------------------------------------------- |
 | `TELEGRAM_BOT_TOKEN`     | Yes      | Bot token from [@BotFather](https://t.me/BotFather)             |
-| `TELEGRAM_BOT_DEPLOY`    | Yes      | `polling` (dev) · `webhook:<public-url>` · `serverless:<adapter>` |
+| `TELEGRAM_BOT_DEPLOY`    | Yes      | `polling` (dev) · `webhook` · `serverless` (details in `optionsDeploy`) |
 | `TELEGRAM_CACHE_SESSION` | No       | `memory` (single instance) or `redis:<url>` (multi-instance)    |
 
 ## Testing
@@ -108,8 +107,8 @@ E2E tests drive the real bot in-process (`deploy: test`) and assert every Telegr
 ## Deployment
 
 - **Development** — `TELEGRAM_BOT_DEPLOY=polling`, then `bun run dev`.
-- **Production (webhook)** — point `TELEGRAM_BOT_DEPLOY` at your public URL, e.g. `webhook:https://yourdomain.com/telegram-webhook`, and run `bun run start` behind a process manager.
-- **Serverless** — use `serverless:<adapter>` (e.g. `serverless:std/http`) and export the handler from `src/index.ts`.
+- **Production (webhook)** — set `TELEGRAM_BOT_DEPLOY=webhook` and put your public URL in `optionsDeploy` in `gramstax.config.ts`, then run `bun run start` behind a process manager.
+- **Serverless** — set `deploy` to `serverless` with `optionsDeploy` (`adapter` + `url`), run `bun run build:gramstax`, and deploy `.gramstax/server/` per the Gramstax serverless guide.
 
 ## Tech Stack
 

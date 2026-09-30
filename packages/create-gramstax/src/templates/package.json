@@ -15,9 +15,9 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "start": "bun src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun",
+    "dev": "bun --bun gramstax start --watch",
+    "start": "bun --bun gramstax start",
+    "build:gramstax": "gramstax build",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint",
     "lint:fix": "biome lint --write --unsafe",

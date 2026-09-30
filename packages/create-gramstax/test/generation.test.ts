@@ -4,16 +4,7 @@ import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {Create} from "../src/create"
 import {log} from "../src/utils/log"
-import {
-  assertNoLeftoverPlaceholders,
-  removeDependency,
-  removeTsconfigPathMappings,
-  resolveRuntimeScripts,
-  resolveWorkspaceDeps,
-  stripBiomeScripts,
-  writeJsonFileAtomic,
-  writeTextFileAtomic
-} from "../src/utils/project"
+import {assertNoLeftoverPlaceholders, removeDependency, removeTsconfigPathMappings, resolveRuntimeScripts, resolveWorkspaceDeps, stripBiomeScripts, writeJsonFileAtomic, writeTextFileAtomic} from "../src/utils/project"
 
 type GenerationConfig = {
   projectName: string
@@ -422,15 +413,31 @@ describe(`node runtime scripts`, () => {
     try {
       await creator.executeProjectGeneration(baseConfig(projectPath, {runtime: `node`}))
       const pkg = JSON.parse(readFileSync(join(projectPath, `package.json`), `utf-8`)) as {scripts?: Record<string, string>}
-      expect(pkg.scripts?.dev).toContain(`node`)
-      expect(pkg.scripts?.start).toContain(`node`)
-      expect(pkg.scripts?.build).toBeDefined()
-      for (const value of Object.values(pkg.scripts ?? {})) {
+      expect(pkg.scripts?.dev).toContain(`gramstax start`)
+      expect(pkg.scripts?.start).toContain(`gramstax start`)
+      expect(pkg.scripts?.build).toBeUndefined()
+      for (const [key, value] of Object.entries(pkg.scripts ?? {})) {
+        if (value.includes(`gramstax start`)) continue
         expect(value).not.toContain(`bun`)
+        expect(key).not.toBe(``)
       }
     } finally {
       rmSync(root, {recursive: true, force: true})
     }
+  })
+
+  it(`keeps gramstax start scripts on bun for node runtime`, () => {
+    const scripts = {
+      dev: `bun --bun gramstax start --watch`,
+      start: `bun --bun gramstax start`,
+      typecheck: `tsc --noEmit`,
+      test: `bun test test/`
+    }
+    const result = resolveRuntimeScripts(`node`, scripts)
+    expect(result.dev).toBe(`bun --bun gramstax start --watch`)
+    expect(result.start).toBe(`bun --bun gramstax start`)
+    expect(result.test).toBe(`node --test test/`)
+    expect(result.typecheck).toBe(`tsc --noEmit`)
   })
 })
 

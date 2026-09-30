@@ -197,6 +197,9 @@ export function resolveRuntimeScripts(runtime: Runtime, scripts: Record<string, 
   if (runtime === `bun`) return scripts
   const next = {...scripts}
   for (const [key, value] of Object.entries(next)) {
+    // `gramstax start` boots TypeScript directly (TS paths + `~` alias),
+    // so it stays on Bun even for node-runtime projects.
+    if (value.includes(`gramstax start`)) continue
     if (key === `dev` || key === `start`) {
       next[key] = value.replace(/^bun(?=\s|$)/, `node`)
     } else if (key === `build`) {
