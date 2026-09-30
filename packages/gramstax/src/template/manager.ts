@@ -744,8 +744,8 @@ export class TemplateManager {
    * @param rawCache - Optional pre-loaded raw template cache for batch loading
    *
    * @remarks
-    * This method processes import blocks, compiles media, polls, messages, keyboards,
-    * and descriptions from the template. It uses `TemplateEngine` for compilation.
+   * This method processes import blocks, compiles media, polls, messages, keyboards,
+   * and descriptions from the template. It uses `TemplateEngine` for compilation.
    * The `keepIfExist` parameter allows partial recompilation when only specific
    * template parts have changed.
    *
@@ -851,6 +851,23 @@ export class TemplateManager {
     if (updated) {
       this._map.set(key, compiled)
     }
+  }
+
+  /**
+   * Registers a pre-compiled template directly into the render map.
+   *
+   * @remarks
+   * AOT path: the caller (build-time emitter output) already validated the
+   * source, so this skips `_validateTemplate` by design. Mirrors `_compile`
+   * by not firing `_onReload` — reload fires once per batch load, not per entry.
+   *
+   * @param key - Template identifier (filename without extension)
+   * @param compiled - Pre-compiled template (e.g. assembled from `compileBlock*` output)
+   *
+   * @public
+   */
+  _registerCompiled(key: string, compiled: ITCompiledTemplate): void {
+    this._map.set(key, compiled)
   }
 
   /**

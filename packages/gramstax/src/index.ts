@@ -11,6 +11,30 @@
  */
 
 export {InputMediaBuilder} from "grammy"
+
+import {DEFAULT_FILTERS, TemplateEngine} from "./template/engine"
+
+/**
+ * Runtime escape helper for AOT-generated template code.
+ *
+ * @remarks
+ * Same function the JIT path closes over (`__esc` in generated bodies).
+ *
+ * @public
+ */
+export const __esc = TemplateEngine._escapeData
+
+/**
+ * Runtime filter table for AOT-generated template code.
+ *
+ * @remarks
+ * Same table the JIT path closes over (`FILTERS` in generated bodies).
+ * Generated code only reads it — never mutate at runtime.
+ *
+ * @public
+ */
+export const FILTERS: Record<string, (value: unknown, ...args: string[]) => unknown> = DEFAULT_FILTERS
+
 export * from "./blocks/g-keyboard"
 export * from "./cache/external"
 export * from "./core/bot"

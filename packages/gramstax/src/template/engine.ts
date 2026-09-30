@@ -388,7 +388,7 @@ type ITTemplateFilter = (value: unknown, ...args: string[]) => unknown
  *
  * @public
  */
-const DEFAULT_FILTERS: Record<string, ITTemplateFilter> = {
+export const DEFAULT_FILTERS: Record<string, ITTemplateFilter> = {
   upper: (value) => String(value ?? ``).toUpperCase(),
   lower: (value) => String(value ?? ``).toLowerCase(),
   // Non-numeric input renders empty (never "NaN").
@@ -2794,13 +2794,53 @@ export class TemplateEngine {
     return parts.length === 0 ? `""` : parts.join(`+`)
   }
 
-  static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T> {
+  static _buildFunctionBody<T extends boolean>(template: T extends true ? string[] : string, isArray: T): string {
     const inputs = isArray ? (template as string[]) : [template as string]
     const bodies = inputs.map((t) => {
       const post = this._processGScriptBlocks(this._processGDivBlocks(this._processGSpaceBlocks(t)))
       return `""+(${this._toConcatExpr(post)})`
     })
-    const functionBody = isArray ? `return [${bodies.join(`,`)}]` : `return ${bodies[0]}`
+    return isArray ? `return [${bodies.join(`,`)}]` : `return ${bodies[0]}`
+  }
+
+  /**
+   * AOT collect hook: when set, `_compileToFunction` records the body and
+   * returns a tagged stub instead of calling `new Function`.
+   *
+   * @remarks
+   * Build tooling only (`AotEmitter` installs it around compilation and
+   * always uninstalls in `finally`). `undefined` (default) runs the exact
+   * JIT path — no behavior change.
+   *
+   * @public
+   */
+  static __emitHook?: (body: string, meta: {isArray: boolean}) => (...args: unknown[]) => unknown
+
+  /**
+   * AOT link hook: when set, `_compileToFunction` returns the pre-registered
+   * inline function matching the body instead of calling `new Function`.
+   *
+   * @remarks
+   * Edge-runtime path (`AotEmitter` output): emitted modules pre-register
+   * every collected body, then rebuild wrapper blocks through the normal
+   * compilers with this hook resolving hits. A miss throws (template drift —
+   * regenerate). Never set together with `__emitHook`.
+   *
+   * @public
+   */
+  static __linkHook?: (body: string, isArray: boolean) => (...args: unknown[]) => unknown
+
+  static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T> {
+    const functionBody = this._buildFunctionBody(template, isArray)
+    if (this.__linkHook !== undefined && this.__emitHook !== undefined) {
+      throw new Error(`TemplateEngine __linkHook and __emitHook must never be set simultaneously (AOT collect vs link phase confusion)`)
+    }
+    if (this.__linkHook !== undefined) {
+      return this.__linkHook(functionBody, isArray) as unknown as ITTemplateRenderer<T>
+    }
+    if (this.__emitHook !== undefined) {
+      return this.__emitHook(functionBody, {isArray}) as unknown as ITTemplateRenderer<T>
+    }
 
     if (isArray) {
       const fn = new Function(`data`, `__esc`, `FILTERS`, functionBody) as unknown as (data: Record<string, unknown> | undefined, esc: (value: unknown) => string, filters: Record<string, ITTemplateFilter>) => string[]
