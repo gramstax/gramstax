@@ -2,7 +2,7 @@ import {defineConfig} from "tsup"
 
 export default defineConfig({
   outDir: `./dist/src`,
-  entry: [`./src/index.ts`],
+  entry: [`./src/index.ts`, `./src/cli/gramstax.ts`],
   format: [`cjs`, `esm`],
   cjsInterop: true,
   dts: true,

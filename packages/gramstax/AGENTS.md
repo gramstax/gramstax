@@ -63,6 +63,7 @@ Barrel (`src/index.ts`) re-exports all public symbols. No default exports. Add n
 - Supports hot-reload for template files via chokidar.
 - Test mode via `deploy: "test"` + `MockTelegramServer`.
 - Raw mode: pass `deploy: "raw"` to get a bare grammY `Bot` (no pages, no templates, no Gramstax routing, no auto-start). Write raw grammY handlers on `bot.bot` and start it yourself. The legacy `templateManager: {} as any` exception was removed — using it in a non-raw mode now throws.
+- Manifest boot (fs-less): pass `manifest: ITAppManifest` to skip directory scanning — same routing tables via `_pageLoadsFromManifest`. Generate with `bun run build:manifest -- <pagesDir> <outFile>` (static imports + embedded `.html`; class-inline templates ride the classes). Regenerate after every pages/templates change. Limits: no watcher, no LMDB/timers, external sessions on isolates. See `example/11-cloudflare-worker/`.
 
 ## Complexity Hotspots
 

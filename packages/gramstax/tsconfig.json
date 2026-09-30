@@ -25,6 +25,7 @@
     "*.ts",
     "src/**/*",
     "test/**/*",
+    "scripts/**/*",
     "security-poc/**/*",
     "package.json"
   ],

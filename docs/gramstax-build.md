@@ -1,0 +1,186 @@
+# `gramstax build`
+
+For all deploys: one `gramstax build` freezes a project's `pages/` into a single all-in-one `.gramstax/` consumed per the table below. Only `serverless` deploys auto-load it; every other deploy keeps fs boot unless the `manifest` param is passed explicitly.
+
+| Deploy | Consumes `.gramstax/` how |
+| ------ | ------------------------- |
+| `polling` | fs boot; ignores `.gramstax/` unless `manifest` param passed explicitly |
+| `webhook` | same as `polling` |
+| `test` | fs boot |
+| `raw` | `build --raw` skips, emits nothing |
+| `serverless` (`adapter: "aws-lambda-async"`) | auto-loads `.gramstax/` (fs fallback) |
+| `serverless` (`adapter: "cloudflare-mod"`) | same auto-load |
+
+Auto-load applies to `serverless` deploys exclusively (matches `Bot._loadBuildManifest` early-return for non-serverless).
+
+```bash
+gramstax build
+bun run build:gramstax
+```
+
+Paths are convention, not configuration: pages always come from `src/pages`
+and artifacts always land in `.gramstax/`, both resolved from the project
+root (cwd) — like Next.js reading `app/` and emitting `.next/`, so there are
+no path knobs to drift between environments.
+
+## Config reference
+
+Optional `gramstax.config.ts` in the project root (default export). Missing file → zero-config defaults.
+
+```ts
+import type {GramstaxConfig} from "gramstax"
+
+const config: GramstaxConfig = {
+  optionsDeploy: {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://<your-worker>.workers.dev/webhook`}
+}
+
+export default config
+```
+
+The scaffolded `gramstax.config.ts`
+(`packages/create-gramstax/src/templates/gramstax.config.ts`) lists all
+23 keys and is the canonical full listing.
+
+| Field                                         | Type     | Default                                     | Rule                                              |
+| --------------------------------------------- | -------- | ------------------------------------------- | ------------------------------------------------- |
+| `optionsDeploy.adapter`                       | `string` | —                                           | `"cloudflare-mod"` or `"aws-lambda-async"`        |
+| `optionsDeploy.name`                          | `string` | `gramstax-worker`                           | Non-empty; names the Workers `name`               |
+| `optionsDeploy.url`                           | `string` | `https://<your-worker>.workers.dev/webhook` | Non-empty; becomes `BOT_DEPLOY` URL               |
+
+Invalid shapes throw `Invalid gramstax config at <file>: ...` naming the field. Loader: `GramstaxConfigLoader.loadConfig(cwd)` in `packages/gramstax/src/cli/config.ts`.
+
+## CLI flags
+
+`gramstax build [--target <name>] [--bundle] [--dry-run] [--raw]`
+
+| Flag | Effect |
+| ---- | ------ |
+| `--target lambda\|cloudflare-workers` | Server entries to emit (default = both) |
+| `--bundle` | Deprecated, needs `--target cloudflare-workers` (see below) |
+| `--dry-run` | Print resolved plan with value sources, write nothing |
+| `--raw` | Skip: exit 0 with `skip (raw deploy, nothing to build)` |
+
+Preview output (`--dry-run`, exit 0):
+
+```text
+gramstax build plan
+pagesDir: src/pages
+outDir: .gramstax
+targets: lambda, cloudflare-workers
+optionsDeploy.adapter: cloudflare-mod (config)
+optionsDeploy.name: gramstax-worker (default)
+optionsDeploy.url: https://<your-worker>.workers.dev/webhook (default)
+dry-run: no files written
+```
+
+`pagesDir`/`outDir` always print the `src/pages` + `.gramstax/` convention
+with no source annotation (there is nothing to configure); the
+`optionsDeploy` adapter/name/url print from the merged config with the
+`config`/`default` rule (no CLI flags exist for them — never `flag`).
+`targets` is the effective set: both entries when no `--target` was passed,
+else the single named target.
+
+Full-build summary (exit 0):
+
+```text
+gramstax build complete
+pagesDir: <resolved src/pages>
+outDir: <resolved .gramstax>
+pages: 3, templates: 0, routes: 3, ms: <n>
+```
+
+Exit codes: `0` success/skip, `1` build error (missing `src/pages` without `--raw`, duplicate route, broken page, failed validation), `2` CLI usage error.
+
+## Output tree (all-in-one)
+
+Plain `gramstax build` (no `--target`) emits everything, so one `.gramstax/`
+covers all deploys per the consumption table above. Explicit
+`--target lambda|cloudflare-workers` filters to one server entry
+(`LambdaEntry` / `WorkerEntry` classes emit `server/lambda.js` /
+`server/worker.js` respectively).
+
+```text
+.gramstax/
+  routes.json   # frozen route list (pure data, diffable) — always emitted
+  manifest.js   # static page-class imports + embedded templates (runnable) — always emitted
+  gen/          # AOT modules (always emitted: workers need them, Node ignores them)
+  server/
+    lambda.js       # `serverless` entry (`adapter: "aws-lambda-async"`) — default + `--target lambda` only
+    worker.js       # `serverless` entry (`adapter: "cloudflare-mod"`) — default + `--target cloudflare-workers` only
+    wrangler.toml   # complete deployable Workers config (real name + URL from config, token via secret, never in file) — `--target cloudflare-workers` only
+    bun-stub.ts     # `bun` resolve stub for the Workers bundler — `--target cloudflare-workers` only
+    bundle.js       # single-file bundle — `--bundle` (+ `--target cloudflare-workers`) only, deprecated
+```
+
+Stub rule: `server/bun-stub.ts` is emitted only when the target set includes
+`cloudflare-workers` (default no-`--target` yes; `--target lambda` no;
+`--raw` / `--dry-run` never). It stubs `Bun.serve` as
+resolve-only: imports resolve, any call throws. It stays `.ts` because the
+Wrangler `alias` entry resolves and transpiles TS source natively.
+
+`routes.json` entries (`ITRouteManifestEntry` in `packages/gramstax/src/page/manifest.ts`):
+
+```json
+[{`file`: `start.ts`, `name`: `StartPage`, `routeName`: `start`}]
+```
+
+- `file`: posix path relative to `src/pages`.
+- `name`: page class name (what `manifest.js` static-imports).
+- `routeName`: walk-derived route (`shop/index.ts` → `shop`); computed once by `PageManager.getFileManySync`, never reimplemented.
+
+`manifest.js` shape (same as the 021 generator output, minus types):
+
+```js
+import {StartPage} from `../src/pages/start`
+export const manifest = {
+  pages: [{path: `start.ts`, routeName: `start`, page: StartPage}],
+  templates: [{key: `card`, template: `<g-base>...`}],
+}
+export default manifest
+```
+
+`.js` vs `.ts`: `manifest.js` carries no `import type` / `: ITAppManifest` annotations (syntax errors in JS). The legacy `bun run build:manifest -- <pagesDir> <outFile.ts>` contract is unchanged and still emits the typed variant.
+
+## Booting from the manifest
+
+Opt-in via the `manifest` param (`ITGramstaxParams.manifest?: ITAppManifest`):
+
+```ts
+import manifest from `./.gramstax/manifest.js`
+import routes from `./.gramstax/routes.json`
+const bot = new Gramstax({token, deploy: `polling`, templateManager, manifest: {...manifest, routes}})
+```
+
+Automatic for serverless: `new Gramstax({deploy: "serverless", optionsDeploy: {adapter: "cloudflare-mod", url: "https://<your-worker>.workers.dev/webhook"}})` with no
+`manifest` auto-loads `./.gramstax/` (manifest.js + routes.json) from the
+working directory when present, and falls back to the filesystem walk when
+absent. Every other deploy keeps fs boot by default. Emitted server entries
+(lambda/worker) always wire the manifest explicitly, so they never depend
+on this fallback.
+
+- `manifest.routes` present → pages register from the frozen route list, joined to `manifest.pages` classes by `routeName`. No directory is read. An orphan route throws naming its `file` (regenerate the manifest).
+- `manifest.routes` absent → exact 021 behavior (register `manifest.pages` directly).
+- No `manifest` + non-serverless deploy → default fs boot. Nothing about existing boot paths changed.
+
+## Parity guarantee
+
+Proven by `cli.build-parity.test.ts` + `core.manifest-parity.test.ts` on helloworld-like and `.html` fixture projects: manifest boot produces routing tables deep-equal to fs boot and byte-identical `/start` output. Regenerate after every pages/templates change.
+
+## Raw projects
+
+`deploy: "raw"` projects have no pages. `gramstax build --raw` exits 0, prints the skip message, writes nothing. Without `--raw`, a missing `src/pages` stays an error.
+
+## Relationship to other plans
+
+- **022 (AOT)**: consumes the `manifest.js` convention (static imports + embedded template strings) defined here; 023 emits source-level manifest only.
+- **024 (adapters)**: server/lambda/worker entries consume `.gramstax/` (`routes.json` for routing data, `manifest.js` for classes).
+
+## Implementation map
+
+- `packages/gramstax/src/cli/gramstax.ts` — `gramstax` bin (built cli entry)
+- `packages/gramstax/src/cli/build.ts` — `GramstaxBuild.run(argv)` orchestration
+- `packages/gramstax/src/cli/collect.ts` — `RouteCollector` (collect + atomic `routes.json` write)
+- `packages/gramstax/src/cli/config.ts` — config load + validation
+- `packages/gramstax/scripts/build-manifest.ts` — `buildManifest()` (single-file, unchanged contract) + `generate(pagesDir, outDir)`
+- `packages/gramstax/src/page/manifest.ts` — `ITAppManifest` (+ optional `routes`) and `ITRouteManifestEntry`
+- `packages/gramstax/src/core/bot.ts` — `_pageLoadsFromManifest` routes branch (surgical, opt-in only)
