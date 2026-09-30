@@ -86,13 +86,13 @@ describe(`session lock — handler-level integration (Redis backend)`, () => {
   })
 
   it(`auto-disables with memory store and warns`, async () => {
-    const infos: unknown[] = []
+    const warns: unknown[] = []
     const bot = createBot({
       sessionLock: {},
-      log: {info: (msg: unknown) => infos.push(msg)} as never
+      log: {warn: (msg: unknown) => warns.push(msg)} as never
     })
     expect((bot as unknown as {_sessionLock: unknown})._sessionLock).toBeUndefined()
-    expect(infos.some((msg) => String(msg).includes(`sessionLock requires a Redis cache backend`))).toBe(true)
+    expect(warns.some((msg) => String(msg).includes(`sessionLock requires a Redis cache backend`))).toBe(true)
   })
 
   it(`serializes concurrent updates for the same user (serialize mode)`, async () => {

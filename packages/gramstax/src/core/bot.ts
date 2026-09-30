@@ -534,7 +534,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         })
         this._sessionLockKey = params.sessionLock.key
       } else {
-        this.log?.info?.(`sessionLock requires a Redis cache backend (got memory store) — session lock disabled`)
+        this.log?.warn?.(`sessionLock requires a Redis cache backend (got memory store) — session lock disabled`)
       }
     }
     this._maxTextLength = params.maxTextLength ?? 0
@@ -708,7 +708,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // Every other deploy keeps the previous behavior byte-identical.
     const manifest = params.manifest ?? this._loadBuildManifest(params.deploy)
     if (manifest !== undefined) {
-      this.log?.info?.(`Load pages from .gramstax build output (auto-detected ${params.deploy} deploy)..`)
+      this.log?.info?.(`Load pages from .gramstax build output (auto-detected ${params.deploy} deploy).`)
     }
     this.pages = manifest !== undefined ? this._pageLoadsFromManifest(manifest) : this._pageLoads(this.templateManager._path?.[0])
 
@@ -909,6 +909,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             return new Response(`Not found`, {status: 404})
           }
         })
+        this.log?.info?.(`Status server listening on ${hostname}:${port} (/health, /stats, /metrics)`)
       })
       .catch((error) => {
         this.log?.error?.(`Failed to start status server: ${String(error)}`)
@@ -963,7 +964,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     await this.executeSyncBlocksDescription(this.pages)
 
     const {username} = botInfo
-    this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method === `webhook` || method === `serverless` ? `(${data})` : ``}`)
+    this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method === `webhook` || method === `serverless` ? `(${this._redactToken(data ?? ``)})` : ``}`)
     await this.hookAfterStart?.()
   }
 
@@ -1465,7 +1466,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return
       }
       const delay = Math.min(60_000, 1000 * 2 ** attempt)
-      this.log?.error?.(`[Polling] attempt ${attempt + 1} failed, retrying in ${delay}ms: ${String(error)}`)
+      this.log?.warn?.(`[Polling] attempt ${attempt + 1} failed, retrying in ${delay}ms: ${String(error)}`)
       await new Promise<void>((resolve) => {
         if (this._pollingStopped) {
           resolve()
@@ -1612,6 +1613,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           }
 
           if (!blockWhenFull && queue.length >= (queueConfig?.maxQueueSize ?? 5000)) {
+            logger?.warn?.(`Webhook queue full (${queue.length}) — dropping update (429)`)
             return new Response(`Queue full`, {status: 429})
           }
 
@@ -1628,6 +1630,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             return new Response(`OK`, {status: 200})
           } catch (error) {
             if (error instanceof Error && error.message === `WebhookQueue enqueue aborted`) {
+              logger?.warn?.(`Webhook queue enqueue timed out — dropping update (429)`)
               return new Response(`Queue full`, {status: 429})
             }
             logger?.error?.(`Webhook queue error: ${String(error)}`)
@@ -2088,6 +2091,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
 
     // 2. Build command lists for each (scope, language) pair
+    let syncedScopes = 0
     for (const [scope, langs] of targets) {
       for (const lang of langs) {
         const commands: Array<{command: string; description: string}> = []
@@ -2114,12 +2118,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
           if (currentJSON !== desiredJSON) {
             await this.bot.api.setMyCommands(commands, {scope: scopeObj, language_code: langCode})
-            this.log?.info?.(`Synced descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} total (${commands.length})`)
+            syncedScopes += 1
+            this.log?.debug?.(`Synced descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} total (${commands.length})`)
           }
         } catch (error) {
           this.log?.error?.(`Failed to sync descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} error: ${String(error)}`)
         }
       }
+    }
+    if (syncedScopes > 0) {
+      this.log?.info?.(`Synced bot descriptions for ${syncedScopes} scope(s).`)
     }
   }
 
@@ -2416,7 +2424,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @internal
    */
   _pageLoads(pagesPath?: string) {
-    this.log?.info?.(`Load pages..`)
+    this.log?.info?.(`Loading pages.`)
 
     const pages = this._buildEmptyPages()
 
@@ -2430,7 +2438,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       this._pageRegisterEntry(entry, pages, index, seen)
     })
 
-    this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
+    this.log?.info?.(`Loaded ${Object.keys(pages.all).length} pages.`)
     return pages
   }
 
@@ -2474,7 +2482,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   _pageLoadsFromManifest(manifest: IAppManifest) {
-    this.log?.info?.(`Load pages from manifest..`)
+    this.log?.info?.(`Loading pages from manifest.`)
 
     const pages = this._buildEmptyPages()
 
@@ -2515,7 +2523,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       this.templateManager._compile(key, template)
     }
 
-    this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
+    this.log?.info?.(`Loaded ${Object.keys(pages.all).length} pages.`)
     return pages
   }
 
