@@ -1,6 +1,5 @@
 import {log, MockTelegramServer} from "gramstax"
 import {BotCore} from "../core/bot"
-import {Env} from "../env"
 
 const queueEnabled = process.env.WEBHOOK_QUEUE === `1` || process.env.WEBHOOK_QUEUE === `true`
 const maxQueueSize = Number(process.env.WEBHOOK_QUEUE_SIZE ?? `5000`)
@@ -12,8 +11,9 @@ const run = async () => {
   await mockServer.start()
 
   const botCore = new BotCore({
-    deploy: `webhook:http://127.0.0.1:3000/webhook/${Math.round(Math.random() * 10 ** 10)}`,
-    token: Env.TELEGRAM_BOT_TOKEN,
+    deploy: `webhook`,
+    optionsDeploy: {url: `http://127.0.0.1:3000/webhook/${Math.round(Math.random() * 10 ** 10)}`},
+    token: process.env.TELEGRAM_BOT_TOKEN ?? `7815352851:AAGdLYBm8GKF7f26zi7cUmxsKM2jZseqgfI`,
     log: true,
     botConfig: {
       client: {

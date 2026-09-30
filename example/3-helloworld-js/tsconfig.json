@@ -1,0 +1,15 @@
+{
+  // Resolution shim — NOT a TypeScript migration: this project stays pure
+  // JavaScript (no `tsc`, no type annotations) and runs on plain Node, which
+  // ignores this file entirely. It exists because Bun resolves the bare
+  // `gramstax` import through the nearest tsconfig `paths`, which would
+  // otherwise redirect to monorepo SOURCE via the root config while the
+  // `gramstax start` CLI runs from DIST (dual-package `instanceof` failure).
+  // An explicit empty `paths` shadows the parent mapping so the workspace
+  // symlink (dist) wins. Do not delete without reading docs/gramstax-start.md
+  // troubleshooting ("dual-package BotCore discovery failure").
+  "compilerOptions": {
+    "allowJs": true,
+    "paths": {}
+  }
+}

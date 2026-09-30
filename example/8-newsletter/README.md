@@ -18,7 +18,7 @@ Gramstax example that implements a newsletter bot with inline keyboards only.
 
 - `DB_PATH`: LMDB store path (e.g. `./example/8-newsletter/data`)
 - `TELEGRAM_BOT_TOKEN`: Telegram bot token used by Gramstax
-- `TELEGRAM_BOT_DEPLOY`: Deployment mode (`polling`, `webhook:<url>`, `serverless:<adapter>`)
+- `TELEGRAM_BOT_DEPLOY`: Deployment mode (`polling`, `webhook`, `serverless`) — webhook/serverless details live in `optionsDeploy` in code
 - `ADMIN_IDS`: Array of admin user IDs
 
 ## Run Scripts

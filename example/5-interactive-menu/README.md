@@ -17,7 +17,7 @@ Advanced Gramstax example showcasing inline keyboards, pagination, and reply key
 ## Environment Variables
 
 - `TELEGRAM_BOT_TOKEN`: Telegram bot token used by Gramstax
-- `TELEGRAM_BOT_DEPLOY`: Deployment mode (`polling`, `webhook:<url>`, `serverless:<adapter>`)
+- `TELEGRAM_BOT_DEPLOY`: Deployment mode (`polling`, `webhook`, `serverless`) — webhook/serverless details live in `optionsDeploy` in code
 
 ## Run Scripts
 
