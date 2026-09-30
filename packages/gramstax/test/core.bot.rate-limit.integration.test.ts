@@ -95,7 +95,7 @@ describe(`rate limiting — full Gramstax pipeline integration`, () => {
     // Exceeded: middleware drops the update and the hook renders the page.
     await bot.bot.handleUpdate(buildText(`second`) as never)
     expect(bot.blockedCount).toBe(1)
-    const sent = bot.e2e!.lastCall(`sendMessage`)
+    const sent = bot.e2e!.lastCall(`sendMessage`) as {body?: {text?: string}} | undefined
     expect(sent).toBeDefined()
     expect(sent?.body?.text).toContain(`Please wait a moment...`)
   })
