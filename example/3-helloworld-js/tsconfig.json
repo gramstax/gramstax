@@ -10,6 +10,9 @@
   // troubleshooting ("dual-package BotCore discovery failure").
   "compilerOptions": {
     "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "skipLibCheck": true,
     "paths": {}
   }
 }

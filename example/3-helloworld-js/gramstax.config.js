@@ -1,6 +1,7 @@
-import type {GramstaxConfig} from "gramstax"
+/** @typedef {import("gramstax").IGramstaxConfig} IGramstaxConfig */
 
-const config: GramstaxConfig = {
+/** @type {IGramstaxConfig} */
+const config = {
   token: process.env.BOT_TOKEN,
   deploy: process.env.BOT_DEPLOY ?? `polling`,
   cacheSession: process.env.CACHE_SESSION ?? `memory`,
