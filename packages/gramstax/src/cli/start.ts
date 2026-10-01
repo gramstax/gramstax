@@ -10,7 +10,7 @@ import type {ISessionLockOptions} from "~/types/session-lock"
 import {CacheExternal} from "../cache/external"
 import {Gramstax} from "../core/bot"
 import type {Ctx} from "../core/ctx"
-import {log as defaultLog, LoggingHelper} from "../helpers/log"
+import {log as defaultLog, LoggingHelper, log} from "../helpers/log"
 import {TemplateManager} from "../template/manager"
 import {GramstaxConfigLoader} from "./config"
 
@@ -213,14 +213,14 @@ export class GramstaxStart {
 
   _watch(cwd: string, argv: string[], bot: Gramstax): void {
     const dir = join(cwd, `src`)
-    console.log(`gramstax start: watching ${dir} for changes..`)
+    log.info(`gramstax start: watching ${dir} for changes..`)
     let current = bot
     let restarting = false
     watch(dir, {ignoreInitial: true}).on(`all`, () => {
       if (restarting === true) return
       restarting = true
       void (async () => {
-        console.log(`gramstax start: change detected, restarting..`)
+        log.info(`gramstax start: change detected, restarting..`)
         try {
           await current.stop()
         } catch {
@@ -230,7 +230,7 @@ export class GramstaxStart {
           current = await this.boot(argv, cwd)
         } catch (error: unknown) {
           const message = error instanceof Error ? error.message : String(error)
-          console.error(message)
+          log.error(message)
         }
         restarting = false
       })()

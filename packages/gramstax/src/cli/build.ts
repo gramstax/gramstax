@@ -1,6 +1,7 @@
 import {existsSync, readFileSync, rmSync} from "node:fs"
 import {join, resolve} from "node:path"
 import {pathToFileURL} from "node:url"
+import {log} from "~/helpers/log"
 import type {IGramstaxBuildOptions, IGramstaxBuildPlan} from "~/types/cli"
 import type {IGramstaxConfig} from "~/types/config"
 import {generate} from "../../scripts/build-manifest"
@@ -20,13 +21,13 @@ export class GramstaxBuild {
     const pagesDir = `src/pages`
     const outDir = `.gramstax`
     if (options.raw === true) {
-      console.log(`gramstax build: skip (raw deploy, nothing to build)`)
+      log.info(`gramstax build: skip (raw deploy, nothing to build)`)
       return 0
     }
     const resolvedPages = resolve(cwd, pagesDir)
     const resolvedOut = resolve(cwd, outDir)
     if (existsSync(resolvedPages) === false) {
-      console.error(`gramstax build: pages directory not found: ${resolvedPages}`)
+      log.error(`gramstax build: pages directory not found: ${resolvedPages}`)
       return 1
     }
     if (options.dryRun === true) {
@@ -51,14 +52,14 @@ export class GramstaxBuild {
     const code = await this._runBuild(resolvedPages, resolvedOut, true)
     if (code !== 0) return code
     if (options.bundle === true && options.target !== `cloudflare-workers`) {
-      console.error(`gramstax build failed: --bundle needs --target cloudflare-workers`)
+      log.error(`gramstax build failed: --bundle needs --target cloudflare-workers`)
       return 1
     }
     const resolved = this._resolveDeployTargets(options.target, config.optionsDeploy)
     if (resolved.targets.includes(`cloudflare-workers`) === true) {
       const ignored = CONFIG_OVERRIDE_SLOTS.filter((slot) => config[slot as keyof IGramstaxConfig] !== undefined)
       for (const slot of ignored) {
-        console.warn(`gramstax build: custom \`${slot}\` ignored on cloudflare-workers (edge boots from frozen manifest output)`)
+        log.warn(`gramstax build: custom \`${slot}\` ignored on cloudflare-workers (edge boots from frozen manifest output)`)
       }
     }
     return this._runTarget(resolvedOut, resolved.targets, options.bundle === true, {adapter: resolved.adapter, name: resolved.name, url: resolved.url})
@@ -98,17 +99,17 @@ export class GramstaxBuild {
       rmSync(dir, {recursive: true, force: true})
       for (const targetName of targets) {
         const [file] = targetName === `cloudflare-workers` ? new WorkerTarget().emit(dir, manifest, {adapter: baked?.adapter, name: baked?.name, url: baked?.url}) : new LambdaTarget().emit(dir, manifest, {adapter: baked?.adapter, url: baked?.url})
-        console.log(`target ${targetName}: ${file ?? ``}`)
+        log.info(`target ${targetName}: ${file ?? ``}`)
       }
       if (bundle) {
-        console.warn(`gramstax build: --bundle is deprecated (multi-file output is recommended); bundling anyway`)
+        log.warn(`gramstax build: --bundle is deprecated (multi-file output is recommended); bundling anyway`)
         const bundled = await new WorkerTarget().emitBundle(dir)
-        console.log(`target cloudflare-workers: ${bundled}`)
+        log.info(`target cloudflare-workers: ${bundled}`)
       }
       return 0
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error)
-      console.error(`gramstax build failed: ${message}`)
+      log.error(`gramstax build failed: ${message}`)
       return 1
     }
   }
@@ -118,14 +119,14 @@ export class GramstaxBuild {
     try {
       const stats = generate(pagesDir, outDir, withAot ? {aot: true} : undefined)
       await this._validateBuild(outDir, stats.routes)
-      console.log(`gramstax build complete`)
-      console.log(`pagesDir: ${pagesDir}`)
-      console.log(`outDir: ${outDir}`)
-      console.log(`pages: ${stats.pages}, templates: ${stats.templates}, routes: ${stats.routes}, ms: ${Date.now() - started}`)
+      log.info(`gramstax build complete`)
+      log.info(`pagesDir: ${pagesDir}`)
+      log.info(`outDir: ${outDir}`)
+      log.info(`pages: ${stats.pages}, templates: ${stats.templates}, routes: ${stats.routes}, ms: ${Date.now() - started}`)
       return 0
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error)
-      console.error(`gramstax build failed: ${message}`)
+      log.error(`gramstax build failed: ${message}`)
       return 1
     }
   }
@@ -174,14 +175,14 @@ export class GramstaxBuild {
   }
 
   _printPlan(plan: IGramstaxBuildPlan): void {
-    console.log(`gramstax build plan`)
-    console.log(`pagesDir: ${plan.pagesDir}`)
-    console.log(`outDir: ${plan.outDir}`)
-    console.log(`targets: ${plan.targets.join(`, `)}`)
-    console.log(`deploy: ${plan.deploy} (${plan.deploySource})`)
-    console.log(`optionsDeploy.adapter: ${plan.adapter} (${plan.adapterSource})`)
-    console.log(`optionsDeploy.name: ${plan.name} (${plan.nameSource})`)
-    console.log(`optionsDeploy.url: ${plan.url} (${plan.urlSource})`)
-    console.log(`dry-run: no files written`)
+    log.info(`gramstax build plan`)
+    log.info(`pagesDir: ${plan.pagesDir}`)
+    log.info(`outDir: ${plan.outDir}`)
+    log.info(`targets: ${plan.targets.join(`, `)}`)
+    log.info(`deploy: ${plan.deploy} (${plan.deploySource})`)
+    log.info(`optionsDeploy.serverless.adapter: ${plan.adapter} (${plan.adapterSource})`)
+    log.info(`optionsDeploy.serverless.name: ${plan.name} (${plan.nameSource})`)
+    log.info(`optionsDeploy.serverless.url: ${plan.url} (${plan.urlSource})`)
+    log.info(`dry-run: no files written`)
   }
 }
