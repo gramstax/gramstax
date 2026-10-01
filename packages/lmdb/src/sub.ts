@@ -11,8 +11,8 @@ import type {IIndexQuery, IIndexResult, IndexDescriptor} from "./types/indexes"
 import type {ILmdbKey} from "./types/key"
 import type {IRangeOptions} from "./types/range"
 import type {ISearchTable} from "./types/search"
-import type {LmdbSubState} from "./types/sub-state"
 import type {ICompositeRangeQuery, IParsedCompositeQuery} from "./types/sub"
+import type {LmdbSubState} from "./types/sub-state"
 
 /**
  * Maximum wildcards allowed in a `like()` pattern.
@@ -135,16 +135,16 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
   /**
    * Create a handle bound to a pre-built sub-DB state.
    *
-   * @param owner - The env that registered this sub.
-   * @param schema - The registered schema class.
-   * @param state - Pre-built sub-DB state (owned by the env's sub manager).
+   * @param _owner - The env that registered this sub.
+   * @param _schema - The registered schema class.
+   * @param _state - Pre-built sub-DB state (owned by the env's sub manager).
    */
   constructor(
     private readonly _owner: LmdbEnv,
-    private readonly schema: S,
+    private readonly _schema: S,
     private readonly _state: LmdbSubState
   ) {
-    this._needsGuards = LmdbEnvSub._schemaNeedsGuards(schema)
+    this._needsGuards = LmdbEnvSub._schemaNeedsGuards(_schema)
   }
 
   /**
@@ -167,7 +167,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The registered sub-DB name.
    */
   get dbName(): string {
-    return this.schema.db
+    return this._schema.db
   }
 
   /**
@@ -265,11 +265,11 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    */
   private _assertEnum(key: ILmdbKey, value: unknown): void {
     if (!this._needsGuards) return
-    const keyBuilder = this.schema.key
+    const keyBuilder = this._schema.key
     if (keyBuilder?.enumValues !== undefined && !keyBuilder.enumValues.includes(key as unknown)) {
       throw new LmdbError(`Sub '${this.dbName}': invalid value '${String(key)}' for enum column 'key' — allowed: ${keyBuilder.enumValues.map((v) => String(v)).join(`, `)}.`)
     }
-    const columns = this.schema.value
+    const columns = this._schema.value
     if (LmdbSchema.isColumnBuilder(columns)) {
       if (columns.enumValues !== undefined && !columns.enumValues.includes(value as unknown)) {
         throw new LmdbError(`Sub '${this.dbName}': invalid value '${String(value)}' for enum column 'value' — allowed: ${columns.enumValues.map((v) => String(v)).join(`, `)}.`)
@@ -301,7 +301,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    */
   private _fillDefaults(value: unknown): unknown {
     if (!this._needsGuards) return value
-    const columns = this.schema.value
+    const columns = this._schema.value
     if (LmdbSchema.isColumnBuilder(columns)) {
       if (value === undefined && columns.hasDefault) {
         return columns.defaultFn ? columns.defaultFn() : columns.defaultValue
@@ -2893,7 +2893,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The registered schema class.
    */
   get schemaClass(): S {
-    return this.schema
+    return this._schema
   }
 
   /**

@@ -52,7 +52,7 @@ export class LmdbBackup {
    *
    * @internal
    */
-  static _normalizeKeep(keep: number | undefined): number {
+  private static _normalizeKeep(keep: number | undefined): number {
     return typeof keep === `number` && Number.isFinite(keep) && keep > 0 ? Math.floor(keep) : 3
   }
 
@@ -64,7 +64,7 @@ export class LmdbBackup {
    *
    * @internal
    */
-  static _stamp(): string {
+  private static _stamp(): string {
     return `${Date.now().toString().padStart(13, `0`)}-${Math.random().toString(36).slice(2, 6)}`
   }
 
@@ -77,7 +77,7 @@ export class LmdbBackup {
    *
    * @internal
    */
-  static _formatInterval(ms: number): string {
+  private static _formatInterval(ms: number): string {
     if (ms % 86_400_000 === 0) return `${ms / 86_400_000}d`
     if (ms % 3_600_000 === 0) return `${ms / 3_600_000}h`
     if (ms % 60_000 === 0) return `${ms / 60_000}m`
@@ -95,7 +95,7 @@ export class LmdbBackup {
    *
    * @internal
    */
-  static async _peer<T>(specifier: string, hint: string): Promise<T> {
+  private static async _peer<T>(specifier: string, hint: string): Promise<T> {
     try {
       return (await import(specifier)) as T
     } catch {
@@ -111,7 +111,7 @@ export class LmdbBackup {
    *
    * @internal
    */
-  static async _tar(): Promise<typeof import("tar")> {
+  private static async _tar(): Promise<typeof import("tar")> {
     return LmdbBackup._peer(`tar`, `tar.gz snapshots need the "tar" package — install it (bun add tar).`)
   }
 
@@ -123,7 +123,7 @@ export class LmdbBackup {
    *
    * @internal
    */
-  static async _s3(): Promise<typeof import("@aws-sdk/client-s3")> {
+  private static async _s3(): Promise<typeof import("@aws-sdk/client-s3")> {
     return LmdbBackup._peer(`@aws-sdk/client-s3`, `S3 backup needs the "@aws-sdk/client-s3" package — install it (bun add @aws-sdk/client-s3).`)
   }
 
@@ -138,7 +138,7 @@ export class LmdbBackup {
    *
    * @internal
    */
-  static async _resolveS3(s3: IBackupS3Options): Promise<S3Client> {
+  private static async _resolveS3(s3: IBackupS3Options): Promise<S3Client> {
     if (s3.client) return s3.client
     if (!s3.bucket || !s3.accessKeyId || !s3.secretAccessKey) {
       throw new LmdbError(`S3 upload needs bucket + accessKeyId + secretAccessKey.`)
@@ -160,7 +160,7 @@ export class LmdbBackup {
    *
    * @internal
    */
-  static async _clearStaleStaging(dir: string): Promise<void> {
+  private static async _clearStaleStaging(dir: string): Promise<void> {
     return LmdbBackup.clearStaleStaging(dir)
   }
 

@@ -2,9 +2,9 @@ import type {LmdbEnv} from "../env"
 import {CdcHub} from "./hub"
 import {CdcStore} from "./store"
 
+export * from "../types/cdc"
 export * from "./hub"
 export * from "./store"
-export * from "../types/cdc"
 
 /**
  * Per-env CDC entry point (store plus hub).

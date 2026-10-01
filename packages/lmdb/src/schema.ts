@@ -326,7 +326,7 @@ export abstract class LmdbSchema {
    *
    * @remarks
    * Walks each component (dotted paths supported via
-   * {@link RecordCodec._getPath}); a `null`/`undefined` component — or a
+   * {@link RecordCodec.getPath}); a `null`/`undefined` component — or a
    * non-object row — skips the entry, mirroring how null extracts skip
    * embedded indexes.
    *
@@ -341,7 +341,7 @@ export abstract class LmdbSchema {
     const row = value as Record<string, unknown>
     const tuple: Array<ILmdbKey> = []
     for (const component of components) {
-      const part = RecordCodec._getPath(row, component)
+      const part = RecordCodec.getPath(row, component)
       if (part === undefined || part === null) return null
       tuple.push(part as ILmdbKey)
     }
@@ -377,7 +377,7 @@ export abstract class LmdbSchema {
    *
    * @internal
    */
-  private static assertNoNestedIndex(builder: IAnyColumnBuilder, db: string): void {
+  private static _assertNoNestedIndex(builder: IAnyColumnBuilder, db: string): void {
     const shape = builder.shape
     if (!shape) return
     const entries: Array<[string, IAnyColumnBuilder]> = LmdbSchema.isColumnBuilder(shape)
@@ -397,7 +397,7 @@ export abstract class LmdbSchema {
       if (nested.isSearchable === true) {
         throw new LmdbError(`Schema '${db}': nested .search() on '${name}' inside a t.object/t.array shape is not supported — the marker would be silently ignored. Declare it as a top-level string column instead.`)
       }
-      LmdbSchema.assertNoNestedIndex(nested, db)
+      LmdbSchema._assertNoNestedIndex(nested, db)
     }
   }
 
@@ -417,7 +417,7 @@ export abstract class LmdbSchema {
    *
    * @internal
    */
-  private static validateDefaultValue(kind: IColumnKind, value: unknown, enumValues: readonly unknown[] | undefined): void {
+  private static _validateDefaultValue(kind: IColumnKind, value: unknown, enumValues: readonly unknown[] | undefined): void {
     if ((kind === `string` || kind === `number` || kind === `bigint` || kind === `boolean`) && typeof value !== kind) {
       throw new LmdbError(`.default() value for a '${kind}' column must be a ${kind} — received '${typeof value}'.`)
     }
@@ -488,7 +488,7 @@ export abstract class LmdbSchema {
       search: (): IColumnBuilder<K, I, N, V, Nl> => LmdbSchema.makeBuilder(kind, isUnique, indexName, isOptional, shape, enumValues, defaults, true, compositeColumns) as IColumnBuilder<K, I, N, V, Nl>,
       optional: (): IColumnBuilder<K, I, N, V, true> => LmdbSchema.makeBuilder(kind, isUnique, indexName, true as true, shape, enumValues, defaults, isSearchable, compositeColumns) as IColumnBuilder<K, I, N, V, true>,
       default: (value: unknown): IColumnBuilder<K, I, N, V, true> => {
-        LmdbSchema.validateDefaultValue(kind, value, enumValues)
+        LmdbSchema._validateDefaultValue(kind, value, enumValues)
         return LmdbSchema.makeBuilder(kind, isUnique, indexName, true as true, shape, enumValues, {value, has: true}, isSearchable, compositeColumns) as IColumnBuilder<K, I, N, V, true>
       },
       $defaultFn: (fn: () => unknown): IColumnBuilder<K, I, N, V, true> => LmdbSchema.makeBuilder(kind, isUnique, indexName, true as true, shape, enumValues, {value: undefined, has: true, fn}, isSearchable, compositeColumns) as IColumnBuilder<K, I, N, V, true>
@@ -549,7 +549,7 @@ export abstract class LmdbSchema {
       throw new LmdbError(`Schema '${db}' (class '${className}'): static dupSort = true requires a scalar static value (e.g. static value = t.string()).`)
     }
     if (isScalar) {
-      LmdbSchema.assertNoNestedIndex(value, db)
+      LmdbSchema._assertNoNestedIndex(value, db)
       if (value.isSearchable === true) {
         throw new LmdbError(`Schema '${db}': .search() requires a row-shaped static value — scalar values carry no searchable columns. Declare static value as a map, e.g. static value = {bio: t.string().search()}.`)
       }
@@ -561,7 +561,7 @@ export abstract class LmdbSchema {
     const seen = new Set<string>()
     const columns = value as Record<string, IAnyColumnBuilder>
     for (const [columnName, column] of Object.entries(value)) {
-      LmdbSchema.assertNoNestedIndex(column, db)
+      LmdbSchema._assertNoNestedIndex(column, db)
       if (column.isSearchable === true && column.kind !== `string`) {
         throw new LmdbError(`Schema '${db}': .search() is only supported on string columns — column '${columnName}' is '${column.kind}'.`)
       }

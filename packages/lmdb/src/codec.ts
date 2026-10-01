@@ -45,7 +45,7 @@ export class RecordCodec implements ICodec<unknown> {
    *
    * @internal
    */
-  static _getPath(row: Record<string, unknown>, column: string): unknown {
+  static getPath(row: Record<string, unknown>, column: string): unknown {
     if (!column.includes(`.`)) return row[column]
     let current: unknown = row
     for (const part of column.split(`.`)) {
@@ -64,7 +64,7 @@ export class RecordCodec implements ICodec<unknown> {
    *
    * @internal
    */
-  static _setPath(row: Record<string, unknown>, column: string, cell: unknown): void {
+  static setPath(row: Record<string, unknown>, column: string, cell: unknown): void {
     if (!column.includes(`.`)) {
       row[column] = cell
       return
@@ -98,7 +98,7 @@ export class RecordCodec implements ICodec<unknown> {
     // Single narrow cast at the codec boundary — the hook contract is
     // `unknown`, and every caller passes the typed row object.
     const row = value as Record<string, unknown>
-    return this.columns.map((column) => RecordCodec._getPath(row, column))
+    return this.columns.map((column) => RecordCodec.getPath(row, column))
   }
 
   /**
@@ -116,7 +116,7 @@ export class RecordCodec implements ICodec<unknown> {
     const row: Record<string, unknown> = {}
     for (let i = 0; i < this.columns.length; i++) {
       const cell = cells[i]
-      if (cell !== undefined) RecordCodec._setPath(row, this.columns[i]!, cell)
+      if (cell !== undefined) RecordCodec.setPath(row, this.columns[i]!, cell)
     }
     return row
   }

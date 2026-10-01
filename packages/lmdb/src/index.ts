@@ -1,12 +1,3 @@
-/**
- * @gramstax/lmdb — LMDB-backed key-value database with typed collections.
- *
- * @remarks
- * Multi-runtime (Bun, Node.js >=18). Provides typed collection handles
- * over LMDB sub-databases, with cross-collection transactions.
- *
- */
-
 export * from "./backup"
 export * from "./cdc"
 export * from "./codec"

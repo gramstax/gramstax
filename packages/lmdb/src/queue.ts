@@ -73,19 +73,19 @@ export class LmdbQueue<S extends IQueueSchema> {
    *
    * @internal
    */
-  private readonly dbName: string
+  private readonly _dbName: string
   /**
    * Handle to the shared `__queue_meta` counter sub-DB.
    *
    * @internal
    */
-  private readonly meta: LmdbEnvSub<typeof QueueMetaSchema>
+  private readonly _meta: LmdbEnvSub<typeof QueueMetaSchema>
   /**
    * Handle to this queue's payload sub-DB.
    *
    * @internal
    */
-  private readonly sub: LmdbEnvSub<S>
+  private readonly _sub: LmdbEnvSub<S>
 
   /**
    * Create a queue bound to a schema's sub-DB.
@@ -94,24 +94,24 @@ export class LmdbQueue<S extends IQueueSchema> {
    * Registration is idempotent: constructing a second queue with the same
    * schema reuses the already-created sub instead of throwing.
    *
-   * @param env - Owning env (must stay open for the queue's lifetime).
+   * @param _env - Owning env (must stay open for the queue's lifetime).
    * @param schema - Payload schema class; its `static db` is the queue name
    * and its key must be string-kind.
    *
    * @public
    */
   constructor(
-    private readonly env: LmdbEnv,
+    private readonly _env: LmdbEnv,
     schema: S
   ) {
-    this.dbName = schema.db
+    this._dbName = schema.db
     // register is idempotent-safe via isRegistered: a second LmdbQueue with
     // the same schema reuses the already-created sub instead of
     // throwing LmdbError.
-    if (!env.isRegistered(schema)) env.register(schema)
-    if (!env.isRegistered(QueueMetaSchema)) env.register(QueueMetaSchema)
-    this.meta = env.sub(QueueMetaSchema)
-    this.sub = env.sub(schema)
+    if (!_env.isRegistered(schema)) _env.register(schema)
+    if (!_env.isRegistered(QueueMetaSchema)) _env.register(QueueMetaSchema)
+    this._meta = _env.sub(QueueMetaSchema)
+    this._sub = _env.sub(schema)
   }
 
   /**
@@ -127,13 +127,13 @@ export class LmdbQueue<S extends IQueueSchema> {
    * @public
    */
   async enqueue(job: ValueOf<S>): Promise<string> {
-    return this.env.rootTransactionSync(() => {
-      const key = `__queue_seq_${this.dbName}`
-      const cur = this.meta.get(key) ?? 0
+    return this._env.rootTransactionSync(() => {
+      const key = `__queue_seq_${this._dbName}`
+      const cur = this._meta.get(key) ?? 0
       const next = cur + 1
-      this.meta.putSync(key, next)
+      this._meta.putSync(key, next)
       const id = String(next).padStart(12, `0`)
-      this.sub.putSync(id as KeyOf<S>, job)
+      this._sub.putSync(id as KeyOf<S>, job)
       return id
     })
   }
@@ -150,9 +150,9 @@ export class LmdbQueue<S extends IQueueSchema> {
    * @public
    */
   peek(): [string, ValueOf<S>] | undefined {
-    for (const key of this.sub.getKeys({limit: 1})) {
+    for (const key of this._sub.getKeys({limit: 1})) {
       const id = key as string
-      const job = this.sub.get(id as KeyOf<S>)
+      const job = this._sub.get(id as KeyOf<S>)
       if (job === undefined) return undefined
       return [id, job] as [string, ValueOf<S>]
     }
@@ -172,12 +172,12 @@ export class LmdbQueue<S extends IQueueSchema> {
    * @public
    */
   async dequeue(): Promise<[string, ValueOf<S>] | undefined> {
-    return this.env.rootTransactionSync(() => {
-      for (const key of this.sub.getKeys({limit: 1})) {
+    return this._env.rootTransactionSync(() => {
+      for (const key of this._sub.getKeys({limit: 1})) {
         const id = key as KeyOf<S>
-        const job = this.sub.get(id)
+        const job = this._sub.get(id)
         if (job === undefined) return undefined
-        this.sub.removeSync(id)
+        this._sub.removeSync(id)
         return [id as string, job] as [string, ValueOf<S>]
       }
       return undefined
@@ -195,7 +195,7 @@ export class LmdbQueue<S extends IQueueSchema> {
    * @public
    */
   size(): number {
-    return this.sub.count()
+    return this._sub.count()
   }
 
   /**
@@ -204,6 +204,6 @@ export class LmdbQueue<S extends IQueueSchema> {
    * @public
    */
   async clear(): Promise<void> {
-    await this.sub.clear()
+    await this._sub.clear()
   }
 }

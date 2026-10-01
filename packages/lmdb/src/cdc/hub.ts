@@ -1,8 +1,8 @@
 import type {LmdbEnv} from "../env"
 import {LmdbError} from "../errors"
+import type {ICdcCallback, ICdcFilter, ICdcRecord, ICdcTailOptions} from "../types/cdc"
 import type {ISubscription} from "../types/cdc-hub"
 import type {CdcStore} from "./store"
-import type {ICdcCallback, ICdcFilter, ICdcRecord, ICdcTailOptions} from "../types/cdc"
 
 /**
  * In-process subscriber hub (one per env, aftercommit-driven).
@@ -62,13 +62,13 @@ export class CdcHub {
   /**
    * Create a subscriber hub bound to one env and its outbox store.
    *
-   * @param env - The owning env (provides `aftercommit` hooks).
-   * @param store - The durable outbox store backing subscribe/tail/ack.
+   * @param _env - The owning env (provides `aftercommit` hooks).
+   * @param _store - The durable outbox store backing subscribe/tail/ack.
    * @internal
    */
   constructor(
-    private readonly env: LmdbEnv,
-    private readonly store: CdcStore
+    private readonly _env: LmdbEnv,
+    private readonly _store: CdcStore
   ) {}
 
   /**
@@ -127,12 +127,12 @@ export class CdcHub {
   subscribe(filter: ICdcFilter, cb: ICdcCallback): () => void {
     const parsed = CdcHub._parseFilter(filter)
     this.activate()
-    this.store.ensure()
-    this._cursor = this.store.maxSeq()
+    this._store.ensure()
+    this._cursor = this._store.maxSeq()
     const sub: ISubscription = {db: parsed.db, op: parsed.op, cb}
     this._subs.push(sub)
     if (!this._hooked) {
-      this.env.on(`aftercommit`, this._onCommit)
+      this._env.on(`aftercommit`, this._onCommit)
       this._hooked = true
     }
     let done = false
@@ -141,7 +141,7 @@ export class CdcHub {
       done = true
       this._subs = this._subs.filter((s) => s !== sub)
       if (this._subs.length === 0 && this._hooked) {
-        this.env.off(`aftercommit`, this._onCommit)
+        this._env.off(`aftercommit`, this._onCommit)
         this._hooked = false
       }
     }
@@ -158,7 +158,7 @@ export class CdcHub {
    */
   drain(): void {
     if (this._subs.length === 0) return
-    const {records, highWater} = this.store.scan(this._cursor)
+    const {records, highWater} = this._store.scan(this._cursor)
     this._cursor = highWater
     for (const record of records) {
       for (const sub of this._subs) {
@@ -197,14 +197,14 @@ export class CdcHub {
     if (limit !== undefined && limit <= 0) return []
     let floor = from - 1
     if (options?.consumer !== undefined) {
-      const ack = this.store.getAck(options.consumer)
+      const ack = this._store.getAck(options.consumer)
       if (ack === undefined) {
-        this.store.setAck(options.consumer, floor)
+        this._store.setAck(options.consumer, floor)
       } else {
         floor = Math.max(ack, floor)
       }
     }
-    return this.store.scan(floor, limit).records
+    return this._store.scan(floor, limit).records
   }
 
   /**
@@ -217,9 +217,9 @@ export class CdcHub {
    */
   async ack(consumer: string, seq: number): Promise<void> {
     this.activate()
-    if (this.store.getAck(consumer) === undefined) {
+    if (this._store.getAck(consumer) === undefined) {
       throw new LmdbError(`unknown CDC consumer '${consumer}' — tail first to register`)
     }
-    this.store.setAck(consumer, seq)
+    this._store.setAck(consumer, seq)
   }
 }

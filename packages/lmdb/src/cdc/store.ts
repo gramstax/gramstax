@@ -1,8 +1,8 @@
 import type {LmdbEnv} from "../env"
 import {LmdbError} from "../errors"
-import type {ILmdbKey} from "../types/key"
-import type {IRawDb} from "../types/cdc-store"
 import type {ICdcEvent, ICdcRecord} from "../types/cdc"
+import type {IRawDb} from "../types/cdc-store"
+import type {ILmdbKey} from "../types/key"
 
 /**
  * Sub-DB holding sequence-keyed outbox records.
@@ -43,10 +43,10 @@ export class CdcStore {
   /**
    * Create an outbox store bound to one env.
    *
-   * @param env - The owning env (provides `getDb` for the internal sub-DBs).
+   * @param _env - The owning env (provides `getDb` for the internal sub-DBs).
    * @internal
    */
-  constructor(private readonly env: LmdbEnv) {}
+  constructor(private readonly _env: LmdbEnv) {}
 
   /**
    * Meta key for a named consumer's ack.
@@ -66,8 +66,8 @@ export class CdcStore {
    * callers never open sub-DBs themselves.
    */
   ensure(): void {
-    if (this._logDb === undefined) this._logDb = this.env.getDb(OUTBOX_DB)
-    if (this._metaDb === undefined) this._metaDb = this.env.getDb(META_DB)
+    if (this._logDb === undefined) this._logDb = this._env.getDb(OUTBOX_DB)
+    if (this._metaDb === undefined) this._metaDb = this._env.getDb(META_DB)
   }
 
   /**
@@ -193,7 +193,7 @@ export class CdcStore {
     const cutoff = Math.min(acks.length > 0 ? Math.min(...acks) : Infinity, newest - keep)
     if (cutoff < 1) return 0
     const log = this._logDb!
-    return this.env.transaction(() => {
+    return this._env.transaction(() => {
       let pruned = 0
       for (const seqKey of log.getKeys({end: cutoff + 1})) {
         if (log.removeSync(seqKey)) pruned++

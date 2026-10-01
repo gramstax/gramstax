@@ -11,12 +11,16 @@ import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it} from "
 import {LmdbEnv} from "../src/env"
 import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
-import {MAX_MATERIALIZE} from "../src/sub"
 import type {LmdbEnvSub} from "../src/sub"
+import {MAX_MATERIALIZE} from "../src/sub"
 
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
-class GuardSchema extends LmdbSchema { static db = `guardrail-test`; static key = t.string(); static value = t.object<{v: number}>() }
+class GuardSchema extends LmdbSchema {
+  static db = `guardrail-test`
+  static key = t.string()
+  static value = t.object<{v: number}>()
+}
 
 const MAX = MAX_MATERIALIZE
 

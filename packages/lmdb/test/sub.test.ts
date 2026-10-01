@@ -7,8 +7,8 @@
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
-import type {LmdbEnvSub} from "../src/sub"
 import {LmdbSchema, t} from "../src/schema"
+import type {LmdbEnvSub} from "../src/sub"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
 class UserSchema extends LmdbSchema {

@@ -5,8 +5,8 @@ import {LmdbSchema} from "./schema"
 import {LmdbEnvSub} from "./sub"
 import type {IIndexDef} from "./types/indexes"
 import type {ILmdbKey} from "./types/key"
-import type {LmdbSubState} from "./types/sub-state"
 import type {IResolvedIndexDef, ISchemaConstructor, ISubStateOptions} from "./types/sub-manager"
+import type {LmdbSubState} from "./types/sub-state"
 
 /**
  * Registry + state factory for schema-registered sub-DBs.
@@ -42,13 +42,20 @@ export class LmdbEnvSubManager {
   private readonly _subCache = new Map<ISchemaConstructor, LmdbEnvSub<typeof LmdbSchema>>()
 
   /**
-   * Create a registry bound to an env.
-   *
-   * @param env - Owning env (provides transactions, map sizing, read-only flag).
+   * Whether the maxDbs pressure warning already fired (warn once).
    *
    * @internal
    */
-  constructor(private readonly env: LmdbEnv) {}
+  private _maxDbsWarned = false
+
+  /**
+   * Create a registry bound to an env.
+   *
+   * @param _env - Owning env (provides transactions, map sizing, read-only flag).
+   *
+   * @internal
+   */
+  constructor(private readonly _env: LmdbEnv) {}
 
   /**
    * Register a schema class as a sub-DB collection.
@@ -121,7 +128,7 @@ export class LmdbEnvSubManager {
       state.searchTables.push({column: searchColumns[i]!, state: searchState})
     }
     this._stateBySchema.set(schemaClass as unknown as ISchemaConstructor, state)
-    const sub = new LmdbEnvSub(this.env, schemaClass, state)
+    const sub = new LmdbEnvSub(this._env, schemaClass, state)
     this._subCache.set(schemaClass as unknown as ISchemaConstructor, sub as LmdbEnvSub<typeof LmdbSchema>)
     return sub
   }
@@ -191,7 +198,7 @@ export class LmdbEnvSubManager {
     if (existing) return existing
     // B2 guardrail — refuse to open a new sub-DB when the map is nearly full
     // (free ratio below 10%) to fail early instead of hitting MDB_MAP_FULL.
-    const usage = this.env.getMapSizeUsed()
+    const usage = this._env.getMapSizeUsed()
     if (usage.ratio < 0.1) {
       throw new LmdbError(`MDB_MAP_FULL risk — free ratio ${usage.ratio.toFixed(3)} is below 10%. Increase mapSize or prune data.`)
     }
@@ -208,11 +215,11 @@ export class LmdbEnvSubManager {
             ...(keyEncoding !== undefined ? {keyEncoding} : {})
           }
         : {}
-    const subDb = Object.keys(dbOverrides).length ? this.env.getDb(dbName, dbOverrides as never) : this.env.getDb(dbName)
+    const subDb = Object.keys(dbOverrides).length ? this._env.getDb(dbName, dbOverrides as never) : this._env.getDb(dbName)
     const combined = Object.create(subDb) as LmdbSubState[`env`]
-    combined.transaction = this.env.transaction.bind(this.env) as LmdbSubState[`env`][`transaction`]
-    combined.readTransaction = this.env.readTransaction.bind(this.env) as LmdbSubState[`env`][`readTransaction`]
-    Object.defineProperty(combined, `readOnly`, {value: this.env.readOnly})
+    combined.transaction = this._env.transaction.bind(this._env) as LmdbSubState[`env`][`transaction`]
+    combined.readTransaction = this._env.readTransaction.bind(this._env) as LmdbSubState[`env`][`readTransaction`]
+    Object.defineProperty(combined, `readOnly`, {value: this._env.readOnly})
     const state: LmdbSubState = {
       dbName,
       env: combined,
@@ -236,13 +243,6 @@ export class LmdbEnvSubManager {
   }
 
   /**
-   * Whether the maxDbs pressure warning already fired (warn once).
-   *
-   * @internal
-   */
-  private _maxDbsWarned = false
-
-  /**
    * Warn once when sub-DB slots run low.
    *
    * @remarks
@@ -257,7 +257,7 @@ export class LmdbEnvSubManager {
     // fewer than 32 sub-DB slots remain. Every schema, index, queue, and TTL
     // helper consumes slots, and breaching maxDbs throws mid-registration.
     if (this._maxDbsWarned) return
-    const max = this.env.maxDbs
+    const max = this._env.maxDbs
     if (max < 32) return
     const remaining = max - this._subStates.size
     if (remaining <= 32) {

@@ -10,10 +10,9 @@ import type {LmdbSchema} from "./schema"
 import type {LmdbEnvSub} from "./sub"
 import {LmdbEnvSubManager} from "./sub-manager"
 import {LmdbTransaction} from "./transaction"
-import type {ILmdbEncoding, ILmdbEnvOptions, ILmdbEnvState} from "./types/env"
+import type {ILmdbEncoding, ILmdbEnvOptions, ILmdbEnvState, IMapUsage, IMigration, IRootStore, ITransformStep} from "./types/env"
 import type {IIndexDef} from "./types/indexes"
 import type {ILmdbKey} from "./types/key"
-import type {IMapUsage, IMigration, IRootStore, ITransformStep} from "./types/env"
 
 /**
  * lmdb-js's module-level handle registry.
@@ -51,26 +50,26 @@ export class LmdbEnv {
    *
    * @internal
    */
-  static readonly _MIGRATIONS_DB = `__migrations`
+  private static readonly _MIGRATIONS_DB = `__migrations`
   /**
    * Meta key for the applied migration version.
    *
    * @internal
    */
-  static readonly _VERSION_KEY = `__version`
+  private static readonly _VERSION_KEY = `__version`
   /**
    * Meta key prefix for per-step transform completion markers.
    *
    * @internal
    */
-  static readonly _TRANSFORM_PREFIX = `transform:`
+  private static readonly _TRANSFORM_PREFIX = `transform:`
 
   /**
    * Current lifecycle state (`open` | `closing` | `closed`).
    *
    * @internal
    */
-  _state: ILmdbEnvState = `open`
+  private _state: ILmdbEnvState = `open`
 
   /**
    * Serializes concurrent write transactions.
@@ -81,14 +80,14 @@ export class LmdbEnv {
    *
    * @internal
    */
-  _txQueue: Promise<unknown> = Promise.resolve()
+  private _txQueue: Promise<unknown> = Promise.resolve()
 
   /**
    * True while a transaction callback is executing (nesting detection).
    *
    * @internal
    */
-  _txInProgress = false
+  private _txInProgress = false
 
   /**
    * Per-instance lmdb root store.
@@ -98,14 +97,14 @@ export class LmdbEnv {
    *
    * @internal
    */
-  readonly _root: IRootStore
+  private readonly _root: IRootStore
 
   /**
    * Sub registry plus state factory.
    *
    * @internal
    */
-  readonly _subs: LmdbEnvSubManager
+  private readonly _subs: LmdbEnvSubManager
 
   /**
    * Configured virtual map size in bytes.
@@ -115,7 +114,7 @@ export class LmdbEnv {
    *
    * @internal
    */
-  readonly _mapSize: number
+  private readonly _mapSize: number
 
   /**
    * Sub-DB options extracted from env options.
@@ -126,14 +125,14 @@ export class LmdbEnv {
    *
    * @internal
    */
-  readonly _dbOpts: DatabaseOptions
+  private readonly _dbOpts: DatabaseOptions
 
   /**
    * Sub-DB handle cache (one LMDBStore wrapper per name plus encoding).
    *
    * @internal
    */
-  readonly _subDbCache = new Map<string, Database<unknown, Key>>()
+  private readonly _subDbCache = new Map<string, Database<unknown, Key>>()
 
   /**
    * Sub-DB handles opened via this env.
@@ -143,14 +142,14 @@ export class LmdbEnv {
    *
    * @internal
    */
-  readonly _subDbNames = new Map<string, Database<unknown, Key>>()
+  private readonly _subDbNames = new Map<string, Database<unknown, Key>>()
 
   /**
    * Commit-event listeners (user callback to registered wrapper).
    *
    * @internal
    */
-  readonly _commitListeners = new Map<`beforecommit` | `aftercommit`, Map<(event: unknown) => void, (event: unknown) => void>>()
+  private readonly _commitListeners = new Map<`beforecommit` | `aftercommit`, Map<(event: unknown) => void, (event: unknown) => void>>()
 
   /**
    * Path where LMDB stores its data files.
@@ -288,7 +287,7 @@ export class LmdbEnv {
    *
    * @internal
    */
-  _assertOpen(): void {
+  private _assertOpen(): void {
     if (this._state === `closed`) throw new LmdbError(`LmdbEnv has been closed and cannot be reused. Create a new instance.`)
     if (this._state !== `open`) throw new LmdbError(`LmdbEnv is not open. The env must be in 'open' state before performing operations.`)
   }
@@ -326,7 +325,7 @@ export class LmdbEnv {
    *
    * @internal
    */
-  _purgeAllDbs(): void {
+  private _purgeAllDbs(): void {
     const key = this._lmdbKeyName()
     // Identity check: only delete if the entry belongs to THIS env, so
     // closing one env does not corrupt another env with the same basename
@@ -352,7 +351,7 @@ export class LmdbEnv {
    *
    * @internal
    */
-  _lmdbKeyName(): string {
+  private _lmdbKeyName(): string {
     const ext = extname(this.path)
     return basename(this.path, ext)
   }
@@ -641,7 +640,7 @@ export class LmdbEnv {
    *
    * @internal
    */
-  _drainCdc(): void {
+  private _drainCdc(): void {
     Cdc.for(this).hub.drain()
   }
 
@@ -659,7 +658,7 @@ export class LmdbEnv {
    *
    * @internal
    */
-  async _runTransaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
+  private async _runTransaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
     const tx = new LmdbTransaction()
     let syncResult: T | undefined
     let abortedValue: T | undefined
@@ -1113,7 +1112,7 @@ export class LmdbEnv {
    *
    * @internal
    */
-  _removeAllCommitListeners(): void {
+  private _removeAllCommitListeners(): void {
     this._commitListeners.clear()
   }
 
@@ -1152,7 +1151,7 @@ export class LmdbEnv {
    *
    * @internal
    */
-  async _runTransformStep(m: IMigration, step: ITransformStep): Promise<void> {
+  private async _runTransformStep(m: IMigration, step: ITransformStep): Promise<void> {
     const handle = this.sub(step.schema) as unknown as {
       count(): number
       iterate(): AsyncIterableIterator<[ILmdbKey, unknown]>

@@ -49,14 +49,14 @@ export class LmdbSyncStream<S extends typeof LmdbSchema> {
   /**
    * Create a sync stream for one run (instances are single-use).
    *
-   * @param source - Sub to copy from.
-   * @param dest - Sub to copy to (same schema class, any env; must differ).
-   * @param options - `{name?, checkpoint?, limit?, verify?}`.
+   * @param _source - Sub to copy from.
+   * @param _dest - Sub to copy to (same schema class, any env; must differ).
+   * @param _options - `{name?, checkpoint?, limit?, verify?}`.
    */
   constructor(
-    private readonly source: LmdbEnvSub<S>,
-    private readonly dest: LmdbEnvSub<S>,
-    private readonly options?: ISyncOptions<S>
+    private readonly _source: LmdbEnvSub<S>,
+    private readonly _dest: LmdbEnvSub<S>,
+    private readonly _options?: ISyncOptions<S>
   ) {}
 
   /**
@@ -203,12 +203,12 @@ export class LmdbSyncStream<S extends typeof LmdbSchema> {
    * @throws {LmdbError} On self-sync and verify divergence.
    */
   async run(): Promise<ISyncResult<S>> {
-    if (this.source === this.dest) throw new LmdbError(`cannot sync a sub to itself`)
-    const name = this.options?.name ?? this.dest.schemaClass.db
-    const verify = this.options?.verify !== false
-    const limit = typeof this.options?.limit === `number` && Number.isFinite(this.options.limit) ? this.options.limit : undefined
+    if (this._source === this._dest) throw new LmdbError(`cannot sync a sub to itself`)
+    const name = this._options?.name ?? this._dest.schemaClass.db
+    const verify = this._options?.verify !== false
+    const limit = typeof this._options?.limit === `number` && Number.isFinite(this._options.limit) ? this._options.limit : undefined
     if (limit !== undefined && limit <= 0) return {copied: 0, checkpoint: undefined, verified: false}
-    const bound = this.options?.checkpoint ?? LmdbSyncStream._readCheckpoint(this.source, name)
+    const bound = this._options?.checkpoint ?? LmdbSyncStream._readCheckpoint(this._source, name)
     let start: KeyOf<S> | undefined = bound
     let copied = 0
     let checkpoint: KeyOf<S> | undefined
@@ -216,7 +216,7 @@ export class LmdbSyncStream<S extends typeof LmdbSchema> {
     for (;;) {
       if (limit !== undefined && copied >= limit) break
       const take = limit === undefined ? SYNC_CHUNK : Math.min(SYNC_CHUNK, limit - copied)
-      const page = await this.source.entries(start === undefined ? {limit: take} : {start, limit: take})
+      const page = await this._source.entries(start === undefined ? {limit: take} : {start, limit: take})
       if (page.length === 0) {
         exhausted = true
         break
@@ -228,11 +228,11 @@ export class LmdbSyncStream<S extends typeof LmdbSchema> {
         break
       }
       const chunk = rows as Array<[KeyOf<S>, ValueOf<S>]>
-      await this.dest.putMany(chunk, SYNC_CHUNK, {sorted: true})
+      await this._dest.putMany(chunk, SYNC_CHUNK, {sorted: true})
       copied += chunk.length
       const lastKey = chunk[chunk.length - 1]![0]
       checkpoint = lastKey
-      if (this.options?.checkpoint === undefined) LmdbSyncStream._writeCheckpoint(this.source, name, lastKey)
+      if (this._options?.checkpoint === undefined) LmdbSyncStream._writeCheckpoint(this._source, name, lastKey)
       start = lastKey
       if (page.length < take) {
         exhausted = true
@@ -241,7 +241,7 @@ export class LmdbSyncStream<S extends typeof LmdbSchema> {
     }
     let verified = false
     if (verify && exhausted) {
-      await LmdbSyncStream._verify(this.source, this.dest)
+      await LmdbSyncStream._verify(this._source, this._dest)
       verified = true
     }
     return {copied, checkpoint, verified}

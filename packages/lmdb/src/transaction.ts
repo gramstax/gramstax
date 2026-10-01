@@ -38,7 +38,7 @@ export class LmdbTransaction {
    *
    * @internal
    */
-  private readonly _rawReadTxn: IRawReadTransaction | undefined
+  private _rawReadTxn: IRawReadTransaction | undefined
 
   /**
    * Guard so the raw read txn is released at most once.
