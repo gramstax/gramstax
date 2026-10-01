@@ -65,23 +65,23 @@ export type IGramstaxModuleRef = {
 }
 
 /**
- * Either a bare module path (default export, zero-arg) or a full module ref.
+ * Either a bare module path (default export, zero-arg) or a wrapped override ref.
  *
  * @remarks
  * The string form must be a non-empty string resolving relative to the
- * project root. The object form is an {@link IGramstaxModuleRef} with
- * `module`, optional `export`, and optional `args`; unknown fields are
+ * project root. The object form is `{override: {@link IGramstaxModuleRef}}` with
+ * `override.module`, optional `override.export`, and optional `override.args`; unknown fields are
  * rejected by the loader.
  *
  * @example
  * ```typescript
  * const bare: IGramstaxPathRef = `./src/cache.ts`
- * const full: IGramstaxPathRef = {module: `./src/cache.ts`, export: `RedisCache`}
+ * const full: IGramstaxPathRef = {override: {module: `./src/cache.ts`, export: `RedisCache`}}
  * ```
  *
  * @public
  */
-export type IGramstaxPathRef = string | IGramstaxModuleRef
+export type IGramstaxPathRef = string | {override: IGramstaxModuleRef}
 
 /**
  * `cacheSession` slot: a path-ref to a `CacheExternal` subclass, or builtin
@@ -90,7 +90,7 @@ export type IGramstaxPathRef = string | IGramstaxModuleRef
  * @remarks
  * Three accepted shapes (enforced by the loader):
  * - a module path string resolving to a `CacheExternal` subclass
- * - a `{module, export?, args?}` ref resolving to a `CacheExternal` subclass
+ * - an `{override: {module, export?, args?}}` ref resolving to a `CacheExternal` subclass
  * - builtin params `{store, ttlMs?, namespace?}` passed to `new CacheExternal(params)`
  *
  * @example
@@ -110,7 +110,7 @@ export type IGramstaxCacheSessionRef = IGramstaxPathRef | {store: string; ttlMs?
  * @remarks
  * Four accepted shapes (enforced by the loader):
  * - a module path string resolving to a `Map` subclass
- * - a `{module, export?, args?}` ref resolving to a `Map` subclass
+ * - an `{override: {module, export?, args?}}` ref resolving to a `Map` subclass
  * - an entries array (`Array<[string, unknown]>`) used as `new Map(entries)`
  * - a plain object whose entries seed the map via `Object.entries`
  *
@@ -132,7 +132,7 @@ export type IGramstaxCacheKeyboardRef = IGramstaxPathRef | Array<[string, unknow
  * @remarks
  * Three accepted shapes (enforced by the loader):
  * - a module path string resolving to a `TemplateManager` subclass
- * - a `{module, export?, args?}` ref resolving to a `TemplateManager` subclass
+ * - an `{override: {module, export?, args?}}` ref resolving to a `TemplateManager` subclass
  * - builtin template options (`path`, `enableWatch?`, `watchOptions?`, `onReload?`)
  *   passed to `new TemplateManager(params)` — `path` must be a non-empty
  *   array of non-empty strings, `enableWatch` a boolean, `watchOptions` an
@@ -156,7 +156,7 @@ export type IGramstaxTemplateManagerRef = IGramstaxPathRef | ITemplateOptions
  * Four accepted shapes (enforced by the loader):
  * - a boolean (`true` mounts the default logger, `false` stays silent)
  * - a module path string resolving to a `LoggingHelper`
- * - a `{module, export?, args?}` ref resolving to a `LoggingHelper`
+ * - an `{override: {module, export?, args?}}` ref resolving to a `LoggingHelper`
  * - logger options `{pathFile?, force?, formatTime?}` — `pathFile` is a
  *   string or `null`, `force` is one of `console`, `file`, `all`,
  *   `formatTime` is a string. Unknown fields are rejected.
@@ -178,7 +178,7 @@ export type IGramstaxLogRef = boolean | IGramstaxPathRef | {pathFile?: string | 
  * @remarks
  * Must be an object when present — unknown fields are rejected by the loader.
  * The optional `key` factory is a path-ref (bare string or
- * `{module, export?, args?}`) resolving to a `(ctx) => string` function.
+ * `{override: {module, export?, args?}}`) resolving to a `(ctx) => string` function.
  *
  * @example
  * ```typescript
@@ -231,7 +231,7 @@ export type IGramstaxSessionLockRef = {
    * Custom lock-key factory given as a path-ref.
    *
    * @remarks
-   * A bare module path string or `{module, export?, args?}` resolving to
+   * A bare module path string or `{override: {module, export?, args?}}` resolving to
    * a `(ctx) => string` function. Must be a non-empty string in the bare
    * form.
    *
@@ -752,7 +752,7 @@ export type IGramstaxConfig = {
    * Custom session cache slot.
    *
    * @remarks
-   * Accepts a module path string, a `{module, export?, args?}` ref to a
+   * Accepts a module path string, an `{override: {module, export?, args?}}` ref to a
    * `CacheExternal` subclass, or builtin `{store, ttlMs?, namespace?}`
    * params (`store` non-empty string, `ttlMs` non-negative number,
    * `namespace` string). Unknown fields are rejected.
@@ -767,7 +767,7 @@ export type IGramstaxConfig = {
    * Custom keyboard cache slot.
    *
    * @remarks
-   * Accepts a module path string, a `{module, export?, args?}` ref to a
+   * Accepts a module path string, an `{override: {module, export?, args?}}` ref to a
    * `Map` subclass, an entries array, or a plain object (entries via
    * `Object.entries`).
    *
@@ -781,7 +781,7 @@ export type IGramstaxConfig = {
    * Custom template manager slot.
    *
    * @remarks
-   * Accepts a module path string, a `{module, export?, args?}` ref to a
+   * Accepts a module path string, an `{override: {module, export?, args?}}` ref to a
    * `TemplateManager` subclass, or builtin template options with `path`
    * (non-empty array of non-empty strings).
    *
@@ -796,7 +796,7 @@ export type IGramstaxConfig = {
    *
    * @remarks
    * Accepts a boolean (`true` for the default logger, `false` for silent),
-   * a module path string or `{module, export?, args?}` ref resolving to a
+   * a module path string or `{override: {module, export?, args?}}` ref resolving to a
    * `LoggingHelper`, or logger options `{pathFile?, force?, formatTime?}`.
    * Unknown fields are rejected.
    *

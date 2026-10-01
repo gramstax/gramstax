@@ -10,8 +10,7 @@ const config: GramstaxConfig = {
     namespace: `s`
   },
   log: {
-    module: `./src/helpers/log.ts`,
-    export: `LogHe`
+    override: {module: `./src/helpers/log.ts`, export: `LogHe`}
   },
   optionsPage: {
     shortCallbackQueryData: true

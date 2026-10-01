@@ -115,19 +115,19 @@ describe(`gramstax build CLI coverage`, () => {
     const dir = makeTempDir()
     const previousExitCode = process.exitCode
     const previousCwd = process.cwd()
-    const errors: string[] = []
-    const originalError = console.error
-    console.error = (...args: unknown[]): void => {
-      errors.push(args.map((arg) => String(arg)).join(` `))
+    const logs: string[] = []
+    const originalLog = console.log
+    console.log = (...args: unknown[]): void => {
+      logs.push(args.map((arg) => String(arg)).join(` `))
     }
     try {
       process.chdir(dir)
       const program = new GramstaxProgram().create()
       await program.parseAsync([`node`, `gramstax`, `build`])
       expect(process.exitCode).toBe(1)
-      expect(errors.join(`\n`)).toContain(`pages directory`)
+      expect(logs.join(`\n`)).toContain(`pages directory`)
     } finally {
-      console.error = originalError
+      console.log = originalLog
       process.exitCode = previousExitCode
       process.chdir(previousCwd)
       rmSync(dir, {force: true, recursive: true})

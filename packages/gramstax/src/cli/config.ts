@@ -372,28 +372,40 @@ export class GramstaxConfigLoader {
       }
       return value
     }
-    if (this._isRecord(value) === false || typeof value.module !== `string` || value.module.length === 0) {
-      throw new Error(`Invalid gramstax config at ${file}: \`${field}\` must be a module path string or \`{module, export?, args?}\``)
+    if (this._isRecord(value) === true && `module` in value && `override` in value === false) {
+      throw new Error(`Invalid gramstax config at ${file}: \`${field}\` uses removed bare {module, ...} form — use {override: {module, ...}}`)
     }
-    const ref: IGramstaxModuleRef = {module: value.module}
-    if (value.export !== undefined) {
-      if (typeof value.export !== `string` || value.export.length === 0) {
-        throw new Error(`Invalid gramstax config at ${file}: \`${field}.export\` must be a non-empty string`)
-      }
-      ref.export = value.export
-    }
-    if (value.args !== undefined) {
-      if (Array.isArray(value.args) === false) {
-        throw new Error(`Invalid gramstax config at ${file}: \`${field}.args\` must be an array`)
-      }
-      ref.args = value.args
+    if (this._isRecord(value) === false || `override` in value === false) {
+      throw new Error(`Invalid gramstax config at ${file}: \`${field}\` must be a module path string or \`{override: {module, export?, args?}}\``)
     }
     for (const key of Object.keys(value)) {
-      if (key !== `module` && key !== `export` && key !== `args`) {
-        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`${field}\` (supported: \`module\`, \`export\`, \`args\`)`)
+      if (key !== `override`) {
+        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`${field}\` (supported: \`override\`)`)
       }
     }
-    return ref
+    const inner: unknown = (value as Record<string, unknown>).override
+    if (this._isRecord(inner) === false || typeof inner.module !== `string` || inner.module.length === 0 || (inner.module as string).trim().length === 0) {
+      throw new Error(`Invalid gramstax config at ${file}: \`${field}\` must be a module path string or \`{override: {module, export?, args?}}\``)
+    }
+    const ref: IGramstaxModuleRef = {module: inner.module}
+    if (inner.export !== undefined) {
+      if (typeof inner.export !== `string` || inner.export.length === 0 || (inner.export as string).trim().length === 0) {
+        throw new Error(`Invalid gramstax config at ${file}: \`${field}.override.export\` must be a non-empty string`)
+      }
+      ref.export = inner.export
+    }
+    if (inner.args !== undefined) {
+      if (Array.isArray(inner.args) === false) {
+        throw new Error(`Invalid gramstax config at ${file}: \`${field}.override.args\` must be an array`)
+      }
+      ref.args = inner.args
+    }
+    for (const key of Object.keys(inner)) {
+      if (key !== `module` && key !== `export` && key !== `args`) {
+        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`${field}.override\` (supported: \`module\`, \`export\`, \`args\`)`)
+      }
+    }
+    return {override: ref}
   }
 
   _validateWebhookQueue(file: string, value: unknown): IWebhookQueueConfig {
@@ -481,11 +493,14 @@ export class GramstaxConfigLoader {
   }
 
   _validateCacheSession(file: string, value: unknown): IGramstaxCacheSessionRef {
-    if (typeof value === `string` || (this._isRecord(value) === true && `module` in value)) {
+    if (this._isRecord(value) === true && `module` in value && `override` in value === false) {
+      return this._validatePathRef(file, `cacheSession`, value)
+    }
+    if (typeof value === `string` || (this._isRecord(value) === true && `override` in value)) {
       return this._validatePathRef(file, `cacheSession`, value)
     }
     if (this._isRecord(value) === false) {
-      throw new Error(`Invalid gramstax config at ${file}: \`cacheSession\` must be a module path string, \`{module, export?, args?}\`, or \`{store, ttlMs?, namespace?}\``)
+      throw new Error(`Invalid gramstax config at ${file}: \`cacheSession\` must be a module path string, \`{override: {module, export?, args?}}\`, or \`{store, ttlMs?, namespace?}\``)
     }
     for (const key of Object.keys(value)) {
       if (key !== `store` && key !== `ttlMs` && key !== `namespace`) {
@@ -505,20 +520,26 @@ export class GramstaxConfigLoader {
   }
 
   _validateCacheKeyboard(file: string, value: unknown): IGramstaxCacheKeyboardRef {
-    if (typeof value === `string` || (this._isRecord(value) === true && `module` in value)) {
+    if (this._isRecord(value) === true && `module` in value && `override` in value === false) {
+      return this._validatePathRef(file, `cacheKeyboard`, value) as IGramstaxCacheKeyboardRef
+    }
+    if (typeof value === `string` || (this._isRecord(value) === true && `override` in value)) {
       return this._validatePathRef(file, `cacheKeyboard`, value) as IGramstaxCacheKeyboardRef
     }
     if (Array.isArray(value) === true) return value as Array<[string, unknown]>
     if (this._isRecord(value) === true) return value as Record<string, unknown>
-    throw new Error(`Invalid gramstax config at ${file}: \`cacheKeyboard\` must be a module path string, \`{module, export?, args?}\`, an entries array, or a plain object`)
+    throw new Error(`Invalid gramstax config at ${file}: \`cacheKeyboard\` must be a module path string, \`{override: {module, export?, args?}}\`, an entries array, or a plain object`)
   }
 
   _validateTemplateManager(file: string, value: unknown): IGramstaxTemplateManagerRef {
-    if (typeof value === `string` || (this._isRecord(value) === true && `module` in value)) {
+    if (this._isRecord(value) === true && `module` in value && `override` in value === false) {
+      return this._validatePathRef(file, `templateManager`, value) as IGramstaxTemplateManagerRef
+    }
+    if (typeof value === `string` || (this._isRecord(value) === true && `override` in value)) {
       return this._validatePathRef(file, `templateManager`, value) as IGramstaxTemplateManagerRef
     }
     if (this._isRecord(value) === false) {
-      throw new Error(`Invalid gramstax config at ${file}: \`templateManager\` must be a module path string, \`{module, export?, args?}\`, or template options with \`path\``)
+      throw new Error(`Invalid gramstax config at ${file}: \`templateManager\` must be a module path string, \`{override: {module, export?, args?}}\`, or template options with \`path\``)
     }
     for (const key of Object.keys(value)) {
       if (key !== `path` && key !== `enableWatch` && key !== `watchOptions` && key !== `onReload`) {
@@ -542,11 +563,14 @@ export class GramstaxConfigLoader {
 
   _validateLog(file: string, value: unknown): IGramstaxLogRef {
     if (typeof value === `boolean`) return value
-    if (typeof value === `string` || (this._isRecord(value) === true && `module` in value)) {
+    if (this._isRecord(value) === true && `module` in value && `override` in value === false) {
+      return this._validatePathRef(file, `log`, value) as IGramstaxLogRef
+    }
+    if (typeof value === `string` || (this._isRecord(value) === true && `override` in value)) {
       return this._validatePathRef(file, `log`, value) as IGramstaxLogRef
     }
     if (this._isRecord(value) === false) {
-      throw new Error(`Invalid gramstax config at ${file}: \`log\` must be a boolean, a module path string, \`{module, export?, args?}\`, or logger options`)
+      throw new Error(`Invalid gramstax config at ${file}: \`log\` must be a boolean, a module path string, \`{override: {module, export?, args?}}\`, or logger options`)
     }
     for (const key of Object.keys(value)) {
       if (key !== `pathFile` && key !== `force` && key !== `formatTime`) {

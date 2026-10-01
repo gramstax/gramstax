@@ -127,14 +127,14 @@ export class GramstaxStart {
       }
       return {label: ref, value: mod.default}
     }
-    const file = resolve(cwd, ref.module)
+    const file = resolve(cwd, ref.override.module)
     const mod = await this._loadModule(file, slot)
-    const name = ref.export ?? `default`
+    const name = ref.override.export ?? `default`
     const value = name === `default` ? (mod.default ?? Object.values(mod)[0]) : mod[name]
     if (value === undefined) {
-      throw new Error(`gramstax start: invalid \`${slot}\` from ${ref.module} — no export named \`${name}\``)
+      throw new Error(`gramstax start: invalid \`${slot}\` from ${ref.override.module} — no export named \`${name}\``)
     }
-    return {label: `${ref.module}#${name}`, value}
+    return {label: `${ref.override.module}#${name}`, value}
   }
 
   _buildOrUse<T>(exported: unknown, args: unknown[], slot: string, label: string, Expected: new (...ctorArgs: never[]) => T): T {
@@ -147,15 +147,24 @@ export class GramstaxStart {
 
   _refArgs(ref: IGramstaxPathRef): unknown[] {
     if (typeof ref === `string`) return []
-    return (ref as IGramstaxModuleRef).args ?? []
+    return ref.override.args ?? []
   }
 
-  _isModuleRef(value: unknown): value is IGramstaxModuleRef {
+  _isBareModuleRef(value: unknown): boolean {
     return typeof value === `object` && value !== null && Array.isArray(value) === false && typeof (value as Record<string, unknown>).module === `string`
+  }
+
+  _isModuleRef(value: unknown): value is {override: IGramstaxModuleRef} {
+    if (typeof value !== `object` || value === null || Array.isArray(value) === true) return false
+    const override = (value as Record<string, unknown>).override
+    return typeof override === `object` && override !== null && Array.isArray(override) === false && typeof (override as Record<string, unknown>).module === `string`
   }
 
   async _materializeCacheSession(value: IGramstaxCacheSessionRef | undefined, cwd: string): Promise<CacheExternal | undefined> {
     if (value === undefined) return undefined
+    if (this._isBareModuleRef(value)) {
+      throw new Error(`gramstax start: invalid \`cacheSession\` — bare {module, ...} was removed, use {override: {module, ...}}`)
+    }
     if (typeof value === `string` || this._isModuleRef(value)) {
       const resolved = await this._resolveExport(value, cwd, `cacheSession`)
       return this._buildOrUse(resolved.value, this._refArgs(value), `cacheSession`, resolved.label, CacheExternal)
@@ -165,6 +174,9 @@ export class GramstaxStart {
 
   async _materializeCacheKeyboard(value: IGramstaxCacheKeyboardRef | undefined, cwd: string): Promise<Map<string, unknown> | undefined> {
     if (value === undefined) return undefined
+    if (this._isBareModuleRef(value)) {
+      throw new Error(`gramstax start: invalid \`cacheKeyboard\` — bare {module, ...} was removed, use {override: {module, ...}}`)
+    }
     if (typeof value === `string` || this._isModuleRef(value)) {
       const resolved = await this._resolveExport(value, cwd, `cacheKeyboard`)
       return this._buildOrUse<Map<string, unknown>>(resolved.value, this._refArgs(value), `cacheKeyboard`, resolved.label, Map as unknown as new (...ctorArgs: never[]) => Map<string, unknown>)
@@ -175,6 +187,9 @@ export class GramstaxStart {
 
   async _materializeTemplateManager(value: IGramstaxTemplateManagerRef | undefined, cwd: string): Promise<TemplateManager | undefined> {
     if (value === undefined) return undefined
+    if (this._isBareModuleRef(value)) {
+      throw new Error(`gramstax start: invalid \`templateManager\` — bare {module, ...} was removed, use {override: {module, ...}}`)
+    }
     if (typeof value === `string` || this._isModuleRef(value)) {
       const resolved = await this._resolveExport(value, cwd, `templateManager`)
       return this._buildOrUse(resolved.value, this._refArgs(value), `templateManager`, resolved.label, TemplateManager)
@@ -185,6 +200,9 @@ export class GramstaxStart {
   async _materializeLog(value: IGramstaxLogRef | undefined, cwd: string): Promise<LoggingHelper | undefined> {
     if (value === undefined || value === false) return undefined
     if (value === true) return defaultLog
+    if (this._isBareModuleRef(value)) {
+      throw new Error(`gramstax start: invalid \`log\` — bare {module, ...} was removed, use {override: {module, ...}}`)
+    }
     if (typeof value === `string` || this._isModuleRef(value)) {
       const resolved = await this._resolveExport(value, cwd, `log`)
       return this._buildOrUse(resolved.value, this._refArgs(value), `log`, resolved.label, LoggingHelper)
@@ -199,8 +217,11 @@ export class GramstaxStart {
     if (value.leaseMs !== undefined) lock.leaseMs = value.leaseMs
     if (value.onContended !== undefined) lock.onContended = value.onContended
     if (value.key !== undefined) {
-      if (typeof value.key !== `string` && (value.key as IGramstaxModuleRef).args !== undefined) {
-        throw new Error(`gramstax start: invalid \`sessionLock.key\` — args are not supported, the ref must resolve to a \`(ctx) => string\` factory`)
+      if (this._isBareModuleRef(value.key)) {
+        throw new Error(`gramstax start: invalid \`sessionLock.key\` — bare {module, ...} was removed, use {override: {module, ...}}`)
+      }
+      if (typeof value.key !== `string` && value.key.override.args !== undefined) {
+        throw new Error(`gramstax start: invalid \`sessionLock.key.override.args\` — args are not supported, the ref must resolve to a \`(ctx) => string\` factory`)
       }
       const resolved = await this._resolveExport(value.key, cwd, `sessionLock.key`)
       if (typeof resolved.value !== `function` || /^\s*class[\s{]/.test(Function.prototype.toString.call(resolved.value))) {

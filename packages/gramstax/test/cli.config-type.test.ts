@@ -12,7 +12,7 @@ describe(`GramstaxConfig barrel type`, () => {
       deploy: `polling`,
       optionsDeploy: {serverless: {adapter: `cloudflare-mod`, name: `w`, url: `https://w.example.workers.dev/webhook`, secretToken: `test-secret`}},
       cacheSession: {store: `memory`, ttlMs: 4 * 60 * 60 * 1000, namespace: `s`},
-      log: {module: `./src/helpers/log.ts`, export: `LogHe`},
+      log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}},
       optionsPage: {shortCallbackQueryData: true},
       mediaRoots: undefined,
       botConfig: undefined,
@@ -32,13 +32,13 @@ describe(`GramstaxConfig barrel type`, () => {
     expect(config.token).toBe(`test`)
   })
 
-  it(`treats the full-undefined scaffold shape as validation-clean`, () => {
+  it(`treats the override-wrapped scaffold shape as validation-clean`, () => {
     const merged = new GramstaxConfigLoader()._validateConfig(`probe`, {
       token: `test`,
       deploy: `polling`,
       optionsDeploy: undefined,
       cacheSession: {store: `memory`},
-      log: {module: `./src/helpers/log.ts`, export: `LogHe`},
+      log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}},
       optionsPage: {shortCallbackQueryData: true},
       mediaRoots: undefined,
       botConfig: undefined,
@@ -59,6 +59,32 @@ describe(`GramstaxConfig barrel type`, () => {
     expect(merged.mediaRoots).toBeUndefined()
     expect(merged.rateLimit).toBeUndefined()
     expect(merged.sessionLock).toBeUndefined()
+  })
+
+  it(`rejects a bare module ref without the override wrapper`, () => {
+    const bare: unknown = {
+      token: `test`,
+      deploy: `polling`,
+      optionsDeploy: undefined,
+      cacheSession: {store: `memory`},
+      log: {module: `./src/helpers/log.ts`, export: `LogHe`},
+      optionsPage: {shortCallbackQueryData: true},
+      mediaRoots: undefined,
+      botConfig: undefined,
+      autoRetry: undefined,
+      autoRetryOptions: undefined,
+      rateLimit: undefined,
+      throttle: undefined,
+      updateTimeoutMs: undefined,
+      skipDuplicateUpdate: undefined,
+      maxTextLength: undefined,
+      statusServerPort: undefined,
+      statusServerHostname: undefined,
+      cacheKeyboard: undefined,
+      templateManager: undefined,
+      sessionLock: undefined
+    }
+    expect(() => new GramstaxConfigLoader()._validateConfig(`probe`, bare)).toThrow(/override/)
   })
 
   it(`source-tracks deploy keys`, async () => {

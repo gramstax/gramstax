@@ -204,12 +204,12 @@ describe(`gramstax start token rule`, () => {
 })
 
 describe(`gramstax start path-ref materialization`, () => {
-  it(`resolves {module, export} relative to cwd and boots`, async () => {
+  it(`resolves {override: {module, export}} relative to cwd and boots`, async () => {
     const dir = makeTempDir()
     try {
       writeBotProject(dir)
       writeFileSync(join(dir, `cache.ts`), CACHE_FIXTURE, `utf-8`)
-      writeConfig(dir, bootConfig(dir, `test`, `cacheSession: {module: \`./cache.ts\`, export: \`MyCache\`}`))
+      writeConfig(dir, bootConfig(dir, `test`, `cacheSession: {override: {module: \`./cache.ts\`, export: \`MyCache\`}}`))
       const bot = await new GramstaxStart().boot([], dir)
       expect(bot.deployType).toBe(`test`)
       await bot.stop()
@@ -237,7 +237,7 @@ describe(`gramstax start path-ref materialization`, () => {
     try {
       writeBotProject(dir)
       writeFileSync(join(dir, `cache.ts`), CACHE_FIXTURE, `utf-8`)
-      writeConfig(dir, `export default {token: \`test\`, deploy: \`test\`, cacheSession: {module: \`./cache.ts\`, export: \`NotACache\`}}\n`)
+      writeConfig(dir, `export default {token: \`test\`, deploy: \`test\`, cacheSession: {override: {module: \`./cache.ts\`, export: \`NotACache\`}}}\n`)
       const message = await startMessage(dir)
       expect(message).toContain(`cacheSession`)
       expect(message).toContain(`CacheExternal`)
@@ -374,14 +374,14 @@ describe(`gramstax build workers guardrail`, () => {
       walk(join(dir, `src`, `pages`))
       writeConfig(dir, `export default {token: \`test\`, deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}, cacheSession: {store: \`memory\`}}\n`)
       const warned: string[] = []
-      const originalWarn = console.warn
-      console.warn = (...args: unknown[]): void => {
+      const originalLog = console.log
+      console.log = (...args: unknown[]): void => {
         warned.push(args.map((arg) => String(arg)).join(` `))
       }
       try {
         await new GramstaxBuild().run([`--target`, `cloudflare-workers`], dir)
       } finally {
-        console.warn = originalWarn
+        console.log = originalLog
       }
       expect(warned.join(`\n`)).toContain(`cacheSession`)
     } finally {

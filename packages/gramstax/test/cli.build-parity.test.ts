@@ -196,7 +196,7 @@ describe(`gramstax build parity`, () => {
     try {
       const code = await new GramstaxBuild().run([], proj)
       expect(code).not.toBe(0)
-      expect(capture.errors.join(`\n`)).toContain(`pages directory`)
+      expect(capture.logs.join(`\n`)).toContain(`pages directory`)
     } finally {
       capture.restore()
       rmSync(proj, {force: true, recursive: true})
@@ -211,7 +211,7 @@ describe(`gramstax build parity`, () => {
       writeFileSync(join(proj, `src`, `pages`, `bad.ts`), `export class Broken {{\n`)
       const code = await new GramstaxBuild().run([], proj)
       expect(code).toBe(1)
-      expect(capture.errors.join(`\n`)).toContain(`failed`)
+      expect(capture.logs.join(`\n`)).toContain(`failed`)
     } finally {
       capture.restore()
       rmSync(proj, {force: true, recursive: true})

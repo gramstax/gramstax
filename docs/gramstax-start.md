@@ -64,8 +64,8 @@ warning is possible — the caution above is the whole guardrail.
 ## Path-ref form
 
 INSTANCE slots accept a bare string (default export, zero args) or
-`{module, export?, args?}` (named export, spread args). Paths resolve relative
-to the project root (cwd).
+`{override: {module, export?, args?}}` (named export, spread args). Paths resolve relative
+to the project root (cwd). A bare module ref without the `override` wrapper is rejected.
 
 ```ts
 import type {GramstaxConfig} from "gramstax"
@@ -73,8 +73,8 @@ import type {GramstaxConfig} from "gramstax"
 const config: GramstaxConfig = {
   token: process.env.TELEGRAM_BOT_TOKEN ?? ``,
   cacheSession: `./src/cache.ts`,
-  templateManager: {module: `./src/templates.ts`, export: `SharedManager`, args: []},
-  log: {module: `./src/helpers/log.ts`, export: `LogHe`}
+  templateManager: {override: {module: `./src/templates.ts`, export: `SharedManager`, args: []}},
+  log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}}
 }
 
 export default config
