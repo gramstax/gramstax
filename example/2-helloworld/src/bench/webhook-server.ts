@@ -13,7 +13,7 @@ const run = async () => {
   const botCore = new BotCore({
     deploy: `webhook`,
     optionsDeploy: {url: `http://127.0.0.1:3000/webhook/${Math.round(Math.random() * 10 ** 10)}`},
-    token: process.env.TELEGRAM_BOT_TOKEN ?? `7815352851:AAGdLYBm8GKF7f26zi7cUmxsKM2jZseqgfI`,
+    token: process.env.BOT_TOKEN ?? `7815352851:AAGdLYBm8GKF7f26zi7cUmxsKM2jZseqgfI`,
     log: true,
     botConfig: {
       client: {

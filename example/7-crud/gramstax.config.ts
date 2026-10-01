@@ -1,8 +1,8 @@
 import type {GramstaxConfig} from "gramstax"
 
 const config: GramstaxConfig = {
-  token: process.env.TELEGRAM_BOT_TOKEN,
-  deploy: process.env.TELEGRAM_BOT_DEPLOY ?? `polling`,
+  token: process.env.BOT_TOKEN,
+  deploy: process.env.BOT_DEPLOY ?? `polling`,
   cacheSession: process.env.CACHE_SESSION ?? `memory`,
   log: true,
   optionsPage: undefined,

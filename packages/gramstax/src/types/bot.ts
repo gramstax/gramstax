@@ -409,7 +409,7 @@ export type IGramstaxParams = {
    * @example
    * ```typescript
    * const bot = new Gramstax({
-   *   token: process.env.TELEGRAM_BOT_TOKEN,
+   *   token: process.env.BOT_TOKEN,
    *   mediaRoots: [`./backups`, `./logs`]
    * })
    * // `<g-media src="./backups/db.tar.gz">` uploads normally;

@@ -1,13 +1,13 @@
-import {spawnSync} from "node:child_process"
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
-import {existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync} from "node:fs"
+import {spawnSync} from "node:child_process"
+import {existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
-import {generate} from "../scripts/build-manifest"
 import {GramstaxBuild} from "~/cli/build"
 import {WorkerTarget} from "~/cli/targets/worker"
 import {Gramstax} from "~/index"
+import {generate} from "../scripts/build-manifest"
 
 const PKG_DIR = join(import.meta.dir, `..`)
 const EDGE_TOKENS = [`new Function`, `Function(`, `eval(`, `node:fs`, `__filename`]
@@ -89,7 +89,7 @@ describe(`WorkerTarget`, () => {
     expect(workerJs).toContain(`class WorkerEntry`)
     expect(workerJs).toContain(`/webhook`)
     expect(workerJs).toContain(`BOT_TOKEN`)
-    expect(workerJs).toContain(`TELEGRAM_WEBHOOK_SECRET`)
+    expect(workerJs).toContain(`BOT_WEBHOOK_SECRET`)
     expect(workerJs).toContain(`401`)
     expect(workerJs).toContain(`optionsDeploy`)
     expect(workerJs).toContain(`cloudflare-mod`)
@@ -99,7 +99,7 @@ describe(`WorkerTarget`, () => {
     expect(toml).not.toContain(`BOT_DEPLOY`)
     expect(toml).not.toContain(`BOT_DEPLOY`)
     expect(toml).toContain(`wrangler secret put BOT_TOKEN`)
-    expect(toml).toContain(`wrangler secret put TELEGRAM_WEBHOOK_SECRET`)
+    expect(toml).toContain(`wrangler secret put BOT_WEBHOOK_SECRET`)
     expect(toml).not.toMatch(/[0-9]{6,}:[A-Za-z0-9_-]{20,}/)
     const baked = readFileSync(join(serverDir, `worker.js`), `utf-8`)
     expect(baked).toContain(`cloudflare-mod`)
@@ -219,14 +219,14 @@ describe(`WorkerTarget`, () => {
         getBot: (env: Record<string, string>) => unknown
       }
       const {E2eHelper: Helper} = await import(`~/e2e/helper`)
-      new Helper(mod.getBot({BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}) as never)
+      new Helper(mod.getBot({BOT_TOKEN: `test`, BOT_WEBHOOK_SECRET: `test-secret`}) as never)
       const res = await mod.default.fetch(
         new Request(`https://example.com/webhook`, {
           method: `POST`,
           headers: {"Content-Type": `application/json`, "X-Telegram-Bot-Api-Secret-Token": `test-secret`},
           body: JSON.stringify({update_id: 1})
         }),
-        {BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}
+        {BOT_TOKEN: `test`, BOT_WEBHOOK_SECRET: `test-secret`}
       )
       expect(res.status).toBe(200)
       expect(calls).toEqual([`user`])
@@ -250,7 +250,7 @@ describe(`WorkerTarget`, () => {
         headers: {"Content-Type": `application/json`},
         body: JSON.stringify({update_id: 1})
       }),
-      {BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}
+      {BOT_TOKEN: `test`, BOT_WEBHOOK_SECRET: `test-secret`}
     )
     expect(res.status).toBe(401)
   }, 120000)
@@ -269,7 +269,7 @@ describe(`WorkerTarget`, () => {
         headers: {"Content-Type": `application/json`, "X-Telegram-Bot-Api-Secret-Token": `wrong-secret`},
         body: JSON.stringify({update_id: 1})
       }),
-      {BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}
+      {BOT_TOKEN: `test`, BOT_WEBHOOK_SECRET: `test-secret`}
     )
     expect(res.status).toBe(401)
   }, 120000)
@@ -327,14 +327,14 @@ describe(`WorkerTarget`, () => {
         getBot: (env: Record<string, string>) => unknown
       }
       const {E2eHelper: Helper} = await import(`~/e2e/helper`)
-      new Helper(mod.getBot({BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}) as never)
+      new Helper(mod.getBot({BOT_TOKEN: `test`, BOT_WEBHOOK_SECRET: `test-secret`}) as never)
       const res = await mod.default.fetch(
         new Request(`https://example.com/webhook`, {
           method: `POST`,
           headers: {"Content-Type": `application/json`, "X-Telegram-Bot-Api-Secret-Token": `test-secret`},
           body: JSON.stringify({update_id: 1})
         }),
-        {BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}
+        {BOT_TOKEN: `test`, BOT_WEBHOOK_SECRET: `test-secret`}
       )
       expect(res.status).toBe(200)
     } finally {

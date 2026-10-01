@@ -1,13 +1,13 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
-import {cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync} from "node:fs"
+import {cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
-import {generate} from "../scripts/build-manifest"
 import {GramstaxBuild} from "~/cli/build"
 import {LambdaTarget} from "~/cli/targets/lambda"
 import {E2eHelper} from "~/e2e/helper"
 import {Gramstax} from "~/index"
+import {generate} from "../scripts/build-manifest"
 
 const FIXTURES = join(import.meta.dir, `fixtures`, `manifest`, `pages`)
 const CTX_ABS = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
@@ -87,15 +87,15 @@ beforeEach(() => {
   outDir = mkdtempSync(join(tmpdir(), `lambda-out-`))
   savedToken = process.env.BOT_TOKEN
   process.env.BOT_TOKEN = `test`
-  savedSecret = process.env.TELEGRAM_WEBHOOK_SECRET
-  process.env.TELEGRAM_WEBHOOK_SECRET = `test-secret`
+  savedSecret = process.env.BOT_WEBHOOK_SECRET
+  process.env.BOT_WEBHOOK_SECRET = `test-secret`
 })
 
 afterEach(() => {
   if (savedToken === undefined) delete process.env.BOT_TOKEN
   else process.env.BOT_TOKEN = savedToken
-  if (savedSecret === undefined) delete process.env.TELEGRAM_WEBHOOK_SECRET
-  else process.env.TELEGRAM_WEBHOOK_SECRET = savedSecret
+  if (savedSecret === undefined) delete process.env.BOT_WEBHOOK_SECRET
+  else process.env.BOT_WEBHOOK_SECRET = savedSecret
   rmSync(pages, {force: true, recursive: true})
   rmSync(outDir, {force: true, recursive: true})
 })
@@ -108,7 +108,7 @@ describe(`LambdaTarget`, () => {
     for (const token of EDGE_TOKENS) expect(source).not.toContain(token)
     expect(source).toContain(`export async function handler`)
     expect(source).toContain(`class LambdaEntry`)
-    expect(source).toContain(`TELEGRAM_WEBHOOK_SECRET`)
+    expect(source).toContain(`BOT_WEBHOOK_SECRET`)
     expect(source).toContain(`401`)
     expect(source).toContain(`Unauthorized`)
     expect(source).not.toMatch(/[0-9]{6,}:[A-Za-z0-9_-]{20,}/)

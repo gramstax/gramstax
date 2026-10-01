@@ -249,7 +249,7 @@ export type IGramstaxSessionLockRef = {
  * @remarks
  * Only meaningful when `deploy` is `serverless`. The `secretToken` value
  * is validated for shape only — it is NEVER baked into emitted bundles;
- * edge reads the `TELEGRAM_WEBHOOK_SECRET` runtime binding at runtime.
+ * edge reads the `BOT_WEBHOOK_SECRET` runtime binding at runtime.
  *
  * @example
  * ```typescript
@@ -305,12 +305,12 @@ export type IGramstaxServerlessDeployOptions = {
    * Must be non-empty and match `^[A-Za-z0-9_-]{1,256}$` when `deploy` is
    * `serverless`. Required in that mode. Used for webhook secret
    * registration and local start. NEVER baked into emitted bundles —
-   * edge reads the `TELEGRAM_WEBHOOK_SECRET` runtime binding.
+   * edge reads the `BOT_WEBHOOK_SECRET` runtime binding.
    * Generate via `openssl rand -hex 32`.
    *
    * @example
    * ```typescript
-   * secretToken: process.env.TELEGRAM_WEBHOOK_SECRET ?? ``
+   * secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``
    * ```
    */
   secretToken?: string
@@ -544,7 +544,7 @@ export type IGramstaxOptionsDeploy = {
  * @example
  * ```typescript
  * const config: IGramstaxConfig = {
- *   token: process.env.TELEGRAM_BOT_TOKEN ?? ``,
+ *   token: process.env.BOT_TOKEN ?? ``,
  *   deploy: process.env.DEPLOY ?? `polling`,
  *   optionsDeploy: {webhook: {url: `https://example.com/bot`, secretToken: `s3cr3t`}}
  * }
@@ -564,7 +564,7 @@ export type IGramstaxConfig = {
    *
    * @example
    * ```typescript
-   * token: process.env.TELEGRAM_BOT_TOKEN ?? ``
+   * token: process.env.BOT_TOKEN ?? ``
    * ```
    */
   token?: string

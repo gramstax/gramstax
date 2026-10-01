@@ -105,15 +105,15 @@ describe(`serverless secretToken require rules`, () => {
       writable: true
     })
     bot.bot = realBot as never
-    const previous = process.env.TELEGRAM_WEBHOOK_SECRET
-    process.env.TELEGRAM_WEBHOOK_SECRET = `env-secret`
+    const previous = process.env.BOT_WEBHOOK_SECRET
+    process.env.BOT_WEBHOOK_SECRET = `env-secret`
     try {
       await (bot as unknown as {_runServerless: (adapter: string, url?: string, secret?: string) => Promise<void>})._runServerless(`cloudflare-mod`, URL, `branch-secret`)
     } finally {
       if (previous === undefined) {
-        delete process.env.TELEGRAM_WEBHOOK_SECRET
+        delete process.env.BOT_WEBHOOK_SECRET
       } else {
-        process.env.TELEGRAM_WEBHOOK_SECRET = previous
+        process.env.BOT_WEBHOOK_SECRET = previous
       }
     }
     expect(seen).toEqual([{extra: {secret_token: `branch-secret`}, url: URL}])

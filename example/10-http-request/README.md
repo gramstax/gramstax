@@ -12,12 +12,12 @@ Gramstax bot that makes HTTP requests to any user-provided URL and displays the 
 ## Setup
 
 1. Install dependencies from repo root: `bun install`
-2. Update `src/env.ts` with your `TELEGRAM_BOT_TOKEN`
+2. Update `src/env.ts` with your `BOT_TOKEN`
 
 ## Environment Variables
 
-- `TELEGRAM_BOT_TOKEN`: Telegram bot token used by Gramstax
-- `TELEGRAM_BOT_DEPLOY`: Deployment mode (`polling`, `webhook`, `serverless`) — webhook/serverless details live in `optionsDeploy` in code
+- `BOT_TOKEN`: Telegram bot token used by Gramstax
+- `BOT_DEPLOYment mode (`polling`, `webhook`, `serverless`) — webhook/serverless details live in `optionsDeploy` in code
 
 ## Run Scripts
 

@@ -4,7 +4,21 @@ import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {Create} from "../src/create"
 import {FsUt} from "../src/utils/fs"
-import {SetupCancelledError, appendEnvDbPath, appendGitignoreEntries, isValidProjectName, removeDependency, removeTsconfigPathMappings, replaceTemplateVariables, resolveRuntimeScripts, resolveWorkspaceDeps, sanitizeProjectName, setTsconfigCompilerOptions, stripBiomeScripts, validateCliOptions} from "../src/utils/project"
+import {
+  appendEnvDbPath,
+  appendGitignoreEntries,
+  isValidProjectName,
+  removeDependency,
+  removeTsconfigPathMappings,
+  replaceTemplateVariables,
+  resolveRuntimeScripts,
+  resolveWorkspaceDeps,
+  SetupCancelledError,
+  sanitizeProjectName,
+  setTsconfigCompilerOptions,
+  stripBiomeScripts,
+  validateCliOptions
+} from "../src/utils/project"
 
 describe(`create-gramstax utilities`, () => {
   let originalConsoleLog: typeof console.log
@@ -277,16 +291,16 @@ describe(`appendGitignoreEntries`, () => {
 
 describe(`appendEnvDbPath`, () => {
   it(`appends DB_PATH after the existing content`, () => {
-    expect(appendEnvDbPath(`TELEGRAM_BOT_TOKEN=x\n`)).toBe(`TELEGRAM_BOT_TOKEN=x\n\n\nDB_PATH="./data"\n`)
+    expect(appendEnvDbPath(`BOT_TOKEN=x\n`)).toBe(`BOT_TOKEN=x\n\n\nDB_PATH="./data"\n`)
   })
 
   it(`does not duplicate DB_PATH when already present`, () => {
-    const content = `TELEGRAM_BOT_TOKEN=x\nDB_PATH="./data"\n`
+    const content = `BOT_TOKEN=x\nDB_PATH="./data"\n`
     expect(appendEnvDbPath(content)).toBe(content)
   })
 
   it(`handles content without a trailing newline`, () => {
-    expect(appendEnvDbPath(`TELEGRAM_BOT_TOKEN=x`)).toBe(`TELEGRAM_BOT_TOKEN=x\n\nDB_PATH="./data"\n`)
+    expect(appendEnvDbPath(`BOT_TOKEN=x`)).toBe(`BOT_TOKEN=x\n\nDB_PATH="./data"\n`)
   })
 })
 

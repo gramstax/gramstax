@@ -1889,7 +1889,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   async _runServerless(adapter: string, publicUrl?: string, secretToken?: string): Promise<void> {
     await this.hookBeforeStart?.()
     // Emitted serverless entries bake NO secret (strip-on-bake rule): in a deployed worker the baked params carry no secretToken, so the guard must resolve branch-secret ?? env-binding, else edge defense-in-depth silently disables itself.
-    const serverlessSecret = secretToken ?? process.env.TELEGRAM_WEBHOOK_SECRET
+    const serverlessSecret = secretToken ?? process.env.BOT_WEBHOOK_SECRET
     this.handlerBotUpdate = this._withSecretGuard(webhookCallback(this.bot, adapter as string as Parameters<typeof webhookCallback>[1]) as unknown as (...args: unknown[]) => Promise<unknown>, serverlessSecret)
     if (publicUrl !== undefined) {
       const data = await this.bot.api.getWebhookInfo()

@@ -46,7 +46,7 @@ against grammy 1.46 (`cloudflare-workers-mod` does not exist there).
 ## Local dev
 
 ```bash
-TELEGRAM_BOT_TOKEN=test TELEGRAM_BOT_DEPLOY=polling bun src/index.ts  # polling
+BOT_TOKEN=test BOT_DEPLOY=polling bun src/index.ts  # polling
 bun run test:e2e                                      # e2e (deploy:test)
 ```
 
@@ -58,7 +58,7 @@ See `docs/serverless-deploy.md` for the full chain
 
 ```bash
 wrangler secret put BOT_TOKEN                 # then: wrangler deploy --config <abs path>/.gramstax/server/wrangler.toml
-wrangler secret put TELEGRAM_WEBHOOK_SECRET   # same value as `secretToken` in `gramstax.config.ts`
+wrangler secret put BOT_WEBHOOK_SECRET   # same value as `secretToken` in `gramstax.config.ts`
 ```
 
 ## Limits (by design)

@@ -12,12 +12,12 @@ Demonstrates a full-featured Gramstax bot with multiple pages, guards, templates
 ## Setup
 
 1. Install dependencies from repo root: `bun install`
-2. Update `src/env.ts` with your `TELEGRAM_BOT_TOKEN` and deploy mode
+2. Update `src/env.ts` with your `BOT_TOKEN` and deploy mode
 
 ## Environment Variables
 
-- `TELEGRAM_BOT_TOKEN`: Telegram bot token used by Gramstax
-- `TELEGRAM_BOT_DEPLOY`: Deployment mode (`polling`, `webhook`, `serverless`) — webhook/serverless details live in `optionsDeploy` in code
+- `BOT_TOKEN`: Telegram bot token used by Gramstax
+- `BOT_DEPLOY`: Deployment mode (`polling`, `webhook`, `serverless`) — webhook/serverless details live in `optionsDeploy` in code
 
 ## Run Scripts
 

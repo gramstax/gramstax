@@ -30,7 +30,7 @@ A production-ready Telegram bot built with [Gramstax](https://github.com/gramsta
 Edit `.env` (already created for you on scaffold) and set your bot token — get one from [@BotFather](https://t.me/BotFather):
 
 ```bash
-TELEGRAM_BOT_TOKEN="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+BOT_TOKEN="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
 ```
 
 ### 3. Run in development (watch mode)
@@ -86,13 +86,13 @@ New page? Create `src/pages/my-page.ts` plus `e2e/my-page.test.ts` — the mirro
 
 ## Configuration
 
-All settings live in `.env` and are wired through `gramstax.config.ts` (`token` holds the token value via `process.env.TELEGRAM_BOT_TOKEN ?? ```, `deploy` and the session cache read their vars with local defaults):
+All settings live in `.env` and are wired through `gramstax.config.ts` (`token` holds the token value via `process.env.BOT_TOKEN ?? ```, `deploy` and the session cache read their vars with local defaults):
 
 | Variable                 | Required | Description                                                     |
 | :----------------------- | :------- | :-------------------------------------------------------------- |
-| `TELEGRAM_BOT_TOKEN`     | Yes      | Bot token from [@BotFather](https://t.me/BotFather)             |
-| `TELEGRAM_BOT_DEPLOY`    | Yes      | `polling` (dev) · `webhook` · `serverless` (details in `optionsDeploy`) |
-| `TELEGRAM_CACHE_SESSION` | No       | `memory` (single instance) or `redis:<url>` (multi-instance)    |
+| `BOT_TOKEN`     | Yes      | Bot token from [@BotFather](https://t.me/BotFather)             |
+| `BOT_DEPLOY`    | Yes      | `polling` (dev) · `webhook` · `serverless` (details in `optionsDeploy`) |
+| `CACHE_SESSION` | No       | `memory` (single instance) or `redis:<url>` (multi-instance)    |
 
 ## Testing
 
@@ -106,8 +106,8 @@ E2E tests drive the real bot in-process (`deploy: test`) and assert every Telegr
 
 ## Deployment
 
-- **Development** — `TELEGRAM_BOT_DEPLOY=polling`, then `bun run dev`.
-- **Production (webhook)** — set `TELEGRAM_BOT_DEPLOY=webhook` and put your public URL in `optionsDeploy` in `gramstax.config.ts`, then run `bun run start` behind a process manager.
+- **Development** — `BOT_DEPLOY=polling`, then `bun run dev`.
+- **Production (webhook)** — set `BOT_DEPLOY=webhook` and put your public URL in `optionsDeploy` in `gramstax.config.ts`, then run `bun run start` behind a process manager.
 - **Serverless** — set `deploy` to `serverless` with `optionsDeploy` (`adapter` + `url`), run `bun run build:gramstax`, and deploy `.gramstax/server/` per the Gramstax serverless guide.
 
 ## Tech Stack

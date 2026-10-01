@@ -12,13 +12,13 @@ Gramstax example that implements a newsletter bot with inline keyboards only.
 ## Setup
 
 1. Install dependencies from repo root: `bun install`
-2. Update `src/env.ts` with your `TELEGRAM_BOT_TOKEN` and `ADMIN_IDS`
+2. Update `src/env.ts` with your `BOT_TOKEN` and `ADMIN_IDS`
 
 ## Environment Variables
 
 - `DB_PATH`: LMDB store path (e.g. `./example/8-newsletter/data`)
-- `TELEGRAM_BOT_TOKEN`: Telegram bot token used by Gramstax
-- `TELEGRAM_BOT_DEPLOY`: Deployment mode (`polling`, `webhook`, `serverless`) — webhook/serverless details live in `optionsDeploy` in code
+- `BOT_TOKEN`: Telegram bot token used by Gramstax
+- `BOT_DEPLOY`: Deployment mode (`polling`, `webhook`, `serverless`) — webhook/serverless details live in `optionsDeploy` in code
 - `ADMIN_IDS`: Array of admin user IDs
 
 ## Run Scripts

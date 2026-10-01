@@ -51,7 +51,7 @@ class LambdaEntry {
       LambdaEntry.bot = new Gramstax({
         token: token,
         deploy: "serverless",
-        optionsDeploy: {serverless: {adapter: ${adapter}, url: ${url}, secretToken: process.env.TELEGRAM_WEBHOOK_SECRET}},
+        optionsDeploy: {serverless: {adapter: ${adapter}, url: ${url}, secretToken: process.env.BOT_WEBHOOK_SECRET}},
         templateManager: new TemplateManager({path: []}),
         log: false,
         manifest: {pages: baseManifest.pages, templates: baseManifest.templates, routes: routes}
@@ -76,7 +76,7 @@ class LambdaEntry {
   }
 
   static async handler(event) {
-    const expected = process.env.TELEGRAM_WEBHOOK_SECRET
+    const expected = process.env.BOT_WEBHOOK_SECRET
     if (expected === undefined || expected.length === 0) {
       return {statusCode: 401, body: "Unauthorized"}
     }
