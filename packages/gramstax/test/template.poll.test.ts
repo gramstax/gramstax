@@ -45,11 +45,13 @@ describe(`poll-parser`, () => {
   })
 
   it(`parses anonymous false and multiple true`, () => {
-    const polls = TemplateEngine._processGPollBlocks(wrap(` anonymous="false" multiple="true">
+    const polls = TemplateEngine._processGPollBlocks(
+      wrap(` anonymous="false" multiple="true">
     <g-question>Q?</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(polls.default?.anonymous).toBe(false)
     expect(polls.default?.multiple).toBe(true)
   })
@@ -70,132 +72,158 @@ describe(`poll-validator`, () => {
   })
 
   it(`rejects a missing question`, () => {
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(`>
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(`>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`exactly one <g-question>`))).toBe(true)
   })
 
   it(`rejects a single option`, () => {
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(`>
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(`>
     <g-question>Q?</g-question>
     <g-option>Only</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`2-10`))).toBe(true)
   })
 
   it(`rejects eleven options`, () => {
     const options = Array.from({length: 11}, (_, i) => `<g-option>O${i}</g-option>`).join(``)
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(`>
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(`>
     <g-question>Q?</g-question>
     ${options}
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`2-10`))).toBe(true)
   })
 
   it(`rejects correct on regular`, () => {
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(` correct="0">
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(` correct="0">
     <g-question>Q?</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`only allowed for type="quiz"`))).toBe(true)
   })
 
   it(`rejects multiple on quiz`, () => {
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(` type="quiz" correct="0" multiple="true">
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(` type="quiz" correct="0" multiple="true">
     <g-question>Q?</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`only allowed for type="regular"`))).toBe(true)
   })
 
   it(`rejects explanation on regular`, () => {
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(` explanation="why">
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(` explanation="why">
     <g-question>Q?</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`"explanation"`))).toBe(true)
   })
 
   it(`rejects quiz without correct`, () => {
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(` type="quiz">
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(` type="quiz">
     <g-question>Q?</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`"correct"`))).toBe(true)
   })
 
   it(`rejects correct out of range`, () => {
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(` type="quiz" correct="5">
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(` type="quiz" correct="5">
     <g-question>Q?</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`option index 0-1`))).toBe(true)
   })
 
   it(`rejects an unknown attr`, () => {
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(` foo="1">
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(` foo="1">
     <g-question>Q?</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`Unknown attribute`))).toBe(true)
   })
 
   it(`rejects a bad type value`, () => {
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(` type="multi">
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(` type="multi">
     <g-question>Q?</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`must be "regular" or "quiz"`))).toBe(true)
   })
 
   it(`rejects static question overflow`, () => {
     const long = `Q`.repeat(301)
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(`>
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(`>
     <g-question>${long}</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`1-300`))).toBe(true)
   })
 
   it(`rejects static option overflow`, () => {
     const long = `O`.repeat(101)
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(`>
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(`>
     <g-question>Q?</g-question>
     <g-option>${long}</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`1-100`))).toBe(true)
   })
 
   it(`rejects static explanation overflow`, () => {
     const long = `E`.repeat(201)
-    const result = TemplateEngine.validateBlockGPollAttributes(wrap(` type="quiz" correct="0" explanation="${long}">
+    const result = TemplateEngine.validateBlockGPollAttributes(
+      wrap(` type="quiz" correct="0" explanation="${long}">
     <g-question>Q?</g-question>
     <g-option>A</g-option>
     <g-option>B</g-option>
-  </g-poll>`))
+  </g-poll>`)
+    )
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.message.includes(`at most 200`))).toBe(true)
   })
@@ -234,7 +262,7 @@ describe(`poll-manager`, () => {
 
   it(`compiles and serves a poll via getGPoll`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`quiz`, quizTemplate)
+    manager.compile(`quiz`, quizTemplate)
     const poll = manager.getGPoll(`quiz`, `default`, `default`, {topic: `math`, reason: `it is`, choice: `b`})
     expect(poll.question).toBe(`What is math?`)
     expect(poll.options).toEqual([`Answer A`, `B`])
@@ -243,14 +271,19 @@ describe(`poll-manager`, () => {
 
   it(`throws for a missing poll`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
+    manager.compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
     expect(() => manager.getGPoll(`empty`)).toThrow(/Poll function not found/)
   })
 
   it(`throws on an invalid poll template`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(() => manager._compile(`bad`, wrap(`>
+    expect(() =>
+      manager.compile(
+        `bad`,
+        wrap(`>
     <g-option>A</g-option>
-  </g-poll>`))).toThrow(/exactly one <g-question>/)
+  </g-poll>`)
+      )
+    ).toThrow(/exactly one <g-question>/)
   })
 })

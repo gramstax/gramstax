@@ -233,7 +233,7 @@ describe(`paid-media-manager`, () => {
 
   it(`compiles and serves a paywall via getGPaidMedia`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`stars`, wallTemplate)
+    manager.compile(`stars`, wallTemplate)
     const wall = manager.getGPaidMedia(`stars`, `default`, `default`, {teaser: `t.jpg`, full: `v.mp4`})
     expect(wall.stars).toBe(100)
     expect(wall.media).toEqual([
@@ -244,22 +244,22 @@ describe(`paid-media-manager`, () => {
 
   it(`throws for a missing paywall`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
+    manager.compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
     expect(() => manager.getGPaidMedia(`empty`)).toThrow(/Paid media function not found/)
   })
 
   it(`throws on a paywall with bad stars`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(() => manager._compile(`bad`, full(`stars="abc"`))).toThrow(/1-25000/)
+    expect(() => manager.compile(`bad`, full(`stars="abc"`))).toThrow(/1-25000/)
   })
 
   it(`throws on a paywall with an audio child`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(() => manager._compile(`bad`, full(validAttrs, `<g-media type="audio" src="a.mp3">Lagu</g-media>`))).toThrow(/must be "photo" or "video"/)
+    expect(() => manager.compile(`bad`, full(validAttrs, `<g-media type="audio" src="a.mp3">Lagu</g-media>`))).toThrow(/must be "photo" or "video"/)
   })
 
   it(`throws on a paywall without items`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(() => manager._compile(`bad`, full(validAttrs, ``))).toThrow(/1-10 <g-media> items/)
+    expect(() => manager.compile(`bad`, full(validAttrs, ``))).toThrow(/1-10 <g-media> items/)
   })
 })

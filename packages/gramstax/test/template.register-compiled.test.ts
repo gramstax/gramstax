@@ -29,7 +29,7 @@ afterEach(() => {
   rmSync(dir, {force: true, recursive: true})
 })
 
-describe(`_registerCompiled`, () => {
+describe(`registerCompiled`, () => {
   it(`barrel exposes runtime helpers for generated code`, () => {
     expect(__esc).toBe(TemplateEngine._escapeData)
     expect(typeof FILTERS.upper).toBe(`function`)
@@ -39,9 +39,9 @@ describe(`_registerCompiled`, () => {
 
   it(`register-then-render equals compile-then-render`, () => {
     const viaCompile = new TemplateManager({path: [dir]})
-    viaCompile._compile(`jit`, TEMPLATE)
+    viaCompile.compile(`jit`, TEMPLATE)
     const viaRegister = new TemplateManager({path: [dir]})
-    viaRegister._registerCompiled(`aot`, buildCompiled(TEMPLATE))
+    viaRegister.registerCompiled(`aot`, buildCompiled(TEMPLATE))
     expect(viaRegister.getGMessage(`aot`, `default`, `default`, DATA)).toBe(viaCompile.getGMessage(`jit`, `default`, `default`, DATA))
     expect(viaRegister.getGKeyboard(`aot`, `default`, `default`, `inline`, DATA)).toEqual(viaCompile.getGKeyboard(`jit`, `default`, `default`, `inline`, DATA))
     expect(viaRegister.getGMessage(`aot`, `default`, `default`, DATA)).toContain(`ANN`)
@@ -57,12 +57,12 @@ describe(`_registerCompiled`, () => {
       }
     })
     let validations = 0
-    const original = manager._validateTemplate.bind(manager)
-    manager._validateTemplate = ((...args: Parameters<typeof manager._validateTemplate>): void => {
+    const original = manager.validateTemplate.bind(manager)
+    manager.validateTemplate = ((...args: Parameters<typeof manager.validateTemplate>): void => {
       validations += 1
       original(...args)
-    }) as typeof manager._validateTemplate
-    manager._registerCompiled(`aot`, buildCompiled(TEMPLATE))
+    }) as typeof manager.validateTemplate
+    manager.registerCompiled(`aot`, buildCompiled(TEMPLATE))
     expect((manager as unknown as {_map: Map<string, unknown>})._map.has(`aot`)).toBe(true)
     expect(validations).toBe(0)
     expect(reloads).toBe(0)

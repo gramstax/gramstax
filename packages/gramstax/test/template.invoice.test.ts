@@ -39,7 +39,10 @@ describe(`invoice-parser`, () => {
   it(`parses a fiat invoice with two prices`, () => {
     const invoices = TemplateEngine._processGInvoiceBlocks(fiatTemplate)
     expect(invoices.default?.currency).toBe(`USD`)
-    expect(invoices.default?.prices).toEqual([{label: `Pro`, amount: 499}, {label: `Tax`, amount: 50}])
+    expect(invoices.default?.prices).toEqual([
+      {label: `Pro`, amount: 499},
+      {label: `Tax`, amount: 50}
+    ])
   })
 
   it(`keys invoices by lang`, () => {
@@ -236,7 +239,9 @@ describe(`invoice-compiler`, () => {
   })
 
   it(`compiles per-lang variants`, () => {
-    const compiled = TemplateEngine.compileBlockGInvoice(`<g-base><g-invoice title="VIP" description="Access" payload="o-1" currency="XTR"><g-price label="VIP" amount="100"/></g-invoice><g-invoice lang="id" title="VIP" description="Akses" payload="o-1" currency="XTR"><g-price label="VIP" amount="100"/></g-invoice></g-base>`)
+    const compiled = TemplateEngine.compileBlockGInvoice(
+      `<g-base><g-invoice title="VIP" description="Access" payload="o-1" currency="XTR"><g-price label="VIP" amount="100"/></g-invoice><g-invoice lang="id" title="VIP" description="Akses" payload="o-1" currency="XTR"><g-price label="VIP" amount="100"/></g-invoice></g-base>`
+    )
     expect(compiled.default?.default?.({})?.description).toBe(`Access`)
     expect(compiled.default?.id?.({})?.description).toBe(`Akses`)
   })
@@ -258,7 +263,7 @@ describe(`invoice-manager`, () => {
 
   it(`compiles and serves an invoice via getGInvoice`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`stars`, starsTemplate)
+    manager.compile(`stars`, starsTemplate)
     const invoice = manager.getGInvoice(`stars`, `default`, `default`, {days: 30, orderId: `o-1`})
     expect(invoice.title).toBe(`VIP 30 hari`)
     expect(invoice.payload).toBe(`o-1`)
@@ -268,17 +273,17 @@ describe(`invoice-manager`, () => {
 
   it(`throws for a missing invoice`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
+    manager.compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
     expect(() => manager.getGInvoice(`empty`)).toThrow(/Invoice function not found/)
   })
 
   it(`throws on an invoice with a provider_token`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(() => manager._compile(`bad`, full(`${validAttrs} provider_token="secret"`))).toThrow(/never templates/)
+    expect(() => manager.compile(`bad`, full(`${validAttrs} provider_token="secret"`))).toThrow(/never templates/)
   })
 
   it(`throws on an invoice without prices`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(() => manager._compile(`bad`, full(validAttrs, ``))).toThrow(/at least one <g-price>/)
+    expect(() => manager.compile(`bad`, full(validAttrs, ``))).toThrow(/at least one <g-price>/)
   })
 })

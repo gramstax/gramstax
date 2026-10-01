@@ -241,7 +241,7 @@ describe(`venue-dice-manager`, () => {
 
   it(`compiles and serves a venue via getGVenue`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`cafe`, venueTemplate)
+    manager.compile(`cafe`, venueTemplate)
     const venue = manager.getGVenue(`cafe`, `default`, `default`, {name: `Cafe`})
     expect(venue.title).toBe(`Cafe`)
     expect(venue.address).toBe(`Jl. Merdeka 1`)
@@ -251,7 +251,7 @@ describe(`venue-dice-manager`, () => {
 
   it(`serves a per-base per-language venue via getGVenue`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`cafe`, venueI18nTemplate)
+    manager.compile(`cafe`, venueI18nTemplate)
     const venue = manager.getGVenue(`cafe`, `promo`, `id`, {name: `pagi`, no: `10`, lat: `-6.3`, long: `106.9`})
     expect(venue.title).toBe(`Kafe pagi`)
     expect(venue.address).toBe(`Jl. Merdeka 10`)
@@ -259,36 +259,36 @@ describe(`venue-dice-manager`, () => {
 
   it(`throws for a missing venue`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
+    manager.compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
     expect(() => manager.getGVenue(`empty`)).toThrow(/Venue function not found/)
   })
 
   it(`throws on an invalid venue template`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(() => manager._compile(`bad`, wrapVenue(` title="Cafe" address="Jl. Merdeka 1" latitude="999" longitude="106.8"/>`))).toThrow(/between -90 and 90/)
+    expect(() => manager.compile(`bad`, wrapVenue(` title="Cafe" address="Jl. Merdeka 1" latitude="999" longitude="106.8"/>`))).toThrow(/between -90 and 90/)
   })
 
   it(`compiles and serves dice via getGDice`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`lucky`, diceTemplate)
+    manager.compile(`lucky`, diceTemplate)
     expect(manager.getGDice(`lucky`, `default`, `default`, {dice: `🎯`}).emoji).toBe(`🎯`)
   })
 
   it(`serves a per-base per-language dice via getGDice`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`lucky`, diceStaticTemplate)
+    manager.compile(`lucky`, diceStaticTemplate)
     expect(manager.getGDice(`lucky`, `lucky`, `id`).emoji).toBe(`🏀`)
   })
 
   it(`throws for a missing dice`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
+    manager.compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
     expect(() => manager.getGDice(`empty`)).toThrow(/Dice function not found/)
   })
 
   it(`throws on an invalid dice template`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(() => manager._compile(`bad`, wrapDice(` emoji="❌"/>`))).toThrow(/must be one of/)
+    expect(() => manager.compile(`bad`, wrapDice(` emoji="❌"/>`))).toThrow(/must be one of/)
   })
 })
 

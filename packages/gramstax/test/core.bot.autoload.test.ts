@@ -10,7 +10,7 @@ import {TemplateManager} from "~/template/manager"
 const FIXTURES = join(import.meta.dir, `fixtures`, `manifest`, `pages`)
 const CTX_ABS = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
 const DEPLOY = `serverless`
-const DEPLOY_OPTS = {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`, secretToken: `test-secret`}}
+const DEPLOY_OPTS = {serverless: {"cloudflare-mod": {url: `https://example.com/webhook`, secretToken: `test-secret`}}}
 
 let root: string
 let cwd: string
@@ -67,9 +67,6 @@ describe(`manifest autoload from deploy`, () => {
   })
 
   it(`polling deploy ignores .gramstax and uses fs boot`, () => {
-    expect(
-      () =>
-        new Gramstax({token: `test`, deploy: `polling`, templateManager: new TemplateManager({path: [join(root, `no-such-dir`)]}), log: false})
-    ).toThrow()
+    expect(() => new Gramstax({token: `test`, deploy: `polling`, templateManager: new TemplateManager({path: [join(root, `no-such-dir`)]}), log: false})).toThrow()
   })
 })

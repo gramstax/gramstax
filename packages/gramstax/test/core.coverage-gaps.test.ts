@@ -51,11 +51,11 @@ describe(`coverage-gaps`, () => {
     await mkdir(TEST_DIR, {recursive: true})
     const manager = new TemplateManager({path: [TEST_DIR]})
     try {
-      manager._handleFileAdd(join(TEST_DIR, `note.txt`))
-      manager._handleFileAdd(join(TEST_DIR, `page.html`))
+      manager.handleFileAdd(join(TEST_DIR, `note.txt`))
+      manager.handleFileAdd(join(TEST_DIR, `page.html`))
       await sleep(150)
-      manager._handleWatchError(new Error(`ENOENT`))
-      manager._handleWatchError(undefined)
+      manager.handleWatchError(new Error(`ENOENT`))
+      manager.handleWatchError(undefined)
     } finally {
       await manager.destroy()
     }
@@ -121,7 +121,16 @@ describe(`coverage-gaps`, () => {
     bot._releaseWebhookChat(`b`, multi, new Map())
     expect(multi.get(`b`)).toBe(2)
     let woken = 0
-    const waiters = new Map<string, Array<(bypass?: boolean) => void>>([[`c`, [() => { woken += 1 }]]])
+    const waiters = new Map<string, Array<(bypass?: boolean) => void>>([
+      [
+        `c`,
+        [
+          () => {
+            woken += 1
+          }
+        ]
+      ]
+    ])
     const chats = new Map([[`c`, 1]])
     bot._releaseWebhookChat(`c`, chats, waiters as never)
     expect(woken).toBe(1)

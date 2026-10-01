@@ -150,13 +150,87 @@ describe(`WorkerTarget`, () => {
     expect(res.status).toBe(0)
   }, 150000)
 
-  it(`build --target cloudflare-workers emits server entry end to end`, async () => {
+  describe(`wrangler.toml field emission`, () => {
+    const emitToml = (opts: Record<string, unknown>): string => {
+      generate(pages, outDir, {aot: true})
+      const serverDir = join(outDir, `server`)
+      new WorkerTarget().emit(serverDir, join(outDir, `manifest.js`), {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`, ...opts} as never)
+      return readFileSync(join(serverDir, `wrangler.toml`), `utf-8`)
+    }
+
+    it(`writes compatibility_flags by default because the dependency graph needs node builtins`, () => {
+      const toml = emitToml({})
+      expect(toml).toContain(`compatibility_flags = ["nodejs_compat"]`)
+      expect(toml).not.toContain(`# compatibility_flags =`)
+      expect(toml).toContain(`# Required: gramstax's dependency graph uses node builtins`)
+    })
+
+    it(`honors an explicit compatibilityFlags override`, () => {
+      expect(emitToml({compatibilityFlags: []})).toContain(`compatibility_flags = []`)
+    })
+
+    it(`always writes compatibility_date because it gates compatibility_flags`, () => {
+      const toml = emitToml({})
+      expect(toml).toContain(`compatibility_date = "2026-01-01"`)
+      expect(toml).not.toContain(`# compatibility_date = "2026-01-01"`)
+      expect(emitToml({compatibilityDate: `2025-03-01`})).toContain(`compatibility_date = "2025-03-01"`)
+    })
+
+    it(`always writes name, using gramstax-worker when undefined`, () => {
+      const toml = emitToml({name: undefined})
+      expect(toml).toContain(`name = "gramstax-worker"`)
+      expect(toml).not.toContain(`# name =`)
+    })
+
+    it(`keeps main locked so --bundle can rewrite it`, () => {
+      const toml = emitToml({})
+      expect(toml).toContain(`main = "worker.js"`)
+      expect(toml).not.toContain(`# main =`)
+    })
+
+    it(`merges toml.vars per-key and keeps the secret-warning comments`, () => {
+      const toml = emitToml({toml: {vars: {STAGE: `prod`}}})
+      expect(toml).toContain(`STAGE = "prod"`)
+      expect(toml).toContain(`# BOT_TOKEN is a secret, never a var`)
+      expect(toml).toContain(`error 1101`)
+      expect(toml).toContain(`# Set it via: wrangler secret put BOT_TOKEN --config <this file>`)
+    })
+
+    it(`lets toml override a typed field, last write wins`, () => {
+      const toml = emitToml({name: `from-config`, toml: {name: `from-toml`}})
+      expect(toml).toContain(`name = "from-toml"`)
+      expect(toml).not.toContain(`from-config`)
+    })
+
+    it(`serializes nested toml objects as TOML inline tables, not JSON`, () => {
+      const toml = emitToml({toml: {placement: {mode: `smart`}}})
+      expect(toml).toContain(`placement = {mode = "smart"}`)
+      expect(toml).not.toContain(`{"mode"`)
+    })
+
+    it(`rejects toml.main because main is emitter-owned`, () => {
+      expect(() => emitToml({toml: {main: `index.js`}})).toThrow(/cannot be set/)
+    })
+
+    it(`emits no secretToken literal in any file`, () => {
+      generate(pages, outDir, {aot: true})
+      const serverDir = join(outDir, `server`)
+      new WorkerTarget().emit(serverDir, join(outDir, `manifest.js`), {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`})
+      for (const file of [`worker.js`, `wrangler.toml`]) {
+        const body = readFileSync(join(serverDir, file), `utf-8`)
+        expect(body).toContain(`BOT_WEBHOOK_SECRET`)
+        expect(body).not.toMatch(/secretToken:\s*"(?!\$\{)[^"]+"/)
+      }
+    })
+  })
+
+  it(`build --target cloudflare-mod emits server entry end to end`, async () => {
     const proj = mkdtempSync(join(tmpdir(), `worker-proj-`))
     try {
       writeJsPages(join(proj, `src`, `pages`))
       linkWorkspace(proj)
-      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, name: \`gramstax-worker\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
-      const code = await new GramstaxBuild().run([`--target`, `cloudflare-workers`], proj)
+      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {name: \`gramstax-worker\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
+      const code = await new GramstaxBuild().run([`--target`, `cloudflare-mod`], proj)
       expect(code).toBe(0)
       expect(existsSync(join(proj, `.gramstax`, `server`, `worker.js`))).toBe(true)
       expect(existsSync(join(proj, `.gramstax`, `server`, `wrangler.toml`))).toBe(true)
@@ -165,13 +239,13 @@ describe(`WorkerTarget`, () => {
     }
   }, 120000)
 
-  it(`build --target cloudflare-workers --bundle emits bundle.js end to end`, async () => {
+  it(`build --target cloudflare-mod --bundle emits bundle.js end to end`, async () => {
     const proj = mkdtempSync(join(tmpdir(), `worker-bundle-`))
     try {
       writeJsPages(join(proj, `src`, `pages`))
       linkWorkspace(proj)
-      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, name: \`gramstax-worker\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
-      const code = await new GramstaxBuild().run([`--target`, `cloudflare-workers`, `--bundle`], proj)
+      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {name: \`gramstax-worker\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
+      const code = await new GramstaxBuild().run([`--target`, `cloudflare-mod`, `--bundle`], proj)
       expect(code).toBe(0)
       expect(existsSync(join(proj, `.gramstax`, `server`, `bundle.js`))).toBe(true)
       expect(readFileSync(join(proj, `.gramstax`, `server`, `wrangler.toml`), `utf-8`)).toContain(`main = "bundle.js"`)
@@ -185,10 +259,10 @@ describe(`WorkerTarget`, () => {
     try {
       writeJsPages(join(proj, `src`, `pages`))
       linkWorkspace(proj)
-      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`aws-lambda-async\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
+      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"aws-lambda-async": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
       const plain = await new GramstaxBuild().run([`--bundle`], proj)
       expect(plain).toBe(1)
-      const lambda = await new GramstaxBuild().run([`--target`, `lambda`, `--bundle`], proj)
+      const lambda = await new GramstaxBuild().run([`--target`, `aws-lambda-async`, `--bundle`], proj)
       expect(lambda).toBe(1)
     } finally {
       rmSync(proj, {force: true, recursive: true})

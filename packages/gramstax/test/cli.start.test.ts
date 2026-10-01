@@ -352,7 +352,7 @@ describe(`gramstax start deploy precedence`, () => {
 })
 
 describe(`gramstax build workers guardrail`, () => {
-  it(`warns naming ignored override slots on cloudflare-workers`, async () => {
+  it(`warns naming ignored override slots on cloudflare-mod`, async () => {
     const {GramstaxBuild} = await import(`~/cli/build`)
     const dir = makeTempDir()
     try {
@@ -372,14 +372,14 @@ describe(`gramstax build workers guardrail`, () => {
         }
       }
       walk(join(dir, `src`, `pages`))
-      writeConfig(dir, `export default {token: \`test\`, deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}, cacheSession: {store: \`memory\`}}\n`)
+      writeConfig(dir, `export default {token: \`test\`, deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}, cacheSession: {store: \`memory\`}}\n`)
       const warned: string[] = []
       const originalLog = console.log
       console.log = (...args: unknown[]): void => {
         warned.push(args.map((arg) => String(arg)).join(` `))
       }
       try {
-        await new GramstaxBuild().run([`--target`, `cloudflare-workers`], dir)
+        await new GramstaxBuild().run([`--target`, `cloudflare-mod`], dir)
       } finally {
         console.log = originalLog
       }

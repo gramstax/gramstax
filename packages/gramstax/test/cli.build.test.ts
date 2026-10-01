@@ -104,11 +104,11 @@ describe(`gramstax build CLI`, () => {
       expect(printed).toContain(`outDir: .gramstax`)
       expect(printed).toContain(`targets: `)
       expect(printed).toContain(`deploy: polling (default)`)
-      expect(printed).toContain(`optionsDeploy.serverless.adapter:  (default)`)
+      expect(printed).toContain(`optionsDeploy.serverless:  (default)`)
       expect(printed).toContain(`optionsDeploy.serverless.name:  (default)`)
       expect(printed).toContain(`optionsDeploy.serverless.url:  (default)`)
       expect(printed).toContain(`dry-run: no files written`)
-      const order = [`gramstax build plan`, `pagesDir:`, `outDir:`, `targets:`, `deploy:`, `optionsDeploy.serverless.adapter:`, `optionsDeploy.serverless.name:`, `optionsDeploy.serverless.url:`, `dry-run: no files written`]
+      const order = [`gramstax build plan`, `pagesDir:`, `outDir:`, `targets:`, `deploy:`, `optionsDeploy.serverless:`, `optionsDeploy.serverless.name:`, `optionsDeploy.serverless.url:`, `dry-run: no files written`]
       let last = -1
       for (const marker of order) {
         const at = printed.indexOf(marker)
@@ -136,19 +136,49 @@ describe(`gramstax build CLI`, () => {
   it(`--dry-run with --target prints the single effective target`, async () => {
     const dir = makeTempDir()
     mkdirSync(join(dir, `src`, `pages`), {recursive: true})
-    writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`aws-lambda-async\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
+    writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"aws-lambda-async": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
     const capture = captureConsole()
     try {
-      const code = await new GramstaxBuild().run([`--target`, `lambda`, `--dry-run`], dir)
+      const code = await new GramstaxBuild().run([`--target`, `aws-lambda-async`, `--dry-run`], dir)
       expect(code).toBe(0)
       const joined = capture.logs.join(`\n`)
-      expect(joined).toContain(`targets: lambda`)
-      expect(joined).toContain(`optionsDeploy.serverless.adapter: aws-lambda-async (flag)`)
+      expect(joined).toContain(`targets: aws-lambda-async`)
+      expect(joined).toContain(`optionsDeploy.serverless.aws-lambda-async: aws-lambda-async (flag)`)
       expect(joined).toContain(`dry-run: no files written`)
       expect(existsSync(join(dir, `.gramstax`))).toBe(false)
     } finally {
       capture.restore()
       rmSync(dir, {force: true, recursive: true})
+    }
+  })
+
+  it(`preserves the webhook-url fallback when --target is explicit`, async () => {
+    const dir = makeTempDir()
+    mkdirSync(join(dir, `src`, `pages`), {recursive: true})
+    writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`webhook\`, optionsDeploy: {webhook: {url: \`https://hook.example/hook\`, secretToken: \`s\`}}}\n`, `utf-8`)
+    const capture = captureConsole()
+    try {
+      const code = await new GramstaxBuild().run([`--target`, `cloudflare-mod`, `--dry-run`], dir)
+      expect(code).toBe(0)
+      const joined = capture.logs.join(`\n`)
+      expect(joined).toContain(`targets: cloudflare-mod`)
+      expect(joined).toContain(`optionsDeploy.serverless.url: https://hook.example/hook (config)`)
+      expect(joined).toContain(`optionsDeploy.serverless.cloudflare-mod: cloudflare-mod (flag)`)
+    } finally {
+      capture.restore()
+      rmSync(dir, {force: true, recursive: true})
+    }
+  })
+
+  it(`rejects the pre-036 target names`, async () => {
+    for (const legacy of [`cloudflare-workers`, `lambda`]) {
+      const dir = makeTempDir()
+      try {
+        mkdirSync(join(dir, `src`, `pages`), {recursive: true})
+        await expect(new GramstaxBuild().run([`--target`, legacy], dir)).rejects.toThrow(/unknown target/)
+      } finally {
+        rmSync(dir, {force: true, recursive: true})
+      }
     }
   })
 
@@ -164,7 +194,7 @@ describe(`gramstax build CLI`, () => {
       expect(joined).toContain(`outDir: .gramstax`)
       expect(joined).toContain(`targets: `)
       expect(joined).toContain(`deploy: polling (default)`)
-      expect(joined).toContain(`optionsDeploy.serverless.adapter:  (default)`)
+      expect(joined).toContain(`optionsDeploy.serverless:  (default)`)
       expect(joined).toContain(`optionsDeploy.serverless.name:  (default)`)
       expect(joined).toContain(`optionsDeploy.serverless.url:  (default)`)
       expect(joined).toContain(`dry-run: no files written`)
@@ -178,7 +208,7 @@ describe(`gramstax build CLI`, () => {
   it(`--dry-run annotates config sources when gramstax.config.ts defines deploy keys`, async () => {
     const dir = makeTempDir()
     mkdirSync(join(dir, `src`, `pages`), {recursive: true})
-    writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, name: \`cfg-worker\`, url: \`https://cfg-worker.example.workers.dev/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
+    writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {name: \`cfg-worker\`, url: \`https://cfg-worker.example.workers.dev/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
     const capture = captureConsole()
     try {
       const code = await new GramstaxBuild().run([`--dry-run`], dir)
@@ -186,13 +216,48 @@ describe(`gramstax build CLI`, () => {
       const joined = capture.logs.join(`\n`)
       expect(joined).toContain(`pagesDir: src/pages`)
       expect(joined).toContain(`outDir: .gramstax`)
-      expect(joined).toContain(`targets: cloudflare-workers`)
+      expect(joined).toContain(`targets: cloudflare-mod`)
       expect(joined).toContain(`deploy: serverless (config)`)
-      expect(joined).toContain(`optionsDeploy.serverless.adapter: cloudflare-mod (config)`)
+      expect(joined).toContain(`optionsDeploy.serverless.cloudflare-mod: cloudflare-mod (config)`)
       expect(joined).toContain(`optionsDeploy.serverless.name: cfg-worker (config)`)
       expect(joined).toContain(`optionsDeploy.serverless.url: https://cfg-worker.example.workers.dev/webhook (config)`)
       expect(joined).toContain(`dry-run: no files written`)
       expect(existsSync(join(dir, `.gramstax`))).toBe(false)
+    } finally {
+      capture.restore()
+      rmSync(dir, {force: true, recursive: true})
+    }
+  })
+
+  it(`tells non-serverless deploys to use gramstax start instead`, async () => {
+    const dir = makeTempDir()
+    mkdirSync(join(dir, `src`, `pages`), {recursive: true})
+    writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`polling\`}\n`, `utf-8`)
+    const capture = captureConsole()
+    try {
+      const code = await new GramstaxBuild().run([], dir)
+      expect(code).toBe(0)
+      const joined = capture.logs.join(`\n`)
+      expect(joined).toContain(`only consumed by \`deploy: "serverless"\``)
+      expect(joined).toContain(`gramstax start`)
+      expect(joined).toContain(`deploy: "polling"`)
+    } finally {
+      capture.restore()
+      rmSync(dir, {force: true, recursive: true})
+    }
+  })
+
+  it(`states manifest boot when the deploy mode is serverless`, async () => {
+    const dir = makeTempDir()
+    mkdirSync(join(dir, `src`, `pages`), {recursive: true})
+    writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {url: \`https://w.example.workers.dev/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
+    const capture = captureConsole()
+    try {
+      const code = await new GramstaxBuild().run([], dir)
+      expect(code).toBe(0)
+      const joined = capture.logs.join(`\n`)
+      expect(joined).toContain(`consumed by \`deploy: "serverless"\` via manifest boot`)
+      expect(joined).not.toContain(`gramstax start`)
     } finally {
       capture.restore()
       rmSync(dir, {force: true, recursive: true})
@@ -229,12 +294,12 @@ describe(`gramstax build CLI`, () => {
   it(`loadConfig accepts optionsDeploy adapter/name/url`, async () => {
     const dir = makeTempDir()
     try {
-      writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, name: \`my-worker\`, url: \`https://my-worker.example.workers.dev/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
+      writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {name: \`my-worker\`, url: \`https://my-worker.example.workers.dev/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
       const config = await new GramstaxConfigLoader().loadConfig(dir)
       expect(config.deploy).toBe(`serverless`)
-      expect(config.optionsDeploy?.serverless?.adapter).toBe(`cloudflare-mod`)
-      expect(config.optionsDeploy?.serverless?.name).toBe(`my-worker`)
-      expect(config.optionsDeploy?.serverless?.url).toBe(`https://my-worker.example.workers.dev/webhook`)
+      const section = (config.optionsDeploy?.serverless as {"cloudflare-mod": {name?: string; url: string}} | undefined)?.["cloudflare-mod"]
+      expect(section?.name).toBe(`my-worker`)
+      expect(section?.url).toBe(`https://my-worker.example.workers.dev/webhook`)
     } finally {
       rmSync(dir, {force: true, recursive: true})
     }
@@ -243,7 +308,7 @@ describe(`gramstax build CLI`, () => {
   it(`loadConfig rejects unknown adapter naming valid adapters`, async () => {
     const dir = makeTempDir()
     try {
-      writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`unknown-adapter\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
+      writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"unknown-adapter": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
       let message = ``
       try {
         await new GramstaxConfigLoader().loadConfig(dir)
@@ -279,10 +344,10 @@ describe(`gramstax build CLI`, () => {
     const cases: Array<{file: string; field: string}> = [
       {file: `export default {deploy: \`bogus\`}\n`, field: `polling`},
       {file: `export default {deploy: \`webhook:https://example.com/hook\`}\n`, field: `webhook`},
-      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: 42, name: \`w\`, url: \`https://w.example/x\`, secretToken: \`test-secret\`}}}\n`, field: `adapter`},
-      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`nope\`, name: \`w\`, url: \`https://w.example/x\`, secretToken: \`test-secret\`}}}\n`, field: `cloudflare-mod`},
-      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, name: 42, url: \`https://w.example/x\`, secretToken: \`test-secret\`}}}\n`, field: `name`},
-      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, name: \`w\`, url: 42, secretToken: \`test-secret\`}}}\n`, field: `url`},
+      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {42: {url: \`https://w.example/x\`, secretToken: \`test-secret\`}}}}\n`, field: `adapter`},
+      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {nope: {url: \`https://w.example/x\`, secretToken: \`test-secret\`}}}}\n`, field: `cloudflare-mod`},
+      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {name: 42, url: \`https://w.example/x\`, secretToken: \`test-secret\`}}}}\n`, field: `name`},
+      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {name: \`w\`, url: 42, secretToken: \`test-secret\`}}}}\n`, field: `url`},
       {file: `export default {optionsDeploy: 42}\n`, field: `optionsDeploy`},
       {file: `export default {optionsDeploy: {bogus: 1}}\n`, field: `bogus`}
     ]
@@ -312,8 +377,8 @@ describe(`gramstax build CLI`, () => {
       {file: `export default {deploy: \`polling\`, optionsDeploy: {webhook: {url: \`https://example.com/hook\`, secretToken: \`s\`}}}\n`, field: `does not match`},
       {file: `export default {deploy: \`webhook\`, optionsDeploy: {webhook: {url: \`https://example.com/hook\`, secretToken: \`s\`}, polling: {maxRetries: 3}}}\n`, field: `at most one`},
       {file: `export default {optionsDeploy: {bogus: {}}}\n`, field: `bogus`},
-      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, field: `adapter`},
-      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, secretToken: \`test-secret\`}}}\n`, field: `is required`},
+      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, field: `unknown adapter key`},
+      {file: `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {secretToken: \`test-secret\`}}}}\n`, field: `is required`},
       {file: `export default {deploy: \`webhook\`, optionsDeploy: {webhook: {secretToken: \`s\`}}}\n`, field: `is required`},
       {file: `export default {deploy: \`polling\`, optionsDeploy: {polling: {maxRetries: -2}}}\n`, field: `maxRetries`},
       {file: `export default {deploy: \`raw\`, optionsDeploy: {polling: {maxRetries: 1}}}\n`, field: `does not match`},
@@ -375,7 +440,7 @@ describe(`gramstax build CLI`, () => {
         }
       }
       walk(join(dir, `src`, `pages`))
-      writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, name: \`my-worker\`, url: \`https://my-worker.example.workers.dev/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
+      writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {name: \`my-worker\`, url: \`https://my-worker.example.workers.dev/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
       const code = await new GramstaxBuild().run([], dir)
       expect(code).toBe(0)
       const outDir = join(dir, `.gramstax`)

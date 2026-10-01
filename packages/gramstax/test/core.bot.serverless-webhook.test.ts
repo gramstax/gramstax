@@ -52,15 +52,15 @@ describe(`serverless public URL`, () => {
   })
 
   it(`throws at construction without optionsDeploy.url`, () => {
-    expect(() => createBot(`serverless`, {serverless: {adapter: `cloudflare-mod`, secretToken: `test-secret`}})).toThrow(/url/)
+    expect(() => createBot(`serverless`, {serverless: {"cloudflare-mod": {secretToken: `test-secret`}}})).toThrow(/url/)
   })
 
   it(`throws on placeholder url at construction`, () => {
-    expect(() => createBot(`serverless`, {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/not-a-url`.replace(`https://`, ``), secretToken: `test-secret`}})).toThrow(/url/)
+    expect(() => createBot(`serverless`, {serverless: {"cloudflare-mod": {url: `https://example.com/not-a-url`.replace(`https://`, ``), secretToken: `test-secret`}}})).toThrow(/url/)
   })
 
   it(`throws on unknown adapter at construction`, () => {
-    expect(() => createBot(`serverless`, {serverless: {adapter: `std/http`, url: URL, secretToken: `test-secret`}})).toThrow(/cloudflare-mod/)
+    expect(() => createBot(`serverless`, {serverless: {"std/http": {url: URL, secretToken: `test-secret`}}} as unknown as IGramstaxOptionsDeploy)).toThrow(/cloudflare-mod/)
   })
 
   it(`throws on legacy colon deploy naming the new form`, () => {

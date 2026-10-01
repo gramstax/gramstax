@@ -56,7 +56,8 @@ describe(`answer-blocks-compile`, () => {
   })
 })
 
-describe(`answer-blocks-validate`, () => {  it(`accepts a valid template with all three blocks`, () => {
+describe(`answer-blocks-validate`, () => {
+  it(`accepts a valid template with all three blocks`, () => {
     const result = TemplateEngine.validateTemplate(`<g-base>
   <g-callback-answer>OK {{x}}</g-callback-answer>
   <g-precheckout-error>E {{x}}</g-precheckout-error>
@@ -183,7 +184,7 @@ describe(`answer-blocks-manager`, () => {
 
   it(`compiles and serves all five answer blocks via their getters`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`answers`, fullTemplate)
+    manager.compile(`answers`, fullTemplate)
     expect(manager.getGCallbackAnswer(`answers`, `card`, `default`, {x: `A`})).toBe(`Tap A`)
     expect(manager.getGPrecheckoutError(`answers`, `card`, `default`, {x: `B`})).toBe(`No B`)
     expect(manager.getGShippingError(`answers`, `card`, `default`, {x: `C`})).toBe(`Far C`)
@@ -193,7 +194,7 @@ describe(`answer-blocks-manager`, () => {
 
   it(`throws for each missing answer block (strict, never empty)`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
+    manager.compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
     expect(() => manager.getGCallbackAnswer(`empty`)).toThrow(/CallbackAnswer function not found/)
     expect(() => manager.getGPrecheckoutError(`empty`)).toThrow(/PrecheckoutError function not found/)
     expect(() => manager.getGShippingError(`empty`)).toThrow(/ShippingError function not found/)

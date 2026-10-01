@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {spawnSync} from "node:child_process"
-import {cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync} from "node:fs"
+import {cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
@@ -110,11 +110,11 @@ describe(`AOT emitter`, () => {
     writeFileSync(join(dir, `demo.g.js`), source)
     relinkGramstaxToSrc(join(dir, `demo.g.js`))
     const jit = new TemplateManager({path: [emptyDir]})
-    jit._compile(`jit`, DECLARATIVE)
+    jit.compile(`jit`, DECLARATIVE)
     const aot = new TemplateManager({path: [emptyDir]})
     const loaded = (await import(pathToFileURL(join(dir, `demo.g.js`)).href)) as {template?: ICompiledTemplate}
     if (loaded.template === undefined) throw new Error(`demo.g.js has no template export`)
-    aot._registerCompiled(`aot`, loaded.template)
+    aot.registerCompiled(`aot`, loaded.template)
     expect(renderAll(aot, `aot`, DATA_EN)).toEqual(renderAll(jit, `jit`, DATA_EN))
     expect(renderAll(aot, `aot`, DATA_OFF)).toEqual(renderAll(jit, `jit`, DATA_OFF))
   })
@@ -203,9 +203,9 @@ describe(`AOT emitter`, () => {
       if (loaded.templates === undefined) throw new Error(`gen/manifest.js has no templates export`)
       expect(Object.keys(loaded.templates).sort()).toEqual([`admin/users`, `card`, `start`, `sub/note`])
       const aot = new TemplateManager({path: [emptyDir]})
-      for (const [key, template] of Object.entries(loaded.templates)) aot._registerCompiled(key, template)
+      for (const [key, template] of Object.entries(loaded.templates)) aot.registerCompiled(key, template)
       const jit = new TemplateManager({path: [emptyDir]})
-      jit._compile(`card`, readFileSync(join(pages, `card.html`), `utf-8`))
+      jit.compile(`card`, readFileSync(join(pages, `card.html`), `utf-8`))
       expect(aot.getGMessage(`card`, `default`, `default`, {})).toBe(jit.getGMessage(`card`, `default`, `default`, {}))
     } finally {
       rmSync(pages, {force: true, recursive: true})
@@ -234,7 +234,7 @@ describe(`AOT emitter`, () => {
         if (entry.endsWith(`.g.js`)) relinkGramstaxToSrc(join(genDir, entry))
       }
       const jit = new TemplateManager({path: [emptyDir]})
-      jit._compile(`showcase`, DECLARATIVE)
+      jit.compile(`showcase`, DECLARATIVE)
       const expectedEn = renderAll(jit, `showcase`, DATA_EN)
       const expectedOff = renderAll(jit, `showcase`, DATA_OFF)
       const RealFunction = globalThis.Function
@@ -245,7 +245,7 @@ describe(`AOT emitter`, () => {
         const loaded = (await import(pathToFileURL(join(genDir, `manifest.js`)).href)) as {templates?: Record<string, ICompiledTemplate>}
         if (loaded.templates?.showcase === undefined) throw new Error(`showcase missing from gen manifest`)
         const aot = new TemplateManager({path: [emptyDir]})
-        aot._registerCompiled(`showcase`, loaded.templates.showcase)
+        aot.registerCompiled(`showcase`, loaded.templates.showcase)
         expect(renderAll(aot, `showcase`, DATA_EN)).toEqual(expectedEn)
         expect(renderAll(aot, `showcase`, DATA_OFF)).toEqual(expectedOff)
       } finally {

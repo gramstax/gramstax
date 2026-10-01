@@ -1,8 +1,8 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {existsSync} from "node:fs"
 import {mkdir, mkdtemp, rm, writeFile} from "node:fs/promises"
-import {join} from "node:path"
 import {tmpdir} from "node:os"
+import {join} from "node:path"
 import {Gramstax} from "~/core/bot"
 import {TemplateManager} from "~/template/manager"
 
@@ -24,7 +24,7 @@ describe(`harness-red-16-watcher-relative`, () => {
       const tm = new TemplateManager({path: [dir, second]})
       expect(tm.has(`sub/nested`)).toBe(true)
       await writeFile(join(dir, `sub`, `nested.html`), `<g-base><g-message>Nested2</g-message></g-base>`)
-      tm._handleFileChange(join(dir, `sub`, `nested.html`))
+      tm.handleFileChange(join(dir, `sub`, `nested.html`))
       await wait(200)
       // watcher must resolve subdir file (basename-only would look at dir/nested.html and fail)
       expect(tm.getGMessage(`sub/nested`)).toBe(`Nested2`)
@@ -35,7 +35,7 @@ describe(`harness-red-16-watcher-relative`, () => {
   })
   it(`guards missing file instead of throwing ENOENT`, async () => {
     const tm = new TemplateManager({path: [dir]})
-    expect(() => tm._loadFile(`does-not-exist.html`)).not.toThrow()
+    expect(() => tm.loadFile(`does-not-exist.html`)).not.toThrow()
     await tm.destroy()
   })
 })
@@ -45,7 +45,7 @@ describe(`harness-red-17-gbase-regex`, () => {
     const dir = await mkdtemp(join(tmpdir(), `tm17-`))
     try {
       const tm = new TemplateManager({path: [dir]})
-      const info = tm._getGBaseAtLine(`<g-base id="kb">\n<kop/>\n</g-base>`, 2)
+      const info = tm.getGBaseAtLine(`<g-base id="kb">\n<kop/>\n</g-base>`, 2)
       expect(info).toEqual({AGBaseId: `kb`, hasId: true})
       await tm.destroy()
     } finally {
@@ -98,13 +98,13 @@ describe(`harness-red-19-queue-split`, () => {
     try {
       const tm = new TemplateManager({path: [dir]})
       let seen: unknown = null
-      tm._handleWatchError = (e: unknown) => {
+      tm.handleWatchError = (e: unknown) => {
         seen = e
       }
       ;(tm as unknown as {_loadFile: (f: string) => void})._loadFile = () => {
         throw new Error(`boom`)
       }
-      tm._handleFileChange(join(dir, `x.html`))
+      tm.handleFileChange(join(dir, `x.html`))
       await wait(200)
       expect(seen !== null).toBe(true)
       await tm.destroy()

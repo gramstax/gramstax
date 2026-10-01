@@ -60,14 +60,14 @@ describe(`gift-manager`, () => {
 
   it(`compiles and serves gift text via getGGift`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`present`, giftTemplate)
+    manager.compile(`present`, giftTemplate)
     expect(manager.getGGift(`present`, `gift`, `default`, {item: `kopi`})).toBe(`Hadiah <b>kopi</b> untukmu!`)
     expect(manager.getGGift(`present`, `gift`, `id`, {item: `kopi`})).toBe(`Hadiah <b>kopi</b> untukmu ya!`)
   })
 
   it(`throws for a missing gift block (strict, never empty text)`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    manager._compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
+    manager.compile(`empty`, `<g-base><g-message>Hi</g-message></g-base>`)
     expect(() => manager.getGGift(`empty`)).toThrow(/Gift function not found/)
   })
 })

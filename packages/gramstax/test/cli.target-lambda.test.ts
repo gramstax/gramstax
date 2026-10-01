@@ -176,8 +176,8 @@ describe(`LambdaTarget`, () => {
     try {
       mkdirSync(join(proj, `src`, `pages`), {recursive: true})
       cpSync(pages, join(proj, `src`, `pages`), {recursive: true})
-      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`aws-lambda-async\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
-      const code = await new GramstaxBuild().run([`--target`, `lambda`], proj)
+      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"aws-lambda-async": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
+      const code = await new GramstaxBuild().run([`--target`, `aws-lambda-async`], proj)
       expect(code).toBe(0)
       expect(existsSync(join(proj, `.gramstax`, `server`, `lambda.js`))).toBe(true)
     } finally {

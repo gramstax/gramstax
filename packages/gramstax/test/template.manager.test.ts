@@ -110,7 +110,7 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({path: [TEST_DIR]})
       await writeFile(join(TEST_DIR, `write_test.html`), `<g-base><g-message>Initial</g-message></g-base>`)
 
-      await manager._loadFile(`write_test.html`)
+      await manager.loadFile(`write_test.html`)
 
       const success = await manager.write(`write_test.html`, `<g-base><g-message>Updated</g-message></g-base>`)
       expect(success).toBe(true)
@@ -136,7 +136,7 @@ describe(`TemplateManager`, () => {
       expect(reloads).toBe(0)
 
       await writeFile(join(TEST_DIR, `reload_hook.html`), `<g-base><g-message>Bye</g-message></g-base>`)
-      manager._loadFile(`reload_hook.html`)
+      manager.loadFile(`reload_hook.html`)
       expect(reloads).toBe(1)
       await manager.destroy()
     })
@@ -153,7 +153,7 @@ describe(`TemplateManager`, () => {
       expect(manager.getGMessage(`watch_test`)).toBe(`Initial`)
 
       await writeFile(join(TEST_DIR, `watch_test.html`), `<g-base><g-message>Updated</g-message></g-base>`)
-      await manager._loadFile(`watch_test.html`)
+      await manager.loadFile(`watch_test.html`)
       expect(manager.getGMessage(`watch_test`)).toBe(`Updated`)
       await manager.destroy()
     })
@@ -168,7 +168,7 @@ describe(`TemplateManager`, () => {
 
       await writeFile(join(TEST_DIR, `new_file.html`), `<g-base><g-message>New</g-message></g-base>`)
       await wait(50)
-      await manager._loadFile(`new_file.html`)
+      await manager.loadFile(`new_file.html`)
       expect(manager.has(`new_file`)).toBe(true)
       expect(manager.getGMessage(`new_file`)).toBe(`New`)
       await manager.destroy()
@@ -186,7 +186,7 @@ describe(`TemplateManager`, () => {
 
       await rm(join(TEST_DIR, `delete_test.html`))
       // Directly invoke the delete handler since the watcher may not fire on all platforms
-      manager._handleFileDelete(join(TEST_DIR, `delete_test.html`))
+      manager.handleFileDelete(join(TEST_DIR, `delete_test.html`))
       expect(manager.has(`delete_test`)).toBe(false)
       await manager.destroy()
     })
@@ -204,11 +204,11 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({path: [TEST_DIR]})
 
       // Test 1: Only HTML exists, referenced without extension
-      const htmlContent = manager._readTemplateFile(`component`)
+      const htmlContent = manager.readTemplateFile(`component`)
       expect(htmlContent).toBe(`<g-base><g-message>HTML Content</g-message></g-base>`)
 
       // Test 2: Explicit HTML extension works
-      const explicitHtml = manager._readTemplateFile(`component.html`)
+      const explicitHtml = manager.readTemplateFile(`component.html`)
       expect(explicitHtml).toBe(`<g-base><g-message>HTML Content</g-message></g-base>`)
     })
 
@@ -222,10 +222,10 @@ describe(`TemplateManager`, () => {
       // Page.template, which would mask the jsPath regression under test.
       await writeFile(join(TEST_DIR, `js_page.js`), [`export class JsPage {`, `  constructor() {}`, `  static load() { return new JsPage() }`, `}`, `JsPage.template = \`<g-base><g-message>JS Content</g-message></g-base>\``].join(`\n`))
 
-      const jsContent = manager._readTemplateFile(`js_page`)
+      const jsContent = manager.readTemplateFile(`js_page`)
       expect(jsContent).toBe(`<g-base><g-message>JS Content</g-message></g-base>`)
 
-      const explicitJs = manager._readTemplateFile(`js_page.js`)
+      const explicitJs = manager.readTemplateFile(`js_page.js`)
       expect(explicitJs).toBe(`<g-base><g-message>JS Content</g-message></g-base>`)
 
       const jsMod = (await import(join(TEST_DIR, `js_page.js`))) as unknown as {JsPage: {load: () => object}}
@@ -236,15 +236,15 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({path: [TEST_DIR]})
       await writeFile(join(TEST_DIR, `partial.html`), `<g-base><g-message><unknown>Bad</unknown></g-message></g-base>`)
 
-      expect(() => manager._compile(`main`, `<g-base><g-import src="partial" block="message" /></g-base>`)).toThrow(/Unsupported template block: <unknown>/)
+      expect(() => manager.compile(`main`, `<g-base><g-import src="partial" block="message" /></g-base>`)).toThrow(/Unsupported template block: <unknown>/)
     })
 
     it(`should surface ALL validation errors, not just the first`, async () => {
       const manager = new TemplateManager({path: [TEST_DIR]})
       const template = `<g-base><g-message><a>x</a><input type="text"/></g-message></g-base>`
 
-      expect(() => manager._compile(`main`, template)).toThrow(/<a> must have one of/)
-      expect(() => manager._compile(`main`, template)).toThrow(/type must be "checkbox"/)
+      expect(() => manager.compile(`main`, template)).toThrow(/<a> must have one of/)
+      expect(() => manager.compile(`main`, template)).toThrow(/type must be "checkbox"/)
     })
   })
 

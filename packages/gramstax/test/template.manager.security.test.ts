@@ -30,23 +30,23 @@ describe(`TemplateManager path traversal`, () => {
 
   it(`rejects _readTemplateFile with ../ traversal`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(manager._readTemplateFile(`../tm_security_outside.html`)).toBeNull()
+    expect(manager.readTemplateFile(`../tm_security_outside.html`)).toBeNull()
   })
 
   it(`rejects _readTemplateFile with absolute path`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(manager._readTemplateFile(resolve(OUTSIDE_FILE))).toBeNull()
+    expect(manager.readTemplateFile(resolve(OUTSIDE_FILE))).toBeNull()
   })
 
   it(`rejects _readTemplateFile with nested ../ traversal`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(manager._readTemplateFile(`sub/../tm_security_outside.html`)).toBeNull()
+    expect(manager.readTemplateFile(`sub/../tm_security_outside.html`)).toBeNull()
   })
 
   it(`still reads files inside the template root`, async () => {
     await writeFile(join(TEST_DIR, `inside.html`), `<g-base><g-message>INSIDE</g-message></g-base>`)
     const manager = new TemplateManager({path: [TEST_DIR]})
-    expect(manager._readTemplateFile(`inside.html`)).toContain(`INSIDE`)
+    expect(manager.readTemplateFile(`inside.html`)).toContain(`INSIDE`)
   })
 
   it(`rejects write() with ../ traversal`, async () => {

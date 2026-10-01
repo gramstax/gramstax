@@ -73,7 +73,7 @@ describe(`Gramstax deploy:"serverless"`, () => {
     const bot = new HookBot({
       token: `test`,
       deploy: `serverless`,
-      optionsDeploy: {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`, secretToken: `test-secret`}},
+      optionsDeploy: {serverless: {"cloudflare-mod": {url: `https://example.com/webhook`, secretToken: `test-secret`}}},
       templateManager: new TemplateManager({path: [TEST_DIR]}),
       log: false
     })
@@ -102,7 +102,7 @@ describe(`Gramstax deploy:"serverless"`, () => {
     const bot = new BoomBot({
       token: `test`,
       deploy: `serverless`,
-      optionsDeploy: {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`, secretToken: `test-secret`}},
+      optionsDeploy: {serverless: {"cloudflare-mod": {url: `https://example.com/webhook`, secretToken: `test-secret`}}},
       templateManager: new TemplateManager({path: [TEST_DIR]}),
       log: false
     })
@@ -130,17 +130,13 @@ describe(`Gramstax deploy:"serverless"`, () => {
     expect(order).toEqual([`before`, `after`])
     const handler = (bot as unknown as {handlerBotUpdate: (req: Request) => Promise<Response>}).handlerBotUpdate
     expect(typeof handler).toBe(`function`)
-    const res = await handler(
-      new Request(`http://localhost/`, {method: `POST`, headers: {"Content-Type": `application/json`}, body: JSON.stringify({update_id: 1})})
-    )
+    const res = await handler(new Request(`http://localhost/`, {method: `POST`, headers: {"Content-Type": `application/json`}, body: JSON.stringify({update_id: 1})}))
     expect(res.status).toBe(200)
     expect(handleUpdate).toHaveBeenCalled()
     await bot.stop()
   })
 
   it(`rejects unknown deploy values`, () => {
-    expect(
-      () => new TestGramstax({token: `test`, deploy: `bogus`, templateManager: new TemplateManager({path: [TEST_DIR]}), log: false} as never)
-    ).toThrow(/deploy/)
+    expect(() => new TestGramstax({token: `test`, deploy: `bogus`, templateManager: new TemplateManager({path: [TEST_DIR]}), log: false} as never)).toThrow(/deploy/)
   })
 })

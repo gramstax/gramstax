@@ -62,13 +62,13 @@ function relinkGramstaxToSrc(file: string): void {
 async function checkParity(entry: Entry, sabotage: boolean): Promise<void> {
   const key = `parity-${entry.block}`
   const jit = new TemplateManager({path: [emptyDir]})
-  jit._compile(key, entry.template)
+  jit.compile(key, entry.template)
   const expected = entry.datasets.map((data) => entry.render(jit, data))
   const emitter = new AotEmitter()
   const scratch = new TemplateManager({path: [emptyDir]})
   emitter.beginCollect()
   try {
-    scratch._compile(key, entry.template)
+    scratch.compile(key, entry.template)
   } finally {
     emitter.endCollect()
   }
@@ -89,7 +89,7 @@ async function checkParity(entry: Entry, sabotage: boolean): Promise<void> {
     const loaded = (await import(pathToFileURL(file).href)) as {template?: ICompiledTemplate}
     if (loaded.template === undefined) throw new Error(`no template export in ${file}`)
     const aot = new TemplateManager({path: [emptyDir]})
-    aot._registerCompiled(key, loaded.template)
+    aot.registerCompiled(key, loaded.template)
     entry.datasets.forEach((data, index) => {
       expect(entry.render(aot, data)).toEqual(expected[index])
     })
