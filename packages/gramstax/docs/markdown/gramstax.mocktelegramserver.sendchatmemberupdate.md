@@ -9,10 +9,10 @@ Simulate a chat member status transition.
 **Signature:**
 
 ```typescript
-sendChatMemberUpdate(options?: ITMockTelegramUpdateOptions & {
+sendChatMemberUpdate(options?: IMockTelegramUpdateOptions & {
         oldStatus?: string;
         newStatus?: string;
-    }): Promise<ITMockTelegramRequestRecord[]>;
+    }): Promise<IMockTelegramRequestRecord[]>;
 ```
 
 ## Parameters
@@ -40,7 +40,7 @@ options
 
 </td><td>
 
-[ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md) &amp; { oldStatus?: string; newStatus?: string; }
+[IMockTelegramUpdateOptions](./gramstax.imocktelegramupdateoptions.md) &amp; { oldStatus?: string; newStatus?: string; }
 
 
 </td><td>
@@ -53,7 +53,7 @@ _(Optional)_ Old/new status plus user, chat, and timeout options.
 
 **Returns:**
 
-Promise&lt;[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]&gt;
+Promise&lt;[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]&gt;
 
 Array of captured Bot API responses.
 

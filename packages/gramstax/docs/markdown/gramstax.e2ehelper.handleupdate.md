@@ -9,7 +9,7 @@ Inject an Update object directly into the bot and capture responses.
 **Signature:**
 
 ```typescript
-handleUpdate(update: Record<string, unknown>, settleMs?: number): Promise<ITE2eApiCall[]>;
+handleUpdate(update: Record<string, unknown>, settleMs?: number): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -66,7 +66,7 @@ _(Optional)_
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 All API calls made while processing this update.
 

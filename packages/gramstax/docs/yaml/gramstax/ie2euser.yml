@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: IE2eUser
+uid: gramstax!IE2eUser:type
+package: gramstax!
+fullName: IE2eUser
+summary: Simulated Telegram user for E2E updates.
+remarks: >-
+  Partial mirror of the Telegram Bot API User object. Any omitted field falls back to the helper default (`id` 1001,
+  `first_name` `Test`<!-- -->, `is_bot` false, `language_code` `en`<!-- -->). Consumed by `E2eHelper._defaultUser`<!--
+  -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IE2eUser = {
+      id?: number;
+      username?: string;
+      first_name?: string;
+      last_name?: string;
+      language_code?: string;
+      is_bot?: boolean;
+  };

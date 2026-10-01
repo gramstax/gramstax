@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplySticker
+uid: gramstax!IOptReplySticker:type
+package: gramstax!
+fullName: IOptReplySticker
+summary: Options parameter mirroring `Context.replyWithSticker`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplySticker = Parameters<Context[`replyWithSticker`]>[1];

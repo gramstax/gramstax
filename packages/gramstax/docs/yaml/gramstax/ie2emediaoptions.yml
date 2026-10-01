@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IE2eMediaOptions
+uid: gramstax!IE2eMediaOptions:type
+package: gramstax!
+fullName: IE2eMediaOptions
+summary: E2E options for media messages (caption support).
+remarks: >-
+  Extends `IE2eUpdateOptions` with an optional caption. Used by `sendPhoto`<!-- -->, `sendVideo`<!-- -->,
+  `sendAudio`<!-- -->, `sendDocument`<!-- -->, `sendAnimation`<!-- -->, and `sendVoice`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IE2eMediaOptions = IE2eUpdateOptions & {
+      caption?: string;
+  };

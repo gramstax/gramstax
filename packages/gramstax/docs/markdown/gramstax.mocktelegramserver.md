@@ -85,6 +85,78 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_nextMessageId](./gramstax.mocktelegramserver._nextmessageid.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_nextUpdateId](./gramstax.mocktelegramserver._nextupdateid.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_onSigint?](./gramstax.mocktelegramserver._onsigint.md)
+
+
+</td><td>
+
+
+</td><td>
+
+() =&gt; void
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[\_onSigterm?](./gramstax.mocktelegramserver._onsigterm.md)
+
+
+</td><td>
+
+
+</td><td>
+
+() =&gt; void
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
 [apiRoot](./gramstax.mocktelegramserver.apiroot.md)
 
 
@@ -131,7 +203,7 @@ Latest bot token observed from the URL path (e.g. /bot<token>/getMe).
 
 </td><td>
 
-[ITMockTelegramHandler](./gramstax.itmocktelegramhandler.md)
+[IMockTelegramHandler](./gramstax.imocktelegramhandler.md)
 
 
 </td><td>
@@ -150,7 +222,7 @@ _(Optional)_ Default handler when a method has no specific handler.
 
 </td><td>
 
-Record&lt;string, [ITMockTelegramHandler](./gramstax.itmocktelegramhandler.md)<!-- -->&gt;
+Record&lt;string, [IMockTelegramHandler](./gramstax.imocktelegramhandler.md)<!-- -->&gt;
 
 
 </td><td>
@@ -188,7 +260,7 @@ Hostname for the local server (defaults to 127.0.0.1).
 
 </td><td>
 
-ITMockTelegramLog
+IMockTelegramLog
 
 
 </td><td>
@@ -226,7 +298,7 @@ Port for the local server (0 selects a random free port).
 
 </td><td>
 
-[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]
+[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]
 
 
 </td><td>
@@ -351,6 +423,186 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_bodyRecord(body)](./gramstax.mocktelegramserver._bodyrecord.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_buildMessageUpdate(message, options)](./gramstax.mocktelegramserver._buildmessageupdate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_defaultChat(chat)](./gramstax.mocktelegramserver._defaultchat.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_defaultResponse(method, body)](./gramstax.mocktelegramserver._defaultresponse.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_defaultUser(user)](./gramstax.mocktelegramserver._defaultuser.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_handleRequest(request)](./gramstax.mocktelegramserver._handlerequest.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_isLoopbackUrl(url)](./gramstax.mocktelegramserver._isloopbackurl.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_isUserResponseMethod(method)](./gramstax.mocktelegramserver._isuserresponsemethod.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_json(payload)](./gramstax.mocktelegramserver._json.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_nextIds(options)](./gramstax.mocktelegramserver._nextids.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_postUpdate(update, options)](./gramstax.mocktelegramserver._postupdate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_readBody(request)](./gramstax.mocktelegramserver._readbody.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_userResponseRequests(requestStartIndex)](./gramstax.mocktelegramserver._userresponserequests.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_waitForResponses(requestStartIndex, responseTimeoutMs)](./gramstax.mocktelegramserver._waitforresponses.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_waitForWebhookUrl(timeoutMs)](./gramstax.mocktelegramserver._waitforwebhookurl.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 [clearAll()](./gramstax.mocktelegramserver.clearall.md)
 

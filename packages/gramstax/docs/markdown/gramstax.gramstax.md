@@ -113,7 +113,7 @@ number
 
 </td><td>
 
-Bot&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;
+Bot&lt;[ICt](./gramstax.ict.md)<!-- -->&gt;
 
 
 </td><td>
@@ -132,7 +132,7 @@ The underlying Bot instance.
 
 </td><td>
 
-BotConfig&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;
+BotConfig&lt;[ICt](./gramstax.ict.md)<!-- -->&gt;
 
 
 </td><td>
@@ -170,7 +170,7 @@ In-memory cache for keyboard instances by language.
 
 </td><td>
 
-[CacheExternal](./gramstax.cacheexternal.md)<!-- -->&lt;[ITCacheRpc](./gramstax.itcacherpc.md)<!-- -->&gt;
+[CacheExternal](./gramstax.cacheexternal.md)<!-- -->&lt;[ICacheRpc](./gramstax.icacherpc.md)<!-- -->&gt;
 
 
 </td><td>
@@ -189,7 +189,7 @@ External cache for user session data.
 
 </td><td>
 
-[ITGramstaxCtxScope](./gramstax.itgramstaxctxscope.md)
+[IGramstaxCtxScope](./gramstax.igramstaxctxscope.md)
 
 
 </td><td>
@@ -402,7 +402,7 @@ Manages template loading and rendering for pages.
 
 </td><td>
 
-[ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)
+[IWebhookQueueConfig](./gramstax.iwebhookqueueconfig.md)
 
 
 </td><td>
@@ -434,6 +434,18 @@ Description
 <tbody><tr><td>
 
 [\_onHandle(ct, listenerName, shouldCheckNotFound)](./gramstax.gramstax._onhandle.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_pageLoadsFromManifest(manifest)](./gramstax.gramstax._pageloadsfrommanifest.md)
 
 
 </td><td>

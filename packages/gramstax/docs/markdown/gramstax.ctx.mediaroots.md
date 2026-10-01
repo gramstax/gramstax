@@ -14,5 +14,5 @@ mediaRoots?: string[] | null;
 
 ## Remarks
 
-Set from `ITCtxParams.mediaRoots` (mirrors the `log` channel, so `Gramstax({mediaRoots})` and `new SomePage(this)` both propagate it). `null`<!-- -->/empty means free; when set, `resolveMedia` uploads a local file only inside the roots and otherwise passes it through as a `file_id` with a `log.warn`<!-- -->.
+Set from `ICtxParams.mediaRoots` (mirrors the `log` channel, so `Gramstax({mediaRoots})` and `new SomePage(this)` both propagate it). `null`<!-- -->/empty means free; when set, `resolveMedia` uploads a local file only inside the roots and otherwise passes it through as a `file_id` with a `log.warn`<!-- -->.
 

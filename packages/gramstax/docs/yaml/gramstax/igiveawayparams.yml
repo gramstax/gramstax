@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IGiveawayParams
+uid: gramstax!IGiveawayParams:type
+package: gramstax!
+fullName: IGiveawayParams
+summary: Giveaway params accepted by [Ctx.startGiveaway()](xref:gramstax!Ctx%23startGiveaway:member(1))<!-- -->.
+remarks: >-
+  Data-driven by design: `sendGiveaway` carries no `parse_mode`<!-- -->, so a template block would add surface without
+  value.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGiveawayParams = {
+      channels: Array<number | string> | string;
+      date: number;
+      winners: number;
+      prize: string;
+  };

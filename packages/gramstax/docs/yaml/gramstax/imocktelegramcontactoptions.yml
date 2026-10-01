@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IMockTelegramContactOptions
+uid: gramstax!IMockTelegramContactOptions:type
+package: gramstax!
+fullName: IMockTelegramContactOptions
+summary: Options for generated mock contact updates.
+remarks: Extends `IMockTelegramUpdateOptions` with contact fields. Used by `sendContact`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IMockTelegramContactOptions = IMockTelegramUpdateOptions & {
+      phone_number?: string;
+      first_name?: string;
+      last_name?: string;
+      user_id?: number;
+  };

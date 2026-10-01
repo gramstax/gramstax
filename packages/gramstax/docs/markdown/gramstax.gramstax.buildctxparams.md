@@ -9,7 +9,7 @@ Builds the params for one page `Ctx`<!-- -->, plus optional app extras.
 **Signature:**
 
 ```typescript
-buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, extra?: T): ITCtxParams & T;
+buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ICt, extra?: T): ICtxParams & T;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ ct
 
 </td><td>
 
-[ITCt](./gramstax.itct.md)
+[ICt](./gramstax.ict.md)
 
 
 </td><td>
@@ -66,9 +66,9 @@ _(Optional)_ Optional app values forwarded into every page `Ctx`<!-- -->.
 
 **Returns:**
 
-[ITCtxParams](./gramstax.itctxparams.md) &amp; T
+[ICtxParams](./gramstax.ictxparams.md) &amp; T
 
-Params for `new Ctx(...)`<!-- -->, shaped as `ITCtxParams & T`<!-- -->.
+Params for `new Ctx(...)`<!-- -->, shaped as `ICtxParams & T`<!-- -->.
 
 ## Remarks
 
@@ -80,13 +80,13 @@ Only assembly point for `createCtx`<!-- -->: per-update `ct` plus the constructo
 ```typescript
 class MyBot extends Gramstax {
   db = new Db()
-  override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, _extra?: T): ITCtxParams & T & {db: Db} {
-    return super.buildCtxParams(ct, {db: this.db}) as ITCtxParams & T & {db: Db}
+  override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ICt, _extra?: T): ICtxParams & T & {db: Db} {
+    return super.buildCtxParams(ct, {db: this.db}) as ICtxParams & T & {db: Db}
   }
 }
 class CtxCore extends Ctx {
   declare db: Db
-  constructor(params: ITCtxParams & {db: Db}) {
+  constructor(params: ICtxParams & {db: Db}) {
     super(params)
     this.db = params.db
   }

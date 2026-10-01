@@ -6,10 +6,12 @@
 
 Replaces the current message with a video media group.
 
+Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+renderEditVideoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -69,7 +71,7 @@ options
 
 </td><td>
 
-[ITOptReplyVideo](./gramstax.itoptreplyvideo.md) \| null
+[IOptReplyVideo](./gramstax.ioptreplyvideo.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

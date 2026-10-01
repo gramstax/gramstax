@@ -9,5 +9,5 @@ Temporary state storage for the current request.
 **Signature:**
 
 ```typescript
-temp: ITTemp;
+temp: ITemp;
 ```

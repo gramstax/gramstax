@@ -1,0 +1,23 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxSessionLockRef
+uid: gramstax!IGramstaxSessionLockRef:type
+package: gramstax!
+fullName: IGramstaxSessionLockRef
+summary: '`sessionLock` slot: scalars plus an optional `key` factory given as a path-ref resolving to `(ctx) => string`<!-- -->.'
+remarks: >-
+  Must be an object when present — unknown fields are rejected by the loader. The optional `key` factory is a path-ref
+  (bare string or `{override: {module, export?, args?}}`<!-- -->) resolving to a `(ctx) => string` function.
+example:
+  - |-
+    ```typescript
+    const lock: IGramstaxSessionLockRef = {enabled: true, leaseMs: 5000, onContended: `skip`}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxSessionLockRef = {
+      enabled?: boolean;
+      leaseMs?: number;
+      onContended?: ISessionLockOnContended;
+      key?: IGramstaxPathRef;
+  };

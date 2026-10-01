@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptInlineAnswer
+uid: gramstax!IOptInlineAnswer:type
+package: gramstax!
+fullName: IOptInlineAnswer
+summary: Options parameter mirroring `Context.answerInlineQuery`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptInlineAnswer = Parameters<Context[`answerInlineQuery`]>[1];

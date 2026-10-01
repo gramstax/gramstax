@@ -6,10 +6,12 @@
 
 Sends a video media group using pipe-delimited `src` values from the page template.
 
+Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<unknown>;
+renderVideoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -69,7 +71,7 @@ options
 
 </td><td>
 
-[ITOptReplyVideo](./gramstax.itoptreplyvideo.md) \| null
+[IOptReplyVideo](./gramstax.ioptreplyvideo.md) \| null
 
 
 </td><td>

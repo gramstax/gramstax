@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: IBroadcastEditTarget
+uid: gramstax!IBroadcastEditTarget:type
+package: gramstax!
+fullName: IBroadcastEditTarget
+summary: One already-sent message to revise or remove in bulk.
+remarks: >-
+  Matches the downstream `SentRepository` row shape (`chatId` + `messageId` per content code): list stored rows and pass
+  them back to `renderBroadcastEdit` / `renderBroadcastDelete`<!-- -->.
+example:
+  - |-
+    ```ts
+    const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
+    await this.renderBroadcastEdit(sent, `photo`, null, {price: `99`})
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IBroadcastEditTarget = {
+      chatId: number;
+      messageId: number;
+  };

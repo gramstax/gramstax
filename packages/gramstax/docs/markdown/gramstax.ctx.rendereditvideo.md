@@ -6,10 +6,12 @@
 
 Edits an existing message to show a video.
 
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+renderEditVideo(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ keyboardInline
 
 </td><td>
 
-[ITInlineKb](./gramstax.itinlinekb.md) \| null
+[IInlineKb](./gramstax.iinlinekb.md) \| null
 
 
 </td><td>
@@ -53,7 +55,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ options1
 
 </td><td>
 
-[ITOptEditMedia1](./gramstax.itopteditmedia1.md) \| null
+[IOptEditMedia1](./gramstax.iopteditmedia1.md) \| null
 
 
 </td><td>
@@ -101,7 +103,7 @@ options2
 
 </td><td>
 
-[ITOptEditMedia2](./gramstax.itopteditmedia2.md) \| null
+[IOptEditMedia2](./gramstax.iopteditmedia2.md) \| null
 
 
 </td><td>
@@ -117,7 +119,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

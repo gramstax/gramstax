@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IKbCols
+uid: gramstax!IKbCols:type
+package: gramstax!
+fullName: IKbCols
+summary: Keyboard column configuration.
+remarks: >-
+  Defines the number of columns for keyboard button layout. Can be: - Single number: `"1"` to `"6"` - All buttons in
+  that many columns - Range format: `"min-max"` - Responsive columns between min and max (e.g., `"2-4"`<!-- -->)
+example:
+  - |-
+    ```typescript
+    // Fixed 3 columns
+    const cols1: IKbCols = `3`
+
+    // Responsive 2-4 columns
+    const cols2: IKbCols = `2-4`
+    ```
+isPreview: false
+isDeprecated: false
+syntax: type IKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 3 | 4 | 5 | 6}`;

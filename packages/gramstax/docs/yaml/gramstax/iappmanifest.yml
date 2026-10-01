@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IAppManifest
+uid: gramstax!IAppManifest:type
+package: gramstax!
+fullName: IAppManifest
+summary: Static page/template manifest for filesystem-less boot.
+remarks: >-
+  Emitted by `buildManifest` (static imports + embedded `.html`<!-- -->) and consumed by `_pageLoadsFromManifest` — same
+  routing tables as the directory scan, with no directory read. `routes` is optional: when present, registration walks
+  `routes` (joined to `pages` by `routeName`<!-- -->); otherwise it walks `pages` directly.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IAppManifest = {
+      pages: Array<IPageManifestEntry>;
+      templates: Array<ITemplateManifestEntry>;
+      routes?: Array<IRouteManifestEntry>;
+  };

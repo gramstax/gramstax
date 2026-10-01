@@ -9,5 +9,5 @@ Captured outbound Bot API requests made by the bot under test.
 **Signature:**
 
 ```typescript
-requests: ITMockTelegramRequestRecord[];
+requests: IMockTelegramRequestRecord[];
 ```

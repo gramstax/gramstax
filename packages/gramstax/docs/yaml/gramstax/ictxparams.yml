@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: ICtxParams
+uid: gramstax!ICtxParams:type
+package: gramstax!
+fullName: ICtxParams
+summary: Parameters for creating a new [Ctx](xref:gramstax!Ctx:class) instance.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ICtxParams = {
+      ct?: ICt;
+      cacheSession: CacheExternal;
+      cacheKeyboard: Map<string, unknown>;
+      templateManager: TemplateManager;
+      log?: LoggingHelper | null;
+      mediaRoots?: string[] | null;
+      onSendError?: ISendErrorHook | null;
+      temp: ITemp;
+  };

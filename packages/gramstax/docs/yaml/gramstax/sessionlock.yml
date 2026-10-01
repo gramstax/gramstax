@@ -25,7 +25,7 @@ constructors:
       content: |-
         constructor(redis: IRedisLockClient, options: {
                 leaseMs: number;
-                onContended: ITSessionLockOnContended;
+                onContended: ISessionLockOnContended;
             });
       parameters:
         - id: redis
@@ -36,9 +36,75 @@ constructors:
           type: |-
             {
                     leaseMs: number;
-                    onContended: <xref uid="gramstax!ITSessionLockOnContended:type" />;
+                    onContended: <xref uid="gramstax!ISessionLockOnContended:type" />;
                 }
+properties:
+  - name: _queues
+    uid: gramstax!SessionLock#_queues:member
+    package: gramstax!
+    fullName: _queues
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_queues: Map<string, Promise<unknown>>;'
+      return:
+        type: Map&lt;string, Promise&lt;unknown&gt;&gt;
+  - name: options
+    uid: gramstax!SessionLock#options:member
+    package: gramstax!
+    fullName: options
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        options: {
+                leaseMs: number;
+                onContended: ISessionLockOnContended;
+            };
+      return:
+        type: |-
+          {
+                  leaseMs: number;
+                  onContended: <xref uid="gramstax!ISessionLockOnContended:type" />;
+              }
+  - name: redis
+    uid: gramstax!SessionLock#redis:member
+    package: gramstax!
+    fullName: redis
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'redis: IRedisLockClient;'
+      return:
+        type: <xref uid="gramstax!IRedisLockClient:type" />
 methods:
+  - name: _lockKey(sessionKey)
+    uid: gramstax!SessionLock#_lockKey:member(1)
+    package: gramstax!
+    fullName: _lockKey(sessionKey)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_lockKey(sessionKey: string): string;'
+      parameters:
+        - id: sessionKey
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
   - name: acquire(sessionKey)
     uid: gramstax!SessionLock#acquire:member(1)
     package: gramstax!

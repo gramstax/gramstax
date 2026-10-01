@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IE2eUpdateOptions
+uid: gramstax!IE2eUpdateOptions:type
+package: gramstax!
+fullName: IE2eUpdateOptions
+summary: Base update options for E2E updates.
+remarks: >-
+  Shared envelope for every `E2eHelper.send*` simulation method. Controls the sender, chat, and sequencing
+  (`message_id`<!-- -->, `date`<!-- -->) of the injected update.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IE2eUpdateOptions = {
+      user?: IE2eUser;
+      chat?: IE2eChat;
+      date?: number;
+      message_id?: number;
+  };

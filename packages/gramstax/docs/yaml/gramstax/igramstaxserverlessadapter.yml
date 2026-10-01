@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxServerlessAdapter
+uid: gramstax!IGramstaxServerlessAdapter:type
+package: gramstax!
+fullName: IGramstaxServerlessAdapter
+summary: Name of a serverless adapter.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IGramstaxServerlessAdapter = (typeof GRAMSTAX_SERVERLESS_ADAPTERS)[number];

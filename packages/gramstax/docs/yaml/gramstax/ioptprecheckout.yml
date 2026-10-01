@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptPreCheckout
+uid: gramstax!IOptPreCheckout:type
+package: gramstax!
+fullName: IOptPreCheckout
+summary: Options parameter mirroring `Context.answerPreCheckoutQuery`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptPreCheckout = Parameters<Context[`answerPreCheckoutQuery`]>[1];

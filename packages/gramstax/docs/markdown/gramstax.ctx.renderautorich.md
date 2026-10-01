@@ -6,10 +6,12 @@
 
 Sends or edits a rich message using the page template, auto-selecting between [Ctx.renderRich()](./gramstax.ctx.renderrich.md) and [Ctx.renderEditRich()](./gramstax.ctx.rendereditrich.md)<!-- -->, auto-detected from `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-message>` (read via `renderEditRich/renderRich`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderAutoRich(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0] | null, options2?: IOptReplyRich[1] | IOptEdit | null, fallbackEdit?: IOptFallbackEdit): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
@@ -41,7 +43,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -57,7 +59,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -89,7 +91,7 @@ options1
 
 </td><td>
 
-[ITOptReplyRich](./gramstax.itoptreplyrich.md)<!-- -->\[0\] \| null
+[IOptReplyRich](./gramstax.ioptreplyrich.md)<!-- -->\[0\] \| null
 
 
 </td><td>
@@ -105,7 +107,7 @@ options2
 
 </td><td>
 
-[ITOptReplyRich](./gramstax.itoptreplyrich.md)<!-- -->\[1\] \| [ITOptEdit](./gramstax.itoptedit.md) \| null
+[IOptReplyRich](./gramstax.ioptreplyrich.md)<!-- -->\[1\] \| [IOptEdit](./gramstax.ioptedit.md) \| null
 
 
 </td><td>
@@ -121,7 +123,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

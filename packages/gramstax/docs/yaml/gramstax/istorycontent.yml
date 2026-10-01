@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: IStoryContent
+uid: gramstax!IStoryContent:type
+package: gramstax!
+fullName: IStoryContent
+summary: >-
+  Story content accepted by [Ctx.postBusinessStory()](xref:gramstax!Ctx%23postBusinessStory:member(1)) and
+  [Ctx.editBusinessStory()](xref:gramstax!Ctx%23editBusinessStory:member(1))<!-- -->.
+remarks: >-
+  Photo or video only; `src` resolves through [Ctx.resolveMedia()](xref:gramstax!Ctx%23resolveMedia:member(1)) then
+  converts to an upload (`InputFile` as-is, URLs via `{url}`<!-- -->); residual strings are `file_id` values the Bot API
+  resolves server-side (the installed typings only model uploads, hence one narrow documented cast). Areas and captions
+  ride on `options`<!-- -->; duration rules beyond presence are adjudicated by the Bot API.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IStoryContent = {
+      type: `photo` | `video`;
+      src: string | InputFile | Buffer | Uint8Array;
+      duration?: number | null;
+  };

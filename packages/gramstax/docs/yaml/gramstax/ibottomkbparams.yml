@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IBottomKbParams
+uid: gramstax!IBottomKbParams:type
+package: gramstax!
+fullName: IBottomKbParams
+summary: Parameters for bottom keyboard configuration.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IBottomKbParams = {
+      AGBaseId?: string | null;
+      data?: IData | null;
+      cache?: boolean;
+  };

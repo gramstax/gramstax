@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxBotClass
+uid: gramstax!IGramstaxBotClass:type
+package: gramstax!
+fullName: IGramstaxBotClass
+summary: Constructor of the project `BotCore` class.
+remarks: >-
+  Discovered by `GramstaxStart._discoverBotCore` from `src/core/bot.ts` (or `.js`<!-- -->): the first export whose
+  prototype extends `Gramstax`<!-- -->. Instantiated with the materialized `IGramstaxParams` in `GramstaxStart.boot`<!--
+  -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: 'type IGramstaxBotClass = new (params: IGramstaxParams) => Gramstax;'

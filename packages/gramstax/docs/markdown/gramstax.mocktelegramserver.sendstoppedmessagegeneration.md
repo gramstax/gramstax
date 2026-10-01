@@ -9,11 +9,11 @@ Alias for `sendStoppedGeneration` (Bot API 10.3).
 **Signature:**
 
 ```typescript
-sendStoppedMessageGeneration(options?: ITMockTelegramUpdateOptions & {
-        chat?: ITMockTelegramChat;
+sendStoppedMessageGeneration(options?: IMockTelegramUpdateOptions & {
+        chat?: IMockTelegramChat;
         draft_id?: number;
         message_thread_id?: number;
-    }): Promise<ITMockTelegramRequestRecord[]>;
+    }): Promise<IMockTelegramRequestRecord[]>;
 ```
 
 ## Parameters
@@ -41,7 +41,7 @@ options
 
 </td><td>
 
-[ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md) &amp; { chat?: [ITMockTelegramChat](./gramstax.itmocktelegramchat.md)<!-- -->; draft\_id?: number; message\_thread\_id?: number; }
+[IMockTelegramUpdateOptions](./gramstax.imocktelegramupdateoptions.md) &amp; { chat?: [IMockTelegramChat](./gramstax.imocktelegramchat.md)<!-- -->; draft\_id?: number; message\_thread\_id?: number; }
 
 
 </td><td>
@@ -54,7 +54,7 @@ _(Optional)_ Chat, draft and thread options
 
 **Returns:**
 
-Promise&lt;[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]&gt;
+Promise&lt;[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]&gt;
 
 Array of captured Bot API responses
 

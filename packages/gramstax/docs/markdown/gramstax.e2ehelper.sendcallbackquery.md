@@ -9,7 +9,7 @@ Simulate a user pressing an inline keyboard button (callback query).
 **Signature:**
 
 ```typescript
-sendCallbackQuery(data: string, options?: ITE2eCallbackQueryOptions): Promise<ITE2eApiCall[]>;
+sendCallbackQuery(data: string, options?: IE2eCallbackQueryOptions): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ options
 
 </td><td>
 
-[ITE2eCallbackQueryOptions](./gramstax.ite2ecallbackqueryoptions.md)
+[IE2eCallbackQueryOptions](./gramstax.ie2ecallbackqueryoptions.md)
 
 
 </td><td>
@@ -66,7 +66,7 @@ _(Optional)_ Callback ID, message text, user, chat, and response options.
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update.
 

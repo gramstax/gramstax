@@ -5,16 +5,6 @@ items:
       - name: gramstax
         uid: gramstax!
         items:
-          - name: _BottomKbWithCtx
-            uid: gramstax!_BottomKbWithCtx:interface
-          - name: _InlineKbWithCtx
-            uid: gramstax!_InlineKbWithCtx:interface
-          - name: _KbButtonWithPageText
-            uid: gramstax!_KbButtonWithPageText:type
-          - name: _KbCallbackData
-            uid: gramstax!_KbCallbackData:type
-          - name: _KbPageLike
-            uid: gramstax!_KbPageLike:type
           - name: BlockGKeyboard
             uid: gramstax!BlockGKeyboard:class
           - name: CacheExternal
@@ -25,168 +15,264 @@ items:
             uid: gramstax!E2eHelper:class
           - name: Gramstax
             uid: gramstax!Gramstax:class
+          - name: GramstaxConfig
+            uid: gramstax!GramstaxConfig:type
+          - name: IAnswerNoteBlock
+            uid: gramstax!IAnswerNoteBlock:type
+          - name: IAppManifest
+            uid: gramstax!IAppManifest:type
+          - name: IBottomKb
+            uid: gramstax!IBottomKb:type
+          - name: IBottomKbParams
+            uid: gramstax!IBottomKbParams:type
+          - name: IBottomKbWithCtx
+            uid: gramstax!IBottomKbWithCtx:interface
+          - name: IBroadcastEditOpts
+            uid: gramstax!IBroadcastEditOpts:type
+          - name: IBroadcastEditResult
+            uid: gramstax!IBroadcastEditResult:type
+          - name: IBroadcastEditTarget
+            uid: gramstax!IBroadcastEditTarget:type
+          - name: IBuildDataOptions
+            uid: gramstax!IBuildDataOptions:type
+          - name: ICacheRpc
+            uid: gramstax!ICacheRpc:type
+          - name: ICallbackAnswerBlock
+            uid: gramstax!ICallbackAnswerBlock:type
+          - name: ICompiledTemplate
+            uid: gramstax!ICompiledTemplate:type
+          - name: ICt
+            uid: gramstax!ICt:type
+          - name: ICtMiddleware
+            uid: gramstax!ICtMiddleware:type
+          - name: ICtxParams
+            uid: gramstax!ICtxParams:type
+          - name: ICustomRouteEntry
+            uid: gramstax!ICustomRouteEntry:type
+          - name: IData
+            uid: gramstax!IData:type
+          - name: IDiceBlock
+            uid: gramstax!IDiceBlock:type
+          - name: IE2eApiCall
+            uid: gramstax!IE2eApiCall:type
+          - name: IE2eCallbackQueryOptions
+            uid: gramstax!IE2eCallbackQueryOptions:type
+          - name: IE2eChat
+            uid: gramstax!IE2eChat:type
+          - name: IE2eChatMemberOptions
+            uid: gramstax!IE2eChatMemberOptions:type
+          - name: IE2eContactOptions
+            uid: gramstax!IE2eContactOptions:type
+          - name: IE2eDiceOptions
+            uid: gramstax!IE2eDiceOptions:type
+          - name: IE2eLocationOptions
+            uid: gramstax!IE2eLocationOptions:type
+          - name: IE2eMediaOptions
+            uid: gramstax!IE2eMediaOptions:type
+          - name: IE2eUpdateOptions
+            uid: gramstax!IE2eUpdateOptions:type
+          - name: IE2eUser
+            uid: gramstax!IE2eUser:type
+          - name: IGiftBlock
+            uid: gramstax!IGiftBlock:type
+          - name: IGiveawayOptions
+            uid: gramstax!IGiveawayOptions:type
+          - name: IGiveawayParams
+            uid: gramstax!IGiveawayParams:type
+          - name: IGramstaxAwsLambdaAsyncOptions
+            uid: gramstax!IGramstaxAwsLambdaAsyncOptions:type
+          - name: IGramstaxBotClass
+            uid: gramstax!IGramstaxBotClass:type
+          - name: IGramstaxBuildOptions
+            uid: gramstax!IGramstaxBuildOptions:type
+          - name: IGramstaxBuildPlan
+            uid: gramstax!IGramstaxBuildPlan:type
+          - name: IGramstaxCacheKeyboardRef
+            uid: gramstax!IGramstaxCacheKeyboardRef:type
+          - name: IGramstaxCacheSessionRef
+            uid: gramstax!IGramstaxCacheSessionRef:type
+          - name: IGramstaxCloudflareModOptions
+            uid: gramstax!IGramstaxCloudflareModOptions:type
+          - name: IGramstaxConfig
+            uid: gramstax!IGramstaxConfig:type
+          - name: IGramstaxCtxScope
+            uid: gramstax!IGramstaxCtxScope:type
+          - name: IGramstaxExplicitBuildKeys
+            uid: gramstax!IGramstaxExplicitBuildKeys:type
+          - name: IGramstaxLogRef
+            uid: gramstax!IGramstaxLogRef:type
+          - name: IGramstaxModuleRef
+            uid: gramstax!IGramstaxModuleRef:type
+          - name: IGramstaxOptionsDeploy
+            uid: gramstax!IGramstaxOptionsDeploy:type
+          - name: IGramstaxParams
+            uid: gramstax!IGramstaxParams:type
+          - name: IGramstaxPathRef
+            uid: gramstax!IGramstaxPathRef:type
+          - name: IGramstaxPlanSource
+            uid: gramstax!IGramstaxPlanSource:type
+          - name: IGramstaxPollingDeployOptions
+            uid: gramstax!IGramstaxPollingDeployOptions:type
+          - name: IGramstaxRawDeployOptions
+            uid: gramstax!IGramstaxRawDeployOptions:type
+          - name: IGramstaxServerlessAdapter
+            uid: gramstax!IGramstaxServerlessAdapter:type
+          - name: IGramstaxServerlessDeployOptions
+            uid: gramstax!IGramstaxServerlessDeployOptions:type
+          - name: IGramstaxSessionLockRef
+            uid: gramstax!IGramstaxSessionLockRef:type
+          - name: IGramstaxStartOptions
+            uid: gramstax!IGramstaxStartOptions:type
+          - name: IGramstaxTemplateManagerRef
+            uid: gramstax!IGramstaxTemplateManagerRef:type
+          - name: IGramstaxTestDeployOptions
+            uid: gramstax!IGramstaxTestDeployOptions:type
+          - name: IGramstaxWebhookDeployOptions
+            uid: gramstax!IGramstaxWebhookDeployOptions:type
+          - name: IInBoKb
+            uid: gramstax!IInBoKb:type
+          - name: IInlineButtonBlock
+            uid: gramstax!IInlineButtonBlock:type
+          - name: IInlineKb
+            uid: gramstax!IInlineKb:type
+          - name: IInlineKbParams
+            uid: gramstax!IInlineKbParams:type
+          - name: IInlineKbWithCtx
+            uid: gramstax!IInlineKbWithCtx:interface
+          - name: IInvoiceBlock
+            uid: gramstax!IInvoiceBlock:type
+          - name: IKbButtonWithPageText
+            uid: gramstax!IKbButtonWithPageText:type
+          - name: IKbCallbackData
+            uid: gramstax!IKbCallbackData:type
+          - name: IKbCols
+            uid: gramstax!IKbCols:type
+          - name: IKbDest
+            uid: gramstax!IKbDest:type
+          - name: IKbPageLike
+            uid: gramstax!IKbPageLike:type
+          - name: IMediaBlock
+            uid: gramstax!IMediaBlock:type
+          - name: IMetricsQueueStats
+            uid: gramstax!IMetricsQueueStats:type
+          - name: IMockTelegramCallbackQueryOptions
+            uid: gramstax!IMockTelegramCallbackQueryOptions:type
+          - name: IMockTelegramChat
+            uid: gramstax!IMockTelegramChat:type
+          - name: IMockTelegramContactOptions
+            uid: gramstax!IMockTelegramContactOptions:type
+          - name: IMockTelegramHandler
+            uid: gramstax!IMockTelegramHandler:type
+          - name: IMockTelegramJson
+            uid: gramstax!IMockTelegramJson:type
+          - name: IMockTelegramLocationOptions
+            uid: gramstax!IMockTelegramLocationOptions:type
+          - name: IMockTelegramMediaOptions
+            uid: gramstax!IMockTelegramMediaOptions:type
+          - name: IMockTelegramRequestRecord
+            uid: gramstax!IMockTelegramRequestRecord:type
+          - name: IMockTelegramServerOptions
+            uid: gramstax!IMockTelegramServerOptions:type
+          - name: IMockTelegramUpdateOptions
+            uid: gramstax!IMockTelegramUpdateOptions:type
+          - name: IMockTelegramUser
+            uid: gramstax!IMockTelegramUser:type
+          - name: IOptCallbackAnswer
+            uid: gramstax!IOptCallbackAnswer:type
+          - name: IOptEdit
+            uid: gramstax!IOptEdit:type
+          - name: IOptEditCaption
+            uid: gramstax!IOptEditCaption:type
+          - name: IOptEditKeyboard
+            uid: gramstax!IOptEditKeyboard:type
+          - name: IOptEditMedia1
+            uid: gramstax!IOptEditMedia1:type
+          - name: IOptEditMedia2
+            uid: gramstax!IOptEditMedia2:type
+          - name: IOptFallbackEdit
+            uid: gramstax!IOptFallbackEdit:type
+          - name: IOptGift
+            uid: gramstax!IOptGift:type
+          - name: IOptGuestAnswer
+            uid: gramstax!IOptGuestAnswer:type
+          - name: IOptInlineAnswer
+            uid: gramstax!IOptInlineAnswer:type
+          - name: IOptPreCheckout
+            uid: gramstax!IOptPreCheckout:type
+          - name: IOptReply
+            uid: gramstax!IOptReply:type
+          - name: IOptReplyAnimation
+            uid: gramstax!IOptReplyAnimation:type
+          - name: IOptReplyAudio
+            uid: gramstax!IOptReplyAudio:type
+          - name: IOptReplyContact
+            uid: gramstax!IOptReplyContact:type
+          - name: IOptReplyDocument
+            uid: gramstax!IOptReplyDocument:type
+          - name: IOptReplyLocation
+            uid: gramstax!IOptReplyLocation:type
+          - name: IOptReplyPhoto
+            uid: gramstax!IOptReplyPhoto:type
+          - name: IOptReplyRich
+            uid: gramstax!IOptReplyRich:type
+          - name: IOptReplySticker
+            uid: gramstax!IOptReplySticker:type
+          - name: IOptReplyVideo
+            uid: gramstax!IOptReplyVideo:type
+          - name: IOptReplyVideoNote
+            uid: gramstax!IOptReplyVideoNote:type
+          - name: IOptReplyVoice
+            uid: gramstax!IOptReplyVoice:type
+          - name: IOptShipping
+            uid: gramstax!IOptShipping:type
+          - name: IOptWebAppAnswer
+            uid: gramstax!IOptWebAppAnswer:type
+          - name: IPageData
+            uid: gramstax!IPageData:type
+          - name: IPageDataBase
+            uid: gramstax!IPageDataBase:type
+          - name: IPageManifestEntry
+            uid: gramstax!IPageManifestEntry:type
+          - name: IPaidMediaBlock
+            uid: gramstax!IPaidMediaBlock:type
+          - name: IPollBlock
+            uid: gramstax!IPollBlock:type
+          - name: IPrecheckoutErrorBlock
+            uid: gramstax!IPrecheckoutErrorBlock:type
+          - name: IRateLimitOptions
+            uid: gramstax!IRateLimitOptions:type
           - name: IRedisLockClient
             uid: gramstax!IRedisLockClient:type
-          - name: ITBottomKb
-            uid: gramstax!ITBottomKb:type
-          - name: ITBottomKbParams
-            uid: gramstax!ITBottomKbParams:type
-          - name: ITBroadcastEditOpts
-            uid: gramstax!ITBroadcastEditOpts:type
-          - name: ITBroadcastEditResult
-            uid: gramstax!ITBroadcastEditResult:type
-          - name: ITBroadcastEditTarget
-            uid: gramstax!ITBroadcastEditTarget:type
-          - name: ITBuildDataOptions
-            uid: gramstax!ITBuildDataOptions:type
-          - name: ITCacheRpc
-            uid: gramstax!ITCacheRpc:type
-          - name: ITCompiledTemplate
-            uid: gramstax!ITCompiledTemplate:type
-          - name: ITCt
-            uid: gramstax!ITCt:type
-          - name: ITCtMiddleware
-            uid: gramstax!ITCtMiddleware:type
-          - name: ITCtxParams
-            uid: gramstax!ITCtxParams:type
-          - name: ITCustomRouteEntry
-            uid: gramstax!ITCustomRouteEntry:type
-          - name: ITData
-            uid: gramstax!ITData:type
-          - name: ITDiceBlock
-            uid: gramstax!ITDiceBlock:type
-          - name: ITE2eApiCall
-            uid: gramstax!ITE2eApiCall:type
-          - name: ITE2eCallbackQueryOptions
-            uid: gramstax!ITE2eCallbackQueryOptions:type
-          - name: ITE2eChat
-            uid: gramstax!ITE2eChat:type
-          - name: ITE2eChatMemberOptions
-            uid: gramstax!ITE2eChatMemberOptions:type
-          - name: ITE2eContactOptions
-            uid: gramstax!ITE2eContactOptions:type
-          - name: ITE2eDiceOptions
-            uid: gramstax!ITE2eDiceOptions:type
-          - name: ITE2eLocationOptions
-            uid: gramstax!ITE2eLocationOptions:type
-          - name: ITE2eMediaOptions
-            uid: gramstax!ITE2eMediaOptions:type
-          - name: ITE2eUpdateOptions
-            uid: gramstax!ITE2eUpdateOptions:type
-          - name: ITE2eUser
-            uid: gramstax!ITE2eUser:type
-          - name: ITGiveawayOptions
-            uid: gramstax!ITGiveawayOptions:type
-          - name: ITGiveawayParams
-            uid: gramstax!ITGiveawayParams:type
-          - name: ITGramstaxCtxScope
-            uid: gramstax!ITGramstaxCtxScope:type
-          - name: ITGramstaxParams
-            uid: gramstax!ITGramstaxParams:type
-          - name: ITInBoKb
-            uid: gramstax!ITInBoKb:type
-          - name: ITInlineKb
-            uid: gramstax!ITInlineKb:type
-          - name: ITInlineKbParams
-            uid: gramstax!ITInlineKbParams:type
-          - name: ITInvoiceBlock
-            uid: gramstax!ITInvoiceBlock:type
-          - name: ITKbCols
-            uid: gramstax!ITKbCols:type
-          - name: ITKbDest
-            uid: gramstax!ITKbDest:type
-          - name: ITMediaBlock
-            uid: gramstax!ITMediaBlock:type
-          - name: ITMetricsQueueStats
-            uid: gramstax!ITMetricsQueueStats:type
-          - name: ITMockTelegramCallbackQueryOptions
-            uid: gramstax!ITMockTelegramCallbackQueryOptions:type
-          - name: ITMockTelegramChat
-            uid: gramstax!ITMockTelegramChat:type
-          - name: ITMockTelegramContactOptions
-            uid: gramstax!ITMockTelegramContactOptions:type
-          - name: ITMockTelegramHandler
-            uid: gramstax!ITMockTelegramHandler:type
-          - name: ITMockTelegramJson
-            uid: gramstax!ITMockTelegramJson:type
-          - name: ITMockTelegramLocationOptions
-            uid: gramstax!ITMockTelegramLocationOptions:type
-          - name: ITMockTelegramMediaOptions
-            uid: gramstax!ITMockTelegramMediaOptions:type
-          - name: ITMockTelegramRequestRecord
-            uid: gramstax!ITMockTelegramRequestRecord:type
-          - name: ITMockTelegramServerOptions
-            uid: gramstax!ITMockTelegramServerOptions:type
-          - name: ITMockTelegramUpdateOptions
-            uid: gramstax!ITMockTelegramUpdateOptions:type
-          - name: ITMockTelegramUser
-            uid: gramstax!ITMockTelegramUser:type
-          - name: ITOptEdit
-            uid: gramstax!ITOptEdit:type
-          - name: ITOptEditMedia1
-            uid: gramstax!ITOptEditMedia1:type
-          - name: ITOptEditMedia2
-            uid: gramstax!ITOptEditMedia2:type
-          - name: ITOptFallbackEdit
-            uid: gramstax!ITOptFallbackEdit:type
-          - name: ITOptReply
-            uid: gramstax!ITOptReply:type
-          - name: ITOptReplyAnimation
-            uid: gramstax!ITOptReplyAnimation:type
-          - name: ITOptReplyAudio
-            uid: gramstax!ITOptReplyAudio:type
-          - name: ITOptReplyContact
-            uid: gramstax!ITOptReplyContact:type
-          - name: ITOptReplyDocument
-            uid: gramstax!ITOptReplyDocument:type
-          - name: ITOptReplyLocation
-            uid: gramstax!ITOptReplyLocation:type
-          - name: ITOptReplyPhoto
-            uid: gramstax!ITOptReplyPhoto:type
-          - name: ITOptReplyRich
-            uid: gramstax!ITOptReplyRich:type
-          - name: ITOptReplySticker
-            uid: gramstax!ITOptReplySticker:type
-          - name: ITOptReplyVideo
-            uid: gramstax!ITOptReplyVideo:type
-          - name: ITOptReplyVideoNote
-            uid: gramstax!ITOptReplyVideoNote:type
-          - name: ITOptReplyVoice
-            uid: gramstax!ITOptReplyVoice:type
-          - name: ITPageData
-            uid: gramstax!ITPageData:type
-          - name: ITPageDataBase
-            uid: gramstax!ITPageDataBase:type
-          - name: ITPaidMediaBlock
-            uid: gramstax!ITPaidMediaBlock:type
-          - name: ITPollBlock
-            uid: gramstax!ITPollBlock:type
-          - name: ITRateLimitOptions
-            uid: gramstax!ITRateLimitOptions:type
-          - name: ITReplyAction
-            uid: gramstax!ITReplyAction:type
-          - name: ITSendErrorHook
-            uid: gramstax!ITSendErrorHook:type
-          - name: ITSendErrorInfo
-            uid: gramstax!ITSendErrorInfo:type
-          - name: ITSessionLockOnContended
-            uid: gramstax!ITSessionLockOnContended:type
-          - name: ITSessionLockOptions
-            uid: gramstax!ITSessionLockOptions:type
-          - name: ITStoryContent
-            uid: gramstax!ITStoryContent:type
-          - name: ITTemp
-            uid: gramstax!ITTemp:type
-          - name: ITTemplateOptions
-            uid: gramstax!ITTemplateOptions:type
-          - name: ITUpdateErrorEvent
-            uid: gramstax!ITUpdateErrorEvent:type
-          - name: ITUpdateSuccessEvent
-            uid: gramstax!ITUpdateSuccessEvent:type
-          - name: ITVenueBlock
-            uid: gramstax!ITVenueBlock:type
-          - name: ITWebhookQueueConfig
-            uid: gramstax!ITWebhookQueueConfig:type
+          - name: IReplyAction
+            uid: gramstax!IReplyAction:type
+          - name: IRouteManifestEntry
+            uid: gramstax!IRouteManifestEntry:type
+          - name: ISendErrorHook
+            uid: gramstax!ISendErrorHook:type
+          - name: ISendErrorInfo
+            uid: gramstax!ISendErrorInfo:type
+          - name: ISessionLockOnContended
+            uid: gramstax!ISessionLockOnContended:type
+          - name: ISessionLockOptions
+            uid: gramstax!ISessionLockOptions:type
+          - name: IShippingErrorBlock
+            uid: gramstax!IShippingErrorBlock:type
+          - name: IStoryContent
+            uid: gramstax!IStoryContent:type
+          - name: ITemp
+            uid: gramstax!ITemp:type
+          - name: ITemplateManifestEntry
+            uid: gramstax!ITemplateManifestEntry:type
+          - name: ITemplateOptions
+            uid: gramstax!ITemplateOptions:type
+          - name: IUpdateErrorEvent
+            uid: gramstax!IUpdateErrorEvent:type
+          - name: IUpdateSuccessEvent
+            uid: gramstax!IUpdateSuccessEvent:type
+          - name: IVenueBlock
+            uid: gramstax!IVenueBlock:type
+          - name: IWebhookQueueConfig
+            uid: gramstax!IWebhookQueueConfig:type
           - name: LabelGKeyboard
             uid: gramstax!LabelGKeyboard:class
           - name: LoggingHelper

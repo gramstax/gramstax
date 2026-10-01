@@ -10,7 +10,7 @@ Registers a custom filter-based route entry with automatic listener subscription
 
 ```typescript
 /** @virtual */
-registerCustomRoute(entry: ITCustomRouteEntry): void;
+registerCustomRoute(entry: ICustomRouteEntry): void;
 ```
 
 ## Parameters
@@ -38,12 +38,12 @@ entry
 
 </td><td>
 
-ITCustomRouteEntry
+ICustomRouteEntry
 
 
 </td><td>
 
-The custom route entry. See ITCustomRouteEntry.
+The custom route entry. See ICustomRouteEntry.
 
 
 </td></tr>

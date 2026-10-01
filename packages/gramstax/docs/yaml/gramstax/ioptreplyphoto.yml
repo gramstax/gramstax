@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplyPhoto
+uid: gramstax!IOptReplyPhoto:type
+package: gramstax!
+fullName: IOptReplyPhoto
+summary: Options parameter mirroring `Context.replyWithPhoto`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplyPhoto = Parameters<Context[`replyWithPhoto`]>[1];

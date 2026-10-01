@@ -9,7 +9,7 @@ Posts a story on behalf of a managed business account.
 **Signature:**
 
 ```typescript
-postBusinessStory(businessConnectionId?: string | null, content?: ITStoryContent | null, activePeriod?: number | null, options?: Parameters<Ctx[`api`][`postStory`]>[3] | null): Promise<grammy_types.Story>;
+postBusinessStory(businessConnectionId?: string | null, content?: IStoryContent | null, activePeriod?: number | null, options?: Parameters<Ctx[`api`][`postStory`]>[3] | null): Promise<grammy_types.Story>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ content
 
 </td><td>
 
-[ITStoryContent](./gramstax.itstorycontent.md) \| null
+[IStoryContent](./gramstax.istorycontent.md) \| null
 
 
 </td><td>

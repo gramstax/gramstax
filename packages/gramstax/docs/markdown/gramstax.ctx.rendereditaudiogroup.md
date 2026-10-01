@@ -6,10 +6,12 @@
 
 Replaces the current message with an audio media group.
 
+Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderEditAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+renderEditAudioGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -69,7 +71,7 @@ options
 
 </td><td>
 
-[ITOptReplyAudio](./gramstax.itoptreplyaudio.md) \| null
+[IOptReplyAudio](./gramstax.ioptreplyaudio.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

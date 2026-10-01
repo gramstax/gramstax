@@ -9,7 +9,7 @@ Create a new mock server instance.
 **Signature:**
 
 ```typescript
-constructor(options?: ITMockTelegramServerOptions);
+constructor(options?: IMockTelegramServerOptions);
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITMockTelegramServerOptions](./gramstax.itmocktelegramserveroptions.md)
+[IMockTelegramServerOptions](./gramstax.imocktelegramserveroptions.md)
 
 
 </td><td>

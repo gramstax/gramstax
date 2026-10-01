@@ -11,7 +11,7 @@ Compiles dice blocks from a template into executable functions.
 ```typescript
 static compileBlockGDice(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: ITTemplateData) => ITDiceBlock;
+            [ALang: string]: (data?: ITemplateData) => IDiceBlock;
         };
     };
 ```
@@ -70,7 +70,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITTemplateData) =&gt; [ITDiceBlock](./gramstax.itdiceblock.md)<!-- -->; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITemplateData) =&gt; [IDiceBlock](./gramstax.idiceblock.md)<!-- -->; }; }
 
 Compiled dice functions organized by base ID and language
 

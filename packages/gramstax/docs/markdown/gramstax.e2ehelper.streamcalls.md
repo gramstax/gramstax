@@ -9,11 +9,11 @@ Get all captured stream-related API calls.
 **Signature:**
 
 ```typescript
-streamCalls(): ITE2eApiCall[];
+streamCalls(): IE2eApiCall[];
 ```
 **Returns:**
 
-[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]
+[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]
 
 Array of stream-related API calls.
 

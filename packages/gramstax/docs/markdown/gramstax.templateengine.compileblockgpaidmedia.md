@@ -11,7 +11,7 @@ Compiles paid-media blocks from a template into executable functions.
 ```typescript
 static compileBlockGPaidMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: ITTemplateData) => ITPaidMediaBlock;
+            [ALang: string]: (data?: ITemplateData) => IPaidMediaBlock;
         };
     };
 ```
@@ -70,7 +70,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITTemplateData) =&gt; [ITPaidMediaBlock](./gramstax.itpaidmediablock.md)<!-- -->; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITemplateData) =&gt; [IPaidMediaBlock](./gramstax.ipaidmediablock.md)<!-- -->; }; }
 
 Compiled paid-media functions organized by base ID and language
 

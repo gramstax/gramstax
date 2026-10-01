@@ -11,7 +11,7 @@ Compiles message blocks from a template into executable functions.
 ```typescript
 static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: ITTemplateData) => string;
+            [ALang: string]: (data?: ITemplateData) => string;
         };
     };
 ```
@@ -70,7 +70,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITTemplateData) =&gt; string; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITemplateData) =&gt; string; }; }
 
 Compiled message functions organized by base ID and language
 

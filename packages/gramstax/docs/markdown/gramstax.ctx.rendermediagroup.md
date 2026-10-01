@@ -9,7 +9,7 @@ Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-gr
 **Signature:**
 
 ```typescript
-renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<unknown>;
+renderMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ type
 
 </td><td>
 
-ITMediaGroupType \| null
+IMediaGroupType \| null
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -85,7 +85,7 @@ options
 
 </td><td>
 
-[ITOptReplyPhoto](./gramstax.itoptreplyphoto.md) \| [ITOptReplyVideo](./gramstax.itoptreplyvideo.md) \| [ITOptReplyAudio](./gramstax.itoptreplyaudio.md) \| [ITOptReplyDocument](./gramstax.itoptreplydocument.md) \| null
+[IOptReplyPhoto](./gramstax.ioptreplyphoto.md) \| [IOptReplyVideo](./gramstax.ioptreplyvideo.md) \| [IOptReplyAudio](./gramstax.ioptreplyaudio.md) \| [IOptReplyDocument](./gramstax.ioptreplydocument.md) \| null
 
 
 </td><td>

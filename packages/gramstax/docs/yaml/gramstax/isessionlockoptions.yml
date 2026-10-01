@@ -1,0 +1,20 @@
+### YamlMime:TSTypeAlias
+name: ISessionLockOptions
+uid: gramstax!ISessionLockOptions:type
+package: gramstax!
+fullName: ISessionLockOptions
+summary: Configuration for the distributed session lock.
+remarks: >-
+  Redis-only: the lock uses atomic `SET NX PX` leases on the session key so concurrent updates for the same user/chat
+  are serialized or skipped across instances. When the bots cache is NOT Redis-backed, the feature is auto-disabled with
+  a warning (single-instance deployments do not need it).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ISessionLockOptions = {
+      enabled?: boolean;
+      leaseMs?: number;
+      onContended?: ISessionLockOnContended;
+      key?: (ctx: Ctx) => string;
+  };

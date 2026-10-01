@@ -6,10 +6,12 @@
 
 Deletes already-sent messages for many recipients in bulk.
 
+Template block: none — operates on message ids, reads no template block.
+
 **Signature:**
 
 ```typescript
-renderBroadcastDelete(targets: ITBroadcastEditTarget[], broadcastOpts?: ITBroadcastEditOpts | null): Promise<ITBroadcastEditResult>;
+renderBroadcastDelete(targets: IBroadcastEditTarget[], broadcastOpts?: IBroadcastEditOpts | null): Promise<IBroadcastEditResult>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ targets
 
 </td><td>
 
-[ITBroadcastEditTarget](./gramstax.itbroadcastedittarget.md)<!-- -->\[\]
+[IBroadcastEditTarget](./gramstax.ibroadcastedittarget.md)<!-- -->\[\]
 
 
 </td><td>
@@ -53,7 +55,7 @@ broadcastOpts
 
 </td><td>
 
-[ITBroadcastEditOpts](./gramstax.itbroadcasteditopts.md) \| null
+[IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md) \| null
 
 
 </td><td>
@@ -66,7 +68,7 @@ _(Optional)_ Optional broadcast controls (`onProgress`<!-- -->, `startFrom`<!-- 
 
 **Returns:**
 
-Promise&lt;[ITBroadcastEditResult](./gramstax.itbroadcasteditresult.md)<!-- -->&gt;
+Promise&lt;[IBroadcastEditResult](./gramstax.ibroadcasteditresult.md)<!-- -->&gt;
 
 Counts plus `retryable[]` for a re-drive pass.
 

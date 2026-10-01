@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptEditKeyboard
+uid: gramstax!IOptEditKeyboard:type
+package: gramstax!
+fullName: IOptEditKeyboard
+summary: Options parameter mirroring `Context.editMessageReplyMarkup`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptEditKeyboard = Parameters<Context[`editMessageReplyMarkup`]>[1];

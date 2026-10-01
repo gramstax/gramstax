@@ -56,5 +56,5 @@ The error thrown by the send call.
 
 ## Remarks
 
-Mapping: `GrammyError` 429 → `retryable`<!-- -->; 400–499 (incl. 403) → `fallback-text`<!-- -->; &gt;<!-- -->= 500 → `retryable`<!-- -->; `HttpError`<!-- -->/network and anything unknown → `retryable`<!-- -->.
+Mapping: `GrammyError 429` → `retryable 400–499 (incl. 403)`<!-- -->; → `fallback-text >= 500`<!-- -->; → `retryable`<!-- -->; `HttpError`<!-- -->/network and anything unknown → `retryable`<!-- -->.
 

@@ -224,7 +224,7 @@ Cache for keyboard instances.
 
 </td><td>
 
-[CacheExternal](./gramstax.cacheexternal.md)<!-- -->&lt;[ITCacheRpc](./gramstax.itcacherpc.md)<!-- -->&gt;
+[CacheExternal](./gramstax.cacheexternal.md)<!-- -->&lt;[ICacheRpc](./gramstax.icacherpc.md)<!-- -->&gt;
 
 
 </td><td>
@@ -446,7 +446,7 @@ Alias for `ctx.update.chosen_inline_result`<!-- -->.
 
 </td><td>
 
-[ITPageData](./gramstax.itpagedata.md)
+[IPageData](./gramstax.ipagedata.md)
 
 
 </td><td>
@@ -467,7 +467,7 @@ Instance-level access to the page routing data.
 
 </td><td>
 
-[ITPageDataBase](./gramstax.itpagedatabase.md)
+[IPageDataBase](./gramstax.ipagedatabase.md)
 
 
 </td><td>
@@ -1236,7 +1236,7 @@ All arg tokens from a command message.
 
 </td><td>
 
-[ITSendErrorHook](./gramstax.itsenderrorhook.md) \| null
+[ISendErrorHook](./gramstax.isenderrorhook.md) \| null
 
 
 </td><td>
@@ -1621,7 +1621,7 @@ Story `active_period` values accepted by `postBusinessStory` (seconds).
 
 </td><td>
 
-[ITTemp](./gramstax.ittemp.md)
+[ITemp](./gramstax.itemp.md)
 
 
 </td><td>
@@ -5048,6 +5048,8 @@ Refunds a successful Stars payment to the user.
 
 Sends a text message reply using the page template.
 
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5061,6 +5063,8 @@ Sends a text message reply using the page template.
 </td><td>
 
 Sends an animation/GIF message using the page template.
+
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
 
 
 </td></tr>
@@ -5076,6 +5080,8 @@ Sends an animation/GIF message using the page template.
 
 Sends or edits an animation/GIF message using the page template, auto-selecting between [Ctx.renderAnimation()](./gramstax.ctx.renderanimation.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5089,6 +5095,8 @@ Sends or edits an animation/GIF message using the page template, auto-selecting 
 </td><td>
 
 Sends an audio message using the page template.
+
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
 
 
 </td></tr>
@@ -5104,6 +5112,8 @@ Sends an audio message using the page template.
 
 Sends or edits an audio message using the page template, auto-selecting between [Ctx.renderAudio()](./gramstax.ctx.renderaudio.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5117,6 +5127,8 @@ Sends or edits an audio message using the page template, auto-selecting between 
 </td><td>
 
 Sends an audio media group using pipe-delimited `src` values from the page template.
+
+Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
 
 
 </td></tr>
@@ -5132,6 +5144,8 @@ Sends an audio media group using pipe-delimited `src` values from the page templ
 
 Sends or edits a message using the page template, auto-selecting between [Ctx.render()](./gramstax.ctx.render.md) and [Ctx.renderEdit()](./gramstax.ctx.renderedit.md) based on `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-message>` (read via `renderEdit/render`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5145,6 +5159,8 @@ Sends or edits a message using the page template, auto-selecting between [Ctx.re
 </td><td>
 
 Sends or edits a media message using the page template, auto-selecting between [Ctx.renderMedia()](./gramstax.ctx.rendermedia.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+Template block: `<g-media>` (read via `renderEditMedia/renderMedia`<!-- -->).
 
 
 </td></tr>
@@ -5174,6 +5190,8 @@ Sends or edits a media group message using the page template, auto-selecting bet
 
 Sends or edits a rich message using the page template, auto-selecting between [Ctx.renderRich()](./gramstax.ctx.renderrich.md) and [Ctx.renderEditRich()](./gramstax.ctx.rendereditrich.md)<!-- -->, auto-detected from `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-message>` (read via `renderEditRich/renderRich`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5187,6 +5205,8 @@ Sends or edits a rich message using the page template, auto-selecting between [C
 </td><td>
 
 Sends a message to multiple users in bulk.
+
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
 
 
 </td></tr>
@@ -5202,6 +5222,8 @@ Sends a message to multiple users in bulk.
 
 Deletes already-sent messages for many recipients in bulk.
 
+Template block: none — operates on message ids, reads no template block.
+
 
 </td></tr>
 <tr><td>
@@ -5215,6 +5237,8 @@ Deletes already-sent messages for many recipients in bulk.
 </td><td>
 
 Edits already-sent messages for many recipients in bulk.
+
+Template block: `<g-media>` (read via `getGMedia`<!-- -->).
 
 
 </td></tr>
@@ -5244,6 +5268,38 @@ Sends a media message to multiple users in bulk.
 
 Sends a template poll to multiple users in bulk.
 
+Template block: `<g-poll>` (read via `getGPoll`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[renderCallbackAnswer(showAlert, data, AGBaseId, options)](./gramstax.ctx.rendercallbackanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Answers the active callback query with template text.
+
+
+</td></tr>
+<tr><td>
+
+[renderChunked(keyboard, data, AGBaseId, options, chunkSize)](./gramstax.ctx.renderchunked.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a long template text as sequential chunks using the page template.
+
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5258,6 +5314,8 @@ Sends a template poll to multiple users in bulk.
 
 Sends a contact using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5271,6 +5329,8 @@ Sends a contact using the page template.
 </td><td>
 
 Sends or edits a contact using the page template, auto-selecting between [Ctx.renderContact()](./gramstax.ctx.rendercontact.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
 
 
 </td></tr>
@@ -5300,6 +5360,8 @@ Sends a template-driven dice animation using the page `<g-dice>` block.
 
 Sends a document message using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5313,6 +5375,8 @@ Sends a document message using the page template.
 </td><td>
 
 Sends or edits a document message using the page template, auto-selecting between [Ctx.renderDocument()](./gramstax.ctx.renderdocument.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
 
 
 </td></tr>
@@ -5328,6 +5392,8 @@ Sends or edits a document message using the page template, auto-selecting betwee
 
 Sends a document media group using pipe-delimited `src` values from the page template.
 
+Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5341,6 +5407,8 @@ Sends a document media group using pipe-delimited `src` values from the page tem
 </td><td>
 
 Edits an existing message text using the page template.
+
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
 
 
 </td></tr>
@@ -5356,6 +5424,8 @@ Edits an existing message text using the page template.
 
 Edits an existing message to show an animation.
 
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5369,6 +5439,8 @@ Edits an existing message to show an animation.
 </td><td>
 
 Edits an existing message to show an audio.
+
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
 
 
 </td></tr>
@@ -5384,6 +5456,24 @@ Edits an existing message to show an audio.
 
 Replaces the current message with an audio media group.
 
+Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[renderEditCaption(keyboardInline, data, AGBaseId, options, fallbackEdit)](./gramstax.ctx.rendereditcaption.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits a media message caption using the page template.
+
+Template block: `<g-message + g-keyboard>` (read via `getGMessage/getGKeyboard`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5397,6 +5487,8 @@ Replaces the current message with an audio media group.
 </td><td>
 
 Replaces the current message with a contact.
+
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
 
 
 </td></tr>
@@ -5412,6 +5504,8 @@ Replaces the current message with a contact.
 
 Edits an existing message to show a document.
 
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5425,6 +5519,22 @@ Edits an existing message to show a document.
 </td><td>
 
 Replaces the current message with a document media group.
+
+Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[renderEditKeyboard(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditkeyboard.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits only the inline keyboard using the page template.
 
 
 </td></tr>
@@ -5440,6 +5550,8 @@ Replaces the current message with a document media group.
 
 Replaces the current message with a location.
 
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5453,6 +5565,8 @@ Replaces the current message with a location.
 </td><td>
 
 Edits an existing media message with dynamic type selection.
+
+Template block: `<g-media>` (read via `getGMedia`<!-- -->).
 
 
 </td></tr>
@@ -5482,6 +5596,8 @@ Replaces the current message with a media group filtered by the given type.
 
 Edits an existing message to show a photo.
 
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5495,6 +5611,8 @@ Edits an existing message to show a photo.
 </td><td>
 
 Replaces the current message with a photo media group.
+
+Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
 
 
 </td></tr>
@@ -5510,6 +5628,8 @@ Replaces the current message with a photo media group.
 
 Edits an existing message with rich content using the page template.
 
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5523,6 +5643,8 @@ Edits an existing message with rich content using the page template.
 </td><td>
 
 Replaces the current message with a sticker.
+
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
 
 
 </td></tr>
@@ -5538,6 +5660,8 @@ Replaces the current message with a sticker.
 
 Edits an existing message to show a video.
 
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5551,6 +5675,8 @@ Edits an existing message to show a video.
 </td><td>
 
 Replaces the current message with a video media group.
+
+Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
 
 
 </td></tr>
@@ -5566,6 +5692,8 @@ Replaces the current message with a video media group.
 
 Replaces the current message with a video note.
 
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5579,6 +5707,52 @@ Replaces the current message with a video note.
 </td><td>
 
 Replaces the current message with a voice message.
+
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[renderGift(target, giftId, keyboard, data, AGBaseId, options)](./gramstax.ctx.rendergift.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a Telegram gift with card text from the page template.
+
+Template block: `<g-gift>` (read via `getGGift`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[renderGuestAnswer(result, data, AGBaseId, options)](./gramstax.ctx.renderguestanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Answers the active guest message query with a caller-built result.
+
+
+</td></tr>
+<tr><td>
+
+[renderInlineAnswer(results, data, AGBaseId, options, buttonStartParameter)](./gramstax.ctx.renderinlineanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Answers the active inline query with caller-built results and template button text.
 
 
 </td></tr>
@@ -5608,6 +5782,8 @@ Sends a template-driven invoice using the page `<g-invoice>` block.
 
 Sends a location using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5622,6 +5798,8 @@ Sends a location using the page template.
 
 Sends or edits a location using the page template, auto-selecting between [Ctx.renderLocation()](./gramstax.ctx.renderlocation.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5635,6 +5813,8 @@ Sends or edits a location using the page template, auto-selecting between [Ctx.r
 </td><td>
 
 Sends a media message reply with dynamic type selection.
+
+Template block: `<g-media>` (read via `getGMedia`<!-- -->).
 
 
 </td></tr>
@@ -5678,6 +5858,8 @@ Sends Stars-locked photo/video content using the page `<g-paid-media>` block.
 
 Sends a photo message using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5692,6 +5874,8 @@ Sends a photo message using the page template.
 
 Sends or edits a photo message using the page template, auto-selecting between [Ctx.renderPhoto()](./gramstax.ctx.renderphoto.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5705,6 +5889,8 @@ Sends or edits a photo message using the page template, auto-selecting between [
 </td><td>
 
 Sends a photo media group using pipe-delimited `src` values from the page template.
+
+Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
 
 
 </td></tr>
@@ -5724,6 +5910,20 @@ Sends a template-driven poll using the page `<g-poll>` block.
 </td></tr>
 <tr><td>
 
+[renderPreCheckout(ok, data, AGBaseId, options)](./gramstax.ctx.renderprecheckout.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Answers the active pre-checkout query with a template-backed error message.
+
+
+</td></tr>
+<tr><td>
+
 [renderRich(keyboard, data, AGBaseId, options1, options2)](./gramstax.ctx.renderrich.md)
 
 
@@ -5733,6 +5933,20 @@ Sends a template-driven poll using the page `<g-poll>` block.
 </td><td>
 
 Sends a rich message reply using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[renderShipping(ok, data, AGBaseId, options)](./gramstax.ctx.rendershipping.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Answers the active shipping query with a template-backed error message.
 
 
 </td></tr>
@@ -5748,6 +5962,8 @@ Sends a rich message reply using the page template.
 
 Sends a sticker using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5761,6 +5977,8 @@ Sends a sticker using the page template.
 </td><td>
 
 Sends or edits a sticker using the page template, auto-selecting between [Ctx.renderSticker()](./gramstax.ctx.rendersticker.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
 
 
 </td></tr>
@@ -5790,6 +6008,8 @@ Sends a template-driven venue using the page `<g-venue>` block.
 
 Sends a video message using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5803,6 +6023,8 @@ Sends a video message using the page template.
 </td><td>
 
 Sends or edits a video message using the page template, auto-selecting between [Ctx.renderVideo()](./gramstax.ctx.rendervideo.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
 
 
 </td></tr>
@@ -5818,6 +6040,8 @@ Sends or edits a video message using the page template, auto-selecting between [
 
 Sends a video media group using pipe-delimited `src` values from the page template.
 
+Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5831,6 +6055,8 @@ Sends a video media group using pipe-delimited `src` values from the page templa
 </td><td>
 
 Sends a video note (circular video) using the page template.
+
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
 
 
 </td></tr>
@@ -5846,6 +6072,8 @@ Sends a video note (circular video) using the page template.
 
 Sends or edits a video note (circular video) using the page template, auto-selecting between [Ctx.renderVideoNote()](./gramstax.ctx.rendervideonote.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5860,6 +6088,8 @@ Sends or edits a video note (circular video) using the page template, auto-selec
 
 Sends a voice message using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 
 </td></tr>
 <tr><td>
@@ -5873,6 +6103,22 @@ Sends a voice message using the page template.
 </td><td>
 
 Sends or edits a voice message using the page template, auto-selecting between [Ctx.renderVoice()](./gramstax.ctx.rendervoice.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
+
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[renderWebAppAnswer(webAppQueryId, result, data, AGBaseId, options)](./gramstax.ctx.renderwebappanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Answers a web app query via the Bot API with a caller-built result.
 
 
 </td></tr>

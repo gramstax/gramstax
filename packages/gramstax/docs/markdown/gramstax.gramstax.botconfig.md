@@ -9,7 +9,7 @@ Optional bot configuration.
 **Signature:**
 
 ```typescript
-botConfig?: BotConfig<ITCt>;
+botConfig?: BotConfig<ICt>;
 ```
 
 ## Remarks

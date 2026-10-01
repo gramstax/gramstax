@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: IMockTelegramLocationOptions
+uid: gramstax!IMockTelegramLocationOptions:type
+package: gramstax!
+fullName: IMockTelegramLocationOptions
+summary: Options for generated mock location updates.
+remarks: Extends `IMockTelegramUpdateOptions` with `latitude` and `longitude`<!-- -->. Used by `sendLocation`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IMockTelegramLocationOptions = IMockTelegramUpdateOptions & {
+      latitude?: number;
+      longitude?: number;
+  };

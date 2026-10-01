@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptEditCaption
+uid: gramstax!IOptEditCaption:type
+package: gramstax!
+fullName: IOptEditCaption
+summary: Options parameter mirroring `Context.editMessageCaption`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptEditCaption = Parameters<Context[`editMessageCaption`]>[1];

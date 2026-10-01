@@ -1,0 +1,20 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxPollingDeployOptions
+uid: gramstax!IGramstaxPollingDeployOptions:type
+package: gramstax!
+fullName: IGramstaxPollingDeployOptions
+summary: Polling deploy branch of `optionsDeploy`<!-- -->.
+remarks: >-
+  Only meaningful when `deploy` is `polling`<!-- -->. Carries the retry budget that used to live at the root
+  `pollingMaxRetries` field.
+example:
+  - |-
+    ```typescript
+    const polling: IGramstaxPollingDeployOptions = {maxRetries: 5}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxPollingDeployOptions = {
+      maxRetries?: number;
+  };

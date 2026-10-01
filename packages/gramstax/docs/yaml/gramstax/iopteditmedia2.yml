@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptEditMedia2
+uid: gramstax!IOptEditMedia2:type
+package: gramstax!
+fullName: IOptEditMedia2
+summary: Options parameter mirroring `Context.editMessageMedia` second parameter.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptEditMedia2 = Parameters<Context[`editMessageMedia`]>[1];

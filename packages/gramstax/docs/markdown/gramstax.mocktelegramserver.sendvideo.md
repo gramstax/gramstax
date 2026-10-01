@@ -9,7 +9,7 @@ Simulate a user sending a video message.
 **Signature:**
 
 ```typescript
-sendVideo(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
+sendVideo(options?: IMockTelegramMediaOptions): Promise<IMockTelegramRequestRecord[]>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITMockTelegramMediaOptions](./gramstax.itmocktelegrammediaoptions.md)
+[IMockTelegramMediaOptions](./gramstax.imocktelegrammediaoptions.md)
 
 
 </td><td>
@@ -50,7 +50,7 @@ _(Optional)_ Caption, user, chat, and timeout options.
 
 **Returns:**
 
-Promise&lt;[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]&gt;
+Promise&lt;[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]&gt;
 
 Array of captured Bot API responses.
 

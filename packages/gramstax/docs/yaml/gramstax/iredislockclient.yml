@@ -3,7 +3,7 @@ name: IRedisLockClient
 uid: gramstax!IRedisLockClient:type
 package: gramstax!
 fullName: IRedisLockClient
-summary: Minimal Redis client surface used by [SessionLock](xref:gramstax!SessionLock:class)<!-- -->.
+summary: Minimal Redis client surface used by `SessionLock`<!-- -->.
 remarks: >-
   Structurally compatible with the official `@redis/client` (`RedisClientType`<!-- -->) that backs the `@keyv/redis`
   store — only `set` (with `NX`<!-- -->/`PX`<!-- -->) and `eval` are required. Keeping a minimal structural type

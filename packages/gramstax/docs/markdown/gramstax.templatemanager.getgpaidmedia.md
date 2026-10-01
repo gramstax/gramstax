@@ -9,7 +9,7 @@ Gets compiled from block <g-paid-media>.
 **Signature:**
 
 ```typescript
-getGPaidMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`paidMedia`][`default`][`default`]>;
+getGPaidMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`paidMedia`][`default`][`default`]>;
 ```
 
 ## Parameters
@@ -98,7 +98,7 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ITCompiledTemplate](./gramstax.itcompiledtemplate.md)<!-- -->\[\`paidMedia\`\]\[\`default\`\]\[\`default\`\]&gt;
+ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`paidMedia\`\]\[\`default\`\]\[\`default\`\]&gt;
 
 Paid-media object containing stars and media items
 

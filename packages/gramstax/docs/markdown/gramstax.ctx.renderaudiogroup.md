@@ -6,10 +6,12 @@
 
 Sends an audio media group using pipe-delimited `src` values from the page template.
 
+Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<unknown>;
+renderAudioGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -69,7 +71,7 @@ options
 
 </td><td>
 
-[ITOptReplyAudio](./gramstax.itoptreplyaudio.md) \| null
+[IOptReplyAudio](./gramstax.ioptreplyaudio.md) \| null
 
 
 </td><td>

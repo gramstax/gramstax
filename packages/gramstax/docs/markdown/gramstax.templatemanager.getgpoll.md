@@ -9,7 +9,7 @@ Gets compiled from block <g-poll>.
 **Signature:**
 
 ```typescript
-getGPoll(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`poll`][`default`][`default`]>;
+getGPoll(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`poll`][`default`][`default`]>;
 ```
 
 ## Parameters
@@ -98,7 +98,7 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ITCompiledTemplate](./gramstax.itcompiledtemplate.md)<!-- -->\[\`poll\`\]\[\`default\`\]\[\`default\`\]&gt;
+ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`poll\`\]\[\`default\`\]\[\`default\`\]&gt;
 
 Poll object containing type, question, options, and quiz grading fields
 

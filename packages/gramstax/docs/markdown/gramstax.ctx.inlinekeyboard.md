@@ -9,7 +9,7 @@ Creates an inline keyboard using a builder callback.
 **Signature:**
 
 ```typescript
-inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null): ITInlineKb;
+inlineKeyboard(callback: (k: IInlineKb, l: string[]) => IInlineKb, params?: IInlineKbParams | null): IInlineKb;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ callback
 
 </td><td>
 
-(k: [ITInlineKb](./gramstax.itinlinekb.md)<!-- -->, l: string\[\]) =&gt; [ITInlineKb](./gramstax.itinlinekb.md)
+(k: [IInlineKb](./gramstax.iinlinekb.md)<!-- -->, l: string\[\]) =&gt; [IInlineKb](./gramstax.iinlinekb.md)
 
 
 </td><td>
@@ -53,12 +53,12 @@ params
 
 </td><td>
 
-[ITInlineKbParams](./gramstax.itinlinekbparams.md) \| null
+[IInlineKbParams](./gramstax.iinlinekbparams.md) \| null
 
 
 </td><td>
 
-_(Optional)_ Optional parameters (or null to omit). [ITInlineKbParams](./gramstax.itinlinekbparams.md) for details.
+_(Optional)_ Optional parameters (or null to omit). [IInlineKbParams](./gramstax.iinlinekbparams.md) for details.
 
 
 </td></tr>
@@ -66,7 +66,7 @@ _(Optional)_ Optional parameters (or null to omit). [ITInlineKbParams](./gramsta
 
 **Returns:**
 
-[ITInlineKb](./gramstax.itinlinekb.md)
+[IInlineKb](./gramstax.iinlinekb.md)
 
 The inline keyboard instance.
 

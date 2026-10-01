@@ -1,0 +1,26 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxCacheSessionRef
+uid: gramstax!IGramstaxCacheSessionRef:type
+package: gramstax!
+fullName: IGramstaxCacheSessionRef
+summary: >-
+  `cacheSession` slot: a path-ref to a `CacheExternal` subclass, or builtin params mirrored from the real constructor
+  `(store, ttlMs, namespace?)`<!-- -->.
+remarks: >-
+  Three accepted shapes (enforced by the loader): - a module path string resolving to a `CacheExternal` subclass - an
+  `{override: {module, export?, args?}}` ref resolving to a `CacheExternal` subclass - builtin params `{store, ttlMs?,
+  namespace?}` passed to `new CacheExternal(params)`
+example:
+  - |-
+    ```typescript
+    const fromPath: IGramstaxCacheSessionRef = `./src/session-cache.ts`
+    const builtin: IGramstaxCacheSessionRef = {store: `redis://localhost:6379`, ttlMs: 3600000}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxCacheSessionRef = IGramstaxPathRef | {
+      store: string;
+      ttlMs?: number;
+      namespace?: string;
+  };

@@ -9,7 +9,7 @@ Simulate a user sending a contact message.
 **Signature:**
 
 ```typescript
-sendContact(options?: ITE2eContactOptions): Promise<ITE2eApiCall[]>;
+sendContact(options?: IE2eContactOptions): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITE2eContactOptions](./gramstax.ite2econtactoptions.md)
+[IE2eContactOptions](./gramstax.ie2econtactoptions.md)
 
 
 </td><td>
@@ -50,7 +50,7 @@ _(Optional)_ Phone number, name, user, chat, and response options.
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update.
 

@@ -9,7 +9,7 @@ Simulate a user answering a poll.
 **Signature:**
 
 ```typescript
-sendPollAnswer(pollId: string, optionIds: number[], options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
+sendPollAnswer(pollId: string, optionIds: number[], options?: IMockTelegramUpdateOptions): Promise<IMockTelegramRequestRecord[]>;
 ```
 
 ## Parameters
@@ -69,7 +69,7 @@ options
 
 </td><td>
 
-[ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md)
+[IMockTelegramUpdateOptions](./gramstax.imocktelegramupdateoptions.md)
 
 
 </td><td>
@@ -82,7 +82,7 @@ _(Optional)_ User and timeout options.
 
 **Returns:**
 
-Promise&lt;[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]&gt;
+Promise&lt;[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]&gt;
 
 Array of captured Bot API responses.
 

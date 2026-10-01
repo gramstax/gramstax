@@ -1,0 +1,28 @@
+### YamlMime:TSTypeAlias
+name: IUpdateSuccessEvent
+uid: gramstax!IUpdateSuccessEvent:type
+package: gramstax!
+fullName: IUpdateSuccessEvent
+summary: Structured success event emitted by `onUpdate`<!-- -->.
+remarks: >-
+  Audit-trail counterpart of [IUpdateErrorEvent](xref:gramstax!IUpdateErrorEvent:type)<!-- -->. Delivered to the
+  `hookUpdate` class hook for matched, no-match, no-handler and blocked states (not for errors/timeouts).
+example:
+  - |-
+    ```typescript
+    class MyBot extends Gramstax {
+      override hookUpdate(event: IUpdateSuccessEvent): void {
+        metrics.count(event.listenerName, event.state)
+      }
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IUpdateSuccessEvent = {
+      traceId: string;
+      listenerName: string;
+      state: `matched` | `no-match` | `no-handler` | `blocked`;
+      durationMs: number;
+      isEdit: boolean;
+  };

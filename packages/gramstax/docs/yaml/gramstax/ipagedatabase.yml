@@ -1,0 +1,24 @@
+### YamlMime:TSTypeAlias
+name: IPageDataBase
+uid: gramstax!IPageDataBase:type
+package: gramstax!
+fullName: IPageDataBase
+summary: Base page routing data — core properties only, no callbackQueryData.
+remarks: >-
+  Used as the static type for `Ctx.data`<!-- -->. Pages that do NOT define `static data = this.buildData(...)` will NOT
+  have `callbackQueryData` available, preventing accidental usage without proper setup. Pages that define
+  `buildData(...)` via [IPageData](xref:gramstax!IPageData:type) get fully typed `callbackQueryData` with the configured
+  args (no extra overloads).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IPageDataBase = {
+      name: string;
+      intentText: string;
+      intentCommandText: string;
+      _positionArgText: number;
+      intentCallbackQueryData: string;
+      intentTextMap?: Record<string, string>;
+      intentCommandTextMap?: Record<string, string>;
+  };

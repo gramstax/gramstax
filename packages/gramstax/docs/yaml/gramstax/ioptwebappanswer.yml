@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptWebAppAnswer
+uid: gramstax!IOptWebAppAnswer:type
+package: gramstax!
+fullName: IOptWebAppAnswer
+summary: Options parameter mirroring `Api.answerWebAppQuery`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptWebAppAnswer = Parameters<Ctx[`api`][`answerWebAppQuery`]>[2];

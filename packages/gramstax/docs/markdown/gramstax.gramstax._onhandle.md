@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-_onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean): Promise<void>;
+_onHandle(ct: ICt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean): Promise<void>;
 ```
 
 ## Parameters
@@ -35,7 +35,7 @@ ct
 
 </td><td>
 
-[ITCt](./gramstax.itct.md)
+[ICt](./gramstax.ict.md)
 
 
 </td><td>

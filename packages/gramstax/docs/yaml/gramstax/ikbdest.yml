@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: IKbDest
+uid: gramstax!IKbDest:type
+package: gramstax!
+fullName: IKbDest
+summary: >-
+  Destination for an inline keyboard button — a page (class or instance) that defines `handleCallbackQueryData`<!-- -->,
+  or a literal callback data string.
+remarks: Pages that don't override `handleCallbackQueryData` will cause a compile error when referenced here.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type IKbDest = (typeof Ctx & IKbDestHasCallback) | (Ctx & IKbDestHasCallback[`prototype`]) | string |
+  IKbCallbackData<typeof Ctx, Array<string | undefined>>;

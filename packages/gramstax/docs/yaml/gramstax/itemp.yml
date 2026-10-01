@@ -1,0 +1,25 @@
+### YamlMime:TSTypeAlias
+name: ITemp
+uid: gramstax!ITemp:type
+package: gramstax!
+fullName: ITemp
+summary: Temporary per-update state carried on every `Ctx` instance.
+remarks: >-
+  Flow pages read and write `temp` during dispatch; `isAnswer` marks whether the current step already produced a reply,
+  `session` carries the decoded session RPC envelope, and `data` carries the decoded page-data envelope. Extra keys are
+  free-form scratch space for handlers.
+example:
+  - |-
+    ```ts
+    ctx.temp.isAnswer = true
+    ctx.temp[`attempt`] = 2
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITemp = {
+      isAnswer: boolean;
+      session: Partial<ICacheRpc>;
+      data: Partial<IPageData>;
+      [key: string]: unknown;
+  };

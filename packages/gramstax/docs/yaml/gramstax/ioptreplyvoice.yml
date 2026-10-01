@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplyVoice
+uid: gramstax!IOptReplyVoice:type
+package: gramstax!
+fullName: IOptReplyVoice
+summary: Options parameter mirroring `Context.replyWithVoice`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplyVoice = Parameters<Context[`replyWithVoice`]>[1];

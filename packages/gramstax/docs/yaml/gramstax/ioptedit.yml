@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptEdit
+uid: gramstax!IOptEdit:type
+package: gramstax!
+fullName: IOptEdit
+summary: Options parameter mirroring `Context.editMessageText`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptEdit = Parameters<Context[`editMessageText`]>[1];

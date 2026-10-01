@@ -9,7 +9,7 @@ Extract text content from a captured API call, handling both `sendMessage` (body
 **Signature:**
 
 ```typescript
-extractText(call: ITE2eApiCall): string | undefined;
+extractText(call: IE2eApiCall): string | undefined;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ call
 
 </td><td>
 
-[ITE2eApiCall](./gramstax.ite2eapicall.md)
+[IE2eApiCall](./gramstax.ie2eapicall.md)
 
 
 </td><td>

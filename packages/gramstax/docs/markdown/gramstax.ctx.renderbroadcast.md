@@ -6,10 +6,12 @@
 
 Sends a message to multiple users in bulk.
 
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null): Promise<{
+renderBroadcast(ids: number[], languageCode: string[], keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReply | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null): Promise<{
         successCount: number;
         failedCount: number;
         totalCount: number;
@@ -79,7 +81,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -95,7 +97,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -127,7 +129,7 @@ options
 
 </td><td>
 
-[ITOptReply](./gramstax.itoptreply.md) \| null
+[IOptReply](./gramstax.ioptreply.md) \| null
 
 
 </td><td>

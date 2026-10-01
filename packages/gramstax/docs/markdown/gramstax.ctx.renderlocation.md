@@ -6,10 +6,12 @@
 
 Sends a location using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderLocation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyLocation | null): Promise<unknown>;
+renderLocation(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyLocation | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -53,7 +55,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ options
 
 </td><td>
 
-[ITOptReplyLocation](./gramstax.itoptreplylocation.md) \| null
+[IOptReplyLocation](./gramstax.ioptreplylocation.md) \| null
 
 
 </td><td>

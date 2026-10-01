@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IMetricsQueueStats
+uid: gramstax!IMetricsQueueStats:type
+package: gramstax!
+fullName: IMetricsQueueStats
+summary: Queue statistics accepted by [metricsToPrometheus()](xref:gramstax!metricsToPrometheus:function(1))<!-- -->.
+remarks: >-
+  Snapshot of the webhook queue depth at scrape time. All fields are point-in-time counts (unitless). Omitted fields are
+  skipped in the Prometheus exposition instead of being emitted as zero.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IMetricsQueueStats = {
+      length?: number;
+      maxSize?: number;
+      waitingEnqueue?: number;
+      waitingDequeue?: number;
+  };

@@ -9,7 +9,7 @@ Creates a bottom (reply) keyboard using a builder callback.
 **Signature:**
 
 ```typescript
-bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb;
+bottomKeyboard(callback: (k: IBottomKb, l: string[]) => IBottomKb, params?: IBottomKbParams | null): IBottomKb;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ callback
 
 </td><td>
 
-(k: [ITBottomKb](./gramstax.itbottomkb.md)<!-- -->, l: string\[\]) =&gt; [ITBottomKb](./gramstax.itbottomkb.md)
+(k: [IBottomKb](./gramstax.ibottomkb.md)<!-- -->, l: string\[\]) =&gt; [IBottomKb](./gramstax.ibottomkb.md)
 
 
 </td><td>
@@ -53,12 +53,12 @@ params
 
 </td><td>
 
-[ITBottomKbParams](./gramstax.itbottomkbparams.md) \| null
+[IBottomKbParams](./gramstax.ibottomkbparams.md) \| null
 
 
 </td><td>
 
-_(Optional)_ Optional parameters (or null to omit). [ITBottomKbParams](./gramstax.itbottomkbparams.md) for details.
+_(Optional)_ Optional parameters (or null to omit). [IBottomKbParams](./gramstax.ibottomkbparams.md) for details.
 
 
 </td></tr>
@@ -66,7 +66,7 @@ _(Optional)_ Optional parameters (or null to omit). [ITBottomKbParams](./gramsta
 
 **Returns:**
 
-[ITBottomKb](./gramstax.itbottomkb.md)
+[IBottomKb](./gramstax.ibottomkb.md)
 
 The bottom keyboard instance.
 

@@ -9,7 +9,7 @@ Null-safe dotted-path lookup against template data.
 **Signature:**
 
 ```typescript
-static _resolveMediaDataPath(data: ITTemplateData | undefined, path: string): unknown;
+static _resolveMediaDataPath(data: ITemplateData | undefined, path: string): unknown;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ data
 
 </td><td>
 
-ITTemplateData \| undefined
+ITemplateData \| undefined
 
 
 </td><td>

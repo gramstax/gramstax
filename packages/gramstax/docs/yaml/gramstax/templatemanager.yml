@@ -52,542 +52,52 @@ constructors:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'constructor(options: ITTemplateOptions);'
+      content: 'constructor(options: ITemplateOptions);'
       parameters:
         - id: options
           description: Configuration options for the template manager
-          type: <xref uid="gramstax!ITTemplateOptions:type" />
+          type: <xref uid="gramstax!ITemplateOptions:type" />
 properties:
-  - name: _DEFER
-    uid: gramstax!TemplateManager._DEFER:member
+  - name: engine
+    uid: gramstax!TemplateManager#engine:member
     package: gramstax!
-    fullName: _DEFER
-    summary: Internal miss sentinel for template getters.
-    remarks: >-
-      Contract: missing template/base/lang falls back `base → default` then `lang → default`<!-- -->. On total miss the
-      getter throws `DEFER` internally and returns \`\` (message/description) or `[]` (keyboard) — empty-string and
-      empty-array results from compiled templates are preserved, never treated as a miss.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'static readonly _DEFER: unique symbol;'
-      return:
-        type: unique symbol
-  - name: _engine
-    uid: gramstax!TemplateManager#_engine:member
-    package: gramstax!
-    fullName: _engine
+    fullName: engine
     summary: Reference to the TemplateEngine class for compilation.
     remarks: Uses [TemplateEngine](xref:gramstax!TemplateEngine:class) static compile helpers.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: '_engine: typeof TemplateEngine;'
+      content: 'engine: typeof TemplateEngine;'
       return:
         type: typeof <xref uid="gramstax!TemplateEngine:class" />
-  - name: _importCache
-    uid: gramstax!TemplateManager#_importCache:member
+  - name: pageManager
+    uid: gramstax!TemplateManager#pageManager:member
     package: gramstax!
-    fullName: _importCache
-    summary: Shared import-resolution cache reused across single-file reloads.
-    remarks: >-
-      `_loadAllFiles` uses a batch-local cache; `_loadFile` reuses this persistent cache so repeated watcher reloads
-      share resolutions.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_importCache: Map<string, string>;'
-      return:
-        type: Map&lt;string, string&gt;
-  - name: _isWatchEnabled
-    uid: gramstax!TemplateManager#_isWatchEnabled:member
-    package: gramstax!
-    fullName: _isWatchEnabled
-    summary: Flag indicating if file watching is enabled.
-    remarks: Derived from `ITTemplateOptions.enableWatch`<!-- -->.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`];'
-      return:
-        type: <xref uid="gramstax!ITTemplateOptions:type" />[`enableWatch`]
-  - name: _map
-    uid: gramstax!TemplateManager#_map:member
-    package: gramstax!
-    fullName: _map
-    summary: Map of compiled templates keyed by filename (without extension).
-    remarks: Values are [ITCompiledTemplate](xref:gramstax!ITCompiledTemplate:type) compiled results.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_map: Map<string, ITCompiledTemplate>;'
-      return:
-        type: Map&lt;string, <xref uid="gramstax!ITCompiledTemplate:type" />&gt;
-  - name: _pageManager
-    uid: gramstax!TemplateManager#_pageManager:member
-    package: gramstax!
-    fullName: _pageManager
+    fullName: pageManager
     summary: Reference to PageManager for loading page modules.
     remarks: Uses [PageManager](xref:gramstax!PageManager:class) to load page templates from .ts/.js.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: '_pageManager: typeof PageManager;'
+      content: 'pageManager: typeof PageManager;'
       return:
         type: typeof <xref uid="gramstax!PageManager:class" />
-  - name: _path
-    uid: gramstax!TemplateManager#_path:member
+  - name: path
+    uid: gramstax!TemplateManager#path:member
     package: gramstax!
-    fullName: _path
+    fullName: path
     summary: Base paths for scanning template files.
-    remarks: Derived from `ITTemplateOptions.path`<!-- -->.
+    remarks: Derived from `ITemplateOptions.path`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'readonly _path: ITTemplateOptions[`path`];'
+      content: 'readonly path: ITemplateOptions[`path`];'
       return:
-        type: <xref uid="gramstax!ITTemplateOptions:type" />[`path`]
-  - name: _supportedExtensions
-    uid: gramstax!TemplateManager#_supportedExtensions:member
-    package: gramstax!
-    fullName: _supportedExtensions
-    summary: Set of supported template file extensions.
-    remarks: Defaults to `.html`<!-- -->, `.ts`<!-- -->, and `.js`<!-- -->.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_supportedExtensions: Set<string>;'
-      return:
-        type: Set&lt;string&gt;
-  - name: _watcher
-    uid: gramstax!TemplateManager#_watcher:member
-    package: gramstax!
-    fullName: _watcher
-    summary: Active file system watchers for hot-reload.
-    remarks: Uses Chokidar `FSWatcher` instances for hot reload.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_watcher: FSWatcher[];'
-      return:
-        type: <xref uid="chokidar!FSWatcher:class" />[]
+        type: <xref uid="gramstax!ITemplateOptions:type" />[`path`]
 methods:
-  - name: _compile(key, template, keepIfExist, importCache, rawCache, filename)
-    uid: gramstax!TemplateManager#_compile:member(1)
-    package: gramstax!
-    fullName: _compile(key, template, keepIfExist, importCache, rawCache, filename)
-    summary: Compiles a raw template string and stores the result in the cache.
-    remarks: >-
-      This method processes import blocks, compiles media, polls, messages, keyboards, and descriptions from the
-      template. It uses `TemplateEngine` for compilation. The `keepIfExist` parameter allows partial recompilation when
-      only specific template parts have changed.
-    example:
-      - |-
-        ```typescript
-        this._compile("welcome", rawHtmlContent)
-
-        const importCache = new Map<string, string>()
-        const rawCache = new Map([["partial", partialHtml]])
-        this._compile("main", mainHtml, undefined, importCache, rawCache)
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: |-
-        _compile(key: string, template: string, keepIfExist?: Partial<{
-                [K in keyof ITCompiledTemplate]: boolean;
-            }>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename?: string): void;
-      parameters:
-        - id: key
-          description: Template cache key (filename without extension)
-          type: string
-        - id: template
-          description: Raw template HTML string
-          type: string
-        - id: keepIfExist
-          description: Optional flags to preserve existing compiled parts
-          type: |-
-            Partial&lt;{
-                    [K in keyof <xref uid="gramstax!ITCompiledTemplate:type" />]: boolean;
-                }&gt;
-        - id: importCache
-          description: Optional shared cache for import resolution
-          type: Map&lt;string, string&gt;
-        - id: rawCache
-          description: Optional pre-loaded raw template cache for batch loading
-          type: Map&lt;string, string&gt;
-        - id: filename
-          description: ''
-          type: string
-      return:
-        type: void
-        description: ''
-  - name: _getExtension(filename)
-    uid: gramstax!TemplateManager#_getExtension:member(1)
-    package: gramstax!
-    fullName: _getExtension(filename)
-    summary: Extracts the file extension from a filename.
-    remarks: ''
-    example:
-      - |-
-        ```typescript
-        this._getExtension("welcome.HTML")
-        // => ".html"
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_getExtension(filename: string): string;'
-      parameters:
-        - id: filename
-          description: Filename to extract extension from
-          type: string
-      return:
-        type: string
-        description: Lowercase file extension including the dot (e.g., `.html`<!-- -->)
-  - name: _getGBaseAtLine(template, line)
-    uid: gramstax!TemplateManager#_getGBaseAtLine:member(1)
-    package: gramstax!
-    fullName: _getGBaseAtLine(template, line)
-    summary: Finds the `<g-base>` block (open + close) that encloses the given line number.
-    remarks: ''
-    example:
-      - |-
-        ```typescript
-        const tpl = '<g-base id="kb">\n<kop/></g-base>';
-        this._getBaseAtLine(tpl, 2) // => { AGBaseId: "kb", hasId: true }
-
-        const tpl2 = '<g-base>\n<kop/></g-base>';
-        this._getBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }
-
-        const tpl3 = '</g-base>\n{-lah-}\n<g-base>';
-        this._getBaseAtLine(tpl3, 2) // => null
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: |-
-        _getGBaseAtLine(template: string, line: number): {
-                AGBaseId: string | null;
-                hasId: boolean;
-            } | null;
-      parameters:
-        - id: template
-          description: Processed template string
-          type: string
-        - id: line
-          description: 1-based line number to check
-          type: number
-      return:
-        type: |-
-          {
-                  AGBaseId: string | null;
-                  hasId: boolean;
-              } | null
-        description: Object with `AGBaseId` and `hasId`<!-- -->, or `null` if not inside any `<g-base>` block
-  - name: _getKey(filename)
-    uid: gramstax!TemplateManager#_getKey:member(1)
-    package: gramstax!
-    fullName: _getKey(filename)
-    summary: Derives the cache key from a filename by removing the extension.
-    remarks: ''
-    example:
-      - |-
-        ```typescript
-        this._getKey("start-page.html") // => "start-page"
-        this._getKey("welcome.ts") // => "welcome"
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_getKey(filename: string): string;'
-      parameters:
-        - id: filename
-          description: Filename with extension
-          type: string
-      return:
-        type: string
-        description: Filename without extension (used as template key)
-  - name: _handleFileAdd(filepath)
-    uid: gramstax!TemplateManager#_handleFileAdd:member(1)
-    package: gramstax!
-    fullName: _handleFileAdd(filepath)
-    summary: Handles file add events from the watcher.
-    remarks: Compiles and caches a new template when a file is added. Only processes files with supported extensions.
-    example:
-      - |-
-        ```typescript
-        this._handleFileAdd("/src/pages/new-page.html")
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_handleFileAdd(filepath: string): void;'
-      parameters:
-        - id: filepath
-          description: Full path to the added file
-          type: string
-      return:
-        type: void
-        description: ''
-  - name: _handleFileChange(filepath)
-    uid: gramstax!TemplateManager#_handleFileChange:member(1)
-    package: gramstax!
-    fullName: _handleFileChange(filepath)
-    summary: Handles file change events from the watcher.
-    remarks: Recompiles the template when a watched file is modified. Only processes files with supported extensions.
-    example:
-      - |-
-        ```typescript
-        this._handleFileChange("/src/pages/welcome.html")
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_handleFileChange(filepath: string): void;'
-      parameters:
-        - id: filepath
-          description: Full path to the changed file
-          type: string
-      return:
-        type: void
-        description: ''
-  - name: _handleFileDelete(filepath)
-    uid: gramstax!TemplateManager#_handleFileDelete:member(1)
-    package: gramstax!
-    fullName: _handleFileDelete(filepath)
-    summary: Handles file delete events from the watcher.
-    remarks: Removes the compiled template from cache when its source file is deleted.
-    example:
-      - |-
-        ```typescript
-        this._handleFileDelete("/src/pages/old-page.html")
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_handleFileDelete(filepath: string): void;'
-      parameters:
-        - id: filepath
-          description: Full path to the deleted file
-          type: string
-      return:
-        type: void
-        description: ''
-  - name: _handleWatchError(error)
-    uid: gramstax!TemplateManager#_handleWatchError:member(1)
-    package: gramstax!
-    fullName: _handleWatchError(error)
-    summary: Handles watcher errors.
-    remarks: Override this method in a subclass to implement custom error handling.
-    example:
-      - |-
-        ```typescript
-        this._handleWatchError(new Error("ENOENT"))
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: |-
-        /** @virtual */
-        _handleWatchError(error: unknown): void;
-      parameters:
-        - id: error
-          description: The error object from the watcher
-          type: unknown
-      return:
-        type: void
-        description: ''
-  - name: _initializeWatcher(options)
-    uid: gramstax!TemplateManager#_initializeWatcher:member(1)
-    package: gramstax!
-    fullName: _initializeWatcher(options)
-    summary: Initializes file system watchers for hot reloading.
-    remarks: >-
-      This method sets up file system watchers on each path in `_path` when `enableWatch` is true. It listens for
-      `change`<!-- -->, `add`<!-- -->, `unlink`<!-- -->, and `error` events. The watchers are configured with
-      `awaitWriteFinish` to avoid partial file reads.
-    example:
-      - |-
-        ```typescript
-        this._initializeWatcher({
-          ignored: /node_modules/,
-          persistent: true
-        })
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_initializeWatcher(options?: Parameters<typeof watch>[1]): void;'
-      parameters:
-        - id: options
-          description: Optional Chokidar watch options to customize watcher behavior
-          type: Parameters&lt;typeof <xref uid="chokidar!watch:function" />&gt;[1]
-      return:
-        type: void
-        description: ''
-  - name: _isValidFile(filename)
-    uid: gramstax!TemplateManager#_isValidFile:member(1)
-    package: gramstax!
-    fullName: _isValidFile(filename)
-    summary: Checks if a file has a supported template extension.
-    remarks: ''
-    example:
-      - |-
-        ```typescript
-        this._isValidFile("welcome.html")
-        // => true
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_isValidFile(filename: string): boolean;'
-      parameters:
-        - id: filename
-          description: Filename to check
-          type: string
-      return:
-        type: boolean
-        description: '`true` if file extension is `.html`<!-- -->, `.ts`<!-- -->, or `.js`'
-  - name: _loadAllFiles()
-    uid: gramstax!TemplateManager#_loadAllFiles:member(1)
-    package: gramstax!
-    fullName: _loadAllFiles()
-    summary: Loads all template files during initialization with batch optimization.
-    remarks: >-
-      This method scans all paths for valid template files (`.html`<!-- -->, `.ts`<!-- -->, `.js`<!-- -->), collects
-      their raw contents, and compiles them in a batch. It uses shared caches for imports to optimize performance. After
-      compilation, raw templates are cleared and `Page.template` properties are set to `undefined` for memory cleanup.
-    example:
-      - |-
-        ```typescript
-        this._loadAllFiles()
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_loadAllFiles(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _loadFile(filename)
-    uid: gramstax!TemplateManager#_loadFile:member(1)
-    package: gramstax!
-    fullName: _loadFile(filename)
-    summary: Loads and compiles a single template file.
-    remarks: >-
-      This method is primarily used by the file watcher for hot-reloading. It searches all paths and compiles the first
-      matching file found.
-    example:
-      - |-
-        ```typescript
-        this._loadFile("welcome.html")
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_loadFile(filename: string): void;'
-      parameters:
-        - id: filename
-          description: Filename with extension to load
-          type: string
-      return:
-        type: void
-        description: ''
-  - name: _readTemplateFile(filename)
-    uid: gramstax!TemplateManager#_readTemplateFile:member(1)
-    package: gramstax!
-    fullName: _readTemplateFile(filename)
-    summary: Reads a template file's content from disk.
-    remarks: >-
-      If no extension is provided, tries `.ts`<!-- -->, `.js`<!-- -->, then `.html` in order. Searches all configured
-      paths until a match is found.
-    example:
-      - |-
-        ```typescript
-        this._readTemplateFile("welcome")
-        // => "<g-base>...</g-base>"
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_readTemplateFile(filename: string): string | null;'
-      parameters:
-        - id: filename
-          description: Filename to read (with or without extension)
-          type: string
-      return:
-        type: string | null
-        description: Template content string, or `null` if not found
-  - name: _validatePath()
-    uid: gramstax!TemplateManager#_validatePath:member(1)
-    package: gramstax!
-    fullName: _validatePath()
-    summary: Validates and ensures all template directories exist.
-    remarks: >-
-      This method checks that `_path` is a valid array of strings and that each path exists and is a directory. Called
-      during construction.
-    example:
-      - |-
-        ```typescript
-        this._validatePath()
-        // => true
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_validatePath(): boolean;'
-      return:
-        type: boolean
-        description: '`true` if all paths are valid directories'
-  - name: _validateTemplate(AGBaseId, template, filename)
-    uid: gramstax!TemplateManager#_validateTemplate:member(1)
-    package: gramstax!
-    fullName: _validateTemplate(AGBaseId, template, filename)
-    summary: >-
-      Validates template syntax and throws a descriptive error on failure.
-
-
-      The error message includes the enclosing `<g-base id="...">` based on the error line. If the `<g-base>` has no
-      `id` or no `<g-base>` tag is found, the `on base` prefix is omitted.
-    remarks: ''
-    example:
-      - |-
-        ```typescript
-        // base with id:
-        this._validateTemplate("start", '<g-base id="kb"><kop/></g-base>', "start.html")
-        // => throws: Template on base "kb" (start.html, line 1): Unsupported template block: <kop>
-
-        // base without id:
-        this._validateTemplate("start", '<g-base><kop/></g-base>', "start.html")
-        // => throws: Template (start.html, line 1): Unsupported template block: <kop>
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_validateTemplate(AGBaseId: string, template: string, filename?: string): void;'
-      parameters:
-        - id: AGBaseId
-          description: Cache key (filename without extension), used as default filename
-          type: string
-        - id: template
-          description: Template content to validate
-          type: string
-        - id: filename
-          description: Source filename with extension, shown in error location
-          type: string
-      return:
-        type: void
-        description: ''
   - name: clearCache()
     uid: gramstax!TemplateManager#clearCache:member(1)
     package: gramstax!
@@ -615,6 +125,56 @@ methods:
       content: 'closeWatchers(): Promise<void>;'
       return:
         type: Promise&lt;void&gt;
+        description: ''
+  - name: compile(key, template, keepIfExist, importCache, rawCache, filename)
+    uid: gramstax!TemplateManager#compile:member(1)
+    package: gramstax!
+    fullName: compile(key, template, keepIfExist, importCache, rawCache, filename)
+    summary: Compiles a raw template string and stores the result in the cache.
+    remarks: >-
+      This method processes import blocks, compiles media, polls, messages, keyboards, and descriptions from the
+      template. It uses `TemplateEngine` for compilation. The `keepIfExist` parameter allows partial recompilation when
+      only specific template parts have changed.
+    example:
+      - |-
+        ```typescript
+        this.compile("welcome", rawHtmlContent)
+
+        const importCache = new Map<string, string>()
+        const rawCache = new Map([["partial", partialHtml]])
+        this.compile("main", mainHtml, undefined, importCache, rawCache)
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        compile(key: string, template: string, keepIfExist?: Partial<{
+                [K in keyof ICompiledTemplate]: boolean;
+            }>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename?: string): void;
+      parameters:
+        - id: key
+          description: Template cache key (filename without extension)
+          type: string
+        - id: template
+          description: Raw template HTML string
+          type: string
+        - id: keepIfExist
+          description: Optional flags to preserve existing compiled parts
+          type: |-
+            Partial&lt;{
+                    [K in keyof <xref uid="gramstax!ICompiledTemplate:type" />]: boolean;
+                }&gt;
+        - id: importCache
+          description: Optional shared cache for import resolution
+          type: Map&lt;string, string&gt;
+        - id: rawCache
+          description: Optional pre-loaded raw template cache for batch loading
+          type: Map&lt;string, string&gt;
+        - id: filename
+          description: ''
+          type: string
+      return:
+        type: void
         description: ''
   - name: destroy()
     uid: gramstax!TemplateManager#destroy:member(1)
@@ -695,6 +255,64 @@ methods:
       return:
         type: string[]
         description: Array of scope keys for the description
+  - name: getGAnswerNote(key, AGBaseId, ALang, data)
+    uid: gramstax!TemplateManager#getGAnswerNote:member(1)
+    package: gramstax!
+    fullName: getGAnswerNote(key, AGBaseId, ALang, data)
+    summary: Gets compiled text from block <g-answer-note>.
+    remarks: >-
+      Strict lookup (mirrors `getGDice`<!-- -->): a missing block throws instead of returning an empty string, because
+      guest and web app answers require the validation marker block.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getGAnswerNote(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      parameters:
+        - id: key
+          description: ''
+          type: string
+        - id: AGBaseId
+          description: ''
+          type: string
+        - id: ALang
+          description: ''
+          type: string
+        - id: data
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: string
+        description: ''
+  - name: getGCallbackAnswer(key, AGBaseId, ALang, data)
+    uid: gramstax!TemplateManager#getGCallbackAnswer:member(1)
+    package: gramstax!
+    fullName: getGCallbackAnswer(key, AGBaseId, ALang, data)
+    summary: Gets compiled text from block <g-callback-answer>.
+    remarks: >-
+      Strict lookup (mirrors `getGDice`<!-- -->): a missing block throws instead of returning an empty string, because
+      callback answers always need text.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getGCallbackAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      parameters:
+        - id: key
+          description: ''
+          type: string
+        - id: AGBaseId
+          description: ''
+          type: string
+        - id: ALang
+          description: ''
+          type: string
+        - id: data
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: string
+        description: ''
   - name: getGDescription(key, AGBaseId, ALang, AScope, data)
     uid: gramstax!TemplateManager#getGDescription:member(1)
     package: gramstax!
@@ -753,7 +371,7 @@ methods:
     syntax:
       content: >-
         getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ITCompiledTemplate[`dice`][`default`][`default`]>;
+        ReturnType<ICompiledTemplate[`dice`][`default`][`default`]>;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -768,8 +386,68 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ITCompiledTemplate:type" />[`dice`][`default`][`default`]&gt;
+        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`dice`][`default`][`default`]&gt;
         description: Dice object containing the emoji
+  - name: getGGift(key, AGBaseId, ALang, data)
+    uid: gramstax!TemplateManager#getGGift:member(1)
+    package: gramstax!
+    fullName: getGGift(key, AGBaseId, ALang, data)
+    summary: Gets compiled text from block <g-gift>.
+    remarks: >-
+      Strict lookup (mirrors `getGDice`<!-- -->): a missing block throws instead of returning an empty string, because
+      gifts always need card text.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getGGift(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      parameters:
+        - id: key
+          description: ''
+          type: string
+        - id: AGBaseId
+          description: ''
+          type: string
+        - id: ALang
+          description: ''
+          type: string
+        - id: data
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: string
+        description: ''
+  - name: getGInlineButton(key, AGBaseId, ALang, data)
+    uid: gramstax!TemplateManager#getGInlineButton:member(1)
+    package: gramstax!
+    fullName: getGInlineButton(key, AGBaseId, ALang, data)
+    summary: Gets compiled button from block <g-inline-button>.
+    remarks: >-
+      Strict lookup (mirrors `getGDice`<!-- -->): a missing block throws instead of returning an empty definition,
+      because inline answers consume the block-text button only when the caller opts in via a start parameter.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        getGInlineButton(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
+        ReturnType<ICompiledTemplate[`inlineButton`][`default`][`default`]>;
+      parameters:
+        - id: key
+          description: ''
+          type: string
+        - id: AGBaseId
+          description: ''
+          type: string
+        - id: ALang
+          description: ''
+          type: string
+        - id: data
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`inlineButton`][`default`][`default`]&gt;
+        description: ''
   - name: getGInvoice(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGInvoice:member(1)
     package: gramstax!
@@ -789,7 +467,7 @@ methods:
     syntax:
       content: >-
         getGInvoice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ITCompiledTemplate[`invoice`][`default`][`default`]>;
+        ReturnType<ICompiledTemplate[`invoice`][`default`][`default`]>;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -804,7 +482,7 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ITCompiledTemplate:type" />[`invoice`][`default`][`default`]&gt;
+        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`invoice`][`default`][`default`]&gt;
         description: Invoice object containing title, description, payload, currency, and prices
   - name: getGKeyboard(key, AGBaseId, ALang, AType, data)
     uid: gramstax!TemplateManager#getGKeyboard:member(1)
@@ -864,7 +542,7 @@ methods:
     syntax:
       content: >-
         getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
+        ReturnType<ICompiledTemplate[`media`][`default`][`default`]>;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -879,7 +557,7 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ITCompiledTemplate:type" />[`media`][`default`][`default`]&gt;
+        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`media`][`default`][`default`]&gt;
         description: Media object containing type, src, and caption
   - name: getGMessage(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGMessage:member(1)
@@ -934,7 +612,7 @@ methods:
     syntax:
       content: >-
         getGPaidMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ITCompiledTemplate[`paidMedia`][`default`][`default`]>;
+        ReturnType<ICompiledTemplate[`paidMedia`][`default`][`default`]>;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -949,7 +627,7 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ITCompiledTemplate:type" />[`paidMedia`][`default`][`default`]&gt;
+        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`paidMedia`][`default`][`default`]&gt;
         description: Paid-media object containing stars and media items
   - name: getGPoll(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGPoll:member(1)
@@ -970,7 +648,7 @@ methods:
     syntax:
       content: >-
         getGPoll(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ITCompiledTemplate[`poll`][`default`][`default`]>;
+        ReturnType<ICompiledTemplate[`poll`][`default`][`default`]>;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -985,8 +663,66 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ITCompiledTemplate:type" />[`poll`][`default`][`default`]&gt;
+        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`poll`][`default`][`default`]&gt;
         description: Poll object containing type, question, options, and quiz grading fields
+  - name: getGPrecheckoutError(key, AGBaseId, ALang, data)
+    uid: gramstax!TemplateManager#getGPrecheckoutError:member(1)
+    package: gramstax!
+    fullName: getGPrecheckoutError(key, AGBaseId, ALang, data)
+    summary: Gets compiled text from block <g-precheckout-error>.
+    remarks: >-
+      Strict lookup (mirrors `getGDice`<!-- -->): a missing block throws instead of returning an empty string, because
+      declined payments need an error message.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getGPrecheckoutError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      parameters:
+        - id: key
+          description: ''
+          type: string
+        - id: AGBaseId
+          description: ''
+          type: string
+        - id: ALang
+          description: ''
+          type: string
+        - id: data
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: string
+        description: ''
+  - name: getGShippingError(key, AGBaseId, ALang, data)
+    uid: gramstax!TemplateManager#getGShippingError:member(1)
+    package: gramstax!
+    fullName: getGShippingError(key, AGBaseId, ALang, data)
+    summary: Gets compiled text from block <g-shipping-error>.
+    remarks: >-
+      Strict lookup (mirrors `getGDice`<!-- -->): a missing block throws instead of returning an empty string, because
+      rejected shipping needs an error message.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getGShippingError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      parameters:
+        - id: key
+          description: ''
+          type: string
+        - id: AGBaseId
+          description: ''
+          type: string
+        - id: ALang
+          description: ''
+          type: string
+        - id: data
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: string
+        description: ''
   - name: getGVenue(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGVenue:member(1)
     package: gramstax!
@@ -1006,7 +742,7 @@ methods:
     syntax:
       content: >-
         getGVenue(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ITCompiledTemplate[`venue`][`default`][`default`]>;
+        ReturnType<ICompiledTemplate[`venue`][`default`][`default`]>;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -1021,7 +757,7 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ITCompiledTemplate:type" />[`venue`][`default`][`default`]&gt;
+        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`venue`][`default`][`default`]&gt;
         description: Venue object containing title, address, latitude, and longitude
   - name: has(key)
     uid: gramstax!TemplateManager#has:member(1)
@@ -1047,6 +783,68 @@ methods:
       return:
         type: boolean
         description: '`true` if template exists in cache'
+  - name: registerCompiled(key, compiled)
+    uid: gramstax!TemplateManager#registerCompiled:member(1)
+    package: gramstax!
+    fullName: registerCompiled(key, compiled)
+    summary: Registers a pre-compiled template directly into the render map.
+    remarks: >-
+      AOT path: the caller (build-time emitter output) already validated the source, so this skips `_validateTemplate`
+      by design. Mirrors `_compile` by not firing `_onReload` — reload fires once per batch load, not per entry.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerCompiled(key: string, compiled: ICompiledTemplate): void;'
+      parameters:
+        - id: key
+          description: Template identifier (filename without extension)
+          type: string
+        - id: compiled
+          description: Pre-compiled template (e.g. assembled from `compileBlock*` output)
+          type: <xref uid="gramstax!ICompiledTemplate:type" />
+      return:
+        type: void
+        description: ''
+  - name: validateTemplate(AGBaseId, template, filename)
+    uid: gramstax!TemplateManager#validateTemplate:member(1)
+    package: gramstax!
+    fullName: validateTemplate(AGBaseId, template, filename)
+    summary: >-
+      Validates template syntax and throws a descriptive error on failure.
+
+
+      The error message includes the enclosing `<g-base id="...">` based on the error line. If the `<g-base>` has no
+      `id` or no `<g-base>` tag is found, the `on base` prefix is omitted.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        // base with id:
+        this.validateTemplate("start", '<g-base id="kb"><kop/></g-base>', "start.html")
+        // => throws: Template on base "kb" (start.html, line 1): Unsupported template block: <kop>
+
+        // base without id:
+        this.validateTemplate("start", '<g-base><kop/></g-base>', "start.html")
+        // => throws: Template (start.html, line 1): Unsupported template block: <kop>
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'validateTemplate(AGBaseId: string, template: string, filename?: string): void;'
+      parameters:
+        - id: AGBaseId
+          description: Cache key (filename without extension), used as default filename
+          type: string
+        - id: template
+          description: Template content to validate
+          type: string
+        - id: filename
+          description: Source filename with extension, shown in error location
+          type: string
+      return:
+        type: void
+        description: ''
   - name: write(filename, template)
     uid: gramstax!TemplateManager#write:member(1)
     package: gramstax!

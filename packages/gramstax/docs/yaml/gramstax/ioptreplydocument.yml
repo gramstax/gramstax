@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplyDocument
+uid: gramstax!IOptReplyDocument:type
+package: gramstax!
+fullName: IOptReplyDocument
+summary: Options parameter mirroring `Context.replyWithDocument`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplyDocument = Parameters<Context[`replyWithDocument`]>[1];

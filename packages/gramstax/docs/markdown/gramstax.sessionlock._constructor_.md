@@ -11,7 +11,7 @@ Constructs a new instance of the `SessionLock` class
 ```typescript
 constructor(redis: IRedisLockClient, options: {
         leaseMs: number;
-        onContended: ITSessionLockOnContended;
+        onContended: ISessionLockOnContended;
     });
 ```
 
@@ -54,7 +54,7 @@ options
 
 </td><td>
 
-{ leaseMs: number; onContended: [ITSessionLockOnContended](./gramstax.itsessionlockoncontended.md)<!-- -->; }
+{ leaseMs: number; onContended: [ISessionLockOnContended](./gramstax.isessionlockoncontended.md)<!-- -->; }
 
 
 </td><td>

@@ -10,7 +10,7 @@ Parses `<g-media-group>` blocks into Telegram media group item definitions.
 
 ```typescript
 static _processGMediaGroupBlocks(template: string): {
-        [lang: string]: ITMediaBlock;
+        [lang: string]: IMediaBlock;
     };
 ```
 
@@ -52,7 +52,7 @@ The template source containing `<g-media-group>` blocks.
 
 **Returns:**
 
-{ \[lang: string\]: [ITMediaBlock](./gramstax.itmediablock.md)<!-- -->; }
+{ \[lang: string\]: [IMediaBlock](./gramstax.imediablock.md)<!-- -->; }
 
 Map of lang → `{type: "group", mediaGroup, caption?}` definitions.
 

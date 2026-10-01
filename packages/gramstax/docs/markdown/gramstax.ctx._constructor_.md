@@ -11,7 +11,7 @@ Creates a new Ctx instance.
 **Signature:**
 
 ```typescript
-constructor(params: ITCtxParams);
+constructor(params: ICtxParams);
 ```
 
 ## Parameters
@@ -39,12 +39,12 @@ params
 
 </td><td>
 
-[ITCtxParams](./gramstax.itctxparams.md)
+[ICtxParams](./gramstax.ictxparams.md)
 
 
 </td><td>
 
-The initialization parameters. See [ITCtxParams](./gramstax.itctxparams.md) for details.
+The initialization parameters. See [ICtxParams](./gramstax.ictxparams.md) for details.
 
 
 </td></tr>

@@ -1,0 +1,13 @@
+### YamlMime:TSTypeAlias
+name: GramstaxConfig
+uid: gramstax!GramstaxConfig:type
+package: gramstax!
+fullName: GramstaxConfig
+summary: NextConfig-style alias for the `gramstax.config.ts` shape.
+remarks: >-
+  Thin alias of `IGramstaxConfig` so scaffolded projects can write `const config: GramstaxConfig = {...}` and get
+  typo-checking on every key.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type GramstaxConfig = IGramstaxConfig;

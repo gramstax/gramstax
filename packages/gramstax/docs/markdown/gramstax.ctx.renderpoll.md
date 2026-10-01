@@ -9,7 +9,7 @@ Sends a template-driven poll using the page `<g-poll>` block.
 **Signature:**
 
 ```typescript
-renderPoll(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null): Promise<grammy_types.Message.PollMessage>;
+renderPoll(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null): Promise<grammy_types.Message.PollMessage>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>

@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ICt
+uid: gramstax!ICt:type
+package: gramstax!
+fullName: ICt
+summary: Type alias for Context.
+remarks: The main context object containing update information and bot methods.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ICt = Context;

@@ -9,7 +9,7 @@ Sends Stars-locked photo/video content using the page `<g-paid-media>` block.
 **Signature:**
 
 ```typescript
-renderPaidMedia(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null): Promise<grammy_types.Message.PaidMediaMessage>;
+renderPaidMedia(keyboard?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null): Promise<grammy_types.Message.PaidMediaMessage>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ keyboard
 
 </td><td>
 
-[ITInlineKb](./gramstax.itinlinekb.md) \| null
+[IInlineKb](./gramstax.iinlinekb.md) \| null
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>

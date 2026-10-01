@@ -1,0 +1,25 @@
+### YamlMime:TSTypeAlias
+name: IInlineButtonBlock
+uid: gramstax!IInlineButtonBlock:type
+package: gramstax!
+fullName: IInlineButtonBlock
+summary: Inline-button block for Telegram inline query answers.
+remarks: >-
+  Declared with `<g-inline-button>` blocks. `text` supports the same `{{var|filter}}` interpolation pipeline as poll
+  questions and becomes the `button.text` label; `startParameter` maps the `start-parameter` attribute and follows the
+  Bot API deep-link format (`[A-Za-z0-9_-]`<!-- -->, at most 64 chars).
+example:
+  - |-
+    ```typescript
+    const button: IInlineButtonBlock = {
+      text: `Lihat detail`,
+      startParameter: `start=1`
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IInlineButtonBlock = {
+      text: string;
+      startParameter?: string;
+  };

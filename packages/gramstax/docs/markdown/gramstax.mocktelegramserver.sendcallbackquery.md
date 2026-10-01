@@ -9,7 +9,7 @@ Simulate a user pressing an inline keyboard button (callback query).
 **Signature:**
 
 ```typescript
-sendCallbackQuery(data: string, options?: ITMockTelegramCallbackQueryOptions): Promise<ITMockTelegramRequestRecord[]>;
+sendCallbackQuery(data: string, options?: IMockTelegramCallbackQueryOptions): Promise<IMockTelegramRequestRecord[]>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ options
 
 </td><td>
 
-[ITMockTelegramCallbackQueryOptions](./gramstax.itmocktelegramcallbackqueryoptions.md)
+[IMockTelegramCallbackQueryOptions](./gramstax.imocktelegramcallbackqueryoptions.md)
 
 
 </td><td>
@@ -66,7 +66,7 @@ _(Optional)_ Callback ID, message text, user, chat, and timeout options.
 
 **Returns:**
 
-Promise&lt;[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]&gt;
+Promise&lt;[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]&gt;
 
 Array of captured Bot API responses.
 

@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IData
+uid: gramstax!IData:type
+package: gramstax!
+fullName: IData
+summary: Generic data object for template interpolation.
+remarks: Used throughout Gramstax for passing dynamic data to templates and methods. Accepts any key-value pairs.
+example:
+  - |-
+    ```ts
+    const data: IData = {name: `John`, count: 3}
+    await this.render(null, data)
+    ```
+isPreview: false
+isDeprecated: false
+syntax: type IData = Record<string, unknown>;

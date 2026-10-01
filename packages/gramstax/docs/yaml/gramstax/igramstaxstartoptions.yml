@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxStartOptions
+uid: gramstax!IGramstaxStartOptions:type
+package: gramstax!
+fullName: IGramstaxStartOptions
+summary: Parsed `gramstax start` flags.
+remarks: >-
+  Produced by `GramstaxStart._parseArgv` from `--deploy <mode>` and `--watch`<!-- -->. All fields optional — an empty
+  object boots with config defaults and no watcher.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxStartOptions = {
+      deploy?: string;
+      watch?: boolean;
+  };

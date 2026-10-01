@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplyRich
+uid: gramstax!IOptReplyRich:type
+package: gramstax!
+fullName: IOptReplyRich
+summary: Options tuple mirroring `Context.replyWithRichMessage`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplyRich = Parameters<Context[`replyWithRichMessage`]>;

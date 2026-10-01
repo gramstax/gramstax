@@ -1,0 +1,23 @@
+### YamlMime:TSTypeAlias
+name: IDiceBlock
+uid: gramstax!IDiceBlock:type
+package: gramstax!
+fullName: IDiceBlock
+summary: Dice block configuration for Telegram dice animations.
+remarks: >-
+  Declared with `<g-dice>` blocks. `emoji` supports the same `{{var|filter}}` interpolation pipeline as poll questions
+  and defaults to `🎲` when the attribute is absent; the compiled value is checked at runtime by `Ctx.assertDiceEmoji`
+  before any API call.
+example:
+  - |-
+    ```typescript
+    const dice: IDiceBlock = {
+      emoji: `🎯`
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IDiceBlock = {
+      emoji: string;
+  };

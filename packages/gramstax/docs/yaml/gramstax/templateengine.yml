@@ -35,6 +35,47 @@ isPreview: false
 isDeprecated: false
 type: class
 properties:
+  - name: __emitHook
+    uid: gramstax!TemplateEngine.__emitHook:member
+    package: gramstax!
+    fullName: __emitHook
+    summary: >-
+      AOT collect hook: when set, `_compileToFunction` records the body and returns a tagged stub instead of calling
+      `new Function`<!-- -->.
+    remarks: >-
+      Build tooling only (`AotEmitter` installs it around compilation and always uninstalls in `finally`<!-- -->).
+      `undefined` (default) runs the exact JIT path — no behavior change.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static __emitHook?: (body: string, meta: {
+                isArray: boolean;
+            }) => (...args: unknown[]) => unknown;
+      return:
+        type: |-
+          (body: string, meta: {
+                  isArray: boolean;
+              }) =&gt; (...args: unknown[]) =&gt; unknown
+  - name: __linkHook
+    uid: gramstax!TemplateEngine.__linkHook:member
+    package: gramstax!
+    fullName: __linkHook
+    summary: >-
+      AOT link hook: when set, `_compileToFunction` returns the pre-registered inline function matching the body instead
+      of calling `new Function`<!-- -->.
+    remarks: >-
+      Edge-runtime path (`AotEmitter` output): emitted modules pre-register every collected body, then rebuild wrapper
+      blocks through the normal compilers with this hook resolving hits. A miss throws (template drift — regenerate).
+      Never set together with `__emitHook`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static __linkHook?: (body: string, isArray: boolean) => (...args: unknown[]) => unknown;'
+      return:
+        type: '(body: string, isArray: boolean) =&gt; (...args: unknown[]) =&gt; unknown'
   - name: _PAGE_ATTR_VALUE_VALIDATORS
     uid: gramstax!TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS:member
     package: gramstax!
@@ -413,6 +454,27 @@ properties:
       return:
         type: number
 methods:
+  - name: _buildFunctionBody(template, isArray)
+    uid: gramstax!TemplateEngine._buildFunctionBody:member(1)
+    package: gramstax!
+    fullName: _buildFunctionBody(template, isArray)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _buildFunctionBody<T extends boolean>(template: T extends true ? string[] : string, isArray: T): string;'
+      parameters:
+        - id: template
+          description: ''
+          type: 'T extends true ? string[] : string'
+        - id: isArray
+          description: ''
+          type: T
+      return:
+        type: string
+        description: ''
   - name: _compileMediaSrc(rawSrc, stringFn)
     uid: gramstax!TemplateEngine._compileMediaSrc:member(1)
     package: gramstax!
@@ -427,7 +489,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITTemplateData) => string): (data?: ITTemplateData) =>
+        static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITemplateData) => string): (data?: ITemplateData) =>
         string | InputFile | Buffer | Uint8Array;
       parameters:
         - id: rawSrc
@@ -435,10 +497,10 @@ methods:
           type: string
         - id: stringFn
           description: Existing compiled string renderer for this `src`<!-- -->.
-          type: '(data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string'
+          type: '(data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string'
       return:
         type: >-
-          (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string | <xref uid="grammy!InputFile:class" /> |
+          (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string | <xref uid="grammy!InputFile:class" /> |
           Buffer | Uint8Array
         description: Renderer yielding either the string output or the raw object.
   - name: _compileToFunction(template, isArray)
@@ -453,7 +515,7 @@ methods:
     syntax:
       content: >-
         static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T):
-        ITTemplateRenderer<T>;
+        ITemplateRenderer<T>;
       parameters:
         - id: template
           description: ''
@@ -462,7 +524,7 @@ methods:
           description: ''
           type: T
       return:
-        type: <xref uid="gramstax!~ITTemplateRenderer:type" />&lt;T&gt;
+        type: <xref uid="gramstax!~ITemplateRenderer:type" />&lt;T&gt;
         description: ''
   - name: _escape(str)
     uid: gramstax!TemplateEngine._escape:member(1)
@@ -665,6 +727,43 @@ methods:
       return:
         type: string | null
         description: Dotted path when bare, otherwise `null`<!-- -->.
+  - name: _processGAnswerNoteBlocks(template)
+    uid: gramstax!TemplateEngine._processGAnswerNoteBlocks:member(1)
+    package: gramstax!
+    fullName: _processGAnswerNoteBlocks(template)
+    summary: 'Block: g-answer-note Extracts `<g-answer-note>` plain-text blocks from a template string.'
+    remarks: >-
+      Children form only; content is cleaned exactly like `<g-message>` and keyed by `lang` (`"default"` when absent;
+      last block wins per lang). Raw content is preserved verbatim (including `{{var|filter}}` spans) for later
+      compilation. The block is a validation marker for answers whose content comes from the caller (guest, web app),
+      not the template. Plain-text rules are enforced by `validateBlockGAnswerNoteAttributes`<!-- -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const blocks = TemplateEngine._processGAnswerNoteBlocks(`<g-answer-note>Guest fallback
+        {{kind}}</g-answer-note>`);
+
+        // Result: { default: 'Guest fallback {{kind}}' }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGAnswerNoteBlocks(template: string): {
+                [lang: string]: string;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-answer-note>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: string;
+              }
+        description: An object mapping language keys to their raw text content
   - name: _processGBaseBlocks(template)
     uid: gramstax!TemplateEngine._processGBaseBlocks:member(1)
     package: gramstax!
@@ -716,12 +815,52 @@ methods:
                   [AGBaseId: string]: string;
               }
         description: An object mapping base IDs to their cleaned inner content
+  - name: _processGCallbackAnswerBlocks(template)
+    uid: gramstax!TemplateEngine._processGCallbackAnswerBlocks:member(1)
+    package: gramstax!
+    fullName: _processGCallbackAnswerBlocks(template)
+    summary: 'Block: g-callback-answer Extracts `<g-callback-answer>` plain-text blocks from a template string.'
+    remarks: >-
+      Children form only (`<g-callback-answer>text</g-callback-answer>`<!-- -->); content is cleaned exactly like
+      `<g-message>` (leading indent stripped, surrounding newlines trimmed) and keyed by `lang` (`"default"` when
+      absent; last block wins per lang). Raw content is preserved verbatim (including `{{var|filter}}` spans) for later
+      compilation. Plain-text and length rules are enforced by `validateBlockGCallbackAnswerAttributes`<!-- -->, not
+      here.
+    example:
+      - >-
+        ```typescript
+
+        const blocks = TemplateEngine._processGCallbackAnswerBlocks(`<g-callback-answer>Pesanan {{orderId}}
+        diproses</g-callback-answer>`);
+
+        // Result: { default: 'Pesanan {{orderId}} diproses' }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGCallbackAnswerBlocks(template: string): {
+                [lang: string]: string;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-callback-answer>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: string;
+              }
+        description: An object mapping language keys to their raw text content
   - name: _processGDescriptionBlocks(template)
     uid: gramstax!TemplateEngine._processGDescriptionBlocks:member(1)
     package: gramstax!
     fullName: _processGDescriptionBlocks(template)
-    summary: 'Block: g-description Extracts and parses `<g-description>` blocks from a template string.'
-    remarks: >-
+    summary: >-
+      Block: g-description Extracts and parses `<g-description>` blocks from a template string.
+
+
       This internal method identifies all `<g-description>` blocks and extracts their content organized by language and
       scope. Blocks without a `lang` attribute are stored under `"default"` language, and blocks without a `scope`
       attribute are stored under `"default"` scope.
@@ -729,6 +868,7 @@ methods:
 
       \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. -
       `scope` (optional): Scope key for the nested output map. Defaults to `"default"`<!-- -->.
+    remarks: ''
     example:
       - |-
         ```typescript
@@ -786,7 +926,7 @@ methods:
     syntax:
       content: |-
         static _processGDiceBlocks(template: string): {
-                [lang: string]: ITDiceBlock;
+                [lang: string]: IDiceBlock;
             };
       parameters:
         - id: template
@@ -795,7 +935,7 @@ methods:
       return:
         type: |-
           {
-                  [lang: string]: <xref uid="gramstax!ITDiceBlock:type" />;
+                  [lang: string]: <xref uid="gramstax!IDiceBlock:type" />;
               }
         description: An object mapping language keys to their dice configurations
   - name: _processGDivBlocks(template)
@@ -827,6 +967,39 @@ methods:
       return:
         type: string
         description: The template with `<g-div>` blocks replaced by their de-indented content
+  - name: _processGGiftBlocks(template)
+    uid: gramstax!TemplateEngine._processGGiftBlocks:member(1)
+    package: gramstax!
+    fullName: _processGGiftBlocks(template)
+    summary: 'Block: g-gift Extracts `<g-gift>` card-text blocks from a template string.'
+    remarks: >-
+      Children form only; content is cleaned exactly like `<g-message>` and keyed by `lang` (`"default"` when absent;
+      last block wins per lang). Raw content is preserved verbatim (including `{{var|filter}}` spans and HTML markup —
+      gifts render with `text_parse_mode: HTML`<!-- -->) for later compilation. Only attribute rules are enforced by
+      `validateBlockGGiftAttributes`<!-- -->, not here.
+    example:
+      - |-
+        ```typescript
+        const blocks = TemplateEngine._processGGiftBlocks(`<g-gift>Hadiah <b>{{item}}</b>!</g-gift>`);
+        // Result: { default: 'Hadiah <b>{{item}}</b>!' }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGGiftBlocks(template: string): {
+                [lang: string]: string;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-gift>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: string;
+              }
+        description: An object mapping language keys to their raw text content
   - name: _processGImportBlocks(template)
     uid: gramstax!TemplateEngine._processGImportBlocks:member(1)
     package: gramstax!
@@ -886,6 +1059,45 @@ methods:
                   }[];
               }
         description: An object containing the processed template with placeholders and an array of import metadata
+  - name: _processGInlineButtonBlocks(template)
+    uid: gramstax!TemplateEngine._processGInlineButtonBlocks:member(1)
+    package: gramstax!
+    fullName: _processGInlineButtonBlocks(template)
+    summary: 'Block: g-inline-button Extracts `<g-inline-button>` definitions from a template string.'
+    remarks: >-
+      Attribute form only (`<g-inline-button text="..." start-parameter="..."/>`<!-- -->, both pair and self-closing
+      spellings parse identically); the block carries no children. `text` becomes the inline `button.text` label and
+      `start-parameter` (optional) the deep-link `start_parameter`<!-- -->. Raw attribute strings are preserved verbatim
+      (including `{{var|filter}}` spans) for later compilation. Blocks are keyed by `lang` (`"default"` when absent;
+      last block wins per lang). Structural rules (required `text`<!-- -->, `start_parameter` format) are enforced by
+      `validateBlockGInlineButtonAttributes`<!-- -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const blocks = TemplateEngine._processGInlineButtonBlocks(`<g-inline-button text="Lihat {{item}}"
+        start-parameter="detail-1"/>`);
+
+        // Result: { default: { text: 'Lihat {{item}}', startParameter: 'detail-1' } }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGInlineButtonBlocks(template: string): {
+                [lang: string]: IInlineButtonBlock;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-inline-button>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: <xref uid="gramstax!IInlineButtonBlock:type" />;
+              }
+        description: An object mapping language keys to their button definitions
   - name: _processGInvoiceBlocks(template)
     uid: gramstax!TemplateEngine._processGInvoiceBlocks:member(1)
     package: gramstax!
@@ -914,7 +1126,7 @@ methods:
     syntax:
       content: |-
         static _processGInvoiceBlocks(template: string): {
-                [lang: string]: ITInvoiceBlock;
+                [lang: string]: IInvoiceBlock;
             };
       parameters:
         - id: template
@@ -923,7 +1135,7 @@ methods:
       return:
         type: |-
           {
-                  [lang: string]: <xref uid="gramstax!ITInvoiceBlock:type" />;
+                  [lang: string]: <xref uid="gramstax!IInvoiceBlock:type" />;
               }
         description: An object mapping language keys to their invoice configurations
   - name: _processGKeyboardBlocks(template)
@@ -1057,7 +1269,7 @@ methods:
     syntax:
       content: |-
         static _processGMediaBlocks(template: string): {
-                [lang: string]: ITMediaBlock;
+                [lang: string]: IMediaBlock;
             };
       parameters:
         - id: template
@@ -1066,7 +1278,7 @@ methods:
       return:
         type: |-
           {
-                  [lang: string]: <xref uid="gramstax!ITMediaBlock:type" />;
+                  [lang: string]: <xref uid="gramstax!IMediaBlock:type" />;
               }
         description: An object mapping language keys to their corresponding media block configurations
   - name: _processGMediaGroupBlocks(template)
@@ -1087,7 +1299,7 @@ methods:
     syntax:
       content: |-
         static _processGMediaGroupBlocks(template: string): {
-                [lang: string]: ITMediaBlock;
+                [lang: string]: IMediaBlock;
             };
       parameters:
         - id: template
@@ -1096,7 +1308,7 @@ methods:
       return:
         type: |-
           {
-                  [lang: string]: <xref uid="gramstax!ITMediaBlock:type" />;
+                  [lang: string]: <xref uid="gramstax!IMediaBlock:type" />;
               }
         description: 'Map of lang → `{type: "group", mediaGroup, caption?}` definitions.'
   - name: _processGMessageBlocks(template)
@@ -1166,7 +1378,7 @@ methods:
     syntax:
       content: |-
         static _processGPaidMediaBlocks(template: string): {
-                [lang: string]: ITPaidMediaBlock;
+                [lang: string]: IPaidMediaBlock;
             };
       parameters:
         - id: template
@@ -1175,7 +1387,7 @@ methods:
       return:
         type: |-
           {
-                  [lang: string]: <xref uid="gramstax!ITPaidMediaBlock:type" />;
+                  [lang: string]: <xref uid="gramstax!IPaidMediaBlock:type" />;
               }
         description: An object mapping language keys to their paid-media configurations
   - name: _processGPollBlocks(template)
@@ -1204,7 +1416,7 @@ methods:
     syntax:
       content: |-
         static _processGPollBlocks(template: string): {
-                [lang: string]: ITPollBlock;
+                [lang: string]: IPollBlock;
             };
       parameters:
         - id: template
@@ -1213,9 +1425,45 @@ methods:
       return:
         type: |-
           {
-                  [lang: string]: <xref uid="gramstax!ITPollBlock:type" />;
+                  [lang: string]: <xref uid="gramstax!IPollBlock:type" />;
               }
         description: An object mapping language keys to their poll configurations
+  - name: _processGPrecheckoutErrorBlocks(template)
+    uid: gramstax!TemplateEngine._processGPrecheckoutErrorBlocks:member(1)
+    package: gramstax!
+    fullName: _processGPrecheckoutErrorBlocks(template)
+    summary: 'Block: g-precheckout-error Extracts `<g-precheckout-error>` plain-text blocks from a template string.'
+    remarks: >-
+      Children form only; content is cleaned exactly like `<g-message>` and keyed by `lang` (`"default"` when absent;
+      last block wins per lang). Raw content is preserved verbatim (including `{{var|filter}}` spans) for later
+      compilation. Plain-text rules are enforced by `validateBlockGPrecheckoutErrorAttributes`<!-- -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const blocks = TemplateEngine._processGPrecheckoutErrorBlocks(`<g-precheckout-error>Stok {{item}}
+        habis</g-precheckout-error>`);
+
+        // Result: { default: 'Stok {{item}} habis' }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGPrecheckoutErrorBlocks(template: string): {
+                [lang: string]: string;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-precheckout-error>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: string;
+              }
+        description: An object mapping language keys to their raw text content
   - name: _processGScriptBlocks(template)
     uid: gramstax!TemplateEngine._processGScriptBlocks:member(1)
     package: gramstax!
@@ -1252,6 +1500,42 @@ methods:
       return:
         type: string
         description: The template with `<g-script>` blocks converted to executable expressions
+  - name: _processGShippingErrorBlocks(template)
+    uid: gramstax!TemplateEngine._processGShippingErrorBlocks:member(1)
+    package: gramstax!
+    fullName: _processGShippingErrorBlocks(template)
+    summary: 'Block: g-shipping-error Extracts `<g-shipping-error>` plain-text blocks from a template string.'
+    remarks: >-
+      Children form only; content is cleaned exactly like `<g-message>` and keyed by `lang` (`"default"` when absent;
+      last block wins per lang). Raw content is preserved verbatim (including `{{var|filter}}` spans) for later
+      compilation. Plain-text rules are enforced by `validateBlockGShippingErrorAttributes`<!-- -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const blocks = TemplateEngine._processGShippingErrorBlocks(`<g-shipping-error>Di luar zona
+        {{city}}</g-shipping-error>`);
+
+        // Result: { default: 'Di luar zona {{city}}' }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGShippingErrorBlocks(template: string): {
+                [lang: string]: string;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-shipping-error>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: string;
+              }
+        description: An object mapping language keys to their raw text content
   - name: _processGSpaceBlocks(template)
     uid: gramstax!TemplateEngine._processGSpaceBlocks:member(1)
     package: gramstax!
@@ -1345,7 +1629,7 @@ methods:
     syntax:
       content: |-
         static _processGVenueBlocks(template: string): {
-                [lang: string]: ITVenueBlock;
+                [lang: string]: IVenueBlock;
             };
       parameters:
         - id: template
@@ -1354,7 +1638,7 @@ methods:
       return:
         type: |-
           {
-                  [lang: string]: <xref uid="gramstax!ITVenueBlock:type" />;
+                  [lang: string]: <xref uid="gramstax!IVenueBlock:type" />;
               }
         description: An object mapping language keys to their venue configurations
   - name: _processMediaGroupItems(groupContent)
@@ -1468,11 +1752,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static _resolveMediaDataPath(data: ITTemplateData | undefined, path: string): unknown;'
+      content: 'static _resolveMediaDataPath(data: ITemplateData | undefined, path: string): unknown;'
       parameters:
         - id: data
           description: Template data passed to the compiled block.
-          type: <xref uid="gramstax!~ITTemplateData:type" /> | undefined
+          type: <xref uid="gramstax!~ITemplateData:type" /> | undefined
         - id: path
           description: Dotted path such as `a.b.c`<!-- -->.
           type: string
@@ -1520,6 +1804,44 @@ methods:
       return:
         type: string
         description: A JS expression evaluating to the rendered string.
+  - name: _validateAnswerTextContent(template, tag, maxLength)
+    uid: gramstax!TemplateEngine._validateAnswerTextContent:member(1)
+    package: gramstax!
+    fullName: _validateAnswerTextContent(template, tag, maxLength)
+    summary: Validates plain-text content of answer blocks.
+    remarks: >-
+      Answer payloads (`<g-callback-answer>`<!-- -->, `<g-precheckout-error>`<!-- -->, `<g-shipping-error>`<!-- -->)
+      reach Telegram fields that accept no HTML (toast text, `error_message`<!-- -->), so any static markup tag inside
+      the block body is rejected. `{{}}` / `{~ ~}` spans are stripped before checking (runtime data is the caller's
+      responsibility, mirroring the `_validateDiceItems` static/dynamic split). When `maxLength` is set, the stripped
+      static length is capped (toast text at most 200 chars per the Bot API `answerCallbackQuery` limits). Errors carry
+      1-based line numbers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template source to inspect.
+          type: string
+        - id: tag
+          description: The block tag name without brackets (e.g. `g-callback-answer`<!-- -->).
+          type: string
+        - id: maxLength
+          description: Optional static-length cap (or null to skip).
+          type: number | null
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Validation errors (empty when valid).
   - name: _validateBlockAttributes(template, tagName, allowedAttributes, allowedLabel, valueValidators)
     uid: gramstax!TemplateEngine._validateBlockAttributes:member(1)
     package: gramstax!
@@ -1576,6 +1898,35 @@ methods:
     syntax:
       content: |-
         static _validateDiceItems(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template source to inspect.
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Validation errors (empty when valid).
+  - name: _validateInlineButtonItems(template)
+    uid: gramstax!TemplateEngine._validateInlineButtonItems:member(1)
+    package: gramstax!
+    fullName: _validateInlineButtonItems(template)
+    summary: Validates `<g-inline-button>` items beyond attribute names.
+    remarks: >-
+      Enforces the structural rules: every block needs a non-empty `text`<!-- -->, and every static `start-parameter`
+      must match the Bot API deep-link format. Called by `validateBlockGInlineButtonAttributes`<!-- -->; errors carry
+      1-based line numbers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validateInlineButtonItems(template: string): Array<{
                 line: number;
                 message: string;
             }>;
@@ -1976,6 +2327,103 @@ methods:
                   message: string;
               }&gt;
         description: Validation errors (empty when valid).
+  - name: compileBlockGAnswerNote(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGAnswerNote:member(1)
+    package: gramstax!
+    fullName: compileBlockGAnswerNote(template, baseBlocks)
+    summary: Compiles answer-note blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-answer-note>` blocks from the template and compiles them into functions that generate
+      rendered note text. Same organization and pipeline as `compileBlockGCallbackAnswer`<!-- -->. The note is a
+      validation marker for answers whose content comes from the caller.
+    example:
+      - >-
+        ```typescript
+
+        const compiled = TemplateEngine.compileBlockGAnswerNote(`<g-base><g-answer-note>Note
+        {{kind}}</g-answer-note></g-base>`);
+
+        const text = compiled.default?.default?.({kind: `vip`});
+
+        // Result: 'Note vip'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGAnswerNote(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITemplateData) => string;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-answer-note>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
+                  };
+              }
+        description: Compiled answer-note functions organized by base ID and language
+  - name: compileBlockGCallbackAnswer(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGCallbackAnswer:member(1)
+    package: gramstax!
+    fullName: compileBlockGCallbackAnswer(template, baseBlocks)
+    summary: Compiles callback-answer blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-callback-answer>` blocks from the template and compiles them into functions that generate
+      rendered toast text. The result is organized by base ID and language. Each content string runs the same pipeline
+      as `<g-message>` (script → map → switch → scope-exec → scope-variables → function).
+
+
+      Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `ALang` (from `lang="..."`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string,
+      unknown>) => string`
+    example:
+      - >-
+        ```typescript
+
+        const compiled = TemplateEngine.compileBlockGCallbackAnswer(`<g-base><g-callback-answer>Hi
+        {{name}}</g-callback-answer></g-base>`);
+
+        const text = compiled.default?.default?.({name: `Ani`});
+
+        // Result: 'Hi Ani'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGCallbackAnswer(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITemplateData) => string;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-callback-answer>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
+                  };
+              }
+        description: Compiled callback-answer functions organized by base ID and language
   - name: compileBlockGDescription(template, gBaseBlocks)
     uid: gramstax!TemplateEngine.compileBlockGDescription:member(1)
     package: gramstax!
@@ -2019,7 +2467,7 @@ methods:
         TemplateEngine._processGBaseBlocks>): {
                 [AGBaseId: string]: {
                     [AScope: string]: {
-                        [ALang: string]: (data?: ITTemplateData) => string;
+                        [ALang: string]: (data?: ITemplateData) => string;
                     };
                 };
             };
@@ -2035,7 +2483,7 @@ methods:
           {
                   [AGBaseId: string]: {
                       [AScope: string]: {
-                          [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string;
+                          [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
                       };
                   };
               }
@@ -2062,7 +2510,7 @@ methods:
         static compileBlockGDice(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
         {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: ITTemplateData) => ITDiceBlock;
+                    [ALang: string]: (data?: ITemplateData) => IDiceBlock;
                 };
             };
       parameters:
@@ -2076,10 +2524,104 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITDiceBlock:type" />;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; <xref uid="gramstax!IDiceBlock:type" />;
                   };
               }
         description: Compiled dice functions organized by base ID and language
+  - name: compileBlockGGift(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGGift:member(1)
+    package: gramstax!
+    fullName: compileBlockGGift(template, baseBlocks)
+    summary: Compiles gift blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-gift>` blocks from the template and compiles them into functions that generate rendered
+      card text. Same organization and pipeline as `compileBlockGCallbackAnswer`<!-- -->. HTML markup is preserved —
+      gifts render with `text_parse_mode: HTML`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const compiled = TemplateEngine.compileBlockGGift(`<g-base><g-gift>Hadiah <b>{{item}}</b>!</g-gift></g-base>`);
+        const text = compiled.default?.default?.({item: `kopi`});
+        // Result: 'Hadiah <b>kopi</b>!'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGGift(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
+        {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITemplateData) => string;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-gift>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
+                  };
+              }
+        description: Compiled gift functions organized by base ID and language
+  - name: compileBlockGInlineButton(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGInlineButton:member(1)
+    package: gramstax!
+    fullName: compileBlockGInlineButton(template, baseBlocks)
+    summary: Compiles inline-button blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-inline-button>` blocks from the template and compiles them into functions that generate
+      button definitions. Both `text` and `start-parameter` run the string pipeline (script → map → switch → scope-exec
+      → scope-variables → function), so either may carry `{{var|filter}}` spans; static `start_parameter` format is
+      enforced by `validateBlockGInlineButtonAttributes`<!-- -->, dynamic values at runtime by the caller. The result is
+      organized by base ID and language.
+
+
+      Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `ALang` (from `lang="..."`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string,
+      unknown>) => ITInlineButtonBlock`
+    example:
+      - >-
+        ```typescript
+
+        const compiled = TemplateEngine.compileBlockGInlineButton(`<g-base><g-inline-button text="Lihat {{item}}"
+        start-parameter="d-1"/></g-base>`);
+
+        const button = compiled.default?.default?.({item: `kopi`});
+
+        // Result: { text: 'Lihat kopi', startParameter: 'd-1' }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGInlineButton(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITemplateData) => IInlineButtonBlock;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-inline-button>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; <xref uid="gramstax!IInlineButtonBlock:type" />;
+                  };
+              }
+        description: Compiled inline-button functions organized by base ID and language
   - name: compileBlockGInvoice(template, baseBlocks)
     uid: gramstax!TemplateEngine.compileBlockGInvoice:member(1)
     package: gramstax!
@@ -2123,7 +2665,7 @@ methods:
         static compileBlockGInvoice(template: string, baseBlocks?: ReturnType<typeof
         TemplateEngine._processGBaseBlocks>): {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: ITTemplateData) => ITInvoiceBlock;
+                    [ALang: string]: (data?: ITemplateData) => IInvoiceBlock;
                 };
             };
       parameters:
@@ -2137,7 +2679,7 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITInvoiceBlock:type" />;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; <xref uid="gramstax!IInvoiceBlock:type" />;
                   };
               }
         description: Compiled invoice functions organized by base ID and language
@@ -2158,8 +2700,8 @@ methods:
         TemplateEngine._processGBaseBlocks>): {
                 [AGBaseId: string]: {
                     [ALang: string]: {
-                        inline?: (data?: ITTemplateData) => string[];
-                        bottom?: (data?: ITTemplateData) => string[];
+                        inline?: (data?: ITemplateData) => string[];
+                        bottom?: (data?: ITemplateData) => string[];
                     };
                 };
             };
@@ -2175,8 +2717,8 @@ methods:
           {
                   [AGBaseId: string]: {
                       [ALang: string]: {
-                          inline?: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string[];
-                          bottom?: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string[];
+                          inline?: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string[];
+                          bottom?: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string[];
                       };
                   };
               }
@@ -2209,7 +2751,7 @@ methods:
         static compileBlockGMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
         {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: ITTemplateData) => ITMediaBlock;
+                    [ALang: string]: (data?: ITemplateData) => IMediaBlock;
                 };
             };
       parameters:
@@ -2223,7 +2765,7 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITMediaBlock:type" />;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; <xref uid="gramstax!IMediaBlock:type" />;
                   };
               }
         description: Compiled media functions organized by base ID and language
@@ -2268,7 +2810,7 @@ methods:
         static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof
         TemplateEngine._processGBaseBlocks>): {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: ITTemplateData) => string;
+                    [ALang: string]: (data?: ITemplateData) => string;
                 };
             };
       parameters:
@@ -2282,7 +2824,7 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
                   };
               }
         description: Compiled message functions organized by base ID and language
@@ -2326,7 +2868,7 @@ methods:
         static compileBlockGPaidMedia(template: string, baseBlocks?: ReturnType<typeof
         TemplateEngine._processGBaseBlocks>): {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: ITTemplateData) => ITPaidMediaBlock;
+                    [ALang: string]: (data?: ITemplateData) => IPaidMediaBlock;
                 };
             };
       parameters:
@@ -2340,7 +2882,7 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITPaidMediaBlock:type" />;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; <xref uid="gramstax!IPaidMediaBlock:type" />;
                   };
               }
         description: Compiled paid-media functions organized by base ID and language
@@ -2373,7 +2915,7 @@ methods:
         static compileBlockGPoll(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
         {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: ITTemplateData) => ITPollBlock;
+                    [ALang: string]: (data?: ITemplateData) => IPollBlock;
                 };
             };
       parameters:
@@ -2387,10 +2929,100 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITPollBlock:type" />;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; <xref uid="gramstax!IPollBlock:type" />;
                   };
               }
         description: Compiled poll functions organized by base ID and language
+  - name: compileBlockGPrecheckoutError(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGPrecheckoutError:member(1)
+    package: gramstax!
+    fullName: compileBlockGPrecheckoutError(template, baseBlocks)
+    summary: Compiles precheckout-error blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-precheckout-error>` blocks from the template and compiles them into functions that generate
+      rendered decline messages. Same organization and pipeline as `compileBlockGCallbackAnswer`<!-- -->.
+    example:
+      - >-
+        ```typescript
+
+        const compiled = TemplateEngine.compileBlockGPrecheckoutError(`<g-base><g-precheckout-error>Stok {{item}}
+        habis</g-precheckout-error></g-base>`);
+
+        const text = compiled.default?.default?.({item: `kopi`});
+
+        // Result: 'Stok kopi habis'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGPrecheckoutError(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITemplateData) => string;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-precheckout-error>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
+                  };
+              }
+        description: Compiled precheckout-error functions organized by base ID and language
+  - name: compileBlockGShippingError(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGShippingError:member(1)
+    package: gramstax!
+    fullName: compileBlockGShippingError(template, baseBlocks)
+    summary: Compiles shipping-error blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-shipping-error>` blocks from the template and compiles them into functions that generate
+      rendered rejection messages. Same organization and pipeline as `compileBlockGCallbackAnswer`<!-- -->.
+    example:
+      - >-
+        ```typescript
+
+        const compiled = TemplateEngine.compileBlockGShippingError(`<g-base><g-shipping-error>Di luar
+        {{city}}</g-shipping-error></g-base>`);
+
+        const text = compiled.default?.default?.({city: `Bandung`});
+
+        // Result: 'Di luar Bandung'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGShippingError(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITemplateData) => string;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-shipping-error>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
+                  };
+              }
+        description: Compiled shipping-error functions organized by base ID and language
   - name: compileBlockGVenue(template, baseBlocks)
     uid: gramstax!TemplateEngine.compileBlockGVenue:member(1)
     package: gramstax!
@@ -2419,7 +3051,7 @@ methods:
         static compileBlockGVenue(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
         {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: ITTemplateData) => ITVenueBlock;
+                    [ALang: string]: (data?: ITemplateData) => IVenueBlock;
                 };
             };
       parameters:
@@ -2433,7 +3065,7 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITVenueBlock:type" />;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; <xref uid="gramstax!IVenueBlock:type" />;
                   };
               }
         description: Compiled venue functions organized by base ID and language
@@ -2492,6 +3124,49 @@ methods:
       return:
         type: string
         description: Template with all `<g-import>` blocks resolved and replaced
+  - name: validateBlockGAnswerNoteAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGAnswerNoteAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGAnswerNoteAttributes(template)
+    summary: Validates attributes and content on `<g-answer-note>` blocks.
+    remarks: >-
+      Allowed attributes are `lang` only. Content must be plain text without HTML; `{{}}` spans skip the static checks
+      (runtime-enforced).
+    example:
+      - >-
+        ```typescript
+
+        const result =
+        TemplateEngine.validateBlockGAnswerNoteAttributes(`<g-base><g-answer-note>Note</g-answer-note></g-base>`);
+
+        // Result: { valid: true, errors: [] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGAnswerNoteAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
   - name: validateBlockGBaseAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGBaseAttributes:member(1)
     package: gramstax!
@@ -2509,6 +3184,49 @@ methods:
     syntax:
       content: |-
         static validateBlockGBaseAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGCallbackAnswerAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGCallbackAnswerAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGCallbackAnswerAttributes(template)
+    summary: Validates attributes and content on `<g-callback-answer>` blocks.
+    remarks: >-
+      Allowed attributes are `lang` only. Content must be plain text without HTML and at most 200 chars of static text
+      (Bot API toast limits); `{{}}` spans skip the static checks (runtime-enforced).
+    example:
+      - >-
+        ```typescript
+
+        const result =
+        TemplateEngine.validateBlockGCallbackAnswerAttributes(`<g-base><g-callback-answer>OK</g-callback-answer></g-base>`);
+
+        // Result: { valid: true, errors: [] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGCallbackAnswerAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -2719,6 +3437,49 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGGiftAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGGiftAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGGiftAttributes(template)
+    summary: Validates attributes on `<g-gift>` blocks.
+    remarks: >-
+      Allowed attributes are `lang` only. Unlike the answer payload blocks, HTML markup inside `<g-gift>` is legal
+      (`renderGift` sends with `text_parse_mode: HTML`<!-- -->), so no content check runs here.
+    example:
+      - >-
+        ```typescript
+
+        const result = TemplateEngine.validateBlockGGiftAttributes(`<g-base><g-gift>Hadiah
+        <b>x</b>!</g-gift></g-base>`);
+
+        // Result: { valid: true, errors: [] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGGiftAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
   - name: validateBlockGImportAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGImportAttributes:member(1)
     package: gramstax!
@@ -2736,6 +3497,51 @@ methods:
     syntax:
       content: |-
         static validateBlockGImportAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGInlineButtonAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGInlineButtonAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGInlineButtonAttributes(template)
+    summary: Validates attributes on `<g-inline-button>` blocks.
+    remarks: >-
+      Allowed attributes are `lang`<!-- -->, `text`<!-- -->, and `start-parameter`<!-- -->. `text` is required and must
+      be non-empty; a static `start-parameter` must match the Bot API deep-link format (`[A-Za-z0-9_-]`<!-- -->, at most
+      64 chars) while `{{}}` / `{~ ~}` spans skip the static check (runtime-enforced, mirroring the `_validateDiceItems`
+      static/dynamic split).
+    example:
+      - >-
+        ```typescript
+
+        const result = TemplateEngine.validateBlockGInlineButtonAttributes(`<g-base><g-inline-button text="Lihat"
+        start-parameter="d-1"/></g-base>`);
+
+        // Result: { valid: true, errors: [] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGInlineButtonAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -3049,8 +3855,20 @@ methods:
       — checks `<g-venue>` block attributes 24.
       [TemplateEngine.validateBlockGDiceAttributes()](xref:gramstax!TemplateEngine.validateBlockGDiceAttributes:member(1))
       — checks `<g-dice>` block attributes 25.
+      [TemplateEngine.validateBlockGCallbackAnswerAttributes()](xref:gramstax!TemplateEngine.validateBlockGCallbackAnswerAttributes:member(1))
+      — checks `<g-callback-answer>` block attributes and plain-text content 26.
+      [TemplateEngine.validateBlockGPrecheckoutErrorAttributes()](xref:gramstax!TemplateEngine.validateBlockGPrecheckoutErrorAttributes:member(1))
+      — checks `<g-precheckout-error>` block attributes and plain-text content 27.
+      [TemplateEngine.validateBlockGShippingErrorAttributes()](xref:gramstax!TemplateEngine.validateBlockGShippingErrorAttributes:member(1))
+      — checks `<g-shipping-error>` block attributes and plain-text content 28.
+      [TemplateEngine.validateBlockGInlineButtonAttributes()](xref:gramstax!TemplateEngine.validateBlockGInlineButtonAttributes:member(1))
+      — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29.
+      [TemplateEngine.validateBlockGAnswerNoteAttributes()](xref:gramstax!TemplateEngine.validateBlockGAnswerNoteAttributes:member(1))
+      — checks `<g-answer-note>` block attributes and plain-text content 30.
+      [TemplateEngine.validateBlockGGiftAttributes()](xref:gramstax!TemplateEngine.validateBlockGGiftAttributes:member(1))
+      — checks `<g-gift>` block attributes (HTML content is legal) 31.
       [TemplateEngine.validatePageAttributesBlock()](xref:gramstax!TemplateEngine.validatePageAttributesBlock:member(1))
-      — checks required attributes on `<g-*>` PAGE blocks (centralized) 26.
+      — checks required attributes on `<g-*>` PAGE blocks (centralized) 32.
       [TemplateEngine.validatePageAttributeValuesBlock()](xref:gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1))
       — checks value formats on `<g-*>` PAGE block attributes (centralized)
 
@@ -3169,6 +3987,49 @@ methods:
                   }&gt;;
               }
         description: '`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.'
+  - name: validateBlockGPrecheckoutErrorAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGPrecheckoutErrorAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGPrecheckoutErrorAttributes(template)
+    summary: Validates attributes and content on `<g-precheckout-error>` blocks.
+    remarks: >-
+      Allowed attributes are `lang` only. Content must be plain text without HTML (`error_message` accepts no markup);
+      `{{}}` spans skip the static checks (runtime-enforced).
+    example:
+      - >-
+        ```typescript
+
+        const result =
+        TemplateEngine.validateBlockGPrecheckoutErrorAttributes(`<g-base><g-precheckout-error>Habis</g-precheckout-error></g-base>`);
+
+        // Result: { valid: true, errors: [] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGPrecheckoutErrorAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
   - name: validateBlockGPriceAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGPriceAttributes:member(1)
     package: gramstax!
@@ -3227,6 +4088,49 @@ methods:
     syntax:
       content: |-
         static validateBlockGScriptAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGShippingErrorAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGShippingErrorAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGShippingErrorAttributes(template)
+    summary: Validates attributes and content on `<g-shipping-error>` blocks.
+    remarks: >-
+      Allowed attributes are `lang` only. Content must be plain text without HTML (`error_message` accepts no markup);
+      `{{}}` spans skip the static checks (runtime-enforced).
+    example:
+      - >-
+        ```typescript
+
+        const result =
+        TemplateEngine.validateBlockGShippingErrorAttributes(`<g-base><g-shipping-error>Jauh</g-shipping-error></g-base>`);
+
+        // Result: { valid: true, errors: [] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGShippingErrorAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -3965,8 +4869,20 @@ methods:
       — checks `<g-venue>` block attributes 24.
       [TemplateEngine.validateBlockGDiceAttributes()](xref:gramstax!TemplateEngine.validateBlockGDiceAttributes:member(1))
       — checks `<g-dice>` block attributes 25.
+      [TemplateEngine.validateBlockGCallbackAnswerAttributes()](xref:gramstax!TemplateEngine.validateBlockGCallbackAnswerAttributes:member(1))
+      — checks `<g-callback-answer>` block attributes and plain-text content 26.
+      [TemplateEngine.validateBlockGPrecheckoutErrorAttributes()](xref:gramstax!TemplateEngine.validateBlockGPrecheckoutErrorAttributes:member(1))
+      — checks `<g-precheckout-error>` block attributes and plain-text content 27.
+      [TemplateEngine.validateBlockGShippingErrorAttributes()](xref:gramstax!TemplateEngine.validateBlockGShippingErrorAttributes:member(1))
+      — checks `<g-shipping-error>` block attributes and plain-text content 28.
+      [TemplateEngine.validateBlockGInlineButtonAttributes()](xref:gramstax!TemplateEngine.validateBlockGInlineButtonAttributes:member(1))
+      — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29.
+      [TemplateEngine.validateBlockGAnswerNoteAttributes()](xref:gramstax!TemplateEngine.validateBlockGAnswerNoteAttributes:member(1))
+      — checks `<g-answer-note>` block attributes and plain-text content 30.
+      [TemplateEngine.validateBlockGGiftAttributes()](xref:gramstax!TemplateEngine.validateBlockGGiftAttributes:member(1))
+      — checks `<g-gift>` block attributes (HTML content is legal) 31.
       [TemplateEngine.validatePageAttributesBlock()](xref:gramstax!TemplateEngine.validatePageAttributesBlock:member(1))
-      — checks required attributes on `<g-*>` PAGE blocks (centralized) 26.
+      — checks required attributes on `<g-*>` PAGE blocks (centralized) 32.
       [TemplateEngine.validatePageAttributeValuesBlock()](xref:gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1))
       — checks value formats on `<g-*>` PAGE block attributes (centralized)
 

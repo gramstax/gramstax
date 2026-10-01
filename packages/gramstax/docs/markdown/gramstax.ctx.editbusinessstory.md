@@ -9,7 +9,7 @@ Edits a story previously posted on behalf of a managed business account.
 **Signature:**
 
 ```typescript
-editBusinessStory(businessConnectionId?: string | null, storyId?: number | null, content?: ITStoryContent | null, options?: Parameters<Ctx[`api`][`editStory`]>[3] | null): Promise<grammy_types.Story>;
+editBusinessStory(businessConnectionId?: string | null, storyId?: number | null, content?: IStoryContent | null, options?: Parameters<Ctx[`api`][`editStory`]>[3] | null): Promise<grammy_types.Story>;
 ```
 
 ## Parameters
@@ -69,7 +69,7 @@ content
 
 </td><td>
 
-[ITStoryContent](./gramstax.itstorycontent.md) \| null
+[IStoryContent](./gramstax.istorycontent.md) \| null
 
 
 </td><td>

@@ -9,7 +9,7 @@ Sends a template-driven invoice using the page `<g-invoice>` block.
 **Signature:**
 
 ```typescript
-renderInvoice(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {
+renderInvoice(keyboard?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {
         provider_token?: string;
     }) | null): Promise<grammy_types.Message.InvoiceMessage>;
 ```
@@ -39,7 +39,7 @@ keyboard
 
 </td><td>
 
-[ITInlineKb](./gramstax.itinlinekb.md) \| null
+[IInlineKb](./gramstax.iinlinekb.md) \| null
 
 
 </td><td>
@@ -55,7 +55,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>

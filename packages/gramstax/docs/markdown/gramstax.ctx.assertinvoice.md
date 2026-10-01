@@ -9,7 +9,7 @@ Fail-fast checks for a compiled `<g-invoice>` block against Bot API limits.
 **Signature:**
 
 ```typescript
-static assertInvoice(invoice: ITInvoiceBlock): void;
+static assertInvoice(invoice: IInvoiceBlock): void;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ invoice
 
 </td><td>
 
-[ITInvoiceBlock](./gramstax.itinvoiceblock.md)
+[IInvoiceBlock](./gramstax.iinvoiceblock.md)
 
 
 </td><td>

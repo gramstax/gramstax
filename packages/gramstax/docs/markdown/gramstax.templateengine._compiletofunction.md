@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T>;
+static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITemplateRenderer<T>;
 ```
 
 ## Parameters
@@ -60,5 +60,5 @@ T
 
 **Returns:**
 
-ITTemplateRenderer&lt;T&gt;
+ITemplateRenderer&lt;T&gt;
 

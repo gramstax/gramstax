@@ -10,7 +10,7 @@ Best-effort send-error hook.
 
 ```typescript
 /** @virtual */
-hookSendError?(...args: Parameters<ITSendErrorHook>): void;
+hookSendError?(...args: Parameters<ISendErrorHook>): void;
 ```
 
 ## Parameters
@@ -38,7 +38,7 @@ args
 
 </td><td>
 
-Parameters&lt;[ITSendErrorHook](./gramstax.itsenderrorhook.md)<!-- -->&gt;
+Parameters&lt;[ISendErrorHook](./gramstax.isenderrorhook.md)<!-- -->&gt;
 
 
 </td><td>
@@ -60,7 +60,7 @@ Sibling hooks: `hookUpdateError` (dead updates — terminal) and `hookTrace` (ev
 
 ```typescript
 class MyBot extends Gramstax {
-  override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+  override hookSendError(err: unknown, info: ISendErrorInfo): void {
     // info: {page: `admin/logs`, kind: `fallback-text` | `retryable`, chatId?: number}
     if (info.kind === `retryable`) queueRetry(info)
     else metrics.count(info.page, info.kind)
@@ -76,7 +76,7 @@ Retry-for-later: collect retryables, re-drive them from a job.
 ```typescript
 class MyBot extends Gramstax {
   retryQueue: Array<{err: unknown, page: string, chatId?: number, at: number}> = []
-  override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+  override hookSendError(err: unknown, info: ISendErrorInfo): void {
     if (info.kind === `retryable`) this.retryQueue.push({err, page: info.page, chatId: info.chatId, at: Date.now()})
   }
 }
@@ -90,7 +90,7 @@ Severity split: Sentry for retryables, logs for user-caused fallbacks.
 
 ```typescript
 class MyBot extends Gramstax {
-  override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+  override hookSendError(err: unknown, info: ISendErrorInfo): void {
     if (info.kind === `retryable`) Sentry.captureException(err, {tags: {page: info.page}})
     // `fallback-text` (403 blocked, file deleted) is a normal condition — log, don't alert.
   }

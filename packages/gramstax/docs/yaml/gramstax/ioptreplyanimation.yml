@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplyAnimation
+uid: gramstax!IOptReplyAnimation:type
+package: gramstax!
+fullName: IOptReplyAnimation
+summary: Options parameter mirroring `Context.replyWithAnimation`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplyAnimation = Parameters<Context[`replyWithAnimation`]>[1];

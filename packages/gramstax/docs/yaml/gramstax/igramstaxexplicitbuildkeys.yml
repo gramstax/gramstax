@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxExplicitBuildKeys
+uid: gramstax!IGramstaxExplicitBuildKeys:type
+package: gramstax!
+fullName: IGramstaxExplicitBuildKeys
+summary: Which build-relevant keys a `gramstax.config.ts` file explicitly defines.
+remarks: >-
+  The merged `loadConfig` result cannot distinguish "from file" vs "default", so `gramstax build --dry-run` consults
+  this helper to annotate each printed value with its source (`flag` wins, else `config` when the file exists and
+  defines the key, else `default`<!-- -->). Reads the raw default export without validation — callers must `loadConfig`
+  first so invalid shapes still throw the usual `Invalid gramstax config` error.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxExplicitBuildKeys = {
+      hasFile: boolean;
+      deploy: boolean;
+      adapter: boolean;
+      name: boolean;
+      url: boolean;
+  };

@@ -9,7 +9,7 @@ Gets compiled from block <g-dice>.
 **Signature:**
 
 ```typescript
-getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`dice`][`default`][`default`]>;
+getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`dice`][`default`][`default`]>;
 ```
 
 ## Parameters
@@ -98,7 +98,7 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ITCompiledTemplate](./gramstax.itcompiledtemplate.md)<!-- -->\[\`dice\`\]\[\`default\`\]\[\`default\`\]&gt;
+ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`dice\`\]\[\`default\`\]\[\`default\`\]&gt;
 
 Dice object containing the emoji
 

@@ -73,11 +73,11 @@ constructors:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'constructor(params: ITCtxParams);'
+      content: 'constructor(params: ICtxParams);'
       parameters:
         - id: params
-          description: The initialization parameters. See [ITCtxParams](xref:gramstax!ITCtxParams:type) for details.
-          type: <xref uid="gramstax!ITCtxParams:type" />
+          description: The initialization parameters. See [ICtxParams](xref:gramstax!ICtxParams:type) for details.
+          type: <xref uid="gramstax!ICtxParams:type" />
 properties:
   - name: ANSWER_API_METHODS
     uid: gramstax!Ctx.ANSWER_API_METHODS:member
@@ -155,9 +155,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'cacheSession: CacheExternal<ITCacheRpc>;'
+      content: 'cacheSession: CacheExternal<ICacheRpc>;'
       return:
-        type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ITCacheRpc:type" />&gt;
+        type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ICacheRpc:type" />&gt;
   - name: callbackQuery
     uid: gramstax!Ctx#callbackQuery:member
     package: gramstax!
@@ -328,16 +328,16 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'data: ITPageData;'
+      content: 'data: IPageData;'
       return:
-        type: <xref uid="gramstax!ITPageData:type" />
+        type: <xref uid="gramstax!IPageData:type" />
   - name: data
     uid: gramstax!Ctx.data:member
     package: gramstax!
     fullName: data
     summary: /\*\* Page routing data created by `Ctx.buildData`<!-- -->.
     remarks: >-
-      Optional by default — pages that do NOT define `static data` inherit `ITPageDataStatic | undefined`<!-- -->. Pages
+      Optional by default — pages that do NOT define `static data` inherit `IPageDataStatic | undefined`<!-- -->. Pages
       that override via `buildData(...)` get fully typed `callbackQueryData` with the configured args.
     example:
       - |-
@@ -357,9 +357,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static data?: ITPageDataBase;'
+      content: 'static data?: IPageDataBase;'
       return:
-        type: <xref uid="gramstax!ITPageDataBase:type" />
+        type: <xref uid="gramstax!IPageDataBase:type" />
   - name: deletedBusinessMessages
     uid: gramstax!Ctx#deletedBusinessMessages:member
     package: gramstax!
@@ -681,7 +681,7 @@ properties:
     fullName: mediaRoots
     summary: Opt-in local-path jail for media uploads (Q8 option b).
     remarks: >-
-      Set from `ITCtxParams.mediaRoots` (mirrors the `log` channel, so `Gramstax({mediaRoots})` and `new SomePage(this)`
+      Set from `ICtxParams.mediaRoots` (mirrors the `log` channel, so `Gramstax({mediaRoots})` and `new SomePage(this)`
       both propagate it). `null`<!-- -->/empty means free; when set, `resolveMedia` uploads a local file only inside the
       roots and otherwise passes it through as a `file_id` with a `log.warn`<!-- -->.
     example: []
@@ -905,15 +905,15 @@ properties:
     fullName: onSendError
     summary: Best-effort send-error hook (Q9 option b).
     remarks: >-
-      Set from `ITCtxParams.onSendError` (mirrors the `log` channel). Invoked with `{page, kind, chatId}` at every
+      Set from `ICtxParams.onSendError` (mirrors the `log` channel). Invoked with `{page, kind, chatId}` at every
       classified send error; a throwing hook is swallowed. Validation throws stay hook-free.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'onSendError?: ITSendErrorHook | null;'
+      content: 'onSendError?: ISendErrorHook | null;'
       return:
-        type: <xref uid="gramstax!ITSendErrorHook:type" /> | null
+        type: <xref uid="gramstax!ISendErrorHook:type" /> | null
   - name: PAID_MEDIA_ITEMS_MAX
     uid: gramstax!Ctx.PAID_MEDIA_ITEMS_MAX:member
     package: gramstax!
@@ -1135,9 +1135,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'temp: ITTemp;'
+      content: 'temp: ITemp;'
       return:
-        type: <xref uid="gramstax!ITTemp:type" />
+        type: <xref uid="gramstax!ITemp:type" />
   - name: template
     uid: gramstax!Ctx.template:member
     package: gramstax!
@@ -1332,11 +1332,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static assertInvoice(invoice: ITInvoiceBlock): void;'
+      content: 'static assertInvoice(invoice: IInvoiceBlock): void;'
       parameters:
         - id: invoice
           description: Compiled invoice block from `getGInvoice`<!-- -->.
-          type: <xref uid="gramstax!ITInvoiceBlock:type" />
+          type: <xref uid="gramstax!IInvoiceBlock:type" />
       return:
         type: void
         description: ''
@@ -1556,11 +1556,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static assertPaidMedia(paidMedia: ITPaidMediaBlock): void;'
+      content: 'static assertPaidMedia(paidMedia: IPaidMediaBlock): void;'
       parameters:
         - id: paidMedia
           description: Compiled paid-media block from `getGPaidMedia`<!-- -->.
-          type: <xref uid="gramstax!ITPaidMediaBlock:type" />
+          type: <xref uid="gramstax!IPaidMediaBlock:type" />
       return:
         type: void
         description: ''
@@ -1577,11 +1577,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static assertPoll(poll: ITPollBlock): void;'
+      content: 'static assertPoll(poll: IPollBlock): void;'
       parameters:
         - id: poll
           description: Compiled poll block from `getGPoll`<!-- -->.
-          type: <xref uid="gramstax!ITPollBlock:type" />
+          type: <xref uid="gramstax!IPollBlock:type" />
       return:
         type: void
         description: ''
@@ -1650,18 +1650,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null):
-        ITBottomKb;
+      content: 'bottomKeyboard(callback: (k: IBottomKb, l: string[]) => IBottomKb, params?: IBottomKbParams | null): IBottomKb;'
       parameters:
         - id: callback
           description: Builder function that receives keyboard and labels.
-          type: '(k: <xref uid="gramstax!ITBottomKb:type" />, l: string[]) =&gt; <xref uid="gramstax!ITBottomKb:type" />'
+          type: '(k: <xref uid="gramstax!IBottomKb:type" />, l: string[]) =&gt; <xref uid="gramstax!IBottomKb:type" />'
         - id: params
-          description: Optional parameters (or null to omit). [ITBottomKbParams](xref:gramstax!ITBottomKbParams:type) for details.
-          type: <xref uid="gramstax!ITBottomKbParams:type" /> | null
+          description: Optional parameters (or null to omit). [IBottomKbParams](xref:gramstax!IBottomKbParams:type) for details.
+          type: <xref uid="gramstax!IBottomKbParams:type" /> | null
       return:
-        type: <xref uid="gramstax!ITBottomKb:type" />
+        type: <xref uid="gramstax!IBottomKb:type" />
         description: The bottom keyboard instance.
   - name: bottomKeyboardT(layout, AGBaseId, data)
     uid: gramstax!Ctx#bottomKeyboardT:member(1)
@@ -1682,11 +1680,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb;'
+      content: 'bottomKeyboardT(layout: IKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): IBottomKb;'
       parameters:
         - id: layout
           description: 'Layout format: "cols" or "cols-lastRow". Default: "1".'
-          type: <xref uid="gramstax!ITKbCols:type" />
+          type: <xref uid="gramstax!IKbCols:type" />
         - id: AGBaseId
           description: >-
             Optional template base ID position for block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the
@@ -1698,7 +1696,7 @@ methods:
           description: Optional template interpolation data (or null to omit).
           type: Record&lt;string, unknown&gt; | null
       return:
-        type: <xref uid="gramstax!ITBottomKb:type" />
+        type: <xref uid="gramstax!IBottomKb:type" />
         description: The bottom keyboard instance.
   - name: bottomKeyboardT(PageDest, layout, AGBaseId, data)
     uid: gramstax!Ctx#bottomKeyboardT:member(2)
@@ -1711,15 +1709,15 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<string,
-        unknown> | null): ITBottomKb;
+        bottomKeyboardT(PageDest: IKbDest[], layout?: IKbCols, AGBaseId?: string | null, data?: Record<string, unknown>
+        | null): IBottomKb;
       parameters:
         - id: PageDest
           description: ''
-          type: <xref uid="gramstax!ITKbDest:type" />[]
+          type: <xref uid="gramstax!IKbDest:type" />[]
         - id: layout
           description: ''
-          type: <xref uid="gramstax!ITKbCols:type" />
+          type: <xref uid="gramstax!IKbCols:type" />
         - id: AGBaseId
           description: ''
           type: string | null
@@ -1727,7 +1725,7 @@ methods:
           description: ''
           type: Record&lt;string, unknown&gt; | null
       return:
-        type: <xref uid="gramstax!ITBottomKb:type" />
+        type: <xref uid="gramstax!IBottomKb:type" />
         description: ''
   - name: buildData(callbackQueryData)
     uid: gramstax!Ctx.buildData:member(1)
@@ -1741,13 +1739,13 @@ methods:
     syntax:
       content: >-
         static buildData<C extends (...args: string[]) => Array<string | undefined>>(callbackQueryData: C):
-        ITPageData<Parameters<C>>;
+        IPageData<Parameters<C>>;
       parameters:
         - id: callbackQueryData
           description: A function that returns arg values as an array.
           type: C
       return:
-        type: <xref uid="gramstax!ITPageData:type" />&lt;Parameters&lt;C&gt;&gt;
+        type: <xref uid="gramstax!IPageData:type" />&lt;Parameters&lt;C&gt;&gt;
         description: The page data configuration object.
   - name: buildData(options)
     uid: gramstax!Ctx.buildData:member(2)
@@ -1760,16 +1758,16 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static buildData<C extends (...args: string[]) => Array<string | undefined>>(options: ITBuildDataOptions<C> |
-        null): ITPageData<Parameters<C>>;
+        static buildData<C extends (...args: string[]) => Array<string | undefined>>(options: IBuildDataOptions<C> |
+        null): IPageData<Parameters<C>>;
       parameters:
         - id: options
           description: >-
             Configuration options (or null to use defaults). See
-            [ITBuildDataOptions](xref:gramstax!ITBuildDataOptions:type) for details.
-          type: <xref uid="gramstax!ITBuildDataOptions:type" />&lt;C&gt; | null
+            [IBuildDataOptions](xref:gramstax!IBuildDataOptions:type) for details.
+          type: <xref uid="gramstax!IBuildDataOptions:type" />&lt;C&gt; | null
       return:
-        type: <xref uid="gramstax!ITPageData:type" />&lt;Parameters&lt;C&gt;&gt;
+        type: <xref uid="gramstax!IPageData:type" />&lt;Parameters&lt;C&gt;&gt;
         description: The page data configuration object.
   - name: buildData(options)
     uid: gramstax!Ctx.buildData:member(3)
@@ -1781,15 +1779,15 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static buildData(options: ITBuildDataOptions | null): ITPageData<[]>;'
+      content: 'static buildData(options: IBuildDataOptions | null): IPageData<[]>;'
       parameters:
         - id: options
           description: >-
             Configuration options without `callbackQueryData` (or null to use defaults). See
-            [ITBuildDataOptions](xref:gramstax!ITBuildDataOptions:type) for details.
-          type: <xref uid="gramstax!ITBuildDataOptions:type" /> | null
+            [IBuildDataOptions](xref:gramstax!IBuildDataOptions:type) for details.
+          type: <xref uid="gramstax!IBuildDataOptions:type" /> | null
       return:
-        type: <xref uid="gramstax!ITPageData:type" />&lt;[]&gt;
+        type: <xref uid="gramstax!IPageData:type" />&lt;[]&gt;
         description: The page data configuration object.
   - name: buildData()
     uid: gramstax!Ctx.buildData:member(4)
@@ -1801,9 +1799,9 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static buildData(): ITPageData<[]>;'
+      content: 'static buildData(): IPageData<[]>;'
       return:
-        type: <xref uid="gramstax!ITPageData:type" />&lt;[]&gt;
+        type: <xref uid="gramstax!IPageData:type" />&lt;[]&gt;
         description: ''
   - name: classifySendError(err)
     uid: gramstax!Ctx.classifySendError:member(1)
@@ -1813,8 +1811,8 @@ methods:
       Classify a send failure as `fallback-text` (content rejected, reply with fallback text) or `retryable` (rate
       limit, server, network, or unknown — rethrow the original error untouched, fail-loud default).
     remarks: >-
-      Mapping: `GrammyError` 429 → `retryable`<!-- -->; 400–499 (incl. 403) → `fallback-text`<!-- -->; &gt;<!-- -->= 500
-      → `retryable`<!-- -->; `HttpError`<!-- -->/network and anything unknown → `retryable`<!-- -->.
+      Mapping: `GrammyError 429` → `retryable 400–499 (incl. 403)`<!-- -->; → `fallback-text >= 500`<!-- -->; →
+      `retryable`<!-- -->; `HttpError`<!-- -->/network and anything unknown → `retryable`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1975,8 +1973,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editBusinessStory(businessConnectionId?: string | null, storyId?: number | null, content?: ITStoryContent |
-        null, options?: Parameters<Ctx[`api`][`editStory`]>[3] | null): Promise<grammy_types.Story>;
+        editBusinessStory(businessConnectionId?: string | null, storyId?: number | null, content?: IStoryContent | null,
+        options?: Parameters<Ctx[`api`][`editStory`]>[3] | null): Promise<grammy_types.Story>;
       parameters:
         - id: businessConnectionId
           description: Business connection id (or null — throws).
@@ -1986,7 +1984,7 @@ methods:
           type: number | null
         - id: content
           description: 'Replacement content `{type: "photo"|"video", src}` (or null — throws).'
-          type: <xref uid="gramstax!ITStoryContent:type" /> | null
+          type: <xref uid="gramstax!IStoryContent:type" /> | null
         - id: options
           description: Optional extra story fields such as `caption` (or null to omit).
           type: Parameters&lt;<xref uid="gramstax!Ctx:class" />[`api`][`editStory`]&gt;[3] | null
@@ -2145,13 +2143,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'getSeperatorTag(mtd?: `space` | `colon`): " " | ":";'
+      content: 'getSeperatorTag(mtd?: `space` | `colon`): ":" | " ";'
       parameters:
         - id: mtd
           description: 'The separator method: "space" or "colon". Default: "space".'
           type: '`space` | `colon`'
       return:
-        type: '" " | ":"'
+        type: '":" | " "'
         description: The separator character (" " or ":").
   - name: getSession()
     uid: gramstax!Ctx#getSession:member(1)
@@ -2170,9 +2168,9 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'getSession(): Promise<ITCacheRpc | null>;'
+      content: 'getSession(): Promise<ICacheRpc | null>;'
       return:
-        type: Promise&lt;<xref uid="gramstax!ITCacheRpc:type" /> | null&gt;
+        type: Promise&lt;<xref uid="gramstax!ICacheRpc:type" /> | null&gt;
         description: The session data, or null if not found or on error.
   - name: getStarTransactions(options)
     uid: gramstax!Ctx#getStarTransactions:member(1)
@@ -4338,18 +4336,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null):
-        ITInlineKb;
+      content: 'inlineKeyboard(callback: (k: IInlineKb, l: string[]) => IInlineKb, params?: IInlineKbParams | null): IInlineKb;'
       parameters:
         - id: callback
           description: Builder function that receives keyboard and labels.
-          type: '(k: <xref uid="gramstax!ITInlineKb:type" />, l: string[]) =&gt; <xref uid="gramstax!ITInlineKb:type" />'
+          type: '(k: <xref uid="gramstax!IInlineKb:type" />, l: string[]) =&gt; <xref uid="gramstax!IInlineKb:type" />'
         - id: params
-          description: Optional parameters (or null to omit). [ITInlineKbParams](xref:gramstax!ITInlineKbParams:type) for details.
-          type: <xref uid="gramstax!ITInlineKbParams:type" /> | null
+          description: Optional parameters (or null to omit). [IInlineKbParams](xref:gramstax!IInlineKbParams:type) for details.
+          type: <xref uid="gramstax!IInlineKbParams:type" /> | null
       return:
-        type: <xref uid="gramstax!ITInlineKb:type" />
+        type: <xref uid="gramstax!IInlineKb:type" />
         description: The inline keyboard instance.
   - name: inlineKeyboardT(PageDest, layout, AGBaseId, data)
     uid: gramstax!Ctx#inlineKeyboardT:member(1)
@@ -4378,15 +4374,15 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null):
-        _InlineKbWithCtx;
+        inlineKeyboardT(PageDest: IKbDest[], layout?: IKbCols, AGBaseId?: string | null, data?: IData | null):
+        IInlineKbWithCtx;
       parameters:
         - id: PageDest
           description: Array of page classes or callback data strings.
-          type: <xref uid="gramstax!ITKbDest:type" />[]
+          type: <xref uid="gramstax!IKbDest:type" />[]
         - id: layout
           description: 'Layout format: "cols" or "cols-lastRow". Default: "1".'
-          type: <xref uid="gramstax!ITKbCols:type" />
+          type: <xref uid="gramstax!IKbCols:type" />
         - id: AGBaseId
           description: >-
             Optional template g-base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the
@@ -4396,9 +4392,9 @@ methods:
           type: string | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
       return:
-        type: <xref uid="gramstax!_InlineKbWithCtx:interface" />
+        type: <xref uid="gramstax!IInlineKbWithCtx:interface" />
         description: The inline keyboard instance.
   - name: isPathUnderRoots(src, roots)
     uid: gramstax!Ctx.isPathUnderRoots:member(1)
@@ -4441,7 +4437,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'keyboardCols<T = unknown>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => unknown): T;'
+      content: 'keyboardCols<T = unknown>(k: T, l: string[], layout: IKbCols, cb: (e: string, i: number) => unknown): T;'
       parameters:
         - id: k
           description: The keyboard instance.
@@ -4451,7 +4447,7 @@ methods:
           type: string[]
         - id: layout
           description: 'Layout format: "cols" or "cols-lastRow" (e.g., "2" or "3-2").'
-          type: <xref uid="gramstax!ITKbCols:type" />
+          type: <xref uid="gramstax!IKbCols:type" />
         - id: cb
           description: Callback to create each button.
           type: '(e: string, i: number) =&gt; unknown'
@@ -6643,7 +6639,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        postBusinessStory(businessConnectionId?: string | null, content?: ITStoryContent | null, activePeriod?: number |
+        postBusinessStory(businessConnectionId?: string | null, content?: IStoryContent | null, activePeriod?: number |
         null, options?: Parameters<Ctx[`api`][`postStory`]>[3] | null): Promise<grammy_types.Story>;
       parameters:
         - id: businessConnectionId
@@ -6651,7 +6647,7 @@ methods:
           type: string | null
         - id: content
           description: 'Story content `{type: "photo"|"video", src}` (or null — throws).'
-          type: <xref uid="gramstax!ITStoryContent:type" /> | null
+          type: <xref uid="gramstax!IStoryContent:type" /> | null
         - id: activePeriod
           description: 'Archive delay in seconds: 21600, 43200, 86400, or 172800 (or null — throws).'
           type: number | null
@@ -6698,7 +6694,10 @@ methods:
     uid: gramstax!Ctx#render:member(1)
     package: gramstax!
     fullName: render(keyboard, data, AGBaseId, options)
-    summary: Sends a text message reply using the page template.
+    summary: |-
+      Sends a text message reply using the page template.
+
+      Template block: `<g-message>` (read via `getGMessage`<!-- -->).
     remarks: >-
       Observe-only send-error coverage (mirrors `renderMedia`<!-- -->): failures are classified via
       `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!--
@@ -6724,23 +6723,23 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        render(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null):
+        render(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReply | null):
         Promise<grammy_types.Message.TextMessage>;
       parameters:
         - id: keyboard
           description: >-
             Optional keyboard markup from [Ctx.inlineKeyboard()](xref:gramstax!Ctx%23inlineKeyboard:member(1)) or
             [Ctx.bottomKeyboard()](xref:gramstax!Ctx%23bottomKeyboard:member(1)) (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID position for block message (or null to use default).
           type: string | null
         - id: options
           description: Optional reply options (or null to omit).
-          type: <xref uid="gramstax!ITOptReply:type" /> | null
+          type: <xref uid="gramstax!IOptReply:type" /> | null
       return:
         type: Promise&lt;<xref uid="@grammyjs/types!Message.TextMessage:type" />&gt;
         description: The sent message object.
@@ -6748,7 +6747,10 @@ methods:
     uid: gramstax!Ctx#renderAnimation:member(1)
     package: gramstax!
     fullName: renderAnimation(keyboard, data, AGBaseId, options)
-    summary: Sends an animation/GIF message using the page template.
+    summary: |-
+      Sends an animation/GIF message using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -6761,21 +6763,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderAnimation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyAnimation | null): Promise<unknown>;
+        renderAnimation(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptReplyAnimation | null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type animation (or null to use default).
           type: string | null
         - id: options
           description: Optional animation-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyAnimation:type" /> | null
+          type: <xref uid="gramstax!IOptReplyAnimation:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -6787,6 +6789,9 @@ methods:
       Sends or edits an animation/GIF message using the page template, auto-selecting between
       [Ctx.renderAnimation()](xref:gramstax!Ctx%23renderAnimation:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -6799,30 +6804,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderAnimationAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyAnimation | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
-        Promise<unknown>;
+        renderAnimationAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyAnimation | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type animation (or null to use default).
           type: string | null
         - id: options1
           description: Optional animation-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyAnimation:type" /> | null
+          type: <xref uid="gramstax!IOptReplyAnimation:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -6830,7 +6834,10 @@ methods:
     uid: gramstax!Ctx#renderAudio:member(1)
     package: gramstax!
     fullName: renderAudio(keyboard, data, AGBaseId, options)
-    summary: Sends an audio message using the page template.
+    summary: |-
+      Sends an audio message using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -6843,21 +6850,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderAudio(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyAudio | null): Promise<unknown>;
+        renderAudio(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio |
+        null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type audio (or null to use default).
           type: string | null
         - id: options
           description: Optional audio-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyAudio:type" /> | null
+          type: <xref uid="gramstax!IOptReplyAudio:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -6869,6 +6876,9 @@ methods:
       Sends or edits an audio message using the page template, auto-selecting between
       [Ctx.renderAudio()](xref:gramstax!Ctx%23renderAudio:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -6881,29 +6891,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderAudioAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyAudio | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderAudioAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyAudio | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type audio (or null to use default).
           type: string | null
         - id: options1
           description: Optional audio-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyAudio:type" /> | null
+          type: <xref uid="gramstax!IOptReplyAudio:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -6911,7 +6921,10 @@ methods:
     uid: gramstax!Ctx#renderAudioGroup:member(1)
     package: gramstax!
     fullName: renderAudioGroup(data, AGBaseId, options)
-    summary: Sends an audio media group using pipe-delimited `src` values from the page template.
+    summary: |-
+      Sends an audio media group using pipe-delimited `src` values from the page template.
+
+      Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -6924,18 +6937,18 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null):
+        renderAudioGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null):
         Promise<unknown>;
       parameters:
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type audio (or null to use default).
           type: string | null
         - id: options
           description: Optional audio-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyAudio:type" /> | null
+          type: <xref uid="gramstax!IOptReplyAudio:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group messages.
@@ -6947,6 +6960,9 @@ methods:
       Sends or edits a message using the page template, auto-selecting between
       [Ctx.render()](xref:gramstax!Ctx%23render:member(1)) and
       [Ctx.renderEdit()](xref:gramstax!Ctx%23renderEdit:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-message>` (read via `renderEdit/render`<!-- -->).
     remarks: >-
       When a callback query is present, delegates to `renderEdit` (inline keyboard only). Otherwise, delegates to
       `render` (inline or bottom keyboard).
@@ -6963,29 +6979,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit |
-        ITOptReply | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage |
+        renderAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEdit |
+        IOptReply | null, fallbackEdit?: IOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage |
         (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
                 rich_message: grammy_types.RichMessage;
             })>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID position for block message (or null to use default).
           type: string | null
         - id: options
           description: Optional reply/edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEdit:type" /> | <xref uid="gramstax!ITOptReply:type" /> | null
+          type: <xref uid="gramstax!IOptEdit:type" /> | <xref uid="gramstax!IOptReply:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.TextMessage:type" /> | (<xref
@@ -7002,51 +7018,53 @@ methods:
       Sends or edits a media message using the page template, auto-selecting between
       [Ctx.renderMedia()](xref:gramstax!Ctx%23renderMedia:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderEditMedia/renderMedia`<!-- -->).
     remarks: ''
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: >-
-        renderAutoMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?:
-        ITData | null, AGBaseId?: string | null, options1?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ?
-        ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends
-        `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ?
-        ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T
-        extends `contact` ? ITOptReplyContact : undefined) | null, options2?: ITOptEditMedia2 | null, fallbackEdit?:
-        ITOptFallbackEdit): Promise<unknown>;
+        renderAutoMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(type: T, keyboard?: IInBoKb | null, data?:
+        IData | null, AGBaseId?: string | null, options1?: (T extends `photo` ? IOptReplyPhoto : T extends `video` ?
+        IOptReplyVideo : T extends `audio` ? IOptReplyAudio : T extends `document` ? IOptReplyDocument : T extends
+        `animation` ? IOptReplyAnimation : T extends `voice` ? IOptReplyVoice : T extends `video_note` ?
+        IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T
+        extends `contact` ? IOptReplyContact : undefined) | null, options2?: IOptEditMedia2 | null, fallbackEdit?:
+        IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: type
           description: The media type.
           type: T
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media (or null to use default).
           type: string | null
         - id: options1
           description: Type-specific media options (or null to omit).
           type: >-
-            (T extends `photo` ? <xref uid="gramstax!ITOptReplyPhoto:type" /> : T extends `video` ? <xref
-            uid="gramstax!ITOptReplyVideo:type" /> : T extends `audio` ? <xref uid="gramstax!ITOptReplyAudio:type" /> :
-            T extends `document` ? <xref uid="gramstax!ITOptReplyDocument:type" /> : T extends `animation` ? <xref
-            uid="gramstax!ITOptReplyAnimation:type" /> : T extends `voice` ? <xref uid="gramstax!ITOptReplyVoice:type"
-            /> : T extends `video_note` ? <xref uid="gramstax!ITOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
-            uid="gramstax!ITOptReplySticker:type" /> : T extends `location` ? <xref
-            uid="gramstax!ITOptReplyLocation:type" /> : T extends `contact` ? <xref
-            uid="gramstax!ITOptReplyContact:type" /> : undefined) | null
+            (T extends `photo` ? <xref uid="gramstax!IOptReplyPhoto:type" /> : T extends `video` ? <xref
+            uid="gramstax!IOptReplyVideo:type" /> : T extends `audio` ? <xref uid="gramstax!IOptReplyAudio:type" /> : T
+            extends `document` ? <xref uid="gramstax!IOptReplyDocument:type" /> : T extends `animation` ? <xref
+            uid="gramstax!IOptReplyAnimation:type" /> : T extends `voice` ? <xref uid="gramstax!IOptReplyVoice:type" />
+            : T extends `video_note` ? <xref uid="gramstax!IOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
+            uid="gramstax!IOptReplySticker:type" /> : T extends `location` ? <xref uid="gramstax!IOptReplyLocation:type"
+            /> : T extends `contact` ? <xref uid="gramstax!IOptReplyContact:type" /> : undefined) | null
         - id: options2
           description: Additional edit options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -7065,23 +7083,23 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<unknown>;
+        renderAutoMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null): Promise<unknown>;
       parameters:
         - id: type
           description: Optional media group type (or null for all items in `<g-media-group>`<!-- -->).
-          type: <xref uid="gramstax!~ITMediaGroupType:type" /> | null
+          type: <xref uid="gramstax!~IMediaGroupType:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media (or null to use default).
           type: string | null
         - id: options
           description: Optional media-group send options (or null to omit).
           type: >-
-            <xref uid="gramstax!ITOptReplyPhoto:type" /> | <xref uid="gramstax!ITOptReplyVideo:type" /> | <xref
-            uid="gramstax!ITOptReplyAudio:type" /> | <xref uid="gramstax!ITOptReplyDocument:type" /> | null
+            <xref uid="gramstax!IOptReplyPhoto:type" /> | <xref uid="gramstax!IOptReplyVideo:type" /> | <xref
+            uid="gramstax!IOptReplyAudio:type" /> | <xref uid="gramstax!IOptReplyDocument:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group messages.
@@ -7094,6 +7112,9 @@ methods:
       [Ctx.renderRich()](xref:gramstax!Ctx%23renderRich:member(1)) and
       [Ctx.renderEditRich()](xref:gramstax!Ctx%23renderEditRich:member(1))<!-- -->, auto-detected from
       `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-message>` (read via `renderEditRich/renderRich`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -7106,8 +7127,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit):
+        renderAutoRich(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyRich[0] | null, options2?: IOptReplyRich[1] | IOptEdit | null, fallbackEdit?: IOptFallbackEdit):
         Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited &
         grammy_types.Message.CommonMessage & {
                 text: string;
@@ -7117,24 +7138,24 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID (or null to use default).
           type: string | null
         - id: options1
           description: Optional `InputRichMessage` fields (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyRich:type" />[0] | null
+          type: <xref uid="gramstax!IOptReplyRich:type" />[0] | null
         - id: options2
           description: Optional send/edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyRich:type" />[1] | <xref uid="gramstax!ITOptEdit:type" /> | null
+          type: <xref uid="gramstax!IOptReplyRich:type" />[1] | <xref uid="gramstax!IOptEdit:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.RichMessageMessage:type" /> | (<xref
@@ -7153,7 +7174,10 @@ methods:
     fullName: >-
       renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs,
       excludeIds, onProgress, startFrom, concurrency)
-    summary: Sends a message to multiple users in bulk.
+    summary: |-
+      Sends a message to multiple users in bulk.
+
+      Template block: `<g-message>` (read via `getGMessage`<!-- -->).
     remarks: >-
       Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language
       code for template rendering. Per-recipient send failures follow `Ctx.classifySendError`<!-- -->: `retryable`
@@ -7179,8 +7203,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null,
-        AGBaseId?: string | null, options?: ITOptReply | null, throwError?: boolean | null, chunkSize?: number | null,
+        renderBroadcast(ids: number[], languageCode: string[], keyboard?: IInBoKb | null, data?: IData | null,
+        AGBaseId?: string | null, options?: IOptReply | null, throwError?: boolean | null, chunkSize?: number | null,
         chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void
         | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null): Promise<{
                 successCount: number;
@@ -7202,16 +7226,16 @@ methods:
           type: string[]
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block message (or null to use default).
           type: string | null
         - id: options
           description: Optional send options (or null to omit).
-          type: <xref uid="gramstax!ITOptReply:type" /> | null
+          type: <xref uid="gramstax!IOptReply:type" /> | null
         - id: throwError
           description: If true, throws errors instead of swallowing them (or null to use false).
           type: boolean | null
@@ -7257,7 +7281,10 @@ methods:
     uid: gramstax!Ctx#renderBroadcastDelete:member(1)
     package: gramstax!
     fullName: renderBroadcastDelete(targets, broadcastOpts)
-    summary: Deletes already-sent messages for many recipients in bulk.
+    summary: |-
+      Deletes already-sent messages for many recipients in bulk.
+
+      Template block: none — operates on message ids, reads no template block.
     remarks: >-
       Expiry-cleanup counterpart of `renderBroadcastEdit`<!-- -->: same checkpoint-first resume (`startFrom`<!-- -->),
       bounded-concurrency stride lanes (`concurrency`<!-- -->, capped at `10`<!-- -->), pacing (`30`<!-- -->-message
@@ -7281,26 +7308,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderBroadcastDelete(targets: ITBroadcastEditTarget[], broadcastOpts?: ITBroadcastEditOpts | null):
-        Promise<ITBroadcastEditResult>;
+        renderBroadcastDelete(targets: IBroadcastEditTarget[], broadcastOpts?: IBroadcastEditOpts | null):
+        Promise<IBroadcastEditResult>;
       parameters:
         - id: targets
           description: Stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index).
-          type: <xref uid="gramstax!ITBroadcastEditTarget:type" />[]
+          type: <xref uid="gramstax!IBroadcastEditTarget:type" />[]
         - id: broadcastOpts
           description: >-
             Optional broadcast controls (`onProgress`<!-- -->, `startFrom`<!-- -->, `concurrency`<!-- -->,
             `chunkSize`<!-- -->, `chunkDelayMs`<!-- -->) (or null for defaults; `fallbackEdit` is accepted but ignored —
             deletes have no resend).
-          type: <xref uid="gramstax!ITBroadcastEditOpts:type" /> | null
+          type: <xref uid="gramstax!IBroadcastEditOpts:type" /> | null
       return:
-        type: Promise&lt;<xref uid="gramstax!ITBroadcastEditResult:type" />&gt;
+        type: Promise&lt;<xref uid="gramstax!IBroadcastEditResult:type" />&gt;
         description: Counts plus `retryable[]` for a re-drive pass.
   - name: renderBroadcastEdit(targets, type, keyboardInline, data, AGBaseId, options1, options2, broadcastOpts)
     uid: gramstax!Ctx#renderBroadcastEdit:member(1)
     package: gramstax!
     fullName: renderBroadcastEdit(targets, type, keyboardInline, data, AGBaseId, options1, options2, broadcastOpts)
-    summary: Edits already-sent messages for many recipients in bulk.
+    summary: |-
+      Edits already-sent messages for many recipients in bulk.
+
+      Template block: `<g-media>` (read via `getGMedia`<!-- -->).
     remarks: >-
       Mass typo-fix / content-revision counterpart of `renderBroadcastMedia`<!-- -->: same checkpoint-first resume
       (`startFrom`<!-- -->), bounded-concurrency stride lanes (`concurrency`<!-- -->, capped at `10`<!-- -->), pacing
@@ -7325,8 +7355,8 @@ methods:
       -->: best-effort delete, then resend the media without `options1`<!-- -->/`options2`<!-- -->, with a `log.warn`
       when non-empty edit options are dropped). A failed fallback is classified via `Ctx.classifySendError`<!-- -->:
       `fallback-text` triggers a best-effort fallback-text send to that recipient (nested failures ignored) and
-      `failedCount++`<!-- -->; `retryable` appends to `retryable[]` and the loop continues. `fallbackEdit: `<!--
-      -->disable<!-- -->\`\` skips the resend and classifies the primary error directly.
+      `failedCount++`<!-- -->; `retryable` appends to `retryable[]` and the loop continues. `fallbackEdit: disable`
+      skips the resend and classifies the primary error directly.
     example:
       - |-
         ```typescript
@@ -7339,46 +7369,44 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderBroadcastEdit<T extends Exclude<ITMediaBlock[`type`], `group`>>(targets: ITBroadcastEditTarget[], type: T,
-        keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends
-        `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ?
-        ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact :
-        ITOptEditMedia1) | null, options2?: ITOptEditMedia2 | null, broadcastOpts?: ITBroadcastEditOpts | null):
-        Promise<ITBroadcastEditResult>;
+        renderBroadcastEdit<T extends Exclude<IMediaBlock[`type`], `group`>>(targets: IBroadcastEditTarget[], type: T,
+        keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: (T extends `voice`
+        ? IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T
+        extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact : IOptEditMedia1) | null,
+        options2?: IOptEditMedia2 | null, broadcastOpts?: IBroadcastEditOpts | null): Promise<IBroadcastEditResult>;
       parameters:
         - id: targets
           description: Stored `{chatId, messageId}` rows to edit, in stable order (checkpoint index = array index).
-          type: <xref uid="gramstax!ITBroadcastEditTarget:type" />[]
+          type: <xref uid="gramstax!IBroadcastEditTarget:type" />[]
         - id: type
           description: The media type (photo, video, audio, document, animation, voice, video\_note, sticker, location, contact).
           type: T
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media (or null to use default).
           type: string | null
         - id: options1
           description: Type-specific media options (or null to omit; dropped on fallback resend).
           type: >-
-            (T extends `voice` ? <xref uid="gramstax!ITOptReplyVoice:type" /> : T extends `video_note` ? <xref
-            uid="gramstax!ITOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
-            uid="gramstax!ITOptReplySticker:type" /> : T extends `location` ? <xref
-            uid="gramstax!ITOptReplyLocation:type" /> : T extends `contact` ? <xref
-            uid="gramstax!ITOptReplyContact:type" /> : <xref uid="gramstax!ITOptEditMedia1:type" />) | null
+            (T extends `voice` ? <xref uid="gramstax!IOptReplyVoice:type" /> : T extends `video_note` ? <xref
+            uid="gramstax!IOptReplyVideoNote:type" /> : T extends `sticker` ? <xref uid="gramstax!IOptReplySticker:type"
+            /> : T extends `location` ? <xref uid="gramstax!IOptReplyLocation:type" /> : T extends `contact` ? <xref
+            uid="gramstax!IOptReplyContact:type" /> : <xref uid="gramstax!IOptEditMedia1:type" />) | null
         - id: options2
           description: Additional edit options (or null to omit; dropped on fallback resend).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: broadcastOpts
           description: >-
             Optional broadcast controls (`onProgress`<!-- -->, `startFrom`<!-- -->, `concurrency`<!-- -->,
             `chunkSize`<!-- -->, `chunkDelayMs`<!-- -->, `fallbackEdit`<!-- -->) (or null for defaults).
-          type: <xref uid="gramstax!ITBroadcastEditOpts:type" /> | null
+          type: <xref uid="gramstax!IBroadcastEditOpts:type" /> | null
       return:
-        type: Promise&lt;<xref uid="gramstax!ITBroadcastEditResult:type" />&gt;
+        type: Promise&lt;<xref uid="gramstax!IBroadcastEditResult:type" />&gt;
         description: Counts plus `retryable[]` for a re-drive pass.
   - name: >-
       renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs,
@@ -7419,10 +7447,10 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null,
-        AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument |
-        ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation |
-        ITOptReplyContact | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null,
+        renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: IInBoKb | null, data?: IData | null,
+        AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument |
+        IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation |
+        IOptReplyContact | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null,
         excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void | Promise<void>) | null,
         startFrom?: number | null, concurrency?: number | null): Promise<{
                 successCount: number;
@@ -7444,21 +7472,21 @@ methods:
           type: string[]
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media (or null to use default).
           type: string | null
         - id: options
           description: Optional send options for the inferred media type (or null to omit).
           type: >-
-            <xref uid="gramstax!ITOptReplyPhoto:type" /> | <xref uid="gramstax!ITOptReplyVideo:type" /> | <xref
-            uid="gramstax!ITOptReplyAudio:type" /> | <xref uid="gramstax!ITOptReplyDocument:type" /> | <xref
-            uid="gramstax!ITOptReplyAnimation:type" /> | <xref uid="gramstax!ITOptReplyVoice:type" /> | <xref
-            uid="gramstax!ITOptReplyVideoNote:type" /> | <xref uid="gramstax!ITOptReplySticker:type" /> | <xref
-            uid="gramstax!ITOptReplyLocation:type" /> | <xref uid="gramstax!ITOptReplyContact:type" /> | null
+            <xref uid="gramstax!IOptReplyPhoto:type" /> | <xref uid="gramstax!IOptReplyVideo:type" /> | <xref
+            uid="gramstax!IOptReplyAudio:type" /> | <xref uid="gramstax!IOptReplyDocument:type" /> | <xref
+            uid="gramstax!IOptReplyAnimation:type" /> | <xref uid="gramstax!IOptReplyVoice:type" /> | <xref
+            uid="gramstax!IOptReplyVideoNote:type" /> | <xref uid="gramstax!IOptReplySticker:type" /> | <xref
+            uid="gramstax!IOptReplyLocation:type" /> | <xref uid="gramstax!IOptReplyContact:type" /> | null
         - id: throwError
           description: If true, throws errors instead of swallowing them (or null to use false).
           type: boolean | null
@@ -7508,7 +7536,10 @@ methods:
     fullName: >-
       renderBroadcastPoll(ids, languageCode, keyboard, data, AGBaseId, options, throwError, chunkSize, chunkDelayMs,
       excludeIds, onProgress, startFrom, concurrency)
-    summary: Sends a template poll to multiple users in bulk.
+    summary: |-
+      Sends a template poll to multiple users in bulk.
+
+      Template block: `<g-poll>` (read via `getGPoll`<!-- -->).
     remarks: >-
       Poll counterpart of `renderBroadcastMedia`<!-- -->: the same checkpoint-first loop (per-language `getGPoll`
       compilation, fail-fast `Ctx.assertPoll` for every recipient BEFORE the loop, `startFrom` resume without resending,
@@ -7532,7 +7563,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderBroadcastPoll(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null,
+        renderBroadcastPoll(ids: number[], languageCode: string[], keyboard?: IInBoKb | null, data?: IData | null,
         AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null, throwError?: boolean | null,
         chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done:
         number, total: number) => void | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null):
@@ -7556,10 +7587,10 @@ methods:
           type: string[]
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block poll (or null to use default).
           type: string | null
@@ -7607,11 +7638,114 @@ methods:
                   }&gt;;
               }&gt;
         description: Counts plus `retryable[]` for a re-drive pass.
+  - name: renderCallbackAnswer(showAlert, data, AGBaseId, options)
+    uid: gramstax!Ctx#renderCallbackAnswer:member(1)
+    package: gramstax!
+    fullName: renderCallbackAnswer(showAlert, data, AGBaseId, options)
+    summary: Answers the active callback query with template text.
+    remarks: >-
+      Template-backed counterpart to answering inline-button taps: the `<g-callback-answer>` block supplies the
+      notification text (multilang via `data`<!-- -->), shown either as a toast or as an alert. There is no message to
+      send, so this takes no keyboard and never falls back to a reply.
+
+
+      Observe-only send-error coverage (mirrors `renderDice`<!-- -->): failures are classified via
+      `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!--
+      -->, `fallback-text` → `log.warn`<!-- -->). After notify+log the original error is ALWAYS rethrown untouched.
+
+
+      Toast text is limited by Telegram to 200 characters — keep the block short.
+    example:
+      - |-
+        ```typescript
+        async handleCallbackQueryData() {
+          await this.renderCallbackAnswer(false, undefined, `tap-card`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderCallbackAnswer(showAlert: boolean, data: IData | null | undefined, AGBaseId: string, options?:
+        IOptCallbackAnswer | null): Promise<true>;
+      parameters:
+        - id: showAlert
+          description: Whether to show an alert instead of a toast notification.
+          type: boolean
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position for the notification text.
+          type: string
+        - id: options
+          description: Optional answer options such as `cache_time` (or null to omit).
+          type: <xref uid="gramstax!IOptCallbackAnswer:type" /> | null
+      return:
+        type: Promise&lt;true&gt;
+        description: True on success.
+  - name: renderChunked(keyboard, data, AGBaseId, options, chunkSize)
+    uid: gramstax!Ctx#renderChunked:member(1)
+    package: gramstax!
+    fullName: renderChunked(keyboard, data, AGBaseId, options, chunkSize)
+    summary: |-
+      Sends a long template text as sequential chunks using the page template.
+
+      Template block: `<g-message>` (read via `getGMessage`<!-- -->).
+    remarks: >-
+      Renders the full block FIRST (placeholders never split), then splits deterministically (boundary priority `\n\n` →
+      `\n` → space → hard-cut, pieces trimmed, empties skipped) and sends sequentially with the keyboard ONLY on the
+      last chunk. On mid-loop failure the error is classified, reported to `notifySendError`<!-- -->, stamped with
+      `chunkIndex`<!-- -->, logged, rethrown.
+    example:
+      - |-
+        ```typescript
+        async handleCallbackQueryData() {
+          await this.renderChunked(undefined, undefined, `long-card`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderChunked(keyboard: IInBoKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?:
+        IOptReply | null, chunkSize?: number): Promise<(grammy_types.Message.CommonMessage & {
+                text: string;
+            } & Partial<{
+                entities: grammy_types.MessageEntity[];
+            }>)[]>;
+      parameters:
+        - id: keyboard
+          description: Optional keyboard markup, sent only on the last chunk (or null to omit).
+          type: <xref uid="gramstax!IInBoKb:type" /> | null | undefined
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position for block message.
+          type: string
+        - id: options
+          description: Optional reply options (or null to omit).
+          type: <xref uid="gramstax!IOptReply:type" /> | null
+        - id: chunkSize
+          description: Max chars per chunk (defaults to `4096`<!-- -->).
+          type: number
+      return:
+        type: |-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.CommonMessage:interface" /> & {
+                  text: string;
+              } & Partial&lt;{
+                  entities: <xref uid="@grammyjs/types!MessageEntity:type" />[];
+              }&gt;)[]&gt;
+        description: The sent message objects in order.
   - name: renderContact(keyboard, data, AGBaseId, options)
     uid: gramstax!Ctx#renderContact:member(1)
     package: gramstax!
     fullName: renderContact(keyboard, data, AGBaseId, options)
-    summary: Sends a contact using the page template.
+    summary: |-
+      Sends a contact using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -7624,21 +7758,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderContact(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyContact | null): Promise<unknown>;
+        renderContact(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptReplyContact | null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type contact (or null to use default).
           type: string | null
         - id: options
           description: Optional contact-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyContact:type" /> | null
+          type: <xref uid="gramstax!IOptReplyContact:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -7650,6 +7784,9 @@ methods:
       Sends or edits a contact using the page template, auto-selecting between
       [Ctx.renderContact()](xref:gramstax!Ctx%23renderContact:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -7662,30 +7799,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderContactAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyContact | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
-        Promise<unknown>;
+        renderContactAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyContact | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type contact (or null to use default).
           type: string | null
         - id: options1
           description: Optional contact-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyContact:type" /> | null
+          type: <xref uid="gramstax!IOptReplyContact:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -7722,17 +7858,17 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderDice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
+        renderDice(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?:
         Parameters<Ctx[`replyWithDice`]>[1] | null): Promise<grammy_types.Message.DiceMessage>;
       parameters:
         - id: keyboard
           description: >-
             Optional keyboard markup from [Ctx.inlineKeyboard()](xref:gramstax!Ctx%23inlineKeyboard:member(1)) or
             [Ctx.bottomKeyboard()](xref:gramstax!Ctx%23bottomKeyboard:member(1)) (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID position for block dice (or null to use default).
           type: string | null
@@ -7746,7 +7882,10 @@ methods:
     uid: gramstax!Ctx#renderDocument:member(1)
     package: gramstax!
     fullName: renderDocument(keyboard, data, AGBaseId, options)
-    summary: Sends a document message using the page template.
+    summary: |-
+      Sends a document message using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -7759,21 +7898,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderDocument(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyDocument | null): Promise<unknown>;
+        renderDocument(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptReplyDocument | null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type document (or null to use default).
           type: string | null
         - id: options
           description: Optional document-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyDocument:type" /> | null
+          type: <xref uid="gramstax!IOptReplyDocument:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -7785,6 +7924,9 @@ methods:
       Sends or edits a document message using the page template, auto-selecting between
       [Ctx.renderDocument()](xref:gramstax!Ctx%23renderDocument:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -7797,30 +7939,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderDocumentAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyDocument | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
-        Promise<unknown>;
+        renderDocumentAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyDocument | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type document (or null to use default).
           type: string | null
         - id: options1
           description: Optional document-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyDocument:type" /> | null
+          type: <xref uid="gramstax!IOptReplyDocument:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -7828,7 +7969,10 @@ methods:
     uid: gramstax!Ctx#renderDocumentGroup:member(1)
     package: gramstax!
     fullName: renderDocumentGroup(data, AGBaseId, options)
-    summary: Sends a document media group using pipe-delimited `src` values from the page template.
+    summary: |-
+      Sends a document media group using pipe-delimited `src` values from the page template.
+
+      Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -7841,18 +7985,18 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null):
+        renderDocumentGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null):
         Promise<unknown>;
       parameters:
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type document (or null to use default).
           type: string | null
         - id: options
           description: Optional document-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyDocument:type" /> | null
+          type: <xref uid="gramstax!IOptReplyDocument:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group messages.
@@ -7860,7 +8004,10 @@ methods:
     uid: gramstax!Ctx#renderEdit:member(1)
     package: gramstax!
     fullName: renderEdit(keyboardInline, data, AGBaseId, options, fallbackEdit)
-    summary: Edits an existing message text using the page template.
+    summary: |-
+      Edits an existing message text using the page template.
+
+      Template block: `<g-message>` (read via `getGMessage`<!-- -->).
     remarks: >-
       If editing fails (e.g., message too old), the fallback behavior is controlled by `fallbackEdit` (default
       `delete-reply`<!-- -->: deletes the original message and sends a new one — the result looks like an in-place
@@ -7877,29 +8024,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage |
+        renderEdit(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEdit
+        | null, fallbackEdit?: IOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage |
         (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
                 rich_message: grammy_types.RichMessage;
             })>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block message (or null to use default).
           type: string | null
         - id: options
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEdit:type" /> | null
+          type: <xref uid="gramstax!IOptEdit:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.TextMessage:type" /> | (<xref
@@ -7912,7 +8059,10 @@ methods:
     uid: gramstax!Ctx#renderEditAnimation:member(1)
     package: gramstax!
     fullName: renderEditAnimation(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-    summary: Edits an existing message to show an animation.
+    summary: |-
+      Edits an existing message to show an animation.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -7925,30 +8075,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null,
-        options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
-        Promise<unknown>;
+        renderEditAnimation(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type animation (or null to use default).
           type: string | null
         - id: options1
           description: Optional media options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia1:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia1:type" /> | null
         - id: options2
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The edited message object.
@@ -7956,7 +8105,10 @@ methods:
     uid: gramstax!Ctx#renderEditAudio:member(1)
     package: gramstax!
     fullName: renderEditAudio(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-    summary: Edits an existing message to show an audio.
+    summary: |-
+      Edits an existing message to show an audio.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -7969,29 +8121,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditAudio(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type audio (or null to use default).
           type: string | null
         - id: options1
           description: Optional media options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia1:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia1:type" /> | null
         - id: options2
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The edited message object.
@@ -7999,7 +8151,10 @@ methods:
     uid: gramstax!Ctx#renderEditAudioGroup:member(1)
     package: gramstax!
     fullName: renderEditAudioGroup(data, AGBaseId, options, fallbackEdit)
-    summary: Replaces the current message with an audio media group.
+    summary: |-
+      Replaces the current message with an audio media group.
+
+      Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
     remarks: >-
       Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. Useful when the template
       uses pipe-delimited `src` values.
@@ -8014,57 +8169,110 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null,
-        fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditAudioGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null,
+        fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type audio (or null to use default).
           type: string | null
         - id: options
           description: Optional audio-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyAudio:type" /> | null
+          type: <xref uid="gramstax!IOptReplyAudio:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group message object.
+  - name: renderEditCaption(keyboardInline, data, AGBaseId, options, fallbackEdit)
+    uid: gramstax!Ctx#renderEditCaption:member(1)
+    package: gramstax!
+    fullName: renderEditCaption(keyboardInline, data, AGBaseId, options, fallbackEdit)
+    summary: |-
+      Edits a media message caption using the page template.
+
+      Template block: `<g-message + g-keyboard>` (read via `getGMessage/getGKeyboard`<!-- -->).
+    remarks: >-
+      Caption text comes from the `<g-base id>` block via `getGMessage` and is sent via `editMessageCaption`<!-- -->.
+      Fallback modes mirror `renderEdit`<!-- -->: `delete-reply`<!-- -->/`reply` resend the caption as plain text,
+      `disable` throws.
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.renderEditCaption(undefined, undefined, `photo-card`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderEditCaption(keyboardInline: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId:
+        string, options?: IOptEditCaption | null, fallbackEdit?: IOptFallbackEdit): Promise<true |
+        grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CaptionableMessage)>;
+      parameters:
+        - id: keyboardInline
+          description: Optional inline keyboard markup (or null to omit).
+          type: <xref uid="gramstax!IInlineKb:type" /> | null | undefined
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position for block message.
+          type: string
+        - id: options
+          description: Optional abort signal for the edit call (or null to omit).
+          type: <xref uid="gramstax!IOptEditCaption:type" /> | null
+        - id: fallbackEdit
+          description: >-
+            Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
+            `reply` sends without deleting; `disable` rethrows the error.
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
+      return:
+        type: >-
+          Promise&lt;true | <xref uid="@grammyjs/types!Message.TextMessage:type" /> | (<xref
+          uid="@grammyjs/types!Update.Edited:interface" /> & <xref
+          uid="@grammyjs/types!Message.CaptionableMessage:interface" />)&gt;
+        description: The edited message object.
   - name: renderEditContact(keyboardInline, data, AGBaseId, options, fallbackEdit)
     uid: gramstax!Ctx#renderEditContact:member(1)
     package: gramstax!
     fullName: renderEditContact(keyboardInline, data, AGBaseId, options, fallbackEdit)
-    summary: Replaces the current message with a contact.
+    summary: |-
+      Replaces the current message with a contact.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: Contacts cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: >-
-        renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditContact(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type contact (or null to use default).
           type: string | null
         - id: options
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -8072,7 +8280,10 @@ methods:
     uid: gramstax!Ctx#renderEditDocument:member(1)
     package: gramstax!
     fullName: renderEditDocument(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-    summary: Edits an existing message to show a document.
+    summary: |-
+      Edits an existing message to show a document.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -8085,30 +8296,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null,
-        options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
-        Promise<unknown>;
+        renderEditDocument(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type document (or null to use default).
           type: string | null
         - id: options1
           description: Optional media options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia1:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia1:type" /> | null
         - id: options2
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The edited message object.
@@ -8116,7 +8326,10 @@ methods:
     uid: gramstax!Ctx#renderEditDocumentGroup:member(1)
     package: gramstax!
     fullName: renderEditDocumentGroup(data, AGBaseId, options, fallbackEdit)
-    summary: Replaces the current message with a document media group.
+    summary: |-
+      Replaces the current message with a document media group.
+
+      Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
     remarks: >-
       Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. Useful when the template
       uses pipe-delimited `src` values.
@@ -8131,57 +8344,101 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null,
-        fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditDocumentGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null,
+        fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type document (or null to use default).
           type: string | null
         - id: options
           description: Optional document-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyDocument:type" /> | null
+          type: <xref uid="gramstax!IOptReplyDocument:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group message object.
+  - name: renderEditKeyboard(keyboardInline, data, AGBaseId, options)
+    uid: gramstax!Ctx#renderEditKeyboard:member(1)
+    package: gramstax!
+    fullName: renderEditKeyboard(keyboardInline, data, AGBaseId, options)
+    summary: Edits only the inline keyboard using the page template.
+    remarks: >-
+      Sent via `editMessageReplyMarkup` — never touches message text. When `keyboardInline` is null, the markup resolves
+      from the `<g-keyboard>` block of the given `AGBaseId` itself (via `getGKeyboard` with `data` for dynamic labels),
+      which is what makes `AGBaseId` meaningful here. No send-fallback (nothing new to send): failures are classified
+      via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, logged, rethrown.
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.renderEditKeyboard(null, undefined, `photo-card`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderEditKeyboard(keyboardInline: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId:
+        string, options?: IOptEditKeyboard | null): Promise<true | (grammy_types.Update.Edited & grammy_types.Message)>;
+      parameters:
+        - id: keyboardInline
+          description: Optional inline keyboard markup, or null to resolve it from the block.
+          type: <xref uid="gramstax!IInlineKb:type" /> | null | undefined
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position for block keyboard.
+          type: string
+        - id: options
+          description: Optional abort signal for the edit call (or null to omit).
+          type: <xref uid="gramstax!IOptEditKeyboard:type" /> | null
+      return:
+        type: >-
+          Promise&lt;true | (<xref uid="@grammyjs/types!Update.Edited:interface" /> & <xref
+          uid="@grammyjs/types!Message:interface" />)&gt;
+        description: The edited message object.
   - name: renderEditLocation(keyboardInline, data, AGBaseId, options, fallbackEdit)
     uid: gramstax!Ctx#renderEditLocation:member(1)
     package: gramstax!
     fullName: renderEditLocation(keyboardInline, data, AGBaseId, options, fallbackEdit)
-    summary: Replaces the current message with a location.
+    summary: |-
+      Replaces the current message with a location.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: Locations cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: >-
-        renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditLocation(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type location (or null to use default).
           type: string | null
         - id: options
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -8189,7 +8446,10 @@ methods:
     uid: gramstax!Ctx#renderEditMedia:member(1)
     package: gramstax!
     fullName: renderEditMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-    summary: Edits an existing media message with dynamic type selection.
+    summary: |-
+      Edits an existing media message with dynamic type selection.
+
+      Template block: `<g-media>` (read via `getGMedia`<!-- -->).
     remarks: >-
       For media types that cannot be edited (voice, video\_note, sticker, location, contact), the original message is
       deleted and a new one is sent. Multi-src media groups cannot replace a single message, so supported pipe-delimited
@@ -8213,40 +8473,39 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboardInline?: ITInlineKb | null,
-        data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? ITOptReplyVoice : T extends
-        `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ?
-        ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?:
-        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(type: T, keyboardInline?: IInlineKb | null,
+        data?: IData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? IOptReplyVoice : T extends
+        `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T extends `location` ?
+        IOptReplyLocation : T extends `contact` ? IOptReplyContact : IOptEditMedia1) | null, options2?: IOptEditMedia2 |
+        null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: type
           description: The media type.
           type: T
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media (or null to use default).
           type: string | null
         - id: options1
           description: Type-specific media options (or null to omit).
           type: >-
-            (T extends `voice` ? <xref uid="gramstax!ITOptReplyVoice:type" /> : T extends `video_note` ? <xref
-            uid="gramstax!ITOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
-            uid="gramstax!ITOptReplySticker:type" /> : T extends `location` ? <xref
-            uid="gramstax!ITOptReplyLocation:type" /> : T extends `contact` ? <xref
-            uid="gramstax!ITOptReplyContact:type" /> : <xref uid="gramstax!ITOptEditMedia1:type" />) | null
+            (T extends `voice` ? <xref uid="gramstax!IOptReplyVoice:type" /> : T extends `video_note` ? <xref
+            uid="gramstax!IOptReplyVideoNote:type" /> : T extends `sticker` ? <xref uid="gramstax!IOptReplySticker:type"
+            /> : T extends `location` ? <xref uid="gramstax!IOptReplyLocation:type" /> : T extends `contact` ? <xref
+            uid="gramstax!IOptReplyContact:type" /> : <xref uid="gramstax!IOptEditMedia1:type" />) | null
         - id: options2
           description: Additional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then re-sends the media;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The edited/sent message object.
@@ -8279,29 +8538,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, fallbackEdit?:
-        ITOptFallbackEdit): Promise<unknown>;
+        renderEditMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null, fallbackEdit?: IOptFallbackEdit):
+        Promise<unknown>;
       parameters:
         - id: type
           description: Optional media type filter. All items sent when omitted.
-          type: <xref uid="gramstax!~ITMediaGroupType:type" /> | null
+          type: <xref uid="gramstax!~IMediaGroupType:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media (or null to use default).
           type: string | null
         - id: options
           description: Optional media-agnostic options (or null to omit).
           type: >-
-            <xref uid="gramstax!ITOptReplyPhoto:type" /> | <xref uid="gramstax!ITOptReplyVideo:type" /> | <xref
-            uid="gramstax!ITOptReplyAudio:type" /> | <xref uid="gramstax!ITOptReplyDocument:type" /> | null
+            <xref uid="gramstax!IOptReplyPhoto:type" /> | <xref uid="gramstax!IOptReplyVideo:type" /> | <xref
+            uid="gramstax!IOptReplyAudio:type" /> | <xref uid="gramstax!IOptReplyDocument:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group messages.
@@ -8309,7 +8568,10 @@ methods:
     uid: gramstax!Ctx#renderEditPhoto:member(1)
     package: gramstax!
     fullName: renderEditPhoto(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-    summary: Edits an existing message to show a photo.
+    summary: |-
+      Edits an existing message to show a photo.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -8322,29 +8584,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditPhoto(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type photo (or null to use default).
           type: string | null
         - id: options1
           description: Optional media options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia1:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia1:type" /> | null
         - id: options2
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The edited message object.
@@ -8352,7 +8614,10 @@ methods:
     uid: gramstax!Ctx#renderEditPhotoGroup:member(1)
     package: gramstax!
     fullName: renderEditPhotoGroup(data, AGBaseId, options, fallbackEdit)
-    summary: Replaces the current message with a photo media group.
+    summary: |-
+      Replaces the current message with a photo media group.
+
+      Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
     remarks: >-
       Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. Useful when the template
       uses pipe-delimited `src` values.
@@ -8367,23 +8632,23 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null,
-        fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditPhotoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null,
+        fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type photo (or null to use default).
           type: string | null
         - id: options
           description: Optional photo-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyPhoto:type" /> | null
+          type: <xref uid="gramstax!IOptReplyPhoto:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group message object.
@@ -8391,7 +8656,10 @@ methods:
     uid: gramstax!Ctx#renderEditRich:member(1)
     package: gramstax!
     fullName: renderEditRich(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-    summary: Edits an existing message with rich content using the page template.
+    summary: |-
+      Edits an existing message with rich content using the page template.
+
+      Template block: `<g-message>` (read via `getGMessage`<!-- -->).
     remarks: >-
       Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API
       [TemplateEngine.BOT\_API\_VERSION](xref:gramstax!TemplateEngine.BOT_API_VERSION:member)<!-- -->). This method can
@@ -8417,8 +8685,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true |
+        renderEditRich(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyRich[0] | null, options2?: IOptEdit | null, fallbackEdit?: IOptFallbackEdit): Promise<true |
         grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
                 text: string;
             } & Partial<{
@@ -8427,24 +8695,24 @@ methods:
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID position for block message (or null to use default).
           type: string | null
         - id: options1
           description: Optional `InputRichMessage` fields (`is_rtl`<!-- -->, `skip_entity_detection`<!-- -->) (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyRich:type" />[0] | null
+          type: <xref uid="gramstax!IOptReplyRich:type" />[0] | null
         - id: options2
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEdit:type" /> | null
+          type: <xref uid="gramstax!IOptEdit:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.RichMessageMessage:type" /> | (<xref
@@ -8459,33 +8727,36 @@ methods:
     uid: gramstax!Ctx#renderEditSticker:member(1)
     package: gramstax!
     fullName: renderEditSticker(keyboardInline, data, AGBaseId, options, fallbackEdit)
-    summary: Replaces the current message with a sticker.
+    summary: |-
+      Replaces the current message with a sticker.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: Stickers cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: >-
-        renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditSticker(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type sticker (or null to use default).
           type: string | null
         - id: options
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -8493,7 +8764,10 @@ methods:
     uid: gramstax!Ctx#renderEditVideo:member(1)
     package: gramstax!
     fullName: renderEditVideo(keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-    summary: Edits an existing message to show a video.
+    summary: |-
+      Edits an existing message to show a video.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -8506,29 +8780,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditVideo(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type video (or null to use default).
           type: string | null
         - id: options1
           description: Optional media options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia1:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia1:type" /> | null
         - id: options2
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The edited message object.
@@ -8536,7 +8810,10 @@ methods:
     uid: gramstax!Ctx#renderEditVideoGroup:member(1)
     package: gramstax!
     fullName: renderEditVideoGroup(data, AGBaseId, options, fallbackEdit)
-    summary: Replaces the current message with a video media group.
+    summary: |-
+      Replaces the current message with a video media group.
+
+      Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
     remarks: >-
       Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. Useful when the template
       uses pipe-delimited `src` values.
@@ -8551,23 +8828,23 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null,
-        fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditVideoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null,
+        fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type video (or null to use default).
           type: string | null
         - id: options
           description: Optional video-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyVideo:type" /> | null
+          type: <xref uid="gramstax!IOptReplyVideo:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group message object.
@@ -8575,33 +8852,36 @@ methods:
     uid: gramstax!Ctx#renderEditVideoNote:member(1)
     package: gramstax!
     fullName: renderEditVideoNote(keyboardInline, data, AGBaseId, options, fallbackEdit)
-    summary: Replaces the current message with a video note.
+    summary: |-
+      Replaces the current message with a video note.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: Video notes cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: >-
-        renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null,
-        options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditVideoNote(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type video\_note (or null to use default).
           type: string | null
         - id: options
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -8609,36 +8889,184 @@ methods:
     uid: gramstax!Ctx#renderEditVoice:member(1)
     package: gramstax!
     fullName: renderEditVoice(keyboardInline, data, AGBaseId, options, fallbackEdit)
-    summary: Replaces the current message with a voice message.
+    summary: |-
+      Replaces the current message with a voice message.
+
+      Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
     remarks: Voice messages cannot be edited in-place, so this deletes the original and sends a new one.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: >-
-        renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderEditVoice(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type voice (or null to use default).
           type: string | null
         - id: options
           description: Optional edit options (or null to omit).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one;
             `reply` sends without deleting; `disable` rethrows the error.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
+  - name: renderGift(target, giftId, keyboard, data, AGBaseId, options)
+    uid: gramstax!Ctx#renderGift:member(1)
+    package: gramstax!
+    fullName: renderGift(target, giftId, keyboard, data, AGBaseId, options)
+    summary: |-
+      Sends a Telegram gift with card text from the page template.
+
+      Template block: `<g-gift>` (read via `getGGift`<!-- -->).
+    remarks: >-
+      Card text comes from the `<g-gift>` block via `getGGift` (the `text` param on `sendGift` is what qualifies this as
+      `render*`<!-- -->) and is sent via `api.sendGift`<!-- -->. `target` (user id) is explicit because gifts do not
+      always go to the active chat — unlike every other render method.
+
+
+      Failure rule: insufficient Stars balance (`400`<!-- -->) throws after notify — a failed gift MUST NOT degrade into
+      sending the card as plain text (that would deceive the user). No silent fallback on any path.
+    example:
+      - |-
+        ```typescript
+        async handleCallbackQueryData() {
+          await this.renderGift(123456, `gift-id`, undefined, undefined, `gift-card`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderGift(target: number, giftId: string, keyboard: IInlineKb | null | undefined, data: IData | null |
+        undefined, AGBaseId: string, options?: IOptGift | null): Promise<true>;
+      parameters:
+        - id: target
+          description: Gift recipient user id.
+          type: number
+        - id: giftId
+          description: Telegram gift identifier.
+          type: string
+        - id: keyboard
+          description: >-
+            Must stay null: `sendGift` carries no reply markup, so a non-null keyboard throws before any API call (or
+            null to omit).
+          type: <xref uid="gramstax!IInlineKb:type" /> | null | undefined
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position for block message.
+          type: string
+        - id: options
+          description: Optional gift options (or null to omit).
+          type: <xref uid="gramstax!IOptGift:type" /> | null
+      return:
+        type: Promise&lt;true&gt;
+        description: '`true` on success.'
+  - name: renderGuestAnswer(result, data, AGBaseId, options)
+    uid: gramstax!Ctx#renderGuestAnswer:member(1)
+    package: gramstax!
+    fullName: renderGuestAnswer(result, data, AGBaseId, options)
+    summary: Answers the active guest message query with a caller-built result.
+    remarks: >-
+      The result content is built by the caller from `data` (multilang payloads); the `<g-answer-note>` block is
+      resolved as fail-fast validation that the template exists, per the AGBaseId-required policy.
+
+
+      Observe-only send-error coverage (mirrors `renderDice`<!-- -->): failures are classified via
+      `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!--
+      -->, `fallback-text` → `log.warn`<!-- -->). After notify+log the original error is ALWAYS rethrown untouched.
+    example:
+      - |-
+        ```typescript
+        async handleGuestMessage() {
+          await this.renderGuestAnswer(article, undefined, `guest-card`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderGuestAnswer(result: InlineQueryResult, data: IData | null | undefined, AGBaseId: string, options?:
+        IOptGuestAnswer | null): Promise<grammy_types.SentGuestMessage>;
+      parameters:
+        - id: result
+          description: Inline result built by the caller.
+          type: <xref uid="@grammyjs/types!InlineQueryResult:type" />
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position (resolved for validation).
+          type: string
+        - id: options
+          description: Optional abort signal (or null to omit).
+          type: <xref uid="gramstax!IOptGuestAnswer:type" /> | null
+      return:
+        type: Promise&lt;<xref uid="@grammyjs/types!SentGuestMessage:interface" />&gt;
+        description: The sent guest message object.
+  - name: renderInlineAnswer(results, data, AGBaseId, options, buttonStartParameter)
+    uid: gramstax!Ctx#renderInlineAnswer:member(1)
+    package: gramstax!
+    fullName: renderInlineAnswer(results, data, AGBaseId, options, buttonStartParameter)
+    summary: Answers the active inline query with caller-built results and template button text.
+    remarks: >-
+      Result contents are built by the caller from `data` (multilang payloads); the `<g-inline-button>` block supplies
+      the default `button.text` label and `start_parameter`<!-- -->. Precedence: a caller-supplied `options.button` wins
+      first, then the explicit `buttonStartParameter`<!-- -->, then the block's own `start-parameter`<!-- -->. The block
+      is always resolved — even when no button is built — as fail-fast validation that the template exists.
+
+
+      Observe-only send-error coverage (mirrors `renderDice`<!-- -->): failures are classified via
+      `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!--
+      -->, `fallback-text` → `log.warn`<!-- -->). After notify+log the original error is ALWAYS rethrown untouched.
+
+
+      Telegram caps answers at 50 results; cache them with `cache_time` for identical queries.
+    example:
+      - |-
+        ```typescript
+        async handleInlineQuery() {
+          await this.renderInlineAnswer([article], {name: `Ani`}, `inline-card`, undefined, `start=1`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderInlineAnswer(results: readonly InlineQueryResult[], data: IData | null | undefined, AGBaseId: string,
+        options?: IOptInlineAnswer | null, buttonStartParameter?: string | null): Promise<true>;
+      parameters:
+        - id: results
+          description: Inline results built by the caller (up to 50).
+          type: readonly <xref uid="@grammyjs/types!InlineQueryResult:type" />[]
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position for the button text.
+          type: string
+        - id: options
+          description: Optional answer options (or null to omit).
+          type: <xref uid="gramstax!IOptInlineAnswer:type" /> | null
+        - id: buttonStartParameter
+          description: Optional deep-link start parameter; enables the block-text button (or null to omit).
+          type: string | null
+      return:
+        type: Promise&lt;true&gt;
+        description: True on success.
   - name: renderInvoice(keyboard, data, AGBaseId, options)
     uid: gramstax!Ctx#renderInvoice:member(1)
     package: gramstax!
@@ -8692,7 +9120,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderInvoice(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
+        renderInvoice(keyboard?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?:
         (Parameters<Ctx[`replyWithInvoice`]>[5] & {
                 provider_token?: string;
             }) | null): Promise<grammy_types.Message.InvoiceMessage>;
@@ -8702,10 +9130,10 @@ methods:
             Optional inline keyboard markup from [Ctx.inlineKeyboard()](xref:gramstax!Ctx%23inlineKeyboard:member(1))
             (or null to omit). Only inline keyboards are accepted — the Bot API `sendInvoice` reply markup is
             `InlineKeyboardMarkup`<!-- -->.
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID position for block invoice (or null to use default).
           type: string | null
@@ -8724,7 +9152,10 @@ methods:
     uid: gramstax!Ctx#renderLocation:member(1)
     package: gramstax!
     fullName: renderLocation(keyboard, data, AGBaseId, options)
-    summary: Sends a location using the page template.
+    summary: |-
+      Sends a location using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: >-
       When the template `<g-media type="location">` carries a `live` attribute (seconds), it is validated by
       `Ctx.assertLivePeriod` and sent as Bot API `live_period`<!-- -->. Stop it later with
@@ -8740,21 +9171,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderLocation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyLocation | null): Promise<unknown>;
+        renderLocation(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptReplyLocation | null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type location (or null to use default).
           type: string | null
         - id: options
           description: Optional location-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyLocation:type" /> | null
+          type: <xref uid="gramstax!IOptReplyLocation:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -8766,6 +9197,9 @@ methods:
       Sends or edits a location using the page template, auto-selecting between
       [Ctx.renderLocation()](xref:gramstax!Ctx%23renderLocation:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -8778,30 +9212,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderLocationAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyLocation | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
-        Promise<unknown>;
+        renderLocationAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyLocation | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type location (or null to use default).
           type: string | null
         - id: options1
           description: Optional location-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyLocation:type" /> | null
+          type: <xref uid="gramstax!IOptReplyLocation:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -8809,7 +9242,10 @@ methods:
     uid: gramstax!Ctx#renderMedia:member(1)
     package: gramstax!
     fullName: renderMedia(type, keyboard, data, AGBaseId, options)
-    summary: Sends a media message reply with dynamic type selection.
+    summary: |-
+      Sends a media message reply with dynamic type selection.
+
+      Template block: `<g-media>` (read via `getGMedia`<!-- -->).
     remarks: >-
       This is the base method for all media reply methods. Use specific methods like
       [Ctx.renderPhoto()](xref:gramstax!Ctx%23renderPhoto:member(1)) or
@@ -8831,36 +9267,35 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData
-        | null, AGBaseId?: string | null, options?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ?
-        ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends
-        `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ?
-        ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T
-        extends `contact` ? ITOptReplyContact : undefined) | null): Promise<unknown>;
+        renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(type: T, keyboard?: IInBoKb | null, data?: IData |
+        null, AGBaseId?: string | null, options?: (T extends `photo` ? IOptReplyPhoto : T extends `video` ?
+        IOptReplyVideo : T extends `audio` ? IOptReplyAudio : T extends `document` ? IOptReplyDocument : T extends
+        `animation` ? IOptReplyAnimation : T extends `voice` ? IOptReplyVoice : T extends `video_note` ?
+        IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T
+        extends `contact` ? IOptReplyContact : undefined) | null): Promise<unknown>;
       parameters:
         - id: type
           description: The media type (photo, video, audio, document, animation, voice, video\_note, sticker, location, contact).
           type: T
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media (or null to use default).
           type: string | null
         - id: options
           description: Type-specific options for the media (or null to omit).
           type: >-
-            (T extends `photo` ? <xref uid="gramstax!ITOptReplyPhoto:type" /> : T extends `video` ? <xref
-            uid="gramstax!ITOptReplyVideo:type" /> : T extends `audio` ? <xref uid="gramstax!ITOptReplyAudio:type" /> :
-            T extends `document` ? <xref uid="gramstax!ITOptReplyDocument:type" /> : T extends `animation` ? <xref
-            uid="gramstax!ITOptReplyAnimation:type" /> : T extends `voice` ? <xref uid="gramstax!ITOptReplyVoice:type"
-            /> : T extends `video_note` ? <xref uid="gramstax!ITOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
-            uid="gramstax!ITOptReplySticker:type" /> : T extends `location` ? <xref
-            uid="gramstax!ITOptReplyLocation:type" /> : T extends `contact` ? <xref
-            uid="gramstax!ITOptReplyContact:type" /> : undefined) | null
+            (T extends `photo` ? <xref uid="gramstax!IOptReplyPhoto:type" /> : T extends `video` ? <xref
+            uid="gramstax!IOptReplyVideo:type" /> : T extends `audio` ? <xref uid="gramstax!IOptReplyAudio:type" /> : T
+            extends `document` ? <xref uid="gramstax!IOptReplyDocument:type" /> : T extends `animation` ? <xref
+            uid="gramstax!IOptReplyAnimation:type" /> : T extends `voice` ? <xref uid="gramstax!IOptReplyVoice:type" />
+            : T extends `video_note` ? <xref uid="gramstax!IOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
+            uid="gramstax!IOptReplySticker:type" /> : T extends `location` ? <xref uid="gramstax!IOptReplyLocation:type"
+            /> : T extends `contact` ? <xref uid="gramstax!IOptReplyContact:type" /> : undefined) | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -8894,25 +9329,25 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<unknown>;
+        renderMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null): Promise<unknown>;
       parameters:
         - id: type
           description: >-
             Supported media group type. When the template uses `<g-media-group>` (or null to include all items). only
             items matching this type are included. When omitted, all items are sent.
-          type: <xref uid="gramstax!~ITMediaGroupType:type" /> | null
+          type: <xref uid="gramstax!~IMediaGroupType:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media (or null to use default).
           type: string | null
         - id: options
           description: Optional media-group send options (or null to omit).
           type: >-
-            <xref uid="gramstax!ITOptReplyPhoto:type" /> | <xref uid="gramstax!ITOptReplyVideo:type" /> | <xref
-            uid="gramstax!ITOptReplyAudio:type" /> | <xref uid="gramstax!ITOptReplyDocument:type" /> | null
+            <xref uid="gramstax!IOptReplyPhoto:type" /> | <xref uid="gramstax!IOptReplyVideo:type" /> | <xref
+            uid="gramstax!IOptReplyAudio:type" /> | <xref uid="gramstax!IOptReplyDocument:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group messages.
@@ -8952,17 +9387,17 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderPaidMedia(keyboard?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
+        renderPaidMedia(keyboard?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?:
         Parameters<Ctx[`replyWithPaidMedia`]>[2] | null): Promise<grammy_types.Message.PaidMediaMessage>;
       parameters:
         - id: keyboard
           description: >-
             Optional inline keyboard markup from [Ctx.inlineKeyboard()](xref:gramstax!Ctx%23inlineKeyboard:member(1))
             (or null to omit).
-          type: <xref uid="gramstax!ITInlineKb:type" /> | null
+          type: <xref uid="gramstax!IInlineKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID position for block paid media (or null to use default).
           type: string | null
@@ -8976,7 +9411,10 @@ methods:
     uid: gramstax!Ctx#renderPhoto:member(1)
     package: gramstax!
     fullName: renderPhoto(keyboard, data, AGBaseId, options)
-    summary: Sends a photo message using the page template.
+    summary: |-
+      Sends a photo message using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -8989,21 +9427,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderPhoto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyPhoto | null): Promise<unknown>;
+        renderPhoto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto |
+        null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type photo (or null to use default).
           type: string | null
         - id: options
           description: Optional photo-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyPhoto:type" /> | null
+          type: <xref uid="gramstax!IOptReplyPhoto:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -9015,6 +9453,9 @@ methods:
       Sends or edits a photo message using the page template, auto-selecting between
       [Ctx.renderPhoto()](xref:gramstax!Ctx%23renderPhoto:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -9027,29 +9468,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderPhotoAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyPhoto | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderPhotoAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyPhoto | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type photo (or null to use default).
           type: string | null
         - id: options1
           description: Optional photo-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyPhoto:type" /> | null
+          type: <xref uid="gramstax!IOptReplyPhoto:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -9057,7 +9498,10 @@ methods:
     uid: gramstax!Ctx#renderPhotoGroup:member(1)
     package: gramstax!
     fullName: renderPhotoGroup(data, AGBaseId, options)
-    summary: Sends a photo media group using pipe-delimited `src` values from the page template.
+    summary: |-
+      Sends a photo media group using pipe-delimited `src` values from the page template.
+
+      Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -9070,18 +9514,18 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null):
+        renderPhotoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null):
         Promise<unknown>;
       parameters:
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type photo (or null to use default).
           type: string | null
         - id: options
           description: Optional photo-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyPhoto:type" /> | null
+          type: <xref uid="gramstax!IOptReplyPhoto:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group messages.
@@ -9123,17 +9567,17 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderPoll(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
+        renderPoll(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?:
         Parameters<Ctx[`replyWithPoll`]>[2] | null): Promise<grammy_types.Message.PollMessage>;
       parameters:
         - id: keyboard
           description: >-
             Optional keyboard markup from [Ctx.inlineKeyboard()](xref:gramstax!Ctx%23inlineKeyboard:member(1)) or
             [Ctx.bottomKeyboard()](xref:gramstax!Ctx%23bottomKeyboard:member(1)) (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID position for block poll (or null to use default).
           type: string | null
@@ -9143,6 +9587,53 @@ methods:
       return:
         type: Promise&lt;<xref uid="@grammyjs/types!Message.PollMessage:type" />&gt;
         description: The sent poll message object.
+  - name: renderPreCheckout(ok, data, AGBaseId, options)
+    uid: gramstax!Ctx#renderPreCheckout:member(1)
+    package: gramstax!
+    fullName: renderPreCheckout(ok, data, AGBaseId, options)
+    summary: Answers the active pre-checkout query with a template-backed error message.
+    remarks: >-
+      Template-backed counterpart to [Ctx.answerPreCheckout()](xref:gramstax!Ctx%23answerPreCheckout:member(1))<!-- -->:
+      the `<g-precheckout-error>` block supplies the `error_message` shown when payment is declined (multilang via
+      `data`<!-- -->). The block is always resolved — even for `ok=true` — as fail-fast validation that the template
+      exists. A string `options` overrides the block text as the error message.
+
+
+      Observe-only send-error coverage (mirrors `renderDice`<!-- -->): failures are classified via
+      `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!--
+      -->, `fallback-text` → `log.warn`<!-- -->). After notify+log the original error is ALWAYS rethrown untouched.
+
+
+      Telegram requires the answer within 10 seconds of the query.
+    example:
+      - |-
+        ```typescript
+        async handlePreCheckout() {
+          await this.renderPreCheckout(false, undefined, `pay-declined-card`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderPreCheckout(ok: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptPreCheckout |
+        null): Promise<true>;
+      parameters:
+        - id: ok
+          description: Whether to approve the checkout.
+          type: boolean
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position for the error message.
+          type: string
+        - id: options
+          description: Optional answer options, or a string overriding the error message (or null to omit).
+          type: <xref uid="gramstax!IOptPreCheckout:type" /> | null
+      return:
+        type: Promise&lt;true&gt;
+        description: True on success.
   - name: renderRich(keyboard, data, AGBaseId, options1, options2)
     uid: gramstax!Ctx#renderRich:member(1)
     package: gramstax!
@@ -9186,35 +9677,80 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | null):
-        Promise<grammy_types.Message.RichMessageMessage>;
+        renderRich(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0]
+        | null, options2?: IOptReplyRich[1] | null): Promise<grammy_types.Message.RichMessageMessage>;
       parameters:
         - id: keyboard
           description: >-
             Optional keyboard markup from [Ctx.inlineKeyboard()](xref:gramstax!Ctx%23inlineKeyboard:member(1)) or
             [Ctx.bottomKeyboard()](xref:gramstax!Ctx%23bottomKeyboard:member(1)) (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID position for block message (or null to use default).
           type: string | null
         - id: options1
           description: Optional `InputRichMessage` fields (`is_rtl`<!-- -->, `skip_entity_detection`<!-- -->) (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyRich:type" />[0] | null
+          type: <xref uid="gramstax!IOptReplyRich:type" />[0] | null
         - id: options2
           description: Optional send options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyRich:type" />[1] | null
+          type: <xref uid="gramstax!IOptReplyRich:type" />[1] | null
       return:
         type: Promise&lt;<xref uid="@grammyjs/types!Message.RichMessageMessage:type" />&gt;
         description: The sent message object.
+  - name: renderShipping(ok, data, AGBaseId, options)
+    uid: gramstax!Ctx#renderShipping:member(1)
+    package: gramstax!
+    fullName: renderShipping(ok, data, AGBaseId, options)
+    summary: Answers the active shipping query with a template-backed error message.
+    remarks: >-
+      The `<g-shipping-error>` block supplies the `error_message` shown when the shipping address is rejected (multilang
+      via `data`<!-- -->). The block is always resolved — even for `ok=true` — as fail-fast validation that the template
+      exists.
+
+
+      Observe-only send-error coverage (mirrors `renderPreCheckout`<!-- -->): failures are classified via
+      `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!--
+      -->, `fallback-text` → `log.warn`<!-- -->). After notify+log the original error is ALWAYS rethrown untouched.
+    example:
+      - |-
+        ```typescript
+        async handleShipping() {
+          await this.renderShipping(false, undefined, `ship-rejected-card`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderShipping(ok: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptShipping | null):
+        Promise<true>;
+      parameters:
+        - id: ok
+          description: Whether the shipping address is acceptable.
+          type: boolean
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position for the error message.
+          type: string
+        - id: options
+          description: Optional answer options such as `shipping_options` (or null to omit).
+          type: <xref uid="gramstax!IOptShipping:type" /> | null
+      return:
+        type: Promise&lt;true&gt;
+        description: True on success.
   - name: renderSticker(keyboard, data, AGBaseId, options)
     uid: gramstax!Ctx#renderSticker:member(1)
     package: gramstax!
     fullName: renderSticker(keyboard, data, AGBaseId, options)
-    summary: Sends a sticker using the page template.
+    summary: |-
+      Sends a sticker using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -9227,21 +9763,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderSticker(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplySticker | null): Promise<unknown>;
+        renderSticker(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptReplySticker | null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type sticker (or null to use default).
           type: string | null
         - id: options
           description: Optional sticker-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplySticker:type" /> | null
+          type: <xref uid="gramstax!IOptReplySticker:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -9253,6 +9789,9 @@ methods:
       Sends or edits a sticker using the page template, auto-selecting between
       [Ctx.renderSticker()](xref:gramstax!Ctx%23renderSticker:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -9265,30 +9804,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderStickerAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplySticker | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
-        Promise<unknown>;
+        renderStickerAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplySticker | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type sticker (or null to use default).
           type: string | null
         - id: options1
           description: Optional sticker-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplySticker:type" /> | null
+          type: <xref uid="gramstax!IOptReplySticker:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -9325,17 +9863,17 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderVenue(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
+        renderVenue(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?:
         Parameters<Ctx[`replyWithVenue`]>[4] | null): Promise<grammy_types.Message.VenueMessage>;
       parameters:
         - id: keyboard
           description: >-
             Optional keyboard markup from [Ctx.inlineKeyboard()](xref:gramstax!Ctx%23inlineKeyboard:member(1)) or
             [Ctx.bottomKeyboard()](xref:gramstax!Ctx%23bottomKeyboard:member(1)) (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template base ID position for block venue (or null to use default).
           type: string | null
@@ -9349,7 +9887,10 @@ methods:
     uid: gramstax!Ctx#renderVideo:member(1)
     package: gramstax!
     fullName: renderVideo(keyboard, data, AGBaseId, options)
-    summary: Sends a video message using the page template.
+    summary: |-
+      Sends a video message using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -9362,21 +9903,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderVideo(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyVideo | null): Promise<unknown>;
+        renderVideo(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo |
+        null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type video (or null to use default).
           type: string | null
         - id: options
           description: Optional video-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyVideo:type" /> | null
+          type: <xref uid="gramstax!IOptReplyVideo:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -9388,6 +9929,9 @@ methods:
       Sends or edits a video message using the page template, auto-selecting between
       [Ctx.renderVideo()](xref:gramstax!Ctx%23renderVideo:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -9400,29 +9944,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderVideoAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyVideo | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderVideoAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyVideo | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type video (or null to use default).
           type: string | null
         - id: options1
           description: Optional video-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyVideo:type" /> | null
+          type: <xref uid="gramstax!IOptReplyVideo:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -9430,7 +9974,10 @@ methods:
     uid: gramstax!Ctx#renderVideoGroup:member(1)
     package: gramstax!
     fullName: renderVideoGroup(data, AGBaseId, options)
-    summary: Sends a video media group using pipe-delimited `src` values from the page template.
+    summary: |-
+      Sends a video media group using pipe-delimited `src` values from the page template.
+
+      Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -9443,18 +9990,18 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null):
+        renderVideoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null):
         Promise<unknown>;
       parameters:
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type video (or null to use default).
           type: string | null
         - id: options
           description: Optional video-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyVideo:type" /> | null
+          type: <xref uid="gramstax!IOptReplyVideo:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent media group messages.
@@ -9462,7 +10009,10 @@ methods:
     uid: gramstax!Ctx#renderVideoNote:member(1)
     package: gramstax!
     fullName: renderVideoNote(keyboard, data, AGBaseId, options)
-    summary: Sends a video note (circular video) using the page template.
+    summary: |-
+      Sends a video note (circular video) using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -9475,21 +10025,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderVideoNote(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyVideoNote | null): Promise<unknown>;
+        renderVideoNote(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?:
+        IOptReplyVideoNote | null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type video\_note (or null to use default).
           type: string | null
         - id: options
           description: Optional video note-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyVideoNote:type" /> | null
+          type: <xref uid="gramstax!IOptReplyVideoNote:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -9501,6 +10051,9 @@ methods:
       Sends or edits a video note (circular video) using the page template, auto-selecting between
       [Ctx.renderVideoNote()](xref:gramstax!Ctx%23renderVideoNote:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -9513,30 +10066,29 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderVideoNoteAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyVideoNote | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit):
-        Promise<unknown>;
+        renderVideoNoteAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyVideoNote | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type video\_note (or null to use default).
           type: string | null
         - id: options1
           description: Optional video note-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyVideoNote:type" /> | null
+          type: <xref uid="gramstax!IOptReplyVideoNote:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
@@ -9544,7 +10096,10 @@ methods:
     uid: gramstax!Ctx#renderVoice:member(1)
     package: gramstax!
     fullName: renderVoice(keyboard, data, AGBaseId, options)
-    summary: Sends a voice message using the page template.
+    summary: |-
+      Sends a voice message using the page template.
+
+      Template block: `<g-media>` (read via `renderMedia`<!-- -->).
     remarks: ''
     example:
       - |-
@@ -9557,21 +10112,21 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderVoice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?:
-        ITOptReplyVoice | null): Promise<unknown>;
+        renderVoice(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVoice |
+        null): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type voice (or null to use default).
           type: string | null
         - id: options
           description: Optional voice-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyVoice:type" /> | null
+          type: <xref uid="gramstax!IOptReplyVoice:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent message object.
@@ -9583,6 +10138,9 @@ methods:
       Sends or edits a voice message using the page template, auto-selecting between
       [Ctx.renderVoice()](xref:gramstax!Ctx%23renderVoice:member(1)) and
       [Ctx.renderEditMedia()](xref:gramstax!Ctx%23renderEditMedia:member(1)) based on `!!this.callbackQuery`<!-- -->.
+
+
+      Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
     remarks: Callback-query updates edit in place while plain messages reply.
     example:
       - |-
@@ -9595,32 +10153,79 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderVoiceAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?:
-        ITOptReplyVoice | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+        renderVoiceAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?:
+        IOptReplyVoice | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup (or null to omit).
-          type: <xref uid="gramstax!ITInBoKb:type" /> | null
+          type: <xref uid="gramstax!IInBoKb:type" /> | null
         - id: data
           description: Optional template interpolation data (or null to omit).
-          type: <xref uid="gramstax!ITData:type" /> | null
+          type: <xref uid="gramstax!IData:type" /> | null
         - id: AGBaseId
           description: Optional template g-base ID position for block media type voice (or null to use default).
           type: string | null
         - id: options1
           description: Optional voice-specific options (or null to omit).
-          type: <xref uid="gramstax!ITOptReplyVoice:type" /> | null
+          type: <xref uid="gramstax!IOptReplyVoice:type" /> | null
         - id: options2
           description: Optional edit-specific options (or null to omit, send-only).
-          type: <xref uid="gramstax!ITOptEditMedia2:type" /> | null
+          type: <xref uid="gramstax!IOptEditMedia2:type" /> | null
         - id: fallbackEdit
           description: >-
             Fallback when the edit fails: `delete-reply` (default) deletes the original message and sends a new one;
             `reply` sends without deleting; `disable` rethrows.
-          type: <xref uid="gramstax!ITOptFallbackEdit:type" />
+          type: <xref uid="gramstax!IOptFallbackEdit:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: The sent or edited message object.
+  - name: renderWebAppAnswer(webAppQueryId, result, data, AGBaseId, options)
+    uid: gramstax!Ctx#renderWebAppAnswer:member(1)
+    package: gramstax!
+    fullName: renderWebAppAnswer(webAppQueryId, result, data, AGBaseId, options)
+    summary: Answers a web app query via the Bot API with a caller-built result.
+    remarks: >-
+      Unlike the other answers this carries an explicit query id (there is no context-aware alias — web app queries
+      arrive without an answerable update), mirroring `renderGift`<!-- -->'s explicit target. The result content is
+      built by the caller from `data` (multilang payloads); the `<g-answer-note>` block is resolved as fail-fast
+      validation that the template exists, per the AGBaseId-required policy.
+
+
+      Observe-only send-error coverage (mirrors `renderGift`<!-- -->): failures are classified via
+      `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!--
+      -->, `fallback-text` → `log.warn`<!-- -->). After notify+log the original error is ALWAYS rethrown untouched.
+    example:
+      - |-
+        ```typescript
+        async handleWebAppData() {
+          await this.renderWebAppAnswer(queryId, article, undefined, `webapp-card`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderWebAppAnswer(webAppQueryId: string, result: InlineQueryResult, data: IData | null | undefined, AGBaseId:
+        string, options?: IOptWebAppAnswer | null): Promise<grammy_types.SentWebAppMessage>;
+      parameters:
+        - id: webAppQueryId
+          description: Unique identifier for the query to answer.
+          type: string
+        - id: result
+          description: Inline result built by the caller.
+          type: <xref uid="@grammyjs/types!InlineQueryResult:type" />
+        - id: data
+          description: Optional template interpolation data (or null to omit).
+          type: <xref uid="gramstax!IData:type" /> | null | undefined
+        - id: AGBaseId
+          description: Template base ID position (resolved for validation).
+          type: string
+        - id: options
+          description: Optional abort signal (or null to omit).
+          type: <xref uid="gramstax!IOptWebAppAnswer:type" /> | null
+      return:
+        type: Promise&lt;<xref uid="@grammyjs/types!SentWebAppMessage:interface" />&gt;
+        description: The sent web app message object.
   - name: replyFallbackText()
     uid: gramstax!Ctx#replyFallbackText:member(1)
     package: gramstax!
@@ -13122,14 +13727,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'startGiveaway(params?: ITGiveawayParams | null, options?: ITGiveawayOptions | null): Promise<unknown>;'
+      content: 'startGiveaway(params?: IGiveawayParams | null, options?: IGiveawayOptions | null): Promise<unknown>;'
       parameters:
         - id: params
           description: Giveaway params `{channels, date, winners, prize}` (or null — throws).
-          type: <xref uid="gramstax!ITGiveawayParams:type" /> | null
+          type: <xref uid="gramstax!IGiveawayParams:type" /> | null
         - id: options
           description: Optional giveaway flags such as `onlyNewMembers` (or null to omit).
-          type: <xref uid="gramstax!ITGiveawayOptions:type" /> | null
+          type: <xref uid="gramstax!IGiveawayOptions:type" /> | null
       return:
         type: Promise&lt;unknown&gt;
         description: The sent giveaway message object.

@@ -6,10 +6,12 @@
 
 Replaces the current message with a voice message.
 
+Template block: `<g-media>` (read via `renderEditMedia`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+renderEditVoice(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ keyboardInline
 
 </td><td>
 
-[ITInlineKb](./gramstax.itinlinekb.md) \| null
+[IInlineKb](./gramstax.iinlinekb.md) \| null
 
 
 </td><td>
@@ -53,7 +55,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ options
 
 </td><td>
 
-[ITOptEditMedia2](./gramstax.itopteditmedia2.md) \| null
+[IOptEditMedia2](./gramstax.iopteditmedia2.md) \| null
 
 
 </td><td>
@@ -101,7 +103,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

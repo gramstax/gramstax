@@ -10,7 +10,7 @@ Hook invoked with a structured success event after every routed update.
 
 ```typescript
 /** @virtual */
-hookUpdate?(event: ITUpdateSuccessEvent): void;
+hookUpdate?(event: IUpdateSuccessEvent): void;
 ```
 
 ## Parameters
@@ -38,12 +38,12 @@ event
 
 </td><td>
 
-[ITUpdateSuccessEvent](./gramstax.itupdatesuccessevent.md)
+[IUpdateSuccessEvent](./gramstax.iupdatesuccessevent.md)
 
 
 </td><td>
 
-The structured success event. See [ITUpdateSuccessEvent](./gramstax.itupdatesuccessevent.md)<!-- -->.
+The structured success event. See [IUpdateSuccessEvent](./gramstax.iupdatesuccessevent.md)<!-- -->.
 
 
 </td></tr>
@@ -62,7 +62,7 @@ Audit trail counterpart of `hookUpdateError`<!-- -->. Fires for matched, no-matc
 
 ```typescript
 class MyBot extends Gramstax {
-  override hookUpdate(event: ITUpdateSuccessEvent): void {
+  override hookUpdate(event: IUpdateSuccessEvent): void {
     metrics.count(event.listenerName, event.state)
   }
 }

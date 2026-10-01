@@ -9,7 +9,7 @@ Get the most recent captured Bot API request.
 **Signature:**
 
 ```typescript
-lastRequest(method?: string): ITMockTelegramRequestRecord | undefined;
+lastRequest(method?: string): IMockTelegramRequestRecord | undefined;
 ```
 
 ## Parameters
@@ -50,7 +50,7 @@ _(Optional)_ Optional Telegram Bot API method name to filter by (e.g. `sendMessa
 
 **Returns:**
 
-[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md) \| undefined
+[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md) \| undefined
 
 The last matching request record, or `undefined` if none found.
 

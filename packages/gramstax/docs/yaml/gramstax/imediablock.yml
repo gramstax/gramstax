@@ -1,0 +1,63 @@
+### YamlMime:TSTypeAlias
+name: IMediaBlock
+uid: gramstax!IMediaBlock:type
+package: gramstax!
+fullName: IMediaBlock
+summary: Media block configuration for Telegram messages.
+remarks: >-
+  Declared with `<g-media>` blocks. Covers file-based media (photo, video, audio, document, animation, voice,
+  video\_note, sticker), location, contact, and the `group` placeholder that resolves through `mediaGroup`<!-- -->.
+  Pipe-delimited `src` values such as `a.jpg|b.jpg` are also exposed as `srcList` for Telegram media groups.
+  `<g-media-group>` blocks are exposed as `mediaGroup` items and may mix photo/video items. Telegram media groups
+  support up to 10 items and only for photo, video, audio, and document media.
+example:
+  - |-
+    ```typescript
+    const photoMedia: IMediaBlock = {
+      type: `photo`,
+      src: `path/to/image.jpg`,
+      caption: `A beautiful sunset`
+    }
+
+    const albumMedia: IMediaBlock = {
+      type: `photo`,
+      src: `one.jpg|two.jpg`,
+      srcList: [`one.jpg`, `two.jpg`],
+      caption: `Photo album`
+    }
+
+    const locationMedia: IMediaBlock = {
+      type: `location`,
+      latitude: `37.7749`,
+      longitude: `-122.4194`
+    }
+
+    const contactMedia: IMediaBlock = {
+      type: `contact`,
+      phone: `+1234567890`,
+      first_name: `John`,
+      last_name: `Doe`
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IMediaBlock = {
+      type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact` | `group`;
+      src?: string | InputFile | Buffer | Uint8Array;
+      srcList?: string[];
+      mediaGroup?: Array<{
+          type: `photo` | `video` | `audio` | `document`;
+          src: string | InputFile | Buffer | Uint8Array;
+          caption?: string;
+      }>;
+      caption?: string;
+      filename?: string;
+      latitude?: string;
+      longitude?: string;
+      live?: string;
+      phone?: string;
+      first_name?: string;
+      last_name?: string;
+      vcard?: string;
+  };

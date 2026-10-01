@@ -9,7 +9,7 @@ Serializes a [MetricsStore](./gramstax.metricsstore.md) snapshot into Prometheus
 **Signature:**
 
 ```typescript
-declare function metricsToPrometheus(snapshot: ReturnType<MetricsStore[`snapshot`]>, queueStats?: ITMetricsQueueStats | null): string;
+declare function metricsToPrometheus(snapshot: ReturnType<MetricsStore[`snapshot`]>, queueStats?: IMetricsQueueStats | null): string;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ queueStats
 
 </td><td>
 
-[ITMetricsQueueStats](./gramstax.itmetricsqueuestats.md) \| null
+[IMetricsQueueStats](./gramstax.imetricsqueuestats.md) \| null
 
 
 </td><td>

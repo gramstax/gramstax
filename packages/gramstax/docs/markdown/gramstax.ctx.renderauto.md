@@ -6,10 +6,12 @@
 
 Sends or edits a message using the page template, auto-selecting between [Ctx.render()](./gramstax.ctx.render.md) and [Ctx.renderEdit()](./gramstax.ctx.renderedit.md) based on `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-message>` (read via `renderEdit/render`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEdit | IOptReply | null, fallbackEdit?: IOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         rich_message: grammy_types.RichMessage;
     })>;
 ```
@@ -39,7 +41,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -55,7 +57,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -87,7 +89,7 @@ options
 
 </td><td>
 
-[ITOptEdit](./gramstax.itoptedit.md) \| [ITOptReply](./gramstax.itoptreply.md) \| null
+[IOptEdit](./gramstax.ioptedit.md) \| [IOptReply](./gramstax.ioptreply.md) \| null
 
 
 </td><td>
@@ -103,7 +105,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

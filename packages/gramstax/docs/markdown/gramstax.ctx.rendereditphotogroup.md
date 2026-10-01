@@ -6,10 +6,12 @@
 
 Replaces the current message with a photo media group.
 
+Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderEditPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+renderEditPhotoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -69,7 +71,7 @@ options
 
 </td><td>
 
-[ITOptReplyPhoto](./gramstax.itoptreplyphoto.md) \| null
+[IOptReplyPhoto](./gramstax.ioptreplyphoto.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

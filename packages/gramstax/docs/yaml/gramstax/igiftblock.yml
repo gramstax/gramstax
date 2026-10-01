@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: IGiftBlock
+uid: gramstax!IGiftBlock:type
+package: gramstax!
+fullName: IGiftBlock
+summary: Gift block for Telegram gifts.
+remarks: >-
+  Declared with `<g-gift>` blocks. `text` supports the same `{{var|filter}}` interpolation pipeline as poll questions
+  including HTML markup (`renderGift` sends with `text_parse_mode: HTML`<!-- -->).
+example:
+  - |-
+    ```typescript
+    const gift: IGiftBlock = {
+      text: `Hadiah <b>{{item}}</b> untukmu!`
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGiftBlock = {
+      text: string;
+  };

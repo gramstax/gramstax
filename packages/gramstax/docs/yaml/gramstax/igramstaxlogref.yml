@@ -1,0 +1,28 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxLogRef
+uid: gramstax!IGramstaxLogRef:type
+package: gramstax!
+fullName: IGramstaxLogRef
+summary: >-
+  `log` slot: `true` for the default logger, `false`<!-- -->/omitted for silent, otherwise a path-ref (or logger
+  options) resolving to a `LoggingHelper`<!-- -->.
+remarks: >-
+  Four accepted shapes (enforced by the loader): - a boolean (`true` mounts the default logger, `false` stays silent) -
+  a module path string resolving to a `LoggingHelper` - an `{override: {module, export?, args?}}` ref resolving to a
+  `LoggingHelper` - logger options `{pathFile?, force?, formatTime?}` — `pathFile` is a string or `null`<!-- -->,
+  `force` is one of `console`<!-- -->, `file`<!-- -->, `all`<!-- -->, `formatTime` is a string. Unknown fields are
+  rejected.
+example:
+  - |-
+    ```typescript
+    const silent: IGramstaxLogRef = false
+    const file: IGramstaxLogRef = {pathFile: `./logs/bot.log`, force: `all`}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxLogRef = boolean | IGramstaxPathRef | {
+      pathFile?: string | null;
+      force?: `console` | `file` | `all`;
+      formatTime?: string;
+  };

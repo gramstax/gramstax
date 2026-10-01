@@ -9,7 +9,7 @@ Gets compiled from block <g-invoice>.
 **Signature:**
 
 ```typescript
-getGInvoice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`invoice`][`default`][`default`]>;
+getGInvoice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`invoice`][`default`][`default`]>;
 ```
 
 ## Parameters
@@ -98,7 +98,7 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ITCompiledTemplate](./gramstax.itcompiledtemplate.md)<!-- -->\[\`invoice\`\]\[\`default\`\]\[\`default\`\]&gt;
+ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`invoice\`\]\[\`default\`\]\[\`default\`\]&gt;
 
 Invoice object containing title, description, payload, currency, and prices
 

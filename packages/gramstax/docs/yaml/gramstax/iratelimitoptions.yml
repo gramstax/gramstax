@@ -1,0 +1,23 @@
+### YamlMime:TSTypeAlias
+name: IRateLimitOptions
+uid: gramstax!IRateLimitOptions:type
+package: gramstax!
+fullName: IRateLimitOptions
+summary: Rate-limit configuration for incoming updates (`@grammyjs/ratelimiter`<!-- -->).
+remarks: >-
+  Configuration only — the rate-limit key and the behavior when the limit is exceeded are provided by overriding the
+  [Gramstax.hookKeyGenerator()](xref:gramstax!Gramstax%23hookKeyGenerator:member(1)) and
+  [Gramstax.hookRateLimited()](xref:gramstax!Gramstax%23hookRateLimited:member(1)) class hooks. Mounted via `limit()`
+  with `timeFrame: windowMs` and `limit: max`<!-- -->.
+example:
+  - |-
+    ```typescript
+    rateLimit: {windowMs: 1000, max: 5}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRateLimitOptions = {
+      windowMs: number;
+      max: number;
+  };

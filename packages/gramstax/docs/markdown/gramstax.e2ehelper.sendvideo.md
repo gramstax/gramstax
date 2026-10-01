@@ -9,7 +9,7 @@ Simulate a user sending a video message.
 **Signature:**
 
 ```typescript
-sendVideo(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
+sendVideo(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITE2eMediaOptions](./gramstax.ite2emediaoptions.md)
+[IE2eMediaOptions](./gramstax.ie2emediaoptions.md)
 
 
 </td><td>
@@ -50,7 +50,7 @@ _(Optional)_ Caption, user, chat, and response options.
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update.
 

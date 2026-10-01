@@ -9,7 +9,7 @@ Sends a media message to multiple users in bulk.
 **Signature:**
 
 ```typescript
-renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null): Promise<{
+renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact | null, throwError?: boolean | null, chunkSize?: number | null, chunkDelayMs?: number | null, excludeIds?: number[] | null, onProgress?: ((done: number, total: number) => void | Promise<void>) | null, startFrom?: number | null, concurrency?: number | null): Promise<{
         successCount: number;
         failedCount: number;
         totalCount: number;
@@ -79,7 +79,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -95,7 +95,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -127,7 +127,7 @@ options
 
 </td><td>
 
-[ITOptReplyPhoto](./gramstax.itoptreplyphoto.md) \| [ITOptReplyVideo](./gramstax.itoptreplyvideo.md) \| [ITOptReplyAudio](./gramstax.itoptreplyaudio.md) \| [ITOptReplyDocument](./gramstax.itoptreplydocument.md) \| [ITOptReplyAnimation](./gramstax.itoptreplyanimation.md) \| [ITOptReplyVoice](./gramstax.itoptreplyvoice.md) \| [ITOptReplyVideoNote](./gramstax.itoptreplyvideonote.md) \| [ITOptReplySticker](./gramstax.itoptreplysticker.md) \| [ITOptReplyLocation](./gramstax.itoptreplylocation.md) \| [ITOptReplyContact](./gramstax.itoptreplycontact.md) \| null
+[IOptReplyPhoto](./gramstax.ioptreplyphoto.md) \| [IOptReplyVideo](./gramstax.ioptreplyvideo.md) \| [IOptReplyAudio](./gramstax.ioptreplyaudio.md) \| [IOptReplyDocument](./gramstax.ioptreplydocument.md) \| [IOptReplyAnimation](./gramstax.ioptreplyanimation.md) \| [IOptReplyVoice](./gramstax.ioptreplyvoice.md) \| [IOptReplyVideoNote](./gramstax.ioptreplyvideonote.md) \| [IOptReplySticker](./gramstax.ioptreplysticker.md) \| [IOptReplyLocation](./gramstax.ioptreplylocation.md) \| [IOptReplyContact](./gramstax.ioptreplycontact.md) \| null
 
 
 </td><td>

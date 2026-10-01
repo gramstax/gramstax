@@ -6,10 +6,12 @@
 
 Sends an animation/GIF message using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderAnimation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAnimation | null): Promise<unknown>;
+renderAnimation(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAnimation | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -53,7 +55,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ options
 
 </td><td>
 
-[ITOptReplyAnimation](./gramstax.itoptreplyanimation.md) \| null
+[IOptReplyAnimation](./gramstax.ioptreplyanimation.md) \| null
 
 
 </td><td>

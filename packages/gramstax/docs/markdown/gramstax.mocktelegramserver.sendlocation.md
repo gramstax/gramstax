@@ -9,7 +9,7 @@ Simulate a user sending a location message.
 **Signature:**
 
 ```typescript
-sendLocation(options?: ITMockTelegramLocationOptions): Promise<ITMockTelegramRequestRecord[]>;
+sendLocation(options?: IMockTelegramLocationOptions): Promise<IMockTelegramRequestRecord[]>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITMockTelegramLocationOptions](./gramstax.itmocktelegramlocationoptions.md)
+[IMockTelegramLocationOptions](./gramstax.imocktelegramlocationoptions.md)
 
 
 </td><td>
@@ -50,7 +50,7 @@ _(Optional)_ Latitude, longitude, user, chat, and timeout options.
 
 **Returns:**
 
-Promise&lt;[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]&gt;
+Promise&lt;[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]&gt;
 
 Array of captured Bot API responses.
 

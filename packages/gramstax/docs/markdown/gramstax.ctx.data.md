@@ -9,12 +9,12 @@
 **Signature:**
 
 ```typescript
-static data?: ITPageDataBase;
+static data?: IPageDataBase;
 ```
 
 ## Remarks
 
-Optional by default — pages that do NOT define `static data` inherit `ITPageDataStatic | undefined`<!-- -->. Pages that override via `buildData(...)` get fully typed `callbackQueryData` with the configured args.
+Optional by default — pages that do NOT define `static data` inherit `IPageDataStatic | undefined`<!-- -->. Pages that override via `buildData(...)` get fully typed `callbackQueryData` with the configured args.
 
 ## Example
 

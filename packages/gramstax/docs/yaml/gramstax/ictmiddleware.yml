@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ICtMiddleware
+uid: gramstax!ICtMiddleware:type
+package: gramstax!
+fullName: ICtMiddleware
+summary: Type alias for Middleware.
+remarks: Middleware used to handle updates.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ICtMiddleware<C extends ICt = ICt> = Middleware<C>;

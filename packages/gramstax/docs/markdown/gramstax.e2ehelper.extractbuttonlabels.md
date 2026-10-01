@@ -9,7 +9,7 @@ Extract inline keyboard button labels from a captured API call.
 **Signature:**
 
 ```typescript
-extractButtonLabels(call: ITE2eApiCall): string[];
+extractButtonLabels(call: IE2eApiCall): string[];
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ call
 
 </td><td>
 
-[ITE2eApiCall](./gramstax.ite2eapicall.md)
+[IE2eApiCall](./gramstax.ie2eapicall.md)
 
 
 </td><td>

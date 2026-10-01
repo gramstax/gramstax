@@ -1,0 +1,13 @@
+### YamlMime:TSTypeAlias
+name: IBottomKb
+uid: gramstax!IBottomKb:type
+package: gramstax!
+fullName: IBottomKb
+summary: >-
+  Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to
+  `page.data.intentText` automatically.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IBottomKb = IBottomKbWithCtx;

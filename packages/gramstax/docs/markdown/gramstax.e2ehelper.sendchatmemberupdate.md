@@ -9,7 +9,7 @@ Simulate a chat member status transition (`chat_member` update).
 **Signature:**
 
 ```typescript
-sendChatMemberUpdate(options?: ITE2eChatMemberOptions): Promise<ITE2eApiCall[]>;
+sendChatMemberUpdate(options?: IE2eChatMemberOptions): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITE2eChatMemberOptions](./gramstax.ite2echatmemberoptions.md)
+[IE2eChatMemberOptions](./gramstax.ie2echatmemberoptions.md)
 
 
 </td><td>
@@ -50,7 +50,7 @@ _(Optional)_ Old/new statuses and user/chat configuration.
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update.
 

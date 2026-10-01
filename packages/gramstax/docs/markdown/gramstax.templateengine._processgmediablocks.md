@@ -10,7 +10,7 @@ Block: g-media Extracts and parses `<g-media>` blocks from a template string.
 
 ```typescript
 static _processGMediaBlocks(template: string): {
-        [lang: string]: ITMediaBlock;
+        [lang: string]: IMediaBlock;
     };
 ```
 
@@ -52,7 +52,7 @@ The template string containing `<g-media>` blocks
 
 **Returns:**
 
-{ \[lang: string\]: [ITMediaBlock](./gramstax.itmediablock.md)<!-- -->; }
+{ \[lang: string\]: [IMediaBlock](./gramstax.imediablock.md)<!-- -->; }
 
 An object mapping language keys to their corresponding media block configurations
 

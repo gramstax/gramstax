@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptGuestAnswer
+uid: gramstax!IOptGuestAnswer:type
+package: gramstax!
+fullName: IOptGuestAnswer
+summary: Options parameter mirroring `Context.answerGuestQuery`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptGuestAnswer = Parameters<Context[`answerGuestQuery`]>[1];

@@ -6,10 +6,12 @@
 
 Sends a text message reply using the page template.
 
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
+
 **Signature:**
 
 ```typescript
-render(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null): Promise<grammy_types.Message.TextMessage>;
+render(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReply | null): Promise<grammy_types.Message.TextMessage>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -53,7 +55,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ options
 
 </td><td>
 
-[ITOptReply](./gramstax.itoptreply.md) \| null
+[IOptReply](./gramstax.ioptreply.md) \| null
 
 
 </td><td>

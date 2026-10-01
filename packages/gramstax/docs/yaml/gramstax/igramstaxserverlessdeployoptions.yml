@@ -1,0 +1,29 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxServerlessDeployOptions
+uid: gramstax!IGramstaxServerlessDeployOptions:type
+package: gramstax!
+fullName: IGramstaxServerlessDeployOptions
+summary: Serverless deploy branch of `optionsDeploy`<!-- -->.
+remarks: >-
+  The adapter name is the KEY. Exactly one key must be present. Each key carries only the fields that adapter actually
+  uses.
+
+
+  The `secretToken` value is validated for shape only — it is NEVER baked into emitted bundles; the deployed function
+  reads the `BOT_WEBHOOK_SECRET` runtime binding instead.
+example:
+  - >-
+    ```typescript
+
+    const serverless: IGramstaxServerlessDeployOptions = {'cloudflare-mod': {url: `https://example.com/webhook`,
+    secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``}}
+
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxServerlessDeployOptions = {
+      "cloudflare-mod": IGramstaxCloudflareModOptions;
+  } | {
+      "aws-lambda-async": IGramstaxAwsLambdaAsyncOptions;
+  };

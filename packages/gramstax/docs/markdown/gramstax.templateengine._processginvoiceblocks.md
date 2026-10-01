@@ -10,7 +10,7 @@ Parses `<g-invoice>` blocks into Telegram invoice definitions.
 
 ```typescript
 static _processGInvoiceBlocks(template: string): {
-        [lang: string]: ITInvoiceBlock;
+        [lang: string]: IInvoiceBlock;
     };
 ```
 
@@ -52,7 +52,7 @@ The template string containing `<g-invoice>` blocks
 
 **Returns:**
 
-{ \[lang: string\]: [ITInvoiceBlock](./gramstax.itinvoiceblock.md)<!-- -->; }
+{ \[lang: string\]: [IInvoiceBlock](./gramstax.iinvoiceblock.md)<!-- -->; }
 
 An object mapping language keys to their invoice configurations
 

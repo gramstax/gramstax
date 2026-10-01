@@ -9,11 +9,11 @@ Simulate a user stopping message generation (Bot API 10.3 `stopped_message_gener
 **Signature:**
 
 ```typescript
-sendStoppedGeneration(options?: ITE2eUpdateOptions & {
-        chat?: ITE2eChat;
+sendStoppedGeneration(options?: IE2eUpdateOptions & {
+        chat?: IE2eChat;
         draft_id?: number;
         message_thread_id?: number;
-    }): Promise<ITE2eApiCall[]>;
+    }): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -41,7 +41,7 @@ options
 
 </td><td>
 
-[ITE2eUpdateOptions](./gramstax.ite2eupdateoptions.md) &amp; { chat?: [ITE2eChat](./gramstax.ite2echat.md)<!-- -->; draft\_id?: number; message\_thread\_id?: number; }
+[IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md) &amp; { chat?: [IE2eChat](./gramstax.ie2echat.md)<!-- -->; draft\_id?: number; message\_thread\_id?: number; }
 
 
 </td><td>
@@ -54,7 +54,7 @@ _(Optional)_ Chat, draft, thread and response options
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update
 

@@ -93,30 +93,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_DEFER](./gramstax.templatemanager._defer.md)
-
-
-</td><td>
-
-`static`
-
-`readonly`
-
-
-</td><td>
-
-unique symbol
-
-
-</td><td>
-
-Internal miss sentinel for template getters.
-
-
-</td></tr>
-<tr><td>
-
-[\_engine](./gramstax.templatemanager._engine.md)
+[engine](./gramstax.templatemanager.engine.md)
 
 
 </td><td>
@@ -135,66 +112,7 @@ Reference to the TemplateEngine class for compilation.
 </td></tr>
 <tr><td>
 
-[\_importCache](./gramstax.templatemanager._importcache.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Map&lt;string, string&gt;
-
-
-</td><td>
-
-Shared import-resolution cache reused across single-file reloads.
-
-
-</td></tr>
-<tr><td>
-
-[\_isWatchEnabled](./gramstax.templatemanager._iswatchenabled.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[ITTemplateOptions](./gramstax.ittemplateoptions.md)<!-- -->\[\`enableWatch\`\]
-
-
-</td><td>
-
-Flag indicating if file watching is enabled.
-
-
-</td></tr>
-<tr><td>
-
-[\_map](./gramstax.templatemanager._map.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Map&lt;string, [ITCompiledTemplate](./gramstax.itcompiledtemplate.md)<!-- -->&gt;
-
-
-</td><td>
-
-Map of compiled templates keyed by filename (without extension).
-
-
-</td></tr>
-<tr><td>
-
-[\_pageManager](./gramstax.templatemanager._pagemanager.md)
+[pageManager](./gramstax.templatemanager.pagemanager.md)
 
 
 </td><td>
@@ -213,7 +131,7 @@ Reference to PageManager for loading page modules.
 </td></tr>
 <tr><td>
 
-[\_path](./gramstax.templatemanager._path.md)
+[path](./gramstax.templatemanager.path.md)
 
 
 </td><td>
@@ -223,50 +141,12 @@ Reference to PageManager for loading page modules.
 
 </td><td>
 
-[ITTemplateOptions](./gramstax.ittemplateoptions.md)<!-- -->\[\`path\`\]
+[ITemplateOptions](./gramstax.itemplateoptions.md)<!-- -->\[\`path\`\]
 
 
 </td><td>
 
 Base paths for scanning template files.
-
-
-</td></tr>
-<tr><td>
-
-[\_supportedExtensions](./gramstax.templatemanager._supportedextensions.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Set&lt;string&gt;
-
-
-</td><td>
-
-Set of supported template file extensions.
-
-
-</td></tr>
-<tr><td>
-
-[\_watcher](./gramstax.templatemanager._watcher.md)
-
-
-</td><td>
-
-
-</td><td>
-
-FSWatcher\[\]
-
-
-</td><td>
-
-Active file system watchers for hot-reload.
 
 
 </td></tr>
@@ -292,218 +172,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_compile(key, template, keepIfExist, importCache, rawCache, filename)](./gramstax.templatemanager._compile.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Compiles a raw template string and stores the result in the cache.
-
-
-</td></tr>
-<tr><td>
-
-[\_getExtension(filename)](./gramstax.templatemanager._getextension.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Extracts the file extension from a filename.
-
-
-</td></tr>
-<tr><td>
-
-[\_getGBaseAtLine(template, line)](./gramstax.templatemanager._getgbaseatline.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Finds the `<g-base>` block (open + close) that encloses the given line number.
-
-
-</td></tr>
-<tr><td>
-
-[\_getKey(filename)](./gramstax.templatemanager._getkey.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Derives the cache key from a filename by removing the extension.
-
-
-</td></tr>
-<tr><td>
-
-[\_handleFileAdd(filepath)](./gramstax.templatemanager._handlefileadd.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles file add events from the watcher.
-
-
-</td></tr>
-<tr><td>
-
-[\_handleFileChange(filepath)](./gramstax.templatemanager._handlefilechange.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles file change events from the watcher.
-
-
-</td></tr>
-<tr><td>
-
-[\_handleFileDelete(filepath)](./gramstax.templatemanager._handlefiledelete.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles file delete events from the watcher.
-
-
-</td></tr>
-<tr><td>
-
-[\_handleWatchError(error)](./gramstax.templatemanager._handlewatcherror.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles watcher errors.
-
-
-</td></tr>
-<tr><td>
-
-[\_initializeWatcher(options)](./gramstax.templatemanager._initializewatcher.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Initializes file system watchers for hot reloading.
-
-
-</td></tr>
-<tr><td>
-
-[\_isValidFile(filename)](./gramstax.templatemanager._isvalidfile.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Checks if a file has a supported template extension.
-
-
-</td></tr>
-<tr><td>
-
-[\_loadAllFiles()](./gramstax.templatemanager._loadallfiles.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Loads all template files during initialization with batch optimization.
-
-
-</td></tr>
-<tr><td>
-
-[\_loadFile(filename)](./gramstax.templatemanager._loadfile.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Loads and compiles a single template file.
-
-
-</td></tr>
-<tr><td>
-
-[\_readTemplateFile(filename)](./gramstax.templatemanager._readtemplatefile.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Reads a template file's content from disk.
-
-
-</td></tr>
-<tr><td>
-
-[\_validatePath()](./gramstax.templatemanager._validatepath.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Validates and ensures all template directories exist.
-
-
-</td></tr>
-<tr><td>
-
-[\_validateTemplate(AGBaseId, template, filename)](./gramstax.templatemanager._validatetemplate.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Validates template syntax and throws a descriptive error on failure.
-
-The error message includes the enclosing `<g-base id="...">` based on the error line. If the `<g-base>` has no `id` or no `<g-base>` tag is found, the `on base` prefix is omitted.
-
-
-</td></tr>
-<tr><td>
-
 [clearCache()](./gramstax.templatemanager.clearcache.md)
 
 
@@ -525,6 +193,20 @@ Clears compiled template and import caches.
 
 
 </td><td>
+
+
+</td></tr>
+<tr><td>
+
+[compile(key, template, keepIfExist, importCache, rawCache, filename)](./gramstax.templatemanager.compile.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Compiles a raw template string and stores the result in the cache.
 
 
 </td></tr>
@@ -572,6 +254,34 @@ Gets available attribute scopes from block <g-description>.
 </td></tr>
 <tr><td>
 
+[getGAnswerNote(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getganswernote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled text from block <g-answer-note>.
+
+
+</td></tr>
+<tr><td>
+
+[getGCallbackAnswer(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgcallbackanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled text from block <g-callback-answer>.
+
+
+</td></tr>
+<tr><td>
+
 [getGDescription(key, AGBaseId, ALang, AScope, data)](./gramstax.templatemanager.getgdescription.md)
 
 
@@ -595,6 +305,34 @@ Gets a command description for Telegram menu.
 </td><td>
 
 Gets compiled from block <g-dice>.
+
+
+</td></tr>
+<tr><td>
+
+[getGGift(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getggift.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled text from block <g-gift>.
+
+
+</td></tr>
+<tr><td>
+
+[getGInlineButton(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getginlinebutton.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled button from block <g-inline-button>.
 
 
 </td></tr>
@@ -684,6 +422,34 @@ Gets compiled from block <g-poll>.
 </td></tr>
 <tr><td>
 
+[getGPrecheckoutError(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgprecheckouterror.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled text from block <g-precheckout-error>.
+
+
+</td></tr>
+<tr><td>
+
+[getGShippingError(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgshippingerror.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled text from block <g-shipping-error>.
+
+
+</td></tr>
+<tr><td>
+
 [getGVenue(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgvenue.md)
 
 
@@ -707,6 +473,36 @@ Gets compiled from block <g-venue>.
 </td><td>
 
 Checks if a template exists in the cache.
+
+
+</td></tr>
+<tr><td>
+
+[registerCompiled(key, compiled)](./gramstax.templatemanager.registercompiled.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers a pre-compiled template directly into the render map.
+
+
+</td></tr>
+<tr><td>
+
+[validateTemplate(AGBaseId, template, filename)](./gramstax.templatemanager.validatetemplate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Validates template syntax and throws a descriptive error on failure.
+
+The error message includes the enclosing `<g-base id="...">` based on the error line. If the `<g-base>` has no `id` or no `<g-base>` tag is found, the `on base` prefix is omitted.
 
 
 </td></tr>

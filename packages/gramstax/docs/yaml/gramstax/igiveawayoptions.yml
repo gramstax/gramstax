@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IGiveawayOptions
+uid: gramstax!IGiveawayOptions:type
+package: gramstax!
+fullName: IGiveawayOptions
+summary: Optional giveaway flags accepted by [Ctx.startGiveaway()](xref:gramstax!Ctx%23startGiveaway:member(1))<!-- -->.
+remarks: >-
+  Passthrough for the remaining `sendGiveaway` flags; combination rules (for example `prizeStarCount` versus
+  `premiumMonths`<!-- -->) are adjudicated by the Bot API, not validated here.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGiveawayOptions = {
+      onlyNewMembers?: boolean | null;
+      hasPublicWinners?: boolean | null;
+      prizeStarCount?: number | null;
+      premiumMonths?: number | null;
+  };

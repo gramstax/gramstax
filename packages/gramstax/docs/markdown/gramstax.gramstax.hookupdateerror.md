@@ -10,7 +10,7 @@ Hook invoked with a structured error event for every update failure (errors, tim
 
 ```typescript
 /** @virtual */
-hookUpdateError?(event: ITUpdateErrorEvent): void;
+hookUpdateError?(event: IUpdateErrorEvent): void;
 ```
 
 ## Parameters
@@ -38,12 +38,12 @@ event
 
 </td><td>
 
-[ITUpdateErrorEvent](./gramstax.itupdateerrorevent.md)
+[IUpdateErrorEvent](./gramstax.iupdateerrorevent.md)
 
 
 </td><td>
 
-The structured error event. See [ITUpdateErrorEvent](./gramstax.itupdateerrorevent.md)<!-- -->.
+The structured error event. See [IUpdateErrorEvent](./gramstax.iupdateerrorevent.md)<!-- -->.
 
 
 </td></tr>
@@ -62,7 +62,7 @@ Sibling hooks: `hookSendError` (per-send failures inside `Ctx.render*`<!-- -->, 
 
 ```typescript
 class MyBot extends Gramstax {
-  override hookUpdateError(event: ITUpdateErrorEvent): void {
+  override hookUpdateError(event: IUpdateErrorEvent): void {
     Sentry.captureException(event.error, {tags: {listener: event.listenerName}})
   }
 }

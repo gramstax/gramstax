@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IMockTelegramChat
+uid: gramstax!IMockTelegramChat:type
+package: gramstax!
+fullName: IMockTelegramChat
+summary: Basic Telegram mock chat profile used when generating message updates.
+remarks: >-
+  Mirrors the Telegram Bot API `Chat` object. Used alongside `IMockTelegramUser` to construct mock message updates sent
+  to the bot's webhook.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IMockTelegramChat = {
+      id?: number;
+      type?: `private` | `group` | `supergroup` | `channel`;
+      first_name?: string;
+      last_name?: string;
+      username?: string;
+      title?: string;
+  };

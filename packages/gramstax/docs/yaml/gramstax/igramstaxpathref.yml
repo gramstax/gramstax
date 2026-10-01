@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxPathRef
+uid: gramstax!IGramstaxPathRef:type
+package: gramstax!
+fullName: IGramstaxPathRef
+summary: Either a bare module path (default export, zero-arg) or a wrapped override ref.
+remarks: >-
+  The string form must be a non-empty string resolving relative to the project root. The object form is `{override:
+  {@link IGramstaxModuleRef}}` with `override.module`<!-- -->, optional `override.export`<!-- -->, and optional
+  `override.args`<!-- -->; unknown fields are rejected by the loader.
+example:
+  - |-
+    ```typescript
+    const bare: IGramstaxPathRef = `./src/cache.ts`
+    const full: IGramstaxPathRef = {override: {module: `./src/cache.ts`, export: `RedisCache`}}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxPathRef = string | {
+      override: IGramstaxModuleRef;
+  };

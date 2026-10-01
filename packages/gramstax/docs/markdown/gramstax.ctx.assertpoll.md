@@ -9,7 +9,7 @@ Fail-fast checks for a compiled `<g-poll>` block against Bot API limits.
 **Signature:**
 
 ```typescript
-static assertPoll(poll: ITPollBlock): void;
+static assertPoll(poll: IPollBlock): void;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ poll
 
 </td><td>
 
-[ITPollBlock](./gramstax.itpollblock.md)
+[IPollBlock](./gramstax.ipollblock.md)
 
 
 </td><td>

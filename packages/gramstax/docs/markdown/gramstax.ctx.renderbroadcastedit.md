@@ -6,10 +6,12 @@
 
 Edits already-sent messages for many recipients in bulk.
 
+Template block: `<g-media>` (read via `getGMedia`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderBroadcastEdit<T extends Exclude<ITMediaBlock[`type`], `group`>>(targets: ITBroadcastEditTarget[], type: T, keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?: ITOptEditMedia2 | null, broadcastOpts?: ITBroadcastEditOpts | null): Promise<ITBroadcastEditResult>;
+renderBroadcastEdit<T extends Exclude<IMediaBlock[`type`], `group`>>(targets: IBroadcastEditTarget[], type: T, keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact : IOptEditMedia1) | null, options2?: IOptEditMedia2 | null, broadcastOpts?: IBroadcastEditOpts | null): Promise<IBroadcastEditResult>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ targets
 
 </td><td>
 
-[ITBroadcastEditTarget](./gramstax.itbroadcastedittarget.md)<!-- -->\[\]
+[IBroadcastEditTarget](./gramstax.ibroadcastedittarget.md)<!-- -->\[\]
 
 
 </td><td>
@@ -69,7 +71,7 @@ keyboardInline
 
 </td><td>
 
-[ITInlineKb](./gramstax.itinlinekb.md) \| null
+[IInlineKb](./gramstax.iinlinekb.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -117,7 +119,7 @@ options1
 
 </td><td>
 
-(T extends \`voice\` ? [ITOptReplyVoice](./gramstax.itoptreplyvoice.md) : T extends \`video\_note\` ? [ITOptReplyVideoNote](./gramstax.itoptreplyvideonote.md) : T extends \`sticker\` ? [ITOptReplySticker](./gramstax.itoptreplysticker.md) : T extends \`location\` ? [ITOptReplyLocation](./gramstax.itoptreplylocation.md) : T extends \`contact\` ? [ITOptReplyContact](./gramstax.itoptreplycontact.md) : [ITOptEditMedia1](./gramstax.itopteditmedia1.md)<!-- -->) \| null
+(T extends \`voice\` ? [IOptReplyVoice](./gramstax.ioptreplyvoice.md) : T extends \`video\_note\` ? [IOptReplyVideoNote](./gramstax.ioptreplyvideonote.md) : T extends \`sticker\` ? [IOptReplySticker](./gramstax.ioptreplysticker.md) : T extends \`location\` ? [IOptReplyLocation](./gramstax.ioptreplylocation.md) : T extends \`contact\` ? [IOptReplyContact](./gramstax.ioptreplycontact.md) : [IOptEditMedia1](./gramstax.iopteditmedia1.md)<!-- -->) \| null
 
 
 </td><td>
@@ -133,7 +135,7 @@ options2
 
 </td><td>
 
-[ITOptEditMedia2](./gramstax.itopteditmedia2.md) \| null
+[IOptEditMedia2](./gramstax.iopteditmedia2.md) \| null
 
 
 </td><td>
@@ -149,7 +151,7 @@ broadcastOpts
 
 </td><td>
 
-[ITBroadcastEditOpts](./gramstax.itbroadcasteditopts.md) \| null
+[IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md) \| null
 
 
 </td><td>
@@ -162,7 +164,7 @@ _(Optional)_ Optional broadcast controls (`onProgress`<!-- -->, `startFrom`<!-- 
 
 **Returns:**
 
-Promise&lt;[ITBroadcastEditResult](./gramstax.itbroadcasteditresult.md)<!-- -->&gt;
+Promise&lt;[IBroadcastEditResult](./gramstax.ibroadcasteditresult.md)<!-- -->&gt;
 
 Counts plus `retryable[]` for a re-drive pass.
 
@@ -174,7 +176,7 @@ The intended input source is a stored sent-list such as the downstream `SentRepo
 
 Per-recipient semantics mirror `renderEditMedia` exactly: `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, `document`<!-- -->, and `animation` edit in place via `editMessageMedia` (with `InputFile` resolution + filename + caption); `voice`<!-- -->, `video_note`<!-- -->, `sticker`<!-- -->, `location`<!-- -->, and `contact` cannot be edited, so the old message is deleted and a new one is sent; pipe-delimited multi-src media deletes and resends a media group. Every resolved media input is cloned per recipient via `Ctx.cloneMediaInput`<!-- -->, so parallel workers never share one mutable `InputFile` instance.
 
-When the primary edit/delete+resend fails, the per-recipient `fallbackEdit` flow runs (default `delete-reply`<!-- -->: best-effort delete, then resend the media without `options1`<!-- -->/`options2`<!-- -->, with a `log.warn` when non-empty edit options are dropped). A failed fallback is classified via `Ctx.classifySendError`<!-- -->: `fallback-text` triggers a best-effort fallback-text send to that recipient (nested failures ignored) and `failedCount++`<!-- -->; `retryable` appends to `retryable[]` and the loop continues. `fallbackEdit: `<!-- -->disable<!-- -->\`\` skips the resend and classifies the primary error directly.
+When the primary edit/delete+resend fails, the per-recipient `fallbackEdit` flow runs (default `delete-reply`<!-- -->: best-effort delete, then resend the media without `options1`<!-- -->/`options2`<!-- -->, with a `log.warn` when non-empty edit options are dropped). A failed fallback is classified via `Ctx.classifySendError`<!-- -->: `fallback-text` triggers a best-effort fallback-text send to that recipient (nested failures ignored) and `failedCount++`<!-- -->; `retryable` appends to `retryable[]` and the loop continues. `fallbackEdit: disable` skips the resend and classifies the primary error directly.
 
 ## Example
 

@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IE2eCallbackQueryOptions
+uid: gramstax!IE2eCallbackQueryOptions:type
+package: gramstax!
+fullName: IE2eCallbackQueryOptions
+summary: E2E options for callback query updates.
+remarks: >-
+  Extends `IE2eUpdateOptions` with callback-query envelope fields. Used by `E2eHelper.sendCallbackQuery` to build the
+  surrounding message stub.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IE2eCallbackQueryOptions = IE2eUpdateOptions & {
+      id?: string;
+      messageText?: string;
+  };

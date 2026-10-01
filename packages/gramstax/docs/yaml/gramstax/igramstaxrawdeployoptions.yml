@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxRawDeployOptions
+uid: gramstax!IGramstaxRawDeployOptions:type
+package: gramstax!
+fullName: IGramstaxRawDeployOptions
+summary: Raw deploy branch of `optionsDeploy`<!-- -->.
+remarks: >-
+  Only meaningful when `deploy` is `raw`<!-- -->. Accepts no fields — any defined key is rejected as unknown. An empty
+  object counts as an empty branch.
+example:
+  - |-
+    ```typescript
+    const raw: IGramstaxRawDeployOptions = {}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: type IGramstaxRawDeployOptions = Record<string, never>;

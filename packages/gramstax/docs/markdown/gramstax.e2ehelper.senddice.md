@@ -9,7 +9,7 @@ Simulate a user sending a dice message.
 **Signature:**
 
 ```typescript
-sendDice(options?: ITE2eDiceOptions): Promise<ITE2eApiCall[]>;
+sendDice(options?: IE2eDiceOptions): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITE2eDiceOptions](./gramstax.ite2ediceoptions.md)
+[IE2eDiceOptions](./gramstax.ie2ediceoptions.md)
 
 
 </td><td>
@@ -50,7 +50,7 @@ _(Optional)_ Dice emoji, user, chat, and response options.
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update.
 

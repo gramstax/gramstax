@@ -3,94 +3,6 @@ uid: gramstax!
 name: gramstax
 type: package
 summary: ''
-interfaces:
-  - gramstax!_BottomKbWithCtx:interface
-  - gramstax!_InlineKbWithCtx:interface
-typeAliases:
-  - gramstax!_KbButtonWithPageText:type
-  - gramstax!_KbCallbackData:type
-  - gramstax!_KbPageLike:type
-  - gramstax!IRedisLockClient:type
-  - gramstax!ITBottomKb:type
-  - gramstax!ITBottomKbParams:type
-  - gramstax!ITBroadcastEditOpts:type
-  - gramstax!ITBroadcastEditResult:type
-  - gramstax!ITBroadcastEditTarget:type
-  - gramstax!ITBuildDataOptions:type
-  - gramstax!ITCacheRpc:type
-  - gramstax!ITCompiledTemplate:type
-  - gramstax!ITCt:type
-  - gramstax!ITCtMiddleware:type
-  - gramstax!ITCtxParams:type
-  - gramstax!ITCustomRouteEntry:type
-  - gramstax!ITData:type
-  - gramstax!ITDiceBlock:type
-  - gramstax!ITE2eApiCall:type
-  - gramstax!ITE2eCallbackQueryOptions:type
-  - gramstax!ITE2eChat:type
-  - gramstax!ITE2eChatMemberOptions:type
-  - gramstax!ITE2eContactOptions:type
-  - gramstax!ITE2eDiceOptions:type
-  - gramstax!ITE2eLocationOptions:type
-  - gramstax!ITE2eMediaOptions:type
-  - gramstax!ITE2eUpdateOptions:type
-  - gramstax!ITE2eUser:type
-  - gramstax!ITGiveawayOptions:type
-  - gramstax!ITGiveawayParams:type
-  - gramstax!ITGramstaxCtxScope:type
-  - gramstax!ITGramstaxParams:type
-  - gramstax!ITInBoKb:type
-  - gramstax!ITInlineKb:type
-  - gramstax!ITInlineKbParams:type
-  - gramstax!ITInvoiceBlock:type
-  - gramstax!ITKbCols:type
-  - gramstax!ITKbDest:type
-  - gramstax!ITMediaBlock:type
-  - gramstax!ITMetricsQueueStats:type
-  - gramstax!ITMockTelegramCallbackQueryOptions:type
-  - gramstax!ITMockTelegramChat:type
-  - gramstax!ITMockTelegramContactOptions:type
-  - gramstax!ITMockTelegramHandler:type
-  - gramstax!ITMockTelegramJson:type
-  - gramstax!ITMockTelegramLocationOptions:type
-  - gramstax!ITMockTelegramMediaOptions:type
-  - gramstax!ITMockTelegramRequestRecord:type
-  - gramstax!ITMockTelegramServerOptions:type
-  - gramstax!ITMockTelegramUpdateOptions:type
-  - gramstax!ITMockTelegramUser:type
-  - gramstax!ITOptEdit:type
-  - gramstax!ITOptEditMedia1:type
-  - gramstax!ITOptEditMedia2:type
-  - gramstax!ITOptFallbackEdit:type
-  - gramstax!ITOptReply:type
-  - gramstax!ITOptReplyAnimation:type
-  - gramstax!ITOptReplyAudio:type
-  - gramstax!ITOptReplyContact:type
-  - gramstax!ITOptReplyDocument:type
-  - gramstax!ITOptReplyLocation:type
-  - gramstax!ITOptReplyPhoto:type
-  - gramstax!ITOptReplyRich:type
-  - gramstax!ITOptReplySticker:type
-  - gramstax!ITOptReplyVideo:type
-  - gramstax!ITOptReplyVideoNote:type
-  - gramstax!ITOptReplyVoice:type
-  - gramstax!ITPageData:type
-  - gramstax!ITPageDataBase:type
-  - gramstax!ITPaidMediaBlock:type
-  - gramstax!ITPollBlock:type
-  - gramstax!ITRateLimitOptions:type
-  - gramstax!ITReplyAction:type
-  - gramstax!ITSendErrorHook:type
-  - gramstax!ITSendErrorInfo:type
-  - gramstax!ITSessionLockOnContended:type
-  - gramstax!ITSessionLockOptions:type
-  - gramstax!ITStoryContent:type
-  - gramstax!ITTemp:type
-  - gramstax!ITTemplateOptions:type
-  - gramstax!ITUpdateErrorEvent:type
-  - gramstax!ITUpdateSuccessEvent:type
-  - gramstax!ITVenueBlock:type
-  - gramstax!ITWebhookQueueConfig:type
 classes:
   - gramstax!BlockGKeyboard:class
   - gramstax!CacheExternal:class
@@ -106,6 +18,137 @@ classes:
   - gramstax!TemplateEngine:class
   - gramstax!TemplateManager:class
   - gramstax!WebhookQueue:class
+typeAliases:
+  - gramstax!GramstaxConfig:type
+  - gramstax!IAnswerNoteBlock:type
+  - gramstax!IAppManifest:type
+  - gramstax!IBottomKb:type
+  - gramstax!IBottomKbParams:type
+  - gramstax!IBroadcastEditOpts:type
+  - gramstax!IBroadcastEditResult:type
+  - gramstax!IBroadcastEditTarget:type
+  - gramstax!IBuildDataOptions:type
+  - gramstax!ICacheRpc:type
+  - gramstax!ICallbackAnswerBlock:type
+  - gramstax!ICompiledTemplate:type
+  - gramstax!ICt:type
+  - gramstax!ICtMiddleware:type
+  - gramstax!ICtxParams:type
+  - gramstax!ICustomRouteEntry:type
+  - gramstax!IData:type
+  - gramstax!IDiceBlock:type
+  - gramstax!IE2eApiCall:type
+  - gramstax!IE2eCallbackQueryOptions:type
+  - gramstax!IE2eChat:type
+  - gramstax!IE2eChatMemberOptions:type
+  - gramstax!IE2eContactOptions:type
+  - gramstax!IE2eDiceOptions:type
+  - gramstax!IE2eLocationOptions:type
+  - gramstax!IE2eMediaOptions:type
+  - gramstax!IE2eUpdateOptions:type
+  - gramstax!IE2eUser:type
+  - gramstax!IGiftBlock:type
+  - gramstax!IGiveawayOptions:type
+  - gramstax!IGiveawayParams:type
+  - gramstax!IGramstaxAwsLambdaAsyncOptions:type
+  - gramstax!IGramstaxBotClass:type
+  - gramstax!IGramstaxBuildOptions:type
+  - gramstax!IGramstaxBuildPlan:type
+  - gramstax!IGramstaxCacheKeyboardRef:type
+  - gramstax!IGramstaxCacheSessionRef:type
+  - gramstax!IGramstaxCloudflareModOptions:type
+  - gramstax!IGramstaxConfig:type
+  - gramstax!IGramstaxCtxScope:type
+  - gramstax!IGramstaxExplicitBuildKeys:type
+  - gramstax!IGramstaxLogRef:type
+  - gramstax!IGramstaxModuleRef:type
+  - gramstax!IGramstaxOptionsDeploy:type
+  - gramstax!IGramstaxParams:type
+  - gramstax!IGramstaxPathRef:type
+  - gramstax!IGramstaxPlanSource:type
+  - gramstax!IGramstaxPollingDeployOptions:type
+  - gramstax!IGramstaxRawDeployOptions:type
+  - gramstax!IGramstaxServerlessAdapter:type
+  - gramstax!IGramstaxServerlessDeployOptions:type
+  - gramstax!IGramstaxSessionLockRef:type
+  - gramstax!IGramstaxStartOptions:type
+  - gramstax!IGramstaxTemplateManagerRef:type
+  - gramstax!IGramstaxTestDeployOptions:type
+  - gramstax!IGramstaxWebhookDeployOptions:type
+  - gramstax!IInBoKb:type
+  - gramstax!IInlineButtonBlock:type
+  - gramstax!IInlineKb:type
+  - gramstax!IInlineKbParams:type
+  - gramstax!IInvoiceBlock:type
+  - gramstax!IKbButtonWithPageText:type
+  - gramstax!IKbCallbackData:type
+  - gramstax!IKbCols:type
+  - gramstax!IKbDest:type
+  - gramstax!IKbPageLike:type
+  - gramstax!IMediaBlock:type
+  - gramstax!IMetricsQueueStats:type
+  - gramstax!IMockTelegramCallbackQueryOptions:type
+  - gramstax!IMockTelegramChat:type
+  - gramstax!IMockTelegramContactOptions:type
+  - gramstax!IMockTelegramHandler:type
+  - gramstax!IMockTelegramJson:type
+  - gramstax!IMockTelegramLocationOptions:type
+  - gramstax!IMockTelegramMediaOptions:type
+  - gramstax!IMockTelegramRequestRecord:type
+  - gramstax!IMockTelegramServerOptions:type
+  - gramstax!IMockTelegramUpdateOptions:type
+  - gramstax!IMockTelegramUser:type
+  - gramstax!IOptCallbackAnswer:type
+  - gramstax!IOptEdit:type
+  - gramstax!IOptEditCaption:type
+  - gramstax!IOptEditKeyboard:type
+  - gramstax!IOptEditMedia1:type
+  - gramstax!IOptEditMedia2:type
+  - gramstax!IOptFallbackEdit:type
+  - gramstax!IOptGift:type
+  - gramstax!IOptGuestAnswer:type
+  - gramstax!IOptInlineAnswer:type
+  - gramstax!IOptPreCheckout:type
+  - gramstax!IOptReply:type
+  - gramstax!IOptReplyAnimation:type
+  - gramstax!IOptReplyAudio:type
+  - gramstax!IOptReplyContact:type
+  - gramstax!IOptReplyDocument:type
+  - gramstax!IOptReplyLocation:type
+  - gramstax!IOptReplyPhoto:type
+  - gramstax!IOptReplyRich:type
+  - gramstax!IOptReplySticker:type
+  - gramstax!IOptReplyVideo:type
+  - gramstax!IOptReplyVideoNote:type
+  - gramstax!IOptReplyVoice:type
+  - gramstax!IOptShipping:type
+  - gramstax!IOptWebAppAnswer:type
+  - gramstax!IPageData:type
+  - gramstax!IPageDataBase:type
+  - gramstax!IPageManifestEntry:type
+  - gramstax!IPaidMediaBlock:type
+  - gramstax!IPollBlock:type
+  - gramstax!IPrecheckoutErrorBlock:type
+  - gramstax!IRateLimitOptions:type
+  - gramstax!IRedisLockClient:type
+  - gramstax!IReplyAction:type
+  - gramstax!IRouteManifestEntry:type
+  - gramstax!ISendErrorHook:type
+  - gramstax!ISendErrorInfo:type
+  - gramstax!ISessionLockOnContended:type
+  - gramstax!ISessionLockOptions:type
+  - gramstax!IShippingErrorBlock:type
+  - gramstax!IStoryContent:type
+  - gramstax!ITemp:type
+  - gramstax!ITemplateManifestEntry:type
+  - gramstax!ITemplateOptions:type
+  - gramstax!IUpdateErrorEvent:type
+  - gramstax!IUpdateSuccessEvent:type
+  - gramstax!IVenueBlock:type
+  - gramstax!IWebhookQueueConfig:type
+interfaces:
+  - gramstax!IBottomKbWithCtx:interface
+  - gramstax!IInlineKbWithCtx:interface
 functions:
   - name: metricsToPrometheus(snapshot, queueStats)
     uid: gramstax!metricsToPrometheus:function(1)
@@ -120,14 +163,14 @@ functions:
     syntax:
       content: >-
         declare function metricsToPrometheus(snapshot: ReturnType<MetricsStore[`snapshot`]>, queueStats?:
-        ITMetricsQueueStats | null): string;
+        IMetricsQueueStats | null): string;
       parameters:
         - id: snapshot
           description: A `MetricsStore` snapshot (see `MetricsStore.snapshot`<!-- -->).
           type: ReturnType&lt;<xref uid="gramstax!MetricsStore:class" />[`snapshot`]&gt;
         - id: queueStats
           description: Optional webhook queue statistics.
-          type: <xref uid="gramstax!ITMetricsQueueStats:type" /> | null
+          type: <xref uid="gramstax!IMetricsQueueStats:type" /> | null
       return:
         type: string
         description: Prometheus exposition text.

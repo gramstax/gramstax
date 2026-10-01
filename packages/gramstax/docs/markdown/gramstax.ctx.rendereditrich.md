@@ -6,10 +6,12 @@
 
 Edits an existing message with rich content using the page template.
 
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderEditRich(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0] | null, options2?: IOptEdit | null, fallbackEdit?: IOptFallbackEdit): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
@@ -41,7 +43,7 @@ keyboardInline
 
 </td><td>
 
-[ITInlineKb](./gramstax.itinlinekb.md) \| null
+[IInlineKb](./gramstax.iinlinekb.md) \| null
 
 
 </td><td>
@@ -57,7 +59,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -89,7 +91,7 @@ options1
 
 </td><td>
 
-[ITOptReplyRich](./gramstax.itoptreplyrich.md)<!-- -->\[0\] \| null
+[IOptReplyRich](./gramstax.ioptreplyrich.md)<!-- -->\[0\] \| null
 
 
 </td><td>
@@ -105,7 +107,7 @@ options2
 
 </td><td>
 
-[ITOptEdit](./gramstax.itoptedit.md) \| null
+[IOptEdit](./gramstax.ioptedit.md) \| null
 
 
 </td><td>
@@ -121,7 +123,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

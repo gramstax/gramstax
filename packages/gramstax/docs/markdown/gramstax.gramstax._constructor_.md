@@ -9,7 +9,7 @@ Creates a new Gramstax bot instance.
 **Signature:**
 
 ```typescript
-constructor(params: ITGramstaxParams);
+constructor(params: IGramstaxParams);
 ```
 
 ## Parameters
@@ -37,12 +37,12 @@ params
 
 </td><td>
 
-[ITGramstaxParams](./gramstax.itgramstaxparams.md)
+[IGramstaxParams](./gramstax.igramstaxparams.md)
 
 
 </td><td>
 
-Configuration options. See [ITGramstaxParams](./gramstax.itgramstaxparams.md) for all available options.
+Configuration options. See [IGramstaxParams](./gramstax.igramstaxparams.md) for all available options.
 
 
 </td></tr>
@@ -56,14 +56,14 @@ Configuration options. See [ITGramstaxParams](./gramstax.itgramstaxparams.md) fo
 new Gramstax({token: "BOT_TOKEN", deploy: "polling"})
 
 // Webhook mode with Bun's HTTP server
-new Gramstax({token: "BOT_TOKEN", deploy: "webhook:https://example.com/bot"})
+new Gramstax({token: "BOT_TOKEN", deploy: "webhook", optionsDeploy: {webhook: {url: "https://example.com/bot", secretToken: "s3cr3t"}}})
 ```
 
 ## Example 2
 
 
 ```typescript
-// Serverless mode — Bun std/http adapter
+// Serverless mode — worker adapter
 //
 // The bot does NOT self-host; instead it sets up handlerBotUpdate
 // for your serverless runtime. Export the handler and let your
@@ -72,7 +72,8 @@ new Gramstax({token: "BOT_TOKEN", deploy: "webhook:https://example.com/bot"})
 // bot.ts — instantiation
 const bot = new Gramstax({
   token: process.env.BOT_TOKEN!,
-  deploy: "serverless:std/http"
+  deploy: "serverless",
+  optionsDeploy: {serverless: {"cloudflare-mod": {url: "https://example.com/webhook", secretToken: env.BOT_WEBHOOK_SECRET}}}
 })
 
 // handler.ts — server entry point
@@ -101,7 +102,8 @@ Bun.serve({
 // bot.ts
 const bot = new Gramstax({
   token: process.env.BOT_TOKEN!,
-  deploy: "serverless:aws-lambda"
+  deploy: "serverless",
+  optionsDeploy: {serverless: {"aws-lambda-async": {url: "https://example.com/webhook", secretToken: process.env.BOT_WEBHOOK_SECRET}}}
 })
 
 // lambda.ts
@@ -122,7 +124,7 @@ export const handler = async (event: APIGatewayProxyEvent, _ctx: Context) => {
 // Serverless mode — Cloudflare Workers
 //
 // bot.ts
-const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless:cloudflare-workers-mod"})
+const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless", optionsDeploy: {serverless: {"cloudflare-mod": {url: "https://example.com/webhook", secretToken: env.BOT_WEBHOOK_SECRET}}}})
 
 // worker.ts
 import {bot} from "./bot"

@@ -9,7 +9,7 @@ Simulate a user sending a contact message.
 **Signature:**
 
 ```typescript
-sendContact(options?: ITMockTelegramContactOptions): Promise<ITMockTelegramRequestRecord[]>;
+sendContact(options?: IMockTelegramContactOptions): Promise<IMockTelegramRequestRecord[]>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITMockTelegramContactOptions](./gramstax.itmocktelegramcontactoptions.md)
+[IMockTelegramContactOptions](./gramstax.imocktelegramcontactoptions.md)
 
 
 </td><td>
@@ -50,7 +50,7 @@ _(Optional)_ Phone number, name, user, chat, and timeout options.
 
 **Returns:**
 
-Promise&lt;[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]&gt;
+Promise&lt;[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]&gt;
 
 Array of captured Bot API responses.
 

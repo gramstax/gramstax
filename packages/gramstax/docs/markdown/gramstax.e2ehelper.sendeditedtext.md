@@ -9,7 +9,7 @@ Simulate an edited text message.
 **Signature:**
 
 ```typescript
-sendEditedText(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
+sendEditedText(text: string, options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ options
 
 </td><td>
 
-[ITE2eUpdateOptions](./gramstax.ite2eupdateoptions.md)
+[IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md)
 
 
 </td><td>
@@ -66,7 +66,7 @@ _(Optional)_ User, chat, and response options.
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update.
 

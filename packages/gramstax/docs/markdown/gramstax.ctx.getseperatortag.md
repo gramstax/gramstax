@@ -9,7 +9,7 @@ Gets the separator character for the specified method.
 **Signature:**
 
 ```typescript
-getSeperatorTag(mtd?: `space` | `colon`): " " | ":";
+getSeperatorTag(mtd?: `space` | `colon`): ":" | " ";
 ```
 
 ## Parameters
@@ -50,7 +50,7 @@ _(Optional)_ The separator method: "space" or "colon". Default: "space".
 
 **Returns:**
 
-" " \| ":"
+":" \| " "
 
 The separator character (" " or ":").
 

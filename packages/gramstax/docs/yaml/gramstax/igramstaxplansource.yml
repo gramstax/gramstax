@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxPlanSource
+uid: gramstax!IGramstaxPlanSource:type
+package: gramstax!
+fullName: IGramstaxPlanSource
+summary: Provenance of a resolved `IGramstaxBuildPlan` value.
+remarks: >-
+  `config` means the value came from an explicit key in `gramstax.config.ts` (see `loadExplicitBuildKeys`<!-- -->);
+  `default` means the fallback was used. `IGramstaxBuildPlan.adapterSource` widens this with `flag` when `--target` was
+  passed on the command line.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IGramstaxPlanSource = `config` | `default`;

@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IPageManifestEntry
+uid: gramstax!IPageManifestEntry:type
+package: gramstax!
+fullName: IPageManifestEntry
+summary: One page entry of a static app manifest.
+remarks: >-
+  Emitted by `buildManifest` as `{path, routeName, page}` per discovered page file. Consumed by `_pageLoadsFromManifest`
+  — `path` feeds `_pageRegisterEntry` (and the empty-`routeName` error), `routeName` is the template key for the
+  class-inline template compile, `page` is the imported page class whose `static template` rides along.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IPageManifestEntry = {
+      path: string;
+      routeName: string;
+      page: typeof Ctx;
+  };

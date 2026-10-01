@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplyLocation
+uid: gramstax!IOptReplyLocation:type
+package: gramstax!
+fullName: IOptReplyLocation
+summary: Options parameter mirroring `Context.replyWithLocation`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplyLocation = Parameters<Context[`replyWithLocation`]>[2];

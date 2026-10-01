@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IE2eLocationOptions
+uid: gramstax!IE2eLocationOptions:type
+package: gramstax!
+fullName: IE2eLocationOptions
+summary: E2E options for location messages.
+remarks: >-
+  Extends `IE2eUpdateOptions` with geographic coordinates. Used by `E2eHelper.sendLocation`<!-- -->, which defaults both
+  axes to `0`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IE2eLocationOptions = IE2eUpdateOptions & {
+      latitude?: number;
+      longitude?: number;
+  };

@@ -9,12 +9,12 @@ Simulate a community chat joined service message (Bot API 10.3 `community_chat_j
 **Signature:**
 
 ```typescript
-sendCommunityChatJoined(options?: ITMockTelegramUpdateOptions & {
+sendCommunityChatJoined(options?: IMockTelegramUpdateOptions & {
         community?: {
             id?: number;
             name?: string;
         };
-    }): Promise<ITMockTelegramRequestRecord[]>;
+    }): Promise<IMockTelegramRequestRecord[]>;
 ```
 
 ## Parameters
@@ -42,7 +42,7 @@ options
 
 </td><td>
 
-[ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md) &amp; { community?: { id?: number; name?: string; }; }
+[IMockTelegramUpdateOptions](./gramstax.imocktelegramupdateoptions.md) &amp; { community?: { id?: number; name?: string; }; }
 
 
 </td><td>
@@ -55,7 +55,7 @@ _(Optional)_ User, chat and community options
 
 **Returns:**
 
-Promise&lt;[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]&gt;
+Promise&lt;[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]&gt;
 
 Array of captured Bot API responses
 

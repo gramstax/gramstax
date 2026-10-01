@@ -1,0 +1,13 @@
+### YamlMime:TSTypeAlias
+name: IInlineKb
+uid: gramstax!IInlineKb:type
+package: gramstax!
+fullName: IInlineKb
+summary: >-
+  Inline keyboard whose `.text()` also accepts a page class/instance as the callback data — resolves to
+  `page.data.callbackQueryData()` automatically.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IInlineKb = IInlineKbWithCtx;

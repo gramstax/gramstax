@@ -1,0 +1,20 @@
+### YamlMime:TSTypeAlias
+name: IMockTelegramUpdateOptions
+uid: gramstax!IMockTelegramUpdateOptions:type
+package: gramstax!
+fullName: IMockTelegramUpdateOptions
+summary: Shared options for generated mock updates.
+remarks: >-
+  Base options object passed to all `send*` helper methods on `MockTelegramServer`<!-- -->. Controls the simulated user,
+  chat context, and response wait behavior.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IMockTelegramUpdateOptions = {
+      user?: IMockTelegramUser;
+      chat?: IMockTelegramChat;
+      date?: number;
+      message_id?: number;
+      responseTimeoutMs?: number;
+  };

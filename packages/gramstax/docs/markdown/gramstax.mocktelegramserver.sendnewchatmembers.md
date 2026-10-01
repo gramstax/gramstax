@@ -9,7 +9,7 @@ Simulate service message for new chat members joining.
 **Signature:**
 
 ```typescript
-sendNewChatMembers(options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
+sendNewChatMembers(options?: IMockTelegramUpdateOptions): Promise<IMockTelegramRequestRecord[]>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md)
+[IMockTelegramUpdateOptions](./gramstax.imocktelegramupdateoptions.md)
 
 
 </td><td>
@@ -50,7 +50,7 @@ _(Optional)_ User, chat, and timeout options.
 
 **Returns:**
 
-Promise&lt;[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)<!-- -->\[\]&gt;
+Promise&lt;[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)<!-- -->\[\]&gt;
 
 Array of captured Bot API responses.
 

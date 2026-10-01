@@ -9,7 +9,7 @@ The underlying Bot instance.
 **Signature:**
 
 ```typescript
-bot: Bot<ITCt>;
+bot: Bot<ICt>;
 ```
 
 ## Remarks

@@ -9,5 +9,5 @@ Default handler when a method has no specific handler.
 **Signature:**
 
 ```typescript
-defaultHandler?: ITMockTelegramHandler;
+defaultHandler?: IMockTelegramHandler;
 ```

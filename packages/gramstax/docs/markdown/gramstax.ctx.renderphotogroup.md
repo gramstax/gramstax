@@ -6,10 +6,12 @@
 
 Sends a photo media group using pipe-delimited `src` values from the page template.
 
+Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<unknown>;
+renderPhotoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -69,7 +71,7 @@ options
 
 </td><td>
 
-[ITOptReplyPhoto](./gramstax.itoptreplyphoto.md) \| null
+[IOptReplyPhoto](./gramstax.ioptreplyphoto.md) \| null
 
 
 </td><td>

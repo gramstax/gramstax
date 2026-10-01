@@ -10,7 +10,7 @@ Block: g-poll Extracts and parses `<g-poll>` blocks from a template string.
 
 ```typescript
 static _processGPollBlocks(template: string): {
-        [lang: string]: ITPollBlock;
+        [lang: string]: IPollBlock;
     };
 ```
 
@@ -52,7 +52,7 @@ The template string containing `<g-poll>` blocks
 
 **Returns:**
 
-{ \[lang: string\]: [ITPollBlock](./gramstax.itpollblock.md)<!-- -->; }
+{ \[lang: string\]: [IPollBlock](./gramstax.ipollblock.md)<!-- -->; }
 
 An object mapping language keys to their poll configurations
 

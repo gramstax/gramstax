@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IE2eDiceOptions
+uid: gramstax!IE2eDiceOptions:type
+package: gramstax!
+fullName: IE2eDiceOptions
+summary: E2E options for dice messages.
+remarks: >-
+  Extends `IE2eUpdateOptions` with the dice emoji selector. Used by `E2eHelper.sendDice`<!-- -->, which always rolls
+  value `1`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IE2eDiceOptions = IE2eUpdateOptions & {
+      emoji?: `🎲` | `🎯` | `🏀` | `⚽` | `🎰` | `🎳`;
+  };

@@ -6,10 +6,12 @@
 
 Sends a media message reply with dynamic type selection.
 
+Template block: `<g-media>` (read via `getGMedia`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null): Promise<unknown>;
+renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(type: T, keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: (T extends `photo` ? IOptReplyPhoto : T extends `video` ? IOptReplyVideo : T extends `audio` ? IOptReplyAudio : T extends `document` ? IOptReplyDocument : T extends `animation` ? IOptReplyAnimation : T extends `voice` ? IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact : undefined) | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -53,7 +55,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -69,7 +71,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -101,7 +103,7 @@ options
 
 </td><td>
 
-(T extends \`photo\` ? [ITOptReplyPhoto](./gramstax.itoptreplyphoto.md) : T extends \`video\` ? [ITOptReplyVideo](./gramstax.itoptreplyvideo.md) : T extends \`audio\` ? [ITOptReplyAudio](./gramstax.itoptreplyaudio.md) : T extends \`document\` ? [ITOptReplyDocument](./gramstax.itoptreplydocument.md) : T extends \`animation\` ? [ITOptReplyAnimation](./gramstax.itoptreplyanimation.md) : T extends \`voice\` ? [ITOptReplyVoice](./gramstax.itoptreplyvoice.md) : T extends \`video\_note\` ? [ITOptReplyVideoNote](./gramstax.itoptreplyvideonote.md) : T extends \`sticker\` ? [ITOptReplySticker](./gramstax.itoptreplysticker.md) : T extends \`location\` ? [ITOptReplyLocation](./gramstax.itoptreplylocation.md) : T extends \`contact\` ? [ITOptReplyContact](./gramstax.itoptreplycontact.md) : undefined) \| null
+(T extends \`photo\` ? [IOptReplyPhoto](./gramstax.ioptreplyphoto.md) : T extends \`video\` ? [IOptReplyVideo](./gramstax.ioptreplyvideo.md) : T extends \`audio\` ? [IOptReplyAudio](./gramstax.ioptreplyaudio.md) : T extends \`document\` ? [IOptReplyDocument](./gramstax.ioptreplydocument.md) : T extends \`animation\` ? [IOptReplyAnimation](./gramstax.ioptreplyanimation.md) : T extends \`voice\` ? [IOptReplyVoice](./gramstax.ioptreplyvoice.md) : T extends \`video\_note\` ? [IOptReplyVideoNote](./gramstax.ioptreplyvideonote.md) : T extends \`sticker\` ? [IOptReplySticker](./gramstax.ioptreplysticker.md) : T extends \`location\` ? [IOptReplyLocation](./gramstax.ioptreplylocation.md) : T extends \`contact\` ? [IOptReplyContact](./gramstax.ioptreplycontact.md) : undefined) \| null
 
 
 </td><td>

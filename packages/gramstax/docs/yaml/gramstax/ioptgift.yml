@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptGift
+uid: gramstax!IOptGift:type
+package: gramstax!
+fullName: IOptGift
+summary: Options parameter mirroring `Context.replyWithGift`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptGift = Parameters<Context[`replyWithGift`]>[1];

@@ -10,7 +10,7 @@ Block: g-dice Extracts and parses `<g-dice>` blocks from a template string.
 
 ```typescript
 static _processGDiceBlocks(template: string): {
-        [lang: string]: ITDiceBlock;
+        [lang: string]: IDiceBlock;
     };
 ```
 
@@ -52,7 +52,7 @@ The template string containing `<g-dice>` blocks
 
 **Returns:**
 
-{ \[lang: string\]: [ITDiceBlock](./gramstax.itdiceblock.md)<!-- -->; }
+{ \[lang: string\]: [IDiceBlock](./gramstax.idiceblock.md)<!-- -->; }
 
 An object mapping language keys to their dice configurations
 

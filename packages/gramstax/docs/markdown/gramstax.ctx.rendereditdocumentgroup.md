@@ -6,10 +6,12 @@
 
 Replaces the current message with a document media group.
 
+Template block: `<g-media>` (read via `renderEditMediaGroup`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderEditDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+renderEditDocumentGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -69,7 +71,7 @@ options
 
 </td><td>
 
-[ITOptReplyDocument](./gramstax.itoptreplydocument.md) \| null
+[IOptReplyDocument](./gramstax.ioptreplydocument.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

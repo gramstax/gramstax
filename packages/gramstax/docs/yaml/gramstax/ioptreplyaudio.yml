@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplyAudio
+uid: gramstax!IOptReplyAudio:type
+package: gramstax!
+fullName: IOptReplyAudio
+summary: Options parameter mirroring `Context.replyWithAudio`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplyAudio = Parameters<Context[`replyWithAudio`]>[1];

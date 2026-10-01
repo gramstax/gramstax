@@ -10,7 +10,7 @@ Block: g-venue Extracts and parses `<g-venue>` blocks from a template string.
 
 ```typescript
 static _processGVenueBlocks(template: string): {
-        [lang: string]: ITVenueBlock;
+        [lang: string]: IVenueBlock;
     };
 ```
 
@@ -52,7 +52,7 @@ The template string containing `<g-venue>` blocks
 
 **Returns:**
 
-{ \[lang: string\]: [ITVenueBlock](./gramstax.itvenueblock.md)<!-- -->; }
+{ \[lang: string\]: [IVenueBlock](./gramstax.ivenueblock.md)<!-- -->; }
 
 An object mapping language keys to their venue configurations
 

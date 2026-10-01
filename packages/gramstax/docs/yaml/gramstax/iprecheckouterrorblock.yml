@@ -1,0 +1,23 @@
+### YamlMime:TSTypeAlias
+name: IPrecheckoutErrorBlock
+uid: gramstax!IPrecheckoutErrorBlock:type
+package: gramstax!
+fullName: IPrecheckoutErrorBlock
+summary: Pre-checkout error block for Telegram payments.
+remarks: >-
+  Declared with `<g-precheckout-error>` blocks. `text` supports the same `{{var|filter}}` interpolation pipeline as poll
+  questions and becomes the `error_message` shown when payment is declined (plain text without HTML per the Bot API
+  `answerPreCheckoutQuery` limits).
+example:
+  - |-
+    ```typescript
+    const declined: IPrecheckoutErrorBlock = {
+      text: `Stok {{item}} habis`
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IPrecheckoutErrorBlock = {
+      text: string;
+  };

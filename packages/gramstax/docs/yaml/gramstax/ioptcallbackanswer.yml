@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptCallbackAnswer
+uid: gramstax!IOptCallbackAnswer:type
+package: gramstax!
+fullName: IOptCallbackAnswer
+summary: Options parameter mirroring `Context.answerCallbackQuery`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptCallbackAnswer = Parameters<Context[`answerCallbackQuery`]>[0];

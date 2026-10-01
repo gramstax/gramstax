@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxBuildOptions
+uid: gramstax!IGramstaxBuildOptions:type
+package: gramstax!
+fullName: IGramstaxBuildOptions
+summary: Parsed `gramstax build` flags.
+remarks: >-
+  Produced by `GramstaxBuild._parseArgv` from `--dry-run`<!-- -->, `--raw`<!-- -->, `--target <name>`<!-- -->, and
+  `--bundle`<!-- -->. All fields optional — an empty object means plain `gramstax build` with defaults.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxBuildOptions = {
+      dryRun?: boolean;
+      raw?: boolean;
+      target?: string;
+      bundle?: boolean;
+  };

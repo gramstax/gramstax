@@ -9,11 +9,11 @@ Retrieves session data for the current user.
 **Signature:**
 
 ```typescript
-getSession(): Promise<ITCacheRpc | null>;
+getSession(): Promise<ICacheRpc | null>;
 ```
 **Returns:**
 
-Promise&lt;[ITCacheRpc](./gramstax.itcacherpc.md) \| null&gt;
+Promise&lt;[ICacheRpc](./gramstax.icacherpc.md) \| null&gt;
 
 The session data, or null if not found or on error.
 

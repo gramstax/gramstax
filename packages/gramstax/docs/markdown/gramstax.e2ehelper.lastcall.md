@@ -9,7 +9,7 @@ Find the most recent captured API call.
 **Signature:**
 
 ```typescript
-lastCall(method?: string): ITE2eApiCall | undefined;
+lastCall(method?: string): IE2eApiCall | undefined;
 ```
 
 ## Parameters
@@ -50,7 +50,7 @@ _(Optional)_ Optional method name to filter by (e.g. `"sendMessage"`<!-- -->).
 
 **Returns:**
 
-[ITE2eApiCall](./gramstax.ite2eapicall.md) \| undefined
+[IE2eApiCall](./gramstax.ie2eapicall.md) \| undefined
 
 The last matching call, or `undefined` if none found.
 

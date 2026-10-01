@@ -9,7 +9,7 @@ Sends a rich message reply using the page template.
 **Signature:**
 
 ```typescript
-renderRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | null): Promise<grammy_types.Message.RichMessageMessage>;
+renderRich(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0] | null, options2?: IOptReplyRich[1] | null): Promise<grammy_types.Message.RichMessageMessage>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -85,7 +85,7 @@ options1
 
 </td><td>
 
-[ITOptReplyRich](./gramstax.itoptreplyrich.md)<!-- -->\[0\] \| null
+[IOptReplyRich](./gramstax.ioptreplyrich.md)<!-- -->\[0\] \| null
 
 
 </td><td>
@@ -101,7 +101,7 @@ options2
 
 </td><td>
 
-[ITOptReplyRich](./gramstax.itoptreplyrich.md)<!-- -->\[1\] \| null
+[IOptReplyRich](./gramstax.ioptreplyrich.md)<!-- -->\[1\] \| null
 
 
 </td><td>

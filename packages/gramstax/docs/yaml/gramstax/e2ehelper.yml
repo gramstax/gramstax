@@ -3,10 +3,35 @@ name: E2eHelper
 uid: gramstax!E2eHelper:class
 package: gramstax!
 fullName: E2eHelper
-summary: In-process E2E testing helper for Gramstax bots.
+summary: In-process E2E testing helper — simulates Telegram updates without HTTP.
 remarks: >-
+  Provides a lightweight alternative to spinning up a full webhook server for E2E tests. Uses `bot.api.config.use()` to
+  intercept all outbound Bot API calls in memory (0 HTTP, 0 Bun.serve), and injects Telegram Update objects directly via
+  `bot.bot.handleUpdate()`<!-- -->.
+
+
   Attached to `Gramstax.e2e` when the bot is created with `deploy: "test"`<!-- -->. All methods simulate Telegram
   updates without any HTTP server or port binding.
+
+
+  \*\*Typical usage:\*\*
+
+
+  ```typescript
+
+  import {BotCore} from "../src/core/bot"
+
+
+  const bot = new BotCore({deploy: "test", token: "test", log: false})
+
+  const e2e = bot.e2e
+
+
+  const responses = await e2e.sendText("/start", {user: {id: 2001}})
+
+  expect(responses[0]?.body?.text).toContain("Welcome")
+
+  ```
 example: []
 isPreview: false
 isDeprecated: false
@@ -28,6 +53,84 @@ constructors:
           description: The parent Gramstax instance.
           type: <xref uid="gramstax!Gramstax:class" />
 properties:
+  - name: _initialized
+    uid: gramstax!E2eHelper#_initialized:member
+    package: gramstax!
+    fullName: _initialized
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_initialized: boolean;'
+      return:
+        type: boolean
+  - name: _INTERNAL_METHODS
+    uid: gramstax!E2eHelper._INTERNAL_METHODS:member
+    package: gramstax!
+    fullName: _INTERNAL_METHODS
+    summary: 'Bot API methods treated as internal: answered but never recorded in `calls`<!-- -->. Mirrors the mock allowlist.'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static readonly _INTERNAL_METHODS: Set<string>;'
+      return:
+        type: Set&lt;string&gt;
+  - name: _nextApiMsgId
+    uid: gramstax!E2eHelper#_nextApiMsgId:member
+    package: gramstax!
+    fullName: _nextApiMsgId
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_nextApiMsgId: number;'
+      return:
+        type: number
+  - name: _nextMessageId
+    uid: gramstax!E2eHelper#_nextMessageId:member
+    package: gramstax!
+    fullName: _nextMessageId
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_nextMessageId: number;'
+      return:
+        type: number
+  - name: _nextUpdateId
+    uid: gramstax!E2eHelper#_nextUpdateId:member
+    package: gramstax!
+    fullName: _nextUpdateId
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_nextUpdateId: number;'
+      return:
+        type: number
+  - name: bot
+    uid: gramstax!E2eHelper#bot:member
+    package: gramstax!
+    fullName: bot
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'bot: Gramstax;'
+      return:
+        type: <xref uid="gramstax!Gramstax:class" />
   - name: calls
     uid: gramstax!E2eHelper#calls:member
     package: gramstax!
@@ -38,10 +141,209 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'calls: ITE2eApiCall[];'
+      content: 'calls: IE2eApiCall[];'
       return:
-        type: <xref uid="gramstax!ITE2eApiCall:type" />[]
+        type: <xref uid="gramstax!IE2eApiCall:type" />[]
 methods:
+  - name: _buildMessageUpdate(message, options)
+    uid: gramstax!E2eHelper#_buildMessageUpdate:member(1)
+    package: gramstax!
+    fullName: _buildMessageUpdate(message, options)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        _buildMessageUpdate(message: Record<string, unknown>, options?: IE2eUpdateOptions): {
+                update_id: number;
+                message: {
+                    message_id: number | undefined;
+                    date: number | undefined;
+                    chat: {
+                        title?: string | undefined;
+                        username?: string | undefined;
+                        last_name?: string | undefined;
+                        id: number | undefined;
+                        type: "group" | "channel" | "private" | "supergroup" | undefined;
+                        first_name: string | undefined;
+                    };
+                    from: {
+                        language_code: string | undefined;
+                        username?: string | undefined;
+                        last_name?: string | undefined;
+                        id: number | undefined;
+                        is_bot: boolean | undefined;
+                        first_name: string | undefined;
+                    };
+                };
+            };
+      parameters:
+        - id: message
+          description: ''
+          type: Record&lt;string, unknown&gt;
+        - id: options
+          description: ''
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
+      return:
+        type: |-
+          {
+                  update_id: number;
+                  message: {
+                      message_id: number | undefined;
+                      date: number | undefined;
+                      chat: {
+                          title?: string | undefined;
+                          username?: string | undefined;
+                          last_name?: string | undefined;
+                          id: number | undefined;
+                          type: "group" | "channel" | "private" | "supergroup" | undefined;
+                          first_name: string | undefined;
+                      };
+                      from: {
+                          language_code: string | undefined;
+                          username?: string | undefined;
+                          last_name?: string | undefined;
+                          id: number | undefined;
+                          is_bot: boolean | undefined;
+                          first_name: string | undefined;
+                      };
+                  };
+              }
+        description: ''
+  - name: _defaultChat(chat)
+    uid: gramstax!E2eHelper#_defaultChat:member(1)
+    package: gramstax!
+    fullName: _defaultChat(chat)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        _defaultChat(chat?: IE2eChat): {
+                title?: string | undefined;
+                username?: string | undefined;
+                last_name?: string | undefined;
+                id: number | undefined;
+                type: "group" | "channel" | "private" | "supergroup" | undefined;
+                first_name: string | undefined;
+            };
+      parameters:
+        - id: chat
+          description: ''
+          type: <xref uid="gramstax!IE2eChat:type" />
+      return:
+        type: |-
+          {
+                  title?: string | undefined;
+                  username?: string | undefined;
+                  last_name?: string | undefined;
+                  id: number | undefined;
+                  type: "group" | "channel" | "private" | "supergroup" | undefined;
+                  first_name: string | undefined;
+              }
+        description: ''
+  - name: _defaultUser(user)
+    uid: gramstax!E2eHelper#_defaultUser:member(1)
+    package: gramstax!
+    fullName: _defaultUser(user)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        _defaultUser(user?: IE2eUser): {
+                language_code: string | undefined;
+                username?: string | undefined;
+                last_name?: string | undefined;
+                id: number | undefined;
+                is_bot: boolean | undefined;
+                first_name: string | undefined;
+            };
+      parameters:
+        - id: user
+          description: ''
+          type: <xref uid="gramstax!IE2eUser:type" />
+      return:
+        type: |-
+          {
+                  language_code: string | undefined;
+                  username?: string | undefined;
+                  last_name?: string | undefined;
+                  id: number | undefined;
+                  is_bot: boolean | undefined;
+                  first_name: string | undefined;
+              }
+        description: ''
+  - name: _internalResponse(method)
+    uid: gramstax!E2eHelper#_internalResponse:member(1)
+    package: gramstax!
+    fullName: _internalResponse(method)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_internalResponse(method: string): unknown;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+      return:
+        type: unknown
+        description: ''
+  - name: _nextIds(options)
+    uid: gramstax!E2eHelper#_nextIds:member(1)
+    package: gramstax!
+    fullName: _nextIds(options)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        _nextIds(options?: IE2eUpdateOptions): {
+                updateId: number;
+                messageId: number | undefined;
+                date: number | undefined;
+            };
+      parameters:
+        - id: options
+          description: ''
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
+      return:
+        type: |-
+          {
+                  updateId: number;
+                  messageId: number | undefined;
+                  date: number | undefined;
+              }
+        description: ''
+  - name: _settleFrom(options)
+    uid: gramstax!E2eHelper#_settleFrom:member(1)
+    package: gramstax!
+    fullName: _settleFrom(options)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_settleFrom(options: IE2eUpdateOptions | undefined): number;'
+      parameters:
+        - id: options
+          description: ''
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" /> | undefined
+      return:
+        type: number
+        description: ''
   - name: clearCalls()
     uid: gramstax!E2eHelper#clearCalls:member(1)
     package: gramstax!
@@ -66,11 +368,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'extractButtonLabels(call: ITE2eApiCall): string[];'
+      content: 'extractButtonLabels(call: IE2eApiCall): string[];'
       parameters:
         - id: call
           description: Captured API call (e.g. from `sendText` response array).
-          type: <xref uid="gramstax!ITE2eApiCall:type" />
+          type: <xref uid="gramstax!IE2eApiCall:type" />
       return:
         type: string[]
         description: Flat array of button text labels.
@@ -86,11 +388,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'extractText(call: ITE2eApiCall): string | undefined;'
+      content: 'extractText(call: IE2eApiCall): string | undefined;'
       parameters:
         - id: call
           description: Captured API call.
-          type: <xref uid="gramstax!ITE2eApiCall:type" />
+          type: <xref uid="gramstax!IE2eApiCall:type" />
       return:
         type: string | undefined
         description: The message text, or `undefined` if neither field is present.
@@ -190,7 +492,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'handleUpdate(update: Record<string, unknown>, settleMs?: number): Promise<ITE2eApiCall[]>;'
+      content: 'handleUpdate(update: Record<string, unknown>, settleMs?: number): Promise<IE2eApiCall[]>;'
       parameters:
         - id: update
           description: A raw Telegram Update object.
@@ -199,7 +501,7 @@ methods:
           description: ''
           type: number
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: All API calls made while processing this update.
   - name: lastCall(method)
     uid: gramstax!E2eHelper#lastCall:member(1)
@@ -216,13 +518,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'lastCall(method?: string): ITE2eApiCall | undefined;'
+      content: 'lastCall(method?: string): IE2eApiCall | undefined;'
       parameters:
         - id: method
           description: Optional method name to filter by (e.g. `"sendMessage"`<!-- -->).
           type: string
       return:
-        type: <xref uid="gramstax!ITE2eApiCall:type" /> | undefined
+        type: <xref uid="gramstax!IE2eApiCall:type" /> | undefined
         description: The last matching call, or `undefined` if none found.
   - name: reset()
     uid: gramstax!E2eHelper#reset:member(1)
@@ -250,13 +552,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendAnimation(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendAnimation(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Caption, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+          type: <xref uid="gramstax!IE2eMediaOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendAudio(options)
     uid: gramstax!E2eHelper#sendAudio:member(1)
@@ -268,13 +570,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendAudio(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendAudio(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Caption, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+          type: <xref uid="gramstax!IE2eMediaOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendCallbackQuery(data, options)
     uid: gramstax!E2eHelper#sendCallbackQuery:member(1)
@@ -286,16 +588,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendCallbackQuery(data: string, options?: ITE2eCallbackQueryOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendCallbackQuery(data: string, options?: IE2eCallbackQueryOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: data
           description: The `callback_data` string from the pressed button.
           type: string
         - id: options
           description: Callback ID, message text, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eCallbackQueryOptions:type" />
+          type: <xref uid="gramstax!IE2eCallbackQueryOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendChannelPost(text, options)
     uid: gramstax!E2eHelper#sendChannelPost:member(1)
@@ -307,16 +609,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendChannelPost(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendChannelPost(text: string, options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: text
           description: The post text.
           type: string
         - id: options
           description: User, chat, and response options.
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendChatMemberUpdate(options)
     uid: gramstax!E2eHelper#sendChatMemberUpdate:member(1)
@@ -336,13 +638,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendChatMemberUpdate(options?: ITE2eChatMemberOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendChatMemberUpdate(options?: IE2eChatMemberOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Old/new statuses and user/chat configuration.
-          type: <xref uid="gramstax!ITE2eChatMemberOptions:type" />
+          type: <xref uid="gramstax!IE2eChatMemberOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendChosenInlineResult(resultId, query, options)
     uid: gramstax!E2eHelper#sendChosenInlineResult:member(1)
@@ -354,7 +656,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendChosenInlineResult(resultId: string, query: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendChosenInlineResult(resultId: string, query: string, options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: resultId
           description: The chosen result ID.
@@ -364,9 +666,9 @@ methods:
           type: string
         - id: options
           description: User, chat, and response options.
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendCommunityChatJoined(options)
     uid: gramstax!E2eHelper#sendCommunityChatJoined:member(1)
@@ -379,24 +681,24 @@ methods:
     isDeprecated: false
     syntax:
       content: |-
-        sendCommunityChatJoined(options?: ITE2eUpdateOptions & {
+        sendCommunityChatJoined(options?: IE2eUpdateOptions & {
                 community?: {
                     id?: number;
                     name?: string;
                 };
-            }): Promise<ITE2eApiCall[]>;
+            }): Promise<IE2eApiCall[]>;
       parameters:
         - id: options
           description: User, chat and response options
           type: |-
-            <xref uid="gramstax!ITE2eUpdateOptions:type" /> & {
+            <xref uid="gramstax!IE2eUpdateOptions:type" /> & {
                     community?: {
                         id?: number;
                         name?: string;
                     };
                 }
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update
   - name: sendContact(options)
     uid: gramstax!E2eHelper#sendContact:member(1)
@@ -408,13 +710,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendContact(options?: ITE2eContactOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendContact(options?: IE2eContactOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Phone number, name, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eContactOptions:type" />
+          type: <xref uid="gramstax!IE2eContactOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendDice(options)
     uid: gramstax!E2eHelper#sendDice:member(1)
@@ -426,13 +728,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendDice(options?: ITE2eDiceOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendDice(options?: IE2eDiceOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Dice emoji, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eDiceOptions:type" />
+          type: <xref uid="gramstax!IE2eDiceOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendDocument(options)
     uid: gramstax!E2eHelper#sendDocument:member(1)
@@ -444,13 +746,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendDocument(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendDocument(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Caption, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+          type: <xref uid="gramstax!IE2eMediaOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendEditedText(text, options)
     uid: gramstax!E2eHelper#sendEditedText:member(1)
@@ -462,16 +764,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendEditedText(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendEditedText(text: string, options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: text
           description: The new message text.
           type: string
         - id: options
           description: User, chat, and response options.
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendGiftInfo(giftInfo, options)
     uid: gramstax!E2eHelper#sendGiftInfo:member(1)
@@ -483,16 +785,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendGiftInfo(giftInfo: Record<string, unknown>, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendGiftInfo(giftInfo: Record<string, unknown>, options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: giftInfo
           description: Gift info payload (gift, origin, text, entities, is\_private)
           type: Record&lt;string, unknown&gt;
         - id: options
           description: User, chat and response options
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update
   - name: sendInlineQuery(query, options)
     uid: gramstax!E2eHelper#sendInlineQuery:member(1)
@@ -504,16 +806,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendInlineQuery(query: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendInlineQuery(query: string, options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: query
           description: The inline query text.
           type: string
         - id: options
           description: User, chat, and response options.
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendLocation(options)
     uid: gramstax!E2eHelper#sendLocation:member(1)
@@ -525,13 +827,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendLocation(options?: ITE2eLocationOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendLocation(options?: IE2eLocationOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Latitude, longitude, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eLocationOptions:type" />
+          type: <xref uid="gramstax!IE2eLocationOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendMyChatMemberUpdate(options)
     uid: gramstax!E2eHelper#sendMyChatMemberUpdate:member(1)
@@ -550,13 +852,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendMyChatMemberUpdate(options?: ITE2eChatMemberOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendMyChatMemberUpdate(options?: IE2eChatMemberOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Old/new statuses and chat configuration.
-          type: <xref uid="gramstax!ITE2eChatMemberOptions:type" />
+          type: <xref uid="gramstax!IE2eChatMemberOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendNewChatMembers(options)
     uid: gramstax!E2eHelper#sendNewChatMembers:member(1)
@@ -568,13 +870,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendNewChatMembers(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendNewChatMembers(options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: User, chat, and response options.
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendPhoto(options)
     uid: gramstax!E2eHelper#sendPhoto:member(1)
@@ -586,13 +888,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendPhoto(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendPhoto(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Caption, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+          type: <xref uid="gramstax!IE2eMediaOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendPollAnswer(pollId, optionIds, options)
     uid: gramstax!E2eHelper#sendPollAnswer:member(1)
@@ -604,7 +906,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendPollAnswer(pollId: string, optionIds: number[], options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendPollAnswer(pollId: string, optionIds: number[], options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: pollId
           description: The poll identifier.
@@ -614,9 +916,9 @@ methods:
           type: number[]
         - id: options
           description: User, chat, and response options.
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendSticker(options)
     uid: gramstax!E2eHelper#sendSticker:member(1)
@@ -628,13 +930,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendSticker(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendSticker(options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: User, chat, and response options.
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendStoppedGeneration(options)
     uid: gramstax!E2eHelper#sendStoppedGeneration:member(1)
@@ -647,22 +949,22 @@ methods:
     isDeprecated: false
     syntax:
       content: |-
-        sendStoppedGeneration(options?: ITE2eUpdateOptions & {
-                chat?: ITE2eChat;
+        sendStoppedGeneration(options?: IE2eUpdateOptions & {
+                chat?: IE2eChat;
                 draft_id?: number;
                 message_thread_id?: number;
-            }): Promise<ITE2eApiCall[]>;
+            }): Promise<IE2eApiCall[]>;
       parameters:
         - id: options
           description: Chat, draft, thread and response options
           type: |-
-            <xref uid="gramstax!ITE2eUpdateOptions:type" /> & {
-                    chat?: <xref uid="gramstax!ITE2eChat:type" />;
+            <xref uid="gramstax!IE2eUpdateOptions:type" /> & {
+                    chat?: <xref uid="gramstax!IE2eChat:type" />;
                     draft_id?: number;
                     message_thread_id?: number;
                 }
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update
   - name: sendStoppedMessageGeneration(options)
     uid: gramstax!E2eHelper#sendStoppedMessageGeneration:member(1)
@@ -675,22 +977,22 @@ methods:
     isDeprecated: false
     syntax:
       content: |-
-        sendStoppedMessageGeneration(options?: ITE2eUpdateOptions & {
-                chat?: ITE2eChat;
+        sendStoppedMessageGeneration(options?: IE2eUpdateOptions & {
+                chat?: IE2eChat;
                 draft_id?: number;
                 message_thread_id?: number;
-            }): Promise<ITE2eApiCall[]>;
+            }): Promise<IE2eApiCall[]>;
       parameters:
         - id: options
           description: Chat, draft, thread and response options
           type: |-
-            <xref uid="gramstax!ITE2eUpdateOptions:type" /> & {
-                    chat?: <xref uid="gramstax!ITE2eChat:type" />;
+            <xref uid="gramstax!IE2eUpdateOptions:type" /> & {
+                    chat?: <xref uid="gramstax!IE2eChat:type" />;
                     draft_id?: number;
                     message_thread_id?: number;
                 }
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update
   - name: sendText(text, options)
     uid: gramstax!E2eHelper#sendText:member(1)
@@ -702,16 +1004,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendText(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendText(text: string, options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: text
           description: The message text. If it starts with `/` a `bot_command` entity is added.
           type: string
         - id: options
           description: User, chat, and response options.
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendVideo(options)
     uid: gramstax!E2eHelper#sendVideo:member(1)
@@ -723,13 +1025,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendVideo(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendVideo(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Caption, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+          type: <xref uid="gramstax!IE2eMediaOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendVideoNote(options)
     uid: gramstax!E2eHelper#sendVideoNote:member(1)
@@ -741,13 +1043,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendVideoNote(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendVideoNote(options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: User, chat, and response options.
-          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+          type: <xref uid="gramstax!IE2eUpdateOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: sendVoice(options)
     uid: gramstax!E2eHelper#sendVoice:member(1)
@@ -759,13 +1061,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sendVoice(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      content: 'sendVoice(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;'
       parameters:
         - id: options
           description: Caption, user, chat, and response options.
-          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+          type: <xref uid="gramstax!IE2eMediaOptions:type" />
       return:
-        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        type: Promise&lt;<xref uid="gramstax!IE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
   - name: streamCalls()
     uid: gramstax!E2eHelper#streamCalls:member(1)
@@ -779,9 +1081,9 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'streamCalls(): ITE2eApiCall[];'
+      content: 'streamCalls(): IE2eApiCall[];'
       return:
-        type: <xref uid="gramstax!ITE2eApiCall:type" />[]
+        type: <xref uid="gramstax!IE2eApiCall:type" />[]
         description: Array of stream-related API calls.
   - name: streamChunks()
     uid: gramstax!E2eHelper#streamChunks:member(1)

@@ -9,10 +9,10 @@ External cache for user session data.
 **Signature:**
 
 ```typescript
-cacheSession: CacheExternal<ITCacheRpc>;
+cacheSession: CacheExternal<ICacheRpc>;
 ```
 
 ## Remarks
 
-Uses [CacheExternal](./gramstax.cacheexternal.md) with [ITCacheRpc](./gramstax.itcacherpc.md) transport for persistence.
+Uses [CacheExternal](./gramstax.cacheexternal.md) with [ICacheRpc](./gramstax.icacherpc.md) transport for persistence.
 

@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IE2eChat
+uid: gramstax!IE2eChat:type
+package: gramstax!
+fullName: IE2eChat
+summary: Simulated chat object for E2E updates.
+remarks: >-
+  Partial mirror of the Telegram Bot API Chat object. Any omitted field falls back to the helper default (`id` 1001,
+  `type` `private`<!-- -->, `first_name` `Test`<!-- -->). Consumed by `E2eHelper._defaultChat`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IE2eChat = {
+      id?: number;
+      type?: `private` | `group` | `supergroup` | `channel`;
+      first_name?: string;
+      last_name?: string;
+      username?: string;
+      title?: string;
+  };

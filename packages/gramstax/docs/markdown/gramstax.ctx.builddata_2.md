@@ -9,7 +9,7 @@ Creates page routing data configuration without a callback arg.
 **Signature:**
 
 ```typescript
-static buildData(options: ITBuildDataOptions | null): ITPageData<[]>;
+static buildData(options: IBuildDataOptions | null): IPageData<[]>;
 ```
 
 ## Parameters
@@ -37,12 +37,12 @@ options
 
 </td><td>
 
-[ITBuildDataOptions](./gramstax.itbuilddataoptions.md) \| null
+[IBuildDataOptions](./gramstax.ibuilddataoptions.md) \| null
 
 
 </td><td>
 
-Configuration options without `callbackQueryData` (or null to use defaults). See [ITBuildDataOptions](./gramstax.itbuilddataoptions.md) for details.
+Configuration options without `callbackQueryData` (or null to use defaults). See [IBuildDataOptions](./gramstax.ibuilddataoptions.md) for details.
 
 
 </td></tr>
@@ -50,7 +50,7 @@ Configuration options without `callbackQueryData` (or null to use defaults). See
 
 **Returns:**
 
-[ITPageData](./gramstax.itpagedata.md)<!-- -->&lt;\[\]&gt;
+[IPageData](./gramstax.ipagedata.md)<!-- -->&lt;\[\]&gt;
 
 The page data configuration object.
 

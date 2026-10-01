@@ -4,7 +4,7 @@
 
 ## E2eHelper class
 
-In-process E2E testing helper for Gramstax bots.
+In-process E2E testing helper — simulates Telegram updates without HTTP.
 
 **Signature:**
 
@@ -14,7 +14,21 @@ declare class E2eHelper
 
 ## Remarks
 
+Provides a lightweight alternative to spinning up a full webhook server for E2E tests. Uses `bot.api.config.use()` to intercept all outbound Bot API calls in memory (0 HTTP, 0 Bun.serve), and injects Telegram Update objects directly via `bot.bot.handleUpdate()`<!-- -->.
+
 Attached to `Gramstax.e2e` when the bot is created with `deploy: "test"`<!-- -->. All methods simulate Telegram updates without any HTTP server or port binding.
+
+\*\*Typical usage:\*\*
+
+```typescript
+import {BotCore} from "../src/core/bot"
+
+const bot = new BotCore({deploy: "test", token: "test", log: false})
+const e2e = bot.e2e
+
+const responses = await e2e.sendText("/start", {user: {id: 2001}})
+expect(responses[0]?.body?.text).toContain("Welcome")
+```
 
 ## Constructors
 
@@ -75,6 +89,114 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_initialized](./gramstax.e2ehelper._initialized.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_INTERNAL\_METHODS](./gramstax.e2ehelper._internal_methods.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+Set&lt;string&gt;
+
+
+</td><td>
+
+Bot API methods treated as internal: answered but never recorded in `calls`<!-- -->. Mirrors the mock allowlist.
+
+
+</td></tr>
+<tr><td>
+
+[\_nextApiMsgId](./gramstax.e2ehelper._nextapimsgid.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_nextMessageId](./gramstax.e2ehelper._nextmessageid.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_nextUpdateId](./gramstax.e2ehelper._nextupdateid.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[bot](./gramstax.e2ehelper.bot.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[Gramstax](./gramstax.gramstax.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [calls](./gramstax.e2ehelper.calls.md)
 
 
@@ -83,7 +205,7 @@ Description
 
 </td><td>
 
-[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]
+[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]
 
 
 </td><td>
@@ -113,6 +235,78 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_buildMessageUpdate(message, options)](./gramstax.e2ehelper._buildmessageupdate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_defaultChat(chat)](./gramstax.e2ehelper._defaultchat.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_defaultUser(user)](./gramstax.e2ehelper._defaultuser.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_internalResponse(method)](./gramstax.e2ehelper._internalresponse.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_nextIds(options)](./gramstax.e2ehelper._nextids.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_settleFrom(options)](./gramstax.e2ehelper._settlefrom.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 [clearCalls()](./gramstax.e2ehelper.clearcalls.md)
 

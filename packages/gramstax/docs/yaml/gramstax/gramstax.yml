@@ -29,17 +29,23 @@ constructors:
     summary: Creates a new Gramstax bot instance.
     remarks: ''
     example:
-      - |-
+      - >-
         ```typescript
+
         // Polling mode (development, local testing)
+
         new Gramstax({token: "BOT_TOKEN", deploy: "polling"})
 
+
         // Webhook mode with Bun's HTTP server
-        new Gramstax({token: "BOT_TOKEN", deploy: "webhook:https://example.com/bot"})
+
+        new Gramstax({token: "BOT_TOKEN", deploy: "webhook", optionsDeploy: {webhook: {url: "https://example.com/bot",
+        secretToken: "s3cr3t"}}})
+
         ```
       - |-
         ```typescript
-        // Serverless mode — Bun std/http adapter
+        // Serverless mode — worker adapter
         //
         // The bot does NOT self-host; instead it sets up handlerBotUpdate
         // for your serverless runtime. Export the handler and let your
@@ -48,7 +54,8 @@ constructors:
         // bot.ts — instantiation
         const bot = new Gramstax({
           token: process.env.BOT_TOKEN!,
-          deploy: "serverless:std/http"
+          deploy: "serverless",
+          optionsDeploy: {serverless: {"cloudflare-mod": {url: "https://example.com/webhook", secretToken: env.BOT_WEBHOOK_SECRET}}}
         })
 
         // handler.ts — server entry point
@@ -74,7 +81,8 @@ constructors:
         // bot.ts
         const bot = new Gramstax({
           token: process.env.BOT_TOKEN!,
-          deploy: "serverless:aws-lambda"
+          deploy: "serverless",
+          optionsDeploy: {serverless: {"aws-lambda-async": {url: "https://example.com/webhook", secretToken: process.env.BOT_WEBHOOK_SECRET}}}
         })
 
         // lambda.ts
@@ -87,15 +95,23 @@ constructors:
           return await bot.handlerBotUpdate(event)
         }
         ```
-      - |-
+      - >-
         ```typescript
+
         // Serverless mode — Cloudflare Workers
+
         //
+
         // bot.ts
-        const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless:cloudflare-workers-mod"})
+
+        const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless", optionsDeploy: {serverless:
+        {"cloudflare-mod": {url: "https://example.com/webhook", secretToken: env.BOT_WEBHOOK_SECRET}}}})
+
 
         // worker.ts
+
         import {bot} from "./bot"
+
 
         export default {
           async fetch(request: Request) {
@@ -106,17 +122,16 @@ constructors:
             return new Response("OK")
           }
         }
+
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'constructor(params: ITGramstaxParams);'
+      content: 'constructor(params: IGramstaxParams);'
       parameters:
         - id: params
-          description: >-
-            Configuration options. See [ITGramstaxParams](xref:gramstax!ITGramstaxParams:type) for all available
-            options.
-          type: <xref uid="gramstax!ITGramstaxParams:type" />
+          description: Configuration options. See [IGramstaxParams](xref:gramstax!IGramstaxParams:type) for all available options.
+          type: <xref uid="gramstax!IGramstaxParams:type" />
 properties:
   - name: _seenUpdatesMax
     uid: gramstax!Gramstax#_seenUpdatesMax:member
@@ -141,9 +156,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'bot: Bot<ITCt>;'
+      content: 'bot: Bot<ICt>;'
       return:
-        type: <xref uid="grammy!Bot:class" />&lt;<xref uid="gramstax!ITCt:type" />&gt;
+        type: <xref uid="grammy!Bot:class" />&lt;<xref uid="gramstax!ICt:type" />&gt;
   - name: botConfig
     uid: gramstax!Gramstax#botConfig:member
     package: gramstax!
@@ -154,9 +169,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'botConfig?: BotConfig<ITCt>;'
+      content: 'botConfig?: BotConfig<ICt>;'
       return:
-        type: <xref uid="grammy!BotConfig:interface" />&lt;<xref uid="gramstax!ITCt:type" />&gt;
+        type: <xref uid="grammy!BotConfig:interface" />&lt;<xref uid="gramstax!ICt:type" />&gt;
   - name: cacheKeyboard
     uid: gramstax!Gramstax#cacheKeyboard:member
     package: gramstax!
@@ -176,15 +191,15 @@ properties:
     fullName: cacheSession
     summary: External cache for user session data.
     remarks: >-
-      Uses [CacheExternal](xref:gramstax!CacheExternal:class) with [ITCacheRpc](xref:gramstax!ITCacheRpc:type) transport
+      Uses [CacheExternal](xref:gramstax!CacheExternal:class) with [ICacheRpc](xref:gramstax!ICacheRpc:type) transport
       for persistence.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'cacheSession: CacheExternal<ITCacheRpc>;'
+      content: 'cacheSession: CacheExternal<ICacheRpc>;'
       return:
-        type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ITCacheRpc:type" />&gt;
+        type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ICacheRpc:type" />&gt;
   - name: ctxScope
     uid: gramstax!Gramstax#ctxScope:member
     package: gramstax!
@@ -192,17 +207,17 @@ properties:
     summary: Forwarded `Ctx` fields, built once in the constructor.
     remarks: >-
       Single source of truth for `Gramstax` → `Ctx` forwarding, spread by `buildCtxParams` on every `createCtx` call. To
-      forward a new field: 1. add it to `ITGramstaxParams` (input) and `ITCtxParams` (output), 2. add it to
-      `ITGramstaxCtxScope` (keeps the guard below honest), 3. set it here in the constructor scope literal (raw branch
+      forward a new field: 1. add it to `IGramstaxParams` (input) and `ICtxParams` (output), 2. add it to
+      `IGramstaxCtxScope` (keeps the guard below honest), 3. set it here in the constructor scope literal (raw branch
       included), 4. copy it field-by-field in the `Ctx` constructor. Skipping step 2 fails `tsc` with the missing field
       name.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'ctxScope: ITGramstaxCtxScope;'
+      content: 'ctxScope: IGramstaxCtxScope;'
       return:
-        type: <xref uid="gramstax!ITGramstaxCtxScope:type" />
+        type: <xref uid="gramstax!IGramstaxCtxScope:type" />
   - name: deployType
     uid: gramstax!Gramstax#deployType:member
     package: gramstax!
@@ -360,14 +375,14 @@ properties:
     package: gramstax!
     fullName: webhookQueue
     summary: Webhook queue configuration.
-    remarks: See [ITWebhookQueueConfig](xref:gramstax!ITWebhookQueueConfig:type) for queue settings.
+    remarks: See [IWebhookQueueConfig](xref:gramstax!IWebhookQueueConfig:type) for queue settings.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'webhookQueue?: ITWebhookQueueConfig;'
+      content: 'webhookQueue?: IWebhookQueueConfig;'
       return:
-        type: <xref uid="gramstax!ITWebhookQueueConfig:type" />
+        type: <xref uid="gramstax!IWebhookQueueConfig:type" />
 methods:
   - name: _onHandle(ct, listenerName, shouldCheckNotFound)
     uid: gramstax!Gramstax#_onHandle:member(1)
@@ -380,12 +395,12 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean):
+        _onHandle(ct: ICt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean):
         Promise<void>;
       parameters:
         - id: ct
           description: ''
-          type: <xref uid="gramstax!ITCt:type" />
+          type: <xref uid="gramstax!ICt:type" />
         - id: listenerName
           description: ''
           type: Parameters&lt;<xref uid="gramstax!Gramstax:class" />[`_pageRoutes`]&gt;[1]
@@ -394,6 +409,1106 @@ methods:
           type: boolean
       return:
         type: Promise&lt;void&gt;
+        description: ''
+  - name: _pageLoadsFromManifest(manifest)
+    uid: gramstax!Gramstax#_pageLoadsFromManifest:member(1)
+    package: gramstax!
+    fullName: _pageLoadsFromManifest(manifest)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        _pageLoadsFromManifest(manifest: IAppManifest): {
+                all: Record<string, typeof Ctx>;
+                routeDynamic: string[];
+                routeDynamicSpesific: Record<string, {
+                    name: string;
+                    routeName: string;
+                }[]>;
+                routeStatic: {
+                    handleCallbackQueryData: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleText: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandText: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionVideo: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionVideo: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionAudio: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionAudio: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionDocument: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionDocument: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionAnimation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionAnimation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                };
+                routeStaticIntent: {
+                    handleArgsCallbackQueryData: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleArgsText: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandArgsText: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionArgsPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionArgsPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionArgsVideo: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionArgsVideo: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionArgsAudio: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionArgsAudio: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionArgsDocument: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionArgsDocument: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionArgsAnimation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionArgsAnimation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCaptionArgsVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleCommandCaptionArgsVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                };
+                routeStaticSession: {
+                    handleSessionCallbackQueryData: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionText: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandText: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionVideo: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionVideo: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionAudio: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionAudio: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionDocument: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionDocument: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionAnimation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionAnimation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionArgsCallbackQueryData: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionArgsText: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandArgsText: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionArgsPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionArgsPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionArgsVideo: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionArgsVideo: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionArgsAudio: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionArgsAudio: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionArgsDocument: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionArgsDocument: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionArgsAnimation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionArgsAnimation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCaptionArgsVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionCommandCaptionArgsVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeText: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreePhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeVideo: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeAudio: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeDocument: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeAnimation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeVideoNote: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeSticker: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeLocation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeContact: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeChannelPost: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeEditChannelPost: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeEdit: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeReaction: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeInlineQuery: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeChosenInlineResult: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreePreCheckoutQuery: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeShippingQuery: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeChatJoinRequest: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreePoll: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreePollAnswer: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeNewChatMembers: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeLeftChatMember: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeBusinessConnection: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeBusinessMessage: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeEditedBusinessMessage: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeDeletedBusinessMessages: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeMessageReactionCount: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeChatBoost: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeRemovedChatBoost: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeSuccessfulPayment: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeRefundedPayment: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeGroupChatCreated: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeSupergroupChatCreated: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeChannelChatCreated: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeVideoChatStarted: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeVideoChatScheduled: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeVideoChatEnded: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeVideoChatParticipantsInvited: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeUserShared: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeChatShared: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeWebAppData: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeGiveaway: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeGiveawayCreated: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeGiveawayWinners: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeGiveawayCompleted: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreePinMessage: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeForumTopicCreated: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeForumTopicEdited: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeForumTopicClosed: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeForumTopicReopened: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeGeneralForumTopicHidden: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeGeneralForumTopicUnhidden: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeProximityAlertTriggered: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeConnectedWebsite: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreePassportData: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeMessageAutoDeleteTimerChanged: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeChatBackgroundSet: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeNewChatTitle: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeNewChatPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeDeleteChatPhoto: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeWriteAccessAllowed: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeCommunityChatJoined: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeStoppedGeneration: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                };
+                routeChatMember: Array<{
+                    name: string;
+                    routeName: string;
+                    type: `chatMember` | `myChatMember`;
+                    oldStatus: string;
+                    newStatus: string;
+                    filter: (ctx: Ctx) => boolean;
+                }>;
+                customRoutes: ICustomRouteEntry[];
+                routeCustom: ICustomRouteEntry[];
+                listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
+                listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
+                listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember", "handleSessionFreeBusinessConnection", "handleSessionFreeBusinessMessage", "handleSessionFreeEditedBusinessMessage", "handleSessionFreeDeletedBusinessMessages", "handleSessionFreeMessageReactionCount", "handleSessionFreeChatBoost", "handleSessionFreeRemovedChatBoost", "handleSessionFreeSuccessfulPayment", "handleSessionFreeRefundedPayment", "handleSessionFreeGroupChatCreated", "handleSessionFreeSupergroupChatCreated", "handleSessionFreeChannelChatCreated", "handleSessionFreeVideoChatStarted", "handleSessionFreeVideoChatScheduled", "handleSessionFreeVideoChatEnded", "handleSessionFreeVideoChatParticipantsInvited", "handleSessionFreeUserShared", "handleSessionFreeChatShared", "handleSessionFreeWebAppData", "handleSessionFreeGiveaway", "handleSessionFreeGiveawayCreated", "handleSessionFreeGiveawayWinners", "handleSessionFreeGiveawayCompleted", "handleSessionFreePinMessage", "handleSessionFreeForumTopicCreated", "handleSessionFreeForumTopicEdited", "handleSessionFreeForumTopicClosed", "handleSessionFreeForumTopicReopened", "handleSessionFreeGeneralForumTopicHidden", "handleSessionFreeGeneralForumTopicUnhidden", "handleSessionFreeProximityAlertTriggered", "handleSessionFreeConnectedWebsite", "handleSessionFreePassportData", "handleSessionFreeMessageAutoDeleteTimerChanged", "handleSessionFreeChatBackgroundSet", "handleSessionFreeNewChatTitle", "handleSessionFreeNewChatPhoto", "handleSessionFreeDeleteChatPhoto", "handleSessionFreeWriteAccessAllowed", "handleSessionFreeCommunityChatJoined", "handleSessionFreeStoppedGeneration"];
+                listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember", "handleFreeBusinessConnection", "handleFreeBusinessMessage", "handleFreeEditedBusinessMessage", "handleFreeDeletedBusinessMessages", "handleFreeMessageReactionCount", "handleFreeChatBoost", "handleFreeRemovedChatBoost", "handleFreeSuccessfulPayment", "handleFreeRefundedPayment", "handleFreeGroupChatCreated", "handleFreeSupergroupChatCreated", "handleFreeChannelChatCreated", "handleFreeVideoChatStarted", "handleFreeVideoChatScheduled", "handleFreeVideoChatEnded", "handleFreeVideoChatParticipantsInvited", "handleFreeUserShared", "handleFreeChatShared", "handleFreeWebAppData", "handleFreeGiveaway", "handleFreeGiveawayCreated", "handleFreeGiveawayWinners", "handleFreeGiveawayCompleted", "handleFreePinMessage", "handleFreeForumTopicCreated", "handleFreeForumTopicEdited", "handleFreeForumTopicClosed", "handleFreeForumTopicReopened", "handleFreeGeneralForumTopicHidden", "handleFreeGeneralForumTopicUnhidden", "handleFreeProximityAlertTriggered", "handleFreeConnectedWebsite", "handleFreePassportData", "handleFreeMessageAutoDeleteTimerChanged", "handleFreeChatBackgroundSet", "handleFreeNewChatTitle", "handleFreeNewChatPhoto", "handleFreeDeleteChatPhoto", "handleFreeWriteAccessAllowed", "handleFreeCommunityChatJoined", "handleFreeStoppedGeneration"];
+                listRouteStaticLC: string[];
+                listRouteStaticIntentLC: string[];
+                listRouteStaticSessionLC: string[];
+                routesByListener: Record<string, {
+                    static: string[];
+                    staticIntent: string[];
+                    staticSession: string[];
+                }>;
+                lenListRouteStatic: 15;
+                lenListRouteStaticIntent: 15;
+                lenListRouteStaticSession: number;
+                lenListRouteDynamicSpesific: 65;
+                hasSessionRoutes: boolean;
+            };
+      parameters:
+        - id: manifest
+          description: ''
+          type: <xref uid="gramstax!IAppManifest:type" />
+      return:
+        type: |-
+          {
+                  all: Record&lt;string, typeof <xref uid="gramstax!Ctx:class" />&gt;;
+                  routeDynamic: string[];
+                  routeDynamicSpesific: Record&lt;string, {
+                      name: string;
+                      routeName: string;
+                  }[]&gt;;
+                  routeStatic: {
+                      handleCallbackQueryData: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleText: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandText: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionVideo: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionVideo: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionAudio: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionAudio: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionDocument: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionDocument: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionAnimation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionAnimation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                  };
+                  routeStaticIntent: {
+                      handleArgsCallbackQueryData: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleArgsText: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandArgsText: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionArgsPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionArgsPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionArgsVideo: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionArgsVideo: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionArgsAudio: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionArgsAudio: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionArgsDocument: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionArgsDocument: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionArgsAnimation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionArgsAnimation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCaptionArgsVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleCommandCaptionArgsVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                  };
+                  routeStaticSession: {
+                      handleSessionCallbackQueryData: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionText: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandText: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionVideo: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionVideo: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionAudio: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionAudio: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionDocument: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionDocument: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionAnimation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionAnimation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionArgsCallbackQueryData: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionArgsText: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandArgsText: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionArgsPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionArgsPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionArgsVideo: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionArgsVideo: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionArgsAudio: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionArgsAudio: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionArgsDocument: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionArgsDocument: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionArgsAnimation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionArgsAnimation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCaptionArgsVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionCommandCaptionArgsVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeText: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreePhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeVideo: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeAudio: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeDocument: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeAnimation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeVideoNote: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeSticker: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeLocation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeContact: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeChannelPost: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeEditChannelPost: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeEdit: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeReaction: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeInlineQuery: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeChosenInlineResult: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreePreCheckoutQuery: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeShippingQuery: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeChatJoinRequest: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreePoll: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreePollAnswer: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeNewChatMembers: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeLeftChatMember: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeBusinessConnection: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeBusinessMessage: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeEditedBusinessMessage: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeDeletedBusinessMessages: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeMessageReactionCount: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeChatBoost: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeRemovedChatBoost: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeSuccessfulPayment: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeRefundedPayment: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeGroupChatCreated: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeSupergroupChatCreated: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeChannelChatCreated: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeVideoChatStarted: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeVideoChatScheduled: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeVideoChatEnded: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeVideoChatParticipantsInvited: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeUserShared: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeChatShared: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeWebAppData: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeGiveaway: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeGiveawayCreated: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeGiveawayWinners: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeGiveawayCompleted: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreePinMessage: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeForumTopicCreated: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeForumTopicEdited: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeForumTopicClosed: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeForumTopicReopened: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeGeneralForumTopicHidden: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeGeneralForumTopicUnhidden: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeProximityAlertTriggered: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeConnectedWebsite: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreePassportData: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeMessageAutoDeleteTimerChanged: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeChatBackgroundSet: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeNewChatTitle: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeNewChatPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeDeleteChatPhoto: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeWriteAccessAllowed: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeCommunityChatJoined: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeStoppedGeneration: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                  };
+                  routeChatMember: Array&lt;{
+                      name: string;
+                      routeName: string;
+                      type: `chatMember` | `myChatMember`;
+                      oldStatus: string;
+                      newStatus: string;
+                      filter: (ctx: <xref uid="gramstax!Ctx:class" />) =&gt; boolean;
+                  }&gt;;
+                  customRoutes: <xref uid="gramstax!~ICustomRouteEntry_2:type" />[];
+                  routeCustom: <xref uid="gramstax!~ICustomRouteEntry_2:type" />[];
+                  listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
+                  listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
+                  listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember", "handleSessionFreeBusinessConnection", "handleSessionFreeBusinessMessage", "handleSessionFreeEditedBusinessMessage", "handleSessionFreeDeletedBusinessMessages", "handleSessionFreeMessageReactionCount", "handleSessionFreeChatBoost", "handleSessionFreeRemovedChatBoost", "handleSessionFreeSuccessfulPayment", "handleSessionFreeRefundedPayment", "handleSessionFreeGroupChatCreated", "handleSessionFreeSupergroupChatCreated", "handleSessionFreeChannelChatCreated", "handleSessionFreeVideoChatStarted", "handleSessionFreeVideoChatScheduled", "handleSessionFreeVideoChatEnded", "handleSessionFreeVideoChatParticipantsInvited", "handleSessionFreeUserShared", "handleSessionFreeChatShared", "handleSessionFreeWebAppData", "handleSessionFreeGiveaway", "handleSessionFreeGiveawayCreated", "handleSessionFreeGiveawayWinners", "handleSessionFreeGiveawayCompleted", "handleSessionFreePinMessage", "handleSessionFreeForumTopicCreated", "handleSessionFreeForumTopicEdited", "handleSessionFreeForumTopicClosed", "handleSessionFreeForumTopicReopened", "handleSessionFreeGeneralForumTopicHidden", "handleSessionFreeGeneralForumTopicUnhidden", "handleSessionFreeProximityAlertTriggered", "handleSessionFreeConnectedWebsite", "handleSessionFreePassportData", "handleSessionFreeMessageAutoDeleteTimerChanged", "handleSessionFreeChatBackgroundSet", "handleSessionFreeNewChatTitle", "handleSessionFreeNewChatPhoto", "handleSessionFreeDeleteChatPhoto", "handleSessionFreeWriteAccessAllowed", "handleSessionFreeCommunityChatJoined", "handleSessionFreeStoppedGeneration"];
+                  listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember", "handleFreeBusinessConnection", "handleFreeBusinessMessage", "handleFreeEditedBusinessMessage", "handleFreeDeletedBusinessMessages", "handleFreeMessageReactionCount", "handleFreeChatBoost", "handleFreeRemovedChatBoost", "handleFreeSuccessfulPayment", "handleFreeRefundedPayment", "handleFreeGroupChatCreated", "handleFreeSupergroupChatCreated", "handleFreeChannelChatCreated", "handleFreeVideoChatStarted", "handleFreeVideoChatScheduled", "handleFreeVideoChatEnded", "handleFreeVideoChatParticipantsInvited", "handleFreeUserShared", "handleFreeChatShared", "handleFreeWebAppData", "handleFreeGiveaway", "handleFreeGiveawayCreated", "handleFreeGiveawayWinners", "handleFreeGiveawayCompleted", "handleFreePinMessage", "handleFreeForumTopicCreated", "handleFreeForumTopicEdited", "handleFreeForumTopicClosed", "handleFreeForumTopicReopened", "handleFreeGeneralForumTopicHidden", "handleFreeGeneralForumTopicUnhidden", "handleFreeProximityAlertTriggered", "handleFreeConnectedWebsite", "handleFreePassportData", "handleFreeMessageAutoDeleteTimerChanged", "handleFreeChatBackgroundSet", "handleFreeNewChatTitle", "handleFreeNewChatPhoto", "handleFreeDeleteChatPhoto", "handleFreeWriteAccessAllowed", "handleFreeCommunityChatJoined", "handleFreeStoppedGeneration"];
+                  listRouteStaticLC: string[];
+                  listRouteStaticIntentLC: string[];
+                  listRouteStaticSessionLC: string[];
+                  routesByListener: Record&lt;string, {
+                      static: string[];
+                      staticIntent: string[];
+                      staticSession: string[];
+                  }&gt;;
+                  lenListRouteStatic: 15;
+                  lenListRouteStaticIntent: 15;
+                  lenListRouteStaticSession: number;
+                  lenListRouteDynamicSpesific: 65;
+                  hasSessionRoutes: boolean;
+              }
         description: ''
   - name: _pageRoutes(ctx, fromListener)
     uid: gramstax!Gramstax#_pageRoutes:member(1)
@@ -469,13 +1584,13 @@ methods:
         ```typescript
         class MyBot extends Gramstax {
           db = new Db()
-          override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, _extra?: T): ITCtxParams & T & {db: Db} {
-            return super.buildCtxParams(ct, {db: this.db}) as ITCtxParams & T & {db: Db}
+          override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ICt, _extra?: T): ICtxParams & T & {db: Db} {
+            return super.buildCtxParams(ct, {db: this.db}) as ICtxParams & T & {db: Db}
           }
         }
         class CtxCore extends Ctx {
           declare db: Db
-          constructor(params: ITCtxParams & {db: Db}) {
+          constructor(params: ICtxParams & {db: Db}) {
             super(params)
             this.db = params.db
           }
@@ -485,17 +1600,17 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, extra?: T): ITCtxParams & T;'
+      content: 'buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ICt, extra?: T): ICtxParams & T;'
       parameters:
         - id: ct
           description: The grammy context for the current update.
-          type: <xref uid="gramstax!ITCt:type" />
+          type: <xref uid="gramstax!ICt:type" />
         - id: extra
           description: Optional app values forwarded into every page `Ctx`<!-- -->.
           type: T
       return:
-        type: <xref uid="gramstax!ITCtxParams:type" /> & T
-        description: Params for `new Ctx(...)`<!-- -->, shaped as `ITCtxParams & T`<!-- -->.
+        type: <xref uid="gramstax!ICtxParams:type" /> & T
+        description: Params for `new Ctx(...)`<!-- -->, shaped as `ICtxParams & T`<!-- -->.
   - name: createBot(token)
     uid: gramstax!Gramstax#createBot:member(1)
     package: gramstax!
@@ -506,13 +1621,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'createBot(token: string): Bot<ITCt>;'
+      content: 'createBot(token: string): Bot<ICt>;'
       parameters:
         - id: token
           description: The Telegram Bot API token.
           type: string
       return:
-        type: <xref uid="grammy!Bot:class" />&lt;<xref uid="gramstax!ITCt:type" />&gt;
+        type: <xref uid="grammy!Bot:class" />&lt;<xref uid="gramstax!ICt:type" />&gt;
         description: The Bot instance.
   - name: createCtx(ct)
     uid: gramstax!Gramstax#createCtx:member(1)
@@ -524,11 +1639,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'createCtx(ct: ITCt): ICtx;'
+      content: 'createCtx(ct: ICt): ICtx;'
       parameters:
         - id: ct
           description: The context object.
-          type: <xref uid="gramstax!ITCt:type" />
+          type: <xref uid="gramstax!ICt:type" />
       return:
         type: ICtx
         description: A new Ctx instance.
@@ -930,7 +2045,7 @@ methods:
       - |-
         ```typescript
         class MyBot extends Gramstax {
-          override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+          override hookSendError(err: unknown, info: ISendErrorInfo): void {
             // info: {page: `admin/logs`, kind: `fallback-text` | `retryable`, chatId?: number}
             if (info.kind === `retryable`) queueRetry(info)
             else metrics.count(info.page, info.kind)
@@ -944,7 +2059,7 @@ methods:
         ```typescript
         class MyBot extends Gramstax {
           retryQueue: Array<{err: unknown, page: string, chatId?: number, at: number}> = []
-          override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+          override hookSendError(err: unknown, info: ISendErrorInfo): void {
             if (info.kind === `retryable`) this.retryQueue.push({err, page: info.page, chatId: info.chatId, at: Date.now()})
           }
         }
@@ -956,7 +2071,7 @@ methods:
 
         ```typescript
         class MyBot extends Gramstax {
-          override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+          override hookSendError(err: unknown, info: ISendErrorInfo): void {
             if (info.kind === `retryable`) Sentry.captureException(err, {tags: {page: info.page}})
             // `fallback-text` (403 blocked, file deleted) is a normal condition — log, don't alert.
           }
@@ -967,11 +2082,11 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookSendError?(...args: Parameters<ITSendErrorHook>): void;
+        hookSendError?(...args: Parameters<ISendErrorHook>): void;
       parameters:
         - id: args
           description: ''
-          type: Parameters&lt;<xref uid="gramstax!ITSendErrorHook:type" />&gt;
+          type: Parameters&lt;<xref uid="gramstax!ISendErrorHook:type" />&gt;
       return:
         type: void
         description: ''
@@ -1026,7 +2141,7 @@ methods:
       - |-
         ```typescript
         class MyBot extends Gramstax {
-          override hookUpdate(event: ITUpdateSuccessEvent): void {
+          override hookUpdate(event: IUpdateSuccessEvent): void {
             metrics.count(event.listenerName, event.state)
           }
         }
@@ -1036,11 +2151,11 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookUpdate?(event: ITUpdateSuccessEvent): void;
+        hookUpdate?(event: IUpdateSuccessEvent): void;
       parameters:
         - id: event
-          description: The structured success event. See [ITUpdateSuccessEvent](xref:gramstax!ITUpdateSuccessEvent:type)<!-- -->.
-          type: <xref uid="gramstax!ITUpdateSuccessEvent:type" />
+          description: The structured success event. See [IUpdateSuccessEvent](xref:gramstax!IUpdateSuccessEvent:type)<!-- -->.
+          type: <xref uid="gramstax!IUpdateSuccessEvent:type" />
       return:
         type: void
         description: ''
@@ -1060,7 +2175,7 @@ methods:
       - |-
         ```typescript
         class MyBot extends Gramstax {
-          override hookUpdateError(event: ITUpdateErrorEvent): void {
+          override hookUpdateError(event: IUpdateErrorEvent): void {
             Sentry.captureException(event.error, {tags: {listener: event.listenerName}})
           }
         }
@@ -1070,11 +2185,11 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookUpdateError?(event: ITUpdateErrorEvent): void;
+        hookUpdateError?(event: IUpdateErrorEvent): void;
       parameters:
         - id: event
-          description: The structured error event. See [ITUpdateErrorEvent](xref:gramstax!ITUpdateErrorEvent:type)<!-- -->.
-          type: <xref uid="gramstax!ITUpdateErrorEvent:type" />
+          description: The structured error event. See [IUpdateErrorEvent](xref:gramstax!IUpdateErrorEvent:type)<!-- -->.
+          type: <xref uid="gramstax!IUpdateErrorEvent:type" />
       return:
         type: void
         description: ''
@@ -1097,11 +2212,11 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        registerCustomRoute(entry: ITCustomRouteEntry): void;
+        registerCustomRoute(entry: ICustomRouteEntry): void;
       parameters:
         - id: entry
-          description: The custom route entry. See ITCustomRouteEntry.
-          type: <xref uid="gramstax!~ITCustomRouteEntry_2:type" />
+          description: The custom route entry. See ICustomRouteEntry.
+          type: <xref uid="gramstax!~ICustomRouteEntry_2:type" />
       return:
         type: void
         description: ''
@@ -1115,7 +2230,7 @@ methods:
       authentication, etc.) into the underlying bot instance.
 
 
-      Each element of the returned array is a [ITCtMiddleware](xref:gramstax!ITCtMiddleware:type) value (either a
+      Each element of the returned array is a [ICtMiddleware](xref:gramstax!ICtMiddleware:type) value (either a
       `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that The array elements are passed to
       `this.bot.use(...)`<!-- -->. It is meant to be spread into `bot.use`<!-- -->, so the order of elements determines
       the order in which middleware runs — earlier entries wrap later ones (outermost first).
@@ -1157,11 +2272,11 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        registerLowPlugin?(): Array<ITCtMiddleware<ITCt>>;
+        registerLowPlugin?(): Array<ICtMiddleware<ICt>>;
       return:
-        type: Array&lt;<xref uid="gramstax!ITCtMiddleware:type" />&lt;<xref uid="gramstax!ITCt:type" />&gt;&gt;
+        type: Array&lt;<xref uid="gramstax!ICtMiddleware:type" />&lt;<xref uid="gramstax!ICt:type" />&gt;&gt;
         description: >-
-          Array of [ITCtMiddleware](xref:gramstax!ITCtMiddleware:type) values, ready to be spread into
+          Array of [ICtMiddleware](xref:gramstax!ICtMiddleware:type) values, ready to be spread into
           `this.bot.use(...result)`<!-- -->.
   - name: stop()
     uid: gramstax!Gramstax#stop:member(1)

@@ -57,7 +57,7 @@ The context/page base class that provides access to user data, session managemen
 
 </td><td>
 
-In-process E2E testing helper for Gramstax bots.
+In-process E2E testing helper — simulates Telegram updates without HTTP.
 
 
 </td></tr>
@@ -167,7 +167,7 @@ Manages template loading, compilation, caching, and hot-reloading from page file
 
 </td><td>
 
-In-memory bounded queue for webhook updates.
+Webhook update queue — in-memory bounded FIFO for sequential processing.
 
 
 </td></tr>
@@ -214,7 +214,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_BottomKbWithCtx](./gramstax._bottomkbwithctx.md)
+[IBottomKbWithCtx](./gramstax.ibottomkbwithctx.md)
 
 
 </td><td>
@@ -225,7 +225,7 @@ Reply keyboard whose `.text()` also accepts a page class/instance as the button 
 </td></tr>
 <tr><td>
 
-[\_InlineKbWithCtx](./gramstax._inlinekbwithctx.md)
+[IInlineKbWithCtx](./gramstax.iinlinekbwithctx.md)
 
 
 </td><td>
@@ -250,6 +250,61 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_\_esc](./gramstax.__esc.md)
+
+
+</td><td>
+
+Runtime escape helper for AOT-generated template code.
+
+
+</td></tr>
+<tr><td>
+
+[DEFAULT\_FILTERS](./gramstax.default_filters.md)
+
+
+</td><td>
+
+Built-in `{{var|filter}}` pipes. Unknown filter names render empty and log a warning deduplicated per compile call (whitelist enforced — templates cannot execute arbitrary code through filters). `number` renders empty for non-numeric input; `default` applies only to undefined/null/empty (0 and false pass through).
+
+
+</td></tr>
+<tr><td>
+
+[FILTERS](./gramstax.filters.md)
+
+
+</td><td>
+
+Runtime filter table for AOT-generated template code.
+
+
+</td></tr>
+<tr><td>
+
+[GRAMSTAX\_SERVERLESS\_ADAPTERS](./gramstax.gramstax_serverless_adapters.md)
+
+
+</td><td>
+
+Canonical serverless adapter names.
+
+
+</td></tr>
+<tr><td>
+
+[GRAMSTAX\_SERVERLESS\_FIELDS](./gramstax.gramstax_serverless_fields.md)
+
+
+</td><td>
+
+Per-adapter allowed config fields.
+
+
+</td></tr>
+<tr><td>
 
 [log](./gramstax.log.md)
 
@@ -277,51 +332,40 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_KbButtonWithPageText](./gramstax._kbbuttonwithpagetext.md)
+[GramstaxConfig](./gramstax.gramstaxconfig.md)
 
 
 </td><td>
 
-grammY button object whose `text` may also be a page class/instance.
+NextConfig-style alias for the `gramstax.config.ts` shape.
 
 
 </td></tr>
 <tr><td>
 
-[\_KbCallbackData](./gramstax._kbcallbackdata.md)
+[IAnswerNoteBlock](./gramstax.ianswernoteblock.md)
 
 
 </td><td>
 
-Callback data produced by `Page.data.callbackQueryData(...)`<!-- -->.
+Answer-note block for query answers without template content.
 
 
 </td></tr>
 <tr><td>
 
-[\_KbPageLike](./gramstax._kbpagelike.md)
+[IAppManifest](./gramstax.iappmanifest.md)
 
 
 </td><td>
 
-Page class/instance that defines `handleCallbackQueryData`<!-- -->.
+Static page/template manifest for filesystem-less boot.
 
 
 </td></tr>
 <tr><td>
 
-[IRedisLockClient](./gramstax.iredislockclient.md)
-
-
-</td><td>
-
-Minimal Redis client surface used by [SessionLock](./gramstax.sessionlock.md)<!-- -->.
-
-
-</td></tr>
-<tr><td>
-
-[ITBottomKb](./gramstax.itbottomkb.md)
+[IBottomKb](./gramstax.ibottomkb.md)
 
 
 </td><td>
@@ -332,7 +376,7 @@ Reply keyboard whose `.text()` also accepts a page class/instance as the button 
 </td></tr>
 <tr><td>
 
-[ITBottomKbParams](./gramstax.itbottomkbparams.md)
+[IBottomKbParams](./gramstax.ibottomkbparams.md)
 
 
 </td><td>
@@ -343,7 +387,7 @@ Parameters for bottom keyboard configuration.
 </td></tr>
 <tr><td>
 
-[ITBroadcastEditOpts](./gramstax.itbroadcasteditopts.md)
+[IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md)
 
 
 </td><td>
@@ -354,7 +398,7 @@ Broadcast controls shared by `renderBroadcastEdit` and `renderBroadcastDelete`<!
 </td></tr>
 <tr><td>
 
-[ITBroadcastEditResult](./gramstax.itbroadcasteditresult.md)
+[IBroadcastEditResult](./gramstax.ibroadcasteditresult.md)
 
 
 </td><td>
@@ -365,7 +409,7 @@ Bulk edit/delete result with a re-drive list.
 </td></tr>
 <tr><td>
 
-[ITBroadcastEditTarget](./gramstax.itbroadcastedittarget.md)
+[IBroadcastEditTarget](./gramstax.ibroadcastedittarget.md)
 
 
 </td><td>
@@ -376,7 +420,7 @@ One already-sent message to revise or remove in bulk.
 </td></tr>
 <tr><td>
 
-[ITBuildDataOptions](./gramstax.itbuilddataoptions.md)
+[IBuildDataOptions](./gramstax.ibuilddataoptions.md)
 
 
 </td><td>
@@ -387,7 +431,7 @@ Options for building page routing data configuration.
 </td></tr>
 <tr><td>
 
-[ITCacheRpc](./gramstax.itcacherpc.md)
+[ICacheRpc](./gramstax.icacherpc.md)
 
 
 </td><td>
@@ -398,7 +442,18 @@ RPC cache request structure.
 </td></tr>
 <tr><td>
 
-[ITCompiledTemplate](./gramstax.itcompiledtemplate.md)
+[ICallbackAnswerBlock](./gramstax.icallbackanswerblock.md)
+
+
+</td><td>
+
+Callback-answer block for Telegram inline-button feedback.
+
+
+</td></tr>
+<tr><td>
+
+[ICompiledTemplate](./gramstax.icompiledtemplate.md)
 
 
 </td><td>
@@ -409,7 +464,7 @@ Compiled template structure containing all parsed template components.
 </td></tr>
 <tr><td>
 
-[ITCt](./gramstax.itct.md)
+[ICt](./gramstax.ict.md)
 
 
 </td><td>
@@ -420,7 +475,7 @@ Type alias for Context.
 </td></tr>
 <tr><td>
 
-[ITCtMiddleware](./gramstax.itctmiddleware.md)
+[ICtMiddleware](./gramstax.ictmiddleware.md)
 
 
 </td><td>
@@ -431,7 +486,7 @@ Type alias for Middleware.
 </td></tr>
 <tr><td>
 
-[ITCtxParams](./gramstax.itctxparams.md)
+[ICtxParams](./gramstax.ictxparams.md)
 
 
 </td><td>
@@ -442,7 +497,7 @@ Parameters for creating a new [Ctx](./gramstax.ctx.md) instance.
 </td></tr>
 <tr><td>
 
-[ITCustomRouteEntry](./gramstax.itcustomrouteentry.md)
+[ICustomRouteEntry](./gramstax.icustomrouteentry.md)
 
 
 </td><td>
@@ -453,7 +508,7 @@ A custom filter-based route entry, registered via [Gramstax.registerCustomRoute(
 </td></tr>
 <tr><td>
 
-[ITData](./gramstax.itdata.md)
+[IData](./gramstax.idata.md)
 
 
 </td><td>
@@ -464,18 +519,18 @@ Generic data object for template interpolation.
 </td></tr>
 <tr><td>
 
-[ITDiceBlock](./gramstax.itdiceblock.md)
+[IDiceBlock](./gramstax.idiceblock.md)
 
 
 </td><td>
 
-Represents a dice block configuration for Telegram dice animations.
+Dice block configuration for Telegram dice animations.
 
 
 </td></tr>
 <tr><td>
 
-[ITE2eApiCall](./gramstax.ite2eapicall.md)
+[IE2eApiCall](./gramstax.ie2eapicall.md)
 
 
 </td><td>
@@ -486,7 +541,7 @@ Captured outbound Bot API call record.
 </td></tr>
 <tr><td>
 
-[ITE2eCallbackQueryOptions](./gramstax.ite2ecallbackqueryoptions.md)
+[IE2eCallbackQueryOptions](./gramstax.ie2ecallbackqueryoptions.md)
 
 
 </td><td>
@@ -497,7 +552,7 @@ E2E options for callback query updates.
 </td></tr>
 <tr><td>
 
-[ITE2eChat](./gramstax.ite2echat.md)
+[IE2eChat](./gramstax.ie2echat.md)
 
 
 </td><td>
@@ -508,7 +563,7 @@ Simulated chat object for E2E updates.
 </td></tr>
 <tr><td>
 
-[ITE2eChatMemberOptions](./gramstax.ite2echatmemberoptions.md)
+[IE2eChatMemberOptions](./gramstax.ie2echatmemberoptions.md)
 
 
 </td><td>
@@ -519,7 +574,7 @@ Options for simulating a chat member status transition update.
 </td></tr>
 <tr><td>
 
-[ITE2eContactOptions](./gramstax.ite2econtactoptions.md)
+[IE2eContactOptions](./gramstax.ie2econtactoptions.md)
 
 
 </td><td>
@@ -530,7 +585,7 @@ E2E options for contact messages.
 </td></tr>
 <tr><td>
 
-[ITE2eDiceOptions](./gramstax.ite2ediceoptions.md)
+[IE2eDiceOptions](./gramstax.ie2ediceoptions.md)
 
 
 </td><td>
@@ -541,7 +596,7 @@ E2E options for dice messages.
 </td></tr>
 <tr><td>
 
-[ITE2eLocationOptions](./gramstax.ite2elocationoptions.md)
+[IE2eLocationOptions](./gramstax.ie2elocationoptions.md)
 
 
 </td><td>
@@ -552,7 +607,7 @@ E2E options for location messages.
 </td></tr>
 <tr><td>
 
-[ITE2eMediaOptions](./gramstax.ite2emediaoptions.md)
+[IE2eMediaOptions](./gramstax.ie2emediaoptions.md)
 
 
 </td><td>
@@ -563,7 +618,7 @@ E2E options for media messages (caption support).
 </td></tr>
 <tr><td>
 
-[ITE2eUpdateOptions](./gramstax.ite2eupdateoptions.md)
+[IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md)
 
 
 </td><td>
@@ -574,18 +629,29 @@ Base update options for E2E updates.
 </td></tr>
 <tr><td>
 
-[ITE2eUser](./gramstax.ite2euser.md)
+[IE2eUser](./gramstax.ie2euser.md)
 
 
 </td><td>
 
-E2E testing helper types for Gramstax bots.
+Simulated Telegram user for E2E updates.
 
 
 </td></tr>
 <tr><td>
 
-[ITGiveawayOptions](./gramstax.itgiveawayoptions.md)
+[IGiftBlock](./gramstax.igiftblock.md)
+
+
+</td><td>
+
+Gift block for Telegram gifts.
+
+
+</td></tr>
+<tr><td>
+
+[IGiveawayOptions](./gramstax.igiveawayoptions.md)
 
 
 </td><td>
@@ -596,7 +662,7 @@ Optional giveaway flags accepted by [Ctx.startGiveaway()](./gramstax.ctx.startgi
 </td></tr>
 <tr><td>
 
-[ITGiveawayParams](./gramstax.itgiveawayparams.md)
+[IGiveawayParams](./gramstax.igiveawayparams.md)
 
 
 </td><td>
@@ -607,7 +673,95 @@ Giveaway params accepted by [Ctx.startGiveaway()](./gramstax.ctx.startgiveaway.m
 </td></tr>
 <tr><td>
 
-[ITGramstaxCtxScope](./gramstax.itgramstaxctxscope.md)
+[IGramstaxAwsLambdaAsyncOptions](./gramstax.igramstaxawslambdaasyncoptions.md)
+
+
+</td><td>
+
+`aws-lambda-async` adapter section of `optionsDeploy.serverless`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxBotClass](./gramstax.igramstaxbotclass.md)
+
+
+</td><td>
+
+Constructor of the project `BotCore` class.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxBuildOptions](./gramstax.igramstaxbuildoptions.md)
+
+
+</td><td>
+
+Parsed `gramstax build` flags.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxBuildPlan](./gramstax.igramstaxbuildplan.md)
+
+
+</td><td>
+
+Resolved `gramstax build --dry-run` plan printed without writing files.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxCacheKeyboardRef](./gramstax.igramstaxcachekeyboardref.md)
+
+
+</td><td>
+
+`cacheKeyboard` slot: a path-ref to a `Map` subclass, an entries array, or a plain object (entries via `Object.entries`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxCacheSessionRef](./gramstax.igramstaxcachesessionref.md)
+
+
+</td><td>
+
+`cacheSession` slot: a path-ref to a `CacheExternal` subclass, or builtin params mirrored from the real constructor `(store, ttlMs, namespace?)`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxCloudflareModOptions](./gramstax.igramstaxcloudflaremodoptions.md)
+
+
+</td><td>
+
+`cloudflare-mod` adapter section of `optionsDeploy.serverless`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxConfig](./gramstax.igramstaxconfig.md)
+
+
+</td><td>
+
+Author-written `gramstax.config.ts` shape.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxCtxScope](./gramstax.igramstaxctxscope.md)
 
 
 </td><td>
@@ -618,7 +772,51 @@ Forwarded `Ctx` fields owned by `Gramstax.ctxScope`<!-- -->.
 </td></tr>
 <tr><td>
 
-[ITGramstaxParams](./gramstax.itgramstaxparams.md)
+[IGramstaxExplicitBuildKeys](./gramstax.igramstaxexplicitbuildkeys.md)
+
+
+</td><td>
+
+Which build-relevant keys a `gramstax.config.ts` file explicitly defines.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxLogRef](./gramstax.igramstaxlogref.md)
+
+
+</td><td>
+
+`log` slot: `true` for the default logger, `false`<!-- -->/omitted for silent, otherwise a path-ref (or logger options) resolving to a `LoggingHelper`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxModuleRef](./gramstax.igramstaxmoduleref.md)
+
+
+</td><td>
+
+File-path reference to a class or value living in a project module.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxOptionsDeploy](./gramstax.igramstaxoptionsdeploy.md)
+
+
+</td><td>
+
+Per-deploy-method nested deploy options.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxParams](./gramstax.igramstaxparams.md)
 
 
 </td><td>
@@ -629,7 +827,128 @@ Configuration options for Gramstax bot instance.
 </td></tr>
 <tr><td>
 
-[ITInBoKb](./gramstax.itinbokb.md)
+[IGramstaxPathRef](./gramstax.igramstaxpathref.md)
+
+
+</td><td>
+
+Either a bare module path (default export, zero-arg) or a wrapped override ref.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxPlanSource](./gramstax.igramstaxplansource.md)
+
+
+</td><td>
+
+Provenance of a resolved `IGramstaxBuildPlan` value.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxPollingDeployOptions](./gramstax.igramstaxpollingdeployoptions.md)
+
+
+</td><td>
+
+Polling deploy branch of `optionsDeploy`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxRawDeployOptions](./gramstax.igramstaxrawdeployoptions.md)
+
+
+</td><td>
+
+Raw deploy branch of `optionsDeploy`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxServerlessAdapter](./gramstax.igramstaxserverlessadapter.md)
+
+
+</td><td>
+
+Name of a serverless adapter.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxServerlessDeployOptions](./gramstax.igramstaxserverlessdeployoptions.md)
+
+
+</td><td>
+
+Serverless deploy branch of `optionsDeploy`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxSessionLockRef](./gramstax.igramstaxsessionlockref.md)
+
+
+</td><td>
+
+`sessionLock` slot: scalars plus an optional `key` factory given as a path-ref resolving to `(ctx) => string`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxStartOptions](./gramstax.igramstaxstartoptions.md)
+
+
+</td><td>
+
+Parsed `gramstax start` flags.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxTemplateManagerRef](./gramstax.igramstaxtemplatemanagerref.md)
+
+
+</td><td>
+
+`templateManager` slot: a path-ref to a `TemplateManager` subclass, or builtin `ITemplateOptions` passed to `new TemplateManager(params)`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxTestDeployOptions](./gramstax.igramstaxtestdeployoptions.md)
+
+
+</td><td>
+
+Test deploy branch of `optionsDeploy`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IGramstaxWebhookDeployOptions](./gramstax.igramstaxwebhookdeployoptions.md)
+
+
+</td><td>
+
+Webhook deploy branch of `optionsDeploy`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IInBoKb](./gramstax.iinbokb.md)
 
 
 </td><td>
@@ -640,7 +959,18 @@ Union type for both inline and reply keyboards.
 </td></tr>
 <tr><td>
 
-[ITInlineKb](./gramstax.itinlinekb.md)
+[IInlineButtonBlock](./gramstax.iinlinebuttonblock.md)
+
+
+</td><td>
+
+Inline-button block for Telegram inline query answers.
+
+
+</td></tr>
+<tr><td>
+
+[IInlineKb](./gramstax.iinlinekb.md)
 
 
 </td><td>
@@ -651,7 +981,7 @@ Inline keyboard whose `.text()` also accepts a page class/instance as the callba
 </td></tr>
 <tr><td>
 
-[ITInlineKbParams](./gramstax.itinlinekbparams.md)
+[IInlineKbParams](./gramstax.iinlinekbparams.md)
 
 
 </td><td>
@@ -662,18 +992,40 @@ Parameters for inline keyboard configuration.
 </td></tr>
 <tr><td>
 
-[ITInvoiceBlock](./gramstax.itinvoiceblock.md)
+[IInvoiceBlock](./gramstax.iinvoiceblock.md)
 
 
 </td><td>
 
-Represents an invoice block configuration for Telegram payments.
+Invoice block configuration for Telegram payments.
 
 
 </td></tr>
 <tr><td>
 
-[ITKbCols](./gramstax.itkbcols.md)
+[IKbButtonWithPageText](./gramstax.ikbbuttonwithpagetext.md)
+
+
+</td><td>
+
+grammY button object whose `text` may also be a page class/instance.
+
+
+</td></tr>
+<tr><td>
+
+[IKbCallbackData](./gramstax.ikbcallbackdata.md)
+
+
+</td><td>
+
+Callback data produced by `Page.data.callbackQueryData(...)`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IKbCols](./gramstax.ikbcols.md)
 
 
 </td><td>
@@ -684,7 +1036,7 @@ Keyboard column configuration.
 </td></tr>
 <tr><td>
 
-[ITKbDest](./gramstax.itkbdest.md)
+[IKbDest](./gramstax.ikbdest.md)
 
 
 </td><td>
@@ -695,18 +1047,29 @@ Destination for an inline keyboard button — a page (class or instance) that de
 </td></tr>
 <tr><td>
 
-[ITMediaBlock](./gramstax.itmediablock.md)
+[IKbPageLike](./gramstax.ikbpagelike.md)
 
 
 </td><td>
 
-Represents a media block configuration for Telegram messages.
+Page class/instance that defines `handleCallbackQueryData`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITMetricsQueueStats](./gramstax.itmetricsqueuestats.md)
+[IMediaBlock](./gramstax.imediablock.md)
+
+
+</td><td>
+
+Media block configuration for Telegram messages.
+
+
+</td></tr>
+<tr><td>
+
+[IMetricsQueueStats](./gramstax.imetricsqueuestats.md)
 
 
 </td><td>
@@ -717,7 +1080,7 @@ Queue statistics accepted by [metricsToPrometheus()](./gramstax.metricstoprometh
 </td></tr>
 <tr><td>
 
-[ITMockTelegramCallbackQueryOptions](./gramstax.itmocktelegramcallbackqueryoptions.md)
+[IMockTelegramCallbackQueryOptions](./gramstax.imocktelegramcallbackqueryoptions.md)
 
 
 </td><td>
@@ -728,7 +1091,7 @@ Options for generated mock callback query updates.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramChat](./gramstax.itmocktelegramchat.md)
+[IMockTelegramChat](./gramstax.imocktelegramchat.md)
 
 
 </td><td>
@@ -739,7 +1102,7 @@ Basic Telegram mock chat profile used when generating message updates.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramContactOptions](./gramstax.itmocktelegramcontactoptions.md)
+[IMockTelegramContactOptions](./gramstax.imocktelegramcontactoptions.md)
 
 
 </td><td>
@@ -750,7 +1113,7 @@ Options for generated mock contact updates.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramHandler](./gramstax.itmocktelegramhandler.md)
+[IMockTelegramHandler](./gramstax.imocktelegramhandler.md)
 
 
 </td><td>
@@ -761,7 +1124,7 @@ Handler signature for mock Telegram methods.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramJson](./gramstax.itmocktelegramjson.md)
+[IMockTelegramJson](./gramstax.imocktelegramjson.md)
 
 
 </td><td>
@@ -772,7 +1135,7 @@ Telegram JSON response shape for mock server responses.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramLocationOptions](./gramstax.itmocktelegramlocationoptions.md)
+[IMockTelegramLocationOptions](./gramstax.imocktelegramlocationoptions.md)
 
 
 </td><td>
@@ -783,7 +1146,7 @@ Options for generated mock location updates.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramMediaOptions](./gramstax.itmocktelegrammediaoptions.md)
+[IMockTelegramMediaOptions](./gramstax.imocktelegrammediaoptions.md)
 
 
 </td><td>
@@ -794,7 +1157,7 @@ Options for generated mock media message updates.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)
+[IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)
 
 
 </td><td>
@@ -805,7 +1168,7 @@ Recorded outbound Bot API request captured by the mock server.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramServerOptions](./gramstax.itmocktelegramserveroptions.md)
+[IMockTelegramServerOptions](./gramstax.imocktelegramserveroptions.md)
 
 
 </td><td>
@@ -816,7 +1179,7 @@ Options for configuring the mock Telegram server.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md)
+[IMockTelegramUpdateOptions](./gramstax.imocktelegramupdateoptions.md)
 
 
 </td><td>
@@ -827,7 +1190,7 @@ Shared options for generated mock updates.
 </td></tr>
 <tr><td>
 
-[ITMockTelegramUser](./gramstax.itmocktelegramuser.md)
+[IMockTelegramUser](./gramstax.imocktelegramuser.md)
 
 
 </td><td>
@@ -838,40 +1201,73 @@ Basic Telegram mock user profile used when generating updates.
 </td></tr>
 <tr><td>
 
-[ITOptEdit](./gramstax.itoptedit.md)
+[IOptCallbackAnswer](./gramstax.ioptcallbackanswer.md)
 
 
 </td><td>
 
-Options for editing text messages.
+Options parameter mirroring `Context.answerCallbackQuery`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptEditMedia1](./gramstax.itopteditmedia1.md)
+[IOptEdit](./gramstax.ioptedit.md)
 
 
 </td><td>
 
-Media parameter for editing message media.
+Options parameter mirroring `Context.editMessageText`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptEditMedia2](./gramstax.itopteditmedia2.md)
+[IOptEditCaption](./gramstax.iopteditcaption.md)
 
 
 </td><td>
 
-Options parameter for editing message media.
+Options parameter mirroring `Context.editMessageCaption`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptEditKeyboard](./gramstax.iopteditkeyboard.md)
+
+
+</td><td>
+
+Options parameter mirroring `Context.editMessageReplyMarkup`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IOptEditMedia1](./gramstax.iopteditmedia1.md)
+
+
+</td><td>
+
+Media parameter mirroring `Context.editMessageMedia` first parameter.
+
+
+</td></tr>
+<tr><td>
+
+[IOptEditMedia2](./gramstax.iopteditmedia2.md)
+
+
+</td><td>
+
+Options parameter mirroring `Context.editMessageMedia` second parameter.
+
+
+</td></tr>
+<tr><td>
+
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>
@@ -882,139 +1278,205 @@ Fallback behavior when an edit operation fails.
 </td></tr>
 <tr><td>
 
-[ITOptReply](./gramstax.itoptreply.md)
+[IOptGift](./gramstax.ioptgift.md)
 
 
 </td><td>
 
-Options for sending text messages.
+Options parameter mirroring `Context.replyWithGift`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyAnimation](./gramstax.itoptreplyanimation.md)
+[IOptGuestAnswer](./gramstax.ioptguestanswer.md)
 
 
 </td><td>
 
-Options for sending animation (GIF) messages.
+Options parameter mirroring `Context.answerGuestQuery`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyAudio](./gramstax.itoptreplyaudio.md)
+[IOptInlineAnswer](./gramstax.ioptinlineanswer.md)
 
 
 </td><td>
 
-Options for sending audio messages.
+Options parameter mirroring `Context.answerInlineQuery`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyContact](./gramstax.itoptreplycontact.md)
+[IOptPreCheckout](./gramstax.ioptprecheckout.md)
 
 
 </td><td>
 
-Options for sending contact messages.
+Options parameter mirroring `Context.answerPreCheckoutQuery`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyDocument](./gramstax.itoptreplydocument.md)
+[IOptReply](./gramstax.ioptreply.md)
 
 
 </td><td>
 
-Options for sending document messages.
+Options parameter mirroring `Context.reply`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyLocation](./gramstax.itoptreplylocation.md)
+[IOptReplyAnimation](./gramstax.ioptreplyanimation.md)
 
 
 </td><td>
 
-Options for sending location messages.
+Options parameter mirroring `Context.replyWithAnimation`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyPhoto](./gramstax.itoptreplyphoto.md)
+[IOptReplyAudio](./gramstax.ioptreplyaudio.md)
 
 
 </td><td>
 
-Options for sending photo messages.
+Options parameter mirroring `Context.replyWithAudio`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyRich](./gramstax.itoptreplyrich.md)
+[IOptReplyContact](./gramstax.ioptreplycontact.md)
 
 
 </td><td>
 
-Options for sending text rich messages.
+Options parameter mirroring `Context.replyWithContact`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplySticker](./gramstax.itoptreplysticker.md)
+[IOptReplyDocument](./gramstax.ioptreplydocument.md)
 
 
 </td><td>
 
-Options for sending sticker messages.
+Options parameter mirroring `Context.replyWithDocument`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyVideo](./gramstax.itoptreplyvideo.md)
+[IOptReplyLocation](./gramstax.ioptreplylocation.md)
 
 
 </td><td>
 
-Options for sending video messages.
+Options parameter mirroring `Context.replyWithLocation`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyVideoNote](./gramstax.itoptreplyvideonote.md)
+[IOptReplyPhoto](./gramstax.ioptreplyphoto.md)
 
 
 </td><td>
 
-Options for sending video note messages.
+Options parameter mirroring `Context.replyWithPhoto`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITOptReplyVoice](./gramstax.itoptreplyvoice.md)
+[IOptReplyRich](./gramstax.ioptreplyrich.md)
 
 
 </td><td>
 
-Options for sending voice messages.
+Options tuple mirroring `Context.replyWithRichMessage`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITPageData](./gramstax.itpagedata.md)
+[IOptReplySticker](./gramstax.ioptreplysticker.md)
+
+
+</td><td>
+
+Options parameter mirroring `Context.replyWithSticker`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IOptReplyVideo](./gramstax.ioptreplyvideo.md)
+
+
+</td><td>
+
+Options parameter mirroring `Context.replyWithVideo`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IOptReplyVideoNote](./gramstax.ioptreplyvideonote.md)
+
+
+</td><td>
+
+Options parameter mirroring `Context.replyWithVideoNote`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IOptReplyVoice](./gramstax.ioptreplyvoice.md)
+
+
+</td><td>
+
+Options parameter mirroring `Context.replyWithVoice`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IOptShipping](./gramstax.ioptshipping.md)
+
+
+</td><td>
+
+Options parameter mirroring `Context.answerShippingQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IOptWebAppAnswer](./gramstax.ioptwebappanswer.md)
+
+
+</td><td>
+
+Options parameter mirroring `Api.answerWebAppQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IPageData](./gramstax.ipagedata.md)
 
 
 </td><td>
@@ -1025,7 +1487,7 @@ Page routing data configuration.
 </td></tr>
 <tr><td>
 
-[ITPageDataBase](./gramstax.itpagedatabase.md)
+[IPageDataBase](./gramstax.ipagedatabase.md)
 
 
 </td><td>
@@ -1036,29 +1498,51 @@ Base page routing data — core properties only, no callbackQueryData.
 </td></tr>
 <tr><td>
 
-[ITPaidMediaBlock](./gramstax.itpaidmediablock.md)
+[IPageManifestEntry](./gramstax.ipagemanifestentry.md)
 
 
 </td><td>
 
-Represents a Stars paid-media block for Telegram paywalls.
+One page entry of a static app manifest.
 
 
 </td></tr>
 <tr><td>
 
-[ITPollBlock](./gramstax.itpollblock.md)
+[IPaidMediaBlock](./gramstax.ipaidmediablock.md)
 
 
 </td><td>
 
-Represents a poll block configuration for Telegram polls.
+Stars paid-media block for Telegram paywalls.
 
 
 </td></tr>
 <tr><td>
 
-[ITRateLimitOptions](./gramstax.itratelimitoptions.md)
+[IPollBlock](./gramstax.ipollblock.md)
+
+
+</td><td>
+
+Poll block configuration for Telegram polls.
+
+
+</td></tr>
+<tr><td>
+
+[IPrecheckoutErrorBlock](./gramstax.iprecheckouterrorblock.md)
+
+
+</td><td>
+
+Pre-checkout error block for Telegram payments.
+
+
+</td></tr>
+<tr><td>
+
+[IRateLimitOptions](./gramstax.iratelimitoptions.md)
 
 
 </td><td>
@@ -1069,18 +1553,40 @@ Rate-limit configuration for incoming updates (`@grammyjs/ratelimiter`<!-- -->).
 </td></tr>
 <tr><td>
 
-[ITReplyAction](./gramstax.itreplyaction.md)
+[IRedisLockClient](./gramstax.iredislockclient.md)
 
 
 </td><td>
 
-Type of chat action to send.
+Minimal Redis client surface used by `SessionLock`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITSendErrorHook](./gramstax.itsenderrorhook.md)
+[IReplyAction](./gramstax.ireplyaction.md)
+
+
+</td><td>
+
+Action parameter mirroring `Context.replyWithChatAction`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteManifestEntry](./gramstax.iroutemanifestentry.md)
+
+
+</td><td>
+
+One route entry of a static app manifest.
+
+
+</td></tr>
+<tr><td>
+
+[ISendErrorHook](./gramstax.isenderrorhook.md)
 
 
 </td><td>
@@ -1091,18 +1597,18 @@ Best-effort send-error hook.
 </td></tr>
 <tr><td>
 
-[ITSendErrorInfo](./gramstax.itsenderrorinfo.md)
+[ISendErrorInfo](./gramstax.isenderrorinfo.md)
 
 
 </td><td>
 
-Send-error event delivered to .
+Send-error event delivered to `ICtxParams.onSendError`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[ITSessionLockOnContended](./gramstax.itsessionlockoncontended.md)
+[ISessionLockOnContended](./gramstax.isessionlockoncontended.md)
 
 
 </td><td>
@@ -1113,7 +1619,7 @@ Contention policy when the session lease cannot be acquired.
 </td></tr>
 <tr><td>
 
-[ITSessionLockOptions](./gramstax.itsessionlockoptions.md)
+[ISessionLockOptions](./gramstax.isessionlockoptions.md)
 
 
 </td><td>
@@ -1124,7 +1630,18 @@ Configuration for the distributed session lock.
 </td></tr>
 <tr><td>
 
-[ITStoryContent](./gramstax.itstorycontent.md)
+[IShippingErrorBlock](./gramstax.ishippingerrorblock.md)
+
+
+</td><td>
+
+Shipping error block for Telegram payments.
+
+
+</td></tr>
+<tr><td>
+
+[IStoryContent](./gramstax.istorycontent.md)
 
 
 </td><td>
@@ -1135,18 +1652,29 @@ Story content accepted by [Ctx.postBusinessStory()](./gramstax.ctx.postbusinesss
 </td></tr>
 <tr><td>
 
-[ITTemp](./gramstax.ittemp.md)
+[ITemp](./gramstax.itemp.md)
 
 
 </td><td>
 
-Temporary state for flow page
+Temporary per-update state carried on every `Ctx` instance.
 
 
 </td></tr>
 <tr><td>
 
-[ITTemplateOptions](./gramstax.ittemplateoptions.md)
+[ITemplateManifestEntry](./gramstax.itemplatemanifestentry.md)
+
+
+</td><td>
+
+One embedded `.html` template entry of a static app manifest.
+
+
+</td></tr>
+<tr><td>
+
+[ITemplateOptions](./gramstax.itemplateoptions.md)
 
 
 </td><td>
@@ -1157,7 +1685,7 @@ Configuration options for TemplateManager initialization.
 </td></tr>
 <tr><td>
 
-[ITUpdateErrorEvent](./gramstax.itupdateerrorevent.md)
+[IUpdateErrorEvent](./gramstax.iupdateerrorevent.md)
 
 
 </td><td>
@@ -1168,7 +1696,7 @@ Structured error event emitted by `onUpdateError`<!-- -->.
 </td></tr>
 <tr><td>
 
-[ITUpdateSuccessEvent](./gramstax.itupdatesuccessevent.md)
+[IUpdateSuccessEvent](./gramstax.iupdatesuccessevent.md)
 
 
 </td><td>
@@ -1179,18 +1707,18 @@ Structured success event emitted by `onUpdate`<!-- -->.
 </td></tr>
 <tr><td>
 
-[ITVenueBlock](./gramstax.itvenueblock.md)
+[IVenueBlock](./gramstax.ivenueblock.md)
 
 
 </td><td>
 
-Represents a venue block configuration for Telegram venues.
+Venue block configuration for Telegram venues.
 
 
 </td></tr>
 <tr><td>
 
-[ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)
+[IWebhookQueueConfig](./gramstax.iwebhookqueueconfig.md)
 
 
 </td><td>

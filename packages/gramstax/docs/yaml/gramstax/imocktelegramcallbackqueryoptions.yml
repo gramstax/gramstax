@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: IMockTelegramCallbackQueryOptions
+uid: gramstax!IMockTelegramCallbackQueryOptions:type
+package: gramstax!
+fullName: IMockTelegramCallbackQueryOptions
+summary: Options for generated mock callback query updates.
+remarks: Extends `IMockTelegramUpdateOptions` with callback-specific fields. Used by `sendCallbackQuery`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IMockTelegramCallbackQueryOptions = IMockTelegramUpdateOptions & {
+      id?: string;
+      messageText?: string;
+  };

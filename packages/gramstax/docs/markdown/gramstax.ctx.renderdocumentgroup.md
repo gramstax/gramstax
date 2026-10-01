@@ -6,10 +6,12 @@
 
 Sends a document media group using pipe-delimited `src` values from the page template.
 
+Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<unknown>;
+renderDocumentGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -69,7 +71,7 @@ options
 
 </td><td>
 
-[ITOptReplyDocument](./gramstax.itoptreplydocument.md) \| null
+[IOptReplyDocument](./gramstax.ioptreplydocument.md) \| null
 
 
 </td><td>

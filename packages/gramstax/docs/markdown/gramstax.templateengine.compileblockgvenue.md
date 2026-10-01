@@ -11,7 +11,7 @@ Compiles venue blocks from a template into executable functions.
 ```typescript
 static compileBlockGVenue(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: ITTemplateData) => ITVenueBlock;
+            [ALang: string]: (data?: ITemplateData) => IVenueBlock;
         };
     };
 ```
@@ -70,7 +70,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITTemplateData) =&gt; [ITVenueBlock](./gramstax.itvenueblock.md)<!-- -->; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITemplateData) =&gt; [IVenueBlock](./gramstax.ivenueblock.md)<!-- -->; }; }
 
 Compiled venue functions organized by base ID and language
 

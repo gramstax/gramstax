@@ -50,6 +50,82 @@ Constructs a new instance of the `SessionLock` class
 </td></tr>
 </tbody></table>
 
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[\_queues](./gramstax.sessionlock._queues.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Map&lt;string, Promise&lt;unknown&gt;&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[options](./gramstax.sessionlock.options.md)
+
+
+</td><td>
+
+
+</td><td>
+
+{ leaseMs: number; onContended: [ISessionLockOnContended](./gramstax.isessionlockoncontended.md)<!-- -->; }
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[redis](./gramstax.sessionlock.redis.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[IRedisLockClient](./gramstax.iredislockclient.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
+
 ## Methods
 
 <table><thead><tr><th>
@@ -69,6 +145,18 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_lockKey(sessionKey)](./gramstax.sessionlock._lockkey.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 [acquire(sessionKey)](./gramstax.sessionlock.acquire.md)
 

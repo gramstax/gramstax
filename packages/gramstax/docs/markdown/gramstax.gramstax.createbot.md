@@ -9,7 +9,7 @@ Creates the Bot instance.
 **Signature:**
 
 ```typescript
-createBot(token: string): Bot<ITCt>;
+createBot(token: string): Bot<ICt>;
 ```
 
 ## Parameters
@@ -50,7 +50,7 @@ The Telegram Bot API token.
 
 **Returns:**
 
-Bot&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;
+Bot&lt;[ICt](./gramstax.ict.md)<!-- -->&gt;
 
 The Bot instance.
 

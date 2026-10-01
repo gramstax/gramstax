@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: IMockTelegramJson
+uid: gramstax!IMockTelegramJson:type
+package: gramstax!
+fullName: IMockTelegramJson
+summary: Telegram JSON response shape for mock server responses.
+remarks: >-
+  This is the minimal Bot API response contract used by the mock server: `ok` indicates success and `result` contains
+  the payload.
+example:
+  - |-
+    ```typescript
+    const response: IMockTelegramJson = {ok: true, result: {foo: `bar`}}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IMockTelegramJson = {
+      ok: boolean;
+      result?: unknown;
+      description?: string;
+  };

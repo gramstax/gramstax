@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplyContact
+uid: gramstax!IOptReplyContact:type
+package: gramstax!
+fullName: IOptReplyContact
+summary: Options parameter mirroring `Context.replyWithContact`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplyContact = Parameters<Context[`replyWithContact`]>[2];

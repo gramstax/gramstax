@@ -9,12 +9,12 @@ Simulate a community chat joined service message (Bot API 10.3 `community_chat_j
 **Signature:**
 
 ```typescript
-sendCommunityChatJoined(options?: ITE2eUpdateOptions & {
+sendCommunityChatJoined(options?: IE2eUpdateOptions & {
         community?: {
             id?: number;
             name?: string;
         };
-    }): Promise<ITE2eApiCall[]>;
+    }): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -42,7 +42,7 @@ options
 
 </td><td>
 
-[ITE2eUpdateOptions](./gramstax.ite2eupdateoptions.md) &amp; { community?: { id?: number; name?: string; }; }
+[IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md) &amp; { community?: { id?: number; name?: string; }; }
 
 
 </td><td>
@@ -55,7 +55,7 @@ _(Optional)_ User, chat and response options
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update
 

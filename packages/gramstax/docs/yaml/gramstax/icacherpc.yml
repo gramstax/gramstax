@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: ICacheRpc
+uid: gramstax!ICacheRpc:type
+package: gramstax!
+fullName: ICacheRpc
+summary: RPC cache request structure.
+remarks: >-
+  JSON-RPC-ish envelope used between instances to forward a cache operation. Produced wherever a cache call is
+  serialized for transport and consumed wherever the receiving side dispatches it back onto a `CacheExternal` handle.
+  The fixed fields carry the dispatch target while the index signature leaves room for transport-level extras.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ICacheRpc = {
+      method: string | string[];
+      params: Record<string, unknown>;
+      [moreRoot: string]: unknown | string;
+  };

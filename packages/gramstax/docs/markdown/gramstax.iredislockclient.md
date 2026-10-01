@@ -4,7 +4,7 @@
 
 ## IRedisLockClient type
 
-Minimal Redis client surface used by [SessionLock](./gramstax.sessionlock.md)<!-- -->.
+Minimal Redis client surface used by `SessionLock`<!-- -->.
 
 **Signature:**
 

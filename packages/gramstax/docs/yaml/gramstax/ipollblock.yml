@@ -1,0 +1,34 @@
+### YamlMime:TSTypeAlias
+name: IPollBlock
+uid: gramstax!IPollBlock:type
+package: gramstax!
+fullName: IPollBlock
+summary: Poll block configuration for Telegram polls.
+remarks: >-
+  Declared with `<g-poll>` blocks. The question and options support the same `{{var|filter}}` interpolation pipeline as
+  media captions; the compiled strings are length-checked at runtime before any API call (question 1–300 chars, each
+  option 1–100 chars, 2–10 options, `correct` within range, explanation at most 200 chars).
+example:
+  - |-
+    ```typescript
+    const quiz: IPollBlock = {
+      type: `quiz`,
+      question: `What is 2+2?`,
+      options: [`3`, `4`],
+      correct: 1,
+      explanation: `Basic arithmetic`,
+      anonymous: true
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IPollBlock = {
+      type: `regular` | `quiz`;
+      question: string;
+      options: string[];
+      correct?: number;
+      explanation?: string;
+      anonymous?: boolean;
+      multiple?: boolean;
+  };

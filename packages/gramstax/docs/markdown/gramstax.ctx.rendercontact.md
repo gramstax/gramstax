@@ -6,10 +6,12 @@
 
 Sends a contact using the page template.
 
+Template block: `<g-media>` (read via `renderMedia`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderContact(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyContact | null): Promise<unknown>;
+renderContact(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyContact | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -53,7 +55,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ options
 
 </td><td>
 
-[ITOptReplyContact](./gramstax.itoptreplycontact.md) \| null
+[IOptReplyContact](./gramstax.ioptreplycontact.md) \| null
 
 
 </td><td>

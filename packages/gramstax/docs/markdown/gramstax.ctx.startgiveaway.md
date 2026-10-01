@@ -9,7 +9,7 @@ Starts a channel giveaway from a single params object.
 **Signature:**
 
 ```typescript
-startGiveaway(params?: ITGiveawayParams | null, options?: ITGiveawayOptions | null): Promise<unknown>;
+startGiveaway(params?: IGiveawayParams | null, options?: IGiveawayOptions | null): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ params
 
 </td><td>
 
-[ITGiveawayParams](./gramstax.itgiveawayparams.md) \| null
+[IGiveawayParams](./gramstax.igiveawayparams.md) \| null
 
 
 </td><td>
@@ -53,7 +53,7 @@ options
 
 </td><td>
 
-[ITGiveawayOptions](./gramstax.itgiveawayoptions.md) \| null
+[IGiveawayOptions](./gramstax.igiveawayoptions.md) \| null
 
 
 </td><td>

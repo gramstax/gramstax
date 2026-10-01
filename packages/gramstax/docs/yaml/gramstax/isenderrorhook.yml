@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: ISendErrorHook
+uid: gramstax!ISendErrorHook:type
+package: gramstax!
+fullName: ISendErrorHook
+summary: Best-effort send-error hook.
+remarks: >-
+  Invoked at every site where a send error is classified via `Ctx.classifySendError` — both `fallback-text` and
+  `retryable` outcomes. Pre-upload validation throws are programmer errors and stay hook-free. A throwing hook is
+  swallowed and never breaks the send flow.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: 'type ISendErrorHook = (err: unknown, info: ISendErrorInfo) => void;'

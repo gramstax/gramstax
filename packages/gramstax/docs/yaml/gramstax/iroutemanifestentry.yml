@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: IRouteManifestEntry
+uid: gramstax!IRouteManifestEntry:type
+package: gramstax!
+fullName: IRouteManifestEntry
+summary: One route entry of a static app manifest.
+remarks: >-
+  Collected by `RouteCollector.collect` and persisted to `routes.json`<!-- -->. Joined with `pages` by `routeName` in
+  `_pageLoadsFromManifest` — a route with no matching page throws. `file` becomes the registration `path`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRouteManifestEntry = {
+      name: string;
+      file: string;
+      routeName: string;
+  };

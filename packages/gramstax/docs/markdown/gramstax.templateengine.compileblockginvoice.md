@@ -11,7 +11,7 @@ Compiles invoice blocks from a template into executable functions.
 ```typescript
 static compileBlockGInvoice(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: ITTemplateData) => ITInvoiceBlock;
+            [ALang: string]: (data?: ITemplateData) => IInvoiceBlock;
         };
     };
 ```
@@ -70,7 +70,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITTemplateData) =&gt; [ITInvoiceBlock](./gramstax.itinvoiceblock.md)<!-- -->; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITemplateData) =&gt; [IInvoiceBlock](./gramstax.iinvoiceblock.md)<!-- -->; }; }
 
 Compiled invoice functions organized by base ID and language
 

@@ -1,0 +1,13 @@
+### YamlMime:TSTypeAlias
+name: IKbPageLike
+uid: gramstax!IKbPageLike:type
+package: gramstax!
+fullName: IKbPageLike
+summary: Page class/instance that defines `handleCallbackQueryData`<!-- -->.
+remarks: >-
+  Same constraint as [IKbDest](xref:gramstax!IKbDest:type)<!-- -->: pages that don't override `handleCallbackQueryData`
+  cause a compile error when used here.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IKbPageLike = (typeof Ctx & IKbDestHasCallback) | (Ctx & IKbDestHasCallback[`prototype`]);

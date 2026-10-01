@@ -10,7 +10,7 @@ Parses `<g-paid-media>` blocks into Stars paywall definitions.
 
 ```typescript
 static _processGPaidMediaBlocks(template: string): {
-        [lang: string]: ITPaidMediaBlock;
+        [lang: string]: IPaidMediaBlock;
     };
 ```
 
@@ -52,7 +52,7 @@ The template string containing `<g-paid-media>` blocks
 
 **Returns:**
 
-{ \[lang: string\]: [ITPaidMediaBlock](./gramstax.itpaidmediablock.md)<!-- -->; }
+{ \[lang: string\]: [IPaidMediaBlock](./gramstax.ipaidmediablock.md)<!-- -->; }
 
 An object mapping language keys to their paid-media configurations
 

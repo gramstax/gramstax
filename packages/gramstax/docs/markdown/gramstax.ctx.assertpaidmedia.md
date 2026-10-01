@@ -9,7 +9,7 @@ Fail-fast validation for a compiled `<g-paid-media>` paywall.
 **Signature:**
 
 ```typescript
-static assertPaidMedia(paidMedia: ITPaidMediaBlock): void;
+static assertPaidMedia(paidMedia: IPaidMediaBlock): void;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ paidMedia
 
 </td><td>
 
-[ITPaidMediaBlock](./gramstax.itpaidmediablock.md)
+[IPaidMediaBlock](./gramstax.ipaidmediablock.md)
 
 
 </td><td>

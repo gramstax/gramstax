@@ -9,7 +9,7 @@ Wraps a compiled string `src` fn so bare placeholders pass objects by reference.
 **Signature:**
 
 ```typescript
-static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITTemplateData) => string): (data?: ITTemplateData) => string | InputFile | Buffer | Uint8Array;
+static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITemplateData) => string): (data?: ITemplateData) => string | InputFile | Buffer | Uint8Array;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ stringFn
 
 </td><td>
 
-(data?: ITTemplateData) =&gt; string
+(data?: ITemplateData) =&gt; string
 
 
 </td><td>
@@ -66,7 +66,7 @@ Existing compiled string renderer for this `src`<!-- -->.
 
 **Returns:**
 
-(data?: ITTemplateData) =&gt; string \| InputFile \| Buffer \| Uint8Array
+(data?: ITemplateData) =&gt; string \| InputFile \| Buffer \| Uint8Array
 
 Renderer yielding either the string output or the raw object.
 

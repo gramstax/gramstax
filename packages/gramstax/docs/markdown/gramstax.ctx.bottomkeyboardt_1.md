@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb;
+bottomKeyboardT(PageDest: IKbDest[], layout?: IKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): IBottomKb;
 ```
 
 ## Parameters
@@ -35,7 +35,7 @@ PageDest
 
 </td><td>
 
-[ITKbDest](./gramstax.itkbdest.md)<!-- -->\[\]
+[IKbDest](./gramstax.ikbdest.md)<!-- -->\[\]
 
 
 </td><td>
@@ -49,7 +49,7 @@ layout
 
 </td><td>
 
-[ITKbCols](./gramstax.itkbcols.md)
+[IKbCols](./gramstax.ikbcols.md)
 
 
 </td><td>
@@ -94,5 +94,5 @@ _(Optional)_
 
 **Returns:**
 
-[ITBottomKb](./gramstax.itbottomkb.md)
+[IBottomKb](./gramstax.ibottomkb.md)
 

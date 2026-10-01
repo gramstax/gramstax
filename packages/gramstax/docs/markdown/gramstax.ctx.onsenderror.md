@@ -9,10 +9,10 @@ Best-effort send-error hook (Q9 option b).
 **Signature:**
 
 ```typescript
-onSendError?: ITSendErrorHook | null;
+onSendError?: ISendErrorHook | null;
 ```
 
 ## Remarks
 
-Set from `ITCtxParams.onSendError` (mirrors the `log` channel). Invoked with `{page, kind, chatId}` at every classified send error; a throwing hook is swallowed. Validation throws stay hook-free.
+Set from `ICtxParams.onSendError` (mirrors the `log` channel). Invoked with `{page, kind, chatId}` at every classified send error; a throwing hook is swallowed. Validation throws stay hook-free.
 

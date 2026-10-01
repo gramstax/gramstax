@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptShipping
+uid: gramstax!IOptShipping:type
+package: gramstax!
+fullName: IOptShipping
+summary: Options parameter mirroring `Context.answerShippingQuery`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptShipping = Parameters<Context[`answerShippingQuery`]>[1];

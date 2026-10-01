@@ -1,0 +1,45 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxParams
+uid: gramstax!IGramstaxParams:type
+package: gramstax!
+fullName: IGramstaxParams
+summary: Configuration options for Gramstax bot instance.
+remarks: >-
+  Passed to `new Gramstax(params)`<!-- -->. The constructor validates `token`<!-- -->, `deploy`<!-- -->/`optionsDeploy`
+  membership, and numeric ranges (`_validateConfig`<!-- -->) and throws with an explicit message on violation.
+example:
+  - |-
+    ```typescript
+    new Gramstax({token: `BOT_TOKEN`, deploy: `polling`, log: true})
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxParams = {
+      token: string;
+      deploy: string;
+      optionsDeploy?: IGramstaxOptionsDeploy;
+      log?: LoggingHelper | boolean | null;
+      mediaRoots?: string[] | null;
+      botConfig?: BotConfig<Context>;
+      cacheSession?: CacheExternal;
+      cacheKeyboard?: Map<string, unknown>;
+      templateManager?: TemplateManager;
+      manifest?: IAppManifest;
+      autoRetry?: boolean;
+      autoRetryOptions?: {
+          maxRetryAttempts?: number;
+          retryOnInternalServerErrors?: boolean;
+      };
+      rateLimit?: IRateLimitOptions;
+      throttle?: APIThrottlerOptions;
+      sessionLock?: ISessionLockOptions;
+      updateTimeoutMs?: number;
+      skipDuplicateUpdate?: boolean;
+      maxTextLength?: number;
+      statusServerPort?: number;
+      statusServerHostname?: string;
+      optionsPage?: {
+          shortCallbackQueryData?: boolean;
+      };
+  };

@@ -1,0 +1,24 @@
+### YamlMime:TSTypeAlias
+name: IGramstaxModuleRef
+uid: gramstax!IGramstaxModuleRef:type
+package: gramstax!
+fullName: IGramstaxModuleRef
+summary: File-path reference to a class or value living in a project module.
+remarks: >-
+  A bare string resolves the module's default export with zero arguments. The object form picks a named export and
+  spreads `args` into the constructor. Paths resolve relative to the project root (cwd). Materialized only by `gramstax
+  start` — never by `gramstax build`<!-- -->.
+example:
+  - |-
+    ```typescript
+    const ref: IGramstaxModuleRef = {module: `./src/cache.ts`}
+    const named: IGramstaxModuleRef = {module: `./src/cache.ts`, export: `RedisCache`, args: [`redis://localhost:6379`]}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGramstaxModuleRef = {
+      module: string;
+      export?: string;
+      args?: unknown[];
+  };

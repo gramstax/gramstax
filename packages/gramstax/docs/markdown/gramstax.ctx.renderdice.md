@@ -9,7 +9,7 @@ Sends a template-driven dice animation using the page `<g-dice>` block.
 **Signature:**
 
 ```typescript
-renderDice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithDice`]>[1] | null): Promise<grammy_types.Message.DiceMessage>;
+renderDice(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithDice`]>[1] | null): Promise<grammy_types.Message.DiceMessage>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>

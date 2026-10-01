@@ -9,7 +9,7 @@ Creates a new CacheExternal instance.
 **Signature:**
 
 ```typescript
-constructor(url?: string, ttl?: number, namespace?: string, more?: ITMore);
+constructor(url?: string, ttl?: number, namespace?: string, more?: IMore);
 ```
 
 ## Parameters
@@ -85,7 +85,7 @@ more
 
 </td><td>
 
-ITMore
+IMore
 
 
 </td><td>

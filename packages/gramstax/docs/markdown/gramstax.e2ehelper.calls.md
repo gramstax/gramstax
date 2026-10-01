@@ -9,7 +9,7 @@ All captured outbound Bot API calls (sendMessage, answerCallbackQuery, etc.).
 **Signature:**
 
 ```typescript
-calls: ITE2eApiCall[];
+calls: IE2eApiCall[];
 ```
 
 ## Remarks

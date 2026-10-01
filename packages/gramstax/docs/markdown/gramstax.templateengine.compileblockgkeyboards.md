@@ -12,8 +12,8 @@ Compiles keyboard labels from a processed template, executing blocks and scope v
 static compileBlockGKeyboards(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
             [ALang: string]: {
-                inline?: (data?: ITTemplateData) => string[];
-                bottom?: (data?: ITTemplateData) => string[];
+                inline?: (data?: ITemplateData) => string[];
+                bottom?: (data?: ITemplateData) => string[];
             };
         };
     };
@@ -73,7 +73,7 @@ _(Optional)_ Optional pre-parsed base blocks (avoids re-parsing)
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[ALang: string\]: { inline?: (data?: ITTemplateData) =&gt; string\[\]; bottom?: (data?: ITTemplateData) =&gt; string\[\]; }; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: { inline?: (data?: ITemplateData) =&gt; string\[\]; bottom?: (data?: ITemplateData) =&gt; string\[\]; }; }; }
 
 A nested record of compiled label functions keyed by base, lang, and mode
 

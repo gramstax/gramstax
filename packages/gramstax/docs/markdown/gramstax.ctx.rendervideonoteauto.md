@@ -6,10 +6,12 @@
 
 Sends or edits a video note (circular video) using the page template, auto-selecting between [Ctx.renderVideoNote()](./gramstax.ctx.rendervideonote.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on `!!this.callbackQuery`<!-- -->.
 
+Template block: `<g-media>` (read via `renderAutoMedia`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderVideoNoteAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyVideoNote | null, options2?: ITOptEditMedia2 | null, fallbackEdit?: ITOptFallbackEdit): Promise<unknown>;
+renderVideoNoteAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyVideoNote | null, options2?: IOptEditMedia2 | null, fallbackEdit?: IOptFallbackEdit): Promise<unknown>;
 ```
 
 ## Parameters
@@ -37,7 +39,7 @@ keyboard
 
 </td><td>
 
-[ITInBoKb](./gramstax.itinbokb.md) \| null
+[IInBoKb](./gramstax.iinbokb.md) \| null
 
 
 </td><td>
@@ -53,7 +55,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -85,7 +87,7 @@ options1
 
 </td><td>
 
-[ITOptReplyVideoNote](./gramstax.itoptreplyvideonote.md) \| null
+[IOptReplyVideoNote](./gramstax.ioptreplyvideonote.md) \| null
 
 
 </td><td>
@@ -101,7 +103,7 @@ options2
 
 </td><td>
 
-[ITOptEditMedia2](./gramstax.itopteditmedia2.md) \| null
+[IOptEditMedia2](./gramstax.iopteditmedia2.md) \| null
 
 
 </td><td>
@@ -117,7 +119,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

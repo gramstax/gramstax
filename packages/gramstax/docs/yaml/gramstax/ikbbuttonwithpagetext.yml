@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IKbButtonWithPageText
+uid: gramstax!IKbButtonWithPageText:type
+package: gramstax!
+fullName: IKbButtonWithPageText
+summary: grammY button object whose `text` may also be a page class/instance.
+remarks: >-
+  `{text: SomePage, style: "danger"}` — the page resolves to its `intentText` label; the page must define
+  `handleCallbackQueryData`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IKbButtonWithPageText = Omit<Extract<Parameters<InlineKeyboard[`text`]>[0], object>, `text`> & {
+      text: string | IKbPageLike;
+  };

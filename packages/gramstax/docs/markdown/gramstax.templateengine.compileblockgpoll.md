@@ -11,7 +11,7 @@ Compiles poll blocks from a template into executable functions.
 ```typescript
 static compileBlockGPoll(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: ITTemplateData) => ITPollBlock;
+            [ALang: string]: (data?: ITemplateData) => IPollBlock;
         };
     };
 ```
@@ -70,7 +70,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITTemplateData) =&gt; [ITPollBlock](./gramstax.itpollblock.md)<!-- -->; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITemplateData) =&gt; [IPollBlock](./gramstax.ipollblock.md)<!-- -->; }; }
 
 Compiled poll functions organized by base ID and language
 

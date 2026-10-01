@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptReplyVideoNote
+uid: gramstax!IOptReplyVideoNote:type
+package: gramstax!
+fullName: IOptReplyVideoNote
+summary: Options parameter mirroring `Context.replyWithVideoNote`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptReplyVideoNote = Parameters<Context[`replyWithVideoNote`]>[1];

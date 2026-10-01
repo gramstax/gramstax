@@ -9,7 +9,7 @@ Simulate a user sending a location message.
 **Signature:**
 
 ```typescript
-sendLocation(options?: ITE2eLocationOptions): Promise<ITE2eApiCall[]>;
+sendLocation(options?: IE2eLocationOptions): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITE2eLocationOptions](./gramstax.ite2elocationoptions.md)
+[IE2eLocationOptions](./gramstax.ie2elocationoptions.md)
 
 
 </td><td>
@@ -50,7 +50,7 @@ _(Optional)_ Latitude, longitude, user, chat, and response options.
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update.
 

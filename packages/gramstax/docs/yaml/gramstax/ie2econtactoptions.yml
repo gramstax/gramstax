@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IE2eContactOptions
+uid: gramstax!IE2eContactOptions:type
+package: gramstax!
+fullName: IE2eContactOptions
+summary: E2E options for contact messages.
+remarks: Extends `IE2eUpdateOptions` with contact card fields. Used by `E2eHelper.sendContact`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IE2eContactOptions = IE2eUpdateOptions & {
+      phone_number?: string;
+      first_name?: string;
+      last_name?: string;
+      user_id?: number;
+  };

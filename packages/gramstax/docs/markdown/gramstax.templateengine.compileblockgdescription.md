@@ -12,7 +12,7 @@ Compiles description blocks from a template into executable functions.
 static compileBlockGDescription(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
             [AScope: string]: {
-                [ALang: string]: (data?: ITTemplateData) => string;
+                [ALang: string]: (data?: ITemplateData) => string;
             };
         };
     };
@@ -72,7 +72,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[AScope: string\]: { \[ALang: string\]: (data?: ITTemplateData) =&gt; string; }; }; }
+{ \[AGBaseId: string\]: { \[AScope: string\]: { \[ALang: string\]: (data?: ITemplateData) =&gt; string; }; }; }
 
 Compiled description functions organized by base ID, scope, and language
 

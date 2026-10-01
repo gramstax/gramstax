@@ -9,5 +9,5 @@ Custom handlers for specific Telegram methods (e.g. getMe).
 **Signature:**
 
 ```typescript
-handlers: Record<string, ITMockTelegramHandler>;
+handlers: Record<string, IMockTelegramHandler>;
 ```

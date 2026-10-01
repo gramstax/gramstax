@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IInlineKbParams
+uid: gramstax!IInlineKbParams:type
+package: gramstax!
+fullName: IInlineKbParams
+summary: Parameters for inline keyboard configuration.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IInlineKbParams = {
+      AGBaseId?: string | null;
+      data?: IData | null;
+      cache?: boolean;
+  };

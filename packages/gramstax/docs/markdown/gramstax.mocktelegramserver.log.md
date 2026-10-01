@@ -9,5 +9,5 @@ Optional logger for mock server lifecycle and request events.
 **Signature:**
 
 ```typescript
-log?: ITMockTelegramLog;
+log?: IMockTelegramLog;
 ```

@@ -4,13 +4,17 @@
 
 ## WebhookQueue class
 
-In-memory bounded queue for webhook updates.
+Webhook update queue — in-memory bounded FIFO for sequential processing.
 
 **Signature:**
 
 ```typescript
 declare class WebhookQueue<T = unknown> 
 ```
+
+## Remarks
+
+Provides a bounded FIFO queue for Telegram webhook updates, ensuring they are processed sequentially. Useful for long-polling fallback or rate-limited webhook processing.
 
 ## Constructors
 
@@ -70,6 +74,125 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_closed](./gramstax.webhookqueue._closed.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_head](./gramstax.webhookqueue._head.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_items](./gramstax.webhookqueue._items.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Array&lt;T \| undefined&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_lengthCount](./gramstax.webhookqueue._lengthcount.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_tail](./gramstax.webhookqueue._tail.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_waitDequeue](./gramstax.webhookqueue._waitdequeue.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Array&lt;(value: T) =&gt; void&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_waitEnqueue](./gramstax.webhookqueue._waitenqueue.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Array&lt;{ resolve: () =&gt; void; reject: (error: Error) =&gt; void; }&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 [isClosed](./gramstax.webhookqueue.isclosed.md)
 

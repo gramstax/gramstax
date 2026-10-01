@@ -6,10 +6,12 @@
 
 Edits an existing message text using the page template.
 
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | null, fallbackEdit?: ITOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderEdit(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEdit | null, fallbackEdit?: IOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         rich_message: grammy_types.RichMessage;
     })>;
 ```
@@ -39,7 +41,7 @@ keyboardInline
 
 </td><td>
 
-[ITInlineKb](./gramstax.itinlinekb.md) \| null
+[IInlineKb](./gramstax.iinlinekb.md) \| null
 
 
 </td><td>
@@ -55,7 +57,7 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md) \| null
+[IData](./gramstax.idata.md) \| null
 
 
 </td><td>
@@ -87,7 +89,7 @@ options
 
 </td><td>
 
-[ITOptEdit](./gramstax.itoptedit.md) \| null
+[IOptEdit](./gramstax.ioptedit.md) \| null
 
 
 </td><td>
@@ -103,7 +105,7 @@ fallbackEdit
 
 </td><td>
 
-[ITOptFallbackEdit](./gramstax.itoptfallbackedit.md)
+[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 
 </td><td>

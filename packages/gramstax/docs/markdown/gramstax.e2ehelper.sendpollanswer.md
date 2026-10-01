@@ -9,7 +9,7 @@ Simulate a poll update sent by the bot (used for poll answer testing).
 **Signature:**
 
 ```typescript
-sendPollAnswer(pollId: string, optionIds: number[], options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
+sendPollAnswer(pollId: string, optionIds: number[], options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;
 ```
 
 ## Parameters
@@ -69,7 +69,7 @@ options
 
 </td><td>
 
-[ITE2eUpdateOptions](./gramstax.ite2eupdateoptions.md)
+[IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md)
 
 
 </td><td>
@@ -82,7 +82,7 @@ _(Optional)_ User, chat, and response options.
 
 **Returns:**
 
-Promise&lt;[ITE2eApiCall](./gramstax.ite2eapicall.md)<!-- -->\[\]&gt;
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)<!-- -->\[\]&gt;
 
 API calls made while processing this update.
 

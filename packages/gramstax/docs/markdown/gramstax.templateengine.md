@@ -63,6 +63,48 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_\_emitHook?](./gramstax.templateengine.__emithook.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+(body: string, meta: { isArray: boolean; }) =&gt; (...args: unknown\[\]) =&gt; unknown
+
+
+</td><td>
+
+_(Optional)_ AOT collect hook: when set, `_compileToFunction` records the body and returns a tagged stub instead of calling `new Function`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[\_\_linkHook?](./gramstax.templateengine.__linkhook.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+(body: string, isArray: boolean) =&gt; (...args: unknown\[\]) =&gt; unknown
+
+
+</td><td>
+
+_(Optional)_ AOT link hook: when set, `_compileToFunction` returns the pre-registered inline function matching the body instead of calling `new Function`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [\_PAGE\_ATTR\_VALUE\_VALIDATORS](./gramstax.templateengine._page_attr_value_validators.md)
 
 
@@ -419,6 +461,20 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_buildFunctionBody(template, isArray)](./gramstax.templateengine._buildfunctionbody.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [\_compileMediaSrc(rawSrc, stringFn)](./gramstax.templateengine._compilemediasrc.md)
 
 
@@ -561,6 +617,22 @@ Matches a bare `src` placeholder with no pipes or surrounding text.
 </td></tr>
 <tr><td>
 
+[\_processGAnswerNoteBlocks(template)](./gramstax.templateengine._processganswernoteblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-answer-note Extracts `<g-answer-note>` plain-text blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
 [\_processGBaseBlocks(template)](./gramstax.templateengine._processgbaseblocks.md)
 
 
@@ -577,6 +649,22 @@ Block: g-base Extracts and parses `<g-base>` blocks from a template string.
 </td></tr>
 <tr><td>
 
+[\_processGCallbackAnswerBlocks(template)](./gramstax.templateengine._processgcallbackanswerblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-callback-answer Extracts `<g-callback-answer>` plain-text blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
 [\_processGDescriptionBlocks(template)](./gramstax.templateengine._processgdescriptionblocks.md)
 
 
@@ -588,6 +676,10 @@ Block: g-base Extracts and parses `<g-base>` blocks from a template string.
 </td><td>
 
 Block: g-description Extracts and parses `<g-description>` blocks from a template string.
+
+This internal method identifies all `<g-description>` blocks and extracts their content organized by language and scope. Blocks without a `lang` attribute are stored under `"default"` language, and blocks without a `scope` attribute are stored under `"default"` scope.
+
+\*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. - `scope` (optional): Scope key for the nested output map. Defaults to `"default"`<!-- -->.
 
 
 </td></tr>
@@ -625,6 +717,22 @@ Block: g-div Normalizes content within `<g-div>` blocks by removing indentation.
 </td></tr>
 <tr><td>
 
+[\_processGGiftBlocks(template)](./gramstax.templateengine._processggiftblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-gift Extracts `<g-gift>` card-text blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
 [\_processGImportBlocks(template)](./gramstax.templateengine._processgimportblocks.md)
 
 
@@ -636,6 +744,22 @@ Block: g-div Normalizes content within `<g-div>` blocks by removing indentation.
 </td><td>
 
 Parses `<g-import>` directives from a template and extracts import metadata.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGInlineButtonBlocks(template)](./gramstax.templateengine._processginlinebuttonblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-inline-button Extracts `<g-inline-button>` definitions from a template string.
 
 
 </td></tr>
@@ -769,6 +893,22 @@ Block: g-poll Extracts and parses `<g-poll>` blocks from a template string.
 </td></tr>
 <tr><td>
 
+[\_processGPrecheckoutErrorBlocks(template)](./gramstax.templateengine._processgprecheckouterrorblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-precheckout-error Extracts `<g-precheckout-error>` plain-text blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
 [\_processGScriptBlocks(template)](./gramstax.templateengine._processgscriptblocks.md)
 
 
@@ -780,6 +920,22 @@ Block: g-poll Extracts and parses `<g-poll>` blocks from a template string.
 </td><td>
 
 Block: g-script Transforms `<g-script>` blocks into executable JavaScript expressions.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGShippingErrorBlocks(template)](./gramstax.templateengine._processgshippingerrorblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-shipping-error Extracts `<g-shipping-error>` plain-text blocks from a template string.
 
 
 </td></tr>
@@ -929,6 +1085,22 @@ Converts processed template output into a concatenation expression.
 </td></tr>
 <tr><td>
 
+[\_validateAnswerTextContent(template, tag, maxLength)](./gramstax.templateengine._validateanswertextcontent.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates plain-text content of answer blocks.
+
+
+</td></tr>
+<tr><td>
+
 [\_validateBlockAttributes(template, tagName, allowedAttributes, allowedLabel, valueValidators)](./gramstax.templateengine._validateblockattributes.md)
 
 
@@ -956,6 +1128,22 @@ Shared helper: validates attributes on a specific block tag.
 </td><td>
 
 Validates the static `<g-dice>` emoji against the Bot API set.
+
+
+</td></tr>
+<tr><td>
+
+[\_validateInlineButtonItems(template)](./gramstax.templateengine._validateinlinebuttonitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates `<g-inline-button>` items beyond attribute names.
 
 
 </td></tr>
@@ -1121,6 +1309,38 @@ Validates `<g-venue>` required attributes and static coordinates.
 </td></tr>
 <tr><td>
 
+[compileBlockGAnswerNote(template, baseBlocks)](./gramstax.templateengine.compileblockganswernote.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles answer-note blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGCallbackAnswer(template, baseBlocks)](./gramstax.templateengine.compileblockgcallbackanswer.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles callback-answer blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
 [compileBlockGDescription(template, gBaseBlocks)](./gramstax.templateengine.compileblockgdescription.md)
 
 
@@ -1148,6 +1368,38 @@ Compiles description blocks from a template into executable functions.
 </td><td>
 
 Compiles dice blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGGift(template, baseBlocks)](./gramstax.templateengine.compileblockggift.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles gift blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGInlineButton(template, baseBlocks)](./gramstax.templateengine.compileblockginlinebutton.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles inline-button blocks from a template into executable functions.
 
 
 </td></tr>
@@ -1249,6 +1501,38 @@ Compiles poll blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
+[compileBlockGPrecheckoutError(template, baseBlocks)](./gramstax.templateengine.compileblockgprecheckouterror.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles precheckout-error blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGShippingError(template, baseBlocks)](./gramstax.templateengine.compileblockgshippingerror.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles shipping-error blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
 [compileBlockGVenue(template, baseBlocks)](./gramstax.templateengine.compileblockgvenue.md)
 
 
@@ -1281,6 +1565,22 @@ Recursively processes and resolves `<g-import>` blocks in a template.
 </td></tr>
 <tr><td>
 
+[validateBlockGAnswerNoteAttributes(template)](./gramstax.templateengine.validateblockganswernoteattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and content on `<g-answer-note>` blocks.
+
+
+</td></tr>
+<tr><td>
+
 [validateBlockGBaseAttributes(template)](./gramstax.templateengine.validateblockgbaseattributes.md)
 
 
@@ -1292,6 +1592,22 @@ Recursively processes and resolves `<g-import>` blocks in a template.
 </td><td>
 
 Validates attributes on `<g-base>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGCallbackAnswerAttributes(template)](./gramstax.templateengine.validateblockgcallbackanswerattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and content on `<g-callback-answer>` blocks.
 
 
 </td></tr>
@@ -1377,6 +1693,22 @@ Validates attributes on `<g-div>` blocks.
 </td></tr>
 <tr><td>
 
+[validateBlockGGiftAttributes(template)](./gramstax.templateengine.validateblockggiftattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<g-gift>` blocks.
+
+
+</td></tr>
+<tr><td>
+
 [validateBlockGImportAttributes(template)](./gramstax.templateengine.validateblockgimportattributes.md)
 
 
@@ -1388,6 +1720,22 @@ Validates attributes on `<g-div>` blocks.
 </td><td>
 
 Validates attributes on `<g-import>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGInlineButtonAttributes(template)](./gramstax.templateengine.validateblockginlinebuttonattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<g-inline-button>` blocks.
 
 
 </td></tr>
@@ -1537,6 +1885,22 @@ Validates attributes and item constraints on `<g-poll>` blocks.
 </td></tr>
 <tr><td>
 
+[validateBlockGPrecheckoutErrorAttributes(template)](./gramstax.templateengine.validateblockgprecheckouterrorattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and content on `<g-precheckout-error>` blocks.
+
+
+</td></tr>
+<tr><td>
+
 [validateBlockGPriceAttributes(template)](./gramstax.templateengine.validateblockgpriceattributes.md)
 
 
@@ -1564,6 +1928,22 @@ Validates attributes on `<g-price>` line items inside `<g-invoice>` blocks.
 </td><td>
 
 Validates attributes on `<g-script>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGShippingErrorAttributes(template)](./gramstax.templateengine.validateblockgshippingerrorattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and content on `<g-shipping-error>` blocks.
 
 
 </td></tr>
