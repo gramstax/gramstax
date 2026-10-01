@@ -1,21 +1,7 @@
-/**
- * Worker thread initializer — runs inside the worker thread.
- *
- * @remarks
- * Extend this class to define worker methods. The base class sets up the
- * RPC listener and provides helpers for inter-worker IPC
- * ({@link createGatewayServer}, {@link createGatewayClient}).
- *
- * All `mtd*` methods are automatically proxied for RPC calls from the
- * main thread.
- *
- * @public
- */
-
 import {isMainThread, parentPort, threadId} from "node:worker_threads"
 import {reportError} from "./error-handler"
-import {type GatewayClientOptions, WorkerThreadGatewayClient} from "./gateway-client"
-import {type GatewayServerOptions, WorkerThreadGatewayServer} from "./gateway-server"
+import {type IGatewayClientOptions, WorkerThreadGatewayClient} from "./gateway-client"
+import {type IGatewayServerOptions, WorkerThreadGatewayServer} from "./gateway-server"
 import {WorkerThreadRpc} from "./rpc"
 
 /**
@@ -179,13 +165,13 @@ export class WorkerThreadInit {
   }
 
   /** Guards {@link WorkerThreadInit.init} against duplicate listeners. */
-  private _initDone = false
+  _initDone = false
 
   /** Parent port {@link WorkerThreadInit.init} last attached to. */
-  private _initPort: unknown = undefined
+  _initPort: unknown = undefined
 
   /** Guards {@link WorkerThreadInit.shutdown} so the hook runs at most once. */
-  private _shutdownDone = false
+  _shutdownDone = false
 
   /**
    * [LOW-LEVEL] Initialize message handling from parent port and register event message from parent.
@@ -286,16 +272,14 @@ export class WorkerThreadInit {
    * ```
    * @public
    */
-  async createGatewayServer(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: GatewayServerOptions) {
+  async createGatewayServer(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: IGatewayServerOptions) {
     if (this.gatewayServer) {
       // replace (and close) any previous server so its socket is never leaked
       await this.gatewayServer.close()
     }
     // register defaults to this — refusing to expose the whole instance without an allow-list
     if (register === undefined && !(options?.allowedMethods && options.allowedMethods.length > 0)) {
-      throw new Error(
-        `createGatewayServer requires a non-empty 'allowedMethods' list when 'register' is omitted (the worker instance would be exposed to every socket client)`
-      )
+      throw new Error(`createGatewayServer requires a non-empty 'allowedMethods' list when 'register' is omitted (the worker instance would be exposed to every socket client)`)
     }
     const reg = register ?? (this as unknown as Record<string, (...args: never[]) => unknown>)
     this.gatewayServer = new WorkerThreadGatewayServer()
@@ -320,7 +304,7 @@ export class WorkerThreadInit {
    * ```
    * @public
    */
-  async createGatewayClient(serverPath: string, options?: GatewayClientOptions) {
+  async createGatewayClient(serverPath: string, options?: IGatewayClientOptions) {
     // replace (and close) any previous client for the same path so sockets
     // are never leaked
     const existing = this.gatewayClients.get(serverPath)

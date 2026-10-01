@@ -1,6 +1,6 @@
 import {describe, expect, it, mock} from "bun:test"
-import {WorkerThreadExport} from "../src/export"
 import {reportError, resetDefaultErrorHandler, setDefaultErrorHandler} from "../src/error-handler"
+import {WorkerThreadExport} from "../src/export"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import {WorkerThreadInit} from "../src/init"
@@ -91,12 +91,12 @@ describe(`coverage-launch-handlers`, () => {
     const w1 = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [])
     await withTimeout(w1.ready(), 10_000, `w1 ready`)
     const exit1 = new Promise((resolve) => w1.once(`exit`, resolve))
-    ;(w1 as unknown as {sigintHandler: () => void}).sigintHandler()
+    ;(w1 as unknown as {_sigintHandler: () => void})._sigintHandler()
     await withTimeout(exit1, 10_000, `w1 exit`)
     const w2 = new WorkerThreadLaunch(LIFECYCLE_FIXTURE, [])
     await withTimeout(w2.ready(), 10_000, `w2 ready`)
     const exit2 = new Promise((resolve) => w2.once(`exit`, resolve))
-    ;(w2 as unknown as {sigtermHandler: () => void}).sigtermHandler()
+    ;(w2 as unknown as {_sigtermHandler: () => void})._sigtermHandler()
     await withTimeout(exit2, 10_000, `w2 exit`)
   }, 30_000)
 })
@@ -142,9 +142,7 @@ describe(`coverage-export-proxy`, () => {
     try {
       await withTimeout(server.start(path, {mtdAdd: (a: number, b: number) => a + b}), 10_000, `server start`)
       const instance = new Gateway(owner)
-      expect(await withTimeout((instance as unknown as {mtdAdd: (a: number, b: number) => Promise<number>}).mtdAdd(2, 3), 10_000, `proxy call`)).toBe(
-        5
-      )
+      expect(await withTimeout((instance as unknown as {mtdAdd: (a: number, b: number) => Promise<number>}).mtdAdd(2, 3), 10_000, `proxy call`)).toBe(5)
     } finally {
       for (const c of (owner as unknown as {gatewayClients: Map<string, {close: () => Promise<void>}>}).gatewayClients.values()) {
         await c.close()
@@ -179,7 +177,11 @@ describe(`coverage-export-proxy`, () => {
     try {
       const sum = await withTimeout(Job.mtdAdd(1, 2), 10_000, `proxy route`)
       expect(sum).toBe(3)
-      const notFound = await withTimeout(Job.request(`mtdAdd`, [2, 3]).catch((e: unknown) => e), 10_000, `request route`)
+      const notFound = await withTimeout(
+        Job.request(`mtdAdd`, [2, 3]).catch((e: unknown) => e),
+        10_000,
+        `request route`
+      )
       expect((notFound as Error).message).toMatch(/not found/)
     } finally {
       await withTimeout(worker.shutdown(5_000), 10_000, `cleanup`)

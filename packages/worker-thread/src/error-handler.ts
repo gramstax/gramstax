@@ -1,15 +1,3 @@
-/**
- * Default error reporting for the package.
- *
- * @remarks
- * Library code never writes to the console directly — consumers decide
- * where errors go. Set a package-wide handler once with
- * {@link setDefaultErrorHandler}, or attach per-instance `error` listeners;
- * without either, errors are dropped silently.
- *
- * @public
- */
-
 let defaultHandler: (err: unknown) => void = () => {}
 
 /**

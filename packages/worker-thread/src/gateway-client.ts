@@ -1,19 +1,8 @@
-/**
- * IPC gateway client — connects to a remote worker's Unix socket server.
- *
- * @remarks
- * [LOW-LEVEL] Provides IPC client functionality for inter-worker
- * communication using Unix domain sockets (named pipes on Windows).
- * Created internally by {@link WorkerThreadInit.createGatewayClient}.
- *
- * @public
- */
-
 import {EventEmitter} from "node:events"
 import {Client} from "net-ipc"
 import {reportError} from "./error-handler"
 import {normalizeGatewayPath} from "./gateway-path"
-import {WorkerThreadRpc, DEFAULT_MAX_MESSAGE_SIZE} from "./rpc"
+import {DEFAULT_MAX_MESSAGE_SIZE, WorkerThreadRpc} from "./rpc"
 
 /**
  * Options for connecting a gateway client.
@@ -24,7 +13,7 @@ import {WorkerThreadRpc, DEFAULT_MAX_MESSAGE_SIZE} from "./rpc"
  * backoff and pending requests are retried transparently.
  * @public
  */
-export type GatewayClientOptions = {
+export type IGatewayClientOptions = {
   /** Shared secret matching the server's `token`. Sent during the connection handshake. */
   token?: string
   /** Automatically reconnect when the connection drops. Defaults to `true`. */
@@ -43,8 +32,9 @@ export type GatewayClientOptions = {
  * [LOW-LEVEL] Provides IPC client functionality for inter-worker communication using Unix domain sockets.
  *
  * @remarks
- * Low-level infrastructure. In most cases use
- * {@link WorkerThreadInit.createGatewayClient} instead of constructing this directly.
+ * Provides IPC client functionality for inter-worker
+ * communication using Unix domain sockets (named pipes on Windows).
+ * Created internally by {@link WorkerThreadInit.createGatewayClient}.
  *
  * Uses the `net-ipc` library for Unix domain socket communication. Works in
  * **Bun** (native) and **Node.js** (native).
@@ -68,10 +58,10 @@ export class WorkerThreadGatewayClient extends EventEmitter {
    */
   rpc: WorkerThreadRpc
 
-  private closed = false
+  private _closed = false
 
   /** Raw connection that already has our error-routing listener attached. */
-  private guardedConnection: unknown = null
+  private _guardedConnection: unknown = null
 
   /**
    * Creates a new gateway client instance.
@@ -85,7 +75,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
       // Never touch the raw socket while the transport is closing — net-ipc
       // can emit an unhandled 'error' on the dying socket, which kills the
       // worker process.
-      if (this.closed) {
+      if (this._closed) {
         return Promise.reject(new Error(`gateway client is closed`))
       }
       // net-ipc resolves send failures with an Error object instead of
@@ -98,7 +88,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
     }, {})
 
     this.client.on(`message`, (data: Parameters<WorkerThreadRpc[`make`]>[0]) => {
-      this.rpc.make(data).catch((err: unknown) => this.safeEmitError(err))
+      this.rpc.make(data).catch((err: unknown) => this._safeEmitError(err))
     })
 
     // Route raw socket errors through the default handler. net-ipc attaches
@@ -111,9 +101,9 @@ export class WorkerThreadGatewayClient extends EventEmitter {
     this.client.connect = (payload?: unknown) => {
       const result = rawConnect(payload)
       const conn = this.client.connection
-      if (conn && conn !== this.guardedConnection) {
-        this.guardedConnection = conn
-        conn.on(`error`, (err: unknown) => this.safeEmitError(err))
+      if (conn && conn !== this._guardedConnection) {
+        this._guardedConnection = conn
+        conn.on(`error`, (err: unknown) => this._safeEmitError(err))
       }
       return result
     }
@@ -129,7 +119,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
     })
 
     this.client.on(`close`, (reason: unknown) => {
-      if (!this.closed) {
+      if (!this._closed) {
         this.emit(`close`, reason)
       }
     })
@@ -146,7 +136,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
    *
    * @param err - The error to emit (or report).
    */
-  private safeEmitError(err: unknown) {
+  private _safeEmitError(err: unknown) {
     if (this.listenerCount(`error`) > 0) {
       this.emit(`error`, err)
     } else {
@@ -171,8 +161,8 @@ export class WorkerThreadGatewayClient extends EventEmitter {
    * ```
    * @public
    */
-  async connect(path: string, options: GatewayClientOptions = {}) {
-    if (this.closed) {
+  async connect(path: string, options: IGatewayClientOptions = {}) {
+    if (this._closed) {
       throw new Error(`gateway client is closed — create a new client to reconnect`)
     }
     if (!path || typeof path !== `string`) {
@@ -217,7 +207,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
         // a synchronous connect-phase failure may never reach the raw socket
         // listener above (it fires before the listener can be attached) —
         // route it deterministically so the default handler still sees it
-        this.safeEmitError(err instanceof Error ? err : new Error(String(err)))
+        this._safeEmitError(err instanceof Error ? err : new Error(String(err)))
         reject(err instanceof Error ? err : new Error(String(err)))
       })
     })
@@ -253,7 +243,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
    * @public
    */
   isClosed() {
-    return this.closed
+    return this._closed
   }
 
   /**
@@ -268,7 +258,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
    * @public
    */
   async close() {
-    this.closed = true
+    this._closed = true
     this.rpc.rejectAllPending(new Error(`gateway client closed`))
     this.client.options.reconnect = false
     const graceful = this.client.close().catch(() => {})
@@ -284,7 +274,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
    * @public
    */
   destroy() {
-    this.closed = true
+    this._closed = true
     this.rpc.rejectAllPending(new Error(`gateway client destroyed`))
     this.client.options.reconnect = false
     this.client.destroy()

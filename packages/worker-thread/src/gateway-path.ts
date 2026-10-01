@@ -1,15 +1,3 @@
-/**
- * Gateway path helpers — normalize socket paths across platforms.
- *
- * @remarks
- * The gateway transport (`net-ipc`) uses Unix domain sockets on POSIX and
- * named pipes on Windows (`\\.\pipe\<name>`). `net-ipc` applies this
- * normalization in its constructor only; this package mutates `options.path`
- * after construction, so the same normalization is applied here explicitly.
- *
- * @public
- */
-
 import {tmpdir} from "node:os"
 import {isAbsolute, join} from "node:path"
 

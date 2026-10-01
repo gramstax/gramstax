@@ -1,21 +1,10 @@
-/**
- * IPC gateway server — listens on a Unix socket for remote RPC requests.
- *
- * @remarks
- * [LOW-LEVEL] Provides IPC server functionality for inter-worker
- * communication using Unix domain sockets (named pipes on Windows).
- * Created internally by {@link WorkerThreadInit.createGatewayServer}.
- *
- * @public
- */
-
 import {timingSafeEqual} from "node:crypto"
 import {EventEmitter} from "node:events"
 import {unlink} from "node:fs/promises"
 import {type Connection, Server} from "net-ipc"
 import {reportError} from "./error-handler"
 import {normalizeGatewayPath} from "./gateway-path"
-import {WorkerThreadRpc, DEFAULT_MAX_MESSAGE_SIZE, estimatePayloadSize} from "./rpc"
+import {DEFAULT_MAX_MESSAGE_SIZE, estimatePayloadSize, WorkerThreadRpc} from "./rpc"
 
 /**
  * Options for starting a gateway server.
@@ -24,7 +13,7 @@ import {WorkerThreadRpc, DEFAULT_MAX_MESSAGE_SIZE, estimatePayloadSize} from "./
  * Auth and method allow-lists are enforced per connection on the server side.
  * @public
  */
-export type GatewayServerOptions = {
+export type IGatewayServerOptions = {
   /** Shared secret required from connecting clients (sent via the client `connect` payload). */
   token?: string
   /** Restrict which registered methods may be invoked remotely. */
@@ -108,18 +97,18 @@ export class WorkerThreadGatewayServer extends EventEmitter {
    */
   register: Record<string, (...args: never[]) => unknown> = {}
 
-  private authToken?: string
+  private _authToken?: string
 
-  private allowedMethods?: Set<string>
+  private _allowedMethods?: Set<string>
 
   /** Estimation cap for a single incoming message; read per-connection when `start` is called. */
-  private maxMessageSize = DEFAULT_MAX_MESSAGE_SIZE
+  private _maxMessageSize = DEFAULT_MAX_MESSAGE_SIZE
 
   /** Last bound socket path (normalized); unlinked best-effort on `close`. */
-  private socketPath?: string
+  private _socketPath?: string
 
   /** In-flight `close()` shared by concurrent/duplicate callers. */
-  private closePromise: Promise<void> | null = null
+  closePromise: Promise<void> | null = null
 
   /**
    * Cached responses per connection for at-least-once duplicate suppression.
@@ -128,7 +117,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
    * Outer key is the connection ID, inner key the RPC request `id`. Entries
    * are dropped when the connection disconnects and when the server closes.
    */
-  private seenResponses = new Map<string, Map<number, Record<string, unknown>>>()
+  private _seenResponses = new Map<string, Map<number, Record<string, unknown>>>()
 
   /**
    * Inbound request ids currently executing, per connection.
@@ -140,7 +129,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
    * the first execution's response serves the retry (ids are never reused
    * within a connection). Cleared with `seenResponses` on disconnect.
    */
-  private inflightRequests = new Map<string, Set<number>>()
+  private _inflightRequests = new Map<string, Set<number>>()
 
   /**
    * Creates a new gateway server instance.
@@ -151,15 +140,15 @@ export class WorkerThreadGatewayServer extends EventEmitter {
   constructor() {
     super()
     this.server.on(`connect`, (connection: Connection, payload?: unknown) => {
-      if (!this.isAuthorized(payload)) {
+      if (!this._isAuthorized(payload)) {
         connection.close(new Error(`unauthorized gateway client`)).catch(() => {
           // intentionally ignored
         })
         return
       }
       const seen = new Map<number, Record<string, unknown>>()
-      this.seenResponses.set(connection.id, seen)
-      this.inflightRequests.set(connection.id, new Set())
+      this._seenResponses.set(connection.id, seen)
+      this._inflightRequests.set(connection.id, new Set())
       const rpc = new WorkerThreadRpc(
         (data) => {
           const id = (data as {id?: unknown}).id
@@ -171,7 +160,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
             seen.set(id, data as Record<string, unknown>)
           }
           // The request this answers is no longer executing.
-          if (typeof id === `number`) this.inflightRequests.get(connection.id)?.delete(id)
+          if (typeof id === `number`) this._inflightRequests.get(connection.id)?.delete(id)
           // net-ipc resolves send failures with an Error object instead of
           // rejecting — surface it as a rejection so failures never masquerade
           // as successful sends
@@ -181,11 +170,11 @@ export class WorkerThreadGatewayServer extends EventEmitter {
           })
         },
         this.register,
-        {maxMessageSize: this.maxMessageSize}
+        {maxMessageSize: this._maxMessageSize}
       )
 
-      if (this.allowedMethods) {
-        const allow = this.allowedMethods
+      if (this._allowedMethods) {
+        const allow = this._allowedMethods
         rpc.use(async (ctx, next) => {
           if (!allow.has(ctx.method)) {
             throw new Error(`Method '${ctx.method}' is not allowed on this gateway`)
@@ -200,8 +189,8 @@ export class WorkerThreadGatewayServer extends EventEmitter {
 
     this.server.on(`disconnect`, (connection: Connection, reason?: unknown) => {
       this.rpc.delete(connection.id)
-      this.seenResponses.delete(connection.id)
-      this.inflightRequests.delete(connection.id)
+      this._seenResponses.delete(connection.id)
+      this._inflightRequests.delete(connection.id)
       this.emit(`disconnect`, connection, reason)
     })
 
@@ -213,7 +202,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
       // at-least-once redelivery: replay the cached response without
       // re-executing the handler (ids are never reused within a connection)
       if (typeof message.id === `number` && message.method !== undefined) {
-        const cached = this.seenResponses.get(connection.id)?.get(message.id)
+        const cached = this._seenResponses.get(connection.id)?.get(message.id)
         if (cached) {
           try {
             const replayed = rpc.send(cached) as Promise<unknown> | unknown
@@ -229,17 +218,17 @@ export class WorkerThreadGatewayServer extends EventEmitter {
         }
         // Same id still executing: a retry arrived before the first copy
         // responded. Drop it — the first response serves both deliveries.
-        const flying = this.inflightRequests.get(connection.id)
+        const flying = this._inflightRequests.get(connection.id)
         if (flying?.has(message.id)) return
         flying?.add(message.id)
       }
       rpc.make(message).catch((err: unknown) => {
-        this.safeEmitError(err)
+        this._safeEmitError(err)
       })
     })
 
     this.server.on(`error`, (err: unknown) => {
-      this.safeEmitError(err)
+      this._safeEmitError(err)
     })
   }
 
@@ -254,15 +243,15 @@ export class WorkerThreadGatewayServer extends EventEmitter {
    * @param payload - The client `connect` payload (`{auth}` when a token was sent).
    * @returns Whether the connection may proceed.
    */
-  private isAuthorized(payload?: unknown): boolean {
-    if (this.authToken === undefined) {
+  private _isAuthorized(payload?: unknown): boolean {
+    if (this._authToken === undefined) {
       return true
     }
     const presented = (payload as {auth?: unknown} | undefined)?.auth
     if (typeof presented !== `string`) {
       return false
     }
-    const expected = Buffer.from(this.authToken, `utf8`)
+    const expected = Buffer.from(this._authToken, `utf8`)
     const actual = Buffer.from(presented, `utf8`)
     if (actual.length !== expected.length) {
       return false
@@ -281,7 +270,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
    *
    * @param err - The error to emit (or report).
    */
-  private safeEmitError(err: unknown) {
+  private _safeEmitError(err: unknown) {
     if (this.listenerCount(`error`) > 0) {
       this.emit(`error`, err)
     } else {
@@ -311,7 +300,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
    * ```
    * @public
    */
-  async start(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: GatewayServerOptions) {
+  async start(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: IGatewayServerOptions) {
     if (!path || typeof path !== `string`) {
       throw new Error(`createGatewayServer requires a non-empty socket path`)
     }
@@ -340,12 +329,12 @@ export class WorkerThreadGatewayServer extends EventEmitter {
     }
     // assign auth/size config only after the bind succeeds — a failed start
     // (e.g. EADDRINUSE) must not leave a half-configured instance behind
-    this.authToken = options?.token
+    this._authToken = options?.token
     // an explicitly empty allow-list denies everything; only omitting the
     // option leaves the register fully callable
-    this.allowedMethods = options && Array.isArray(options.allowedMethods) ? new Set(options.allowedMethods) : undefined
-    this.maxMessageSize = options?.maxMessageSize ?? DEFAULT_MAX_MESSAGE_SIZE
-    this.socketPath = normalized
+    this._allowedMethods = options && Array.isArray(options.allowedMethods) ? new Set(options.allowedMethods) : undefined
+    this._maxMessageSize = options?.maxMessageSize ?? DEFAULT_MAX_MESSAGE_SIZE
+    this._socketPath = normalized
     return ready
   }
 
@@ -364,7 +353,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
     if (this.closePromise) {
       return this.closePromise
     }
-    this.closePromise = this.doClose()
+    this.closePromise = this._doClose()
     try {
       await this.closePromise
     } finally {
@@ -375,7 +364,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
   /**
    * Single close pass shared by duplicate `close()` callers.
    */
-  private async doClose() {
+  private async _doClose() {
     const graceful = this.server.close().catch(() => {})
     await Promise.race([graceful, new Promise((resolve) => setTimeout(resolve, 500))])
     // wait until the listening socket is fully released so the same instance
@@ -394,9 +383,9 @@ export class WorkerThreadGatewayServer extends EventEmitter {
       connection.destroy()
     }
     this.rpc.clear()
-    this.seenResponses.clear()
-    const bound = this.socketPath
-    this.socketPath = undefined
+    this._seenResponses.clear()
+    const bound = this._socketPath
+    this._socketPath = undefined
     if (bound !== undefined && process.platform !== `win32` && !bound.startsWith(`\\\\.\\pipe\\`)) {
       await unlink(bound).catch(() => {
         // best-effort cleanup: ENOENT (already gone) and any other fs error

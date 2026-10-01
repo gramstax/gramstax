@@ -5,12 +5,12 @@
  * spawning any actual worker threads. Uses a stub `send` function to
  * capture outgoing messages and feeds back canned responses.
  */
-import {afterEach, beforeEach, describe, expect, it } from "bun:test"
-import type {ITMapRpc} from "../src/rpc"
+import {afterEach, beforeEach, describe, expect, it} from "bun:test"
+import {setDefaultErrorHandler} from "../src/error-handler"
+import type {IMapRpc} from "../src/rpc"
 import * as RpcModule from "../src/rpc"
 import {estimatePayloadSize, WorkerThreadRpc} from "../src/rpc"
-import {setDefaultErrorHandler} from "../src/error-handler"
-import {sleep, withTimeout } from "./helpers"
+import {sleep, withTimeout} from "./helpers"
 
 describe(`WorkerThreadRpc`, () => {
   let sentMessages: any[]
@@ -167,7 +167,7 @@ describe(`WorkerThreadRpc`, () => {
     it(`removes pending request from map after result`, async () => {
       const promise = rpc.makeRequest(`add`, [1, 2])
       const req = sentMessages[0]
-      const internalMap = rpc.map as ITMapRpc
+      const internalMap = rpc.map as IMapRpc
       expect(internalMap.has(req.id)).toBe(true)
       await rpc.make({id: req.id, result: 3})
       expect(internalMap.has(req.id)).toBe(false)
@@ -364,9 +364,12 @@ describe(`WorkerThreadRpc`, () => {
  */
 function makeStubRpc(register?: Record<string, (...args: never[]) => unknown>) {
   const sent: any[] = []
-  const stub = new WorkerThreadRpc((data) => {
-    sent.push(data)
-  }, register ?? {add: (a: number, b: number) => a + b})
+  const stub = new WorkerThreadRpc(
+    (data) => {
+      sent.push(data)
+    },
+    register ?? {add: (a: number, b: number) => a + b}
+  )
   return {sent, stub}
 }
 
@@ -491,10 +494,12 @@ describe(`regression (e): single-call next() guard`, () => {
   it(`second next() call throws and surfaces as an error response`, async () => {
     const sent: any[] = []
     let calls = 0
-    const stub = new WorkerThreadRpc((data) => sent.push(data), {add: () => {
-      calls++
-      return 1
-    }})
+    const stub = new WorkerThreadRpc((data) => sent.push(data), {
+      add: () => {
+        calls++
+        return 1
+      }
+    })
     stub.use(async (_ctx, next) => {
       await next()
       await next()
@@ -534,9 +539,12 @@ describe(`regression (h): transport-send failures route to reportError`, () => {
     const seen: unknown[] = []
     setDefaultErrorHandler((err) => seen.push(err))
     try {
-      const boom = new WorkerThreadRpc(() => {
-        throw new Error(`transport down`)
-      }, {add: () => 1})
+      const boom = new WorkerThreadRpc(
+        () => {
+          throw new Error(`transport down`)
+        },
+        {add: () => 1}
+      )
       await boom.make({id: 1, method: `add`, params: []})
       expect(seen.length).toBeGreaterThan(0)
     } finally {
@@ -562,10 +570,12 @@ describe(`regression (i): id-less inbound skips the reply`, () => {
   it(`dispatches id-less requests but answers nobody`, async () => {
     const sent: any[] = []
     let calls = 0
-    const stub = new WorkerThreadRpc((data) => sent.push(data), {add: (a: number, b: number) => {
-      calls++
-      return a + b
-    }})
+    const stub = new WorkerThreadRpc((data) => sent.push(data), {
+      add: (a: number, b: number) => {
+        calls++
+        return a + b
+      }
+    })
     await stub.make({method: `add`, params: [1, 2]} as any)
     expect(calls).toBe(1)
     expect(sent).toHaveLength(0)

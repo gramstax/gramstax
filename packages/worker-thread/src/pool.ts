@@ -1,14 +1,3 @@
-/**
- * Worker thread pool — manages multiple worker instances.
- *
- * @remarks
- * Provides pooled access to multiple {@link WorkerThreadLaunch} instances
- * with round-robin dispatch and broadcast functionality for fan-out
- * operations across all workers.
- *
- * @public
- */
-
 import type {WorkerThreadLaunch} from "./launch"
 
 /**
@@ -291,11 +280,7 @@ export class WorkerThreadPool {
    * ```
    * @public
    */
-  async broadcastSettled(
-    method: string,
-    params: unknown[],
-    timeoutMs?: number
-  ): Promise<Array<{threadId: number; ok: boolean; result?: unknown; error?: unknown}>> {
+  async broadcastSettled(method: string, params: unknown[], timeoutMs?: number): Promise<Array<{threadId: number; ok: boolean; result?: unknown; error?: unknown}>> {
     if (this.thread.size === 0) {
       throw new Error(`WorkerThreadPool is empty — add workers before calling broadcastSettled()`)
     }

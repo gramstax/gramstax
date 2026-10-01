@@ -5,11 +5,11 @@
  * main-thread path of `init()`. We never call `launchWorker()` here, so no
  * real worker threads are spawned.
  */
-import {describe, expect, it } from "bun:test"
+import {describe, expect, it} from "bun:test"
 import {WorkerThreadExport} from "../src/export"
 import {WorkerThreadInit} from "../src/init"
-import {sleep, withTimeout } from "./helpers"
 import {LifecycleWorker} from "./fixtures/lifecycle-worker"
+import {sleep, withTimeout} from "./helpers"
 
 class StubWorker extends WorkerThreadInit {
   mtdAdd(a: number, b: number) {
@@ -164,14 +164,26 @@ describe(`WorkerThreadExport Job proxy (real worker threads)`, () => {
     // TERMINATES the worker — not an RPC to the worker's drain method
     await withTimeout((Job as any).shutdown(5_000), 10_000, `job shutdown`)
     await sleep(300)
-    const err = await withTimeout((Job as any).mtdAdd(1, 2).catch((e: unknown) => e), 5_000, `method after shutdown`)
+    const err = await withTimeout(
+      (Job as any).mtdAdd(1, 2).catch((e: unknown) => e),
+      5_000,
+      `method after shutdown`
+    )
     expect(err).toBeInstanceOf(Error)
   }, 25_000)
 
   it(`job methods reject cleanly after a failed launch (worker crashed at boot)`, async () => {
     const Job = WorkerThreadExport.init({path: CRASH_FIXTURE, WTInit: LifecycleWorker})
-    await withTimeout(Job.launchWorker().catch(() => {}), 10_000, `launch`)
-    const err = await withTimeout((Job as any).mtdAdd(1, 2).catch((e: unknown) => e), 5_000, `method after failed launch`)
+    await withTimeout(
+      Job.launchWorker().catch(() => {}),
+      10_000,
+      `launch`
+    )
+    const err = await withTimeout(
+      (Job as any).mtdAdd(1, 2).catch((e: unknown) => e),
+      5_000,
+      `method after failed launch`
+    )
     expect(err).toBeInstanceOf(Error)
   }, 20_000)
 })
@@ -244,8 +256,20 @@ describe(`WorkerThreadExport regression (a–k fixes)`, () => {
     expect(await withTimeout<number>((Job as any).mtdAdd(1, 2), 10_000, `routes to latest`)).toBe(3)
     await withTimeout((Job as any).shutdown(5_000), 15_000, `factory shutdown`)
     await sleep(300)
-    expect(await withTimeout(w1.request(`mtdAdd`, [1, 2]).catch((e: unknown) => e), 5_000, `w1 dead`)).toBeInstanceOf(Error)
-    expect(await withTimeout(w2.request(`mtdAdd`, [1, 2]).catch((e: unknown) => e), 5_000, `w2 dead`)).toBeInstanceOf(Error)
+    expect(
+      await withTimeout(
+        w1.request(`mtdAdd`, [1, 2]).catch((e: unknown) => e),
+        5_000,
+        `w1 dead`
+      )
+    ).toBeInstanceOf(Error)
+    expect(
+      await withTimeout(
+        w2.request(`mtdAdd`, [1, 2]).catch((e: unknown) => e),
+        5_000,
+        `w2 dead`
+      )
+    ).toBeInstanceOf(Error)
   }, 30_000)
 })
 

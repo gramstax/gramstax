@@ -1,14 +1,3 @@
-/**
- * Worker thread launcher — manages lifecycle from the main thread.
- *
- * @remarks
- * Spawns a {@link Worker} thread, sets up the RPC channel, and provides
- * `request()` / `sendRequest()` for calling worker methods and waiting
- * for responses. Also exposes `kill()` / `send()` for lifecycle control.
- *
- * @public
- */
-
 import {EventEmitter} from "node:events"
 import {isMainThread, Worker} from "node:worker_threads"
 import {reportError} from "./error-handler"
@@ -97,23 +86,23 @@ export class WorkerThreadLaunch extends EventEmitter {
   })
 
   /** Whether the worker thread has exited. Guards `kill()` against double-termination hangs. */
-  private exited = false
+  private _exited = false
 
   /**
    * Set synchronously at the top of `kill()`/`shutdown()` so `send()`/`request()`
    * fail fast instead of hanging while termination is in flight.
    */
-  private exiting = false
+  private _exiting = false
 
   /** Exit code from the worker `exit` event, if it has fired. */
-  private exitCode?: number
+  private _exitCode?: number
 
   /** In-flight `shutdown()` promise shared by concurrent callers (single drain). */
-  private shutdownPromise?: Promise<void>
+  private _shutdownPromise?: Promise<void>
 
   /** Bound SIGINT/SIGTERM handlers so `kill()`/`exit` can remove them (no pool leak). */
-  private sigintHandler?: () => void
-  private sigtermHandler?: () => void
+  private _sigintHandler?: () => void
+  private _sigtermHandler?: () => void
 
   /**
    * The main process ID.
@@ -190,8 +179,8 @@ export class WorkerThreadLaunch extends EventEmitter {
   ready() {
     // A stale resolve after death is misleading — callers polling ready()
     // on a dead worker must learn it died instead of hanging on success.
-    if (this.exited) {
-      return Promise.reject(new Error(`Worker ${this.threadId} has exited (code ${this.exitCode}) — ready() cannot resolve after death`))
+    if (this._exited) {
+      return Promise.reject(new Error(`Worker ${this.threadId} has exited (code ${this._exitCode}) — ready() cannot resolve after death`))
     }
     return this._readyPromise
   }
@@ -227,26 +216,26 @@ export class WorkerThreadLaunch extends EventEmitter {
     this.thread = new Worker(this.path, {argv: this.argv.length === 0 ? undefined : this.argv})
     this.threadId = this.thread.threadId
     this.thread.on(`message`, (data) => this.handleOnMessage(data))
-    this.thread.on(`error`, (err) => this.safeEmitError(err))
+    this.thread.on(`error`, (err) => this._safeEmitError(err))
     this.thread.on(`exit`, (code) => {
       this.rpc.rejectAllPending(new Error(`Worker ${this.threadId} exited unexpectedly (code ${code})`))
       if (!this._readyResolved) {
         this._readyReject?.(new Error(`Worker ${this.threadId} exited before signaling ready (code ${code})`))
       }
-      this.exited = true
-      this.exitCode = code
+      this._exited = true
+      this._exitCode = code
       this.emit(`exit`, code)
       // Dead kill() removed: it short-circuits on `exited`, so it could never act here.
-      this.removeSignalHandlers()
+      this._removeSignalHandlers()
     })
-    this.sigintHandler = () => {
+    this._sigintHandler = () => {
       void this.kill()
     }
-    this.sigtermHandler = () => {
+    this._sigtermHandler = () => {
       void this.kill()
     }
-    process.once(`SIGINT`, this.sigintHandler)
-    process.once(`SIGTERM`, this.sigtermHandler)
+    process.once(`SIGINT`, this._sigintHandler)
+    process.once(`SIGTERM`, this._sigtermHandler)
   }
 
   /**
@@ -256,14 +245,14 @@ export class WorkerThreadLaunch extends EventEmitter {
    * Called from `kill()` and the `exit` handler so worker pools stop
    * accumulating `MaxListenersExceededWarning`s.
    */
-  private removeSignalHandlers() {
-    if (this.sigintHandler) {
-      process.removeListener(`SIGINT`, this.sigintHandler)
-      this.sigintHandler = undefined
+  private _removeSignalHandlers() {
+    if (this._sigintHandler) {
+      process.removeListener(`SIGINT`, this._sigintHandler)
+      this._sigintHandler = undefined
     }
-    if (this.sigtermHandler) {
-      process.removeListener(`SIGTERM`, this.sigtermHandler)
-      this.sigtermHandler = undefined
+    if (this._sigtermHandler) {
+      process.removeListener(`SIGTERM`, this._sigtermHandler)
+      this._sigtermHandler = undefined
     }
   }
 
@@ -275,7 +264,7 @@ export class WorkerThreadLaunch extends EventEmitter {
    */
   async handleOnMessage(data: Parameters<WorkerThreadRpc[`make`]>[0]) {
     this.rpc.make(data).catch((err: unknown) => {
-      this.safeEmitError(err)
+      this._safeEmitError(err)
     })
   }
 
@@ -291,7 +280,7 @@ export class WorkerThreadLaunch extends EventEmitter {
    *
    * @param err - The error to emit (or report).
    */
-  private safeEmitError(err: unknown) {
+  private _safeEmitError(err: unknown) {
     if (this.listenerCount(`error`) > 0) {
       this.emit(`error`, err)
     } else {
@@ -316,14 +305,14 @@ export class WorkerThreadLaunch extends EventEmitter {
    * @public
    */
   kill() {
-    this.exiting = true
-    this.removeSignalHandlers()
-    if (this.exited) return Promise.resolve()
+    this._exiting = true
+    this._removeSignalHandlers()
+    if (this._exited) return Promise.resolve()
     // terminate() can reject when the thread is already mid-exit — kill stays
     // best-effort, but the failure is routed to the `error` event (or the
     // default handler) instead of being swallowed silently
     return this.thread.terminate().catch((err: unknown) => {
-      this.safeEmitError(err)
+      this._safeEmitError(err)
     })
   }
 
@@ -347,11 +336,11 @@ export class WorkerThreadLaunch extends EventEmitter {
    */
   async shutdown(timeoutMs = 5000) {
     // Fast-path: an exited worker needs no RPC and no 5s stall.
-    if (this.exited) return
+    if (this._exited) return
     // Serialize: concurrent callers share one in-flight drain.
-    if (this.shutdownPromise) return this.shutdownPromise
-    this.exiting = true
-    this.shutdownPromise = (async () => {
+    if (this._shutdownPromise) return this._shutdownPromise
+    this._exiting = true
+    this._shutdownPromise = (async () => {
       // The drain bypasses the public send() guard (which rejects while
       // `exiting` is set) by posting straight to the thread — the reply is
       // still routed through this.rpc, so the pending map resolves normally.
@@ -368,9 +357,9 @@ export class WorkerThreadLaunch extends EventEmitter {
       }
       await this.kill()
     })().finally(() => {
-      this.shutdownPromise = undefined
+      this._shutdownPromise = undefined
     })
-    return this.shutdownPromise
+    return this._shutdownPromise
   }
 
   /**
@@ -385,10 +374,10 @@ export class WorkerThreadLaunch extends EventEmitter {
    * @public
    */
   send(payload: Record<string, unknown>) {
-    if (this.exited) {
+    if (this._exited) {
       throw new Error(`Worker ${this.threadId} has exited — cannot send message`)
     }
-    if (this.exiting) {
+    if (this._exiting) {
       throw new Error(`Worker ${this.threadId} is exiting — cannot send message`)
     }
     this.thread.postMessage(payload)
@@ -413,10 +402,10 @@ export class WorkerThreadLaunch extends EventEmitter {
    * @public
    */
   async request(method: string, params: unknown[], _wait = true, _others?: Record<string, unknown>, timeoutMs?: number) {
-    if (this.exited) {
+    if (this._exited) {
       throw new Error(`Worker ${this.threadId} has exited — cannot send request "${method}"`)
     }
-    if (this.exiting) {
+    if (this._exiting) {
       throw new Error(`Worker ${this.threadId} is exiting — cannot send request "${method}"`)
     }
     return this.rpc.makeRequest(method, params, _wait, _others, timeoutMs)

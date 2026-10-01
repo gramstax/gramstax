@@ -16,7 +16,7 @@ import {reportError} from "./error-handler"
  * Map type for storing pending RPC request handlers.
  * @public
  */
-export type ITMapRpc = Map<number, {reject: (error: unknown) => void; resolve: (result: unknown) => void; timer?: ReturnType<typeof setTimeout>}>
+export type IMapRpc = Map<number, {reject: (error: unknown) => void; resolve: (result: unknown) => void; timer?: ReturnType<typeof setTimeout>}>
 
 /**
  * Context object passed through the RPC middleware chain for incoming requests.
@@ -26,7 +26,7 @@ export type ITMapRpc = Map<number, {reject: (error: unknown) => void; resolve: (
  * `result` without calling `next`, or throw to reject the request.
  * @public
  */
-export type RpcContext = {
+export type IRpcContext = {
   /** Method name being invoked. */
   method: string
   /** Positional arguments for the method. Mutable by middleware. */
@@ -42,7 +42,7 @@ export type RpcContext = {
  * @param next - Continue to the next middleware / dispatch the method.
  * @public
  */
-export type RpcMiddleware = (ctx: RpcContext, next: () => Promise<void>) => Promise<void>
+export type IRpcMiddleware = (ctx: IRpcContext, next: () => Promise<void>) => Promise<void>
 
 /**
  * Default cap on the estimated in-memory size of a single RPC message
@@ -71,18 +71,7 @@ export const DEFAULT_REQUEST_TIMEOUT_MS = 30000
  * inbound lifecycle methods).
  * @public
  */
-export const DENIED_RPC_METHODS: ReadonlySet<string> = new Set([
-  `__proto__`,
-  `constructor`,
-  `prototype`,
-  `send`,
-  `request`,
-  `kill`,
-  `init`,
-  `handleOnMessage`,
-  `createGatewayServer`,
-  `createGatewayClient`
-])
+export const DENIED_RPC_METHODS: ReadonlySet<string> = new Set([`__proto__`, `constructor`, `prototype`, `send`, `request`, `kill`, `init`, `handleOnMessage`, `createGatewayServer`, `createGatewayClient`])
 
 /**
  * Estimate the in-memory footprint of a structured value.
@@ -158,9 +147,9 @@ export class WorkerThreadRpc {
    * Map of pending requests by ID. Stores promise handlers for pending requests.
    *
    * @remarks
-   * Uses {@link ITMapRpc} for the map value shape.
+   * Uses {@link IMapRpc} for the map value shape.
    */
-  map = new Map() as ITMapRpc
+  map = new Map() as IMapRpc
 
   /**
    * Default context merged into every outgoing RPC payload.
@@ -188,7 +177,7 @@ export class WorkerThreadRpc {
    */
   defaultTimeoutMs: number = DEFAULT_REQUEST_TIMEOUT_MS
 
-  private _middlewares: RpcMiddleware[] = []
+  private _middlewares: IRpcMiddleware[] = []
 
   /**
    * Creates a new WorkerThreadRpc instance.
@@ -245,7 +234,7 @@ export class WorkerThreadRpc {
    *
    * @remarks
    * Middleware runs in registration order before the target method is
-   * dispatched. Each middleware receives a mutable {@link RpcContext} and a
+   * dispatched. Each middleware receives a mutable {@link IRpcContext} and a
    * `next` function; short-circuit by setting `ctx.result` and skipping
    * `next`, or reject by throwing.
    *
@@ -261,7 +250,7 @@ export class WorkerThreadRpc {
    * ```
    * @public
    */
-  use(...middlewares: RpcMiddleware[]) {
+  use(...middlewares: IRpcMiddleware[]) {
     this._middlewares.push(...middlewares)
     return this
   }
@@ -316,7 +305,7 @@ export class WorkerThreadRpc {
       // A live pending entry plus a result/error key means this envelope is
       // a response that also carries request fields — resolve it instead of
       // dispatching it as a new request.
-      if (id !== undefined && map.has(id) && ((`result` in data) || (`error` in data))) {
+      if (id !== undefined && map.has(id) && (`result` in data || `error` in data)) {
         this._handleResponse(data)
         return
       }
@@ -328,7 +317,7 @@ export class WorkerThreadRpc {
         if (params !== undefined && !Array.isArray(params)) {
           throw new Error(`Invalid RPC params: expected array, got ${typeof params}`)
         }
-        const ctx: RpcContext = {method, params: params ?? []}
+        const ctx: IRpcContext = {method, params: params ?? []}
         await this._runMiddleware(ctx, 0)
         // the wire cannot carry `undefined` — send null so the caller resolves
         // instead of hanging on a missing result field
@@ -375,16 +364,14 @@ export class WorkerThreadRpc {
    * @param ctx - Mutable request context shared through the chain.
    * @param index - Current middleware index.
    */
-  private async _runMiddleware(ctx: RpcContext, index: number): Promise<void> {
+  private async _runMiddleware(ctx: IRpcContext, index: number): Promise<void> {
     if (index >= this._middlewares.length) {
       const func = this.register[ctx.method]
       // Accept own properties AND class-prototype methods (gateway registers
       // worker *instances*, whose mtd* methods live on the prototype), but
       // never Object.prototype members (`toString`, `hasOwnProperty`, ...) or
       // the dangerous names below (`constructor` would expose the class).
-      const fromObjectProto =
-        !Object.hasOwn(this.register, ctx.method) &&
-        Object.hasOwn(Object.prototype, ctx.method)
+      const fromObjectProto = !Object.hasOwn(this.register, ctx.method) && Object.hasOwn(Object.prototype, ctx.method)
       if (typeof func !== `function` || DENIED_RPC_METHODS.has(ctx.method) || fromObjectProto) {
         throw new Error(`Method ${ctx.method} not found or not function`)
       }

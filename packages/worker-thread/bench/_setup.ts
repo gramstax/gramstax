@@ -11,7 +11,7 @@
  * @internal
  */
 import {run} from "mitata"
-import type {GatewayClientOptions} from "../src/gateway-client"
+import type {IGatewayClientOptions} from "../src/gateway-client"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import type {WorkerThreadLaunch} from "../src/launch"
@@ -39,24 +39,18 @@ export async function spawnEchoWorker(): Promise<WorkerThreadLaunch> {
   return worker as unknown as WorkerThreadLaunch
 }
 
-export async function spawnGatewayPair(options: GatewayClientOptions = {}): Promise<{server: WorkerThreadGatewayServer; client: WorkerThreadGatewayClient; path: string}> {
+export async function spawnGatewayPair(options: IGatewayClientOptions = {}): Promise<{server: WorkerThreadGatewayServer; client: WorkerThreadGatewayClient; path: string}> {
   const path = uniqueSocketPath()
   const server = new WorkerThreadGatewayServer()
   const client = new WorkerThreadGatewayClient()
-  await withTimeout(
-    server.start(path, {echo: (payload: unknown) => payload, ping: () => `pong`}),
-    10_000,
-    `gateway server start`
-  )
+  await withTimeout(server.start(path, {echo: (payload: unknown) => payload, ping: () => `pong`}), 10_000, `gateway server start`)
   await withTimeout(client.connect(path, options), 10_000, `gateway client connect`)
   await withTimeout(client.request(`ping`, []), 10_000, `gateway prime`)
   return {server, client, path}
 }
 
 export async function makePool(n: number): Promise<{pool: WorkerThreadPool; workers: WorkerThreadLaunch[]}> {
-  const workers = (await Promise.all(
-    Array.from({length: n}, () => withTimeout(EchoJob.launchWorker(), 10_000, `pool worker ready`))
-  )) as unknown as WorkerThreadLaunch[]
+  const workers = (await Promise.all(Array.from({length: n}, () => withTimeout(EchoJob.launchWorker(), 10_000, `pool worker ready`)))) as unknown as WorkerThreadLaunch[]
   return {pool: new WorkerThreadPool(workers), workers}
 }
 
