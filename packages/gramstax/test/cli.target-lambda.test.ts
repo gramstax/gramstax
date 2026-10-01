@@ -17,6 +17,7 @@ const EDGE_TOKENS = [`new Function`, `Function(`, `eval(`, `node:fs`, `__filenam
 let pages: string
 let outDir: string
 let savedToken: string | undefined
+let savedSecret: string | undefined
 
 function relinkCtx(root: string): void {
   const walk = (dirPath: string): void => {
@@ -53,8 +54,8 @@ function startUpdate(): Record<string, unknown> {
   }
 }
 
-function apiGatewayEvent(update: Record<string, unknown>): Record<string, unknown> {
-  return {body: JSON.stringify(update), headers: {}, httpMethod: `POST`, path: `/webhook`}
+function apiGatewayEvent(update: Record<string, unknown>, secret = `test-secret`): Record<string, unknown> {
+  return {body: JSON.stringify(update), headers: secret === `` ? {} : {"X-Telegram-Bot-Api-Secret-Token": secret}, httpMethod: `POST`, path: `/webhook`}
 }
 
 async function emitLambda(): Promise<{lambdaJs: string; serverDir: string}> {
@@ -86,11 +87,15 @@ beforeEach(() => {
   outDir = mkdtempSync(join(tmpdir(), `lambda-out-`))
   savedToken = process.env.BOT_TOKEN
   process.env.BOT_TOKEN = `test`
+  savedSecret = process.env.TELEGRAM_WEBHOOK_SECRET
+  process.env.TELEGRAM_WEBHOOK_SECRET = `test-secret`
 })
 
 afterEach(() => {
   if (savedToken === undefined) delete process.env.BOT_TOKEN
   else process.env.BOT_TOKEN = savedToken
+  if (savedSecret === undefined) delete process.env.TELEGRAM_WEBHOOK_SECRET
+  else process.env.TELEGRAM_WEBHOOK_SECRET = savedSecret
   rmSync(pages, {force: true, recursive: true})
   rmSync(outDir, {force: true, recursive: true})
 })
@@ -103,6 +108,10 @@ describe(`LambdaTarget`, () => {
     for (const token of EDGE_TOKENS) expect(source).not.toContain(token)
     expect(source).toContain(`export async function handler`)
     expect(source).toContain(`class LambdaEntry`)
+    expect(source).toContain(`TELEGRAM_WEBHOOK_SECRET`)
+    expect(source).toContain(`401`)
+    expect(source).toContain(`Unauthorized`)
+    expect(source).not.toMatch(/[0-9]{6,}:[A-Za-z0-9_-]{20,}/)
   })
 
   it(`local invoke routes /start to 200 with template output`, async () => {
@@ -121,8 +130,24 @@ describe(`LambdaTarget`, () => {
     const {lambdaJs} = await emitLambda()
     const mod = await loadLambda(lambdaJs)
     new E2eHelper(mod.getBot() as never)
-    const res = await mod.handler(startUpdate())
+    const res = await mod.handler({...startUpdate(), headers: {"X-Telegram-Bot-Api-Secret-Token": `test-secret`}})
     expect(res.statusCode).toBe(200)
+  })
+
+  it(`rejects invoke without secret header with 401`, async () => {
+    const {lambdaJs} = await emitLambda()
+    const mod = await loadLambda(lambdaJs)
+    new E2eHelper(mod.getBot() as never)
+    const res = await mod.handler(apiGatewayEvent(startUpdate(), ``))
+    expect(res.statusCode).toBe(401)
+  })
+
+  it(`rejects invoke with wrong secret with 401`, async () => {
+    const {lambdaJs} = await emitLambda()
+    const mod = await loadLambda(lambdaJs)
+    new E2eHelper(mod.getBot() as never)
+    const res = await mod.handler(apiGatewayEvent(startUpdate(), `wrong-secret`))
+    expect(res.statusCode).toBe(401)
   })
 
   it(`missing manifest throws clearly`, () => {
@@ -151,7 +176,7 @@ describe(`LambdaTarget`, () => {
     try {
       mkdirSync(join(proj, `src`, `pages`), {recursive: true})
       cpSync(pages, join(proj, `src`, `pages`), {recursive: true})
-      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {adapter: \`aws-lambda-async\`, url: \`https://example.com/webhook\`}}\n`, `utf-8`)
+      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`aws-lambda-async\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
       const code = await new GramstaxBuild().run([`--target`, `lambda`], proj)
       expect(code).toBe(0)
       expect(existsSync(join(proj, `.gramstax`, `server`, `lambda.js`))).toBe(true)

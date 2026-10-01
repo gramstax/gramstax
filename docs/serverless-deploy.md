@@ -33,13 +33,13 @@ compatibility_flags = ["nodejs_compat"]
 # BOT_TOKEN is a secret, never a var (a [vars] entry would shadow the real
 # secret at runtime — verified live: placeholder var caused error 1101)
 BOT_DEPLOY = "serverless"
-# adapter + url live in `optionsDeploy` in code (`adapter: "cloudflare-mod"`, `url: "https://gramstax-cloudflare-example.damartripamungkas.workers.dev/webhook"`)
+# adapter + url live in `optionsDeploy.serverless` in code (`serverless: {adapter: "cloudflare-mod", url: "https://gramstax-cloudflare-example.damartripamungkas.workers.dev/webhook"}`)
 
 [alias]
 "bun" = "./bun-stub.ts"
 ```
 
-Name + URL come from `optionsDeploy` (`name`/`url` with `adapter: "cloudflare-mod"`) in `gramstax.config.ts`
+Name + URL come from `optionsDeploy.serverless` (`adapter` + `name` + `url`) in `gramstax.config.ts`
 (defaults keep the `gramstax-worker` + `https://<your-worker>.workers.dev/webhook`
 placeholder when unconfigured). `BOT_TOKEN` never appears as a `[vars]` entry —
 a vars entry would shadow the real secret at runtime (error 1101, proven by
@@ -71,6 +71,20 @@ reaches the code, not the secret). Recovery: remove the vars line, redeploy
 (`--keep-vars` defaults to false, so the stale var is wiped and only
 configured vars are set), then `secret put` succeeds. The emitted toml
 deliberately carries no `BOT_TOKEN` vars line for this reason.
+
+## 3b. Webhook secret duality (`secretToken`)
+
+`optionsDeploy.serverless` accepts `{adapter?, name?, url?, secretToken?}` —
+`secretToken` is runtime-required but type-optional so zero-config `gramstax build`
+keeps working. Its VALUE always comes from an env expression
+(`secretToken: process.env.TELEGRAM_WEBHOOK_SECRET ?? ```), never a literal.
+The config value sets the webhook + local `start`; the deployed edge reads the
+`TELEGRAM_WEBHOOK_SECRET` binding instead of the baked bundle — same value both sides:
+
+```bash
+cd example/11-cloudflare-worker
+wrangler secret put TELEGRAM_WEBHOOK_SECRET   # same value as the config env, never in a file
+```
 
 ## 4. Deploy (config-resolution gotcha)
 
@@ -124,12 +138,12 @@ Send real `/start` → correct reply; pending count drains to 0.
 bunx wrangler dev --config <abs path>/.gramstax/server/wrangler.toml --port 18790 \
   --var BOT_TOKEN:TEST:TOKEN \
   --var BOT_DEPLOY:"serverless" \
-  --var BOT_API_ROOT:http://127.0.0.1:18791   # local MockTelegramServer (adapter + url come from `optionsDeploy` in the emitted entry)
+  --var BOT_API_ROOT:http://127.0.0.1:18791   # local MockTelegramServer (adapter + url come from `optionsDeploy.serverless` in the emitted entry)
 curl http://127.0.0.1:18790/                              # 200, no bot boot
 curl -X POST http://127.0.0.1:18790/webhook -d '{...}'    # 200, zero EvalError
 ```
 
-The mock only accepts loopback webhook URLs, so the dev `optionsDeploy`
+The mock only accepts loopback webhook URLs, so the dev `optionsDeploy.serverless`
 `url` must use a `127.0.0.1` URL — production uses the real workers.dev URL.
 
 ## 7. AWS Lambda (`--target lambda`)
@@ -149,7 +163,7 @@ Env vars:
 | Var | Value |
 | --- | ----- |
 | `BOT_TOKEN` | Bot token (secret, never in a file) |
-| `BOT_DEPLOY` | `serverless` (with `optionsDeploy` `adapter: "aws-lambda-async"`) |
+| `BOT_DEPLOY` | `serverless` (with `optionsDeploy.serverless` `adapter: "aws-lambda-async"`) |
 
 Handler: `.gramstax/server/lambda.js` (emitted by `LambdaEntry`) exports the
 `handler`; wire it as the Lambda function handler. It auto-loads

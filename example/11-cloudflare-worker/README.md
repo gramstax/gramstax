@@ -53,10 +53,12 @@ bun run test:e2e                                      # e2e (deploy:test)
 ## Edge deploy
 
 See `docs/serverless-deploy.md` for the full chain
-(build → secret → deploy → verify). Quick pointer:
+(build → secret → deploy → verify). Quick pointer (secret duality: config
+`secretToken` sets the webhook, edge reads the binding — same value both sides):
 
 ```bash
-wrangler secret put BOT_TOKEN   # then: wrangler deploy --config <abs path>/.gramstax/server/wrangler.toml
+wrangler secret put BOT_TOKEN                 # then: wrangler deploy --config <abs path>/.gramstax/server/wrangler.toml
+wrangler secret put TELEGRAM_WEBHOOK_SECRET   # same value as `secretToken` in `gramstax.config.ts`
 ```
 
 ## Limits (by design)

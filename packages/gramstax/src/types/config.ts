@@ -244,6 +244,291 @@ export type IGramstaxSessionLockRef = {
 }
 
 /**
+ * Serverless deploy branch of `optionsDeploy`.
+ *
+ * @remarks
+ * Only meaningful when `deploy` is `serverless`. The `secretToken` value
+ * is validated for shape only — it is NEVER baked into emitted bundles;
+ * edge reads the `TELEGRAM_WEBHOOK_SECRET` runtime binding at runtime.
+ *
+ * @example
+ * ```typescript
+ * const serverless: IGramstaxServerlessDeployOptions = {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`}
+ * ```
+ *
+ * @public
+ */
+export type IGramstaxServerlessDeployOptions = {
+  /**
+   * Serverless adapter name.
+   *
+   * @remarks
+   * Must be one of `cloudflare-mod`, `aws-lambda-async` when present.
+   * Required when `deploy` is `serverless`.
+   *
+   * @example
+   * ```typescript
+   * adapter: `cloudflare-mod`
+   * ```
+   */
+  adapter?: string
+  /**
+   * Serverless service/worker name.
+   *
+   * @remarks
+   * Must be a string when present. Passed to the serverless adapter as the
+   * deployment name.
+   *
+   * @example
+   * ```typescript
+   * name: `gramstax-worker`
+   * ```
+   */
+  name?: string
+  /**
+   * Public webhook URL for the serverless deployment.
+   *
+   * @remarks
+   * Must be a real `https?://` URL with no `<` placeholder when `deploy`
+   * is `serverless`. Required in that mode.
+   *
+   * @example
+   * ```typescript
+   * url: `https://example.com/webhook`
+   * ```
+   */
+  url?: string
+  /**
+   * Webhook secret token value.
+   *
+   * @remarks
+   * Must be non-empty and match `^[A-Za-z0-9_-]{1,256}$` when `deploy` is
+   * `serverless`. Required in that mode. Used for webhook secret
+   * registration and local start. NEVER baked into emitted bundles —
+   * edge reads the `TELEGRAM_WEBHOOK_SECRET` runtime binding.
+   * Generate via `openssl rand -hex 32`.
+   *
+   * @example
+   * ```typescript
+   * secretToken: process.env.TELEGRAM_WEBHOOK_SECRET ?? ``
+   * ```
+   */
+  secretToken?: string
+}
+
+/**
+ * Webhook deploy branch of `optionsDeploy`.
+ *
+ * @remarks
+ * Only meaningful when `deploy` is `webhook`. Carries the public URL, the
+ * secret token shape, and the queue config that used to live at the root
+ * `webhookQueue` field.
+ *
+ * @example
+ * ```typescript
+ * const webhook: IGramstaxWebhookDeployOptions = {url: `https://example.com/bot`, secretToken: `s3cr3t`, queue: {enabled: true}}
+ * ```
+ *
+ * @public
+ */
+export type IGramstaxWebhookDeployOptions = {
+  /**
+   * Public webhook URL.
+   *
+   * @remarks
+   * Must be a real `https?://` URL with no `<` placeholder when `deploy`
+   * is `webhook`. Required in that mode.
+   *
+   * @example
+   * ```typescript
+   * url: `https://example.com/bot`
+   * ```
+   */
+  url?: string
+  /**
+   * Webhook secret token value.
+   *
+   * @remarks
+   * Must be non-empty and match `^[A-Za-z0-9_-]{1,256}$` when `deploy` is
+   * `webhook`. Required in that mode. Sent by Telegram in the
+   * `X-Telegram-Bot-Api-Secret-Token` header; mismatching requests
+   * return `401`. Generate via `openssl rand -hex 32`.
+   *
+   * @example
+   * ```typescript
+   * secretToken: `s3cr3t-token_01`
+   * ```
+   */
+  secretToken?: string
+  /**
+   * Webhook queue configuration for backpressure and worker pooling.
+   *
+   * @remarks
+   * Must be an object when present. Accepted keys: `enabled` (boolean),
+   * `maxQueueSize` (positive number), `workerCount` (number >= 1),
+   * `perChatConcurrency` (number >= 0), `blockWhenFull` (boolean),
+   * `enqueueTimeoutMs` (non-negative number), `waiterTimeoutMs`
+   * (non-negative number). Unknown fields are rejected.
+   *
+   * @example
+   * ```typescript
+   * queue: {enabled: true, maxQueueSize: 5000, workerCount: 8}
+   * ```
+   */
+  queue?: IWebhookQueueConfig
+}
+
+/**
+ * Polling deploy branch of `optionsDeploy`.
+ *
+ * @remarks
+ * Only meaningful when `deploy` is `polling`. Carries the retry budget that
+ * used to live at the root `pollingMaxRetries` field.
+ *
+ * @example
+ * ```typescript
+ * const polling: IGramstaxPollingDeployOptions = {maxRetries: 5}
+ * ```
+ *
+ * @public
+ */
+export type IGramstaxPollingDeployOptions = {
+  /**
+   * Max consecutive polling failures before giving up and stopping the bot.
+   *
+   * @remarks
+   * Must be `-1` (retry forever) or a non-negative finite number when
+   * present.
+   *
+   * @defaultValue `5`
+   *
+   * @example
+   * ```typescript
+   * maxRetries: 5
+   * ```
+   */
+  maxRetries?: number
+}
+
+/**
+ * Raw deploy branch of `optionsDeploy`.
+ *
+ * @remarks
+ * Only meaningful when `deploy` is `raw`. Accepts no fields — any defined
+ * key is rejected as unknown. An empty object counts as an empty branch.
+ *
+ * @example
+ * ```typescript
+ * const raw: IGramstaxRawDeployOptions = {}
+ * ```
+ *
+ * @public
+ */
+export type IGramstaxRawDeployOptions = Record<string, never>
+
+/**
+ * Test deploy branch of `optionsDeploy`.
+ *
+ * @remarks
+ * Only meaningful when `deploy` is `test`. Accepts no fields — any defined
+ * key is rejected as unknown. An empty object counts as an empty branch.
+ *
+ * @example
+ * ```typescript
+ * const test: IGramstaxTestDeployOptions = {}
+ * ```
+ *
+ * @public
+ */
+export type IGramstaxTestDeployOptions = Record<string, never>
+
+/**
+ * Per-deploy-method nested deploy options.
+ *
+ * @remarks
+ * At most one branch may be non-empty (a branch is non-empty when it holds
+ * at least one key whose value is not `undefined` — explicit-`undefined`
+ * equals absent). Zero branches are allowed only when `deploy` is
+ * `polling`, `raw`, or `test`. The single non-empty branch (if any) must
+ * equal `deploy`, else the loader throws. Unknown branch names and unknown
+ * fields inside each branch are rejected.
+ *
+ * @example
+ * ```typescript
+ * const webhook: IGramstaxOptionsDeploy = {webhook: {url: `https://example.com/bot`, secretToken: `s3cr3t`}}
+ * const serverless: IGramstaxOptionsDeploy = {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`}}
+ * const polling: IGramstaxOptionsDeploy = {polling: {maxRetries: 5}}
+ * ```
+ *
+ * @public
+ */
+export type IGramstaxOptionsDeploy = {
+  /**
+   * Serverless deploy options.
+   *
+   * @remarks
+   * Only meaningful when `deploy` is `serverless`. Accepted keys:
+   * `adapter`, `name`, `url`, `secretToken`. Unknown fields are rejected.
+   *
+   * @example
+   * ```typescript
+   * serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`}
+   * ```
+   */
+  serverless?: IGramstaxServerlessDeployOptions
+  /**
+   * Webhook deploy options.
+   *
+   * @remarks
+   * Only meaningful when `deploy` is `webhook`. Accepted keys: `url`,
+   * `secretToken`, `queue`. Unknown fields are rejected.
+   *
+   * @example
+   * ```typescript
+   * webhook: {url: `https://example.com/bot`, secretToken: `s3cr3t`}
+   * ```
+   */
+  webhook?: IGramstaxWebhookDeployOptions
+  /**
+   * Polling deploy options.
+   *
+   * @remarks
+   * Only meaningful when `deploy` is `polling`. Accepted keys:
+   * `maxRetries` (`-1` or non-negative). Unknown fields are rejected.
+   *
+   * @example
+   * ```typescript
+   * polling: {maxRetries: 5}
+   * ```
+   */
+  polling?: IGramstaxPollingDeployOptions
+  /**
+   * Raw deploy options (no fields).
+   *
+   * @remarks
+   * Only meaningful when `deploy` is `raw`. Any defined key is rejected.
+   *
+   * @example
+   * ```typescript
+   * raw: {}
+   * ```
+   */
+  raw?: IGramstaxRawDeployOptions
+  /**
+   * Test deploy options (no fields).
+   *
+   * @remarks
+   * Only meaningful when `deploy` is `test`. Any defined key is rejected.
+   *
+   * @example
+   * ```typescript
+   * test: {}
+   * ```
+   */
+  test?: IGramstaxTestDeployOptions
+}
+
+/**
  * Author-written `gramstax.config.ts` shape.
  *
  * @remarks
@@ -261,7 +546,7 @@ export type IGramstaxSessionLockRef = {
  * const config: IGramstaxConfig = {
  *   token: process.env.TELEGRAM_BOT_TOKEN ?? ``,
  *   deploy: process.env.DEPLOY ?? `polling`,
- *   optionsDeploy: {url: `https://example.com/bot`}
+ *   optionsDeploy: {webhook: {url: `https://example.com/bot`, secretToken: `s3cr3t`}}
  * }
  * ```
  *
@@ -301,20 +586,24 @@ export type IGramstaxConfig = {
    */
   deploy?: string
   /**
-   * Structured deploy options for `webhook`/`serverless` modes.
+   * Per-deploy-method nested deploy options.
    *
    * @remarks
-   * Must be an object when present (mirrors `IGramstaxParams.optionsDeploy`).
-   * Accepted keys: `adapter` (one of `cloudflare-mod`, `aws-lambda-async`),
-   * `name` (string), `url` (string). Unknown fields are rejected.
+   * Must be an object when present. Accepted branches: `serverless`
+   * (`adapter`, `name`, `url`, `secretToken`), `webhook` (`url`, `secretToken`, `queue`),
+   * `polling` (`maxRetries`), `raw` (no fields), `test` (no fields).
+   * At most one branch may be non-empty and it must equal `deploy`.
+   * Unknown branches and unknown fields inside each branch are rejected.
+   * Explicit-`undefined` equals absent.
    *
    * @example
    * ```typescript
-   * optionsDeploy: {url: `https://example.com/bot`}
-   * optionsDeploy: {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`}
+   * optionsDeploy: {webhook: {url: `https://example.com/bot`, secretToken: `s3cr3t`}}
+   * optionsDeploy: {serverless: {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`}}
+   * optionsDeploy: {polling: {maxRetries: 5}}
    * ```
    */
-  optionsDeploy?: {adapter?: string; name?: string; url?: string}
+  optionsDeploy?: IGramstaxOptionsDeploy
   /**
    * Opt-in local-path jail for media uploads.
    *
@@ -338,22 +627,6 @@ export type IGramstaxConfig = {
    * Forwards grammY `BotConfig` fields such as `apiRoot`.
    */
   botConfig?: BotConfig<Context>
-  /**
-   * Webhook queue configuration for backpressure and worker pooling.
-   *
-   * @remarks
-   * Must be an object when present (mirrors `IGramstaxParams.webhookQueue`).
-   * Accepted keys: `enabled` (boolean), `maxQueueSize` (positive number),
-   * `workerCount` (number >= 1), `perChatConcurrency` (number >= 0),
-   * `blockWhenFull` (boolean), `enqueueTimeoutMs` (non-negative number),
-   * `waiterTimeoutMs` (non-negative number). Unknown fields are rejected.
-   *
-   * @example
-   * ```typescript
-   * webhookQueue: {enabled: true, maxQueueSize: 5000, workerCount: 8}
-   * ```
-   */
-  webhookQueue?: IWebhookQueueConfig
   /**
    * Enable/disable the auto-retry plugin.
    *
@@ -426,16 +699,6 @@ export type IGramstaxConfig = {
    */
   skipDuplicateUpdate?: boolean
   /**
-   * Webhook secret token value.
-   *
-   * @remarks
-   * Must be a string when present (mirrors
-   * `IGramstaxParams.webhookSecretToken`). Sent by Telegram in the
-   * `X-Telegram-Bot-Api-Secret-Token` header; mismatching requests
-   * return `401`.
-   */
-  webhookSecretToken?: string
-  /**
    * Max length of incoming `message.text` / `message.caption`.
    *
    * @remarks
@@ -476,16 +739,6 @@ export type IGramstaxConfig = {
    * ```
    */
   statusServerHostname?: string
-  /**
-   * Max consecutive polling failures before giving up and stopping the bot.
-   *
-   * @remarks
-   * Must be `-1` (retry forever) or a non-negative finite number when
-   * present (mirrors `IGramstaxParams.pollingMaxRetries`).
-   *
-   * @defaultValue `5`
-   */
-  pollingMaxRetries?: number
   /**
    * Page routing configuration options.
    *
@@ -611,24 +864,43 @@ export type IGramstaxExplicitBuildKeys = {
    */
   deploy: boolean
   /**
-   * Whether `optionsDeploy.adapter` is defined.
+   * Whether `optionsDeploy.serverless.adapter` is defined.
    *
    * @remarks
-   * `false` when there is no `optionsDeploy` object or it lacks `adapter`.
+   * `false` when there is no `optionsDeploy.serverless` object or it lacks
+   * `adapter`. Presence check only (`!== undefined`).
+   *
+   * @example
+   * ```typescript
+   * adapter: true
+   * ```
    */
   adapter: boolean
   /**
-   * Whether `optionsDeploy.name` is defined.
+   * Whether `optionsDeploy.serverless.name` is defined.
    *
    * @remarks
-   * `false` when there is no `optionsDeploy` object or it lacks `name`.
+   * `false` when there is no `optionsDeploy.serverless` object or it lacks
+   * `name`. Presence check only (`!== undefined`).
+   *
+   * @example
+   * ```typescript
+   * name: true
+   * ```
    */
   name: boolean
   /**
-   * Whether `optionsDeploy.url` is defined.
+   * Whether a deploy URL is defined.
    *
    * @remarks
-   * `false` when there is no `optionsDeploy` object or it lacks `url`.
+   * `true` when `optionsDeploy.serverless.url` or
+   * `optionsDeploy.webhook.url` is present (`!== undefined`). Covers both
+   * URL-bearing branches for `--dry-run` display.
+   *
+   * @example
+   * ```typescript
+   * url: true
+   * ```
    */
   url: boolean
 }

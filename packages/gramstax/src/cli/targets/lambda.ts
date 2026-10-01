@@ -51,7 +51,7 @@ class LambdaEntry {
       LambdaEntry.bot = new Gramstax({
         token: token,
         deploy: "serverless",
-        optionsDeploy: {adapter: ${adapter}, url: ${url}},
+        optionsDeploy: {serverless: {adapter: ${adapter}, url: ${url}, secretToken: process.env.TELEGRAM_WEBHOOK_SECRET}},
         templateManager: new TemplateManager({path: []}),
         log: false,
         manifest: {pages: baseManifest.pages, templates: baseManifest.templates, routes: routes}
@@ -76,6 +76,15 @@ class LambdaEntry {
   }
 
   static async handler(event) {
+    const expected = process.env.TELEGRAM_WEBHOOK_SECRET
+    if (expected === undefined || expected.length === 0) {
+      return {statusCode: 401, body: "Unauthorized"}
+    }
+    const headers = event !== null && typeof event === "object" && event.headers !== null && typeof event.headers === "object" ? event.headers : {}
+    const provided = headers["X-Telegram-Bot-Api-Secret-Token"] ?? headers["x-telegram-bot-api-secret-token"]
+    if (provided !== expected) {
+      return {statusCode: 401, body: "Unauthorized"}
+    }
     const instance = LambdaEntry.getBot()
     await LambdaEntry.botReady
     const response = await instance.handlerBotUpdate(LambdaEntry.toProxyEvent(event))

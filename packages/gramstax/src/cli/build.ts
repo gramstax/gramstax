@@ -70,24 +70,25 @@ export class GramstaxBuild {
 
   _resolveDeployTargets(target: string | undefined, optionsDeploy: IGramstaxConfig[`optionsDeploy`]): {targets: string[]; adapter?: string; name?: string; url?: string} {
     const fromTarget = target === `cloudflare-workers` ? `cloudflare-mod` : target === `lambda` ? `aws-lambda-async` : undefined
-    const adapter = optionsDeploy?.adapter
+    const adapter = optionsDeploy?.serverless?.adapter
+    const name = optionsDeploy?.serverless?.name
+    const url = optionsDeploy?.serverless?.url ?? optionsDeploy?.webhook?.url
     if (fromTarget !== undefined) {
       if (adapter !== undefined && (adapter === `cloudflare-mod` || adapter === `aws-lambda-async`) && adapter !== fromTarget) {
-        throw new Error(`gramstax build: --target ${target} conflicts with optionsDeploy.adapter "${adapter}" (use --target ${adapter === `cloudflare-mod` ? `cloudflare-workers` : `lambda`} or change optionsDeploy.adapter to "${fromTarget}")`)
+        throw new Error(`gramstax build: --target ${target} conflicts with optionsDeploy.serverless.adapter "${adapter}" (use --target ${adapter === `cloudflare-mod` ? `cloudflare-workers` : `lambda`} or change optionsDeploy.serverless.adapter to "${fromTarget}")`)
       }
-      const url = optionsDeploy?.url
       if (this._isRealUrl(url) === false) {
-        throw new Error(`gramstax build: --target ${target} requires optionsDeploy.url to be a real http(s) URL with no placeholder (got "${url ?? ``}")`)
+        throw new Error(`gramstax build: --target ${target} requires optionsDeploy.serverless.url to be a real http(s) URL with no placeholder (got "${url ?? ``}")`)
       }
-      return {targets: [target as string], adapter: fromTarget, name: optionsDeploy?.name ?? `gramstax-worker`, url: url as string}
+      return {targets: [target as string], adapter: fromTarget, name: name ?? `gramstax-worker`, url: url as string}
     }
-    if (adapter === `cloudflare-mod` && this._isRealUrl(optionsDeploy?.url)) {
-      return {targets: [`cloudflare-workers`], adapter, name: optionsDeploy?.name ?? `gramstax-worker`, url: optionsDeploy?.url as string}
+    if (adapter === `cloudflare-mod` && this._isRealUrl(url)) {
+      return {targets: [`cloudflare-workers`], adapter, name: name ?? `gramstax-worker`, url: url as string}
     }
-    if (adapter === `aws-lambda-async` && this._isRealUrl(optionsDeploy?.url)) {
-      return {targets: [`lambda`], adapter, name: optionsDeploy?.name ?? `gramstax-worker`, url: optionsDeploy?.url as string}
+    if (adapter === `aws-lambda-async` && this._isRealUrl(url)) {
+      return {targets: [`lambda`], adapter, name: name ?? `gramstax-worker`, url: url as string}
     }
-    return {targets: [], adapter, name: optionsDeploy?.name, url: optionsDeploy?.url}
+    return {targets: [], adapter, name, url}
   }
 
   async _runTarget(outDir: string, targets: string[], bundle: boolean, baked?: {adapter?: string; name?: string; url?: string}): Promise<number> {

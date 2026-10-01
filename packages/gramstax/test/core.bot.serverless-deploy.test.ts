@@ -73,7 +73,7 @@ describe(`Gramstax deploy:"serverless"`, () => {
     const bot = new HookBot({
       token: `test`,
       deploy: `serverless`,
-      optionsDeploy: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`},
+      optionsDeploy: {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`, secretToken: `test-secret`}},
       templateManager: new TemplateManager({path: [TEST_DIR]}),
       log: false
     })
@@ -85,7 +85,7 @@ describe(`Gramstax deploy:"serverless"`, () => {
     expect(typeof (bot as unknown as {handlerBotUpdate: unknown}).handlerBotUpdate).toBe(`function`)
     await waitFor(() => order.includes(`after`))
     expect(order).toEqual([`before`, `after`])
-    expect(setWebhook).toHaveBeenCalledWith(`https://example.com/webhook`)
+    expect(setWebhook).toHaveBeenCalledWith(`https://example.com/webhook`, {secret_token: `test-secret`})
     await bot.stop()
   })
 
@@ -102,7 +102,7 @@ describe(`Gramstax deploy:"serverless"`, () => {
     const bot = new BoomBot({
       token: `test`,
       deploy: `serverless`,
-      optionsDeploy: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`},
+      optionsDeploy: {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`, secretToken: `test-secret`}},
       templateManager: new TemplateManager({path: [TEST_DIR]}),
       log: false
     })

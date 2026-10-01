@@ -43,9 +43,9 @@ describe(`gramstax build CLI coverage`, () => {
   it(`loadConfig merges valid file values over defaults`, async () => {
     const dir = makeTempDir()
     try {
-      writeConfig(dir, "export default {deploy: `webhook`, optionsDeploy: {url: `https://example.com/hook`}}\n")
+      writeConfig(dir, "export default {deploy: `webhook`, optionsDeploy: {webhook: {url: `https://example.com/hook`, secretToken: `test-secret`}}}\n")
       const config = await new GramstaxConfigLoader().loadConfig(dir)
-      expect(config).toEqual({deploy: `webhook`, optionsDeploy: {url: `https://example.com/hook`}})
+      expect(config).toEqual({deploy: `webhook`, optionsDeploy: {webhook: {url: `https://example.com/hook`, secretToken: `test-secret`}}})
     } finally {
       rmSync(dir, {force: true, recursive: true})
     }

@@ -46,10 +46,10 @@ describe(`Gramstax status server secret gate`, () => {
       deploy: `test`,
       statusServerPort: port,
       statusServerHostname: `127.0.0.1`,
-      webhookSecretToken: SECRET,
       templateManager,
       log: false
     })
+    ;(bot as any)._webhookSecretToken = SECRET
 
     // _startStatusServer is async (dynamic Bun import) — wait until bound
     for (let attempt = 0; attempt < 20; attempt++) {

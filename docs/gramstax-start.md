@@ -53,7 +53,10 @@ Token is not valid or empty
 Load accepts `token` as any string including `""` (so env-less
 `gramstax build` keeps working when `TELEGRAM_BOT_TOKEN` is unset);
 only `start` enforces non-empty. Same pass-through rule for
-`webhookSecretToken` → `webhookSecretToken`. Never commit real
+`optionsDeploy.webhook.secretToken` and `optionsDeploy.serverless.secretToken`
+(env expression, never a literal; serverless duality — config value sets the
+webhook, edge reads the `TELEGRAM_WEBHOOK_SECRET` binding — see
+`docs/serverless-deploy.md`). Never commit real
 token/secret values; keep them in `.env` (see `.env.example`). The
 framework cannot distinguish a literal from an env-derived value, so no
 warning is possible — the caution above is the whole guardrail.
@@ -80,7 +83,7 @@ export default config
 The annotated `: GramstaxConfig` type (an alias of `ITGramstaxConfig`)
 typo-checks every key. The scaffolded `gramstax.config.ts`
 (`packages/create-gramstax/src/templates/gramstax.config.ts`) lists all
-23 keys and is the canonical full listing.
+20 keys and is the canonical full listing.
 
 A ref resolving to an already-built instance (like the `LogHe` singleton) is
 used directly. Anything else is constructed with `new Export(...args)`.
@@ -125,26 +128,23 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 | ----------------------- | --------------------------------- | --------- | --------------------------------------- |
 | `token`                 | `string`                          | —         | Any string incl. `""` at load; non-empty required for start |
 | `deploy`                | `"polling" \| "webhook" \| "serverless" \| "raw" \| "test"` | `polling` | Bare literal; `--deploy` wins           |
-| `optionsDeploy`         | `{adapter?, name?, url?}`             | —         | `webhook` needs `url`; `serverless` needs `adapter` + real `url`; `polling`/`raw`/`test` take `{}` or nothing |
+| `optionsDeploy`         | `{polling?: {maxRetries?}, webhook?: {url?, secretToken?, queue?}, serverless?: {adapter?, name?, url?, secretToken?}, raw?: {}, test?: {}}` | — | `webhook` needs `url` + `secretToken`; `serverless` needs `adapter` + real `url` + `secretToken` (runtime-required, type-optional; see `docs/serverless-deploy.md`); `polling` takes `{maxRetries?}` or `{}`; `raw`/`test` take `{}` or nothing |
 | `mediaRoots`            | `string[] \| null`                | —         | Non-empty entries; empty jail off       |
 | `botConfig`             | `object`                          | —         | Passed through                          |
-| `webhookQueue`          | `object`                          | —         | `maxQueueSize`/`workerCount` positive, `enqueueTimeoutMs` non-negative |
 | `autoRetry`             | `boolean`                         | —         | Passed through                          |
 | `autoRetryOptions`      | `object`                          | —         | `maxRetryAttempts` positive             |
 | `rateLimit`             | `{windowMs, max}`                 | —         | Both positive numbers                   |
 | `throttle`              | `object`                          | —         | Passed through                          |
 | `updateTimeoutMs`       | `number`                          | —         | Non-negative                            |
 | `skipDuplicateUpdate`   | `boolean`                         | —         | Passed through                          |
-| `webhookSecretToken`    | `string`                          | —         | Any string; passed straight through     |
 | `maxTextLength`         | `number`                          | —         | Non-negative                            |
 | `statusServerPort`      | `number`                          | —         | `0`–`65535`                             |
 | `statusServerHostname`  | `string`                          | —         | Non-empty                               |
-| `pollingMaxRetries`     | `number`                          | —         | `-1` or non-negative                    |
 | `optionsPage`           | `{shortCallbackQueryData?}`       | —         | Boolean when present                    |
 
 Scope: `polling` plus `webhook` (`serverless`/`test` behave exactly as the
 constructor does today — no special-casing). `optionsDeploy`
-(`adapter`/`name`/`url`), polling/webhook/test/raw sections, and real lambda fields
+branches (`serverless`/`webhook`/`polling`/`raw`/`test`), polling/webhook/test/raw sections, and real lambda fields
 are unchanged; see `docs/gramstax-build.md` and `docs/serverless-deploy.md`.
 Paths follow the `src/pages` + `.gramstax/` convention (no path knobs).
 

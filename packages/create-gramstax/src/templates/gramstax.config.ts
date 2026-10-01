@@ -7,21 +7,30 @@ const config: GramstaxConfig = {
   cacheSession: {store: process.env.TELEGRAM_CACHE_SESSION ?? `memory`, ttlMs: 4 * 60 * 60 * 1000, namespace: `s`},
   log: {module: `./src/helpers/log.ts`, export: `LogHe`},
   optionsPage: {shortCallbackQueryData: true},
-  optionsDeploy: {adapter: undefined, name: undefined, url: undefined},
+  // deploy branch options — only the branch matching `deploy` may carry values.
+  // webhook/serverless secrets come ONLY from the TELEGRAM_WEBHOOK_SECRET runtime binding
+  // (set via `wrangler secret put TELEGRAM_WEBHOOK_SECRET`), never as literals in this file
+  optionsDeploy: {
+    // polling: local dev (maxRetries: -1 = infinite)
+    polling: {maxRetries: undefined},
+    // webhook: production (url required; secretToken via TELEGRAM_WEBHOOK_SECRET env, never a literal — config value sets the webhook)
+    webhook: {url: undefined, secretToken: undefined, queue: undefined},
+    // serverless: edge (adapter + url required; secretToken via TELEGRAM_WEBHOOK_SECRET env, never a literal — config value sets the webhook, edge reads the binding)
+    serverless: {adapter: undefined, name: undefined, url: undefined, secretToken: undefined},
+    raw: undefined,
+    test: undefined
+  },
   mediaRoots: undefined,
   botConfig: undefined,
-  webhookQueue: undefined,
   autoRetry: undefined,
   autoRetryOptions: undefined,
   rateLimit: undefined,
   throttle: undefined,
   updateTimeoutMs: undefined,
   skipDuplicateUpdate: undefined,
-  webhookSecretToken: undefined,
   maxTextLength: undefined,
   statusServerPort: undefined,
   statusServerHostname: undefined,
-  pollingMaxRetries: undefined,
   cacheKeyboard: undefined,
   templateManager: undefined,
   sessionLock: undefined

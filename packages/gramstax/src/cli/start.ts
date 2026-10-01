@@ -45,7 +45,7 @@ export class GramstaxStart {
 
   _resolveDeploy(flag: string | undefined, configured: IGramstaxConfig[`deploy`]): IGramstaxParams[`deploy`] {
     if (flag !== undefined && flag.includes(`:`)) {
-      throw new Error(`gramstax start: --deploy must be one of polling, webhook, serverless, raw, test with optionsDeploy {adapter, name, url} from gramstax.config.ts (legacy colon forms are removed, got "${flag}")`)
+      throw new Error(`gramstax start: --deploy must be one of polling, webhook, serverless, raw, test with optionsDeploy {serverless, webhook, polling, raw, test} from gramstax.config.ts (legacy colon forms are removed, got "${flag}")`)
     }
     const deploy = flag ?? configured ?? `polling`
     if (deploy === `polling` || deploy === `webhook` || deploy === `serverless` || deploy === `raw` || deploy === `test`) {
@@ -87,7 +87,6 @@ export class GramstaxStart {
     if (config.optionsDeploy !== undefined) params.optionsDeploy = config.optionsDeploy
     if (config.mediaRoots !== undefined) params.mediaRoots = config.mediaRoots
     if (config.botConfig !== undefined) params.botConfig = config.botConfig
-    if (config.webhookQueue !== undefined) params.webhookQueue = config.webhookQueue
     const cacheSession = await this._materializeCacheSession(config.cacheSession, cwd)
     if (cacheSession !== undefined) params.cacheSession = cacheSession
     const cacheKeyboard = await this._materializeCacheKeyboard(config.cacheKeyboard, cwd)
@@ -104,13 +103,9 @@ export class GramstaxStart {
     if (config.throttle !== undefined) params.throttle = config.throttle
     if (config.updateTimeoutMs !== undefined) params.updateTimeoutMs = config.updateTimeoutMs
     if (config.skipDuplicateUpdate !== undefined) params.skipDuplicateUpdate = config.skipDuplicateUpdate
-    if (config.webhookSecretToken !== undefined) {
-      params.webhookSecretToken = config.webhookSecretToken
-    }
     if (config.maxTextLength !== undefined) params.maxTextLength = config.maxTextLength
     if (config.statusServerPort !== undefined) params.statusServerPort = config.statusServerPort
     if (config.statusServerHostname !== undefined) params.statusServerHostname = config.statusServerHostname
-    if (config.pollingMaxRetries !== undefined) params.pollingMaxRetries = config.pollingMaxRetries
     if (config.optionsPage !== undefined) params.optionsPage = config.optionsPage
     return params
   }
@@ -251,7 +246,7 @@ export class GramstaxStart {
       if (flag === `--deploy`) {
         const value = inlineValue ?? argv[index + 1] ?? ``
         if (value.includes(`:`)) {
-          throw new Error(`gramstax start: --deploy must be one of polling, webhook, serverless, raw, test with optionsDeploy {adapter, name, url} from gramstax.config.ts (legacy colon forms are removed, got "${value}")`)
+          throw new Error(`gramstax start: --deploy must be one of polling, webhook, serverless, raw, test with optionsDeploy {serverless, webhook, polling, raw, test} from gramstax.config.ts (legacy colon forms are removed, got "${value}")`)
         }
         options.deploy = value
         index += inlineValue === undefined ? 2 : 1

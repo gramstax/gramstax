@@ -89,6 +89,8 @@ describe(`WorkerTarget`, () => {
     expect(workerJs).toContain(`class WorkerEntry`)
     expect(workerJs).toContain(`/webhook`)
     expect(workerJs).toContain(`BOT_TOKEN`)
+    expect(workerJs).toContain(`TELEGRAM_WEBHOOK_SECRET`)
+    expect(workerJs).toContain(`401`)
     expect(workerJs).toContain(`optionsDeploy`)
     expect(workerJs).toContain(`cloudflare-mod`)
     expect(workerJs).not.toContain(`BOT_DEPLOY`)
@@ -97,6 +99,7 @@ describe(`WorkerTarget`, () => {
     expect(toml).not.toContain(`BOT_DEPLOY`)
     expect(toml).not.toContain(`BOT_DEPLOY`)
     expect(toml).toContain(`wrangler secret put BOT_TOKEN`)
+    expect(toml).toContain(`wrangler secret put TELEGRAM_WEBHOOK_SECRET`)
     expect(toml).not.toMatch(/[0-9]{6,}:[A-Za-z0-9_-]{20,}/)
     const baked = readFileSync(join(serverDir, `worker.js`), `utf-8`)
     expect(baked).toContain(`cloudflare-mod`)
@@ -152,7 +155,7 @@ describe(`WorkerTarget`, () => {
     try {
       writeJsPages(join(proj, `src`, `pages`))
       linkWorkspace(proj)
-      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {adapter: \`cloudflare-mod\`, name: \`gramstax-worker\`, url: \`https://example.com/webhook\`}}\n`, `utf-8`)
+      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, name: \`gramstax-worker\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
       const code = await new GramstaxBuild().run([`--target`, `cloudflare-workers`], proj)
       expect(code).toBe(0)
       expect(existsSync(join(proj, `.gramstax`, `server`, `worker.js`))).toBe(true)
@@ -167,7 +170,7 @@ describe(`WorkerTarget`, () => {
     try {
       writeJsPages(join(proj, `src`, `pages`))
       linkWorkspace(proj)
-      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {adapter: \`cloudflare-mod\`, name: \`gramstax-worker\`, url: \`https://example.com/webhook\`}}\n`, `utf-8`)
+      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, name: \`gramstax-worker\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
       const code = await new GramstaxBuild().run([`--target`, `cloudflare-workers`, `--bundle`], proj)
       expect(code).toBe(0)
       expect(existsSync(join(proj, `.gramstax`, `server`, `bundle.js`))).toBe(true)
@@ -182,7 +185,7 @@ describe(`WorkerTarget`, () => {
     try {
       writeJsPages(join(proj, `src`, `pages`))
       linkWorkspace(proj)
-      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {adapter: \`aws-lambda-async\`, url: \`https://example.com/webhook\`}}\n`, `utf-8`)
+      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`aws-lambda-async\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}\n`, `utf-8`)
       const plain = await new GramstaxBuild().run([`--bundle`], proj)
       expect(plain).toBe(1)
       const lambda = await new GramstaxBuild().run([`--target`, `lambda`, `--bundle`], proj)
@@ -216,14 +219,14 @@ describe(`WorkerTarget`, () => {
         getBot: (env: Record<string, string>) => unknown
       }
       const {E2eHelper: Helper} = await import(`~/e2e/helper`)
-      new Helper(mod.getBot({BOT_TOKEN: `test`}) as never)
+      new Helper(mod.getBot({BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}) as never)
       const res = await mod.default.fetch(
         new Request(`https://example.com/webhook`, {
           method: `POST`,
-          headers: {"Content-Type": `application/json`},
+          headers: {"Content-Type": `application/json`, "X-Telegram-Bot-Api-Secret-Token": `test-secret`},
           body: JSON.stringify({update_id: 1})
         }),
-        {BOT_TOKEN: `test`}
+        {BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}
       )
       expect(res.status).toBe(200)
       expect(calls).toEqual([`user`])
@@ -231,6 +234,63 @@ describe(`WorkerTarget`, () => {
       if (original === undefined) delete proto.hookAfterStart
       else proto.hookAfterStart = original
     }
+  }, 120000)
+
+  it(`rejects webhook fetch without secret with 401`, async () => {
+    const {serverDir} = emitWorker()
+    const srcIndex = pathToFileURL(join(PKG_DIR, `src`, `index.ts`)).href
+    const workerJs = join(serverDir, `worker.js`)
+    writeFileSync(workerJs, readFileSync(workerJs, `utf-8`).replaceAll(`from "gramstax"`, `from "${srcIndex}"`))
+    const mod = (await import(pathToFileURL(workerJs).href)) as unknown as {
+      default: {fetch: (request: Request, env: Record<string, string>) => Promise<Response>}
+    }
+    const res = await mod.default.fetch(
+      new Request(`https://example.com/webhook`, {
+        method: `POST`,
+        headers: {"Content-Type": `application/json`},
+        body: JSON.stringify({update_id: 1})
+      }),
+      {BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}
+    )
+    expect(res.status).toBe(401)
+  }, 120000)
+
+  it(`rejects webhook fetch with wrong secret with 401`, async () => {
+    const {serverDir} = emitWorker()
+    const srcIndex = pathToFileURL(join(PKG_DIR, `src`, `index.ts`)).href
+    const workerJs = join(serverDir, `worker.js`)
+    writeFileSync(workerJs, readFileSync(workerJs, `utf-8`).replaceAll(`from "gramstax"`, `from "${srcIndex}"`))
+    const mod = (await import(pathToFileURL(workerJs).href)) as unknown as {
+      default: {fetch: (request: Request, env: Record<string, string>) => Promise<Response>}
+    }
+    const res = await mod.default.fetch(
+      new Request(`https://example.com/webhook`, {
+        method: `POST`,
+        headers: {"Content-Type": `application/json`, "X-Telegram-Bot-Api-Secret-Token": `wrong-secret`},
+        body: JSON.stringify({update_id: 1})
+      }),
+      {BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}
+    )
+    expect(res.status).toBe(401)
+  }, 120000)
+
+  it(`rejects webhook fetch when secret binding is missing with 401`, async () => {
+    const {serverDir} = emitWorker()
+    const srcIndex = pathToFileURL(join(PKG_DIR, `src`, `index.ts`)).href
+    const workerJs = join(serverDir, `worker.js`)
+    writeFileSync(workerJs, readFileSync(workerJs, `utf-8`).replaceAll(`from "gramstax"`, `from "${srcIndex}"`))
+    const mod = (await import(pathToFileURL(workerJs).href)) as unknown as {
+      default: {fetch: (request: Request, env: Record<string, string>) => Promise<Response>}
+    }
+    const res = await mod.default.fetch(
+      new Request(`https://example.com/webhook`, {
+        method: `POST`,
+        headers: {"Content-Type": `application/json`, "X-Telegram-Bot-Api-Secret-Token": `test-secret`},
+        body: JSON.stringify({update_id: 1})
+      }),
+      {BOT_TOKEN: `test`}
+    )
+    expect(res.status).toBe(401)
   }, 120000)
 
   it(`--bundle emits single-file bundle.js with routes inlined`, async () => {
@@ -267,14 +327,14 @@ describe(`WorkerTarget`, () => {
         getBot: (env: Record<string, string>) => unknown
       }
       const {E2eHelper: Helper} = await import(`~/e2e/helper`)
-      new Helper(mod.getBot({BOT_TOKEN: `test`}) as never)
+      new Helper(mod.getBot({BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}) as never)
       const res = await mod.default.fetch(
         new Request(`https://example.com/webhook`, {
           method: `POST`,
-          headers: {"Content-Type": `application/json`},
+          headers: {"Content-Type": `application/json`, "X-Telegram-Bot-Api-Secret-Token": `test-secret`},
           body: JSON.stringify({update_id: 1})
         }),
-        {BOT_TOKEN: `test`}
+        {BOT_TOKEN: `test`, TELEGRAM_WEBHOOK_SECRET: `test-secret`}
       )
       expect(res.status).toBe(200)
     } finally {

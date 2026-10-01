@@ -31,21 +31,34 @@ Optional `gramstax.config.ts` in the project root (default export). Missing file
 import type {GramstaxConfig} from "gramstax"
 
 const config: GramstaxConfig = {
-  optionsDeploy: {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://<your-worker>.workers.dev/webhook`}
+  optionsDeploy: {
+    serverless: {
+      adapter: `cloudflare-mod`,
+      name: `gramstax-worker`,
+      url: `https://<your-worker>.workers.dev/webhook`,
+      secretToken: process.env.TELEGRAM_WEBHOOK_SECRET ?? ``
+    }
+  }
 }
 
 export default config
 ```
 
+`secretToken` is runtime-required but type-optional (zero-config build keeps
+working); its value comes from an env expression, never a literal. Duality —
+config value sets the webhook, edge reads the `TELEGRAM_WEBHOOK_SECRET`
+binding — is specified once in `docs/serverless-deploy.md`.
+
 The scaffolded `gramstax.config.ts`
 (`packages/create-gramstax/src/templates/gramstax.config.ts`) lists all
-23 keys and is the canonical full listing.
+20 keys and is the canonical full listing.
 
 | Field                                         | Type     | Default                                     | Rule                                              |
 | --------------------------------------------- | -------- | ------------------------------------------- | ------------------------------------------------- |
-| `optionsDeploy.adapter`                       | `string` | —                                           | `"cloudflare-mod"` or `"aws-lambda-async"`        |
-| `optionsDeploy.name`                          | `string` | `gramstax-worker`                           | Non-empty; names the Workers `name`               |
-| `optionsDeploy.url`                           | `string` | `https://<your-worker>.workers.dev/webhook` | Non-empty; becomes `BOT_DEPLOY` URL               |
+| `optionsDeploy.serverless.adapter`          | `string` | —                                           | `"cloudflare-mod"` or `"aws-lambda-async"`        |
+| `optionsDeploy.serverless.name`             | `string` | `gramstax-worker`                           | Non-empty; names the Workers `name`               |
+| `optionsDeploy.serverless.url`              | `string` | `https://<your-worker>.workers.dev/webhook` | Non-empty; becomes `BOT_DEPLOY` URL               |
+| `optionsDeploy.serverless.secretToken`      | `string` | —                                           | Runtime-required, type-optional; env expression only (see `docs/serverless-deploy.md`) |
 
 Invalid shapes throw `Invalid gramstax config at <file>: ...` naming the field. Loader: `GramstaxConfigLoader.loadConfig(cwd)` in `packages/gramstax/src/cli/config.ts`.
 
@@ -67,15 +80,15 @@ gramstax build plan
 pagesDir: src/pages
 outDir: .gramstax
 targets: lambda, cloudflare-workers
-optionsDeploy.adapter: cloudflare-mod (config)
-optionsDeploy.name: gramstax-worker (default)
-optionsDeploy.url: https://<your-worker>.workers.dev/webhook (default)
+optionsDeploy.serverless.adapter: cloudflare-mod (config)
+optionsDeploy.serverless.name: gramstax-worker (default)
+optionsDeploy.serverless.url: https://<your-worker>.workers.dev/webhook (default)
 dry-run: no files written
 ```
 
 `pagesDir`/`outDir` always print the `src/pages` + `.gramstax/` convention
 with no source annotation (there is nothing to configure); the
-`optionsDeploy` adapter/name/url print from the merged config with the
+`optionsDeploy.serverless` adapter/name/url print from the merged config with the
 `config`/`default` rule (no CLI flags exist for them — never `flag`).
 `targets` is the effective set: both entries when no `--target` was passed,
 else the single named target.
@@ -151,7 +164,7 @@ import routes from `./.gramstax/routes.json`
 const bot = new Gramstax({token, deploy: `polling`, templateManager, manifest: {...manifest, routes}})
 ```
 
-Automatic for serverless: `new Gramstax({deploy: "serverless", optionsDeploy: {adapter: "cloudflare-mod", url: "https://<your-worker>.workers.dev/webhook"}})` with no
+Automatic for serverless: `new Gramstax({deploy: "serverless", optionsDeploy: {serverless: {adapter: "cloudflare-mod", url: "https://<your-worker>.workers.dev/webhook"}}})` with no
 `manifest` auto-loads `./.gramstax/` (manifest.js + routes.json) from the
 working directory when present, and falls back to the filesystem walk when
 absent. Every other deploy keeps fs boot by default. Emitted server entries

@@ -131,7 +131,7 @@ class WorkerEntry {
       WorkerEntry.bot = new Gramstax({
         token: token,
         deploy: "serverless",
-        optionsDeploy: {adapter: ${adapter}, name: ${name}, url: ${url}},
+        optionsDeploy: {serverless: {adapter: ${adapter}, name: ${name}, url: ${url}, secretToken: env === null || env === undefined ? undefined : env.TELEGRAM_WEBHOOK_SECRET}},
         templateManager: new TemplateManager({path: []}),
         log: false,
         manifest: {pages: baseManifest.pages, templates: [], routes: routes},
@@ -149,6 +149,16 @@ class WorkerEntry {
   static async fetch(request, env) {
     const url = new URL(request.url)
     if (url.pathname === \`/webhook\`) {
+      let expected
+      try {
+        expected = WorkerEntry.requiredEnv(env, "TELEGRAM_WEBHOOK_SECRET")
+      } catch {
+        return new Response("Unauthorized", {status: 401})
+      }
+      const provided = request.headers.get("X-Telegram-Bot-Api-Secret-Token")
+      if (provided !== expected) {
+        return new Response("Unauthorized", {status: 401})
+      }
       const instance = WorkerEntry.getBot(env)
       await WorkerEntry.botReady
       return await instance.handlerBotUpdate(request)
@@ -179,6 +189,8 @@ compatibility_flags = ["nodejs_compat"]
 # BOT_TOKEN is a secret, never a var: a [vars] entry here would shadow the
 # real secret at runtime (verified live: placeholder var caused error 1101).
 # Set it via: wrangler secret put BOT_TOKEN --config <this file>
+# TELEGRAM_WEBHOOK_SECRET is a secret, never a var: same shadowing rule.
+# Set it via: wrangler secret put TELEGRAM_WEBHOOK_SECRET --config <this file>
 # Deploy values are baked into worker.js optionsDeploy at build time.
 
 [alias]

@@ -10,7 +10,7 @@ import {TemplateManager} from "~/template/manager"
 const FIXTURES = join(import.meta.dir, `fixtures`, `manifest`, `pages`)
 const CTX_ABS = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
 const DEPLOY = `serverless`
-const DEPLOY_OPTS = {adapter: `cloudflare-mod`, url: `https://example.com/webhook`}
+const DEPLOY_OPTS = {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`, secretToken: `test-secret`}}
 
 let root: string
 let cwd: string

@@ -4,12 +4,13 @@ import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {Gramstax} from "~/core/bot"
 import {TemplateManager} from "~/template/manager"
+import type {IGramstaxOptionsDeploy} from "~/types/config"
 
 const URL = `http://127.0.0.1:18787/webhook`
 
 let dir: string
 
-function createBot(deploy: `polling` | `webhook` | `serverless` | `raw` | `test`, optionsDeploy?: {adapter?: string; name?: string; url?: string}) {
+function createBot(deploy: `polling` | `webhook` | `serverless` | `raw` | `test`, optionsDeploy?: IGramstaxOptionsDeploy) {
   return new Gramstax({token: `test`, deploy, optionsDeploy, templateManager: new TemplateManager({path: [dir]}), log: false})
 }
 
@@ -51,15 +52,15 @@ describe(`serverless public URL`, () => {
   })
 
   it(`throws at construction without optionsDeploy.url`, () => {
-    expect(() => createBot(`serverless`, {adapter: `cloudflare-mod`})).toThrow(/url/)
+    expect(() => createBot(`serverless`, {serverless: {adapter: `cloudflare-mod`, secretToken: `test-secret`}})).toThrow(/url/)
   })
 
   it(`throws on placeholder url at construction`, () => {
-    expect(() => createBot(`serverless`, {adapter: `cloudflare-mod`, url: `https://example.com/not-a-url`.replace(`https://`, ``)})).toThrow(/url/)
+    expect(() => createBot(`serverless`, {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/not-a-url`.replace(`https://`, ``), secretToken: `test-secret`}})).toThrow(/url/)
   })
 
   it(`throws on unknown adapter at construction`, () => {
-    expect(() => createBot(`serverless`, {adapter: `std/http`, url: URL})).toThrow(/cloudflare-mod/)
+    expect(() => createBot(`serverless`, {serverless: {adapter: `std/http`, url: URL, secretToken: `test-secret`}})).toThrow(/cloudflare-mod/)
   })
 
   it(`throws on legacy colon deploy naming the new form`, () => {

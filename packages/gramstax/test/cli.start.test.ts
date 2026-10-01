@@ -61,21 +61,21 @@ describe(`gramstax start config DATA fields`, () => {
     try {
       writeConfig(
         dir,
-        `export default {token: \`test\`, deploy: \`polling\`, mediaRoots: [\`./backups\`], webhookQueue: {enabled: true, maxQueueSize: 100}, autoRetry: false, autoRetryOptions: {maxRetryAttempts: 2}, rateLimit: {windowMs: 1000, max: 5}, updateTimeoutMs: 1000, skipDuplicateUpdate: true, webhookSecretToken: \`test-secret\`, maxTextLength: 100, statusServerPort: 8080, statusServerHostname: \`127.0.0.1\`, pollingMaxRetries: 3, optionsPage: {shortCallbackQueryData: true}}\n`
+        `export default {token: \`test\`, deploy: \`webhook\`, optionsDeploy: {webhook: {url: \`https://example.com/hook\`, secretToken: \`test-secret\`, queue: {enabled: true, maxQueueSize: 100}}}, mediaRoots: [\`./backups\`], autoRetry: false, autoRetryOptions: {maxRetryAttempts: 2}, rateLimit: {windowMs: 1000, max: 5}, updateTimeoutMs: 1000, skipDuplicateUpdate: true, maxTextLength: 100, statusServerPort: 8080, statusServerHostname: \`127.0.0.1\`, optionsPage: {shortCallbackQueryData: true}}\n`
       )
       const config = await new GramstaxConfigLoader().loadConfig(dir)
       expect(config.token).toBe(`test`)
-      expect(config.deploy).toBe(`polling`)
+      expect(config.deploy).toBe(`webhook`)
       expect(config.mediaRoots).toEqual([`./backups`])
-      expect(config.webhookQueue?.maxQueueSize).toBe(100)
+      expect(config.optionsDeploy?.webhook?.queue?.maxQueueSize).toBe(100)
       expect(config.autoRetry).toBe(false)
       expect(config.rateLimit?.max).toBe(5)
       expect(config.updateTimeoutMs).toBe(1000)
       expect(config.skipDuplicateUpdate).toBe(true)
-      expect(config.webhookSecretToken).toBe(`test-secret`)
+      expect(config.optionsDeploy?.webhook?.secretToken).toBe(`test-secret`)
+      expect(config.optionsDeploy?.webhook?.url).toBe(`https://example.com/hook`)
       expect(config.maxTextLength).toBe(100)
       expect(config.statusServerPort).toBe(8080)
-      expect(config.pollingMaxRetries).toBe(3)
       expect(config.optionsPage?.shortCallbackQueryData).toBe(true)
     } finally {
       rmSync(dir, {force: true, recursive: true})
@@ -112,17 +112,17 @@ describe(`gramstax start config DATA fields`, () => {
       {body: `export default {deploy: 42}\n`, field: `deploy`},
       {body: `export default {deploy: \`\`}\n`, field: `deploy`},
       {body: `export default {mediaRoots: \`x\`}\n`, field: `mediaRoots`},
-      {body: `export default {webhookQueue: {maxQueueSize: 0}}\n`, field: `maxQueueSize`},
-      {body: `export default {webhookQueue: {workerCount: 0}}\n`, field: `workerCount`},
+      {body: `export default {deploy: \`webhook\`, optionsDeploy: {webhook: {url: \`https://example.com/hook\`, secretToken: \`s\`, queue: {maxQueueSize: 0}}}}\n`, field: `maxQueueSize`},
+      {body: `export default {deploy: \`webhook\`, optionsDeploy: {webhook: {url: \`https://example.com/hook\`, secretToken: \`s\`, queue: {workerCount: 0}}}}\n`, field: `workerCount`},
       {body: `export default {autoRetry: \`yes\`}\n`, field: `autoRetry`},
       {body: `export default {rateLimit: {windowMs: \`x\`, max: 1}}\n`, field: `windowMs`},
       {body: `export default {updateTimeoutMs: -1}\n`, field: `updateTimeoutMs`},
       {body: `export default {skipDuplicateUpdate: 1}\n`, field: `skipDuplicateUpdate`},
-      {body: `export default {webhookSecretToken: 42}\n`, field: `webhookSecretToken`},
+      {body: `export default {deploy: \`webhook\`, optionsDeploy: {webhook: {url: \`https://example.com/hook\`, secretToken: 42}}}\n`, field: `secretToken`},
       {body: `export default {maxTextLength: -1}\n`, field: `maxTextLength`},
       {body: `export default {statusServerPort: 99999}\n`, field: `statusServerPort`},
       {body: `export default {statusServerHostname: 42}\n`, field: `statusServerHostname`},
-      {body: `export default {pollingMaxRetries: -2}\n`, field: `pollingMaxRetries`},
+      {body: `export default {deploy: \`polling\`, optionsDeploy: {polling: {maxRetries: -2}}}\n`, field: `maxRetries`},
       {body: `export default {optionsPage: {shortCallbackQueryData: 1}}\n`, field: `shortCallbackQueryData`}
     ]
     for (const entry of cases) {
@@ -191,12 +191,12 @@ describe(`gramstax start token rule`, () => {
     }
   })
 
-  it(`webhookSecretToken passes straight through to params`, async () => {
+  it(`optionsDeploy.webhook passes straight through to params`, async () => {
     const dir = makeTempDir()
     try {
       mkdirSync(join(dir, `src`, `pages`), {recursive: true})
-      const params = await new GramstaxStart()._buildParams({token: `test`, webhookSecretToken: `test-secret`}, `test`, `test`, dir)
-      expect(params.webhookSecretToken).toBe(`test-secret`)
+      const params = await new GramstaxStart()._buildParams({token: `test`, optionsDeploy: {webhook: {url: `https://example.com/hook`, secretToken: `test-secret`}}}, `test`, `test`, dir)
+      expect(params.optionsDeploy).toEqual({webhook: {url: `https://example.com/hook`, secretToken: `test-secret`}})
     } finally {
       rmSync(dir, {force: true, recursive: true})
     }
@@ -372,7 +372,7 @@ describe(`gramstax build workers guardrail`, () => {
         }
       }
       walk(join(dir, `src`, `pages`))
-      writeConfig(dir, `export default {token: \`test\`, deploy: \`serverless\`, optionsDeploy: {adapter: \`cloudflare-mod\`, url: \`https://example.com/webhook\`}, cacheSession: {store: \`memory\`}}\n`)
+      writeConfig(dir, `export default {token: \`test\`, deploy: \`serverless\`, optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}, cacheSession: {store: \`memory\`}}\n`)
       const warned: string[] = []
       const originalWarn = console.warn
       console.warn = (...args: unknown[]): void => {

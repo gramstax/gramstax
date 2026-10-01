@@ -41,10 +41,10 @@ describe(`Gramstax webhook secret token`, () => {
     bot = new TestGramstax({
       token: `test`,
       deploy: `test`,
-      webhookSecretToken: SECRET,
       templateManager,
       log: false
     })
+    ;(bot as any)._webhookSecretToken = SECRET
 
     setWebhookMock = mock(() => true)
     const realBot = new Bot(`test`) as any
@@ -117,5 +117,89 @@ describe(`Gramstax webhook secret token`, () => {
   it(`accepts GET /stats with correct secret header`, async () => {
     const res = await fetch(`${baseUrl}/stats`, {headers: {"X-Telegram-Bot-Api-Secret-Token": SECRET}})
     expect(res.status).toBe(200)
+  })
+})
+
+describe(`handlerBotUpdate secret guard (unit)`, () => {
+  const GUARD_DIR = join(import.meta.dir, `bot_guard_unit`)
+  const ok = async () => new Response(`OK`, {status: 200})
+
+  beforeEach(async () => {
+    if (existsSync(GUARD_DIR)) {
+      await rm(GUARD_DIR, {recursive: true, force: true})
+    }
+    await mkdir(GUARD_DIR, {recursive: true})
+  })
+
+  afterEach(async () => {
+    if (existsSync(GUARD_DIR)) {
+      await rm(GUARD_DIR, {recursive: true, force: true})
+    }
+  })
+
+  function guardBot(): TestGramstax {
+    return new TestGramstax({
+      token: `test`,
+      deploy: `test`,
+      templateManager: new TemplateManager({path: [GUARD_DIR]}),
+      log: false
+    })
+  }
+
+  function webhookRequest(secret?: string): Request {
+    const headers: Record<string, string> = {"Content-Type": `application/json`}
+    if (secret !== undefined) headers[`X-Telegram-Bot-Api-Secret-Token`] = secret
+    return new Request(`https://example.com/webhook`, {method: `POST`, headers, body: JSON.stringify({update_id: 1})})
+  }
+
+  it(`passes plain update objects through untouched when secret is set`, async () => {
+    const bot = guardBot()
+    let called = 0
+    const guarded = bot._withSecretGuard((async () => {
+      called++
+      return ok()
+    }) as (...args: unknown[]) => Promise<unknown>, SECRET)
+    const res = (await guarded({update_id: 1})) as Response
+    expect(called).toBe(1)
+    expect(res.status).toBe(200)
+  })
+
+  it(`returns handler unwrapped when no secret is configured`, async () => {
+    const bot = guardBot()
+    let called = 0
+    const inner = (async () => {
+      called++
+      return ok()
+    }) as (...args: unknown[]) => Promise<unknown>
+    const guarded = bot._withSecretGuard(inner, undefined)
+    const res = (await guarded(webhookRequest())) as Response
+    expect(called).toBe(1)
+    expect(res.status).toBe(200)
+  })
+
+  it(`401s Request without secret header when secret is set`, async () => {
+    const bot = guardBot()
+    let called = 0
+    const guarded = bot._withSecretGuard((async () => {
+      called++
+      return ok()
+    }) as (...args: unknown[]) => Promise<unknown>, SECRET)
+    const res = (await guarded(webhookRequest())) as Response
+    expect(called).toBe(0)
+    expect(res.status).toBe(401)
+  })
+
+  it(`401s Request with wrong secret and passes correct secret`, async () => {
+    const bot = guardBot()
+    let called = 0
+    const guarded = bot._withSecretGuard((async () => {
+      called++
+      return ok()
+    }) as (...args: unknown[]) => Promise<unknown>, SECRET)
+    const wrong = (await guarded(webhookRequest(`wrong-secret`))) as Response
+    expect(wrong.status).toBe(401)
+    const right = (await guarded(webhookRequest(SECRET))) as Response
+    expect(right.status).toBe(200)
+    expect(called).toBe(1)
   })
 })

@@ -69,7 +69,6 @@ function createBot(params: {skipDuplicateUpdate?: boolean; hookUpdateError?: (ev
     templateManager: tm,
     updateTimeoutMs: 0,
     skipDuplicateUpdate: params.skipDuplicateUpdate,
-    pollingMaxRetries: params.pollingMaxRetries,
     botConfig: {
       botInfo: {
         id: 123456789,
@@ -81,6 +80,7 @@ function createBot(params: {skipDuplicateUpdate?: boolean; hookUpdateError?: (ev
   })
   bot.hookUpdateError = params.hookUpdateError
   bot.hookUpdate = params.hookUpdate
+  if (params.pollingMaxRetries !== undefined) (bot as any)._pollingMaxRetries = params.pollingMaxRetries
   return {bot, pages: bot.pages}
 }
 
@@ -146,7 +146,7 @@ describe(`Gramstax startup config validation`, () => {
         new Gramstax({
           token: `t`,
           deploy: `webhook`,
-          optionsDeploy: {url: `not-a-url`},
+          optionsDeploy: {webhook: {url: `not-a-url`, secretToken: `test-secret`}},
           log: false
         } as never)
     ).toThrow(/webhook URL/)
@@ -157,11 +157,47 @@ describe(`Gramstax startup config validation`, () => {
       () =>
         new Gramstax({
           token: `t`,
-          deploy: `test`,
+          deploy: `webhook`,
           log: false,
-          webhookQueue: {maxQueueSize: 0}
+          optionsDeploy: {webhook: {url: `https://example.com/hook`, secretToken: `test-secret`, queue: {maxQueueSize: 0}}}
         } as any)
     ).toThrow(/maxQueueSize/)
+  })
+
+  it(`rejects webhook deploy without secretToken`, () => {
+    expect(
+      () =>
+        new Gramstax({
+          token: `t`,
+          deploy: `webhook`,
+          log: false,
+          optionsDeploy: {webhook: {url: `https://example.com/hook`}}
+        } as never)
+    ).toThrow(/secretToken/)
+  })
+
+  it(`rejects webhook deploy with malformed secretToken`, () => {
+    expect(
+      () =>
+        new Gramstax({
+          token: `t`,
+          deploy: `webhook`,
+          log: false,
+          optionsDeploy: {webhook: {url: `https://example.com/hook`, secretToken: `with space!`}}
+        } as never)
+    ).toThrow(/matching/)
+  })
+
+  it(`rejects branch that does not match deploy`, () => {
+    expect(
+      () =>
+        new Gramstax({
+          token: `t`,
+          deploy: `webhook`,
+          log: false,
+          optionsDeploy: {polling: {maxRetries: 3}}
+        } as never)
+    ).toThrow(/does not match/)
   })
 })
 

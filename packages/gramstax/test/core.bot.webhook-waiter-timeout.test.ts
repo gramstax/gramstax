@@ -40,9 +40,9 @@ describe(`Gramstax webhook waiter timeout (K6)`, () => {
       token: `test`,
       deploy: `test`,
       log: false,
-      templateManager,
-      webhookQueue: {enabled: true, maxQueueSize: 100, workerCount: 2, perChatConcurrency: 1, waiterTimeoutMs: 300}
+      templateManager
     })
+    ;(bot as any).webhookQueue = {enabled: true, maxQueueSize: 100, workerCount: 2, perChatConcurrency: 1, waiterTimeoutMs: 300}
 
     const realBot = new Bot(`test`) as any
     Object.defineProperty(realBot, `api`, {

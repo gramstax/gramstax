@@ -38,9 +38,9 @@ describe(`Gramstax webhook queue stats`, () => {
       token: `test`,
       deploy: `test`,
       log: false,
-      templateManager,
-      webhookQueue: {enabled: true, maxQueueSize: 2, workerCount: 3, perChatConcurrency: 1, blockWhenFull: true}
+      templateManager
     })
+    ;(bot as any).webhookQueue = {enabled: true, maxQueueSize: 2, workerCount: 3, perChatConcurrency: 1, blockWhenFull: true}
 
     bot.bot = {} as any
 

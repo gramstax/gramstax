@@ -4,6 +4,7 @@ import type {CacheExternal} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
 import type {LoggingHelper} from "~/helpers/log"
 import type {TemplateManager} from "~/template/manager"
+import type {IGramstaxOptionsDeploy} from "~/types/config"
 import type {ICtxParams} from "./ctx"
 import type {IAppManifest} from "./manifest"
 import type {ISessionLockOptions} from "./session-lock"
@@ -326,8 +327,8 @@ export type IGramstaxParams = {
    * @remarks
    * Supported modes:
    * - `"polling"` - Long polling mode for development
-   * - `"webhook"` - Webhook mode with the public URL in `optionsDeploy.url`
-   * - `"serverless"` - Serverless mode with `optionsDeploy.adapter` + `optionsDeploy.url`
+   * - `"webhook"` - Webhook mode with the public URL in `optionsDeploy.webhook.url`
+   * - `"serverless"` - Serverless mode with `optionsDeploy.serverless.adapter` + `optionsDeploy.serverless.url`
    * - `"test"` - Test mode with E2eHelper
    * - `"raw"` - Bare bot: no pages, no templates, no Gramstax routing.
    *   The constructor builds `this.bot` (`Bot`) and returns without
@@ -351,21 +352,25 @@ export type IGramstaxParams = {
   deploy: string
 
   /**
-   * Structured deploy options for `webhook` and `serverless` modes.
+   * Per-deploy-method nested deploy options.
    *
    * @remarks
+   * At most one branch may be non-empty and it must equal `deploy`:
    * - `serverless` requires `adapter` (`cloudflare-mod` or `aws-lambda-async`)
    *   plus a real `url` (`https?://` with no `<` placeholder).
-   * - `webhook` requires a real `url` and forbids `adapter`/`name`.
-   * - `polling`, `raw` and `test` require every field to stay undefined.
+   * - `webhook` requires a real `url` and a `secretToken`, with an optional
+   *   `queue` for backpressure and worker pooling.
+   * - `polling` accepts an optional `maxRetries` (`-1` retries forever).
+   * - `raw` and `test` accept no fields.
    *
    * @example
    * ```typescript
-   * optionsDeploy: {url: `https://example.com/bot`}
-   * optionsDeploy: {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`}
+   * optionsDeploy: {webhook: {url: `https://example.com/bot`, secretToken: `s3cr3t`}}
+   * optionsDeploy: {serverless: {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`}}
+   * optionsDeploy: {polling: {maxRetries: 5}}
    * ```
    */
-  optionsDeploy?: {adapter?: string; name?: string; url?: string}
+  optionsDeploy?: IGramstaxOptionsDeploy
 
   /**
    * Logger configuration.
@@ -429,20 +434,6 @@ export type IGramstaxParams = {
    * ```
    */
   botConfig?: BotConfig<Context>
-
-  /**
-   * Webhook queue configuration for backpressure and worker pooling.
-   *
-   * @remarks
-   * Stored as `this.webhookQueue`; only meaningful in `webhook` deploys.
-   * See {@link IWebhookQueueConfig} for the queue fields.
-   *
-   * @example
-   * ```typescript
-   * webhookQueue: {enabled: true, maxQueueSize: 5000, workerCount: 8}
-   * ```
-   */
-  webhookQueue?: IWebhookQueueConfig
 
   /**
    * Custom session cache implementation.
@@ -630,21 +621,6 @@ export type IGramstaxParams = {
   skipDuplicateUpdate?: boolean
 
   /**
-   * Secret token sent by Telegram in the `X-Telegram-Bot-Api-Secret-Token`
-   * header on webhook requests. Mismatching requests return `401`.
-   *
-   * @remarks
-   * Stored as `this._webhookSecretToken`. Also gates the status-server
-   * `/stats` and `/metrics` routes when set.
-   *
-   * @example
-   * ```typescript
-   * webhookSecretToken: `s3cr3t`
-   * ```
-   */
-  webhookSecretToken?: string
-
-  /**
    * Max length of incoming `message.text` / `message.caption`. Updates longer
    * than this are skipped (counted as invalid). `0` disables the check.
    *
@@ -693,24 +669,6 @@ export type IGramstaxParams = {
    * ```
    */
   statusServerHostname?: string
-
-  /**
-   * Max consecutive polling failures before giving up and stopping the bot.
-   *
-   * @remarks
-   * After a transient failure (network blip, 409 conflict) the bot retries with
-   * exponential backoff (1s → 2s → 4s … capped at 60s). After this many retries
-   * the bot logs the failure, emits `hookUpdateError` and calls `stop()`.
-   * `-1` retries forever. Stored as `this._pollingMaxRetries`.
-   *
-   * @defaultValue `5`
-   *
-   * @example
-   * ```typescript
-   * pollingMaxRetries: 5
-   * ```
-   */
-  pollingMaxRetries?: number
 
   /**
    * Page routing configuration options.

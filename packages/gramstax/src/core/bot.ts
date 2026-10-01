@@ -417,7 +417,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * new Gramstax({token: "BOT_TOKEN", deploy: "polling"})
    *
    * // Webhook mode with Bun's HTTP server
-   * new Gramstax({token: "BOT_TOKEN", deploy: "webhook", optionsDeploy: {url: "https://example.com/bot"}})
+   * new Gramstax({token: "BOT_TOKEN", deploy: "webhook", optionsDeploy: {webhook: {url: "https://example.com/bot", secretToken: "s3cr3t"}}})
    * ```
    *
    * @example
@@ -432,7 +432,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * const bot = new Gramstax({
    *   token: process.env.BOT_TOKEN!,
    *   deploy: "serverless",
-   *   optionsDeploy: {adapter: "cloudflare-mod", url: "https://example.com/webhook"}
+   *   optionsDeploy: {serverless: {adapter: "cloudflare-mod", url: "https://example.com/webhook"}}
    * })
    *
    * // handler.ts — server entry point
@@ -460,7 +460,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * const bot = new Gramstax({
    *   token: process.env.BOT_TOKEN!,
    *   deploy: "serverless",
-   *   optionsDeploy: {adapter: "aws-lambda-async", url: "https://example.com/webhook"}
+   *   optionsDeploy: {serverless: {adapter: "aws-lambda-async", url: "https://example.com/webhook"}}
    * })
    *
    * // lambda.ts
@@ -479,7 +479,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * // Serverless mode — Cloudflare Workers
    * //
    * // bot.ts
-   * const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless", optionsDeploy: {adapter: "cloudflare-mod", url: "https://example.com/webhook"}})
+   * const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless", optionsDeploy: {serverless: {adapter: "cloudflare-mod", url: "https://example.com/webhook"}}})
    *
    * // worker.ts
    * import {bot} from "./bot"
@@ -521,10 +521,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, 86_400_000)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.botConfig = params.botConfig
-    this.webhookQueue = params.webhookQueue
+    this.webhookQueue = params.optionsDeploy?.webhook?.queue
     this._updateTimeoutMs = params.updateTimeoutMs ?? 30_000
     this._skipDuplicateUpdate = params.skipDuplicateUpdate === true
-    this._webhookSecretToken = params.webhookSecretToken
+    this._webhookSecretToken = params.optionsDeploy?.webhook?.secretToken
     if (params.sessionLock?.enabled !== false && params.sessionLock) {
       const store = (this.cacheSession as unknown as {store: unknown}).store
       if (store instanceof KeyvRedis) {
@@ -540,7 +540,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this._maxTextLength = params.maxTextLength ?? 0
     this._statusServerPort = params.statusServerPort
     this._statusServerHostname = params.statusServerHostname ?? `127.0.0.1`
-    this._pollingMaxRetries = params.pollingMaxRetries ?? 5
+    this._pollingMaxRetries = params.optionsDeploy?.polling?.maxRetries ?? 5
     this._validateConfig(params)
 
     this.bot = this.createBot(params.token)
@@ -728,12 +728,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
       case `webhook`: {
         this.deployType = `webhook`
-        void this._runWebhook(params.optionsDeploy?.url as string).catch((error) => this._onStartupError(error))
+        void this._runWebhook(params.optionsDeploy?.webhook?.url as string).catch((error) => this._onStartupError(error))
         break
       }
       case `serverless`: {
         this.deployType = `serverless`
-        void this._runServerless(params.optionsDeploy?.adapter as string, params.optionsDeploy?.url).catch((error) => this._onStartupError(error))
+        void this._runServerless(params.optionsDeploy?.serverless?.adapter as string, params.optionsDeploy?.serverless?.url, params.optionsDeploy?.serverless?.secretToken).catch((error) => this._onStartupError(error))
         break
       }
       case `test`: {
@@ -803,54 +803,81 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (params.statusServerPort !== undefined && (params.statusServerPort < 0 || params.statusServerPort > 65535)) {
       throw new Error(`statusServerPort must be between 0 and 65535`)
     }
-    if (params.pollingMaxRetries !== undefined && (!Number.isFinite(params.pollingMaxRetries) || params.pollingMaxRetries < -1)) {
-      throw new Error(`pollingMaxRetries must be -1 or a non-negative number`)
+    const maxRetries = params.optionsDeploy?.polling?.maxRetries
+    if (maxRetries !== undefined && (!Number.isFinite(maxRetries) || maxRetries < -1)) {
+      throw new Error(`optionsDeploy.polling.maxRetries must be -1 or a non-negative number`)
     }
-    if (params.webhookQueue?.maxQueueSize !== undefined && (!Number.isFinite(params.webhookQueue.maxQueueSize) || params.webhookQueue.maxQueueSize <= 0)) {
-      throw new Error(`webhookQueue.maxQueueSize must be a positive number`)
+    const queue = params.optionsDeploy?.webhook?.queue
+    if (queue?.maxQueueSize !== undefined && (!Number.isFinite(queue.maxQueueSize) || queue.maxQueueSize <= 0)) {
+      throw new Error(`optionsDeploy.webhook.queue.maxQueueSize must be a positive number`)
     }
-    if (params.webhookQueue?.workerCount !== undefined && (!Number.isFinite(params.webhookQueue.workerCount) || params.webhookQueue.workerCount < 1)) {
-      throw new Error(`webhookQueue.workerCount must be a positive number`)
+    if (queue?.workerCount !== undefined && (!Number.isFinite(queue.workerCount) || queue.workerCount < 1)) {
+      throw new Error(`optionsDeploy.webhook.queue.workerCount must be a positive number`)
     }
-    if (params.webhookQueue?.enqueueTimeoutMs !== undefined && (!Number.isFinite(params.webhookQueue.enqueueTimeoutMs) || params.webhookQueue.enqueueTimeoutMs < 0)) {
-      throw new Error(`webhookQueue.enqueueTimeoutMs must be a non-negative number`)
+    if (queue?.enqueueTimeoutMs !== undefined && (!Number.isFinite(queue.enqueueTimeoutMs) || queue.enqueueTimeoutMs < 0)) {
+      throw new Error(`optionsDeploy.webhook.queue.enqueueTimeoutMs must be a non-negative number`)
     }
     if (typeof params.deploy === `string` && params.deploy.includes(`:`)) {
-      throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test with optionsDeploy {adapter, name, url} (legacy colon forms are removed, got "${params.deploy}")`)
+      throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test with optionsDeploy {webhook, serverless, polling, raw, test} (legacy colon forms are removed, got "${params.deploy}")`)
     }
     const modes = [`polling`, `webhook`, `serverless`, `raw`, `test`]
     if (modes.includes(params.deploy) === false) {
       throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test (got "${params.deploy}")`)
     }
     const adapters = [`cloudflare-mod`, `aws-lambda-async`]
-    const defined = params.optionsDeploy !== undefined && (params.optionsDeploy.adapter !== undefined || params.optionsDeploy.name !== undefined || params.optionsDeploy.url !== undefined)
+    const isNonEmptyBranch = (branch: unknown): boolean => {
+      if (branch === undefined || branch === null || typeof branch !== `object`) {
+        return false
+      }
+      return Object.values(branch as Record<string, unknown>).some((value) => value !== undefined)
+    }
+    const serverlessBranch = params.optionsDeploy?.serverless
+    const webhookBranch = params.optionsDeploy?.webhook
+    const pollingBranch = params.optionsDeploy?.polling
+    const rawBranch = params.optionsDeploy?.raw
+    const testBranch = params.optionsDeploy?.test
     const isRealUrl = (url: unknown): url is string => typeof url === `string` && /^https?:\/\/.+/.test(url) && url.includes(`<`) === false
     if (params.deploy === `serverless`) {
-      if (params.optionsDeploy?.adapter === undefined || adapters.includes(params.optionsDeploy.adapter) === false) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.adapter to be one of cloudflare-mod, aws-lambda-async (got "${params.optionsDeploy?.adapter ?? ``}")`)
+      if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
+        throw new Error(`Params deploy "serverless" does not match non-empty optionsDeploy branch (expected optionsDeploy.serverless only)`)
       }
-      if (isRealUrl(params.optionsDeploy?.url) === false) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.url to be a real http(s) URL with no placeholder (got "${params.optionsDeploy?.url ?? ``}")`)
+      if (serverlessBranch?.adapter === undefined || adapters.includes(serverlessBranch.adapter) === false) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless.adapter to be one of cloudflare-mod, aws-lambda-async (got "${serverlessBranch?.adapter ?? ``}")`)
+      }
+      if (isRealUrl(serverlessBranch?.url) === false) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless.url to be a real http(s) URL with no placeholder (got "${serverlessBranch?.url ?? ``}")`)
+      }
+      const serverlessSecretToken = serverlessBranch?.secretToken
+      if (typeof serverlessSecretToken !== `string` || serverlessSecretToken.length === 0 || /^[A-Za-z0-9_-]{1,256}$/.test(serverlessSecretToken) === false) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless.secretToken to be a non-empty string matching ^[A-Za-z0-9_-]{1,256}$ (generate one with: openssl rand -hex 32)`)
       }
     } else if (params.deploy === `webhook`) {
-      if (params.optionsDeploy?.adapter !== undefined || params.optionsDeploy?.name !== undefined) {
-        throw new Error(`Params deploy webhook forbids optionsDeploy.adapter and optionsDeploy.name (webhook needs optionsDeploy.url only)`)
+      if (isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
+        throw new Error(`Params deploy "webhook" does not match non-empty optionsDeploy branch (expected optionsDeploy.webhook only)`)
       }
-      if (isRealUrl(params.optionsDeploy?.url) === false) {
-        throw new Error(`deploy webhook URL is not valid: "${params.optionsDeploy?.url ?? ``}"`)
+      if (isRealUrl(webhookBranch?.url) === false) {
+        throw new Error(`deploy webhook URL is not valid: "${webhookBranch?.url ?? ``}"`)
       }
       let parsed: URL
       try {
-        parsed = new URL(params.optionsDeploy.url as string)
+        parsed = new URL(webhookBranch?.url as string)
       } catch {
-        throw new Error(`deploy webhook URL is not valid: "${params.optionsDeploy?.url ?? ``}"`)
+        throw new Error(`deploy webhook URL is not valid: "${webhookBranch?.url ?? ``}"`)
       }
       if (parsed.protocol !== `https:` && parsed.protocol !== `http:`) {
-        throw new Error(`deploy webhook URL must use http(s): "${params.optionsDeploy?.url ?? ``}"`)
+        throw new Error(`deploy webhook URL must use http(s): "${webhookBranch?.url ?? ``}"`)
       }
-    } else if (params.deploy === `polling` || params.deploy === `raw` || params.deploy === `test`) {
-      if (defined) {
-        throw new Error(`Params deploy "${params.deploy}" forbids non-empty optionsDeploy (got adapter/name/url, use deploy "webhook" or "serverless" for deploy options)`)
+      const secretToken = webhookBranch?.secretToken
+      if (typeof secretToken !== `string` || secretToken.length === 0 || /^[A-Za-z0-9_-]{1,256}$/.test(secretToken) === false) {
+        throw new Error(`Params deploy webhook requires optionsDeploy.webhook.secretToken to be a non-empty string matching ^[A-Za-z0-9_-]{1,256}$ (generate one with: openssl rand -hex 32)`)
+      }
+    } else if (params.deploy === `polling`) {
+      if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
+        throw new Error(`Params deploy "polling" does not match non-empty optionsDeploy branch (expected optionsDeploy.polling or empty)`)
+      }
+    } else {
+      if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
+        throw new Error(`Params deploy "${params.deploy}" forbids non-empty optionsDeploy (expected empty or optionsDeploy.${params.deploy})`)
       }
     }
   }
@@ -867,6 +894,90 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this._emitUpdateError({traceId: `startup`, listenerName: `startup`, state: `error`, error, durationMs: 0, isEdit: false})
     this.log?.error?.(`startup failed: ${String(error)}`)
     void this.stop()
+  }
+
+  /**
+   * Wraps `handlerBotUpdate` with a constant-time secret check.
+   *
+   * @remarks
+   * Verifies the `X-Telegram-Bot-Api-Secret-Token` header against `secret`
+   * with `timingSafeEqual` and returns a uniform 401 on mismatch (no body
+   * detail, same status whether the route or the secret was wrong). Request
+   * shapes without headers (plain update objects) pass through untouched.
+   * When no secret is configured the handler is returned unwrapped.
+   *
+   * @param handler - Inner update handler.
+   * @param secret - Expected secret value.
+   * @internal
+   */
+  _withSecretGuard(handler: (...args: unknown[]) => Promise<unknown>, secret: string | undefined): (...args: unknown[]) => Promise<unknown> {
+    if (!secret) {
+      return handler
+    }
+    const expected = secret
+    return (async (...args: unknown[]) => {
+      const candidate = args[0]
+      if (this._hasSecretHeaders(candidate)) {
+        const header = this._readSecretHeader(candidate)
+        if (header === null || header.length !== expected.length || !timingSafeEqual(Buffer.from(header), Buffer.from(expected))) {
+          return new Response(`Unauthorized`, {status: 401})
+        }
+      }
+      return handler(...args)
+    }) as (...args: unknown[]) => Promise<unknown>
+  }
+
+  /**
+   * Reports whether a `handlerBotUpdate` argument carries HTTP headers.
+   *
+   * @param req - First handler argument (Request, lambda event, or update).
+   * @internal
+   */
+  _hasSecretHeaders(req: unknown): boolean {
+    if (typeof req !== `object` || req === null) {
+      return false
+    }
+    const headers = (req as {headers?: unknown}).headers
+    if (headers === undefined || headers === null) {
+      return false
+    }
+    if (typeof (headers as {get?: unknown}).get === `function`) {
+      return true
+    }
+    return typeof headers === `object`
+  }
+
+  /**
+   * Extracts the `X-Telegram-Bot-Api-Secret-Token` header value.
+   *
+   * @remarks
+   * Supports `Request` (`headers.get`) and lambda-style plain-object
+   * headers (case-insensitive). Returns `null` when absent.
+   *
+   * @param req - First handler argument.
+   * @internal
+   */
+  _readSecretHeader(req: unknown): string | null {
+    if (typeof req !== `object` || req === null) {
+      return null
+    }
+    const headers = (req as {headers?: unknown}).headers
+    if (headers === undefined || headers === null) {
+      return null
+    }
+    const getter = (headers as {get?: unknown}).get
+    if (typeof getter === `function`) {
+      const value = (getter as (name: string) => string | null).call(headers, `X-Telegram-Bot-Api-Secret-Token`)
+      return typeof value === `string` ? value : null
+    }
+    if (typeof headers === `object`) {
+      for (const [key, value] of Object.entries(headers as Record<string, unknown>)) {
+        if (key.toLowerCase() === `x-telegram-bot-api-secret-token`) {
+          return typeof value === `string` ? value : Array.isArray(value) && typeof value[0] === `string` ? value[0] : null
+        }
+      }
+    }
+    return null
   }
 
   /**
@@ -1504,7 +1615,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const handleUpdate = webhookCallback(this.bot, `bun`)
     const queueConfig = this.webhookQueue
     const queueEnabled = queueConfig?.enabled === true
-    this.handlerBotUpdate = (queueEnabled ? this.bot.handleUpdate.bind(this.bot) : handleUpdate) as unknown as (...args: unknown[]) => Promise<unknown>
+    this.handlerBotUpdate = this._withSecretGuard((queueEnabled ? this.bot.handleUpdate.bind(this.bot) : handleUpdate) as unknown as (...args: unknown[]) => Promise<unknown>, this._webhookSecretToken)
 
     const queue = queueEnabled ? new WebhookQueue<Update>(queueConfig?.maxQueueSize ?? 5000) : undefined
     const workerCount = queueConfig?.workerCount ?? 8
@@ -1766,22 +1877,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @remarks
    * Configures the handler for serverless adapters (e.g., AWS Lambda, Cloudflare Workers).
-   * When a public URL is given (`serverless` with `optionsDeploy.url`), registers it
+   * When a public URL is given (`serverless` with `optionsDeploy.serverless.url`), registers it
    * via `setWebhook` unless already set — mirroring `_runWebhook`.
    *
    * @param adapter - The adapter name (e.g., "cloudflare-mod", "aws-lambda-async").
    * @param publicUrl - Optional full public webhook URL to register.
+   * @param secretToken - Optional branch secretToken (preferred over the env binding).
    *
    * @internal
    */
-  async _runServerless(adapter: string, publicUrl?: string): Promise<void> {
+  async _runServerless(adapter: string, publicUrl?: string, secretToken?: string): Promise<void> {
     await this.hookBeforeStart?.()
-    this.handlerBotUpdate = webhookCallback(this.bot, adapter as string as Parameters<typeof webhookCallback>[1])
+    // Emitted serverless entries bake NO secret (strip-on-bake rule): in a deployed worker the baked params carry no secretToken, so the guard must resolve branch-secret ?? env-binding, else edge defense-in-depth silently disables itself.
+    const serverlessSecret = secretToken ?? process.env.TELEGRAM_WEBHOOK_SECRET
+    this.handlerBotUpdate = this._withSecretGuard(webhookCallback(this.bot, adapter as string as Parameters<typeof webhookCallback>[1]) as unknown as (...args: unknown[]) => Promise<unknown>, serverlessSecret)
     if (publicUrl !== undefined) {
       const data = await this.bot.api.getWebhookInfo()
       if (data.url !== publicUrl) {
-        if (this._webhookSecretToken) {
-          await this.bot.api.setWebhook(publicUrl, {secret_token: this._webhookSecretToken})
+        if (serverlessSecret) {
+          await this.bot.api.setWebhook(publicUrl, {secret_token: serverlessSecret})
         } else {
           await this.bot.api.setWebhook(publicUrl)
         }
