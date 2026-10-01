@@ -83,7 +83,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     console.log(`${banner}${versionLine}\n`)
   }
 
-  private _getPackageManagerCommands(packageManager: IPackageManager) {
+  getPackageManagerCommands(packageManager: IPackageManager) {
     const commands = {
       bun: {install: `bun install`, dev: `bun dev`, start: `bun start`},
       npm: {install: `npm install`, dev: `npm run dev`, start: `npm start`},
@@ -93,7 +93,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     return commands[packageManager]
   }
 
-  private _copyDirectorySync(source: string, destination: string, variables: Record<string, string> = {}) {
+  copyDirectorySync(source: string, destination: string, variables: Record<string, string> = {}) {
     if (!fs.existsSync(destination)) {
       fs.mkdirSync(destination, {recursive: true})
     }
@@ -106,7 +106,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         continue
       }
       if (item.isDirectory()) {
-        this._copyDirectorySync(sourcePath, destPath, variables)
+        this.copyDirectorySync(sourcePath, destPath, variables)
       } else if (item.isFile()) {
         const stat = fs.statSync(sourcePath)
         const raw = fs.readFileSync(sourcePath)
@@ -132,7 +132,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
   // ── Prompts (only used in interactive mode) ──────────────────────
 
-  private async _promptForProjectName(): Promise<string> {
+  async promptForProjectName(): Promise<string> {
     let response: {projectName: string} | undefined
     try {
       response = await enquirer.prompt<{projectName: string}>({
@@ -155,7 +155,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     return response.projectName.trim()
   }
 
-  private async _promptForConfiguration(): Promise<{
+  async promptForConfiguration(): Promise<{
     packageManager: IPackageManager
     runtime: IRuntime
     biome: boolean
@@ -226,7 +226,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     }
   }
 
-  private async _installDependencies(projectPath: string, packageManager: IPackageManager): Promise<boolean> {
+  async installDependencies(projectPath: string, packageManager: IPackageManager): Promise<boolean> {
     return await new Promise((resolve) => {
       const installProcess = spawn(FsUt.resolvePackageManagerCommand(packageManager), [`install`], {
         cwd: projectPath,
@@ -240,7 +240,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
   // ── Configuration gathering ─────────────────────────────────────
 
-  private async _gatherProjectConfig(): Promise<IProjectConfig> {
+  async gatherProjectConfig(): Promise<IProjectConfig> {
     this.printBanner()
     const cli = this._cliOptions
     const baseWorkingDir = FsUt.resolveInitialWorkingDirectory()
@@ -255,7 +255,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     }
 
     const isTTY = process.stdin?.isTTY === true
-    const hasAnyFlag = Boolean(cli && (this._hasAnyCliFlag() || cli.skipInstall !== undefined))
+    const hasAnyFlag = Boolean(cli && (this.hasAnyCliFlag() || cli.skipInstall !== undefined))
     const normalizedPm = cli?.packageManager !== undefined ? (String(cli!.packageManager).trim().toLowerCase() as IPackageManager) : undefined
     const normalizedRuntime = cli?.runtime !== undefined ? (String(cli!.runtime).trim().toLowerCase() as IRuntime) : undefined
 
@@ -266,7 +266,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         }
         throw new Error(`Missing project name`)
       }
-      projectName = await this._promptForProjectName()
+      projectName = await this.promptForProjectName()
       if (projectName === ``) {
         projectName = sanitizeProjectName(path.basename(baseWorkingDir))
         projectPath = baseWorkingDir
@@ -313,7 +313,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         if (!isTTY) {
           throw new Error(`Missing required CLI options: ${missing.join(`, `)}. Provide ${missing.join(`, `)} flags or run interactively.`)
         }
-        const prompted = await this._promptForConfiguration()
+        const prompted = await this.promptForConfiguration()
         config = {
           packageManager: normalizedPm ?? fallbackPm,
           runtime: normalizedRuntime ?? prompted.runtime,
@@ -331,7 +331,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         }
       }
     } else {
-      config = await this._promptForConfiguration()
+      config = await this.promptForConfiguration()
     }
 
     const {packageManager, runtime, lmdb, workerThread, biome} = config
@@ -363,17 +363,17 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     }
   }
 
-  private _hasAnyCliFlag(): boolean {
+  hasAnyCliFlag(): boolean {
     const c = this._cliOptions
     return !!(c && (c.packageManager !== undefined || c.runtime !== undefined || c.lmdb !== undefined || c.workerThread !== undefined || c.biome !== undefined))
   }
 
   // ── Project generation ──────────────────────────────────────────
 
-  private async _executeProjectGeneration(config: IProjectConfig): Promise<void> {
+  async executeProjectGeneration(config: IProjectConfig): Promise<void> {
     const {projectName, projectPath, packageManager, runtime, setupBiome, useLmdb, useWorkerThread} = config
     const skipInstall = config.skipInstall === true
-    const commands = this._getPackageManagerCommands(packageManager)
+    const commands = this.getPackageManagerCommands(packageManager)
     const variables = {
       projectName,
       packageName: projectName.toLowerCase(),
@@ -388,7 +388,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
     // Task 2: Copy templates
     log.info(`Copying template files..`)
-    this._copyDirectorySync(path.join(__dirname, `templates`), projectPath, variables)
+    this.copyDirectorySync(path.join(__dirname, `templates`), projectPath, variables)
     assertNoLeftoverPlaceholders(projectPath)
 
     // Task 3: Logs
@@ -504,7 +504,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     log.info(`Installing dependencies..`)
     if (skipInstall) {
       log.warn(`Skipping dependencies installation..`)
-    } else if (!(await this._installDependencies(projectPath, packageManager))) {
+    } else if (!(await this.installDependencies(projectPath, packageManager))) {
       throw new Error(`Dependencies installation failed`)
     }
 
@@ -516,7 +516,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   // ── Entry point ─────────────────────────────────────────────────
 
   async createProject() {
-    this._config = await this._gatherProjectConfig()
-    await this._executeProjectGeneration(this._config)
+    this._config = await this.gatherProjectConfig()
+    await this.executeProjectGeneration(this._config)
   }
 }

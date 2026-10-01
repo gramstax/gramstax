@@ -17,8 +17,6 @@ function readCreate(): string {
   return readFileSync(createPath, `utf-8`)
 }
 
-type GatherConfig = {gatherProjectConfig(): Promise<unknown>}
-
 let tempDirs: string[] = []
 let originalResolve: typeof FsUt.resolveInitialWorkingDirectory
 let originalIsTTY: boolean | undefined
@@ -72,7 +70,7 @@ describe(`cli-contract pm runtime case-insensitive plus choices`, () => {
     const create = new Create(name, {
       cliOptions: {packageManager: `NPM` as unknown as `npm`, runtime: `NODE` as unknown as `node`, lmdb: true, workerThread: true, biome: true}
     })
-    const config = await (create as unknown as GatherConfig).gatherProjectConfig() as {packageManager: string, runtime: string}
+    const config = await create.gatherProjectConfig()
     expect(config.packageManager).toBe(`npm`)
     expect(config.runtime).toBe(`node`)
   })
@@ -85,7 +83,7 @@ describe(`cli-contract pm runtime case-insensitive plus choices`, () => {
     const create = new Create(name, {
       cliOptions: {packageManager: `  pnpm  ` as unknown as `pnpm`, runtime: `  bun  ` as unknown as `bun`, lmdb: true, workerThread: true, biome: true}
     })
-    const config = await (create as unknown as GatherConfig).gatherProjectConfig() as {packageManager: string, runtime: string}
+    const config = await create.gatherProjectConfig()
     expect(config.packageManager).toBe(`pnpm`)
     expect(config.runtime).toBe(`bun`)
   })
@@ -116,18 +114,18 @@ describe(`cli-contract boolean single-side flags`, () => {
 
 describe(`cli-contract detectPackageManager pure`, () => {
   it(`exports detectPackageManager from index`, async () => {
-    const mod = await import(`../src/index`) as {detectPackageManager?: unknown}
+    const mod = (await import(`../src/index`)) as {detectPackageManager?: unknown}
     expect(typeof mod.detectPackageManager).toBe(`function`)
   })
 
   it(`prefers explicit over env and lockfile`, async () => {
-    const mod = await import(`../src/index`) as {detectPackageManager: (explicit?: string, overrides?: {userAgent?: string, cwd?: string, exists?: (p: string) => boolean}) => string}
+    const mod = (await import(`../src/index`)) as {detectPackageManager: (explicit?: string, overrides?: {userAgent?: string; cwd?: string; exists?: (p: string) => boolean}) => string}
     const result = mod.detectPackageManager(`npm`, {userAgent: `pnpm/9.0.0`, cwd: `/tmp`, exists: () => true})
     expect(result).toBe(`npm`)
   })
 
   it(`reads npm_config_user_agent with pnpm before npm substring`, async () => {
-    const mod = await import(`../src/index`) as {detectPackageManager: (explicit?: string, overrides?: {userAgent?: string}) => string}
+    const mod = (await import(`../src/index`)) as {detectPackageManager: (explicit?: string, overrides?: {userAgent?: string}) => string}
     expect(mod.detectPackageManager(undefined, {userAgent: `pnpm/9.0.0 npm/10.0.0 node/v22`})).toBe(`pnpm`)
     expect(mod.detectPackageManager(undefined, {userAgent: `yarn/1.22.0 npm/10.0.0`})).toBe(`yarn`)
     expect(mod.detectPackageManager(undefined, {userAgent: `bun/1.1.0`})).toBe(`bun`)
@@ -135,7 +133,7 @@ describe(`cli-contract detectPackageManager pure`, () => {
   })
 
   it(`detects lockfiles in priority order then falls back to bun`, async () => {
-    const mod = await import(`../src/index`) as {detectPackageManager: (explicit?: string, overrides?: {cwd?: string, exists?: (p: string) => boolean, userAgent?: string}) => string}
+    const mod = (await import(`../src/index`)) as {detectPackageManager: (explicit?: string, overrides?: {cwd?: string; exists?: (p: string) => boolean; userAgent?: string}) => string}
     const existsBunLockb = (p: string): boolean => p.endsWith(`bun.lockb`)
     expect(mod.detectPackageManager(undefined, {userAgent: ``, cwd: `/proj`, exists: existsBunLockb})).toBe(`bun`)
     const existsPnpm = (p: string): boolean => p.endsWith(`pnpm-lock.yaml`)
@@ -160,7 +158,7 @@ describe(`cli-contract partial flags prompt or throw`, () => {
     setTTY(false)
     const name = `partial-${Date.now().toString(36)}`
     const create = new Create(name, {cliOptions: {packageManager: `bun`}})
-    await expect((create as unknown as GatherConfig).gatherProjectConfig()).rejects.toThrow(/runtime/i)
+    await expect(create.gatherProjectConfig()).rejects.toThrow(/runtime/i)
   })
 
   it(`prompts for missing fields in TTY partial mode`, async () => {
@@ -174,7 +172,7 @@ describe(`cli-contract partial flags prompt or throw`, () => {
     })
     const name = `partial-tty-${Date.now().toString(36)}`
     const create = new Create(name, {cliOptions: {packageManager: `bun`}})
-    const config = await (create as unknown as GatherConfig).gatherProjectConfig() as {packageManager: string}
+    const config = await create.gatherProjectConfig()
     expect(prompted).toBe(true)
     expect(config.packageManager).toBe(`bun`)
   })
@@ -187,7 +185,7 @@ describe(`cli-contract missing project name`, () => {
     setTTY(false)
     mockEnquirer(async () => ({projectName: `should-not-prompt`}))
     const create = new Create(undefined, {})
-    await expect((create as unknown as GatherConfig).gatherProjectConfig()).rejects.toThrow(/Missing project name/)
+    await expect(create.gatherProjectConfig()).rejects.toThrow(/Missing project name/)
   })
 
   it(`prompts for name in TTY when flags present but name missing`, async () => {
@@ -196,7 +194,7 @@ describe(`cli-contract missing project name`, () => {
     setTTY(true)
     let namePrompted = false
     mockEnquirer(async (args?: unknown) => {
-      const first = Array.isArray(args) ? args[0] as {name?: string} : args as {name?: string}
+      const first = Array.isArray(args) ? (args[0] as {name?: string}) : (args as {name?: string})
       if (first !== undefined && !Array.isArray(args)) {
         namePrompted = true
         return {projectName: `tty-named-${Date.now().toString(36)}`}
@@ -204,7 +202,7 @@ describe(`cli-contract missing project name`, () => {
       return {packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true}
     })
     const create = new Create(undefined, {cliOptions: {packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true}})
-    const config = await (create as unknown as GatherConfig).gatherProjectConfig() as {projectName: string}
+    const config = await create.gatherProjectConfig()
     expect(namePrompted).toBe(true)
     expect(config.projectName.startsWith(`tty-named-`)).toBe(true)
   })

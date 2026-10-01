@@ -5,10 +5,8 @@ import {join} from "node:path"
 import {Create} from "../src/create"
 import {FsUt} from "../src/utils/fs"
 import {log} from "../src/utils/log"
-import {PROJECT_NAME_PATTERN, isValidProjectName, sanitizeProjectName, SetupCancelledError} from "../src/utils/project"
+import {isValidProjectName, PROJECT_NAME_PATTERN, SetupCancelledError, sanitizeProjectName} from "../src/utils/project"
 
-type PromptForProjectName = {promptForProjectName(): Promise<string>}
-type PromptForConfiguration = {promptForConfiguration(): Promise<unknown>}
 type GatherConfig = {gatherProjectConfig(): Promise<unknown>}
 
 function mockPrompt(impl: (args?: unknown) => Promise<unknown>) {
@@ -21,7 +19,7 @@ describe(`promptForProjectName cancel handling`, () => {
   it(`maps undefined resolution to SetupCancelledError`, async () => {
     mockPrompt(async () => undefined)
     const create = new Create(undefined)
-    const result = (create as unknown as PromptForProjectName).promptForProjectName()
+    const result = create.promptForProjectName()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
@@ -30,14 +28,14 @@ describe(`promptForProjectName cancel handling`, () => {
       throw new Error(`cancelled`)
     })
     const create = new Create(undefined)
-    const result = (create as unknown as PromptForProjectName).promptForProjectName()
+    const result = create.promptForProjectName()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
   it(`maps missing projectName field to SetupCancelledError`, async () => {
     mockPrompt(async () => ({}))
     const create = new Create(undefined)
-    const result = (create as unknown as PromptForProjectName).promptForProjectName()
+    const result = create.promptForProjectName()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 })
@@ -46,14 +44,14 @@ describe(`promptForProjectName trims`, () => {
   it(`trims surrounding whitespace`, async () => {
     mockPrompt(async () => ({projectName: `  my-bot  `}))
     const create = new Create(undefined)
-    const result = await (create as unknown as PromptForProjectName).promptForProjectName()
+    const result = await create.promptForProjectName()
     expect(result).toBe(`my-bot`)
   })
 
   it(`treats whitespace-only as empty`, async () => {
     mockPrompt(async () => ({projectName: `   `}))
     const create = new Create(undefined)
-    const result = await (create as unknown as PromptForProjectName).promptForProjectName()
+    const result = await create.promptForProjectName()
     expect(result).toBe(``)
   })
 })
@@ -72,7 +70,7 @@ describe(`promptForProjectName validation uses PROJECT_NAME_PATTERN`, () => {
       return {projectName: `x`}
     })
     const create = new Create(undefined)
-    await (create as unknown as PromptForProjectName).promptForProjectName()
+    await create.promptForProjectName()
     expect(captured?.validate).toBeDefined()
     const validate = captured?.validate as (value: string) => boolean | string
     const message = `Project name can only contain letters, numbers, hyphens, and underscores (max 100 characters)`
@@ -91,35 +89,35 @@ describe(`promptForConfiguration partial rejection`, () => {
   it(`rejects when runtime is missing`, async () => {
     mockPrompt(async () => ({packageManager: `bun`, lmdb: true, workerThread: true, biome: true}))
     const create = new Create(undefined)
-    const result = (create as unknown as PromptForConfiguration).promptForConfiguration()
+    const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
   it(`rejects when lmdb is missing`, async () => {
     mockPrompt(async () => ({packageManager: `bun`, runtime: `bun`, workerThread: true, biome: true}))
     const create = new Create(undefined)
-    const result = (create as unknown as PromptForConfiguration).promptForConfiguration()
+    const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
   it(`rejects when workerThread is missing`, async () => {
     mockPrompt(async () => ({packageManager: `bun`, runtime: `bun`, lmdb: true, biome: true}))
     const create = new Create(undefined)
-    const result = (create as unknown as PromptForConfiguration).promptForConfiguration()
+    const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
   it(`rejects when biome is missing`, async () => {
     mockPrompt(async () => ({packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true}))
     const create = new Create(undefined)
-    const result = (create as unknown as PromptForConfiguration).promptForConfiguration()
+    const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
   it(`rejects when packageManager is missing but rest present`, async () => {
     mockPrompt(async () => ({runtime: `bun`, lmdb: true, workerThread: true, biome: true}))
     const create = new Create(undefined)
-    const result = (create as unknown as PromptForConfiguration).promptForConfiguration()
+    const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
@@ -128,14 +126,14 @@ describe(`promptForConfiguration partial rejection`, () => {
       throw new Error(`cancelled`)
     })
     const create = new Create(undefined)
-    const result = (create as unknown as PromptForConfiguration).promptForConfiguration()
+    const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
   it(`resolves full answers`, async () => {
     mockPrompt(async () => ({packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true}))
     const create = new Create(undefined)
-    const result = await (create as unknown as PromptForConfiguration).promptForConfiguration()
+    const result = await create.promptForConfiguration()
     expect(result).toEqual({packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true})
   })
 })

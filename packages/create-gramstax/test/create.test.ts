@@ -598,7 +598,7 @@ describe(`prompt cancel handling`, () => {
       }
     }))
     const create = new Create(undefined)
-    const result = (create as unknown as {promptForConfiguration(): Promise<unknown>}).promptForConfiguration()
+    const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 })
