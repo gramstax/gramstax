@@ -2,18 +2,14 @@ import {readdirSync, readFileSync, renameSync, writeFileSync} from "node:fs"
 import {join} from "node:path"
 
 export const PACKAGE_MANAGERS = [`bun`, `npm`, `pnpm`, `yarn`] as const
-export type PackageManager = (typeof PACKAGE_MANAGERS)[number]
-
+export type IPackageManager = (typeof PACKAGE_MANAGERS)[number]
 export const RUNTIMES = [`bun`, `node`] as const
-export type Runtime = (typeof RUNTIMES)[number]
-
+export type IRuntime = (typeof RUNTIMES)[number]
 export const PROJECT_NAME_PATTERN = /^[a-z0-9-_]{1,100}$/i
-
 export const RUNTIME_PLACEHOLDERS = [`userName`, `result`, `res`]
-
 export const BIOME_DEV_VERSION = `^2.5.5`
 
-type DependencySections = {
+type IDependencySections = {
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
@@ -61,7 +57,7 @@ export function stripBiomeScripts(pkg: {scripts?: Record<string, string>}): void
   }
 }
 
-export function removeDependency(pkg: DependencySections, name: string): void {
+export function removeDependency(pkg: IDependencySections, name: string): void {
   for (const section of DEP_SECTIONS) {
     const deps = pkg[section]
     if (deps) delete deps[name]
@@ -165,7 +161,7 @@ export function setTsconfigCompilerOptions(content: string, options: Record<stri
   return `${JSON.stringify(parsed, null, 2)}\n`
 }
 
-export function resolveWorkspaceDeps(pkg: DependencySections, version: string | undefined): void {
+export function resolveWorkspaceDeps(pkg: IDependencySections, version: string | undefined): void {
   const sections = DEP_SECTIONS.map((section) => pkg[section])
   const pending = sections.some((deps) => deps !== undefined && Object.values(deps).includes(`workspace:*`))
   if (version === undefined) {
@@ -193,7 +189,7 @@ function toNodeBuildScript(value: string): string {
   return value.replace(/^bun(?=\s|$)/, `node`)
 }
 
-export function resolveRuntimeScripts(runtime: Runtime, scripts: Record<string, string>): Record<string, string> {
+export function resolveRuntimeScripts(runtime: IRuntime, scripts: Record<string, string>): Record<string, string> {
   if (runtime === `bun`) return scripts
   const next = {...scripts}
   for (const [key, value] of Object.entries(next)) {

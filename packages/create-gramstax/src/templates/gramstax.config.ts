@@ -1,7 +1,6 @@
 import type {GramstaxConfig} from "gramstax"
 
 const config: GramstaxConfig = {
-  // real value lives in .env — never commit a real token here
   token: process.env.BOT_TOKEN ?? ``,
   deploy: process.env.BOT_DEPLOY ?? `polling`,
   cacheSession: {
@@ -10,21 +9,20 @@ const config: GramstaxConfig = {
     namespace: `s`
   },
   log: {
-    override: {module: `./src/helpers/log.ts`, export: `LogHe`}
+    override: {
+      module: `./src/helpers/log.ts`, 
+      export: `LogHe`
+    }
   },
   optionsPage: {
     shortCallbackQueryData: true
   },
-  // deploy branch options — only the branch matching `deploy` may carry values.
   // webhook/serverless secrets come ONLY from the BOT_WEBHOOK_SECRET runtime binding
   // (set via `wrangler secret put BOT_WEBHOOK_SECRET`), never as literals in this file
   optionsDeploy: {
-    // polling: local dev (maxRetries: -1 = infinite)
     polling: {maxRetries: undefined},
-    // webhook: production (url required; secretToken via BOT_WEBHOOK_SECRET env, never a literal — config value sets the webhook)
     webhook: {url: undefined, secretToken: undefined, queue: undefined},
-    // serverless: edge (adapter + url required; secretToken via BOT_WEBHOOK_SECRET env, never a literal — config value sets the webhook, edge reads the binding)
-    serverless: {adapter: undefined, name: undefined, url: undefined, secretToken: undefined},
+    serverless: undefined,
     raw: undefined,
     test: undefined
   },

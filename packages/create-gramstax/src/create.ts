@@ -10,6 +10,8 @@ import {
   appendGitignoreEntries,
   assertNoLeftoverPlaceholders,
   BIOME_DEV_VERSION,
+  type IPackageManager,
+  type IRuntime,
   isValidProjectName,
   PROJECT_NAME_PATTERN,
   removeDependency,
@@ -17,34 +19,32 @@ import {
   replaceTemplateVariables,
   resolveRuntimeScripts,
   resolveWorkspaceDeps,
+  SetupCancelledError,
   sanitizeProjectName,
   setTsconfigCompilerOptions,
-  SetupCancelledError,
   stripBiomeScripts,
   validateCliOptions,
   writeJsonFileAtomic,
-  writeTextFileAtomic,
-  type PackageManager,
-  type Runtime
+  writeTextFileAtomic
 } from "./utils/project"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-export type CliOptions = {
-  packageManager?: PackageManager
-  runtime?: Runtime
+export type ICliOptions = {
+  packageManager?: IPackageManager
+  runtime?: IRuntime
   lmdb?: boolean
   workerThread?: boolean
   biome?: boolean
   skipInstall?: boolean
 }
 
-type ProjectConfig = {
+type IProjectConfig = {
   projectName: string
   projectPath: string
-  packageManager: PackageManager
-  runtime: Runtime
+  packageManager: IPackageManager
+  runtime: IRuntime
   setupBiome: boolean
   useLmdb: boolean
   useWorkerThread: boolean
@@ -52,16 +52,19 @@ type ProjectConfig = {
 }
 
 export class Create {
-  private config: ProjectConfig | undefined
-  private version: string | undefined
-  private cliOptions: CliOptions | undefined
+  private _config: IProjectConfig | undefined
+  private _version: string | undefined
+  private _cliOptions: ICliOptions | undefined
 
   constructor(
-    private projectDirectory?: string,
-    options?: {version?: string; cliOptions?: CliOptions}
+    private _projectDirectory?: string,
+    options?: {
+      version?: string
+      cliOptions?: ICliOptions
+    }
   ) {
-    this.version = options?.version
-    this.cliOptions = options?.cliOptions
+    this._version = options?.version
+    this._cliOptions = options?.cliOptions
   }
 
   printBanner() {
@@ -76,11 +79,11 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
  \\______/ \\__|      \\_______|\\__| \\__| \\__|\\_______/    \\____/  \\_______|\\__/  \\__|
                                                                                                                                               
 `
-    const versionLine = this.version ? `v${this.version}` : `v0.0.0`
+    const versionLine = this._version ? `v${this._version}` : `v0.0.0`
     console.log(`${banner}${versionLine}\n`)
   }
 
-  private getPackageManagerCommands(packageManager: PackageManager) {
+  private _getPackageManagerCommands(packageManager: IPackageManager) {
     const commands = {
       bun: {install: `bun install`, dev: `bun dev`, start: `bun start`},
       npm: {install: `npm install`, dev: `npm run dev`, start: `npm start`},
@@ -90,7 +93,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     return commands[packageManager]
   }
 
-  private copyDirectorySync(source: string, destination: string, variables: Record<string, string> = {}) {
+  private _copyDirectorySync(source: string, destination: string, variables: Record<string, string> = {}) {
     if (!fs.existsSync(destination)) {
       fs.mkdirSync(destination, {recursive: true})
     }
@@ -103,7 +106,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         continue
       }
       if (item.isDirectory()) {
-        this.copyDirectorySync(sourcePath, destPath, variables)
+        this._copyDirectorySync(sourcePath, destPath, variables)
       } else if (item.isFile()) {
         const stat = fs.statSync(sourcePath)
         const raw = fs.readFileSync(sourcePath)
@@ -129,7 +132,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
   // ── Prompts (only used in interactive mode) ──────────────────────
 
-  private async promptForProjectName(): Promise<string> {
+  private async _promptForProjectName(): Promise<string> {
     let response: {projectName: string} | undefined
     try {
       response = await enquirer.prompt<{projectName: string}>({
@@ -152,63 +155,65 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     return response.projectName.trim()
   }
 
-  private async promptForConfiguration(): Promise<{
-    packageManager: PackageManager
-    runtime: Runtime
+  private async _promptForConfiguration(): Promise<{
+    packageManager: IPackageManager
+    runtime: IRuntime
     biome: boolean
     lmdb: boolean
     workerThread: boolean
   }> {
-    const answers = await enquirer.prompt<{
-      packageManager?: PackageManager
-      runtime: Runtime
-      lmdb?: boolean
-      workerThread?: boolean
-      biome?: boolean
-    }>([
-      {
-        type: `select`,
-        name: `packageManager`,
-        message: `Which package manager would you like to use?`,
-        choices: [
-          {name: `bun`, message: `Bun (recommended)`, value: `bun`},
-          {name: `npm`, message: `npm`, value: `npm`},
-          {name: `pnpm`, message: `pnpm`, value: `pnpm`},
-          {name: `yarn`, message: `Yarn`, value: `yarn`}
-        ],
-        initial: 0
-      },
-      {
-        type: `select`,
-        name: `runtime`,
-        message: `Which runtime would you like to use?`,
-        choices: [
-          {name: `bun`, message: `Bun (recommended)`, value: `bun`},
-          {name: `node`, message: `Node.js`, value: `node`}
-        ],
-        initial: 0
-      },
-      {
-        type: `confirm`,
-        name: `lmdb`,
-        message: `Would you like to include @gramstax/lmdb for persistent storage? (recommended)`,
-        initial: true
-      },
-      {
-        type: `confirm`,
-        name: `workerThread`,
-        message: `Would you like to include @gramstax/worker-thread for background jobs? (recommended)`,
-        initial: true
-      },
-      {
-        type: `confirm`,
-        name: `biome`,
-        message: `Would you like to use Biome for linting & formatting? (recommended)`,
-        initial: true
-      }
-    ]).catch(() => {
-      throw new SetupCancelledError()
-    })
+    const answers = await enquirer
+      .prompt<{
+        packageManager?: IPackageManager
+        runtime: IRuntime
+        lmdb?: boolean
+        workerThread?: boolean
+        biome?: boolean
+      }>([
+        {
+          type: `select`,
+          name: `packageManager`,
+          message: `Which package manager would you like to use?`,
+          choices: [
+            {name: `bun`, message: `Bun (recommended)`, value: `bun`},
+            {name: `npm`, message: `npm`, value: `npm`},
+            {name: `pnpm`, message: `pnpm`, value: `pnpm`},
+            {name: `yarn`, message: `Yarn`, value: `yarn`}
+          ],
+          initial: 0
+        },
+        {
+          type: `select`,
+          name: `runtime`,
+          message: `Which runtime would you like to use?`,
+          choices: [
+            {name: `bun`, message: `Bun (recommended)`, value: `bun`},
+            {name: `node`, message: `Node.js`, value: `node`}
+          ],
+          initial: 0
+        },
+        {
+          type: `confirm`,
+          name: `lmdb`,
+          message: `Would you like to include @gramstax/lmdb for persistent storage? (recommended)`,
+          initial: true
+        },
+        {
+          type: `confirm`,
+          name: `workerThread`,
+          message: `Would you like to include @gramstax/worker-thread for background jobs? (recommended)`,
+          initial: true
+        },
+        {
+          type: `confirm`,
+          name: `biome`,
+          message: `Would you like to use Biome for linting & formatting? (recommended)`,
+          initial: true
+        }
+      ])
+      .catch(() => {
+        throw new SetupCancelledError()
+      })
     if (!answers?.packageManager || !answers?.runtime || answers?.lmdb === undefined || answers?.workerThread === undefined || answers?.biome === undefined) {
       throw new SetupCancelledError()
     }
@@ -221,7 +226,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     }
   }
 
-  private async installDependencies(projectPath: string, packageManager: PackageManager): Promise<boolean> {
+  private async _installDependencies(projectPath: string, packageManager: IPackageManager): Promise<boolean> {
     return await new Promise((resolve) => {
       const installProcess = spawn(FsUt.resolvePackageManagerCommand(packageManager), [`install`], {
         cwd: projectPath,
@@ -235,13 +240,13 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
   // ── Configuration gathering ─────────────────────────────────────
 
-  private async gatherProjectConfig(): Promise<ProjectConfig> {
+  private async _gatherProjectConfig(): Promise<IProjectConfig> {
     this.printBanner()
-    const cli = this.cliOptions
+    const cli = this._cliOptions
     const baseWorkingDir = FsUt.resolveInitialWorkingDirectory()
 
     // Determine project name and path
-    let projectName = this.projectDirectory ?? ``
+    let projectName = this._projectDirectory ?? ``
     let projectPath: string
     let useCurrentDir = false
 
@@ -251,8 +256,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
     const isTTY = process.stdin?.isTTY === true
     const hasAnyFlag = Boolean(cli && (this._hasAnyCliFlag() || cli.skipInstall !== undefined))
-    const normalizedPm = cli?.packageManager !== undefined ? String(cli!.packageManager).trim().toLowerCase() as PackageManager : undefined
-    const normalizedRuntime = cli?.runtime !== undefined ? String(cli!.runtime).trim().toLowerCase() as Runtime : undefined
+    const normalizedPm = cli?.packageManager !== undefined ? (String(cli!.packageManager).trim().toLowerCase() as IPackageManager) : undefined
+    const normalizedRuntime = cli?.runtime !== undefined ? (String(cli!.runtime).trim().toLowerCase() as IRuntime) : undefined
 
     if (!projectName) {
       if (!isTTY) {
@@ -261,7 +266,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         }
         throw new Error(`Missing project name`)
       }
-      projectName = await this.promptForProjectName()
+      projectName = await this._promptForProjectName()
       if (projectName === ``) {
         projectName = sanitizeProjectName(path.basename(baseWorkingDir))
         projectPath = baseWorkingDir
@@ -276,15 +281,15 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     // Gather config — skip prompts if CLI options provided
     const hasCli = hasAnyFlag
     let config: {
-      packageManager: PackageManager
-      runtime: Runtime
+      packageManager: IPackageManager
+      runtime: IRuntime
       lmdb: boolean
       workerThread: boolean
       biome: boolean
     }
     if (hasCli) {
       validateCliOptions(normalizedPm, normalizedRuntime)
-      const detectPackageManagerFallback = (): PackageManager => {
+      const detectPackageManagerFallback = (): IPackageManager => {
         if (normalizedPm !== undefined) return normalizedPm
         const agent = (process.env.npm_config_user_agent ?? ``).toLowerCase()
         if (agent.includes(`bun`)) return `bun`
@@ -308,7 +313,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         if (!isTTY) {
           throw new Error(`Missing required CLI options: ${missing.join(`, `)}. Provide ${missing.join(`, `)} flags or run interactively.`)
         }
-        const prompted = await this.promptForConfiguration()
+        const prompted = await this._promptForConfiguration()
         config = {
           packageManager: normalizedPm ?? fallbackPm,
           runtime: normalizedRuntime ?? prompted.runtime,
@@ -326,7 +331,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         }
       }
     } else {
-      config = await this.promptForConfiguration()
+      config = await this._promptForConfiguration()
     }
 
     const {packageManager, runtime, lmdb, workerThread, biome} = config
@@ -359,16 +364,16 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   }
 
   private _hasAnyCliFlag(): boolean {
-    const c = this.cliOptions
+    const c = this._cliOptions
     return !!(c && (c.packageManager !== undefined || c.runtime !== undefined || c.lmdb !== undefined || c.workerThread !== undefined || c.biome !== undefined))
   }
 
   // ── Project generation ──────────────────────────────────────────
 
-  private async executeProjectGeneration(config: ProjectConfig): Promise<void> {
+  private async _executeProjectGeneration(config: IProjectConfig): Promise<void> {
     const {projectName, projectPath, packageManager, runtime, setupBiome, useLmdb, useWorkerThread} = config
     const skipInstall = config.skipInstall === true
-    const commands = this.getPackageManagerCommands(packageManager)
+    const commands = this._getPackageManagerCommands(packageManager)
     const variables = {
       projectName,
       packageName: projectName.toLowerCase(),
@@ -383,7 +388,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
     // Task 2: Copy templates
     log.info(`Copying template files..`)
-    this.copyDirectorySync(path.join(__dirname, `templates`), projectPath, variables)
+    this._copyDirectorySync(path.join(__dirname, `templates`), projectPath, variables)
     assertNoLeftoverPlaceholders(projectPath)
 
     // Task 3: Logs
@@ -426,8 +431,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     // Task 5b: Resolve workspace:* deps to concrete versions (scaffolded
     // projects are standalone — workspace:* only works inside the monorepo)
     if (fs.existsSync(packageJsonPath)) {
-      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>, devDependencies?: Record<string, string>, peerDependencies?: Record<string, string>, optionalDependencies?: Record<string, string>}
-      resolveWorkspaceDeps(pkg, this.version)
+      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>; devDependencies?: Record<string, string>; peerDependencies?: Record<string, string>; optionalDependencies?: Record<string, string>}
+      resolveWorkspaceDeps(pkg, this._version)
       writeJsonFileAtomic(packageJsonPath, pkg)
     }
 
@@ -450,7 +455,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       log.info(`Removing @gramstax/lmdb files..`)
       if (fs.existsSync(dbPath)) fs.rmSync(dbPath, {recursive: true, force: true})
       if (fs.existsSync(packageJsonPath)) {
-        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>, devDependencies?: Record<string, string>, peerDependencies?: Record<string, string>, optionalDependencies?: Record<string, string>}
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>; devDependencies?: Record<string, string>; peerDependencies?: Record<string, string>; optionalDependencies?: Record<string, string>}
         removeDependency(pkg, `@gramstax/lmdb`)
         writeJsonFileAtomic(packageJsonPath, pkg)
       }
@@ -467,7 +472,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       log.info(`Removing @gramstax/worker-thread files..`)
       if (fs.existsSync(workerPath)) fs.rmSync(workerPath, {recursive: true, force: true})
       if (fs.existsSync(packageJsonPath)) {
-        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>, devDependencies?: Record<string, string>, peerDependencies?: Record<string, string>, optionalDependencies?: Record<string, string>}
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>; devDependencies?: Record<string, string>; peerDependencies?: Record<string, string>; optionalDependencies?: Record<string, string>}
         removeDependency(pkg, `@gramstax/worker-thread`)
         writeJsonFileAtomic(packageJsonPath, pkg)
       }
@@ -488,7 +493,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       log.info(`Removing Biome configuration..`)
       if (fs.existsSync(biomeJsonPath)) fs.unlinkSync(biomeJsonPath)
       if (fs.existsSync(packageJsonPath)) {
-        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {scripts?: Record<string, string>, devDependencies?: Record<string, string>, peerDependencies?: Record<string, string>, optionalDependencies?: Record<string, string>}
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {scripts?: Record<string, string>; devDependencies?: Record<string, string>; peerDependencies?: Record<string, string>; optionalDependencies?: Record<string, string>}
         stripBiomeScripts(pkg)
         removeDependency(pkg, `@biomejs/biome`)
         writeJsonFileAtomic(packageJsonPath, pkg)
@@ -499,7 +504,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     log.info(`Installing dependencies..`)
     if (skipInstall) {
       log.warn(`Skipping dependencies installation..`)
-    } else if (!(await this.installDependencies(projectPath, packageManager))) {
+    } else if (!(await this._installDependencies(projectPath, packageManager))) {
       throw new Error(`Dependencies installation failed`)
     }
 
@@ -511,7 +516,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   // ── Entry point ─────────────────────────────────────────────────
 
   async createProject() {
-    this.config = await this.gatherProjectConfig()
-    await this.executeProjectGeneration(this.config)
+    this._config = await this._gatherProjectConfig()
+    await this._executeProjectGeneration(this._config)
   }
 }

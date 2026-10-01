@@ -3,18 +3,15 @@ import {existsSync, readFileSync} from "node:fs"
 import {dirname, join} from "node:path"
 import {fileURLToPath} from "node:url"
 import {Command, Option} from "commander"
-import {Create, type CliOptions} from "./create"
+import {Create, type ICliOptions} from "./create"
 import {log} from "./utils/log"
-import {PACKAGE_MANAGERS, SetupCancelledError, validateCliOptions, type PackageManager} from "./utils/project"
+import {type IPackageManager, PACKAGE_MANAGERS, SetupCancelledError, validateCliOptions} from "./utils/project"
 
-export function detectPackageManager(
-  explicit?: string,
-  overrides?: {userAgent?: string; cwd?: string; exists?: (p: string) => boolean}
-): PackageManager {
+export function detectPackageManager(explicit?: string, overrides?: {userAgent?: string; cwd?: string; exists?: (p: string) => boolean}): IPackageManager {
   if (explicit !== undefined) {
     const normalized = explicit.trim().toLowerCase()
     if ((PACKAGE_MANAGERS as readonly string[]).includes(normalized)) {
-      return normalized as PackageManager
+      return normalized as IPackageManager
     }
   }
   const userAgent = overrides?.userAgent ?? process.env.npm_config_user_agent ?? ``
@@ -77,9 +74,9 @@ program
       const rawPm = opts?.pm !== undefined ? opts.pm.trim().toLowerCase() : undefined
       const rawRuntime = opts?.runtime !== undefined ? opts.runtime.trim().toLowerCase() : undefined
       validateCliOptions(rawPm, rawRuntime)
-      const cliOptions: CliOptions = {}
-      cliOptions.packageManager = (rawPm as CliOptions[`packageManager`]) ?? detectPackageManager()
-      if (rawRuntime !== undefined) cliOptions.runtime = rawRuntime as CliOptions[`runtime`]
+      const cliOptions: ICliOptions = {}
+      cliOptions.packageManager = (rawPm as ICliOptions[`packageManager`]) ?? detectPackageManager()
+      if (rawRuntime !== undefined) cliOptions.runtime = rawRuntime as ICliOptions[`runtime`]
       if (opts?.lmdb !== undefined) cliOptions.lmdb = opts.lmdb
       if (opts?.workerThread !== undefined) cliOptions.workerThread = opts.workerThread
       if (opts?.biome !== undefined) cliOptions.biome = opts.biome
