@@ -145,7 +145,7 @@ Stub rule: `server/bun-stub.ts` is emitted only when the target set includes
 resolve-only: imports resolve, any call throws. It stays `.ts` because the
 Wrangler `alias` entry resolves and transpiles TS source natively.
 
-`routes.json` entries (`ITRouteManifestEntry` in `packages/gramstax/src/page/manifest.ts`):
+`routes.json` entries (`IRouteManifestEntry` in `packages/gramstax/src/types/manifest.ts`):
 
 ```json
 [{`file`: `start.ts`, `name`: `StartPage`, `routeName`: `start`}]
@@ -166,11 +166,11 @@ export const manifest = {
 export default manifest
 ```
 
-`.js` vs `.ts`: `manifest.js` carries no `import type` / `: ITAppManifest` annotations (syntax errors in JS). The legacy `bun run build:manifest -- <pagesDir> <outFile.ts>` contract is unchanged and still emits the typed variant.
+`.js` vs `.ts`: `manifest.js` carries no `import type` / `: IAppManifest` annotations (syntax errors in JS). The legacy `bun run build:manifest -- <pagesDir> <outFile.ts>` contract is unchanged and still emits the typed variant.
 
 ## Booting from the manifest
 
-Opt-in via the `manifest` param (`IGramstaxParams.manifest?: ITAppManifest`):
+Opt-in via the `manifest` param (`IGramstaxParams.manifest?: IAppManifest`):
 
 ```ts
 import manifest from `./.gramstax/manifest.js`
@@ -209,5 +209,5 @@ Proven by `cli.build-parity.test.ts` + `core.manifest-parity.test.ts` on hellowo
 - `packages/gramstax/src/cli/collect.ts` — `RouteCollector` (collect + atomic `routes.json` write)
 - `packages/gramstax/src/cli/config.ts` — config load + validation
 - `packages/gramstax/scripts/build-manifest.ts` — `buildManifest()` (single-file, unchanged contract) + `generate(pagesDir, outDir)`
-- `packages/gramstax/src/page/manifest.ts` — `ITAppManifest` (+ optional `routes`) and `ITRouteManifestEntry`
+- `packages/gramstax/src/types/manifest.ts` — `IAppManifest` (+ optional `routes`) and `IRouteManifestEntry`
 - `packages/gramstax/src/core/bot.ts` — `_pageLoadsFromManifest` routes branch (surgical, opt-in only)

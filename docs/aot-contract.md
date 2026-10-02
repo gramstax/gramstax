@@ -50,7 +50,7 @@ const manager = new TemplateManager({path: [emptyDir]})
 for (const [key, template] of Object.entries(loaded.templates)) manager._registerCompiled(key, template)
 ```
 
-Registered templates render identically to JIT for all 15 `_compile` dispatch fields — proven by `template.aot-parity.test.ts` (message, keyboard, media, poll, venue, dice, callbackAnswer, precheckoutError, shippingError, inlineButton, answerNote, gift, invoice, paidMedia, description × 2 datasets each). Note: the plan says 16; `_compile` dispatches exactly 15 — there is no 16th block.
+Registered templates render identically to JIT for all 15 `ICompiledTemplate` fields — proven by `template.aot-parity.test.ts` (media, poll, venue, dice, callbackAnswer, precheckoutError, shippingError, inlineButton, answerNote, gift, invoice, paidMedia, message, keyboard, description × 2 datasets each). One field per `compileBlockG*` static on `TemplateEngine`; there is no single dispatcher method.
 
 ## v1 limits
 

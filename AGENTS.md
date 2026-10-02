@@ -170,6 +170,19 @@ Deep per-area guidance lives in child files — read the one matching your task 
 - `bun` is used for tests and some runtime paths (e.g., webhook server).
 - Keep Node compatibility unless a file explicitly uses Bun APIs.
 
+## Application Boot (v2.2.0)
+
+Applications are **config-driven**. There is no `src/index.ts` and no hand-written `new Gramstax({...})` entry.
+
+- Every project has a `gramstax.config.ts` at its root: default export, annotated `: GramstaxConfig` (a thin alias of `IGramstaxConfig`, all fields optional). This is the single composition point for token, deploy mode, caches, and runtime tuning.
+- `gramstax start [--deploy <mode>] [--watch]` loads it, discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref slot (`instanceof`-checked), then constructs it — construction *is* boot, no `.run()`. Run it as `bun --bun gramstax start`; plain node cannot resolve TS paths or the `~` alias.
+- `gramstax build` freezes `src/pages` into `.gramstax/` (`routes.json`, `manifest.js`, AOT `gen/`, `server/` per target). Only `serverless` auto-loads it; other deploys run from the filesystem.
+- `deploy` selects the mode; `optionsDeploy` holds per-mode settings in **nested branches** — at most one non-empty branch, and it must equal `deploy`. `webhook` requires `url` + `secretToken`; `serverless` is keyed by adapter (`cloudflare-mod` | `aws-lambda-async`) and requires `url` + `secretToken`. The legacy `webhook:<url>` colon grammar throws.
+- Config files hold **refs and plain data, not instances**: `cacheSession: {store, ttlMs?, namespace?}`, `log: {override: {module, export?, args?}}`. A bare `{module}` ref without the `override` wrapper is rejected. `manifest` is a constructor param, not a config field.
+- E2E is the one exception — `e2e/setup.ts` constructs `BotCore` directly to inject `deploy: "test"`, `token: "test"`, `stream`, `autoRetry`, `log: false`.
+- `GramstaxConfig` (config file) ≠ `IGramstaxParams` (constructor). Only the latter carries instances and `manifest`.
+- Full detail: `docs/gramstax-start.md`, `docs/gramstax-build.md`, `docs/serverless-deploy.md`, `docs/aot-contract.md`.
+
 ## Testing Conventions
 
 - Tests use `bun:test` (`describe`, `it`, `expect`).

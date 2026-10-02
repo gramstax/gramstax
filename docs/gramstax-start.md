@@ -42,7 +42,7 @@ themselves, as the template does for local defaults).
 
 `token` holds the bot token VALUE itself (author-written env-or-literal,
 mirroring `IGramstaxParams.token`). The scaffold writes
-`token: process.env.TELEGRAM_BOT_TOKEN ?? ``` — `start` boots from
+`token: process.env.BOT_TOKEN ?? ``` — `start` boots from
 `config.token` and a missing/empty value throws the constructor message
 verbatim:
 
@@ -51,7 +51,7 @@ Token is not valid or empty
 ```
 
 Load accepts `token` as any string including `""` (so env-less
-`gramstax build` keeps working when `TELEGRAM_BOT_TOKEN` is unset);
+`gramstax build` keeps working when `BOT_TOKEN` is unset);
 only `start` enforces non-empty. Same pass-through rule for
 `optionsDeploy.webhook.secretToken` and `optionsDeploy.serverless.secretToken`
 (env expression, never a literal; serverless duality — config value sets the
@@ -71,7 +71,7 @@ to the project root (cwd). A bare module ref without the `override` wrapper is r
 import type {GramstaxConfig} from "gramstax"
 
 const config: GramstaxConfig = {
-  token: process.env.TELEGRAM_BOT_TOKEN ?? ``,
+  token: process.env.BOT_TOKEN ?? ``,
   cacheSession: `./src/cache.ts`,
   templateManager: {override: {module: `./src/templates.ts`, export: `SharedManager`, args: []}},
   log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}}

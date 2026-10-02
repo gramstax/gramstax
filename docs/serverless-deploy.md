@@ -89,7 +89,7 @@ wrangler secret put BOT_WEBHOOK_SECRET   # same value as the config env, never i
 
 ## 3c. What actually reaches the deployed entry
 
-`gramstax start` materializes 19 config fields into `GramstaxParams`. A deployed
+`gramstax start` materializes 20 config fields into `GramstaxParams`. A deployed
 entry receives fewer, because it boots fs-less from the frozen manifest. Anything
 dropped is reported per-slot at build time, with the reason — including under
 `--dry-run`, which is the cheapest place to catch it.
