@@ -6,7 +6,7 @@
  *
  * Shape decision (024 contract): each key emits `<safeKey>.g.js` with a
  * single `export const template` matching `ITCompiledTemplate` (absent
- * blocks omitted), so consumers can `_registerCompiled(key, template)`
+ * blocks omitted), so consumers can `registerCompiled(key, template)`
  * directly. `gen/manifest.js` re-exports per-key modules as
  * `{templates: Record<key, ITCompiledTemplate>}`; `pages` stays in userland
  * source (023 `manifest.js`) in AOT v1.

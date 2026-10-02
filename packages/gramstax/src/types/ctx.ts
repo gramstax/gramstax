@@ -794,7 +794,7 @@ export type ITemp = {
 export type IOptFallbackEdit = `delete-reply` | `reply` | `disable`
 
 /**
- * Send-error event delivered to {@link ICtxParams.onSendError}.
+ * Send-error event delivered to `ICtxParams.onSendError`.
  *
  * @remarks
  * `page` is the template page name (`this.data.name`), `kind` is the

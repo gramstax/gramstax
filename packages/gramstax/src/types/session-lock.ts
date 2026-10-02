@@ -26,7 +26,7 @@ export type IRedisLockClient = {
    *
    * @remarks
    * Deletes the lease key only when the stored token matches, so a slow
-   * holder can never release a successor`s lease after its own expiry.
+   * holder can never release a successors lease after its own expiry.
    */
   eval(script: string, options: {keys: string[]; arguments: string[]}): Promise<unknown>
 }
@@ -49,7 +49,7 @@ export type ISessionLockOnContended = `skip` | `wait` | `serialize`
  * @remarks
  * Redis-only: the lock uses atomic `SET NX PX` leases on the session key so
  * concurrent updates for the same user/chat are serialized or skipped across
- * instances. When the bot`s cache is NOT Redis-backed, the feature is
+ * instances. When the bots cache is NOT Redis-backed, the feature is
  * auto-disabled with a warning (single-instance deployments do not need it).
  *
  * @public

@@ -86,7 +86,7 @@ class BenchBot extends Gramstax {
 function setupBot(): {bot: BenchBot; dir: string} {
   const dir = mkdtempSync(join(tmpdir(), `gramstax-hotpath-`))
   const templateManager = new TemplateManager({path: [dir]})
-  templateManager._compile(PAGE, HOT_TEMPLATE)
+  templateManager.compile(PAGE, HOT_TEMPLATE)
   const bot = new BenchBot({token: TOKEN, deploy: `test`, log: false, templateManager})
   bot._pageSorts(BenchPage, bot.pages, 0)
   return {bot, dir}

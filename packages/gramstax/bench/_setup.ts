@@ -13,10 +13,12 @@
 import {mkdtempSync, rmSync} from "node:fs"
 import {arch, cpus, platform, tmpdir, totalmem} from "node:os"
 import {join} from "node:path"
-import {Ctx, Gramstax, MockTelegramServer, TemplateManager} from "../src"
-import type {ITMockTelegramRequestRecord, ITWebhookQueueConfig} from "../src"
+import type {IMockTelegramRequestRecord, IWebhookQueueConfig} from "../src"
+import {Ctx, Gramstax, TemplateManager} from "../src"
 
-export const CONCURRENCY: ReadonlyArray<number> = process.env.BENCH_CONC?.split(`,`).map(Number).filter((n) => n > 0) ?? [10, 50, 200]
+export const CONCURRENCY: ReadonlyArray<number> = process.env.BENCH_CONC?.split(`,`)
+  .map(Number)
+  .filter((n) => n > 0) ?? [10, 50, 200]
 export const MESSAGES_PER_USER = Number(process.env.BENCH_MSG ?? `5`)
 export const BENCH_REPS = Math.max(1, Number(process.env.BENCH_REPS ?? `3`))
 export const BENCH_WARMUP = Math.max(0, Number(process.env.BENCH_WARMUP ?? `1`))
@@ -89,11 +91,11 @@ export function registerBenchPage(bot: BenchBot): void {
   if (templateManager === undefined) {
     throw new Error(`BenchBot has no templateManager`)
   }
-  templateManager._compile(BENCH_PAGE, BENCH_TEMPLATE)
+  templateManager.compile(BENCH_PAGE, BENCH_TEMPLATE)
   bot._pageSorts(BenchPage, bot.pages, 0)
 }
 
-export function botParams(token: string, deploy: `polling` | `webhook` | `serverless` | `raw` | `test`, apiRoot: string, templateManager: TemplateManager, webhookQueue?: ITWebhookQueueConfig, optionsDeploy?: {adapter?: string; name?: string; url?: string}) {
+export function botParams(token: string, deploy: `polling` | `webhook` | `serverless` | `raw` | `test`, apiRoot: string, templateManager: TemplateManager, webhookQueue?: IWebhookQueueConfig, optionsDeploy?: {adapter?: string; name?: string; url?: string}) {
   return {
     token,
     deploy,
@@ -245,11 +247,11 @@ export async function waitForAsync(condition: () => Promise<boolean>, timeoutMs:
   return true
 }
 
-export function sendMessageRecords(requests: Array<ITMockTelegramRequestRecord>): Array<ITMockTelegramRequestRecord> {
+export function sendMessageRecords(requests: Array<IMockTelegramRequestRecord>): Array<IMockTelegramRequestRecord> {
   return requests.filter((request) => request.method === `sendMessage`)
 }
 
-export function extractToken(record: ITMockTelegramRequestRecord): string | null {
+export function extractToken(record: IMockTelegramRequestRecord): string | null {
   const text = (record.body as {text?: unknown} | undefined)?.text
   if (typeof text !== `string`) {
     return null
@@ -304,7 +306,9 @@ export function printTable(results: Array<LevelAggregate>): void {
   console.log(`| mode | conc | total | reps | throughput mean (upd/s) | throughput min-max | p50 mean (ms) | p50 min-max | p99 mean (ms) | p99 min-max | errors (mean) | note |`)
   console.log(`|------|------|-------|------|-------------------------|--------------------|---------------|-------------|---------------|-------------|---------------|------|`)
   for (const row of results) {
-    console.log(`| ${row.mode} | ${row.conc} | ${row.total} | ${row.reps} | ${formatCell(row.throughputMean)} | ${formatRange(row.throughputMin, row.throughputMax)} | ${formatCell(row.p50Mean)} | ${formatRange(row.p50Min, row.p50Max)} | ${formatCell(row.p99Mean)} | ${formatRange(row.p99Min, row.p99Max)} | ${row.errorsMean.toFixed(1)} | ${row.note ?? ``} |`)
+    console.log(
+      `| ${row.mode} | ${row.conc} | ${row.total} | ${row.reps} | ${formatCell(row.throughputMean)} | ${formatRange(row.throughputMin, row.throughputMax)} | ${formatCell(row.p50Mean)} | ${formatRange(row.p50Min, row.p50Max)} | ${formatCell(row.p99Mean)} | ${formatRange(row.p99Min, row.p99Max)} | ${row.errorsMean.toFixed(1)} | ${row.note ?? ``} |`
+    )
   }
   console.log(``)
 }

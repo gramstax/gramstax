@@ -27,12 +27,12 @@ bun add gramstax grammy
 
 ## Configuration
 
-A bot is configured entirely through the `ITGramstaxParams` object passed to `new Gramstax(...)`. There are no `.env` files required by the library itself — only `token` and `deploy` are mandatory.
+A bot is configured entirely through the `IGramstaxParams` object passed to `new Gramstax(...)`. There are no `.env` files required by the library itself — only `token` and `deploy` are mandatory.
 
 | Field                           | Required | Description                                                                      | Default         |
 | ------------------------------- | -------- | -------------------------------------------------------------------------------- | --------------- |
 | `token`                         | Yes      | Telegram Bot API token from BotFather.                                           | —               |
-| `deploy`                        | Yes      | One of `polling`, `webhook:<public-url>`, `serverless:<adapter>`, `test`.        | —               |
+| `deploy`                        | Yes      | One of `polling`, `webhook`, `serverless`, `test`. Per-mode settings go in `optionsDeploy`.        | —               |
 | `log`                           | No       | `LoggingHelper` instance, `true` (default logger), or `null`/`false` to disable. | `false`         |
 | `botConfig`                     | No       | grammY `BotConfig` (e.g. `apiRoot`).                                             | —               |
 | `webhookQueue`                  | No       | `ITWebhookQueueConfig` for webhook backpressure.                                 | —               |

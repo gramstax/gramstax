@@ -42,7 +42,7 @@ export type IPageManifestEntry = {
  * @remarks
  * Collected by `collectHtmlTemplates` — only `.html` files are embedded;
  * class-inline `static template` strings ride the page classes instead.
- * Consumed by `_pageLoadsFromManifest` via `templateManager._compile(key, template)`.
+ * Consumed by `_pageLoadsFromManifest` via `templateManager.compile(key, template)`.
  *
  * @public
  */

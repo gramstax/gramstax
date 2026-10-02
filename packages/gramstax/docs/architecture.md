@@ -40,7 +40,7 @@ Telegram ── update ──▶ Gramstax (core/bot.ts)
 | **Depends On** | `Ctx`, `TemplateManager`, `CacheExternal`, `WebhookQueue`, `PageManager`, `E2eHelper` (when `deploy:"test"`). |
 | **Depended On By** | Application entry points and `create-gramstax` scaffolds. |
 
-The constructor (`bot.ts:275`) reads `ITGramstaxParams`, selects a deploy mode (`bot.ts:323-342`): `polling` → `_runPolling`, `webhook:<url>` → `_runWebhook`, `serverless:<adapter>` → `_runServerless`, `test` → E2E mode. Hooks (`hookBeforeStart`, `hookBeforeRoute`, `hookAfterStart`, `onCatch`, `hookErrorPage`, `hookNotFoundPage`) are invoked at the documented lifecycle points (`bot.ts:499` notes `hookBeforeRoute` only fires when set to return `true` or unset).
+The constructor (`bot.ts:275`) reads `IGramstaxParams`, selects a deploy mode (`bot.ts:323-342`): `polling` → `_runPolling`, `webhook` → `_runWebhook`, `serverless` → `_runServerless` (adapter-keyed `optionsDeploy.serverless`), `test` → E2E mode. Hooks (`hookBeforeStart`, `hookBeforeRoute`, `hookAfterStart`, `onCatch`, `hookErrorPage`, `hookNotFoundPage`) are invoked at the documented lifecycle points (`bot.ts:499` notes `hookBeforeRoute` only fires when set to return `true` or unset).
 
 ### Ctx (page/context base)
 
@@ -134,7 +134,7 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 | Interface | Location | Purpose |
 |-----------|----------|---------|
-| `ITGramstaxParams` | `src/types/t.bot.ts:111` | Constructor options (`token`, `deploy`, `log`, `botConfig`, `webhookQueue`, `cacheSession`, `cacheKeyboard`, `templateManager`, `optionsPage`). |
+| `IGramstaxParams` | `src/types/t.bot.ts:111` | Constructor options (`token`, `deploy`, `log`, `botConfig`, `webhookQueue`, `cacheSession`, `cacheKeyboard`, `templateManager`, `optionsPage`). |
 | `ITWebhookQueueConfig` | `src/types/t.bot.ts:26` | `enabled`, `maxQueueSize`, `workerCount`, `perChatConcurrency`, `blockWhenFull`. |
 | `ITTemplateOptions` | `src/types/t.template.ts:41` | `path[]`, `enableWatch?`, `watchOptions?`. |
 | `ITCompiledTemplate` | `src/types/t.template.ts:12` | Cached compiled `media`/`message`/`keyboard`/`description`. |

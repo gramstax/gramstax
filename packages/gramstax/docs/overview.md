@@ -22,7 +22,7 @@
 | **Hot reload**             | `TemplateManager` watches template files with `chokidar` and recompiles on change.                                                                                                           |
 | **Webhook backpressure**   | `WebhookQueue` bounds and serializes incoming updates for webhook/serverless deploys.                                                                                                        |
 | **In-process E2E tests**   | `deploy: "test"` activates `E2eHelper` + `MockTelegramServer` so bots can be tested with zero HTTP.                                                                                          |
-| **Multiple deploy modes**  | `polling`, `webhook:<url>`, `serverless:<adapter>`, and `test`.                                                                                                                              |
+| **Multiple deploy modes**  | `polling`, `webhook`, `serverless`, and `test`.                                                                                                                              |
 
 ## Project Status
 

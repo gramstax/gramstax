@@ -36,28 +36,12 @@ import {TemplateEngine} from "./engine"
  */
 export class TemplateManager {
   /**
-   * Map of compiled templates keyed by filename (without extension).
-   *
-   * @remarks
-   * Values are {@link ICompiledTemplate} compiled results.
-   */
-  _map = new Map<string, ICompiledTemplate>()
-
-  /**
    * Reference to the TemplateEngine class for compilation.
    *
    * @remarks
    * Uses {@link TemplateEngine} static compile helpers.
    */
-  _engine = TemplateEngine
-
-  /**
-   * Active file system watchers for hot-reload.
-   *
-   * @remarks
-   * Uses Chokidar `FSWatcher` instances for hot reload.
-   */
-  _watcher: FSWatcher[] = []
+  engine = TemplateEngine
 
   /**
    * Reference to PageManager for loading page modules.
@@ -65,7 +49,32 @@ export class TemplateManager {
    * @remarks
    * Uses {@link PageManager} to load page templates from .ts/.js.
    */
-  _pageManager = PageManager
+  pageManager = PageManager
+
+  /**
+   * Base paths for scanning template files.
+   *
+   * @remarks
+   * Derived from `ITemplateOptions.path`.
+   * @readonly
+   */
+  readonly path: ITemplateOptions[`path`]
+
+  /**
+   * Map of compiled templates keyed by filename (without extension).
+   *
+   * @remarks
+   * Values are {@link ICompiledTemplate} compiled results.
+   */
+  private _map = new Map<string, ICompiledTemplate>()
+
+  /**
+   * Active file system watchers for hot-reload.
+   *
+   * @remarks
+   * Uses Chokidar `FSWatcher` instances for hot reload.
+   */
+  private _watcher: FSWatcher[] = []
 
   /**
    * Set of supported template file extensions.
@@ -73,30 +82,30 @@ export class TemplateManager {
    * @remarks
    * Defaults to `.html`, `.ts`, and `.js`.
    */
-  _supportedExtensions = new Set([`.html`, `.ts`, `.js`])
+  private _supportedExtensions = new Set([`.html`, `.ts`, `.js`])
 
   /**
    * Shared import-resolution cache reused across single-file reloads.
    *
    * @remarks
-   * `_loadAllFiles` uses a batch-local cache; `_loadFile` reuses this
+   * `_loadAllFiles` uses a batch-local cache; `loadFile` reuses this
    * persistent cache so repeated watcher reloads share resolutions.
    */
-  _importCache = new Map<string, string>()
+  private _importCache = new Map<string, string>()
 
   /**
    * Per-file debounce timers for watcher reloads.
    *
    * @internal
    */
-  _reloadTimers = new Map<string, ReturnType<typeof setTimeout>>()
+  private _reloadTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
   /**
    * Serial chain for watcher reloads.
    *
    * @internal
    */
-  _reloadChain: Promise<void> = Promise.resolve()
+  private _reloadChain: Promise<void> = Promise.resolve()
 
   /**
    * Internal miss sentinel for template getters.
@@ -104,35 +113,26 @@ export class TemplateManager {
    * @remarks
    * Contract: missing template/base/lang falls back `base → default` then
    * `lang → default`. On total miss the getter throws `DEFER` internally and
-   * returns `` (message/description) or `[]` (keyboard) — empty-string and
-   * empty-array results from compiled templates are preserved, never treated
+   * returns string(message/description) or keyboard[] — string() and []
+   * results from compiled templates are preserved, never treated
    * as a miss.
    */
-  static readonly _DEFER = Symbol(`DEFER`)
-
-  /**
-   * Base paths for scanning template files.
-   *
-   * @remarks
-   * Derived from `ITTemplateOptions.path`.
-   * @readonly
-   */
-  readonly _path: ITemplateOptions[`path`]
+  private static readonly _DEFER = Symbol(`DEFER`)
 
   /**
    * Flag indicating if file watching is enabled.
    *
    * @remarks
-   * Derived from `ITTemplateOptions.enableWatch`.
+   * Derived from `ITemplateOptions.enableWatch`.
    * @readonly
    */
-  readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
+  private readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
 
   /**
    * Hook invoked after a template file is (re)compiled.
    * @internal
    */
-  readonly _onReload?: () => void
+  private readonly _onReload?: () => void
 
   /**
    * Creates a new TemplateManager instance.
@@ -161,7 +161,7 @@ export class TemplateManager {
   constructor(options: ITemplateOptions) {
     const {path, enableWatch = false, onReload} = options
 
-    this._path = path
+    this.path = path
     this._onReload = onReload
     this._isWatchEnabled = enableWatch
 
@@ -174,12 +174,12 @@ export class TemplateManager {
    * Validates and ensures all template directories exist.
    *
    * @remarks
-   * This method checks that `_path` is a valid array of strings and that
+   * This method checks that `path` is a valid array of strings and that
    * each path exists and is a directory. Called during construction.
    *
    * @returns `true` if all paths are valid directories
    *
-   * @throws Error if `_path` is not a string array
+   * @throws Error if `path` is not a string array
    * @throws Error if any path does not exist
    * @throws Error if any path is not a directory
    *
@@ -191,14 +191,14 @@ export class TemplateManager {
    *
    * @public
    */
-  _validatePath(): boolean {
+  private _validatePath(): boolean {
     try {
-      if (!this._path || !Array.isArray(this._path)) {
+      if (!this.path || !Array.isArray(this.path)) {
         throw new Error(`Path must be set as string array`)
       }
 
-      for (let index = 0; index < this._path.length; index++) {
-        const it = this._path[index] as string
+      for (let index = 0; index < this.path.length; index++) {
+        const it = this.path[index] as string
         const exists = existsSync(it)
         if (!exists) {
           throw new Error(`Template base path is not exists: ${it}`)
@@ -221,7 +221,7 @@ export class TemplateManager {
    * @param options - Optional Chokidar watch options to customize watcher behavior
    *
    * @remarks
-   * This method sets up file system watchers on each path in `_path` when
+   * This method sets up file system watchers on each path in `path` when
    * `enableWatch` is true. It listens for `change`, `add`, `unlink`, and `error` events.
    * The watchers are configured with `awaitWriteFinish` to avoid partial file reads.
    *
@@ -237,15 +237,15 @@ export class TemplateManager {
    *
    * @public
    */
-  _initializeWatcher(options?: Parameters<typeof watch>[1]): void {
+  private _initializeWatcher(options?: Parameters<typeof watch>[1]): void {
     if (!this._isWatchEnabled) return
 
     if (this._watcher.length > 0) {
       throw new Error(`Watcher already enabled`)
     }
 
-    for (let index = 0; index < this._path.length; index++) {
-      const pt = this._path[index] as string
+    for (let index = 0; index < this.path.length; index++) {
+      const pt = this.path[index] as string
       const wc = watch(pt, {
         persistent: true,
         ignoreInitial: true,
@@ -257,10 +257,10 @@ export class TemplateManager {
       })
 
       this._watcher[index] = wc
-      wc.on(`change`, this._handleFileChange.bind(this))
-      wc.on(`add`, this._handleFileAdd.bind(this))
-      wc.on(`unlink`, this._handleFileDelete.bind(this))
-      wc.on(`error`, this._handleWatchError.bind(this))
+      wc.on(`change`, this.handleFileChange.bind(this))
+      wc.on(`add`, this.handleFileAdd.bind(this))
+      wc.on(`unlink`, this.handleFileDelete.bind(this))
+      wc.on(`error`, this.handleWatchError.bind(this))
     }
   }
 
@@ -275,12 +275,12 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * this._handleFileChange("/src/pages/welcome.html")
+   * this.handleFileChange("/src/pages/welcome.html")
    * ```
    *
    * @public
    */
-  _handleFileChange(filepath: string): void {
+  handleFileChange(filepath: string): void {
     const relativePath = this._toRelative(filepath)
     if (this._isValidFile(basename(relativePath))) {
       this._queueReload(relativePath)
@@ -298,12 +298,12 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * this._handleFileAdd("/src/pages/new-page.html")
+   * this.handleFileAdd("/src/pages/new-page.html")
    * ```
    *
    * @public
    */
-  _handleFileAdd(filepath: string): void {
+  handleFileAdd(filepath: string): void {
     const relativePath = this._toRelative(filepath)
     if (this._isValidFile(basename(relativePath))) {
       this._queueReload(relativePath)
@@ -320,15 +320,15 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * this._handleFileDelete("/src/pages/old-page.html")
+   * this.handleFileDelete("/src/pages/old-page.html")
    * ```
    *
    * @public
    */
-  _handleFileDelete(filepath: string): void {
+  handleFileDelete(filepath: string): void {
     const relativePath = this._toRelative(filepath)
     const fileKey = this._getKey(relativePath)
-    if (this._map.has(fileKey)) {
+    if (this.getCompiled(fileKey)) {
       this._map.delete(fileKey)
     }
   }
@@ -338,10 +338,10 @@ export class TemplateManager {
    *
    * @internal
    */
-  _toRelative(filepath: string): string {
+  private _toRelative(filepath: string): string {
     const abs = resolve(filepath)
-    for (let index = 0; index < this._path.length; index++) {
-      const root = resolve(this._path[index] as string)
+    for (let index = 0; index < this.path.length; index++) {
+      const root = resolve(this.path[index] as string)
       if (abs === root || abs.startsWith(`${root}/`) || abs.startsWith(`${root}\\`)) {
         return relative(root, abs).replace(/\\/g, `/`)
       }
@@ -354,7 +354,7 @@ export class TemplateManager {
    *
    * @internal
    */
-  _queueReload(relativePath: string): void {
+  private _queueReload(relativePath: string): void {
     const prev = this._reloadTimers.get(relativePath)
     if (prev !== undefined) {
       clearTimeout(prev)
@@ -363,9 +363,9 @@ export class TemplateManager {
       this._reloadTimers.delete(relativePath)
       this._reloadChain = this._reloadChain.then(async () => {
         try {
-          this._loadFile(relativePath)
+          this.loadFile(relativePath)
         } catch (error) {
-          this._handleWatchError(error)
+          this.handleWatchError(error)
         }
       })
     }, 30)
@@ -382,13 +382,13 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * this._handleWatchError(new Error("ENOENT"))
+   * this.handleWatchError(new Error("ENOENT"))
    * ```
    *
    * @public
    * @virtual
    */
-  _handleWatchError(error: unknown): void {
+  handleWatchError(error: unknown): void {
     if (error) {
       // you can overrides
     }
@@ -410,14 +410,14 @@ export class TemplateManager {
    *
    * @public
    */
-  _loadAllFiles(): void {
+  private _loadAllFiles(): void {
     const rawTemplates = new Map<string, string>()
     const rawFilenames = new Map<string, string>()
     const pagesToCleanup: Array<{template?: string}> = []
 
     // 1. Collect all raw templates (from all paths)
-    for (let index = 0; index < this._path.length; index++) {
-      const pt = this._path[index] as string
+    for (let index = 0; index < this.path.length; index++) {
+      const pt = this.path[index] as string
 
       const walkDir = (dir: string, parentKey: string) => {
         const entries = readdirSync(dir, {withFileTypes: true})
@@ -454,7 +454,7 @@ export class TemplateManager {
 
     // 3. Compile all collected templates
     for (const [key, template] of rawTemplates.entries()) {
-      this._compile(key, template, undefined, importCache, rawTemplates, rawFilenames.get(key))
+      this.compile(key, template, undefined, importCache, rawTemplates, rawFilenames.get(key))
     }
 
     // 4. Memory Cleanup: clear raw templates and set Page.template to undefined
@@ -476,16 +476,16 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * this._loadFile("welcome.html")
+   * this.loadFile("welcome.html")
    * ```
    *
    * @throws Error if the file extension is not supported
    *
    * @public
    */
-  _loadFile(filename: string): void {
-    for (let index = 0; index < this._path.length; index++) {
-      const it = this._path[index] as string
+  loadFile(filename: string): void {
+    for (let index = 0; index < this.path.length; index++) {
+      const it = this.path[index] as string
       const path = join(it, filename)
       if (!existsSync(path)) {
         continue
@@ -495,11 +495,11 @@ export class TemplateManager {
 
       if (ext === `.html`) {
         const raw = readFileSync(path, `utf8`)
-        this._compile(key, raw, undefined, this._importCache, undefined, filename)
+        this.compile(key, raw, undefined, this._importCache, undefined, filename)
       } else if (ext === `.ts` || ext === `.js`) {
         const Page = PageManager.getFileSync(path)
         if (Page?.template !== undefined) {
-          this._compile(key, Page.template, undefined, this._importCache, undefined, filename)
+          this.compile(key, Page.template, undefined, this._importCache, undefined, filename)
           Page.template = undefined // Cleanup single file as well
         }
       } else {
@@ -524,7 +524,7 @@ export class TemplateManager {
    *
    * @public
    */
-  _getExtension(filename: string): string {
+  private _getExtension(filename: string): string {
     return extname(filename).toLowerCase()
   }
 
@@ -540,14 +540,14 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * this._readTemplateFile("welcome")
+   * this.readTemplateFile("welcome")
    * // => "<g-base>...</g-base>"
    * ```
    *
    * @public
    */
-  _readTemplateFile(filename: string): string | null {
-    for (const importPath of this._path) {
+  readTemplateFile(filename: string): string | null {
+    for (const importPath of this.path) {
       const rootPath = resolve(importPath)
       // 1. Check if filename has extension
       const ext = extname(filename).toLowerCase()
@@ -611,7 +611,7 @@ export class TemplateManager {
    *
    * @public
    */
-  _isValidFile(filename: string): boolean {
+  private _isValidFile(filename: string): boolean {
     return this._supportedExtensions.has(this._getExtension(filename))
   }
 
@@ -636,7 +636,7 @@ export class TemplateManager {
    *
    * @public
    */
-  _getGBaseAtLine(template: string, line: number): {AGBaseId: string | null; hasId: boolean} | null {
+  getGBaseAtLine(template: string, line: number): {AGBaseId: string | null; hasId: boolean} | null {
     const openRegex = /<g-base\b([^>]*?)>/gi
     const closeRegex = /<\/g-base>/gi
     const lines = line
@@ -683,21 +683,21 @@ export class TemplateManager {
    * @example
    * ```typescript
    * // base with id:
-   * this._validateTemplate("start", '<g-base id="kb"><kop/></g-base>', "start.html")
+   * this.validateTemplate("start", '<g-base id="kb"><kop/></g-base>', "start.html")
    * // => throws: Template on base "kb" (start.html, line 1): Unsupported template block: <kop>
    *
    * // base without id:
-   * this._validateTemplate("start", '<g-base><kop/></g-base>', "start.html")
+   * this.validateTemplate("start", '<g-base><kop/></g-base>', "start.html")
    * // => throws: Template (start.html, line 1): Unsupported template block: <kop>
    * ```
    *
    * @public
    */
-  _validateTemplate(AGBaseId: string, template: string, filename: string = AGBaseId): void {
+  validateTemplate(AGBaseId: string, template: string, filename: string = AGBaseId): void {
     const result = TemplateEngine.validateTemplate(template)
     if (!result.valid && result.errors.length > 0) {
       const err = result.errors[0]!
-      const baseInfo = this._getGBaseAtLine(template, err.line)
+      const baseInfo = this.getGBaseAtLine(template, err.line)
       const basePrefix = baseInfo?.hasId ? ` on base "${baseInfo.AGBaseId}"` : ``
       const fileRef = `${filename}, line ${err.line}`
       const details = result.errors.map((e) => `line ${e.line}: ${e.message}`).join(`; `)
@@ -719,7 +719,7 @@ export class TemplateManager {
    *
    * @public
    */
-  _getKey(filename: string): string {
+  private _getKey(filename: string): string {
     return filename.replace(/\.[^/.]+$/, ``)
   }
 
@@ -740,21 +740,21 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * this._compile("welcome", rawHtmlContent)
+   * this.compile("welcome", rawHtmlContent)
    *
    * const importCache = new Map<string, string>()
    * const rawCache = new Map([["partial", partialHtml]])
-   * this._compile("main", mainHtml, undefined, importCache, rawCache)
+   * this.compile("main", mainHtml, undefined, importCache, rawCache)
    * ```
    *
    * @public
    */
-  _compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ICompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename: string = key) {
-    const existing = this._map.get(key)
+  compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ICompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename: string = key) {
+    const existing = this.getCompiled(key)
     const compiled = existing || ({} as ICompiledTemplate)
     let updated = false
 
-    this._validateTemplate(key, template, filename)
+    this.validateTemplate(key, template, filename)
 
     // Process Imports
     const processedTemplate = TemplateEngine.processGImportBlocks(
@@ -765,13 +765,13 @@ export class TemplateManager {
           return rawCache.get(src)!
         }
         // 2. Fallback to disk
-        return this._readTemplateFile(src)
+        return this.readTemplateFile(src)
       },
       0,
       importCache
     )
 
-    this._validateTemplate(key, processedTemplate, filename)
+    this.validateTemplate(key, processedTemplate, filename)
 
     // Memoize base blocks to avoid redundant regex parsing
     const baseBlocks = TemplateEngine._processGBaseBlocks(processedTemplate)
@@ -855,8 +855,50 @@ export class TemplateManager {
    *
    * @public
    */
-  _registerCompiled(key: string, compiled: ICompiledTemplate): void {
+  registerCompiled(key: string, compiled: ICompiledTemplate): void {
     this._map.set(key, compiled)
+  }
+
+  /**
+   * Get a pre-compiled template directly from mapping.
+   *
+   * @param key - Template identifier (filename without extension)
+   * @returns `ICompiledTemplate` or `undefined`
+   *
+   * @public
+   */
+  getCompiled(key: string) {
+    return this._map.get(key)
+  }
+
+  /**
+   * Checks if a template exists in the cache.
+   *
+   * @param key - Template identifier (filename without extension)
+   * @returns `true` if template exists in cache
+   *
+   * @example
+   * ```typescript
+   * if (tm.hasCompiled("welcome")) {
+   *   const msg = tm.getMessage("welcome", "default", "en")
+   * }
+   * ```
+   *
+   * @public
+   */
+  hasCompiled(key: string): boolean {
+    return this._map.has(key)
+  }
+
+  /**
+   * Get a keys string for all pre-compiled template from mapping.
+   *
+   * @returns `string[]` all keys compiled
+   *
+   * @public
+   */
+  keysCompiled() {
+    return this._map.keys()
   }
 
   /**
@@ -881,7 +923,7 @@ export class TemplateManager {
    * @public
    */
   getGMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]> {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.media?.[AGBaseId] ?? map?.media?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -914,7 +956,7 @@ export class TemplateManager {
    * @public
    */
   getGPoll(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`poll`][`default`][`default`]> {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.poll?.[AGBaseId] ?? map?.poll?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -947,7 +989,7 @@ export class TemplateManager {
    * @public
    */
   getGVenue(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`venue`][`default`][`default`]> {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.venue?.[AGBaseId] ?? map?.venue?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -980,7 +1022,7 @@ export class TemplateManager {
    * @public
    */
   getGDice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`dice`][`default`][`default`]> {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.dice?.[AGBaseId] ?? map?.dice?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -1001,7 +1043,7 @@ export class TemplateManager {
    * @public
    */
   getGCallbackAnswer(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.callbackAnswer?.[AGBaseId] ?? map?.callbackAnswer?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -1022,7 +1064,7 @@ export class TemplateManager {
    * @public
    */
   getGPrecheckoutError(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.precheckoutError?.[AGBaseId] ?? map?.precheckoutError?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -1043,7 +1085,7 @@ export class TemplateManager {
    * @public
    */
   getGShippingError(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.shippingError?.[AGBaseId] ?? map?.shippingError?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -1065,7 +1107,7 @@ export class TemplateManager {
    * @public
    */
   getGInlineButton(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`inlineButton`][`default`][`default`]> {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.inlineButton?.[AGBaseId] ?? map?.inlineButton?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -1087,7 +1129,7 @@ export class TemplateManager {
    * @public
    */
   getGAnswerNote(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.answerNote?.[AGBaseId] ?? map?.answerNote?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -1108,7 +1150,7 @@ export class TemplateManager {
    * @public
    */
   getGGift(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.gift?.[AGBaseId] ?? map?.gift?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -1141,7 +1183,7 @@ export class TemplateManager {
    * @public
    */
   getGInvoice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`invoice`][`default`][`default`]> {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.invoice?.[AGBaseId] ?? map?.invoice?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -1175,7 +1217,7 @@ export class TemplateManager {
    * @public
    */
   getGPaidMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`paidMedia`][`default`][`default`]> {
-    const map = this._map.get(key)
+    const map = this.getCompiled(key)
     const one = map?.paidMedia?.[AGBaseId] ?? map?.paidMedia?.default
     const func = one?.[ALang] ?? one?.default
 
@@ -1209,7 +1251,7 @@ export class TemplateManager {
    */
   getGMessage(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
     try {
-      const map = this._map.get(key)
+      const map = this.getCompiled(key)
       const one = map?.message?.[AGBaseId] ?? map?.message?.default
       const func = one?.[ALang] ?? one?.default
       if (!func) {
@@ -1246,7 +1288,7 @@ export class TemplateManager {
    */
   getGDescription(key: string, AGBaseId = `default`, ALang = `default`, AScope = `default`, data?: Record<string, unknown>): string {
     try {
-      const map = this._map.get(key)
+      const map = this.getCompiled(key)
       const one = map?.description?.[AGBaseId]?.[AScope] ?? map?.description?.default?.[AScope]
       const func = one?.[ALang] ?? one?.default
       if (!func) {
@@ -1280,7 +1322,7 @@ export class TemplateManager {
    */
   getAGDescriptionLang(key: string, AGBaseId = `default`, AScope = `default`): string[] {
     try {
-      const map = this._map.get(key)
+      const map = this.getCompiled(key)
       const obj = map?.description?.[AGBaseId]?.[AScope]
       if (obj) {
         return Object.keys(obj)
@@ -1312,7 +1354,7 @@ export class TemplateManager {
    */
   getAGDescriptionScopes(key: string, AGBaseId = `default`): string[] {
     try {
-      const map = this._map.get(key)
+      const map = this.getCompiled(key)
       const obj = map?.description?.[AGBaseId]
       if (obj) {
         return Object.keys(obj)
@@ -1348,7 +1390,7 @@ export class TemplateManager {
    */
   getGKeyboard(key: string, AGBaseId = `default`, ALang = `default`, AType: `inline` | `bottom` = `inline`, data?: Record<string, unknown>): string[] {
     try {
-      const map = this._map.get(key)
+      const map = this.getCompiled(key)
       const one = map?.keyboard?.[AGBaseId] ?? map?.keyboard?.default
       const func = one?.[ALang]?.[AType] ?? one?.default?.[AType]
       if (!func) {
@@ -1389,36 +1431,17 @@ export class TemplateManager {
     }
 
     const safeName = basename(filename)
-    for (let index = 0; index < this._path.length; index++) {
-      const rootPath = resolve(this._path[index] as string)
+    for (let index = 0; index < this.path.length; index++) {
+      const rootPath = resolve(this.path[index] as string)
       const filepath = resolve(rootPath, safeName)
       const exists = existsSync(filepath)
       if (exists) {
         writeFileSync(filepath, template, `utf8`)
-        this._loadFile(safeName)
+        this.loadFile(safeName)
         return true
       }
     }
     return null
-  }
-
-  /**
-   * Checks if a template exists in the cache.
-   *
-   * @param key - Template identifier (filename without extension)
-   * @returns `true` if template exists in cache
-   *
-   * @example
-   * ```typescript
-   * if (tm.has("welcome")) {
-   *   const msg = tm.getMessage("welcome", "default", "en")
-   * }
-   * ```
-   *
-   * @public
-   */
-  has(key: string): boolean {
-    return this._map.has(key)
   }
 
   async closeWatchers(): Promise<void> {

@@ -31,6 +31,7 @@ import {PageManager} from "~/page/manager"
 import {TemplateManager} from "~/template/manager"
 import type {IGramstaxCtxScope, IGramstaxParams, IUpdateErrorEvent, IUpdateSuccessEvent, IWebhookQueueConfig} from "~/types/bot"
 import type {ICacheRpc} from "~/types/cache"
+import {GRAMSTAX_SERVERLESS_ADAPTERS} from "~/types/config"
 import type {ICt, ICtMiddleware, ICtxParams, ISendErrorHook} from "~/types/ctx"
 import type {IAppManifest} from "~/types/manifest"
 import type {IRedisLockClient} from "~/types/session-lock"
@@ -38,7 +39,7 @@ import {WebhookQueue} from "~/webhook/queue"
 import {E2eHelper} from "../e2e/helper"
 import {Ctx} from "./ctx"
 
-type ITCustomRouteEntry = {
+type ICustomRouteEntry = {
   name: string
   routeName: string
   listenerName: string
@@ -163,15 +164,15 @@ const __PKG_VERSION__: string = (() => {
 })()
 
 /**
- * Keys of `ITCtxParams` (except `ct` and `temp`) missing from `ITGramstaxCtxScope`.
+ * Keys of `ICtxParams` (except `ct` and `temp`) missing from `IGramstaxCtxScope`.
  *
  * @remarks
  * Empty (`never`) when the scope covers every forwarded field. The const
  * below turns a non-empty union into a `tsc` error naming the field, so a
  * forgotten forward fails the build instead of shipping `undefined`.
  */
-type _MissingCtxScopeFields = Exclude<keyof ICtxParams, keyof IGramstaxCtxScope | `ct` | `temp`>
-const _assertCtxScopeComplete: _MissingCtxScopeFields extends never ? [] : [`ctxScope misses ITCtxParams field(s):`, _MissingCtxScopeFields] = []
+type IMissingCtxScopeFields = Exclude<keyof ICtxParams, keyof IGramstaxCtxScope | `ct` | `temp`>
+const _assertCtxScopeComplete: IMissingCtxScopeFields extends never ? [] : [`ctxScope misses ICtxParams field(s):`, IMissingCtxScopeFields] = []
 
 /**
  * Main bot framework class for building Telegram bots.
@@ -268,8 +269,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Single source of truth for `Gramstax` → `Ctx` forwarding, spread by
    * `buildCtxParams` on every `createCtx` call. To forward a new field:
-   * 1. add it to `ITGramstaxParams` (input) and `ITCtxParams` (output),
-   * 2. add it to `ITGramstaxCtxScope` (keeps the guard below honest),
+   * 1. add it to `IGramstaxParams` (input) and `ICtxParams` (output),
+   * 2. add it to `IGramstaxCtxScope` (keeps the guard below honest),
    * 3. set it here in the constructor scope literal (raw branch included),
    * 4. copy it field-by-field in the `Ctx` constructor.
    * Skipping step 2 fails `tsc` with the missing field name.
@@ -432,7 +433,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * const bot = new Gramstax({
    *   token: process.env.BOT_TOKEN!,
    *   deploy: "serverless",
-   *   optionsDeploy: {serverless: {adapter: "cloudflare-mod", url: "https://example.com/webhook"}}
+   *   optionsDeploy: {serverless: {"cloudflare-mod": {url: "https://example.com/webhook", secretToken: env.BOT_WEBHOOK_SECRET}}}
    * })
    *
    * // handler.ts — server entry point
@@ -460,7 +461,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * const bot = new Gramstax({
    *   token: process.env.BOT_TOKEN!,
    *   deploy: "serverless",
-   *   optionsDeploy: {serverless: {adapter: "aws-lambda-async", url: "https://example.com/webhook"}}
+   *   optionsDeploy: {serverless: {"aws-lambda-async": {url: "https://example.com/webhook", secretToken: process.env.BOT_WEBHOOK_SECRET}}}
    * })
    *
    * // lambda.ts
@@ -479,7 +480,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * // Serverless mode — Cloudflare Workers
    * //
    * // bot.ts
-   * const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless", optionsDeploy: {serverless: {adapter: "cloudflare-mod", url: "https://example.com/webhook"}}})
+   * const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless", optionsDeploy: {serverless: {"cloudflare-mod": {url: "https://example.com/webhook", secretToken: env.BOT_WEBHOOK_SECRET}}}})
    *
    * // worker.ts
    * import {bot} from "./bot"
@@ -526,9 +527,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this._skipDuplicateUpdate = params.skipDuplicateUpdate === true
     this._webhookSecretToken = params.optionsDeploy?.webhook?.secretToken
     if (params.sessionLock?.enabled !== false && params.sessionLock) {
-      const store = (this.cacheSession as unknown as {store: unknown}).store
+      const store = this.cacheSession.store
       if (store instanceof KeyvRedis) {
-        this._sessionLock = new SessionLock(store.client as unknown as IRedisLockClient, {
+        this._sessionLock = new SessionLock(store.client as IRedisLockClient, {
           leaseMs: params.sessionLock.leaseMs ?? 5000,
           onContended: params.sessionLock.onContended ?? `skip`
         })
@@ -554,7 +555,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const getRateCtx = (raw: Context): ICtx => {
         let cached = rateCtxCache.get(raw)
         if (!cached) {
-          cached = this.createCtx(raw as unknown as ICt)
+          cached = this.createCtx(raw)
           rateCtxCache.set(raw, cached)
         }
         return cached
@@ -710,7 +711,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (manifest !== undefined) {
       this.log?.info?.(`Load pages from .gramstax build output (auto-detected ${params.deploy} deploy).`)
     }
-    this.pages = manifest !== undefined ? this._pageLoadsFromManifest(manifest) : this._pageLoads(this.templateManager._path?.[0])
+    this.pages = manifest !== undefined ? this._pageLoadsFromManifest(manifest) : this._pageLoads(this.templateManager.path?.[0])
 
     // Pre-compute chat member filter functions
     if (this.pages.routeChatMember?.length > 0) {
@@ -733,7 +734,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
       case `serverless`: {
         this.deployType = `serverless`
-        void this._runServerless(params.optionsDeploy?.serverless?.adapter as string, params.optionsDeploy?.serverless?.url, params.optionsDeploy?.serverless?.secretToken).catch((error) => this._onStartupError(error))
+        const serverlessRecord = params.optionsDeploy?.serverless as Record<string, {url?: string; secretToken?: string} | undefined> | undefined
+        const serverlessAdapter = serverlessRecord === undefined ? undefined : Object.keys(serverlessRecord).find((key) => GRAMSTAX_SERVERLESS_ADAPTERS.some((adapter) => adapter === key))
+        const serverlessSection = serverlessAdapter === undefined ? undefined : serverlessRecord?.[serverlessAdapter]
+        void this._runServerless(serverlessAdapter ?? ``, serverlessSection?.url, serverlessSection?.secretToken).catch((error) => this._onStartupError(error))
         break
       }
       case `test`: {
@@ -824,7 +828,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (modes.includes(params.deploy) === false) {
       throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test (got "${params.deploy}")`)
     }
-    const adapters = [`cloudflare-mod`, `aws-lambda-async`]
     const isNonEmptyBranch = (branch: unknown): boolean => {
       if (branch === undefined || branch === null || typeof branch !== `object`) {
         return false
@@ -837,19 +840,35 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const rawBranch = params.optionsDeploy?.raw
     const testBranch = params.optionsDeploy?.test
     const isRealUrl = (url: unknown): url is string => typeof url === `string` && /^https?:\/\/.+/.test(url) && url.includes(`<`) === false
+    const adapterNames = GRAMSTAX_SERVERLESS_ADAPTERS.map((adapter) => `\`${adapter}\``).join(`, `)
+    const requireServerlessSection = (branch: unknown): {adapter: string; section: Record<string, unknown>} => {
+      if (branch === undefined || branch === null || typeof branch !== `object`) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless to be keyed by one of ${adapterNames} (got "")`)
+      }
+      const record = branch as Record<string, unknown>
+      const keys = Object.keys(record)
+      const known = keys.filter((key) => GRAMSTAX_SERVERLESS_ADAPTERS.some((adapter) => adapter === key))
+      if (known.length !== 1) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless to be keyed by exactly one of ${adapterNames} (got ${keys.length === 0 ? `none` : keys.map((key) => `\`${key}\``).join(`, `)})`)
+      }
+      const adapter = known[0] as string
+      const section = record[adapter]
+      if (section === null || typeof section !== `object`) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless['${adapter}'] to be an object`)
+      }
+      return {adapter, section: section as Record<string, unknown>}
+    }
     if (params.deploy === `serverless`) {
       if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
         throw new Error(`Params deploy "serverless" does not match non-empty optionsDeploy branch (expected optionsDeploy.serverless only)`)
       }
-      if (serverlessBranch?.adapter === undefined || adapters.includes(serverlessBranch.adapter) === false) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.serverless.adapter to be one of cloudflare-mod, aws-lambda-async (got "${serverlessBranch?.adapter ?? ``}")`)
+      const resolved = requireServerlessSection(serverlessBranch)
+      if (isRealUrl(resolved.section.url) === false) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless['${resolved.adapter}'].url to be a real http(s) URL with no placeholder (got "${String(resolved.section.url ?? ``)}")`)
       }
-      if (isRealUrl(serverlessBranch?.url) === false) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.serverless.url to be a real http(s) URL with no placeholder (got "${serverlessBranch?.url ?? ``}")`)
-      }
-      const serverlessSecretToken = serverlessBranch?.secretToken
+      const serverlessSecretToken = resolved.section.secretToken
       if (typeof serverlessSecretToken !== `string` || serverlessSecretToken.length === 0 || /^[A-Za-z0-9_-]{1,256}$/.test(serverlessSecretToken) === false) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.serverless.secretToken to be a non-empty string matching ^[A-Za-z0-9_-]{1,256}$ (generate one with: openssl rand -hex 32)`)
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless['${resolved.adapter}'].secretToken to be a non-empty string matching ^[A-Za-z0-9_-]{1,256}$ (generate one with: openssl rand -hex 32)`)
       }
     } else if (params.deploy === `webhook`) {
       if (isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
@@ -1336,7 +1355,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @example
    * ```typescript
    * class MyBot extends Gramstax {
-   *   override hookUpdateError(event: ITUpdateErrorEvent): void {
+   *   override hookUpdateError(event: IUpdateErrorEvent): void {
    *     Sentry.captureException(event.error, {tags: {listener: event.listenerName}})
    *   }
    * }
@@ -1359,7 +1378,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @example
    * ```typescript
    * class MyBot extends Gramstax {
-   *   override hookUpdate(event: ITUpdateSuccessEvent): void {
+   *   override hookUpdate(event: IUpdateSuccessEvent): void {
    *     metrics.count(event.listenerName, event.state)
    *   }
    * }
@@ -1422,7 +1441,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @example
    * ```typescript
    * class MyBot extends Gramstax {
-   *   override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+   *   override hookSendError(err: unknown, info: ISendErrorInfo): void {
    *     // info: {page: `admin/logs`, kind: `fallback-text` | `retryable`, chatId?: number}
    *     if (info.kind === `retryable`) queueRetry(info)
    *     else metrics.count(info.page, info.kind)
@@ -1435,7 +1454,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * ```typescript
    * class MyBot extends Gramstax {
    *   retryQueue: Array<{err: unknown, page: string, chatId?: number, at: number}> = []
-   *   override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+   *   override hookSendError(err: unknown, info: ISendErrorInfo): void {
    *     if (info.kind === `retryable`) this.retryQueue.push({err, page: info.page, chatId: info.chatId, at: Date.now()})
    *   }
    * }
@@ -1446,7 +1465,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @example Severity split: Sentry for retryables, logs for user-caused fallbacks.
    * ```typescript
    * class MyBot extends Gramstax {
-   *   override hookSendError(err: unknown, info: ITSendErrorInfo): void {
+   *   override hookSendError(err: unknown, info: ISendErrorInfo): void {
    *     if (info.kind === `retryable`) Sentry.captureException(err, {tags: {page: info.page}})
    *     // `fallback-text` (403 blocked, file deleted) is a normal condition — log, don't alert.
    *   }
@@ -1485,19 +1504,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @typeParam T - App extra fields merged into the returned params.
    * @param ct - The grammy context for the current update.
    * @param extra - Optional app values forwarded into every page `Ctx`.
-   * @returns Params for `new Ctx(...)`, shaped as `ITCtxParams & T`.
+   * @returns Params for `new Ctx(...)`, shaped as `ICtxParams & T`.
    *
    * @example
    * ```typescript
    * class MyBot extends Gramstax {
    *   db = new Db()
-   *   override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ITCt, _extra?: T): ITCtxParams & T & {db: Db} {
-   *     return super.buildCtxParams(ct, {db: this.db}) as ITCtxParams & T & {db: Db}
+   *   override buildCtxParams<T extends Record<string, unknown> = Record<string, never>>(ct: ICt, _extra?: T): ICtxParams & T & {db: Db} {
+   *     return super.buildCtxParams(ct, {db: this.db}) as ICtxParams & T & {db: Db}
    *   }
    * }
    * class CtxCore extends Ctx {
    *   declare db: Db
-   *   constructor(params: ITCtxParams & {db: Db}) {
+   *   constructor(params: ICtxParams & {db: Db}) {
    *     super(params)
    *     this.db = params.db
    *   }
@@ -2480,7 +2499,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const makeObject = <const T extends readonly string[], V extends () => unknown>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as {[K in T[number]]: ReturnType<V>}
     const initDynamicSpesific = () => [] as {name: string; routeName: string}[] // [0]{name: Page.data.name, routeName: routeFunctionName}
-    const customRoutes = [] as ITCustomRouteEntry[]
+    const customRoutes = [] as ICustomRouteEntry[]
 
     return {
       all: {} as Record<string, typeof Ctx>, // [page.data.name]: Classes Page
@@ -2617,7 +2636,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const inline = found.page.template
         this._pageRegisterEntry({page: found.page, path: route.file, routeName: route.routeName}, pages, index, seen)
         if (inline !== undefined) {
-          this.templateManager._compile(route.routeName, inline)
+          this.templateManager.compile(route.routeName, inline)
         }
       })
     } else {
@@ -2628,13 +2647,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const inline = entry.page.template
         this._pageRegisterEntry(entry, pages, index, seen)
         if (inline !== undefined) {
-          this.templateManager._compile(entry.routeName, inline)
+          this.templateManager.compile(entry.routeName, inline)
         }
       })
     }
 
     for (const {key, template} of manifest.templates) {
-      this.templateManager._compile(key, template)
+      this.templateManager.compile(key, template)
     }
 
     this.log?.info?.(`Loaded ${Object.keys(pages.all).length} pages.`)
@@ -2898,7 +2917,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return {state: `no-handler`}
       }
 
-      const initPage = new Page(ctx) as unknown as Ctx
+      const initPage = new Page(ctx)
       if ((await initPage.hookBeforeRoute?.()) !== false) {
         if (isNonSession) {
           await clearSessionOnce()
@@ -2933,7 +2952,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] === `function`) {
-        const initPage = new Page(ctx) as unknown as ICtx
+        const initPage = new Page(ctx)
         if ((await initPage.hookBeforeRoute?.()) !== false) {
           await clearSessionOnce()
           await (initPage as unknown as Record<string, () => unknown>)[value.routeName]!()
@@ -2996,7 +3015,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         continue
       }
 
-      const initPage = new Page(ctx) as unknown as Ctx
+      const initPage = new Page(ctx)
       if ((await initPage.hookBeforeRoute?.()) !== false) {
         await clearSessionOnce()
         await (initPage as unknown as Record<string, () => unknown>)[route.routeName]!()
@@ -3210,12 +3229,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * other event, a grammY listener is subscribed automatically via
    * this.bot.on(entry.event, ...).
    *
-   * @param entry - The custom route entry. See ITCustomRouteEntry.
+   * @param entry - The custom route entry. See ICustomRouteEntry.
    *
    * @virtual
    * @public
    */
-  registerCustomRoute(entry: ITCustomRouteEntry): void {
+  registerCustomRoute(entry: ICustomRouteEntry): void {
     if (!entry.routeName || entry.routeName.startsWith(`handle`) === false) {
       throw new Error(`routeName must be a non-empty string starting with 'handle'`)
     }

@@ -14,7 +14,7 @@ import type {
   IMockTelegramUser
 } from "~/types/mock"
 
-type ITMockTelegramReadableRequest = {
+type IMockTelegramReadableRequest = {
   method: string
   headers: {
     get(name: string): string | null
@@ -379,7 +379,7 @@ export class MockTelegramServer {
     return body && typeof body === `object` && !Array.isArray(body) ? (body as Record<string, unknown>) : undefined
   }
 
-  async _readBody(request: ITMockTelegramReadableRequest): Promise<unknown> {
+  async _readBody(request: IMockTelegramReadableRequest): Promise<unknown> {
     if (request.method === `GET` || request.method === `HEAD`) {
       return undefined
     }

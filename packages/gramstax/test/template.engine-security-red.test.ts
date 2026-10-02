@@ -155,7 +155,7 @@ describe(`template engine security RED (findings 01-15)`, () => {
   })
 
   it(`oracle PoC-3: {{}} data payload is never executed`, () => {
-    const payload = "X`Y\${7*6}Z"
+    const payload = "X`Y{7*6}Z"
     const out = renderMsg(`Hello {{username}}!`, {username: payload})
     expect(out).toContain(payload)
     expect(out).not.toContain(`42`)

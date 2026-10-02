@@ -75,9 +75,9 @@ import type {
 } from "~/types/ctx"
 import type {IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock} from "~/types/template"
 
-type ITMediaGroupType = Extract<IMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
-type ITMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
-type ITMediaGroupItem = NonNullable<IMediaBlock[`mediaGroup`]>[number]
+type IMediaGroupType = Extract<IMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
+type IMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
+type IMediaGroupItem = NonNullable<IMediaBlock[`mediaGroup`]>[number]
 
 export type {EphemeralMessageParameters}
 
@@ -180,7 +180,7 @@ class GramstaxKeyboard extends Keyboard {
  */
 class Helper {
   static MEDIA_GROUP_TYPES: ReadonlySet<string> = new Set([`photo`, `video`, `audio`, `document`])
-  static isMediaGroupType(type: string): type is ITMediaGroupType {
+  static isMediaGroupType(type: string): type is IMediaGroupType {
     return Helper.MEDIA_GROUP_TYPES.has(type)
   }
 
@@ -191,7 +191,7 @@ class Helper {
     return mediaGroupOptions
   }
 
-  static buildMediaGroupFromItems(items: Array<Omit<ITMediaGroupItem, `src`> & {src: string | InputFile}>, caption?: string): ITMediaGroupInput[] {
+  static buildMediaGroupFromItems(items: Array<Omit<IMediaGroupItem, `src`> & {src: string | InputFile}>, caption?: string): IMediaGroupInput[] {
     return items.map((item, index) => {
       const itemCaption = item.caption ?? (index === 0 ? caption : undefined)
       const opts = itemCaption ? {caption: itemCaption, parse_mode: `HTML` as const} : undefined
@@ -202,7 +202,7 @@ class Helper {
     })
   }
 
-  static buildMediaGroup(type: ITMediaGroupType, srcList: Array<string | InputFile>, caption?: string): ITMediaGroupInput[] {
+  static buildMediaGroup(type: IMediaGroupType, srcList: Array<string | InputFile>, caption?: string): IMediaGroupInput[] {
     return srcList.map((media, index) => {
       const opts = index === 0 && caption ? {caption, parse_mode: `HTML` as const} : undefined
       if (type === `photo`) return InputMediaBuilder.photo(media, opts)
@@ -769,8 +769,8 @@ export class Ctx extends Context {
    * rethrow the original error untouched, fail-loud default).
    *
    * @remarks
-   * Mapping: `GrammyError` 429 → `retryable`; 400–499 (incl. 403) →
-   * `fallback-text`; >= 500 → `retryable`; `HttpError`/network and anything
+   * Mapping: `GrammyError 429` → `retryable 400–499 (incl. 403)`; →
+   * `fallback-text >= 500`; → `retryable`; `HttpError`/network and anything
    * unknown → `retryable`.
    *
    * @param err - The error thrown by the send call.
@@ -1305,7 +1305,7 @@ export class Ctx extends Context {
    *
    * @remarks
    * Optional by default — pages that do NOT define `static data` inherit
-   * `ITPageDataStatic | undefined`. Pages that override via `buildData(...)`
+   * `IPageDataStatic | undefined`. Pages that override via `buildData(...)`
    * get fully typed `callbackQueryData` with the configured args.
    *
    * @public
@@ -1995,7 +1995,7 @@ export class Ctx extends Context {
    * Opt-in local-path jail for media uploads (Q8 option b).
    *
    * @remarks
-   * Set from `ITCtxParams.mediaRoots` (mirrors the `log` channel, so
+   * Set from `ICtxParams.mediaRoots` (mirrors the `log` channel, so
    * `Gramstax({mediaRoots})` and `new SomePage(this)` both propagate it).
    * `null`/empty means free; when set, `resolveMedia` uploads a local
    * file only inside the roots and otherwise passes it through as a
@@ -2009,7 +2009,7 @@ export class Ctx extends Context {
    * Best-effort send-error hook (Q9 option b).
    *
    * @remarks
-   * Set from `ITCtxParams.onSendError` (mirrors the `log` channel).
+   * Set from `ICtxParams.onSendError` (mirrors the `log` channel).
    * Invoked with `{page, kind, chatId}` at every classified send error;
    * a throwing hook is swallowed. Validation throws stay hook-free.
    *
@@ -2514,7 +2514,7 @@ export class Ctx extends Context {
    * classified via `Ctx.classifySendError`: `fallback-text` triggers a
    * best-effort fallback-text send to that recipient (nested failures
    * ignored) and `failedCount++`; `retryable` appends to `retryable[]` and
-   * the loop continues. `fallbackEdit: `disable`` skips the resend and
+   * the loop continues. `fallbackEdit: disable` skips the resend and
    * classifies the primary error directly.
    *
    * @typeParam T - The media type to edit to.
@@ -3594,7 +3594,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderMediaGroup(type?: ITMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null) {
+  async renderMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const opt = {parse_mode: `HTML`, ...(options ?? {})} as Record<string, unknown>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
@@ -4955,7 +4955,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null) {
+  async renderAutoMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null) {
     const edit = !!this.callbackQuery
     if (edit) {
       return await this.renderEditMediaGroup(type, data, AGBaseId, options)
@@ -5706,7 +5706,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditMediaGroup(type?: ITMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
+  async renderEditMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
     try {
       try {
         await this.deleteMessage()

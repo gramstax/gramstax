@@ -120,7 +120,7 @@ function emitAot(root: string, outResolved: string): void {
   // they need frozen modules too — otherwise edge runtimes hit `new Function`.
   // A same-key .html template overwrites below, mirroring boot precedence.
   for (const {page, routeName} of PageManager.getFileManySync(root)) {
-    const inline = (page as unknown as {template?: unknown}).template
+    const inline = page.template
     if (typeof inline !== `string`) continue
     emitKey(emitter, manager, importCache, rawCache, genDir, routeName, inline, seen)
   }
@@ -137,11 +137,11 @@ function emitAot(root: string, outResolved: string): void {
 function emitKey(emitter: AotEmitter, manager: TemplateManager, importCache: Map<string, string>, rawCache: Map<string, string>, genDir: string, key: string, template: string, seen: Map<string, string>): void {
   emitter.beginCollect()
   try {
-    manager._compile(key, template, undefined, importCache, rawCache)
+    manager.compile(key, template, undefined, importCache, rawCache)
   } finally {
     emitter.endCollect()
   }
-  const compiled = manager._map.get(key)
+  const compiled = manager.getCompiled(key)
   if (compiled === undefined) {
     throw new Error(`AOT found no compiled template for key "${key}"`)
   }
