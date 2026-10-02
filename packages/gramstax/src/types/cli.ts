@@ -33,9 +33,10 @@ export type IGramstaxBuildOptions = {
    * Serverless target to emit.
    *
    * @remarks
-   * Set by `--target <name>`. Supported values are `lambda` and
-   * `cloudflare-workers`; anything else throws `unknown target`. Feeds
-   * `_resolveDeployTargets` and marks `adapterSource` as `flag`.
+   * Set by `--target <name>`. Supported values are the adapter names
+   * `cloudflare-mod` and `aws-lambda-async`; anything else throws
+   * `unknown target`. Feeds `_resolveDeployTargets` and marks
+   * `adapterSource` as `flag`.
    */
   target?: string
   /**
@@ -114,17 +115,25 @@ export type IGramstaxBuildPlan = {
    * Resolved deploy adapter.
    *
    * @remarks
-   * Mapped from `--target` (`cloudflare-workers` becomes `cloudflare-mod`,
-   * `lambda` becomes `aws-lambda-async`) or taken from
-   * `optionsDeploy.adapter`. Empty string when unresolved.
+   * The adapter name, which is also the key under `optionsDeploy.serverless`.
+   * `--target` and the configured key use the same vocabulary, so there is no
+   * mapping. Empty string when unresolved.
    */
   adapter: string
+  /**
+   * Config path the adapter was read from, for dry-run output.
+   *
+   * @remarks
+   * `optionsDeploy.serverless` on its own when no adapter was resolved,
+   * otherwise the full path including the adapter key.
+   */
+  adapterPath: string
   /**
    * Provenance of `adapter`.
    *
    * @remarks
-   * `flag` when `--target` was passed, `config` when `optionsDeploy.adapter`
-   * was set explicitly, otherwise `default`.
+   * `flag` when `--target` was passed, `config` when an adapter key was
+   * present in `optionsDeploy.serverless`, otherwise `default`.
    */
   adapterSource: IGramstaxPlanSource | `flag`
   /**

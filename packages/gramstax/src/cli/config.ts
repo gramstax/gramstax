@@ -2,11 +2,27 @@ import {existsSync} from "node:fs"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
 import type {IRateLimitOptions, IWebhookQueueConfig} from "~/types/bot"
-import type {IGramstaxCacheKeyboardRef, IGramstaxCacheSessionRef, IGramstaxConfig, IGramstaxExplicitBuildKeys, IGramstaxLogRef, IGramstaxModuleRef, IGramstaxOptionsDeploy, IGramstaxPathRef, IGramstaxPollingDeployOptions, IGramstaxServerlessDeployOptions, IGramstaxSessionLockRef, IGramstaxTemplateManagerRef, IGramstaxWebhookDeployOptions} from "~/types/config"
+import type {
+  IGramstaxAwsLambdaAsyncOptions,
+  IGramstaxCacheKeyboardRef,
+  IGramstaxCacheSessionRef,
+  IGramstaxCloudflareModOptions,
+  IGramstaxConfig,
+  IGramstaxExplicitBuildKeys,
+  IGramstaxLogRef,
+  IGramstaxModuleRef,
+  IGramstaxOptionsDeploy,
+  IGramstaxPathRef,
+  IGramstaxPollingDeployOptions,
+  IGramstaxServerlessDeployOptions,
+  IGramstaxSessionLockRef,
+  IGramstaxTemplateManagerRef,
+  IGramstaxWebhookDeployOptions
+} from "~/types/config"
+import {GRAMSTAX_SERVERLESS_ADAPTERS, GRAMSTAX_SERVERLESS_FIELDS} from "~/types/config"
 import type {ISessionLockOnContended} from "~/types/session-lock"
 import type {ITemplateOptions} from "~/types/template"
 
-const VALID_ADAPTERS = [`cloudflare-mod`, `aws-lambda-async`]
 const VALID_DEPLOYS = [`polling`, `webhook`, `serverless`, `raw`, `test`]
 const TOP_LEVEL_FIELDS = [
   `optionsDeploy`,
@@ -56,7 +72,9 @@ export class GramstaxConfigLoader {
     const deployRoot = this._isRecord(raw.optionsDeploy) ? (raw.optionsDeploy as Record<string, unknown>) : undefined
     const serverless = deployRoot !== undefined && this._isRecord(deployRoot.serverless) ? (deployRoot.serverless as Record<string, unknown>) : undefined
     const webhook = deployRoot !== undefined && this._isRecord(deployRoot.webhook) ? (deployRoot.webhook as Record<string, unknown>) : undefined
-    return {hasFile: true, deploy: raw.deploy !== undefined, adapter: serverless?.adapter !== undefined, name: serverless?.name !== undefined, url: serverless?.url !== undefined || webhook?.url !== undefined}
+    const adapterKey = serverless === undefined ? undefined : Object.keys(serverless).find((key) => GRAMSTAX_SERVERLESS_ADAPTERS.some((adapter) => adapter === key))
+    const section = serverless === undefined || adapterKey === undefined ? undefined : serverless[adapterKey]
+    return {hasFile: true, deploy: raw.deploy !== undefined, adapter: adapterKey !== undefined, name: this._isRecord(section) && section.name !== undefined, url: (this._isRecord(section) && section.url !== undefined) || webhook?.url !== undefined}
   }
 
   _validateConfig(file: string, loaded: unknown): IGramstaxConfig {
@@ -214,7 +232,9 @@ export class GramstaxConfigLoader {
       this._validateEmptyBranch(file, `test`, value.test)
       out.test = {}
     }
-    const nonEmpty = Object.entries(out).filter(([, branch]) => Object.keys(branch as Record<string, unknown>).length > 0).map(([name]) => name)
+    const nonEmpty = Object.entries(out)
+      .filter(([, branch]) => Object.keys(branch as Record<string, unknown>).length > 0)
+      .map(([name]) => name)
     if (nonEmpty.length > 1) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy\` must define at most one deploy branch (got \`${nonEmpty.join(`\`, \``)}\`)`)
     }
@@ -224,9 +244,6 @@ export class GramstaxConfigLoader {
     if (deploy === `webhook`) {
       this._requireWebhookBranch(file, out.webhook)
     }
-    if (deploy === `serverless`) {
-      this._requireServerlessBranch(file, out.serverless)
-    }
     return out
   }
 
@@ -234,37 +251,108 @@ export class GramstaxConfigLoader {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless\` must be an object`)
     }
+    const keys = Object.keys(value)
+    for (const key of keys) {
+      if (GRAMSTAX_SERVERLESS_ADAPTERS.some((adapter) => adapter === key) === false) {
+        throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless\` has unknown adapter key \`${key}\` (supported: ${this._quoteList(GRAMSTAX_SERVERLESS_ADAPTERS)})`)
+      }
+    }
+    // Sorted so the message is deterministic regardless of config key order.
+    const sorted = [...keys].sort()
+    if (sorted.length !== 1) {
+      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless\` must define exactly one adapter key (got ${sorted.length === 0 ? `none` : this._quoteList(sorted)})`)
+    }
+    const adapter = sorted[0] as string
+    const section = value[adapter]
+    if (this._isRecord(section) === false) {
+      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless['${adapter}']\` must be an object`)
+    }
+    return adapter === `cloudflare-mod` ? {"cloudflare-mod": this._validateCloudflareModSection(file, section)} : {"aws-lambda-async": this._validateAwsLambdaAsyncSection(file, section)}
+  }
+
+  _validateCloudflareModSection(file: string, value: Record<string, unknown>): IGramstaxCloudflareModOptions {
+    const path = `optionsDeploy.serverless['cloudflare-mod']`
+    const allowed = GRAMSTAX_SERVERLESS_FIELDS["cloudflare-mod"]
     for (const key of Object.keys(value)) {
-      if (key !== `adapter` && key !== `name` && key !== `url` && key !== `secretToken`) {
-        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`optionsDeploy.serverless\` (supported: \`adapter\`, \`name\`, \`url\`, \`secretToken\`)`)
+      if (allowed.includes(key) === false) {
+        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`${path}\` (supported: ${this._quoteList(allowed)})`)
       }
     }
-    const out: IGramstaxServerlessDeployOptions = {}
-    if (value.adapter !== undefined) {
-      if (typeof value.adapter !== `string` || VALID_ADAPTERS.includes(value.adapter as string) === false) {
-        throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless.adapter\` must be one of cloudflare-mod, aws-lambda-async (got \`${String(value.adapter)}\`)`)
-      }
-      out.adapter = value.adapter as string
-    }
+    const out: IGramstaxCloudflareModOptions = {url: ``, secretToken: ``}
     if (value.name !== undefined) {
       if (typeof value.name !== `string`) {
-        throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless.name\` must be a string`)
+        throw new Error(`Invalid gramstax config at ${file}: \`${path}.name\` must be a string`)
       }
-      out.name = value.name as string
+      out.name = value.name
     }
-    if (value.url !== undefined) {
-      if (typeof value.url !== `string`) {
-        throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless.url\` must be a string`)
+    if (value.compatibilityDate !== undefined) {
+      if (typeof value.compatibilityDate !== `string` || value.compatibilityDate.length === 0) {
+        throw new Error(`Invalid gramstax config at ${file}: \`${path}.compatibilityDate\` must be a non-empty string`)
       }
-      out.url = value.url as string
+      out.compatibilityDate = value.compatibilityDate
     }
-    if (value.secretToken !== undefined) {
-      if (typeof value.secretToken !== `string`) {
-        throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless.secretToken\` must be a string`)
+    if (value.compatibilityFlags !== undefined) {
+      if (Array.isArray(value.compatibilityFlags) === false || value.compatibilityFlags.some((flag) => typeof flag !== `string`)) {
+        throw new Error(`Invalid gramstax config at ${file}: \`${path}.compatibilityFlags\` must be an array of strings`)
       }
-      out.secretToken = value.secretToken as string
+      out.compatibilityFlags = value.compatibilityFlags as string[]
     }
+    if (value.toml !== undefined) {
+      if (this._isRecord(value.toml) === false) {
+        throw new Error(`Invalid gramstax config at ${file}: \`${path}.toml\` must be an object`)
+      }
+      out.toml = value.toml
+    }
+    this._requireServerlessFields(file, path, value)
+    out.url = value.url as string
+    out.secretToken = value.secretToken as string
     return out
+  }
+
+  _validateAwsLambdaAsyncSection(file: string, value: Record<string, unknown>): IGramstaxAwsLambdaAsyncOptions {
+    const path = `optionsDeploy.serverless['aws-lambda-async']`
+    const allowed = GRAMSTAX_SERVERLESS_FIELDS["aws-lambda-async"]
+    for (const key of Object.keys(value)) {
+      if (allowed.includes(key) === false) {
+        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`${path}\` (supported: ${this._quoteList(allowed)})`)
+      }
+    }
+    this._requireServerlessFields(file, path, value)
+    return {url: value.url as string, secretToken: value.secretToken as string}
+  }
+
+  /**
+   * Presence + shape rules shared by every adapter section. Per the
+   * hard-break contract a declared `serverless` section is a declaration of
+   * intent to deploy serverless, so its mandatory fields are enforced here
+   * rather than in a later pass — otherwise the branch-vs-deploy mismatch
+   * check would fire first and hide the real problem.
+   */
+  _requireServerlessFields(file: string, path: string, value: Record<string, unknown>): void {
+    if (value.url === undefined || value.url === ``) {
+      throw new Error(
+        `Invalid gramstax config at ${file}: \`${path}.url\` is required when \`deploy\` is \`serverless\` (fix: set \`optionsDeploy: {serverless: {${path.includes(`aws-lambda-async`) ? `'aws-lambda-async'` : `'cloudflare-mod'`}: {url: \`https://example.com/webhook\`, secretToken: \`<32+ chars>\`}}}\`)`
+      )
+    }
+    if (typeof value.url !== `string`) {
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.url\` must be a string`)
+    }
+    if (this._isRealUrl(value.url) === false) {
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.url\` must be a real https:// URL with no \`<placeholder>\` (got \`${value.url}\`)`)
+    }
+    if (value.secretToken === undefined || value.secretToken === ``) {
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.secretToken\` is required when \`deploy\` is \`serverless\` (fix: generate via \`openssl rand -hex 32\`)`)
+    }
+    if (typeof value.secretToken !== `string`) {
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.secretToken\` must be a string`)
+    }
+    if (/^[A-Za-z0-9_-]{1,256}$/.test(value.secretToken) === false) {
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.secretToken\` must match ^[A-Za-z0-9_-]{1,256}$ (got \`${value.secretToken}\`) (fix: generate via \`openssl rand -hex 32\`)`)
+    }
+  }
+
+  _quoteList(values: readonly string[]): string {
+    return values.map((value) => `\`${value}\``).join(`, `)
   }
 
   _validateWebhookBranch(file: string, value: unknown): IGramstaxWebhookDeployOptions {
@@ -336,24 +424,6 @@ export class GramstaxConfigLoader {
     }
     if (/^[A-Za-z0-9_-]{1,256}$/.test(branch.secretToken as string) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.secretToken\` must match ^[A-Za-z0-9_-]{1,256}$ (got \`${String(branch.secretToken)}\`) (fix: generate via \`openssl rand -hex 32\`)`)
-    }
-  }
-
-  _requireServerlessBranch(file: string, branch: IGramstaxServerlessDeployOptions | undefined): void {
-    if (branch?.adapter === undefined || VALID_ADAPTERS.includes(branch.adapter as string) === false) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless.adapter\` must be one of cloudflare-mod, aws-lambda-async (got \`${String(branch?.adapter)}\`)`)
-    }
-    if (branch?.url === undefined) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless.url\` is required when \`deploy\` is \`serverless\` (fix: set \`optionsDeploy: {serverless: {adapter: \`cloudflare-mod\`, url: \`https://example.com/webhook\`}}\`)`)
-    }
-    if (this._isRealUrl(branch.url as string) === false) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless.url\` must be a real https:// URL with no \`<placeholder>\` (got \`${String(branch.url)}\`)`)
-    }
-    if (branch.secretToken === undefined || (branch.secretToken as string).length === 0) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless.secretToken\` is required when \`deploy\` is \`serverless\` (fix: generate via \`openssl rand -hex 32\`)`)
-    }
-    if (/^[A-Za-z0-9_-]{1,256}$/.test(branch.secretToken as string) === false) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless.secretToken\` must match ^[A-Za-z0-9_-]{1,256}$ (got \`${String(branch.secretToken)}\`) (fix: generate via \`openssl rand -hex 32\`)`)
     }
   }
 

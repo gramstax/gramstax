@@ -27,6 +27,6 @@ const bot = new Gramstax({token: `test`, deploy: `test`, templateManager, log: f
 
 ## Notes
 
-- `polling` / `webhook:<url>` / `serverless:<adapter>` run startup hooks (`hookBeforeStart`, then `hookAfterStart`); `raw` runs only `hookBeforeStart`; observe `bot.ready` for async completion.
+- `polling` / `webhook` / `serverless` run startup hooks (`hookBeforeStart`, then `hookAfterStart`); `raw` runs only `hookBeforeStart`; observe `bot.ready` for async completion. Per-mode settings live in `optionsDeploy`.
 - `templateManager: {} as any` no longer opts out of anything — non-raw modes require a real `TemplateManager`.
-- Invalid deploy strings throw at construction (`polling`, `webhook:<url>`, `serverless:<adapter>`, `raw`, `test` only).
+- Invalid deploy strings throw at construction (`polling`, `webhook`, `serverless`, `raw`, `test` only). The legacy colon grammar (`webhook:<url>`, `serverless:<adapter>`) was removed and now throws — pass the URL in `optionsDeploy.webhook.url`, and key the serverless branch by adapter (`optionsDeploy.serverless['cloudflare-mod'].url`).

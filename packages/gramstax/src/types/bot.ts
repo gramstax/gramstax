@@ -328,7 +328,7 @@ export type IGramstaxParams = {
    * Supported modes:
    * - `"polling"` - Long polling mode for development
    * - `"webhook"` - Webhook mode with the public URL in `optionsDeploy.webhook.url`
-   * - `"serverless"` - Serverless mode with `optionsDeploy.serverless.adapter` + `optionsDeploy.serverless.url`
+   * - `"serverless"` - Serverless mode, keyed by adapter: `optionsDeploy.serverless['cloudflare-mod'].url`
    * - `"test"` - Test mode with E2eHelper
    * - `"raw"` - Bare bot: no pages, no templates, no Gramstax routing.
    *   The constructor builds `this.bot` (`Bot`) and returns without
@@ -356,8 +356,11 @@ export type IGramstaxParams = {
    *
    * @remarks
    * At most one branch may be non-empty and it must equal `deploy`:
-   * - `serverless` requires `adapter` (`cloudflare-mod` or `aws-lambda-async`)
-   *   plus a real `url` (`https?://` with no `<` placeholder).
+   * - `serverless` is keyed by adapter name and must carry exactly one key
+   *   (`'cloudflare-mod'` or `'aws-lambda-async'`). Each key requires a real
+   *   `url` (`https?://` with no `<` placeholder) and a `secretToken`. Only
+   *   `'cloudflare-mod'` accepts `name`, `compatibilityDate`,
+   *   `compatibilityFlags` and the `toml` escape hatch.
    * - `webhook` requires a real `url` and a `secretToken`, with an optional
    *   `queue` for backpressure and worker pooling.
    * - `polling` accepts an optional `maxRetries` (`-1` retries forever).
@@ -366,7 +369,7 @@ export type IGramstaxParams = {
    * @example
    * ```typescript
    * optionsDeploy: {webhook: {url: `https://example.com/bot`, secretToken: `s3cr3t`}}
-   * optionsDeploy: {serverless: {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`}}
+   * optionsDeploy: {serverless: {'cloudflare-mod': {url: `https://example.com/webhook`, secretToken: `s3cr3t`}}}
    * optionsDeploy: {polling: {maxRetries: 5}}
    * ```
    */

@@ -244,40 +244,75 @@ export type IGramstaxSessionLockRef = {
 }
 
 /**
- * Serverless deploy branch of `optionsDeploy`.
+ * Canonical serverless adapter names.
  *
  * @remarks
- * Only meaningful when `deploy` is `serverless`. The `secretToken` value
- * is validated for shape only — it is NEVER baked into emitted bundles;
- * edge reads the `BOT_WEBHOOK_SECRET` runtime binding at runtime.
+ * Single runtime source for the adapter vocabulary. Lives here rather than in
+ * `cli/config` so `core/bot` can validate without importing a CLI module.
+ * `IGramstaxServerlessAdapter` is derived from it, and
+ * {@link GRAMSTAX_SERVERLESS_FIELDS} is keyed by it, so adding an adapter
+ * without declaring its fields is a compile error.
+ *
+ * @public
+ */
+export const GRAMSTAX_SERVERLESS_ADAPTERS = [`cloudflare-mod`, `aws-lambda-async`] as const
+
+/**
+ * Name of a serverless adapter.
+ *
+ * @public
+ */
+export type IGramstaxServerlessAdapter = (typeof GRAMSTAX_SERVERLESS_ADAPTERS)[number]
+
+/**
+ * Per-adapter allowed config fields.
+ *
+ * @remarks
+ * A field absent from an adapter's list does not exist for that adapter —
+ * it is rejected rather than ignored. This is what makes the adapter-keyed
+ * shape precise instead of a bag of optional fields.
+ *
+ * @public
+ */
+export const GRAMSTAX_SERVERLESS_FIELDS: Record<IGramstaxServerlessAdapter, readonly string[]> = {
+  "cloudflare-mod": [`name`, `compatibilityDate`, `compatibilityFlags`, `url`, `secretToken`, `toml`],
+  "aws-lambda-async": [`url`, `secretToken`]
+}
+
+/**
+ * `cloudflare-mod` adapter section of `optionsDeploy.serverless`.
+ *
+ * @remarks
+ * The adapter is the KEY, so this type only exists under the `cloudflare-mod`
+ * key. Fields that do not apply to Cloudflare are absent from this type
+ * rather than present-and-ignored.
+ *
+ * `compatibilityDate` and `compatibilityFlags` are emitted into
+ * `wrangler.toml`. When `undefined` they are written as commented lines
+ * carrying the default, so the emitted file documents what would be used.
  *
  * @example
  * ```typescript
- * const serverless: IGramstaxServerlessDeployOptions = {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`}
+ * const section: IGramstaxCloudflareModOptions = {
+ *   name: `gramstax-worker`,
+ *   compatibilityDate: `2026-01-01`,
+ *   compatibilityFlags: [`nodejs_compat`],
+ *   url: `https://example.com/webhook`,
+ *   secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``,
+ *   toml: {account_id: `abc123`}
+ * }
  * ```
  *
  * @public
  */
-export type IGramstaxServerlessDeployOptions = {
+export type IGramstaxCloudflareModOptions = {
   /**
-   * Serverless adapter name.
+   * Cloudflare worker name, written as `name = "..."` in `wrangler.toml`.
    *
    * @remarks
-   * Must be one of `cloudflare-mod`, `aws-lambda-async` when present.
-   * Required when `deploy` is `serverless`.
-   *
-   * @example
-   * ```typescript
-   * adapter: `cloudflare-mod`
-   * ```
-   */
-  adapter?: string
-  /**
-   * Serverless service/worker name.
-   *
-   * @remarks
-   * Must be a string when present. Passed to the serverless adapter as the
-   * deployment name.
+   * Optional. When absent the emitted TOML writes the default
+   * `gramstax-worker` — it is never emitted as a comment, because
+   * Cloudflare requires a worker name to deploy.
    *
    * @example
    * ```typescript
@@ -286,11 +321,41 @@ export type IGramstaxServerlessDeployOptions = {
    */
   name?: string
   /**
+   * Value for `compatibility_date` in `wrangler.toml`.
+   *
+   * @remarks
+   * When absent, emitted as `# compatibility_date = "2026-01-01"`.
+   *
+   * @example
+   * ```typescript
+   * compatibilityDate: `2026-01-01`
+   * ```
+   */
+  compatibilityDate?: string
+  /**
+   * Value for `compatibility_flags` in `wrangler.toml`.
+   *
+   * @remarks
+   * When absent, emitted as `# compatibility_flags = ["nodejs_compat"]`.
+   * Note this flips the current behavior, where `nodejs_compat` is always
+   * written.
+   *
+   * @example
+   * ```typescript
+   * compatibilityFlags: [`nodejs_compat`]
+   * ```
+   */
+  compatibilityFlags?: string[]
+  /**
    * Public webhook URL for the serverless deployment.
    *
    * @remarks
    * Must be a real `https?://` URL with no `<` placeholder when `deploy`
    * is `serverless`. Required in that mode.
+   *
+   * Optional in the type so author-written env expressions
+   * (`process.env.BOT_DEPLOY_URL`) typecheck; the loader and the constructor
+   * both enforce presence with an explicit error.
    *
    * @example
    * ```typescript
@@ -308,6 +373,83 @@ export type IGramstaxServerlessDeployOptions = {
    * edge reads the `BOT_WEBHOOK_SECRET` runtime binding.
    * Generate via `openssl rand -hex 32`.
    *
+   * Optional in the type for env-expression ergonomics; required in
+   * `serverless` mode and enforced by the loader and the constructor.
+   *
+   * @example
+   * ```typescript
+   * secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``
+   * ```
+   */
+  secretToken?: string
+  /**
+   * Escape hatch merged into the emitted `wrangler.toml`.
+   *
+   * @remarks
+   * Flat-merged LAST, so it wins over every typed field above — including
+   * `name`. Keys are not validated; an unrecognized key reaches
+   * `wrangler.toml` verbatim and is rejected by `wrangler deploy`, not by
+   * gramstax. A `vars` key merges per-key so gramstax's secret-warning
+   * comments survive.
+   *
+   * @example
+   * ```typescript
+   * toml: {account_id: `abc123`, vars: {STAGE: `prod`}}
+   * ```
+   */
+  toml?: Record<string, unknown>
+}
+
+/**
+ * `aws-lambda-async` adapter section of `optionsDeploy.serverless`.
+ *
+ * @remarks
+ * The adapter is the KEY, so this type only exists under the
+ * `aws-lambda-async` key.
+ *
+ * This section currently has NO adapter-specific fields: `lambda.ts` emits
+ * only `lambda.js` and no AWS-side artifact, so there is nothing to
+ * configure yet. AWS settings (`functionName`, `memorySize`, `timeoutMs`,
+ * `architecture`) are deliberately absent — adding them before an emitter
+ * exists would create knobs that silently do nothing.
+ *
+ * @example
+ * ```typescript
+ * const section: IGramstaxAwsLambdaAsyncOptions = {url: `https://example.com/webhook`, secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``}
+ * ```
+ *
+ * @public
+ */
+export type IGramstaxAwsLambdaAsyncOptions = {
+  /**
+   * Public webhook URL for the serverless deployment.
+   *
+   * @remarks
+   * Must be a real `https?://` URL with no `<` placeholder when `deploy`
+   * is `serverless`. Required in that mode.
+   *
+   * Optional in the type so author-written env expressions
+   * (`process.env.BOT_DEPLOY_URL`) typecheck; the loader and the constructor
+   * both enforce presence with an explicit error.
+   *
+   * @example
+   * ```typescript
+   * url: `https://example.com/webhook`
+   * ```
+   */
+  url?: string
+  /**
+   * Webhook secret token value.
+   *
+   * @remarks
+   * Must be non-empty and match `^[A-Za-z0-9_-]{1,256}$` when `deploy` is
+   * `serverless`. Required in that mode. NEVER baked into emitted bundles —
+   * the function reads the `BOT_WEBHOOK_SECRET` environment variable.
+   * Generate via `openssl rand -hex 32`.
+   *
+   * Optional in the type for env-expression ergonomics; required in
+   * `serverless` mode and enforced by the loader and the constructor.
+   *
    * @example
    * ```typescript
    * secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``
@@ -315,6 +457,26 @@ export type IGramstaxServerlessDeployOptions = {
    */
   secretToken?: string
 }
+
+/**
+ * Serverless deploy branch of `optionsDeploy`.
+ *
+ * @remarks
+ * The adapter name is the KEY. Exactly one key must be present. Each key
+ * carries only the fields that adapter actually uses.
+ *
+ * The `secretToken` value is validated for shape only — it is NEVER baked
+ * into emitted bundles; the deployed function reads the `BOT_WEBHOOK_SECRET`
+ * runtime binding instead.
+ *
+ * @example
+ * ```typescript
+ * const serverless: IGramstaxServerlessDeployOptions = {'cloudflare-mod': {url: `https://example.com/webhook`, secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``}}
+ * ```
+ *
+ * @public
+ */
+export type IGramstaxServerlessDeployOptions = {"cloudflare-mod": IGramstaxCloudflareModOptions} | {"aws-lambda-async": IGramstaxAwsLambdaAsyncOptions}
 
 /**
  * Webhook deploy branch of `optionsDeploy`.
@@ -364,11 +526,10 @@ export type IGramstaxWebhookDeployOptions = {
    * Webhook queue configuration for backpressure and worker pooling.
    *
    * @remarks
-   * Must be an object when present. Accepted keys: `enabled` (boolean),
-   * `maxQueueSize` (positive number), `workerCount` (number >= 1),
-   * `perChatConcurrency` (number >= 0), `blockWhenFull` (boolean),
-   * `enqueueTimeoutMs` (non-negative number), `waiterTimeoutMs`
-   * (non-negative number). Unknown fields are rejected.
+   * Must be an object when present. Accepted keys: `enabled (boolean)`,
+   * `maxQueueSize (positive number)`, `workerCount (number >= 1)`,
+   * `perChatConcurrency (number >= 0)`, `blockWhenFull (boolean)`,
+   * `enqueueTimeoutMs (non-negative number)`, `waiterTimeoutMs (non-negative number)`. Unknown fields are rejected.
    *
    * @example
    * ```typescript
@@ -456,7 +617,7 @@ export type IGramstaxTestDeployOptions = Record<string, never>
  * @example
  * ```typescript
  * const webhook: IGramstaxOptionsDeploy = {webhook: {url: `https://example.com/bot`, secretToken: `s3cr3t`}}
- * const serverless: IGramstaxOptionsDeploy = {serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`}}
+ * const serverless: IGramstaxOptionsDeploy = {serverless: {'cloudflare-mod': {url: `https://example.com/webhook`, secretToken: `s3cr3t`}}}
  * const polling: IGramstaxOptionsDeploy = {polling: {maxRetries: 5}}
  * ```
  *
@@ -472,7 +633,7 @@ export type IGramstaxOptionsDeploy = {
    *
    * @example
    * ```typescript
-   * serverless: {adapter: `cloudflare-mod`, url: `https://example.com/webhook`}
+   * serverless: {'cloudflare-mod': {url: `https://example.com/webhook`, secretToken: `s3cr3t`}}
    * ```
    */
   serverless?: IGramstaxServerlessDeployOptions
@@ -599,7 +760,7 @@ export type IGramstaxConfig = {
    * @example
    * ```typescript
    * optionsDeploy: {webhook: {url: `https://example.com/bot`, secretToken: `s3cr3t`}}
-   * optionsDeploy: {serverless: {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`}}
+   * optionsDeploy: {serverless: {'cloudflare-mod': {name: `gramstax-worker`, url: `https://example.com/webhook`, secretToken: `s3cr3t`}}}
    * optionsDeploy: {polling: {maxRetries: 5}}
    * ```
    */
@@ -642,8 +803,7 @@ export type IGramstaxConfig = {
    * Forwarded options for the auto-retry plugin (backoff / retry policy).
    *
    * @remarks
-   * Must be an object when present. Accepted keys: `maxRetryAttempts`
-   * (positive number >= 1), `retryOnInternalServerErrors` (boolean).
+   * Must be an object when present. Accepted keys: `maxRetryAttempts (positive number >= 1)`, `retryOnInternalServerErrors (boolean)`.
    * Unknown fields are rejected.
    */
   autoRetryOptions?: {maxRetryAttempts?: number; retryOnInternalServerErrors?: boolean}
@@ -864,7 +1024,7 @@ export type IGramstaxExplicitBuildKeys = {
    */
   deploy: boolean
   /**
-   * Whether `optionsDeploy.serverless.adapter` is defined.
+   * Whether an adapter key is present in `optionsDeploy.serverless`.
    *
    * @remarks
    * `false` when there is no `optionsDeploy.serverless` object or it lacks

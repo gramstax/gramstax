@@ -41,7 +41,7 @@ themselves, as the template does for local defaults).
 ## Secrets are values, not names
 
 `token` holds the bot token VALUE itself (author-written env-or-literal,
-mirroring `ITGramstaxParams.token`). The scaffold writes
+mirroring `IGramstaxParams.token`). The scaffold writes
 `token: process.env.TELEGRAM_BOT_TOKEN ?? ``` — `start` boots from
 `config.token` and a missing/empty value throws the constructor message
 verbatim:
@@ -55,7 +55,7 @@ Load accepts `token` as any string including `""` (so env-less
 only `start` enforces non-empty. Same pass-through rule for
 `optionsDeploy.webhook.secretToken` and `optionsDeploy.serverless.secretToken`
 (env expression, never a literal; serverless duality — config value sets the
-webhook, edge reads the `TELEGRAM_WEBHOOK_SECRET` binding — see
+webhook, edge reads the `BOT_WEBHOOK_SECRET` binding — see
 `docs/serverless-deploy.md`). Never commit real
 token/secret values; keep them in `.env` (see `.env.example`). The
 framework cannot distinguish a literal from an env-derived value, so no
@@ -80,7 +80,7 @@ const config: GramstaxConfig = {
 export default config
 ```
 
-The annotated `: GramstaxConfig` type (an alias of `ITGramstaxConfig`)
+The annotated `: GramstaxConfig` type (an alias of `IGramstaxConfig`)
 typo-checks every key. The scaffolded `gramstax.config.ts`
 (`packages/create-gramstax/src/templates/gramstax.config.ts`) lists all
 20 keys and is the canonical full listing.
@@ -112,11 +112,11 @@ gramstax start: invalid `cacheSession` from ./src/cache.ts#NotACache — expecte
 
 Path-ref IMPORT happens only in `gramstax start`, never in `gramstax build`.
 Builds stay static: when the config carries any override slot and the target
-set includes `cloudflare-workers` (or no `--target`), `gramstax build` prints a
+set includes `cloudflare-mod`, `gramstax build` prints a
 non-blocking warning per slot and keeps emitting:
 
 ```text
-gramstax build: custom `cacheSession` ignored on cloudflare-workers (edge boots from frozen manifest output)
+gramstax build: custom `cacheSession` ignored on cloudflare-mod (edge boots from frozen manifest output)
 ```
 
 ## Field reference
@@ -128,7 +128,7 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 | ----------------------- | --------------------------------- | --------- | --------------------------------------- |
 | `token`                 | `string`                          | —         | Any string incl. `""` at load; non-empty required for start |
 | `deploy`                | `"polling" \| "webhook" \| "serverless" \| "raw" \| "test"` | `polling` | Bare literal; `--deploy` wins           |
-| `optionsDeploy`         | `{polling?: {maxRetries?}, webhook?: {url?, secretToken?, queue?}, serverless?: {adapter?, name?, url?, secretToken?}, raw?: {}, test?: {}}` | — | `webhook` needs `url` + `secretToken`; `serverless` needs `adapter` + real `url` + `secretToken` (runtime-required, type-optional; see `docs/serverless-deploy.md`); `polling` takes `{maxRetries?}` or `{}`; `raw`/`test` take `{}` or nothing |
+| `optionsDeploy`         | `{polling?: {maxRetries?}, webhook?: {url?, secretToken?, queue?}, serverless?: {'cloudflare-mod'?: {url?, secretToken?, name?, compatibilityDate?, compatibilityFlags?, toml?}, 'aws-lambda-async'?: {url?, secretToken?}}, raw?: {}, test?: {}}` | — | `webhook` needs `url` + `secretToken`; `serverless` is keyed by adapter (exactly one key) and needs a real `url` + `secretToken` (runtime-required, type-optional); see `docs/serverless-deploy.md`; `polling` takes `{maxRetries?}` or `{}`; `raw`/`test` take `{}` or nothing |
 | `mediaRoots`            | `string[] \| null`                | —         | Non-empty entries; empty jail off       |
 | `botConfig`             | `object`                          | —         | Passed through                          |
 | `autoRetry`             | `boolean`                         | —         | Passed through                          |
@@ -171,6 +171,6 @@ registry-installed `gramstax` in `node_modules` wins) and re-run.
 ## Implementation map
 
 - `packages/gramstax/src/cli/start.ts` — `GramstaxStart.run(argv, cwd)` / `boot(argv, cwd)`
-- `packages/gramstax/src/cli/config.ts` — `ITGramstaxConfig` plus the `GramstaxConfig` alias, loader, strict validation, `CONFIG_OVERRIDE_SLOTS`
+- `packages/gramstax/src/cli/config.ts` — `IGramstaxConfig` plus the `GramstaxConfig` alias, loader, strict validation, `CONFIG_OVERRIDE_SLOTS`
 - `packages/gramstax/src/cli/gramstax.ts` — `start` command wiring (`--deploy`/`--watch`)
 - `packages/gramstax/src/cli/build.ts` — R3a workers guardrail warning only
