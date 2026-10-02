@@ -3,7 +3,9 @@ import {bot, e2e, enUser} from "../../setup"
 
 describe(`E2E: StartBlockPage`, () => {
   it(`load as a registered page in the bot`, () => {
-    expect(bot.pages.all[`start/block`]).toBeDefined()
+    for (const key of [`start/block/import`, `start/block/map`, `start/block/switch`]) {
+      expect(bot.pages.all[key]).toBeDefined()
+    }
   })
 
   it(`handle callback query without crashing`, async () => {
