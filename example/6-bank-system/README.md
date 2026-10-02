@@ -32,7 +32,7 @@ Gramstax example bot that manages balances, deposits, withdrawals, and transfers
 
 ## File Structure
 
-- `src/index.ts`: Application entry point
+- `gramstax.config.ts`: composition (token, deploy, caches) — `gramstax start` boots from this, no entry file
 - `src/env.ts`: Environment configuration
 - `src/core/`: Bot, context, and store setup
 - `src/pages/`: Menu and transaction pages

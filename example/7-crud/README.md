@@ -36,7 +36,7 @@ Gramstax example that implements CRUD (create, read, update, delete) using an in
 
 ## File Structure
 
-- `src/index.ts`: Application entry point
+- `gramstax.config.ts`: composition (token, deploy, caches) — `gramstax start` boots from this, no entry file
 - `src/env.ts`: Environment configuration
 - `src/core/`: Bot and context setup
 - `src/store/`: In-memory CRUD store

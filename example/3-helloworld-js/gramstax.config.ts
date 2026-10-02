@@ -1,10 +1,13 @@
-/** @typedef {import("gramstax").IGramstaxConfig} IGramstaxConfig */
+import type {GramstaxConfig} from "gramstax"
 
-/** @type {IGramstaxConfig} */
-const config = {
+const config: GramstaxConfig = {
   token: process.env.BOT_TOKEN,
   deploy: process.env.BOT_DEPLOY ?? `polling`,
-  cacheSession: process.env.CACHE_SESSION ?? `memory`,
+  cacheSession: {
+    store: process.env.CACHE_SESSION_STORE ?? `memory`,
+    ttlMs: Number(process.env.CACHE_SESSION_TTL) ?? 4 * 60 * 60 * 1000,
+    namespace: process.env.CACHE_SESSION_NAMESPACE ?? `s`
+  },
   log: true,
   optionsPage: undefined,
   optionsDeploy: {polling: {}},

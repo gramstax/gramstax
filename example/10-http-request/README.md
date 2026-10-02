@@ -32,7 +32,7 @@ Gramstax bot that makes HTTP requests to any user-provided URL and displays the 
 
 ## File Structure
 
-- `src/index.ts`: Application entry point
+- `gramstax.config.ts`: composition (token, deploy, caches) — `gramstax start` boots from this, no entry file
 - `src/env.ts`: Environment configuration
 - `src/core/`: Bot and context setup
 - `src/services/http.ts`: HTTP request service

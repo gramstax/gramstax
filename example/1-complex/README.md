@@ -31,7 +31,7 @@ Demonstrates a full-featured Gramstax bot with multiple pages, guards, templates
 
 ## File Structure
 
-- `src/index.ts`: Application entry point
+- `gramstax.config.ts`: composition (token, deploy, caches) — `gramstax start` boots from this, no entry file
 - `src/env.ts`: Environment configuration
 - `src/core/`: Bot and context setup
 - `src/pages/`: Page handlers and templates

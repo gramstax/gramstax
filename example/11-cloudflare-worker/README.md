@@ -13,7 +13,7 @@ src/
   blocks/ keyboard builders
   core/bot.ts      BotCore extends Gramstax (UserGuard + error hooks)
   core/ctx.ts      CtxCore
-  env.ts           TELEGRAM_* vars for local dev (worker uses fetch env)
+  env.ts           BOT_* vars for local dev (worker uses fetch env)
   index.ts         polling entry for local dev
   pages/           template pages (blank/help/start/*/status/...) + info.ts/html
   guards/user.ts   username guard wired in BotCore.hookBeforeRoute
@@ -46,7 +46,7 @@ against grammy 1.46 (`cloudflare-workers-mod` does not exist there).
 ## Local dev
 
 ```bash
-BOT_TOKEN=test BOT_DEPLOY=polling bun src/index.ts  # polling
+BOT_TOKEN=test BOT_DEPLOY=polling bun --bun gramstax start  # polling
 bun run test:e2e                                      # e2e (deploy:test)
 ```
 

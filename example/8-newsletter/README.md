@@ -34,7 +34,7 @@ Gramstax example that implements a newsletter bot with inline keyboards only.
 
 ## File Structure
 
-- `src/index.ts`: Application entry point
+- `gramstax.config.ts`: composition (token, deploy, caches) — `gramstax start` boots from this, no entry file
 - `src/env.ts`: Environment configuration
 - `src/core/`: Bot and context setup
 - `src/db/`: LMDB store

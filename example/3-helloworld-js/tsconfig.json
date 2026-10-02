@@ -13,6 +13,10 @@
     "checkJs": false,
     "noEmit": true,
     "skipLibCheck": true,
+    // resolves `process` for gramstax.config.ts; the only file listed below,
+    // so every other source file in this project stays unchecked JavaScript
+    "types": ["bun"],
     "paths": {}
-  }
+  },
+  "include": ["./gramstax.config.ts"]
 }

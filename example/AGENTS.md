@@ -13,15 +13,17 @@
 | 5 | `5-interactive-menu` | Inline keyboards + pagination (`inline/with-range` + `inline/without-range`), reply keyboards, stateful navigation; static catalog at `src/data/catalog.ts`; `optionsPage.shortCallbackQueryData: true` | `gramstax` only |
 | 6 | `6-bank-system` | Stateful in-memory store at `core/store.ts`; bigint math (`DECIMALS = 6n`, hex storage); pages for balance/deposit/withdraw/transfer/history; `guards/bank.ts` | `gramstax` only |
 | 7 | `7-crud` | Persistence via LMDB: `src/db/db.ts` extends `LmdbEnv`, registers `ItemSchema`/`SequenceSchema` via `register()`, `db/repositories/{item,sequence}.ts` are plain service classes taking `LmdbEnv` and calling `env.method(Schema, ...)`; CRUD pages; `guards/crud.ts`; `utils/time.ts`; env `STORE_PATH` | `gramstax` + `@gramstax/lmdb` |
-| 8 | `8-newsletter` | LMDB subscriber repo, `guards/admin.ts` (static `isAdmin`), broadcast + stats pages; env `DB_PATH`, `TELEGRAM_ADMIN_IDS` | `gramstax` + `@gramstax/lmdb` |
+| 8 | `8-newsletter` | LMDB subscriber repo, `guards/admin.ts` (static `isAdmin`), broadcast + stats pages; env `DB_PATH`, `BOT_ADMIN_IDS` | `gramstax` + `@gramstax/lmdb` |
 | 9 | `9-substore-bot` | Full e-commerce (catalog/cart/checkout/history) on in-memory static data (`src/data/store.ts`) + `CacheExternal` for cart state, no LMDB; env `BOT_TOKEN`, `STORE_ADMIN_USERNAME`; only example with a real unit test (`test/store.test.ts`) and a `PROMPT.md`; `optionsPage.shortCallbackQueryData: true` | `gramstax` only |
 | 10 | `10-http-request` | External HTTP integration: `services/http.ts` (`HttpService` using `fetch`, `AbortSignal.timeout`, JSON formatting); pages: http-request/help/start/status/blank; `guards/__nocode.ts` | `gramstax` only |
 
 ## SHARED SKELETON
 All TS examples share the same `src/` layout:
-- `base/{guard,page}.ts`, `blocks/g-keyboard.ts`, `core/{bot,ctx}.ts`, `guards/`, `helpers/log.ts`, `pages/`, `utils/array.ts`, `env.ts`, `index.ts`
-- Class chain: `PageBase extends CtxCore extends Ctx`; `BotCore extends Gramstax` overriding `hookErrorPage` + `hookNotFoundPage` (via `StatusPage.gerror/gnotFound`)
-- Entry convention: `index.ts` does `new BotCore({deploy, token, log})` then `Index.run()`
+- `base/{guard,page}.ts`, `blocks/g-keyboard.ts`, `core/{bot,ctx}.ts`, `guards/`, `helpers/log.ts`, `pages/`, `utils/array.ts`, `env.ts`
+- Class chain: `PageBase extends CtxCore extends Ctx`; `BotCore extends Gramstax` overriding `hookBeforeRoute` + `hookErrorPage` + `hookNotFoundPage` (via `StatusPage.gerror/gnotFound`)
+- `base/page-admin.ts` (`PageAdminBase extends PageBase`, adds a `hookBeforeRoute` access gate) is **not** part of the shared skeleton — only `8-newsletter` (real check via `AdminGuard.isAdmin`) and `11-cloudflare-worker` (unused `return true` stub) define it, and `8-newsletter/src/pages/broadcast.ts` is the only page in the repo that actually extends it
+- Boot convention: **no `src/index.ts`**. Each example has a root `gramstax.config.ts` (default export, annotated `: GramstaxConfig`) and `bun --bun gramstax start` boots it — the CLI discovers the `Gramstax` subclass at `src/core/bot.ts` and constructs it. Only `e2e/setup.ts` constructs `BotCore` directly.
+- `@gramstax/worker-thread` (only `1-complex`) is a background-job runner launched from `BotCore.hookAfterStart()` — not a bot-instance scaler
 - `env.ts` = static class with `BOT_DEPLOY` (default `polling`) and a hardcoded (revoked) test token
 - Every TS example has its own `tsconfig.json` extending `../../tsconfig.json` (composite, `noEmit: false`, includes `src/test/e2e`) with `~/*` → `./src/*` path alias
 
@@ -44,7 +46,7 @@ All TS examples share the same `src/` layout:
 - `2-helloworld`: adds `bench:webhook` script
 - `3-helloworld-js`: node runtime, resolution-shim tsconfig only (pure JS source), no test scripts beyond start
 - `5-interactive-menu`, `9-substore-bot`: `optionsPage.shortCallbackQueryData: true`
-- `7-crud`: env `STORE_PATH`; `8-newsletter`: env `DB_PATH` + `TELEGRAM_ADMIN_IDS`; `9-substore-bot`: env `BOT_TOKEN` + `STORE_ADMIN_USERNAME`
+- `7-crud`: env `STORE_PATH`; `8-newsletter`: env `DB_PATH` + `BOT_ADMIN_IDS`; `9-substore-bot`: env `BOT_TOKEN` + `STORE_ADMIN_USERNAME`
 - `9-substore-bot`: only example with a real unit test (`test/store.test.ts`; all others just `test/.gitkeep`) and a `PROMPT.md` (the create-gramstax generation prompt that produced it)
 - Per-example `README.md` files exist for 1,2,4,5,6,7,8,9,10 (not 3) — reference them, do not duplicate
 

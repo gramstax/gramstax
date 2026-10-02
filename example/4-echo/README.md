@@ -32,7 +32,7 @@ Beginner-friendly Gramstax bot that welcomes users, provides help, and echoes te
 
 ## File Structure
 
-- `src/index.ts`: Application entry point
+- `gramstax.config.ts`: composition (token, deploy, caches) — `gramstax start` boots from this, no entry file
 - `src/env.ts`: Environment configuration
 - `src/core/`: Bot and context setup
 - `src/pages/`: Page handlers for start/help/echo

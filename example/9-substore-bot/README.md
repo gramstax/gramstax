@@ -36,7 +36,7 @@ Gramstax example bot for selling digital subscription products through Telegram 
 
 ## File Structure
 
-- `src/index.ts`: Application entry point
+- `gramstax.config.ts`: composition (token, deploy, caches) — `gramstax start` boots from this, no entry file
 - `src/core/`: Bot and context setup
 - `src/data/`: Sample products, cart helpers, and order helpers
 - `src/pages/`: Store pages and templates
