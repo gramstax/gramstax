@@ -268,6 +268,20 @@ Gets compiled text from block <g-answer-note>.
 </td></tr>
 <tr><td>
 
+[getGBaseAtLine(template, line)](./gramstax.templatemanager.getgbaseatline.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Finds the `<g-base>` block (open + close) that encloses the given line number.
+
+
+</td></tr>
+<tr><td>
+
 [getGCallbackAnswer(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgcallbackanswer.md)
 
 
@@ -464,6 +478,62 @@ Gets compiled from block <g-venue>.
 </td></tr>
 <tr><td>
 
+[handleFileAdd(filepath)](./gramstax.templatemanager.handlefileadd.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles file add events from the watcher.
+
+
+</td></tr>
+<tr><td>
+
+[handleFileChange(filepath)](./gramstax.templatemanager.handlefilechange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles file change events from the watcher.
+
+
+</td></tr>
+<tr><td>
+
+[handleFileDelete(filepath)](./gramstax.templatemanager.handlefiledelete.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles file delete events from the watcher.
+
+
+</td></tr>
+<tr><td>
+
+[handleWatchError(error)](./gramstax.templatemanager.handlewatcherror.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles watcher errors.
+
+
+</td></tr>
+<tr><td>
+
 [has(key)](./gramstax.templatemanager.has.md)
 
 
@@ -473,6 +543,34 @@ Gets compiled from block <g-venue>.
 </td><td>
 
 Checks if a template exists in the cache.
+
+
+</td></tr>
+<tr><td>
+
+[loadFile(filename)](./gramstax.templatemanager.loadfile.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Loads and compiles a single template file.
+
+
+</td></tr>
+<tr><td>
+
+[readTemplateFile(filename)](./gramstax.templatemanager.readtemplatefile.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Reads a template file's content from disk.
 
 
 </td></tr>

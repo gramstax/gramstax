@@ -284,6 +284,46 @@ methods:
       return:
         type: string
         description: ''
+  - name: getGBaseAtLine(template, line)
+    uid: gramstax!TemplateManager#getGBaseAtLine:member(1)
+    package: gramstax!
+    fullName: getGBaseAtLine(template, line)
+    summary: Finds the `<g-base>` block (open + close) that encloses the given line number.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const tpl = '<g-base id="kb">\n<kop/></g-base>';
+        this._getBaseAtLine(tpl, 2) // => { AGBaseId: "kb", hasId: true }
+
+        const tpl2 = '<g-base>\n<kop/></g-base>';
+        this._getBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }
+
+        const tpl3 = '</g-base>\n{-lah-}\n<g-base>';
+        this._getBaseAtLine(tpl3, 2) // => null
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        getGBaseAtLine(template: string, line: number): {
+                AGBaseId: string | null;
+                hasId: boolean;
+            } | null;
+      parameters:
+        - id: template
+          description: Processed template string
+          type: string
+        - id: line
+          description: 1-based line number to check
+          type: number
+      return:
+        type: |-
+          {
+                  AGBaseId: string | null;
+                  hasId: boolean;
+              } | null
+        description: Object with `AGBaseId` and `hasId`<!-- -->, or `null` if not inside any `<g-base>` block
   - name: getGCallbackAnswer(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGCallbackAnswer:member(1)
     package: gramstax!
@@ -759,6 +799,96 @@ methods:
       return:
         type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`venue`][`default`][`default`]&gt;
         description: Venue object containing title, address, latitude, and longitude
+  - name: handleFileAdd(filepath)
+    uid: gramstax!TemplateManager#handleFileAdd:member(1)
+    package: gramstax!
+    fullName: handleFileAdd(filepath)
+    summary: Handles file add events from the watcher.
+    remarks: Compiles and caches a new template when a file is added. Only processes files with supported extensions.
+    example:
+      - |-
+        ```typescript
+        this.handleFileAdd("/src/pages/new-page.html")
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'handleFileAdd(filepath: string): void;'
+      parameters:
+        - id: filepath
+          description: Full path to the added file
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: handleFileChange(filepath)
+    uid: gramstax!TemplateManager#handleFileChange:member(1)
+    package: gramstax!
+    fullName: handleFileChange(filepath)
+    summary: Handles file change events from the watcher.
+    remarks: Recompiles the template when a watched file is modified. Only processes files with supported extensions.
+    example:
+      - |-
+        ```typescript
+        this.handleFileChange("/src/pages/welcome.html")
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'handleFileChange(filepath: string): void;'
+      parameters:
+        - id: filepath
+          description: Full path to the changed file
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: handleFileDelete(filepath)
+    uid: gramstax!TemplateManager#handleFileDelete:member(1)
+    package: gramstax!
+    fullName: handleFileDelete(filepath)
+    summary: Handles file delete events from the watcher.
+    remarks: Removes the compiled template from cache when its source file is deleted.
+    example:
+      - |-
+        ```typescript
+        this.handleFileDelete("/src/pages/old-page.html")
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'handleFileDelete(filepath: string): void;'
+      parameters:
+        - id: filepath
+          description: Full path to the deleted file
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: handleWatchError(error)
+    uid: gramstax!TemplateManager#handleWatchError:member(1)
+    package: gramstax!
+    fullName: handleWatchError(error)
+    summary: Handles watcher errors.
+    remarks: Override this method in a subclass to implement custom error handling.
+    example:
+      - |-
+        ```typescript
+        this.handleWatchError(new Error("ENOENT"))
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        handleWatchError(error: unknown): void;
+      parameters:
+        - id: error
+          description: The error object from the watcher
+          type: unknown
+      return:
+        type: void
+        description: ''
   - name: has(key)
     uid: gramstax!TemplateManager#has:member(1)
     package: gramstax!
@@ -783,6 +913,55 @@ methods:
       return:
         type: boolean
         description: '`true` if template exists in cache'
+  - name: loadFile(filename)
+    uid: gramstax!TemplateManager#loadFile:member(1)
+    package: gramstax!
+    fullName: loadFile(filename)
+    summary: Loads and compiles a single template file.
+    remarks: >-
+      This method is primarily used by the file watcher for hot-reloading. It searches all paths and compiles the first
+      matching file found.
+    example:
+      - |-
+        ```typescript
+        this.loadFile("welcome.html")
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'loadFile(filename: string): void;'
+      parameters:
+        - id: filename
+          description: Filename with extension to load
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: readTemplateFile(filename)
+    uid: gramstax!TemplateManager#readTemplateFile:member(1)
+    package: gramstax!
+    fullName: readTemplateFile(filename)
+    summary: Reads a template file's content from disk.
+    remarks: >-
+      If no extension is provided, tries `.ts`<!-- -->, `.js`<!-- -->, then `.html` in order. Searches all configured
+      paths until a match is found.
+    example:
+      - |-
+        ```typescript
+        this.readTemplateFile("welcome")
+        // => "<g-base>...</g-base>"
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readTemplateFile(filename: string): string | null;'
+      parameters:
+        - id: filename
+          description: Filename to read (with or without extension)
+          type: string
+      return:
+        type: string | null
+        description: Template content string, or `null` if not found
   - name: registerCompiled(key, compiled)
     uid: gramstax!TemplateManager#registerCompiled:member(1)
     package: gramstax!

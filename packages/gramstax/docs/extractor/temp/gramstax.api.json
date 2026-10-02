@@ -59565,6 +59565,70 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#getGBaseAtLine:member(1)",
+              "docComment": "/**\n * Finds the `<g-base>` block (open + close) that encloses the given line number.\n *\n * @param template - Processed template string\n *\n * @param line - 1-based line number to check\n *\n * @returns Object with `AGBaseId` and `hasId`, or `null` if not inside any `<g-base>` block\n *\n * @example\n * ```typescript\n * const tpl = '<g-base id=\"kb\">\\n<kop/></g-base>';\n * this._getBaseAtLine(tpl, 2) // => { AGBaseId: \"kb\", hasId: true }\n *\n * const tpl2 = '<g-base>\\n<kop/></g-base>';\n * this._getBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }\n *\n * const tpl3 = '</g-base>\\n{-lah-}\\n<g-base>';\n * this._getBaseAtLine(tpl3, 2) // => null\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getGBaseAtLine(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", line: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        AGBaseId: string | null;\n        hasId: boolean;\n    } | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "line",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getGBaseAtLine"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateManager#getGCallbackAnswer:member(1)",
               "docComment": "/**\n * Gets compiled text from block <g-callback-answer>.\n *\n * @remarks\n *\n * Strict lookup (mirrors `getGDice`): a missing block throws instead of returning an empty string, because callback answers always need text.\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -61109,6 +61173,198 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#handleFileAdd:member(1)",
+              "docComment": "/**\n * Handles file add events from the watcher.\n *\n * @remarks\n *\n * Compiles and caches a new template when a file is added. Only processes files with supported extensions.\n *\n * @param filepath - Full path to the added file\n *\n * @example\n * ```typescript\n * this.handleFileAdd(\"/src/pages/new-page.html\")\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleFileAdd(filepath: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "filepath",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "handleFileAdd"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#handleFileChange:member(1)",
+              "docComment": "/**\n * Handles file change events from the watcher.\n *\n * @remarks\n *\n * Recompiles the template when a watched file is modified. Only processes files with supported extensions.\n *\n * @param filepath - Full path to the changed file\n *\n * @example\n * ```typescript\n * this.handleFileChange(\"/src/pages/welcome.html\")\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleFileChange(filepath: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "filepath",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "handleFileChange"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#handleFileDelete:member(1)",
+              "docComment": "/**\n * Handles file delete events from the watcher.\n *\n * @remarks\n *\n * Removes the compiled template from cache when its source file is deleted.\n *\n * @param filepath - Full path to the deleted file\n *\n * @example\n * ```typescript\n * this.handleFileDelete(\"/src/pages/old-page.html\")\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleFileDelete(filepath: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "filepath",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "handleFileDelete"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#handleWatchError:member(1)",
+              "docComment": "/**\n * Handles watcher errors.\n *\n * @remarks\n *\n * Override this method in a subclass to implement custom error handling.\n *\n * @param error - The error object from the watcher\n *\n * @example\n * ```typescript\n * this.handleWatchError(new Error(\"ENOENT\"))\n * ```\n *\n * @public @virtual\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleWatchError(error: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "unknown"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "error",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "handleWatchError"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateManager#has:member(1)",
               "docComment": "/**\n * Checks if a template exists in the cache.\n *\n * @param key - Template identifier (filename without extension)\n *\n * @returns `true` if template exists in cache\n *\n * @example\n * ```typescript\n * if (tm.has(\"welcome\")) {\n *   const msg = tm.getMessage(\"welcome\", \"default\", \"en\")\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -61154,6 +61410,54 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "has"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#loadFile:member(1)",
+              "docComment": "/**\n * Loads and compiles a single template file.\n *\n * @remarks\n *\n * This method is primarily used by the file watcher for hot-reloading. It searches all paths and compiles the first matching file found.\n *\n * @param filename - Filename with extension to load\n *\n * @example\n * ```typescript\n * this.loadFile(\"welcome.html\")\n * ```\n *\n * @throws\n *\n * Error if the file extension is not supported\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "loadFile(filename: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "filename",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "loadFile"
             },
             {
               "kind": "Property",
@@ -61224,6 +61528,54 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#readTemplateFile:member(1)",
+              "docComment": "/**\n * Reads a template file's content from disk.\n *\n * @remarks\n *\n * If no extension is provided, tries `.ts`, `.js`, then `.html` in order. Searches all configured paths until a match is found.\n *\n * @param filename - Filename to read (with or without extension)\n *\n * @returns Template content string, or `null` if not found\n *\n * @example\n * ```typescript\n * this.readTemplateFile(\"welcome\")\n * // => \"<g-base>...</g-base>\"\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readTemplateFile(filename: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "filename",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "readTemplateFile"
             },
             {
               "kind": "Method",

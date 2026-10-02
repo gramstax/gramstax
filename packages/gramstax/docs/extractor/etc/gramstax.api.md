@@ -4500,6 +4500,10 @@ export class TemplateManager {
     getAGDescriptionLang(key: string, AGBaseId?: string, AScope?: string): string[];
     getAGDescriptionScopes(key: string, AGBaseId?: string): string[];
     getGAnswerNote(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
+    getGBaseAtLine(template: string, line: number): {
+        AGBaseId: string | null;
+        hasId: boolean;
+    } | null;
     getGCallbackAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
     getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string, unknown>): string;
     getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`dice`][`default`][`default`]>;
@@ -4514,9 +4518,16 @@ export class TemplateManager {
     getGPrecheckoutError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
     getGShippingError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
     getGVenue(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`venue`][`default`][`default`]>;
+    handleFileAdd(filepath: string): void;
+    handleFileChange(filepath: string): void;
+    handleFileDelete(filepath: string): void;
+    // @virtual
+    handleWatchError(error: unknown): void;
     has(key: string): boolean;
+    loadFile(filename: string): void;
     pageManager: typeof PageManager;
     readonly path: ITemplateOptions[`path`];
+    readTemplateFile(filename: string): string | null;
     registerCompiled(key: string, compiled: ICompiledTemplate): void;
     validateTemplate(AGBaseId: string, template: string, filename?: string): void;
     write(filename: string, template: string): Promise<boolean | null>;
@@ -4558,9 +4569,9 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:6541:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
-// dist/src/index.d.ts:19934:9 - (ae-forgotten-export) The symbol "ICustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:21472:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
+// dist/src/index.d.ts:6544:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
+// dist/src/index.d.ts:19937:9 - (ae-forgotten-export) The symbol "ICustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:21475:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 
