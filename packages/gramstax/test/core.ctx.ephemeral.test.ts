@@ -16,24 +16,24 @@ function createMockApi() {
     calls.push({method: `sendRichMessage`, body: {chat_id: chatId, rich_message: rich, ...((opts as object) ?? {})}})
     return Promise.resolve({message_id: 3} as unknown as never)
   })
-  const editEphemeralMessageText = mock((payload: unknown) => {
-    calls.push({method: `editEphemeralMessageText`, body: payload})
+  const editEphemeralMessageText = mock((chatId: unknown, messageId: unknown, businessConnectionId: unknown, rich: unknown, opts?: unknown) => {
+    calls.push({method: `editEphemeralMessageText`, body: {chat_id: chatId, message_id: messageId, business_connection_id: businessConnectionId, rich_message: rich, ...((opts as object) ?? {})}})
     return Promise.resolve(true as unknown as never)
   })
-  const editEphemeralMessageCaption = mock((payload: unknown) => {
-    calls.push({method: `editEphemeralMessageCaption`, body: payload})
+  const editEphemeralMessageCaption = mock((chatId: unknown, messageId: unknown, businessConnectionId: unknown, caption: unknown, opts?: unknown) => {
+    calls.push({method: `editEphemeralMessageCaption`, body: {chat_id: chatId, message_id: messageId, business_connection_id: businessConnectionId, caption, ...((opts as object) ?? {})}})
     return Promise.resolve(true as unknown as never)
   })
-  const editEphemeralMessageMedia = mock((payload: unknown) => {
-    calls.push({method: `editEphemeralMessageMedia`, body: payload})
+  const editEphemeralMessageMedia = mock((chatId: unknown, messageId: unknown, businessConnectionId: unknown, media: unknown, opts?: unknown) => {
+    calls.push({method: `editEphemeralMessageMedia`, body: {chat_id: chatId, message_id: messageId, business_connection_id: businessConnectionId, media, ...((opts as object) ?? {})}})
     return Promise.resolve(true as unknown as never)
   })
-  const deleteEphemeralMessage = mock((payload: unknown) => {
-    calls.push({method: `deleteEphemeralMessage`, body: payload})
+  const deleteEphemeralMessage = mock((chatId: unknown, messageId: unknown, businessConnectionId?: unknown) => {
+    calls.push({method: `deleteEphemeralMessage`, body: {chat_id: chatId, message_id: messageId, business_connection_id: businessConnectionId}})
     return Promise.resolve(true as unknown as never)
   })
-  const promoteChatMember = mock((payload: unknown) => {
-    calls.push({method: `promoteChatMember`, body: payload})
+  const promoteChatMember = mock((chatId: unknown, userId: unknown, opts?: unknown) => {
+    calls.push({method: `promoteChatMember`, body: {chat_id: chatId, user_id: userId, ...((opts as object) ?? {})}})
     return Promise.resolve(true as unknown as never)
   })
 
