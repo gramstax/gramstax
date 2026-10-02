@@ -180,10 +180,38 @@ class GramstaxKeyboard extends Keyboard {
  */
 class Helper {
   static MEDIA_GROUP_TYPES: ReadonlySet<string> = new Set([`photo`, `video`, `audio`, `document`])
+  /**
+   * Narrows a media type to the four types Telegram accepts in a group.
+   *
+   * @remarks
+   * Albums only accept photo, video, audio, and document. The other supported
+   * types (voice, video_note, sticker, animation, location, contact) are
+   * sendable individually but not groupable, so callers use this guard to
+   * route them to the single-media path instead of failing at the API.
+   *
+   * @param type - Media type declared on a `<g-media>` block.
+   * @returns The narrowed type when groupable, otherwise `false`.
+   *
+   * @internal
+   */
   static isMediaGroupType(type: string): type is IMediaGroupType {
     return Helper.MEDIA_GROUP_TYPES.has(type)
   }
 
+  /**
+   * Strips fields a media-group send cannot carry.
+   *
+   * @remarks
+   * `parse_mode` and `reply_markup` are rejected by the Bot API on
+   * `send*MediaGroup` — formatting is per item and the keyboard belongs to the
+   * following message. Dropping them here lets callers pass one options object
+   * through both the single-media and group paths without Telegram erroring.
+   *
+   * @param options - Caller options, possibly shared with a single-media send.
+   * @returns A shallow copy without `parse_mode` or `reply_markup`.
+   *
+   * @internal
+   */
   static buildMediaGroupOptions(options: Record<string, unknown>) {
     const mediaGroupOptions = {...(options ?? {})}
     delete mediaGroupOptions.parse_mode
@@ -191,6 +219,21 @@ class Helper {
     return mediaGroupOptions
   }
 
+  /**
+   * Builds a media group from heterogeneous items.
+   *
+   * @remarks
+   * Same caption rules as the uniform builder, but each item carries its own
+   * type: a per-item `caption` wins, and the group-level `caption` is only a
+   * fallback for the first item. Every captioned item is built with
+   * `parse_mode: "HTML"`.
+   *
+   * @param items - Per-item entries, each with its own `type` and `src`.
+   * @param caption - Fallback caption for the first item when it has none.
+   * @returns Input media entries ready for a `send*MediaGroup` call.
+   *
+   * @internal
+   */
   static buildMediaGroupFromItems(items: Array<Omit<IMediaGroupItem, `src`> & {src: string | InputFile}>, caption?: string): IMediaGroupInput[] {
     return items.map((item, index) => {
       const itemCaption = item.caption ?? (index === 0 ? caption : undefined)
@@ -202,6 +245,22 @@ class Helper {
     })
   }
 
+  /**
+   * Builds a uniform media group where every item shares one type.
+   *
+   * @remarks
+   * The group caption can only live on the first item, so `caption` is
+   * applied at index `0` and ignored elsewhere. Items are built with
+   * `parse_mode: "HTML"` whenever a caption is present, since block content is
+   * authored as rich HTML.
+   *
+   * @param type - Media type shared by every item.
+   * @param srcList - Item sources, as URLs or ready `InputFile` values.
+   * @param caption - Optional caption, applied to the first item only.
+   * @returns Input media entries ready for a `send*MediaGroup` call.
+   *
+   * @internal
+   */
   static buildMediaGroup(type: IMediaGroupType, srcList: Array<string | InputFile>, caption?: string): IMediaGroupInput[] {
     return srcList.map((media, index) => {
       const opts = index === 0 && caption ? {caption, parse_mode: `HTML` as const} : undefined
@@ -2087,7 +2146,7 @@ export class Ctx extends Context {
    * Return `false` to **skip only the target route handler** (e.g.
    * `handleFreeText`, `handleCallbackQueryData`, etc.). The rest of the
    * framework is untouched — you can still call `.render()`, `.renderEdit()`,
-   * `.renderAnswerCallback()`, and other Ctx methods normally inside
+   * `.renderCallbackAnswer()`, and other Ctx methods normally inside
    * this hook before returning `false`.
    *
    * In other words: returning `false` does NOT freeze the page — it
@@ -2106,7 +2165,7 @@ export class Ctx extends Context {
    * async hookBeforeRoute() {
    *   const last = await this.cacheSession.get(`${this.from.id}:lastAction`)
    *   if (last && Date.now() - Number(last) < 2000) {
-   *     await this.renderAnswerCallback(`Please wait...`) // still works
+   *     await this.renderCallbackAnswer(true, undefined, `cooldown`) // still works
    *     return false // only skips the target handler
    *   }
    *   await this.cacheSession.set(`${this.from.id}:lastAction`, String(Date.now()))
@@ -5983,6 +6042,23 @@ export class Ctx extends Context {
     return await this.renderEditMedia(`contact`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
+  /**
+   * Builds the cache key that scopes this session.
+   *
+   * @remarks
+   * Keyed by user id **and** chat id so the same user in two chats keeps two
+   * independent sessions — a private chat and a group must not share pending
+   * state. The userless case (channel posts, anonymous admins) degrades to
+   * `:chatId`, which still scopes by chat instead of collapsing every
+   * userless update into one shared bucket.
+   *
+   * A missing chat id yields an empty second segment rather than throwing, so
+   * private chats still key on the user alone.
+   *
+   * @returns The `userId:chatId` session cache key.
+   *
+   * @public
+   */
   sessionKey(): string {
     const userId = this.from?.id
     const chatId = this.chat?.id
@@ -6601,10 +6677,12 @@ export class Ctx extends Context {
    *
    * @remarks Triggered by exact text match.
    *
-   * @example this.msgText = "start"
+   * @example
    * ```typescript
+   * // text = "start"
+   * // validate "start" from mapping hash
    * async handleText() {
-   *    this.msgText // "start"
+   *    this.msg?.text // "start"
    * }
    * ```
    *
@@ -6618,10 +6696,12 @@ export class Ctx extends Context {
    *
    * @remarks Triggered by text with space-separated args.
    *
-   * @example this.msgText = "start 123 aaa"
+   * @example
    * ```typescript
-   * async handleTextArgs() {
-   *    this.msgText // "start 123 aaa"
+   * // text = "start 123 aaa"
+   * // validate "123" or "aaa" from mapping hash
+   * async handleArgsText() {
+   *    this.msg?.text // "start 123 aaa"
    *    this.msgTextArg // "123"
    *    this.msgTextArgs // ["123", "aaa"]
    * }
@@ -6637,10 +6717,12 @@ export class Ctx extends Context {
    *
    * @remarks Triggered by text with slash commands.
    *
-   * @example this.msgText = "/start"
+   * @example
    * ```typescript
+   * // text = "/start"
+   * // validate "/start" from mapping hash
    * async handleCommandText() {
-   *    this.msgText // "/start"
+   *    this.msg?.text // "/start"
    * }
    * ```
    *
@@ -6654,12 +6736,14 @@ export class Ctx extends Context {
    *
    * @remarks Triggered by text with commands slash with args.
    *
-   * @example this.msgText = "/start 123 aaa"
+   * @example
    * ```typescript
-   * async handleCommandTextArgs() {
-   *    this.msgText // "/start 123 aaa"
+   * // text = "/start 123 aaa"
+   * // validate "123" or "aaa" accoridng "/start" from mapping hash
+   * async handleCommandArgsText() {
+   *    this.msg?.text // "/start 123 aaa"
    *    this.msgTextArg // "123"
-   *    this.msgTextArg // ["123", "aaa"]
+   *    this.msgTextArgs // ["123", "aaa"]
    * }
    * ```
    *
@@ -6673,10 +6757,12 @@ export class Ctx extends Context {
    *
    * @remarks Triggered by any text not matching other routes, typically used with sessions.
    *
-   * @example this.msgText = "hello gramstax, random: 12848s8283n183m"
+   * @example
    * ```typescript
+   * // text = "hello gramstax, random: 12848s8283n183m"
+   * // validate "hello gramstax, random: 12848s8283n183m" if this text
    * async handleFreeText() {
-   *    this.msgText // "hello gramstax, random: 12848s8283n183m"
+   *    this.msg?.text // "hello gramstax, random: 12848s8283n183m"
    * }
    * ```
    *
@@ -6695,7 +6781,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionPhoto() {
    *   this.msg?.photo // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    * }
    * ```
    *
@@ -6713,9 +6799,9 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionArgsPhoto() {
    *   this.msg?.photo // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    *   this.msgCaptionArg // "123"
-   *   this.msgCaptionArgs["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
@@ -6733,7 +6819,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionPhoto() {
    *   this.msg?.photo // {...}
-   *   this.msgCaption // "/start"
+   *   this.msg?.caption // "/start"
    * }
    * ```
    *
@@ -6752,7 +6838,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionArgsPhoto() {
    *   this.msg?.photo // {...}
-   *   this.msgCaption // "/start 123 aaa"
+   *   this.msg?.caption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -6767,7 +6853,7 @@ export class Ctx extends Context {
    *
    * @remarks Triggered by any photo not matching other routes, typically used with sessions.
    *
-   * @example this.msg?.photo
+   * @example
    * ```typescript
    * async handleFreePhoto() {
    *    this.msg?.photo // {...}
@@ -6789,7 +6875,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionVideo() {
    *   this.msg?.video // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    * }
    * ```
    *
@@ -6807,7 +6893,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionArgsVideo() {
    *   this.msg?.video // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -6827,7 +6913,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionVideo() {
    *   this.msg?.video // {...}
-   *   this.msgCaption // "/start"
+   *   this.msg?.caption // "/start"
    * }
    * ```
    *
@@ -6846,7 +6932,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionArgsVideo() {
    *   this.msg?.video // {...}
-   *   this.msgCaption // "/start 123 aaa"
+   *   this.msg?.caption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -6861,7 +6947,7 @@ export class Ctx extends Context {
    *
    * @remarks Triggered by any video not matching other routes, typically used with sessions.
    *
-   * @example this.msg?.video
+   * @example
    * ```typescript
    * async handleFreeVideo() {
    *    this.msg?.video // {...}
@@ -6883,7 +6969,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionAudio() {
    *   this.msg?.audio // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    * }
    * ```
    *
@@ -6901,7 +6987,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionArgsAudio() {
    *   this.msg?.audio // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -6921,7 +7007,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionAudio() {
    *   this.msg?.audio // {...}
-   *   this.msgCaption // "/start"
+   *   this.msg?.caption // "/start"
    * }
    * ```
    *
@@ -6939,7 +7025,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionArgsAudio() {
    *   this.msg?.audio // {...}
-   *   this.msgCaption // "/start 123 aaa"
+   *   this.msg?.caption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -6955,7 +7041,7 @@ export class Ctx extends Context {
    *
    * @remarks Triggered by any audio not matching other routes, typically used with sessions.
    *
-   * @example this.msg?.audio
+   * @example
    * ```typescript
    * async handleFreeAudio() {
    *    this.msg?.audio // {...}
@@ -6977,7 +7063,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionDocument() {
    *   this.msg?.document // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    * }
    * ```
    *
@@ -6995,7 +7081,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionArgsDocument() {
    *   this.msg?.document // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -7015,7 +7101,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionDocument() {
    *   this.msg?.document // {...}
-   *   this.msgCaption // "/start"
+   *   this.msg?.caption // "/start"
    * }
    * ```
    *
@@ -7034,7 +7120,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionArgsDocument() {
    *   this.msg?.document // {...}
-   *   this.msgCaption // "/start 123 aaa"
+   *   this.msg?.caption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -7071,7 +7157,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionAnimation() {
    *   this.msg?.animation // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    * }
    * ```
    *
@@ -7089,7 +7175,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionArgsAnimation() {
    *   this.msg?.animation // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -7109,7 +7195,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionAnimation() {
    *   this.msg?.animation // {...}
-   *   this.msgCaption // "/start"
+   *   this.msg?.caption // "/start"
    * }
    * ```
    *
@@ -7128,7 +7214,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionArgsAnimation() {
    *   this.msg?.animation // {...}
-   *   this.msgCaption // "/start 123 aaa"
+   *   this.msg?.caption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -7165,7 +7251,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionVoice() {
    *   this.msg?.voice // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    * }
    * ```
    *
@@ -7183,7 +7269,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCaptionArgsVoice() {
    *   this.msg?.voice // {...}
-   *   this.msgCaption // "start"
+   *   this.msg?.caption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
@@ -7203,7 +7289,7 @@ export class Ctx extends Context {
    * ```typescript
    * async voiceCommandCaption() {
    *   this.msg?.voice // {...}
-   *   this.msgCaption // "/start"
+   *   this.msg?.caption // "/start"
    * }
    * ```
    *
@@ -7222,7 +7308,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCommandCaptionArgsVoice() {
    *   this.msg?.voice // {...}
-   *   this.msgCaption // "/start 123 aaa"
+   *   this.msg?.caption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }

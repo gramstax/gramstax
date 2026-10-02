@@ -153,6 +153,19 @@ export class MockTelegramServer {
     this.log?.info?.(`Mock Telegram server stopped`)
   }
 
+  /**
+   * Wrap a payload in a JSON `Response`.
+   *
+   * @remarks
+   * Always `200` with an `application/json` content type. The mock has no error transport, so a
+   * failure travels as an `{ok: false, description}` body rather than a status code — the only
+   * non-200 responses the server produces are the 404s from `_handleRequest`.
+   *
+   * @param payload - Mock Bot API response body.
+   * @returns A `Response` carrying the JSON-serialized payload.
+   *
+   * @internal
+   */
   _json(payload: IMockTelegramJson) {
     return new Response(JSON.stringify(payload), {
       status: 200,
@@ -235,6 +248,20 @@ export class MockTelegramServer {
     this.webhookUrl = ``
   }
 
+  /**
+   * Test whether a URL host is loopback.
+   *
+   * @remarks
+   * The safety gate behind `setWebhook`: this server must never be pointed at a real endpoint, so
+   * only `127.0.0.1`, `localhost`, and the IPv6 loopback host (bracketed and bare) are accepted.
+   * A URL that fails to parse is rejected. Note that this checks the host only — the path and
+   * scheme are not inspected.
+   *
+   * @param url - Candidate webhook URL.
+   * @returns `true` when the hostname is a loopback host.
+   *
+   * @internal
+   */
   _isLoopbackUrl(url: string): boolean {
     try {
       const host = new URL(url).hostname
@@ -244,6 +271,22 @@ export class MockTelegramServer {
     }
   }
 
+  /**
+   * Produce the canned Bot API response for a method with no registered handler.
+   *
+   * @remarks
+   * Covers only what the framework calls during boot and reply flows: `getMe`, `getUpdates`,
+   * `getMyCommands`, `setMyCommands`, `setWebhook` (loopback-gated) with `getWebhookInfo`, the
+   * ephemeral-message edits, `promoteChatMember`, and any `send*` method, which allocates the next
+   * message id. Several branches echo select request fields back on the result so a caller can
+   * read what it sent. Anything unrecognised returns `{ok: true, result: true}`.
+   *
+   * @param method - Telegram Bot API method name taken from the request path.
+   * @param body - Parsed request body, read by the branches that echo fields back.
+   * @returns The response body to serialize.
+   *
+   * @internal
+   */
   _defaultResponse(method: string, body?: unknown): IMockTelegramJson {
     if (method === `getMe`) {
       return {
@@ -341,6 +384,21 @@ export class MockTelegramServer {
     return {ok: true, result: true}
   }
 
+  /**
+   * Route one inbound request on the `/bot<token>/<method>` path shape.
+   *
+   * @remarks
+   * Records the token on `botToken`, appends the request to `requests`, then dispatches to the
+   * method's own handler, the `defaultHandler`, or `_defaultResponse` — in that order. A path
+   * outside that shape gets a 404. A handler that throws is converted into an
+   * `{ok: false, description}` body, so the bot under test observes a normal API error instead of
+   * a transport failure.
+   *
+   * @param request - The inbound request.
+   * @returns A `Response` — 404 for an unroutable path, otherwise JSON from the chosen handler.
+   *
+   * @internal
+   */
   async _handleRequest(request: Request) {
     const {pathname} = new URL(request.url)
     const match = pathname.match(/^\/bot([^/]+)\/(.+)$/)
@@ -375,10 +433,36 @@ export class MockTelegramServer {
     }
   }
 
+  /**
+   * Narrow a parsed request body to a plain object.
+   *
+   * @remarks
+   * Returns `undefined` for `null`, arrays, and primitives so callers can read fields off the
+   * result without a further guard.
+   *
+   * @param body - Parsed request body of unknown shape.
+   * @returns The body as a record, or `undefined` when it is not a non-null object.
+   *
+   * @internal
+   */
   _bodyRecord(body: unknown): Record<string, unknown> | undefined {
     return body && typeof body === `object` && !Array.isArray(body) ? (body as Record<string, unknown>) : undefined
   }
 
+  /**
+   * Parse a request body into a JSON value or a flat form record.
+   *
+   * @remarks
+   * `GET` and `HEAD` short-circuit to `undefined`. A JSON body parses via `json()`; a form or
+   * multipart body flattens to a record, with each `File` entry's `type` narrowed to its base
+   * media type so any parameters are dropped. Anything else is read as text and parsed as JSON,
+   * falling back to the raw string. A read failure yields `undefined` instead of propagating.
+   *
+   * @param request - Request whose body has not been consumed yet.
+   * @returns The parsed body, or `undefined` for a bodyless or unreadable request.
+   *
+   * @internal
+   */
   async _readBody(request: IMockTelegramReadableRequest): Promise<unknown> {
     if (request.method === `GET` || request.method === `HEAD`) {
       return undefined
@@ -419,6 +503,19 @@ export class MockTelegramServer {
     }
   }
 
+  /**
+   * Build the `from` sender object for a simulated update.
+   *
+   * @remarks
+   * Fills `id`, `is_bot`, `first_name`, and `language_code` with mock defaults and spreads
+   * `last_name` and `username` only when the caller supplied them, so an absent field stays absent
+   * rather than becoming an empty string.
+   *
+   * @param user - Partial sender override.
+   * @returns A Telegram `User` shaped object.
+   *
+   * @internal
+   */
   _defaultUser(user?: IMockTelegramUser) {
     return {
       id: user?.id ?? 1001,
@@ -430,6 +527,19 @@ export class MockTelegramServer {
     }
   }
 
+  /**
+   * Build the `chat` object for a simulated update.
+   *
+   * @remarks
+   * Fills `id`, `type`, and `first_name` with mock defaults and spreads `last_name`, `username`,
+   * and `title` only when the caller supplied them, so an absent field stays absent rather than
+   * becoming an empty string.
+   *
+   * @param chat - Partial chat override.
+   * @returns A Telegram `Chat` shaped object.
+   *
+   * @internal
+   */
   _defaultChat(chat?: IMockTelegramChat) {
     return {
       id: chat?.id ?? 1001,
@@ -441,6 +551,18 @@ export class MockTelegramServer {
     }
   }
 
+  /**
+   * Allocate the next update id, message id, and timestamp for a simulated update.
+   *
+   * @remarks
+   * `updateId` always comes from the internal counter; `messageId` and `date` honour the caller's
+   * override first, falling back to the counter and to the current time in seconds.
+   *
+   * @param options - Update options that may override `message_id` and `date`.
+   * @returns The update id, the message id, and the unix timestamp in seconds.
+   *
+   * @internal
+   */
   _nextIds(options?: IMockTelegramUpdateOptions) {
     return {
       updateId: this._nextUpdateId++,
@@ -449,6 +571,21 @@ export class MockTelegramServer {
     }
   }
 
+  /**
+   * Wrap a partial message in a Telegram `message` update envelope.
+   *
+   * @remarks
+   * The caller's fields are spread last and therefore win over the envelope's `message_id`,
+   * `date`, `chat`, and `from`, so a caller can override those directly. Use `sendCallbackQuery`
+   * for updates that must not carry a `message`, since a callback query nests its own message
+   * object.
+   *
+   * @param message - Message fields to merge into the envelope.
+   * @param options - Update options supplying the sender, chat, and id overrides.
+   * @returns A Telegram `Update` object carrying a `message` field.
+   *
+   * @internal
+   */
   _buildMessageUpdate(message: Record<string, unknown>, options?: IMockTelegramUpdateOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
     return {
@@ -463,6 +600,21 @@ export class MockTelegramServer {
     }
   }
 
+  /**
+   * Deliver a simulated update to the bot's webhook and collect the replies it makes.
+   *
+   * @remarks
+   * Every `send*` helper funnels through here. It waits for `webhookUrl`, records the update in
+   * `updates`, POSTs it over real HTTP to that URL (so the bot's own webhook listener and secret
+   * check are exercised), then waits for the Bot API requests the bot issued in response.
+   *
+   * @param update - The update object to deliver.
+   * @param options - Update options; `responseTimeoutMs` bounds both the webhook-URL wait and the response wait.
+   * @returns The captured user-facing Bot API requests, in order.
+   * @throws Error when `webhookUrl` is still unset after the wait, or when the webhook responds with a non-2xx status.
+   *
+   * @internal
+   */
   async _postUpdate(update: Record<string, unknown>, options?: IMockTelegramUpdateOptions) {
     await this._waitForWebhookUrl(options?.responseTimeoutMs ?? 1000)
     if (!this.webhookUrl) {
@@ -487,6 +639,20 @@ export class MockTelegramServer {
     return responses
   }
 
+  /**
+   * Poll until the bot under test registers its webhook URL.
+   *
+   * @remarks
+   * The bot may call `setWebhook` lazily on its first request, so a send helper can otherwise
+   * race the registration. Returns immediately when a URL is already set or `timeoutMs` is not
+   * positive; otherwise it polls every 5ms and gives up at the deadline, leaving the "not set"
+   * failure to `_postUpdate`.
+   *
+   * @param timeoutMs - How long to wait, in milliseconds; `0` or less skips the wait entirely.
+   * @returns The registered `webhookUrl`, which may still be empty on timeout.
+   *
+   * @internal
+   */
   async _waitForWebhookUrl(timeoutMs: number) {
     if (this.webhookUrl || timeoutMs <= 0) {
       return this.webhookUrl
@@ -503,6 +669,20 @@ export class MockTelegramServer {
     return this.webhookUrl
   }
 
+  /**
+   * Wait for the bot under test to answer an update it has already received.
+   *
+   * @remarks
+   * Returns immediately when a user-facing request already landed or when `responseTimeoutMs` is
+   * not positive. Otherwise it polls every 5ms and stops at the first user-facing request or at
+   * the deadline — a bot that never replies therefore costs the full timeout instead of failing.
+   *
+   * @param requestStartIndex - Index into `requests` marking where this update's dispatch began.
+   * @param responseTimeoutMs - How long to wait for the first reply, in milliseconds; `0` or less disables waiting.
+   * @returns The captured user-facing Bot API requests, in order.
+   *
+   * @internal
+   */
   async _waitForResponses(requestStartIndex: number, responseTimeoutMs: number) {
     if (responseTimeoutMs <= 0) {
       return this._userResponseRequests(requestStartIndex)
@@ -523,10 +703,36 @@ export class MockTelegramServer {
     return this._userResponseRequests(requestStartIndex)
   }
 
+  /**
+   * Slice the requests recorded for one update, keeping only user-facing methods.
+   *
+   * @remarks
+   * Boot chatter such as `getMe` or `setWebhook` is filtered out by method name, so a caller gets
+   * only what the end user would actually have seen.
+   *
+   * @param requestStartIndex - Index into `requests` marking where this update's dispatch began.
+   * @returns The user-facing request records recorded since that index.
+   *
+   * @internal
+   */
   _userResponseRequests(requestStartIndex: number) {
     return this.requests.slice(requestStartIndex).filter((request) => this._isUserResponseMethod(request.method))
   }
 
+  /**
+   * Test whether a Bot API method counts as a user-facing reply.
+   *
+   * @remarks
+   * Matches by prefix — `send`, `edit`, `answer`, `delete`, `copy`, `forward` — plus the exact
+   * names `pinChatMessage`, `unpinChatMessage`, and `setMessageReaction`. Matching by prefix means
+   * unlisted siblings of those families are also treated as user-facing, while `getMe`,
+   * `getUpdates`, and `setWebhook` never are.
+   *
+   * @param method - Telegram Bot API method name taken from the request path.
+   * @returns `true` when the method is considered a user-facing reply.
+   *
+   * @internal
+   */
   _isUserResponseMethod(method: string) {
     return method.startsWith(`send`) || method.startsWith(`edit`) || method.startsWith(`answer`) || method.startsWith(`delete`) || method.startsWith(`copy`) || method.startsWith(`forward`) || method === `pinChatMessage` || method === `unpinChatMessage` || method === `setMessageReaction`
   }

@@ -2199,6 +2199,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /**
+   * Pushes `<g-description>` blocks to Telegram as the bot command list.
+   *
+   * @remarks
+   * Runs after start and syncs per `(scope, language)` pair, because Telegram
+   * stores commands per scope and per language rather than globally.
+   *
+   * Three passes: collect every scope/language pair declared by a
+   * `handleCommandText` page; resolve each pair's command list through
+   * `getGDescription`, which already owns the fallback chain; then compare
+   * against `getMyCommands` and call `setMyCommands` only on a real
+   * difference. Comparison is order-insensitive (both sides sorted by command
+   * name), so a reordered Telegram response does not trigger a pointless
+   * write.
+   *
+   * Failure is contained per pair — a rejected API call is logged and the
+   * remaining scopes still sync, so one bad scope cannot abort the rest.
+   * Scope/language pairs with no resolvable description are skipped.
+   *
+   * @param pages - Routing skeleton whose `routeStatic.handleCommandText`
+   * entries supply the command names.
+   * @returns Nothing; failures are logged rather than thrown.
+   *
+   * @internal
+   */
   async executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages) {
     // 1. Collect all unique (scope, language) pairs
     const targets = new Map<string, Set<string>>() // scope -> Set<language>
@@ -2549,7 +2574,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param pagesPath - Optional path to the pages directory. When omitted,
    * falls back to `PageManager.getFilePath()` which defaults to
    * `process.cwd() + "/src/pages"`. The Gramstax constructor passes
-   * `this.templateManager._path[0]` so that custom template paths
+   * `this.templateManager.path[0]` so that custom template paths
    * are respected without requiring `process.chdir()`.
    *
    * @returns The pages routing structure.
@@ -2575,17 +2600,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return pages
   }
 
-  /**
-   * Registers pages from a static manifest (filesystem-less boot).
-   *
-   * @remarks
-   * Same tables as `_pageLoads` via the shared `_pageRegisterEntry`;
-   * class-inline templates compile under the entry routeName (equal to
-   * the walk-derived template key), `.html` fragments come from
-   * `manifest.templates`. No directory is read.
-   *
-   * @internal
-   */
   /**
    * Best-effort load of frozen `.gramstax/` build output for serverless deploys.
    *
@@ -2614,6 +2628,33 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /**
+   * Registers pages from a frozen manifest instead of walking the filesystem.
+   *
+   * @remarks
+   * The fs-less counterpart to the directory walk, used by `serverless` when
+   * `.gramstax/` is present. Routing tables come out identical because both
+   * paths funnel into the same `_pageRegisterEntry`.
+   *
+   * Two shapes are accepted:
+   *
+   * - `manifest.routes` present — routes are the source of truth and are
+   *   joined to pages by `routeName`. A route with no page means the build
+   *   output is stale, so it throws naming the offending file rather than
+   *   silently dropping the route.
+   * - `manifest.routes` absent — pages register directly, and an empty
+   *   `routeName` throws because directory-index pages take the parent route.
+   *
+   * Class-inline `page.template` values are compiled under their route name,
+   * then every `manifest.templates` entry is compiled under its own key.
+   *
+   * @param manifest - Frozen manifest produced by `gramstax build`.
+   * @returns The populated routing skeleton.
+   * @throws Error when a `manifest.routes` entry has no matching page, or a
+   * page entry carries an empty `routeName`.
+   *
+   * @internal
+   */
   _pageLoadsFromManifest(manifest: IAppManifest) {
     this.log?.info?.(`Loading pages from manifest.`)
 
@@ -3028,6 +3069,33 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
   }
 
+  /**
+   * Entry point for every listener: dedupes, validates length, then routes.
+   *
+   * @remarks
+   * Runs before {@link Gramstax._handleCtx}, so everything here is a gate
+   * that can only drop the update, never handle it. Two independent gates:
+   *
+   * 1. Duplicate suppression — when `skipDuplicateUpdate` is on and the
+   *    update carries an `update_id`, a `seen` hit returns immediately. The
+   *    set is bounded by evicting the oldest insertion once it exceeds
+   *    `_seenUpdatesMax`, so it stays a cache and not a leak.
+   * 2. Length validation — text or caption over `maxTextLength` (when
+   *    non-zero) is rejected as a `validation` error event, distinct from a
+   *    routing `error`.
+   *
+   * `traceId` prefers the update id so metrics and error events correlate
+   * across retries; updates without one fall back to an incrementing
+   * sequence. Both gate rejections record their own metric counter.
+   *
+   * @param ct - Raw grammY context for the incoming update.
+   * @param listenerName - Routing key forwarded to the route table.
+   * @param shouldCheckNotFound - Whether a `no-match` may render the
+   * not-found view. Defaults to `true`.
+   * @returns Nothing; hands the update to `_handleCtx` when both gates pass.
+   *
+   * @internal
+   */
   async _onHandle(ct: ICt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
     const startedAt = Date.now()
     const updateId = ct.update?.update_id

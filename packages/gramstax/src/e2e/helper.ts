@@ -115,6 +115,20 @@ export class E2eHelper {
     })
   }
 
+  /**
+   * Return the canned response for a boot-time Bot API method.
+   *
+   * @remarks
+   * Methods listed in `_INTERNAL_METHODS` are answered but never recorded in `calls`, so boot
+   * traffic stays out of a test's assertions. `getMe` returns a fixed bot identity,
+   * `getWebhookInfo` an empty URL, `setWebhook` a bare success, and `getMyCommands` — plus any
+   * other internal method reaching here — an empty list.
+   *
+   * @param method - The internal Bot API method name.
+   * @returns The canned `{ok: true, result}` body.
+   *
+   * @internal
+   */
   _internalResponse(method: string): unknown {
     if (method === `getMe`) {
       return {ok: true, result: {id: 123456789, is_bot: true, first_name: `GramstaxMock`, username: `gramstax_mock_bot`}}
@@ -252,6 +266,19 @@ export class E2eHelper {
     return [...inline, ...bottom].filter((label) => label !== ``)
   }
 
+  /**
+   * Build the `from` sender object for a simulated update.
+   *
+   * @remarks
+   * Tests key presence with `in` rather than truthiness, so an explicit override always wins even
+   * when its value is falsy. `last_name` and `username` are spread only when the key is present,
+   * keeping absent fields absent rather than empty.
+   *
+   * @param user - Partial sender override.
+   * @returns A Telegram `User` shaped object.
+   *
+   * @internal
+   */
   _defaultUser(user?: IE2eUser) {
     return {
       id: user !== undefined && `id` in user ? user.id : 1001,
@@ -263,6 +290,19 @@ export class E2eHelper {
     }
   }
 
+  /**
+   * Build the `chat` object for a simulated update.
+   *
+   * @remarks
+   * Tests key presence with `in` rather than truthiness, so an explicit override always wins even
+   * when its value is falsy. `last_name`, `username`, and `title` are spread only when the key is
+   * present, keeping absent fields absent rather than empty.
+   *
+   * @param chat - Partial chat override.
+   * @returns A Telegram `Chat` shaped object.
+   *
+   * @internal
+   */
   _defaultChat(chat?: IE2eChat) {
     return {
       id: chat !== undefined && `id` in chat ? chat.id : 1001,
@@ -274,6 +314,19 @@ export class E2eHelper {
     }
   }
 
+  /**
+   * Allocate the next update id, message id, and timestamp for a simulated update.
+   *
+   * @remarks
+   * `updateId` always comes from the internal counter, which `reset()` returns to `1`.
+   * `messageId` and `date` are taken when the key is present on `options`, otherwise from the
+   * counter and the current time in seconds.
+   *
+   * @param options - Update options that may override `message_id` and `date`.
+   * @returns The update id, the message id, and the unix timestamp in seconds.
+   *
+   * @internal
+   */
   _nextIds(options?: IE2eUpdateOptions) {
     return {
       updateId: this._nextUpdateId++,
@@ -282,10 +335,39 @@ export class E2eHelper {
     }
   }
 
+  /**
+   * Read the post-dispatch settle delay off the update options.
+   *
+   * @remarks
+   * `settleMs` is read through a widening cast because it is not declared on `IE2eUpdateOptions` —
+   * it reaches the helper as an extra property and is what `handleUpdate` waits for after
+   * dispatching an update, so a caller whose handler defers its API calls raises it. Absent means
+   * `0`, leaving only the single tick `handleUpdate` always awaits.
+   *
+   * @param options - Update options, which may carry an undeclared `settleMs`.
+   * @returns The settle delay in milliseconds, `0` when absent.
+   *
+   * @internal
+   */
   _settleFrom(options: IE2eUpdateOptions | undefined): number {
     return (options as {settleMs?: number} | undefined)?.settleMs ?? 0
   }
 
+  /**
+   * Wrap a partial message in a Telegram `message` update envelope.
+   *
+   * @remarks
+   * The caller's fields are spread last and therefore win over the envelope's `message_id`,
+   * `date`, `chat`, and `from`, so a caller can override those directly. Use `sendCallbackQuery`
+   * for updates that must not carry a `message`, since a callback query nests its own message
+   * object.
+   *
+   * @param message - Message fields to merge into the envelope.
+   * @param options - Update options supplying the sender, chat, and id overrides.
+   * @returns A Telegram `Update` object carrying a `message` field.
+   *
+   * @internal
+   */
   _buildMessageUpdate(message: Record<string, unknown>, options?: IE2eUpdateOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
     return {

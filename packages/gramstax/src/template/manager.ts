@@ -625,13 +625,13 @@ export class TemplateManager {
    * @example
    * ```typescript
    * const tpl = '<g-base id="kb">\n<kop/></g-base>';
-   * this._getBaseAtLine(tpl, 2) // => { AGBaseId: "kb", hasId: true }
+   * this.getGBaseAtLine(tpl, 2) // => { AGBaseId: "kb", hasId: true }
    *
    * const tpl2 = '<g-base>\n<kop/></g-base>';
-   * this._getBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }
+   * this.getGBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }
    *
    * const tpl3 = '</g-base>\n{-lah-}\n<g-base>';
-   * this._getBaseAtLine(tpl3, 2) // => null
+   * this.getGBaseAtLine(tpl3, 2) // => null
    * ```
    *
    * @public
@@ -731,6 +731,7 @@ export class TemplateManager {
    * @param keepIfExist - Optional flags to preserve existing compiled parts
    * @param importCache - Optional shared cache for import resolution
    * @param rawCache - Optional pre-loaded raw template cache for batch loading
+   * @param filename - Optional source filename recorded on the cache entry (defaults to `key`)
    *
    * @remarks
    * This method processes import blocks, compiles media, polls, messages, keyboards,
@@ -1444,6 +1445,22 @@ export class TemplateManager {
     return null
   }
 
+  /**
+   * Closes file watchers, cancels pending reloads, and awaits in-flight reloads.
+   *
+   * @remarks
+   * Three things can outlive a reload, and all three must be settled before the
+   * process exits or a test asserts on a clean slate. Listeners are detached
+   * before each watcher closes so `close()` does not fire teardown handlers;
+   * pending debounce timers are cleared; and `_reloadChain` is awaited so a
+   * reload already in progress finishes rather than racing the close.
+   *
+   * Safe to call when nothing was ever watched — every branch is guarded.
+   *
+   * @returns Nothing; resolves once no reload is outstanding.
+   *
+   * @public
+   */
   async closeWatchers(): Promise<void> {
     if (this._watcher) {
       for (const wt of this._watcher) {

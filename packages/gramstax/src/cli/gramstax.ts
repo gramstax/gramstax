@@ -7,6 +7,22 @@ import {GramstaxBuild} from "./build"
 import {GramstaxStart} from "./start"
 
 export class GramstaxProgram {
+  /**
+   * Build the Commander program backing the `gramstax` binary.
+   *
+   * @remarks
+   * This layer only parses flags and translates them into the positional `argv`
+   * arrays that `GramstaxBuild.run` and `GramstaxStart.run` expect — the actual
+   * config loading, discovery and writing happen in those classes. Commander is
+   * configured with `exitOverride`, so `--help` and `--version` surface as
+   * rejections and are turned into exit code `0` by `handleMainError` rather
+   * than calling `process.exit` outright. Each action forwards its flags in a
+   * fixed order and copies the resolved exit code onto `process.exitCode`.
+   *
+   * @returns A `Command` named `gramstax` exposing the `build` and `start` subcommands.
+   *
+   * @public
+   */
   create(): Command {
     const program = new Command()
     program.name(`gramstax`).description(`Gramstax Telegram bot toolkit`).version(this._loadVersion()).exitOverride()
@@ -39,10 +55,36 @@ export class GramstaxProgram {
     return program
   }
 
+  /**
+   * Treat a resolved `program.parseAsync` as success.
+   *
+   * @remarks
+   * Subcommands assign their own exit code to `process.exitCode`, so a command
+   * that already reported a failure keeps it; only an unset code is promoted to
+   * `0`. Passed unbound as a `.then` callback, hence the arrow wrapper at the
+   * call site rather than a bound `this`.
+   *
+   * @public
+   */
   markMainSuccess(): void {
     if (process.exitCode === undefined) process.exitCode = 0
   }
 
+  /**
+   * Translate a rejected `program.parseAsync` into an exit code.
+   *
+   * @remarks
+   * `--help` and `--version` reach here as rejections rather than resolutions
+   * because the program is built with `exitOverride`, so they are treated as
+   * success. Commander has already printed its own message for parse failures,
+   * so only non-Commander errors are echoed here — re-printing doubled every
+   * line. The value assigned to `process.exitCode` is the last expression of the
+   * handler, which is what the `.catch(main.handleMainError)` chain relies on.
+   *
+   * @param error - The rejection reason from `program.parseAsync`.
+   *
+   * @public
+   */
   handleMainError(error: unknown): void {
     if (error instanceof CommanderError && (error.code === `commander.helpDisplayed` || error.code === `commander.version`)) {
       process.exitCode = 0
@@ -57,6 +99,21 @@ export class GramstaxProgram {
     process.exitCode = 2
   }
 
+  /**
+   * Walk up from `startDir` looking for the nearest `package.json`.
+   *
+   * @remarks
+   * Bounded to ten directories so a missing file fails fast instead of walking a
+   * pathologically deep tree. The walk stops early at a filesystem root, where
+   * `dirname` returns the same path.
+   *
+   * @param startDir - Absolute directory to begin the upward walk from.
+   * @returns Absolute path of the first `package.json` found.
+   *
+   * @throws Error when no `package.json` exists within ten parent directories.
+   *
+   * @internal
+   */
   _findPackageJson(startDir: string): string {
     let dir = startDir
     for (let index = 0; index < 10; index++) {
@@ -69,6 +126,22 @@ export class GramstaxProgram {
     throw new Error(`package.json not found`)
   }
 
+  /**
+   * Read the CLI version from the nearest `package.json`.
+   *
+   * @remarks
+   * Starts at this module's own directory and walks up, so the version comes from
+   * the installed `gramstax` package rather than from whatever project the user
+   * happens to run the command in. Every failure — missing file, unparsable JSON,
+   * absent or non-string `version` — collapses to `0.0.0` so `--version` always
+   * prints something instead of crashing the binary.
+   *
+   * @returns The `version` field of the nearest `package.json`, or `0.0.0`.
+   *
+   * @defaultValue `0.0.0`
+   *
+   * @internal
+   */
   _loadVersion(): string {
     try {
       const raw = readFileSync(this._findPackageJson(dirname(fileURLToPath(import.meta.url))), `utf-8`)
@@ -82,6 +155,20 @@ export class GramstaxProgram {
 }
 
 class Helper {
+  /**
+   * Report whether this module was invoked directly as the `gramstax` binary.
+   *
+   * @remarks
+   * Guards the side-effecting `program.parseAsync` call at module scope, so
+   * importing `program` from a test or another script does not start Commander's
+   * dispatch. Compares `process.argv[1]` to this file's own path, then falls back
+   * to a filename-suffix check because bin shims and the `.js`/`.mjs` build outputs
+   * report a different path than `import.meta.url`.
+   *
+   * @returns `true` when this module should run the CLI, `false` when it was merely imported.
+   *
+   * @internal
+   */
   static isMainModule(): boolean {
     const argv1 = process.argv[1] ?? ``
     if (argv1 === ``) return false

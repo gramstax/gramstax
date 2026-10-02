@@ -4,6 +4,23 @@ import {dirname, join, relative, resolve, sep} from "node:path"
 import type {BunPlugin} from "bun"
 
 export class WorkerTarget {
+  /**
+   * Emit the Cloudflare Workers serverless target into a directory.
+   *
+   * @remarks
+   * Reads the frozen build artifacts written next to the manifest by `gramstax build` and writes
+   * three files: `worker.js` (the Workers module entry), `wrangler.toml`, and `bun-stub.ts`.
+   * Import specifiers inside `worker.js` are made relative to `serverDir`, so the directory must
+   * be able to reach the frozen artifacts.
+   *
+   * @param serverDir - Directory that receives the emitted files; created recursively when missing.
+   * @param manifestRef - Path to the frozen manifest module, which also locates `routes.json` and `gen/manifest.js`.
+   * @param opts - Emit overrides: adapter, worker name, public webhook URL, compatibility date and flags, extra `wrangler.toml` keys, passthrough constructor fields, and ref slots.
+   * @returns Absolute paths of `worker.js`, `wrangler.toml`, and `bun-stub.ts`, in that order.
+   * @throws Error when the manifest, `routes.json`, or the AOT `gen/manifest.js` is missing.
+   *
+   * @internal
+   */
   emit(
     serverDir: string,
     manifestRef: string,
@@ -97,6 +114,26 @@ export class WorkerTarget {
     return bundleJs
   }
 
+  /**
+   * Render the `worker.js` module source for a Cloudflare Workers deploy.
+   *
+   * @remarks
+   * Emits a `WorkerEntry` class that lazily constructs `Gramstax` from the `env` bindings
+   * (`BOT_TOKEN`, `BOT_WEBHOOK_SECRET`, optional `BOT_API_ROOT` as the API root override),
+   * registers the AOT templates through `registerCompiled`, and exports a default `fetch`. Each
+   * page's inline `template` is deleted first so boot cannot JIT-compile templates on the edge —
+   * the frozen AOT modules serve those keys instead. `POST /webhook` returns 401 unless the
+   * `X-Telegram-Bot-Api-Secret-Token` header matches the secret binding; every other path returns
+   * a plain 200. Deploy values (`adapter`, `name`, `url`) are baked into the constructor.
+   *
+   * @param manifestSpec - Import specifier for the frozen manifest module.
+   * @param genSpec - Import specifier for the AOT template registry.
+   * @param routesSpec - Import specifier for `routes.json`.
+   * @param baked - Adapter, worker name, public webhook URL, passthrough fields, and ref slots to inline.
+   * @returns The `worker.js` file content.
+   *
+   * @internal
+   */
   _renderWorker(manifestSpec: string, genSpec: string, routesSpec: string, baked?: {adapter: string; name: string; url: string; passthrough?: Record<string, unknown>; refs?: Array<{slot: string; specifier: string; exportName?: string; args: unknown[]}>}): string {
     const adapter = JSON.stringify(baked?.adapter ?? `cloudflare-mod`)
     const name = JSON.stringify(baked?.name ?? `gramstax-worker`)
@@ -186,6 +223,19 @@ export function getBot(env) {
 `
   }
 
+  /**
+   * Render the namespace imports that back the emitted ref slots.
+   *
+   * @remarks
+   * Each ref becomes `import * as __ref<index> from "<specifier>"`, so the slot expressions
+   * emitted by `_renderRefSlots` can read a named export off the module. The index must match
+   * the one `_renderRefSlots` uses, so both are driven by the same refs array.
+   *
+   * @param refs - Refs carrying an already-relative import `specifier`.
+   * @returns The import block, or an empty string when `refs` is undefined or empty.
+   *
+   * @internal
+   */
   _renderRefImports(refs: Array<{specifier: string}> | undefined): string {
     if (refs === undefined || refs.length === 0) return ``
     return refs
@@ -194,6 +244,19 @@ export function getBot(env) {
 `)
   }
 
+  /**
+   * Render the `__pick` helper that the emitted ref slots call.
+   *
+   * @remarks
+   * Resolves a ref to a value and instantiates it when that value is a function, so a config ref
+   * may point at either an instance or a class. With no `name` it falls back to the module's
+   * `default` export and then to its first export, and throws when the named export is missing.
+   *
+   * @param refs - Presence check only — the emitted helper is shared by every ref.
+   * @returns The `__pick` function declaration, or an empty string when `refs` is empty.
+   *
+   * @internal
+   */
   _renderPickHelper(refs: Array<unknown> | undefined): string {
     if (refs === undefined || refs.length === 0) return ``
     return `const __pick = (mod, name, args) => {
@@ -204,6 +267,19 @@ export function getBot(env) {
 `
   }
 
+  /**
+   * Render the constructor properties that populate the emitted ref slots.
+   *
+   * @remarks
+   * Each ref becomes `<slot>: __pick(__ref<index>, <exportName or undefined>, <args>)`, appended as
+   * extra properties on the `Gramstax` call. `args` is `JSON.stringify`-serialized, so ref
+   * constructor arguments must be JSON-representable.
+   *
+   * @param refs - Refs to materialize, each with a slot name, an optional export name, and constructor args.
+   * @returns The slot properties including their leading commas, or an empty string when `refs` is empty.
+   *
+   * @internal
+   */
   _renderRefSlots(refs: Array<{slot: string; exportName?: string; args: unknown[]}> | undefined): string {
     if (refs === undefined || refs.length === 0) return ``
     return refs
@@ -214,6 +290,20 @@ export function getBot(env) {
       .join(``)
   }
 
+  /**
+   * Render the `log: false` constructor field unless the project supplies its own logger.
+   *
+   * @remarks
+   * A serverless deploy has no console to log to by default, so the field is emitted only when
+   * neither a `log` passthrough entry nor a `log` ref slot was provided — supplying either one
+   * suppresses the field so the project's own logger wins.
+   *
+   * @param passthrough - Passthrough constructor fields keyed by name.
+   * @param refs - Refs to materialize; only their slot names matter here.
+   * @returns The `log: false` constructor property when no logger was provided, otherwise an empty string.
+   *
+   * @internal
+   */
   _renderDefaultLog(passthrough: Record<string, unknown> | undefined, refs: Array<{slot: string}> | undefined): string {
     const provided = passthrough?.log !== undefined || refs?.some((ref) => ref.slot === `log`) === true
     return provided === true
@@ -222,6 +312,19 @@ export function getBot(env) {
         log: false,`
   }
 
+  /**
+   * Render the extra `Gramstax` constructor properties carried by the deploy passthrough.
+   *
+   * @remarks
+   * Each key becomes one `<key>: <json>` constructor property, `JSON.stringify`-serialized so
+   * strings and nested values survive verbatim. The build command has already narrowed the map to
+   * edge-safe config slots before it reaches here.
+   *
+   * @param passthrough - Plain data merged into the emitted `Gramstax` constructor call.
+   * @returns The properties including their leading comma, or an empty string when `passthrough` is undefined or empty.
+   *
+   * @internal
+   */
   _renderPassthrough(passthrough: Record<string, unknown> | undefined): string {
     if (passthrough === undefined) return ``
     const keys = Object.keys(passthrough)
@@ -234,6 +337,25 @@ export function getBot(env) {
 ${body}`
   }
 
+  /**
+   * Render the `wrangler.toml` file content for a Workers deploy.
+   *
+   * @remarks
+   * Always writes `name`, `main`, `compatibility_date`, and `compatibility_flags` uncommented:
+   * wrangler treats an absent key as absent rather than falling back to a default, and
+   * `nodejs_compat` is date-gated, so a commented `compatibility_date` silently disables the flag
+   * and the build fails with unresolvable-builtin errors. Remaining keys from `opts.toml` are
+   * appended verbatim, followed by a `[vars]` block of comments steering `BOT_TOKEN` and
+   * `BOT_WEBHOOK_SECRET` to `wrangler secret put` (a `[vars]` entry would shadow the real secret),
+   * then an `[alias]` mapping `"bun"` to the emitted `bun-stub.ts`.
+   *
+   * @param name - Worker name for the `name` key, unless `opts.toml` overrides it.
+   * @param opts - Compatibility date and flags, plus extra top-level TOML keys.
+   * @returns The `wrangler.toml` file content.
+   * @throws Error when `opts.toml` sets `main`, which the emitter owns because `--bundle` rewrites it to `bundle.js`.
+   *
+   * @internal
+   */
   _renderToml(name: string, opts?: {compatibilityDate?: string; compatibilityFlags?: string[]; toml?: Record<string, unknown>}): string {
     const extras = opts?.toml ?? {}
     if (Object.hasOwn(extras, `main`) === true) {
@@ -281,6 +403,20 @@ ${body}`
 `
   }
 
+  /**
+   * Serialize a value into TOML syntax.
+   *
+   * @remarks
+   * Strings and keys are quoted with `JSON.stringify` (a valid TOML subset for the values this
+   * emitter writes), arrays become inline arrays, plain objects become inline tables, and numbers
+   * must be finite. Applies recursively to array entries and object values.
+   *
+   * @param value - Value to serialize.
+   * @returns The TOML literal for `value`.
+   * @throws Error for a non-finite number, or for a value that is neither string, number, boolean, array, nor plain object.
+   *
+   * @internal
+   */
   _tomlValue(value: unknown): string {
     if (typeof value === `string`) return JSON.stringify(value)
     if (typeof value === `number`) {
@@ -297,14 +433,51 @@ ${body}`
     throw new Error(`gramstax build: cannot serialize a ${value === null ? `null` : typeof value} into wrangler.toml`)
   }
 
+  /**
+   * Render a TOML key, quoting it only when a bare key would be invalid.
+   *
+   * @remarks
+   * A key made solely of letters, digits, underscores, and hyphens is emitted bare; anything else
+   * falls back to `JSON.stringify` quoting.
+   *
+   * @param key - Key to render.
+   * @returns The bare key when it matches `/^[A-Za-z0-9_-]+$/`, otherwise a quoted key.
+   *
+   * @internal
+   */
   _tomlKey(key: string): string {
     return /^[A-Za-z0-9_-]+$/.test(key) === true ? key : JSON.stringify(key)
   }
 
+  /**
+   * Test whether a value is a non-null, non-array object.
+   *
+   * @remarks
+   * Deliberately shallow — it only narrows `unknown` to a record so the TOML serializer can read
+   * entries off it without treating arrays as objects.
+   *
+   * @param value - Value to test.
+   * @returns `true` for a non-null object that is not an array.
+   *
+   * @internal
+   */
   _isPlainObject(value: unknown): value is Record<string, unknown> {
     return typeof value === `object` && value !== null && Array.isArray(value) === false
   }
 
+  /**
+   * Render `bun-stub.ts`, the module the emitted `[alias]` table maps `"bun"` to.
+   *
+   * @remarks
+   * A deliberately-failing stub: `serve` exists only so the Workers bundler can resolve the `bun`
+   * specifier inside the gramstax dist. It throws on call, which is safe because the status server
+   * and the webhook listener never start in a serverless deploy — the entry is invoked only
+   * through `fetch`.
+   *
+   * @returns The `bun-stub.ts` file content.
+   *
+   * @internal
+   */
   _renderStub(): string {
     return `// Bun-only APIs are unreachable in serverless deploys: the status server
 // (_startStatusServer) and the webhook listener (_runWebhook, webhook
@@ -317,6 +490,20 @@ export function serve(..._args: Array<unknown>): never {
 `
   }
 
+  /**
+   * Render `redis-stub.ts`, the module `--bundle` maps `@keyv/redis` to.
+   *
+   * @remarks
+   * A deliberately-failing stub: the `@keyv/redis` dependency graph reaches node builtins
+   * through dynamic `require()`, which workerd rejects. Memory sessions — the only store that
+   * works on Workers — never load this module. The constructor throws so an accidental Redis
+   * session in a single-file bundle fails loudly instead of silently losing state; use the
+   * multi-file deploy output when Redis sessions are required.
+   *
+   * @returns The `redis-stub.ts` file content.
+   *
+   * @internal
+   */
   _renderRedisStub(): string {
     return `// Redis is unreachable from single-file edge bundles: the @redis/client
 // graph uses dynamic require() of node builtins, which workerd rejects.
@@ -330,6 +517,19 @@ export default class KeyvRedisStub {
 `
   }
 
+  /**
+   * Render `chokidar-stub.ts`, the module `--bundle` maps `chokidar` to.
+   *
+   * @remarks
+   * A deliberately-failing stub: an edge isolate has no filesystem to watch, and the chokidar
+   * graph reaches node builtins through dynamic `require()`, which workerd rejects. Watcher
+   * paths never run in a serverless deploy because the emitted entry constructs `TemplateManager`
+   * with an empty path list, so only an accidental `watch()` call reaches the throw.
+   *
+   * @returns The `chokidar-stub.ts` file content.
+   *
+   * @internal
+   */
   _renderChokidarStub(): string {
     return `// File watching is unreachable in single-file edge bundles: there is
 // no filesystem to watch, and the chokidar graph uses dynamic require()
@@ -342,6 +542,19 @@ export function watch(..._args: Array<unknown>): never {
 `
   }
 
+  /**
+   * Render `throttler-stub.ts`, the module `--bundle` maps `@grammyjs/transformer-throttler` to.
+   *
+   * @remarks
+   * A deliberately-failing stub: the `@grammyjs/transformer-throttler` dependency graph reaches
+   * node builtins through dynamic `require()`, which workerd rejects. `apiThrottler` throws on
+   * call, so outgoing throttling is unavailable in a single-file bundle rather than silently
+   * unthrottled. Use the multi-file deploy output when the `throttle` param is required.
+   *
+   * @returns The `throttler-stub.ts` file content.
+   *
+   * @internal
+   */
   _renderThrottlerStub(): string {
     return `// Outgoing throttling is unreachable in single-file edge bundles: the
 // bottleneck graph uses dynamic require() of node builtins, which workerd
@@ -353,6 +566,18 @@ export function apiThrottler(..._args: Array<unknown>): never {
 `
   }
 
+  /**
+   * Render `files-deps-stub.ts`, the module `--bundle` maps the `@grammyjs/files` `deps.node.js` entry to.
+   *
+   * @remarks
+   * A deliberately-failing stub: its dependency graph reaches node builtins through dynamic
+   * `require()`, which workerd rejects. Mounting `hydrateFiles` never touches these exports —
+   * only `ctx.download()` would, and downloading to a filesystem cannot work on Workers anyway.
+   *
+   * @returns The `files-deps-stub.ts` file content.
+   *
+   * @internal
+   */
   _renderFilesDepStub(): string {
     return `// Node file helpers are unreachable in single-file edge bundles: the
 // dependency graph uses dynamic require() of node builtins, which workerd

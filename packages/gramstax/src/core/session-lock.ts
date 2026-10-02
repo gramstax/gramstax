@@ -16,11 +16,37 @@ const RELEASE_SCRIPT = `if redis.call("get", KEYS[1]) == ARGV[1] then return red
 export class SessionLock {
   _queues = new Map<string, Promise<unknown>>()
 
+  /**
+   * Creates a lock bound to one Redis client and contention policy.
+   *
+   * @remarks
+   * The client and policy are constructor state rather than per-call arguments
+   * because both are fixed for the process lifetime; the per-instance `_queues`
+   * map then serializes same-key contenders locally before Redis is consulted.
+   *
+   * @param redis - Redis client exposing the atomic `set` used for the lease.
+   * @param options - Lease duration and what to do when a key is already held.
+   *
+   * @public
+   */
   constructor(
     public redis: IRedisLockClient,
     public options: {leaseMs: number; onContended: ISessionLockOnContended}
   ) {}
 
+  /**
+   * Namespaces a session key into a Redis lock key.
+   *
+   * @remarks
+   * The `lock:` prefix keeps leases in a separate keyspace from the session
+   * values themselves, so a lock can never collide with — or be mistaken for —
+   * cached session data.
+   *
+   * @param sessionKey - Session key to wrap.
+   * @returns The namespaced Redis key holding the lease.
+   *
+   * @internal
+   */
   _lockKey(sessionKey: string): string {
     return `lock:${sessionKey}`
   }

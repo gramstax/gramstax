@@ -1427,6 +1427,21 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Splits a pipe-delimited `src` attribute into media-group items.
+   *
+   * @remarks
+   * A `src` without a pipe is NOT a group and yields an empty array, so the
+   * caller can treat "no pipe" and "empty list" identically. Entries are
+   * trimmed and blanks dropped, then the list is capped at
+   * {@link TemplateEngine.MAX_MEDIA_GROUP_ITEMS} — Telegram rejects larger
+   * albums, so the surplus is dropped rather than reported.
+   *
+   * @param src - Raw `src` attribute value from the parsed template.
+   * @returns Trimmed, non-empty sources, truncated to the album limit.
+   *
+   * @public
+   */
   static _splitMediaSrcList(src: string): string[] {
     if (!src.includes(`|`)) return []
     return src
@@ -2436,6 +2451,22 @@ export class TemplateEngine {
     return parts.length === 0 ? `""` : parts.join(`+`)
   }
 
+  /**
+   * Builds the JavaScript function body for a processed template.
+   *
+   * @remarks
+   * Runs the three structural pre-processors in a fixed order — script blocks,
+   * then `<g-div>`, then `<g-space>` — before converting the result to a
+   * concatenation expression. The body is returned as source text, never
+   * evaluated here: `_compileToFunction` is what turns it into a callable.
+   *
+   * @param template - Processed template source, or one source per language
+   * when `isArray` is `true`.
+   * @param isArray - When `true`, emit a body returning `string[]`.
+   * @returns The `return` statement source for the compiled function.
+   *
+   * @public
+   */
   static _buildFunctionBody<T extends boolean>(template: T extends true ? string[] : string, isArray: T): string {
     const inputs = isArray ? (template as string[]) : [template as string]
     const bodies = inputs.map((t) => {
@@ -2472,6 +2503,29 @@ export class TemplateEngine {
    */
   static __linkHook?: (body: string, isArray: boolean) => (...args: unknown[]) => unknown
 
+  /**
+   * Compiles a processed template body into a callable renderer.
+   *
+   * @remarks
+   * Three mutually exclusive paths, in priority order: `__linkHook` resolves
+   * a pre-registered body (the AOT link phase, used by edge output with no
+   * `Function` constructor), `__emitHook` records the body and returns a
+   * stub (the AOT collect phase), otherwise the body is compiled through
+   * `new Function` — the exact JIT path taken when neither hook is set.
+   *
+   * The compiled renderer closes over `_escapeData` and `DEFAULT_FILTERS`, so
+   * callers pass only `data`. `isArray` selects the return shape: `string[]`
+   * for media-group style templates, `string` otherwise.
+   *
+   * @param template - Processed template source, or one source per language
+   * when `isArray` is `true`.
+   * @param isArray - When `true`, compile to a renderer returning `string[]`.
+   * @returns A renderer taking `data` and returning the compiled output.
+   * @throws Error when `__linkHook` and `__emitHook` are both set, which would
+   * confuse the AOT collect and link phases.
+   *
+   * @public
+   */
   static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITemplateRenderer<T> {
     const functionBody = this._buildFunctionBody(template, isArray)
     if (this.__linkHook !== undefined && this.__emitHook !== undefined) {
@@ -3367,17 +3421,6 @@ export class TemplateEngine {
    * ```
    *
    * @public
-   */
-  /**
-   * Splits keyboard label content on commas while respecting HTML tag
-   * boundaries and double-quoted attribute values. Commas inside `<...>`
-   * tags or inside `"..."` attribute values are not treated as separators.
-   *
-   * @param content - Raw keyboard label content, possibly containing `<g-*>`
-   *                  blocks with commas in attribute values (e.g. join=", ")
-   * @returns Array of trimmed label strings
-   *
-   * @internal
    */
   static _splitKeyboardLabels(content: string): string[] {
     const labels: string[] = []

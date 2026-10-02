@@ -37,9 +37,50 @@ export type IServerlessRef = {
   args: unknown[]
 }
 
+/**
+ * Whether a `log` config object would write to disk rather than stdout.
+ *
+ * @remarks
+ * Drives both the `_edgeSafeParams` passthrough filter and the `_droppedSlots`
+ * warning: a file logger is meaningless in a deployed entry, a console one is not.
+ *
+ * @param value - The `log` config object.
+ * @returns `true` when `pathFile` is present or `force` is `file` or `all`.
+ *
+ * @internal
+ */
 const logWritesToDisk = (value: Record<string, unknown>): boolean => `pathFile` in value === true || value.force === `file` || value.force === `all`
+
+/**
+ * Narrow a value to an inline options object, excluding module refs.
+ *
+ * @remarks
+ * The `override` check is what separates inline options from a module ref: both
+ * are plain objects, but a module ref carries an `override` wrapper and must be
+ * routed through `_serverlessRefs` instead of being inlined as data.
+ *
+ * @param value - Candidate config value.
+ * @returns `true` when `value` is a non-array object with no `override` key.
+ *
+ * @internal
+ */
 const isPlainRecord = (value: unknown): value is Record<string, unknown> => typeof value === `object` && value !== null && Array.isArray(value) === false && `override` in value === false
 
+/**
+ * Locate the configured serverless adapter section inside `optionsDeploy.serverless`.
+ *
+ * @remarks
+ * The adapter is the KEY (`cloudflare-mod` / `aws-lambda-async`) rather than a
+ * field, so it is found by intersecting the branch's own keys with
+ * `GRAMSTAX_SERVERLESS_ADAPTERS` rather than by reading a fixed property. Every
+ * field is read defensively and coerced to `undefined` when absent or of the
+ * wrong type, so callers get a stable shape regardless of how the config was written.
+ *
+ * @param branch - The `optionsDeploy.serverless` value, of unknown shape.
+ * @returns The adapter name plus its `name`, `url`, `compatibilityDate`, `compatibilityFlags` and `toml`, or `undefined` when the branch carries no recognizable adapter key.
+ *
+ * @internal
+ */
 const serverlessSection = (branch: unknown): {adapter?: string; name?: string; url?: string; compatibilityDate?: string; compatibilityFlags?: string[]; toml?: Record<string, unknown>} | undefined => {
   if (branch === null || typeof branch !== `object`) return undefined
   const record = branch as Record<string, unknown>
@@ -59,6 +100,30 @@ const serverlessSection = (branch: unknown): {adapter?: string; name?: string; u
 }
 
 export class GramstaxBuild {
+  /**
+   * Freeze `src/pages` into `.gramstax/` and emit any resolved serverless entry.
+   *
+   * @remarks
+   * Order matters and is the reason the stages are separate calls: `--raw` and
+   * `--dry-run` both return before anything touches disk, the artifact pass runs
+   * and is allowed to fail the whole build on a non-zero code, and only then is
+   * `--bundle` checked — bundling is meaningless without a target to bundle for,
+   * so requesting it bare is an error rather than a silent no-op. The deploy-usage
+   * note is logged last, after the target pass, so it reflects the real outcome.
+   *
+   * @param argv - Positional flag list, as produced by the Commander action in `create`.
+   * @param cwd - Absolute project root holding `gramstax.config.ts` and `src/pages`.
+   * @returns `0` on success, `1` when the pages directory is missing, `--bundle` has no target, or the build/target pass failed.
+   *
+   * @throws Error when `--target` is not one of the supported serverless adapters.
+   *
+   * @example
+   * ```typescript
+   * process.exitCode = await new GramstaxBuild().run([`--target`, `cloudflare-mod`], projectRoot)
+   * ```
+   *
+   * @public
+   */
   async run(argv: string[], cwd: string = process.cwd()): Promise<number> {
     const options = this._parseArgv(argv)
     if (options.target !== undefined && BUILD_TARGETS.includes(options.target) === false) {
@@ -120,6 +185,18 @@ export class GramstaxBuild {
     return targetCode
   }
 
+  /**
+   * Tell the user whether the emitted `.gramstax/` output will actually be used.
+   *
+   * @remarks
+   * Only `deploy: "serverless"` boots through the frozen manifest; every other mode
+   * runs straight from `src/pages` and ignores the build output. Warning on the
+   * other modes prevents the common waste of building an artifact nothing reads.
+   *
+   * @param deploy - The resolved deploy mode, defaulting to `polling` when the config sets none.
+   *
+   * @internal
+   */
   _logDeployUsageNote(deploy: string): void {
     if (deploy === `serverless`) {
       log.info(`gramstax build: .gramstax/ is consumed by \`deploy: "serverless"\` via manifest boot (fs-less).`)
@@ -128,6 +205,18 @@ export class GramstaxBuild {
     log.warn(`gramstax build: .gramstax/ is only consumed by \`deploy: "serverless"\` via manifest boot. \`deploy: "${deploy}"\` runs straight from src/pages via \`gramstax start\` and ignores this output — skip the build for it.`)
   }
 
+  /**
+   * Log a warning for every config slot the emitted entry cannot receive.
+   *
+   * @remarks
+   * Returns immediately when `targets` is empty — with nothing to emit there is no
+   * entry to drop a slot from, so the warning would be noise.
+   *
+   * @param config - The loaded config to inspect.
+   * @param targets - Resolved adapter names, used only to decide whether a warning applies.
+   *
+   * @internal
+   */
   _warnDroppedSlots(config: IGramstaxConfig, targets: string[]): void {
     if (targets.length === 0) return
     for (const {slot, reason} of this._droppedSlots(config)) {
@@ -160,6 +249,21 @@ export class GramstaxBuild {
     return out
   }
 
+  /**
+   * Read a config slot as a module reference, if it is written as one.
+   *
+   * @remarks
+   * Two accepted shapes: a bare module path string, or `{override: {module, export?, args?}}`.
+   * Anything else — including inline options objects — yields `undefined`, which is
+   * the signal for `_serverlessRefs` to skip the slot rather than treat it as a path.
+   * This runs before `GramstaxConfigLoader` validation in the build path, so it stays
+   * total and never throws on malformed input.
+   *
+   * @param value - Raw config value for the slot.
+   * @returns The `{module, exportName, args}` triple, or `undefined` when the slot is not a module ref.
+   *
+   * @internal
+   */
   _pathRefOf(value: unknown): {module: string; exportName?: string; args: unknown[]} | undefined {
     if (typeof value === `string`) return {module: value, args: []}
     if (typeof value !== `object` || value === null || `override` in value === false) return undefined
@@ -170,6 +274,21 @@ export class GramstaxBuild {
     return {module: inner.module, exportName: typeof inner.export === `string` ? inner.export : undefined, args: Array.isArray(inner.args) === true ? inner.args : []}
   }
 
+  /**
+   * Collect the config slots that point at a user module, ready for static import.
+   *
+   * @remarks
+   * Only `REF_SLOTS` are considered, and only when written in module-ref form —
+   * inline options objects are handled by `_edgeSafeParams` instead, since they
+   * need no import. The module path is resolved against `cwd` here so the emitted
+   * entry carries an absolute specifier that the platform bundler can follow.
+   *
+   * @param config - The loaded config to inspect.
+   * @param cwd - Absolute project root the module paths are resolved against.
+   * @returns One `IServerlessRef` per module-ref slot; empty when no slot uses one.
+   *
+   * @internal
+   */
   _serverlessRefs(config: IGramstaxConfig, cwd: string): IServerlessRef[] {
     const refs: IServerlessRef[] = []
     for (const slot of REF_SLOTS) {
@@ -180,6 +299,20 @@ export class GramstaxBuild {
     return refs
   }
 
+  /**
+   * List config slots that a deployed entry cannot honor, with a reason each.
+   *
+   * @remarks
+   * Membership is tested against `HOST_DEPENDENT_REASONS`, whose keys double as
+   * the config field names, so adding a host-dependent field there is enough to
+   * get it reported. `log` is special-cased: it only counts as dropped when it
+   * would write to disk, because a console logger works fine in a deployed entry.
+   *
+   * @param config - The loaded config to inspect.
+   * @returns One `{slot, reason}` pair per dropped slot; empty when the config is edge-safe.
+   *
+   * @internal
+   */
   _droppedSlots(config: IGramstaxConfig): Array<{slot: string; reason: string}> {
     const dropped: Array<{slot: string; reason: string}> = []
     for (const [slot, reason] of Object.entries(HOST_DEPENDENT_REASONS)) {
@@ -192,10 +325,43 @@ export class GramstaxBuild {
     return dropped
   }
 
+  /**
+   * Narrow a config value to a usable http(s) URL.
+   *
+   * @remarks
+   * Rejects anything containing `<`, which is how unfilled template placeholders
+   * in a config reach this code — baking one into a deployed entry produces a
+   * webhook url that can never receive an update.
+   *
+   * @param url - Candidate value, typically read straight off a config field.
+   * @returns `true` when `url` is a string matching `^https?://` with no `<` in it.
+   *
+   * @internal
+   */
   _isRealUrl(url: unknown): url is string {
     return typeof url === `string` && /^https?:\/\/.+/.test(url) && url.includes(`<`) === false
   }
 
+  /**
+   * Reconcile the `--target` flag with `optionsDeploy` into a single target list.
+   *
+   * @remarks
+   * `--target` wins over the configured adapter and logs a warning when the two
+   * disagree, since the emitted entry then borrows the configured url and secret.
+   * The url falls back to the `webhook` branch so `deploy: webhook` plus an
+   * explicit `--target` still yields a serverless artifact. An empty `targets`
+   * is the "config-driven, nothing to emit" signal and is not an error; a
+   * flag-driven target with a placeholder url is, because it would bake a
+   * literal `<placeholder>` into the artifact.
+   *
+   * @param target - Adapter name from `--target`, or `undefined` to use the configured adapter.
+   * @param optionsDeploy - The `optionsDeploy` object from the loaded config, read for its `serverless` and `webhook` branches.
+   * @returns Resolved `targets` (empty when no adapter applies) plus the `adapter`, `name`, `url`, `compatibilityDate`, `compatibilityFlags` and `toml` to inline.
+   *
+   * @throws Error when `target` is set but the resolved url is not a real http(s) URL.
+   *
+   * @internal
+   */
   _resolveDeployTargets(target: string | undefined, optionsDeploy: IGramstaxConfig[`optionsDeploy`]): {targets: string[]; adapter?: string; name?: string; url?: string; compatibilityDate?: string; compatibilityFlags?: string[]; toml?: Record<string, unknown>} {
     const section = serverlessSection(optionsDeploy?.serverless)
     const configured = section?.adapter
@@ -216,6 +382,26 @@ export class GramstaxBuild {
     return {targets: [adapter], adapter, name: name ?? `gramstax-worker`, url, compatibilityDate: section?.compatibilityDate, compatibilityFlags: section?.compatibilityFlags, toml: section?.toml}
   }
 
+  /**
+   * Emit one server entry per resolved target into `<outDir>/server`.
+   *
+   * @remarks
+   * The `server` directory is removed first so entries from a previous build
+   * cannot survive into the new artifact. `cloudflare-mod` dispatches to
+   * `WorkerTarget`, anything else to `LambdaTarget`. Bundling is a second pass
+   * over the already-emitted directory and picks the bundler by checking whether
+   * `aws-lambda-async` is among the targets. The whole body is wrapped in a
+   * `try` that logs and returns `1`, so a platform-bundler failure surfaces as a
+   * build failure rather than an unhandled rejection.
+   *
+   * @param outDir - Build output directory containing `manifest.js`; `server/` is created beneath it.
+   * @param targets - Resolved adapter names to emit for. Empty emits nothing and still returns `0`.
+   * @param bundle - Pass `true` to follow the emit pass with a single-file bundle.
+   * @param baked - Config values inlined into the entry: adapter metadata, `passthrough` config, and `refs` to statically import.
+   * @returns `0` on success, `1` when emission or bundling threw.
+   *
+   * @internal
+   */
   async _runTarget(
     outDir: string,
     targets: string[],
@@ -245,6 +431,23 @@ export class GramstaxBuild {
     }
   }
 
+  /**
+   * Freeze `pagesDir` into `outDir` and log the resulting statistics.
+   *
+   * @remarks
+   * AOT compilation is requested via the `withAot` flag rather than being implied,
+   * so the same code path serves a caller that only wants the route/manifest pass.
+   * Validation of the emitted artifacts happens inside the `try`, which is what
+   * turns a bad build into exit code `1` plus one logged line instead of an
+   * unhandled rejection.
+   *
+   * @param pagesDir - Absolute pages directory to scan.
+   * @param outDir - Absolute directory that receives `routes.json`, `manifest.js` and the AOT `gen/` output.
+   * @param withAot - Pass `true` to run AOT compilation; `false` limits the pass to routes and manifest.
+   * @returns `0` on success, `1` when generation or validation failed.
+   *
+   * @internal
+   */
   async _runBuild(pagesDir: string, outDir: string, withAot: boolean): Promise<number> {
     const started = Date.now()
     try {
@@ -262,6 +465,25 @@ export class GramstaxBuild {
     }
   }
 
+  /**
+   * Verify the emitted artifacts match what `generate` reported.
+   *
+   * @remarks
+   * Reads the build back from disk instead of trusting the generator's return
+   * value, so a partially-written or stale `.gramstax/` is caught before any
+   * serverless target is emitted. `manifest.js` is imported dynamically to
+   * confirm it is loadable ESM and that its `default.pages` array has the
+   * expected length.
+   *
+   * @param outDir - Build output directory holding `routes.json` and `manifest.js`.
+   * @param expectedRoutes - Route/page count reported by the generator, used as the expected length of both artifacts.
+   *
+   * @throws Error when `routes.json` does not parse to an array of `expectedRoutes` entries.
+   * @throws Error when `manifest.js` is missing from `outDir`.
+   * @throws Error when `manifest.js` has no `default.pages` array of `expectedRoutes` entries.
+   *
+   * @internal
+   */
   async _validateBuild(outDir: string, expectedRoutes: number): Promise<void> {
     const dir = resolve(outDir)
     const routesRaw = readFileSync(join(dir, `routes.json`), `utf-8`)
@@ -280,6 +502,24 @@ export class GramstaxBuild {
     }
   }
 
+  /**
+   * Parse `gramstax build` flags into an options object.
+   *
+   * @remarks
+   * Accepts both `--target value` and `--target=value`; `arg.split("=")` yields
+   * the inline value in the second form, and the index advances by one or two
+   * accordingly. Unknown flags are fatal rather than ignored, so a typo in a
+   * script wrapping the CLI surfaces instead of silently changing the build.
+   * Unrecognized options are rejected here even though Commander already parsed
+   * them in `create`, because `run` is also called directly by tests.
+   *
+   * @param argv - Positional flag list forwarded from the Commander action.
+   * @returns The parsed options; an empty object means a plain `gramstax build`.
+   *
+   * @throws Error when `argv` contains an unrecognized option.
+   *
+   * @internal
+   */
   _parseArgv(argv: string[]): IGramstaxBuildOptions {
     const options: IGramstaxBuildOptions = {}
     let index = 0
@@ -305,6 +545,19 @@ export class GramstaxBuild {
     return options
   }
 
+  /**
+   * Print the resolved build plan for `--dry-run`, writing nothing to disk.
+   *
+   * @remarks
+   * Every value is printed next to a `*Source` provenance field so a reader can
+   * tell an explicit config key from a fallback without re-reading the config.
+   * Unresolved values are printed as empty strings rather than omitted, so the
+   * output shape stays stable across runs.
+   *
+   * @param plan - Resolved plan assembled by `run` from the loaded config plus the `--target` flag.
+   *
+   * @internal
+   */
   _printPlan(plan: IGramstaxBuildPlan): void {
     log.info(`gramstax build plan`)
     log.info(`pagesDir: ${plan.pagesDir}`)

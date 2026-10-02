@@ -51,6 +51,33 @@ const OVERRIDE_SLOTS = [`cacheSession`, `cacheKeyboard`, `templateManager`, `log
 export const DEFAULT_CONFIG: IGramstaxConfig = {deploy: `polling`}
 
 export class GramstaxConfigLoader {
+  /**
+   * Load and validate `gramstax.config.ts` from the project root.
+   *
+   * @remarks
+   * The single composition point for boot: there is no hand-written entry file, so
+   * this method is what turns a project directory into config. A missing file is not
+   * an error — it yields the defaults, which keeps a bare project bootable — but a
+   * file that exists and cannot be imported is fatal, since silently falling back
+   * would hide a typo in the path. The file is imported dynamically through a
+   * `file://` URL, so loading TypeScript requires a TS-capable runtime (`bun --bun`).
+   * The default export must be an object; a missing or non-object export is rejected.
+   *
+   * @param cwd - Absolute project root searched for `gramstax.config.ts`.
+   * @returns The validated config, or `{deploy: "polling"}` when the file is absent.
+   *
+   * @throws Error when the config module cannot be imported.
+   * @throws Error when the default export fails `_validateConfig`.
+   *
+   * @defaultValue `{deploy: "polling"}` when no config file exists
+   *
+   * @example
+   * ```typescript
+   * const config = await new GramstaxConfigLoader().loadConfig(projectRoot)
+   * ```
+   *
+   * @public
+   */
   async loadConfig(cwd: string): Promise<IGramstaxConfig> {
     const file = join(cwd, `gramstax.config.ts`)
     if (existsSync(file) === false) return {deploy: DEFAULT_CONFIG.deploy}
@@ -61,6 +88,22 @@ export class GramstaxConfigLoader {
     return this._validateConfig(file, imported.default)
   }
 
+  /**
+   * Report which build-relevant keys the config sets explicitly.
+   *
+   * @remarks
+   * Reads the raw default export without validating it, so `gramstax build
+   * --dry-run` can still print a plan for a config that would fail to boot — the
+   * point of dry-run is to show what the author wrote. Import failures are swallowed
+   * and reported as "no file", since a plan is still more useful than a stack trace.
+   * `url` is `true` when either the serverless adapter section or the `webhook`
+   * branch supplies one, matching how `GramstaxBuild` resolves the url.
+   *
+   * @param cwd - Absolute project root searched for `gramstax.config.ts`.
+   * @returns Provenance flags for `deploy`, the adapter key, `name` and `url`, plus whether the file exists.
+   *
+   * @public
+   */
   async loadExplicitBuildKeys(cwd: string): Promise<IGramstaxExplicitBuildKeys> {
     const absent: IGramstaxExplicitBuildKeys = {hasFile: false, deploy: false, adapter: false, name: false, url: false}
     const file = join(cwd, `gramstax.config.ts`)
@@ -77,6 +120,30 @@ export class GramstaxConfigLoader {
     return {hasFile: true, deploy: raw.deploy !== undefined, adapter: adapterKey !== undefined, name: this._isRecord(section) && section.name !== undefined, url: (this._isRecord(section) && section.url !== undefined) || webhook?.url !== undefined}
   }
 
+  /**
+   * Validate the config default export field by field.
+   *
+   * @remarks
+   * Closed-world: any key outside `TOP_LEVEL_FIELDS` throws, so a typo like
+   * `optionDeploy` fails at boot instead of being silently ignored. The result is
+   * rebuilt from scratch rather than the input being passed through, which means
+   * every field has been type-checked and only known keys can reach the bot.
+   * `deploy` is validated before `optionsDeploy` so the branch-mismatch check
+   * compares against the resolved mode rather than a default. The token is only
+   * type-checked here — non-emptiness is enforced by `GramstaxStart`, which lets
+   * `gramstax build` run without one.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param loaded - The config module's default export, of unknown type.
+   * @returns A fresh `IGramstaxConfig` seeded with the default deploy mode.
+   *
+   * @throws Error when `loaded` is not an object.
+   * @throws Error when any key outside `TOP_LEVEL_FIELDS` is present.
+   * @throws Error when `deploy` is not one of the five supported modes.
+   * @throws Error when any field fails its own section validator.
+   *
+   * @internal
+   */
   _validateConfig(file: string, loaded: unknown): IGramstaxConfig {
     if (loaded === undefined || loaded === null || typeof loaded !== `object`) {
       throw new Error(`Invalid gramstax config at ${file}: default export must be an object with optional \`deploy\`, \`token\` and \`optionsDeploy\` sections`)
@@ -205,6 +272,30 @@ export class GramstaxConfigLoader {
     return config
   }
 
+  /**
+   * Validate the `optionsDeploy` object and its branches.
+   *
+   * @remarks
+   * Enforces the nested-branch contract: at most one branch may be non-empty, and
+   * that branch must equal the resolved `deploy`. Emptiness is measured on the
+   * validated output, so `raw: {}` and `test: {}` — which validate to empty objects
+   * — do not count as a branch. The `deploy` parameter is threaded in from
+   * `_validateConfig` rather than re-read here, so the CLI's `--deploy` flag and the
+   * config are checked against the same value.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `optionsDeploy` value.
+   * @param deploy - The resolved deploy mode the single branch must match.
+   * @returns The validated `IGramstaxOptionsDeploy`.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when a key other than `serverless`, `webhook`, `polling`, `raw` or `test` is present.
+   * @throws Error when more than one branch is non-empty.
+   * @throws Error when the single non-empty branch does not equal `deploy`.
+   * @throws Error when `deploy` is `webhook` and the `webhook` branch fails `_requireWebhookBranch`.
+   *
+   * @internal
+   */
   _validateOptionsDeploy(file: string, value: unknown, deploy: string): IGramstaxOptionsDeploy {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy\` must be an object`)
@@ -247,6 +338,29 @@ export class GramstaxConfigLoader {
     return out
   }
 
+  /**
+   * Validate the `optionsDeploy.serverless` branch and dispatch to the adapter section.
+   *
+   * @remarks
+   * The adapter is the key, so exactly one key from `GRAMSTAX_SERVERLESS_ADAPTERS`
+   * must be present — zero means no adapter was chosen, more than one is ambiguous
+   * since the emitted entry can only target one platform. Keys are sorted before the
+   * count check purely so the error message is deterministic regardless of the order
+   * the author wrote them in. Dispatch is on the adapter name, so an unrecognized
+   * key is caught by the allowlist loop before reaching the ternary.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `serverless` branch value.
+   * @returns A single-key object keyed by the adapter name, holding its validated section.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when a key is not a known serverless adapter.
+   * @throws Error when the adapter key count is not exactly one.
+   * @throws Error when the adapter's section is not an object.
+   * @throws Error when the adapter's section fails its own validation.
+   *
+   * @internal
+   */
   _validateServerlessBranch(file: string, value: unknown): IGramstaxServerlessDeployOptions {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.serverless\` must be an object`)
@@ -270,6 +384,29 @@ export class GramstaxConfigLoader {
     return adapter === `cloudflare-mod` ? {"cloudflare-mod": this._validateCloudflareModSection(file, section)} : {"aws-lambda-async": this._validateAwsLambdaAsyncSection(file, section)}
   }
 
+  /**
+   * Validate the `optionsDeploy.serverless['cloudflare-mod']` section.
+   *
+   * @remarks
+   * The widest adapter section. `compatibilityFlags` is checked element-wise because
+   * a single non-string entry would reach the platform bundler and fail there with
+   * no mention of the config. The returned object is seeded with empty `url` and
+   * `secretToken` so the required-field pass can overwrite them from the raw value,
+   * which keeps the compiler satisfied without weakening the runtime check.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `cloudflare-mod` section value.
+   * @returns A validated `IGramstaxCloudflareModOptions`.
+   *
+   * @throws Error when a key outside the `cloudflare-mod` allowlist is present.
+   * @throws Error when `name` is not a string.
+   * @throws Error when `compatibilityDate` is not a non-empty string.
+   * @throws Error when `compatibilityFlags` is not an array of strings.
+   * @throws Error when `toml` is not an object.
+   * @throws Error when `url` or `secretToken` is missing, mistyped, or a placeholder.
+   *
+   * @internal
+   */
   _validateCloudflareModSection(file: string, value: Record<string, unknown>): IGramstaxCloudflareModOptions {
     const path = `optionsDeploy.serverless['cloudflare-mod']`
     const allowed = GRAMSTAX_SERVERLESS_FIELDS["cloudflare-mod"]
@@ -309,6 +446,24 @@ export class GramstaxConfigLoader {
     return out
   }
 
+  /**
+   * Validate the `optionsDeploy.serverless['aws-lambda-async']` section.
+   *
+   * @remarks
+   * The leanest adapter section: the allowlist from `GRAMSTAX_SERVERLESS_FIELDS` is
+   * only `url` and `secretToken`, so there is nothing to type-check beyond
+   * delegating to `_requireServerlessFields`. Contrast with the `cloudflare-mod`
+   * section, which also validates the platform-specific fields.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `aws-lambda-async` section value.
+   * @returns A validated `IGramstaxAwsLambdaAsyncOptions` carrying `url` and `secretToken`.
+   *
+   * @throws Error when a key other than `url` or `secretToken` is present.
+   * @throws Error when `url` or `secretToken` is missing, mistyped, or a placeholder.
+   *
+   * @internal
+   */
   _validateAwsLambdaAsyncSection(file: string, value: Record<string, unknown>): IGramstaxAwsLambdaAsyncOptions {
     const path = `optionsDeploy.serverless['aws-lambda-async']`
     const allowed = GRAMSTAX_SERVERLESS_FIELDS["aws-lambda-async"]
@@ -351,10 +506,42 @@ export class GramstaxConfigLoader {
     }
   }
 
+  /**
+   * Format a list of names as a backticked, comma-separated string.
+   *
+   * @remarks
+   * Exists so every "supported: ..." error message quotes its values identically —
+   * backticks make the boundary visible in a terminal and keep a value containing
+   * punctuation from reading as message prose.
+   *
+   * @param values - Names to format, typically an allowlist constant.
+   * @returns The values wrapped in backticks and joined with `, `.
+   *
+   * @internal
+   */
   _quoteList(values: readonly string[]): string {
     return values.map((value) => `\`${value}\``).join(`, `)
   }
 
+  /**
+   * Validate the `optionsDeploy.webhook` branch.
+   *
+   * @remarks
+   * Presence and type checks only; the mandatory-field rules for
+   * `deploy: "webhook"` live in `_requireWebhookBranch`, which runs later and only
+   * when the deploy mode actually selects this branch.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `webhook` branch value.
+   * @returns The validated `IGramstaxWebhookDeployOptions`.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when a key other than `url`, `secretToken` or `queue` is present.
+   * @throws Error when `url` or `secretToken` is not a string.
+   * @throws Error when `queue` fails `_validateWebhookQueue`.
+   *
+   * @internal
+   */
   _validateWebhookBranch(file: string, value: unknown): IGramstaxWebhookDeployOptions {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook\` must be an object`)
@@ -383,6 +570,24 @@ export class GramstaxConfigLoader {
     return out
   }
 
+  /**
+   * Validate the `optionsDeploy.polling` branch.
+   *
+   * @remarks
+   * Single optional field. `maxRetries` admits `-1` as a distinct sentinel for
+   * "retry forever" alongside any non-negative count, which is why the check cannot
+   * simply be a range test.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `polling` branch value.
+   * @returns The validated `IGramstaxPollingDeployOptions`.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when a key other than `maxRetries` is present.
+   * @throws Error when `maxRetries` is neither `-1` nor a non-negative finite number.
+   *
+   * @internal
+   */
   _validatePollingBranch(file: string, value: unknown): IGramstaxPollingDeployOptions {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.polling\` must be an object`)
@@ -402,6 +607,23 @@ export class GramstaxConfigLoader {
     return out
   }
 
+  /**
+   * Reject any field in a deploy branch that is supposed to be empty.
+   *
+   * @remarks
+   * Used for the `raw` and `test` branches, which exist only to signal intent in
+   * `optionsDeploy` and take no settings. Keys explicitly set to `undefined` are
+   * skipped so spreading an optional value in does not fail.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param branch - Branch name (`raw` or `test`), used in the error message.
+   * @param value - Raw branch value, which must be an object with no defined keys.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when any key is present with a value other than `undefined`.
+   *
+   * @internal
+   */
   _validateEmptyBranch(file: string, branch: string, value: unknown): void {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.${branch}\` must be an object`)
@@ -412,6 +634,27 @@ export class GramstaxConfigLoader {
     }
   }
 
+  /**
+   * Enforce the mandatory fields of a `deploy: "webhook"` branch.
+   *
+   * @remarks
+   * Called only when `deploy` is `webhook`, which is why these fields are optional
+   * in the type but mandatory in practice — the branch exists solely to describe a
+   * webhook. Runs after the branch-vs-deploy match check so a mismatch is reported
+   * first. `secretToken` is constrained to an unreserved-character set and capped at
+   * 256 characters, matching what Telegram accepts, so an unusable token is
+   * rejected at boot rather than at the first webhook call.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param branch - The validated `webhook` branch, or `undefined` when absent.
+   *
+   * @throws Error when `url` is missing.
+   * @throws Error when `url` is not a real https URL free of `<placeholder>`.
+   * @throws Error when `secretToken` is missing or empty.
+   * @throws Error when `secretToken` does not match `^[A-Za-z0-9_-]{1,256}$`.
+   *
+   * @internal
+   */
   _requireWebhookBranch(file: string, branch: IGramstaxWebhookDeployOptions | undefined): void {
     if (branch?.url === undefined) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.url\` is required when \`deploy\` is \`webhook\` (fix: set \`optionsDeploy: {webhook: {url: \`https://example.com/bot\`}}\`)`)
@@ -427,14 +670,67 @@ export class GramstaxConfigLoader {
     }
   }
 
+  /**
+   * Check that a url is a real http(s) URL and not an unfilled placeholder.
+   *
+   * @remarks
+   * The `<` rejection is the point of this helper: a config left with a
+   * `<placeholder>` passes a naive protocol check but produces a webhook url that
+   * can never receive an update. Note the scheme test here is prefix-only, unlike
+   * the stricter `GramstaxBuild._isRealUrl` which also requires a non-empty host.
+   *
+   * @param value - Candidate url string.
+   * @returns `true` when `value` starts with `http://` or `https://` and contains no `<`.
+   *
+   * @internal
+   */
   _isRealUrl(value: string): boolean {
     return /^https?:\/\//.test(value) === true && value.includes(`<`) === false
   }
 
+  /**
+   * Narrow a value to a plain object.
+   *
+   * @remarks
+   * Arrays are excluded because every config section this guards against is an
+   * object literal; letting an array through would turn a key check into an
+   * index check.
+   *
+   * @param value - Candidate value of unknown type.
+   * @returns `true` when `value` is a non-null, non-array object.
+   *
+   * @internal
+   */
   _isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === `object` && value !== null && Array.isArray(value) === false
   }
 
+  /**
+   * Validate a module path ref shared by the ref-accepting config slots.
+   *
+   * @remarks
+   * The shared grammar for every slot that can point at a user module: either a bare
+   * path string, or `{override: {module, export?, args?}}`. The removed bare
+   * `{module, ...}` form gets its own message naming the replacement, because it is
+   * the most likely mistake after an upgrade. `field` is passed in rather than
+   * hard-coded so the error names the actual slot the user wrote.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param field - Dotted config path of the slot being validated, used in error messages.
+   * @param value - Raw slot value: a path string or `{override: {module, export?, args?}}`.
+   * @returns The validated ref, normalized to the `{override: {module, ...}}` form.
+   *
+   * @throws Error when a string path is empty or whitespace-only.
+   * @throws Error when the removed bare `{module, ...}` form is used.
+   * @throws Error when `value` is neither a string nor an object carrying `override`.
+   * @throws Error when a key other than `override` is present at the top level.
+   * @throws Error when `override.module` is missing, not a string, or empty.
+   * @throws Error when `override.export` is present but not a non-empty string.
+   * @throws Error when `override.args` is present but not an array.
+   * @throws Error when a key other than `module`, `export` or `args` is present inside `override`.
+   *
+   * @internal
+   */
   _validatePathRef(file: string, field: string, value: unknown): IGramstaxPathRef {
     if (typeof value === `string`) {
       if (value.length === 0 || value.trim().length === 0) {
@@ -478,6 +774,27 @@ export class GramstaxConfigLoader {
     return {override: ref}
   }
 
+  /**
+   * Validate the `optionsDeploy.webhook.queue` config section.
+   *
+   * @remarks
+   * Unlike most sections the allowed-key list is inlined rather than referenced from
+   * a shared constant, and `workerCount` is checked against `>= 1` while
+   * `perChatConcurrency` allows `0`, which the bot reads as "skip the per-chat gate".
+   * Every field is optional; the queue's own defaults apply when they are absent.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `queue` value from the `webhook` branch.
+   * @returns The validated `IWebhookQueueConfig`.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when an unknown key is present.
+   * @throws Error when `enabled` or `blockWhenFull` is not a boolean.
+   * @throws Error when `maxQueueSize` or `workerCount` is not a positive number.
+   * @throws Error when `perChatConcurrency`, `enqueueTimeoutMs` or `waiterTimeoutMs` is not a non-negative number.
+   *
+   * @internal
+   */
   _validateWebhookQueue(file: string, value: unknown): IWebhookQueueConfig {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.queue\` must be an object`)
@@ -511,6 +828,25 @@ export class GramstaxConfigLoader {
     return value as IWebhookQueueConfig
   }
 
+  /**
+   * Validate the `autoRetryOptions` config section.
+   *
+   * @remarks
+   * Only meaningful when `autoRetry` is also enabled, but it is validated
+   * independently so a bad value is reported even when retry is currently off.
+   * `maxRetryAttempts` must be at least `1`, since zero attempts is not a retry.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `autoRetryOptions` value.
+   * @returns The validated `{maxRetryAttempts?, retryOnInternalServerErrors?}` object.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when an unknown key is present.
+   * @throws Error when `maxRetryAttempts` is not a number of at least `1`.
+   * @throws Error when `retryOnInternalServerErrors` is not a boolean.
+   *
+   * @internal
+   */
   _validateAutoRetryOptions(file: string, value: unknown): {maxRetryAttempts?: number; retryOnInternalServerErrors?: boolean} {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`autoRetryOptions\` must be an object`)
@@ -529,6 +865,26 @@ export class GramstaxConfigLoader {
     return value as {maxRetryAttempts?: number; retryOnInternalServerErrors?: boolean}
   }
 
+  /**
+   * Validate the `rateLimit` config section.
+   *
+   * @remarks
+   * Both `windowMs` and `max` are required — unlike most optional sections — because
+   * a rate limiter with either half missing has no meaningful window or no
+   * threshold, and silently defaulting either would turn a limit the author asked
+   * for into one they did not.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `rateLimit` value.
+   * @returns The validated `IRateLimitOptions`.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when an unknown key is present.
+   * @throws Error when `windowMs` is not a positive number.
+   * @throws Error when `max` is not a positive number.
+   *
+   * @internal
+   */
   _validateRateLimit(file: string, value: unknown): IRateLimitOptions {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`rateLimit\` must be an object`)
@@ -547,6 +903,23 @@ export class GramstaxConfigLoader {
     return value as IRateLimitOptions
   }
 
+  /**
+   * Validate the `optionsPage` config section.
+   *
+   * @remarks
+   * Currently a single flag, `shortCallbackQueryData`. Every other key is rejected
+   * so a misspelled option does not silently do nothing.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `optionsPage` value.
+   * @returns The validated `{shortCallbackQueryData?}` object.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when an unknown key is present.
+   * @throws Error when `shortCallbackQueryData` is not a boolean.
+   *
+   * @internal
+   */
   _validateOptionsPage(file: string, value: unknown): {shortCallbackQueryData?: boolean} {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsPage\` must be an object`)
@@ -562,6 +935,27 @@ export class GramstaxConfigLoader {
     return value as {shortCallbackQueryData?: boolean}
   }
 
+  /**
+   * Validate the `cacheSession` config section.
+   *
+   * @remarks
+   * Two disjoint forms: a module ref, or inline store options. `store` is required
+   * in the inline form because a session cache with no backing store cannot
+   * function, and it is validated as a non-empty string rather than left to the
+   * `CacheExternal` constructor to reject later with a less specific message.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `cacheSession` value: store options or a module ref.
+   * @returns A validated `IGramstaxCacheSessionRef`.
+   *
+   * @throws Error when `value` is neither a module ref nor a store-options object.
+   * @throws Error when an unknown key is present.
+   * @throws Error when `store` is not a non-empty string.
+   * @throws Error when `ttlMs` is not a non-negative number.
+   * @throws Error when `namespace` is not a string.
+   *
+   * @internal
+   */
   _validateCacheSession(file: string, value: unknown): IGramstaxCacheSessionRef {
     if (this._isRecord(value) === true && `module` in value && `override` in value === false) {
       return this._validatePathRef(file, `cacheSession`, value)
@@ -589,6 +983,24 @@ export class GramstaxConfigLoader {
     return value as {store: string; ttlMs?: number; namespace?: string}
   }
 
+  /**
+   * Validate the `cacheKeyboard` config section.
+   *
+   * @remarks
+   * Three shapes are accepted and none are deeply validated: a module ref, an
+   * entries array, or a plain object. The array and object forms are passed
+   * through unchecked because the keyboard payloads are opaque to the framework —
+   * `new Map(...)` at materialization is where their shape matters, and rejecting
+   * unknown keys here would break forward compatibility with new keyboard payloads.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `cacheKeyboard` value.
+   * @returns A validated `IGramstaxCacheKeyboardRef`.
+   *
+   * @throws Error when `value` is neither a module ref, nor an entries array, nor a plain object.
+   *
+   * @internal
+   */
   _validateCacheKeyboard(file: string, value: unknown): IGramstaxCacheKeyboardRef {
     if (this._isRecord(value) === true && `module` in value && `override` in value === false) {
       return this._validatePathRef(file, `cacheKeyboard`, value) as IGramstaxCacheKeyboardRef
@@ -601,6 +1013,28 @@ export class GramstaxConfigLoader {
     throw new Error(`Invalid gramstax config at ${file}: \`cacheKeyboard\` must be a module path string, \`{override: {module, export?, args?}}\`, an entries array, or a plain object`)
   }
 
+  /**
+   * Validate the `templateManager` config section.
+   *
+   * @remarks
+   * Accepts either a module ref or inline `ITemplateOptions`. `path` is required
+   * when inline and must be a non-empty array of non-empty strings, because a
+   * template manager with no directories can never find a template. `onReload` is
+   * checked for `function` only — its signature is not verified here.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `templateManager` value: inline options or a module ref.
+   * @returns A validated `IGramstaxTemplateManagerRef`.
+   *
+   * @throws Error when `value` is neither a module ref nor an object.
+   * @throws Error when an unknown key is present.
+   * @throws Error when `path` is not a non-empty array of non-empty strings.
+   * @throws Error when `enableWatch` is not a boolean.
+   * @throws Error when `watchOptions` is not an object.
+   * @throws Error when `onReload` is not a function.
+   *
+   * @internal
+   */
   _validateTemplateManager(file: string, value: unknown): IGramstaxTemplateManagerRef {
     if (this._isRecord(value) === true && `module` in value && `override` in value === false) {
       return this._validatePathRef(file, `templateManager`, value) as IGramstaxTemplateManagerRef
@@ -631,6 +1065,28 @@ export class GramstaxConfigLoader {
     return value as unknown as ITemplateOptions
   }
 
+  /**
+   * Validate the `log` config section.
+   *
+   * @remarks
+   * A boolean is returned as-is: `true` means "use the default logger" and `false`
+   * means "no logging", both handled at materialization rather than here. Among the
+   * object forms, `force` is constrained to three literals so a typo cannot silently
+   * fall back to console output on a host where the author expected a file.
+   * `pathFile` explicitly accepts `null`, meaning "no file output".
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `log` value: a boolean, logger options, or a module ref.
+   * @returns A validated `IGramstaxLogRef`.
+   *
+   * @throws Error when `value` is neither a boolean, a module ref, nor an object.
+   * @throws Error when an unknown key is present.
+   * @throws Error when `pathFile` is neither a string nor `null`.
+   * @throws Error when `force` is not `console`, `file` or `all`.
+   * @throws Error when `formatTime` is not a string.
+   *
+   * @internal
+   */
   _validateLog(file: string, value: unknown): IGramstaxLogRef {
     if (typeof value === `boolean`) return value
     if (this._isRecord(value) === true && `module` in value && `override` in value === false) {
@@ -659,6 +1115,28 @@ export class GramstaxConfigLoader {
     return value as {pathFile?: string | null; force?: `console` | `file` | `all`; formatTime?: string}
   }
 
+  /**
+   * Validate the `sessionLock` config section.
+   *
+   * @remarks
+   * Copies only the three known keys onto a fresh object rather than passing the
+   * raw value through, so the returned type cannot smuggle in unvalidated fields.
+   * `key` is delegated to `_validatePathRef` because it is a module ref, not inline
+   * data; note that `args` on that ref is rejected later, at materialization.
+   *
+   * @param file - Absolute config file path, used as the error-message prefix.
+   * @param value - Raw `sessionLock` value from the config's default export.
+   * @returns A validated `IGramstaxSessionLockRef` carrying only the keys that were set.
+   *
+   * @throws Error when `value` is not an object.
+   * @throws Error when an unknown key is present.
+   * @throws Error when `enabled` is not a boolean.
+   * @throws Error when `leaseMs` is not a positive number.
+   * @throws Error when `onContended` is not one of `skip`, `wait`, `serialize`.
+   * @throws Error when `key` is not a valid module ref.
+   *
+   * @internal
+   */
   _validateSessionLock(file: string, value: unknown): IGramstaxSessionLockRef {
     if (this._isRecord(value) === false) {
       throw new Error(`Invalid gramstax config at ${file}: \`sessionLock\` must be an object`)

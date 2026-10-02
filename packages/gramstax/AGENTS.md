@@ -17,7 +17,8 @@ packages/gramstax/src/
 ├── helpers/log.ts      LoggingHelper (extends LoggingPretty)
 ├── webhook/queue.ts    WebhookQueue (bounded concurrent queue)
 ├── mock/telegram-server.ts MockTelegramServer
-├── e2e/helper.ts       E2eHelper (in-process test harness)
+├── e2e/helper.ts        E2eHelper (in-process test harness)
+├── cli/                 `gramstax` bin: config loader + start/build + serverless targets
 ├── types/              bot.ts, ctx.ts, template.ts, e2e.ts, config.ts, cli.ts, manifest.ts, mock.ts, cache.ts, session-lock.ts, metrics.ts
 └── index.ts            Public barrel (runtime exports, then types with `// type` separator)
 ```
@@ -53,7 +54,20 @@ Barrel (`src/index.ts`) re-exports all public symbols. No default exports. Add n
 - **TemplateEngine** (`template/engine.ts`) — template parser/compiler/validator for Telegram Rich HTML + PAGE blocks.
 - **TemplateManager** (`template/manager.ts`) — template file watcher, loader, compiler integration.
 - **PageManager** (`page/manager.ts`) — auto-discovers page modules; loads first named export (no default exports).
-- **TemplateConfig** — `IGramstaxParams` (not `GramstaxConfig`). Includes `token`, `deploy`, `log`, `botConfig`, `webhookQueue`, `cacheSession`, `cacheKeyboard`, `templateManager`, `optionsPage`, `rateLimit`, `throttle`, `sessionLock`, `onTrace`.
+- **GramstaxConfig** — the config-file type (`src/types/config.ts`), a thin alias of `IGramstaxConfig`. Every field optional. This is what `gramstax.config.ts` is annotated with, and it holds **refs/plain data**, not instances (`cacheSession: {store, ttlMs?, namespace?}`, `log: {override: {module, export?, args?}}`).
+- **IGramstaxParams** — the **constructor** input to `new Gramstax(params)`. Carries *instances* (`CacheExternal`, `TemplateManager`, `LoggingHelper`) plus `manifest?: IAppManifest`, which is **not** a config field (putting it in `gramstax.config.ts` throws `unknown field`). `token` and `deploy` are required here, optional on the config type.
+
+## Boot (v2.2.0)
+
+Config-driven. There is no `src/index.ts` and no hand-written `new Gramstax({...})` entry.
+
+- `gramstax start [--deploy <mode>] [--watch]` reads `gramstax.config.ts` from the project root (default export, annotated `: GramstaxConfig`), discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref slot, then constructs it — construction *is* boot, no `.run()`. Requires Bun (`bun --bun`).
+- `gramstax build [--target cloudflare-mod|aws-lambda-async] [--bundle] [--dry-run] [--raw]` freezes `src/pages` into `.gramstax/` (`routes.json`, `manifest.js`, AOT `gen/`, plus `server/` entries per target). AOT always runs — no `--aot` flag.
+- `deploy` selects the mode; `optionsDeploy` carries per-mode settings in **nested branches** with at most one branch non-empty, and that branch must equal `deploy`. `webhook` requires `url` + `secretToken`; `serverless` is keyed by adapter and requires `url` + `secretToken`. The legacy `webhook:<url>` / `serverless:<adapter>` colon grammar throws.
+- Only `serverless` auto-loads `.gramstax/`; `polling`/`webhook`/`test` boot from the filesystem.
+- e2e is the one exception to config-driven boot — `e2e/setup.ts` constructs `BotCore` directly to inject `deploy: "test"`, `token: "test"`, `stream`, `autoRetry`, `log: false`.
+
+Docs: `docs/gramstax-start.md`, `docs/gramstax-build.md`, `docs/serverless-deploy.md`, `docs/aot-contract.md`. Agent skill: `packages/gramstax/skills/gramstax-best-practices/`.
 
 ## Patterns
 
@@ -63,7 +77,7 @@ Barrel (`src/index.ts`) re-exports all public symbols. No default exports. Add n
 - Supports hot-reload for template files via chokidar.
 - Test mode via `deploy: "test"` + `MockTelegramServer`.
 - Raw mode: pass `deploy: "raw"` to get a bare grammY `Bot` (no pages, no templates, no Gramstax routing, no auto-start). Write raw grammY handlers on `bot.bot` and start it yourself. The legacy `templateManager: {} as any` exception was removed — using it in a non-raw mode now throws.
-- Manifest boot (fs-less): pass `manifest: ITAppManifest` to skip directory scanning — same routing tables via `_pageLoadsFromManifest`. Generate with `bun run build:manifest -- <pagesDir> <outFile>` (static imports + embedded `.html`; class-inline templates ride the classes). Regenerate after every pages/templates change. Limits: no watcher, no LMDB/timers, external sessions on isolates. See `example/11-cloudflare-worker/`.
+- Manifest boot (fs-less): pass `manifest: IAppManifest` to skip directory scanning — same routing tables via `_pageLoadsFromManifest`. Generate with `bun run build:manifest -- <pagesDir> <outFile>` (static imports + embedded `.html`; class-inline templates ride the classes). Regenerate after every pages/templates change. Limits: no watcher, no LMDB/timers, external sessions on isolates. See `example/11-cloudflare-worker/`.
 
 ## Complexity Hotspots
 
