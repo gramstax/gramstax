@@ -37,6 +37,39 @@ gamount = {
 }
 ```
 
+## Reading update data
+
+Text and caption live on `msg`, so reach them through it and always optional-chain — Telegram updates are sparse, and a caption update carries no `text`.
+
+| Getter | Returns | For `"start 123 456"` |
+| --- | --- | --- |
+| `this.msg?.text` | `string \| undefined` | `"start 123 456"` |
+| `this.msg?.caption` | `string \| undefined` | `undefined` on a text update |
+| `msgTextArgs` | `string[]` — all tokens | `["123", "456"]` |
+| `msgTextArg` | `string` — **first** token | `"123"` |
+| `msgCaptionArgs` | `string[]` — all tokens | `["123", "456"]` |
+| `msgCaptionArg` | `string` — **first** token | `"123"` |
+
+`msgTextCommandArgs` / `msgTextCommandArg` are the command-payload equivalents. Note the singular getters return `msg*Args[0]`, so they are `undefined` when there are no args.
+
+Arg-bearing handlers are `handleArgsText` and `handleCommandArgsText` — args come **after** the verb.
+
+```typescript
+async handleArgsText() {
+  const [code, ...rest] = this.msgTextArgs // all tokens
+  const first = this.msgTextArg // just the first
+  await this.gamount.process(code ?? first)
+}
+
+async handleCaptionPhoto() {
+  if (this.msg?.caption?.startsWith(`inv_`)) {
+    await this.ginvoice.process(this.msg.caption.slice(4))
+  }
+}
+```
+
+Everything here is optional-chained or array-typed because Telegram updates are sparse — a caption update has no `text`, and a non-command text update may have no args.
+
 ## Notes
 
 - Every `g*` object MUST have `show` AND `process` — even when the step expects no input, define `process` as a void noop (`process: () => {}`). Uniform shape keeps AI-generated code consistent: every step is always renderable and processable without special cases.

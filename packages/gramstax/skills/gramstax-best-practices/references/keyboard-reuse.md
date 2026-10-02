@@ -1,6 +1,6 @@
 # keyboard-reuse
 
-Centralize a keyboard in `kbk` only when 2+ pages share it; single-use boards stay local.
+Centralize a keyboard in `kbk` only when 2+ pages share it; single-use boards stay in the page's instance `helper`.
 
 ## Why
 
@@ -15,15 +15,8 @@ class KeyboardGBlock extends BlockGKeyboard {
 }
 ```
 
-## Correct
-
 ```typescript
-// shared: used by deposit, withdraw, and transfer pages
-class KeyboardGBlock extends BlockGKeyboard {
-  static backHome = (lang?: string) => this._build(`backHome`, lang)
-}
-
-// single-use: built in the page Helper, dies with the page
+// static Helper class — retired; page-local logic lives in instance `helper = {}`
 class Helper {
   static kb(ctx: PayPage) {
     return ctx.inlineKeyboardT([ReceiptPage], `1`)
@@ -31,7 +24,33 @@ class Helper {
 }
 ```
 
+## Correct
+
+```typescript
+// src/blocks/g-keyboard.ts — shared: used by deposit, withdraw, and transfer
+class KeyboardGBlock extends BlockGKeyboard {
+  static backHome = (lang?: string) => this._build(`backHome`, lang)
+}
+```
+
+```typescript
+// src/pages/pay.ts — single-use: built in the page's instance helper, dies with it
+export class PayPage extends PageBase {
+  helper = {
+    kbReceipt: () => this.inlineKeyboardT([ReceiptPage], `1`)
+  }
+  gdefault = {
+    show: async () => {
+      await this.renderAuto(this.helper.kbReceipt(), {}, Base.default)
+    },
+    process: async () => {}
+  }
+}
+```
+
 ## Notes
 
 - Pass template data to builders whenever labels or counts are dynamic.
-- Shared default keyboards are referenced as `${this.kbk.home()}` inside `static template`.
+- `PageBase` exposes the block as `static kbk` and its label helper as `static kbl`, so a page reaches the shared board via `${this.kbk.backHome()}` inside `static template` and `this.kbk.backHome()` in code.
+- If three or more pages need the same *page-specific* boards plus a shared gate, that is a base-class signal, not a keyboard one — see `pages-base-classes.md`.
+- The instance `helper` (closures capturing `this`, no `ctx` param) replaces the old static `Helper` class for page-local builders. See `pages-structure.md`.

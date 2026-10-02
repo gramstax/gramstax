@@ -6,6 +6,19 @@ One `setup.ts` with `deploy: "test"`, mirrored test files, `clearCalls` isolatio
 
 `deploy: "test"` drives updates through `handleUpdate` in-process — no MockTelegramServer, no ports, no polling, no `beforeAll` server waits. Mirror layout guarantees every page has at least a registration test; `clearCalls` per test prevents call-log leakage between cases.
 
+## e2e does NOT use `gramstax.config.ts`
+
+This is the one place the constructor form is still correct. `gramstax start` builds the bot from config *data*; e2e must construct `BotCore` directly so it can inject `stream` and `autoRetry`, force `token: 'test'`, and silence the logger. Loading the real config would pull in a real token and a real deploy mode.
+
+| | Production / local run | e2e |
+| --- | --- | --- |
+| Entry | `gramstax start` reads `gramstax.config.ts` | `e2e/setup.ts` constructs `BotCore` |
+| Token | `process.env.BOT_TOKEN` | `test` |
+| Deploy | `polling` / `webhook` / `serverless` | `test` |
+| Extras | from config | `stream: true`, `autoRetry: true`, `log: false` |
+
+The trade-off: config-level mistakes (a bad `optionsDeploy` branch, a wrong path-ref) are **not** exercised by e2e. Cover the config itself with `tsc --noEmit` plus a real `gramstax build --dry-run` in CI.
+
 ## Incorrect
 
 ```typescript
@@ -13,6 +26,12 @@ One `setup.ts` with `deploy: "test"`, mirrored test files, `clearCalls` isolatio
 import {MockTelegramServer} from "gramstax"
 const mock = new MockTelegramServer()
 await mock.start() // ports, webhook polling, flaky timing
+```
+
+```typescript
+// e2e loading the real config: real token, real deploy mode, real network risk
+import config from "../gramstax.config"
+export const bot = new BotCore({...config, deploy: `test`})
 ```
 
 ## Correct
@@ -32,9 +51,11 @@ export const bot = new BotCore({
   templateManager: new TemplateManager({path: [join(import.meta.dir, `../src/pages`)]})
 })
 export const e2e = bot.e2e!
-export const enUser = {user: {id: 4001, language_code: `en`}, chat: {id: 4001}}
-export const idUser = {user: {id: 5001, language_code: `id`}, chat: {id: 5001}}
+export const enUser = {user: {id: 4001, username: `testuser`, language_code: `en`}}
+export const idUser = {user: {id: 5001, username: `pengguna`, language_code: `id`}}
 ```
+
+Fixtures need a `username` when the template `UserGuard` requires one; omit `chat` since sessions are keyed by user id.
 
 ```typescript
 // e2e/start.test.ts

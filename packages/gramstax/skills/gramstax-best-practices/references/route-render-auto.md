@@ -37,3 +37,4 @@ async handleCommandText() {
 - Family: `renderAuto`, `renderAutoRich`, `renderAutoMedia`, `renderAutoMediaGroup` (each with an edit twin: `render`/`renderEdit`, `renderMedia*`/`renderEditMedia*`).
 - `fallbackEdit` controls edit failure: `delete-reply` (default — delete then send, looks like an in-place edit), `reply` (send without deleting), `disable` (rethrow).
 - Reserve low-level `reply*` for free-text handlers (`handleSessionFreeText`, `process*`), where a new message is appropriate.
+- Reaching for a *different* method than the one that fits — chunking a long message, editing a caption, swapping only a keyboard — is covered in `route-render-api.md`. Do not hand-roll those with `render*` plus manual deletes.
