@@ -1,5 +1,5 @@
-import {spawnSync} from "node:child_process"
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
+import {spawnSync} from "node:child_process"
 import {existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
@@ -49,8 +49,8 @@ describe(`E2E: AOT boot without filesystem`, () => {
       manifest: {pages: base.default?.pages ?? [], templates: [], routes: routes.default ?? []} as never
     })
     for (const key of Object.keys(gen.templates ?? {})) {
-      const compiled = (gen.templates as Record<string, Parameters<TemplateManager[`_registerCompiled`]>[1]>)[key]
-      if (compiled !== undefined) bot.templateManager._registerCompiled(key, compiled)
+      const compiled = gen!.templates![key] as unknown as never
+      if (compiled !== undefined) bot.templateManager.registerCompiled(key, compiled)
     }
     const start = await bot.e2e!.sendText(`/start`, {user: {id: 4001, username: `testuser`, language_code: `en`}})
     expect(start.length).toBeGreaterThan(0)
