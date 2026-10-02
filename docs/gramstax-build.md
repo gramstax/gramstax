@@ -8,8 +8,8 @@ For all deploys: one `gramstax build` freezes a project's `pages/` into a single
 | `webhook` | same as `polling` |
 | `test` | fs boot |
 | `raw` | `build --raw` skips, emits nothing |
-| `serverless` (`adapter: "aws-lambda-async"`) | auto-loads `.gramstax/` (fs fallback) |
-| `serverless` (`adapter: "cloudflare-mod"`) | same auto-load |
+| `serverless` (key `aws-lambda-async`) | auto-loads `.gramstax/` (fs fallback) |
+| `serverless` (key `cloudflare-mod`) | same auto-load |
 
 Auto-load applies to `serverless` deploys exclusively (matches `Bot._loadBuildManifest` early-return for non-serverless).
 
@@ -33,10 +33,11 @@ import type {GramstaxConfig} from "gramstax"
 const config: GramstaxConfig = {
   optionsDeploy: {
     serverless: {
-      adapter: `cloudflare-mod`,
-      name: `gramstax-worker`,
-      url: `https://<your-worker>.workers.dev/webhook`,
-      secretToken: process.env.TELEGRAM_WEBHOOK_SECRET ?? ``
+      'cloudflare-mod': {
+        name: `gramstax-worker`,
+        url: `https://<your-worker>.workers.dev/webhook`,
+        secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``
+      }
     }
   }
 }
@@ -44,21 +45,35 @@ const config: GramstaxConfig = {
 export default config
 ```
 
+The adapter is the **key**. Exactly one key must be present, and each key accepts
+only its own fields — a field that does not apply to an adapter is rejected, not
+ignored.
+
+| Key                  | Accepted fields                                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `'cloudflare-mod'`   | `url`, `secretToken` (required) + `name`, `compatibilityDate`, `compatibilityFlags`, `toml`                  |
+| `'aws-lambda-async'` | `url`, `secretToken` (required) — nothing else, today                                                         |
+
 `secretToken` is runtime-required but type-optional (zero-config build keeps
 working); its value comes from an env expression, never a literal. Duality —
-config value sets the webhook, edge reads the `TELEGRAM_WEBHOOK_SECRET`
+config value sets the webhook, edge reads the `BOT_WEBHOOK_SECRET`
 binding — is specified once in `docs/serverless-deploy.md`.
 
 The scaffolded `gramstax.config.ts`
 (`packages/create-gramstax/src/templates/gramstax.config.ts`) lists all
 20 keys and is the canonical full listing.
 
-| Field                                         | Type     | Default                                     | Rule                                              |
-| --------------------------------------------- | -------- | ------------------------------------------- | ------------------------------------------------- |
-| `optionsDeploy.serverless.adapter`          | `string` | —                                           | `"cloudflare-mod"` or `"aws-lambda-async"`        |
-| `optionsDeploy.serverless.name`             | `string` | `gramstax-worker`                           | Non-empty; names the Workers `name`               |
-| `optionsDeploy.serverless.url`              | `string` | `https://<your-worker>.workers.dev/webhook` | Non-empty; becomes `BOT_DEPLOY` URL               |
-| `optionsDeploy.serverless.secretToken`      | `string` | —                                           | Runtime-required, type-optional; env expression only (see `docs/serverless-deploy.md`) |
+| Field                                   | Type                     | Default             | Rule                                                                       |
+| --------------------------------------- | ------------------------ | ------------------- | -------------------------------------------------------------------------- |
+| `…['cloudflare-mod'].name`              | `string`                  | `gramstax-worker`   | Written to the Workers `name`; never emitted as a comment                 |
+| `…['cloudflare-mod'].compatibilityDate` | `string`                  | `2026-01-01`        | Always written — it also gates `compatibilityFlags`                       |
+| `…['cloudflare-mod'].compatibilityFlags`| `string[]`                | `["nodejs_compat"]` | Required: the dependency graph uses Node builtins                        |
+| `…['cloudflare-mod'].toml`              | `Record<string, unknown>` | —                   | Escape hatch; flat-merged last, so it overrides every typed field above    |
+| `…[any].url`                            | `string`                  | —                   | Real `https?://` with no `<` placeholder                                  |
+| `…[any].secretToken`                    | `string`                  | —                   | `^[A-Za-z0-9_-]{1,256}$`; never baked into a bundle                       |
+
+`url` and `secretToken` are optional in the type so `process.env.X` expressions
+typecheck; the loader and the constructor both enforce them with an explicit error.
 
 Invalid shapes throw `Invalid gramstax config at <file>: ...` naming the field. Loader: `GramstaxConfigLoader.loadConfig(cwd)` in `packages/gramstax/src/cli/config.ts`.
 
@@ -68,8 +83,8 @@ Invalid shapes throw `Invalid gramstax config at <file>: ...` naming the field. 
 
 | Flag | Effect |
 | ---- | ------ |
-| `--target lambda\|cloudflare-workers` | Server entries to emit (default = both) |
-| `--bundle` | Deprecated, needs `--target cloudflare-workers` (see below) |
+| `--target cloudflare-mod\|aws-lambda-async` | Server entry to emit. Same vocabulary as the config key. Wins over the configured key, with a warning when they disagree |
+| `--bundle` | Deprecated. Needs `--target cloudflare-mod` or `--target aws-lambda-async`. For lambda it also moves the handler to `server/bundle.js` (see below) |
 | `--dry-run` | Print resolved plan with value sources, write nothing |
 | `--raw` | Skip: exit 0 with `skip (raw deploy, nothing to build)` |
 
@@ -79,8 +94,8 @@ Preview output (`--dry-run`, exit 0):
 gramstax build plan
 pagesDir: src/pages
 outDir: .gramstax
-targets: lambda, cloudflare-workers
-optionsDeploy.serverless.adapter: cloudflare-mod (config)
+targets: cloudflare-mod
+optionsDeploy.serverless.cloudflare-mod: cloudflare-mod (config)
 optionsDeploy.serverless.name: gramstax-worker (default)
 optionsDeploy.serverless.url: https://<your-worker>.workers.dev/webhook (default)
 dry-run: no files written
@@ -108,7 +123,7 @@ Exit codes: `0` success/skip, `1` build error (missing `src/pages` without `--ra
 
 Plain `gramstax build` (no `--target`) emits everything, so one `.gramstax/`
 covers all deploys per the consumption table above. Explicit
-`--target lambda|cloudflare-workers` filters to one server entry
+`--target cloudflare-mod|aws-lambda-async` filters to one server entry
 (`LambdaEntry` / `WorkerEntry` classes emit `server/lambda.js` /
 `server/worker.js` respectively).
 
@@ -118,16 +133,15 @@ covers all deploys per the consumption table above. Explicit
   manifest.js   # static page-class imports + embedded templates (runnable) — always emitted
   gen/          # AOT modules (always emitted: workers need them, Node ignores them)
   server/
-    lambda.js       # `serverless` entry (`adapter: "aws-lambda-async"`) — default + `--target lambda` only
-    worker.js       # `serverless` entry (`adapter: "cloudflare-mod"`) — default + `--target cloudflare-workers` only
-    wrangler.toml   # complete deployable Workers config (real name + URL from config, token via secret, never in file) — `--target cloudflare-workers` only
-    bun-stub.ts     # `bun` resolve stub for the Workers bundler — `--target cloudflare-workers` only
-    bundle.js       # single-file bundle — `--bundle` (+ `--target cloudflare-workers`) only, deprecated
+    lambda.js       # `serverless` entry (key `aws-lambda-async`) — `--target aws-lambda-async` only
+    worker.js       # `serverless` entry (key `cloudflare-mod`) — `--target cloudflare-mod` only
+    wrangler.toml   # complete deployable Workers config (real name + URL from config, token via secret, never in file) — `--target cloudflare-mod` only
+    bun-stub.ts     # `bun` resolve stub for the Workers bundler — `--target cloudflare-mod` only
+    bundle.js       # single-file bundle — `--bundle` only, deprecated. For aws-lambda-async this replaces lambda.js as the handler
 ```
 
 Stub rule: `server/bun-stub.ts` is emitted only when the target set includes
-`cloudflare-workers` (default no-`--target` yes; `--target lambda` no;
-`--raw` / `--dry-run` never). It stubs `Bun.serve` as
+`cloudflare-mod` (`--target aws-lambda-async` no; `--raw` / `--dry-run` never). It stubs `Bun.serve` as
 resolve-only: imports resolve, any call throws. It stays `.ts` because the
 Wrangler `alias` entry resolves and transpiles TS source natively.
 
@@ -156,7 +170,7 @@ export default manifest
 
 ## Booting from the manifest
 
-Opt-in via the `manifest` param (`ITGramstaxParams.manifest?: ITAppManifest`):
+Opt-in via the `manifest` param (`IGramstaxParams.manifest?: ITAppManifest`):
 
 ```ts
 import manifest from `./.gramstax/manifest.js`
@@ -164,7 +178,7 @@ import routes from `./.gramstax/routes.json`
 const bot = new Gramstax({token, deploy: `polling`, templateManager, manifest: {...manifest, routes}})
 ```
 
-Automatic for serverless: `new Gramstax({deploy: "serverless", optionsDeploy: {serverless: {adapter: "cloudflare-mod", url: "https://<your-worker>.workers.dev/webhook"}}})` with no
+Automatic for serverless: `new Gramstax({deploy: "serverless", optionsDeploy: {serverless: {"cloudflare-mod": {url: "https://<your-worker>.workers.dev/webhook", secretToken: process.env.BOT_WEBHOOK_SECRET!}}}})` with no
 `manifest` auto-loads `./.gramstax/` (manifest.js + routes.json) from the
 working directory when present, and falls back to the filesystem walk when
 absent. Every other deploy keeps fs boot by default. Emitted server entries
