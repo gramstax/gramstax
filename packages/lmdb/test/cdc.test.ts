@@ -97,12 +97,15 @@ describe(`subscribe`, () => {
   it(`captures deleteByPrefix per row`, async () => {
     const users = env.register(CdcUserSchema)
     const seen: Array<unknown> = []
-    env.subscribe(`cdc-user`, (e) => {
+    // Filter to deletes rather than clearing `seen` mid-test: put() stages its
+    // CDC record in async mode (fire-and-forget), so a late record can surface
+    // on a later drain and land after a manual reset. The op filter keeps puts
+    // out of the callback entirely, so this asserts only what it means to.
+    env.subscribe({db: `cdc-user`, op: `delete`}, (e) => {
       seen.push(e)
     })
     await users.put(`k:1`, U1)
     await users.put(`k:2`, U1)
-    seen.length = 0
     await users.deleteByPrefix(`k:`)
     expect(seen).toEqual([
       {type: `delete`, key: `k:1`, value: undefined},
