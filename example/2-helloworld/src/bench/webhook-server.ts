@@ -12,23 +12,27 @@ const run = async () => {
 
   const botCore = new BotCore({
     deploy: `webhook`,
-    optionsDeploy: {url: `http://127.0.0.1:3000/webhook/${Math.round(Math.random() * 10 ** 10)}`},
+    optionsDeploy: {
+      webhook: {
+        url: `http://127.0.0.1:3000/webhook/${Math.round(Math.random() * 10 ** 10)}`,
+        queue: queueEnabled
+          ? {
+              enabled: true,
+              maxQueueSize,
+              workerCount,
+              perChatConcurrency,
+              blockWhenFull: true
+            }
+          : {enabled: false}
+      }
+    },
     token: process.env.BOT_TOKEN ?? `7815352851:AAGdLYBm8GKF7f26zi7cUmxsKM2jZseqgfI`,
     log: true,
     botConfig: {
       client: {
         apiRoot: mockServer.apiRoot
       }
-    },
-    webhookQueue: queueEnabled
-      ? {
-          enabled: true,
-          maxQueueSize,
-          workerCount,
-          perChatConcurrency,
-          blockWhenFull: true
-        }
-      : {enabled: false}
+    }
   })
 
   const res1 = await mockServer.sendText(`/start`)
@@ -37,7 +41,8 @@ const run = async () => {
 
   const res2 = await mockServer.sendCallbackQuery(`start`)
   log.info(`Mock Telegram start (callbackQueryData) response.`)
-  console.log(res2[0]?.body?.reply_markup?.inline_keyboard)
+  const replyMarkup = (res2[0]?.body as {reply_markup?: {inline_keyboard?: unknown}} | undefined)?.reply_markup
+  console.log(replyMarkup?.inline_keyboard)
 
   await botCore.stop()
   await mockServer.stop()
