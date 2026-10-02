@@ -12,10 +12,11 @@ packages/create-gramstax/src/
 ├── utils/log.ts       Logger singleton
 ├── templates/         All scaffolded project files (copied verbatim, then processed)
 │   ├── package.json, tsconfig.json, biome.json, .gitignore, .env.example, LICENSE, README.md
+│   ├── gramstax.config.ts  Typed composition (default export `: GramstaxConfig`) — the boot entry
 │   ├── src/
-│   │   ├── index.ts           Generated app entrypoint
 │   │   ├── env.ts
 │   │   ├── base/page.ts       PageBase template
+│   │   ├── base/page-admin.ts PageAdminBase template (hookBeforeRoute access gate)
 │   │   ├── base/guard.ts      GuardBase template
 │   │   ├── core/bot.ts        Bot wrapper (extends Gramstax)
 │   │   ├── core/ctx.ts        Ctx wrapper (extends gramstax Ctx)
@@ -40,12 +41,25 @@ packages/create-gramstax/src/
 3. Copies `templates/` to target dir, replacing generator placeholders (`projectName`, `packageName`, `installCmd`, etc.); runtime `{{userName}}`/`{{result}}`/`{{res}}` placeholders are intentionally preserved, and any other leftover `{{...}}` fails the run.
 4. Post-processes:
    - Renames `.env.example` → `.env` (preserves a pre-existing `.env`)
-   - Removes `src/db/` + `@gramstax/lmdb` deps + monorepo tsconfig paths when LMDB disabled (monorepo paths are always stripped — scaffolds are standalone)
+   - Strips every monorepo `tsconfig` `paths` entry — scaffolds are standalone, and a `gramstax` → `src` mapping breaks `gramstax start`'s `instanceof Gramstax` discovery (two copies of the package)
+   - Removes `src/db/` + `@gramstax/lmdb` deps when LMDB disabled
    - Removes `src/workers/` + `@gramstax/worker-thread` dep when workers disabled
    - Adds `@biomejs/biome` to devDependencies when Biome enabled (installed with the rest); removes `biome.json` + `lint*`/`format*` scripts otherwise
    - For `--runtime node`: dev/start → `node`, build → `tsc --outDir dist` (kept), `test*` → `node --test`, template `noEmit` flipped off
 5. Runs `installCmd` in the target directory (unless `--skip-install`).
 6. Errors: `Create` only throws (never `process.exit`); `index.ts` maps to exit codes (0 ok, 1 error, 2 usage, 0 + `Setup cancelled` on cancel).
+
+## Boot Model
+
+Generated projects have **no `src/index.ts`**. `gramstax.config.ts` is the composition point and `gramstax start` constructs the `Gramstax` subclass found at `src/core/bot.ts`:
+
+```json
+"dev": "bun --bun gramstax start --watch",
+"start": "bun --bun gramstax start",
+"build:gramstax": "gramstax build"
+```
+
+`bun --bun` is required — plain node cannot resolve TS paths or the `~` alias.
 
 ## CLI Flags
 

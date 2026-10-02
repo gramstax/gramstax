@@ -43,7 +43,7 @@ export const JobWorker = WorkerThreadExport.init({
   WTInit: Worker
 })
 
-// Main-thread usage (e.g. in src/index.ts after boot):
+// Main-thread usage (no entry file — launch from BotCore.hookAfterStart):
 //   const worker = await JobWorker.launchWorker()
 //   await worker.ready()
 //   await JobWorker.mtdStart(60_000)

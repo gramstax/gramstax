@@ -92,7 +92,7 @@ All settings live in `.env` and are wired through `gramstax.config.ts` (`token` 
 | :----------------------- | :------- | :-------------------------------------------------------------- |
 | `BOT_TOKEN`     | Yes      | Bot token from [@BotFather](https://t.me/BotFather)             |
 | `BOT_DEPLOY`    | Yes      | `polling` (dev) · `webhook` · `serverless` (details in `optionsDeploy`) |
-| `CACHE_SESSION` | No       | `memory` (single instance) or `redis:<url>` (multi-instance)    |
+| `CACHE_SESSION_STORE` | No       | `memory` (single instance) or `redis:<url>` (multi-instance)    |
 
 ## Testing
 
