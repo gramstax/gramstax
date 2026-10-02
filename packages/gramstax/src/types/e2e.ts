@@ -191,7 +191,7 @@ export type IE2eApiCall = {
   /** Telegram Bot API method name, e.g. `sendMessage`. Accepted values: any Bot API method string. */
   method: string
   /** Parameters sent to the API method (chat_id, text, reply_markup, etc.). Always a payload object. */
-  body: Record<string, any>
+  body: Record<string, unknown>
   /** Unix timestamp when the call was captured. Accepted values: milliseconds since epoch from `Date.now()`. */
   timestamp: number
 }
