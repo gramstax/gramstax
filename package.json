@@ -32,6 +32,7 @@
     "format:example": "biome format --write ./example",
     "format:packages": "biome format --write ./packages",
     "build": "NX_DAEMON=false nx run-many -t build",
+    "build:packages": "NX_DAEMON=false nx run-many -t build --projects='packages/*'",
     "build:gramstax": "NX_DAEMON=false nx build gramstax",
     "build:create-gramstax": "NX_DAEMON=false nx build create-gramstax",
     "build:worker-thread": "NX_DAEMON=false nx build worker-thread",
