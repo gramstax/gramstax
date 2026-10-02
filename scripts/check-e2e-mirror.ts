@@ -9,6 +9,11 @@
  *   pages/foo/bar.ts   → e2e/foo/bar.ts    (sama persis)
  *   pages/foo/index.ts → e2e/foo/index.ts  (sama persis)
  *
+ * Dicek dua arah:
+ *   - pages/ → e2e/ : setiap page punya test (--fix bisa membuatkannya)
+ *   - e2e/ → pages/ : setiap test punya page (orphan, test sisa page dihapus)
+ *     dikecualikan lewat EXTRA_TESTS untuk test harness yang memang bukan page test.
+ *
  * Penggunaan:
  *   bun run scripts/check-e2e-mirror.ts
  *       → Cek semua project di example/
@@ -43,6 +48,11 @@ const DEFAULT_PROJECTS = [
   `10-http-request`
 ]
 
+/** Test e2e yang bukan page test (harness/boot), jadi tidak butuh padanan pages/. */
+const EXTRA_TESTS: Record<string, ReadonlyArray<string>> = {
+  "11-cloudflare-worker": [`aot-boot.test.ts`, `manifest-boot.test.ts`]
+}
+
 // ── Parse CLI ─────────────────────────────────────────────────────────
 
 const args = process.argv.slice(2)
@@ -67,6 +77,19 @@ function walkPages(dir: string, prefix = ``): Array<{rel: string}> {
     if (entry.isDirectory()) {
       results.push(...walkPages(full, prefix ? `${prefix}/${entry.name}` : entry.name))
     } else if (entry.isFile() && /\.(ts|js)$/.test(entry.name) && !/\.test\.(ts|js)$/.test(entry.name)) {
+      results.push({rel: prefix ? `${prefix}/${entry.name}` : entry.name})
+    }
+  }
+  return results
+}
+
+function walkTests(dir: string, prefix = ``): Array<{rel: string}> {
+  const results: Array<{rel: string}> = []
+  for (const entry of readdirSync(dir, {withFileTypes: true})) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      results.push(...walkTests(full, prefix ? `${prefix}/${entry.name}` : entry.name))
+    } else if (entry.isFile() && /\.test\.(ts|js)$/.test(entry.name)) {
       results.push({rel: prefix ? `${prefix}/${entry.name}` : entry.name})
     }
   }
@@ -145,6 +168,20 @@ function checkProject(label: string, pagesDir: string, e2eDir: string): boolean 
     }
   }
 
+  const projectKey = label.split(`/`).pop() ?? label
+  const extras = EXTRA_TESTS[projectKey] ?? []
+  const orphans: Array<string> = []
+  for (const test of walkTests(e2eDir)) {
+    if (extras.includes(test.rel)) continue
+    const base = test.rel.replace(/\.test\.(ts|js)$/, ``)
+    const hasPage = [`${base}.ts`, `${base}.js`, `${base}/index.ts`, `${base}/index.js`].some((c) => existsSync(join(pagesDir, c)))
+    if (!hasPage) orphans.push(test.rel)
+  }
+  for (const orphan of orphans) {
+    console.log(`  ⚠️  ${label}: e2e/${orphan} ORPHAN — no pages/ counterpart (delete it, or list it in EXTRA_TESTS)`)
+    ok = false
+  }
+
   if (ok) {
     console.log(`  ✅ ${label}: ${pages.length} pages, all mirrored`)
   }
@@ -174,7 +211,7 @@ if (customPath) {
 // ── Exit ──────────────────────────────────────────────────────────────
 
 if (!allOk && !FIX_MODE) {
-  console.log(`\nSome e2e tests are missing. Run with --fix to auto-create them.`)
+  console.log(`\nSome e2e tests are missing or orphaned. --fix creates the missing ones; orphans must be deleted by hand.`)
   process.exit(1)
 } else if (allOk) {
   console.log(`\nAll OK!`)
