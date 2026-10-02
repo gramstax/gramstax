@@ -4,7 +4,11 @@ import {dirname, join, relative, resolve, sep} from "node:path"
 import type {BunPlugin} from "bun"
 
 export class WorkerTarget {
-  emit(serverDir: string, manifestRef: string, opts?: {adapter?: string; name?: string; url?: string}): Array<string> {
+  emit(
+    serverDir: string,
+    manifestRef: string,
+    opts?: {adapter?: string; name?: string; url?: string; compatibilityDate?: string; compatibilityFlags?: string[]; toml?: Record<string, unknown>; passthrough?: Record<string, unknown>; refs?: Array<{slot: string; module: string; specifier?: string; exportName?: string; args: unknown[]}>}
+  ): Array<string> {
     const manifestFile = resolve(manifestRef)
     if (existsSync(manifestFile) === false) {
       throw new Error(`Worker manifest not found at ${manifestFile} (run gramstax build first)`)
@@ -27,10 +31,11 @@ export class WorkerTarget {
     const adapter = opts?.adapter ?? `cloudflare-mod`
     const name = opts?.name ?? `gramstax-worker`
     const url = opts?.url ?? `https://<your-worker>.workers.dev/webhook`
+    const refs = (opts?.refs ?? []).map((ref) => ({...ref, specifier: toImport(ref.module)}))
     const workerJs = join(dir, `worker.js`)
-    writeFileSync(workerJs, this._renderWorker(toImport(manifestFile), toImport(genFile), toImport(routesFile), {adapter, name, url}), `utf-8`)
+    writeFileSync(workerJs, this._renderWorker(toImport(manifestFile), toImport(genFile), toImport(routesFile), {adapter, name, url, passthrough: opts?.passthrough, refs}), `utf-8`)
     const toml = join(dir, `wrangler.toml`)
-    writeFileSync(toml, this._renderToml(name), `utf-8`)
+    writeFileSync(toml, this._renderToml(name, {compatibilityDate: opts?.compatibilityDate, compatibilityFlags: opts?.compatibilityFlags, toml: opts?.toml}), `utf-8`)
     const stub = join(dir, `bun-stub.ts`)
     writeFileSync(stub, this._renderStub(), `utf-8`)
     return [workerJs, toml, stub]
@@ -92,7 +97,7 @@ export class WorkerTarget {
     return bundleJs
   }
 
-  _renderWorker(manifestSpec: string, genSpec: string, routesSpec: string, baked?: {adapter: string; name: string; url: string}): string {
+  _renderWorker(manifestSpec: string, genSpec: string, routesSpec: string, baked?: {adapter: string; name: string; url: string; passthrough?: Record<string, unknown>; refs?: Array<{slot: string; specifier: string; exportName?: string; args: unknown[]}>}): string {
     const adapter = JSON.stringify(baked?.adapter ?? `cloudflare-mod`)
     const name = JSON.stringify(baked?.name ?? `gramstax-worker`)
     const url = JSON.stringify(baked?.url ?? `https://<your-worker>.workers.dev/webhook`)
@@ -100,7 +105,9 @@ export class WorkerTarget {
 import baseManifest from "${manifestSpec}"
 import {templates as aotTemplates} from "${genSpec}"
 import routes from "${routesSpec}"
+${this._renderRefImports(baked?.refs)}
 
+${this._renderPickHelper(baked?.refs)}
 for (const entry of baseManifest.pages) {
   // Edge-safety: boot would JIT-compile inline templates otherwise;
   // frozen AOT modules registered below serve these keys instead.
@@ -132,14 +139,13 @@ class WorkerEntry {
       WorkerEntry.bot = new Gramstax({
         token: token,
         deploy: "serverless",
-        optionsDeploy: {serverless: {adapter: ${adapter}, name: ${name}, url: ${url}, secretToken: env === null || env === undefined ? undefined : env.BOT_WEBHOOK_SECRET}},
-        templateManager: new TemplateManager({path: []}),
-        log: false,
+        optionsDeploy: {serverless: {${adapter}: {name: ${name}, url: ${url}, secretToken: env === null || env === undefined ? undefined : env.BOT_WEBHOOK_SECRET}}},
+        templateManager: new TemplateManager({path: []}),${this._renderDefaultLog(baked?.passthrough, baked?.refs)}
         manifest: {pages: baseManifest.pages, templates: [], routes: routes},
-        botConfig: botConfig
+        botConfig: botConfig${this._renderPassthrough(baked?.passthrough)}${this._renderRefSlots(baked?.refs)}
       })
       for (const key of Object.keys(aotTemplates)) {
-        WorkerEntry.bot.templateManager._registerCompiled(key, aotTemplates[key])
+        WorkerEntry.bot.templateManager.registerCompiled(key, aotTemplates[key])
       }
       const prevHook = WorkerEntry.bot.hookAfterStart?.bind(WorkerEntry.bot)
       WorkerEntry.bot.hookAfterStart = async () => { await prevHook?.(); readyResolve() }
@@ -180,23 +186,123 @@ export function getBot(env) {
 `
   }
 
-  _renderToml(name: string): string {
-    return `name = "${name}"
-main = "worker.js"
-compatibility_date = "2026-01-01"
-compatibility_flags = ["nodejs_compat"]
+  _renderRefImports(refs: Array<{specifier: string}> | undefined): string {
+    if (refs === undefined || refs.length === 0) return ``
+    return refs
+      .map((ref, index) => `import * as __ref${index} from "${ref.specifier}"`)
+      .join(`
+`)
+  }
 
-[vars]
-# BOT_TOKEN is a secret, never a var: a [vars] entry here would shadow the
-# real secret at runtime (verified live: placeholder var caused error 1101).
-# Set it via: wrangler secret put BOT_TOKEN --config <this file>
-# BOT_WEBHOOK_SECRET is a secret, never a var: same shadowing rule.
-# Set it via: wrangler secret put BOT_WEBHOOK_SECRET --config <this file>
-# Deploy values are baked into worker.js optionsDeploy at build time.
-
-[alias]
-"bun" = "./bun-stub.ts"
+  _renderPickHelper(refs: Array<unknown> | undefined): string {
+    if (refs === undefined || refs.length === 0) return ``
+    return `const __pick = (mod, name, args) => {
+  const value = name === undefined ? (mod.default ?? Object.values(mod)[0]) : mod[name]
+  if (value === undefined) throw new Error("gramstax serverless ref: no export for " + String(name))
+  return typeof value === "function" ? new value(...args) : value
+}
 `
+  }
+
+  _renderRefSlots(refs: Array<{slot: string; exportName?: string; args: unknown[]}> | undefined): string {
+    if (refs === undefined || refs.length === 0) return ``
+    return refs
+      .map(
+        (ref, index) => `,
+        ${ref.slot}: __pick(__ref${index}, ${ref.exportName === undefined ? `undefined` : JSON.stringify(ref.exportName)}, ${JSON.stringify(ref.args)})`
+      )
+      .join(``)
+  }
+
+  _renderDefaultLog(passthrough: Record<string, unknown> | undefined, refs: Array<{slot: string}> | undefined): string {
+    const provided = passthrough?.log !== undefined || refs?.some((ref) => ref.slot === `log`) === true
+    return provided === true
+      ? ``
+      : `
+        log: false,`
+  }
+
+  _renderPassthrough(passthrough: Record<string, unknown> | undefined): string {
+    if (passthrough === undefined) return ``
+    const keys = Object.keys(passthrough)
+    if (keys.length === 0) return ``
+    const body = keys
+      .map((key) => `        ${key}: ${JSON.stringify(passthrough[key])}`)
+      .join(`,
+`)
+    return `,
+${body}`
+  }
+
+  _renderToml(name: string, opts?: {compatibilityDate?: string; compatibilityFlags?: string[]; toml?: Record<string, unknown>}): string {
+    const extras = opts?.toml ?? {}
+    if (Object.hasOwn(extras, `main`) === true) {
+      throw new Error(`gramstax build: \`optionsDeploy.serverless['cloudflare-mod'].toml.main\` cannot be set — \`main\` is owned by the emitter because --bundle rewrites it to bundle.js`)
+    }
+    const extra = (key: string): unknown => (Object.hasOwn(extras, key) === true ? extras[key] : undefined)
+    const lines: Array<string> = []
+    const resolvedName = extra(`name`) ?? name
+    lines.push(`name = ${this._tomlValue(resolvedName)}`)
+    lines.push(`main = "worker.js"`)
+    // Both keys are always written, never commented. wrangler treats an absent
+    // key as absent rather than falling back to a default, and nodejs_compat is
+    // date-gated: with compatibility_date commented out the flag silently does
+    // nothing and the build fails with 23 "Could not resolve <builtin>" errors.
+    const compatDate = extra(`compatibility_date`) ?? opts?.compatibilityDate ?? `2026-01-01`
+    if (opts?.compatibilityDate === undefined && extra(`compatibility_date`) === undefined) {
+      lines.push(`# Default. Also gates compatibility_flags below — keep the two in sync.`)
+    }
+    lines.push(`compatibility_date = ${this._tomlValue(compatDate)}`)
+    const compatFlags = extra(`compatibility_flags`) ?? opts?.compatibilityFlags ?? [`nodejs_compat`]
+    if (opts?.compatibilityFlags === undefined && extra(`compatibility_flags`) === undefined) {
+      lines.push(`# Required: gramstax's dependency graph uses node builtins (@grammyjs/files,`)
+      lines.push(`# readdirp, @redis/client). Omitting it fails the build with "Could not resolve".`)
+      lines.push(`# Set compatibilityFlags: [] in the config to opt out.`)
+    }
+    lines.push(`compatibility_flags = ${this._tomlValue(compatFlags)}`)
+    const reserved = new Set([`name`, `main`, `compatibility_date`, `compatibility_flags`, `vars`, `alias`])
+    for (const [key, value] of Object.entries(extras)) {
+      if (reserved.has(key) === false) lines.push(`${this._tomlKey(key)} = ${this._tomlValue(value)}`)
+    }
+    lines.push(``, `[vars]`)
+    lines.push(`# BOT_TOKEN is a secret, never a var: a [vars] entry here would shadow the`)
+    lines.push(`# real secret at runtime (verified live: placeholder var caused error 1101).`)
+    lines.push(`# Set it via: wrangler secret put BOT_TOKEN --config <this file>`)
+    lines.push(`# BOT_WEBHOOK_SECRET is a secret, never a var: same shadowing rule.`)
+    lines.push(`# Set it via: wrangler secret put BOT_WEBHOOK_SECRET --config <this file>`)
+    lines.push(`# Deploy values are baked into worker.js optionsDeploy at build time.`)
+    const vars = extra(`vars`)
+    if (this._isPlainObject(vars) === true) {
+      for (const [key, value] of Object.entries(vars as Record<string, unknown>)) lines.push(`${this._tomlKey(key)} = ${this._tomlValue(value)}`)
+    }
+    lines.push(``, `[alias]`, `"bun" = "./bun-stub.ts"`)
+    return `${lines.join(`
+`)}
+`
+  }
+
+  _tomlValue(value: unknown): string {
+    if (typeof value === `string`) return JSON.stringify(value)
+    if (typeof value === `number`) {
+      if (Number.isFinite(value) === false) throw new Error(`gramstax build: cannot serialize a non-finite number into wrangler.toml`)
+      return String(value)
+    }
+    if (typeof value === `boolean`) return String(value)
+    if (Array.isArray(value)) return `[${value.map((entry) => this._tomlValue(entry)).join(`, `)}]`
+    if (this._isPlainObject(value) === true) {
+      return `{${Object.entries(value as Record<string, unknown>)
+        .map(([key, entry]) => `${this._tomlKey(key)} = ${this._tomlValue(entry)}`)
+        .join(`, `)}}`
+    }
+    throw new Error(`gramstax build: cannot serialize a ${value === null ? `null` : typeof value} into wrangler.toml`)
+  }
+
+  _tomlKey(key: string): string {
+    return /^[A-Za-z0-9_-]+$/.test(key) === true ? key : JSON.stringify(key)
+  }
+
+  _isPlainObject(value: unknown): value is Record<string, unknown> {
+    return typeof value === `object` && value !== null && Array.isArray(value) === false
   }
 
   _renderStub(): string {

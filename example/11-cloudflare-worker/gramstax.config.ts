@@ -10,7 +10,10 @@ const config: GramstaxConfig = {
     namespace: `s`
   },
   log: {
-    override: {module: `./src/helpers/log.ts`, export: `LogHe`}
+    override: {
+      module: `./src/helpers/log.ts`,
+      export: `LogHe`
+    }
   },
   optionsPage: {
     shortCallbackQueryData: true
@@ -18,10 +21,11 @@ const config: GramstaxConfig = {
   // serverless secret duality — config value sets the webhook + local start, edge reads the BOT_WEBHOOK_SECRET binding (set via `wrangler secret put BOT_WEBHOOK_SECRET`, same value both sides), never a literal here
   optionsDeploy: {
     serverless: {
-      adapter: process.env.BOT_DEPLOY_ADAPTER,
-      name: process.env.BOT_DEPLOY_NAME,
-      url: process.env.BOT_DEPLOY_URL,
-      secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``
+      "cloudflare-mod": {
+        name: process.env.BOT_DEPLOY_NAME,
+        url: process.env.BOT_DEPLOY_URL,
+        secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``
+      }
     }
   },
   mediaRoots: undefined,
