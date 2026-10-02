@@ -31,7 +31,7 @@ const createBot = (overrides: Record<string, unknown> = {}): Gramstax => {
   } as never)
 }
 
-const transformerCount = (bot: Gramstax) => (bot.bot.api.config as unknown as {installedTransformers: () => unknown[]}).installedTransformers().length
+const transformerCount = (bot: Gramstax) => bot.bot.api.config.installedTransformers().length
 
 describe(`outgoing throttle via @grammyjs/transformer-throttler`, () => {
   it(`mounts apiThrottler when throttle params provided (more transformers than baseline)`, () => {

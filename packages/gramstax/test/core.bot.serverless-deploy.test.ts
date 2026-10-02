@@ -1,8 +1,8 @@
 import {afterEach, beforeEach, describe, expect, it, mock} from "bun:test"
-import {Bot} from "grammy"
 import {existsSync} from "node:fs"
 import {mkdir, rm} from "node:fs/promises"
 import {join} from "node:path"
+import {Bot} from "grammy"
 import {Gramstax} from "~/core/bot"
 import {TemplateManager} from "~/template/manager"
 
@@ -81,8 +81,8 @@ describe(`Gramstax deploy:"serverless"`, () => {
     const {realBot, setWebhook} = mockGrammyBot()
     bot.bot = realBot as never
     releaseGate()
-    await waitFor(() => (bot as unknown as {handlerBotUpdate?: unknown}).handlerBotUpdate !== undefined)
-    expect(typeof (bot as unknown as {handlerBotUpdate: unknown}).handlerBotUpdate).toBe(`function`)
+    await waitFor(() => bot.handlerBotUpdate !== undefined)
+    expect(typeof bot.handlerBotUpdate).toBe(`function`)
     await waitFor(() => order.includes(`after`))
     expect(order).toEqual([`before`, `after`])
     expect(setWebhook).toHaveBeenCalledWith(`https://example.com/webhook`, {secret_token: `test-secret`})

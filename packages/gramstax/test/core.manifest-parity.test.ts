@@ -15,7 +15,7 @@ let manifestDir: string
 let emptyDir: string
 
 function snapPages(bot: Gramstax) {
-  const p = bot.pages as unknown as any
+  const p = bot.pages
   const norm = (v: unknown): string => JSON.stringify(v, Object.keys((v ?? {}) as object).sort())
   return {
     all: Object.keys(bot.pages.all).sort(),
@@ -28,8 +28,8 @@ function snapPages(bot: Gramstax) {
 }
 
 function templateKeys(bot: Gramstax) {
-  const tm = (bot as unknown as {templateManager: TemplateManager}).templateManager
-  return [...(tm as unknown as {_map: Map<string, unknown>})._map.keys()].sort()
+  const tm = bot.templateManager
+  return [...tm.keysCompiled()].sort()
 }
 
 async function buildManifest(root: string): Promise<IAppManifest> {

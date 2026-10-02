@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
-import {cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync} from "node:fs"
+import {cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
-import {join} from "node:path"
+import {join, resolve} from "node:path"
 import {pathToFileURL} from "node:url"
 import {GramstaxBuild} from "~/cli/build"
 import {LambdaTarget} from "~/cli/targets/lambda"
@@ -10,6 +10,7 @@ import {Gramstax} from "~/index"
 import {generate} from "../scripts/build-manifest"
 
 const FIXTURES = join(import.meta.dir, `fixtures`, `manifest`, `pages`)
+const PKG_DIR = join(import.meta.dir, `..`)
 const CTX_ABS = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
 const SRC_INDEX = pathToFileURL(join(import.meta.dir, `..`, `src`, `index.ts`)).href
 const EDGE_TOKENS = [`new Function`, `Function(`, `eval(`, `node:fs`, `__filename`]
@@ -113,6 +114,65 @@ describe(`LambdaTarget`, () => {
     expect(source).toContain(`Unauthorized`)
     expect(source).not.toMatch(/[0-9]{6,}:[A-Za-z0-9_-]{20,}/)
   })
+
+  it(`bakes edge-safe config slots into lambda.js`, () => {
+    generate(pages, outDir, {aot: true})
+    const serverDir = join(outDir, `server`)
+    new LambdaTarget().emit(serverDir, join(outDir, `manifest.js`), {
+      adapter: `aws-lambda-async`,
+      url: `https://example.com/webhook`,
+      passthrough: {rateLimit: {windowMs: 60000, max: 20}, cacheSession: {store: `memory`}}
+    })
+    const lambdaJs = readFileSync(join(serverDir, `lambda.js`), `utf-8`)
+    expect(lambdaJs).toContain(`rateLimit: {"windowMs":60000,"max":20}`)
+    expect(lambdaJs).toContain(`cacheSession: {"store":"memory"}`)
+  })
+
+  it(`emits a static top-level import for a path-ref slot`, () => {
+    generate(pages, outDir, {aot: true})
+    const serverDir = join(outDir, `server`)
+    new LambdaTarget().emit(serverDir, join(outDir, `manifest.js`), {
+      adapter: `aws-lambda-async`,
+      url: `https://example.com/webhook`,
+      refs: [{slot: `log`, module: resolve(import.meta.dir, `..`, `src`, `helpers`, `log.ts`), exportName: `LoggingHelper`, args: [{force: `console`}]}]
+    })
+    const lambdaJs = readFileSync(join(serverDir, `lambda.js`), `utf-8`)
+    expect(lambdaJs).toContain(`import * as __ref0 from "`)
+    expect(lambdaJs).toContain(`helpers/log.ts"`)
+    expect(lambdaJs).toContain(`const __pick = (mod, name, args) => {`)
+    expect(lambdaJs).toContain(`log: __pick(__ref0, "LoggingHelper", [{"force":"console"}])`)
+    expect(lambdaJs).not.toContain(`await import(`)
+  })
+
+  it(`bundles a TypeScript path-ref so Node never has to import it`, async () => {
+    // Bundling inlines every specifier, so `gramstax` must resolve from the emit dir.
+    // A hand-written page is used rather than the shared fixture: that one needs the
+    // `~` tsconfig alias, and relinkCtx's `file://` rewrite is not followable by Bun.build.
+    const barePages = mkdtempSync(join(tmpdir(), `lambda-bare-`))
+    for (const root of [outDir, barePages]) {
+      const modules = join(root, `node_modules`)
+      mkdirSync(modules, {recursive: true})
+      const link = join(modules, `gramstax`)
+      if (existsSync(link) === false) symlinkSync(PKG_DIR, link, `junction`)
+    }
+    try {
+      writeFileSync(join(barePages, `only.ts`), `import {Ctx} from "gramstax"\n\nexport class Only extends Ctx {\n  async init() {}\n}\n`, `utf-8`)
+      generate(barePages, outDir, {aot: true})
+      const serverDir = join(outDir, `server`)
+      new LambdaTarget().emit(serverDir, join(outDir, `manifest.js`), {
+        adapter: `aws-lambda-async`,
+        url: `https://example.com/webhook`,
+        refs: [{slot: `log`, module: resolve(import.meta.dir, `..`, `src`, `helpers`, `log.ts`), exportName: `LoggingHelper`, args: [{force: `console`}]}]
+      })
+      const bundled = await new LambdaTarget().emitBundle(serverDir)
+      expect(bundled.endsWith(`bundle.js`)).toBe(true)
+      const bundleJs = readFileSync(bundled, `utf-8`)
+      expect(bundleJs).not.toContain(`helpers/log.ts"`)
+      expect(bundleJs).toContain(`LoggingHelper`)
+    } finally {
+      rmSync(barePages, {force: true, recursive: true})
+    }
+  }, 120000)
 
   it(`local invoke routes /start to 200 with template output`, async () => {
     const {lambdaJs} = await emitLambda()

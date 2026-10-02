@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {spawnSync} from "node:child_process"
 import {existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
-import {join} from "node:path"
+import {join, resolve} from "node:path"
 import {pathToFileURL} from "node:url"
 import {GramstaxBuild} from "~/cli/build"
 import {WorkerTarget} from "~/cli/targets/worker"
@@ -224,6 +224,87 @@ describe(`WorkerTarget`, () => {
     })
   })
 
+  it(`bakes edge-safe config slots into worker.js`, () => {
+    generate(pages, outDir, {aot: true})
+    const serverDir = join(outDir, `server`)
+    new WorkerTarget().emit(serverDir, join(outDir, `manifest.js`), {
+      adapter: `cloudflare-mod`,
+      name: `gramstax-worker`,
+      url: `https://example.com/webhook`,
+      passthrough: {rateLimit: {windowMs: 60000, max: 20}, throttle: {global: {enabled: true}}, optionsPage: {shortCallbackQueryData: true}, cacheSession: {store: `memory`, namespace: `s`}}
+    })
+    const workerJs = readFileSync(join(serverDir, `worker.js`), `utf-8`)
+    expect(workerJs).toContain(`rateLimit: {"windowMs":60000,"max":20}`)
+    expect(workerJs).toContain(`throttle: {"global":{"enabled":true}}`)
+    expect(workerJs).toContain(`optionsPage: {"shortCallbackQueryData":true}`)
+    expect(workerJs).toContain(`cacheSession: {"store":"memory","namespace":"s"}`)
+  })
+
+  it(`omits the passthrough entirely when it is empty`, () => {
+    generate(pages, outDir, {aot: true})
+    const serverDir = join(outDir, `server`)
+    new WorkerTarget().emit(serverDir, join(outDir, `manifest.js`), {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`, passthrough: {}})
+    const workerJs = readFileSync(join(serverDir, `worker.js`), `utf-8`)
+    expect(workerJs).not.toContain(`rateLimit:`)
+    expect(workerJs).not.toContain(`cacheSession:`)
+    expect(workerJs).toContain(`botConfig: botConfig\n`)
+  })
+
+  it(`emits a static top-level import for a path-ref slot`, () => {
+    generate(pages, outDir, {aot: true})
+    const serverDir = join(outDir, `server`)
+    new WorkerTarget().emit(serverDir, join(outDir, `manifest.js`), {
+      adapter: `cloudflare-mod`,
+      name: `gramstax-worker`,
+      url: `https://example.com/webhook`,
+      refs: [{slot: `log`, module: resolve(import.meta.dir, `..`, `src`, `helpers`, `log.ts`), exportName: `default`, args: []}]
+    })
+    const workerJs = readFileSync(join(serverDir, `worker.js`), `utf-8`)
+    expect(workerJs).toContain(`import * as __ref0 from "`)
+    expect(workerJs).toContain(`helpers/log.ts"`)
+    expect(workerJs).toContain(`const __pick = (mod, name, args) => {`)
+    expect(workerJs).toContain(`log: __pick(__ref0, "default", [])`)
+    expect(workerJs).not.toContain(`await import(`)
+    expect(workerJs).not.toContain(`log: false`)
+  })
+
+  it(`passes undefined, not null, when a path-ref omits export`, () => {
+    generate(pages, outDir, {aot: true})
+    const serverDir = join(outDir, `server`)
+    new WorkerTarget().emit(serverDir, join(outDir, `manifest.js`), {
+      adapter: `cloudflare-mod`,
+      name: `gramstax-worker`,
+      url: `https://example.com/webhook`,
+      refs: [{slot: `cacheSession`, module: resolve(import.meta.dir, `..`, `src`, `helpers`, `log.ts`), args: []}]
+    })
+    const workerJs = readFileSync(join(serverDir, `worker.js`), `utf-8`)
+    expect(workerJs).toContain(`cacheSession: __pick(__ref0, undefined, [])`)
+  })
+
+  it(`keeps log: false when no ref and no baked log exist`, () => {
+    generate(pages, outDir, {aot: true})
+    const serverDir = join(outDir, `server`)
+    new WorkerTarget().emit(serverDir, join(outDir, `manifest.js`), {adapter: `cloudflare-mod`, name: `gramstax-worker`, url: `https://example.com/webhook`})
+    const workerJs = readFileSync(join(serverDir, `worker.js`), `utf-8`)
+    expect(workerJs).toContain(`log: false,`)
+    expect(workerJs).not.toContain(`__ref0`)
+    expect(workerJs).not.toContain(`__pick`)
+  })
+
+  it(`emits exactly one log key when a baked log coexists with a ref-free build`, () => {
+    generate(pages, outDir, {aot: true})
+    const serverDir = join(outDir, `server`)
+    new WorkerTarget().emit(serverDir, join(outDir, `manifest.js`), {
+      adapter: `cloudflare-mod`,
+      name: `gramstax-worker`,
+      url: `https://example.com/webhook`,
+      passthrough: {log: {force: `console`}}
+    })
+    const ctor = readFileSync(join(serverDir, `worker.js`), `utf-8`).split(`new Gramstax({`)[1]?.split(`\n      }`)[0] ?? ``
+    expect(ctor.match(/log:/g)?.length).toBe(1)
+    expect(ctor).toContain(`log: {"force":"console"}`)
+  })
+
   it(`build --target cloudflare-mod emits server entry end to end`, async () => {
     const proj = mkdtempSync(join(tmpdir(), `worker-proj-`))
     try {
@@ -254,7 +335,7 @@ describe(`WorkerTarget`, () => {
     }
   }, 180000)
 
-  it(`--bundle without workers target fails clearly`, async () => {
+  it(`--bundle requires an explicit target`, async () => {
     const proj = mkdtempSync(join(tmpdir(), `worker-nobundle-`))
     try {
       writeJsPages(join(proj, `src`, `pages`))
@@ -262,8 +343,21 @@ describe(`WorkerTarget`, () => {
       writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"aws-lambda-async": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
       const plain = await new GramstaxBuild().run([`--bundle`], proj)
       expect(plain).toBe(1)
+    } finally {
+      rmSync(proj, {force: true, recursive: true})
+    }
+  }, 180000)
+
+  it(`--bundle now also serves the lambda target`, async () => {
+    const proj = mkdtempSync(join(tmpdir(), `lambda-bundle-`))
+    try {
+      writeJsPages(join(proj, `src`, `pages`))
+      linkWorkspace(proj)
+      writeFileSync(join(proj, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"aws-lambda-async": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}}\n`, `utf-8`)
       const lambda = await new GramstaxBuild().run([`--target`, `aws-lambda-async`, `--bundle`], proj)
-      expect(lambda).toBe(1)
+      expect(lambda).toBe(0)
+      expect(existsSync(join(proj, `.gramstax`, `server`, `lambda.js`))).toBe(true)
+      expect(existsSync(join(proj, `.gramstax`, `server`, `bundle.js`))).toBe(true)
     } finally {
       rmSync(proj, {force: true, recursive: true})
     }

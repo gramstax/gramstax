@@ -28,7 +28,7 @@ describe(`outgoing throttle — full pipeline integration`, () => {
 
     const started = Date.now()
     for (let i = 0; i < 3; i++) {
-      await (bot.bot.api as unknown as {sendMessage: (chatId: number, text: string) => Promise<unknown>}).sendMessage(123456789, `msg-${i}`)
+      await bot.bot.api.sendMessage(123456789, `msg-${i}`)
     }
     const elapsed = Date.now() - started
 
@@ -45,7 +45,7 @@ describe(`outgoing throttle — full pipeline integration`, () => {
 
     const started = Date.now()
     for (let i = 0; i < 3; i++) {
-      await (bot.bot.api as unknown as {sendMessage: (chatId: number, text: string) => Promise<unknown>}).sendMessage(123456789, `msg-${i}`)
+      await bot.bot.api.sendMessage(123456789, `msg-${i}`)
     }
     const elapsed = Date.now() - started
 

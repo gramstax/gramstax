@@ -28,17 +28,17 @@ describe(`TemplateManager path traversal`, () => {
     }
   })
 
-  it(`rejects _readTemplateFile with ../ traversal`, () => {
+  it(`rejects readTemplateFile with ../ traversal`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
     expect(manager.readTemplateFile(`../tm_security_outside.html`)).toBeNull()
   })
 
-  it(`rejects _readTemplateFile with absolute path`, () => {
+  it(`rejects readTemplateFile with absolute path`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
     expect(manager.readTemplateFile(resolve(OUTSIDE_FILE))).toBeNull()
   })
 
-  it(`rejects _readTemplateFile with nested ../ traversal`, () => {
+  it(`rejects readTemplateFile with nested ../ traversal`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
     expect(manager.readTemplateFile(`sub/../tm_security_outside.html`)).toBeNull()
   })

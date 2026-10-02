@@ -1,4 +1,4 @@
-import {beforeAll, afterAll, describe, expect, it} from "bun:test"
+import {afterAll, beforeAll, describe, expect, it} from "bun:test"
 import {existsSync} from "node:fs"
 import {mkdir, rm} from "node:fs/promises"
 import {join} from "node:path"
@@ -45,7 +45,7 @@ describe(`startup hooks are awaited`, () => {
       }
     }
     const bot = createBot() as HookBot
-    ;(bot as unknown as {hookAfterStart: () => Promise<void>}).hookAfterStart = async () => {
+    bot.hookAfterStart = async () => {
       order.push(`after-start`)
       await new Promise((r) => setTimeout(r, 50))
       order.push(`after-start-done`)
@@ -59,12 +59,12 @@ describe(`startup hooks are awaited`, () => {
   it(`awaits hookBeforeStart before the polling loop starts`, async () => {
     const order: string[] = []
     const bot = createBot()
-    ;(bot as unknown as {hookBeforeStart: () => Promise<void>}).hookBeforeStart = async () => {
+    bot.hookBeforeStart = async () => {
       order.push(`before-start`)
       await new Promise((r) => setTimeout(r, 20))
       order.push(`before-start-done`)
     }
-    ;(bot.bot as unknown as {start: () => Promise<void>}).start = async () => {
+    bot.bot.start = async () => {
       order.push(`started`)
     }
 

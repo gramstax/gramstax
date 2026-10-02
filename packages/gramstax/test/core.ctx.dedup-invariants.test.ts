@@ -67,7 +67,7 @@ describe(`dedup-invariants`, () => {
     const api = makeApi()
     const ctx = makeCtx(api)
     const sendChatIdSpy = mock(() => 1)
-    ;(ctx as unknown as {sendChatId: unknown}).sendChatId = sendChatIdSpy
+    ctx.sendChatId = sendChatIdSpy
     await ctx.renderPoll()
     expect(api.sendPoll).toHaveBeenCalledTimes(1)
     expect(sendChatIdSpy).not.toHaveBeenCalled()

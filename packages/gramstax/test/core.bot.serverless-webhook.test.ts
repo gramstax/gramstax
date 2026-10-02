@@ -18,11 +18,11 @@ type RunFn = (adapter: string, url?: string) => Promise<void>
 
 function spyApi(bot: Gramstax) {
   const seen: Array<string> = []
-  const api = bot.bot.api as unknown as {setWebhook: (url: string, extra?: unknown) => Promise<unknown>; getWebhookInfo: () => Promise<unknown>}
+  const api = bot.bot.api
   const origSet = api.setWebhook.bind(api)
   api.setWebhook = (async (url: string, extra?: unknown) => {
     seen.push(url)
-    return origSet(url, extra)
+    return origSet(url, extra as unknown as never)
   }) as typeof api.setWebhook
   return {seen, api}
 }

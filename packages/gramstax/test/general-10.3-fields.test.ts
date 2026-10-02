@@ -28,13 +28,13 @@ describe(`General 10.3 fields (can_stop/keep_on_stop, stopped_message_generation
   it(`sendMessageDraft passthrough can_stop/keep_on_stop`, async () => {
     const bot = _bot()
     const e2e = bot.e2e!
-    await (bot.bot as unknown as {init: () => Promise<void>}).init()
-    const api = bot.bot.api as unknown as {raw: {sendMessageDraft: (a: unknown) => Promise<unknown>}; sendMessageDraft: (...a: unknown[]) => Promise<unknown>}
+    await bot.bot.init()
+    const api = bot.bot.api
     // Try raw first, fallback to high-level
     if (api.raw?.sendMessageDraft) {
       await api.raw.sendMessageDraft({chat_id: 1001, draft_id: 1, text: `hi`, can_stop: true, keep_on_stop: true})
     } else {
-      await api.sendMessageDraft(1001, 1, `hi`, {can_stop: true, keep_on_stop: true} as unknown as never)
+      await api.sendMessageDraft(1001, 1, `hi`, {can_stop: true, keep_on_stop: true})
     }
     const call = e2e.lastCall(`sendMessageDraft`)
     expect(call).toBeDefined()
@@ -45,12 +45,12 @@ describe(`General 10.3 fields (can_stop/keep_on_stop, stopped_message_generation
   it(`sendRichMessageDraft passthrough can_stop/keep_on_stop`, async () => {
     const bot = _bot()
     const e2e = bot.e2e!
-    await (bot.bot as unknown as {init: () => Promise<void>}).init()
-    const api = bot.bot.api as unknown as {raw: {sendRichMessageDraft: (a: unknown) => Promise<unknown>}; sendRichMessageDraft: (...a: unknown[]) => Promise<unknown>}
+    await bot.bot.init()
+    const api = bot.bot.api
     if (api.raw?.sendRichMessageDraft) {
-      await api.raw.sendRichMessageDraft({chat_id: 1001, draft_id: 2, rich_message: {html: `<b>hi</b>`} as unknown as never, can_stop: false, keep_on_stop: true})
+      await api.raw.sendRichMessageDraft({chat_id: 1001, draft_id: 2, rich_message: {html: `<b>hi</b>`}, can_stop: false, keep_on_stop: true})
     } else {
-      await api.sendRichMessageDraft({chat_id: 1001, draft_id: 2, rich_message: {html: `<b>hi</b>`} as unknown as never, can_stop: false, keep_on_stop: true} as unknown as never)
+      await api.sendRichMessageDraft(1001, 2, {html: `<b>hi</b>`}, {can_stop: false, keep_on_stop: true})
     }
     const call = e2e.lastCall(`sendRichMessageDraft`)
     expect(call).toBeDefined()
@@ -69,13 +69,13 @@ describe(`General 10.3 fields (can_stop/keep_on_stop, stopped_message_generation
     }
     const bot = _bot()
     const name = `TestPage`
-    ;(bot as unknown as {pages: {all: Record<string, typeof Ctx>}}).pages.all[name] = TestPage
+    bot.pages.all[name] = TestPage
     bot.registerCustomRoute({
       name,
       routeName: `handleStoppedGeneration`,
       listenerName: `stoppedgeneration`,
       event: `stopped_message_generation`,
-      filter: (ctx: Ctx) => (ctx.update as unknown as {stopped_message_generation?: unknown}).stopped_message_generation !== undefined
+      filter: (ctx: Ctx) => ctx.update.stopped_message_generation !== undefined
     })
     const e2e = bot.e2e!
     await e2e.handleUpdate({
@@ -93,22 +93,22 @@ describe(`General 10.3 fields (can_stop/keep_on_stop, stopped_message_generation
     // e2e helper must simulate the gift via the real Message field `unique_gift`
     const bot = _bot()
     const e2e = bot.e2e!
-    const calls = await (e2e as unknown as {sendGiftInfo: (g: Record<string, unknown>) => Promise<unknown[]>}).sendGiftInfo(info)
+    const calls = await e2e.sendGiftInfo(info)
     expect(Array.isArray(calls)).toBe(true)
   })
 
   it(`community_chat_joined handled via e2e helper`, async () => {
     const bot = _bot()
     const e2e = bot.e2e!
-    const calls = await (e2e as unknown as {sendCommunityChatJoined: (o?: unknown) => Promise<unknown[]>}).sendCommunityChatJoined({})
+    const calls = await e2e.sendCommunityChatJoined({})
     expect(Array.isArray(calls)).toBe(true)
   })
 
   it(`promoteChatMember forwards can_send_welcome_messages`, async () => {
     const bot = _bot()
     const e2e = bot.e2e!
-    await (bot.bot as unknown as {init: () => Promise<void>}).init()
-    await bot.bot.api.promoteChatMember(1001, 2002, {can_send_welcome_messages: true} as unknown as never)
+    await bot.bot.init()
+    await bot.bot.api.promoteChatMember(1001, 2002, {can_send_welcome_messages: true})
     const call = e2e.lastCall(`promoteChatMember`)
     expect(call).toBeDefined()
     expect((call!.body as unknown as {can_send_welcome_messages: boolean}).can_send_welcome_messages).toBe(true)

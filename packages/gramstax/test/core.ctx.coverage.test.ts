@@ -185,7 +185,7 @@ describe(`ctx-coverage-download`, () => {
     const api = makeApi()
     const ctx = makeCtx(CovPage, {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}, tm, api)
     const download = mock(async (p?: string) => `dl:${p ?? `def`}`)
-    ;(ctx as unknown as {getFile: unknown}).getFile = mock(async () => ({download}))
+    ctx.getFile = mock(async () => ({download})) as unknown as never
     expect(await ctx.download()).toBe(`dl:def`)
     expect(await ctx.download(`a/b.txt`)).toBe(`dl:a/b.txt`)
     await expect(ctx.download(`a\0b`)).rejects.toThrow(/null bytes/)

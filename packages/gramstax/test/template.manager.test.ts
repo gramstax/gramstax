@@ -34,7 +34,7 @@ describe(`TemplateManager`, () => {
     it(`should load existing templates`, async () => {
       await writeFile(join(TEST_DIR, `test.html`), `<g-base><g-message>Hello</g-message></g-base>`)
       const manager = new TemplateManager({path: [TEST_DIR]})
-      expect(manager.has(`test`)).toBe(true)
+      expect(manager.hasCompiled(`test`)).toBe(true)
     })
 
     it(`should throw error when template contains unsupported block`, async () => {
@@ -169,7 +169,7 @@ describe(`TemplateManager`, () => {
       await writeFile(join(TEST_DIR, `new_file.html`), `<g-base><g-message>New</g-message></g-base>`)
       await wait(50)
       await manager.loadFile(`new_file.html`)
-      expect(manager.has(`new_file`)).toBe(true)
+      expect(manager.hasCompiled(`new_file`)).toBe(true)
       expect(manager.getGMessage(`new_file`)).toBe(`New`)
       await manager.destroy()
     })
@@ -182,12 +182,12 @@ describe(`TemplateManager`, () => {
         watchOptions: {usePolling: true, interval: 100}
       })
       await wait(100)
-      expect(manager.has(`delete_test`)).toBe(true)
+      expect(manager.hasCompiled(`delete_test`)).toBe(true)
 
       await rm(join(TEST_DIR, `delete_test.html`))
       // Directly invoke the delete handler since the watcher may not fire on all platforms
       manager.handleFileDelete(join(TEST_DIR, `delete_test.html`))
-      expect(manager.has(`delete_test`)).toBe(false)
+      expect(manager.hasCompiled(`delete_test`)).toBe(false)
       await manager.destroy()
     })
   })
@@ -197,7 +197,7 @@ describe(`TemplateManager`, () => {
       // Create both .ts and .html with same name
       await writeFile(join(TEST_DIR, `component.html`), `<g-base><g-message>HTML Content</g-message></g-base>`)
       // Mocking TS file content as if it was loaded by PageManager (which we can't easily mock here without writing a real TS file that exports a class)
-      // Since _readTemplateFile uses PageManager.getFileSync, we need a real TS file or mock PageManager.
+      // Since readTemplateFile uses PageManager.getFileSync, we need a real TS file or mock PageManager.
       // However, creating a real TS file that Bun/Node can require dynamically in test might be tricky due to caching or compilation.
       // Let's test the .html fallback first if .ts is missing or invalid.
 
@@ -213,7 +213,7 @@ describe(`TemplateManager`, () => {
     })
 
     it(`should resolve extensionless file to .js when only a .js page exists`, async () => {
-      // Regression for G1: the .js branch of _readTemplateFile used to call
+      // Regression for G1: the .js branch of readTemplateFile used to call
       // PageManager.getFileSync(tsPath) instead of jsPath, so a .js template
       // page was never loadable through the extensionless path.
       const manager = new TemplateManager({path: [TEST_DIR]})

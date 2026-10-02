@@ -34,7 +34,7 @@ const createBot = () => {
 describe(`file download — full Gramstax pipeline integration`, () => {
   it(`mounts hydrateFiles transformer without crashing`, () => {
     const bot = createBot()
-    const xformers = (bot.bot.api.config as unknown as {installedTransformers: () => unknown[]}).installedTransformers()
+    const xformers = bot.bot.api.config.installedTransformers()
     expect(xformers.length).toBeGreaterThan(0)
   })
 

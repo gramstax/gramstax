@@ -47,7 +47,7 @@ describe(`coverage-gaps`, () => {
     expect(out).toContain(`line2`)
   })
 
-  it(`manager _handleFileAdd queues valid files and ignores others`, async () => {
+  it(`manager handleFileAdd queues valid files and ignores others`, async () => {
     await mkdir(TEST_DIR, {recursive: true})
     const manager = new TemplateManager({path: [TEST_DIR]})
     try {

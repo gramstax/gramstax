@@ -63,7 +63,7 @@ describe(`registerCompiled`, () => {
       original(...args)
     }) as typeof manager.validateTemplate
     manager.registerCompiled(`aot`, buildCompiled(TEMPLATE))
-    expect((manager as unknown as {_map: Map<string, unknown>})._map.has(`aot`)).toBe(true)
+    expect(manager.hasCompiled(`aot`)).toBe(true)
     expect(validations).toBe(0)
     expect(reloads).toBe(0)
     expect(manager.getGMessage(`aot`, `default`, `default`, DATA)).toContain(`ANN`)

@@ -72,7 +72,7 @@ async function checkParity(entry: Entry, sabotage: boolean): Promise<void> {
   } finally {
     emitter.endCollect()
   }
-  const compiled = (scratch as unknown as {_map: Map<string, ICompiledTemplate>})._map.get(key)
+  const compiled = scratch.getCompiled(key)
   if (compiled === undefined) throw new Error(`no compiled template for ${key}`)
   const source = emitter.emitModule(key, entry.template, compiled)
   for (const token of CODEGEN_TOKENS) expect(source).not.toContain(token)

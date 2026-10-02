@@ -255,8 +255,8 @@ describe(`Gramstax polling recovery`, () => {
     const {bot} = createBot({pollingMaxRetries: 0, hookUpdateError: (event) => events.push(event)})
     bot.bot.start = mock(async () => {
       throw new Error(`polling down`)
-    }) as unknown as typeof bot.bot.start
-    bot.bot.stop = mock(async () => {}) as unknown as typeof bot.bot.stop
+    })
+    bot.bot.stop = mock(async () => {})
 
     await bot.runPollingLoop({}, 0)
 
@@ -274,8 +274,8 @@ describe(`Gramstax polling recovery`, () => {
       if (calls.length === 1) {
         throw new Error(`transient blip`)
       }
-    }) as unknown as typeof bot.bot.start
-    bot.bot.stop = mock(async () => {}) as unknown as typeof bot.bot.stop
+    })
+    bot.bot.stop = mock(async () => {})
 
     await bot.runPollingLoop({}, 0)
 
@@ -289,7 +289,7 @@ describe(`Gramstax startup failure handling`, () => {
   it(`emits an error event and stops on startup failure`, async () => {
     const events: unknown[] = []
     const {bot} = createBot({hookUpdateError: (event) => events.push(event)})
-    bot.bot.stop = mock(async () => {}) as unknown as typeof bot.bot.stop
+    bot.bot.stop = mock(async () => {})
 
     await bot.triggerStartupError(new Error(`webhook setup failed`))
 

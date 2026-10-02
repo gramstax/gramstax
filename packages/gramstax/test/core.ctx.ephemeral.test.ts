@@ -82,9 +82,9 @@ function createCtx() {
 describe(`ephemeral_message_parameters`, () => {
   it(`maps old args to new object with deprecation`, () => {
     // Static helper must exist
-    const params = (Ctx as unknown as Record<string, unknown>).ephemeralParams as ((a?: number, b?: string, c?: boolean) => unknown) | undefined
+    const params = Ctx.ephemeralParams
     expect(params).toBeDefined()
-    const result = (Ctx as unknown as {ephemeralParams: (a?: number, b?: string, c?: boolean) => unknown}).ephemeralParams(123, `cb_1`)
+    const result = Ctx.ephemeralParams(123, `cb_1`)
     expect(result).toEqual({receiver_user_id: 123, callback_query_id: `cb_1`})
   })
 
@@ -93,7 +93,7 @@ describe(`ephemeral_message_parameters`, () => {
     const origWarn = console.warn
     console.warn = warnSpy
     const legacy = {receiver_user_id: 456, callback_query_id: `legacy_cb`}
-    const result = (Ctx as unknown as {ephemeralParams: (a?: unknown) => unknown}).ephemeralParams(legacy as unknown as number)
+    const result = Ctx.ephemeralParams(legacy)
     expect(result).toEqual({receiver_user_id: 456, callback_query_id: `legacy_cb`})
     expect(warnSpy).toHaveBeenCalled()
     console.warn = origWarn
@@ -101,11 +101,9 @@ describe(`ephemeral_message_parameters`, () => {
 
   it(`sendMessage with ephemeral_message_parameters passes through`, async () => {
     const {ctx, calls} = createCtx()
-    const ephemeral = (Ctx as unknown as {ephemeralParams: (a: number, b: string, c: boolean) => unknown}).ephemeralParams(999, `cq_123`, true)
+    const ephemeral = Ctx.ephemeralParams(999, `cq_123`, true)
     // Use api directly with ephemeral params — must be forwarded
-    await (ctx.api as unknown as {sendMessage: (chatId: number, text: string, opts: unknown) => Promise<unknown>}).sendMessage(1, `hello`, {
-      ephemeral_message_parameters: ephemeral
-    } as unknown as never)
+    await ctx.api.sendMessage(1, `hello`, {ephemeral_message_parameters: ephemeral})
     const last = calls[calls.length - 1]
     expect(last?.method).toBe(`sendMessage`)
     expect((last?.body as Record<string, unknown>).ephemeral_message_parameters).toEqual({
@@ -117,34 +115,28 @@ describe(`ephemeral_message_parameters`, () => {
 
   it(`replace_callback_query_message true shows in place`, async () => {
     const {ctx, calls} = createCtx()
-    const params = (Ctx as unknown as {ephemeralParams: (a: number, b: string, c?: boolean) => unknown}).ephemeralParams(777, `query_777`, true)
-    expect((params as Record<string, unknown>).replace_callback_query_message).toBe(true)
-    await (ctx.api as unknown as {sendMessage: (chatId: number, text: string, opts: unknown) => Promise<unknown>}).sendMessage(1, `hi`, {
-      ephemeral_message_parameters: params
-    } as unknown as never)
+    const params = Ctx.ephemeralParams(777, `query_777`, true)
+    expect(params!.replace_callback_query_message).toBe(true)
+    await ctx.api.sendMessage(1, `hi`, {ephemeral_message_parameters: params})
     const body = calls[calls.length - 1]?.body as Record<string, unknown>
     const ep = body.ephemeral_message_parameters as Record<string, unknown>
     expect(ep.replace_callback_query_message).toBe(true)
     // false case
-    const params2 = (Ctx as unknown as {ephemeralParams: (a: number, b: string, c?: boolean) => unknown}).ephemeralParams(777, `query_777`, false)
-    expect((params2 as Record<string, unknown>).replace_callback_query_message).toBe(false)
+    const params2 = Ctx.ephemeralParams(777, `query_777`, false)
+    expect(params2!.replace_callback_query_message).toBe(false)
   })
 
   it(`instance helper mirrors static helper`, () => {
     const {ctx} = createCtx()
-    const inst = (ctx as unknown as {ephemeralParams: (a: number, b: string) => unknown}).ephemeralParams
+    const inst = ctx.ephemeralParams
     expect(inst).toBeDefined()
-    const r = (ctx as unknown as {ephemeralParams: (a: number, b: string) => unknown}).ephemeralParams(1, `id`)
+    const r = ctx.ephemeralParams(1, `id`)
     expect(r).toEqual({receiver_user_id: 1, callback_query_id: `id`})
   })
 
   it(`can_send_welcome_messages forwarded via promoteChatMember`, async () => {
     const {ctx, calls} = createCtx()
-    await (ctx.api as unknown as {promoteChatMember: (args: unknown) => Promise<unknown>}).promoteChatMember({
-      chat_id: 1,
-      user_id: 2,
-      can_send_welcome_messages: true
-    })
+    await ctx.api.promoteChatMember(1, 2, {can_send_welcome_messages: true})
     const last = calls[calls.length - 1]
     expect(last?.method).toBe(`promoteChatMember`)
     expect((last?.body as Record<string, unknown>).can_send_welcome_messages).toBe(true)
@@ -152,12 +144,7 @@ describe(`ephemeral_message_parameters`, () => {
 
   it(`editEphemeralMessageText accepts rich_message`, async () => {
     const {ctx, calls} = createCtx()
-    await (ctx.api as unknown as {editEphemeralMessageText: (p: unknown) => Promise<unknown>}).editEphemeralMessageText({
-      chat_id: 1,
-      receiver_user_id: 2,
-      ephemeral_message_id: 3,
-      rich_message: {html: `<b>hi</b>`}
-    })
+    await ctx.api.editEphemeralMessageText(1, 2, 3, {html: `<b>hi</b>`})
     const last = calls[calls.length - 1]
     expect(last?.method).toBe(`editEphemeralMessageText`)
     expect((last?.body as Record<string, unknown>).rich_message).toEqual({html: `<b>hi</b>`})
@@ -165,13 +152,7 @@ describe(`ephemeral_message_parameters`, () => {
 
   it(`editEphemeralMessageCaption accepts show_caption_above_media`, async () => {
     const {ctx, calls} = createCtx()
-    await (ctx.api as unknown as {editEphemeralMessageCaption: (p: unknown) => Promise<unknown>}).editEphemeralMessageCaption({
-      chat_id: 1,
-      receiver_user_id: 2,
-      ephemeral_message_id: 3,
-      caption: `cap`,
-      show_caption_above_media: true
-    })
+    await ctx.api.editEphemeralMessageCaption(1, 2, 3, `cap`, {show_caption_above_media: true})
     const last = calls[calls.length - 1]
     expect(last?.method).toBe(`editEphemeralMessageCaption`)
     expect((last?.body as Record<string, unknown>).show_caption_above_media).toBe(true)
@@ -179,12 +160,7 @@ describe(`ephemeral_message_parameters`, () => {
 
   it(`editEphemeralMessageMedia supports file upload`, async () => {
     const {ctx, calls} = createCtx()
-    await (ctx.api as unknown as {editEphemeralMessageMedia: (p: unknown) => Promise<unknown>}).editEphemeralMessageMedia({
-      chat_id: 1,
-      receiver_user_id: 2,
-      ephemeral_message_id: 3,
-      media: {type: `photo`, media: `attach://file`}
-    })
+    await ctx.api.editEphemeralMessageMedia(1, 2, 3, {type: `photo`, media: `attach://file`})
     const last = calls[calls.length - 1]
     expect(last?.method).toBe(`editEphemeralMessageMedia`)
     expect((last?.body as Record<string, unknown>).media).toBeDefined()

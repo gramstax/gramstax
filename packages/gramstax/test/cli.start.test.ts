@@ -372,7 +372,7 @@ describe(`gramstax build workers guardrail`, () => {
         }
       }
       walk(join(dir, `src`, `pages`))
-      writeConfig(dir, `export default {token: \`test\`, deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}, cacheSession: {store: \`memory\`}}\n`)
+      writeConfig(dir, `export default {token: \`test\`, deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}, cacheSession: {store: \`memory\`}, mediaRoots: [\`./src\`]}\n`)
       const warned: string[] = []
       const originalLog = console.log
       console.log = (...args: unknown[]): void => {
@@ -383,7 +383,51 @@ describe(`gramstax build workers guardrail`, () => {
       } finally {
         console.log = originalLog
       }
-      expect(warned.join(`\n`)).toContain(`cacheSession`)
+      const joined = warned.join(`\n`)
+      expect(joined).toContain(`mediaRoots`)
+      expect(joined).toContain(`no filesystem to jail against`)
+      expect(joined).not.toContain(`cacheSession`)
+    } finally {
+      rmSync(dir, {force: true, recursive: true})
+    }
+  })
+
+  it(`warns per dropped slot for the lambda target too`, async () => {
+    const {GramstaxBuild} = await import(`~/cli/build`)
+    const dir = makeTempDir()
+    try {
+      const {cpSync, readFileSync, readdirSync, statSync, writeFileSync} = await import(`node:fs`)
+      const {pathToFileURL} = await import(`node:url`)
+      cpSync(join(import.meta.dir, `fixtures`, `manifest`, `pages`), join(dir, `src`, `pages`), {recursive: true})
+      const ctxAbs = pathToFileURL(join(import.meta.dir, `..`, `src`, `core`, `ctx.ts`)).href
+      const walk = (dirPath: string): void => {
+        for (const entry of readdirSync(dirPath)) {
+          const full = join(dirPath, entry)
+          if (statSync(full).isDirectory()) {
+            walk(full)
+            continue
+          }
+          if (full.endsWith(`.ts`) === false) continue
+          writeFileSync(full, readFileSync(full, `utf-8`).replaceAll(`~/core/ctx`, ctxAbs))
+        }
+      }
+      walk(join(dir, `src`, `pages`))
+      writeConfig(dir, `export default {token: \`test\`, deploy: \`serverless\`, optionsDeploy: {serverless: {"aws-lambda-async": {url: \`https://example.com/webhook\`, secretToken: \`test-secret\`}}}, sessionLock: {enabled: true}, mediaRoots: [\`./src\`]}\n`)
+      const warned: string[] = []
+      const originalLog = console.log
+      console.log = (...args: unknown[]): void => {
+        warned.push(args.map((arg) => String(arg)).join(` `))
+      }
+      try {
+        await new GramstaxBuild().run([`--target`, `aws-lambda-async`, `--dry-run`], dir)
+      } finally {
+        console.log = originalLog
+      }
+      const joined = warned.join(`\n`)
+      expect(joined).toContain(`sessionLock`)
+      expect(joined).toContain(`redis client over TCP`)
+      expect(joined).toContain(`mediaRoots`)
+      expect(joined).toContain(`aws-lambda-async entry`)
     } finally {
       rmSync(dir, {force: true, recursive: true})
     }

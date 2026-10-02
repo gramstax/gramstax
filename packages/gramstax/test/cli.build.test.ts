@@ -264,6 +264,31 @@ describe(`gramstax build CLI`, () => {
     }
   })
 
+  it(`does not bake a log config that writes to disk`, async () => {
+    const dir = makeTempDir()
+    mkdirSync(join(dir, `src`, `pages`), {recursive: true})
+    writeFileSync(join(dir, `gramstax.config.ts`), `export default {deploy: \`serverless\`, optionsDeploy: {serverless: {"cloudflare-mod": {url: \`https://w.example.workers.dev/webhook\`, secretToken: \`test-secret\`}}}, log: {force: \`file\`}}\n`, `utf-8`)
+    const capture = captureConsole()
+    try {
+      const code = await new GramstaxBuild().run([`--dry-run`], dir)
+      expect(code).toBe(0)
+      const joined = capture.logs.join(`\n`)
+      expect(joined).toContain(`writes to disk`)
+    } finally {
+      capture.restore()
+      rmSync(dir, {force: true, recursive: true})
+    }
+  })
+
+  it(`bakes a log config that only writes to console`, () => {
+    const edgeSafe = (config: unknown): Record<string, unknown> => new GramstaxBuild()._edgeSafeParams(config as never)
+    expect(edgeSafe({log: {force: `console`, formatTime: `iso`}}).log).toEqual({force: `console`, formatTime: `iso`})
+    expect(edgeSafe({log: true}).log).toBe(true)
+    expect(edgeSafe({log: false}).log).toBe(false)
+    expect(edgeSafe({log: {force: `all`}}).log).toBeUndefined()
+    expect(edgeSafe({log: {pathFile: `./x.log`}}).log).toBeUndefined()
+  })
+
   it(`loadConfig returns defaults without config file`, async () => {
     const dir = makeTempDir()
     try {

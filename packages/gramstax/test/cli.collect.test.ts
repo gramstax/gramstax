@@ -37,7 +37,7 @@ function relinkCtx(root: string): void {
 }
 
 function snapPages(bot: Gramstax): unknown {
-  const seen = bot.pages as unknown as {routeStatic: unknown; routeStaticIntent: unknown; routeStaticSession: unknown; routeDynamic: unknown; routeDynamicSpesific: unknown}
+  const seen = bot.pages
   const norm = (value: unknown): string => JSON.stringify(value, Object.keys((value ?? {}) as object).sort())
   return {
     all: Object.keys(bot.pages.all).sort(),

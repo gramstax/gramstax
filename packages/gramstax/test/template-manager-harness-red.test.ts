@@ -22,7 +22,7 @@ describe(`harness-red-16-watcher-relative`, () => {
     const second = await mkdtemp(join(tmpdir(), `tm16b-`))
     try {
       const tm = new TemplateManager({path: [dir, second]})
-      expect(tm.has(`sub/nested`)).toBe(true)
+      expect(tm.hasCompiled(`sub/nested`)).toBe(true)
       await writeFile(join(dir, `sub`, `nested.html`), `<g-base><g-message>Nested2</g-message></g-base>`)
       tm.handleFileChange(join(dir, `sub`, `nested.html`))
       await wait(200)
@@ -93,7 +93,7 @@ describe(`harness-red-19-queue-split`, () => {
       await rm(dir, {recursive: true, force: true})
     }
   })
-  it(`forwards reload errors to _handleWatchError`, async () => {
+  it(`forwards reload errors to handleWatchError`, async () => {
     const dir = await mkdtemp(join(tmpdir(), `tm19e-`))
     try {
       const tm = new TemplateManager({path: [dir]})
@@ -101,7 +101,7 @@ describe(`harness-red-19-queue-split`, () => {
       tm.handleWatchError = (e: unknown) => {
         seen = e
       }
-      ;(tm as unknown as {_loadFile: (f: string) => void})._loadFile = () => {
+      ;(tm as unknown as {loadFile: (f: string) => void}).loadFile = () => {
         throw new Error(`boom`)
       }
       tm.handleFileChange(join(dir, `x.html`))
@@ -120,14 +120,14 @@ describe(`harness-red-A1-reset`, () => {
     const tm = new TemplateManager({path: [dir]})
     const bot = new Gramstax({token: `test`, deploy: `test`, templateManager: tm, log: false})
     const e2e = bot.e2e!
-    expect(typeof (e2e as unknown as {reset: unknown}).reset).toBe(`function`)
+    expect(typeof e2e.reset).toBe(`function`)
     await e2e.sendText(`hi`)
     const firstId = (e2e as unknown as {_nextMessageId: number})._nextMessageId
     e2e.clearCalls()
     expect(e2e.calls.length).toBe(0)
     // clearCalls must NOT reset counters
     expect((e2e as unknown as {_nextMessageId: number})._nextMessageId).toBe(firstId)
-    ;(e2e as unknown as {reset: () => void}).reset()
+    e2e.reset()
     expect(e2e.calls.length).toBe(0)
     expect((e2e as unknown as {_nextMessageId: number})._nextMessageId).toBe(1)
     await bot.stop()
