@@ -3,7 +3,7 @@ import {TemplateManager} from "gramstax"
 import {BotCore} from "../src/core/bot"
 import {StartTransferPage} from "../src/pages/start/transfer"
 
-export type {ITE2eApiCall, ITE2eUpdateOptions} from "gramstax"
+export type {IE2eApiCall, IE2eUpdateOptions} from "gramstax"
 
 // Monkey-patch TransferPage to call setSessionFreeText on callback,
 // matching the existing test setup.

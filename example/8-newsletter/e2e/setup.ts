@@ -2,7 +2,7 @@ import {join} from "node:path"
 import {CacheExternal, TemplateManager} from "gramstax"
 import {BotCore} from "../src/core/bot"
 
-export type {ITE2eApiCall, ITE2eUpdateOptions} from "gramstax"
+export type {IE2eApiCall, IE2eUpdateOptions} from "gramstax"
 
 export const ADMIN_USER = {id: 840754970, first_name: `Admin`, username: `adminuser`, language_code: `en`}
 export const ADMIN_CHAT = {id: 840754970, type: `private` as const, first_name: `Admin`}

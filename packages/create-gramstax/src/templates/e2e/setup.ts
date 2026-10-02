@@ -2,7 +2,7 @@ import {join} from "node:path"
 import {TemplateManager} from "gramstax"
 import {BotCore} from "../src/core/bot"
 
-export type {ITE2eApiCall, ITE2eUpdateOptions} from "gramstax"
+export type {IE2eApiCall, IE2eUpdateOptions} from "gramstax"
 
 export const bot = new BotCore({
   deploy: `test`,
