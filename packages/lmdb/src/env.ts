@@ -884,6 +884,18 @@ export class LmdbEnv {
    * @public
    */
   rootPut(id: Key, value: unknown, options: PutOptions): Promise<boolean>
+  /**
+   * Asynchronously store a value in the root (metadata) database.
+   *
+   * @param id - The key.
+   * @param value - The value to store.
+   * @param versionOrOptions - Version number stamped on the write, or
+   * {@link PutOptions} forwarded to the native `put`.
+   * @param ifVersion - When given, the write only applies if the stored version
+   * matches; requires the env to be opened with `useVersions`.
+   * @returns Resolves `true` once the write is queued for commit.
+   * @public
+   */
   rootPut(id: Key, value: unknown, versionOrOptions?: number | PutOptions, ifVersion?: number): Promise<boolean> {
     this._assertOpen()
     return this._root.put(id, value, versionOrOptions as number, ifVersion)
@@ -920,6 +932,15 @@ export class LmdbEnv {
    * @public
    */
   rootPutSync(id: Key, value: unknown, options: PutOptions): void
+  /**
+   * Synchronously store a value (blocks until written).
+   *
+   * @param id - The key.
+   * @param value - The value to store.
+   * @param versionOrOptions - Version number stamped on the write, or
+   * {@link PutOptions} forwarded to the native `putSync`.
+   * @public
+   */
   rootPutSync(id: Key, value: unknown, versionOrOptions?: number | PutOptions): void {
     this._assertOpen()
     this._root.putSync(id, value, versionOrOptions as number)
@@ -987,6 +1008,16 @@ export class LmdbEnv {
    * @public
    */
   rootDoesExist(key: Key, version: number): boolean
+  /**
+   * Check whether a key holds at least one entry, or matches a value/version.
+   *
+   * @param key - The key to check.
+   * @param valueOrVersion - For `dupSort` databases, the duplicate value to
+   * probe; otherwise the version the stored entry must match.
+   * @param options - {@link GetOptions} forwarded to the native `doesExist`.
+   * @returns `true` when the key (or the value/version under it) exists.
+   * @public
+   */
   rootDoesExist(key: Key, valueOrVersion?: unknown, options?: GetOptions): boolean {
     this._assertOpen()
     return this._root.doesExist(key, valueOrVersion, options)
