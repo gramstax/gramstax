@@ -1,7 +1,7 @@
 ---
 name: lmdb-best-practices
-description: Best practices for @gramstax/lmdb (LMDB key-value store): schema design, embedded unique/non-unique/composite indexes, full-text search, CDC subscriptions, migrations, differential sync, sorted bulk import, production env sizing (mapSize, maxDbs), high-performance query patterns, transactions, TTL, queues, and mitata benchmarking. Use when working in packages/lmdb, designing schemas or indexes, tuning LMDB performance, debugging slow queries, sizing databases for production scale, syncing data, or writing bench files.
-compatibility: Bun >= 1.0.0 or Node.js >= 18; @gramstax/lmdb workspace (packages/lmdb)
+description: Best practices for @gramstax/lmdb v2.2.0 (LMDB key-value store): class-only src with per-module types under src/types/, schema-class declaration via LmdbSchema + register(), embedded unique/non-unique/composite indexes, full-text search, CDC subscriptions, migrations, differential sync, sorted bulk import, production env sizing (mapSize, maxDbs), high-performance query patterns, transactions, TTL, queues, backup lifecycle, and mitata benchmarking. Use when working in packages/lmdb, designing schemas or indexes, tuning LMDB performance, debugging slow queries, sizing databases for production scale, syncing data, or writing bench files.
+compatibility: Bun >= 1.0.0 or Node.js >= 18; @gramstax/lmdb workspace (packages/lmdb); targets lmdb v2.2.0
 metadata:
   author: gramstax
   organization: gramstax
@@ -11,6 +11,8 @@ metadata:
 # LMDB Best Practices
 
 Performance and maintenance rules for `@gramstax/lmdb`, distilled from production-scale optimization (Telegram bot, millions of users). Read `AGENTS.md` in `packages/lmdb` for API truth; this skill adds the judgment layer.
+
+**Targets @gramstax/lmdb v2.2.0.** The source is class-only — every helper is a static member or an instance method on the class that owns it, and the shared `I*` types live under `src/types/` (one file per module, re-exported from the barrel). The v1.x escape hatches (`LmdbRepository`, `LmdbCollection`, `LmdbCodec`, `_createRepo`, static `codec`/`serialize`/`deserialize`/`ttlMs`, schema-class-first env methods, raw `dbName` overloads) are **deleted**, not deprecated. `register(SchemaClass)` is the only declaration path and it returns a pre-bound `LmdbEnvSub<S>` handle.
 
 ## When to Apply
 
@@ -31,9 +33,25 @@ Reference these rules when:
 | 2 | Index Design | CRITICAL | `index-` |
 | 3 | Env Sizing | HIGH | `env-` |
 | 4 | Schema Design | HIGH | `schema-` |
-| 5 | Transactions, TTL & Queue | MEDIUM-HIGH | `txn-` |
-| 6 | Benchmarking | MEDIUM | `bench-` |
-| 7 | Maintenance | LOW-MEDIUM | `maintain-` |
+| 5 | Cross-cutting features | HIGH | `search`, `cdc`, `migrate`, `sync` |
+| 6 | Transactions, TTL & Queue | MEDIUM-HIGH | `txn-` |
+| 7 | Benchmarking | MEDIUM | `bench-` |
+| 8 | Maintenance | LOW-MEDIUM | `maintain-` |
+
+## Start Here
+
+| Task | Read first |
+| --- | --- |
+| Compilation error on an old v1.x API (`LmdbRepository`, `LmdbCodec`, `dbName`) | `references/schema-design.md`, then `references/schema-hooks-ttl.md` |
+| A query is slow or scans too much | `references/query-index-reads.md`, `references/query-range-scans.md` |
+| Page 100+ of a listing is slow | `references/query-pagination.md` |
+| `LmdbError: MDB_MAP_FULL` or sub-DB slots exhausted | `references/env-sizing.md` |
+| Unique conflict, or an index looks stale | `references/index-declaration.md`, `references/index-maintenance.md` |
+| Adding change-data-capture or a sync consumer | `references/cdc.md`, `references/sync.md` |
+| Rewriting rows on a schema change | `references/migrate.md` |
+| Full-text search returns nothing or ranks wrong | `references/search.md` |
+| Enqueue/dequeue ordering or durability | `references/txn-queue.md` |
+| Writing or interpreting a benchmark | `references/bench-writing.md`, `references/bench-runner.md` |
 
 ## How to Use
 
@@ -49,7 +67,7 @@ Each rule file contains:
 - Why it matters (with measured impact where known)
 - Incorrect code with explanation
 - Correct code with explanation
-- Gramstax-specific notes (deviations from raw lmdb-js)
+- Package-specific notes (deviations from raw lmdb-js)
 
 ## References
 

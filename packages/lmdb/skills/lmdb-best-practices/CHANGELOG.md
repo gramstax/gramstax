@@ -1,9 +1,85 @@
 # Changelog
 
-## 1.2.0
+## 2.2.0
 
-- Query-scale epic: 4 new rules (`search.md`, `cdc.md`, `migrate.md`,
-  `sync.md`) plus a `cross-cutting` section in `_sections.md`.
+Realigns the skill with **@gramstax/lmdb v2.2.0** — the "query-scale epic"
+release. All four `lmdb` entries in the `## 2.2.0 (2026-10-02)` release notes
+land **inside** the published `v2.2.0` tag, and `packages/lmdb/src` at `HEAD` is
+identical to that tag, so nothing in this entry describes unreleased work. That
+is the opposite of the `worker-thread` skill's realignment, where the breaking
+reshape sits after the tag.
+
+The heading now follows the **package** version. It was `1.2.0`, which described
+this same shipped release under the skill's own numbering.
+
+### Why / Incorrect / Correct deepened to gramstax depth
+
+All 25 rule files rewritten to match the depth the `gramstax` skill adopted in
+`f2bce1f8` (compare `route-hooks.md`: 31 → 109 lines there). Rule content grew
+from **844 to 2279 lines**; the whole skill is now 2562 lines, level with the
+`gramstax` skill's 2768.
+
+What changed structurally in every file:
+
+- **The verdict now carries the load-bearing correction**, not a feature
+  description — matching how `gramstax` leads with "there are **two**
+  `hookBeforeRoute` hooks, not one".
+- **`Why` states the failure mode and cost model**, not the feature.
+- **One or two new analytical sections** — decision tables, comparison tables,
+  coverage matrices, sequence tables. This is the largest addition.
+- **`Incorrect` carries 2-3 separate blocks**, each isolating ONE mistake, each
+  with an inline `// wrong: <specific consequence>` comment. Previously one
+  block with a single vague comment.
+- **`Correct` carries one block per valid variant**, each commented.
+- **Line citations** (`sub.ts:35`, `env.ts:231`, `queue.ts:130`,
+  `transaction.ts:222`, `biome.json:115`, `bench/_setup.ts:18`) appear only
+  where the number was read from source. All 37 in the skill were re-verified.
+
+Representative outcome — `query-pagination.md` (31 → 83) now carries a per-page
+cost-by-depth table and documents the composite-key last-key trap, including
+that `start` is inclusive and `exclusiveStart` exists. `index-write-cost.md`
+(28 → 75) now carries a write-amplification matrix across all four index kinds.
+
+Facts newly verified while rewriting (all confirmed against source):
+`exclusiveStart` (`src/types/range.ts:52`), `limit <= 0` short-circuiting to an
+empty result (`src/sub.ts:1868`, `:2221`), 12 column builders,
+`BENCH_CONC` defaulting to `[10, 50, 100]` (`bench/concurrent.bench.ts:22-25`),
+and the `bench/_setup.ts` helper line numbers.
+
+### Terminology normalized: `repo` → `sub` as a receiver name
+
+The package's own source never uses the word "repo" — `packages/lmdb/src/`
+contains zero occurrences of `repo`/`repository`/`repositories`, because the
+code is built around `LmdbEnvSub`, `static db`, and "sub-DB". The docs,
+however, used `repo` as the **variable name on the handle**, which implies an
+object type the package does not have.
+
+Code receivers were normalized; the domain noun was kept.
+
+| Was | Now | Where |
+| --- | --- | --- |
+| `repo.get(key, tx?)` … 51 call sites across 42 distinct methods | `sub.get(key, tx?)` | `README.md` dispatch table + prose examples |
+| `userRepo.put(…)`, `sessionRepo.put(…)` | `users.put(…)`, `sessions.put(…)` | `README.md` transaction examples |
+| `repo.count()` | `sub.count()` | `AGENTS.md` |
+| "Cross-repo access" / "Cross-repo atomicity" | "Cross-sub access" / "Cross-sub atomicity" | `AGENTS.md`, `txn-transactions.md` |
+| "natural key per repo" | "natural key per sub" | `AGENTS.md` |
+| "sub-DBs per repo" | "one sub-DB per entity type" | `AGENTS.md` |
+| "the manual index-repo + `NonUniqueIndex` wiring" | "the manual index-sub-DB + `NonUniqueIndex` wiring" | `AGENTS.md` |
+| "holding the typed repo" | "holding the typed sub handle" | `AGENTS.md` |
+| `repo.entries(…)` ×6, `repo.values()` | `sub.entries(…)`, `sub.values()` | `query-pagination.md`, `maintain-style-tests.md` |
+| "an oversized repo … the same repo" | "an oversized sub … the same sub" | `query-range-scans.md` |
+
+Deliberately **kept**: "repository"/"repositories" where the word names the
+concept rather than the object — "Each repository here owns a dedicated
+sub-DB", "at the repository boundary", "TTL repository", "Version 1.x declared
+repositories as `LmdbRepository` subclasses" — and "repo root"/"this repo" for
+the repository directory. `_createRepo` and `LmdbRepository` are retained as
+deleted-API names.
+
+### Query-scale epic
+
+- 4 new rules (`search.md`, `cdc.md`, `migrate.md`, `sync.md`) plus a
+  `cross-cutting` section in `_sections.md`.
 - `index-declaration.md` / `query-index-reads.md`: composite `.index([a, b])`
   tuples, prefix/range seeks, one-composite-per-query.
 - `index-maintenance.md`: composite + search-table maintenance parity.
@@ -12,6 +88,90 @@
 - `schema-design.md`: record-codec note plus pointers to search/composite/
   version rules; `schema-hooks-ttl.md`: codec bypass note.
 - `txn-transactions.md`: CDC publish-on-commit pointer.
+
+### Cross-checked against the v2.2.0 release changelog
+
+| Release entry | Outcome |
+| --- | --- |
+| `lmdb: query-scale epic, class-only src, per-module types, docs accuracy pass (40226b01)` | Confirmed — every source module it names is in the published tag |
+| `update agents and add deps for lmdb (cf42d88a)` | Confirmed in tag |
+| `lmdb: update implementation (066d7b08)` | Confirmed in tag |
+| `lmdb: filter the deleteByPrefix CDC test by op instead of clearing seen (330f3b88)` | Confirmed in tag |
+
+### Corrected
+
+- `SKILL.md` — the rule-file anatomy claimed rules end with
+  **"Gramstax-specific notes"**, a copy-paste left over from the `gramstax`
+  skill. These are lmdb rules; now reads "Package-specific notes (deviations
+  from raw lmdb-js)".
+- `SKILL.md` — the priority table listed **7 categories and omitted
+  `cross-cutting` entirely**, even though `_sections.md` rates it HIGH and it
+  holds 4 of the 25 rules (`search`, `cdc`, `migrate`, `sync`). An agent reading
+  only the router would never discover full-text search, CDC, migrations, or
+  sync. Added as priority 5; the table is now 8 rows.
+- `SKILL.md` — added version targeting (in `description`, `compatibility`, and
+  a body callout) and a **Start Here** table routing by symptom, matching the
+  `gramstax` and `worker-thread` skills.
+- `references/index-maintenance.md:30` — "follow the same same-txn rule" read as
+  a duplicated word; now "follow the same rule — written in the same transaction
+  as the primary row".
+- `references/maintain-style-tests.md` — dropped a "wrap thread/socket awaits in
+  `withTimeout`" bullet inherited from the `worker-thread` skill. **lmdb has no
+  `withTimeout` helper and no thread or socket surface at all**
+  (`grep -rln "worker_threads\|node:net" src/` returns nothing), so the advice
+  was inapplicable. Replaced with the actual hazard: every test must close its
+  env and remove its tmp dir, because a leaked mmap handle locks the file and
+  fails the *next* test rather than the current one.
+
+### Fixed — `packages/lmdb/AGENTS.md`
+
+The skill names `AGENTS.md` as its API source of truth, so drift there silently
+corrupts the skill. All four defects are fixed.
+
+| Location | Defect | Fix |
+| --- | --- | --- |
+| Source Layout | Listed `types.ts` as a single file holding `LmdbSubState`/`IndexDescriptor`/`MAX_MATERIALIZE` | It is a `types/` **directory** of 16 modules; tree rewritten, with a note that the barrel re-exports only `codec`, part of `env`, `indexes`, `key`, `range`, `search`, `sub-state` |
+| Source Layout | Omitted `queue.ts` entirely | Added — `LmdbQueue` + `IQueueSchema`, FIFO over a dedicated sub-DB |
+| Source Layout | Described `search.ts` as "Search statics" and `sync.ts` as "SyncStream" | Corrected to the exported class names `LmdbSearch` and `LmdbSyncStream` |
+| Core Pattern | Said "`QueueSchema` is a constraint, not a base class" | The exported type is `IQueueSchema` |
+
+Also corrected: `MAX_MATERIALIZE` is exported from `sub.ts`, not from `types/`.
+
+Two sections added for parity with `packages/gramstax/AGENTS.md`:
+
+- **Where to Look** — a 12-row task→file table. Absent before, which left an
+  agent with 15 runtime modules plus a 16-module `types/` tree and no map.
+- **Agent skills** — points at this skill, matching the gramstax and
+  worker-thread packages.
+
+### Verified sound
+
+Checked rather than changed: `register`/`sub`/`isRegistered` handle caching,
+every CDC method (`subscribe`/`tailCdc`/`ackCdc`/`pruneCdc`), `migrate` +
+`getMigrationVersion`, `syncTo`, `importJSONL`, `reindex`, the full
+materialization guardrail set, `rootTransactionSync`, `getMapSizeUsed`,
+`addValue`/`getValues`/`getValuesCount`/`removeValue`, `putSync`/`removeSync`,
+`getEntry`/`getKeys`, and `purgeExpired` — all present in `src`.
+
+Constants were checked against their definitions rather than trusted:
+
+| Claim | Definition site |
+| --- | --- |
+| `MAX_MATERIALIZE = 100_000` | `src/sub.ts:35` |
+| `mapSize` default `4 * 1024 * 1024 * 1024` | `src/env.ts:231` |
+| `maxDbs` default `128` | `src/env.ts:232` |
+| `pruneCdc` default keep `10000` | `src/env.ts:554` |
+
+Also confirmed: index sub-DBs are named `{db}:idx:{name}`, search tables
+`{db}:search:{col}`, dupSort index sub-DBs opt out of versions, sync and
+migration transforms batch in 500-row chunks, the `maxDbs` warning fires below 32
+free slots, registration refuses below 10% free `mapSize`, and `like()` rejects
+past 10 wildcards.
+
+The skill also references `LmdbCodec` and `LmdbRepository`, which do **not** exist
+in source. Both are correct: they appear only as deleted-API callouts or inside
+`## Incorrect` examples. `LmdbSearch` and `LmdbSyncStream` are the real exported
+class names, and the skill does not reference the non-existent bare `QueueSchema`.
 
 ## 1.1.0
 
