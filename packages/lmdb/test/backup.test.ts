@@ -15,8 +15,11 @@ class ValSchema extends LmdbSchema {
 }
 
 const dirs: Array<string> = []
-afterEach(() => {
-  for (const dir of dirs.splice(0)) rmWithRetry(dir)
+// Must be awaited: `rmWithRetry` sleeps between attempts, so an unawaited
+// call keeps deleting this test's temp dir while the NEXT test already runs —
+// its ENOENT then surfaces against whichever test is active at the time.
+afterEach(async () => {
+  for (const dir of dirs.splice(0)) await rmWithRetry(dir)
 })
 
 function setupEnv(): {env: LmdbEnv; dir: string; base: string} {

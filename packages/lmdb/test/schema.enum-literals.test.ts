@@ -42,7 +42,7 @@ describe(`t.* literal params — drizzle-style enum (type-only)`, () => {
       expect(subs.get(2)).toBeUndefined()
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 })

@@ -14,7 +14,7 @@ describe(`.default() / .$defaultFn() — write-time fill`, () => {
       expect(subs.get(1)).toEqual({status: `a`})
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 
@@ -27,7 +27,7 @@ describe(`.default() / .$defaultFn() — write-time fill`, () => {
       expect(subs.get(1)).toEqual({status: `b`})
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 
@@ -45,7 +45,7 @@ describe(`.default() / .$defaultFn() — write-time fill`, () => {
       expect(a).not.toBe(b)
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 
@@ -62,7 +62,7 @@ describe(`.default() / .$defaultFn() — write-time fill`, () => {
       expect(subs.get(1)).toEqual({name: `hi`})
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 })

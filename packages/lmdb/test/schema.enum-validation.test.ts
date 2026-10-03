@@ -18,7 +18,7 @@ describe(`enum runtime validation — write seam`, () => {
       expect(subs.get(2)).toBeUndefined()
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 
@@ -33,7 +33,7 @@ describe(`enum runtime validation — write seam`, () => {
       expect(subs.get(2)).toBeUndefined()
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 
@@ -47,7 +47,7 @@ describe(`enum runtime validation — write seam`, () => {
       expect(subs.get(1)).toEqual({status: `anything-goes`})
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 
@@ -62,7 +62,7 @@ describe(`enum runtime validation — write seam`, () => {
       expect(await subs.getValues(`post:1`)).toEqual([`a`])
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 
@@ -77,7 +77,7 @@ describe(`enum runtime validation — write seam`, () => {
       expect(subs.get(badKey)).toBeUndefined()
     } finally {
       await env.close()
-      rmWithRetry(dir)
+      await rmWithRetry(dir)
     }
   })
 })
