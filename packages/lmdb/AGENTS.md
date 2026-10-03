@@ -6,21 +6,49 @@ Multi-runtime (Bun, Node.js >=18) key-value database with schema-declared reposi
 
 ```
 packages/lmdb/src/
-├── env.ts          LmdbEnv — root DB class (lifecycle, register/sub, transactions, migrations, CDC)
-├── sub-manager.ts  LmdbEnvSubManager — sub-DB registry + state factory (internal)
-├── sub.ts          LmdbEnvSub — typed self-contained sub handle (all sub methods)
-├── schema.ts       LmdbSchema + t builders + ValueOf/KeyOf type helpers
-├── search.ts       Search statics (tokenize/fingerprintPk) + posting-table model (full-text search)
-├── cdc/            Cdc facade + types + store (CdcStore/outbox) + hub (CdcHub/subscribe/tail/ack) + barrel (change-data-capture)
-├── sync.ts         SyncStream + statics (hashRowValue/checkpoint/verify) (differential sync)
-├── codec.ts        RecordCodec + getPath/setPath statics (positional record storage)
+├── env.ts           LmdbEnv — root DB class (lifecycle, register/sub, transactions, migrations, CDC)
+├── sub-manager.ts   LmdbEnvSubManager — sub-DB registry + state factory (internal)
+├── sub.ts           LmdbEnvSub + MAX_MATERIALIZE — typed self-contained sub handle (all sub methods)
+├── schema.ts        LmdbSchema + t builders + ValueOf/KeyOf type helpers
+├── search.ts        LmdbSearch — tokenize/fingerprintPk statics + posting-table model (full-text search)
+├── queue.ts         LmdbQueue + IQueueSchema — FIFO queue over a dedicated sub-DB
+├── sync.ts          LmdbSyncStream + statics (hashRowValue/checkpoint/verify) (differential sync)
+├── codec.ts         RecordCodec + getPath/setPath statics (positional record storage)
+├── cdc/             Change-data-capture — index.ts (Cdc facade) + store.ts (CdcStore/outbox) + hub.ts (CdcHub/subscribe/tail/ack)
+├── backup.ts        LmdbBackup — timestamped backup/list/prune/restore/schedule
+├── reader.ts        LmdbReader — read-only attach for 1-writer N-reader
+├── transaction.ts   LmdbTransaction — commit/abort/lifecycle
 ├── errors.ts        LmdbError — the single error class thrown by the package
-├── types.ts        LmdbSubState/IndexDescriptor/MAX_MATERIALIZE (internal)
-├── transaction.ts  LmdbTransaction — commit/abort/lifecycle
-├── reader.ts       LmdbReader — read-only attach for 1-writer N-reader
-├── backup.ts       LmdbBackup — timestamped backup/list/prune/restore/schedule
-└── index.ts        Barrel (re-exports all modules)
+├── types/           Shared `I*` types, one file per source module (internal)
+│   ├── env.ts          ├── indexes.ts       ├── key.ts        ├── range.ts
+│   ├── sub.ts          ├── sub-state.ts     ├── sub-manager.ts
+│   ├── schema.ts       ├── search.ts        ├── codec.ts
+│   ├── cdc.ts          ├── cdc-hub.ts       ├── cdc-store.ts
+│   ├── sync.ts         ├── backup.ts        └── transaction.ts
+└── index.ts         Barrel (re-exports every runtime module + selected `./types/*`)
 ```
+
+`types/` is **internal**: the barrel re-exports only `codec`, part of `env`, `indexes`, `key`, `range`, `search`, and `sub-state`. The rest reach consumers indirectly because their owning module re-exports them (e.g. `sync.ts` re-exports `ISyncOptions`/`ISyncResult`). Import types from the package root, never from `dist/src/types/...`.
+
+`MAX_MATERIALIZE` lives in `sub.ts`, not in `types/`.
+
+
+## Where to Look
+
+| Task | File |
+| --- | --- |
+| Env lifecycle, register/sub, transactions, migrations, CDC, commit hooks | `env.ts` |
+| All sub-DB read/write methods, materialization guardrail, `findByIndex` | `sub.ts` |
+| `t` builders, `LmdbSchema.validate`, `ValueOf`/`KeyOf`/`SchemaIndexesOf`, enum/default markers | `schema.ts` |
+| FIFO queue, `__queue_meta`, single-transaction enqueue/dequeue | `queue.ts` |
+| Full-text search posting tables, `tokenize`/`fingerprintPk` | `search.ts` |
+| CDC facade/store/hub — subscribe, tail, ack, prune | `cdc/` |
+| Differential sync cursor, checkpoint, verify | `sync.ts` |
+| Positional row codec, `getPath`/`setPath` | `codec.ts` |
+| Timestamped backup, prune, restore, tar/S3 snapshot, scheduler | `backup.ts` |
+| Read-only replica attach, transaction lifecycle | `reader.ts`, `transaction.ts` |
+| The single error class | `errors.ts` |
+| Public exports | `index.ts` |
 
 ## Core Pattern
 
@@ -51,19 +79,19 @@ class Db extends LmdbEnv {
 - **Env opens on construction** — no explicit `open()` call. Defaults: `mapSize` = 4 GB (`4 * 1024 * 1024 * 1024` bytes), `maxDbs` = 128.
 - **Sync reads**: `get()`/`has()`/`count()` are synchronous (delegate to lmdb sync methods).
 - **Atomic writes**: `env.transaction()` for every read-then-write pattern. Use a sync callback (non-async) — sub methods are non-async, and a sync callback keeps all writes in the same event turn for proper batching.
-- **Cross-repo access**: `this.env.sub(OtherSchema)` inside transactions.
-- **Key design**: natural key per repo — no namespace prefixes. Composite keys: `static key = t.array<string>()` (runtime keys are arrays like `["tenant-a", "u1"]`).
-- **Counting**: `repo.count()` = O(1) (`mdb_stat`), synchronous — prefer over manual counters.
+- **Cross-sub access**: `this.env.sub(OtherSchema)` inside transactions.
+- **Key design**: natural key per sub — no namespace prefixes. Composite keys: `static key = t.array<string>()` (runtime keys are arrays like `["tenant-a", "u1"]`).
+- **Counting**: `sub.count()` = O(1) (`mdb_stat`), synchronous — prefer over manual counters.
 - **Pagination**: prefer keyset (`entries({start: lastKey, limit})`, O(log n) seek) over `offset` (O(offset) cursor stepping per page).
 - **Encoding**: default msgpack (fast, Date/Map/Set/BigInt); `encoding: "json"` for human-readable.
 - **Materialization guardrail**: `keys()`/`values()`/`entries()`/`like()`/`findByPrefix()`/`deleteByPrefix()` reject with `LmdbError` when the result set would exceed `MAX_MATERIALIZE` (`100_000`). The guard counts only the effective range (`start`+`end`, or the inferred prefix bounds for `like()`/`findByPrefix()`) via keys-only counting instead of walking the whole sub-DB — selective patterns on oversized repos pass instead of false-rejecting. Pass `{limit}` below the cap or use `iterate()` (lazy, never guarded) for result sets larger than 100k.
-- **Queue v2**: `LmdbQueue` enqueue/dequeue run in ONE synchronous transaction (`rootTransactionSync`) — counter bump + payload write (enqueue) and read + delete (dequeue) commit atomically, FIFO preserved across processes. `peek()`/`size()` are sync (cursor + O(1) stat); only `enqueue`/`dequeue`/`clear` are async. Keys must be string-kind (`t.string()` or string enum); `QueueSchema` is a constraint, not a base class.
+- **Queue v2**: `LmdbQueue` enqueue/dequeue run in ONE synchronous transaction (`rootTransactionSync`) — counter bump + payload write (enqueue) and read + delete (dequeue) commit atomically, FIFO preserved across processes. `peek()`/`size()` are sync (cursor + O(1) stat); only `enqueue`/`dequeue`/`clear` are async. Keys must be string-kind (`t.string()` or string enum); `IQueueSchema` is a constraint type, not a base class.
 - **Backup lifecycle**: `LmdbBackup.backup(env, dir, keep?)` → timestamped `backup-*` dir + prune (foreign files never touched); `.list(dir)` oldest-first; `.prune(dir, keep)` standalone; `.restore(src, dest, {overwrite?})` validates `data.mdb`; `.snapshot(env, {dir, keep?, format?, s3?})` for `tar.gz` (optional `tar` peer, atomic `.part` rename, staging cleanup) + S3 PUT-verified upload (optional `@aws-sdk/client-s3` peer) + remote prune; `.restoreArchive/.downloadFromS3/.listArchives/.pruneArchives` companions; `.start(env, {dir, keep?, intervalMs, runOnStart?, format?, s3?, onError?})` → `{stop(), label()}` with unref'd timer + overlap guard. See `example/backup-s3-tar.ts`.
 - **Service layer**: domain methods do NOT live on the schema. Keep the schema for storage and put business logic in a service class that receives the `Db` env — e.g. `class UserService { constructor(private db: Db) { this.db.register(UserSchema) } }`, then `this.db.sub(UserSchema).put(...)`.
 
 ## Embedded Indexes
 
-Secondary indexes are declared as schema value columns — index sub-DBs are auto-created at registration and maintained in the same writer transaction as the primary write. Replaces the manual index-repo + `NonUniqueIndex` wiring (the legacy helper was removed).
+Secondary indexes are declared as schema value columns — index sub-DBs are auto-created at registration and maintained in the same writer transaction as the primary write. Replaces the manual index-sub-DB + `NonUniqueIndex` wiring (the legacy helper was removed).
 
 ```typescript
 class UserSchema extends LmdbSchema {
@@ -184,12 +212,24 @@ cd packages/lmdb && bun run bench:all      # full suite (slow: decode defaults t
 - Knobs: `BENCH_N` (dataset size, per file), `BENCH_CONC` (csv concurrency, concurrent only), `BENCH_FILTER` (regex → mitata `run({filter})`, e.g. `BENCH_FILTER="count" bun run bench:crud`).
 - Benches are `@internal` scripts — excluded from `bun test` and CI. Destructive ops (delete, dequeue-drain) are self-contained per iteration (unique keys / refill) so mitata's adaptive iteration count never breaks them.
 
+## Agent skills
+
+### Best practices
+
+`packages/lmdb/skills/lmdb-best-practices/` — rule-based skill synced with the
+current source: query patterns (point reads, range scans, keyset pagination,
+index reads, bulk writes), index declaration and maintenance, env sizing, schema
+design (enums, defaults, hooks, TTL), transactions and queues, full-text search,
+CDC, migrations, differential sync, and mitata bench conventions. Load it when
+writing, reviewing, or debugging anything in `src/`. Its
+`references/_sections.md` is the rule index.
+
 ## Anti-Patterns
 
 - Do not wrap `LmdbEnv` in a delegation layer — extend it directly.
-- Do not use prefix-encoded keys for namespacing — use sub-DBs per repo.
+- Do not use prefix-encoded keys for namespacing — one sub-DB per entity type.
 - Do not skip transactions for read-then-write patterns (race condition risk).
 - Do not use `@ts-ignore`/`@ts-expect-error` in source.
 - `LmdbRepository`/`LmdbCollection`/`RepoOf` were deleted (v1.x). Declare a schema and register it; all operations go through the returned `LmdbEnvSub` handle.
 - Do not use `LmdbCodec` / static `codec`/`serialize`/`deserialize`/`ttlMs` — deleted; use schema `hookBeforeWrite`/`hookBeforeRead`/`static ttl`.
-- Do not put domain methods on repositories — use a service layer (schema + service class holding the typed repo).
+- Do not put domain methods on the schema or the handle — use a service layer (schema + service class holding the typed sub handle).

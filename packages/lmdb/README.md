@@ -138,15 +138,15 @@ Every LMDB write transaction has exclusive writer lock semantics — a single wr
 ```typescript
 // ✅ Recommended: sync callback — all writes batched atomically
 const result = await env.transaction(() => {
-  userRepo.put(`u1`, user);
-  sessionRepo.put(`s1`, session);
+  users.put(`u1`, user);
+  sessions.put(`s1`, session);
   return { ok: true };
 });
 
 // ⚠️  Works atomically too, but slower: async callback
 await env.transaction(async (tx) => {
-  await userRepo.put(`u1`, user);
-  await sessionRepo.put(`s1`, session);
+  await users.put(`u1`, user);
+  await sessions.put(`s1`, session);
   tx.abort(); // also rolls back correctly after an await
 });
 ```
@@ -214,56 +214,56 @@ Sub methods dispatch to one of two LMDB code paths depending on whether the unde
 **Synchronous** (calls lmdb `Database.get` / `doesExist` / `getCount` directly — returns value in the same call frame):
 
 ```
-repo.get(key, tx?)       → T | undefined       // mdb_get, sync
-repo.getStrict(key, tx?) → T                    // like get, throws LmdbError
-repo.has(key, tx?)       → boolean              // mdb_get existence probe, sync
-repo.count(tx?)          → number               // mdb_env_stat entry count, sync
-repo.getKeys(options?)   → Iterable<K>          // sync cursor walk, never guarded
-repo.getEntry(key)       → {version, value} | undefined  // sync, with version
+sub.get(key, tx?)       → T | undefined       // mdb_get, sync
+sub.getStrict(key, tx?) → T                    // like get, throws LmdbError
+sub.has(key, tx?)       → boolean              // mdb_get existence probe, sync
+sub.count(tx?)          → number               // mdb_env_stat entry count, sync
+sub.getKeys(options?)   → Iterable<K>          // sync cursor walk, never guarded
+sub.getEntry(key)       → {version, value} | undefined  // sync, with version
 ```
 
 **Asynchronous** (returns a Promise — write operations queue through lmdb-js async batching, range materialization drains a lazy `RangeIterable`):
 
 ```
-await repo.put(key, value, ttlOrTx?) → void      // queued put
-await repo.putIfNotExists(key, value) → boolean // queued conditional put
-await repo.delete(key, tx?)          → boolean   // queued remove
-await repo.clear(tx?)                → void      // queued clearAsync
-await repo.drop()                    → void      // queued sub-DB drop
-await repo.prefetch(keys)            → void      // async page-fault
-repo.putSync(key, value)             → void      // sync write, for transaction callbacks
-repo.removeSync(key)                 → boolean   // sync remove, for transaction callbacks
+await sub.put(key, value, ttlOrTx?) → void      // queued put
+await sub.putIfNotExists(key, value) → boolean // queued conditional put
+await sub.delete(key, tx?)          → boolean   // queued remove
+await sub.clear(tx?)                → void      // queued clearAsync
+await sub.drop()                    → void      // queued sub-DB drop
+await sub.prefetch(keys)            → void      // async page-fault
+sub.putSync(key, value)             → void      // sync write, for transaction callbacks
+sub.removeSync(key)                 → boolean   // sync remove, for transaction callbacks
 
-await repo.putMany(entries, chunk?, {sorted?, onProgress?}) → void  // chunked batch; {sorted} uses MDB_APPEND
-await repo.importJSONL(jsonl, {sorted?, onProgress?}) → number       // per committed chunk
-await repo.keys(options, tx?)        → K[]       // RangeIterable.asArray
-await repo.values(options, tx?)      → T[]       // RangeIterable.asArray
-await repo.entries(options, tx?)     → [K, T][]  // RangeIterable.asArray
-await repo.first(tx?)                → [K, T] | undefined
-await repo.last(tx?)                 → [K, T] | undefined
-await repo.getMany(keys)             → (T | undefined)[]
+await sub.putMany(entries, chunk?, {sorted?, onProgress?}) → void  // chunked batch; {sorted} uses MDB_APPEND
+await sub.importJSONL(jsonl, {sorted?, onProgress?}) → number       // per committed chunk
+await sub.keys(options, tx?)        → K[]       // RangeIterable.asArray
+await sub.values(options, tx?)      → T[]       // RangeIterable.asArray
+await sub.entries(options, tx?)     → [K, T][]  // RangeIterable.asArray
+await sub.first(tx?)                → [K, T] | undefined
+await sub.last(tx?)                 → [K, T] | undefined
+await sub.getMany(keys)             → (T | undefined)[]
 
-await repo.like(pattern, options?, tx?)         → [K, T][]  // past 10 wildcards rejects
-await repo.findByPrefix(prefix, options?, tx?)  → [K, T][]
-await repo.countByPrefix(prefix) → Promise<number>
-await repo.deleteByPrefix(prefix) → Promise<number>  // rejects LmdbError on empty prefix
-await repo.findByIndex(query, tx?, {limit}?) → T[] | T | undefined  // unique-only → T | undefined
-await repo.search(query, {limit}?) → K[]        // ranked full-text PKs
-await repo.reindex(name?) → {built, skipped}    // rebuilds; unique collisions land in skipped
-await repo.syncTo(dest, {name?, checkpoint?, limit?, verify?}) → {copied, checkpoint, verified}
-await repo.increment(key, delta?) → number     // bare-number subs; forbidden on indexed/search subs
-await repo.decrement(key, amount?) → number     // same guard as increment
-await repo.addValue(key, value) → void          // dupSort-only
-await repo.getValues(key) → T[]                 // dupSort-only
-repo.getValuesCount(key) → number               // dupSort-only, sync
-await repo.removeValue(key, value) → boolean    // dupSort-only
-await repo.putBinary(key, buf) → void           // forbidden on indexed/search subs
-await repo.getBinary(key) → Buffer | undefined
-await repo.getBinaryFast(key) → Buffer | undefined
-await repo.exportJSONL() → string
-await repo.purgeExpired() → number              // 0 on non-TTL subs
+await sub.like(pattern, options?, tx?)         → [K, T][]  // past 10 wildcards rejects
+await sub.findByPrefix(prefix, options?, tx?)  → [K, T][]
+await sub.countByPrefix(prefix) → Promise<number>
+await sub.deleteByPrefix(prefix) → Promise<number>  // rejects LmdbError on empty prefix
+await sub.findByIndex(query, tx?, {limit}?) → T[] | T | undefined  // unique-only → T | undefined
+await sub.search(query, {limit}?) → K[]        // ranked full-text PKs
+await sub.reindex(name?) → {built, skipped}    // rebuilds; unique collisions land in skipped
+await sub.syncTo(dest, {name?, checkpoint?, limit?, verify?}) → {copied, checkpoint, verified}
+await sub.increment(key, delta?) → number     // bare-number subs; forbidden on indexed/search subs
+await sub.decrement(key, amount?) → number     // same guard as increment
+await sub.addValue(key, value) → void          // dupSort-only
+await sub.getValues(key) → T[]                 // dupSort-only
+sub.getValuesCount(key) → number               // dupSort-only, sync
+await sub.removeValue(key, value) → boolean    // dupSort-only
+await sub.putBinary(key, buf) → void           // forbidden on indexed/search subs
+await sub.getBinary(key) → Buffer | undefined
+await sub.getBinaryFast(key) → Buffer | undefined
+await sub.exportJSONL() → string
+await sub.purgeExpired() → number              // 0 on non-TTL subs
 
-for await (const [k, v] of repo.iterate(options?, tx?))  // lazy async generator, never guarded
+for await (const [k, v] of sub.iterate(options?, tx?))  // lazy async generator, never guarded
 ```
 
 The `owner` property is public, giving access to transaction boundaries:
@@ -395,7 +395,7 @@ Semantics:
 - **Unique conflicts throw.** A write whose unique index value is already owned by a different primary key rejects with `LmdbError` and rolls back. Re-putting the same key with the same value (self-update) is allowed.
 - **Atomic writes.** Primary value and index rows land in one writer transaction, so concurrent writers can never leave them inconsistent.
 - **Updates free the old value.** Changing an indexed field removes the old index row and inserts the new one in the same transaction.
-- **`reindex()` rebuilds.** `await repo.reindex()` clears and rebuilds every index from primary data, resolving `{built, skipped}` (`skipped` lists unique-conflict records); `reindex(name)` rebuilds one index (an embedded index, a searched column, or both). Records whose value collides on a unique index are reported in `skipped` instead of failing the rebuild.
+- **`reindex()` rebuilds.** `await sub.reindex()` clears and rebuilds every index from primary data, resolving `{built, skipped}` (`skipped` lists unique-conflict records); `reindex(name)` rebuilds one index (an embedded index, a searched column, or both). Records whose value collides on a unique index are reported in `skipped` instead of failing the rebuild.
 - **Bulk deletes clean indexes.** `deleteByPrefix()` and `clear()` remove the index rows of every deleted record; `putMany` and `putIfNotExists` maintain indexes per entry.
 - **TTL repos supported.** Extractors run on the unwrapped value (before the expiry envelope), and `purgeExpired` removes index rows with the record.
 - **`increment`/`decrement`/`putBinary` forbidden.** All three reject with `LmdbError` on indexed/search subs, since they would leave the index stale. Keep counters in a separate non-indexed sub.
@@ -561,14 +561,14 @@ Prefix patterns (`"admin:*"`) are optimized into bounded range scans `[prefix, p
 
 ```typescript
 // Bounded range cursor → [start, end) exclusive
-await repo.entries({ start: `user:`, end: `user:\uffff`, limit: 50 });
+await sub.entries({ start: `user:`, end: `user:\uffff`, limit: 50 });
 
 // Prefix scan — same cursor bounds, no regex
-await repo.findByPrefix(`admin:`);
+await sub.findByPrefix(`admin:`);
 
 // Glob patterns — prefix shape optimized, otherwise full scan
-await repo.like(`admin:*`); // range scan
-await repo.like(`*partial*`); // full scan + regex filter
+await sub.like(`admin:*`); // range scan
+await sub.like(`*partial*`); // full scan + regex filter
 ```
 
 The `\uffff` sentinel produces the first key that sorts after any prefix — it is the exclusive upper bound for a prefix range scan.
@@ -579,10 +579,10 @@ The `\uffff` sentinel produces the first key that sorts after any prefix — it 
 
 ```typescript
 // ❌ Offset: every page re-walks all previous rows
-await repo.entries({ limit: 10, offset: 1000 });
+await sub.entries({ limit: 10, offset: 1000 });
 
 // ✅ Keyset: cursor seeks directly to the resume point
-await repo.entries({ start: lastKeyFromPreviousPage, limit: 10 });
+await sub.entries({ start: lastKeyFromPreviousPage, limit: 10 });
 ```
 
 Measured in `bench/range.bench.ts` (`Range / pagination` group) — the gap grows linearly with page depth. Rule of thumb: `offset` is fine below ~100; beyond that, carry the last key forward.
@@ -594,12 +594,12 @@ Measured in `bench/range.bench.ts` (`Range / pagination` group) — the gap grow
 **For result sets larger than 100k entries, use `iterate()`** — it streams entries lazily and is never guarded:
 
 ```typescript
-for await (const [k, v] of repo.iterate()) {
+for await (const [k, v] of sub.iterate()) {
   // one entry at a time — no array materialization
 }
 
 // ❌ LmdbError: would materialize more than 100_000 entries
-// await repo.values();
+// await sub.values();
 ```
 
 ## Queues
