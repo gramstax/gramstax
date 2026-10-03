@@ -77,9 +77,25 @@ export class WorkerThreadLaunch extends EventEmitter {
    */
   static isMainThread = isMainThread
 
+  /**
+   * Whether the worker has signalled ready. Makes `readyResolve()` one-shot.
+   *
+   * @remarks
+   * Checked by `readyResolve()` and the `exit` handler so `ready()` resolves
+   * once or rejects when the worker exits before signalling ready.
+   */
   private _readyResolved = false
+  /** Resolve function captured by the `_readyPromise` executor. Invoked once by `readyResolve()`. */
   private _readyResolve?: () => void
+  /** Reject function captured by the `_readyPromise` executor. Invoked when the worker exits before signalling ready. */
   private _readyReject?: (err: Error) => void
+  /**
+   * Promise returned by `ready()`. Settles when the worker signals ready or exits early.
+   *
+   * @remarks
+   * The executor captures `_readyResolve`/`_readyReject`; resolution is
+   * one-shot via `_readyResolved`.
+   */
   private _readyPromise = new Promise<void>((resolve, reject) => {
     this._readyResolve = resolve
     this._readyReject = reject
@@ -102,6 +118,7 @@ export class WorkerThreadLaunch extends EventEmitter {
 
   /** Bound SIGINT/SIGTERM handlers so `kill()`/`exit` can remove them (no pool leak). */
   private _sigintHandler?: () => void
+  /** Retained `SIGTERM` listener registered in `init()` so `_removeSignalHandlers()` can detach it. */
   private _sigtermHandler?: () => void
 
   /**

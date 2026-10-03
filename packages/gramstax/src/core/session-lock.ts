@@ -14,6 +14,16 @@ const RELEASE_SCRIPT = `if redis.call("get", KEYS[1]) == ARGV[1] then return red
  * @public
  */
 export class SessionLock {
+  /**
+   * Per-key tail promises serializing same-key `withLock()` contenders.
+   *
+   * @remarks
+   * Only used when `onContended` is `serialize`: each contender chains onto
+   * the stored tail for its session key before Redis is consulted, and the
+   * entry is deleted once its tail settles while still current.
+   *
+   * @internal
+   */
   _queues = new Map<string, Promise<unknown>>()
 
   /**

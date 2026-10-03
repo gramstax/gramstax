@@ -358,6 +358,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
   /** Bounded LRU of seen update ids (idempotency). @internal */
   _seenUpdates = new Map<number, number>()
+  /** Max entries kept in `_seenUpdates` before evicting the oldest insertion. @internal */
   _seenUpdatesMax = 1024
   /** Local sequence for trace ids when `update_id` is missing. @internal */
   _traceSeq = 0

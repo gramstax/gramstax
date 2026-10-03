@@ -97,8 +97,10 @@ export class WorkerThreadGatewayServer extends EventEmitter {
    */
   register: Record<string, (...args: never[]) => unknown> = {}
 
+  /** Shared secret from `start()` options. Connections with a mismatched `auth` payload are closed; `undefined` disables auth. */
   private _authToken?: string
 
+  /** Allow-list from `start()` options. Non-listed methods are rejected by per-connection RPC middleware; `undefined` leaves the register fully callable. */
   private _allowedMethods?: Set<string>
 
   /** Estimation cap for a single incoming message; read per-connection when `start` is called. */

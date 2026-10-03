@@ -58,6 +58,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
    */
   rpc: WorkerThreadRpc
 
+  /** Whether `close()`/`destroy()` has run. Guards `send()` and `connect()` against reuse. */
   private _closed = false
 
   /** Raw connection that already has our error-routing listener attached. */

@@ -65,12 +65,48 @@ export class MockTelegramServer {
   /** Underlying Bun server instance (set after start). */
   server?: {port?: number; stop: () => void}
 
+  /**
+   * Next `update_id` allocated by `_nextIds` for a simulated update.
+   *
+   * @internal
+   */
   _nextUpdateId = 1
+  /**
+   * Next `message_id` allocated by `_nextIds` and the `send*` branches of `_defaultResponse`.
+   *
+   * @internal
+   */
   _nextMessageId = 1
+  /**
+   * `SIGINT` listener registered with `process.once` in `start()` that calls `stop()`, removed in `stop()`.
+   *
+   * @internal
+   */
   _onSigint?: () => void
+  /**
+   * `SIGTERM` listener registered with `process.once` in `start()` that calls `stop()`, removed in `stop()`.
+   *
+   * @internal
+   */
   _onSigterm?: () => void
 
+  /**
+   * Method-name prefixes declared as user-facing replies.
+   *
+   * @remarks
+   * Declaration only — nothing reads this list. `_isUserResponseMethod` hardcodes
+   * the same families and is the actual source of truth. The two have drifted:
+   * `pin`, `unpin`, and `setMessageReaction` are prefixes here but are matched as
+   * exact method names there.
+   */
   static userResponsePrefixes = [`send`, `edit`, `answer`, `delete`, `copy`, `forward`, `pin`, `unpin`, `setMessageReaction`]
+  /**
+   * Exact method names declared as user-facing replies.
+   *
+   * @remarks
+   * Declaration only — nothing reads this list. `_isUserResponseMethod` hardcodes
+   * the same names and is the actual source of truth.
+   */
   static userResponseMethods = [`pinChatMessage`, `unpinChatMessage`, `setMessageReaction`, `answerInlineQuery`]
 
   /**

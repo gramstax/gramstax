@@ -177,6 +177,7 @@ export class WorkerThreadRpc {
    */
   defaultTimeoutMs: number = DEFAULT_REQUEST_TIMEOUT_MS
 
+  /** Ordered middleware chain for inbound RPC messages. Mutated by `use()`, run in registration order by `_runMiddleware`. @internal */
   private _middlewares: IRpcMiddleware[] = []
 
   /**

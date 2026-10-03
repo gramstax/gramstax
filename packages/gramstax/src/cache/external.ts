@@ -36,6 +36,15 @@ type IMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `na
  * @public
  */
 export class CacheExternal<V = unknown> extends Keyv<V> {
+  /**
+   * Storage connection `url` passed to the constructor.
+   *
+   * @remarks
+   * Stored verbatim even when `more.forceStore` overrides store selection,
+   * so it records the requested value rather than the resolved store.
+   *
+   * @public
+   */
   url: string
 
   /**

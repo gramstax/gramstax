@@ -37,9 +37,29 @@ export class E2eHelper {
    */
   calls: IE2eApiCall[] = []
 
+  /**
+   * Next `update_id` allocated by `_nextIds` for a simulated update, restored to `1` by `reset()`.
+   *
+   * @internal
+   */
   _nextUpdateId = 1
+  /**
+   * Next `message_id` allocated by `_nextIds` for a simulated update, restored to `1` by `reset()`.
+   *
+   * @internal
+   */
   _nextMessageId = 1
+  /**
+   * Next `message_id` allocated in canned `send*` interceptor responses, restored to `1` by `reset()`.
+   *
+   * @internal
+   */
   _nextApiMsgId = 1
+  /**
+   * Whether `_ensureInit()` already ran `bot.bot.init()`, cleared by `reset()`.
+   *
+   * @internal
+   */
   _initialized = false
 
   /** Bot API methods treated as internal: answered but never recorded in `calls`. Mirrors the mock allowlist. */

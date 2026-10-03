@@ -179,6 +179,16 @@ class GramstaxKeyboard extends Keyboard {
  * @internal
  */
 class Helper {
+  /**
+   * Media types Telegram accepts inside an album (media group).
+   *
+   * @remarks
+   * Checked by `isMediaGroupType` to route non-groupable types (such as
+   * `voice` or `sticker`) to the single-media path instead of failing at
+   * the Bot API.
+   *
+   * @internal
+   */
   static MEDIA_GROUP_TYPES: ReadonlySet<string> = new Set([`photo`, `video`, `audio`, `document`])
   /**
    * Narrows a media type to the four types Telegram accepts in a group.

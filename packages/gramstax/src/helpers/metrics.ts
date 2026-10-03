@@ -42,7 +42,9 @@ export class MetricsStore {
 
   /** Latency samples (ms) for completed route dispatches. */
   private _latencySum = 0
+  /** Completed dispatch count; divisor for the average latency in `snapshot`. */
   private _latencyCount = 0
+  /** Highest observed dispatch latency in milliseconds; exposed as `maxMs` by `snapshot`. */
   private _maxLatencyMs = 0
 
   /**

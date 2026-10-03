@@ -11,12 +11,69 @@
  * @public
  */
 export class WebhookQueue<T = unknown> {
+  /**
+   * Fixed-size ring-buffer storage for buffered items, sized by `maxSize`.
+   *
+   * Empty slots hold `undefined`; the constructor allocates all slots up front.
+   *
+   * @internal
+   */
   _items: Array<T | undefined>
+  /**
+   * Read cursor into `_items`: index of the next slot `dequeue()` consumes.
+   *
+   * Advances modulo `maxSize` so the buffer wraps as a ring.
+   *
+   * @internal
+   */
   _head = 0
+  /**
+   * Write cursor into `_items`: index of the next slot `enqueue()` fills.
+   *
+   * Advances modulo `maxSize` so the buffer wraps as a ring.
+   *
+   * @internal
+   */
   _tail = 0
+  /**
+   * Cached number of buffered items backing `length` and `getStats()`.
+   *
+   * The queue is full when this reaches `maxSize` and empty at `0`.
+   *
+   * @internal
+   */
   _lengthCount = 0
+  /**
+   * FIFO of producers blocked in `enqueue()` while the queue is full.
+   *
+   * @remarks
+   * Each entry carries `resolve`/`reject` so one waiter is woken per
+   * `dequeue()` via `shift()` plus `resolve()`, all waiters are failed by
+   * `close()`, and an aborted `enqueue()` splices its own entry out.
+   *
+   * @internal
+   */
   _waitEnqueue: Array<{resolve: () => void; reject: (error: Error) => void}> = []
+  /**
+   * FIFO of consumers blocked in `dequeue()` while the queue is empty.
+   *
+   * @remarks
+   * Woken by direct handoff: `enqueue()` and `tryEnqueue()` resolve the
+   * shifted waiter with the value without touching `_items`, while `close()`
+   * resolves every waiter with the `undefined` sentinel instead.
+   *
+   * @internal
+   */
   _waitDequeue: Array<(value: T) => void> = []
+  /**
+   * Whether `close()` has been called.
+   *
+   * @remarks
+   * Latched once and never reset: `enqueue()` throws after close while
+   * `dequeue()` drains remaining items and then resolves `undefined`.
+   *
+   * @internal
+   */
   _closed = false
 
   /**

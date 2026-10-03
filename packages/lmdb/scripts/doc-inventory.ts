@@ -62,12 +62,12 @@ for (const f of files) {
   const text = readFileSync(f, "utf8")
   const sf = ts.createSourceFile(f, text, ts.ScriptTarget.Latest, true)
 
-  const push = (
-    fn: ts.FunctionLikeDeclaration,
-    kind: string,
+  const pushRow = (
     nameNode: ts.PropertyName | ts.BindingName | undefined,
+    kind: string,
     owner: ts.Node,
     depth: number,
+    params: string[],
     docStartOverride?: number
   ) => {
     let name = "<anonymous>"
@@ -89,11 +89,29 @@ for (const f of files) {
       name,
       kind,
       visibility,
-      params: fn.parameters.map((p) => p.name.getText(sf).replace(/^\.\.\./, "")),
+      params,
       hasDoc: hasLeadingDoc(text, docStartOverride ?? owner.getStart(sf)),
       underscore: name.startsWith("_"),
       depth
     })
+  }
+
+  const push = (
+    fn: ts.FunctionLikeDeclaration,
+    kind: string,
+    nameNode: ts.PropertyName | ts.BindingName | undefined,
+    owner: ts.Node,
+    depth: number,
+    docStartOverride?: number
+  ) => {
+    pushRow(
+      nameNode,
+      kind,
+      owner,
+      depth,
+      fn.parameters.map((p) => p.name.getText(sf).replace(/^\.\.\./, "")),
+      docStartOverride
+    )
   }
 
 const visit = (node: ts.Node, depth: number) => {
@@ -107,10 +125,12 @@ const visit = (node: ts.Node, depth: number) => {
       push(node, "getter", node.name, node, depth)
     } else if (ts.isSetAccessorDeclaration(node)) {
       push(node, "setter", node.name, node, depth)
-    } else if (ts.isPropertyDeclaration(node) && node.initializer) {
+    } else if (ts.isPropertyDeclaration(node)) {
       const init = node.initializer
-      if (ts.isArrowFunction(init) || ts.isFunctionExpression(init)) {
+      if (init && (ts.isArrowFunction(init) || ts.isFunctionExpression(init))) {
         push(init, "property-fn", node.name, node, depth)
+      } else if (ts.isIdentifier(node.name)) {
+        pushRow(node.name, "field", node, depth, [])
       }
     } else if (ts.isVariableDeclaration(node) && node.initializer) {
       const init = node.initializer
