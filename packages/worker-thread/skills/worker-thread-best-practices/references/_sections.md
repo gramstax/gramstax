@@ -2,6 +2,17 @@
 
 Read only the rule your task needs.
 
+## API Surface (read first when an import will not resolve)
+
+- `maintain-api-surface.md` — the utility reshape: five free functions
+  became class statics (`WorkerThreadErrorHandler.setDefault/resetDefault/report`,
+  `WorkerThreadGatewayPath.normalize`, `WorkerThreadRpc.estimatePayloadSize`);
+  shared `I*` types moved to `src/types/`; deep imports are unsupported; the two
+  independent deny-lists (`DENIED_RPC_METHODS` dispatcher vs module-private
+  `DENIED_RPC_PROPS` proxy); `@public` vs `@internal` discipline. Includes a
+  side-by-side of the published `v2.2.0` tag against `main`, because the package
+  version does not distinguish them.
+
 ## Lifecycle
 
 - `lifecycle-lifecycle.md` — launch → ready → request → shutdown; `kill` vs
@@ -29,6 +40,24 @@ Read only the rule your task needs.
   ordering, post-buffering `maxMessageSize`, reconnect storms, dedupe caps
   (1000 entries, 64KB skip, drop on disconnect).
 
+## Errors
+
+- `errors-visibility.md` — the default handler is a **silent drop** and the
+  library never console-logs, so an unhandled worker error produces no output;
+  `setDefault` / `resetDefault` wiring; per-instance `error` listeners win;
+  `onError` must re-call `report` or you break package-wide observability; a
+  throwing user handler is swallowed by design.
+
+## Platform
+
+- `platform-runtime.md` — Windows named-pipe transform (dash-escape before
+  slash→dash, so `/tmp/a-b` ≠ `/tmp/a/b`); POSIX 104-char `sun_path` limit and
+  the cryptic `ENOENT` it prevents; relative paths resolve to `os.tmpdir()`;
+  `engines` (`node >=18`, `bun >=1.0.0`); unique socket paths per server; and
+  the verification gap — CI is ubuntu-only so the win32 branch never runs and
+  Node never runs the suite (all 9 `.test.ts` files plus `test/helpers.ts`
+  import `bun:test`).
+
 ## Pool
 
 - `pool-dispatch.md` — `execute` round-robin, `broadcastRequest` fail-fast vs
@@ -42,5 +71,6 @@ Read only the rule your task needs.
   closures, `do_not_optimize`, unique socket paths, teardown kills all.
 - `bench-runner.md` — `bun run bench`, `BENCH_FILTER`, `BENCH_N`, file map
   (rpc/gateway/codec/pool/storm).
-- `maintain-style-tests.md` — backticks, no semicolons, `bun:test`,
-  per-package `tsc`, full suite green, no-ai-slop rules.
+- `maintain-style-tests.md` — `bun:test` only, per-package `tsc` gate, full
+  suite green (254), no type suppression in source, and which Biome rules are
+  actually enforced versus convention-only backticks.

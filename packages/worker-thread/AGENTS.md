@@ -108,6 +108,19 @@ BENCH_FILTER="json echo single" bun run ./bench/gateway-roundtrip.bench.ts    # 
 - Every bench primes once unmeasured, wraps setup awaits in `withTimeout`, and kills/closes all workers, servers, clients, and pools in teardown.
 - Benches are `@internal` scripts — excluded from `bun test` and CI.
 
+## Agent skills
+
+### Best practices
+
+`packages/worker-thread/skills/worker-thread-best-practices/` — rule-based
+skill synced with the current source: the class-static API surface and
+`src/types/` layout, `mtd*` dispatch, lifecycle, gateway security and
+at-least-once reliability, cross-platform socket paths, error visibility
+against the silent-drop default, pool dispatch, and bench conventions. Load it
+when writing, reviewing, or debugging anything in `src/`. Its
+`references/maintain-api-surface.md` carries the free-function → class-static
+migration table.
+
 ## Anti-Patterns
 
 - Do not use gateway for main-thread orchestration — use parentPort RPC.
