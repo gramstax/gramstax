@@ -1,3 +1,11 @@
+/**
+ * Package-wide fallback invoked by {@link reportError} when a `WorkerThreadLaunch`
+ * has no `error` listener of its own. Owned by `setDefaultErrorHandler` and
+ * `resetDefaultErrorHandler`; starts as a silent drop so an unhandled error is
+ * never fatal to the transport that reported it.
+ *
+ * @internal
+ */
 let defaultHandler: (err: unknown) => void = () => {}
 
 /**

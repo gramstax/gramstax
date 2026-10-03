@@ -99,6 +99,11 @@ class Helper {
   static isDeniedRpcProp(prop: string | symbol): boolean {
     return typeof prop !== `string` || DENIED_RPC_PROPS.has(prop)
   }
+  /**
+   * Narrows an optional server path, failing loudly when it is absent.
+   *
+   * @internal
+   */
   static requireGatewayPath(serverPath?: string): string {
     if (!serverPath || typeof serverPath !== `string`) {
       throw new Error(`launchGatewayClient requires a gateway server path — pass the same path used in createGatewayServer()`)
