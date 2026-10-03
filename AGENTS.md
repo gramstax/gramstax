@@ -46,7 +46,7 @@ Deep per-area guidance lives in child files — read the one matching your task 
 - Build orchestrator: `nx`.
 - Bundler: `tsup` (invoked via `nx build` targets).
 - Tests: `bun:test`.
-- Linting + Formatting: **Biome** (see `biome.json` + `biome search` for backtick enforcement).
+- Linting + Formatting: **Biome** (see `biome.json`). Backticks are a convention only — `biome.json` sets `plugins: []`, and nothing enforces string style.
 - Type checking: `tsc --noEmit` via `bun run ci:check`.
 
 ## Install
@@ -68,15 +68,18 @@ Deep per-area guidance lives in child files — read the one matching your task 
 - `bun run lint:fix` (`biome lint --write --unsafe`)
 - `bun run lint:packages` (lint only `./packages`)
 - `bun run lint:example` (lint only `./example`)
-- `bun run lint:quotes` (check for non-backtick strings via `biome search`)
-- `bun run format` (`biome format --write`)
+- `bun run format` (`biome format --write ./example ./packages` — note the scoping; the repo root and `real-projects/` are not covered)
 - `bun run format:packages` (format only `./packages`)
+
+There is no backtick/quote lint script. `lint:quotes` and the `biome-backtick.grit` GritQL plugin are referenced in older docs but were never added — `biome lint` is the only style gate.
 
 ## Typecheck + Lint Commands (ci:check)
 
-- `bun run ci:check` (tsc + biome lint + format + quotes check)
-- `bun run ci:check:packages` (tsc + biome lint/format for `./packages` + quotes check)
-- `bun run ci:check:example` (biome lint + format for `./example`)
+- `bun run ci:check` (tsc for the repo root plus `gramstax`, `create-gramstax`, `lmdb`, `worker-thread`, then `biome lint`)
+- `bun run ci:check:packages` (tsc for `./packages` + `biome lint ./packages`)
+- `bun run ci:check:example` (`biome lint ./example`)
+
+None of these run a format check or a backtick check — `biome lint` only.
 
 ## Test Commands
 
@@ -116,7 +119,7 @@ Deep per-area guidance lives in child files — read the one matching your task 
 - `bracketSameLine: false`.
 - `bracketSpacing: false` (no spaces inside `{}`).
 - `arrowParens: always`.
-- Prefer backticks for all strings (enforced via `biome-backtick.grit` GritQL plugin).
+- Prefer backticks for all strings — **convention, not enforced**. `biome.json` sets `quoteStyle: "double"` and `plugins: []`, so no rule fails on a non-backtick string. Match the surrounding file.
 
 ## Lint Rules (highlights)
 
