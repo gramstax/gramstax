@@ -4,6 +4,8 @@
 
 ## TemplateEngine.\_buildFunctionBody() method
 
+Builds the JavaScript function body for a processed template.
+
 **Signature:**
 
 ```typescript
@@ -40,6 +42,8 @@ T extends true ? string\[\] : string
 
 </td><td>
 
+Processed template source, or one source per language when `isArray` is `true`<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -54,6 +58,8 @@ T
 
 </td><td>
 
+When `true`<!-- -->, emit a body returning `string[]`<!-- -->.
+
 
 </td></tr>
 </tbody></table>
@@ -61,4 +67,10 @@ T
 **Returns:**
 
 string
+
+The `return` statement source for the compiled function.
+
+## Remarks
+
+Runs the three structural pre-processors in a fixed order — script blocks, then `<g-div>`<!-- -->, then `<g-space>` — before converting the result to a concatenation expression. The body is returned as source text, never evaluated here: `_compileToFunction` is what turns it into a callable.
 

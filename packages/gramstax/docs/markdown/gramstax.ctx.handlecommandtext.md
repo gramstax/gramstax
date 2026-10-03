@@ -22,11 +22,12 @@ Triggered by text with slash commands.
 
 ## Example
 
-this.msgText = "/start"
 
 ```typescript
+// text = "/start"
+// validate "/start" from mapping hash
 async handleCommandText() {
-   this.msgText // "/start"
+   this.msg?.text // "/start"
 }
 ```
 

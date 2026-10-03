@@ -553,7 +553,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!CacheExternal#url:member",
-              "docComment": "",
+              "docComment": "/**\n * Storage connection `url` passed to the constructor.\n *\n * @remarks\n *\n * Stored verbatim even when `more.forceStore` overrides store selection, so it records the requested value rather than the resolved store.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4193,7 +4193,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleArgsText:member(1)",
-              "docComment": "/**\n * Route handler for text messages with args match intent `intentText`.\n *\n * @remarks\n *\n * Triggered by text with space-separated args.\n *\n * @example\n *\n * this.msgText = \"start 123 aaa\"\n * ```typescript\n * async handleTextArgs() {\n *    this.msgText // \"start 123 aaa\"\n *    this.msgTextArg // \"123\"\n *    this.msgTextArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for text messages with args match intent `intentText`.\n *\n * @remarks\n *\n * Triggered by text with space-separated args.\n *\n * @example\n * ```typescript\n * // text = \"start 123 aaa\"\n * // validate \"123\" or \"aaa\" from mapping hash\n * async handleArgsText() {\n *    this.msg?.text // \"start 123 aaa\"\n *    this.msgTextArg // \"123\"\n *    this.msgTextArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4265,7 +4265,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionAnimation:member(1)",
-              "docComment": "/**\n * Route function for animationCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async handleCaptionAnimation() {\n *   this.msg?.animation // {...}\n *   this.msgCaption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for animationCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async handleCaptionAnimation() {\n *   this.msg?.animation // {...}\n *   this.msg?.caption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4301,7 +4301,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Route function for `handleCaptionArgsAnimation` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async handleCaptionArgsAnimation() {\n *   this.msg?.animation // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsAnimation` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async handleCaptionArgsAnimation() {\n *   this.msg?.animation // {...}\n *   this.msg?.caption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4337,7 +4337,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Route function for `handleCaptionArgsAudio` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msg?.audio\n * ```typescript\n * async handleCaptionArgsAudio() {\n *   this.msg?.audio // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsAudio` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msg?.audio\n * ```typescript\n * async handleCaptionArgsAudio() {\n *   this.msg?.audio // {...}\n *   this.msg?.caption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4373,7 +4373,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Route function for `handleCaptionArgsDocument` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msg?.document\n * ```typescript\n * async handleCaptionArgsDocument() {\n *   this.msg?.document // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsDocument` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msg?.document\n * ```typescript\n * async handleCaptionArgsDocument() {\n *   this.msg?.document // {...}\n *   this.msg?.caption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4409,7 +4409,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Route function for photoCaption with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msg?.photo\n * ```typescript\n * async handleCaptionArgsPhoto() {\n *   this.msg?.photo // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs[\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for photoCaption with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msg?.photo\n * ```typescript\n * async handleCaptionArgsPhoto() {\n *   this.msg?.photo // {...}\n *   this.msg?.caption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4445,7 +4445,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Route function for `handleCaptionArgsVideo` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msg?.video\n * ```typescript\n * async handleCaptionArgsVideo() {\n *   this.msg?.video // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsVideo` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msg?.video\n * ```typescript\n * async handleCaptionArgsVideo() {\n *   this.msg?.video // {...}\n *   this.msg?.caption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4481,7 +4481,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Route function for `handleCaptionArgsVoice` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async handleCaptionArgsVoice() {\n *   this.msg?.voice // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsVoice` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async handleCaptionArgsVoice() {\n *   this.msg?.voice // {...}\n *   this.msg?.caption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4517,7 +4517,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionAudio:member(1)",
-              "docComment": "/**\n * Route function for audioCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msg?.audio\n * ```typescript\n * async handleCaptionAudio() {\n *   this.msg?.audio // {...}\n *   this.msgCaption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for audioCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msg?.audio\n * ```typescript\n * async handleCaptionAudio() {\n *   this.msg?.audio // {...}\n *   this.msg?.caption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4553,7 +4553,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionDocument:member(1)",
-              "docComment": "/**\n * Route function for `handleCaptionDocument` match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msg?.document\n * ```typescript\n * async handleCaptionDocument() {\n *   this.msg?.document // {...}\n *   this.msgCaption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionDocument` match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msg?.document\n * ```typescript\n * async handleCaptionDocument() {\n *   this.msg?.document // {...}\n *   this.msg?.caption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4589,7 +4589,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionPhoto:member(1)",
-              "docComment": "/**\n * Route function for photoCaptio match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msg?.photo\n * ```typescript\n * async handleCaptionPhoto() {\n *   this.msg?.photo // {...}\n *   this.msgCaption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for photoCaptio match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msg?.photo\n * ```typescript\n * async handleCaptionPhoto() {\n *   this.msg?.photo // {...}\n *   this.msg?.caption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4625,7 +4625,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionVideo:member(1)",
-              "docComment": "/**\n * Route function for videoCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msg?.video\n * ```typescript\n * async handleCaptionVideo() {\n *   this.msg?.video // {...}\n *   this.msgCaption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for videoCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msg?.video\n * ```typescript\n * async handleCaptionVideo() {\n *   this.msg?.video // {...}\n *   this.msg?.caption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4661,7 +4661,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionVoice:member(1)",
-              "docComment": "/**\n * Route function for voiceCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async handleCaptionVoice() {\n *   this.msg?.voice // {...}\n *   this.msgCaption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for voiceCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async handleCaptionVoice() {\n *   this.msg?.voice // {...}\n *   this.msg?.caption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4733,7 +4733,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandArgsText:member(1)",
-              "docComment": "/**\n * Route handler for command messages with args match intent `intentCommandText`.\n *\n * @remarks\n *\n * Triggered by text with commands slash with args.\n *\n * @example\n *\n * this.msgText = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandTextArgs() {\n *    this.msgText // \"/start 123 aaa\"\n *    this.msgTextArg // \"123\"\n *    this.msgTextArg // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for command messages with args match intent `intentCommandText`.\n *\n * @remarks\n *\n * Triggered by text with commands slash with args.\n *\n * @example\n * ```typescript\n * // text = \"/start 123 aaa\"\n * // validate \"123\" or \"aaa\" accoridng \"/start\" from mapping hash\n * async handleCommandArgsText() {\n *    this.msg?.text // \"/start 123 aaa\"\n *    this.msgTextArg // \"123\"\n *    this.msgTextArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4769,7 +4769,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionAnimation:member(1)",
-              "docComment": "/**\n * Route function for animationCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async handleCommandCaptionAnimation() {\n *   this.msg?.animation // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for animationCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async handleCommandCaptionAnimation() {\n *   this.msg?.animation // {...}\n *   this.msg?.caption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4805,7 +4805,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Route function for `handleCommandCaptionArgsAnimation` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsAnimation() {\n *   this.msg?.animation // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsAnimation` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsAnimation() {\n *   this.msg?.animation // {...}\n *   this.msg?.caption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4841,7 +4841,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Route function for `handleCommandCaptionArgsAudio` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msg?.audio\n * ```typescript\n * async handleCommandCaptionArgsAudio() {\n *   this.msg?.audio // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsAudio` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msg?.audio\n * ```typescript\n * async handleCommandCaptionArgsAudio() {\n *   this.msg?.audio // {...}\n *   this.msg?.caption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4877,7 +4877,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Route function for `handleCommandCaptionArgsDocument` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsDocument() {\n *   this.msg?.document // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsDocument` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsDocument() {\n *   this.msg?.document // {...}\n *   this.msg?.caption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4913,7 +4913,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Route function for `handleCommandCaptionArgsPhoto` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msg?.photo\n * ```typescript\n * async handleCommandCaptionArgsPhoto() {\n *   this.msg?.photo // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsPhoto` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msg?.photo\n * ```typescript\n * async handleCommandCaptionArgsPhoto() {\n *   this.msg?.photo // {...}\n *   this.msg?.caption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4949,7 +4949,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Route function for `handleCommandCaptionArgsVideo` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msg?.video\n * ```typescript\n * async handleCommandCaptionArgsVideo() {\n *   this.msg?.video // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsVideo` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msg?.video\n * ```typescript\n * async handleCommandCaptionArgsVideo() {\n *   this.msg?.video // {...}\n *   this.msg?.caption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4985,7 +4985,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Route function for `handleCommandCaptionArgsVoice` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsVoice() {\n *   this.msg?.voice // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsVoice` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsVoice() {\n *   this.msg?.voice // {...}\n *   this.msg?.caption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5021,7 +5021,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionAudio:member(1)",
-              "docComment": "/**\n * Route function for `handleCommandCaptionAudio` with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msg?.audio\n * ```typescript\n * async handleCommandCaptionAudio() {\n *   this.msg?.audio // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionAudio` with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msg?.audio\n * ```typescript\n * async handleCommandCaptionAudio() {\n *   this.msg?.audio // {...}\n *   this.msg?.caption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5057,7 +5057,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionDocument:member(1)",
-              "docComment": "/**\n * Route function for `handleCommandCaptionDocument` with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msg?.document\n * ```typescript\n * async handleCommandCaptionDocument() {\n *   this.msg?.document // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionDocument` with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msg?.document\n * ```typescript\n * async handleCommandCaptionDocument() {\n *   this.msg?.document // {...}\n *   this.msg?.caption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5093,7 +5093,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionPhoto:member(1)",
-              "docComment": "/**\n * Route function for photoCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msg?.photo\n * ```typescript\n * async handleCommandCaptionPhoto() {\n *   this.msg?.photo // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for photoCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msg?.photo\n * ```typescript\n * async handleCommandCaptionPhoto() {\n *   this.msg?.photo // {...}\n *   this.msg?.caption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5129,7 +5129,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionVideo:member(1)",
-              "docComment": "/**\n * Route function for videoCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msg?.video\n * ```typescript\n * async handleCommandCaptionVideo() {\n *   this.msg?.video // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for videoCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msg?.video\n * ```typescript\n * async handleCommandCaptionVideo() {\n *   this.msg?.video // {...}\n *   this.msg?.caption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5165,7 +5165,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionVoice:member(1)",
-              "docComment": "/**\n * Route function for voiceCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async voiceCommandCaption() {\n *   this.msg?.voice // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for voiceCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async voiceCommandCaption() {\n *   this.msg?.voice // {...}\n *   this.msg?.caption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5201,7 +5201,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandText:member(1)",
-              "docComment": "/**\n * Route handler for command messages match intent `intentCommandText`.\n *\n * @remarks\n *\n * Triggered by text with slash commands.\n *\n * @example\n *\n * this.msgText = \"/start\"\n * ```typescript\n * async handleCommandText() {\n *    this.msgText // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for command messages match intent `intentCommandText`.\n *\n * @remarks\n *\n * Triggered by text with slash commands.\n *\n * @example\n * ```typescript\n * // text = \"/start\"\n * // validate \"/start\" from mapping hash\n * async handleCommandText() {\n *    this.msg?.text // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5309,7 +5309,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleFreeAudio:member(1)",
-              "docComment": "/**\n * Route handler for free-form audio input.\n *\n * @remarks\n *\n * Triggered by any audio not matching other routes, typically used with sessions.\n *\n * @example\n *\n * this.msg?.audio\n * ```typescript\n * async handleFreeAudio() {\n *    this.msg?.audio // {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form audio input.\n *\n * @remarks\n *\n * Triggered by any audio not matching other routes, typically used with sessions.\n *\n * @example\n * ```typescript\n * async handleFreeAudio() {\n *    this.msg?.audio // {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5453,7 +5453,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleFreePhoto:member(1)",
-              "docComment": "/**\n * Route handler for free-form photo input.\n *\n * @remarks\n *\n * Triggered by any photo not matching other routes, typically used with sessions.\n *\n * @example\n *\n * this.msg?.photo\n * ```typescript\n * async handleFreePhoto() {\n *    this.msg?.photo // {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form photo input.\n *\n * @remarks\n *\n * Triggered by any photo not matching other routes, typically used with sessions.\n *\n * @example\n * ```typescript\n * async handleFreePhoto() {\n *    this.msg?.photo // {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5525,7 +5525,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleFreeText:member(1)",
-              "docComment": "/**\n * Route handler for free-form text input.\n *\n * @remarks\n *\n * Triggered by any text not matching other routes, typically used with sessions.\n *\n * @example\n *\n * this.msgText = \"hello gramstax, random: 12848s8283n183m\"\n * ```typescript\n * async handleFreeText() {\n *    this.msgText // \"hello gramstax, random: 12848s8283n183m\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form text input.\n *\n * @remarks\n *\n * Triggered by any text not matching other routes, typically used with sessions.\n *\n * @example\n * ```typescript\n * // text = \"hello gramstax, random: 12848s8283n183m\"\n * // validate \"hello gramstax, random: 12848s8283n183m\" if this text\n * async handleFreeText() {\n *    this.msg?.text // \"hello gramstax, random: 12848s8283n183m\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5561,7 +5561,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleFreeVideo:member(1)",
-              "docComment": "/**\n * Route handler for free-form video input.\n *\n * @remarks\n *\n * Triggered by any video not matching other routes, typically used with sessions.\n *\n * @example\n *\n * this.msg?.video\n * ```typescript\n * async handleFreeVideo() {\n *    this.msg?.video // {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form video input.\n *\n * @remarks\n *\n * Triggered by any video not matching other routes, typically used with sessions.\n *\n * @example\n * ```typescript\n * async handleFreeVideo() {\n *    this.msg?.video // {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7325,7 +7325,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleText:member(1)",
-              "docComment": "/**\n * Route handler for text messages matching `intentText`.\n *\n * @remarks\n *\n * Triggered by exact text match.\n *\n * @example\n *\n * this.msgText = \"start\"\n * ```typescript\n * async handleText() {\n *    this.msgText // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for text messages matching `intentText`.\n *\n * @remarks\n *\n * Triggered by exact text match.\n *\n * @example\n * ```typescript\n * // text = \"start\"\n * // validate \"start\" from mapping hash\n * async handleText() {\n *    this.msg?.text // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7475,7 +7475,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#hookBeforeRoute:member(1)",
-              "docComment": "/**\n * Page-level hook before route handler execution.\n *\n * @remarks\n *\n * Return `false` to **skip only the target route handler** (e.g. `handleFreeText`, `handleCallbackQueryData`, etc.). The rest of the framework is untouched — you can still call `.render()`, `.renderEdit()`, `.renderAnswerCallback()`, and other Ctx methods normally inside this hook before returning `false`.\n *\n * In other words: returning `false` does NOT freeze the page — it only prevents one specific handler from running.\n *\n * Useful for: - Per-page cooldown / rate limiting (reply \"please wait\" then abort) - Precondition checks (reply with redirect page then abort) - Session validity gates\n *\n * @returns `true` to continue (handler runs), `false` to abort (handler skipped).\n *\n * @example\n * ```typescript\n * // Cooldown — reply then abort the handler\n * async hookBeforeRoute() {\n *   const last = await this.cacheSession.get(`${this.from.id}:lastAction`)\n *   if (last && Date.now() - Number(last) < 2000) {\n *     await this.renderAnswerCallback(`Please wait...`) // still works\n *     return false // only skips the target handler\n *   }\n *   await this.cacheSession.set(`${this.from.id}:lastAction`, String(Date.now()))\n *   return true\n * }\n * ```\n *\n * @example\n * ```typescript\n * // KYC gate — send redirect page then abort\n * async hookBeforeRoute() {\n *   const profile = await this.db.getUser(this.from.id)\n *   if (!profile?.kycVerified) {\n *     await new KycPage(this).showForm() // redirect works\n *     return false // only skips the guarded handler\n *   }\n *   return true\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Page-level hook before route handler execution.\n *\n * @remarks\n *\n * Return `false` to **skip only the target route handler** (e.g. `handleFreeText`, `handleCallbackQueryData`, etc.). The rest of the framework is untouched — you can still call `.render()`, `.renderEdit()`, `.renderCallbackAnswer()`, and other Ctx methods normally inside this hook before returning `false`.\n *\n * In other words: returning `false` does NOT freeze the page — it only prevents one specific handler from running.\n *\n * Useful for: - Per-page cooldown / rate limiting (reply \"please wait\" then abort) - Precondition checks (reply with redirect page then abort) - Session validity gates\n *\n * @returns `true` to continue (handler runs), `false` to abort (handler skipped).\n *\n * @example\n * ```typescript\n * // Cooldown — reply then abort the handler\n * async hookBeforeRoute() {\n *   const last = await this.cacheSession.get(`${this.from.id}:lastAction`)\n *   if (last && Date.now() - Number(last) < 2000) {\n *     await this.renderCallbackAnswer(true, undefined, `cooldown`) // still works\n *     return false // only skips the target handler\n *   }\n *   await this.cacheSession.set(`${this.from.id}:lastAction`, String(Date.now()))\n *   return true\n * }\n * ```\n *\n * @example\n * ```typescript\n * // KYC gate — send redirect page then abort\n * async hookBeforeRoute() {\n *   const profile = await this.db.getUser(this.from.id)\n *   if (!profile?.kycVerified) {\n *     await new KycPage(this).showForm() // redirect works\n *     return false // only skips the guarded handler\n *   }\n *   return true\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25927,7 +25927,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#sessionKey:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Builds the cache key that scopes this session.\n *\n * @remarks\n *\n * Keyed by user id **and** chat id so the same user in two chats keeps two independent sessions — a private chat and a group must not share pending state. The userless case (channel posts, anonymous admins) degrades to `:chatId`, which still scopes by chat instead of collapsing every userless update into one shared bucket.\n *\n * A missing chat id yields an empty second segment rather than throwing, so private chats still key on the user alone.\n *\n * @returns The `userId:chatId` session cache key.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -34487,204 +34487,6 @@
           "preserveMemberOrder": false,
           "members": [
             {
-              "kind": "Method",
-              "canonicalReference": "gramstax!E2eHelper#_buildMessageUpdate:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_buildMessageUpdate(message: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, unknown>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", options?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IE2eUpdateOptions",
-                  "canonicalReference": "gramstax!IE2eUpdateOptions:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        update_id: number;\n        message: {\n            message_id: number | undefined;\n            date: number | undefined;\n            chat: {\n                title?: string | undefined;\n                username?: string | undefined;\n                last_name?: string | undefined;\n                id: number | undefined;\n                type: \"group\" | \"channel\" | \"private\" | \"supergroup\" | undefined;\n                first_name: string | undefined;\n            };\n            from: {\n                language_code: string | undefined;\n                username?: string | undefined;\n                last_name?: string | undefined;\n                id: number | undefined;\n                is_bot: boolean | undefined;\n                first_name: string | undefined;\n            };\n        };\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 6,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "message",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_buildMessageUpdate"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!E2eHelper#_defaultChat:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_defaultChat(chat?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IE2eChat",
-                  "canonicalReference": "gramstax!IE2eChat:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        title?: string | undefined;\n        username?: string | undefined;\n        last_name?: string | undefined;\n        id: number | undefined;\n        type: \"group\" | \"channel\" | \"private\" | \"supergroup\" | undefined;\n        first_name: string | undefined;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "chat",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_defaultChat"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!E2eHelper#_defaultUser:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_defaultUser(user?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IE2eUser",
-                  "canonicalReference": "gramstax!IE2eUser:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        language_code: string | undefined;\n        username?: string | undefined;\n        last_name?: string | undefined;\n        id: number | undefined;\n        is_bot: boolean | undefined;\n        first_name: string | undefined;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "user",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_defaultUser"
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!E2eHelper#_initialized:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_initialized: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_initialized",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
               "kind": "Property",
               "canonicalReference": "gramstax!E2eHelper._INTERNAL_METHODS:member",
               "docComment": "/**\n * Bot API methods treated as internal: answered but never recorded in `calls`. Mirrors the mock allowlist.\n */\n",
@@ -34718,246 +34520,6 @@
               "isStatic": true,
               "isProtected": false,
               "isAbstract": false
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!E2eHelper#_internalResponse:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_internalResponse(method: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "unknown"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_internalResponse"
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!E2eHelper#_nextApiMsgId:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_nextApiMsgId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_nextApiMsgId",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!E2eHelper#_nextIds:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_nextIds(options?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IE2eUpdateOptions",
-                  "canonicalReference": "gramstax!IE2eUpdateOptions:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        updateId: number;\n        messageId: number | undefined;\n        date: number | undefined;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_nextIds"
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!E2eHelper#_nextMessageId:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_nextMessageId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_nextMessageId",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!E2eHelper#_nextUpdateId:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_nextUpdateId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_nextUpdateId",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!E2eHelper#_settleFrom:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_settleFrom(options: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IE2eUpdateOptions",
-                  "canonicalReference": "gramstax!IE2eUpdateOptions:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | undefined"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_settleFrom"
             },
             {
               "kind": "Constructor",
@@ -37655,1352 +37217,6 @@
           "members": [
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_onHandle:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_onHandle(ct: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ICt",
-                  "canonicalReference": "gramstax!ICt:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", listenerName: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Parameters",
-                  "canonicalReference": "!Parameters:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Gramstax",
-                  "canonicalReference": "gramstax!Gramstax:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[`_pageRoutes`]>[1]"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", shouldCheckNotFound?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<void>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 10,
-                "endIndex": 12
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "ct",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "listenerName",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 7
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "shouldCheckNotFound",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 8,
-                    "endIndex": 9
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_onHandle"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#_pageLoadsFromManifest:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_pageLoadsFromManifest(manifest: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IAppManifest",
-                  "canonicalReference": "gramstax!IAppManifest:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        all: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, typeof "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Ctx",
-                  "canonicalReference": "gramstax!Ctx:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">;\n        routeDynamic: string[];\n        routeDynamicSpesific: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n            name: string;\n            routeName: string;\n        }[]>;\n        routeStatic: {\n            handleCallbackQueryData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n        };\n        routeStaticIntent: {\n            handleArgsCallbackQueryData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleArgsText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandArgsText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCaptionArgsVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleCommandCaptionArgsVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n        };\n        routeStaticSession: {\n            handleSessionCallbackQueryData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionArgsCallbackQueryData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionArgsText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandArgsText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCaptionArgsVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionCommandCaptionArgsVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeText: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeAudio: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeDocument: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeAnimation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVoice: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoNote: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeSticker: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeLocation: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeContact: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChannelPost: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeEditChannelPost: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeEdit: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeReaction: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeInlineQuery: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChosenInlineResult: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePreCheckoutQuery: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeShippingQuery: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatJoinRequest: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePoll: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePollAnswer: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeNewChatMembers: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeLeftChatMember: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeBusinessConnection: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeBusinessMessage: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeEditedBusinessMessage: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeDeletedBusinessMessages: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeMessageReactionCount: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatBoost: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeRemovedChatBoost: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeSuccessfulPayment: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeRefundedPayment: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGroupChatCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeSupergroupChatCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChannelChatCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatStarted: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatScheduled: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatEnded: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatParticipantsInvited: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeUserShared: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatShared: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeWebAppData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveaway: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveawayCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveawayWinners: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveawayCompleted: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePinMessage: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeForumTopicCreated: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeForumTopicEdited: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeForumTopicClosed: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeForumTopicReopened: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGeneralForumTopicHidden: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGeneralForumTopicUnhidden: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeProximityAlertTriggered: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeConnectedWebsite: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePassportData: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeMessageAutoDeleteTimerChanged: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatBackgroundSet: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeNewChatTitle: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeNewChatPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeDeleteChatPhoto: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeWriteAccessAllowed: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeCommunityChatJoined: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeStoppedGeneration: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n        };\n        routeChatMember: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Array",
-                  "canonicalReference": "!Array:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<{\n            name: string;\n            routeName: string;\n            type: `chatMember` | `myChatMember`;\n            oldStatus: string;\n            newStatus: string;\n            filter: (ctx: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Ctx",
-                  "canonicalReference": "gramstax!Ctx:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": ") => boolean;\n        }>;\n        customRoutes: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ICustomRouteEntry",
-                  "canonicalReference": "gramstax!~ICustomRouteEntry_2:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[];\n        routeCustom: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ICustomRouteEntry",
-                  "canonicalReference": "gramstax!~ICustomRouteEntry_2:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[];\n        listRouteStatic: readonly [\"handleCallbackQueryData\", \"handleText\", \"handleCommandText\", \"handleCaptionPhoto\", \"handleCommandCaptionPhoto\", \"handleCaptionVideo\", \"handleCommandCaptionVideo\", \"handleCaptionAudio\", \"handleCommandCaptionAudio\", \"handleCaptionDocument\", \"handleCommandCaptionDocument\", \"handleCaptionAnimation\", \"handleCommandCaptionAnimation\", \"handleCaptionVoice\", \"handleCommandCaptionVoice\"];\n        listRouteStaticIntent: readonly [\"handleArgsCallbackQueryData\", \"handleArgsText\", \"handleCommandArgsText\", \"handleCaptionArgsPhoto\", \"handleCommandCaptionArgsPhoto\", \"handleCaptionArgsVideo\", \"handleCommandCaptionArgsVideo\", \"handleCaptionArgsAudio\", \"handleCommandCaptionArgsAudio\", \"handleCaptionArgsDocument\", \"handleCommandCaptionArgsDocument\", \"handleCaptionArgsAnimation\", \"handleCommandCaptionArgsAnimation\", \"handleCaptionArgsVoice\", \"handleCommandCaptionArgsVoice\"];\n        listRouteStaticSession: readonly [...(\"handleSessionCallbackQueryData\" | \"handleSessionText\" | \"handleSessionCommandText\" | \"handleSessionCaptionPhoto\" | \"handleSessionCommandCaptionPhoto\" | \"handleSessionCaptionVideo\" | \"handleSessionCommandCaptionVideo\" | \"handleSessionCaptionAudio\" | \"handleSessionCommandCaptionAudio\" | \"handleSessionCaptionDocument\" | \"handleSessionCommandCaptionDocument\" | \"handleSessionCaptionAnimation\" | \"handleSessionCommandCaptionAnimation\" | \"handleSessionCaptionVoice\" | \"handleSessionCommandCaptionVoice\" | \"handleSessionArgsCallbackQueryData\" | \"handleSessionArgsText\" | \"handleSessionCommandArgsText\" | \"handleSessionCaptionArgsPhoto\" | \"handleSessionCommandCaptionArgsPhoto\" | \"handleSessionCaptionArgsVideo\" | \"handleSessionCommandCaptionArgsVideo\" | \"handleSessionCaptionArgsAudio\" | \"handleSessionCommandCaptionArgsAudio\" | \"handleSessionCaptionArgsDocument\" | \"handleSessionCommandCaptionArgsDocument\" | \"handleSessionCaptionArgsAnimation\" | \"handleSessionCommandCaptionArgsAnimation\" | \"handleSessionCaptionArgsVoice\" | \"handleSessionCommandCaptionArgsVoice\")[], \"handleSessionFreeText\", \"handleSessionFreePhoto\", \"handleSessionFreeVideo\", \"handleSessionFreeAudio\", \"handleSessionFreeDocument\", \"handleSessionFreeAnimation\", \"handleSessionFreeVoice\", \"handleSessionFreeVideoNote\", \"handleSessionFreeSticker\", \"handleSessionFreeLocation\", \"handleSessionFreeContact\", \"handleSessionFreeChannelPost\", \"handleSessionFreeEditChannelPost\", \"handleSessionFreeEdit\", \"handleSessionFreeReaction\", \"handleSessionFreeInlineQuery\", \"handleSessionFreeChosenInlineResult\", \"handleSessionFreePreCheckoutQuery\", \"handleSessionFreeShippingQuery\", \"handleSessionFreeChatJoinRequest\", \"handleSessionFreePoll\", \"handleSessionFreePollAnswer\", \"handleSessionFreeNewChatMembers\", \"handleSessionFreeLeftChatMember\", \"handleSessionFreeBusinessConnection\", \"handleSessionFreeBusinessMessage\", \"handleSessionFreeEditedBusinessMessage\", \"handleSessionFreeDeletedBusinessMessages\", \"handleSessionFreeMessageReactionCount\", \"handleSessionFreeChatBoost\", \"handleSessionFreeRemovedChatBoost\", \"handleSessionFreeSuccessfulPayment\", \"handleSessionFreeRefundedPayment\", \"handleSessionFreeGroupChatCreated\", \"handleSessionFreeSupergroupChatCreated\", \"handleSessionFreeChannelChatCreated\", \"handleSessionFreeVideoChatStarted\", \"handleSessionFreeVideoChatScheduled\", \"handleSessionFreeVideoChatEnded\", \"handleSessionFreeVideoChatParticipantsInvited\", \"handleSessionFreeUserShared\", \"handleSessionFreeChatShared\", \"handleSessionFreeWebAppData\", \"handleSessionFreeGiveaway\", \"handleSessionFreeGiveawayCreated\", \"handleSessionFreeGiveawayWinners\", \"handleSessionFreeGiveawayCompleted\", \"handleSessionFreePinMessage\", \"handleSessionFreeForumTopicCreated\", \"handleSessionFreeForumTopicEdited\", \"handleSessionFreeForumTopicClosed\", \"handleSessionFreeForumTopicReopened\", \"handleSessionFreeGeneralForumTopicHidden\", \"handleSessionFreeGeneralForumTopicUnhidden\", \"handleSessionFreeProximityAlertTriggered\", \"handleSessionFreeConnectedWebsite\", \"handleSessionFreePassportData\", \"handleSessionFreeMessageAutoDeleteTimerChanged\", \"handleSessionFreeChatBackgroundSet\", \"handleSessionFreeNewChatTitle\", \"handleSessionFreeNewChatPhoto\", \"handleSessionFreeDeleteChatPhoto\", \"handleSessionFreeWriteAccessAllowed\", \"handleSessionFreeCommunityChatJoined\", \"handleSessionFreeStoppedGeneration\"];\n        listRouteDynamicSpesific: readonly [\"handleFreeText\", \"handleFreePhoto\", \"handleFreeVideo\", \"handleFreeAudio\", \"handleFreeDocument\", \"handleFreeAnimation\", \"handleFreeVoice\", \"handleFreeVideoNote\", \"handleFreeSticker\", \"handleFreeLocation\", \"handleFreeContact\", \"handleFreeChannelPost\", \"handleFreeEditChannelPost\", \"handleFreeEdit\", \"handleFreeReaction\", \"handleFreeInlineQuery\", \"handleFreeChosenInlineResult\", \"handleFreePreCheckoutQuery\", \"handleFreeShippingQuery\", \"handleFreeChatJoinRequest\", \"handleFreePoll\", \"handleFreePollAnswer\", \"handleFreeNewChatMembers\", \"handleFreeLeftChatMember\", \"handleFreeBusinessConnection\", \"handleFreeBusinessMessage\", \"handleFreeEditedBusinessMessage\", \"handleFreeDeletedBusinessMessages\", \"handleFreeMessageReactionCount\", \"handleFreeChatBoost\", \"handleFreeRemovedChatBoost\", \"handleFreeSuccessfulPayment\", \"handleFreeRefundedPayment\", \"handleFreeGroupChatCreated\", \"handleFreeSupergroupChatCreated\", \"handleFreeChannelChatCreated\", \"handleFreeVideoChatStarted\", \"handleFreeVideoChatScheduled\", \"handleFreeVideoChatEnded\", \"handleFreeVideoChatParticipantsInvited\", \"handleFreeUserShared\", \"handleFreeChatShared\", \"handleFreeWebAppData\", \"handleFreeGiveaway\", \"handleFreeGiveawayCreated\", \"handleFreeGiveawayWinners\", \"handleFreeGiveawayCompleted\", \"handleFreePinMessage\", \"handleFreeForumTopicCreated\", \"handleFreeForumTopicEdited\", \"handleFreeForumTopicClosed\", \"handleFreeForumTopicReopened\", \"handleFreeGeneralForumTopicHidden\", \"handleFreeGeneralForumTopicUnhidden\", \"handleFreeProximityAlertTriggered\", \"handleFreeConnectedWebsite\", \"handleFreePassportData\", \"handleFreeMessageAutoDeleteTimerChanged\", \"handleFreeChatBackgroundSet\", \"handleFreeNewChatTitle\", \"handleFreeNewChatPhoto\", \"handleFreeDeleteChatPhoto\", \"handleFreeWriteAccessAllowed\", \"handleFreeCommunityChatJoined\", \"handleFreeStoppedGeneration\"];\n        listRouteStaticLC: string[];\n        listRouteStaticIntentLC: string[];\n        listRouteStaticSessionLC: string[];\n        routesByListener: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, {\n            static: string[];\n            staticIntent: string[];\n            staticSession: string[];\n        }>;\n        lenListRouteStatic: 15;\n        lenListRouteStaticIntent: 15;\n        lenListRouteStaticSession: number;\n        lenListRouteDynamicSpesific: 65;\n        hasSessionRoutes: boolean;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 270
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "manifest",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_pageLoadsFromManifest"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#_pageRoutes:member(1)",
               "docComment": "/**\n * Routes an incoming update to the appropriate page handler.\n *\n * @remarks\n *\n * The routing follows a strict **priority hierarchy**. When a match is found at any level, the method executes the handler and returns immediately. If no match is found, it falls through to the next level.\n *\n * **Routing Priority (executed in order):**\n *\n * 1. **staticSession** — Session-aware routes, filtered by input type (O(n) lookup) - Only runs when the user has an active session (`session.method` is set) - Iterates `routeStaticSession` and matches by `session.method` value - **Filtered by input type**: only routes whose name ends with `fromListener` are checked (e.g., callback queries only match `*CallbackQueryData` session routes, text only matches `*Text`, photo captions only match `*CaptionPhoto`, etc.) - This prevents cross-type handler misdispatch (e.g., a callback query accidentally matching `handleSessionFreeText`) - Example: session with method \"7-mypage\" → finds `handleSessionFreeText[\"7-mypage\"]` when `fromListener = \"text\"`\n *\n * 2. **static** — Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents - Example: \"start\" → `handleText()`, \"/help\" → `handleCommandText()`\n *\n * 3. **staticIntent** — Intent with args routes (O(1) lookup) - Matches intent prefix when args are present - Example: \"start:123\" → `handleArgsCallbackQueryData()`, \"/add item\" → `handleCommandArgsText()`\n *\n * 4. **dynamicSpesific** — Non-session free handlers (O(n) iteration) - Runs all `handleFree*` handlers (defined directly on the page, not inherited) - `handleSessionFree*` variants are NOT dispatched here — they go through id=1 - Example: `handleFreeText()`, `handleFreePhoto()` - **All matching handlers are executed** (no early return)\n *\n * 5. **dynamic** — Global fallback handlers (O(n) iteration) - Runs all `handleFree()` handlers from pages that define them - Last resort when nothing else matches - **All matching handlers are executed** (no early return)\n *\n * @param ctx - The context instance.\n *\n * @param fromListener - The listener type that triggered the route.\n *\n * @returns A `PageRouteResult` with `state` indicating what happened\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -39067,36 +37283,6 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "_pageRoutes"
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!Gramstax#_seenUpdatesMax:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_seenUpdatesMax: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_seenUpdatesMax",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
             },
             {
               "kind": "Constructor",
@@ -39609,64 +37795,6 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Gramstax#executeSyncBlocksDescription:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "executeSyncBlocksDescription(pages: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "typeof "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Gramstax.prototype.pages",
-                  "canonicalReference": "gramstax!Gramstax#pages:member"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<void>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 6
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "pages",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "executeSyncBlocksDescription"
             },
             {
               "kind": "Method",
@@ -41972,7 +40100,16 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    method: string;\n    body: unknown;\n    timestamp: number;\n}"
+              "text": "{\n    method: string;\n    body: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, unknown>;\n    timestamp: number;\n}"
             },
             {
               "kind": "Content",
@@ -41984,7 +40121,7 @@
           "name": "IE2eApiCall",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 2
+            "endIndex": 4
           }
         },
         {
@@ -47484,992 +45621,6 @@
           "preserveMemberOrder": false,
           "members": [
             {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_bodyRecord:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_bodyRecord(body: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "unknown"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, unknown> | undefined"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "body",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_bodyRecord"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_buildMessageUpdate:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_buildMessageUpdate(message: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, unknown>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", options?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramUpdateOptions",
-                  "canonicalReference": "gramstax!IMockTelegramUpdateOptions:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        update_id: number;\n        message: {\n            message_id: number;\n            date: number;\n            chat: {\n                title?: string | undefined;\n                username?: string | undefined;\n                last_name?: string | undefined;\n                id: number;\n                type: \"group\" | \"channel\" | \"private\" | \"supergroup\";\n                first_name: string;\n            };\n            from: {\n                language_code: string;\n                username?: string | undefined;\n                last_name?: string | undefined;\n                id: number;\n                is_bot: boolean;\n                first_name: string;\n            };\n        };\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 6,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "message",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_buildMessageUpdate"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_defaultChat:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_defaultChat(chat?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramChat",
-                  "canonicalReference": "gramstax!IMockTelegramChat:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        title?: string | undefined;\n        username?: string | undefined;\n        last_name?: string | undefined;\n        id: number;\n        type: \"group\" | \"channel\" | \"private\" | \"supergroup\";\n        first_name: string;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "chat",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_defaultChat"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_defaultResponse:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_defaultResponse(method: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", body?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "unknown"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramJson",
-                  "canonicalReference": "gramstax!IMockTelegramJson:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "body",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_defaultResponse"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_defaultUser:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_defaultUser(user?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramUser",
-                  "canonicalReference": "gramstax!IMockTelegramUser:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        language_code: string;\n        username?: string | undefined;\n        last_name?: string | undefined;\n        id: number;\n        is_bot: boolean;\n        first_name: string;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "user",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_defaultUser"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_handleRequest:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_handleRequest(request: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Request",
-                  "canonicalReference": "!Request:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Response",
-                  "canonicalReference": "!Response:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "request",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_handleRequest"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_isLoopbackUrl:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_isLoopbackUrl(url: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "url",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_isLoopbackUrl"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_isUserResponseMethod:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_isUserResponseMethod(method: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_isUserResponseMethod"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_json:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_json(payload: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramJson",
-                  "canonicalReference": "gramstax!IMockTelegramJson:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Response",
-                  "canonicalReference": "!Response:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "payload",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_json"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_nextIds:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_nextIds(options?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramUpdateOptions",
-                  "canonicalReference": "gramstax!IMockTelegramUpdateOptions:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        updateId: number;\n        messageId: number;\n        date: number;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_nextIds"
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!MockTelegramServer#_nextMessageId:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_nextMessageId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_nextMessageId",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!MockTelegramServer#_nextUpdateId:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_nextUpdateId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_nextUpdateId",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!MockTelegramServer#_onSigint:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_onSigint?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "() => void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "_onSigint",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!MockTelegramServer#_onSigterm:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_onSigterm?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "() => void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "_onSigterm",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_postUpdate:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_postUpdate(update: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, unknown>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", options?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramUpdateOptions",
-                  "canonicalReference": "gramstax!IMockTelegramUpdateOptions:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramRequestRecord",
-                  "canonicalReference": "gramstax!IMockTelegramRequestRecord:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[]>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 6,
-                "endIndex": 10
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "update",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_postUpdate"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_readBody:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_readBody(request: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramReadableRequest",
-                  "canonicalReference": "gramstax!~IMockTelegramReadableRequest:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<unknown>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "request",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_readBody"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_userResponseRequests:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_userResponseRequests(requestStartIndex: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramRequestRecord",
-                  "canonicalReference": "gramstax!IMockTelegramRequestRecord:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[]"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "requestStartIndex",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_userResponseRequests"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_waitForResponses:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_waitForResponses(requestStartIndex: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", responseTimeoutMs: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMockTelegramRequestRecord",
-                  "canonicalReference": "gramstax!IMockTelegramRequestRecord:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[]>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 9
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "requestStartIndex",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "responseTimeoutMs",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_waitForResponses"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!MockTelegramServer#_waitForWebhookUrl:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_waitForWebhookUrl(timeoutMs: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "timeoutMs",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_waitForWebhookUrl"
-            },
-            {
               "kind": "Constructor",
               "canonicalReference": "gramstax!MockTelegramServer:constructor(1)",
               "docComment": "/**\n * Create a new mock server instance.\n *\n * @remarks\n *\n * Use `port: 0` to let Bun select a free port automatically.\n *\n * @param options - Server options.\n *\n * @example\n * ```typescript\n * const server = new MockTelegramServer({port: 0})\n * ```\n *\n * @public\n */\n",
@@ -50812,7 +47963,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!MockTelegramServer.userResponseMethods:member",
-              "docComment": "",
+              "docComment": "/**\n * Exact method names declared as user-facing replies.\n *\n * @remarks\n *\n * Declaration only — nothing reads this list. `_isUserResponseMethod` hardcodes the same names and is the actual source of truth.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -50842,7 +47993,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!MockTelegramServer.userResponsePrefixes:member",
-              "docComment": "",
+              "docComment": "/**\n * Method-name prefixes declared as user-facing replies.\n *\n * @remarks\n *\n * Declaration only — nothing reads this list. `_isUserResponseMethod` hardcodes the same families and is the actual source of truth. The two have drifted: `pin`, `unpin`, and `setMessageReaction` are prefixes here but are matched as exact method names there.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -51327,101 +48478,9 @@
           "preserveMemberOrder": false,
           "members": [
             {
-              "kind": "Method",
-              "canonicalReference": "gramstax!SessionLock#_lockKey:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_lockKey(sessionKey: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "sessionKey",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "_lockKey"
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!SessionLock#_queues:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_queues: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Map",
-                  "canonicalReference": "!Map:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<unknown>>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_queues",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 5
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
               "kind": "Constructor",
               "canonicalReference": "gramstax!SessionLock:constructor(1)",
-              "docComment": "/**\n * Constructs a new instance of the `SessionLock` class\n */\n",
+              "docComment": "/**\n * Creates a lock bound to one Redis client and contention policy.\n *\n * @remarks\n *\n * The client and policy are constructor state rather than per-call arguments because both are fixed for the process lifetime; the per-instance `_queues` map then serializes same-key contenders locally before Redis is consulted.\n *\n * @param redis - Redis client exposing the atomic `set` used for the lease.\n *\n * @param options - Lease duration and what to do when a key is already held.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -51841,7 +48900,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._buildFunctionBody:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Builds the JavaScript function body for a processed template.\n *\n * @remarks\n *\n * Runs the three structural pre-processors in a fixed order — script blocks, then `<g-div>`, then `<g-space>` — before converting the result to a concatenation expression. The body is returned as source text, never evaluated here: `_compileToFunction` is what turns it into a callable.\n *\n * @param template - Processed template source, or one source per language when `isArray` is `true`.\n *\n * @param isArray - When `true`, emit a body returning `string[]`.\n *\n * @returns The `return` statement source for the compiled function.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -52031,7 +49090,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._compileToFunction:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Compiles a processed template body into a callable renderer.\n *\n * @remarks\n *\n * Three mutually exclusive paths, in priority order: `__linkHook` resolves a pre-registered body (the AOT link phase, used by edge output with no `Function` constructor), `__emitHook` records the body and returns a stub (the AOT collect phase), otherwise the body is compiled through `new Function` — the exact JIT path taken when neither hook is set.\n *\n * The compiled renderer closes over `_escapeData` and `DEFAULT_FILTERS`, so callers pass only `data`. `isArray` selects the return shape: `string[]` for media-group style templates, `string` otherwise.\n *\n * @param template - Processed template source, or one source per language when `isArray` is `true`.\n *\n * @param isArray - When `true`, compile to a renderer returning `string[]`.\n *\n * @returns A renderer taking `data` and returning the compiled output.\n *\n * @throws\n *\n * Error when `__linkHook` and `__emitHook` are both set, which would confuse the AOT collect and link phases.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -53998,8 +51057,56 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine._splitKeyboardLabels:member(1)",
+              "docComment": "/**\n * Compiles keyboard blocks from a template into executable functions.\n *\n * @remarks\n *\n * This method parses `<g-keyboard>` blocks from the template and compiles them into functions that generate button label arrays. The result is organized by base ID and language, with separate `inline` and `bottom` keyboard modes. Comma-separated labels are split into individual button strings.\n *\n * Processing pipeline (in order, per keyboard label): 1. `_processGScriptBlocks` – converts `<g-script>` blocks into executable expressions 2. `_processGMapBlocks` – converts `<g-map>` blocks into array map expressions 3. `_processGSwitchBlocks` – converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` – evaluates scope execution blocks (implementation-defined) 5. `_processScopeVariables` – resolves scope variables (implementation-defined) 6. `_compileToFunction(processedLabels, true)` – produces the final render function\n *\n * Notes: - Keyboard content is split by commas into individual labels. - Escaped commas with double backslash (`\\\\,`) are preserved as literal commas. - Each label is processed independently through the pipeline.\n *\n * Output shape: - First level key: `AGBaseId` (from `<g-base id=\"...\">`, or `\"default\"` if omitted) - Second level key: `ALang` (from `<g-keyboard lang=\"...\">`, or `\"default\"` if omitted) - Third level key: `mode`: - `inline` (default) - `bottom` - Value: `(data?: Record<string, unknown>) => string[]`\n *\n * @param template - Raw template string containing `<g-base>` and `<g-keyboard>` blocks\n *\n * @param gBaseBlocks - Optional pre-parsed base blocks for reuse\n *\n * @returns Compiled keyboard functions organized by base ID, language, and mode\n *\n * @example\n * ```typescript\n * const template = `\n *   <g-base>\n *     <g-keyboard>Yes, No, {{action}}</g-keyboard>\n *     <g-keyboard type=\"bottom\">Menu, Help</g-keyboard>\n *   </g-base>\n * `;\n * const keyboards = TemplateEngine.compileBlockGKeyboards(template);\n * const inline = keyboards.default?.default?.inline?.({ action: 'Cancel' });\n * // Result: ['Yes', 'No', 'Cancel']\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static _splitKeyboardLabels(content: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "content",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_splitKeyboardLabels"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._splitMediaSrcList:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Splits a pipe-delimited `src` attribute into media-group items.\n *\n * @remarks\n *\n * A `src` without a pipe is NOT a group and yields an empty array, so the caller can treat \"no pipe\" and \"empty list\" identically. Entries are trimmed and blanks dropped, then the list is capped at {@link TemplateEngine.MAX_MEDIA_GROUP_ITEMS} — Telegram rejects larger albums, so the surplus is dropped rather than reported.\n *\n * @param src - Raw `src` attribute value from the parsed template.\n *\n * @returns Trimmed, non-empty sources, truncated to the album limit.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -59062,7 +56169,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateManager#closeWatchers:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Closes file watchers, cancels pending reloads, and awaits in-flight reloads.\n *\n * @remarks\n *\n * Three things can outlive a reload, and all three must be settled before the process exits or a test asserts on a clean slate. Listeners are detached before each watcher closes so `close()` does not fire teardown handlers; pending debounce timers are cleared; and `_reloadChain` is awaited so a reload already in progress finishes rather than racing the close.\n *\n * Safe to call when nothing was ever watched — every branch is guarded.\n *\n * @returns Nothing; resolves once no reload is outstanding.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -59098,7 +56205,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateManager#compile:member(1)",
-              "docComment": "/**\n * Compiles a raw template string and stores the result in the cache.\n *\n * @remarks\n *\n * This method processes import blocks, compiles media, polls, messages, keyboards, and descriptions from the template. It uses `TemplateEngine` for compilation. The `keepIfExist` parameter allows partial recompilation when only specific template parts have changed.\n *\n * @param key - Template cache key (filename without extension)\n *\n * @param template - Raw template HTML string\n *\n * @param keepIfExist - Optional flags to preserve existing compiled parts\n *\n * @param importCache - Optional shared cache for import resolution\n *\n * @param rawCache - Optional pre-loaded raw template cache for batch loading\n *\n * @example\n * ```typescript\n * this.compile(\"welcome\", rawHtmlContent)\n *\n * const importCache = new Map<string, string>()\n * const rawCache = new Map([[\"partial\", partialHtml]])\n * this.compile(\"main\", mainHtml, undefined, importCache, rawCache)\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Compiles a raw template string and stores the result in the cache.\n *\n * @remarks\n *\n * This method processes import blocks, compiles media, polls, messages, keyboards, and descriptions from the template. It uses `TemplateEngine` for compilation. The `keepIfExist` parameter allows partial recompilation when only specific template parts have changed.\n *\n * @param key - Template cache key (filename without extension)\n *\n * @param template - Raw template HTML string\n *\n * @param keepIfExist - Optional flags to preserve existing compiled parts\n *\n * @param importCache - Optional shared cache for import resolution\n *\n * @param rawCache - Optional pre-loaded raw template cache for batch loading\n *\n * @param filename - Optional source filename recorded on the cache entry (defaults to `key`)\n *\n * @example\n * ```typescript\n * this.compile(\"welcome\", rawHtmlContent)\n *\n * const importCache = new Map<string, string>()\n * const rawCache = new Map([[\"partial\", partialHtml]])\n * this.compile(\"main\", mainHtml, undefined, importCache, rawCache)\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -59464,6 +56571,59 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#getCompiled:member(1)",
+              "docComment": "/**\n * Get a pre-compiled template directly from mapping.\n *\n * @param key - Template identifier (filename without extension)\n *\n * @returns `ICompiledTemplate` or `undefined`\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getCompiled(key: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ICompiledTemplate",
+                  "canonicalReference": "gramstax!ICompiledTemplate:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "key",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getCompiled"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateManager#getGAnswerNote:member(1)",
               "docComment": "/**\n * Gets compiled text from block <g-answer-note>.\n *\n * @remarks\n *\n * Strict lookup (mirrors `getGDice`): a missing block throws instead of returning an empty string, because guest and web app answers require the validation marker block.\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -59566,7 +56726,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateManager#getGBaseAtLine:member(1)",
-              "docComment": "/**\n * Finds the `<g-base>` block (open + close) that encloses the given line number.\n *\n * @param template - Processed template string\n *\n * @param line - 1-based line number to check\n *\n * @returns Object with `AGBaseId` and `hasId`, or `null` if not inside any `<g-base>` block\n *\n * @example\n * ```typescript\n * const tpl = '<g-base id=\"kb\">\\n<kop/></g-base>';\n * this._getBaseAtLine(tpl, 2) // => { AGBaseId: \"kb\", hasId: true }\n *\n * const tpl2 = '<g-base>\\n<kop/></g-base>';\n * this._getBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }\n *\n * const tpl3 = '</g-base>\\n{-lah-}\\n<g-base>';\n * this._getBaseAtLine(tpl3, 2) // => null\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Finds the `<g-base>` block (open + close) that encloses the given line number.\n *\n * @param template - Processed template string\n *\n * @param line - 1-based line number to check\n *\n * @returns Object with `AGBaseId` and `hasId`, or `null` if not inside any `<g-base>` block\n *\n * @example\n * ```typescript\n * const tpl = '<g-base id=\"kb\">\\n<kop/></g-base>';\n * this.getGBaseAtLine(tpl, 2) // => { AGBaseId: \"kb\", hasId: true }\n *\n * const tpl2 = '<g-base>\\n<kop/></g-base>';\n * this.getGBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }\n *\n * const tpl3 = '</g-base>\\n{-lah-}\\n<g-base>';\n * this.getGBaseAtLine(tpl3, 2) // => null\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -61365,12 +58525,12 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!TemplateManager#has:member(1)",
-              "docComment": "/**\n * Checks if a template exists in the cache.\n *\n * @param key - Template identifier (filename without extension)\n *\n * @returns `true` if template exists in cache\n *\n * @example\n * ```typescript\n * if (tm.has(\"welcome\")) {\n *   const msg = tm.getMessage(\"welcome\", \"default\", \"en\")\n * }\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!TemplateManager#hasCompiled:member(1)",
+              "docComment": "/**\n * Checks if a template exists in the cache.\n *\n * @param key - Template identifier (filename without extension)\n *\n * @returns `true` if template exists in cache\n *\n * @example\n * ```typescript\n * if (tm.hasCompiled(\"welcome\")) {\n *   const msg = tm.getMessage(\"welcome\", \"default\", \"en\")\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "has(key: "
+                  "text": "hasCompiled(key: "
                 },
                 {
                   "kind": "Content",
@@ -61409,7 +58569,43 @@
               ],
               "isOptional": false,
               "isAbstract": false,
-              "name": "has"
+              "name": "hasCompiled"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#keysCompiled:member(1)",
+              "docComment": "/**\n * Get a keys string for all pre-compiled template from mapping.\n *\n * @returns `string[]` all keys compiled\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "keysCompiled(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "MapIterator",
+                  "canonicalReference": "!MapIterator:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "keysCompiled"
             },
             {
               "kind": "Method",
@@ -61831,240 +59027,6 @@
           "name": "WebhookQueue",
           "preserveMemberOrder": false,
           "members": [
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!WebhookQueue#_closed:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_closed: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_closed",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!WebhookQueue#_head:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_head: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_head",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!WebhookQueue#_items:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_items: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Array",
-                  "canonicalReference": "!Array:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<T | undefined>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_items",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 3
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!WebhookQueue#_lengthCount:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_lengthCount: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_lengthCount",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!WebhookQueue#_tail:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_tail: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_tail",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!WebhookQueue#_waitDequeue:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_waitDequeue: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Array",
-                  "canonicalReference": "!Array:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<(value: T) => void>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_waitDequeue",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 3
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!WebhookQueue#_waitEnqueue:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "_waitEnqueue: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Array",
-                  "canonicalReference": "!Array:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<{\n        resolve: () => void;\n        reject: (error: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Error",
-                  "canonicalReference": "!Error:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ") => void;\n    }>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "_waitEnqueue",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 5
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
             {
               "kind": "Constructor",
               "canonicalReference": "gramstax!WebhookQueue:constructor(1)",

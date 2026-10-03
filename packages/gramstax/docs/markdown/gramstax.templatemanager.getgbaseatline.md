@@ -78,12 +78,12 @@ Object with `AGBaseId` and `hasId`<!-- -->, or `null` if not inside any `<g-base
 
 ```typescript
 const tpl = '<g-base id="kb">\n<kop/></g-base>';
-this._getBaseAtLine(tpl, 2) // => { AGBaseId: "kb", hasId: true }
+this.getGBaseAtLine(tpl, 2) // => { AGBaseId: "kb", hasId: true }
 
 const tpl2 = '<g-base>\n<kop/></g-base>';
-this._getBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }
+this.getGBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }
 
 const tpl3 = '</g-base>\n{-lah-}\n<g-base>';
-this._getBaseAtLine(tpl3, 2) // => null
+this.getGBaseAtLine(tpl3, 2) // => null
 ```
 

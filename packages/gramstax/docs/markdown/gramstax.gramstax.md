@@ -88,23 +88,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_seenUpdatesMax](./gramstax.gramstax._seenupdatesmax.md)
-
-
-</td><td>
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [bot](./gramstax.gramstax.bot.md)
 
 
@@ -433,30 +416,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_onHandle(ct, listenerName, shouldCheckNotFound)](./gramstax.gramstax._onhandle.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[\_pageLoadsFromManifest(manifest)](./gramstax.gramstax._pageloadsfrommanifest.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [\_pageRoutes(ctx, fromListener)](./gramstax.gramstax._pageroutes.md)
 
 
@@ -508,18 +467,6 @@ Creates the Bot instance.
 </td><td>
 
 Creates a context instance for handling an update.
-
-
-</td></tr>
-<tr><td>
-
-[executeSyncBlocksDescription(pages)](./gramstax.gramstax.executesyncblocksdescription.md)
-
-
-</td><td>
-
-
-</td><td>
 
 
 </td></tr>

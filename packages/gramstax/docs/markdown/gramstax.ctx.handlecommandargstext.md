@@ -22,13 +22,14 @@ Triggered by text with commands slash with args.
 
 ## Example
 
-this.msgText = "/start 123 aaa"
 
 ```typescript
-async handleCommandTextArgs() {
-   this.msgText // "/start 123 aaa"
+// text = "/start 123 aaa"
+// validate "123" or "aaa" accoridng "/start" from mapping hash
+async handleCommandArgsText() {
+   this.msg?.text // "/start 123 aaa"
    this.msgTextArg // "123"
-   this.msgTextArg // ["123", "aaa"]
+   this.msgTextArgs // ["123", "aaa"]
 }
 ```
 

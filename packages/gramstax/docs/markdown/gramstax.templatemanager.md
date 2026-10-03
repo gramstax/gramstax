@@ -194,6 +194,8 @@ Clears compiled template and import caches.
 
 </td><td>
 
+Closes file watchers, cancels pending reloads, and awaits in-flight reloads.
+
 
 </td></tr>
 <tr><td>
@@ -249,6 +251,20 @@ Gets available attribute lang from block <g-description>.
 </td><td>
 
 Gets available attribute scopes from block <g-description>.
+
+
+</td></tr>
+<tr><td>
+
+[getCompiled(key)](./gramstax.templatemanager.getcompiled.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Get a pre-compiled template directly from mapping.
 
 
 </td></tr>
@@ -534,7 +550,7 @@ Handles watcher errors.
 </td></tr>
 <tr><td>
 
-[has(key)](./gramstax.templatemanager.has.md)
+[hasCompiled(key)](./gramstax.templatemanager.hascompiled.md)
 
 
 </td><td>
@@ -543,6 +559,20 @@ Handles watcher errors.
 </td><td>
 
 Checks if a template exists in the cache.
+
+
+</td></tr>
+<tr><td>
+
+[keysCompiled()](./gramstax.templatemanager.keyscompiled.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Get a keys string for all pre-compiled template from mapping.
 
 
 </td></tr>

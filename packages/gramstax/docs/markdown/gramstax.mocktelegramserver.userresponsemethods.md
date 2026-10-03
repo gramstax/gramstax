@@ -4,8 +4,15 @@
 
 ## MockTelegramServer.userResponseMethods property
 
+Exact method names declared as user-facing replies.
+
 **Signature:**
 
 ```typescript
 static userResponseMethods: string[];
 ```
+
+## Remarks
+
+Declaration only — nothing reads this list. `_isUserResponseMethod` hardcodes the same names and is the actual source of truth.
+

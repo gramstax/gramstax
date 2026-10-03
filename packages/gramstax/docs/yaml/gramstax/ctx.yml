@@ -2237,11 +2237,11 @@ methods:
     remarks: Triggered by text with space-separated args.
     example:
       - |-
-        this.msgText = "start 123 aaa"
-
         ```typescript
-        async handleTextArgs() {
-           this.msgText // "start 123 aaa"
+        // text = "start 123 aaa"
+        // validate "123" or "aaa" from mapping hash
+        async handleArgsText() {
+           this.msg?.text // "start 123 aaa"
            this.msgTextArg // "123"
            this.msgTextArgs // ["123", "aaa"]
         }
@@ -2292,7 +2292,7 @@ methods:
         ```typescript
         async handleCaptionAnimation() {
           this.msg?.animation // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
         }
         ```
     isPreview: false
@@ -2317,7 +2317,7 @@ methods:
         ```typescript
         async handleCaptionArgsAnimation() {
           this.msg?.animation // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2344,7 +2344,7 @@ methods:
         ```typescript
         async handleCaptionArgsAudio() {
           this.msg?.audio // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2371,7 +2371,7 @@ methods:
         ```typescript
         async handleCaptionArgsDocument() {
           this.msg?.document // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2398,9 +2398,9 @@ methods:
         ```typescript
         async handleCaptionArgsPhoto() {
           this.msg?.photo // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
           this.msgCaptionArg // "123"
-          this.msgCaptionArgs["123", "aaa"]
+          this.msgCaptionArgs // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -2425,7 +2425,7 @@ methods:
         ```typescript
         async handleCaptionArgsVideo() {
           this.msg?.video // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2452,7 +2452,7 @@ methods:
         ```typescript
         async handleCaptionArgsVoice() {
           this.msg?.voice // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2479,7 +2479,7 @@ methods:
         ```typescript
         async handleCaptionAudio() {
           this.msg?.audio // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
         }
         ```
     isPreview: false
@@ -2504,7 +2504,7 @@ methods:
         ```typescript
         async handleCaptionDocument() {
           this.msg?.document // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
         }
         ```
     isPreview: false
@@ -2529,7 +2529,7 @@ methods:
         ```typescript
         async handleCaptionPhoto() {
           this.msg?.photo // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
         }
         ```
     isPreview: false
@@ -2554,7 +2554,7 @@ methods:
         ```typescript
         async handleCaptionVideo() {
           this.msg?.video // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
         }
         ```
     isPreview: false
@@ -2579,7 +2579,7 @@ methods:
         ```typescript
         async handleCaptionVoice() {
           this.msg?.voice // {...}
-          this.msgCaption // "start"
+          this.msg?.caption // "start"
         }
         ```
     isPreview: false
@@ -2618,13 +2618,13 @@ methods:
     remarks: Triggered by text with commands slash with args.
     example:
       - |-
-        this.msgText = "/start 123 aaa"
-
         ```typescript
-        async handleCommandTextArgs() {
-           this.msgText // "/start 123 aaa"
+        // text = "/start 123 aaa"
+        // validate "123" or "aaa" accoridng "/start" from mapping hash
+        async handleCommandArgsText() {
+           this.msg?.text // "/start 123 aaa"
            this.msgTextArg // "123"
-           this.msgTextArg // ["123", "aaa"]
+           this.msgTextArgs // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -2649,7 +2649,7 @@ methods:
         ```typescript
         async handleCommandCaptionAnimation() {
           this.msg?.animation // {...}
-          this.msgCaption // "/start"
+          this.msg?.caption // "/start"
         }
         ```
     isPreview: false
@@ -2674,7 +2674,7 @@ methods:
         ```typescript
         async handleCommandCaptionArgsAnimation() {
           this.msg?.animation // {...}
-          this.msgCaption // "/start 123 aaa"
+          this.msg?.caption // "/start 123 aaa"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2701,7 +2701,7 @@ methods:
         ```typescript
         async handleCommandCaptionArgsAudio() {
           this.msg?.audio // {...}
-          this.msgCaption // "/start 123 aaa"
+          this.msg?.caption // "/start 123 aaa"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2728,7 +2728,7 @@ methods:
         ```typescript
         async handleCommandCaptionArgsDocument() {
           this.msg?.document // {...}
-          this.msgCaption // "/start 123 aaa"
+          this.msg?.caption // "/start 123 aaa"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2755,7 +2755,7 @@ methods:
         ```typescript
         async handleCommandCaptionArgsPhoto() {
           this.msg?.photo // {...}
-          this.msgCaption // "/start 123 aaa"
+          this.msg?.caption // "/start 123 aaa"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2782,7 +2782,7 @@ methods:
         ```typescript
         async handleCommandCaptionArgsVideo() {
           this.msg?.video // {...}
-          this.msgCaption // "/start 123 aaa"
+          this.msg?.caption // "/start 123 aaa"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2809,7 +2809,7 @@ methods:
         ```typescript
         async handleCommandCaptionArgsVoice() {
           this.msg?.voice // {...}
-          this.msgCaption // "/start 123 aaa"
+          this.msg?.caption // "/start 123 aaa"
           this.msgCaptionArg // "123"
           this.msgCaptionArgs // ["123", "aaa"]
         }
@@ -2836,7 +2836,7 @@ methods:
         ```typescript
         async handleCommandCaptionAudio() {
           this.msg?.audio // {...}
-          this.msgCaption // "/start"
+          this.msg?.caption // "/start"
         }
         ```
     isPreview: false
@@ -2861,7 +2861,7 @@ methods:
         ```typescript
         async handleCommandCaptionDocument() {
           this.msg?.document // {...}
-          this.msgCaption // "/start"
+          this.msg?.caption // "/start"
         }
         ```
     isPreview: false
@@ -2886,7 +2886,7 @@ methods:
         ```typescript
         async handleCommandCaptionPhoto() {
           this.msg?.photo // {...}
-          this.msgCaption // "/start"
+          this.msg?.caption // "/start"
         }
         ```
     isPreview: false
@@ -2911,7 +2911,7 @@ methods:
         ```typescript
         async handleCommandCaptionVideo() {
           this.msg?.video // {...}
-          this.msgCaption // "/start"
+          this.msg?.caption // "/start"
         }
         ```
     isPreview: false
@@ -2936,7 +2936,7 @@ methods:
         ```typescript
         async voiceCommandCaption() {
           this.msg?.voice // {...}
-          this.msgCaption // "/start"
+          this.msg?.caption // "/start"
         }
         ```
     isPreview: false
@@ -2956,11 +2956,11 @@ methods:
     remarks: Triggered by text with slash commands.
     example:
       - |-
-        this.msgText = "/start"
-
         ```typescript
+        // text = "/start"
+        // validate "/start" from mapping hash
         async handleCommandText() {
-           this.msgText // "/start"
+           this.msg?.text // "/start"
         }
         ```
     isPreview: false
@@ -3026,8 +3026,6 @@ methods:
     remarks: Triggered by any audio not matching other routes, typically used with sessions.
     example:
       - |-
-        this.msg?.audio
-
         ```typescript
         async handleFreeAudio() {
            this.msg?.audio // {...}
@@ -3116,8 +3114,6 @@ methods:
     remarks: Triggered by any photo not matching other routes, typically used with sessions.
     example:
       - |-
-        this.msg?.photo
-
         ```typescript
         async handleFreePhoto() {
            this.msg?.photo // {...}
@@ -3162,11 +3158,11 @@ methods:
     remarks: Triggered by any text not matching other routes, typically used with sessions.
     example:
       - |-
-        this.msgText = "hello gramstax, random: 12848s8283n183m"
-
         ```typescript
+        // text = "hello gramstax, random: 12848s8283n183m"
+        // validate "hello gramstax, random: 12848s8283n183m" if this text
         async handleFreeText() {
-           this.msgText // "hello gramstax, random: 12848s8283n183m"
+           this.msg?.text // "hello gramstax, random: 12848s8283n183m"
         }
         ```
     isPreview: false
@@ -3186,8 +3182,6 @@ methods:
     remarks: Triggered by any video not matching other routes, typically used with sessions.
     example:
       - |-
-        this.msg?.video
-
         ```typescript
         async handleFreeVideo() {
            this.msg?.video // {...}
@@ -4195,11 +4189,11 @@ methods:
     remarks: Triggered by exact text match.
     example:
       - |-
-        this.msgText = "start"
-
         ```typescript
+        // text = "start"
+        // validate "start" from mapping hash
         async handleText() {
-           this.msgText // "start"
+           this.msg?.text // "start"
         }
         ```
     isPreview: false
@@ -4270,7 +4264,7 @@ methods:
     remarks: >-
       Return `false` to \*\*skip only the target route handler\*\* (e.g. `handleFreeText`<!-- -->,
       `handleCallbackQueryData`<!-- -->, etc.). The rest of the framework is untouched — you can still call
-      `.render()`<!-- -->, `.renderEdit()`<!-- -->, `.renderAnswerCallback()`<!-- -->, and other Ctx methods normally
+      `.render()`<!-- -->, `.renderEdit()`<!-- -->, `.renderCallbackAnswer()`<!-- -->, and other Ctx methods normally
       inside this hook before returning `false`<!-- -->.
 
 
@@ -4286,7 +4280,7 @@ methods:
         async hookBeforeRoute() {
           const last = await this.cacheSession.get(`${this.from.id}:lastAction`)
           if (last && Date.now() - Number(last) < 2000) {
-            await this.renderAnswerCallback(`Please wait...`) // still works
+            await this.renderCallbackAnswer(true, undefined, `cooldown`) // still works
             return false // only skips the target handler
           }
           await this.cacheSession.set(`${this.from.id}:lastAction`, String(Date.now()))
@@ -10506,8 +10500,15 @@ methods:
     uid: gramstax!Ctx#sessionKey:member(1)
     package: gramstax!
     fullName: sessionKey()
-    summary: ''
-    remarks: ''
+    summary: Builds the cache key that scopes this session.
+    remarks: >-
+      Keyed by user id \*\*and\*\* chat id so the same user in two chats keeps two independent sessions — a private chat
+      and a group must not share pending state. The userless case (channel posts, anonymous admins) degrades to
+      `:chatId`<!-- -->, which still scopes by chat instead of collapsing every userless update into one shared bucket.
+
+
+      A missing chat id yields an empty second segment rather than throwing, so private chats still key on the user
+      alone.
     example: []
     isPreview: false
     isDeprecated: false
@@ -10515,7 +10516,7 @@ methods:
       content: 'sessionKey(): string;'
       return:
         type: string
-        description: ''
+        description: The `userId:chatId` session cache key.
   - name: setSession(method, params, moreRoot)
     uid: gramstax!Ctx#setSession:member(1)
     package: gramstax!

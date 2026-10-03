@@ -27,7 +27,7 @@ this.data.name = "start"
 ```typescript
 async handleCaptionVoice() {
   this.msg?.voice // {...}
-  this.msgCaption // "start"
+  this.msg?.caption // "start"
 }
 ```
 

@@ -4,6 +4,8 @@
 
 ## TemplateEngine.\_splitMediaSrcList() method
 
+Splits a pipe-delimited `src` attribute into media-group items.
+
 **Signature:**
 
 ```typescript
@@ -40,6 +42,8 @@ string
 
 </td><td>
 
+Raw `src` attribute value from the parsed template.
+
 
 </td></tr>
 </tbody></table>
@@ -47,4 +51,10 @@ string
 **Returns:**
 
 string\[\]
+
+Trimmed, non-empty sources, truncated to the album limit.
+
+## Remarks
+
+A `src` without a pipe is NOT a group and yields an empty array, so the caller can treat "no pipe" and "empty list" identically. Entries are trimmed and blanks dropped, then the list is capped at [TemplateEngine.MAX\_MEDIA\_GROUP\_ITEMS](./gramstax.templateengine.max_media_group_items.md) — Telegram rejects larger albums, so the surplus is dropped rather than reported.
 

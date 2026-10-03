@@ -27,7 +27,7 @@ this.data.name = "/start 123 aaa" &amp;&amp; this.msg?.audio
 ```typescript
 async handleCommandCaptionArgsAudio() {
   this.msg?.audio // {...}
-  this.msgCaption // "/start 123 aaa"
+  this.msg?.caption // "/start 123 aaa"
   this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]
 }

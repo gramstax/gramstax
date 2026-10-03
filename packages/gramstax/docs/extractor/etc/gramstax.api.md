@@ -42,7 +42,6 @@ export class CacheExternal<V = unknown> extends Keyv<V> {
     // Warning: (ae-forgotten-export) The symbol "IMore" needs to be exported by the entry point index.d.ts
     constructor(url?: string, ttl?: number, namespace?: string, more?: IMore);
     refreshLruCache(maxLength?: number): Promise<void>;
-    // (undocumented)
     url: string;
 }
 
@@ -557,7 +556,6 @@ export class Ctx extends Context {
     sendChatId(): number | undefined;
     get senderChat(): NonNullable<Context[`senderChat`]>;
     sendPageName(): string;
-    // (undocumented)
     sessionKey(): string;
     setSession(method: string | string[], params?: Record<string, unknown>, moreRoot?: Record<string, unknown>): Promise<boolean | null>;
     setSessionArgsCallbackQueryData(this: Ctx & {
@@ -882,7 +880,7 @@ export class E2eHelper {
     constructor(bot: Gramstax);
     // (undocumented)
     bot: Gramstax;
-    // (undocumented)
+    // @internal
     _buildMessageUpdate(message: Record<string, unknown>, options?: IE2eUpdateOptions): {
         update_id: number;
         message: {
@@ -908,7 +906,7 @@ export class E2eHelper {
     };
     calls: IE2eApiCall[];
     clearCalls(): void;
-    // (undocumented)
+    // @internal
     _defaultChat(chat?: IE2eChat): {
         title?: string | undefined;
         username?: string | undefined;
@@ -917,7 +915,7 @@ export class E2eHelper {
         type: "group" | "channel" | "private" | "supergroup" | undefined;
         first_name: string | undefined;
     };
-    // (undocumented)
+    // @internal
     _defaultUser(user?: IE2eUser): {
         language_code: string | undefined;
         username?: string | undefined;
@@ -934,23 +932,23 @@ export class E2eHelper {
     gmedia(page: string, aGBaseId: string, data?: Record<string, any>, aLang?: string): Record<string, any>;
     gmsg(page: string, aGBaseId: string, data?: Record<string, any>, aLang?: string): string;
     handleUpdate(update: Record<string, unknown>, settleMs?: number): Promise<IE2eApiCall[]>;
-    // (undocumented)
+    // @internal
     _initialized: boolean;
     static readonly _INTERNAL_METHODS: Set<string>;
-    // (undocumented)
+    // @internal
     _internalResponse(method: string): unknown;
     lastCall(method?: string): IE2eApiCall | undefined;
-    // (undocumented)
+    // @internal
     _nextApiMsgId: number;
-    // (undocumented)
+    // @internal
     _nextIds(options?: IE2eUpdateOptions): {
         updateId: number;
         messageId: number | undefined;
         date: number | undefined;
     };
-    // (undocumented)
+    // @internal
     _nextMessageId: number;
-    // (undocumented)
+    // @internal
     _nextUpdateId: number;
     reset(): void;
     sendAnimation(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;
@@ -991,7 +989,7 @@ export class E2eHelper {
     sendVideo(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;
     sendVideoNote(options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;
     sendVoice(options?: IE2eMediaOptions): Promise<IE2eApiCall[]>;
-    // (undocumented)
+    // @internal
     _settleFrom(options: IE2eUpdateOptions | undefined): number;
     streamCalls(): IE2eApiCall[];
     streamChunks(): string[];
@@ -1561,7 +1559,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     e2e?: E2eHelper;
     // @internal
     _emitUpdateError(event: IUpdateErrorEvent): void;
-    // (undocumented)
+    // @internal
     executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages): Promise<void>;
     getWebhookQueueStats(): {
         length: number;
@@ -1630,7 +1628,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     readonly metrics: MetricsStore;
     // @internal
     _onCatch(error: BotError<ICt>): void;
-    // (undocumented)
+    // @internal
     _onHandle(ct: ICt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean): Promise<void>;
     // @internal
     _onSigint?: () => void;
@@ -2187,7 +2185,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         lenListRouteDynamicSpesific: 65;
         hasSessionRoutes: boolean;
     };
-    // (undocumented)
+    // @internal
     _pageLoadsFromManifest(manifest: IAppManifest): {
         all: Record<string, typeof Ctx>;
         routeDynamic: string[];
@@ -2773,7 +2771,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     _runWebhook(fullUrl: string): Promise<void>;
     // @internal
     _seenUpdates: Map<number, number>;
-    // (undocumented)
+    // @internal
     _seenUpdatesMax: number;
     // @internal
     _sessionLock?: SessionLock;
@@ -2967,7 +2965,7 @@ export type IDiceBlock = {
 // @public
 export type IE2eApiCall = {
     method: string;
-    body: unknown;
+    body: Record<string, unknown>;
     timestamp: number;
 };
 
@@ -3762,10 +3760,10 @@ export function metricsToPrometheus(snapshot: ReturnType<MetricsStore[`snapshot`
 export class MockTelegramServer {
     constructor(options?: IMockTelegramServerOptions);
     apiRoot: string;
-    // (undocumented)
+    // @internal
     _bodyRecord(body: unknown): Record<string, unknown> | undefined;
     botToken: string;
-    // (undocumented)
+    // @internal
     _buildMessageUpdate(message: Record<string, unknown>, options?: IMockTelegramUpdateOptions): {
         update_id: number;
         message: {
@@ -3792,7 +3790,7 @@ export class MockTelegramServer {
     clearAll(): void;
     clearRequests(): void;
     clearUpdates(): void;
-    // (undocumented)
+    // @internal
     _defaultChat(chat?: IMockTelegramChat): {
         title?: string | undefined;
         username?: string | undefined;
@@ -3802,9 +3800,9 @@ export class MockTelegramServer {
         first_name: string;
     };
     defaultHandler?: IMockTelegramHandler;
-    // (undocumented)
+    // @internal
     _defaultResponse(method: string, body?: unknown): IMockTelegramJson;
-    // (undocumented)
+    // @internal
     _defaultUser(user?: IMockTelegramUser): {
         language_code: string;
         username?: string | undefined;
@@ -3813,39 +3811,39 @@ export class MockTelegramServer {
         is_bot: boolean;
         first_name: string;
     };
-    // (undocumented)
+    // @internal
     _handleRequest(request: Request): Promise<Response>;
     handlers: Record<string, IMockTelegramHandler>;
     hostname: string;
-    // (undocumented)
+    // @internal
     _isLoopbackUrl(url: string): boolean;
-    // (undocumented)
+    // @internal
     _isUserResponseMethod(method: string): boolean;
-    // (undocumented)
+    // @internal
     _json(payload: IMockTelegramJson): Response;
     lastRequest(method?: string): IMockTelegramRequestRecord | undefined;
     // Warning: (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
     log?: IMockTelegramLog;
-    // (undocumented)
+    // @internal
     _nextIds(options?: IMockTelegramUpdateOptions): {
         updateId: number;
         messageId: number;
         date: number;
     };
-    // (undocumented)
+    // @internal
     _nextMessageId: number;
-    // (undocumented)
+    // @internal
     _nextUpdateId: number;
-    // (undocumented)
+    // @internal
     _onSigint?: () => void;
-    // (undocumented)
+    // @internal
     _onSigterm?: () => void;
     port: number;
-    // (undocumented)
+    // @internal
     _postUpdate(update: Record<string, unknown>, options?: IMockTelegramUpdateOptions): Promise<IMockTelegramRequestRecord[]>;
     // Warning: (ae-forgotten-export) The symbol "IMockTelegramReadableRequest" needs to be exported by the entry point index.d.ts
     //
-    // (undocumented)
+    // @internal
     _readBody(request: IMockTelegramReadableRequest): Promise<unknown>;
     requests: IMockTelegramRequestRecord[];
     reset(): void;
@@ -3901,15 +3899,13 @@ export class MockTelegramServer {
         clear?: boolean;
     }): Promise<void>;
     updates: Record<string, unknown>[];
-    // (undocumented)
     static userResponseMethods: string[];
-    // (undocumented)
     static userResponsePrefixes: string[];
-    // (undocumented)
+    // @internal
     _userResponseRequests(requestStartIndex: number): IMockTelegramRequestRecord[];
-    // (undocumented)
+    // @internal
     _waitForResponses(requestStartIndex: number, responseTimeoutMs: number): Promise<IMockTelegramRequestRecord[]>;
-    // (undocumented)
+    // @internal
     _waitForWebhookUrl(timeoutMs: number): Promise<string>;
     webhookUrl: string;
 }
@@ -3935,14 +3931,14 @@ export class SessionLock {
         onContended: ISessionLockOnContended;
     });
     acquire(sessionKey: string): Promise<string | null>;
-    // (undocumented)
+    // @internal
     _lockKey(sessionKey: string): string;
     // (undocumented)
     options: {
         leaseMs: number;
         onContended: ISessionLockOnContended;
     };
-    // (undocumented)
+    // @internal
     _queues: Map<string, Promise<unknown>>;
     // (undocumented)
     redis: IRedisLockClient;
@@ -3965,7 +3961,6 @@ export class TemplateEngine {
     static ALLOWED_BLOCKS_TELEGRAM_RICH: string[];
     static ALLOWED_SCOPE: string[];
     static BOT_API_VERSION: string;
-    // (undocumented)
     static _buildFunctionBody<T extends boolean>(template: T extends true ? string[] : string, isArray: T): string;
     static compileBlockGAnswerNote(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
@@ -4049,8 +4044,6 @@ export class TemplateEngine {
     };
     static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITemplateData) => string): (data?: ITemplateData) => string | InputFile | Buffer | Uint8Array;
     // Warning: (ae-forgotten-export) The symbol "ITemplateRenderer" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
     static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITemplateRenderer<T>;
     static DICE_EMOJI: ReadonlySet<string>;
     static _escape(str: string): string;
@@ -4151,9 +4144,7 @@ export class TemplateEngine {
     static _processScopeVariables(template: string): string;
     // Warning: (ae-forgotten-export) The symbol "ITemplateData" needs to be exported by the entry point index.d.ts
     static _resolveMediaDataPath(data: ITemplateData | undefined, path: string): unknown;
-    // @internal
     static _splitKeyboardLabels(content: string): string[];
-    // (undocumented)
     static _splitMediaSrcList(src: string): string[];
     static _TELEGRAM_ALLOWED_ATTRS: Record<string, readonly string[]>;
     static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;
@@ -4490,7 +4481,6 @@ export class TemplateEngine {
 export class TemplateManager {
     constructor(options: ITemplateOptions);
     clearCache(): void;
-    // (undocumented)
     closeWatchers(): Promise<void>;
     compile(key: string, template: string, keepIfExist?: Partial<{
         [K in keyof ICompiledTemplate]: boolean;
@@ -4499,6 +4489,7 @@ export class TemplateManager {
     engine: typeof TemplateEngine;
     getAGDescriptionLang(key: string, AGBaseId?: string, AScope?: string): string[];
     getAGDescriptionScopes(key: string, AGBaseId?: string): string[];
+    getCompiled(key: string): ICompiledTemplate | undefined;
     getGAnswerNote(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
     getGBaseAtLine(template: string, line: number): {
         AGBaseId: string | null;
@@ -4523,7 +4514,8 @@ export class TemplateManager {
     handleFileDelete(filepath: string): void;
     // @virtual
     handleWatchError(error: unknown): void;
-    has(key: string): boolean;
+    hasCompiled(key: string): boolean;
+    keysCompiled(): MapIterator<string>;
     loadFile(filename: string): void;
     pageManager: typeof PageManager;
     readonly path: ITemplateOptions[`path`];
@@ -4537,7 +4529,7 @@ export class TemplateManager {
 export class WebhookQueue<T = unknown> {
     constructor(maxSize: number);
     close(): void;
-    // (undocumented)
+    // @internal
     _closed: boolean;
     dequeue(signal?: AbortSignal): Promise<T | undefined>;
     enqueue(value: T, signal?: AbortSignal): Promise<void>;
@@ -4547,20 +4539,20 @@ export class WebhookQueue<T = unknown> {
         waitingEnqueue: number;
         waitingDequeue: number;
     };
-    // (undocumented)
+    // @internal
     _head: number;
     get isClosed(): boolean;
-    // (undocumented)
+    // @internal
     _items: Array<T | undefined>;
     get length(): number;
-    // (undocumented)
+    // @internal
     _lengthCount: number;
-    // (undocumented)
+    // @internal
     _tail: number;
     tryEnqueue(value: T): boolean;
-    // (undocumented)
+    // @internal
     _waitDequeue: Array<(value: T) => void>;
-    // (undocumented)
+    // @internal
     _waitEnqueue: Array<{
         resolve: () => void;
         reject: (error: Error) => void;
@@ -4569,9 +4561,9 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:6544:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
-// dist/src/index.d.ts:19937:9 - (ae-forgotten-export) The symbol "ICustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:21475:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
+// dist/src/index.d.ts:6630:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
+// dist/src/index.d.ts:20273:9 - (ae-forgotten-export) The symbol "ICustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:21854:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 

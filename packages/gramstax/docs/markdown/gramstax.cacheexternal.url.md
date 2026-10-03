@@ -4,8 +4,15 @@
 
 ## CacheExternal.url property
 
+Storage connection `url` passed to the constructor.
+
 **Signature:**
 
 ```typescript
 url: string;
 ```
+
+## Remarks
+
+Stored verbatim even when `more.forceStore` overrides store selection, so it records the requested value rather than the resolved store.
+

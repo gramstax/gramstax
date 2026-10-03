@@ -44,7 +44,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `SessionLock` class
+Creates a lock bound to one Redis client and contention policy.
 
 
 </td></tr>
@@ -74,23 +74,6 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
-
-[\_queues](./gramstax.sessionlock._queues.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Map&lt;string, Promise&lt;unknown&gt;&gt;
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
 
 [options](./gramstax.sessionlock.options.md)
 
@@ -145,18 +128,6 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
-
-[\_lockKey(sessionKey)](./gramstax.sessionlock._lockkey.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
 
 [acquire(sessionKey)](./gramstax.sessionlock.acquire.md)
 

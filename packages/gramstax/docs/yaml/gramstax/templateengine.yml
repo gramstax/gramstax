@@ -458,8 +458,11 @@ methods:
     uid: gramstax!TemplateEngine._buildFunctionBody:member(1)
     package: gramstax!
     fullName: _buildFunctionBody(template, isArray)
-    summary: ''
-    remarks: ''
+    summary: Builds the JavaScript function body for a processed template.
+    remarks: >-
+      Runs the three structural pre-processors in a fixed order — script blocks, then `<g-div>`<!-- -->, then
+      `<g-space>` — before converting the result to a concatenation expression. The body is returned as source text,
+      never evaluated here: `_compileToFunction` is what turns it into a callable.
     example: []
     isPreview: false
     isDeprecated: false
@@ -467,14 +470,14 @@ methods:
       content: 'static _buildFunctionBody<T extends boolean>(template: T extends true ? string[] : string, isArray: T): string;'
       parameters:
         - id: template
-          description: ''
+          description: Processed template source, or one source per language when `isArray` is `true`<!-- -->.
           type: 'T extends true ? string[] : string'
         - id: isArray
-          description: ''
+          description: When `true`<!-- -->, emit a body returning `string[]`<!-- -->.
           type: T
       return:
         type: string
-        description: ''
+        description: The `return` statement source for the compiled function.
   - name: _compileMediaSrc(rawSrc, stringFn)
     uid: gramstax!TemplateEngine._compileMediaSrc:member(1)
     package: gramstax!
@@ -507,8 +510,16 @@ methods:
     uid: gramstax!TemplateEngine._compileToFunction:member(1)
     package: gramstax!
     fullName: _compileToFunction(template, isArray)
-    summary: ''
-    remarks: ''
+    summary: Compiles a processed template body into a callable renderer.
+    remarks: >-
+      Three mutually exclusive paths, in priority order: `__linkHook` resolves a pre-registered body (the AOT link
+      phase, used by edge output with no `Function` constructor), `__emitHook` records the body and returns a stub (the
+      AOT collect phase), otherwise the body is compiled through `new Function` — the exact JIT path taken when neither
+      hook is set.
+
+
+      The compiled renderer closes over `_escapeData` and `DEFAULT_FILTERS`<!-- -->, so callers pass only `data`<!--
+      -->. `isArray` selects the return shape: `string[]` for media-group style templates, `string` otherwise.
     example: []
     isPreview: false
     isDeprecated: false
@@ -518,14 +529,14 @@ methods:
         ITemplateRenderer<T>;
       parameters:
         - id: template
-          description: ''
+          description: Processed template source, or one source per language when `isArray` is `true`<!-- -->.
           type: 'T extends true ? string[] : string'
         - id: isArray
-          description: ''
+          description: When `true`<!-- -->, compile to a renderer returning `string[]`<!-- -->.
           type: T
       return:
         type: <xref uid="gramstax!~ITemplateRenderer:type" />&lt;T&gt;
-        description: ''
+        description: A renderer taking `data` and returning the compiled output.
   - name: _escape(str)
     uid: gramstax!TemplateEngine._escape:member(1)
     package: gramstax!
@@ -1763,12 +1774,65 @@ methods:
       return:
         type: unknown
         description: Resolved value, or `undefined` when any segment is missing.
+  - name: _splitKeyboardLabels(content)
+    uid: gramstax!TemplateEngine._splitKeyboardLabels:member(1)
+    package: gramstax!
+    fullName: _splitKeyboardLabels(content)
+    summary: Compiles keyboard blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-keyboard>` blocks from the template and compiles them into functions that generate button
+      label arrays. The result is organized by base ID and language, with separate `inline` and `bottom` keyboard modes.
+      Comma-separated labels are split into individual button strings.
+
+
+      Processing pipeline (in order, per keyboard label): 1. `_processGScriptBlocks` – converts `<g-script>` blocks into
+      executable expressions 2. `_processGMapBlocks` – converts `<g-map>` blocks into array map expressions 3.
+      `_processGSwitchBlocks` – converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` – evaluates
+      scope execution blocks (implementation-defined) 5. `_processScopeVariables` – resolves scope variables
+      (implementation-defined) 6. `_compileToFunction(processedLabels, true)` – produces the final render function
+
+
+      Notes: - Keyboard content is split by commas into individual labels. - Escaped commas with double backslash
+      (`\\,`<!-- -->) are preserved as literal commas. - Each label is processed independently through the pipeline.
+
+
+      Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `ALang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key:
+      `mode`<!-- -->: - `inline` (default) - `bottom` - Value: `(data?: Record<string, unknown>) => string[]`
+    example:
+      - |-
+        ```typescript
+        const template = `
+          <g-base>
+            <g-keyboard>Yes, No, {{action}}</g-keyboard>
+            <g-keyboard type="bottom">Menu, Help</g-keyboard>
+          </g-base>
+        `;
+        const keyboards = TemplateEngine.compileBlockGKeyboards(template);
+        const inline = keyboards.default?.default?.inline?.({ action: 'Cancel' });
+        // Result: ['Yes', 'No', 'Cancel']
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _splitKeyboardLabels(content: string): string[];'
+      parameters:
+        - id: content
+          description: ''
+          type: string
+      return:
+        type: string[]
+        description: Compiled keyboard functions organized by base ID, language, and mode
   - name: _splitMediaSrcList(src)
     uid: gramstax!TemplateEngine._splitMediaSrcList:member(1)
     package: gramstax!
     fullName: _splitMediaSrcList(src)
-    summary: ''
-    remarks: ''
+    summary: Splits a pipe-delimited `src` attribute into media-group items.
+    remarks: >-
+      A `src` without a pipe is NOT a group and yields an empty array, so the caller can treat "no pipe" and "empty
+      list" identically. Entries are trimmed and blanks dropped, then the list is capped at
+      [TemplateEngine.MAX\_MEDIA\_GROUP\_ITEMS](xref:gramstax!TemplateEngine.MAX_MEDIA_GROUP_ITEMS:member) — Telegram
+      rejects larger albums, so the surplus is dropped rather than reported.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1776,11 +1840,11 @@ methods:
       content: 'static _splitMediaSrcList(src: string): string[];'
       parameters:
         - id: src
-          description: ''
+          description: Raw `src` attribute value from the parsed template.
           type: string
       return:
         type: string[]
-        description: ''
+        description: Trimmed, non-empty sources, truncated to the album limit.
   - name: _toConcatExpr(processed)
     uid: gramstax!TemplateEngine._toConcatExpr:member(1)
     package: gramstax!

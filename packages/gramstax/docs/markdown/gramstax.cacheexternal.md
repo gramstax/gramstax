@@ -109,6 +109,8 @@ string
 
 </td><td>
 
+Storage connection `url` passed to the constructor.
+
 
 </td></tr>
 </tbody></table>

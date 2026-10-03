@@ -22,7 +22,6 @@ Triggered by any audio not matching other routes, typically used with sessions.
 
 ## Example
 
-this.msg?.audio
 
 ```typescript
 async handleFreeAudio() {

@@ -4,8 +4,15 @@
 
 ## MockTelegramServer.userResponsePrefixes property
 
+Method-name prefixes declared as user-facing replies.
+
 **Signature:**
 
 ```typescript
 static userResponsePrefixes: string[];
 ```
+
+## Remarks
+
+Declaration only — nothing reads this list. `_isUserResponseMethod` hardcodes the same families and is the actual source of truth. The two have drifted: `pin`<!-- -->, `unpin`<!-- -->, and `setMessageReaction` are prefixes here but are matched as exact method names there.
+

@@ -20,7 +20,7 @@ Promise&lt;boolean&gt;
 
 ## Remarks
 
-Return `false` to \*\*skip only the target route handler\*\* (e.g. `handleFreeText`<!-- -->, `handleCallbackQueryData`<!-- -->, etc.). The rest of the framework is untouched — you can still call `.render()`<!-- -->, `.renderEdit()`<!-- -->, `.renderAnswerCallback()`<!-- -->, and other Ctx methods normally inside this hook before returning `false`<!-- -->.
+Return `false` to \*\*skip only the target route handler\*\* (e.g. `handleFreeText`<!-- -->, `handleCallbackQueryData`<!-- -->, etc.). The rest of the framework is untouched — you can still call `.render()`<!-- -->, `.renderEdit()`<!-- -->, `.renderCallbackAnswer()`<!-- -->, and other Ctx methods normally inside this hook before returning `false`<!-- -->.
 
 In other words: returning `false` does NOT freeze the page — it only prevents one specific handler from running.
 
@@ -34,7 +34,7 @@ Useful for: - Per-page cooldown / rate limiting (reply "please wait" then abort)
 async hookBeforeRoute() {
   const last = await this.cacheSession.get(`${this.from.id}:lastAction`)
   if (last && Date.now() - Number(last) < 2000) {
-    await this.renderAnswerCallback(`Please wait...`) // still works
+    await this.renderCallbackAnswer(true, undefined, `cooldown`) // still works
     return false // only skips the target handler
   }
   await this.cacheSession.set(`${this.from.id}:lastAction`, String(Date.now()))

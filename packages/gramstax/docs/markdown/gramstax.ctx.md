@@ -6276,6 +6276,8 @@ Best-effort page name for send-error context.
 
 </td><td>
 
+Builds the cache key that scopes this session.
+
 
 </td></tr>
 <tr><td>

@@ -471,6 +471,8 @@ Description
 
 </td><td>
 
+Builds the JavaScript function body for a processed template.
+
 
 </td></tr>
 <tr><td>
@@ -500,6 +502,8 @@ Wraps a compiled string `src` fn so bare placeholders pass objects by reference.
 
 
 </td><td>
+
+Compiles a processed template body into a callable renderer.
 
 
 </td></tr>
@@ -1055,6 +1059,22 @@ Null-safe dotted-path lookup against template data.
 </td></tr>
 <tr><td>
 
+[\_splitKeyboardLabels(content)](./gramstax.templateengine._splitkeyboardlabels.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles keyboard blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
 [\_splitMediaSrcList(src)](./gramstax.templateengine._splitmediasrclist.md)
 
 
@@ -1064,6 +1084,8 @@ Null-safe dotted-path lookup against template data.
 
 
 </td><td>
+
+Splits a pipe-delimited `src` attribute into media-group items.
 
 
 </td></tr>

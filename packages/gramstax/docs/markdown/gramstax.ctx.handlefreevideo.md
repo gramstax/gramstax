@@ -22,7 +22,6 @@ Triggered by any video not matching other routes, typically used with sessions.
 
 ## Example
 
-this.msg?.video
 
 ```typescript
 async handleFreeVideo() {

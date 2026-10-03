@@ -22,11 +22,12 @@ Triggered by any text not matching other routes, typically used with sessions.
 
 ## Example
 
-this.msgText = "hello gramstax, random: 12848s8283n183m"
 
 ```typescript
+// text = "hello gramstax, random: 12848s8283n183m"
+// validate "hello gramstax, random: 12848s8283n183m" if this text
 async handleFreeText() {
-   this.msgText // "hello gramstax, random: 12848s8283n183m"
+   this.msg?.text // "hello gramstax, random: 12848s8283n183m"
 }
 ```
 

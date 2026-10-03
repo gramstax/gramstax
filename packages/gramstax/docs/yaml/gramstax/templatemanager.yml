@@ -116,8 +116,15 @@ methods:
     uid: gramstax!TemplateManager#closeWatchers:member(1)
     package: gramstax!
     fullName: closeWatchers()
-    summary: ''
-    remarks: ''
+    summary: Closes file watchers, cancels pending reloads, and awaits in-flight reloads.
+    remarks: >-
+      Three things can outlive a reload, and all three must be settled before the process exits or a test asserts on a
+      clean slate. Listeners are detached before each watcher closes so `close()` does not fire teardown handlers;
+      pending debounce timers are cleared; and `_reloadChain` is awaited so a reload already in progress finishes rather
+      than racing the close.
+
+
+      Safe to call when nothing was ever watched — every branch is guarded.
     example: []
     isPreview: false
     isDeprecated: false
@@ -125,7 +132,7 @@ methods:
       content: 'closeWatchers(): Promise<void>;'
       return:
         type: Promise&lt;void&gt;
-        description: ''
+        description: Nothing; resolves once no reload is outstanding.
   - name: compile(key, template, keepIfExist, importCache, rawCache, filename)
     uid: gramstax!TemplateManager#compile:member(1)
     package: gramstax!
@@ -171,7 +178,7 @@ methods:
           description: Optional pre-loaded raw template cache for batch loading
           type: Map&lt;string, string&gt;
         - id: filename
-          description: ''
+          description: Optional source filename recorded on the cache entry (defaults to `key`<!-- -->)
           type: string
       return:
         type: void
@@ -255,6 +262,24 @@ methods:
       return:
         type: string[]
         description: Array of scope keys for the description
+  - name: getCompiled(key)
+    uid: gramstax!TemplateManager#getCompiled:member(1)
+    package: gramstax!
+    fullName: getCompiled(key)
+    summary: Get a pre-compiled template directly from mapping.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getCompiled(key: string): ICompiledTemplate | undefined;'
+      parameters:
+        - id: key
+          description: Template identifier (filename without extension)
+          type: string
+      return:
+        type: <xref uid="gramstax!ICompiledTemplate:type" /> | undefined
+        description: '`ICompiledTemplate` or `undefined`'
   - name: getGAnswerNote(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGAnswerNote:member(1)
     package: gramstax!
@@ -294,13 +319,13 @@ methods:
       - |-
         ```typescript
         const tpl = '<g-base id="kb">\n<kop/></g-base>';
-        this._getBaseAtLine(tpl, 2) // => { AGBaseId: "kb", hasId: true }
+        this.getGBaseAtLine(tpl, 2) // => { AGBaseId: "kb", hasId: true }
 
         const tpl2 = '<g-base>\n<kop/></g-base>';
-        this._getBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }
+        this.getGBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }
 
         const tpl3 = '</g-base>\n{-lah-}\n<g-base>';
-        this._getBaseAtLine(tpl3, 2) // => null
+        this.getGBaseAtLine(tpl3, 2) // => null
         ```
     isPreview: false
     isDeprecated: false
@@ -889,23 +914,23 @@ methods:
       return:
         type: void
         description: ''
-  - name: has(key)
-    uid: gramstax!TemplateManager#has:member(1)
+  - name: hasCompiled(key)
+    uid: gramstax!TemplateManager#hasCompiled:member(1)
     package: gramstax!
-    fullName: has(key)
+    fullName: hasCompiled(key)
     summary: Checks if a template exists in the cache.
     remarks: ''
     example:
       - |-
         ```typescript
-        if (tm.has("welcome")) {
+        if (tm.hasCompiled("welcome")) {
           const msg = tm.getMessage("welcome", "default", "en")
         }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'has(key: string): boolean;'
+      content: 'hasCompiled(key: string): boolean;'
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -913,6 +938,20 @@ methods:
       return:
         type: boolean
         description: '`true` if template exists in cache'
+  - name: keysCompiled()
+    uid: gramstax!TemplateManager#keysCompiled:member(1)
+    package: gramstax!
+    fullName: keysCompiled()
+    summary: Get a keys string for all pre-compiled template from mapping.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'keysCompiled(): MapIterator<string>;'
+      return:
+        type: MapIterator&lt;string&gt;
+        description: '`string[]` all keys compiled'
   - name: loadFile(filename)
     uid: gramstax!TemplateManager#loadFile:member(1)
     package: gramstax!

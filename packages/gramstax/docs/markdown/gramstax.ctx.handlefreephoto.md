@@ -22,7 +22,6 @@ Triggered by any photo not matching other routes, typically used with sessions.
 
 ## Example
 
-this.msg?.photo
 
 ```typescript
 async handleFreePhoto() {

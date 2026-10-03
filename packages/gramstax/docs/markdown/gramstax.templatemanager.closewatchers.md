@@ -4,6 +4,8 @@
 
 ## TemplateManager.closeWatchers() method
 
+Closes file watchers, cancels pending reloads, and awaits in-flight reloads.
+
 **Signature:**
 
 ```typescript
@@ -12,4 +14,12 @@ closeWatchers(): Promise<void>;
 **Returns:**
 
 Promise&lt;void&gt;
+
+Nothing; resolves once no reload is outstanding.
+
+## Remarks
+
+Three things can outlive a reload, and all three must be settled before the process exits or a test asserts on a clean slate. Listeners are detached before each watcher closes so `close()` does not fire teardown handlers; pending debounce timers are cleared; and `_reloadChain` is awaited so a reload already in progress finishes rather than racing the close.
+
+Safe to call when nothing was ever watched — every branch is guarded.
 

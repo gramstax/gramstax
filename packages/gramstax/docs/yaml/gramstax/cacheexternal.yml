@@ -61,8 +61,10 @@ properties:
     uid: gramstax!CacheExternal#url:member
     package: gramstax!
     fullName: url
-    summary: ''
-    remarks: ''
+    summary: Storage connection `url` passed to the constructor.
+    remarks: >-
+      Stored verbatim even when `more.forceStore` overrides store selection, so it records the requested value rather
+      than the resolved store.
     example: []
     isPreview: false
     isDeprecated: false

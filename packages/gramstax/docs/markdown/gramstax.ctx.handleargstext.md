@@ -22,11 +22,12 @@ Triggered by text with space-separated args.
 
 ## Example
 
-this.msgText = "start 123 aaa"
 
 ```typescript
-async handleTextArgs() {
-   this.msgText // "start 123 aaa"
+// text = "start 123 aaa"
+// validate "123" or "aaa" from mapping hash
+async handleArgsText() {
+   this.msg?.text // "start 123 aaa"
    this.msgTextArg // "123"
    this.msgTextArgs // ["123", "aaa"]
 }

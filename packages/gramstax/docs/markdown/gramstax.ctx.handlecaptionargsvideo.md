@@ -27,7 +27,7 @@ this.data.name = "start 123 aaa" &amp;&amp; this.msg?.video
 ```typescript
 async handleCaptionArgsVideo() {
   this.msg?.video // {...}
-  this.msgCaption // "start"
+  this.msg?.caption // "start"
   this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]
 }

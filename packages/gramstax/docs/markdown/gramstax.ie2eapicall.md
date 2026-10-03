@@ -11,7 +11,7 @@ Captured outbound Bot API call record.
 ```typescript
 type IE2eApiCall = {
     method: string;
-    body: unknown;
+    body: Record<string, unknown>;
     timestamp: number;
 };
 ```

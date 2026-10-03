@@ -124,7 +124,7 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional source filename recorded on the cache entry (defaults to `key`<!-- -->)
 
 
 </td></tr>
