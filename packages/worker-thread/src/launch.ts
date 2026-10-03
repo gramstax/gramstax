@@ -14,7 +14,7 @@ import {WorkerThreadRpc} from "./rpc"
  *
  * @example
  * ```typescript
- * import { WorkerThreadLaunch } from "gramstax";
+ * import { WorkerThreadLaunch } from "@gramstax/worker-thread";
  *
  * async function main() {
  *   const worker = new WorkerThreadLaunch("./jobs/processor.ts", ["config.json"]);
@@ -30,7 +30,7 @@ import {WorkerThreadRpc} from "./rpc"
  *
  * @example Initialization method for handling requests from worker threads. Both can communicate with each other using an example like this, but this is very very rarely used.
  * ```typescript
- * import { WorkerThreadLaunch } from "gramstax";
+ * import { WorkerThreadLaunch } from "@gramstax/worker-thread";
  *
  * // main.ts
  * export class MainThread extends WorkerThreadLaunch {
@@ -48,7 +48,7 @@ import {WorkerThreadRpc} from "./rpc"
  *
  * // jobs/processor.ts
  * import {MainThread} from "./main"
- * import {WorkerThreadInit} from "gramstax";
+ * import {WorkerThreadInit} from "@gramstax/worker-thread";
  *
  * class Worker extends WorkerThreadInit {
  *   constructor() {

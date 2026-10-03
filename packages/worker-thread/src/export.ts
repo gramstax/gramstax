@@ -55,7 +55,7 @@ class Helper {
  *
  * @example Basic Usage
  * ```typescript
- * import { WorkerThreadExport, WorkerThreadInit } from "gramstax";
+ * import { WorkerThreadExport, WorkerThreadInit } from "@gramstax/worker-thread";
  *
  * class MyWorker extends WorkerThreadInit {
  *   count = 0;
@@ -211,7 +211,7 @@ export class WorkerThreadExport {
    * @example
    * ```typescript
    * // jobs/counter.ts
-   * import { WorkerThreadExport, WorkerThreadInit } from "gramstax";
+   * import { WorkerThreadExport, WorkerThreadInit } from "@gramstax/worker-thread";
    *
    * class Worker extends WorkerThreadInit {
    *   count = 0;

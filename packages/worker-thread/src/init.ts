@@ -17,7 +17,7 @@ import type {IGatewayServerOptions} from "./types/gateway-server"
  *
  * @example
  * ```typescript
- * import { WorkerThreadInit, WorkerThreadExport, log } from "gramstax";
+ * import { WorkerThreadInit, WorkerThreadExport } from "@gramstax/worker-thread";
  *
  * class Worker extends WorkerThreadInit {
  *   constructor() {

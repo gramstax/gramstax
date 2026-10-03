@@ -9,7 +9,7 @@ import type {WorkerThreadLaunch} from "./launch"
  *
  * @example
  * ```typescript
- * import { WorkerThreadPool, WorkerThreadLaunch } from "gramstax";
+ * import { WorkerThreadPool, WorkerThreadLaunch } from "@gramstax/worker-thread";
  *
  * const workers = await Promise.all(
  *   [1, 2, 3, 4].map(async (i) => {
