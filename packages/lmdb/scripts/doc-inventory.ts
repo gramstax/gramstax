@@ -16,6 +16,29 @@ type Row = {
   depth: number
 }
 
+/**
+ * Start offset of the `const`/`let`/`var` keyword owning the binding at
+ * `nameStart`.
+ *
+ * @remarks
+ * The AST cannot be walked to find this: a `VariableDeclaration` starts at the
+ * binding NAME (so the scan hits `=` / `let` instead of the comment), its parent
+ * is a `VariableDeclarationList`, and the statement itself may be wrapped in
+ * `FirstStatement` — a synthetic node whose `getStart()` is not the keyword.
+ * Backing up over whitespace to the keyword is the only reliable anchor.
+ */
+const declKeywordStart = (text: string, nameStart: number): number => {
+  const at = (i: number): string => (i >= 0 && i < text.length ? (text[i] as string) : ``)
+  const word = (c: string): boolean => /[\w$]/.test(c)
+  let i = nameStart - 1
+  while (i >= 0 && /\s/.test(at(i))) i--
+  for (const kw of [`let`, `const`, `var`]) {
+    const s = i - kw.length + 1
+    if (text.startsWith(kw, s) && !word(at(s - 1)) && !word(at(i + 1))) return s
+  }
+  return nameStart
+}
+
 /** JSDoc presence from raw text: robust across TS compiler versions. */
 const hasLeadingDoc = (text: string, start: number): boolean => {
   const at = (i: number): string => (i >= 0 && i < text.length ? (text[i] as string) : ``)
@@ -23,7 +46,9 @@ const hasLeadingDoc = (text: string, start: number): boolean => {
   while (i >= 0 && /\s/.test(at(i))) i--
   if (at(i) !== `/` || at(i - 1) !== `*`) return false
   let j = i - 2
-  while (j >= 1) {
+  // j must reach 0: a file whose FIRST statement is documented has its opening
+  // `/*` at offset 0, and `j >= 1` would never test it.
+  while (j >= 0) {
     if (at(j) === `/` && at(j + 1) === `*`) return true
     if (at(j) === `*` && at(j + 1) === `/`) return false
     j--
@@ -43,7 +68,7 @@ for (const f of files) {
     nameNode: ts.PropertyName | ts.BindingName | undefined,
     owner: ts.Node,
     depth: number,
-    docOwner: ts.Node = owner
+    docStartOverride?: number
   ) => {
     let name = "<anonymous>"
     if (nameNode) {
@@ -65,7 +90,7 @@ for (const f of files) {
       kind,
       visibility,
       params: fn.parameters.map((p) => p.name.getText(sf).replace(/^\.\.\./, "")),
-      hasDoc: hasLeadingDoc(text, docOwner.getStart(sf)),
+      hasDoc: hasLeadingDoc(text, docStartOverride ?? owner.getStart(sf)),
       underscore: name.startsWith("_"),
       depth
     })
@@ -90,10 +115,7 @@ const visit = (node: ts.Node, depth: number) => {
     } else if (ts.isVariableDeclaration(node) && node.initializer) {
       const init = node.initializer
       if (ts.isArrowFunction(init) || ts.isFunctionExpression(init)) {
-        // `const` lives on the VariableStatement, not the declaration, so anchor
-        // the JSDoc lookup there — otherwise the scan starts at the binding name
-        // and stops on the `=`.
-        push(init, "const-fn", node.name, node, depth, node.parent)
+        push(init, "const-fn", node.name, node, depth, declKeywordStart(text, node.getStart(sf)))
       }
     }
     const next =
