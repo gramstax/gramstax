@@ -104,7 +104,7 @@ No `.run()`, no `await`, no export default — `gramstax start` imports `src/cor
 
 ## Rules
 
-- **Type it.** `GramstaxConfig` is an alias of `IGramstaxConfig`; the annotation is what catches misspelled keys. `tsc --noEmit` covers it via `bun run typecheck`.
+- **Type it.** `GramstaxConfig` is an alias of `IGramstaxConfig`; the annotation is what catches misspelled keys. `tsc --noEmit` covers it via `bun run ci:check` — note the gate pins `typescript@7.0.2` through `bunx --package`, so a bare `bunx tsc` checks a different major version than CI.
 - **Default export only.** Named exports are ignored. A non-object default export throws.
 - **Only the 19 known fields.** Anything else — including `manifest` — throws `unknown field`. `manifest` is a *constructor* param, not a config field.
 - **Missing file is legal** and means `{deploy: 'polling'}`. That is what keeps zero-config `gramstax build` working.

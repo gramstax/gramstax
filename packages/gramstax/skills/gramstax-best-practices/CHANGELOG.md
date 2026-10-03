@@ -1,10 +1,15 @@
 # Changelog
 
-## 2.0.0
+## 2.2.0
 
 Realigns the skill with **gramstax v2.2.0**. The v2.1 rules taught an entrypoint
 and a deploy grammar that no longer exist, so most rule files were rewritten
 rather than amended.
+
+The heading follows the package version. Every feature described below is
+present in the published `v2.2.0` tag — verified against `src/cli/`,
+`types/config.ts`, `types/manifest.ts`, `types/session-lock.ts`, and
+`types/metrics.ts` — so this entry needs no unreleased caveat.
 
 ### New rules
 
@@ -74,6 +79,21 @@ never-existing members. All fixed in the framework:
 denials only, **never** a page-level gate denial — documented in
 `route-hooks.md`, `deploy-runtime.md`, and `e2e-flows.md`, since the recommended
 admin pattern is page-level.
+
+### Skill defects corrected while verifying
+
+One command in this skill did not exist. Recorded here because the same mistake
+was found in the `worker-thread` skill and fixed there in the same pass.
+
+| File | Defect | Correction |
+| --- | --- | --- |
+| `references/config-boot.md:107` | claimed typechecking runs "via `bun run typecheck`" — **no `typecheck` script exists** in the root `package.json`; running it fails with `error: Script not found "typecheck"` | now names the real gate, `bun run ci:check`, and the pinned compiler |
+
+The gate is `bun run ci:check`, which runs
+`bunx --package typescript@7.0.2 tsc --noEmit` for the repo root and then once
+per package. Note the pin: `typescript@7.0.2` is fetched by `bunx --package`,
+while the root `devDependencies` still hold `typescript: ^6.0.3`, so a bare
+`bunx tsc` checks a *different major version* than CI does.
 
 ## 1.2.0
 
