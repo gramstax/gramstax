@@ -1,6 +1,6 @@
 import {EventEmitter} from "node:events"
 import {isMainThread, Worker} from "node:worker_threads"
-import {reportError} from "./error-handler"
+import {WorkerThreadErrorHandler} from "./error-handler"
 import {WorkerThreadRpc} from "./rpc"
 
 /**
@@ -292,7 +292,7 @@ export class WorkerThreadLaunch extends EventEmitter {
    * Node's `EventEmitter` throws when `error` is emitted with no listeners,
    * which would crash the process for a recoverable worker error. With
    * listeners, the error is emitted; without, it is routed to the
-   * package-wide handler set via `setDefaultErrorHandler` (silent by
+   * package-wide handler set via `WorkerThreadErrorHandler.setDefault` (silent by
    * default — library code never writes to the console).
    *
    * @param err - The error to emit (or report).
@@ -301,7 +301,7 @@ export class WorkerThreadLaunch extends EventEmitter {
     if (this.listenerCount(`error`) > 0) {
       this.emit(`error`, err)
     } else {
-      reportError(err)
+      WorkerThreadErrorHandler.report(err)
     }
   }
 

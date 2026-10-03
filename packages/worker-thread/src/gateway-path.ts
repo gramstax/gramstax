@@ -13,38 +13,50 @@ import {isAbsolute, join} from "node:path"
 const MAX_POSIX_SOCKET_PATH = 104
 
 /**
- * Normalize a gateway socket path for the current platform.
+ * Gateway socket path normalization.
  *
  * @remarks
- * On Windows, POSIX-style paths (`/tmp/server.sock`) and bare identifiers
- * (`gateway-main`) are converted to named pipes (`\\.\pipe\...`). Dashes
- * are escaped (`-` → `--`) before `/` is mapped to `-`, so `/tmp/a-b` and
- * `/tmp/a/b` land on distinct pipes instead of colliding.
- * Existing `\\.\pipe\` paths pass through unchanged.
+ * Stateless helper — every member is static, so the class is never
+ * instantiated. Path rules live here so the gateway server and client
+ * normalize identically.
  *
- * On POSIX, absolute paths pass through unchanged (after a length check);
- * relative or bare identifiers are resolved against `os.tmpdir()` so socket
- * files never pollute the process working directory.
- *
- * @param path - Raw gateway path (POSIX path or bare identifier).
- * @returns Platform-appropriate socket path.
- * @throws When the resolved POSIX path exceeds 104 characters.
- *
- * @example
- * ```typescript
- * // On Windows: "\\\\.\\pipe\\gateway--main"
- * normalizeGatewayPath("gateway-main");
- * ```
  * @public
  */
-export function normalizeGatewayPath(path: string): string {
-  if (process.platform === `win32`) {
-    if (path.startsWith(`\\\\.\\pipe\\`)) return path
-    return `\\\\.\\pipe\\${path.replace(/^\//, ``).replace(/-/g, `--`).replace(/\//g, `-`)}`
+export class WorkerThreadGatewayPath {
+  /**
+   * Normalize a gateway socket path for the current platform.
+   *
+   * @remarks
+   * On Windows, POSIX-style paths (`/tmp/server.sock`) and bare identifiers
+   * (`gateway-main`) are converted to named pipes (`\\.\pipe\...`). Dashes
+   * are escaped (`-` → `--`) before `/` is mapped to `-`, so `/tmp/a-b` and
+   * `/tmp/a/b` land on distinct pipes instead of colliding.
+   * Existing `\\.\pipe\` paths pass through unchanged.
+   *
+   * On POSIX, absolute paths pass through unchanged (after a length check);
+   * relative or bare identifiers are resolved against `os.tmpdir()` so socket
+   * files never pollute the process working directory.
+   *
+   * @param path - Raw gateway path (POSIX path or bare identifier).
+   * @returns Platform-appropriate socket path.
+   * @throws When the resolved POSIX path exceeds 104 characters.
+   *
+   * @example
+   * ```typescript
+   * // On Windows: "\\\\.\\pipe\\gateway--main"
+   * WorkerThreadGatewayPath.normalize("gateway-main");
+   * ```
+   * @public
+   */
+  static normalize(path: string): string {
+    if (process.platform === `win32`) {
+      if (path.startsWith(`\\\\.\\pipe\\`)) return path
+      return `\\\\.\\pipe\\${path.replace(/^\//, ``).replace(/-/g, `--`).replace(/\//g, `-`)}`
+    }
+    const resolved = isAbsolute(path) ? path : join(tmpdir(), path)
+    if (resolved.length > MAX_POSIX_SOCKET_PATH) {
+      throw new Error(`gateway socket path exceeds ${MAX_POSIX_SOCKET_PATH} characters (${resolved.length}): ${resolved}`)
+    }
+    return resolved
   }
-  const resolved = isAbsolute(path) ? path : join(tmpdir(), path)
-  if (resolved.length > MAX_POSIX_SOCKET_PATH) {
-    throw new Error(`gateway socket path exceeds ${MAX_POSIX_SOCKET_PATH} characters (${resolved.length}): ${resolved}`)
-  }
-  return resolved
 }

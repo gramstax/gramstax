@@ -3,35 +3,35 @@
  *
  * @remarks
  * Library code never writes to the console — errors without an instance
- * `error` listener are routed to `setDefaultErrorHandler` (silent by
+ * `error` listener are routed to `WorkerThreadErrorHandler.setDefault` (silent by
  * default), so consumers control where errors go.
  */
 import {afterEach, describe, expect, it } from "bun:test"
-import {reportError, setDefaultErrorHandler} from "../src/error-handler"
+import {WorkerThreadErrorHandler} from "../src/error-handler"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import {waitFor, withTimeout } from "./helpers"
 
 describe(`default error handler`, () => {
   afterEach(() => {
-    setDefaultErrorHandler(() => {})
+    WorkerThreadErrorHandler.setDefault(() => {})
   })
 
-  it(`routes errors through setDefaultErrorHandler`, () => {
+  it(`routes errors through WorkerThreadErrorHandler.setDefault`, () => {
     const seen: unknown[] = []
-    setDefaultErrorHandler((err) => seen.push(err))
-    reportError(new Error(`boom`))
+    WorkerThreadErrorHandler.setDefault((err) => seen.push(err))
+    WorkerThreadErrorHandler.report(new Error(`boom`))
     expect(seen).toHaveLength(1)
     expect((seen[0] as Error).message).toBe(`boom`)
   })
 
   it(`is silent by default — no throw, no output`, () => {
-    expect(() => reportError(new Error(`quiet`))).not.toThrow()
+    expect(() => WorkerThreadErrorHandler.report(new Error(`quiet`))).not.toThrow()
   })
 
   it(`routes gateway transport errors to the default handler when no listeners`, async () => {
     const seen: unknown[] = []
-    setDefaultErrorHandler((err) => seen.push(err))
+    WorkerThreadErrorHandler.setDefault((err) => seen.push(err))
     const path = `eh-${process.pid}-${Date.now()}`
     const server = new WorkerThreadGatewayServer()
     const client = new WorkerThreadGatewayClient()
@@ -52,37 +52,37 @@ describe(`default error handler`, () => {
 
   it(`a throwing default error handler never crashes the transport`, () => {
     const seen: unknown[] = []
-    setDefaultErrorHandler((err) => {
+    WorkerThreadErrorHandler.setDefault((err) => {
       seen.push(err)
       throw new Error(`handler exploded`)
     })
-    expect(() => reportError(new Error(`transport error`))).not.toThrow()
+    expect(() => WorkerThreadErrorHandler.report(new Error(`transport error`))).not.toThrow()
     expect(seen).toHaveLength(1)
   })
 })
 
-describe(`regression (m): setDefaultErrorHandler validation`, () => {
+describe(`regression (m): WorkerThreadErrorHandler.setDefault validation`, () => {
   afterEach(() => {
-    setDefaultErrorHandler(() => {})
+    WorkerThreadErrorHandler.setDefault(() => {})
   })
 
   it(`throws TypeError on non-function arguments`, () => {
     for (const bad of [123, `handler`, null, {}, true]) {
-      expect(() => setDefaultErrorHandler(bad as any)).toThrow(TypeError)
+      expect(() => WorkerThreadErrorHandler.setDefault(bad as any)).toThrow(TypeError)
     }
   })
 
   it(`calling with undefined resets to the silent default`, () => {
     const seen: unknown[] = []
-    setDefaultErrorHandler((err) => seen.push(err))
-    reportError(new Error(`before reset`))
+    WorkerThreadErrorHandler.setDefault((err) => seen.push(err))
+    WorkerThreadErrorHandler.report(new Error(`before reset`))
     expect(seen).toHaveLength(1)
-    setDefaultErrorHandler(undefined as any)
-    expect(() => reportError(new Error(`after reset`))).not.toThrow()
+    WorkerThreadErrorHandler.setDefault(undefined as any)
+    expect(() => WorkerThreadErrorHandler.report(new Error(`after reset`))).not.toThrow()
     expect(seen).toHaveLength(1)
     // a fresh handler can be installed after the reset
-    setDefaultErrorHandler((err) => seen.push(err))
-    reportError(new Error(`after reinstall`))
+    WorkerThreadErrorHandler.setDefault((err) => seen.push(err))
+    WorkerThreadErrorHandler.report(new Error(`after reinstall`))
     expect(seen).toHaveLength(2)
   })
 })

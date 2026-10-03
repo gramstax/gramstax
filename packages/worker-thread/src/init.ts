@@ -1,8 +1,10 @@
 import {isMainThread, parentPort, threadId} from "node:worker_threads"
-import {reportError} from "./error-handler"
-import {type IGatewayClientOptions, WorkerThreadGatewayClient} from "./gateway-client"
-import {type IGatewayServerOptions, WorkerThreadGatewayServer} from "./gateway-server"
+import {WorkerThreadErrorHandler} from "./error-handler"
+import {WorkerThreadGatewayClient} from "./gateway-client"
+import {WorkerThreadGatewayServer} from "./gateway-server"
 import {WorkerThreadRpc} from "./rpc"
+import type {IGatewayClientOptions} from "./types/gateway-client"
+import type {IGatewayServerOptions} from "./types/gateway-server"
 
 /**
  * Base class for worker thread implementations.
@@ -117,15 +119,15 @@ export class WorkerThreadInit {
    * Hook called when an unhandled error occurs inside the worker's RPC handling.
    *
    * @remarks
-   * Default implementation forwards to {@link reportError} — silent by
+   * Default implementation forwards to {@link WorkerThreadErrorHandler.report} — silent by
    * default (the package-wide handler is a no-op) but observable via
-   * `setDefaultErrorHandler`. Override contract: replace this method to
+   * `WorkerThreadErrorHandler.setDefault`. Override contract: replace this method to
    * customize handling (e.g. log); call `super.onError(err)` (or
-   * `reportError(err)` directly) inside the override to preserve
+   * `WorkerThreadErrorHandler.report(err)` directly) inside the override to preserve
    * package-wide observability.
    */
   onError(err: unknown): void {
-    reportError(err)
+    WorkerThreadErrorHandler.report(err)
   }
 
   /**

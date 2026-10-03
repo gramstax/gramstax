@@ -128,31 +128,31 @@ describe(`WorkerThreadGatewayClient`, () => {
   })
 })
 
-describe(`normalizeGatewayPath hardening (unit)`, () => {
+describe(`WorkerThreadGatewayPath.normalize hardening (unit)`, () => {
   it(`resolves bare names under os.tmpdir() instead of CWD (POSIX)`, async () => {
     if (process.platform === `win32`) return
-    const {normalizeGatewayPath} = await import(`../src/gateway-path`)
+    const {WorkerThreadGatewayPath} = await import(`../src/gateway-path`)
     const {tmpdir} = await import(`node:os`)
     const {join} = await import(`node:path`)
-    expect(normalizeGatewayPath(`gtest-x`)).toBe(join(tmpdir(), `gtest-x`))
+    expect(WorkerThreadGatewayPath.normalize(`gtest-x`)).toBe(join(tmpdir(), `gtest-x`))
   })
 
   it(`passes short absolute POSIX paths through unchanged`, async () => {
     if (process.platform === `win32`) return
-    const {normalizeGatewayPath} = await import(`../src/gateway-path`)
-    expect(normalizeGatewayPath(`/tmp/server.sock`)).toBe(`/tmp/server.sock`)
+    const {WorkerThreadGatewayPath} = await import(`../src/gateway-path`)
+    expect(WorkerThreadGatewayPath.normalize(`/tmp/server.sock`)).toBe(`/tmp/server.sock`)
   })
 
   it(`rejects POSIX paths longer than 104 chars with a clear Error`, async () => {
     if (process.platform === `win32`) return
-    const {normalizeGatewayPath} = await import(`../src/gateway-path`)
-    expect(() => normalizeGatewayPath(`/tmp/${`x`.repeat(200)}`)).toThrow(/104/)
+    const {WorkerThreadGatewayPath} = await import(`../src/gateway-path`)
+    expect(() => WorkerThreadGatewayPath.normalize(`/tmp/${`x`.repeat(200)}`)).toThrow(/104/)
   })
 
   it(`never collides /tmp/a-b with /tmp/a/b on Windows pipes`, async () => {
     if (process.platform !== `win32`) return
-    const {normalizeGatewayPath} = await import(`../src/gateway-path`)
-    expect(normalizeGatewayPath(`/tmp/a-b`)).not.toBe(normalizeGatewayPath(`/tmp/a/b`))
+    const {WorkerThreadGatewayPath} = await import(`../src/gateway-path`)
+    expect(WorkerThreadGatewayPath.normalize(`/tmp/a-b`)).not.toBe(WorkerThreadGatewayPath.normalize(`/tmp/a/b`))
   })
 })
 

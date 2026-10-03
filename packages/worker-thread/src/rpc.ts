@@ -1,48 +1,16 @@
 /**
- * RPC types and handler for worker-thread request/response.
+ * RPC handler for worker-thread request/response.
  *
  * @remarks
- * Defines the shared RPC map type and the low-level
- * {@link WorkerThreadRpc} handler that decodes incoming messages,
- * dispatches to the matching `mtd*` method, and returns the result
- * or error to the caller thread.
+ * Defines the low-level {@link WorkerThreadRpc} handler that decodes incoming
+ * messages, dispatches to the matching `mtd*` method, and returns the result
+ * or error to the caller thread. The RPC types live in `./types/rpc`.
  *
  * @public
  */
 
-import {reportError} from "./error-handler"
-
-/**
- * Map type for storing pending RPC request handlers.
- * @public
- */
-export type IMapRpc = Map<number, {reject: (error: unknown) => void; resolve: (result: unknown) => void; timer?: ReturnType<typeof setTimeout>}>
-
-/**
- * Context object passed through the RPC middleware chain for incoming requests.
- *
- * @remarks
- * Middleware can mutate `params` before dispatch, short-circuit by setting
- * `result` without calling `next`, or throw to reject the request.
- * @public
- */
-export type IRpcContext = {
-  /** Method name being invoked. */
-  method: string
-  /** Positional arguments for the method. Mutable by middleware. */
-  params: unknown[]
-  /** Result produced by the handler (or by short-circuiting middleware). */
-  result?: unknown
-}
-
-/**
- * Middleware function for intercepting incoming RPC requests.
- *
- * @param ctx - Mutable request context.
- * @param next - Continue to the next middleware / dispatch the method.
- * @public
- */
-export type IRpcMiddleware = (ctx: IRpcContext, next: () => Promise<void>) => Promise<void>
+import {WorkerThreadErrorHandler} from "./error-handler"
+import type {IMapRpc, IRpcContext, IRpcMiddleware} from "./types/rpc"
 
 /**
  * Default cap on the estimated in-memory size of a single RPC message
@@ -74,64 +42,6 @@ export const DEFAULT_REQUEST_TIMEOUT_MS = 30000
 export const DENIED_RPC_METHODS: ReadonlySet<string> = new Set([`__proto__`, `constructor`, `prototype`, `send`, `request`, `kill`, `init`, `handleOnMessage`, `createGatewayServer`, `createGatewayClient`])
 
 /**
- * Estimate the in-memory footprint of a structured value.
- *
- * @remarks
- * Recursive walker that counts strings, numbers, buffer bytes and keys with
- * bounded double-count-avoidance. It deliberately does not serialize
- * (`JSON.stringify` throws on `BigInt`, which messagepack payloads can
- * contain), so we approximate the size the value occupies after decode.
- */
-export function estimatePayloadSize(value: unknown): number {
-  const seen = new Set<unknown>()
-  let size = 0
-  const walk = (v: unknown): void => {
-    if (v === null || v === undefined || typeof v === `boolean`) return
-    if (typeof v === `number` || typeof v === `bigint`) {
-      size += 8
-      return
-    }
-    if (typeof v === `string`) {
-      size += v.length * 2
-      return
-    }
-    if (typeof v === `symbol` || typeof v === `function`) return
-    if (v instanceof Date) {
-      size += 8
-      return
-    }
-    if (v instanceof ArrayBuffer || (typeof ArrayBuffer !== `undefined` && ArrayBuffer.isView(v))) {
-      size += v.byteLength
-      return
-    }
-    if (v instanceof Map) {
-      for (const [key, val] of v) {
-        walk(key)
-        walk(val)
-      }
-      return
-    }
-    if (v instanceof Set) {
-      for (const item of v) walk(item)
-      return
-    }
-    if (typeof v !== `object` || seen.has(v)) return
-    seen.add(v)
-    if (Array.isArray(v)) {
-      for (const item of v) walk(item)
-      return
-    }
-    const record = v as Record<string, unknown>
-    for (const key of Object.keys(record)) {
-      size += key.length * 2
-      walk(record[key])
-    }
-  }
-  walk(value)
-  return size
-}
-
-/**
  * [LOW-LEVEL] Handles JSON-RPC style communication between threads.
  *
  * @remarks
@@ -143,6 +53,72 @@ export function estimatePayloadSize(value: unknown): number {
  * @public
  */
 export class WorkerThreadRpc {
+  /**
+   * Estimate the in-memory footprint of a structured value.
+   *
+   * @remarks
+   * Recursive walker that counts strings, numbers, buffer bytes and keys with
+   * bounded double-count-avoidance. It deliberately does not serialize
+   * (`JSON.stringify` throws on `BigInt`, which messagepack payloads can
+   * contain), so we approximate the size the value occupies after decode.
+   *
+   * Static because it depends on no instance state — the gateway server uses
+   * it to decide whether a response is worth caching for duplicate suppression.
+   *
+   * @param value - The decoded value to measure.
+   * @returns Estimated size in bytes.
+   *
+   * @public
+   */
+  static estimatePayloadSize(value: unknown): number {
+    const seen = new Set<unknown>()
+    let size = 0
+    const walk = (v: unknown): void => {
+      if (v === null || v === undefined || typeof v === `boolean`) return
+      if (typeof v === `number` || typeof v === `bigint`) {
+        size += 8
+        return
+      }
+      if (typeof v === `string`) {
+        size += v.length * 2
+        return
+      }
+      if (typeof v === `symbol` || typeof v === `function`) return
+      if (v instanceof Date) {
+        size += 8
+        return
+      }
+      if (v instanceof ArrayBuffer || (typeof ArrayBuffer !== `undefined` && ArrayBuffer.isView(v))) {
+        size += v.byteLength
+        return
+      }
+      if (v instanceof Map) {
+        for (const [key, val] of v) {
+          walk(key)
+          walk(val)
+        }
+        return
+      }
+      if (v instanceof Set) {
+        for (const item of v) walk(item)
+        return
+      }
+      if (typeof v !== `object` || seen.has(v)) return
+      seen.add(v)
+      if (Array.isArray(v)) {
+        for (const item of v) walk(item)
+        return
+      }
+      const record = v as Record<string, unknown>
+      for (const key of Object.keys(record)) {
+        size += key.length * 2
+        walk(record[key])
+      }
+    }
+    walk(value)
+    return size
+  }
+
   /**
    * Map of pending requests by ID. Stores promise handlers for pending requests.
    *
@@ -222,11 +198,11 @@ export class WorkerThreadRpc {
       const p = this.send(envelope)
       if (p && typeof (p as Promise<unknown>).then === `function`) {
         ;(p as Promise<unknown>).catch((err: unknown) => {
-          reportError(err instanceof Error ? err : new Error(String(err)))
+          WorkerThreadErrorHandler.report(err instanceof Error ? err : new Error(String(err)))
         })
       }
     } catch (err) {
-      reportError(err instanceof Error ? err : new Error(String(err)))
+      WorkerThreadErrorHandler.report(err instanceof Error ? err : new Error(String(err)))
     }
   }
 
@@ -283,7 +259,7 @@ export class WorkerThreadRpc {
     // Reject oversized messages before any dispatch or pending-map write —
     // a gateway peer can otherwise exhaust memory or grow the pending map
     // with a single framed message.
-    if (this.maxMessageSize !== undefined && estimatePayloadSize(data) > this.maxMessageSize) {
+    if (this.maxMessageSize !== undefined && WorkerThreadRpc.estimatePayloadSize(data) > this.maxMessageSize) {
       if (method !== undefined) {
         // request-type: answer with a controlled error so the caller
         // rejects instead of hanging on a missing response
@@ -348,7 +324,7 @@ export class WorkerThreadRpc {
   private _handleResponse(data: {id?: number; result?: unknown; error?: unknown}): void {
     const {id} = data
     if (typeof id !== `number`) {
-      reportError(new Error(`Invalid RPC response id: expected number, got ${typeof id}`))
+      WorkerThreadErrorHandler.report(new Error(`Invalid RPC response id: expected number, got ${typeof id}`))
       return
     }
     const pending = this.map.get(id)

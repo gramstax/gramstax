@@ -16,7 +16,7 @@
 import {unlink} from "node:fs/promises"
 import {bench, do_not_optimize, group} from "mitata"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
-import {normalizeGatewayPath} from "../src/gateway-path"
+import {WorkerThreadGatewayPath} from "../src/gateway-path"
 import type {WorkerThreadLaunch} from "../src/launch"
 import {sleep, withTimeout} from "../test/helpers"
 import {uniqueSocketPath} from "./_setup"
@@ -24,7 +24,7 @@ import {runBench} from "./_setup"
 import {GatewayEchoJob} from "./fixtures/gateway-echo-worker"
 
 async function unlinkStaleSocket(path: string): Promise<void> {
-  const resolved = normalizeGatewayPath(path)
+  const resolved = WorkerThreadGatewayPath.normalize(path)
   if (process.platform === `win32` || resolved.startsWith(`\\\\.\\pipe\\`)) return
   await unlink(resolved).catch(() => {})
 }

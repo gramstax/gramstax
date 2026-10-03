@@ -7,3 +7,9 @@ export * from "./init"
 export * from "./launch"
 export * from "./pool"
 export * from "./rpc"
+
+// Type definitions live in `./types`, mirroring `lmdb/src/types`.
+export type {IGatewayClientOptions} from "./types/gateway-client"
+export type {IGatewayServerOptions} from "./types/gateway-server"
+export type {IWorkerThreadAsyncMethods, IWorkerThreadExportOpt, IWorkerThreadExportResult, IWorkerThreadGatewayClientFactory, IWorkerThreadGatewayProxy} from "./types/export"
+export type {IMapRpc, IRpcContext, IRpcMiddleware} from "./types/rpc"

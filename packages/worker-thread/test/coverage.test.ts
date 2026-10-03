@@ -1,5 +1,5 @@
 import {describe, expect, it, mock} from "bun:test"
-import {reportError, resetDefaultErrorHandler, setDefaultErrorHandler} from "../src/error-handler"
+import {WorkerThreadErrorHandler} from "../src/error-handler"
 import {WorkerThreadExport} from "../src/export"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
@@ -19,16 +19,16 @@ function uniquePath() {
 class StubWorker extends WorkerThreadInit {}
 
 describe(`coverage-error-handler`, () => {
-  it(`resetDefaultErrorHandler restores the silent drop`, () => {
-    expect(() => reportError(new Error(`initial`))).not.toThrow()
+  it(`WorkerThreadErrorHandler.resetDefault restores the silent drop`, () => {
+    expect(() => WorkerThreadErrorHandler.report(new Error(`initial`))).not.toThrow()
     const seen: unknown[] = []
-    setDefaultErrorHandler((err) => {
+    WorkerThreadErrorHandler.setDefault((err) => {
       seen.push(err)
     })
-    reportError(new Error(`x`))
+    WorkerThreadErrorHandler.report(new Error(`x`))
     expect(seen).toHaveLength(1)
-    resetDefaultErrorHandler()
-    reportError(new Error(`y`))
+    WorkerThreadErrorHandler.resetDefault()
+    WorkerThreadErrorHandler.report(new Error(`y`))
     expect(seen).toHaveLength(1)
   })
 })
@@ -42,7 +42,7 @@ describe(`coverage-helpers`, () => {
 describe(`coverage-init-handleOnMessage`, () => {
   it(`routes rpc.make rejection to onError`, async () => {
     const seen: unknown[] = []
-    setDefaultErrorHandler((err) => {
+    WorkerThreadErrorHandler.setDefault((err) => {
       seen.push(err)
     })
     try {
@@ -54,7 +54,7 @@ describe(`coverage-init-handleOnMessage`, () => {
       await sleep(20)
       expect(seen).toHaveLength(1)
     } finally {
-      resetDefaultErrorHandler()
+      WorkerThreadErrorHandler.resetDefault()
     }
   })
 

@@ -8,7 +8,7 @@
 import {beforeEach, describe, expect, it} from "bun:test"
 import {EventEmitter} from "node:events"
 import {isMainThread, parentPort} from "node:worker_threads"
-import {reportError, setDefaultErrorHandler} from "../src/error-handler"
+import {WorkerThreadErrorHandler} from "../src/error-handler"
 import {WorkerThreadInit} from "../src/init"
 import {WorkerThreadRpc} from "../src/rpc"
 
@@ -214,28 +214,28 @@ describe(`WorkerThreadInit`, () => {
     })
   })
 
-  describe(`regression: default onError forwards to reportError`, () => {
-    it(`routes the error to setDefaultErrorHandler (silent by default, observable when set)`, () => {
+  describe(`regression: default onError forwards to WorkerThreadErrorHandler.report`, () => {
+    it(`routes the error to WorkerThreadErrorHandler.setDefault (silent by default, observable when set)`, () => {
       const seen: Array<unknown> = []
-      setDefaultErrorHandler((err) => seen.push(err))
+      WorkerThreadErrorHandler.setDefault((err) => seen.push(err))
       try {
         const worker = new MinimalWorker()
         const boom = new Error(`rpc-boom`)
         worker.onError(boom)
         expect(seen).toEqual([boom])
       } finally {
-        setDefaultErrorHandler(() => {})
+        WorkerThreadErrorHandler.setDefault(() => {})
       }
     })
 
-    it(`reportError itself is the observable seam`, () => {
+    it(`WorkerThreadErrorHandler.report itself is the observable seam`, () => {
       const seen: Array<unknown> = []
-      setDefaultErrorHandler((err) => seen.push(err))
+      WorkerThreadErrorHandler.setDefault((err) => seen.push(err))
       try {
-        reportError(new Error(`direct`))
+        WorkerThreadErrorHandler.report(new Error(`direct`))
         expect(seen).toHaveLength(1)
       } finally {
-        setDefaultErrorHandler(() => {})
+        WorkerThreadErrorHandler.setDefault(() => {})
       }
     })
   })

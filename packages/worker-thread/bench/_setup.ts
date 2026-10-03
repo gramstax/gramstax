@@ -11,7 +11,7 @@
  * @internal
  */
 import {run} from "mitata"
-import type {IGatewayClientOptions} from "../src/gateway-client"
+import type {IGatewayClientOptions} from "../src/types/gateway-client"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import type {WorkerThreadLaunch} from "../src/launch"

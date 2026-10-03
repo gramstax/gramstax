@@ -2,27 +2,10 @@ import {timingSafeEqual} from "node:crypto"
 import {EventEmitter} from "node:events"
 import {unlink} from "node:fs/promises"
 import {type Connection, Server} from "net-ipc"
-import {reportError} from "./error-handler"
-import {normalizeGatewayPath} from "./gateway-path"
-import {DEFAULT_MAX_MESSAGE_SIZE, estimatePayloadSize, WorkerThreadRpc} from "./rpc"
-
-/**
- * Options for starting a gateway server.
- *
- * @remarks
- * Auth and method allow-lists are enforced per connection on the server side.
- * @public
- */
-export type IGatewayServerOptions = {
-  /** Shared secret required from connecting clients (sent via the client `connect` payload). */
-  token?: string
-  /** Restrict which registered methods may be invoked remotely. */
-  allowedMethods?: string[]
-  /** Maximum number of concurrent connections. */
-  maxConnections?: number
-  /** Estimated maximum size in bytes of a single incoming message. Defaults to {@link DEFAULT_MAX_MESSAGE_SIZE}. */
-  maxMessageSize?: number
-}
+import {WorkerThreadErrorHandler} from "./error-handler"
+import {WorkerThreadGatewayPath} from "./gateway-path"
+import {DEFAULT_MAX_MESSAGE_SIZE, WorkerThreadRpc} from "./rpc"
+import type {IGatewayServerOptions} from "./types/gateway-server"
 
 /** Maximum inbound responses cached per connection for duplicate suppression. */
 const MAX_CACHED_RESPONSES = 1000
@@ -154,7 +137,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
       const rpc = new WorkerThreadRpc(
         (data) => {
           const id = (data as {id?: unknown}).id
-          if (typeof id === `number` && estimatePayloadSize(data) <= MAX_CACHED_RESPONSE_SIZE) {
+          if (typeof id === `number` && WorkerThreadRpc.estimatePayloadSize(data) <= MAX_CACHED_RESPONSE_SIZE) {
             if (seen.size >= MAX_CACHED_RESPONSES) {
               const oldest = seen.keys().next()
               if (!oldest.done) seen.delete(oldest.value)
@@ -267,7 +250,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
    * @remarks
    * Node's `EventEmitter` throws when `error` is emitted with no listeners.
    * With listeners, the error is emitted; without, it is routed to the
-   * package-wide handler set via `setDefaultErrorHandler` (silent by
+   * package-wide handler set via `WorkerThreadErrorHandler.setDefault` (silent by
    * default — library code never writes to the console).
    *
    * @param err - The error to emit (or report).
@@ -276,7 +259,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
     if (this.listenerCount(`error`) > 0) {
       this.emit(`error`, err)
     } else {
-      reportError(err)
+      WorkerThreadErrorHandler.report(err)
     }
   }
 
@@ -312,7 +295,7 @@ export class WorkerThreadGatewayServer extends EventEmitter {
     if (options?.maxConnections !== undefined) {
       this.server.options.max = options.maxConnections
     }
-    const normalized = normalizeGatewayPath(path)
+    const normalized = WorkerThreadGatewayPath.normalize(path)
     this.server.options.path = normalized
     let resolveReady!: (value: this) => void
     const ready = new Promise<this>((resolve) => {

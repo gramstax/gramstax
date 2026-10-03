@@ -266,9 +266,9 @@ Errors are never written to the console by the library — without an `error`
 listener they are routed to the package-wide handler (silent by default):
 
 ```typescript
-import { setDefaultErrorHandler } from "@gramstax/worker-thread";
+import { WorkerThreadErrorHandler } from "@gramstax/worker-thread";
 
-setDefaultErrorHandler((err) => logger.error(err)); // one call, all instances
+WorkerThreadErrorHandler.setDefault((err) => logger.error(err)); // one call, all instances
 ```
 
 ### Graceful shutdown
@@ -313,8 +313,8 @@ worker.rpc.context = { traceId: "abc-123" };  // included in all outgoing payloa
 | `WorkerThreadRpc` | JSON-RPC dispatcher — `makeRequest(..., timeoutMs?)`, `rejectAllPending()`, `use()` middleware, `context` |
 | `WorkerThreadGatewayServer` | Socket server — `start(path, register?, { token, allowedMethods, maxConnections })`, `close()` |
 | `WorkerThreadGatewayClient` | Socket client — `connect(path, { token, reconnect, retries, maxRetryTime, messagepack })`, `close()` |
-| `normalizeGatewayPath` | Normalize socket paths for Windows named pipes |
-| `setDefaultErrorHandler` | Package-wide error handler for errors without instance listeners (silent by default — the library never logs to the console) |
+| `WorkerThreadGatewayPath.normalize()` | Normalize socket paths for Windows named pipes |
+| `WorkerThreadErrorHandler.setDefault()` | Package-wide error handler for errors without instance listeners (silent by default — the library never logs to the console) |
 
 ## Run the examples
 

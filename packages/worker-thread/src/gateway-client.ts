@@ -1,32 +1,9 @@
 import {EventEmitter} from "node:events"
 import {Client} from "net-ipc"
-import {reportError} from "./error-handler"
-import {normalizeGatewayPath} from "./gateway-path"
+import {WorkerThreadErrorHandler} from "./error-handler"
+import {WorkerThreadGatewayPath} from "./gateway-path"
 import {DEFAULT_MAX_MESSAGE_SIZE, WorkerThreadRpc} from "./rpc"
-
-/**
- * Options for connecting a gateway client.
- *
- * @remarks
- * Reconnect is enabled by default: when the connection drops (e.g. the
- * gateway server worker restarts), the client retries with exponential
- * backoff and pending requests are retried transparently.
- * @public
- */
-export type IGatewayClientOptions = {
-  /** Shared secret matching the server's `token`. Sent during the connection handshake. */
-  token?: string
-  /** Automatically reconnect when the connection drops. Defaults to `true`. */
-  reconnect?: boolean
-  /** Maximum number of reconnect attempts before giving up. */
-  retries?: number
-  /** Upper bound (ms) for the exponential reconnect backoff. */
-  maxRetryTime?: number
-  /** Estimated maximum size in bytes of a single incoming message. Defaults to {@link DEFAULT_MAX_MESSAGE_SIZE}. */
-  maxMessageSize?: number
-  /** Use msgpackr binary encoding — preserves `Date`, `BigInt`, `undefined` and typed arrays. */
-  messagepack?: boolean
-}
+import type {IGatewayClientOptions} from "./types/gateway-client"
 
 /**
  * [LOW-LEVEL] Provides IPC client functionality for inter-worker communication using Unix domain sockets.
@@ -132,7 +109,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
    * @remarks
    * Node's `EventEmitter` throws when `error` is emitted with no listeners.
    * With listeners, the error is emitted; without, it is routed to the
-   * package-wide handler set via `setDefaultErrorHandler` (silent by
+   * package-wide handler set via `WorkerThreadErrorHandler.setDefault` (silent by
    * default — library code never writes to the console).
    *
    * @param err - The error to emit (or report).
@@ -141,7 +118,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
     if (this.listenerCount(`error`) > 0) {
       this.emit(`error`, err)
     } else {
-      reportError(err)
+      WorkerThreadErrorHandler.report(err)
     }
   }
 
@@ -175,7 +152,7 @@ export class WorkerThreadGatewayClient extends EventEmitter {
     if (options.messagepack === true && !(this.client as unknown as {_msgpack?: unknown})._msgpack) {
       throw new Error(`gateway client messagepack:true requires the 'msgpackr' package to be installed (npm install msgpackr) — refusing a silent JSON downgrade`)
     }
-    this.client.options.path = normalizeGatewayPath(path)
+    this.client.options.path = WorkerThreadGatewayPath.normalize(path)
     this.client.options.reconnect = options.reconnect ?? true
     if (options.retries !== undefined) {
       this.client.options.retries = options.retries

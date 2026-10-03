@@ -10,10 +10,17 @@ packages/worker-thread/src/
 ├── launch.ts        WorkerThreadLaunch — main-thread side (spawn, RPC proxy, kill)
 ├── export.ts        WorkerThreadExport.init() — factory creating typed RPC proxy
 ├── pool.ts          WorkerThreadPool — manage multiple workers + broadcast
-├── rpc.ts           JSON-RPC dispatcher (request/result/error envelopes)
+├── rpc.ts           WorkerThreadRpc — JSON-RPC dispatcher (request/result/error envelopes)
 ├── gateway-server.ts WorkerThreadGatewayServer — Unix-socket RPC server
 ├── gateway-client.ts WorkerThreadGatewayClient — Unix-socket RPC client
-└── index.ts         Barrel (re-exports all modules)
+├── gateway-path.ts  WorkerThreadGatewayPath.normalize() — socket path normalization
+├── error-handler.ts WorkerThreadErrorHandler — package-wide error routing (silent default)
+├── types/           Shared `I*` type definitions, one file per source module
+│   ├── export.ts          IWorkerThreadExportOpt, IWorkerThreadGatewayProxy, …
+│   ├── gateway-client.ts  IGatewayClientOptions
+│   ├── gateway-server.ts  IGatewayServerOptions
+│   └── rpc.ts             IMapRpc, IRpcContext, IRpcMiddleware
+└── index.ts         Barrel (re-exports all modules + the `types/` definitions)
 ```
 
 ## Core Pattern

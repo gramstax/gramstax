@@ -14,7 +14,7 @@
 import {describe, expect, it} from "bun:test"
 import {WorkerThreadExport} from "../src/export"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
-import {normalizeGatewayPath} from "../src/gateway-path"
+import {WorkerThreadGatewayPath} from "../src/gateway-path"
 import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import {WorkerThreadInit} from "../src/init"
 import {sleep, withTimeout} from "./helpers"
@@ -25,23 +25,23 @@ function uniquePath() {
   return `gtest-${process.pid}-${Date.now()}-${counter}`
 }
 
-describe(`normalizeGatewayPath (P2-9)`, () => {
+describe(`WorkerThreadGatewayPath.normalize (P2-9)`, () => {
   it(`converts POSIX paths and bare names to named pipes on Windows`, () => {
     if (process.platform !== `win32`) return
-    expect(normalizeGatewayPath(`gateway-main`)).toBe(`\\\\.\\pipe\\gateway--main`)
-    expect(normalizeGatewayPath(`/tmp/server.sock`)).toBe(`\\\\.\\pipe\\tmp-server.sock`)
-    expect(normalizeGatewayPath(`/tmp/a-b`)).not.toBe(normalizeGatewayPath(`/tmp/a/b`))
-    expect(normalizeGatewayPath(`\\\\.\\pipe\\keep`)).toBe(`\\\\.\\pipe\\keep`)
+    expect(WorkerThreadGatewayPath.normalize(`gateway-main`)).toBe(`\\\\.\\pipe\\gateway--main`)
+    expect(WorkerThreadGatewayPath.normalize(`/tmp/server.sock`)).toBe(`\\\\.\\pipe\\tmp-server.sock`)
+    expect(WorkerThreadGatewayPath.normalize(`/tmp/a-b`)).not.toBe(WorkerThreadGatewayPath.normalize(`/tmp/a/b`))
+    expect(WorkerThreadGatewayPath.normalize(`\\\\.\\pipe\\keep`)).toBe(`\\\\.\\pipe\\keep`)
   })
 
   it(`passes absolute paths through unchanged on POSIX`, () => {
     if (process.platform === `win32`) return
-    expect(normalizeGatewayPath(`/tmp/server.sock`)).toBe(`/tmp/server.sock`)
+    expect(WorkerThreadGatewayPath.normalize(`/tmp/server.sock`)).toBe(`/tmp/server.sock`)
   })
 
   it(`resolves bare names against os.tmpdir() on POSIX (no CWD pollution)`, () => {
     if (process.platform === `win32`) return
-    expect(normalizeGatewayPath(`gateway-main`) !== `gateway-main`).toBe(true)
+    expect(WorkerThreadGatewayPath.normalize(`gateway-main`) !== `gateway-main`).toBe(true)
   })
 })
 
@@ -850,7 +850,7 @@ describe(`gateway server close semantics`, () => {
     const path = uniquePath()
     const server = new WorkerThreadGatewayServer()
     const {stat} = await import(`node:fs/promises`)
-    const resolved = normalizeGatewayPath(path)
+    const resolved = WorkerThreadGatewayPath.normalize(path)
     try {
       await withTimeout(server.start(path, {ping: () => `pong`}), 10_000, `server start`)
       await withTimeout(stat(resolved), 5_000, `socket exists`)

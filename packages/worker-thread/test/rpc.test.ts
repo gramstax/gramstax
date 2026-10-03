@@ -6,10 +6,10 @@
  * capture outgoing messages and feeds back canned responses.
  */
 import {afterEach, beforeEach, describe, expect, it} from "bun:test"
-import {setDefaultErrorHandler} from "../src/error-handler"
-import type {IMapRpc} from "../src/rpc"
+import {WorkerThreadErrorHandler} from "../src/error-handler"
+import type {IMapRpc} from "../src/types/rpc"
 import * as RpcModule from "../src/rpc"
-import {estimatePayloadSize, WorkerThreadRpc} from "../src/rpc"
+import {WorkerThreadRpc} from "../src/rpc"
 import {sleep, withTimeout} from "./helpers"
 
 describe(`WorkerThreadRpc`, () => {
@@ -530,14 +530,14 @@ describe(`regression (g): mixed envelope resolves pending first`, () => {
   })
 })
 
-describe(`regression (h): transport-send failures route to reportError`, () => {
+describe(`regression (h): transport-send failures route to WorkerThreadErrorHandler.report`, () => {
   afterEach(() => {
-    setDefaultErrorHandler(() => {})
+    WorkerThreadErrorHandler.setDefault(() => {})
   })
 
   it(`reports synchronous send throws from make()`, async () => {
     const seen: unknown[] = []
-    setDefaultErrorHandler((err) => seen.push(err))
+    WorkerThreadErrorHandler.setDefault((err) => seen.push(err))
     try {
       const boom = new WorkerThreadRpc(
         () => {
@@ -548,20 +548,20 @@ describe(`regression (h): transport-send failures route to reportError`, () => {
       await boom.make({id: 1, method: `add`, params: []})
       expect(seen.length).toBeGreaterThan(0)
     } finally {
-      setDefaultErrorHandler(() => {})
+      WorkerThreadErrorHandler.setDefault(() => {})
     }
   })
 
   it(`reports async send rejections from make()`, async () => {
     const seen: unknown[] = []
-    setDefaultErrorHandler((err) => seen.push(err))
+    WorkerThreadErrorHandler.setDefault((err) => seen.push(err))
     try {
       const boom = new WorkerThreadRpc(() => Promise.reject(new Error(`async transport down`)), {add: () => 1})
       await boom.make({id: 2, method: `add`, params: []})
       await sleep(20)
       expect(seen.length).toBeGreaterThan(0)
     } finally {
-      setDefaultErrorHandler(() => {})
+      WorkerThreadErrorHandler.setDefault(() => {})
     }
   })
 })
@@ -593,36 +593,36 @@ describe(`regression (j): single-spread payload guard`, () => {
   })
 })
 
-describe(`regression (k): estimatePayloadSize counts Map/Set entries`, () => {
+describe(`regression (k): WorkerThreadRpc.estimatePayloadSize counts Map/Set entries`, () => {
   it(`handles empty Map/Set as zero`, () => {
-    expect(estimatePayloadSize(new Map())).toBe(0)
-    expect(estimatePayloadSize(new Set())).toBe(0)
+    expect(WorkerThreadRpc.estimatePayloadSize(new Map())).toBe(0)
+    expect(WorkerThreadRpc.estimatePayloadSize(new Set())).toBe(0)
   })
 
   it(`counts Map keys and values instead of Object.keys undercount`, () => {
-    expect(estimatePayloadSize(new Map([[`k`, `vvv`]]))).toBe(8)
+    expect(WorkerThreadRpc.estimatePayloadSize(new Map([[`k`, `vvv`]]))).toBe(8)
   })
 
   it(`counts Set items`, () => {
-    expect(estimatePayloadSize(new Set([`ab`]))).toBe(4)
+    expect(WorkerThreadRpc.estimatePayloadSize(new Set([`ab`]))).toBe(4)
   })
 })
 
 describe(`regression (l): non-number response id reports and ignores`, () => {
   afterEach(() => {
-    setDefaultErrorHandler(() => {})
+    WorkerThreadErrorHandler.setDefault(() => {})
   })
 
-  it(`reportErrors and sends nothing on a string response id`, async () => {
+  it(`WorkerThreadErrorHandler.report reports and sends nothing on a string response id`, async () => {
     const seen: unknown[] = []
-    setDefaultErrorHandler((err) => seen.push(err))
+    WorkerThreadErrorHandler.setDefault((err) => seen.push(err))
     try {
       const {sent, stub} = makeStubRpc()
       await stub.make({id: `str`, result: 5} as any)
       expect(seen.length).toBeGreaterThan(0)
       expect(sent).toHaveLength(0)
     } finally {
-      setDefaultErrorHandler(() => {})
+      WorkerThreadErrorHandler.setDefault(() => {})
     }
   })
 })
