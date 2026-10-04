@@ -294,6 +294,7 @@ export class TemplateEngine {
     `<g-gift>`,
     // Logic blocks
     `<g-script>`,
+    `<g-ifelse>`,
     `<g-switch>`,
     `<g-case>`,
     `<g-default>`,
@@ -716,6 +717,20 @@ export class TemplateEngine {
    * @public
    */
   static ALLOWED_SCOPE = [`{{}}`, `{~~}`]
+  /**
+   * Identifiers that `<g-ifelse>` never rewrites to `data?.x`.
+   *
+   * @remarks
+   * Three groups: reserved words that cannot be references, the parameter names every
+   * compiled template body already has in scope (`data`, `__esc`, `FILTERS`), and the
+   * standard globals a template author may legitimately call.
+   */
+  static _IFELSE_PASSTHROUGH = new Set([
+    `async`, `await`, `break`, `case`, `catch`, `class`, `const`, `continue`, `debugger`, `default`, `delete`, `do`, `else`, `enum`, `export`, `extends`, `false`, `finally`, `for`, `function`, `if`, `implements`, `import`, `in`, `instanceof`, `interface`, `let`, `new`, `null`, `of`, `package`, `private`, `protected`, `public`, `return`, `static`, `super`, `switch`, `this`, `throw`, `true`, `try`, `typeof`, `var`, `void`, `while`, `with`, `yield`,
+    `data`, `__esc`, `FILTERS`,
+    `Array`, `BigInt`, `Boolean`, `Date`, `Error`, `Intl`, `JSON`, `Map`, `Math`, `Number`, `Object`, `Promise`, `RangeError`, `ReferenceError`, `RegExp`, `Set`, `String`, `Symbol`, `SyntaxError`, `TypeError`, `WeakMap`, `WeakSet`,
+    `console`, `decodeURI`, `decodeURIComponent`, `encodeURI`, `encodeURIComponent`, `globalThis`, `isFinite`, `isNaN`, `parseFloat`, `parseInt`
+  ])
 
   /**
    * Escapes special characters in a string for safe use in template literals.
@@ -846,6 +861,67 @@ export class TemplateEngine {
    *
    * @public
    */
+  /**
+   * Applies `|filter:arg` pipes to an already-resolved head expression.
+   *
+   * @remarks
+   * Split out of {@link TemplateEngine._processScopeVariables} so `<g-map>` can run the
+   * same whitelist over its own loop variables instead of re-deriving the pipe grammar.
+   * The caller resolves the head — a `data` path or a loop variable — and passes the whole
+   * expression; the leading segment is dropped because it is already baked into `access`.
+   *
+   * @param access - JavaScript expression for the head, e.g. `(data?.user)` or `(e.name)`
+   * @param expr - The full expression including its head segment, used for the warning text
+   * @param warned - Filter names already reported, so each unknown filter warns once
+   * @returns The chained call, or `""` when a filter is not on the whitelist
+   */
+  static _compileFilterChain(access: string, expr: string, warned: Set<string>): string {
+    const segments = expr.split(`|`)
+    segments.shift()
+    let chained = access
+    for (const segment of segments) {
+      const colon = segment.indexOf(`:`)
+      const name = (colon < 0 ? segment : segment.slice(0, colon)).trim()
+      const rest = colon < 0 ? `` : segment.slice(colon + 1)
+      if (DEFAULT_FILTERS[name] === undefined) {
+        if (!warned.has(name)) {
+          warned.add(name)
+          console.warn(`Unknown template filter "${name}" in {{${expr}}} — renders empty`)
+        }
+        return `""`
+      }
+      chained = rest === `` ? `FILTERS.${name}(${chained})` : `FILTERS.${name}(${chained}, ${JSON.stringify(rest)})`
+    }
+    return chained
+  }
+
+  /**
+   * Scope: `{{}}`
+   * Converts `{{variable}}` placeholders to JavaScript template literal expressions.
+   *
+   * @remarks
+   * This internal method transforms Mustache-like variable syntax into JavaScript
+   * template literal interpolation. `{{key}}` is HTML-escaped at runtime; `{{{key}}}`
+   * is inserted raw. Variables are accessed from the `data` object, with nullish
+   * coalescing to empty string when undefined. Surrounding whitespace inside the
+   * braces is trimmed. Each filter segment splits its name on the first `:` only;
+   * the remainder is passed as one combined argument (so `date:HH:mm:ss` stays
+   * whole; `plural` splits its combined `one:many` argument itself). Filter
+   * arguments are embedded via `JSON.stringify`, never raw backticks. Unknown
+   * filter warnings are deduplicated per compile call; other expressions in the
+   * same template still render (unknown one renders empty).
+   *
+   * @param template - The template string containing `{{variable}}` placeholders
+   * @returns The processed template with placeholders converted to `${data["key"]}` syntax
+   *
+   * @example
+   * ```typescript
+   * const processed = TemplateEngine._processScopeVariables('Hello {{name}}!');
+   * // Result: 'Hello ${__esc((data && data["name"]) ?? "")}!'
+   * ```
+   *
+   * @public
+   */
   static _processScopeVariables(template: string) {
     const toAccess = (key: string) =>
       key
@@ -853,25 +929,7 @@ export class TemplateEngine {
         .map((k: string) => `?.${k}`)
         .join(``)
     const warnedLocal = new Set<string>()
-    const toFilterChain = (expr: string): string => {
-      const segments = expr.split(`|`)
-      const path = (segments.shift() as string).trim()
-      let access = `(data${toAccess(path)})`
-      for (const segment of segments) {
-        const colon = segment.indexOf(`:`)
-        const name = (colon < 0 ? segment : segment.slice(0, colon)).trim()
-        const rest = colon < 0 ? `` : segment.slice(colon + 1)
-        if (DEFAULT_FILTERS[name] === undefined) {
-          if (!warnedLocal.has(name)) {
-            warnedLocal.add(name)
-            console.warn(`Unknown template filter "${name}" in {{${expr}}} — renders empty`)
-          }
-          return `""`
-        }
-        access = rest === `` ? `FILTERS.${name}(${access})` : `FILTERS.${name}(${access}, ${JSON.stringify(rest)})`
-      }
-      return access
-    }
+    const toFilterChain = (expr: string): string => this._compileFilterChain(`(data${toAccess((expr.split(`|`, 1)[0] ?? ``).trim())})`, expr, warnedLocal)
     return template.replace(/\{\{\{\s*([^{}]+?)\s*\}\}\}/g, (_, expr) => `\${${toFilterChain(expr.trim())} ?? ""}`).replace(/\{\{\s*([^{}]+?)\s*\}\}/g, (_, expr) => `\${__esc(${toFilterChain(expr.trim())} ?? "")}`)
   }
 
@@ -1018,6 +1076,385 @@ export class TemplateEngine {
       if (!innerCode) return ``
 
       return `\${(() => { if (!data) return ''; try { with(data) { ${innerCode} } } catch(e) { return '' } })()}`
+    })
+  }
+
+  /**
+   * Splits a `<g-ifelse>` body into tokens so identifiers can be rewritten without a
+   * JavaScript parser dependency.
+   *
+   * @remarks
+   * Token types: `word`, `number`, `string`, `template`, `regex`, `punct`. Whitespace and
+   * comments are dropped — spacing is not preserved because the output is re-emitted source.
+   *
+   * Two constructs are tokenized as opaque single tokens and therefore never rewritten:
+   * regex literals, and template literals (so `${...}` inside them cannot be silently
+   * reinterpreted). Template literals that do carry `${` interpolation are rejected by
+   * {@link TemplateEngine.validateBlockGIfElseBody} rather than mis-rewritten here.
+   *
+   * A `/` is read as division when the previous token can end a value (word, number, string,
+   * template, `)`, `]`, `++`, `--`) and as a regex literal otherwise. This is the standard
+   * heuristic and is ambiguous for `if (x) /re/.test(s)`; it resolves toward division, which
+   * is the common case in a template conditional.
+   *
+   * @param expr - The raw `<g-ifelse>` body
+   * @returns The token list
+   */
+  static _tokenizeExpression(expr: string): Array<{type: string; value: string}> {
+    const tokens: Array<{type: string; value: string}> = []
+    const push = (type: string, value: string): void => {
+      tokens.push({type, value})
+    }
+    const endsValue = (token: {type: string; value: string} | undefined): boolean =>
+      token !== undefined && (token.type === `word` || token.type === `number` || token.type === `string` || token.type === `template` || (token.type === `punct` && (token.value === `)` || token.value === `]` || token.value === `++` || token.value === `--`)))
+
+    let i = 0
+    while (i < expr.length) {
+      const ch = expr[i]!
+
+      if (ch === ` ` || ch === `\t` || ch === `\n` || ch === `\r`) {
+        i++
+        continue
+      }
+      if (ch === `/` && expr[i + 1] === `/`) {
+        const end = expr.indexOf(`\n`, i)
+        i = end < 0 ? expr.length : end + 1
+        continue
+      }
+      if (ch === `/` && expr[i + 1] === `*`) {
+        const end = expr.indexOf(`*/`, i + 2)
+        i = end < 0 ? expr.length : end + 2
+        continue
+      }
+      if (ch === `'` || ch === `"`) {
+        let j = i + 1
+        while (j < expr.length) {
+          if (expr[j] === `\\`) {
+            j += 2
+            continue
+          }
+          if (expr[j] === ch) {
+            j++
+            break
+          }
+          j++
+        }
+        push(`string`, expr.slice(i, j))
+        i = j
+        continue
+      }
+      if (ch === `\``) {
+        let j = i + 1
+        let depth = 0
+        while (j < expr.length) {
+          if (expr[j] === `\\`) {
+            j += 2
+            continue
+          }
+          if (expr[j] === `\`` && depth === 0) {
+            j++
+            break
+          }
+          if (expr[j] === `$` && expr[j + 1] === `{` && depth === 0) {
+            depth++
+            j += 2
+            continue
+          }
+          if (depth > 0) {
+            if (expr[j] === `{`) depth++
+            else if (expr[j] === `}`) depth--
+          }
+          j++
+        }
+        push(`template`, expr.slice(i, j))
+        i = j
+        continue
+      }
+      if (/[0-9]/.test(ch) || (ch === `.` && /[0-9]/.test(expr[i + 1] ?? ``))) {
+        let j = i
+        while (j < expr.length && /[0-9a-fA-F._nxXoObBeE]/.test(expr[j]!)) j++
+        push(`number`, expr.slice(i, j))
+        i = j
+        continue
+      }
+      if (/[A-Za-z_$]/.test(ch)) {
+        let j = i
+        while (j < expr.length && /[\w$]/.test(expr[j]!)) j++
+        push(`word`, expr.slice(i, j))
+        i = j
+        continue
+      }
+
+      const three = expr.slice(i, i + 3)
+      if (three === `===` || three === `!==`) {
+        push(`punct`, three)
+        i += 3
+        continue
+      }
+      const two = expr.slice(i, i + 2)
+      if (two === `&&` || two === `||` || two === `??` || two === `?.` || two === `=>` || two === `==` || two === `!=` || two === `<=` || two === `>=` || two === `++` || two === `--` || two === `**`) {
+        push(`punct`, two)
+        i += 2
+        continue
+      }
+
+      if (ch === `/`) {
+        if (endsValue(tokens[tokens.length - 1])) {
+          push(`punct`, `/`)
+          i++
+          continue
+        }
+        let j = i + 1
+        let inClass = false
+        while (j < expr.length) {
+          const c = expr[j]!
+          if (c === `\\`) {
+            j += 2
+            continue
+          }
+          if (c === `[`) inClass = true
+          else if (c === `]`) inClass = false
+          else if (c === `/` && !inClass) {
+            j++
+            break
+          } else if (c === `\n`) break
+          j++
+        }
+        while (j < expr.length && /[a-z]/.test(expr[j]!)) j++
+        push(`regex`, expr.slice(i, j))
+        i = j
+        continue
+      }
+
+      push(`punct`, ch)
+      i++
+    }
+    return tokens
+  }
+
+  /**
+   * Collects the parameter names introduced by every arrow function in a token list.
+   *
+   * @remarks
+   * A conditional body may contain `items.filter((item) => item.on).length > 0`. Those
+   * parameters are locals, not scope reads, and must survive the rewrite untouched.
+   *
+   * @param tokens - Output of {@link TemplateEngine._tokenizeExpression}
+   * @returns The local names, valid for the whole expression
+   */
+  static _ifelseArrowLocals(tokens: Array<{type: string; value: string}>): Set<string> {
+    const locals = new Set<string>()
+    for (let k = 0; k < tokens.length; k++) {
+      if (tokens[k]!.type !== `punct` || tokens[k]!.value !== `=>`) continue
+
+      const prev = tokens[k - 1]
+      if (prev === undefined) continue
+      if (prev.type === `word`) {
+        locals.add(prev.value)
+        continue
+      }
+      if (prev.type !== `punct` || prev.value !== `)`) continue
+
+      let depth = 0
+      for (let j = k - 1; j >= 0; j--) {
+        const token = tokens[j]!
+        if (token.type !== `punct`) continue
+        if (token.value === `)`) depth++
+        else if (token.value === `(`) {
+          depth--
+          if (depth !== 0) continue
+          for (let m = j + 1; m < k - 1; m++) {
+            const inner = tokens[m]!
+            if (inner.type === `word` && !TemplateEngine._IFELSE_PASSTHROUGH.has(inner.value)) locals.add(inner.value)
+          }
+          break
+        }
+      }
+    }
+    return locals
+  }
+
+  /**
+   * Decides whether a `{` opens an object literal (keys are not scope reads) or a block.
+   *
+   * @param tokens - Output of {@link TemplateEngine._tokenizeExpression}
+   * @param index - Index of the `{` token
+   * @returns True when the brace opens an object literal
+   */
+  static _isObjectLiteralBrace(tokens: Array<{type: string; value: string}>, index: number): boolean {
+    const prev = tokens[index - 1]
+    if (prev === undefined) return true
+    if (prev.type === `punct`) return prev.value !== `)` && prev.value !== `]` && prev.value !== `}`
+    return prev.value === `return` || prev.value === `typeof` || prev.value === `in` || prev.value === `of` || prev.value === `case` || prev.value === `do` || prev.value === `else` || prev.value === `yield` || prev.value === `await`
+  }
+
+  /**
+   * Rewrites bare identifiers in a `<g-ifelse>` body to optional `data` reads.
+   *
+   * @remarks
+   * `user.name` becomes `data?.user?.name` — an optional chain, so a missing branch never
+   * throws — rather than `(data?.user).name`, which would. A member chain is consumed as a
+   * unit so the whole chain stays optional. Identifiers already qualified by `.`/`?.`,
+   * object-literal keys, arrow-function parameters, reserved words, and the standard globals
+   * are left alone; shorthand object properties are expanded so they keep reading from `data`.
+   *
+   * @param expr - The raw `<g-ifelse>` body
+   * @returns Source with every scope read anchored to `data`
+   *
+   * @example
+   * ```typescript
+   * TemplateEngine._rewriteScopeIdentifiers(`user.isAdmin ? "admin" : "user"`);
+   * // Result: 'data?.user?.isAdmin ? "admin" : "user"'
+   * ```
+   */
+  static _rewriteScopeIdentifiers(expr: string): string {
+    const tokens = this._tokenizeExpression(expr)
+    const locals = this._ifelseArrowLocals(tokens)
+    const braces: boolean[] = []
+    let out = ``
+
+    for (let k = 0; k < tokens.length; k++) {
+      const token = tokens[k]!
+      if (token.type === `punct`) {
+        if (token.value === `{`) braces.push(this._isObjectLiteralBrace(tokens, k))
+        else if (token.value === `}`) braces.pop()
+        out += token.value
+        continue
+      }
+      if (token.type !== `word`) {
+        out += token.value
+        continue
+      }
+
+      const name = token.value
+      if (this._IFELSE_PASSTHROUGH.has(name) || locals.has(name)) {
+        // Whitespace is dropped by the tokenizer, so a keyword prefix (`typeof`, `return`,
+        // `void`, …) needs its separator restored or it would fuse with the operand.
+        const next = tokens[k + 1]
+        const needsSpace = next !== undefined && (next.type === `word` || next.type === `number` || next.type === `string` || next.type === `template`)
+        out += needsSpace ? `${name} ` : name
+        continue
+      }
+      const prev = tokens[k - 1]
+      if (prev !== undefined && prev.type === `punct` && (prev.value === `.` || prev.value === `?.`)) {
+        out += name
+        continue
+      }
+
+      const next = tokens[k + 1]
+      const inObjectLiteral = braces.length > 0 && braces[braces.length - 1] === true
+      if (inObjectLiteral && next !== undefined && next.type === `punct` && next.value === `:`) {
+        out += name
+        continue
+      }
+      if (inObjectLiteral && next !== undefined && next.type === `punct` && (next.value === `,` || next.value === `}`)) {
+        out += `${name}: data?.${name}`
+        continue
+      }
+
+      let chain = `data?.${name}`
+      let j = k
+      while (j + 1 < tokens.length) {
+        const open = tokens[j + 1]!
+        if (open.type !== `punct`) break
+
+        if (open.value === `?.`) {
+          const member = tokens[j + 2]
+          if (member === undefined || member.type !== `word`) break
+          chain += `?.${member.value}`
+          j += 2
+          continue
+        }
+        if (open.value === `.`) {
+          const member = tokens[j + 2]
+          if (member === undefined || member.type !== `word`) break
+          chain += this._IFELSE_PASSTHROUGH.has(member.value) ? `.${member.value}` : `?.${member.value}`
+          j += 2
+          continue
+        }
+        if (open.value === `[`) {
+          let depth = 0
+          let close = -1
+          for (let m = j + 1; m < tokens.length; m++) {
+            const token2 = tokens[m]!
+            if (token2.type !== `punct`) continue
+            if (token2.value === `[`) depth++
+            else if (token2.value === `]`) {
+              depth--
+              if (depth === 0) {
+                close = m
+                break
+              }
+            }
+          }
+          if (close < 0) break
+          let inner = ``
+          for (let m = j + 2; m < close; m++) {
+            const token2 = tokens[m]!
+            const before = m > j + 1 ? tokens[m - 1]! : undefined
+            const isProperty = before !== undefined && before.type === `punct` && (before.value === `.` || before.value === `?.`)
+            const isWordValue = token2.type === `word` && !this._IFELSE_PASSTHROUGH.has(token2.value) && !isProperty && !locals.has(token2.value)
+            if (isWordValue) {
+              inner += `data?.${token2.value}`
+              continue
+            }
+            const needsSpace = inner !== `` && (token2.type === `word` || token2.type === `number`) && (tokens[m - 1]!.type === `word` || tokens[m - 1]!.type === `number`)
+            inner += `${needsSpace ? ` ` : ``}${token2.value}`
+          }
+          chain += `?.[${inner}]`
+          j = close
+          continue
+        }
+        break
+      }
+
+      out += chain
+      k = j
+    }
+    return out
+  }
+
+  /**
+   * Reports whether a `<g-ifelse>` body actually branches.
+   *
+   * @remarks
+   * `<g-ifelse>` exists for conditionals only, so a body with no ternary and no
+   * short-circuit operator is rejected rather than silently becoming an `{~~}` clone.
+   *
+   * @param tokens - Output of {@link TemplateEngine._tokenizeExpression}
+   * @returns True when the body contains `?:`, `&&`, `||`, or `??`
+   */
+  static _isConditionalExpression(tokens: Array<{type: string; value: string}>): boolean {
+    return tokens.some((token) => token.type === `punct` && (token.value === `?` || token.value === `&&` || token.value === `||` || token.value === `??`))
+  }
+
+  /**
+   * Block: g-ifelse
+   * Evaluates a conditional expression and inlines the chosen value.
+   *
+   * @remarks
+   * Unlike `{~~}`, this block never emits `with`, so the compiled body is valid in an ESM
+   * strict-mode module and survives the AOT `with(` guard. Bare identifiers are rewritten to
+   * optional `data` reads by {@link TemplateEngine._rewriteScopeIdentifiers}.
+   *
+   * `@param template - The template string containing `<g-ifelse>` blocks
+   * @returns The template with each block replaced by its interpolation
+   *
+   * @example
+   * ```typescript
+   * const template = '<g-ifelse>isAdmin ? "admin" : "user"</g-ifelse>';
+   * const processed = TemplateEngine._processGIfElseBlocks(template);
+   * // Result: '${(() => { if (!data) return \'\'; try { return data?.isAdmin ? "admin" : "user" } catch(e) { return \'\' } })()}'
+   * ```
+   *
+   * @public
+   */
+  static _processGIfElseBlocks(template: string) {
+    return template.replace(/<g-ifelse\b[^>]*>([\s\S]*?)<\/g-ifelse>/gi, (_, rawExpr: string) => {
+      const expr = rawExpr.trim()
+      if (!expr) return ``
+
+      return `\${(() => { if (!data) return ''; try { return (${this._rewriteScopeIdentifiers(expr)}) ?? "" } catch(e) { return '' } })()}`
     })
   }
 
@@ -2470,7 +2907,7 @@ export class TemplateEngine {
   static _buildFunctionBody<T extends boolean>(template: T extends true ? string[] : string, isArray: T): string {
     const inputs = isArray ? (template as string[]) : [template as string]
     const bodies = inputs.map((t) => {
-      const post = this._processGScriptBlocks(this._processGDivBlocks(this._processGSpaceBlocks(t)))
+      const post = this._processGIfElseBlocks(this._processGScriptBlocks(this._processGDivBlocks(this._processGSpaceBlocks(t))))
       return `""+(${this._toConcatExpr(post)})`
     })
     return isArray ? `return [${bodies.join(`,`)}]` : `return ${bodies[0]}`
@@ -2650,18 +3087,18 @@ export class TemplateEngine {
         const compiledProps: Record<string, (data?: ITemplateData) => string | InputFile | Buffer | Uint8Array> = {}
         const compiledMediaGroup = mediaBlock.mediaGroup?.map((item) => {
           const rawSrc = item.src as string
-          const stringSrc = this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(rawSrc))))), false)
+          const stringSrc = this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(rawSrc)))))), false)
           return {
             type: item.type,
             src: this._compileMediaSrc(rawSrc, stringSrc),
-            caption: item.caption ? this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(item.caption))))), false) : undefined
+            caption: item.caption ? this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(item.caption)))))), false) : undefined
           }
         })
 
         for (const [key, value] of Object.entries(mediaBlock)) {
           if (key === `type` || typeof value !== `string`) continue
 
-          const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(value)))))
+          const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(value))))))
           const stringFn = this._compileToFunction(processed, false)
           compiledProps[key] = key === `src` ? this._compileMediaSrc(value, stringFn) : stringFn
         }
@@ -2722,7 +3159,7 @@ export class TemplateEngine {
         [ALang: string]: (data?: ITemplateData) => IPollBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(raw)))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const polls = this._processGPollBlocks(baseContent)
@@ -2772,7 +3209,7 @@ export class TemplateEngine {
         [ALang: string]: (data?: ITemplateData) => IVenueBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(raw)))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const venues = this._processGVenueBlocks(baseContent)
@@ -2822,7 +3259,7 @@ export class TemplateEngine {
         [ALang: string]: (data?: ITemplateData) => IDiceBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(raw)))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const blocks = this._processGDiceBlocks(baseContent)
@@ -2880,7 +3317,7 @@ export class TemplateEngine {
         [ALang: string]: (data?: ITemplateData) => IInvoiceBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(raw)))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const invoices = this._processGInvoiceBlocks(baseContent)
@@ -2946,7 +3383,7 @@ export class TemplateEngine {
         [ALang: string]: (data?: ITemplateData) => IPaidMediaBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(raw)))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const walls = this._processGPaidMediaBlocks(baseContent)
@@ -3021,7 +3458,7 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, content] of Object.entries(messages)) {
-        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(content))))))
         result[AGBaseId][ALang] = this._compileToFunction(processed, false)
       }
     }
@@ -3070,7 +3507,7 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, content] of Object.entries(blocks)) {
-        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(content))))))
         result[AGBaseId][ALang] = this._compileToFunction(processed, false)
       }
     }
@@ -3112,7 +3549,7 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, content] of Object.entries(blocks)) {
-        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(content))))))
         result[AGBaseId][ALang] = this._compileToFunction(processed, false)
       }
     }
@@ -3154,7 +3591,7 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, content] of Object.entries(blocks)) {
-        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(content))))))
         result[AGBaseId][ALang] = this._compileToFunction(processed, false)
       }
     }
@@ -3199,7 +3636,7 @@ export class TemplateEngine {
         [ALang: string]: (data?: ITemplateData) => IInlineButtonBlock
       }
     } = {}
-    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(raw))))), false)
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(raw)))))), false)
 
     for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const blocks = this._processGInlineButtonBlocks(baseContent)
@@ -3253,7 +3690,7 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, content] of Object.entries(blocks)) {
-        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(content))))))
         result[AGBaseId][ALang] = this._compileToFunction(processed, false)
       }
     }
@@ -3296,7 +3733,7 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, content] of Object.entries(blocks)) {
-        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(content))))))
         result[AGBaseId][ALang] = this._compileToFunction(processed, false)
       }
     }
@@ -3364,7 +3801,7 @@ export class TemplateEngine {
           if (!result[AGBaseId][AScope]) {
             result[AGBaseId][AScope] = {}
           }
-          const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(scopeContent)))))
+          const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(scopeContent))))))
           result[AGBaseId][AScope][ALang] = this._compileToFunction(processed, false)
         }
       }
@@ -3498,7 +3935,7 @@ export class TemplateEngine {
           // Separates label, handle escaped comma — now quote-aware (commas inside HTML attributes are not split)
           const labels = this._splitKeyboardLabels(content).map((label: string) => label.replace(/\\,/g, `,`).trim())
 
-          const processedLabels = labels.map((label) => this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(label))))))
+          const processedLabels = labels.map((label) => this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(label)))))))
 
           result[AGBaseId][lang][mode as `inline` | `bottom`] = this._compileToFunction(processedLabels, true)
         }
@@ -4013,6 +4450,7 @@ export class TemplateEngine {
       "g-map": new Set([`g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description`, `g-case`, `g-default`, `g-map`]),
       "g-div": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-map`]),
       "g-script": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-poll`, `g-question`, `g-option`, `g-case`, `g-default`, `g-map`, `g-div`]),
+      "g-ifelse": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-poll`, `g-question`, `g-option`, `g-case`, `g-default`, `g-map`, `g-div`]),
       "g-import": new Set([`g-base`]),
       "g-space": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-poll`, `g-question`, `g-option`, `g-case`, `g-default`, `g-switch`, `g-map`, `g-div`])
     }
@@ -4177,7 +4615,7 @@ export class TemplateEngine {
   static validateFormatBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
     const selfClosingBlocks = new Set([`space`, `import`, `hr`, `img`, `input`, `br`, `tg-map`])
-    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`])
+    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`])
 
     const tagRegex = /<(\/?)(\w[\w-]*)([^>]*)>/g
     let match: RegExpExecArray | null
@@ -5691,6 +6129,86 @@ export class TemplateEngine {
   }
 
   /**
+   * Validates attributes on `<g-ifelse>` blocks.
+   *
+   * @remarks
+   * `<g-ifelse>` takes no attributes — the whole conditional is the block body, so there is
+   * nothing for an attribute to configure.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGIfElseAttributes(`<g-ifelse>a ? "x" : "y"</g-ifelse>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGIfElseAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-ifelse`, new Set(), ``, this._PAGE_ATTR_VALUE_VALIDATORS[`g-ifelse`])
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates the body of every `<g-ifelse>` block.
+   *
+   * @remarks
+   * Four rules, all required to keep the block a conditional and unambiguous:
+   *
+   * 1. The body must not be empty.
+   * 2. `{{}}` and `{~~}` interpolation must not appear — the body is already JavaScript, and
+   *    nesting the interpolation syntaxes inside it would give one construct two grammars.
+   * 3. Template literals must not interpolate `${...}` — that is a third spelling of the same
+   *    interpolation. Use string concatenation inside the conditional instead.
+   * 4. The body must actually branch: a ternary, or a `&&` / `||` / `??` short-circuit.
+   *    A plain expression such as `items.length` belongs in `{~~}` and is rejected here so
+   *    `<g-ifelse>` cannot silently become a second `{~~}`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * TemplateEngine.validateBlockGIfElseBody(`<g-ifelse>items.length</g-ifelse>`);
+   * // Result: { valid: false, errors: [{ line: 1, message: '<g-ifelse> body must be a conditional expression — use a ternary (test ? a : b) or a short-circuit (&&, ||, ??), got "items.length". Use {~~ items.length ~~} for a plain expression' }] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGIfElseBody(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors: Array<{line: number; message: string}> = []
+    const blockRegex = /<g-ifelse\b[^>]*>([\s\S]*?)<\/g-ifelse>/gi
+    let match: RegExpExecArray | null
+
+    while ((match = blockRegex.exec(template)) !== null) {
+      const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+      const expr = (match[1] ?? ``).trim()
+
+      if (!expr) {
+        errors.push({line, message: `<g-ifelse> body must not be empty`})
+        continue
+      }
+      if (expr.includes(`{{`) || expr.includes(`{~`)) {
+        errors.push({line, message: `<g-ifelse> body must not contain {{}} or {~~} interpolation — the body is already a JavaScript expression, so use the value directly (for example <g-ifelse>user ? user.name : ""</g-ifelse>)`})
+        continue
+      }
+
+      const tokens = this._tokenizeExpression(expr)
+      if (tokens.some((token) => token.type === `template` && token.value.includes(`\${`))) {
+        errors.push({line, message: `<g-ifelse> body must not use \${...} interpolation inside a template literal — concatenate inside the conditional instead (for example \`\${a}-\${b}\` becomes a + "-" + b)`})
+        continue
+      }
+      if (!this._isConditionalExpression(tokens)) {
+        errors.push({line, message: `<g-ifelse> body must be a conditional expression — use a ternary (test ? a : b) or a short-circuit (&&, ||, ??), got "${expr}". Use {~~ ${expr} ~~} for a plain expression`})
+      }
+    }
+
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
    * Validates attributes on `<g-switch>` blocks.
    *
    * @remarks
@@ -6074,6 +6592,8 @@ export class TemplateEngine {
     const paidMediaAttrResult = this.validateBlockGPaidMediaAttributes(template)
     const descriptionAttrResult = this.validateBlockGDescriptionAttributes(template)
     const scriptAttrResult = this.validateBlockGScriptAttributes(template)
+    const ifElseAttrResult = this.validateBlockGIfElseAttributes(template)
+    const ifElseBodyResult = this.validateBlockGIfElseBody(template)
     const switchAttrResult = this.validateBlockGSwitchAttributes(template)
     const caseAttrResult = this.validateBlockGCaseAttributes(template)
     const defaultAttrResult = this.validateBlockGDefaultAttributes(template)
@@ -6114,6 +6634,8 @@ export class TemplateEngine {
       ...paidMediaAttrResult.errors,
       ...descriptionAttrResult.errors,
       ...scriptAttrResult.errors,
+      ...ifElseAttrResult.errors,
+      ...ifElseBodyResult.errors,
       ...switchAttrResult.errors,
       ...caseAttrResult.errors,
       ...defaultAttrResult.errors,

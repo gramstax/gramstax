@@ -35,14 +35,14 @@ export class StartItemDetailPage extends PageBase {
       <g-keyboard type="inline">⬅️ Back to List</g-keyboard>
       <g-keyboard type="inline" lang="id">⬅️ Kembali ke Daftar</g-keyboard>
       <g-message>
-        📌 {~name || "Unknown"~}
+        📌 <g-ifelse>name || "Unknown"</g-ifelse>
 
-        {~description || "No description found."~}
+        <g-ifelse>description || "No description found."</g-ifelse>
       </g-message>
       <g-message lang="id">
-        📌 {~name || "Tidak dikenal"~}
+        📌 <g-ifelse>name || "Tidak dikenal"</g-ifelse>
 
-        {~description || "Tidak ada deskripsi."~}
+        <g-ifelse>description || "Tidak ada deskripsi."</g-ifelse>
       </g-message>
     </g-base>
   `

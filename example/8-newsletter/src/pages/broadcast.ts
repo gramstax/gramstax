@@ -252,7 +252,7 @@ export class BroadcastPage extends PageAdminBase {
       <g-message>
         📣 Broadcast Message
 
-        {~isEmpty ? "⚠️ Message cannot be empty.\\n" : ""~}
+        <g-ifelse>isEmpty ? "⚠️ Message cannot be empty.\\n" : ""</g-ifelse>
         Current draft: {{draftText}}
 
         Send the announcement text now. This will be delivered to every subscriber who is currently active.
@@ -261,7 +261,7 @@ export class BroadcastPage extends PageAdminBase {
       <g-message lang="id">
         📣 Pesan Siaran
 
-        {~isEmpty ? "⚠️ Pesan tidak boleh kosong.\\n" : ""~}
+        <g-ifelse>isEmpty ? "⚠️ Pesan tidak boleh kosong.\\n" : ""</g-ifelse>
         Draf saat ini: {{draftText}}
 
         Kirim teks siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.
@@ -273,7 +273,7 @@ export class BroadcastPage extends PageAdminBase {
       <g-message>
         📣 Broadcast Message With Bundle Media Hybrid
 
-        {~isEmpty ? "⚠️ Message cannot be empty.\\n" : ""~}
+        <g-ifelse>isEmpty ? "⚠️ Message cannot be empty.\\n" : ""</g-ifelse>
         Current draft: {{draftText}}
 
         Send the announcement media now. This will be delivered to every subscriber who is currently active.
@@ -283,7 +283,7 @@ export class BroadcastPage extends PageAdminBase {
       <g-message lang="id">
         📣 Pesan Siaran Dengan Bandle Media Hibrid
 
-        {~isEmpty ? "⚠️ Pesan tidak boleh kosong.\\n" : ""~}
+        <g-ifelse>isEmpty ? "⚠️ Pesan tidak boleh kosong.\\n" : ""</g-ifelse>
         Draf saat ini: {{draftText}}
 
         Kirim media siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.

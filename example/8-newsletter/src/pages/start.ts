@@ -46,19 +46,19 @@ export class StartPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard type="inline">{~subscribed ? "🚫 Unsubscribe" : "✅ Subscribe"~}, 📊 Stats, ❓ Help</g-keyboard>
-      <g-keyboard type="inline" lang="id">{~subscribed ? "🚫 Berhenti" : "✅ Langganan"~}, 📊 Statistik, ❓ Bantuan</g-keyboard>
+      <g-keyboard type="inline"><g-ifelse>subscribed ? "🚫 Unsubscribe" : "✅ Subscribe"</g-ifelse>, 📊 Stats, ❓ Help</g-keyboard>
+      <g-keyboard type="inline" lang="id"><g-ifelse>subscribed ? "🚫 Berhenti" : "✅ Langganan"</g-ifelse>, 📊 Statistik, ❓ Bantuan</g-keyboard>
       <g-message>
         📰 Newsletter Hub
 
-        Status: {~subscribed ? "Subscribed" : "Not subscribed"~}
+        Status: <g-ifelse>subscribed ? "Subscribed" : "Not subscribed"</g-ifelse>
 
         Stay in the loop with curated updates, release notes, and important announcements. Use the button below to manage your subscription or explore more details.
       </g-message>
       <g-message lang="id">
         📰 Pusat Newsletter
 
-        Status: {~subscribed ? "Berlangganan" : "Belum berlangganan"~}
+        Status: <g-ifelse>subscribed ? "Berlangganan" : "Belum berlangganan"</g-ifelse>
 
         Dapatkan pembaruan pilihan, catatan rilis, dan pengumuman penting. Gunakan tombol di bawah untuk mengelola langganan atau melihat informasi lainnya.
       </g-message>

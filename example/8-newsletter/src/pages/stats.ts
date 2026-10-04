@@ -27,7 +27,7 @@ export class StatsPage extends PageBase {
         📊 Newsletter Stats
 
         Total subscribers: {{count}}
-        Your status: {~subscribed ? "Subscribed" : "Not subscribed"~}
+        Your status: <g-ifelse>subscribed ? "Subscribed" : "Not subscribed"</g-ifelse>
 
         This view helps you confirm whether you are on the list and how large the community is right now.
       </g-message>
@@ -35,7 +35,7 @@ export class StatsPage extends PageBase {
         📊 Statistik Newsletter
 
         Total pelanggan: {{count}}
-        Status Anda: {~subscribed ? "Berlangganan" : "Belum berlangganan"~}
+        Status Anda: <g-ifelse>subscribed ? "Berlangganan" : "Belum berlangganan"</g-ifelse>
 
         Tampilan ini membantu Anda memastikan status langganan dan melihat total komunitas saat ini.
       </g-message>
