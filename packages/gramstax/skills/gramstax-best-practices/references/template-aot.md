@@ -43,13 +43,22 @@ export const template = {media: {`default`: {}}, /* absent blocks omitted */ mes
 
 Emitted files contain **zero** codegen tokens — no `new Function`, no `Function(`, no `eval(` — asserted per file by `template.aot-parity.test.ts`, including under a sabotaged `globalThis.Function`. That is the property that makes the edge target legal.
 
-## Script blocks are rejected at build
+## Script blocks and scopes are rejected at build
 
 ```text
 AOT blocked for template "<key>" (<id>): body contains `with(` — `with` is forbidden in ESM strict mode
 ```
 
-`<g-script>` and `{~~ ... ~~}` both compile to `with(data ...)`, which an ESM module cannot contain. **Move the logic into the page class** — a method returning plain data — and interpolate the result:
+`<g-script>` and **every** `{~~ ... ~~}` emit `with(...)`, which an ESM module cannot contain. For scopes this is unconditional: the `with(data || {})` retry is part of every scope body, so `{~ i + 1 ~}` fails exactly like `{~ a ? b : c ~}`. This is a hard build failure, not a stale artifact.
+
+**Fix a conditional with `<g-ifelse>`** — it emits a plain optional-`data` ternary with no `with`, so it survives the edge:
+
+```html
+<g-ifelse>deletedAt ? "Yes" : "No"</g-ifelse>
+<g-ifelse>isUser ? isBlock ? `blocked` : `welcome` : `sign up`</g-ifelse>
+```
+
+There is no AOT-safe scope, so **a computed value moves into the page class** — a method returning plain data — and is interpolated with `{{}}`:
 
 ```typescript
 // page class computes, template only emits
@@ -65,7 +74,7 @@ export class ReportPage extends PageBase {
 <g-message>{{label}}</g-message>
 ```
 
-This is the one AOT rule that is a hard build failure rather than a stale artifact.
+`<g-ifelse>` renders a string, not markup, so it is not a replacement for branch-over-structure. **For branch-over-markup use `<g-switch>` / `<g-case>` / `<g-default>`**, which freeze as ordinary template functions.
 
 ## How linking works
 

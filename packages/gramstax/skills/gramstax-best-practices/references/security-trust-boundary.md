@@ -4,7 +4,7 @@ Templates are code; only `data` values are untrusted input. Never build template
 
 ## Why
 
-The engine compiles templates to executable functions (`<g-script>`, `{~ ~}`, and generated interpolations all run). User input placed in `data` is inert by construction (proven by `security-poc/3-safe-data-binding.ts`); the same string concatenated into the template source becomes a `<g-script>` RCE (proven by `security-poc/4-untrusted-template-rce.ts`).
+The engine compiles templates to executable functions (`<g-script>`, `<g-ifelse>`, `{~ ~}`, and generated interpolations all run). User input placed in `data` is inert by construction (proven by `security-poc/3-safe-data-binding.ts`); the same string concatenated into the template source becomes a `<g-script>` RCE (proven by `security-poc/4-untrusted-template-rce.ts`).
 
 ## Incorrect
 

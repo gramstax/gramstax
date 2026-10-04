@@ -25,7 +25,7 @@ Aligned with **gramstax v2.2.0**.
 
 ## template- (HIGH)
 
-- `template-logic.md` — conditionals live in templates (`<g-switch>`, `{~~}`, `<g-script>`), single-base dedup vs layouts
+- `template-logic.md` — conditionals live in templates (`<g-ifelse>`, `<g-switch>`, `<g-script>`), single-base dedup vs layouts
 - `template-aot.md` — ahead-of-time compilation, `with()` restriction, regenerate discipline, parity suite
 - `template-scope.md` — scopes emit values only, double-quote literals, structural branches use blocks
 - `template-filters.md` — `{{var|filter:arg}}` pipes, chaining, `default` semantics

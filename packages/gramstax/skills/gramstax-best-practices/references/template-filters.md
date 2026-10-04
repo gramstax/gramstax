@@ -9,7 +9,8 @@ Pipes compile to chained calls once (zero per-render parsing) on a strict whitel
 ## Incorrect
 
 ```typescript
-// formatting logic inside a scope — re-parsed every render, unquoted
+// formatting logic inside a scope — unquoted, re-parsed every render, and it
+// emits `with(` so it fails the AOT build outright
 const template = `<g-base><g-message>{~name.toUpperCase() + "!"~}</g-message></g-base>`
 ```
 

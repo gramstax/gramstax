@@ -1,5 +1,77 @@
 # Changelog
 
+## Unreleased
+
+Adds `<g-ifelse>`, the AOT-safe conditional, and corrects the `{~~}` rule after verifying it against the emitter.
+
+### New rules
+
+- `template-logic.md` — new `<g-ifelse>` section: what counts as a conditional body,
+  the four rejection rules, no attributes, same parent list as `<g-script>`. Registry
+  count corrected 28 → 29 blocks and the `ALLOWED_BLOCKS_PAGE` citation moved to
+  `engine.ts:273`.
+- `template-logic.md` — new **Looping** section. `<g-map>` had no documentation at all,
+  not even `{{e}}` / `{{i}}`. Now documents all three loop bindings plus depth suffixes,
+  filter support, the `data`-shadowing rule, and the `src`-must-be-literal caveat.
+- `template-aot.md` — retitled "Script blocks and scopes are rejected at build", now
+  with the `<g-ifelse>` fix for conditionals and the page-class path for computed values.
+
+### Added
+
+- **`<g-map>` binds `{{ord}}`, a 1-based ordinal**, alongside the existing `{{i}}` (0-based)
+  and `{{e.field}}`. The emitted loop gains `const ord = i + 1`, so `{{ord}}` is a plain
+  `${ord}` — no scope, no `with`, AOT-safe. It exists so the `{~ i - -1 ~}` idiom has a
+  replacement that survives `gramstax build`. Nested maps bind `ord2`, `ord3`. Filters
+  apply (`{{ord|number:2}}`). Locked by `template.gmap-filters.test.ts`.
+- Names `i` / `e` / `ord` shadow `data` inside the map — pre-existing rule for `i` and
+  `e`, extended to one more name.
+
+### Fixed
+
+- **Filter pipes on `<g-map>` loop variables were silently wrong.** `{{e.name|upper}}`
+  rendered empty and `{{i|number:2}}` rendered `0.00` for *every* row, because the
+  `<g-map>` rewrite regex had no pipe alternative — filtered forms fell through to
+  `_processScopeVariables`, which anchors to `data`, while `e` and `i` are loop-locals.
+  The pipe logic is now extracted to `TemplateEngine._compileFilterChain` and shared, so
+  `{{e.x|filter}}`, `{{i|filter:arg}}`, the raw `{{{…}}}` form, and nested `e2` all work.
+  Unfiltered `{{e.x}}` / `{{i}}` emit byte-identical source — no breaking change. Locked by
+  `template.gmap-filters.test.ts`.
+
+### Known limitation
+
+- `<g-map src>` takes a **literal** path, not an interpolation. `src="{{list}}"` fails with
+  a raw `SyntaxError` from `new Function` and no template line info; use `src="list"`.
+  Other `<g-*>` attributes are not affected — `<g-media src="{{fileId}}">` *is* supported,
+  because `compileBlockGMedia` runs the attribute through the scope pipeline. Left as-is
+  rather than special-cased.
+
+### Corrected
+
+- **`{~~ ... ~~}` is JIT-only, full stop.** The previous wording said only *conditional*
+  scopes were AOT-blocked. `_processScopeExec` emits its `with(data || {})` retry for
+  every scope, so `{~ i + 1 ~}` fails the build exactly like `{~ a ? b : c ~}` — verified
+  against `AotEmitter` for all three. `template-scope.md`, `template-logic.md`, and
+  `template-aot.md` are all corrected.
+- `template-scope.md` — reframed from "scopes emit values only" to "`{~~}` cannot appear
+  in any template that gets built". Its old note "no `+` concatenation inside scopes" is
+  inverted for `<g-ifelse>`, where `${}` is rejected and `+` is the composition method.
+- `security-trust-boundary.md` — `<g-ifelse>` added to the list of constructs that
+  compile and run. It is expression-evaluated, so the same trust boundary applies.
+- Conditional examples across the skill moved from `{~~ ... ~~}` to `<g-ifelse>`.
+  `<g-script>` is still flagged as AOT-blocked with no replacement — it is the only
+  construct with no AOT-safe form.
+
+### Known consequence
+
+`production-vip-content-bot` still has 27 `{~ ~}` scopes (11 non-conditional, 16
+conditional) and therefore still cannot pass `gramstax build`. It is outside the
+workspace and resolves `gramstax@2.2.0` from npm, so it gets neither `<g-ifelse>` nor
+`{{ord}}` until it is repointed at a build that has them.
+
+`example/1-complex` was in the same position (`{~ i - -1~}`) and is now clean — migrated to
+`{{ord}}` and verified through `AotEmitter`: emits OK with no `with(`, no `new Function`,
+no `eval(`. Every workspace example is now free of `{~ ~}`.
+
 ## 2.2.0
 
 Realigns the skill with **gramstax v2.2.0**. The v2.1 rules taught an entrypoint
