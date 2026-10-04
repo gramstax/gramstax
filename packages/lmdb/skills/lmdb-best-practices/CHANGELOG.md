@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.0.0
+
+Documentation and test-stability release for `@gramstax/lmdb`. No API change, no schema change, no behavioural change.
+
+**Version note.** `nx release --dry-run` resolves `2.2.0 → 3.0.0` for all four packages as one fixed release group, driven by the breaking reshape in `@gramstax/worker-thread` (`cb59cfdc`). `@gramstax/lmdb` has no breaking change of its own in this release and moves in lockstep with the group — reading the `3.0.0` on this package as "lmdb 3.0.0" would overstate the delta.
+
+### Fixed
+
+- Flaky test for the S3 backup download-to-file path (`59f78988`). The assertion raced the async write, so it failed intermittently rather than deterministically; it now waits for the file to settle before asserting.
+
+### Corrected
+
+- Skill rule text for two things that had drifted from the source (`588f4417`): the documented source layout still listed the pre-`search.ts` / `queue.ts` / `sync.ts` / `cdc/` shape, and several rules described cross-sub access as going through a "repo" receiver after the handle refactor renamed it to `sub`. Both are the kind of error that makes an agent write an import that resolves against nothing.
+
+### Also in this release
+
+- JSDoc on every `lmdb` function (`f429c6fe`), matching the same sweep across `gramstax` and `worker-thread`.
+- Skill realigned with the v2.2.0 source (`b7acbd8d`).
+
 ## 2.2.0
 
 Realigns the skill with **@gramstax/lmdb v2.2.0** — the "query-scale epic"

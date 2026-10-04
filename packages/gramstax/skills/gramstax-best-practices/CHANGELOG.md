@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## 3.0.0
 
 Adds `<g-ifelse>`, the AOT-safe conditional, and corrects the `{~~}` rule after verifying it against the emitter.
+
+**Version note.** `gramstax` has no breaking change of its own in this release — it moves to `3.0.0` because it shares a fixed release group with `@gramstax/worker-thread`, which does (`cb59cfdc`). All four packages (`gramstax`, `create-gramstax`, `@gramstax/lmdb`, `@gramstax/worker-thread`) are versioned together from `2.2.0` to `3.0.0`.
 
 ### New rules
 
@@ -71,6 +73,17 @@ workspace and resolves `gramstax@2.2.0` from npm, so it gets neither `<g-ifelse>
 `example/1-complex` was in the same position (`{~ i - -1~}`) and is now clean — migrated to
 `{{ord}}` and verified through `AotEmitter`: emits OK with no `with(`, no `new Function`,
 no `eval(`. Every workspace example is now free of `{~ ~}`.
+
+### Also in this release
+
+- JSDoc on every `gramstax` function (`ebc705a1`), with the generated API docs under
+  `docs/markdown` and `docs/yaml` regenerated to match (`f93eb0db`).
+- `scripts/build-manifest.ts` detects JSDoc on a file's first statement instead of a fixed
+  offset (`895a9a3c`), so a leading license banner or import no longer shifts the JSDoc block
+  out of the extractor's view.
+- Skill realignment for the config-driven boot rules, including a corrected
+  nonexistent-`typecheck`-script claim in `config-boot.md` (`f2bce1f8`, `75f9466b`).
+- Example app updates (`ab3feeba`) and a `create-gramstax` template refresh (`dea5a1a7`).
 
 ## 2.2.0
 

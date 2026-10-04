@@ -1,5 +1,43 @@
 # Changelog
 
+## 3.0.0
+
+The five exported free functions are gone, replaced by class statics. This is the breaking change the `2.2.0` entry warned about while it sat unversioned on `main` — it now ships *with* the version bump it always needed.
+
+**Version note.** `nx release --dry-run` resolves `2.2.0 → 3.0.0` for all four packages as one fixed release group, driven by `cb59cfdc`. `@gramstax/worker-thread` is the only package with a breaking change in this release; `gramstax`, `create-gramstax`, and `@gramstax/lmdb` move in lockstep and carry none of their own.
+
+### Breaking: free functions → class statics
+
+| Removed export | Replacement |
+| --- | --- |
+| `setDefaultErrorHandler(fn)` | `WorkerThreadErrorHandler.setDefault(fn)` |
+| `resetDefaultErrorHandler()` | `WorkerThreadErrorHandler.resetDefault()` |
+| `reportError(err)` | `WorkerThreadErrorHandler.report(err)` |
+| `normalizeGatewayPath(path)` | `WorkerThreadGatewayPath.normalize(path)` |
+| `estimatePayloadSize(value)` | `WorkerThreadRpc.estimatePayloadSize(value)` |
+
+The module-level `defaultHandler` binding became `private static _default` on `WorkerThreadErrorHandler`; it was never public API, but it is no longer reachable by any import path either.
+
+**Unchanged:** the three RPC constants `DEFAULT_MAX_MESSAGE_SIZE`, `DEFAULT_REQUEST_TIMEOUT_MS`, and `DENIED_RPC_METHODS` keep their names and values. Migration table also lives in `references/maintain-api-surface.md`.
+
+### Shared types moved to `src/types`
+
+The 10 shared `I*` definitions moved into `src/types`, one file per source module, mirroring `lmdb/src/types`:
+
+```text
+src/types/export.ts          IWorkerThreadExportOpt, IWorkerThreadGatewayProxy, …
+src/types/gateway-client.ts  IGatewayClientOptions
+src/types/gateway-server.ts  IGatewayServerOptions
+src/types/rpc.ts             IMapRpc, IRpcContext, IRpcMiddleware
+```
+
+`index.ts` re-exports them with `export type {…}`, so the **type surface stays backwards compatible** — consumers importing `IRpcContext` from the package root are unaffected. Only deep imports into `src/types` paths are new; nothing was removed from the old locations because the types were previously declared inside their source modules, which still declare them.
+
+### Also in this release
+
+- Skill realigned with the post-reshape source (`1703499d`), so the rules lead with the class-static API instead of documenting both shapes side by side.
+- JSDoc on every function (`218f88f8`) and a fix for wrong imports inside JSDoc `@example` blocks (`287489f4`), which previously showed code that would not compile if pasted.
+
 ## 2.2.0
 
 Realigns the skill with the current `@gramstax/worker-thread` source. The skill
