@@ -1682,44 +1682,48 @@ export class TemplateEngine {
         // Replace loop variable references with depth-indexed JS expressions.
         // {{e}} / {{e.prop}}  →  current depth's element (e, e2, e3...)
         // {{e2}} / {{e2.prop}} → explicit depth element
-        // {{i}} / {{i2}}       → current/explicit depth index
+        // {{i}} / {{i2}}       → current/explicit depth index (0-based)
+// {{ord}} / {{ord2}}   → current/explicit depth ordinal (1-based)
         // {{{e}}}/{{{e.prop}}} → raw (no escaping)
         // Everything else passes through for _processScopeVariables.
-        processed = processed.replace(/\{\{\{([\w.]+)\}\}\}/g, (_m: string, inner: string) => {
-          const eMatch = inner.match(/^(e(\d*))(?:\.(.+))?$/)
+        const warnedFilters = new Set<string>()
+        const loopRef = (inner: string): {accessor: string; isElement: boolean} | null => {
+          const head = inner.split(`|`, 1)[0] ?? ``
+          const eMatch = head.match(/^(e(\d*))(?:\.(.+))?$/)
           if (eMatch) {
             const requested = eMatch[2] === `` ? depth : Number(eMatch[2])
             const clamped = Number.isNaN(requested) ? depth : Math.min(requested, depth)
             const varSuffix = clamped === 1 ? `` : String(clamped)
-            const prop = eMatch[3]
-            return prop ? `\${e${varSuffix}.${prop}}` : `\${e${varSuffix}}`
+            return {accessor: eMatch[3] === undefined ? `e${varSuffix}` : `e${varSuffix}.${eMatch[3]}`, isElement: true}
           }
-          const iMatch = inner.match(/^i(\d*)$/)
+          const iMatch = head.match(/^i(\d*)$/)
           if (iMatch) {
             const requestedI = iMatch[1] === `` ? depth : Number(iMatch[1])
             const clampedI = Number.isNaN(requestedI) ? depth : Math.min(requestedI, depth)
             const varSuffixI = clampedI === 1 ? `` : String(clampedI)
-            return `\${i${varSuffixI}}`
+            return {accessor: `i${varSuffixI}`, isElement: false}
           }
-          return _m
+          const ordMatch = head.match(/^ord(\d*)$/)
+          if (ordMatch) {
+            const requestedOrd = ordMatch[1] === `` ? depth : Number(ordMatch[1])
+            const clampedOrd = Number.isNaN(requestedOrd) ? depth : Math.min(requestedOrd, depth)
+            const varSuffixOrd = clampedOrd === 1 ? `` : String(clampedOrd)
+            return {accessor: `ord${varSuffixOrd}`, isElement: false}
+          }
+          return null
+        }
+        const piped = /^(.*)\|([^{}]+)$/
+        processed = processed.replace(/\{\{\{([\w.]+(?:\|[^{}]*?)?)\}\}\}/g, (_m: string, inner: string) => {
+          const ref = loopRef(inner)
+          if (ref === null) return _m
+          if (!piped.test(inner)) return `\${${ref.accessor}}`
+          return `\${${this._compileFilterChain(`(${ref.accessor})`, inner, warnedFilters)} ?? ""}`
         })
-        processed = processed.replace(/\{\{([\w.]+)\}\}/g, (_m: string, inner: string) => {
-          const eMatch = inner.match(/^(e(\d*))(?:\.(.+))?$/)
-          if (eMatch) {
-            const requested = eMatch[2] === `` ? depth : Number(eMatch[2])
-            const clamped = Number.isNaN(requested) ? depth : Math.min(requested, depth)
-            const varSuffix = clamped === 1 ? `` : String(clamped)
-            const prop = eMatch[3]
-            return prop ? `\${__esc(e${varSuffix}.${prop})}` : `\${__esc(e${varSuffix})}`
-          }
-          const iMatch = inner.match(/^i(\d*)$/)
-          if (iMatch) {
-            const requestedI = iMatch[1] === `` ? depth : Number(iMatch[1])
-            const clampedI = Number.isNaN(requestedI) ? depth : Math.min(requestedI, depth)
-            const varSuffixI = clampedI === 1 ? `` : String(clampedI)
-            return `\${i${varSuffixI}}`
-          }
-          return _m
+        processed = processed.replace(/\{\{([\w.]+(?:\|[^{}]*?)?)\}\}/g, (_m: string, inner: string) => {
+          const ref = loopRef(inner)
+          if (ref === null) return _m
+          if (!piped.test(inner)) return ref.isElement ? `\${__esc(${ref.accessor})}` : `\${${ref.accessor}}`
+          return `\${__esc(${this._compileFilterChain(`(${ref.accessor})`, inner, warnedFilters)} ?? "")}`
         })
 
         // Resolve src: "e.prop" or "e2.prop" → parent loop element property, else data key
@@ -1734,7 +1738,7 @@ export class TemplateEngine {
           return c
         })
         const safeJoin = JSON.stringify(unescapedJoin)
-        return `\${(() => { const __arr${suffix} = ${srcExpr} || []; let __out${suffix} = ""; for (let i${suffix} = 0; i${suffix} < __arr${suffix}.length; i${suffix}++) { const e${suffix} = __arr${suffix}[i${suffix}]; if (i${suffix} > 0) { __out${suffix} += ${safeJoin} } __out${suffix} += \`${processed}\`; } return __out${suffix}; })()}`
+        return `\${(() => { const __arr${suffix} = ${srcExpr} || []; let __out${suffix} = ""; for (let i${suffix} = 0; i${suffix} < __arr${suffix}.length; i${suffix}++) { const e${suffix} = __arr${suffix}[i${suffix}]; const ord${suffix} = i${suffix} + 1; if (i${suffix} > 0) { __out${suffix} += ${safeJoin} } __out${suffix} += \`${processed}\`; } return __out${suffix}; })()}`
       })
     }
 

@@ -30,7 +30,7 @@ export class StartBlockMapPage extends PageBase {
         <b>🧭 Template map demo</b>
 
         <g-map src="arr" join="\\n\\n">
-          Position: {~i - -1~}
+          Position: {{ord}}
           Number: {{e.number}}
           Status: {{status}}
         </g-map>
@@ -39,7 +39,7 @@ export class StartBlockMapPage extends PageBase {
         <b>🧭 Demo map template</b>
 
         <g-map src="arr" join="\\n\\n">
-          Posisi: {~i - -1~}
+          Posisi: {{ord}}
           Nomor: {{e.number}}
           Status: {{status}}
         </g-map>
