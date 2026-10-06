@@ -193,7 +193,7 @@ export class CdcStore {
     const cutoff = Math.min(acks.length > 0 ? Math.min(...acks) : Infinity, newest - keep)
     if (cutoff < 1) return 0
     const log = this._logDb!
-    return this._env.transaction(() => {
+    return this._env.transactionFast(() => {
       let pruned = 0
       for (const seqKey of log.getKeys({end: cutoff + 1})) {
         if (log.removeSync(seqKey)) pruned++

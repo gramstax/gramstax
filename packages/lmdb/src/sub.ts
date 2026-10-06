@@ -1002,7 +1002,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     }
     const keysPromise: Promise<ILmdbKey[]> = endKey !== undefined && this._stringBoundsValid(state, prefix) ? (Promise.resolve(state.env.getKeys({start: prefix, end: endKey}).asArray) as Promise<ILmdbKey[]>) : Promise.resolve(this._collectPrefixKeys(state, prefix))
     return keysPromise.then((keys) =>
-      this.owner.transaction(() => {
+      this.owner.transactionFast(() => {
         const indexed = state.indexes.length > 0 || state.searchTables.length > 0
         let removed = 0
         for (const k of keys) {
@@ -1355,7 +1355,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     }
     for (let i = 0; i < entries.length; i += chunkSize) {
       const end = Math.min(i + chunkSize, entries.length)
-      await this.owner.transaction(() => {
+      await this.owner.transactionFast(() => {
         for (let j = i; j < end; j++) {
           const e = entries[j]!
           this._stageCdcPut(state, e[0], e[1], `sync`)
