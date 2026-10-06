@@ -707,6 +707,106 @@ export class LmdbEnv {
   }
 
   /**
+   * Run a callback inside an off-thread LMDB write transaction.
+   *
+   * @remarks
+   * **SQL equivalent**:
+   * ```sql
+   * BEGIN;
+   * -- <writes performed via putSync/removeSync inside fn>
+   * COMMIT;
+   * ```
+   *
+   * Gives the same atomicity as {@link transaction} — one native LMDB write
+   * transaction, invisible to other processes until it commits — but the
+   * commit is handed to lmdb-js's writer thread instead of blocking the main
+   * thread, and it batches with other writes queued in the same event turn.
+   *
+   * **The trade-off is rollback, and it is not available here.** lmdb-js's
+   * `db.transaction()` records a callback error and rethrows it, but never
+   * calls `mdb_txn_abort` — the native transaction commits regardless. So:
+   *
+   * - {@link LmdbTransaction.abort} throws `LmdbError` rather than silently
+   *   doing nothing.
+   * - A callback that throws still propagates the error, but every write it
+   *   already performed is **committed**, not discarded.
+   *
+   * Use {@link transaction} whenever the outcome depends on the callback
+   * failing partway. Reach for this one when the callback cannot fail
+   * partway, or when partial application of a bulk write is harmless (the
+   * package uses it for `putMany`, `purgeExpired`, `increment` and CDC
+   * pruning).
+   *
+   * @param fn - Callback receiving the {@link LmdbTransaction} wrapper.
+   * @returns The callback's resolved value.
+   *
+   * @throws {@link LmdbError} if the env is read-only, if the callback calls
+   * `tx.abort()`, or if the callback throws — the last case wraps the original
+   * error as `cause` and states that the writes were committed.
+   *
+   * @example
+   * ```typescript
+   * await env.transactionFast(() => {
+   *   users.putSync("u1", user);
+   *   sessions.putSync("s1", session);
+   * });
+   * ```
+   *
+   * @public
+   */
+  async transactionFast<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
+    this._assertOpen()
+    if (this.readOnly) throw new LmdbError(`Cannot perform 'transactionFast' on a read-only env.`)
+    // Nested (called from inside another transaction callback): join the
+    // active transaction rather than opening a competing one.
+    if (this._txInProgress) {
+      return this._runFastTransaction(fn)
+    }
+    // Serialize against other in-flight transactions for the same reason
+    // `transaction` does — see the note there.
+    const run = this._txQueue.then(() => this._runFastTransaction(fn))
+    this._txQueue = run.catch(() => undefined)
+    return run
+  }
+
+  /**
+   * Execute a callback inside lmdb-js's off-thread write transaction.
+   *
+   * @remarks
+   * Nested calls join the outer transaction; only the outermost frame
+   * publishes staged CDC events. Because this path cannot roll back, the
+   * writes commit even when the callback throws — so CDC still has to drain,
+   * and the surfaced error has to say so.
+   *
+   * @param fn - Callback receiving the {@link LmdbTransaction} wrapper.
+   * @returns The callback's resolved value.
+   *
+   * @internal
+   */
+  private async _runFastTransaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
+    const tx = new LmdbTransaction(undefined, true)
+    const nested = this._txInProgress
+    this._txInProgress = true
+    try {
+      return (await this._root.transaction(() => fn(tx))) as T
+    } catch (err) {
+      // An `abort()` refusal is already specific and actionable ("use
+      // transaction()") — do not bury it under the generic commit-on-throw
+      // wording, which would read as though writes had happened.
+      if (tx.abortRejected) throw err
+      throw new LmdbError(`'transactionFast' cannot roll back — writes already performed in this callback were committed. Use 'transaction()' when the callback can fail partway.`, err instanceof Error ? {cause: err} : undefined)
+    } finally {
+      if (!nested) {
+        // Drained in `finally`, not on the success path only: this lmdb-js
+        // path commits even when the callback threw, so the staged CDC events
+        // describe committed writes and must be published either way.
+        this._drainCdc()
+        this._txInProgress = false
+      }
+    }
+  }
+
+  /**
    * Run a callback inside a read-only transaction.
    *
    * @remarks

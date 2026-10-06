@@ -48,19 +48,56 @@ export class LmdbTransaction {
   private _rawReleased = false
 
   /**
+   * Whether this transaction runs on an lmdb-js path that cannot roll back.
+   *
+   * @remarks
+   * `lmdb`'s `db.transaction()` records a callback error and rethrows it, but
+   * never calls `mdb_txn_abort` — the native write transaction still commits.
+   * So on that path {@link abort} would silently do nothing while the caller
+   * believes the writes were discarded. We fail loudly instead.
+   *
+   * @internal
+   */
+  private readonly _noAbort: boolean
+
+  /**
+   * Set when {@link abort} refused because the backing path cannot roll back.
+   *
+   * @remarks
+   * Lets the caller re-surface the original "cannot abort" error instead of
+   * replacing it with a generic commit-on-throw message.
+   *
+   * @internal
+   */
+  private _abortRejected = false
+
+  /**
+   * Whether {@link abort} threw because this transaction cannot roll back.
+   *
+   * @internal
+   */
+  get abortRejected(): boolean {
+    return this._abortRejected
+  }
+
+  /**
    * Create a transaction wrapper.
    *
    * @remarks
-   * Called by {@link LmdbEnv.transaction} (no raw txn) and
+   * Called by {@link LmdbEnv.transaction} (no raw txn),
+   * {@link LmdbEnv.transactionFast} (no raw txn, `noAbort`) and
    * {@link LmdbEnv.readTransaction} (with the raw read txn) — never
    * construct directly.
    *
    * @param rawReadTxn - The raw LMDB read transaction (from
    * `db.useReadTransaction()`), or `undefined` for write transactions.
+   * @param noAbort - `true` when the backing lmdb-js API cannot roll back, so
+   * {@link abort} must throw instead of pretending to succeed.
    * @internal
    */
-  constructor(rawReadTxn?: IRawReadTransaction) {
+  constructor(rawReadTxn?: IRawReadTransaction, noAbort = false) {
     this._rawReadTxn = rawReadTxn
+    this._noAbort = noAbort
   }
 
   /**
@@ -164,6 +201,11 @@ export class LmdbTransaction {
    * For read transactions: releases the underlying LMDB read transaction
    * immediately. Safe to call multiple times.
    *
+   * Inside {@link LmdbEnv.transactionFast} this **throws** `LmdbError`: that
+   * path commits through lmdb-js `db.transaction()`, which cannot roll back.
+   * Silently ignoring the call would let the caller believe the writes were
+   * discarded when they are in fact committed.
+   *
    * @example
    * ```typescript
    * await env.transaction(async (tx) => {
@@ -181,6 +223,10 @@ export class LmdbTransaction {
    * @public
    */
   abort(): void {
+    if (this._noAbort) {
+      this._abortRejected = true
+      throw new LmdbError(`Cannot abort a 'transactionFast' transaction — its lmdb path commits even when the callback throws. Use 'transaction()' when you need rollback.`)
+    }
     if (this.done) {
       // Already committed or aborted — still release the raw read txn if
       // one is held (e.g. the user called commit() inside readTransaction).
