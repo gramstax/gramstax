@@ -6,6 +6,7 @@ import {pipeline} from "node:stream/promises"
 import type {S3Client} from "@aws-sdk/client-s3"
 import type {LmdbEnv} from "./env"
 import {LmdbError} from "./errors"
+import {LmdbJobRun} from "./job-run"
 import type {IBackupArchiveEntry, IBackupEntry, IBackupHandle, IBackupS3Options, IBackupSnapshotOptions, IBackupSnapshotResult, IBackupStartOptions} from "./types/backup"
 
 export type {
@@ -27,6 +28,11 @@ export type {
  * touched.
  */
 const BACKUP_PREFIX = `backup-`
+
+/**
+ * Default job name for the persisted backup run-stamp in the `__job_run` sub.
+ */
+const BACKUP_RUN_KEY = `backup`
 
 /**
  * Timestamped backup lifecycle over LMDB envs — create, list, prune,
@@ -66,23 +72,6 @@ export class LmdbBackup {
    */
   private static _stamp(): string {
     return `${Date.now().toString().padStart(13, `0`)}-${Math.random().toString(36).slice(2, 6)}`
-  }
-
-  /**
-   * Render a tick interval as a human cadence.
-   *
-   * @param ms - Interval in milliseconds.
-   * @returns Whole days/hours/minutes/seconds when evenly divisible,
-   * else raw milliseconds (e.g. `every 20ms`).
-   *
-   * @internal
-   */
-  private static _formatInterval(ms: number): string {
-    if (ms % 86_400_000 === 0) return `${ms / 86_400_000}d`
-    if (ms % 3_600_000 === 0) return `${ms / 3_600_000}h`
-    if (ms % 60_000 === 0) return `${ms / 60_000}m`
-    if (ms % 1000 === 0) return `${ms / 1000}s`
-    return `${ms}ms`
   }
 
   /**
@@ -179,7 +168,17 @@ export class LmdbBackup {
     mkdirSync(baseDir, {recursive: true})
     const dest = join(baseDir, `${BACKUP_PREFIX}${LmdbBackup._stamp()}`)
     mkdirSync(dest, {recursive: true})
-    await env.backup(dest)
+    try {
+      await env.backup(dest)
+    } catch (err) {
+      // A half-written backup-<stamp> dir would still be reported by list()
+      // and would consume one of the `keep` slots, so a failed copy must not
+      // leave debris behind. The tar.gz path already cleans up on failure.
+      try {
+        rmSync(dest, {recursive: true, force: true})
+      } catch {}
+      throw err
+    }
     await LmdbBackup.prune(baseDir, want)
     return dest
   }
@@ -491,21 +490,26 @@ export class LmdbBackup {
   }
 
   /**
-   * Run snapshots on an interval.
+   * Run snapshots on a cron schedule, resuming across restarts.
+   *
+   * @remarks
+   * A thin wrapper over {@link LmdbJobRun.start}: this module owns *what* to
+   * do (take a snapshot, prune, optionally upload) and the job-run module owns
+   * *when* to do it. Everything schedule-related — croner, the missed-boundary
+   * check, the overlap guard, the run-stamp — lives there, so any other job can
+   * opt into the same restart safety without going through this helper.
    *
    * @param env - Writer env to back up (must stay open).
-   * @param opts - `{dir, keep?, intervalMs, runOnStart?, format?, s3?, onError?}` —
-   * the timer is unref'd so it never blocks process exit. Overlapping ticks
-   * are skipped. Failures go to `onError` and never reject the timer.
-   * @returns `{stop, label}` handle.
+   * @param opts - `{dir, keep?, pattern, timezone?, runOnStart?, format?, s3?,
+   * onError?, persist?, persistKey?}`.
+   * @returns `{stop, runNow, lastRun, nextRun, label}` handle.
+   * @throws {LmdbError} On a bad format, an s3/format pairing mismatch, or a
+   * closed env — the job-run store is constructed up front.
    *
    * @public
    */
   static start(env: LmdbEnv, opts: IBackupStartOptions): IBackupHandle {
-    const {dir, intervalMs} = opts
-    if (!Number.isFinite(intervalMs) || intervalMs <= 0) {
-      throw new LmdbError(`Backup interval must be a finite number of ms above 0 — received '${String(intervalMs)}'.`)
-    }
+    const {dir, pattern, timezone} = opts
     const format = opts.format ?? `dir`
     if (format !== `dir` && format !== `tar.gz`) {
       throw new LmdbError(`Snapshot format must be "dir" or "tar.gz" — received '${String(format)}'.`)
@@ -514,53 +518,22 @@ export class LmdbBackup {
       throw new LmdbError(`S3 upload needs format "tar.gz" (a directory cannot be PUT as one object).`)
     }
     const keep = LmdbBackup._normalizeKeep(opts.keep)
-    const onError = opts.onError ?? ((err: unknown) => console.error(`[LmdbBackup] tick failed: ${String(err)}`))
-    let stopped = false
-    let ticking = false
-    let lastRun = 0
-    /**
-     * One schedule tick — snapshot once.
-     *
-     * @remarks
-     * Skips while a previous tick is still in flight (no overlap) and after
-     * {@link stop}. Failures route to `onError` and never reject the timer.
-     */
-    const tick = (): void => {
-      if (stopped || ticking) return
-      ticking = true
-      Promise.resolve()
-        .then(() => LmdbBackup.snapshot(env, {dir, keep, format, s3: opts.s3}))
-        .then(
-          () => {
-            lastRun = Date.now()
-            ticking = false
-          },
-          (err: unknown) => {
-            ticking = false
-            onError(err)
-          }
-        )
-    }
-    if (opts.runOnStart) tick()
-    const timer = setInterval(tick, intervalMs)
-    if (typeof timer.unref === `function`) timer.unref()
+
+    const handle = new LmdbJobRun(env).start(opts.persistKey ?? BACKUP_RUN_KEY, {
+      pattern,
+      timezone,
+      persist: opts.persist,
+      runOnStart: opts.runOnStart,
+      onError: opts.onError,
+      task: () => LmdbBackup.snapshot(env, {dir, keep, format, s3: opts.s3})
+    })
+
     return {
-      /**
-       * Stop the schedule — no further ticks.
-       *
-       * @remarks
-       * Idempotent; in-flight ticks still settle through `onError`.
-       */
-      stop: () => {
-        stopped = true
-        clearInterval(timer)
-      },
-      /**
-       * Human-readable cadence with last-run stamp.
-       *
-       * @returns `every <interval>` plus `, last run <ISO>` once ticked.
-       */
-      label: () => `every ${LmdbBackup._formatInterval(intervalMs)}${lastRun > 0 ? `, last run ${new Date(lastRun).toISOString()}` : ``}`
+      stop: handle.stop,
+      runNow: handle.runNow,
+      lastRun: handle.lastRun,
+      nextRun: handle.nextRun,
+      label: handle.label
     }
   }
 }

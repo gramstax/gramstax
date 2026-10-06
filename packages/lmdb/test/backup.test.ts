@@ -2,9 +2,10 @@ import {afterEach, describe, expect, it} from "bun:test"
 import {existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync} from "node:fs"
 import {join} from "node:path"
 import type {S3Client} from "@aws-sdk/client-s3"
-import {LmdbBackup, type LmdbBackupS3Options} from "../src/backup"
+import {LmdbBackup, type LmdbBackupHandle, type LmdbBackupS3Options, type LmdbBackupStartOptions} from "../src/backup"
 import {LmdbEnv} from "../src/env"
 import {LmdbError} from "../src/errors"
+import {LmdbJobRun} from "../src/job-run"
 import {LmdbSchema, t} from "../src/schema"
 import {createTestDir, rmWithRetry} from "./test-helpers"
 
@@ -22,12 +23,50 @@ afterEach(async () => {
   for (const dir of dirs.splice(0)) await rmWithRetry(dir)
 })
 
-function setupEnv(): {env: LmdbEnv; dir: string; base: string} {
-  const dir = createTestDir(`backup-src`)
+function setupEnvAt(dir: string): {env: LmdbEnv; dir: string; base: string} {
   const base = join(dir, `backups`)
   dirs.push(dir)
   const env = new LmdbEnv({path: join(dir, `data`), maxDbs: 10})
   return {env, dir, base}
+}
+
+function setupEnv(): {env: LmdbEnv; dir: string; base: string} {
+  return setupEnvAt(createTestDir(`backup-src`))
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/** Count created backups, tolerating a base dir the test never made. */
+function backupCount(base: string): number {
+  try {
+    return readdirSync(base).filter((n) => n.startsWith(`backup-`)).length
+  } catch {
+    return 0
+  }
+}
+
+/**
+ * Start a schedule, run `body`, and always stop the timer afterwards.
+ *
+ * A leaked interval keeps snapshotting into a temp dir the runner is about to
+ * delete. Under bun that escalates to a native segfault in the LMDB binding
+ * rather than a readable test failure, so `stop()` belongs in a `finally` and
+ * never after the assertions.
+ */
+async function duringSchedule(env: LmdbEnv, opts: LmdbBackupStartOptions, body: (handle: LmdbBackupHandle) => Promise<void>): Promise<void> {
+  const handle = LmdbBackup.start(env, opts)
+  try {
+    await body(handle)
+  } finally {
+    handle.stop()
+    // `stop()` cannot cancel a tick already inside the native LMDB copy, and
+    // the caller closes the env and deletes the temp dir straight after. Let a
+    // bounded settle window elapse so the copy finishes first; otherwise the
+    // close races it and the binding segfaults.
+    await sleep(60)
+  }
 }
 
 describe(`LmdbBackup`, () => {
@@ -117,32 +156,282 @@ describe(`LmdbBackup`, () => {
     }
   })
 
-  it(`start ticks on schedule and stop halts`, async () => {
+  it(`start fires on a cron boundary and stop halts it`, async () => {
     const {env, base} = setupEnv()
     try {
       env.register(ValSchema)
-      const handle = LmdbBackup.start(env, {dir: base, keep: 5, intervalMs: 20, runOnStart: true})
-      expect(handle.label()).toContain(`20`)
-      await new Promise((resolve) => setTimeout(resolve, 120))
+      // One second is the finest granularity croner offers, so this is the only
+      // test that waits on a real boundary. Everything else forces a tick.
+      const handle = LmdbBackup.start(env, {dir: base, keep: 5, pattern: `* * * * * *`, persist: false})
+      expect(handle.label()).toContain(`* * * * * *`)
+      await sleep(1300)
       handle.stop()
-      const count = readdirSync(base).filter((n) => n.startsWith(`backup-`)).length
+      const count = backupCount(base)
       expect(count).toBeGreaterThanOrEqual(1)
-      // An in-flight tick may still land right after stop — wait it out, then
-      // the count must stay flat (no further ticks).
-      await new Promise((resolve) => setTimeout(resolve, 120))
-      const settled = readdirSync(base).filter((n) => n.startsWith(`backup-`)).length
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      expect(readdirSync(base).filter((n) => n.startsWith(`backup-`)).length).toBe(settled)
+      await sleep(1300)
+      expect(backupCount(base)).toBe(count)
     } finally {
       await env.close()
     }
   })
 
-  it(`start rejects bad interval`, async () => {
+  it(`start rejects a bad pattern`, async () => {
     const {env, base} = setupEnv()
     try {
       env.register(ValSchema)
-      expect(() => LmdbBackup.start(env, {dir: base, intervalMs: 0})).toThrow(LmdbError)
+      expect(() => LmdbBackup.start(env, {dir: base, pattern: ``})).toThrow(LmdbError)
+      expect(() => LmdbBackup.start(env, {dir: base, pattern: `   `})).toThrow(LmdbError)
+      expect(() => LmdbBackup.start(env, {dir: base, pattern: `not a cron`})).toThrow(LmdbError)
+      expect(() => LmdbBackup.start(env, {dir: base, pattern: `99 99 99 99 99 99`})).toThrow(LmdbError)
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`runNow stamps a successful run`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`, persist: false}, async (handle) => {
+        await handle.runNow()
+        expect(backupCount(base)).toBe(1)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`a scheduled success is stamped`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      // Fresh stamp so no boot catch-up fires, isolating the runNow path.
+      await new LmdbJobRun(env).recordRun(`backup`, Date.now())
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`}, async (handle) => {
+        await handle.runNow()
+        const at = new LmdbJobRun(env).lastRun(`backup`)
+        expect(typeof at).toBe(`number`)
+        expect(at).toBeGreaterThan(0)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`a recent stamp means no snapshot at boot`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      await new LmdbJobRun(env).recordRun(`backup`, Date.now())
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`}, async () => {
+        await sleep(250)
+        expect(backupCount(base)).toBe(0)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`a job that missed a boundary catches up exactly once at boot`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      // Three days stale against a daily pattern: several boundaries passed
+      // while the process was down, and boot must still take only one snapshot.
+      await new LmdbJobRun(env).recordRun(`backup`, Date.now() - 3 * 86_400_000)
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`}, async () => {
+        await sleep(350)
+        expect(backupCount(base)).toBe(1)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`a fresh env catches up once at boot`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`}, async () => {
+        await sleep(350)
+        expect(backupCount(base)).toBe(1)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`runOnStart forces a run even when the job is not due`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      await new LmdbJobRun(env).recordRun(`backup`, Date.now())
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`, runOnStart: true}, async () => {
+        await sleep(300)
+        expect(backupCount(base)).toBe(1)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`persist false writes no stamp`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      // `persist: false` keeps the stamp in memory only. The `job-run` schema is
+      // still registered, because `LmdbJobRun` registers it in its constructor —
+      // the flag governs writes, not slot accounting.
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`, persist: false}, async (handle) => {
+        await handle.runNow()
+        expect(backupCount(base)).toBe(1)
+        expect(handle.lastRun()).toBeGreaterThan(0)
+        expect(new LmdbJobRun(env).lastRun(`backup`)).toBeUndefined()
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`persist false does not catch up at boot`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      await new LmdbJobRun(env).recordRun(`backup`, Date.now() - 3 * 86_400_000)
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`, persist: false}, async () => {
+        await sleep(250)
+        expect(backupCount(base)).toBe(0)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`persistKey keeps two schedules on one env independent`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      const hourlyAt = Date.now() - 5_000
+      const jobs = new LmdbJobRun(env)
+      await jobs.recordRun(`nightly`, Date.now() - 3 * 86_400_000)
+      await jobs.recordRun(`hourly`, hourlyAt)
+      const nightly = LmdbBackup.start(env, {dir: base, pattern: `0 3 * * *`, persistKey: `nightly`})
+      const hourly = LmdbBackup.start(env, {dir: base, pattern: `0 3 * * *`, persistKey: `hourly`})
+      try {
+        await sleep(350)
+        expect(backupCount(base)).toBe(1)
+        expect(jobs.lastRun(`nightly`)).toBeGreaterThan(hourlyAt)
+        expect(jobs.lastRun(`hourly`)).toBe(hourlyAt)
+      } finally {
+        nightly.stop()
+        hourly.stop()
+        await sleep(60)
+      }
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`a failed tick does not advance the stamp`, async () => {
+    const {env, dir} = setupEnv()
+    try {
+      env.register(ValSchema)
+      // A file where a directory must be: the snapshot fails at mkdir while
+      // the env stays open.
+      const blocker = join(dir, `blocker`)
+      writeFileSync(blocker, `x`)
+      await duringSchedule(env, {dir: join(blocker, `backups`), pattern: `0 3 * * *`}, async (handle) => {
+        await handle.runNow()
+        expect(new LmdbJobRun(env).lastRun(`backup`)).toBeUndefined()
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`a long-interval pattern does not fire immediately`, async () => {
+    const {env, dir} = setupEnv()
+    try {
+      env.register(ValSchema)
+      // Midnight on 1 January — the next boundary is far away. A plain timer
+      // clamps anything past 2^31-1 ms down to 1 ms and would spin here.
+      const blocker = join(dir, `blocker`)
+      writeFileSync(blocker, `x`)
+      const seen: Array<unknown> = []
+      await duringSchedule(env, {dir: join(blocker, `backups`), pattern: `0 0 1 1 *`, persist: false, onError: (err: unknown) => seen.push(err)}, async () => {
+        await sleep(250)
+        expect(seen).toEqual([])
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`start throws on a closed env when persisting`, async () => {
+    const {env, base} = setupEnv()
+    await env.close()
+    // Captured so a regression cannot leak a live timer onto a closed env.
+    let leaked: LmdbBackupHandle | undefined
+    try {
+      expect(() => {
+        leaked = LmdbBackup.start(env, {dir: base, pattern: `0 3 * * *`})
+      }).toThrow(LmdbError)
+    } finally {
+      leaked?.stop()
+    }
+  })
+
+  it(`label reports the pattern and the persisted stamp`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      const at = Date.now() - 60_000
+      await new LmdbJobRun(env).recordRun(`backup`, at)
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`}, async (handle) => {
+        expect(handle.label()).toContain(`0 3 * * *`)
+        expect(handle.label()).toContain(new Date(at).toISOString())
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`runNow still works after stop`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`, persist: false}, async (handle) => {
+        handle.stop()
+        await handle.runNow()
+        expect(backupCount(base)).toBe(1)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`concurrent runNow calls collapse into one snapshot`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`, persist: false}, async (handle) => {
+        await Promise.all([handle.runNow(), handle.runNow(), handle.runNow()])
+        expect(backupCount(base)).toBe(1)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`backup removes the partial dir when the copy fails`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      // A closed env fails inside `env.backup()`, i.e. after the destination
+      // directory already exists.
+      await env.close()
+      await expect(LmdbBackup.backup(env, base, 3)).rejects.toBeInstanceOf(LmdbError)
+      expect(LmdbBackup.list(base)).toEqual([])
     } finally {
       await env.close()
     }
@@ -250,23 +539,34 @@ describe(`LmdbBackup`, () => {
     try {
       env.register(ValSchema)
       const s3 = {bucket: `b`, accessKeyId: `k`, secretAccessKey: `s`}
-      expect(() => LmdbBackup.start(env, {dir: base, intervalMs: 10, format: `zip` as never})).toThrow(LmdbError)
-      expect(() => LmdbBackup.start(env, {dir: base, intervalMs: 10, format: `dir`, s3})).toThrow(LmdbError)
+      expect(() => LmdbBackup.start(env, {dir: base, pattern: `0 3 * * *`, format: `zip` as never})).toThrow(LmdbError)
+      expect(() => LmdbBackup.start(env, {dir: base, pattern: `0 3 * * *`, format: `dir`, s3})).toThrow(LmdbError)
     } finally {
       await env.close()
     }
   })
 
   it(`start routes tick failures to onError`, async () => {
-    const {env, base} = setupEnv()
-    env.register(ValSchema)
-    await env.close()
-    const seen: Array<unknown> = []
-    const handle = LmdbBackup.start(env, {dir: base, intervalMs: 15, runOnStart: true, onError: (err: unknown) => seen.push(err)})
-    await new Promise((resolve) => setTimeout(resolve, 100))
-    handle.stop()
-    expect(seen.length).toBeGreaterThanOrEqual(1)
-    expect(seen[0]).toBeInstanceOf(Error)
+    const {env, dir, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      await new LmdbJobRun(env).recordRun(`backup`, Date.now())
+      // A file where the backup directory must be: the snapshot fails at mkdir,
+      // the env stays open, and the failure has to surface through onError.
+      const blocker = join(dir, `blocker`)
+      writeFileSync(blocker, `x`)
+      const seen: Array<unknown> = []
+      await duringSchedule(env, {dir: join(blocker, `backups`), pattern: `0 3 * * *`, onError: (err: unknown) => seen.push(err)}, async (handle) => {
+        await handle.runNow()
+      })
+      expect(seen.length).toBe(1)
+      expect(seen[0]).toBeInstanceOf(Error)
+      // A failed cycle must not count as a run.
+      expect(new LmdbJobRun(env).lastRun(`backup`)).toBeLessThanOrEqual(Date.now())
+      expect(backupCount(base)).toBe(0)
+    } finally {
+      await env.close()
+    }
   })
 
   it(`snapshot tar.gz uploads to fake S3 and prunes remote`, async () => {

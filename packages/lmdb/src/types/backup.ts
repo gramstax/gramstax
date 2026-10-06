@@ -35,11 +35,35 @@ export interface IBackupStartOptions {
    */
   keep?: number
   /**
-   * Tick interval in ms (must be finite and above `0`).
+   * Cron pattern for the schedule, resolved by `croner`.
+   *
+   * @remarks
+   * Supports 5-field (minute precision), 6-field (second precision) and
+   * 7-field (OCPS, with a trailing year) patterns.
+   *
+   * A pattern is a **wall-clock** schedule, not a duration — "03:00 every day"
+   * is a different thing from "24 h after the last successful run". Pick the
+   * one you actually mean.
+   *
+   * Patterns are interpreted in the **local** timezone unless `timezone` is
+   * set, so a daily 03:00 pattern is 03:00 where the process runs, not 03:00
+   * UTC. See `example/job-run.ts` for runnable patterns.
    */
-  intervalMs: number
+  pattern: string
   /**
-   * Run one backup immediately on start (default `false`).
+   * IANA timezone for `pattern` (default: the host's local timezone).
+   *
+   * @example
+   * `Europe/Stockholm`
+   */
+  timezone?: string
+  /**
+   * Run one backup immediately on start, even when not due (default `false`).
+   *
+   * @remarks
+   * Separate from overdue catch-up: an overdue job runs at boot regardless,
+   * because a boundary passed while the process was down is a missed run. This
+   * forces an extra early run on top of that.
    */
   runOnStart?: boolean
   /**
@@ -54,6 +78,24 @@ export interface IBackupStartOptions {
    * Tick failure handler (default `console.error`).
    */
   onError?: (err: unknown) => void
+  /**
+   * Persist the last successful run so a restart resumes the schedule
+   * instead of restarting it (default `true`).
+   *
+   * @remarks
+   * `false` restores the older timer-only behaviour: no catch-up decision is
+   * made and nothing is written to the env. Costs one `maxDbs` slot for the
+   * `__job_run` sub-DB when enabled.
+   */
+  persist?: boolean
+  /**
+   * Job name for the persisted stamp (default `'backup'`).
+   *
+   * @remarks
+   * Use distinct names for schedules sharing one env, so they do not
+   * overwrite each other's stamp.
+   */
+  persistKey?: string
 }
 
 /**
@@ -63,11 +105,33 @@ export interface IBackupStartOptions {
  */
 export interface IBackupHandle {
   /**
-   * Stop the schedule — no further ticks.
+   * Stop the schedule — no further scheduled ticks.
    */
   stop(): void
   /**
-   * Human-readable cadence (`every 24h`, `every 20ms`).
+   * Take a snapshot now and record the run, without disturbing the schedule.
+   *
+   * @remarks
+   * Resolves when a snapshot has completed and the stamp is written, so it is
+   * safe to assert on the result straight after awaiting. If a snapshot is
+   * already in flight this **joins** that cycle rather than skipping, so the
+   * resolved value always means real work finished — never a silent no-op.
+   * Works after {@link IBackupHandle.stop}, since stopping only ends the
+   * schedule.
+   *
+   * @returns Nothing.
+   */
+  runNow(): Promise<void>
+  /**
+   * Epoch ms of the last successful snapshot, or `undefined` before the first.
+   */
+  lastRun(): number | undefined
+  /**
+   * Next scheduled snapshot, or `undefined` once stopped.
+   */
+  nextRun(): Date | undefined
+  /**
+   * Cron pattern plus the last-run stamp (`0 3 * * *, last run <ISO>`).
    */
   label(): string
 }
