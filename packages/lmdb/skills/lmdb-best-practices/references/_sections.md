@@ -31,7 +31,7 @@ Map of rule files by category prefix. Read only the files relevant to the task �
 
 ## txn- (MEDIUM-HIGH)
 
-- `txn-transactions.md` — sync callbacks, snapshots, tx pinning, queue ordering
+- `txn-transactions.md` — sync callbacks, `transactionFast` (off-thread commit, no rollback), snapshots, tx pinning, queue ordering
 - `txn-queue.md` — single-transaction enqueue/dequeue, reuse, FIFO guarantees
 - `txn-ttl.md` — lazy expiry, `purgeExpired` chunking, purge strategy
 
@@ -50,3 +50,4 @@ Map of rule files by category prefix. Read only the files relevant to the task �
 - `cdc.md` — outbox capture, subscribe/tail/ack/prune, consumer groups
 - `migrate.md` — idempotent transform backfills, skew checks, progress
 - `sync.md` — checkpointed keyset copy, resume, count+hash verify
+- `backup-schedule.md` — restart-safe `LmdbBackup.start`, `LmdbJobRun` run-stamps, overdue catch-up

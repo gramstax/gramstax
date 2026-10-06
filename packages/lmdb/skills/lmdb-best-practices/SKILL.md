@@ -1,6 +1,6 @@
 ---
 name: lmdb-best-practices
-description: Best practices for @gramstax/lmdb v2.2.0 (LMDB key-value store): class-only src with per-module types under src/types/, schema-class declaration via LmdbSchema + register(), embedded unique/non-unique/composite indexes, full-text search, CDC subscriptions, migrations, differential sync, sorted bulk import, production env sizing (mapSize, maxDbs), high-performance query patterns, transactions, TTL, queues, backup lifecycle, and mitata benchmarking. Use when working in packages/lmdb, designing schemas or indexes, tuning LMDB performance, debugging slow queries, sizing databases for production scale, syncing data, or writing bench files.
+description: Best practices for @gramstax/lmdb v2.2.0 (LMDB key-value store): class-only src with per-module types under src/types/, schema-class declaration via LmdbSchema + register(), embedded unique/non-unique/composite indexes, full-text search, CDC subscriptions, migrations, differential sync, sorted bulk import, production env sizing (mapSize, maxDbs), high-performance query patterns, transactions, TTL, queues, backup lifecycle, restart-safe scheduled jobs, and mitata benchmarking. Use when working in packages/lmdb, designing schemas or indexes, tuning LMDB performance, debugging slow queries, sizing databases for production scale, syncing data, or writing bench files.
 compatibility: Bun >= 1.0.0 or Node.js >= 18; @gramstax/lmdb workspace (packages/lmdb); targets lmdb v2.2.0
 metadata:
   author: gramstax
@@ -22,6 +22,7 @@ Reference these rules when:
 - Diagnosing slow queries or write amplification
 - Sizing `mapSize`/`maxDbs` for production
 - Writing transactions, TTL, CDC, migration, sync, or queue code
+- Scheduling recurring work, or reviewing a backup/retry loop that must survive restarts
 - Writing or interpreting mitata benchmarks
 - Reviewing storage code for maintenance risk
 
@@ -33,7 +34,7 @@ Reference these rules when:
 | 2 | Index Design | CRITICAL | `index-` |
 | 3 | Env Sizing | HIGH | `env-` |
 | 4 | Schema Design | HIGH | `schema-` |
-| 5 | Cross-cutting features | HIGH | `search`, `cdc`, `migrate`, `sync` |
+| 5 | Cross-cutting features | HIGH | `search`, `cdc`, `migrate`, `sync`, `backup-schedule` |
 | 6 | Transactions, TTL & Queue | MEDIUM-HIGH | `txn-` |
 | 7 | Benchmarking | MEDIUM | `bench-` |
 | 8 | Maintenance | LOW-MEDIUM | `maintain-` |
@@ -48,6 +49,7 @@ Reference these rules when:
 | `LmdbError: MDB_MAP_FULL` or sub-DB slots exhausted | `references/env-sizing.md` |
 | Unique conflict, or an index looks stale | `references/index-declaration.md`, `references/index-maintenance.md` |
 | Adding change-data-capture or a sync consumer | `references/cdc.md`, `references/sync.md` |
+| Scheduling a recurring job, or a backup that must survive restarts | `references/backup-schedule.md` |
 | Rewriting rows on a schema change | `references/migrate.md` |
 | Full-text search returns nothing or ranks wrong | `references/search.md` |
 | Enqueue/dequeue ordering or durability | `references/txn-queue.md` |

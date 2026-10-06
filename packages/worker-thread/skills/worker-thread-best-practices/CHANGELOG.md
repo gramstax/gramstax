@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0
+
+No change to this package. `nx release` moves all four workspace packages as one fixed release group, so `worker-thread` reaches `3.1.0` alongside the breaking changes in `@gramstax/lmdb` — `LmdbBackup.start()` is now croner-backed and takes a cron `pattern` instead of `intervalMs`, and `croner` is a new runtime dependency of `@gramstax/lmdb`. The worker API is unchanged from `3.0.0`, so reading `3.1.0` here as a delta would overstate it.
+
 ## 3.0.0
 
 The five exported free functions are gone, replaced by class statics. This is the breaking change the `2.2.0` entry warned about while it sat unversioned on `main` — it now ships *with* the version bump it always needed.

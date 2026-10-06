@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0
+
+No change to this package. `nx release` moves all four workspace packages as one fixed release group, so `gramstax` reaches `3.1.0` alongside the breaking changes in `@gramstax/lmdb` — `LmdbBackup.start()` is now croner-backed and takes a cron `pattern` instead of `intervalMs`, and `croner` is a new runtime dependency of `@gramstax/lmdb`. Nothing in `gramstax` changed, so reading `3.1.0` here as a delta would overstate it.
+
 ## 3.0.0
 
 Adds `<g-ifelse>`, the AOT-safe conditional, and corrects the `{~~}` rule after verifying it against the emitter.

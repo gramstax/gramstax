@@ -1,5 +1,59 @@
 # Changelog
 
+## 3.1.0
+
+Restart-safe backup scheduling on `croner`, with a persisted run-stamp so the schedule survives a restart.
+
+**Breaking changes in this minor release.** Shipped as `3.1.0` by maintainer decision, but three items need action on upgrade:
+
+1. **`intervalMs` is gone, replaced by `pattern`.** A cron expression is a wall-clock schedule, not a duration — `86_400_000` meant "24 h after the last run", `0 3 * * *` means "03:00 sharp". They diverge permanently after one manual run or one missed boundary.
+2. **`start()` writes to the env it is backing up.** It constructs a `LmdbJobRun`, which registers the `__job_run` schema — one `maxDbs` slot — and reads it up front, so calling it on a closed env now throws instead of failing quietly on every tick. `persist: false` skips the stamp reads and writes and the catch-up decision, but the slot is still taken and a closed env still throws; to avoid the schema entirely, do not construct `LmdbJobRun` and drive `croner` directly.
+3. **`croner` is a new runtime dependency.** It is MIT with zero dependencies and is used only by `LmdbBackup.start()`.
+
+**Version note.** The release is driven by this package. `nx release` moves all four workspace packages as one fixed release group, so `gramstax`, `worker-thread` and `create-gramstax` also reach `3.1.0` without a change of their own — reading `3.1.0` on those as a delta would overstate it.
+
+### Added
+
+- **`env.transactionFast(fn)`** — commits through lmdb-js `db.transaction()`, so the commit runs on the writer thread instead of blocking the main thread and batches with other writes queued in the same event turn. Same commit-visibility atomicity as `transaction()`.
+
+  **It cannot roll back, and that is not an oversight.** lmdb-js's `db.transaction()` records a callback error and rethrows it but never calls `mdb_txn_abort`, so the native transaction commits either way — returning `ABORT` is ignored, as is a throw. Both failure modes are therefore made loud instead of silent: `tx.abort()` throws `LmdbError` naming `transaction()` as the alternative, and a throwing callback surfaces an error stating that its writes were committed. Use `transaction()` whenever the outcome depends on the callback failing partway.
+
+  Adopted internally for `deleteByPrefix`, `putMany` and CDC `pruneCdc`. It is deliberately **not** used by unique-index conflict handling (a committed row without its index entry would leave the index inconsistent), `migrate` (`up()` runs inside the transaction), `purgeExpired` (it counts `removeSync` return values) or `increment` (which throws before any write, so a commit-on-throw message would be false).
+- **`croner`** as a runtime dependency, replacing the hand-rolled `setInterval` timer. Runs now land on a fixed wall-clock boundary instead of drifting by each snapshot's own duration, and croner's own scheduling handles arbitrarily long cadences.
+- **`LmdbJobRun` + `JobRunSchema`** — cron scheduling that survives restarts. `LmdbJobRun` owns a whole job, the way `LmdbQueue` owns a queue: `new LmdbJobRun(env)` registers `JobRunSchema` idempotently (a real schema — `db: '__job_run'`, `key: t.string()`, `value: {at: t.number()}` — so rows are typed and readable through `env.sub(JobRunSchema)`, no raw sub-DB handle and no cast; the `__` prefix marks it engine bookkeeping, which also keeps it out of the CDC outbox), then `.start(key, {pattern, task, timezone?, runOnStart?, catchUp?, onError?, persist?})` returns `{stop, runNow, lastRun, nextRun, label}` and handles every scheduling decision — the croner job, the missed-boundary check, the one-shot boot catch-up, and the overlap guard. `.missed(key, {pattern, timezone?, now?})` exposes that check on its own; `.lastRun(key)` is synchronous (matching `sub.get()`), `.recordRun(key, at?)` is async, plus `.clear(key)` and `.sub`. Both are exported from the package root.
+
+  Because the schedule lives here rather than in `LmdbBackup`, any job can opt in — not just backups. That is the point: the common pattern of hand-rolling an `isOverdue()` helper per job collapses into one call.
+- **`IBackupStartOptions.pattern`** (required) and **`timezone`** to pin the pattern's zone. Patterns are otherwise read in the host's local timezone.
+- **`IBackupStartOptions.persist`** (default `true`) and **`persistKey`** (default `'backup'`) for schedules sharing one env.
+- **`IBackupHandle.runNow()`** — take a snapshot immediately without disturbing the schedule. Resolves when a snapshot has actually completed; a call arriving during an in-flight cycle joins that cycle rather than silently skipping. Works even after `stop()`.
+
+### Changed
+
+- `LmdbBackup.start()` takes a cron `pattern` instead of `intervalMs` and is now a thin wrapper: it supplies the snapshot task and delegates every scheduling decision to `LmdbJobRun.start`.
+- `start()` detects a boundary missed while the process was down via croner's `previousRuns(1)`, compared against the persisted stamp, then triggers **exactly one** catch-up snapshot at boot — not one per missed boundary. Three days down against a daily pattern means one snapshot, not three near-identical archives consuming `keep`.
+- A fresh env snapshots once at boot rather than waiting out the first boundary.
+- `handle.label()` returns the pattern plus the last-run stamp (`0 3 * * *, last run <ISO>`), seeded from the persisted stamp so it is populated on a restart before anything has run.
+- `handle.stop()` is now permanent — croner cannot resume a stopped job.
+
+### Fixed
+
+- A failed `format: 'dir'` snapshot removes its partial `backup-<stamp>` directory. The debris was still returned by `list()` and consumed one of the `keep` slots, so `prune` could hold 2 real backups plus an empty directory. The `tar.gz` path already cleaned up on failure.
+- Cadences beyond ~24.85 days no longer risk collapsing into a continuous loop. The previous timer clamped an out-of-range delay to 1 ms; the 24 h default sat just under the line, which is why it went unnoticed. Croner's scheduler has no such ceiling.
+
+### Upgrade notes
+
+Migrating `intervalMs` to a cron pattern — these are **not** equivalent, so choose deliberately:
+
+| Before | After | Meaning |
+| --- | --- | --- |
+| `intervalMs: 86_400_000` | `pattern: \`0 3 * * *\`` | 03:00 daily, sharp |
+| `intervalMs: 21_600_000` | `pattern: \`0 */6 * * *\`` | every six hours |
+| `intervalMs: 604_800_000` | `pattern: \`0 3 * * 1\`` | 03:00 Mondays |
+
+If you genuinely wanted "N ms after the previous run", that is no longer the model — pick the wall-clock boundary you actually meant, or keep a `setTimeout` chain of your own. See `example/job-run.ts`.
+
+Also worth knowing: a backup contains the stamp from the *previous* run (it is written after the copy resolves), so restoring one rolls the schedule back and the app snapshots once soon after a restore. And `__job_run` carries the internal-state prefix, so like `__sync_state` it stays out of the CDC outbox — a backup run does not show up in your change stream.
+
 ## 3.0.0
 
 Documentation and test-stability release for `@gramstax/lmdb`. No API change, no schema change, no behavioural change.
