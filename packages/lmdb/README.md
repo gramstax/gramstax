@@ -27,7 +27,7 @@ This package is a thin opinionated layer over lmdb-js — the Node/Bun binding f
 | Bun     | ✅ Supported | `>= 1.0.0` — native |
 | Node.js | ✅ Supported | `>= 18`             |
 
-**Dependencies**: One runtime dep — [`lmdb`](https://www.npmjs.com/package/lmdb) — for the LMDB native binding via Node-API.
+**Dependencies**: Two runtime deps — [`lmdb`](https://www.npmjs.com/package/lmdb) for the LMDB native binding via Node-API, and [`croner`](https://www.npmjs.com/package/croner) (MIT, zero deps) for the cron scheduler behind `LmdbBackup.start`.
 
 ## Install
 
@@ -133,7 +133,7 @@ flowchart TB
 
 Every LMDB write transaction has exclusive writer lock semantics — a single writer is active at any time. Multiple writes queued in the same event turn are batched into one native transaction by lmdb-js before the next microtask boundary.
 
-`env.transaction()` wraps the native callback-based transaction. **Use a sync callback whenever possible** — both sync and async callbacks are atomic (the native write transaction stays open until the callback settles), but a sync callback commits in the same event turn and avoids promise overhead. Sub methods are non-async, making sync callbacks natural:
+`env.transaction()` wraps the native callback-based transaction. **Use a sync callback whenever possible.** Both sync and async callbacks are atomic — the native write transaction stays open until the callback settles — but a sync callback leaves no `await` inside the open transaction, which is what keeps `tx.abort()` and throw-rollback reliable, and it avoids promise overhead. Sub methods are non-async, making sync callbacks natural:
 
 ```typescript
 // ✅ Recommended: sync callback — all writes batched atomically
@@ -151,6 +151,39 @@ await env.transaction(async (tx) => {
 });
 ```
 
+`tx.abort()` — and a callback that throws — roll the transaction back. That is what makes `transaction()` the right default for read-then-write logic.
+
+**An `async` callback is allowed here — and discouraged, because of what it does to the transaction window.** The signature is `T | Promise<T>`, so `async` compiles and runs everywhere in this package. But an `await` inside the callback keeps the native write transaction open across a microtask, and LMDB permits exactly one writer at a time. Writes queued by unrelated code during that window are pulled into **this** transaction, so the commit contains work you did not write, and a long callback stalls every other writer in the process.
+
+The practical consequence on this method is that `tx.abort()` rolls those foreign writes back too — your rollback discards somebody else's committed-intent work. Prefer a sync callback, and keep the transaction to the reads and writes it actually needs.
+
+### `transactionFast`: commit off the main thread, no rollback
+
+`env.transactionFast()` is the counterpart for when you do **not** need rollback. Same atomicity — one native write transaction, invisible to other processes until it commits — but the commit is handed to lmdb-js's writer thread instead of blocking the main thread, and it batches with other writes queued in the same event turn:
+
+```typescript
+await env.transactionFast(() => {
+  users.putSync(`u1`, user);
+  sessions.putSync(`s1`, session);
+});
+```
+
+**The trade-off is rollback, and it is genuinely unavailable here.** lmdb-js's `db.transaction()` records a callback error and rethrows it, but never calls `mdb_txn_abort` — the native transaction commits either way. So:
+
+| | `transaction()` | `transactionFast()` |
+| --- | --- | --- |
+| `tx.abort()` rolls back | ✅ | ❌ **throws `LmdbError`** |
+| Callback throws | rolled back | **writes already made are committed** |
+| Commit blocks main thread | yes | no |
+
+Same rule on `async` callbacks: discouraged, for the same reason. An `await` keeps the write transaction open, and writes queued by other code during that window are pulled into it — on this method you cannot even roll them back. Handing the commit to the writer thread does not shorten the window, it only relocates it.
+
+One note on the upstream docs, since it reads as if the two lmdb-js primitives differ here. `lmdb` warns against `async` callbacks under `db.transaction()` ("not recommended", foreign writes join the transaction, surprising ordering) and gives only the softer "minimize how long a transaction is open on the main thread" under `db.transactionSync()`. Measured against this package, the **leak is the same on both** — an `await` pulls in queued writes either way. What genuinely differs between `transaction()` and `transactionFast()` is rollback, not leakage.
+
+The package uses it for bulk work where partial application is harmless — `deleteByPrefix`, `putMany`, CDC pruning. It deliberately does **not** use it for the paths that need rollback: unique-index conflict handling (a committed row without its index entry would corrupt the index), `migrate` (`up()` runs inside the transaction), or `purgeExpired` (it counts `removeSync` return values, which the queued path does not reflect the same way).
+
+Reach for `transaction()` whenever the outcome depends on the callback failing partway.
+
 ### Read Transactions
 
 `env.readTransaction()` acquires an LMDB read transaction that pins a consistent snapshot. The raw read transaction is released when the callback completes. Inside the callback, sub reads receive the pinned snapshot by passing the transaction through — every read method (`get`/`has`/`count`/`keys`/`values`/`entries`/`iterate`/`like`/`findByPrefix`/`first`/`last`) accepts an optional trailing `tx` argument, so a frozen view is guaranteed regardless of concurrent writes:
@@ -164,6 +197,7 @@ await env.transaction(async (tx) => {
 | `get` then `put` (inside `env.transaction`)            | ✅    | Exclusive write lock covers both operations           |
 | Multiple `put` across repos (inside `env.transaction`) | ✅    | Single native LMDB write transaction                  |
 | Multiple `get` (inside `env.readTransaction`)          | ✅    | Snapshot isolation from pinned read transaction       |
+| Read-then-write needing rollback on failure           | ✅    | Use `env.transaction()` — `transactionFast` cannot roll back |
 
 ## API
 
@@ -290,7 +324,8 @@ tx.abort()        → rolls back the native transaction
 
 ```typescript
 // Transactions
-await env.transaction((tx) => { ... })       // → T; sync callback commits same-turn
+await env.transaction((tx) => { ... })       // → T; sync callback, rolls back on abort/throw
+await env.transactionFast((tx) => { ... })   // → T; commits off-thread, NO rollback (abort throws)
 await env.readTransaction(async (tx) => { ... }) // → T; reads take tx for the snapshot
 env.rootTransactionSync(() => { ... })       // → T; sync, joins the write txn
 
@@ -309,7 +344,7 @@ env.on(`aftercommit`, cb) / env.off(`aftercommit`, cb)
 env.getMapSizeUsed()                         // → {total, used, free, ratio}, sync
 ```
 
-Helper classes (all exported from the package root): `LmdbSearch` (`tokenize`/`fingerprintPk` statics), `RecordCodec` (positional row storage), `LmdbSyncStream` (`hashRowValue` static; `syncTo` runs one per call), `Cdc`/`CdcHub`/`CdcStore` (per-env CDC state; prefer `env.subscribe`/`tailCdc`), `LmdbBackup` (`backup`/`list`/`prune`/`restore`/`snapshot`/`start` + S3 companions), `LmdbReader.open(path, {maxDbs?, pollMs?})` (read-only replica env).
+Helper classes (all exported from the package root): `LmdbSearch` (`tokenize`/`fingerprintPk` statics), `RecordCodec` (positional row storage), `LmdbSyncStream` (`hashRowValue` static; `syncTo` runs one per call), `Cdc`/`CdcHub`/`CdcStore` (per-env CDC state; prefer `env.subscribe`/`tailCdc`), `LmdbBackup` (`backup`/`list`/`prune`/`restore`/`snapshot`/`start` + S3 companions), `LmdbJobRun` + `JobRunSchema` (`start`/`missed`/`lastRun`/`recordRun`/`clear`/`sub` — cron scheduling that survives restarts), `LmdbReader.open(path, {maxDbs?, pollMs?})` (read-only replica env).
 
 ## Encoding Architecture
 
@@ -631,6 +666,379 @@ await queue.clear();          // async drain
 ```
 
 Constructing a second `LmdbQueue` with the same schema is idempotent — it reuses the already-registered sub instead of throwing `LmdbError`.
+
+## Backup and restore
+
+`LmdbBackup` covers the lifecycle around the LMDB native copy: take a snapshot, keep a bounded number of them, optionally upload, and bring one back. Writers are never blocked — `mdb_env_copy2` reads a consistent view while writes continue.
+
+```typescript
+import { LmdbBackup } from '@gramstax/lmdb';
+
+// Raw LMDB directory copy + prune to the newest 3.
+const dir = await LmdbBackup.backup(env, `./backups`, 3);
+
+// Single-file archive instead, no `tar` binary required (streams in-process).
+const { path, uploaded } = await LmdbBackup.snapshot(env, {
+  dir: `./backups`,
+  keep: 3,
+  format: 'tar.gz',
+  s3: { bucket: 'my-backups', prefix: 'daily/', region: 'auto', accessKeyId, secretAccessKey }
+});
+```
+
+### The pieces
+
+| Call | Purpose |
+| --- | --- |
+| `backup(env, dir, keep?)` | `backup-<stamp>/` directory copy, then prune |
+| `snapshot(env, {dir, keep?, format?, s3?})` | Full cycle → `{path, uploaded?}` |
+| `list(dir)` / `listArchives(dir)` | Entries oldest-first, `mtimeMs` ordered |
+| `prune(dir, keep)` / `pruneArchives(dir, keep)` | Retention, standalone |
+| `pruneS3Archives(s3, keep)` | Remote retention (paginated listing, batched deletes) |
+| `restore(src, dest, {overwrite?})` | Directory backup → live env; validates `data.mdb` |
+| `restoreArchive(archivePath, destParent, destName)` | `.tar.gz` → live env |
+| `uploadToS3(archivePath, s3, keep?)` | PUT + verify + remote prune |
+| `downloadFromS3(s3, key, destFile)` | Fetch one object to disk |
+| `clearStaleStaging(dir)` | Delete crash leftovers with no matching archive |
+
+### `format`: `dir` or `tar.gz`
+
+| | `dir` (default) | `tar.gz` |
+| --- | --- | --- |
+| Output | one `backup-<stamp>/` directory | one `backup-<stamp>.tar.gz` file |
+| Needs | nothing | the `tar` peer dependency |
+| Uploadable | no — a directory cannot be PUT as one object | yes |
+| Use when | fast local snapshots, same-machine restore | off-host copies, S3 |
+
+The `tar` peer is optional: `tar.gz` streams through the `tar` package in-process, so no `tar` binary and no temp archive on disk. A failed archive cleans up its staging directory and `.part` file, and `clearStaleStaging` removes whatever a hard kill left behind.
+
+### S3-compatible destinations
+
+The same options work for AWS S3, Cloudflare R2 and MinIO.
+
+```typescript
+const s3 = {
+  bucket: 'my-backups',              // required
+  prefix: 'daily/',                  // default ""
+  endpoint: 'https://<account>.r2.cloudflarestorage.com', // absent = AWS
+  region: 'auto',                    // "auto" works for R2
+  accessKeyId, secretAccessKey,      // required unless `client` is given
+  forcePathStyle: true,              // MinIO-style path URLs
+  client                            // a preconfigured S3Client wins over the fields above
+};
+```
+
+Every upload is **PUT-verified** (`200`) before the local file is considered done. A failed upload keeps the local archive and logs an error — it is never deleted. The token needs `Put`, `List` and `Delete` on the prefix.
+
+### Gotchas
+
+- **Keep `dir` dedicated.** `keep` prunes *everything* inside it, and `list()` only skips non-`backup-*` entries when counting — a stray file you put there can still be removed. Point it at a directory that belongs to backups alone.
+- **One writer per data directory.** Two processes writing the same `path` will fight over the LMDB writer lock. Readers are fine — see [Read-only replicas](#read-only-replicas).
+- **A failed `dir` snapshot no longer leaves debris.** The destination is created before the copy runs, so a throw mid-copy used to leave an empty `backup-<stamp>/` that `list()` reported and that consumed a `keep` slot. `backup()` now removes it, matching what the `tar.gz` path already did.
+- **`keep` defaults to 3** and a non-positive value falls back to 3 rather than pruning everything.
+
+See `example/backup-s3-tar.ts` for a runnable end-to-end snapshot → upload → restore cycle.
+
+## Restart-safe scheduling
+
+A plain timer forgets everything when the process exits. Restart a bot every six hours with a "daily" backup and you either get a snapshot on every boot, or — if the timer restarts from scratch — no coverage at all for the hours the process was down.
+
+Two pieces with a clean split of responsibility:
+
+| | Answers |
+| --- | --- |
+| [`croner`](https://www.npmjs.com/package/croner) | *when* to fire — a wall-clock cron pattern |
+| `LmdbJobRun` | *did we miss one* — one persisted `{at}` per job name |
+
+`LmdbJobRun` owns both halves, the way `LmdbQueue` owns a queue's metadata and lifecycle together. `LmdbBackup.start()` is a thin wrapper over it — so **any** job can opt into the same restart safety without going through the backup helper:
+
+```typescript
+import { LmdbJobRun } from '@gramstax/lmdb';
+
+const jobs = new LmdbJobRun(env);
+const handle = jobs.start(`weekly-report`, {
+  pattern: `0 4 * * 1`,            // 04:00 Mondays
+  timezone: `Asia/Jakarta`,
+  task: async () => { await buildReport(); }
+});
+
+await handle.runNow();
+handle.stop();
+```
+
+For backups specifically:
+
+```typescript
+import { LmdbBackup } from '@gramstax/lmdb';
+
+// 03:00 every day, local time.
+const handle = LmdbBackup.start(db, { dir: `./backups`, pattern: `0 3 * * *`, keep: 7 });
+
+// On a restart the label already reports the previous process's stamp,
+// before any run has happened this boot.
+console.log(handle.label()); // '0 3 * * *, last run 2026-10-03T03:00:00.000Z'
+
+await handle.runNow(); // manual "back up now" — resolves when it has completed
+handle.stop();
+```
+
+### `pattern` is wall-clock, not a duration
+
+This is the one thing to internalise: `pattern` replaces the old `intervalMs`, and a cron expression is **not** "every N milliseconds".
+
+| You want | `intervalMs` (old) | `pattern` (new) |
+| --- | --- | --- |
+| every day at 03:00 | `86_400_000` — 24 h after the *last run* | `` `0 3 * * *` `` — 03:00 sharp, whatever the last run was |
+| every six hours | `21_600_000` | `` `0 */6 * * *` `` |
+| weekdays at 09:00 | not expressible | `` `0 9 * * 1-5` `` |
+
+Because runs land on a fixed boundary rather than drifting by their own duration, a slow snapshot no longer pushes the next run late. Patterns are read in the **local** timezone unless you set `timezone`:
+
+```typescript
+LmdbBackup.start(db, { dir: `./backups`, pattern: `0 3 * * *`, timezone: `Asia/Jakarta` });
+```
+
+### Catching up after downtime
+
+On boot, `start()` asks croner for the most recent scheduled time (`previousRuns(1)`) and compares it with the persisted stamp. If the boundary is newer than the last success, the job came due while the process was down — so it runs **once**, immediately:
+
+- three days down against a daily pattern means three missed 03:00s, and you get **one** snapshot, not three near-identical archives burning through `keep`.
+- a fresh env has no stamp at all, so it also snapshots once at boot rather than waiting out the first boundary.
+- `runOnStart: true` forces an extra run on top, when the job is *not* due.
+
+Set `persist: false` to turn catch-up off and write nothing at all.
+
+### Reading and writing stamps directly
+
+The primitive is public, so any scheduled job can use it. `lastRun` is synchronous, matching `sub.get()`; `recordRun` is async. It is a plain schema, so you can read the rows yourself:
+
+```typescript
+import { JobRunSchema, LmdbJobRun } from '@gramstax/lmdb';
+
+const jobs = new LmdbJobRun(db); // registers JobRunSchema on first use
+
+await jobs.recordRun(`weekly-report`); // only AFTER the work succeeded
+const last = jobs.lastRun(`weekly-report`); // → epoch ms | undefined, no await
+jobs.sub.get(`weekly-report`); // → { at: number } | undefined
+```
+
+A full runnable walkthrough — including the missed-boundary check written by hand — is in [`example/job-run.ts`](./example/job-run.ts).
+
+Give each schedule sharing one env its own `persistKey` so they do not overwrite each other's stamp:
+
+```typescript
+LmdbBackup.start(db, { dir: `./nightly`, pattern: `0 3 * * *`, persistKey: `nightly` });
+LmdbBackup.start(db, { dir: `./hourly`, pattern: `0 * * * *`, persistKey: `hourly` });
+```
+
+Three properties worth knowing:
+
+- **A backup contains the stamp from the *previous* run** (the stamp lands after the copy resolves). Restoring one rolls the schedule back, so the app snapshots once soon after a restore — the correct response to a rollback.
+- **`__job_run` is engine bookkeeping, so CDC ignores it.** The `__` prefix is the same one that keeps `__sync_state` and `__queue_meta` out of the outbox — a scheduler's timestamps are not your data, and a backup run should not appear in a consumer's change stream. It is still a real schema, so `env.sub(JobRunSchema)` and `jobs.sub` read it with full typing. Unlike CDC and sync, its `maxDbs` slot is taken **eagerly** when you construct `LmdbJobRun`, so only construct one if you actually schedule something.
+- **`stop()` is permanent** — croner cannot resume a stopped job. `runNow()` still works afterwards, since stopping only ends the schedule.
+
+## Change data capture
+
+CDC turns every write into a durable outbox record you can tail, so a second process can follow a stream of changes instead of polling.
+
+```typescript
+// Live, in-process subscription — from now, no history.
+const unsubscribe = env.subscribe('content', (event) => console.log(event.type, event.key));
+
+// Durable consumer: resume across restarts by name.
+const records = await env.tailCdc({ consumer: 'search-index', limit: 1000 });
+if (records.length > 0) await env.ackCdc('search-index', records.at(-1)!.seq);
+
+await env.pruneCdc(10_000); // drop entries at/below min(minAck, newest - keep)
+```
+
+| Call | Purpose |
+| --- | --- |
+| `subscribe(filter, cb)` | `db` or `{db, op?}`; returns an idempotent unsubscribe |
+| `tailCdc({consumer?, from?, limit?})` | Records above a floor, oldest first |
+| `ackCdc(consumer, seq)` | Persist a consumer's position; unknown consumer throws |
+| `pruneCdc(keep?)` | Retention, default 10000 |
+
+Three behaviours worth knowing before you rely on it:
+
+- **Capture arms lazily and stays armed.** The first `subscribe` / `tailCdc` / `ackCdc` / `pruneCdc` call turns recording on, and writes made *before* that are invisible. Touch a CDC API at boot if you care about changes from startup onward.
+- **Aborts publish nothing.** A record is appended inside the writer transaction, so a rolled-back write leaves no event.
+- **`__`-prefixed internal subs are excluded** — `__queue_meta`, `__sync_state`, `__cdc_log` and `__job_run` never appear in the outbox. That is deliberate: engine bookkeeping is not your change stream.
+
+`__cdc_log` and `__cdc_meta` open 2 `maxDbs` slots, lazily. See `example/search-cdc-demo.ts`.
+
+## Differential sync
+
+Copy rows into another env or sub through a persisted cursor, so a killed run resumes instead of starting over.
+
+```typescript
+const result = await source.syncTo(dest, { name: 'nightly', limit: 10_000 });
+// → { copied, checkpoint, verified }
+```
+
+Rows past the stored checkpoint are copied through a keyset cursor in 500-row chunks, and each committed chunk advances the cursor in `__sync_state` — so a kill mid-stream resumes after the last committed chunk. Destination writes ride `{sorted: true}` appends.
+
+- **Upsert only.** Destination-only rows are never deleted; clear the dest and re-baseline if you need an exact mirror.
+- **Verify is on by default** and throws `LmdbError` on divergence (counts plus up to 8 evenly-strided row hashes). It races concurrent writers, so quiesce writes on both sides first.
+- `checkpoint` runs one-shot past an explicit key without touching stored state; `limit` caps the run and reports `verified: false` because exhaustion never happens.
+- One `__sync_state` slot, opened lazily. Helpers: `LmdbSyncStream.hashRowValue`.
+
+## Migrations
+
+Versioned, managed schema changes with resumable row rewrites.
+
+```typescript
+const { applied, currentVersion } = await env.migrate([
+  { version: 1, name: 'add-email', up: async (env) => { /* raw writes */ } },
+  {
+    version: 2,
+    name: 'split-name',
+    transform: {
+      schema: UserSchema,
+      map: (row: UserRow) => ({ ...row, first: row.name.split(' ')[0], last: row.name.split(' ').slice(1).join(' ') }),
+      onProgress: (done, total) => console.log(`${done}/${total}`)
+    }
+  }
+]);
+
+env.getMigrationVersion(); // sync
+```
+
+A step is `{version, name, up?, transform?}` and needs at least one of `up` / `transform`. Versions must be unique and monotonic.
+
+**`map` must be idempotent.** A crashed step reruns from scratch, so rows may be rewritten twice — write for the possibility that it runs again. Rows are rewritten in 500-row `putMany` batches, and a `transform:<version>` marker commits alongside the version bump.
+
+If you declare `static version` on a schema, `transform.schemaVersion` must equal it or the run throws — that skew check is what stops a transform from silently producing the wrong shape.
+
+## TTL repositories
+
+Declare a default expiry on the schema, override per write, and reap lazily.
+
+```typescript
+class SessionSchema extends LmdbSchema {
+  static db = 'sessions';
+  static key = t.string();
+  static value = { userId: t.string(), token: t.string() };
+  static ttl = 3_600_000; // default 1 h
+}
+
+const sessions = env.register(SessionSchema);
+await sessions.put('s1', { userId: 'u1', token: 'tok' });          // default
+await sessions.put('s2', { userId: 'u1', token: 'tok' }, { ttlMs: 60 }); // override
+
+await sessions.purgeExpired(); // → number removed
+```
+
+Priority is per-put `{ttlMs}` → `static ttl` → never expires. `static ttl = 0` still materialises a TTL sub (so `purgeExpired` and per-call overrides exist) with no default expiry. Reads treat an expired entry as missing, and `has` agrees.
+
+## Binary values
+
+For blobs you would rather not push through a codec:
+
+```typescript
+await sub.putBinary('avatar', buffer);   // Buffer / Uint8Array
+sub.getBinary('avatar');                 // Buffer | undefined
+sub.getBinaryFast('avatar');             // skips the copy where possible
+```
+
+Like `increment` / `decrement`, these are **forbidden on indexed or search-enabled subs** — the value is stored outside the row shape, so an extractor would never see it and the index would go stale.
+
+## Read-only replicas
+
+One writer, many readers, no lock contention:
+
+```typescript
+import { LmdbReader } from '@gramstax/lmdb';
+
+const replica = await LmdbReader.open('/var/db', { maxDbs: 64, pollMs: 1000 });
+// a full LmdbEnv — same schemas, same queries, read-only
+```
+
+Useful for read-heavy fan-out (search indexes, API reads, analytics) that should never block the writer. Keep in mind the environment is a *different* process's data: LMDB gives you a consistent snapshot per read transaction, not cross-process replication.
+
+## Bulk import
+
+```typescript
+// Ascending keys skip the B-tree search per put (MDB_APPEND, ~7x at 100k rows).
+await sub.putMany(entries, 5_000, { sorted: true, onProgress: (done) => report(done) });
+
+// One JSON object per line → returns rows written.
+const n = await sub.importJSONL(jsonl, { sorted: true });
+```
+
+With `{sorted: true}` the first inversion throws `LmdbError` *before anything is written*, so a bad file cannot leave a half-imported sub behind.
+
+## Conditional writes and counters
+
+```typescript
+await users.putIfNotExists('u1', user); // → true when it won the race
+```
+
+`putIfNotExists` maps to native `MDB_NOOVERWRITE`, so the check and the write are one atomic storage operation.
+
+**Optimistic locking** needs an env opened with `useVersions: true`, and goes through the root API rather than a sub:
+
+```typescript
+const versioned = new LmdbEnv({ path, maxDbs: 8, useVersions: true });
+
+// Stamp version 2 only if the stored version is 1.
+await versioned.rootPut('u1', user, 2, 1); // → true when it applied, false when skipped
+
+// Or branch on the current value inside one transaction.
+await versioned.transaction(() => {
+  const entry = versioned.rootGetEntry('u1');
+  if (entry?.version !== 1) return false;
+  return versioned.rootPut('u1', { ...user, name: 'New' }, 2);
+});
+```
+
+`rootPut(id, value, version, ifVersion?)` applies and stamps `version` when the stored version equals `ifVersion` (or the key holds no version yet), and skips the write otherwise. Without `useVersions` the version overload throws. `rootGetEntry` returns `{value, version?}` — that is where you read the current version.
+
+Note there is no `compareAndSet` method on the sub handle; optimistic locking is the root `rootPut` overload plus `rootGetEntry`. Embedded indexes are maintained on the versioned write, so a skipped CAS leaves the index untouched too.
+
+Bare-number subs are counters:
+
+```typescript
+class CounterSchema extends LmdbSchema {
+  static db = 'counter';
+  static key = t.string();
+  static value = t.number();
+}
+const counters = env.register(CounterSchema);
+await counters.increment('order-seq'); // → 1
+```
+
+`increment` / `decrement` require a scalar numeric sub and are rejected on indexed or search-enabled subs — same reason as the binary helpers.
+
+## Examples
+
+Every file under `example/` is runnable on its own. They are the executable version of the sections above, and each header comment explains *when* you would reach for that feature rather than just how it is spelled.
+
+| File | Shows |
+| --- | --- |
+| `basic.ts` | Smallest useful env: register, put, get, transaction |
+| `schema.ts` | `LmdbSchema` declaration and the `RepoOf<typeof S>` handle type |
+| `hybrid.ts` | Two schemas coexisting in one env |
+| `transaction.ts` | Cross-repository atomicity and rollback |
+| `transaction-fast.ts` | Off-thread commit without rollback, and when not to reach for it |
+| `atomic-counter.ts` | `increment` / `decrement` without read-then-write races |
+| `conditional-writes.ts` | `putIfNotExists`, plus versioned `rootPut` optimistic locking |
+| `embedded-indexes.ts` | `.index()` and `.unique()` declared on value columns |
+| `composite-keys.ts` | Tuple keys for tenant isolation, no string concatenation |
+| `range-query.ts` | Prefix and range scans, keyset pagination |
+| `dupsort.ts` | One key → many sorted values (tags, index tables) |
+| `bulk-operations.ts` | `putMany`, `exportJSONL`, `importJSONL` |
+| `binary-helpers.ts` | `putBinary` / `getBinary` / `getBinaryFast` for raw blobs |
+| `custom-codec.ts` | Schema `write` / `read` hooks for `Date`, `Buffer`, `BigInt` |
+| `cbor-encoding.ts` | Optional `cbor-x` peer encoding |
+| `ttl-repository.ts` | `static ttl`, per-put override, lazy expiry |
+| `migrations.ts` | Versioned `up` steps and resumable row rewrites |
+| `queue.ts` | `LmdbQueue` FIFO shared across processes |
+| `job-run.ts` | Restart-safe cron scheduling with `LmdbJobRun` |
+| `backup-s3-tar.ts` | `snapshot` → `tar.gz` → S3 upload → `restoreArchive` |
+| `reader-backup.ts` | `LmdbReader` 1-writer N-reader, backup retention |
+| `search-cdc-demo.ts` | Full-text search + CDC + composite index in one schema |
+| `all-features.ts` | Multi-tenant SaaS scenario using many features together |
 
 ## License
 
