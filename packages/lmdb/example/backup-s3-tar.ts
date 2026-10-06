@@ -54,8 +54,10 @@ async function main(): Promise<void> {
   const tick = await LmdbBackup.snapshot(db, {dir, keep: Config.keep, format: `tar.gz`, s3: s3Options()})
   console.log(`snapshot:`, tick.path, `uploaded:`, tick.uploaded ?? `(local only)`)
 
-  const handle = LmdbBackup.start(db, {dir, keep: Config.keep, intervalMs: 60, format: `tar.gz`, s3: s3Options(), runOnStart: true})
-  await new Promise((resolve) => setTimeout(resolve, 200))
+  // A wall-clock cron pattern, not a duration: 03:00 every day. Run it now
+  // rather than waiting for the boundary.
+  const handle = LmdbBackup.start(db, {dir, keep: Config.keep, pattern: `0 3 * * *`, format: `tar.gz`, s3: s3Options()})
+  await handle.runNow()
   handle.stop()
   console.log(`schedule:`, handle.label(), `archives:`, LmdbBackup.listArchives(dir).length)
 
