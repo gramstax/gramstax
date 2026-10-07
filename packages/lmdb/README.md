@@ -741,7 +741,7 @@ const { path, uploaded } = await LmdbBackup.snapshot(env, {
 | `restore(src, dest, {overwrite?})` | Directory backup → live env; validates `data.mdb` |
 | `restoreArchive(archivePath, destParent, destName)` | `.tar.gz` → live env |
 | `uploadToS3(archivePath, s3, keep?)` | PUT + verify + remote prune |
-| `downloadFromS3(s3, key, destFile)` | Fetch one object to disk |
+| `downloadFromS3(s3, key, destDir, fileName)` | Fetch one object into `destDir` as `fileName`; returns the joined path |
 | `clearStaleStaging(dir)` | Delete crash leftovers with no matching archive |
 
 ### `format`: `dir` or `tar.gz`

@@ -36,6 +36,10 @@ Restart-safe backup scheduling on `croner`, with a persisted run-stamp so the sc
 
 ### Changed
 
+- **`LmdbBackup.downloadFromS3` now takes the destination folder and file name separately**: `downloadFromS3(s3, key, destDir, fileName)` replaces the single `destFile` argument, and returns `join(destDir, fileName)`. Callers restoring several objects into one folder no longer re-join paths themselves, and the returned target is unambiguous.
+
+  The `.part` sibling also gained a `Math.random()` token. It used to be a fixed `<name>.part`, so two downloads into the same directory shared one partial file and interleaved their bodies into it — the result could be a corrupt archive that still looked plausible. Concurrent downloads are now safe.
+
 - `LmdbBackup.start()` takes a cron `pattern` instead of `intervalMs` and is now a thin wrapper: it supplies the snapshot task and delegates every scheduling decision to `LmdbJobRun.start`.
 - `start()` detects a boundary missed while the process was down via croner's `previousRuns(1)`, compared against the persisted stamp, then triggers **exactly one** catch-up snapshot at boot — not one per missed boundary. Three days down against a daily pattern means one snapshot, not three near-identical archives consuming `keep`.
 - A fresh env snapshots once at boot rather than waiting out the first boundary.
