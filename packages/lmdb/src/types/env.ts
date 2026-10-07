@@ -351,6 +351,32 @@ export interface ILmdbEnvOptions {
    * binary keys). Most users should use `keyEncoding` instead.
    */
   keyEncoder?: unknown
+
+  /**
+   * Sink for the package's own diagnostics (default: none — silent).
+   *
+   * @remarks
+   * This library never writes to `console`; where would a warning go is the
+   * host application's decision, not the package's. Unattached diagnostics are
+   * dropped silently.
+   *
+   * Receives, among others:
+   * - `maxDbs` headroom running low (once per env),
+   * - a CDC subscriber callback that threw,
+   * - a scheduled job tick that failed, unless the job was given its own
+   *   `onError`.
+   *
+   * A listener that throws is contained — it cannot break a commit or a tick.
+   * Equivalent to {@link LmdbEnv.onWarn}, which binds later.
+   *
+   * @example
+   * ```typescript
+   * const env = new LmdbEnv({path, maxDbs: 128, onWarn: (message) => log.warn(message)})
+   * ```
+   *
+   * @public
+   */
+  onWarn?: (message: string) => void
 }
 
 /**

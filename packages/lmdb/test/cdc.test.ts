@@ -5,7 +5,7 @@
  * same writer transaction; `env.subscribe` delivers post-commit via
  * `aftercommit` tailing; followers tail/ack explicitly with min-ack prune.
  */
-import {afterEach, beforeEach, describe, expect, it, spyOn} from "bun:test"
+import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
 import {LmdbError} from "../src/errors"
 import {LmdbQueue} from "../src/queue"
@@ -201,21 +201,19 @@ describe(`subscribe`, () => {
   it(`a throwing subscriber does not break commits`, async () => {
     const users = env.register(CdcUserSchema)
     const seen: Array<unknown> = []
-    const errSpy = spyOn(console, `error`).mockImplementation(() => {})
-    try {
-      env.subscribe(`cdc-user`, () => {
-        throw new Error(`boom`)
-      })
-      env.subscribe(`cdc-user`, (e) => {
-        seen.push(e)
-      })
-      await users.put(`u1`, U1)
-      expect(users.get(`u1`)).toEqual(U1)
-      expect(seen).toHaveLength(1)
-      expect(errSpy.mock.calls).toHaveLength(1)
-    } finally {
-      errSpy.mockRestore()
-    }
+    const warnings: Array<string> = []
+    env.onWarn((message) => warnings.push(message))
+    env.subscribe(`cdc-user`, () => {
+      throw new Error(`boom`)
+    })
+    env.subscribe(`cdc-user`, (e) => {
+      seen.push(e)
+    })
+    await users.put(`u1`, U1)
+    expect(users.get(`u1`)).toEqual(U1)
+    expect(seen).toHaveLength(1)
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]).toContain(`CDC subscriber`)
   })
 
   it(`internal queue bookkeeping stays out of the outbox`, async () => {

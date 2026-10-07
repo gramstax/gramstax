@@ -223,6 +223,7 @@ Every option maps directly to lmdb-js `open()` parameters:
 | `pageSize`          | number           | OS default       | DB page size (4096/8192/16384)                          |
 | `commitDelay`       | number (ms)      | `0`              | Batch writes before committing                          |
 | `eventTurnBatching` | boolean          | `true`           | Batch writes in same event turn                         |
+| `onWarn`            | `(message: string) => void` | — (silent) | Diagnostics sink — see [Diagnostics](#diagnostics) |
 
 Sub-DB options (`compression`, `cache`, `encoding`, `useVersions`, `keyEncoding`, `dupSort`, `strictAsyncOrder`) are automatically forwarded from the env constructor to every sub-database — no need to repeat them per repository.
 
@@ -342,6 +343,10 @@ env.getMigrationVersion()                    // → number, sync
 // Commit hooks + utilities
 env.on(`aftercommit`, cb) / env.off(`aftercommit`, cb)
 env.getMapSizeUsed()                         // → {total, used, free, ratio}, sync
+
+// Diagnostics — this package never writes to `console`
+env.onWarn((message) => logger.warn(message))
+env.offWarn(listener)
 ```
 
 Helper classes (all exported from the package root): `LmdbSearch` (`tokenize`/`fingerprintPk` statics), `RecordCodec` (positional row storage), `LmdbSyncStream` (`hashRowValue` static; `syncTo` runs one per call), `Cdc`/`CdcHub`/`CdcStore` (per-env CDC state; prefer `env.subscribe`/`tailCdc`), `LmdbBackup` (`backup`/`list`/`prune`/`restore`/`snapshot`/`start` + S3 companions), `LmdbJobRun` + `JobRunSchema` (`start`/`missed`/`lastRun`/`recordRun`/`clear`/`sub` — cron scheduling that survives restarts), `LmdbReader.open(path, {maxDbs?, pollMs?})` (read-only replica env).
@@ -666,6 +671,44 @@ await queue.clear();          // async drain
 ```
 
 Constructing a second `LmdbQueue` with the same schema is idempotent — it reuses the already-registered sub instead of throwing `LmdbError`.
+
+## Diagnostics
+
+**This package never writes to `console`.** Not once, not anywhere in `src/`. A library that logs behind your back fights your logger, pollutes your test output, and makes it impossible to route diagnostics somewhere sensible.
+
+Every internal warning and every recoverable failure goes to one place, `env.emitWarn(message)`. With no listener attached, it reports nothing. You decide what happens to it:
+
+```typescript
+// At construction
+const db = new Db(`./data`, { onWarn: (message) => logger.warn(message) });
+
+// Or attach later, and detach when you no longer want it
+const listener = (message) => metrics.increment(`lmdb.warning`, { message });
+db.onWarn(listener);
+db.offWarn(listener);
+```
+
+Three things reach the sink:
+
+| Source | When |
+| --- | --- |
+| `maxDbs` headroom | once, when fewer than 32 sub-DB slots remain (production-scale configs only) |
+| A throwing CDC subscriber | per occurrence — reported, then delivery continues |
+| A failed scheduled tick | only when the job did not pass its own `onError` |
+
+Two guarantees worth relying on:
+
+- **A broken sink cannot break your data path.** If your listener throws, that is caught per-occurrence: the remaining listeners still run and the error never escapes into the writer transaction or the cron tick that triggered it. A logging call will never roll back a commit.
+- **`close()` clears the sink**, so your callbacks are released and nothing reports after shutdown.
+
+```typescript
+db.onWarn((message) => {
+  throw new Error(`my logger is broken`);   // contained — commits keep working
+});
+await db.transaction(() => users.put(`u1`, user));  // still commits
+```
+
+If you want the `maxDbs` warning, attach a sink. Everything else is exceptional and reported only for completeness.
 
 ## Backup and restore
 

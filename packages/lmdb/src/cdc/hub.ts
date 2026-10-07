@@ -119,8 +119,8 @@ export class CdcHub {
    *
    * @param filter - A sub-DB name, or `{db, op?}` to narrow to one write kind.
    * @param cb - Subscriber callback invoked per matching record on drain.
-   * A throwing callback is reported via `console.error` and never breaks
-   * the writer's commit.
+   * A throwing callback is reported to the env's diagnostics sink and never
+   * breaks the writer's commit.
    * @returns An idempotent unsubscribe closure.
    * @throws {@link LmdbError} When the filter shape is invalid.
    */
@@ -153,7 +153,7 @@ export class CdcHub {
    * @remarks
    * Fully synchronous, so the `aftercommit` hook can never interleave with
    * a concurrent writer — delivery is race-free. A throwing subscriber is
-   * reported via `console.error` without breaking the commit or the
+   * reported to the env's diagnostics sink without breaking the commit or the
    * remaining subscribers.
    */
   drain(): void {
@@ -169,7 +169,7 @@ export class CdcHub {
         } catch (err) {
           // A throwing subscriber must not break the writer's commit —
           // report loudly and continue with the remaining subscribers.
-          console.error(`[@gramstax/lmdb] CDC subscriber for '${record.db}' threw: ${String(err)}`)
+          this._env.emitWarn(`[@gramstax/lmdb] CDC subscriber for '${record.db}' threw: ${String(err)}`)
         }
       }
     }

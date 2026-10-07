@@ -42,6 +42,10 @@ Restart-safe backup scheduling on `croner`, with a persisted run-stamp so the sc
 - `handle.label()` returns the pattern plus the last-run stamp (`0 3 * * *, last run <ISO>`), seeded from the persisted stamp so it is populated on a restart before anything has run.
 - `handle.stop()` is now permanent — croner cannot resume a stopped job.
 
+- **The package no longer writes to `console`.** Every internal warning and recoverable failure now routes through `env.emitWarn(message)`. An env with no listener attached reports nothing, so attach a sink to see diagnostics — `{onWarn}` at construction, or `env.onWarn(fn)` / `env.offWarn(fn)` later. Three sources feed it: the one-time `maxDbs` headroom warning (below 32 remaining slots, production-scale configs only), a CDC subscriber whose callback threw (reported, then delivery continues), and a failed scheduled tick with no explicit `onError`. A listener that throws is contained per-occurrence — the remaining listeners still run and the error never escapes into a writer transaction or a cron tick, so a broken logger cannot roll back a commit. `close()` clears the listener set.
+
+  This is a behaviour change worth noticing: the `maxDbs` warning was previously always visible. It is now silent unless you attach `onWarn`, so add one if you rely on that signal.
+
 ### Fixed
 
 - A failed `format: 'dir'` snapshot removes its partial `backup-<stamp>` directory. The debris was still returned by `list()` and consumed one of the `keep` slots, so `prune` could hold 2 real backups plus an empty directory. The `tar.gz` path already cleaned up on failure.

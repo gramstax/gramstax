@@ -190,12 +190,22 @@ Env-level: `register(SchemaClass)` → `LmdbEnvSub<S>` (only registration path, 
 
 Transaction lifecycle: `'active' | 'committed' | 'aborted' | 'released'` — read transactions that finish normally report `'released'` (not `aborted`). `env.on('beforecommit'|'aftercommit', cb)` / `env.off(...)` attach commit listeners; `close()` detaches them and purges the env from lmdb-js's `allDbs` registry. `deleteByPrefix('')` rejects with `LmdbError` (use `clear()`). After `close()`, all ops throw `LmdbError`.
 
-Constructor options: `path`, `maxDbs` (default 128), `compression`, `encoding`, `readOnly`, `mapSize` (default 4 GB), `cache`, `useVersions`, `keyEncoding`, `dupSort`, `noSync`, `encryptionKey`, `commitDelay`, `pageSize`, and all other `lmdb` `open()` options.
+Constructor options: `path`, `maxDbs` (default 128), `compression`, `encoding`, `readOnly`, `mapSize` (default 4 GB), `cache`, `useVersions`, `keyEncoding`, `dupSort`, `noSync`, `encryptionKey`, `commitDelay`, `pageSize`, `onWarn`, and all other `lmdb` `open()` options.
+
+## Diagnostics
+
+**The package never writes to `console`.** Every internal warning and recoverable failure is reported to the host through `emitWarn()`, and an env with no listener attached reports nothing. That is the library contract: a library that logs behind an application's back fights the host's logger and makes test output non-deterministic.
+
+- `new LmdbEnv({onWarn: (message) => ...})` attaches a sink at construction, or `env.onWarn(fn)` / `env.offWarn(fn)` attach and detach later.
+- `env.emitWarn(message)` (internal) is the single reporting path — `maxDbs` headroom (`sub-manager.ts`), a CDC subscriber whose callback threw (`cdc/hub.ts`), and a failed scheduled tick with no explicit `onError` (`job-run.ts`) all route through it.
+- A listener that throws is contained per-occurrence: the remaining listeners still run and the throw cannot escape into a writer transaction or a cron tick.
+- `close()` clears the listener set, so host callbacks are released and nothing reports after shutdown.
+- Attach a sink in production if you want these; the `maxDbs` one-time warning is the main reason to.
 
 ## Ops Sizing (production)
 
 - **`mapSize` is virtual, not RAM** — size it 10-50x expected data (millions of rows need tens of GB). Breaching it throws `LmdbError` at runtime; monitor with `env.getMapSizeUsed()` (registration already refuses below 10% free).
-- **`maxDbs` counts everything**: each schema + each `.unique()`/`.index()` + each composite/search table + each queue (`+2` with `__queue_meta`) consumes a sub-DB slot. CDC (`__cdc_log` + `__cdc_meta`) and sync (`__sync_state`) open 2/1 slots lazily on first use — touch a CDC/sync API at boot and size accordingly. `LmdbJobRun` differs from CDC and sync: `JobRunSchema` is registered rather than fetched through `getDb`, so its `__job_run` slot is taken **eagerly** on `new LmdbJobRun(env)` instead of lazily on first use — construct it only if you schedule something. Breaching it throws mid-registration; a one-time `console.warn` fires below 32 remaining slots (production configs only).
+- **`maxDbs` counts everything**: each schema + each `.unique()`/`.index()` + each composite/search table + each queue (`+2` with `__queue_meta`) consumes a sub-DB slot. CDC (`__cdc_log` + `__cdc_meta`) and sync (`__sync_state`) open 2/1 slots lazily on first use — touch a CDC/sync API at boot and size accordingly. `LmdbJobRun` differs from CDC and sync: `JobRunSchema` is registered rather than fetched through `getDb`, so its `__job_run` slot is taken **eagerly** on `new LmdbJobRun(env)` instead of lazily on first use — construct it only if you schedule something. Breaching it throws mid-registration; a one-time diagnostic fires below 32 remaining slots (production configs only) through `env.emitWarn()` — see **Diagnostics** below.
 - **Broadcast queries need `{limit}`**: unbounded `findByIndex` on a non-unique key materializes every match — always pass `{limit}` for fan-out reads (`findByIndex({subscribed: true}, undefined, {limit: 1000})`).
 
 ## Build & Test
@@ -238,3 +248,4 @@ writing, reviewing, or debugging anything in `src/`. Its
 - `LmdbRepository`/`LmdbCollection`/`RepoOf` were deleted (v1.x). Declare a schema and register it; all operations go through the returned `LmdbEnvSub` handle.
 - Do not use `LmdbCodec` / static `codec`/`serialize`/`deserialize`/`ttlMs` — deleted; use schema `hookBeforeWrite`/`hookBeforeRead`/`static ttl`.
 - Do not put domain methods on the schema or the handle — use a service layer (schema + service class holding the typed sub handle).
+- Do not write to `console` from `src/` — report through `env.emitWarn(message)` and let the host decide where diagnostics go. This is a hard rule: `grep -rn "console\." src/` must return nothing.

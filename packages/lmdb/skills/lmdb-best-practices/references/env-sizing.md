@@ -21,7 +21,7 @@ Every sub-DB opened against the env costs one `maxDbs` slot, and the count runs 
 | `__cdc_log` + `__cdc_meta` | 2 | first CDC touch, lazy |
 | `__sync_state` | 1 | first `syncTo()`, lazy |
 
-Breaching the cap throws mid-registration. Below 32 remaining slots a one-time `console.warn` fires, but only on production-scale configs (`maxDbs >= 32`, `sub-manager.ts:255`).
+Breaching the cap throws mid-registration. Below 32 remaining slots a one-time diagnostic fires, but only on production-scale configs (`maxDbs >= 32`, `sub-manager.ts`). It goes to `env.emitWarn()`, not `console` — attach `onWarn` to see it.
 
 ## The lazy-open trap
 
@@ -100,6 +100,6 @@ if (usage.ratio < 0.3) {
 ## Notes
 
 - `mapSize` is virtual address space, not RAM, so oversizing is nearly free while undersizing throws `LmdbError` at runtime.
-- Registration refuses new sub-DBs below 10% free map (`sub-manager.ts:199`); the `<= 32` remaining-slots `console.warn` fires once and only when `maxDbs >= 32`.
+- Registration refuses new sub-DBs below 10% free map; the `<= 32` remaining-slots diagnostic fires once, only when `maxDbs >= 32`, and only to a listener attached with `env.onWarn(fn)` (the package writes nothing to `console`).
 - Locks: `test/env.b2.test.ts` pins the 4 GB default via `getMapSizeUsed().total`; `test/sub-manager.test.ts` stubs the 10% refusal.
 - See `env-runtime.md` for what each constructor option does once it is sized.

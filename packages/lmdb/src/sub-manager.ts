@@ -262,7 +262,7 @@ export class LmdbEnvSubManager {
     const remaining = max - this._subStates.size
     if (remaining <= 32) {
       this._maxDbsWarned = true
-      console.warn(`[@gramstax/lmdb] ${this._subStates.size}/${max} sub-DBs used — raise maxDbs before deploy (each schema + each .unique()/.index() consumes slots).`)
+      this._env.emitWarn(`[@gramstax/lmdb] ${this._subStates.size}/${max} sub-DBs used — raise maxDbs before deploy (each schema + each .unique()/.index() consumes slots).`)
     }
   }
 

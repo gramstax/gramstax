@@ -152,6 +152,14 @@ export class LmdbEnv {
   private readonly _commitListeners = new Map<`beforecommit` | `aftercommit`, Map<(event: unknown) => void, (event: unknown) => void>>()
 
   /**
+   * Diagnostics listeners. Empty means this env reports nothing, which is the
+   * default — see {@link ILmdbEnvOptions.onWarn}.
+   *
+   * @internal
+   */
+  private readonly _warnListeners = new Set<(message: string) => void>()
+
+  /**
    * Path where LMDB stores its data files.
    *
    * @public
@@ -259,6 +267,8 @@ export class LmdbEnv {
     } as DatabaseOptions
 
     this._subs = new LmdbEnvSubManager(this)
+
+    if (options.onWarn !== undefined) this._warnListeners.add(options.onWarn)
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -1266,6 +1276,64 @@ export class LmdbEnv {
    */
   private _removeAllCommitListeners(): void {
     this._commitListeners.clear()
+    this._warnListeners.clear()
+  }
+
+  /**
+   * Attach a diagnostics listener.
+   *
+   * @remarks
+   * The package writes nothing to `console`. With no listener attached its
+   * diagnostics are dropped, so attach one if you want to see `maxDbs`
+   * headroom warnings, CDC subscriber failures or failed scheduled ticks.
+   * Equivalent to the {@link ILmdbEnvOptions.onWarn} constructor option.
+   *
+   * A listener that throws is contained — it cannot break a commit or a tick.
+   *
+   * @param listener - Receives one diagnostic message per occurrence.
+   *
+   * @example
+   * ```typescript
+   * env.onWarn((message) => logger.warn(message))
+   * ```
+   *
+   * @public
+   */
+  onWarn(listener: (message: string) => void): void {
+    this._assertOpen()
+    this._warnListeners.add(listener)
+  }
+
+  /**
+   * Remove a diagnostics listener.
+   *
+   * @param listener - The exact handler previously passed to {@link onWarn}.
+   * @public
+   */
+  offWarn(listener: (message: string) => void): void {
+    this._warnListeners.delete(listener)
+  }
+
+  /**
+   * Report a diagnostic to every attached listener.
+   *
+   * @remarks
+   * Internal path for the package's own warnings. Silently does nothing when
+   * no listener is attached, and never lets a listener's own throw escape into
+   * the caller — which here means a writer transaction or a scheduled tick.
+   *
+   * @param message - Human-readable diagnostic.
+   *
+   * @internal
+   */
+  emitWarn(message: string): void {
+    for (const listener of this._warnListeners) {
+      try {
+        listener(message)
+      } catch {
+        // A broken diagnostics sink must not become an application failure.
+      }
+    }
   }
 
   /**

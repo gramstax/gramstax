@@ -70,6 +70,14 @@ export class LmdbJobRun {
   private readonly _sub: LmdbEnvSub<typeof JobRunSchema>
 
   /**
+   * Owning env — the diagnostics sink for a failed tick that was not given an
+   * explicit `onError`.
+   *
+   * @internal
+   */
+  private readonly _env: LmdbEnv
+
+  /**
    * Bind a run-stamp store and scheduler to an env.
    *
    * @remarks
@@ -84,6 +92,7 @@ export class LmdbJobRun {
   constructor(env: LmdbEnv) {
     if (!env.isRegistered(JobRunSchema)) env.register(JobRunSchema)
     this._sub = env.sub(JobRunSchema)
+    this._env = env
   }
 
   /**
@@ -205,7 +214,7 @@ export class LmdbJobRun {
     }
     const persist = opts.persist ?? true
     const catchUp = opts.catchUp ?? true
-    const onError = opts.onError ?? ((err: unknown) => console.error(`[LmdbJobRun] job '${name}' tick failed: ${String(err)}`))
+    const onError = opts.onError ?? ((err: unknown) => this._env.emitWarn(`[LmdbJobRun] job '${name}' tick failed: ${String(err)}`))
 
     // `0` means "never ran" and suppresses the stamp in `label()`.
     let last = persist ? (this.lastRun(name) ?? 0) : 0

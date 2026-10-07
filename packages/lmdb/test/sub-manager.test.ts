@@ -5,7 +5,7 @@
  * duplicate class/db rejection, index sub-DB collision guardrail,
  * map-full refusal, maxDbs warn-once, and attachIndexes wiring.
  */
-import {afterEach, beforeEach, describe, expect, it, spyOn} from "bun:test"
+import {afterEach, beforeEach, describe, expect, it} from "bun:test"
 import {LmdbEnv} from "../src/env"
 import {LmdbError} from "../src/errors"
 import {LmdbSchema, t} from "../src/schema"
@@ -108,35 +108,31 @@ describe(`sub-manager registration`, () => {
   })
 
   it(`warns once when sub-DB slots run low`, async () => {
-    const warn = spyOn(console, `warn`).mockImplementation(() => {})
+    const warnings: Array<string> = []
+    const dir = createTestDir(`lmdb-sub-manager-maxdbs-`)
+    const big = new LmdbEnv({path: dir, maxDbs: 40, onWarn: (message) => warnings.push(message)})
     try {
-      const dir = createTestDir(`lmdb-sub-manager-maxdbs-`)
-      const big = new LmdbEnv({path: dir, maxDbs: 40})
-      try {
-        for (let i = 0; i < 10; i++) {
-          const cls = class extends LmdbSchema {
-            static key = t.string()
-            static value = {v: t.string()}
-          }
-          Object.defineProperty(cls, `db`, {value: `mgr-dyn-${i}`})
-          Object.defineProperty(cls, `name`, {value: `MgrDyn${i}`})
-          big.register(cls)
-        }
-        expect(warn).toHaveBeenCalledTimes(1)
-        expect(String(warn.mock.calls[0]?.[0])).toContain(`sub-DBs used`)
-        const extra = class extends LmdbSchema {
+      for (let i = 0; i < 10; i++) {
+        const cls = class extends LmdbSchema {
           static key = t.string()
           static value = {v: t.string()}
         }
-        Object.defineProperty(extra, `db`, {value: `mgr-dyn-extra`})
-        big.register(extra)
-        expect(warn).toHaveBeenCalledTimes(1)
-      } finally {
-        await big.close()
-        await rmWithRetry(dir)
+        Object.defineProperty(cls, `db`, {value: `mgr-dyn-${i}`})
+        Object.defineProperty(cls, `name`, {value: `MgrDyn${i}`})
+        big.register(cls)
       }
+      expect(warnings).toHaveLength(1)
+      expect(warnings[0]).toContain(`sub-DBs used`)
+      const extra = class extends LmdbSchema {
+        static key = t.string()
+        static value = {v: t.string()}
+      }
+      Object.defineProperty(extra, `db`, {value: `mgr-dyn-extra`})
+      big.register(extra)
+      expect(warnings).toHaveLength(1)
     } finally {
-      warn.mockRestore()
+      await big.close()
+      await rmWithRetry(dir)
     }
   })
 

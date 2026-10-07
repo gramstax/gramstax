@@ -46,7 +46,11 @@ export interface IJobRunScheduleOptions {
    */
   catchUp?: boolean
   /**
-   * Tick failure handler (default `console.error`).
+   * Tick failure handler.
+   *
+   * @remarks
+   * Defaults to reporting through the env's diagnostics sink — see
+   * {@link ILmdbEnvOptions.onWarn}. Nothing is written to `console`.
    */
   onError?: (err: unknown) => void
   /**

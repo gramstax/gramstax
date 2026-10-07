@@ -350,6 +350,83 @@ describe(`LmdbEnv.close resource cleanup`, () => {
   })
 })
 
+describe(`LmdbEnv diagnostics`, () => {
+  it(`onWarn receives every emitted diagnostic`, () => {
+    const seen: Array<string> = []
+    env.onWarn((message) => seen.push(message))
+    env.emitWarn(`first`)
+    env.emitWarn(`second`)
+    expect(seen).toEqual([`first`, `second`])
+  })
+
+  it(`offWarn stops a previously attached diagnostics listener`, () => {
+    const seen: Array<string> = []
+    const listener = (message: string) => seen.push(message)
+    env.onWarn(listener)
+    env.emitWarn(`kept`)
+    env.offWarn(listener)
+    env.emitWarn(`dropped`)
+    expect(seen).toEqual([`kept`])
+  })
+
+  it(`the constructor onWarn option is attached`, async () => {
+    const dir = createTestDir(`lmdb-env-ctor-warn-`)
+    const seen: Array<string> = []
+    const ctor = new LmdbEnv({path: dir, onWarn: (message) => seen.push(message)})
+    try {
+      ctor.emitWarn(`from-constructor`)
+      expect(seen).toEqual([`from-constructor`])
+    } finally {
+      await ctor.close()
+      await rmWithRetry(dir)
+    }
+  })
+
+  it(`emitting with no listener attached is a silent no-op`, () => {
+    expect(() => env.emitWarn(`nobody is listening`)).not.toThrow()
+  })
+
+  it(`a throwing listener cannot break the caller`, async () => {
+    const seen: Array<string> = []
+    env.onWarn(() => {
+      throw new Error(`broken sink`)
+    })
+    env.onWarn((message) => seen.push(message))
+    expect(() => env.emitWarn(`must still be delivered`)).not.toThrow()
+    expect(seen).toEqual([`must still be delivered`])
+  })
+
+  it(`a throwing listener cannot break a write transaction`, async () => {
+    env.register(UserSchema)
+    env.onWarn(() => {
+      throw new Error(`broken sink`)
+    })
+    await env.transaction(() => {
+      env.sub(UserSchema).putSync(`u1`, {id: `u1`, name: `A`})
+    })
+    expect(env.sub(UserSchema).get(`u1`)).toEqual({id: `u1`, name: `A`})
+  })
+
+  it(`close() purges diagnostics listeners`, async () => {
+    const dir = createTestDir(`lmdb-env-warn-close-`)
+    const closing = new LmdbEnv({path: dir, onWarn: () => {}})
+    const seen: Array<string> = []
+    closing.onWarn((message) => seen.push(message))
+    await closing.close()
+    closing.emitWarn(`after close`)
+    expect(seen).toEqual([])
+    await rmWithRetry(dir)
+  })
+
+  it(`onWarn rejects when the env is closed`, async () => {
+    const dir = createTestDir(`lmdb-env-warn-closed-`)
+    const closing = new LmdbEnv({path: dir})
+    await closing.close()
+    expect(() => closing.onWarn(() => {})).toThrow(LmdbError)
+    await rmWithRetry(dir)
+  })
+})
+
 describe(`LmdbEnv.put with options`, () => {
   it(`put(id, value, {noOverwrite}) works and respects noOverwrite`, async () => {
     expect(await env.rootPut(`k`, {v: 1})).toBe(true)
