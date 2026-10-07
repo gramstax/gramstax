@@ -235,7 +235,7 @@ export class LmdbEnv {
       mapSize,
       maxDbs,
       sharedStructuresKey: Symbol.for(`global-structure`)
-    } as unknown as RootDatabaseOptionsWithPath
+    }
     // Per-instance root store. Each env calls open() independently so
     // sub-database handle caches are naturally isolated across envs.
     this._root = open(opts) as unknown as IRootStore
@@ -251,7 +251,7 @@ export class LmdbEnv {
     this._dbOpts = {
       ...(options.compression !== undefined && {compression: options.compression}),
       ...(options.cache !== undefined && {cache: options.cache}),
-      ...(options.encoding !== undefined && {encoding: options.encoding as unknown as DatabaseOptions[`encoding`]}),
+      ...(options.encoding !== undefined && {encoding: options.encoding}),
       ...(options.useVersions !== undefined && {useVersions: options.useVersions}),
       ...(options.keyEncoding !== undefined && {keyEncoding: options.keyEncoding}),
       ...(options.dupSort !== undefined && {dupSort: options.dupSort}),
@@ -915,22 +915,43 @@ export class LmdbEnv {
    * Take a consistent snapshot backup of the env to another path.
    *
    * @remarks
-   * Delegates to LMDB's `backup` which performs a live snapshot without
+   * Delegates to LMDB's `backup`, which performs a live snapshot without
    * blocking writers. The target path must not already contain an LMDB env
    * (it is overwritten).
    *
+   * `compact` is your call, not a hidden default. It is a required argument
+   * in the underlying lmdb-js signature, so it is surfaced here rather than
+   * hardcoded:
+   *
+   * - `false` — plain copy. Faster, and the result keeps the free-page layout
+   *   it had at snapshot time.
+   * - `true` — compacts while copying. Slower, and the result is rewritten
+   *   densely, so it is smaller on disk and cheaper to restore from later.
+   *
+   * `true` is worth it for archives you keep or ship off-host; `false` is the
+   * right choice for a local snapshot you will likely replace soon.
+   *
+   * The destination directory **must already exist** — LMDB's `mdb_env_copy2`
+   * does not create it and fails with `ENOENT` otherwise.
+   * {@link LmdbBackup.backup} handles this for you.
+   *
    * @param destPath - Filesystem path for the backup env.
+   * @param compact - Rewrite the copy densely (slower, smaller). Default `false`.
    *
    * @example
    * ```typescript
+   * // local snapshot, no compaction
    * await env.backup("./backups/snapshot-2024-01-01");
+   *
+   * // long-lived archive that will be shipped somewhere
+   * await env.backup("./backups/compact-2024-01-01", true);
    * ```
    *
    * @public
    */
-  async backup(destPath: string): Promise<void> {
+  async backup(destPath: string, compact = false): Promise<void> {
     this._assertOpen()
-    await (this._root as unknown as {backup(destPath: string): Promise<void>}).backup(destPath)
+    await this._root.backup(destPath, compact)
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -1283,11 +1304,7 @@ export class LmdbEnv {
    * @internal
    */
   private async _runTransformStep(m: IMigration, step: ITransformStep): Promise<void> {
-    const handle = this.sub(step.schema) as unknown as {
-      count(): number
-      iterate(): AsyncIterableIterator<[ILmdbKey, unknown]>
-      putMany(entries: Array<[ILmdbKey, unknown]>): Promise<void>
-    }
+    const handle = this.sub(step.schema)
     const declared = step.schema.version
     if (declared !== undefined && step.schemaVersion !== declared) {
       throw new LmdbError(`migration v${m.version} ('${m.name}'): transform targets schema version ${String(step.schemaVersion)} but '${step.schema.db}' declares version ${declared}`)
@@ -1364,14 +1381,13 @@ export class LmdbEnv {
           const inside = typeof insideRaw === `number` ? insideRaw : 0
           if (inside >= m.version) return
           if (m.up !== undefined) await m.up(this)
-          const putSync = (meta as unknown as {putSync: (k: Key, v: unknown) => void}).putSync
-          if (typeof putSync === `function` && this._txInProgress) {
-            putSync.call(meta, LmdbEnv._VERSION_KEY, m.version)
-            if (m.transform !== undefined) putSync.call(meta, `${LmdbEnv._TRANSFORM_PREFIX}${m.version}`, Date.now())
+          if (this._txInProgress) {
+            meta.putSync(LmdbEnv._VERSION_KEY, m.version)
+            if (m.transform !== undefined) meta.putSync(`${LmdbEnv._TRANSFORM_PREFIX}${m.version}`, Date.now())
           } else {
-            await (meta as unknown as {put: (k: Key, v: unknown) => Promise<void>}).put(LmdbEnv._VERSION_KEY, m.version)
+            await meta.put(LmdbEnv._VERSION_KEY, m.version)
             if (m.transform !== undefined) {
-              await (meta as unknown as {put: (k: Key, v: unknown) => Promise<void>}).put(`${LmdbEnv._TRANSFORM_PREFIX}${m.version}`, Date.now())
+              await meta.put(`${LmdbEnv._TRANSFORM_PREFIX}${m.version}`, Date.now())
             }
           }
         })

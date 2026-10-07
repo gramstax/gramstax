@@ -62,6 +62,7 @@ The stamp is written **after** `snapshot()` resolves, never before. Stamping fir
 | `persist: false` | nothing written and no catch-up; the schema is still registered by the constructor | in-memory only — the schedule cannot survive a restart |
 | `runOnStart` | forces a run even when not due | "back up now" on top of the normal rules |
 | `persistKey` (default `'backup'`) | job name for the stamp | two schedules on one env need distinct names |
+| `compact` (default `false`) | rewrites each copy densely — slower, smaller on disk | lmdb-js's `backup(path, compact)` requires the flag, so it is surfaced rather than hardcoded; use `true` for archives you retain or ship off-host, `false` for local snapshots you will replace soon |
 | overlapping run | the second **joins** the in-flight cycle | `await runNow()` always means real work finished |
 | `handle.runNow()` | snapshot + stamp now, schedule untouched | manual "back up now"; works even after `stop()` |
 | `handle.stop()` | permanent — croner cannot resume a stopped job | stopping ends the schedule, not the stamp store |
@@ -165,5 +166,8 @@ LmdbBackup.start(db, {dir: `./hourly`, pattern: `0 * * * *`, persistKey: `hourly
 - `new LmdbJobRun(env)` registers the schema idempotently; a second instance on the same env is safe and reuses the sub.
 - The overlap guard is `LmdbBackup`'s own, not croner's `protect`, because `runNow()` enters through the same function and `cron.trigger()` is fire-and-forget. That is also what keeps `runNow()` awaitable.
 - A backup contains the stamp from the **previous** run (it lands after the copy resolves), so restoring a backup rolls the schedule back and the app snapshots once soon after — the correct response to a rollback.
+- `compact` reaches every path: `env.backup(destPath, compact?)`, `LmdbBackup.backup(env, dir, keep?, compact?)`, both `snapshot` branches (`dir` and `tar.gz`), and the `start()` tick.
+- `env.backup()` requires the destination directory to already exist — `mdb_env_copy2` does not `mkdir` and fails `ENOENT`. `LmdbBackup.backup` does `mkdirSync` first, which is why the library path works and a direct `env.backup()` call needs the caller to create it.
+- `downloadFromS3` creates a missing destination directory and writes through a `.part` sibling it renames on success, so a failed transfer cannot leave a truncated archive that `restoreArchive` would accept.
 - Helpers are exported from the package root: `LmdbJobRun`, `JobRunSchema`, `LmdbBackup` (`backup`/`list`/`prune`/`restore`/`snapshot`/`start` + S3 companions), `LmdbSyncStream`, `Cdc`/`CdcHub`/`CdcStore`, `LmdbReader`.
 - Run it: `example/job-run.ts` walks the missed-boundary check by hand, then shows the `LmdbBackup.start` one-liner.

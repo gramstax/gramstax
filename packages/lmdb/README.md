@@ -287,11 +287,11 @@ await sub.reindex(name?) → {built, skipped}    // rebuilds; unique collisions 
 await sub.syncTo(dest, {name?, checkpoint?, limit?, verify?}) → {copied, checkpoint, verified}
 await sub.increment(key, delta?) → number     // bare-number subs; forbidden on indexed/search subs
 await sub.decrement(key, amount?) → number     // same guard as increment
-await sub.addValue(key, value) → void          // dupSort-only
+await sub.addValue(key, value) → boolean       // dupSort-only; false when key absent
 await sub.getValues(key) → T[]                 // dupSort-only
 sub.getValuesCount(key) → number               // dupSort-only, sync
 await sub.removeValue(key, value) → boolean    // dupSort-only
-await sub.putBinary(key, buf) → void           // forbidden on indexed/search subs
+await sub.putBinary(key, buf) → boolean       // forbidden on indexed/search subs
 await sub.getBinary(key) → Buffer | undefined
 await sub.getBinaryFast(key) → Buffer | undefined
 await sub.exportJSONL() → string
@@ -690,7 +690,7 @@ const { path, uploaded } = await LmdbBackup.snapshot(env, {
 
 | Call | Purpose |
 | --- | --- |
-| `backup(env, dir, keep?)` | `backup-<stamp>/` directory copy, then prune |
+| `backup(env, dir, keep?, compact?)` | `backup-<stamp>/` directory copy, then prune |
 | `snapshot(env, {dir, keep?, format?, s3?})` | Full cycle → `{path, uploaded?}` |
 | `list(dir)` / `listArchives(dir)` | Entries oldest-first, `mtimeMs` ordered |
 | `prune(dir, keep)` / `pruneArchives(dir, keep)` | Retention, standalone |
@@ -729,6 +729,28 @@ const s3 = {
 ```
 
 Every upload is **PUT-verified** (`200`) before the local file is considered done. A failed upload keeps the local archive and logs an error — it is never deleted. The token needs `Put`, `List` and `Delete` on the prefix.
+
+### `compact`: dense copies, your call
+
+LMDB's native copy takes a compaction flag, and this package surfaces it rather than hardcoding a value. `false` (the default) is a plain copy — faster, and it keeps the free-page layout the env had at snapshot time. `true` rewrites the copy densely — slower, but the result is smaller on disk and cheaper to restore from later.
+
+```typescript
+// local snapshot you will replace soon — no compaction
+const {path} = await LmdbBackup.snapshot(env, {dir: `./backups`, keep: 3});
+
+// long-lived archive you will ship off-host — worth compacting
+const {path, uploaded} = await LmdbBackup.snapshot(env, {
+  dir: `./backups`,
+  format: `tar.gz`,
+  compact: true,
+  s3: {bucket: `my-backups`, region: `auto`, accessKeyId, secretAccessKey}
+});
+
+// scheduled backups can set it once for every tick
+LmdbBackup.start(env, {dir: `./backups`, pattern: `0 3 * * *`, compact: true});
+```
+
+It reaches the copy on all four paths: `env.backup(dest, compact)`, `LmdbBackup.backup(env, dir, keep, compact)`, both `snapshot` branches, and the scheduled `start()` tick. One note on the low-level entry point: `env.backup()` requires the destination directory to **already exist** — `mdb_env_copy2` does not create it and fails with `ENOENT` otherwise. `LmdbBackup.backup` handles that for you.
 
 ### Gotchas
 

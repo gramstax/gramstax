@@ -101,13 +101,23 @@ class SkipUsersSchema extends LmdbSchema {
 }
 
 // TTL repo with a unique embedded index (schema static ttl → TTL repo).
+// TTL window and the sleep that clears it. The window has to stay wide enough
+// that the pre-expiry reads below land inside it on a loaded machine, and the
+// sleep has to clear it even when sleep() overshoots — an overshoot only makes
+// the row MORE expired, so that direction is safe.
+const TTL_MS = 150
+const PAST_TTL_MS = 1500
+// get() evicts with a fire-and-forget delete, so a later count()/index read
+// needs a real yield rather than a bare tick to observe it.
+const EVICT_SETTLE_MS = 100
+
 class TtlUserSchema extends LmdbSchema {
   static db = `ttl-users`
   static key = t.number()
   static value = {
     username: t.string().unique()
   }
-  static ttl = 50
+  static ttl = TTL_MS
 }
 
 // Unique-only index repo for the useVersions env.
@@ -453,7 +463,7 @@ describe(`embedded indexes + TTL`, () => {
     await tEnv.sub(TtlUserSchema).put(1, {username: `damar`})
     expect(tEnv.sub(TtlUserSchema).get(1)).toEqual({username: `damar`})
     expect(await tEnv.sub(TtlUserSchema).findByIndex({username: `damar`})).toEqual({username: `damar`})
-    await Bun.sleep(80)
+    await Bun.sleep(PAST_TTL_MS)
     const removed = await tEnv.sub(TtlUserSchema).purgeExpired()
     expect(removed).toBe(1)
     expect(tEnv.sub(TtlUserSchema).count()).toBe(0)
@@ -462,7 +472,7 @@ describe(`embedded indexes + TTL`, () => {
 
   it(`post-expiry get on an indexed TTL repo returns undefined without recursing`, async () => {
     await tEnv.sub(TtlUserSchema).put(1, {username: `damar`})
-    await Bun.sleep(80)
+    await Bun.sleep(PAST_TTL_MS)
     // FIXED (BUG 2): previously this recursed — TTL get's lazy
     // super.delete() called the indexed delete path, which re-read via
     // virtual get() → RangeError stack overflow. The index-maintenance
@@ -471,7 +481,7 @@ describe(`embedded indexes + TTL`, () => {
     expect(tEnv.sub(TtlUserSchema).get(1)).toBeUndefined()
     // give the fire-and-forget lazy delete a turn to commit, then verify
     // both the record and its index row are gone
-    await Bun.sleep(0)
+    await Bun.sleep(EVICT_SETTLE_MS)
     expect(tEnv.sub(TtlUserSchema).count()).toBe(0)
     expect(await tEnv.sub(TtlUserSchema).findByIndex({username: `damar`})).toBeUndefined()
   })
@@ -566,5 +576,4 @@ describe(`findByIndex limit`, () => {
     expect(await users.findByIndex({username: `user1`}, undefined, {limit: 5})).toEqual({username: `user1`, email: `group1@x.dev`})
     expect(await users.findByIndex({username: `user1`}, undefined, {limit: 0})).toBeUndefined()
   })
-
 })

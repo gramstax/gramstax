@@ -26,6 +26,13 @@ Restart-safe backup scheduling on `croner`, with a persisted run-stamp so the sc
 - **`IBackupStartOptions.pattern`** (required) and **`timezone`** to pin the pattern's zone. Patterns are otherwise read in the host's local timezone.
 - **`IBackupStartOptions.persist`** (default `true`) and **`persistKey`** (default `'backup'`) for schedules sharing one env.
 - **`IBackupHandle.runNow()`** — take a snapshot immediately without disturbing the schedule. Resolves when a snapshot has actually completed; a call arriving during an in-flight cycle joins that cycle rather than silently skipping. Works even after `stop()`.
+- **`compact` on every backup path** — `env.backup(destPath, compact?)`, `LmdbBackup.backup(env, dir, keep?, compact?)`, `IBackupSnapshotOptions.compact?` and `IBackupStartOptions.compact?`, all defaulting to `false`.
+
+  lmdb-js's `backup(path, compact)` requires the boolean and `mdb_env_copy2` treats it as a compaction pass, so it is surfaced rather than hardcoded: `false` is a fast plain copy that keeps the free-page layout it had at snapshot time, `true` rewrites the copy densely — slower, smaller on disk, and cheaper to restore from. Worth `true` for archives you retain or ship off-host; leave it off for local snapshots you will replace soon. It reaches every path, including both `snapshot` branches (`dir` and `tar.gz`) and the scheduled `start()` tick.
+
+  `downloadFromS3` also creates a missing destination directory now (matching `LmdbBackup.backup`, which already did) and writes through a `.part` sibling it renames on success, so a failed transfer cannot leave a truncated archive that `restoreArchive` would later accept.
+
+  One low-level caveat: `env.backup()` still requires the destination directory to exist — `mdb_env_copy2` does not `mkdir`. `LmdbBackup.backup` handles it; a direct call must create it.
 
 ### Changed
 

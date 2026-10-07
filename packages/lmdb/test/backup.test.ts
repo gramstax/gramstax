@@ -603,12 +603,42 @@ describe(`LmdbBackup`, () => {
 
   it(`downloadFromS3 writes body to file`, async () => {
     const dir = createTestDir(`s3dl-`)
-    dirs.push(dir)
-    const calls: Array<string> = []
-    const s3 = {...s3Creds(), client: fakeS3(calls, [])}
-    const dest = join(dir, `out.tar.gz`)
-    await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, dest)
-    expect(readFileSync(dest, `utf8`)).toBe(`hello`)
+    try {
+      const calls: Array<string> = []
+      const s3 = {...s3Creds(), client: fakeS3(calls, [])}
+      const dest = join(dir, `out.tar.gz`)
+      await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, dest)
+      expect(readFileSync(dest, `utf8`)).toBe(`hello`)
+    } finally {
+      await rmWithRetry(dir)
+    }
+  })
+
+  it(`downloadFromS3 creates a missing destination directory`, async () => {
+    const dir = createTestDir(`s3nested-`)
+    try {
+      const calls: Array<string> = []
+      const s3 = {...s3Creds(), client: fakeS3(calls, [])}
+      const dest = join(dir, `nested`, `deeper`, `out.tar.gz`)
+      const returned = await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, dest)
+      expect(returned).toBe(dest)
+      expect(readFileSync(dest, `utf8`)).toBe(`hello`)
+    } finally {
+      await rmWithRetry(dir)
+    }
+  })
+
+  it(`downloadFromS3 leaves no .part file behind`, async () => {
+    const dir = createTestDir(`s3part-`)
+    try {
+      const calls: Array<string> = []
+      const s3 = {...s3Creds(), client: fakeS3(calls, [])}
+      const dest = join(dir, `out.tar.gz`)
+      await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, dest)
+      expect(readdirSync(dir)).toEqual([`out.tar.gz`])
+    } finally {
+      await rmWithRetry(dir)
+    }
   })
 
   it(`_peer maps missing modules to LmdbError`, async () => {
@@ -655,3 +685,73 @@ function fakeS3(calls: Array<string>, objects: Array<{Key: string; LastModified:
     }
   } as unknown as S3Client
 }
+
+describe(`compact reaches the native copy`, () => {
+  it(`env.backup defaults to no compaction`, async () => {
+    const {env, base} = setupEnvAt(createTestDir(`lmdb-compact-default-`))
+    try {
+      const vals = env.register(ValSchema)
+      await vals.put(1, {n: 1})
+      const dest = join(base, `snap`)
+      mkdirSync(dest, {recursive: true})
+      await env.backup(dest)
+      expect(existsSync(join(dest, `data.mdb`))).toBe(true)
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`env.backup accepts an explicit compact flag`, async () => {
+    const {env, base} = setupEnvAt(createTestDir(`lmdb-compact-true-`))
+    try {
+      const vals = env.register(ValSchema)
+      await vals.put(1, {n: 1})
+      const dest = join(base, `snap`)
+      mkdirSync(dest, {recursive: true})
+      await env.backup(dest, true)
+      expect(existsSync(join(dest, `data.mdb`))).toBe(true)
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`snapshot forwards compact to the dir path`, async () => {
+    const {env, base} = setupEnvAt(createTestDir(`lmdb-compact-snap-`))
+    try {
+      const vals = env.register(ValSchema)
+      await vals.put(1, {n: 1})
+      const {path} = await LmdbBackup.snapshot(env, {dir: base, compact: true})
+      expect(existsSync(join(path, `data.mdb`))).toBe(true)
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`snapshot forwards compact to the tar.gz path`, async () => {
+    const {env, base} = setupEnvAt(createTestDir(`lmdb-compact-snap2-`))
+    try {
+      const vals = env.register(ValSchema)
+      await vals.put(1, {n: 1})
+      const {path} = await LmdbBackup.snapshot(env, {dir: base, format: `tar.gz`, compact: true})
+      expect(existsSync(path)).toBe(true)
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`start forwards compact through its scheduled snapshot`, async () => {
+    const {env, base} = setupEnvAt(createTestDir(`lmdb-compact-snap3-`))
+    try {
+      const vals = env.register(ValSchema)
+      await vals.put(1, {n: 1})
+      await duringSchedule(env, {dir: base, pattern: `0 3 * * *`, persist: false, compact: true}, async (handle) => {
+        await handle.runNow()
+        const entries = LmdbBackup.list(base)
+        expect(entries.length).toBe(1)
+        expect(existsSync(join(entries[0]!.path, `data.mdb`))).toBe(true)
+      })
+    } finally {
+      await env.close()
+    }
+  })
+})

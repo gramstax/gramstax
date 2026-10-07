@@ -69,7 +69,7 @@ export class LmdbEnvSubManager {
    * @internal
    */
   register<S extends typeof LmdbSchema>(schemaClass: S): LmdbEnvSub<S> {
-    if (this._stateBySchema.has(schemaClass as unknown as ISchemaConstructor)) {
+    if (this._stateBySchema.has(schemaClass)) {
       throw new LmdbError(`LmdbSchema class '${schemaClass.name}' is already registered.`)
     }
     LmdbSchema.validate(schemaClass) // throws LmdbError on invalid schema
@@ -127,9 +127,9 @@ export class LmdbEnvSubManager {
       const searchState = this._createSubState(searchDbNames[i]!, {dupSort: true, useVersions: false})
       state.searchTables.push({column: searchColumns[i]!, state: searchState})
     }
-    this._stateBySchema.set(schemaClass as unknown as ISchemaConstructor, state)
+    this._stateBySchema.set(schemaClass, state)
     const sub = new LmdbEnvSub(this._env, schemaClass, state)
-    this._subCache.set(schemaClass as unknown as ISchemaConstructor, sub as LmdbEnvSub<typeof LmdbSchema>)
+    this._subCache.set(schemaClass, sub as LmdbEnvSub<typeof LmdbSchema>)
     return sub
   }
 
@@ -143,7 +143,7 @@ export class LmdbEnvSubManager {
    * @internal
    */
   sub<S extends typeof LmdbSchema>(schemaClass: S): LmdbEnvSub<S> {
-    const cached = this._subCache.get(schemaClass as unknown as ISchemaConstructor)
+    const cached = this._subCache.get(schemaClass)
     if (!cached) throw new LmdbError(`LmdbSchema class '${schemaClass.name}' is not registered. Call env.register(SchemaClass) first.`)
     return cached as LmdbEnvSub<S>
   }
@@ -157,7 +157,7 @@ export class LmdbEnvSubManager {
    * @internal
    */
   isRegistered(schemaClass: typeof LmdbSchema): boolean {
-    return this._stateBySchema.has(schemaClass as unknown as ISchemaConstructor)
+    return this._stateBySchema.has(schemaClass)
   }
 
   /**

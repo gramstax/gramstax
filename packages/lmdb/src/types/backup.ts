@@ -71,6 +71,15 @@ export interface IBackupStartOptions {
    */
   format?: `dir` | `tar.gz`
   /**
+   * Compact each snapshot while copying (default `false`).
+   *
+   * @remarks
+   * `true` rewrites the copy densely, so it is slower but smaller on disk and
+   * cheaper to restore from later. Worth it for archives you retain or ship
+   * off-host; leave it off for local snapshots you will replace soon.
+   */
+  compact?: boolean
+  /**
    * S3 upload per tick — tar.gz only.
    */
   s3?: IBackupS3Options
@@ -218,6 +227,15 @@ export interface IBackupSnapshotOptions {
    * `dir` for raw LMDB dirs (default), `tar.gz` for single-file archives.
    */
   format?: `dir` | `tar.gz`
+  /**
+   * Compact each snapshot while copying (default `false`).
+   *
+   * @remarks
+   * `true` rewrites the copy densely, so it is slower but smaller on disk and
+   * cheaper to restore from later. Worth it for archives you retain or ship
+   * off-host; leave it off for local snapshots you will replace soon.
+   */
+  compact?: boolean
   /**
    * S3 upload — tar.gz only (a directory cannot be PUT as one object).
    */

@@ -1,4 +1,4 @@
-import {asBinary, compareKeys, type GetOptions, type Key, type PutOptions, type RangeOptions} from "lmdb"
+import {asBinary, compareKeys, type GetOptions, type PutOptions, type RangeOptions} from "lmdb"
 import {Cdc} from "./cdc"
 import type {LmdbEnv} from "./env"
 import {LmdbError} from "./errors"
@@ -266,12 +266,12 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
   private _assertEnum(key: ILmdbKey, value: unknown): void {
     if (!this._needsGuards) return
     const keyBuilder = this._schema.key
-    if (keyBuilder?.enumValues !== undefined && !keyBuilder.enumValues.includes(key as unknown)) {
+    if (keyBuilder?.enumValues !== undefined && !keyBuilder.enumValues.includes(key)) {
       throw new LmdbError(`Sub '${this.dbName}': invalid value '${String(key)}' for enum column 'key' — allowed: ${keyBuilder.enumValues.map((v) => String(v)).join(`, `)}.`)
     }
     const columns = this._schema.value
     if (LmdbSchema.isColumnBuilder(columns)) {
-      if (columns.enumValues !== undefined && !columns.enumValues.includes(value as unknown)) {
+      if (columns.enumValues !== undefined && !columns.enumValues.includes(value)) {
         throw new LmdbError(`Sub '${this.dbName}': invalid value '${String(value)}' for enum column 'value' — allowed: ${columns.enumValues.map((v) => String(v)).join(`, `)}.`)
       }
       return
@@ -282,7 +282,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
       if (column.enumValues === undefined) continue
       const field = row[columnName]
       if (field === undefined) continue
-      if (!column.enumValues.includes(field as unknown)) {
+      if (!column.enumValues.includes(field)) {
         throw new LmdbError(`Sub '${this.dbName}': invalid value '${String(field)}' for enum column '${columnName}' — allowed: ${column.enumValues.map((v) => String(v)).join(`, `)}.`)
       }
     }
@@ -396,10 +396,10 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    */
   private _prefixEnd(prefix: ILmdbKey): ILmdbKey | undefined {
     if (typeof prefix === `string`) {
-      return `${prefix}￿` as ILmdbKey
+      return `${prefix}￿`
     }
     if (Buffer.isBuffer(prefix)) {
-      return Buffer.concat([prefix, Buffer.from([0xff])]) as unknown as ILmdbKey
+      return Buffer.concat([prefix, Buffer.from([0xff])])
     }
     return undefined
   }
@@ -419,9 +419,9 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
       anchor += ch
     }
     if (anchor.length === 0) return null
-    const end = this._prefixEnd(anchor as ILmdbKey)
+    const end = this._prefixEnd(anchor)
     if (end === undefined) return null
-    return {start: anchor as ILmdbKey, end}
+    return {start: anchor, end}
   }
 
   /**
@@ -793,8 +793,8 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     const guard = this._rejectMaterialize(state, `values`, options)
     if (guard) return guard
     const range = state.env.getRange(this._rangeOpts(options, tx))
-    if (!state.codec) return range.map((e) => e.value as unknown).asArray as Promise<unknown[]>
-    return range.map((e) => state.hookBeforeRead(e.value)).asArray as Promise<unknown[]>
+    if (!state.codec) return range.map((e) => e.value).asArray
+    return range.map((e) => state.hookBeforeRead(e.value)).asArray
   }
 
   /**
@@ -811,8 +811,8 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     const guard = this._rejectMaterialize(state, `entries`, options)
     if (guard) return guard
     const range = state.env.getRange(this._rangeOpts(options, tx))
-    if (!state.codec) return range.map((e) => [e.key as ILmdbKey, e.value as unknown] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
-    return range.map((e) => [e.key as ILmdbKey, state.hookBeforeRead(e.value)] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
+    if (!state.codec) return range.map((e) => [e.key, e.value]).asArray as Promise<Array<[ILmdbKey, unknown]>>
+    return range.map((e) => [e.key, state.hookBeforeRead(e.value)] as [ILmdbKey, unknown]).asArray
   }
 
   /**
@@ -825,7 +825,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    */
   private async *_iterate(state: LmdbSubState, options?: IRangeOptions, tx?: LmdbTransaction): AsyncIterableIterator<[ILmdbKey, unknown]> {
     this._assertOpen()
-    const iter = state.env.getRange(this._rangeOpts(options, tx)) as Iterable<{key: ILmdbKey; value: unknown}>
+    const iter = state.env.getRange(this._rangeOpts(options, tx))
     for (const entry of iter) {
       yield [entry.key, state.codec ? state.hookBeforeRead(entry.value) : entry.value]
     }
@@ -860,23 +860,23 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     }
     const stringsOnly = this._keysAreStrings(state)
     const prefix = stringsOnly ? this._extractPrefixLikePattern(pattern) : null
-    const prefixEnd = prefix !== null ? this._prefixEnd(prefix as ILmdbKey) : undefined
+    const prefixEnd = prefix !== null ? this._prefixEnd(prefix) : undefined
     const inferred = prefix === null && stringsOnly ? this._inferRangeFromPrefix(pattern) : null
-    const bounds = prefix !== null && prefixEnd !== undefined ? {start: prefix as ILmdbKey, end: prefixEnd} : (inferred ?? undefined)
+    const bounds = prefix !== null && prefixEnd !== undefined ? {start: prefix, end: prefixEnd} : (inferred ?? undefined)
     const guard = this._rejectMaterialize(state, `like`, options, bounds)
     if (guard) return guard
     const rangeOpts: IRangeOptions = {...options, ...(tx?.raw ? {transaction: tx.raw} : {})}
     if (prefix !== null) {
       if (prefixEnd !== undefined) {
-        rangeOpts.start = prefix as ILmdbKey
+        rangeOpts.start = prefix
         rangeOpts.end = prefixEnd
         const range = state.env.getRange(rangeOpts)
-        if (!state.codec) return range.map((e) => [e.key as ILmdbKey, e.value as unknown] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
-        return range.map((e) => [e.key as ILmdbKey, state.hookBeforeRead(e.value)] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
+        if (!state.codec) return range.map((e) => [e.key, e.value]).asArray as Promise<Array<[ILmdbKey, unknown]>>
+        return range.map((e) => [e.key, state.hookBeforeRead(e.value)]).asArray as Promise<Array<[ILmdbKey, unknown]>>
       }
     }
     if (inferred) {
-      rangeOpts.start = (options?.start as ILmdbKey) ?? inferred.start
+      rangeOpts.start = options?.start ?? inferred.start
       if (options?.end === undefined) {
         rangeOpts.end = inferred.end
       }
@@ -885,13 +885,13 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     // non-matching rows are never decoded.
     const matchedKeys: ILmdbKey[] = []
     for (const k of state.env.getKeys(rangeOpts)) {
-      if (Helper.globMatch(String(k), pattern)) matchedKeys.push(k as ILmdbKey)
+      if (Helper.globMatch(String(k), pattern)) matchedKeys.push(k)
     }
     if (matchedKeys.length === 0) return Promise.resolve([])
     return state.env.getMany(matchedKeys).then((raws) => {
       const rawArr = raws as Array<unknown>
-      if (!state.codec) return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, raw as unknown] as [ILmdbKey, unknown])
-      return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, state.hookBeforeRead(raw)] as [ILmdbKey, unknown])
+      if (!state.codec) return rawArr.map((raw, i) => [matchedKeys[i], raw] as [ILmdbKey, unknown])
+      return rawArr.map((raw, i) => [matchedKeys[i], state.hookBeforeRead(raw)] as [ILmdbKey, unknown])
     })
   }
 
@@ -917,21 +917,21 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
       const guard = this._rejectMaterialize(state, `findByPrefix`, options, {start: prefix, end: endKey})
       if (guard) return guard
       const range = state.env.getRange({...options, start: prefix, end: endKey, ...(tx?.raw ? {transaction: tx.raw} : {})})
-      if (!state.codec) return range.map((e) => [e.key as ILmdbKey, e.value as unknown] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
-      return range.map((e) => [e.key as ILmdbKey, state.hookBeforeRead(e.value)] as [ILmdbKey, unknown]).asArray as Promise<Array<[ILmdbKey, unknown]>>
+      if (!state.codec) return range.map((e) => [e.key, e.value]).asArray as Promise<Array<[ILmdbKey, unknown]>>
+      return range.map((e) => [e.key, state.hookBeforeRead(e.value)]).asArray as Promise<Array<[ILmdbKey, unknown]>>
     }
     const guard = this._rejectMaterialize(state, `findByPrefix`, options)
     if (guard) return guard
     const prefixStr = String(prefix)
     const matchedKeys: ILmdbKey[] = []
     for (const k of state.env.getKeys(this._rangeOpts(options, tx))) {
-      if (String(k as ILmdbKey).startsWith(prefixStr)) matchedKeys.push(k as ILmdbKey)
+      if (String(k).startsWith(prefixStr)) matchedKeys.push(k)
     }
     if (matchedKeys.length === 0) return Promise.resolve([])
     return state.env.getMany(matchedKeys).then((raws) => {
       const rawArr = raws as Array<unknown>
-      if (!state.codec) return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, raw as unknown] as [ILmdbKey, unknown])
-      return rawArr.map((raw, i) => [matchedKeys[i] as ILmdbKey, state.hookBeforeRead(raw)] as [ILmdbKey, unknown])
+      if (!state.codec) return rawArr.map((raw, i) => [matchedKeys[i], raw] as [ILmdbKey, unknown])
+      return rawArr.map((raw, i) => [matchedKeys[i], state.hookBeforeRead(raw)] as [ILmdbKey, unknown])
     })
   }
 
@@ -952,7 +952,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     let count = 0
     const prefixStr = String(prefix)
     for (const k of state.env.getKeys()) {
-      if (String(k as ILmdbKey).startsWith(prefixStr)) count++
+      if (String(k).startsWith(prefixStr)) count++
     }
     return Promise.resolve(count)
   }
@@ -968,7 +968,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     const matched: ILmdbKey[] = []
     const prefixStr = String(prefix)
     for (const k of state.env.getKeys()) {
-      if (String(k as ILmdbKey).startsWith(prefixStr)) matched.push(k as ILmdbKey)
+      if (String(k).startsWith(prefixStr)) matched.push(k)
     }
     return matched
   }
@@ -1034,9 +1034,9 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
   private _first(state: LmdbSubState, tx?: LmdbTransaction): Promise<[ILmdbKey, unknown] | undefined> {
     const closed = this._rejectClosed()
     if (closed) return closed
-    return Promise.resolve(state.env.getRange(this._rangeOpts({limit: 1}, tx) as RangeOptions).asArray).then((arr) => {
+    return Promise.resolve(state.env.getRange(this._rangeOpts({limit: 1}, tx)).asArray).then((arr) => {
       const entry = (arr as Array<{key: ILmdbKey; value: unknown}>)[0]
-      return entry ? ([entry.key as ILmdbKey, state.codec ? state.hookBeforeRead(entry.value) : entry.value] as [ILmdbKey, unknown]) : undefined
+      return entry ? ([entry.key, state.codec ? state.hookBeforeRead(entry.value) : entry.value] as [ILmdbKey, unknown]) : undefined
     })
   }
 
@@ -1050,9 +1050,9 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
   private _last(state: LmdbSubState, tx?: LmdbTransaction): Promise<[ILmdbKey, unknown] | undefined> {
     const closed = this._rejectClosed()
     if (closed) return closed
-    return Promise.resolve(state.env.getRange(this._rangeOpts({reverse: true, limit: 1}, tx) as RangeOptions).asArray).then((arr) => {
-      const entry = (arr as Array<{key: ILmdbKey; value: unknown}>)[0]
-      return entry ? ([entry.key as ILmdbKey, state.codec ? state.hookBeforeRead(entry.value) : entry.value] as [ILmdbKey, unknown]) : undefined
+    return Promise.resolve(state.env.getRange(this._rangeOpts({reverse: true, limit: 1}, tx)).asArray).then((arr) => {
+      const entry = arr[0]
+      return entry ? ([entry.key, state.codec ? state.hookBeforeRead(entry.value) : entry.value] as [ILmdbKey, unknown]) : undefined
     })
   }
 
@@ -1116,12 +1116,12 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
       return Promise.reject(new TypeError(`delta must be a finite number`))
     }
     return this.owner.transaction(() => {
-      const current = this._get(state, key) as unknown as number | undefined
+      const current = this._get(state, key)
       if (current !== undefined && typeof current !== `number`) {
         throw new TypeError(`Cannot increment non-numeric value for key '${String(key)}'`)
       }
       const next = (current ?? 0) + delta
-      this._put(state, key, next as unknown as unknown)
+      this._put(state, key, next)
       return next
     })
   }
@@ -1149,9 +1149,9 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param state - Sub-DB state.
    * @param key - The key.
    * @param value - The duplicate value to append.
-   * @returns Completion of the write.
+   * @returns Boolean.
    */
-  private _addValue(state: LmdbSubState, key: ILmdbKey, value: unknown): Promise<void> {
+  private _addValue(state: LmdbSubState, key: ILmdbKey, value: unknown): Promise<boolean> {
     const closed = this._rejectClosed()
     if (closed) return closed
     const dup = this._rejectIfNotDupSort(state, `addValue`)
@@ -1165,7 +1165,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     }
     const encoded = state.codec ? state.codec.hookBeforeWrite(value) : value
     this._stageCdcPut(state, key, value, `async`)
-    return state.env.put(key, encoded) as unknown as Promise<void>
+    return state.env.put(key, encoded)
   }
 
   /**
@@ -1227,7 +1227,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     const before = this._getValuesCount(state, key)
     if (before === 0) return Promise.resolve(false)
     this._stageCdcDelete(state, key, `async`, value)
-    return (state.env as unknown as {remove(key: Key, value: unknown): Promise<boolean>}).remove(key, encoded).then(() => {
+    return state.env.remove(key, encoded).then(() => {
       return this._getValuesCount(state, key) < before
     })
   }
@@ -1238,17 +1238,17 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param state - Sub-DB state.
    * @param key - The key.
    * @param value - Binary payload.
-   * @returns Completion of the write.
+   * @returns Boolean Completion of the write.
    * @throws {LmdbError} On subs with indexes/search tables (binary writes
    * would leave them stale).
    */
-  private _putBinary(state: LmdbSubState, key: ILmdbKey, value: Buffer | Uint8Array): Promise<void> {
+  private _putBinary(state: LmdbSubState, key: ILmdbKey, value: Buffer | Uint8Array): Promise<boolean> {
     const closed = this._rejectClosed()
     if (closed) return closed
     if (this.owner.readOnly) return Promise.reject(new LmdbError(`putBinary`))
     if (state.indexes.length > 0 || state.searchTables.length > 0) return Promise.reject(new LmdbError(`putBinary is not supported on subs with embedded indexes or search tables (${state.dbName}) — binary writes bypass the index extractor.`))
     this._stageCdcPut(state, key, value, `async`)
-    return state.env.put(key, asBinary(value as unknown as Buffer)) as unknown as Promise<void>
+    return state.env.put(key, asBinary(value))
   }
 
   /**
@@ -1359,8 +1359,8 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
         for (let j = i; j < end; j++) {
           const e = entries[j]!
           this._stageCdcPut(state, e[0], e[1], `sync`)
-          if (appendOpts !== undefined) state.env.putSync(e[0] as never, encode(toStored(e[1])), appendOpts)
-          else void state.env.put(e[0] as unknown as Key, encode(toStored(e[1])) as unknown)
+          if (appendOpts !== undefined) state.env.putSync(e[0], encode(toStored(e[1])), appendOpts)
+          else void state.env.put(e[0], encode(toStored(e[1])))
         }
       })
       done = end
@@ -1443,28 +1443,28 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
       if (ttlMs === undefined && typeof state.ttlMs === `number` && state.ttlMs > 0) ttlMs = state.ttlMs
       const exp = typeof ttlMs === `number` && ttlMs > 0 ? Date.now() + ttlMs : undefined
       const envelope = exp !== undefined ? {v: value, exp} : {v: value}
-      const stored = state.codec ? state.codec.hookBeforeWrite(envelope as unknown) : (envelope as unknown)
+      const stored = state.codec ? state.codec.hookBeforeWrite(envelope) : envelope
       if (state.indexes.length > 0 || state.searchTables.length > 0) {
         return this._indexedTx(state, () => {
           this._writeIndexedSync(state, key, value, stored)
-        }) as unknown as Promise<void>
+        })
       }
       this._stageCdcPut(state, key, value, `async`)
-      return state.env.put(key, stored) as unknown as Promise<void>
+      return state.env.put(key, stored).then(() => undefined)
     }
     const encoded = state.codec ? state.codec.hookBeforeWrite(value) : value
     if (state.indexes.length > 0 || state.searchTables.length > 0) {
       if (version !== undefined) {
-        return this._indexedTx(state, () => this._writeIndexedInner(state, key, value, encoded, `async`, version)) as unknown as Promise<void>
+        return this._indexedTx(state, () => this._writeIndexedInner(state, key, value, encoded, `async`, version))
       }
       return this._writeIndexed(state, key, value, encoded)
     }
     if (version !== undefined) {
       this._stageCdcPut(state, key, value, `async`)
-      return state.env.put(key, encoded, version) as unknown as Promise<void>
+      return state.env.put(key, encoded, version).then(() => undefined)
     }
     this._stageCdcPut(state, key, value, `async`)
-    return state.env.put(key, encoded) as unknown as Promise<void>
+    return state.env.put(key, encoded).then(() => undefined)
   }
 
   /**
@@ -1810,7 +1810,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
   private _writeIndexed(state: LmdbSubState, key: ILmdbKey, value: unknown, stored: unknown): Promise<void> {
     return this._indexedTx(state, () => {
       this._writeIndexedSync(state, key, value, stored)
-    }) as unknown as Promise<void>
+    })
   }
 
   /**
@@ -2144,7 +2144,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
     const rangeOpts = {...bounds, ...(tx?.raw ? {transaction: tx.raw} : {})}
     const out: ILmdbKey[] = []
     for (const key of idx.state.env.getKeys(rangeOpts)) {
-      const tuple = key as ILmdbKey
+      const tuple = key
       if (parsed.kind === `prefix` && !Helper.tuplePrefixMatch(tuple, parsed.tuple)) break
       out.push(...((await this._getValues(idx.state, tuple, tx)) as ILmdbKey[]))
     }
@@ -2402,7 +2402,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The row value, or `undefined` when the key is absent. Synchronous.
    */
   get(key: KeyOf<S>, tx?: LmdbTransaction): ValueOf<S> | undefined {
-    return this._get(this._state, key as ILmdbKey, tx) as ValueOf<S> | undefined
+    return this._get(this._state, key, tx) as ValueOf<S> | undefined
   }
 
   /**
@@ -2414,7 +2414,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @throws {LmdbError} When the key is absent.
    */
   getStrict(key: KeyOf<S>, tx?: LmdbTransaction): ValueOf<S> {
-    return this._getStrict(this._state, key as ILmdbKey, tx) as ValueOf<S>
+    return this._getStrict(this._state, key, tx) as ValueOf<S>
   }
 
   /**
@@ -2425,7 +2425,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns `true` when the key exists. Synchronous.
    */
   has(key: KeyOf<S>, tx?: LmdbTransaction): boolean {
-    return this._has(this._state, key as ILmdbKey, tx)
+    return this._has(this._state, key, tx)
   }
 
   /**
@@ -2450,7 +2450,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    */
   put(key: KeyOf<S>, value: ValueOf<S>, ttlOrTx?: number | {ttlMs: number} | LmdbTransaction): Promise<void> {
     const isTx = ttlOrTx instanceof LmdbTransaction
-    return this._put(this._state, key as ILmdbKey, value as unknown, isTx ? ttlOrTx : undefined, isTx ? undefined : ttlOrTx)
+    return this._put(this._state, key, value, isTx ? ttlOrTx : undefined, isTx ? undefined : ttlOrTx)
   }
 
   /**
@@ -2461,7 +2461,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns Resolves to `true` when the key existed and was removed.
    */
   delete(key: KeyOf<S>, tx?: LmdbTransaction): Promise<boolean> {
-    return this._delete(this._state, key as ILmdbKey, tx)
+    return this._delete(this._state, key, tx)
   }
 
   /**
@@ -2490,7 +2490,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param value - The row value to store.
    */
   putSync(key: KeyOf<S>, value: ValueOf<S>): void {
-    this._putSync(this._state, key as ILmdbKey, value as unknown)
+    this._putSync(this._state, key, value)
   }
 
   /**
@@ -2500,7 +2500,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns `true` when the key existed and was removed.
    */
   removeSync(key: KeyOf<S>): boolean {
-    return this._removeSync(this._state, key as ILmdbKey)
+    return this._removeSync(this._state, key)
   }
 
   /**
@@ -2529,7 +2529,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns Values aligned with `keys` — `undefined` for absent keys.
    */
   getMany(keys: KeyOf<S>[]): Promise<(ValueOf<S> | undefined)[]> {
-    return this._getMany(this._state, keys as ILmdbKey[]) as Promise<(ValueOf<S> | undefined)[]>
+    return this._getMany(this._state, keys) as Promise<(ValueOf<S> | undefined)[]>
   }
 
   /**
@@ -2539,7 +2539,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns Resolves when the pages are loaded.
    */
   prefetch(keys: KeyOf<S>[]): Promise<void> {
-    return this._prefetch(this._state, keys as ILmdbKey[])
+    return this._prefetch(this._state, keys)
   }
 
   // ── Range queries ──────────────────────────────────────────────
@@ -2609,7 +2609,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns `[key, value]` pairs whose key starts with `prefix`.
    */
   findByPrefix(prefix: KeyOf<S>, options?: IRangeOptions, tx?: LmdbTransaction): Promise<[KeyOf<S>, ValueOf<S>][]> {
-    return this._findByPrefix(this._state, prefix as ILmdbKey, options, tx) as Promise<[KeyOf<S>, ValueOf<S>][]>
+    return this._findByPrefix(this._state, prefix, options, tx) as Promise<[KeyOf<S>, ValueOf<S>][]>
   }
 
   /**
@@ -2619,7 +2619,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The number of matching entries.
    */
   countByPrefix(prefix: KeyOf<S>): Promise<number> {
-    return this._countByPrefix(this._state, prefix as ILmdbKey)
+    return this._countByPrefix(this._state, prefix)
   }
 
   /**
@@ -2630,7 +2630,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @throws {LmdbError} When `prefix` is empty — use {@link clear} instead.
    */
   deleteByPrefix(prefix: KeyOf<S>): Promise<number> {
-    return this._deleteByPrefix(this._state, prefix as ILmdbKey)
+    return this._deleteByPrefix(this._state, prefix)
   }
 
   /**
@@ -2673,7 +2673,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns Resolves to `true` when inserted, `false` when the key already exists.
    */
   putIfNotExists(key: KeyOf<S>, value: ValueOf<S>): Promise<boolean> {
-    return this._putIfNotExists(this._state, key as ILmdbKey, value as unknown)
+    return this._putIfNotExists(this._state, key, value)
   }
 
   /**
@@ -2684,7 +2684,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The new value; absent keys start at `0`.
    */
   increment(key: KeyOf<S>, delta = 1): Promise<number> {
-    return this._increment(this._state, key as ILmdbKey, delta)
+    return this._increment(this._state, key, delta)
   }
 
   /**
@@ -2695,7 +2695,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The new value; absent keys start at `0`.
    */
   decrement(key: KeyOf<S>, amount = 1): Promise<number> {
-    return this._decrement(this._state, key as ILmdbKey, amount)
+    return this._decrement(this._state, key, amount)
   }
 
   // ── dupSort ────────────────────────────────────────────────────
@@ -2705,10 +2705,10 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    *
    * @param key - The primary key.
    * @param value - The duplicate value to append (requires a `dupSort` sub).
-   * @returns Resolves when the value is appended.
+   * @returns Resolves boolean.
    */
-  addValue(key: KeyOf<S>, value: ValueOf<S>): Promise<void> {
-    return this._addValue(this._state, key as ILmdbKey, value as unknown)
+  addValue(key: KeyOf<S>, value: ValueOf<S>): Promise<boolean> {
+    return this._addValue(this._state, key, value)
   }
 
   /**
@@ -2718,7 +2718,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The ordered duplicate values.
    */
   getValues(key: KeyOf<S>): Promise<ValueOf<S>[]> {
-    return this._getValues(this._state, key as ILmdbKey) as Promise<ValueOf<S>[]>
+    return this._getValues(this._state, key) as Promise<ValueOf<S>[]>
   }
 
   /**
@@ -2728,7 +2728,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The number of duplicates. Synchronous.
    */
   getValuesCount(key: KeyOf<S>): number {
-    return this._getValuesCount(this._state, key as ILmdbKey)
+    return this._getValuesCount(this._state, key)
   }
 
   /**
@@ -2739,7 +2739,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns Resolves to `true` when the value was removed.
    */
   removeValue(key: KeyOf<S>, value: ValueOf<S>): Promise<boolean> {
-    return this._removeValue(this._state, key as ILmdbKey, value as unknown)
+    return this._removeValue(this._state, key, value)
   }
 
   // ── Binary ─────────────────────────────────────────────────────
@@ -2749,10 +2749,10 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    *
    * @param key - The primary key.
    * @param value - The raw bytes to store.
-   * @returns Resolves when the bytes are written.
+   * @returns Boolean resolves when the bytes are written.
    */
-  putBinary(key: KeyOf<S>, value: Buffer | Uint8Array): Promise<void> {
-    return this._putBinary(this._state, key as ILmdbKey, value)
+  putBinary(key: KeyOf<S>, value: Buffer | Uint8Array): Promise<boolean> {
+    return this._putBinary(this._state, key, value)
   }
 
   /**
@@ -2762,7 +2762,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The stored bytes, or `undefined` when absent.
    */
   getBinary(key: KeyOf<S>): Buffer | undefined {
-    return this._getBinary(this._state, key as ILmdbKey)
+    return this._getBinary(this._state, key)
   }
 
   /**
@@ -2772,7 +2772,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns The stored bytes, or `undefined` when absent. No async wrapper.
    */
   getBinaryFast(key: KeyOf<S>): Buffer | undefined {
-    return this._getBinaryFast(this._state, key as ILmdbKey)
+    return this._getBinaryFast(this._state, key)
   }
 
   // ── JSONL export/import ────────────────────────────────────────
@@ -2882,7 +2882,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @returns `{version, value}` for optimistic-locking reads, or `undefined` when absent.
    */
   getEntry(key: KeyOf<S>): {version: number; value: ValueOf<S>} | undefined {
-    return this._getEntry(this._state, key as ILmdbKey) as {version: number; value: ValueOf<S>} | undefined
+    return this._getEntry(this._state, key) as {version: number; value: ValueOf<S>} | undefined
   }
 
   // ── Types ──────────────────────────────────────────────────────

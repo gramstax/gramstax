@@ -1,6 +1,6 @@
 import {cpSync, createReadStream, createWriteStream, existsSync, mkdirSync, readdirSync, renameSync, rmSync, type Stats, statSync} from "node:fs"
 import {mkdir, rm} from "node:fs/promises"
-import {join} from "node:path"
+import {dirname, join} from "node:path"
 import {Readable} from "node:stream"
 import {pipeline} from "node:stream/promises"
 import type {S3Client} from "@aws-sdk/client-s3"
@@ -159,17 +159,19 @@ export class LmdbBackup {
    * @param env - Writer env to back up (must be open).
    * @param baseDir - Directory that will contain timestamped backup subdirs.
    * @param keep - Backups to retain (default `3`).
+   * @param compact - Compact while copying (default `false`): slower, but the
+   * result is rewritten densely, so it is smaller on disk.
    * @returns The path of the newly created backup.
    *
    * @public
    */
-  static async backup(env: LmdbEnv, baseDir: string, keep = 3): Promise<string> {
+  static async backup(env: LmdbEnv, baseDir: string, keep = 3, compact = false): Promise<string> {
     const want = LmdbBackup._normalizeKeep(keep)
     mkdirSync(baseDir, {recursive: true})
     const dest = join(baseDir, `${BACKUP_PREFIX}${LmdbBackup._stamp()}`)
     mkdirSync(dest, {recursive: true})
     try {
-      await env.backup(dest)
+      await env.backup(dest, compact)
     } catch (err) {
       // A half-written backup-<stamp> dir would still be reported by list()
       // and would consume one of the `keep` slots, so a failed copy must not
@@ -233,7 +235,7 @@ export class LmdbBackup {
       throw new LmdbError(`S3 upload needs format "tar.gz" (a directory cannot be PUT as one object).`)
     }
     if (format === `dir`) {
-      return {path: await LmdbBackup.backup(env, opts.dir, opts.keep)}
+      return {path: await LmdbBackup.backup(env, opts.dir, opts.keep, opts.compact)}
     }
     const keep = LmdbBackup._normalizeKeep(opts.keep)
     const dir = opts.dir
@@ -245,7 +247,7 @@ export class LmdbBackup {
     const partial = `${dest}.part`
     try {
       await mkdir(staging, {recursive: true})
-      await env.backup(staging)
+      await env.backup(staging, opts.compact)
       const tar = await LmdbBackup._tar()
       await tar.create({gzip: true, file: partial, cwd: dir}, [name])
       renameSync(partial, dest)
@@ -420,6 +422,13 @@ export class LmdbBackup {
   /**
    * Download one S3 object to a local file.
    *
+   * @remarks
+   * Writes to a `.part` sibling and renames on success, so `destFile` is
+   * either absent or complete — a failed or cancelled transfer never leaves a
+   * truncated archive that a later `restoreArchive` would accept. The
+   * destination directory is created if missing, matching
+   * {@link LmdbBackup.backup}.
+   *
    * @param s3 - Source (bucket + credentials or prebuilt client).
    * @param key - Full object key.
    * @param destFile - Local target path.
@@ -432,7 +441,17 @@ export class LmdbBackup {
     const client = await LmdbBackup._resolveS3(s3)
     const obj = await client.send(new GetObjectCommand({Bucket: s3.bucket, Key: key}))
     if (!obj.Body) throw new LmdbError(`S3 object '${key}' has no body.`)
-    await pipeline(Readable.fromWeb(obj.Body as unknown as Parameters<typeof Readable.fromWeb>[0]), createWriteStream(destFile))
+    const partial = `${destFile}.part`
+    mkdirSync(dirname(destFile), {recursive: true})
+    try {
+      await pipeline(Readable.fromWeb(obj.Body as unknown as Parameters<typeof Readable.fromWeb>[0]), createWriteStream(partial))
+      renameSync(partial, destFile)
+    } catch (err) {
+      try {
+        rmSync(partial, {force: true})
+      } catch {}
+      throw err
+    }
     return destFile
   }
 
@@ -525,7 +544,7 @@ export class LmdbBackup {
       persist: opts.persist,
       runOnStart: opts.runOnStart,
       onError: opts.onError,
-      task: () => LmdbBackup.snapshot(env, {dir, keep, format, s3: opts.s3})
+      task: () => LmdbBackup.snapshot(env, {dir, keep, format, s3: opts.s3, compact: opts.compact})
     })
 
     return {
