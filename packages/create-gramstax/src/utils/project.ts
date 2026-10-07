@@ -81,6 +81,90 @@ export function appendEnvDbPath(content: string): string {
   return `${content}\n\nDB_PATH="./data"\n`
 }
 
+/**
+ * Build `src/core/services.ts` for the enabled feature set.
+ *
+ * `BotCore` calls `ServicesCore.start`/`ServicesCore.stop` unconditionally, but
+ * `src/db` and `src/workers` are deleted outright for `--no-lmdb` /
+ * `--no-worker-thread`. A static import of a deleted module would break the
+ * generated project, so this file is the one seam the generator rewrites per
+ * feature combination.
+ */
+export function buildServicesSource(useLmdb: boolean, useWorkerThread: boolean): string {
+  const imports: string[] = []
+  const starts: string[] = []
+  const stops: string[] = []
+
+  if (useLmdb) {
+    imports.push(`import {Db} from "~/db"`)
+    starts.push(`    await Db.start()`)
+  }
+  if (useWorkerThread) {
+    imports.push(`import {JobWorker} from "~/workers/job"`)
+    starts.push(`    await JobWorker.launchWorker()`)
+  }
+
+  // Workers stop first: a tick can still be mid-read, and tearing the store
+  // down underneath it would turn an orderly stop into an LMDB error.
+  if (useWorkerThread) {
+    stops.push(`    try {
+      await JobWorker.shutdown(1_000)
+    } catch {
+      // Never launched — startup failed, or a test drove the bot straight to
+      // stop. shutdown() throws in that case, and that is not a failure here.
+    }`)
+  }
+  if (useLmdb) stops.push(`    await Db.stop()`)
+
+  const head = imports.length === 0 ? `` : `${imports.join(`\n`)}\n`
+
+  if (!useLmdb && !useWorkerThread) {
+    return `${head}
+export class ServicesCore {
+  /**
+   * Nothing to bring up: this project was generated with both optional services
+   * disabled, so \`src/db\` and \`src/workers\` were never scaffolded.
+   */
+  static async start(): Promise<void> {}
+
+  static async stop(): Promise<void> {}
+}
+`
+  }
+
+  const summary = useLmdb && useWorkerThread ? `a database and a worker thread` : useLmdb ? `the database` : `the worker thread`
+
+  const stopNote =
+    useLmdb && useWorkerThread
+      ? `
+   *
+   * Workers stop before the database: a tick can still be mid-read, and tearing
+   * the store down underneath it would turn an orderly stop into an LMDB error.`
+      : ``
+
+  return `${head}
+export class ServicesCore {
+  /**
+   * Bring up ${summary}. A freshly generated bot then starts with its optional
+   * services already live, instead of leaving the wiring as an exercise for the
+   * author.
+   *
+   * Called from \`BotCore.hookAfterStart\`.
+   */
+  static async start(): Promise<void> {
+${starts.join(`\n`)}
+  }
+
+  /**
+   * Shut those services down. Called from \`BotCore.stop\`.${stopNote}
+   */
+  static async stop(): Promise<void> {
+${stops.join(`\n`)}
+  }
+}
+`
+}
+
 function stripJsonComments(content: string): string {
   let result = ``
   let index = 0

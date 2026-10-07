@@ -10,6 +10,7 @@ import {
   appendGitignoreEntries,
   assertNoLeftoverPlaceholders,
   BIOME_DEV_VERSION,
+  buildServicesSource,
   type IPackageManager,
   type IRuntime,
   isValidProjectName,
@@ -470,12 +471,19 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       log.info(`Keeping @gramstax/worker-thread files..`)
     } else {
       log.info(`Removing @gramstax/worker-thread files..`)
-      if (fs.existsSync(workerPath)) fs.rmSync(workerPath, {recursive: true, force: true})
+if (fs.existsSync(workerPath)) fs.rmSync(workerPath, {recursive: true, force: true})
       if (fs.existsSync(packageJsonPath)) {
-        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>; devDependencies?: Record<string, string>; peerDependencies?: Record<string, string>; optionalDependencies?: Record<string, string>}
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>; devDependencies?: Record<string, string>}
         removeDependency(pkg, `@gramstax/worker-thread`)
         writeJsonFileAtomic(packageJsonPath, pkg)
       }
+    }
+
+    // BotCore imports this unconditionally, so it is regenerated for whichever
+    // features survived the pruning above.
+    const servicesPath = path.join(projectPath, `src`, `core`, `services.ts`)
+    if (fs.existsSync(servicesPath)) {
+      writeTextFileAtomic(servicesPath, buildServicesSource(useLmdb, useWorkerThread))
     }
 
     // Task 9: Biome (runs before Task 8 so a single install covers it —
