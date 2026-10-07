@@ -14,21 +14,20 @@ packages/create-gramstax/src/
 │   ├── package.json, tsconfig.json, biome.json, .gitignore, .env.example, LICENSE, README.md
 │   ├── gramstax.config.ts  Typed composition (default export `: GramstaxConfig`) — the boot entry
 │   ├── src/
-│   │   ├── env.ts
 │   │   ├── base/page.ts       PageBase template
 │   │   ├── base/page-admin.ts PageAdminBase template (hookBeforeRoute access gate)
 │   │   ├── base/guard.ts      GuardBase template
-│   │   ├── core/bot.ts        Bot wrapper (extends Gramstax)
+│   │   ├── core/bot.ts        Bot wrapper (extends Gramstax) — calls ServicesCore on start/stop
 │   │   ├── core/ctx.ts        Ctx wrapper (extends gramstax Ctx)
+│   │   ├── core/services.ts  Service seam — `ServicesCore.start()`/`ServicesCore.stop()` — REGENERATED per feature set
 │   │   ├── blocks/g-keyboard.ts Keyboard block template
 │   │   ├── helpers/log.ts     Logger re-export
 │   │   ├── guards/user.ts     User guard template
-│   │   ├── db/index.ts        LmdbEnv subclass (only when LMDB enabled)
+│   │   ├── db/index.ts        Db (LmdbEnv subclass) + static Db.open/get/start/stop (only when LMDB enabled)
 │   │   ├── db/schema/user.ts
 │   │   ├── db/repositories/user.ts
-│   │   ├── workers/job.ts     Worker (mtdStart/mtdStop/mtdPing + onBeforeExit) + JobWorker export (only when workers enabled)
+│   │   ├── workers/job.ts     WorkerThreadInit subclass + JobWorker export (RPC surface + launchWorker/shutdown) (only when workers enabled)
 │   │   ├── pages/*            9 page templates (nested start/random)
-│   │   └── utils/array.ts
 │   ├── test/.gitkeep
 │   ├── e2e/                   setup.ts + 8 test file templates (shared enUser/idUser fixtures, 4001/5001)
 │   └── scripts/               check-e2e-mirror.ts + generate-e2e-structure.ts (single-project e2e tooling)
@@ -44,6 +43,7 @@ packages/create-gramstax/src/
    - Strips every monorepo `tsconfig` `paths` entry — scaffolds are standalone, and a `gramstax` → `src` mapping breaks `gramstax start`'s `instanceof Gramstax` discovery (two copies of the package)
    - Removes `src/db/` + `@gramstax/lmdb` deps when LMDB disabled
    - Removes `src/workers/` + `@gramstax/worker-thread` dep when workers disabled
+   - Regenerates `src/core/services.ts` from `buildServicesSource(useLmdb, useWorkerThread)` — `BotCore` calls `ServicesCore.start()`/`ServicesCore.stop()` unconditionally, so it must never statically reference a pruned directory
    - Adds `@biomejs/biome` to devDependencies when Biome enabled (installed with the rest); removes `biome.json` + `lint*`/`format*` scripts otherwise
    - For `--runtime node`: dev/start → `node`, build → `tsc --outDir dist` (kept), `test*` → `node --test`, template `noEmit` flipped off
 5. Runs `installCmd` in the target directory (unless `--skip-install`).
@@ -95,6 +95,13 @@ bun test packages/create-gramstax/test/
 - Do not add new runtime dependencies — CLI already has `commander`, `enquirer`, `logging-pretty`.
 - Template files use backtick strings to match repo lint rules.
 - When adding new template files, update `create.ts` copy/post-processing logic.
+- Never let a template file import an optional module (`~/db`, `~/workers/job`) unless that file is itself pruned with it. The single exception is `src/core/hooks.ts`, which `buildHooksSource` rewrites per feature combination — keep it byte-identical to `buildHooksSource(true, true)`, which `test/generation.test.ts` asserts.
+- Keep each optional feature self-contained: its lifecycle lives inside the directory that gets pruned (`Db.start`/`Db.stop`; the worker is driven through `JobWorker.launchWorker()`/`shutdown()`), and `services.ts` only dispatches. This is what keeps `--lmdb` and `--worker-thread` independently combinable.
+- **Scaffolded source is class-based only.** No module-level `export function` and no `export const x = async () => …` under `templates/src/` — put the behaviour on a class (static members are fine, and are how the lifecycle is exposed). `test/generation.test.ts` walks `templates/src` and fails on any offender, so this is enforced, not merely reviewed.
+- **No `console.*` under `templates/src/`.** Route everything through `LogHe` from `~/helpers/log`, so output honours the log destination configured in `gramstax.config.ts` (`log.override`). `warn` for diagnostics, `info` for progress, `errorMake(err, Class, fn)` for failures. Enforced by a test.
+- **Every `private` member takes an underscore prefix** (`_instance`, `_job`, `_user`), including `private static`. Enforced by a test.
+- `JobWorker` is the worker-thread package's export — it is already the typed RPC surface (`await JobWorker.mtdPing()`) *and* the lifecycle handle (`launchWorker()` / `shutdown(ms)`). Do not wrap it, store the handle, or add `start()`/`stop()` helpers; `shutdown()` drains every worker it launched and throws only when nothing was ever launched. Call it straight from `ServicesCore`.
+- The worker never touches storage: `src/workers/job.ts` must stay import-clean of `@gramstax/lmdb` and `~/db`, because `--worker-thread` is valid without `--lmdb`. Scheduling belongs to `LmdbJobRun` on the main thread.
 - Template `biome.json` mirrors the root config with environment conditioning: `root: true` (standalone projects — `root: false` would silently disable the config when no parent config exists), project-specific excludes (`dist`, `database`, `experiments`, `logs`, `data`), and a test/e2e override for `noExplicitAny`.
 - The root `biome.json` excludes `packages/create-gramstax/src/templates` (a nested `root: true` config conflicts with the monorepo root). Lint/format templates with their own config: `bunx biome lint packages/create-gramstax/src/templates` works from inside the templates dir, or `bunx biome lint --config-path=packages/create-gramstax/src/templates/biome.json <path>`.
 - The generated project is Biome-only.
