@@ -284,6 +284,10 @@ export function resolveRuntimeScripts(runtime: IRuntime, scripts: Record<string,
       next[key] = value.replace(/^bun(?=\s|$)/, `node`)
     } else if (key === `build`) {
       next[key] = toNodeBuildScript(value)
+    } else if (key === `build:gramstax`) {
+      // `bun --bun gramstax build` only needs the flag to boot under Bun;
+      // the bare binary is what node runs.
+      next[key] = value.replace(/^bun\s+--bun\s+/, ``)
     } else if (/^test($|:)/.test(key)) {
       next[key] = value.replace(/^bun test\b/, `node --test`)
     }
