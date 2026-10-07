@@ -1,29 +1,53 @@
-import type { LmdbEnvSub } from "@gramstax/lmdb"
-import type { UserSchema } from "../schema/user"
+import type {LmdbEnvSub} from "@gramstax/lmdb"
+import type {UserSchema, IVUser} from "../schema/user"
+
+export type IUserProfile = Pick<IVUser, `username` | `firstName` | `lastName` | `languageCode`>
 
 export class UserRepository {
-  constructor(private env: LmdbEnvSub<typeof UserSchema>) {}
+  constructor(private readonly _user: LmdbEnvSub<typeof UserSchema>) {}
 
-  async createIfNotExists(
-    tgId: number,
-    data: {
-      username: string
-      firstName: string
-      lastName: string
-      languageCode: string
-    }
-  ) {
-    const now = Date.now()
-    const fresh = {tgId, ...data, createdAt: now, updatedAt: now}
-    await this.env.putIfNotExists(tgId, fresh)
-    return {user: fresh, created: true}
+  /**
+   * Insert once, keyed by Telegram id.
+   *
+   * `putIfNotExists` reports whether *this* call won the write, so the loser
+   * path reads the row back. Returning the object we just failed to write would
+   * hand callers a row that was never stored.
+   */
+  async createIfNotExists(tgId: number, data: IUserProfile): Promise<{user: IVUser; created: boolean}> {
+    const fresh = {...data, updatedAt: new Date()} as IVUser
+    const created = await this._user.putIfNotExists(tgId, fresh)
+    if (created) return {user: fresh, created}
+    return {user: this._user.get(tgId) ?? fresh, created}
   }
 
-  async displayName(tgId: number) {
-    const user = this.env.get(tgId)
-    if (!user) {
-      return `User#${tgId}`
-    }
-    return user.firstName || user.username || `User#${tgId}`
+  /**
+   * Bump `updatedAt` on an existing row.
+   *
+   * Read-then-write, so it runs inside a transaction — without one a concurrent
+   * writer can land between the read and the write and get silently clobbered.
+   */
+  async touch(tgId: number): Promise<boolean> {
+    return this._user.owner.transaction(() => {
+      const row = this._user.get(tgId)
+      if (!row) return false
+      this._user.putSync(tgId, {...row, updatedAt: new Date()})
+      return true
+    })
+  }
+
+  /** Sync read — LMDB point lookups are synchronous, no promise needed. */
+  find(tgId: number): IVUser | undefined {
+    return this._user.get(tgId)
+  }
+
+  /** Total stored users — O(1) via `mdb_stat`, safe on a hot path. */
+  count(): number {
+    return this._user.count()
+  }
+
+  displayName(tgId: number): string {
+    const row = this._user.get(tgId)
+    if (!row) return `User#${tgId}`
+    return row.firstName || row.username || `User#${tgId}`
   }
 }
