@@ -423,26 +423,37 @@ export class LmdbBackup {
    * Download one S3 object to a local file.
    *
    * @remarks
-   * Writes to a `.part` sibling and renames on success, so `destFile` is
-   * either absent or complete — a failed or cancelled transfer never leaves a
-   * truncated archive that a later `restoreArchive` would accept. The
-   * destination directory is created if missing, matching
-   * {@link LmdbBackup.backup}.
+   * Writes to a uniquely-named `.part` sibling and renames on success, so the
+   * destination is either absent or complete — a failed or cancelled transfer
+   * never leaves a truncated archive that a later `restoreArchive` would accept.
+   * The random component also makes concurrent downloads into one directory
+   * safe. `destDir` is created if missing, matching {@link LmdbBackup.backup}.
+   *
+   * Destination folder and file name are separate arguments so a caller can
+   * restore several objects into one folder without re-joining paths, and so
+   * the returned absolute target is unambiguous.
    *
    * @param s3 - Source (bucket + credentials or prebuilt client).
    * @param key - Full object key.
-   * @param destFile - Local target path.
-   * @returns `destFile`.
+   * @param destDir - Local target folder, created when missing.
+   * @param fileName - Local target file name inside `destDir`.
+   * @returns `join(destDir, fileName)`.
    *
    * @public
    */
-  static async downloadFromS3(s3: IBackupS3Options, key: string, destFile: string): Promise<string> {
+  static async downloadFromS3(s3: IBackupS3Options, key: string, destDir: string, fileName: string): Promise<string> {
     const {GetObjectCommand} = await LmdbBackup._s3()
     const client = await LmdbBackup._resolveS3(s3)
     const obj = await client.send(new GetObjectCommand({Bucket: s3.bucket, Key: key}))
     if (!obj.Body) throw new LmdbError(`S3 object '${key}' has no body.`)
-    const partial = `${destFile}.part`
-    mkdirSync(dirname(destFile), {recursive: true})
+
+    mkdirSync(destDir, {recursive: true})
+    const destFile = join(destDir, fileName)
+    // Unique per call so concurrent downloads into one directory cannot clobber
+    // each other's partial file — they would otherwise share a single
+    // `<name>.part` and interleave two bodies into it. The rename below is still
+    // the only visible transition, so `destFile` is never seen half-written.
+    const partial = join(destDir, `${fileName}.${Math.random().toString(36).slice(2, 10)}.part`)
     try {
       await pipeline(Readable.fromWeb(obj.Body as unknown as Parameters<typeof Readable.fromWeb>[0]), createWriteStream(partial))
       renameSync(partial, destFile)

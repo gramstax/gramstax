@@ -606,9 +606,8 @@ describe(`LmdbBackup`, () => {
     try {
       const calls: Array<string> = []
       const s3 = {...s3Creds(), client: fakeS3(calls, [])}
-      const dest = join(dir, `out.tar.gz`)
-      await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, dest)
-      expect(readFileSync(dest, `utf8`)).toBe(`hello`)
+      await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, dir, `out.tar.gz`)
+      expect(readFileSync(join(dir, `out.tar.gz`), `utf8`)).toBe(`hello`)
     } finally {
       await rmWithRetry(dir)
     }
@@ -619,10 +618,10 @@ describe(`LmdbBackup`, () => {
     try {
       const calls: Array<string> = []
       const s3 = {...s3Creds(), client: fakeS3(calls, [])}
-      const dest = join(dir, `nested`, `deeper`, `out.tar.gz`)
-      const returned = await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, dest)
-      expect(returned).toBe(dest)
-      expect(readFileSync(dest, `utf8`)).toBe(`hello`)
+      const nested = join(dir, `nested`, `deeper`)
+      const returned = await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, nested, `out.tar.gz`)
+      expect(returned).toBe(join(nested, `out.tar.gz`))
+      expect(readFileSync(join(nested, `out.tar.gz`), `utf8`)).toBe(`hello`)
     } finally {
       await rmWithRetry(dir)
     }
@@ -633,9 +632,47 @@ describe(`LmdbBackup`, () => {
     try {
       const calls: Array<string> = []
       const s3 = {...s3Creds(), client: fakeS3(calls, [])}
-      const dest = join(dir, `out.tar.gz`)
-      await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, dest)
+      await LmdbBackup.downloadFromS3(s3, `snapshots/x.tar.gz`, dir, `out.tar.gz`)
       expect(readdirSync(dir)).toEqual([`out.tar.gz`])
+    } finally {
+      await rmWithRetry(dir)
+    }
+  })
+
+  it(`downloadFromS3 runs in parallel without clobbering partials`, async () => {
+    const dir = createTestDir(`s3par-`)
+    try {
+      const names = [`a`, `b`, `c`, `d`]
+      // Distinct, chunk-y bodies so an interleaved write would be visible.
+      const bodyFor = (key: string) => key.repeat(4_096)
+      const s3 = {
+        ...s3Creds(),
+        client: {
+          send: async (cmd: unknown) => {
+            const key = (cmd as {input: {Key: string}}).input.Key
+            const body = bodyFor(key)
+            return {
+              Body: new ReadableStream({
+                start(c) {
+                  // Two chunks with a yield between them, so two downloads into
+                  // one directory genuinely interleave at the stream level.
+                  c.enqueue(new TextEncoder().encode(body.slice(0, body.length / 2)))
+                  queueMicrotask(() => {
+                    c.enqueue(new TextEncoder().encode(body.slice(body.length / 2)))
+                    c.close()
+                  })
+                }
+              })
+            }
+          }
+        } as unknown as S3Client
+      }
+      const targets = await Promise.all(names.map((n) => LmdbBackup.downloadFromS3(s3, `snapshots/${n}.tar.gz`, dir, `${n}.tar.gz`)))
+      expect(targets).toEqual(names.map((n) => join(dir, `${n}.tar.gz`)))
+      for (const n of names) {
+        expect(readFileSync(join(dir, `${n}.tar.gz`), `utf8`)).toBe(bodyFor(`snapshots/${n}.tar.gz`))
+      }
+      expect(readdirSync(dir).sort()).toEqual([...names].map((n) => `${n}.tar.gz`).sort())
     } finally {
       await rmWithRetry(dir)
     }
