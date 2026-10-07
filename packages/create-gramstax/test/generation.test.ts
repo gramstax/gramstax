@@ -4,7 +4,7 @@ import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {Create} from "../src/create"
 import {log} from "../src/utils/log"
-import {assertNoLeftoverPlaceholders, removeDependency, removeTsconfigPathMappings, resolveRuntimeScripts, resolveWorkspaceDeps, stripBiomeScripts, writeJsonFileAtomic, writeTextFileAtomic} from "../src/utils/project"
+import {assertNoLeftoverPlaceholders, buildServicesSource, removeDependency, removeTsconfigPathMappings, resolveRuntimeScripts, resolveWorkspaceDeps, stripBiomeScripts, writeJsonFileAtomic, writeTextFileAtomic} from "../src/utils/project"
 
 type GenerationConfig = {
   projectName: string
@@ -67,6 +67,24 @@ function makeCreator(seen: {calls: number; devDepsAtInstall?: unknown}): TestCre
 
 function makeTempRoot(): string {
   return mkdtempSync(join(tmpdir(), `gramstax-generation-`))
+}
+
+/** Template files whose content matches `pattern`, as `template/...` paths. */
+function scaffoldOffenders(pattern: RegExp): string[] {
+  const root = join(import.meta.dir, `..`, `src`, `templates`)
+  const hits: Array<string> = []
+  const walk = (current: string) => {
+    for (const entry of readdirSync(current, {withFileTypes: true})) {
+      const full = join(current, entry.name)
+      if (entry.isDirectory()) {
+        walk(full)
+      } else if (entry.name.endsWith(`.ts`) && pattern.test(readFileSync(full, `utf-8`))) {
+        hits.push(full.replace(root, `template`))
+      }
+    }
+  }
+  walk(join(root, `src`))
+  return hits
 }
 
 function filesContaining(dir: string, needle: string): string[] {
@@ -581,6 +599,91 @@ describe(`atomic file writes`, () => {
       expect(readdirSync(root).filter((entry) => entry.includes(`.tmp-`))).toEqual([])
     } finally {
       rmSync(root, {recursive: true, force: true})
+    }
+  })
+})
+
+describe(`service seam`, () => {
+  const servicesTemplatePath = join(import.meta.dir, `..`, `src`, `templates`, `src`, `core`, `services.ts`)
+
+  it(`the shipped template is byte-identical to the generated both-on variant`, () => {
+    // create.ts overwrites services.ts on every run, so a divergence here means
+    // the reviewed file in the repo is dead code nobody ever sees.
+    expect(readFileSync(servicesTemplatePath, `utf-8`)).toBe(buildServicesSource(true, true))
+  })
+
+  it(`drops the db import when lmdb is disabled`, () => {
+    const source = buildServicesSource(false, true)
+    expect(source).not.toContain(`~/db`)
+    expect(source).not.toContain(`Db.start()`)
+    expect(source).toContain(`JobWorker.launchWorker()`)
+  })
+
+  it(`drops the workers import when worker threads are disabled`, () => {
+    const source = buildServicesSource(true, false)
+    expect(source).not.toContain(`~/workers/job`)
+    expect(source).not.toContain(`JobWorker`)
+    expect(source).toContain(`Db.start()`)
+  })
+
+  it(`emits a no-op class that names no pruned package when both are disabled`, () => {
+    const source = buildServicesSource(false, false)
+    expect(source).not.toContain(`@gramstax/lmdb`)
+    expect(source).not.toContain(`@gramstax/worker-thread`)
+    expect(source).not.toContain(`import `)
+    expect(source).toContain(`export class ServicesCore`)
+  })
+
+  it(`stops workers before the database`, () => {
+    const source = buildServicesSource(true, true)
+    expect(source.indexOf(`JobWorker.shutdown(`)).toBeLessThan(source.indexOf(`Db.stop()`))
+  })
+
+  it(`exposes only a class — no module-level lifecycle functions`, () => {
+    // Template code is class-based by convention, so the seam must not leak
+    // free functions into a generated project.
+    for (const useLmdb of [true, false]) {
+      for (const useWorkerThread of [true, false]) {
+        const source = buildServicesSource(useLmdb, useWorkerThread)
+        expect(source).not.toMatch(/^export (async )?function/m)
+        expect(source).not.toMatch(/^export const \w+ = async/m)
+      }
+    }
+  })
+
+  it(`no scaffolded source file exports a module-level function`, () => {
+    // The same rule as the seam above, enforced across every template file so a
+    // free function cannot reappear in a page, guard or repository.
+    expect(scaffoldOffenders(/^export (async )?function/m)).toEqual([])
+    expect(scaffoldOffenders(/^export const \w+ = (async )?\(/m)).toEqual([])
+  })
+
+  it(`no scaffolded source file calls console.*`, () => {
+    // The app routes everything through the gramstax logger (helpers/log.ts), so
+    // a stray console.* would bypass the configured log destination.
+    expect(scaffoldOffenders(/console\.(log|warn|error|info|debug|trace)\s*\(/m)).toEqual([])
+  })
+
+  it(`no scaffolded class declares a private member without the underscore prefix`, () => {
+    expect(scaffoldOffenders(/\bprivate\s+(?!static\s+_|readonly\s+_)[A-Za-z_$][\w$]*/m)).toEqual([])
+  })
+
+  it(`regenerates services.ts in the generated project for each feature set`, async () => {
+    for (const [useLmdb, useWorkerThread] of [
+      [true, true],
+      [true, false],
+      [false, true],
+      [false, false]
+    ] as const) {
+      const root = makeTempRoot()
+      const projectPath = join(root, `proj`)
+      const creator = makeCreator({calls: 0})
+      try {
+        await creator.executeProjectGeneration(baseConfig(projectPath, {useLmdb, useWorkerThread}))
+        expect(readFileSync(join(projectPath, `src`, `core`, `services.ts`), `utf-8`)).toBe(buildServicesSource(useLmdb, useWorkerThread))
+      } finally {
+        rmSync(root, {recursive: true, force: true})
+      }
     }
   })
 })
