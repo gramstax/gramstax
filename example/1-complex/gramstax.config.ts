@@ -10,7 +10,7 @@ const config: GramstaxConfig = {
   },
   log: true,
   optionsPage: undefined,
-  optionsDeploy: {polling: {}},
+  optionsDeploy: {polling: {maxRetries: undefined, queue: undefined}},
   mediaRoots: undefined,
   botConfig: undefined,
   autoRetry: undefined,
