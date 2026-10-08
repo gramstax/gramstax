@@ -10,8 +10,8 @@
 Telegram ── update ──▶ Gramstax (core/bot.ts)
                                 │
                  ┌──────────────┴───────────────┐
-                 │  PageManager                  WebhookQueue │
-                 │  (discover src/pages)        (backpressure)│
+                 │ PageManager      UpdateQueue           │
+                 │ (discover src/pages)  (backpressure)    │
                  └──────────────┬───────────────┘
                                 │ resolve route → Ctx subclass
                                 ▼
@@ -37,7 +37,7 @@ Telegram ── update ──▶ Gramstax (core/bot.ts)
 |-----------|-------|
 | **Location** | `src/core/bot.ts` (`Gramstax` class, line 61) |
 | **Responsibility** | Orchestration, lifecycle, routing, deploy-mode startup, plugin/hook registration. |
-| **Depends On** | `Ctx`, `TemplateManager`, `CacheExternal`, `WebhookQueue`, `PageManager`, `E2eHelper` (when `deploy:"test"`). |
+| **Depends On** | `Ctx`, `TemplateManager`, `CacheExternal`, `UpdateQueue`, `UpdateDispatcher`, `PageManager`, `E2eHelper` (when `deploy:"test"`). |
 | **Depended On By** | Application entry points and `create-gramstax` scaffolds. |
 
 The constructor (`bot.ts:275`) reads `IGramstaxParams`, selects a deploy mode (`bot.ts:323-342`): `polling` → `_runPolling`, `webhook` → `_runWebhook`, `serverless` → `_runServerless` (adapter-keyed `optionsDeploy.serverless`), `test` → E2E mode. Hooks (`hookBeforeStart`, `hookBeforeRoute`, `hookAfterStart`, `onCatch`, `hookErrorPage`, `hookNotFoundPage`) are invoked at the documented lifecycle points (`bot.ts:499` notes `hookBeforeRoute` only fires when set to return `true` or unset).
@@ -95,14 +95,14 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 | **Depends On** | `keyv`, `@keyv/redis`. |
 | **Depended On By** | `Gramstax.cacheSession`, `Ctx`, template keyboard cache. |
 
-### WebhookQueue
+### UpdateQueue + UpdateDispatcher
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/webhook/queue.ts` (97 lines) |
-| **Responsibility** | In-memory bounded FIFO. `enqueue` blocks when full; `dequeue` blocks when empty; exposes `getStats()`. |
+| **Location** | `src/update/queue.ts` (323 lines), `src/update/dispatcher.ts` (131 lines), `src/update/gate.ts` (119 lines) |
+| **Responsibility** | In-memory bounded FIFO. `enqueue` blocks when full; `dequeue` blocks when empty; exposes `getStats()`. `UpdateDispatcher` owns the worker pool and drains it before teardown. |
 | **Depends On** | Nothing. |
-| **Depended On By** | `Gramstax` (webhook/serverless modes). |
+| **Depended On By** | `Gramstax` — opt-in via `optionsDeploy.polling.queue` or `optionsDeploy.webhook.queue`, each mode getting its own instance. `WebhookQueue` is a deprecated alias of `UpdateQueue`. |
 
 ### Keyboard builders (blocks + labels)
 
@@ -125,7 +125,7 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 ## Data Flow
 
 1. **Startup** — `new Gramstax(params)` (`bot.ts:275`) selects a deploy mode and calls `bot.init()`. `TemplateManager` loads + compiles all page templates once and starts the `chokidar` watcher if `enableWatch`.
-2. **Incoming update** — grammY hands the update to `Gramstax`. `PageManager` resolves the target `Ctx` subclass by route/intent; `WebhookQueue` (webhook mode) serializes the update.
+2. **Incoming update** — grammY hands the update to `Gramstax`. `PageManager` resolves the target `Ctx` subclass by route/intent. When `queue.enabled` is set, `UpdateQueue` + `UpdateDispatcher` buffer the update and drain it on a worker pool (both `polling` and `webhook`); otherwise the update is handled inline.
 3. **Handler** — The matched `handle*` method on the page runs. It calls `reply`/`edit`/`broadcast`, which pull the compiled `<g-base>` message/keyboard/media from `TemplateManager` (keyed by `AGBaseId` + language), interpolate `{{data}}`, and send via grammY.
 4. **State** — `Ctx.session` reads/writes user state through `CacheExternal` (keyv → memory or Redis). Keyboard layouts are cached per language in `cacheKeyboard`.
 5. **Hot reload** — If a template file changes, `chokidar` triggers recompile in `TemplateManager._map`; no restart needed.
@@ -134,8 +134,8 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 | Interface | Location | Purpose |
 |-----------|----------|---------|
-| `IGramstaxParams` | `src/types/t.bot.ts:111` | Constructor options (`token`, `deploy`, `log`, `botConfig`, `webhookQueue`, `cacheSession`, `cacheKeyboard`, `templateManager`, `optionsPage`). |
-| `ITWebhookQueueConfig` | `src/types/t.bot.ts:26` | `enabled`, `maxQueueSize`, `workerCount`, `perChatConcurrency`, `blockWhenFull`. |
+| `IGramstaxParams` | `src/types/bot.ts` | Constructor options (`token`, `deploy`, `log`, `botConfig`, `webhookQueue`, `cacheSession`, `cacheKeyboard`, `templateManager`, `optionsPage`, `optionsDeploy`). |
+| `IUpdateQueueConfig` | `src/types/bot.ts:145` | `enabled`, `maxQueueSize`, `workerCount`, `perChatConcurrency`, `blockWhenFull`, `enqueueTimeoutMs`, `waiterTimeoutMs`. Aliased as the deprecated `IWebhookQueueConfig`. |
 | `ITTemplateOptions` | `src/types/t.template.ts:41` | `path[]`, `enableWatch?`, `watchOptions?`. |
 | `ITCompiledTemplate` | `src/types/t.template.ts:12` | Cached compiled `media`/`message`/`keyboard`/`description`. |
 | `ITPageData` | `src/types/t.ctx.ts:375` | Route metadata: `name`, `callbackData`, `intentText`, `intentCommandText`, `intentCallbackData`. |

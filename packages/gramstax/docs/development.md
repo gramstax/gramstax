@@ -18,7 +18,9 @@ packages/gramstax/
 │   ├── labels/g-keyboard.ts    LabelGKeyboard utilities
 │   ├── cache/external.ts     CacheExternal (keyv/Redis adapter)
 │   ├── helpers/log.ts         LoggingHelper (extends LoggingPretty)
-│   ├── webhook/queue.ts      WebhookQueue (bounded concurrent queue)
+│   ├── update/queue.ts      UpdateQueue (bounded concurrent queue)
+│   ├── update/dispatcher.ts UpdateDispatcher (worker pool + per-chat gate)
+│   ├── update/gate.ts       UpdateGate (per-chat concurrency gate)
 │   ├── mock/telegram-server.ts  MockTelegramServer
 │   ├── e2e/helper.ts        E2eHelper (in-process test harness)
 │   ├── types/               t.bot.ts, t.ctx.ts, t.template.ts, t.e2e.ts

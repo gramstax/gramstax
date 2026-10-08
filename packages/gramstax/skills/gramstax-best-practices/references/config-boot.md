@@ -19,7 +19,7 @@ const config: GramstaxConfig = {
   log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}},
   optionsPage: {shortCallbackQueryData: true},
   optionsDeploy: {
-    polling: {maxRetries: undefined},
+    polling: {maxRetries: undefined, queue: undefined},
     webhook: {url: undefined, secretToken: undefined, queue: undefined},
     serverless: undefined,
     raw: undefined,

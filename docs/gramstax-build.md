@@ -13,6 +13,11 @@ For all deploys: one `gramstax build` freezes a project's `pages/` into a single
 
 Auto-load applies to `serverless` deploys exclusively (matches `Bot._loadBuildManifest` early-return for non-serverless).
 
+`queue` is orthogonal to `build` — it is a runtime knob, never frozen into
+`.gramstax/`, and both `optionsDeploy.polling.queue` and
+`optionsDeploy.webhook.queue` configure the same `UpdateQueue` class. See
+`docs/gramstax-start.md` for the field table and the opt-in default.
+
 ```bash
 gramstax build
 bun run build:gramstax

@@ -103,6 +103,32 @@ export class BotCore extends Gramstax {
 
 Careful when reading `metrics.counts.blocked`: it counts **session-lock contention** and **bot-level `hookBeforeRoute` denials** only. A page-level gate denial does not increment it — see `route-hooks.md`.
 
+## Update queue (polling and webhook)
+
+`optionsDeploy.polling.queue` and `optionsDeploy.webhook.queue` configure the **same** class — `UpdateQueue` (`src/update/queue.ts`) — one independent instance per mode, so the two never contend. `WebhookQueue` and `IWebhookQueueConfig` remain as deprecated aliases in the public barrel; do not remove them.
+
+| Field | Default | Effect |
+| --- | --- | --- |
+| `enabled` | `false` | Opt-in. Absent or `false`, both modes drain strictly sequentially — polling is unchanged from before the queue existed. |
+| `maxQueueSize` | `5000` | Bounded queue capacity. |
+| `workerCount` | `8` | Concurrent in-process async drain loops (not OS threads). |
+| `perChatConcurrency` | `1` | `1` preserves ordering per chat; `0` disables the per-chat gate. |
+| `blockWhenFull` | `true` | `true` = the producer waits; `false` = webhook replies HTTP 429, polling drops the update. |
+| `enqueueTimeoutMs` | `10000` | How long a blocking producer waits for a free slot before failing (429 / dropped). |
+| `waiterTimeoutMs` | `30000` | How long a worker waits for a per-chat slot before bypassing the gate. |
+| `drainTimeoutMs` | `10000` | How long `stop()` waits for in-flight handlers before giving up on the drain. |
+
+Defaults are identical for both branches — they are read from the same literals in `core/bot.ts`.
+
+Why opt-in: measured with `packages/gramstax/bench/bench.ts`, the queue is neutral below saturation but holds p95 flat past it — at a 600 users/s target, sequential managed 377 users/s at p95 1828 ms while the queue sustained 601 users/s at p95 124 ms. A default flip would tax every bot that never needed it.
+
+How each mode reaches the sink differs, which matters when you read a delivery guarantee:
+
+- **Webhook** wraps `handleUpdate` in the HTTP handler, so many concurrent POSTs keep the pool saturated. `blockWhenFull: false` answers HTTP 429.
+- **Polling** replaces `bot.handleUpdate` — grammY keeps owning the `getUpdates` loop and the `offset`, and `handleUpdates` calls the replaced method. A middleware would not work: `Composer.use` appends to the end of the chain and gramstax's routing middleware is terminal. Because grammY advances `offset` when the update is *buffered*, delivery is **at-least-once at the enqueue boundary** — a crash re-delivers whatever Telegram had not yet handed over, while an update dropped by `blockWhenFull: false` is lost.
+
+Live state: `getWebhookQueueStats()` and `getPollingQueueStats()` each return `null` while their queue is disabled. `stop()` drains both dispatchers before `templateManager.destroy()`; a drain that times out is counted in `metrics.counts.dropped` and logged.
+
 ## Notes
 
 - The status server starts in every mode; there is none in a deployed serverless entry, so `statusServerPort`/`statusServerHostname` are dropped there with a warning.

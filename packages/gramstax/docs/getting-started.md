@@ -35,7 +35,7 @@ A bot is configured entirely through the `IGramstaxParams` object passed to `new
 | `deploy`                        | Yes      | One of `polling`, `webhook`, `serverless`, `test`. Per-mode settings go in `optionsDeploy`.        | —               |
 | `log`                           | No       | `LoggingHelper` instance, `true` (default logger), or `null`/`false` to disable. | `false`         |
 | `botConfig`                     | No       | grammY `BotConfig` (e.g. `apiRoot`).                                             | —               |
-| `webhookQueue`                  | No       | `ITWebhookQueueConfig` for webhook backpressure.                                 | —               |
+| `webhookQueue`                  | No       | `IUpdateQueueConfig` backpressure (deprecated alias `ITWebhookQueueConfig`). Prefer `optionsDeploy.webhook.queue`. | —               |
 | `cacheSession`                  | No       | Custom `CacheExternal` (e.g. Redis).                                             | in-memory `Map` |
 | `cacheKeyboard`                 | No       | Custom keyboard cache `Map`.                                                     | internal `Map`  |
 | `templateManager`               | No       | Custom `TemplateManager` options.                                                | auto-created    |

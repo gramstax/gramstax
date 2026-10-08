@@ -10,8 +10,8 @@ Each mode wires a different startup path — polling loop, webhook server, serve
 
 | `deploy` | Boots | Startup hooks | `optionsDeploy` branch |
 | --- | --- | --- | --- |
-| `polling` (default) | long-poll loop | `hookBeforeStart` → `hookAfterStart` | `{maxRetries?}` |
-| `webhook` | HTTP server + queue | `hookBeforeStart` → `hookAfterStart` | `{url, secretToken, queue?}` — both mandatory |
+| `polling` (default) | long-poll loop | `hookBeforeStart` → `hookAfterStart` | `{maxRetries?, queue?}` |
+| `webhook` | HTTP server + queue | `hookBeforeStart` → `hookAfterStart` | `{url, secretToken, queue?}` — url and secretToken both mandatory |
 | `serverless` | platform handler | `hookBeforeStart` → `hookAfterStart` | `{[adapter]: {url, secretToken, ...}}` — adapter is the KEY |
 | `raw` | nothing (no pages, no auto-start) | `hookBeforeStart` only | `{}` |
 | `test` | in-process harness | both, no network | `{}` |
@@ -145,6 +145,6 @@ const config: GramstaxConfig = {token, deploy: `raw`, optionsDeploy: {raw: {}}}
 - Non-`raw` modes require a real `TemplateManager` instance — omit `templateManager` in config and the CLI builds one from `src/pages` for you.
 - Invalid deploy strings throw: `must be one of polling, webhook, serverless, raw, test`.
 - The status server (`statusServerPort`) starts in every mode except where noted; see `deploy-runtime.md`.
-- `queue` on the webhook branch tunes `WebhookQueue`: `{enabled?, maxQueueSize?, workerCount?, perChatConcurrency?, blockWhenFull?, enqueueTimeoutMs?, waiterTimeoutMs?}`.
+- `queue` on **either** the `polling` or the `webhook` branch tunes `UpdateQueue`: `{enabled?, maxQueueSize?, workerCount?, perChatConcurrency?, blockWhenFull?, enqueueTimeoutMs?, waiterTimeoutMs?, drainTimeoutMs?}`. One class, two independent instances — the two modes never contend. It is **opt-in** (`enabled` defaults to `false`): with the queue absent both modes drain strictly sequentially. Measured with `packages/gramstax/bench/bench.ts`: at a 600 users/s target the sequential drain managed 377 users/s at p95 1828 ms versus 601 users/s at p95 124 ms with the queue.
 - `optionsDeploy.polling.maxRetries` semantics: `-1` retries forever, default `5`.
 - Serverless build/deploy chain: `deploy-build.md`.

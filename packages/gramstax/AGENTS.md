@@ -15,7 +15,10 @@ packages/gramstax/src/
 ├── labels/g-keyboard.ts  LabelGKeyboard utilities
 ├── cache/external.ts   CacheExternal (Keyv/Redis adapter)
 ├── helpers/log.ts      LoggingHelper (extends LoggingPretty)
-├── webhook/queue.ts    WebhookQueue (bounded concurrent queue)
+├── update/queue.ts     UpdateQueue (bounded concurrent queue; `WebhookQueue` deprecated alias)
+├── update/dispatcher.ts UpdateDispatcher (worker pool + per-chat gate)
+├── update/gate.ts      UpdateGate (per-chat concurrency gate)
+├── update/gate-key.ts  per-chat concurrency key derivation
 ├── mock/telegram-server.ts MockTelegramServer
 ├── e2e/helper.ts        E2eHelper (in-process test harness)
 ├── cli/                 `gramstax` bin: config loader + start/build + serverless targets
@@ -38,7 +41,7 @@ security-poc/           Standalone numbered TemplateEngine PoCs (breakout/inject
 | Page module auto-discovery                   | `page/manager.ts`                          |
 | Keyboard block/label builders                | `blocks/g-keyboard.ts`, `labels/g-keyboard.ts` |
 | Session/keyboard caching (Keyv/Redis)        | `cache/external.ts`                        |
-| Webhook request queuing                      | `webhook/queue.ts`                         |
+| Update queuing (both modes)               | `update/queue.ts`, `update/dispatcher.ts`   |
 | Mock Telegram API for tests                  | `mock/telegram-server.ts`                  |
 | E2E test helpers                             | `e2e/helper.ts`                            |
 | Public TypeScript types                      | `types/*.ts` (11 files)                        |
@@ -49,7 +52,7 @@ Barrel (`src/index.ts`) re-exports all public symbols. No default exports. Add n
 
 ## Key Classes
 
-- **Gramstax** (`core/bot.ts`) — main app class wrapping grammy `Bot`. Composes `TemplateManager`, `CacheExternal`, `WebhookQueue`, `PageManager`.
+- **Gramstax** (`core/bot.ts`) — main app class wrapping grammy `Bot`. Composes `TemplateManager`, `CacheExternal`, `UpdateQueue`, `PageManager`.
 - **Ctx** (`core/ctx.ts`) — base class for page handlers. Handles reply, edit, broadcast, session, routing.
 - **TemplateEngine** (`template/engine.ts`) — template parser/compiler/validator for Telegram Rich HTML + PAGE blocks.
 - **TemplateManager** (`template/manager.ts`) — template file watcher, loader, compiler integration.
@@ -65,6 +68,7 @@ Config-driven. There is no `src/index.ts` and no hand-written `new Gramstax({...
 - `gramstax build [--target cloudflare-mod|aws-lambda-async] [--bundle] [--dry-run] [--raw]` freezes `src/pages` into `.gramstax/` (`routes.json`, `manifest.js`, AOT `gen/`, plus `server/` entries per target). AOT always runs — no `--aot` flag.
 - `deploy` selects the mode; `optionsDeploy` carries per-mode settings in **nested branches** with at most one branch non-empty, and that branch must equal `deploy`. `webhook` requires `url` + `secretToken`; `serverless` is keyed by adapter and requires `url` + `secretToken`. The legacy `webhook:<url>` / `serverless:<adapter>` colon grammar throws.
 - Only `serverless` auto-loads `.gramstax/`; `polling`/`webhook`/`test` boot from the filesystem.
+- `optionsDeploy.polling.queue` and `optionsDeploy.webhook.queue` configure the **same** class, `UpdateQueue` (`src/update/queue.ts`), each mode keeping its own instance. The queue is **opt-in** (`enabled` defaults to `false`): with it absent, `deploy: "polling"` drains sequentially exactly as it did before the queue existed. Turning it on is neutral funder saturation: see `bench/bench.ts`. At a 600 users/s target the sequential drain fell to 377 users/s at p95 1828 ms, while the queue sustained 601 users/s at p95 124 ms. `WebhookQueue` / `IWebhookQueueConfig` remain as deprecated aliases in the barrel — never delete them. Live state: `getWebhookQueueStats()` / `getPollingQueueStats()`, both `null` while their queue is disabled.
 - e2e is the one exception to config-driven boot — `e2e/setup.ts` constructs `BotCore` directly to inject `deploy: "test"`, `token: "test"`, `stream`, `autoRetry`, `log: false`.
 
 Docs: `docs/gramstax-start.md`, `docs/gramstax-build.md`, `docs/serverless-deploy.md`, `docs/aot-contract.md`. Agent skill: `packages/gramstax/skills/gramstax-best-practices/`.
@@ -81,12 +85,15 @@ Docs: `docs/gramstax-start.md`, `docs/gramstax-build.md`, `docs/serverless-deplo
 
 ## Complexity Hotspots
 
+Line counts are `wc -l` (2026-10-08) — a stale table here is how a 181-line
+`_runWebhook` survives review.
+
 | File                  | Lines | Risk                                                              |
 | --------------------- | ----- | ----------------------------------------------------------------- |
-| `core/ctx.ts`         | 4006  | Multipurpose — split candidates: reply, broadcast, session, route |
-| `template/engine.ts`  | 3251  | Parser + compiler + validator in one file                         |
-| `core/bot.ts`         | 1612  | Lifecycle + routing + webhook/polling + plugins                   |
-| `template/manager.ts` | 1012  | Watcher + loader + compiler glue                                  |
+| `core/ctx.ts`         | 11277 | Multipurpose — split candidates: reply, broadcast, session, route |
+| `template/engine.ts`  | 6666  | Parser + compiler + validator in one file                         |
+| `core/bot.ts`         | 3418  | Lifecycle + routing + webhook/polling + plugins                   |
+| `template/manager.ts` | 1513  | Watcher + loader + compiler glue                                  |
 
 Make surgical changes only in these files.
 

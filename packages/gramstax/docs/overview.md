@@ -20,7 +20,7 @@
 | **Sessions & cache**       | `CacheExternal` (keyv) with memory / Redis / custom store modes for per-user session and keyboard caching.                                                                                   |
 | **Rich validation**        | Two-layer validators for Telegram Rich HTML (53 tags) and `<g-*>` PAGE blocks — required attributes + value formats.                                                                         |
 | **Hot reload**             | `TemplateManager` watches template files with `chokidar` and recompiles on change.                                                                                                           |
-| **Webhook backpressure**   | `WebhookQueue` bounds and serializes incoming updates for webhook/serverless deploys.                                                                                                        |
+| **Update backpressure**   | `UpdateQueue` + `UpdateDispatcher` bound and buffer incoming updates for `polling` and `webhook` deploys — opt-in via `optionsDeploy.<mode>.queue`.                                                                                                        |
 | **In-process E2E tests**   | `deploy: "test"` activates `E2eHelper` + `MockTelegramServer` so bots can be tested with zero HTTP.                                                                                          |
 | **Multiple deploy modes**  | `polling`, `webhook`, `serverless`, and `test`.                                                                                                                              |
 

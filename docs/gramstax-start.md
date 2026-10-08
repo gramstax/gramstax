@@ -128,7 +128,7 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 | ----------------------- | --------------------------------- | --------- | --------------------------------------- |
 | `token`                 | `string`                          | —         | Any string incl. `""` at load; non-empty required for start |
 | `deploy`                | `"polling" \| "webhook" \| "serverless" \| "raw" \| "test"` | `polling` | Bare literal; `--deploy` wins           |
-| `optionsDeploy`         | `{polling?: {maxRetries?}, webhook?: {url?, secretToken?, queue?}, serverless?: {'cloudflare-mod'?: {url?, secretToken?, name?, compatibilityDate?, compatibilityFlags?, toml?}, 'aws-lambda-async'?: {url?, secretToken?}}, raw?: {}, test?: {}}` | — | `webhook` needs `url` + `secretToken`; `serverless` is keyed by adapter (exactly one key) and needs a real `url` + `secretToken` (runtime-required, type-optional); see `docs/serverless-deploy.md`; `polling` takes `{maxRetries?}` or `{}`; `raw`/`test` take `{}` or nothing |
+| `optionsDeploy`         | `{polling?: {maxRetries?, queue?}, webhook?: {url?, secretToken?, queue?}, serverless?: {'cloudflare-mod'?: {url?, secretToken?, name?, compatibilityDate?, compatibilityFlags?, toml?}, 'aws-lambda-async'?: {url?, secretToken?}}, raw?: {}, test?: {}}` | — | `webhook` needs `url` + `secretToken`; `serverless` is keyed by adapter (exactly one key) and needs a real `url` + `secretToken` (runtime-required, type-optional); see `docs/serverless-deploy.md`; `polling` takes `{maxRetries?, queue?}` or `{}`; `raw`/`test` take `{}` or nothing |
 | `mediaRoots`            | `string[] \| null`                | —         | Non-empty entries; empty jail off       |
 | `botConfig`             | `object`                          | —         | Passed through                          |
 | `autoRetry`             | `boolean`                         | —         | Passed through                          |
@@ -147,6 +147,29 @@ constructor does today — no special-casing). `optionsDeploy`
 branches (`serverless`/`webhook`/`polling`/`raw`/`test`), polling/webhook/test/raw sections, and real lambda fields
 are unchanged; see `docs/gramstax-build.md` and `docs/serverless-deploy.md`.
 Paths follow the `src/pages` + `.gramstax/` convention (no path knobs).
+
+### The update queue (`queue?` on `polling` and `webhook`)
+
+Both branches accept the same `queue` object, and both configure the same
+class — `UpdateQueue` — each mode keeping its own instance, so the two never
+contend. Fields: `{enabled?, maxQueueSize?, workerCount?, perChatConcurrency?,
+blockWhenFull?, enqueueTimeoutMs?, waiterTimeoutMs?}`.
+
+| Field | Default | Effect |
+| --- | --- | --- |
+| `enabled` | `false` | Opt-in. Both modes drain strictly sequentially with the queue absent or `enabled: false`. |
+| `maxQueueSize` | `5000` | Bounded queue capacity. |
+| `workerCount` | `8` | Concurrent in-process async drain loops (not OS threads). |
+| `perChatConcurrency` | `1` | `1` preserves ordering per chat; `0` disables the per-chat gate. |
+| `blockWhenFull` | `true` | `true` = the producer waits; `false` = webhook replies HTTP 429, polling drops the update. |
+| `enqueueTimeoutMs` | `10000` | How long a blocking producer waits for a free slot before failing (429 / dropped). |
+| `waiterTimeoutMs` | `30000` | How long a worker waits for a per-chat slot before bypassing the gate. |
+| `drainTimeoutMs` | `10000` | How long `stop()` waits for in-flight handlers before giving up on the drain. |
+
+Reading live state: `getWebhookQueueStats()` and `getPollingQueueStats()` each
+return `null` while their queue is disabled.
+
+Measured with `packages/gramstax/bench/bench.ts` (k6 drives a `MockTelegramServer` running in its own process, which forwards each update to the bot): below saturation the queue is neutral, and past it the queue holds p95 flat while the sequential drain collapses. At a 600 users/s target on the dev host, sequential fell to 377 users/s at p95 1828 ms, while the queue sustained 601 users/s at p95 124 ms. The shared ceiling was ~600 handled users/s in both modes.
 
 ## `--watch`
 
