@@ -15,14 +15,14 @@ describe(`E2E: TestAudioPage`, () => {
 
     const editMediaReq = e2e.lastCall(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
-    expect(editMediaReq!.body?.media?.type).toBe(`audio`)
-    expect(editMediaReq!.body?.media?.media).toBe(e2e.gmedia(intent, `default`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `default`, {}).caption)
+    expect(e2e.bodyOf<{media?: {type?: string; media?: unknown; caption?: string}}>(editMediaReq!)?.media?.type).toBe(`audio`)
+    expect(e2e.bodyOf<{media?: {type?: string; media?: unknown; caption?: string}}>(editMediaReq!)?.media?.media).toBe(e2e.gmedia(intent, `default`, {}).src)
+    expect(e2e.bodyOf<{media?: {type?: string; media?: unknown; caption?: string}}>(editMediaReq!)?.media?.caption).toBe(e2e.gmedia(intent, `default`, {}).caption)
 
     e2e.clearCalls()
     await e2e.sendCallbackQuery(intent, idUser)
     const editMediaIdReq = e2e.lastCall(`editMessageMedia`)
     expect(editMediaIdReq).toBeDefined()
-    expect(editMediaIdReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `default`, {}, `id`).caption)
+    expect(e2e.bodyOf<{media?: {type?: string; media?: unknown; caption?: string}}>(editMediaIdReq!)?.media?.caption).toBe(e2e.gmedia(intent, `default`, {}, `id`).caption)
   })
 })

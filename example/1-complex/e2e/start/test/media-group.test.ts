@@ -17,8 +17,8 @@ describe(`E2E: TestMediaGroupPage`, () => {
     expect(sendMediaGroupReq).toBeDefined()
     expect(sendMediaGroupReq!.body?.media).toBeDefined()
     expect(Array.isArray(sendMediaGroupReq!.body?.media)).toBe(true)
-    expect(sendMediaGroupReq!.body?.media.length).toBeGreaterThan(0)
-    sendMediaGroupReq!.body?.media.forEach((item: {type: string}) => {
+    expect(e2e.bodyOf<{media: Array<{type?: string; caption?: string}>}>(sendMediaGroupReq!)?.media.length).toBeGreaterThan(0)
+    e2e.bodyOf<{media: Array<{type?: string; caption?: string}>}>(sendMediaGroupReq!)?.media.forEach((item: {type?: string; caption?: string}) => {
       expect(item.type).toBe(`photo`)
     })
 
@@ -26,6 +26,6 @@ describe(`E2E: TestMediaGroupPage`, () => {
     await e2e.sendCallbackQuery(intent, idUser)
     const sendMediaGroupIdReq = e2e.lastCall(`sendMediaGroup`)
     expect(sendMediaGroupIdReq).toBeDefined()
-    expect(sendMediaGroupIdReq!.body?.media[0]?.caption).toBe(e2e.gmedia(intent, `default`, {}, `id`).mediaGroup![0]?.caption)
+    expect(e2e.bodyOf<{media: Array<{type?: string; caption?: string}>}>(sendMediaGroupIdReq!)?.media[0]?.caption).toBe(e2e.gmedia(intent, `default`, {}, `id`).mediaGroup![0]?.caption)
   })
 })

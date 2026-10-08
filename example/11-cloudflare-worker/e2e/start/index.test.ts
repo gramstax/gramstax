@@ -16,8 +16,8 @@ describe(`E2E: StartPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const reply = responses[0]!
     const replyId = responsesId[0]!
-    expect(reply.body?.rich_message.html).toContain(`Welcome`)
-    expect(replyId.body?.rich_message.html).toContain(`Selamat datang`)
+    expect(e2e.bodyOf<{rich_message?: {html?: string}}>(reply)?.rich_message?.html).toContain(`Welcome`)
+    expect(e2e.bodyOf<{rich_message?: {html?: string}}>(replyId)?.rich_message?.html).toContain(`Selamat datang`)
     expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(intent, `default`, `inline`, {}))
     expect(e2e.extractButtonLabels(replyId)).toEqual(e2e.gkb(intent, `default`, `inline`, {}, `id`))
   })
@@ -27,6 +27,6 @@ describe(`E2E: StartPage`, () => {
 
     const sendRichMsgReq = e2e.lastCall(`sendRichMessage`)
     expect(sendRichMsgReq).toBeDefined()
-    expect(sendRichMsgReq?.body?.rich_message.html).toContain(`Welcome`)
+    expect(e2e.bodyOf<{rich_message?: {html?: string}}>(sendRichMsgReq)?.rich_message?.html).toContain(`Welcome`)
   })
 })

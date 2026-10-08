@@ -27,8 +27,8 @@ describe(`E2E: BroadcastPage`, () => {
     e2e.clearCalls()
     const textRes = await e2e.sendText(`Hello subscribers!`, adminUser)
     expect(textRes[0]!.body?.text).toContain(`Confirm broadcast`)
-    const kb = textRes[0]?.body?.reply_markup?.inline_keyboard
-    const sendBtn = kb?.flat().find((b: {text: string}) => b.text?.includes(`Send`))
+    const kb = e2e.bodyOf<{reply_markup?: {inline_keyboard?: Array<Array<{text?: string; callback_data?: string}>>}}>(textRes[0])?.reply_markup?.inline_keyboard
+    const sendBtn = kb?.flat().find((b: {text?: string; callback_data?: string}) => b.text?.includes(`Send`))
     expect(sendBtn?.callback_data).toBeDefined()
     e2e.clearCalls()
     const confirmRes = await e2e.sendCallbackQuery(sendBtn!.callback_data!, adminUser)

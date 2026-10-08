@@ -19,8 +19,8 @@ describe(`E2E: HelpPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const edit = responses[0]!
     const editId = responsesId[0]!
-    expect(edit.body?.rich_message.html).toBe(e2e.gmsg(intent, `default`, {}))
-    expect(editId.body?.rich_message.html).toBe(e2e.gmsg(intent, `default`, {}, `id`))
+    expect(e2e.bodyOf<{rich_message?: {html?: string}}>(edit)?.rich_message?.html).toBe(e2e.gmsg(intent, `default`, {}))
+    expect(e2e.bodyOf<{rich_message?: {html?: string}}>(editId)?.rich_message?.html).toBe(e2e.gmsg(intent, `default`, {}, `id`))
     expect(e2e.extractButtonLabels(edit)).toEqual(e2e.gkb(intent, `default`, `inline`, {}))
     expect(e2e.extractButtonLabels(editId)).toEqual(e2e.gkb(intent, `default`, `inline`, {}, `id`))
   })

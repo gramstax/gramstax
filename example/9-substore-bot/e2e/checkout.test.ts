@@ -31,7 +31,7 @@ describe(`E2E: CheckoutPage`, () => {
     const res = await e2e.sendCallbackQuery(`${intent}:confirm`, flowUser)
     const photo = res.find((r: {method: string}) => r.method === `editMessageMedia`)
     expect(photo).toBeDefined()
-    expect(String(photo!.body?.media?.caption ?? ``)).toContain(`Order Created`)
+    expect(String(e2e.bodyOf<{media?: {type?: string; media?: unknown; caption?: string}}>(photo!)?.media?.caption ?? ``)).toContain(`Order Created`)
   })
   it(`cancels checkout`, async () => {
     await bot.cacheState.set(`4101:cart`, {"netflix-premium-1m": 1})
@@ -67,7 +67,7 @@ describe(`E2E: CheckoutPage`, () => {
     const res = await e2e.sendCallbackQuery(`${intent}:confirm`, flowUserId)
     const photo = res.find((r: {method: string}) => r.method === `editMessageMedia`)
     expect(photo).toBeDefined()
-    expect(String(photo!.body?.media?.caption ?? ``)).toContain(`Pesanan Dibuat`)
+    expect(String(e2e.bodyOf<{media?: {type?: string; media?: unknown; caption?: string}}>(photo!)?.media?.caption ?? ``)).toContain(`Pesanan Dibuat`)
   })
   it(`cancels checkout ID variant`, async () => {
     await bot.cacheState.set(`5101:cart`, {"netflix-premium-1m": 1})

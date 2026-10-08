@@ -274,13 +274,35 @@ export class E2eHelper {
   }
 
   /**
+   * Narrows one captured API call's `body` to the shape a test expects.
+   *
+   * @remarks
+   * `IE2eApiCall.body` is `Record<string, unknown>` on purpose: the Bot API body
+   * differs per method, so the library cannot narrow it without lying about half
+   * the methods. Assertions that reach into a method-specific field (`media`,
+   * `reply_markup`, `rich_message`) declare that shape here at the call site.
+   *
+   * @typeParam T - The method-specific body shape the caller asserts on.
+   * @param call - Captured API call, or `undefined` when there was no reply.
+   * @returns The body cast to `T`, or `undefined` when the call is absent.
+   *
+   * @example
+   * ```typescript
+   * expect(e2e.bodyOf<{media?: {type?: string}}>(call)?.media?.type).toBe(`photo`)
+   * ```
+   */
+  bodyOf<T = Record<string, unknown>>(call: IE2eApiCall | undefined): T | undefined {
+    return call?.body as T | undefined
+  }
+
+  /**
    * Extract inline keyboard button labels from a captured API call.
    *
    * @param call - Captured API call (e.g. from `sendText` response array).
    * @returns Flat array of button text labels.
    */
   extractButtonLabels(call: IE2eApiCall): string[] {
-    const markup = (call?.body as {reply_markup?: {inline_keyboard?: unknown[][]; keyboard?: unknown[][]}} | undefined)?.reply_markup
+    const markup = this.bodyOf<{reply_markup?: {inline_keyboard?: unknown[][]; keyboard?: unknown[][]}}>(call)?.reply_markup
     const inline = markup?.inline_keyboard?.flat().map((b) => (typeof b === `string` ? b : ((b as {text?: string} | null | undefined)?.text ?? ``))) ?? []
     const bottom = markup?.keyboard?.flat().map((b) => (typeof b === `string` ? b : ((b as {text?: string} | null | undefined)?.text ?? ``))) ?? []
     return [...inline, ...bottom].filter((label) => label !== ``)

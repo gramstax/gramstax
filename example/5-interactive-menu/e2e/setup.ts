@@ -18,5 +18,6 @@ export const idUser = {user: {id: 5001, language_code: `id`}, chat: {id: 5001}}
 
 /** Extract flattened bottom keyboard button label strings from a Telegram API response body. */
 export function bottomButtonLabels(resp: IE2eApiCall): string[] {
-  return resp?.body?.reply_markup?.keyboard?.flat().map((b: {text: unknown}) => b.text) ?? []
+  const labels = e2e.bodyOf<{reply_markup?: {keyboard?: Array<Array<{text?: string}>>}}>(resp)?.reply_markup?.keyboard?.flat().map((b) => b.text)
+  return labels?.filter((label): label is string => typeof label === `string`) ?? []
 }
