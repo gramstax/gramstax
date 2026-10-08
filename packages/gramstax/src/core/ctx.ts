@@ -9,6 +9,7 @@
  * @public
  */
 
+import {AsyncLocalStorage} from "node:async_hooks"
 import {existsSync, statSync} from "node:fs"
 import {resolve, sep} from "node:path"
 import {setTimeout} from "node:timers/promises"
@@ -78,6 +79,19 @@ import type {IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock} from "~/ty
 type IMediaGroupType = Extract<IMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
 type IMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
 type IMediaGroupItem = NonNullable<IMediaBlock[`mediaGroup`]>[number]
+
+/**
+ * Per-dispatch answer attribution.
+ *
+ * @remarks
+ * Scoped per async execution context, NOT per api object: every `Ctx` shares one
+ * `bot.api`, so a key-on-api store would still be a single slot and concurrent
+ * updates would overwrite each other.
+ *
+ * @internal
+ */
+type AnswerScope = {ctx: Ctx}
+const _answerStorage = new AsyncLocalStorage<AnswerScope>()
 
 export type {EphemeralMessageParameters}
 
@@ -2118,6 +2132,19 @@ export class Ctx extends Context {
   static readonly _answerApiGuard = new WeakSet<object>()
 
   /**
+   * Run `fn` with `ctx` owning any answer-API attribution inside it.
+   *
+   * @param ctx - The context that owns the outbound calls made in `fn`.
+   * @param fn - The dispatch body.
+   * @returns Whatever `fn` returns.
+   *
+   * @internal
+   */
+  static _answerScope<T>(ctx: Ctx, fn: () => T): T {
+    return _answerStorage.run({ctx}, fn)
+  }
+
+  /**
    * Creates a new Ctx instance.
    *
    * **note:**
@@ -2133,7 +2160,10 @@ export class Ctx extends Context {
     if (this.api?.config?.use && !Ctx._answerApiGuard.has(this.api)) {
       Ctx._answerApiGuard.add(this.api)
       this.api.config.use((prev, method, payload, signal) => {
-        this.temp.isAnswer = Ctx.ANSWER_API_METHODS.has(method)
+        const owner = _answerStorage.getStore()?.ctx
+        if (owner !== undefined) {
+          owner.temp.isAnswer = Ctx.ANSWER_API_METHODS.has(method)
+        }
         return prev(method, payload, signal)
       })
     }

@@ -24,7 +24,8 @@ export class MetricsStore {
    *
    * @remarks
    * Includes: `updatesTotal`, `updatesFailed`, `matched`, `noMatch`,
-   * `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`, `skippedValidation`.
+   * `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`, `skippedValidation`,
+   * `dropped`.
    *
    * @public
    */
@@ -37,7 +38,8 @@ export class MetricsStore {
     blocked: 0,
     timeouts: 0,
     skippedDuplicate: 0,
-    skippedValidation: 0
+    skippedValidation: 0,
+    dropped: 0
   }
 
   /** Latency samples (ms) for completed route dispatches. */

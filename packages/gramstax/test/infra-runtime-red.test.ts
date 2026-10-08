@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it} from "bun:test"
 import {CacheExternal} from "~/cache/external"
 import {MockTelegramServer} from "~/mock/telegram-server"
-import {WebhookQueue} from "~/webhook/queue"
+import {UpdateQueue} from "~/update/queue"
 
 const botToken = `red-token`
 
@@ -281,7 +281,7 @@ describe(`infra-runtime-red`, () => {
   })
 
   it(`D1 close() rejects blocked enqueuers without losing buffered data`, async () => {
-    const queue = new WebhookQueue<{id: number}>(1)
+    const queue = new UpdateQueue<{id: number}>(1)
     await queue.enqueue({id: 1})
     const blocked = queue.enqueue({id: 2})
     queue.close()
@@ -291,7 +291,7 @@ describe(`infra-runtime-red`, () => {
   })
 
   it(`D2 closed queues drain buffered items before resolving undefined`, async () => {
-    const queue = new WebhookQueue<number>(3)
+    const queue = new UpdateQueue<number>(3)
     await queue.enqueue(1)
     await queue.enqueue(2)
     queue.close()
@@ -302,7 +302,7 @@ describe(`infra-runtime-red`, () => {
   })
 
   it(`D3 abort listener is cleaned up after a blocked enqueue succeeds`, async () => {
-    const queue = new WebhookQueue<number>(1)
+    const queue = new UpdateQueue<number>(1)
     await queue.enqueue(1)
     const controller = new AbortController()
     const pending = queue.enqueue(2, controller.signal)
@@ -316,7 +316,7 @@ describe(`infra-runtime-red`, () => {
   })
 
   it(`D4 tryEnqueue() never blocks`, async () => {
-    const queue = new WebhookQueue<number>(1)
+    const queue = new UpdateQueue<number>(1)
     expect(queue.tryEnqueue(1)).toBe(true)
     expect(queue.tryEnqueue(2)).toBe(false)
     expect(await queue.dequeue()).toBe(1)
@@ -326,7 +326,7 @@ describe(`infra-runtime-red`, () => {
   })
 
   it(`D4 dequeue(signal?) honors abort`, async () => {
-    const queue = new WebhookQueue<number>(1)
+    const queue = new UpdateQueue<number>(1)
     const controller = new AbortController()
     const pending = queue.dequeue(controller.signal)
     const guard = new Promise<never>((_, reject) => setTimeout(() => reject(new Error(`dequeue hung`)), 500))
@@ -340,12 +340,12 @@ describe(`infra-runtime-red`, () => {
 
   it(`D5 rejects invalid maxSize`, async () => {
     for (const bad of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
-      expect(() => new WebhookQueue(bad)).toThrow()
+      expect(() => new UpdateQueue(bad)).toThrow()
     }
   })
 
   it(`D5 double close is safe`, async () => {
-    const queue = new WebhookQueue<number>(1)
+    const queue = new UpdateQueue<number>(1)
     queue.close()
     queue.close()
     expect(queue.isClosed).toBe(true)
@@ -354,7 +354,7 @@ describe(`infra-runtime-red`, () => {
   })
 
   it(`D5 enqueue hands off directly to a waiting dequeuer`, async () => {
-    const queue = new WebhookQueue<string>(1)
+    const queue = new UpdateQueue<string>(1)
     const pending = queue.dequeue()
     const guard = new Promise<never>((_, reject) => setTimeout(() => reject(new Error(`dequeue hung`)), 500))
     await queue.enqueue(`hi`)

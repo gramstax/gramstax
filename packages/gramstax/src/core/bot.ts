@@ -29,13 +29,14 @@ import {type LoggingHelper, log} from "~/helpers/log"
 import {MetricsStore, metricsToPrometheus} from "~/helpers/metrics"
 import {PageManager} from "~/page/manager"
 import {TemplateManager} from "~/template/manager"
-import type {IGramstaxCtxScope, IGramstaxParams, IUpdateErrorEvent, IUpdateSuccessEvent, IWebhookQueueConfig} from "~/types/bot"
+import type {IGramstaxCtxScope, IGramstaxParams, IUpdateErrorEvent, IUpdateQueueConfig, IUpdateSuccessEvent} from "~/types/bot"
 import type {ICacheRpc} from "~/types/cache"
 import {GRAMSTAX_SERVERLESS_ADAPTERS} from "~/types/config"
 import type {ICt, ICtMiddleware, ICtxParams, ISendErrorHook} from "~/types/ctx"
 import type {IAppManifest} from "~/types/manifest"
 import type {IRedisLockClient} from "~/types/session-lock"
-import {WebhookQueue} from "~/webhook/queue"
+import {UpdateDispatcher} from "~/update/dispatcher"
+import {UpdateQueue} from "~/update/queue"
 import {E2eHelper} from "../e2e/helper"
 import {Ctx} from "./ctx"
 
@@ -47,6 +48,9 @@ type ICustomRouteEntry = {
   filter: (ctx: Ctx) => boolean
   shouldCheckNotFound?: boolean
 }
+
+/** Max ms {@link Gramstax.stop} waits for in-flight queue handlers to finish. @internal */
+const QUEUE_DRAIN_TIMEOUT_DEFAULT = 10_000
 
 /**
  * Internal sentinel thrown when an update exceeds `updateTimeoutMs`.
@@ -297,15 +301,56 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Webhook queue configuration.
    *
    * @remarks
-   * See {@link IWebhookQueueConfig} for queue settings.
+   * See {@link IUpdateQueueConfig} for queue settings.
    */
-  webhookQueue?: IWebhookQueueConfig
+  webhookQueue?: IUpdateQueueConfig
 
   /**
    * Active webhook queue instance.
    * @internal
    */
-  webhookQueueInstance?: WebhookQueue<Update>
+  webhookQueueInstance?: UpdateQueue<Update>
+
+  /**
+   * Worker pool draining {@link webhookQueueInstance} through a per-chat gate.
+   *
+   * @remarks
+   * `undefined` unless the queue is enabled. `stop()` awaits
+   * {@link UpdateDispatcher.stop} so in-flight handlers finish before teardown.
+   *
+   * @internal
+   */
+  webhookDispatcher?: UpdateDispatcher
+
+  /**
+   * Drain budget handed to {@link webhookDispatcher}, reported by
+   * {@link getWebhookQueueStats}.
+   * @internal
+   */
+  webhookDrainTimeoutMs = QUEUE_DRAIN_TIMEOUT_DEFAULT
+
+  /**
+   * Polling queue configuration, read from `optionsDeploy.polling.queue`.
+   *
+   * @remarks
+   * `undefined` unless configured. When `enabled`, `_runPolling` hands updates
+   * to an {@link UpdateDispatcher} instead of draining them inline.
+   *
+   * @internal
+   */
+  pollingQueue?: IUpdateQueueConfig
+
+  /**
+   * Active polling dispatcher, or `undefined` while polling is inline.
+   * @internal
+   */
+  pollingDispatcher?: UpdateDispatcher
+
+  /**
+   * Active polling queue instance.
+   * @internal
+   */
+  pollingQueueInstance?: UpdateQueue<Update>
 
   /**
    * Active webhook server instance.
@@ -543,6 +588,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this._statusServerPort = params.statusServerPort
     this._statusServerHostname = params.statusServerHostname ?? `127.0.0.1`
     this._pollingMaxRetries = params.optionsDeploy?.polling?.maxRetries ?? 5
+    this.pollingQueue = params.optionsDeploy?.polling?.queue
     this._validateConfig(params)
 
     this.bot = this.createBot(params.token)
@@ -764,6 +810,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   /**
    * Stop bot
    *
+   * @remarks
+   * Drains the webhook dispatcher (bounded by `drainTimeoutMs`) before any
+   * teardown, so in-flight handlers never race `templateManager.destroy()` or
+   * the keyboard cache clear. A drain that gives up is counted as `dropped`.
+   *
    * @public
    */
   async stop() {
@@ -781,6 +832,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       process.removeListener(`SIGTERM`, this._onSigterm)
     }
     await this.bot.stop()
+    const pollDispatch = await this.pollingDispatcher?.stop()
+    if (pollDispatch?.timedOut === true) {
+      this.metrics.counts.dropped += pollDispatch.residual
+      this.log?.warn?.(`Polling drain timed out — ${pollDispatch.residual} update(s) discarded`)
+    }
+    const dispatch = await this.webhookDispatcher?.stop()
+    if (dispatch?.timedOut === true) {
+      this.metrics.counts.dropped += dispatch.residual
+      this.log?.warn?.(`Webhook drain timed out — ${dispatch.residual} update(s) discarded`)
+    }
     this.webhookQueueInstance?.close()
     await this.templateManager?.destroy()
     this.cacheKeyboard?.clear()
@@ -812,16 +873,21 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (maxRetries !== undefined && (!Number.isFinite(maxRetries) || maxRetries < -1)) {
       throw new Error(`optionsDeploy.polling.maxRetries must be -1 or a non-negative number`)
     }
-    const queue = params.optionsDeploy?.webhook?.queue
-    if (queue?.maxQueueSize !== undefined && (!Number.isFinite(queue.maxQueueSize) || queue.maxQueueSize <= 0)) {
-      throw new Error(`optionsDeploy.webhook.queue.maxQueueSize must be a positive number`)
+    // Same range checks for both queue branches, so a programmatic
+    // `new Gramstax({...})` gets the same guarantees as the config file.
+    const checkQueue = (queue: IUpdateQueueConfig | undefined, path: string) => {
+      if (queue?.maxQueueSize !== undefined && (!Number.isFinite(queue.maxQueueSize) || queue.maxQueueSize <= 0)) {
+        throw new Error(`${path}.maxQueueSize must be a positive number`)
+      }
+      if (queue?.workerCount !== undefined && (!Number.isFinite(queue.workerCount) || queue.workerCount < 1)) {
+        throw new Error(`${path}.workerCount must be a positive number`)
+      }
+      if (queue?.enqueueTimeoutMs !== undefined && (!Number.isFinite(queue.enqueueTimeoutMs) || queue.enqueueTimeoutMs < 0)) {
+        throw new Error(`${path}.enqueueTimeoutMs must be a non-negative number`)
+      }
     }
-    if (queue?.workerCount !== undefined && (!Number.isFinite(queue.workerCount) || queue.workerCount < 1)) {
-      throw new Error(`optionsDeploy.webhook.queue.workerCount must be a positive number`)
-    }
-    if (queue?.enqueueTimeoutMs !== undefined && (!Number.isFinite(queue.enqueueTimeoutMs) || queue.enqueueTimeoutMs < 0)) {
-      throw new Error(`optionsDeploy.webhook.queue.enqueueTimeoutMs must be a non-negative number`)
-    }
+    checkQueue(params.optionsDeploy?.webhook?.queue, `optionsDeploy.webhook.queue`)
+    checkQueue(params.optionsDeploy?.polling?.queue, `optionsDeploy.polling.queue`)
     if (typeof params.deploy === `string` && params.deploy.includes(`:`)) {
       throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test with optionsDeploy {webhook, serverless, polling, raw, test} (legacy colon forms are removed, got "${params.deploy}")`)
     }
@@ -1562,7 +1628,99 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // Request all update types to receive channel posts, inline queries,
     // reactions, poll updates, join requests, etc.
     opts.allowed_updates = API_CONSTANTS.ALL_UPDATE_TYPES
+
+    if (this.pollingQueue?.enabled === true) {
+      await this._startPollingDispatch(opts, this.pollingQueue)
+      return
+    }
     void this._startPollingLoop(opts, 0)
+  }
+
+  /**
+   * Start polling with a bounded queue in front of the update handlers.
+   *
+   * @remarks
+   * grammY keeps owning the `getUpdates` loop and the `offset` bookkeeping; its
+   * `handleUpdates` calls `this.handleUpdate(update)`, so replacing that method
+   * is the seam. A middleware would not work: `Composer.use` appends to the end
+   * of the chain, and gramstax's own routing middleware is terminal, so anything
+   * added afterwards never runs. Workers call the captured original, which also
+   * removes any need for a re-entrancy guard.
+   *
+   * Delivery is therefore at-least-once at the enqueue boundary: a crash
+   * re-delivers whatever Telegram had not yet handed over, while an update
+   * dropped by `blockWhenFull: false` is lost.
+   *
+   * @internal
+   */
+  private async _startPollingDispatch(opts: Record<string, unknown>, queueConfig: IUpdateQueueConfig): Promise<void> {
+    const queue = new UpdateQueue<Update>(queueConfig.maxQueueSize ?? 5000)
+    const blockWhenFull = queueConfig.blockWhenFull !== false
+    const enqueueTimeoutMs = queueConfig.enqueueTimeoutMs ?? 10_000
+
+    this.pollingQueueInstance = queue
+
+    const handleUpdate = this.bot.handleUpdate.bind(this.bot)
+    this.bot.handleUpdate = (async (update: Update) => {
+      if (blockWhenFull === false) {
+        if (queue.tryEnqueue(update) === false) {
+          this.metrics.counts.blocked += 1
+        }
+        return
+      }
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), enqueueTimeoutMs)
+      timeoutId.unref?.()
+      try {
+        await queue.enqueue(update, controller.signal)
+      } catch {
+        this.metrics.counts.blocked += 1
+      } finally {
+        clearTimeout(timeoutId)
+      }
+    }) as typeof this.bot.handleUpdate
+
+    this.pollingDispatcher = new UpdateDispatcher({
+      queue,
+      workerCount: queueConfig.workerCount ?? 8,
+      perChatConcurrency: queueConfig.perChatConcurrency ?? 1,
+      waiterTimeoutMs: queueConfig.waiterTimeoutMs ?? 30_000,
+      drainTimeoutMs: queueConfig.drainTimeoutMs ?? QUEUE_DRAIN_TIMEOUT_DEFAULT,
+      handle: async (update) => {
+        await handleUpdate(update)
+      },
+      onError: (error) => this.log?.error?.(`Polling worker error: ${String(error)}`)
+    })
+
+    await this.bot.init()
+    this.pollingDispatcher.start()
+    void this._startPollingLoop(opts, 0)
+  }
+
+  /**
+   * Live polling queue statistics.
+   *
+   * @returns Stats when the polling queue is enabled, otherwise `null`.
+   *
+   * @public
+   */
+  getPollingQueueStats() {
+    if (this.pollingQueue?.enabled !== true || this.pollingQueueInstance === undefined) {
+      return null
+    }
+    const queueConfig = this.pollingQueue
+    const gate = this.pollingDispatcher?.stats()
+    return {
+      enabled: true,
+      maxQueueSize: queueConfig.maxQueueSize ?? 5000,
+      workerCount: queueConfig.workerCount ?? 8,
+      perChatConcurrency: queueConfig.perChatConcurrency ?? 1,
+      blockWhenFull: queueConfig.blockWhenFull !== false,
+      drainTimeoutMs: queueConfig.drainTimeoutMs ?? QUEUE_DRAIN_TIMEOUT_DEFAULT,
+      activeKeys: gate?.activeKeys ?? 0,
+      waiting: gate?.waiting ?? 0,
+      ...this.pollingQueueInstance.getStats()
+    }
   }
 
   /**
@@ -1637,75 +1795,27 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const queueEnabled = queueConfig?.enabled === true
     this.handlerBotUpdate = this._withSecretGuard((queueEnabled ? this.bot.handleUpdate.bind(this.bot) : handleUpdate) as unknown as (...args: unknown[]) => Promise<unknown>, this._webhookSecretToken)
 
-    const queue = queueEnabled ? new WebhookQueue<Update>(queueConfig?.maxQueueSize ?? 5000) : undefined
+    const queue = queueEnabled ? new UpdateQueue<Update>(queueConfig?.maxQueueSize ?? 5000) : undefined
     const workerCount = queueConfig?.workerCount ?? 8
     const perChatConcurrency = queueConfig?.perChatConcurrency ?? 1
     const blockWhenFull = queueConfig?.blockWhenFull !== false
-    const activeChats = new Map<string, number>()
-    const waitChats = new Map<string, Array<(bypass?: boolean) => void>>()
 
     this.webhookQueueInstance = queue
 
-    const getChatId = (update: Update) => {
-      return (
-        update?.message?.chat?.id ??
-        update?.edited_message?.chat?.id ??
-        update?.channel_post?.chat?.id ??
-        update?.edited_channel_post?.chat?.id ??
-        update?.callback_query?.message?.chat?.id ??
-        update?.callback_query?.from?.id ??
-        update?.inline_query?.from?.id ??
-        update?.chosen_inline_result?.from?.id
-      )
-    }
-
-    const acquireChat = async (chatId: unknown) => {
-      if (!queueEnabled || perChatConcurrency <= 0 || chatId === undefined || chatId === null) {
-        return () => {}
-      }
-
-      const key = String(chatId)
-      const waiterTimeoutMs = queueConfig?.waiterTimeoutMs ?? 30_000
-      while (true) {
-        const current = activeChats.get(key) || 0
-        if (current < perChatConcurrency) {
-          activeChats.set(key, current + 1)
-          return () => this._releaseWebhookChat(key, activeChats, waitChats)
-        }
-
-        const bypassed = await new Promise<boolean>((resolve) => {
-          const waiters = waitChats.get(key) || []
-          let settled = false
-          let timeoutId: ReturnType<typeof setTimeout> | undefined
-          const done: (bypass?: boolean) => void = (bypass = false) => {
-            if (settled) return
-            settled = true
-            if (timeoutId) clearTimeout(timeoutId)
-            const idx = waiters.indexOf(done)
-            if (idx >= 0) waiters.splice(idx, 1)
-            if (waiters.length === 0) {
-              waitChats.delete(key)
-            }
-            resolve(bypass)
-          }
-          waiters.push(done)
-          waitChats.set(key, waiters)
-          timeoutId = setTimeout(() => done(true), waiterTimeoutMs)
-          timeoutId.unref?.()
-        })
-
-        if (bypassed) {
-          // Proceed without holding a slot instead of waiting forever.
-          return () => {}
-        }
-      }
-    }
-
     if (queueEnabled && queue) {
+      const drainTimeoutMs = queueConfig?.drainTimeoutMs ?? QUEUE_DRAIN_TIMEOUT_DEFAULT
+      this.webhookDrainTimeoutMs = drainTimeoutMs
       await this.bot.init()
-      for (let index = 0; index < workerCount; index++) {
-        this._startWebhookWorker(queue, acquireChat, getChatId)
-      }
+      this.webhookDispatcher = new UpdateDispatcher({
+        queue,
+        workerCount,
+        perChatConcurrency,
+        waiterTimeoutMs: queueConfig?.waiterTimeoutMs ?? 30_000,
+        drainTimeoutMs,
+        handle: (update) => this.bot.handleUpdate(update),
+        onError: (error) => this.log?.error?.(`Webhook worker error: ${String(error)}`)
+      })
+      this.webhookDispatcher.start()
     }
 
     const url = new URL(fullUrl)
@@ -1713,6 +1823,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const port = parseInt(url.port) || 3000
     const logger = this.log
     const statsPath = `/stats_queue`
+    // `activeChats` stays as the legacy alias of the gate's `activeKeys` so both
+    // HTTP payloads keep the shape existing scrapers already parse.
+    const gateStats = () => {
+      const gate = this.webhookDispatcher?.stats() ?? {activeKeys: 0, waiting: 0}
+      return {...gate, activeChats: gate.activeKeys}
+    }
     this.webhookServer?.stop()
     const self = this
     const server = serve({
@@ -1733,7 +1849,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           return new Response(
             JSON.stringify({
               ...self.metrics.snapshot(),
-              queue: {enabled: queueEnabled, ...stats, workerCount, perChatConcurrency, blockWhenFull, activeChats: activeChats.size}
+              queue: {enabled: queueEnabled, ...stats, workerCount, perChatConcurrency, blockWhenFull, ...gateStats()}
             }),
             {status: 200, headers: {"Content-Type": `application/json`}}
           )
@@ -1781,7 +1897,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
               perChatConcurrency,
               blockWhenFull,
               queue: stats,
-              activeChats: activeChats.size
+              ...gateStats()
             }),
             {status: 200, headers: {"Content-Type": `application/json`}}
           )
@@ -1812,61 +1928,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
-   * Start a webhook worker loop for processing updates.
-   *
-   * @param queue - Webhook queue instance.
-   * @param acquireChat - Chat concurrency gate.
-   * @param getChatId - Extracts chat ID from update.
-   * @internal
-   */
-  _startWebhookWorker(queue: WebhookQueue<Update>, acquireChat: (chatId: unknown) => Promise<() => void>, getChatId: (update: Update) => unknown) {
-    const run = async () => {
-      while (true) {
-        const update = await queue.dequeue()
-        if (update === undefined) return // queue closed
-        const release = await acquireChat(getChatId(update))
-        try {
-          await this.bot.handleUpdate(update)
-        } catch (error) {
-          this.log?.error?.(`Webhook worker error: ${String(error)}`)
-        } finally {
-          release()
-        }
-      }
-    }
-
-    run()
-  }
-
-  /**
-   * Release a chat slot and wake the next waiter if needed.
-   *
-   * @param key - Chat identifier.
-   * @param activeChats - Active chat counter map.
-   * @param waitChats - Waiting callbacks by chat ID.
-   * @internal
-   */
-  _releaseWebhookChat(key: string, activeChats: Map<string, number>, waitChats: Map<string, Array<(bypass?: boolean) => void>>) {
-    const current = activeChats.get(key) || 0
-    const next = Math.max(0, current - 1)
-    if (next === 0) {
-      activeChats.delete(key)
-    } else {
-      activeChats.set(key, next)
-    }
-
-    const waiters = waitChats.get(key)
-    if (waiters && waiters.length > 0) {
-      const resolve = waiters.shift()!
-      resolve()
-      if (waiters.length === 0) {
-        waitChats.delete(key)
-      }
-    }
-  }
-
-  /**
    * Get current webhook queue statistics.
+   *
+   * @remarks
+   * Superset of the queue-only shape: every previously returned key is still
+   * present, plus the dispatcher's per-key gate (`activeKeys`/`waiting`) and
+   * its `drainTimeoutMs` budget. Gate values are `0` before `_runWebhook` builds
+   * the dispatcher.
    *
    * @returns Stats object when queue is enabled, otherwise `null`.
    * @public
@@ -1888,7 +1956,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       workerCount,
       perChatConcurrency,
       blockWhenFull,
-      ...queueStats
+      drainTimeoutMs: this.webhookDrainTimeoutMs,
+      ...queueStats,
+      ...(this.webhookDispatcher?.stats() ?? {activeKeys: 0, waiting: 0})
     }
   }
 
@@ -3128,16 +3198,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const ctx = this.createCtx(ct)
     if (!this._sessionLock) {
-      await this._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId)
+      await Ctx._answerScope(ctx, () => this._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId))
       return
     }
     // Updates without a user/chat owner have no session to protect — skip locking.
     if (ctx.from?.id === undefined && ctx.chat?.id === undefined) {
-      await this._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId)
+      await Ctx._answerScope(ctx, () => this._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId))
       return
     }
     const lockKey = this._sessionLockKey ? this._sessionLockKey(ctx) : ctx.sessionKey()
-    const handled = await this._sessionLock.withLock(lockKey, () => this._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId))
+    const handled = await this._sessionLock.withLock(lockKey, () => Ctx._answerScope(ctx, () => this._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId)))
     if (handled === null) {
       this.metrics.counts.blocked += 1
     }

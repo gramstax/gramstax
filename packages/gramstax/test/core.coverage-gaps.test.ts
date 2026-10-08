@@ -10,7 +10,8 @@ import {MockTelegramServer} from "~/mock/telegram-server"
 import {PageManager} from "~/page/manager"
 import {TemplateEngine} from "~/template/engine"
 import {TemplateManager} from "~/template/manager"
-import {WebhookQueue} from "~/webhook/queue"
+import {UpdateGate} from "~/update/gate"
+import {UpdateQueue} from "~/update/queue"
 
 const TEST_DIR = join(import.meta.dir, `coverage-gaps-tmp`)
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -34,7 +35,7 @@ describe(`coverage-gaps`, () => {
   })
 
   it(`queue close resolves blocked dequeuers with undefined`, async () => {
-    const queue = new WebhookQueue<{id: number}>(1)
+    const queue = new UpdateQueue<{id: number}>(1)
     const pending = queue.dequeue()
     queue.close()
     await expect(pending).resolves.toBeUndefined()
@@ -112,29 +113,40 @@ describe(`coverage-gaps`, () => {
     expect(bot.metrics.counts.updatesFailed).toBe(before + 1)
   })
 
-  it(`bot _releaseWebhookChat deletes, decrements, and wakes waiters`, () => {
-    const bot = new Gramstax({token: `tok`, deploy: `raw`, log: false})
-    const single = new Map([[`a`, 1]])
-    bot._releaseWebhookChat(`a`, single, new Map())
-    expect(single.has(`a`)).toBe(false)
-    const multi = new Map([[`b`, 3]])
-    bot._releaseWebhookChat(`b`, multi, new Map())
-    expect(multi.get(`b`)).toBe(2)
-    let woken = 0
-    const waiters = new Map<string, Array<(bypass?: boolean) => void>>([
-      [
-        `c`,
-        [
-          () => {
-            woken += 1
-          }
-        ]
-      ]
-    ])
-    const chats = new Map([[`c`, 1]])
-    bot._releaseWebhookChat(`c`, chats, waiters as never)
-    expect(woken).toBe(1)
-    expect(waiters.has(`c`)).toBe(false)
+  it(`UpdateGate releases, decrements, wakes waiters, and clears on releaseAll`, async () => {
+    const gate = new UpdateGate({perChatConcurrency: 3, waiterTimeoutMs: 5_000})
+
+    const single = await gate.acquire(`a`)
+    expect(gate.activeCount(`a`)).toBe(1)
+    single()
+    expect(gate.activeCount(`a`)).toBe(0)
+
+    const b1 = await gate.acquire(`b`)
+    const b2 = await gate.acquire(`b`)
+    const b3 = await gate.acquire(`b`)
+    const parked = gate.acquire(`b`)
+    expect(gate.stats().waiting).toBe(1)
+    b1()
+    expect(gate.activeCount(`b`)).toBe(2)
+    const parkedRelease = await parked
+    expect(gate.activeCount(`b`)).toBe(3)
+    expect(gate.stats().waiting).toBe(0)
+    b2()
+    b3()
+    parkedRelease()
+    expect(gate.activeCount(`b`)).toBe(0)
+
+    const c1 = await gate.acquire(`c`)
+    const c2 = await gate.acquire(`c`)
+    const c3 = await gate.acquire(`c`)
+    const stuck = gate.acquire(`c`)
+    expect(gate.stats()).toEqual({activeKeys: 1, waiting: 1})
+    gate.releaseAll()
+    await stuck
+    expect(gate.stats()).toEqual({activeKeys: 0, waiting: 0})
+    c1()
+    c2()
+    c3()
   })
 
   it(`bot status server failure is swallowed`, async () => {
