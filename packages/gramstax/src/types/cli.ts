@@ -213,3 +213,26 @@ export type IGramstaxStartOptions = {
  * @public
  */
 export type IGramstaxBotClass = new (params: IGramstaxParams) => Gramstax
+
+/**
+ * Config slot that may hold a module reference in a serverless build.
+ *
+ * @remarks
+ * Declared here so `cli/build.ts` can type-check its `REF_SLOTS` list against a
+ * single definition instead of the union being spelled out twice.
+ *
+ * @public
+ */
+export type IServerlessSlot = `cacheSession` | `cacheKeyboard` | `log`
+
+/**
+ * A config slot resolved to an imported module for a serverless bundle.
+ *
+ * @public
+ */
+export type IServerlessRef = {
+  slot: IServerlessSlot
+  module: string
+  exportName?: string
+  args: unknown[]
+}

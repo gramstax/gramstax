@@ -2,7 +2,7 @@ import {existsSync, readFileSync, rmSync} from "node:fs"
 import {join, resolve} from "node:path"
 import {pathToFileURL} from "node:url"
 import {log} from "~/helpers/log"
-import type {IGramstaxBuildOptions, IGramstaxBuildPlan} from "~/types/cli"
+import type {IGramstaxBuildOptions, IGramstaxBuildPlan, IServerlessRef, IServerlessSlot} from "~/types/cli"
 import type {IGramstaxConfig} from "~/types/config"
 import {GRAMSTAX_SERVERLESS_ADAPTERS} from "~/types/config"
 import {generate} from "../../scripts/build-manifest"
@@ -23,19 +23,14 @@ const HOST_DEPENDENT_REASONS: Record<string, string> = {
   templateManager: "it resolves template files from disk; the deployed entry uses the frozen manifest instead"
 }
 
-const REF_SLOTS = [`cacheSession`, `cacheKeyboard`, `log`] as const
+const REF_SLOTS: ReadonlyArray<IServerlessSlot> = [`cacheSession`, `cacheKeyboard`, `log`]
 
 /**
  * A config slot pointing at a user module. The emitted entry imports it with a
  * static top-level import so the platform bundler resolves (and compiles) it at
  * build time rather than at first request.
  */
-export type IServerlessRef = {
-  slot: (typeof REF_SLOTS)[number]
-  module: string
-  exportName?: string
-  args: unknown[]
-}
+
 
 /**
  * Whether a `log` config object would write to disk rather than stdout.
