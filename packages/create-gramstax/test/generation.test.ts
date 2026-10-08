@@ -686,4 +686,17 @@ describe(`service seam`, () => {
       }
     }
   })
+
+  it(`emits gramstax.config.ts byte-identical to the template`, async () => {
+    const template = readFileSync(join(import.meta.dir, `..`, `src`, `templates`, `gramstax.config.ts`), `utf-8`)
+    const root = makeTempRoot()
+    const projectPath = join(root, `proj`)
+    const creator = makeCreator({calls: 0})
+    try {
+      await creator.executeProjectGeneration(baseConfig(projectPath))
+      expect(readFileSync(join(projectPath, `gramstax.config.ts`), `utf-8`)).toBe(template)
+    } finally {
+      rmSync(root, {recursive: true, force: true})
+    }
+  })
 })

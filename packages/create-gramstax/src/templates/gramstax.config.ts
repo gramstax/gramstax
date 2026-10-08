@@ -20,7 +20,7 @@ const config: GramstaxConfig = {
   // webhook/serverless secrets come ONLY from the BOT_WEBHOOK_SECRET runtime binding
   // (set via `wrangler secret put BOT_WEBHOOK_SECRET`), never as literals in this file
   optionsDeploy: {
-    polling: {maxRetries: undefined},
+    polling: {maxRetries: undefined, queue: undefined},
     webhook: {url: undefined, secretToken: undefined, queue: undefined},
     serverless: undefined,
     raw: undefined,
