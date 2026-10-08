@@ -1,9 +1,9 @@
 import {describe, expect, it} from "bun:test"
-import {WebhookQueue} from "~/webhook/queue"
+import {UpdateQueue} from "~/update/queue"
 
-describe(`WebhookQueue`, () => {
+describe(`UpdateQueue`, () => {
   it(`blocks enqueue when queue is full`, async () => {
-    const queue = new WebhookQueue(1)
+    const queue = new UpdateQueue(1)
     await queue.enqueue({id: 1})
 
     let resolved = false
@@ -23,7 +23,7 @@ describe(`WebhookQueue`, () => {
   })
 
   it(`rejects a blocked enqueue when the signal is already aborted`, async () => {
-    const queue = new WebhookQueue(1)
+    const queue = new UpdateQueue(1)
     await queue.enqueue({id: 1})
 
     const controller = new AbortController()
@@ -33,7 +33,7 @@ describe(`WebhookQueue`, () => {
   })
 
   it(`removes the waiter and rejects when abort fires while waiting`, async () => {
-    const queue = new WebhookQueue(1)
+    const queue = new UpdateQueue(1)
     await queue.enqueue({id: 1})
 
     const controller = new AbortController()

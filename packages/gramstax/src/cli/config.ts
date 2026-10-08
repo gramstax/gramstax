@@ -1,7 +1,7 @@
 import {existsSync} from "node:fs"
 import {join} from "node:path"
 import {pathToFileURL} from "node:url"
-import type {IRateLimitOptions, IWebhookQueueConfig} from "~/types/bot"
+import type {IRateLimitOptions, IUpdateQueueConfig} from "~/types/bot"
 import type {
   IGramstaxAwsLambdaAsyncOptions,
   IGramstaxCacheKeyboardRef,
@@ -538,7 +538,7 @@ export class GramstaxConfigLoader {
    * @throws Error when `value` is not an object.
    * @throws Error when a key other than `url`, `secretToken` or `queue` is present.
    * @throws Error when `url` or `secretToken` is not a string.
-   * @throws Error when `queue` fails `_validateWebhookQueue`.
+   * @throws Error when `queue` fails `_validateQueue`.
    *
    * @internal
    */
@@ -565,7 +565,7 @@ export class GramstaxConfigLoader {
       out.secretToken = value.secretToken as string
     }
     if (value.queue !== undefined) {
-      out.queue = this._validateWebhookQueue(file, value.queue)
+      out.queue = this._validateQueue(file, `optionsDeploy.webhook.queue`, value.queue)
     }
     return out
   }
@@ -574,17 +574,21 @@ export class GramstaxConfigLoader {
    * Validate the `optionsDeploy.polling` branch.
    *
    * @remarks
-   * Single optional field. `maxRetries` admits `-1` as a distinct sentinel for
+   * Two optional fields. `maxRetries` admits `-1` as a distinct sentinel for
    * "retry forever" alongside any non-negative count, which is why the check cannot
-   * simply be a range test.
+   * simply be a range test. `queue` is delegated to `_validateQueue` — the same
+   * validator the `webhook` branch uses — so both branches accept an identical
+   * block under identical rules; there is deliberately no second copy of the
+   * field list here.
    *
    * @param file - Absolute config file path, used as the error-message prefix.
    * @param value - Raw `polling` branch value.
    * @returns The validated `IGramstaxPollingDeployOptions`.
    *
    * @throws Error when `value` is not an object.
-   * @throws Error when a key other than `maxRetries` is present.
+   * @throws Error when a key other than `maxRetries` or `queue` is present.
    * @throws Error when `maxRetries` is neither `-1` nor a non-negative finite number.
+   * @throws Error when `queue` fails `_validateQueue`.
    *
    * @internal
    */
@@ -593,8 +597,8 @@ export class GramstaxConfigLoader {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.polling\` must be an object`)
     }
     for (const key of Object.keys(value)) {
-      if (key !== `maxRetries`) {
-        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`optionsDeploy.polling\` (supported: \`maxRetries\`)`)
+      if (key !== `maxRetries` && key !== `queue`) {
+        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`optionsDeploy.polling\` (supported: \`maxRetries\`, \`queue\`)`)
       }
     }
     const out: IGramstaxPollingDeployOptions = {}
@@ -603,6 +607,9 @@ export class GramstaxConfigLoader {
         throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.polling.maxRetries\` must be -1 or a non-negative number`)
       }
       out.maxRetries = value.maxRetries as number
+    }
+    if (value.queue !== undefined) {
+      out.queue = this._validateQueue(file, `optionsDeploy.polling.queue`, value.queue)
     }
     return out
   }
@@ -775,57 +782,69 @@ export class GramstaxConfigLoader {
   }
 
   /**
-   * Validate the `optionsDeploy.webhook.queue` config section.
+   * Validate an `optionsDeploy.<branch>.queue` config section.
    *
    * @remarks
+   * Shared by the `webhook` and `polling` branches so a queue block means
+   * exactly the same thing under both — same allowed-key list, same numeric
+   * bounds, same type checks. That parity is the point: the polling sink reuses
+   * the webhook queue, so a config that validates under one branch must be
+   * equally valid under the other. `path` is a parameter rather than a
+   * hard-coded `optionsDeploy.webhook.queue` so every message names the branch
+   * the author actually wrote.
+   *
    * Unlike most sections the allowed-key list is inlined rather than referenced from
    * a shared constant, and `workerCount` is checked against `>= 1` while
    * `perChatConcurrency` allows `0`, which the bot reads as "skip the per-chat gate".
    * Every field is optional; the queue's own defaults apply when they are absent.
    *
    * @param file - Absolute config file path, used as the error-message prefix.
-   * @param value - Raw `queue` value from the `webhook` branch.
-   * @returns The validated `IWebhookQueueConfig`.
+   * @param path - Dotted config path of the queue section, used in error messages.
+   * @param value - Raw `queue` value from the branch.
+   * @returns The validated `IUpdateQueueConfig`.
    *
    * @throws Error when `value` is not an object.
    * @throws Error when an unknown key is present.
    * @throws Error when `enabled` or `blockWhenFull` is not a boolean.
    * @throws Error when `maxQueueSize` or `workerCount` is not a positive number.
-   * @throws Error when `perChatConcurrency`, `enqueueTimeoutMs` or `waiterTimeoutMs` is not a non-negative number.
+   * @throws Error when `perChatConcurrency`, `enqueueTimeoutMs`, `waiterTimeoutMs` or `drainTimeoutMs` is not a non-negative number.
    *
    * @internal
    */
-  _validateWebhookQueue(file: string, value: unknown): IWebhookQueueConfig {
+  _validateQueue(file: string, path: string, value: unknown): IUpdateQueueConfig {
     if (this._isRecord(value) === false) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.queue\` must be an object`)
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}\` must be an object`)
     }
     for (const key of Object.keys(value)) {
-      if ([`enabled`, `maxQueueSize`, `workerCount`, `perChatConcurrency`, `blockWhenFull`, `enqueueTimeoutMs`, `waiterTimeoutMs`].includes(key) === false) {
-        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`optionsDeploy.webhook.queue\``)
+      if ([`enabled`, `maxQueueSize`, `workerCount`, `perChatConcurrency`, `blockWhenFull`, `enqueueTimeoutMs`, `waiterTimeoutMs`, `drainTimeoutMs`].includes(key) === false) {
+        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`${path}\``)
       }
     }
     if (value.enabled !== undefined && typeof value.enabled !== `boolean`) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.queue.enabled\` must be a boolean`)
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.enabled\` must be a boolean`)
     }
     if (value.maxQueueSize !== undefined && (typeof value.maxQueueSize !== `number` || Number.isFinite(value.maxQueueSize) === false || (value.maxQueueSize as number) <= 0)) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.queue.maxQueueSize\` must be a positive number`)
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.maxQueueSize\` must be a positive number`)
     }
     if (value.workerCount !== undefined && (typeof value.workerCount !== `number` || Number.isFinite(value.workerCount) === false || (value.workerCount as number) < 1)) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.queue.workerCount\` must be a positive number`)
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.workerCount\` must be a positive number`)
     }
     if (value.perChatConcurrency !== undefined && (typeof value.perChatConcurrency !== `number` || Number.isFinite(value.perChatConcurrency) === false || (value.perChatConcurrency as number) < 0)) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.queue.perChatConcurrency\` must be a non-negative number`)
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.perChatConcurrency\` must be a non-negative number`)
     }
     if (value.blockWhenFull !== undefined && typeof value.blockWhenFull !== `boolean`) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.queue.blockWhenFull\` must be a boolean`)
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.blockWhenFull\` must be a boolean`)
     }
     if (value.enqueueTimeoutMs !== undefined && (typeof value.enqueueTimeoutMs !== `number` || Number.isFinite(value.enqueueTimeoutMs) === false || (value.enqueueTimeoutMs as number) < 0)) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.queue.enqueueTimeoutMs\` must be a non-negative number`)
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.enqueueTimeoutMs\` must be a non-negative number`)
     }
     if (value.waiterTimeoutMs !== undefined && (typeof value.waiterTimeoutMs !== `number` || Number.isFinite(value.waiterTimeoutMs) === false || (value.waiterTimeoutMs as number) < 0)) {
-      throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.webhook.queue.waiterTimeoutMs\` must be a non-negative number`)
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.waiterTimeoutMs\` must be a non-negative number`)
     }
-    return value as IWebhookQueueConfig
+    if (value.drainTimeoutMs !== undefined && (typeof value.drainTimeoutMs !== `number` || Number.isFinite(value.drainTimeoutMs) === false || (value.drainTimeoutMs as number) < 0)) {
+      throw new Error(`Invalid gramstax config at ${file}: \`${path}.drainTimeoutMs\` must be a non-negative number`)
+    }
+    return value as IUpdateQueueConfig
   }
 
   /**

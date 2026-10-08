@@ -1,6 +1,6 @@
 import type {APIThrottlerOptions} from "@grammyjs/transformer-throttler"
 import type {BotConfig, Context} from "grammy"
-import type {IRateLimitOptions, IWebhookQueueConfig} from "./bot"
+import type {IRateLimitOptions, IUpdateQueueConfig} from "./bot"
 import type {ISessionLockOnContended} from "./session-lock"
 import type {ITemplateOptions} from "./template"
 
@@ -529,14 +529,16 @@ export type IGramstaxWebhookDeployOptions = {
    * Must be an object when present. Accepted keys: `enabled (boolean)`,
    * `maxQueueSize (positive number)`, `workerCount (number >= 1)`,
    * `perChatConcurrency (number >= 0)`, `blockWhenFull (boolean)`,
-   * `enqueueTimeoutMs (non-negative number)`, `waiterTimeoutMs (non-negative number)`. Unknown fields are rejected.
+   * `enqueueTimeoutMs (non-negative number)`, `waiterTimeoutMs (non-negative number)`,
+   * `drainTimeoutMs (non-negative number)`. Unknown
+   * fields are rejected.s are rejected.
    *
    * @example
    * ```typescript
    * queue: {enabled: true, maxQueueSize: 5000, workerCount: 8}
    * ```
    */
-  queue?: IWebhookQueueConfig
+  queue?: IUpdateQueueConfig
 }
 
 /**
@@ -544,11 +546,15 @@ export type IGramstaxWebhookDeployOptions = {
  *
  * @remarks
  * Only meaningful when `deploy` is `polling`. Carries the retry budget that
- * used to live at the root `pollingMaxRetries` field.
+ * used to live at the root `pollingMaxRetries` field, plus the optional
+ * `queue` sink that turns the sequential `getUpdates` loop into a bounded
+ * worker pool. Omitting `queue` leaves polling exactly as it was: sequential
+ * processing, one update at a time.
  *
  * @example
  * ```typescript
  * const polling: IGramstaxPollingDeployOptions = {maxRetries: 5}
+ * const concurrent: IGramstaxPollingDeployOptions = {maxRetries: 5, queue: {enabled: true, workerCount: 8, perChatConcurrency: 1}}
  * ```
  *
  * @public
@@ -569,6 +575,27 @@ export type IGramstaxPollingDeployOptions = {
    * ```
    */
   maxRetries?: number
+  /**
+   * Concurrent update sink for polling — backpressure and worker pooling.
+   *
+   * @remarks
+   * Must be an object when present. Opt-in: omit it (or leave `enabled` off)
+   * and polling stays sequential, one update at a time. Validated by the same
+   * rules as `optionsDeploy.webhook.queue`, so a block that is accepted here is
+   * exactly as valid there.
+   *
+   * Accepted keys: `enabled (boolean)`, `maxQueueSize (positive number)`,
+   * `workerCount (number >= 1)`, `perChatConcurrency (number >= 0)`,
+   * `blockWhenFull (boolean)`, `enqueueTimeoutMs (non-negative number)`,
+   * `waiterTimeoutMs (non-negative number)`, `drainTimeoutMs (non-negative
+   * number)`. Unknown fields are rejected.
+   *
+   * @example
+   * ```typescript
+   * queue: {enabled: true, maxQueueSize: 5000, workerCount: 8}
+   * ```
+   */
+  queue?: IUpdateQueueConfig
 }
 
 /**
@@ -655,11 +682,13 @@ export type IGramstaxOptionsDeploy = {
    *
    * @remarks
    * Only meaningful when `deploy` is `polling`. Accepted keys:
-   * `maxRetries` (`-1` or non-negative). Unknown fields are rejected.
+   * `maxRetries` (`-1` or non-negative), `queue` (same rules as the webhook
+   * queue). Unknown fields are rejected.
    *
    * @example
    * ```typescript
    * polling: {maxRetries: 5}
+   * polling: {maxRetries: 5, queue: {enabled: true, workerCount: 8}}
    * ```
    */
   polling?: IGramstaxPollingDeployOptions
@@ -752,7 +781,7 @@ export type IGramstaxConfig = {
    * @remarks
    * Must be an object when present. Accepted branches: `serverless`
    * (`adapter`, `name`, `url`, `secretToken`), `webhook` (`url`, `secretToken`, `queue`),
-   * `polling` (`maxRetries`), `raw` (no fields), `test` (no fields).
+   * `polling` (`maxRetries`, `queue`), `raw` (no fields), `test` (no fields).
    * At most one branch may be non-empty and it must equal `deploy`.
    * Unknown branches and unknown fields inside each branch are rejected.
    * Explicit-`undefined` equals absent.

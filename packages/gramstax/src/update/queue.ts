@@ -1,16 +1,17 @@
 /**
- * Webhook update queue — in-memory bounded FIFO for sequential processing.
+ * Update queue — in-memory bounded FIFO for sequential processing.
  *
  * @remarks
- * Provides a bounded FIFO queue for Telegram webhook updates, ensuring
- * they are processed sequentially. Useful for long-polling fallback or
- * rate-limited webhook processing.
+ * Provides a bounded FIFO queue for Telegram updates, ensuring they are
+ * processed sequentially. Shared by both deploy modes: webhook/serverless
+ * enqueue from HTTP requests, polling enqueues from the `getUpdates` loop.
+ * Useful for long-polling fallback or rate-limited processing.
  *
  * @typeParam T - Queue item type.
  *
  * @public
  */
-export class WebhookQueue<T = unknown> {
+export class UpdateQueue<T = unknown> {
   /**
    * Fixed-size ring-buffer storage for buffered items, sized by `maxSize`.
    *
@@ -106,6 +107,22 @@ export class WebhookQueue<T = unknown> {
   }
 
   /**
+   * Number of free slots available right now.
+   *
+   * @remarks
+   * Used as the `getUpdates` `limit` hint so fetch slows under load instead of
+   * over-fetching into a full buffer. Saturates at 0; callers clamp to 1..100.
+   * A closed queue reports 0 because it accepts nothing, however much room is
+   * physically left in the buffer.
+   *
+   * @public
+   */
+  capacity(): number {
+    if (this._closed) return 0
+    return Math.max(0, this.maxSize - this._lengthCount)
+  }
+
+  /**
    * Get current queue length.
    *
    * @public
@@ -133,19 +150,21 @@ export class WebhookQueue<T = unknown> {
         throw new Error(`WebhookQueue enqueue aborted`)
       }
       let onAbort: (() => void) | undefined
+      let settled = false
       try {
         await new Promise<void>((resolve, reject) => {
           const waiter = {resolve, reject}
           onAbort = () => {
-            const index = this._waitEnqueue.indexOf(waiter)
-            if (index >= 0) {
-              this._waitEnqueue.splice(index, 1)
-            }
+            if (settled) return
+            settled = true
+            const idx = this._waitEnqueue.indexOf(waiter)
+            if (idx >= 0) this._waitEnqueue.splice(idx, 1)
             reject(new Error(`WebhookQueue enqueue aborted`))
           }
           this._waitEnqueue.push(waiter)
           signal?.addEventListener(`abort`, onAbort, {once: true})
         })
+        settled = true
       } finally {
         if (signal && onAbort) {
           signal.removeEventListener(`abort`, onAbort)
@@ -279,3 +298,25 @@ export class WebhookQueue<T = unknown> {
     return this._closed
   }
 }
+
+/**
+ * Legacy alias for {@link UpdateQueue}.
+ *
+ * @remarks
+ * The queue stopped being webhook-specific when polling adopted it, so the
+ * class was renamed. The alias is the same object — not a subclass — so
+ * `WebhookQueue === UpdateQueue` holds and `instanceof` works both ways.
+ *
+ * @deprecated Renamed to {@link UpdateQueue}. Kept as an alias for the public
+ * barrel; will be removed in the next major version.
+ * @public
+ */
+export const WebhookQueue = UpdateQueue
+/**
+ * Legacy type alias for {@link UpdateQueue}.
+ *
+ * @deprecated Renamed to {@link UpdateQueue}. Will be removed in the next
+ * major version.
+ * @public
+ */
+export type WebhookQueue<T = unknown> = UpdateQueue<T>

@@ -4,6 +4,8 @@ import type {CacheExternal} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
 import type {LoggingHelper} from "~/helpers/log"
 import type {TemplateManager} from "~/template/manager"
+import type {UpdateQueue} from "~/update/queue"
+import type {Update} from "grammy/types"
 import type {IGramstaxOptionsDeploy} from "~/types/config"
 import type {ICtxParams} from "./ctx"
 import type {IAppManifest} from "./manifest"
@@ -116,11 +118,13 @@ export type ICustomRouteEntry = {
 }
 
 /**
- * Webhook queue configuration for backpressure and worker pooling.
+ * Update queue configuration for backpressure and worker pooling.
  *
  * @remarks
- * Enable this only for webhook deployments. The queue buffers incoming updates
- * and dispatches them to a worker pool, decoupling HTTP latency from handler work.
+ * Enable this for polling and webhook deployments. The queue buffers incoming
+ * updates and dispatches them to a worker pool, decoupling source latency from
+ * handler work. Both modes configure the same {@link UpdateQueue} class; each
+ * keeps its own instance, so the two never contend with one another.
  *
  * @example
  * ```typescript
@@ -133,14 +137,19 @@ export type ICustomRouteEntry = {
  * }
  * ```
  *
+ * @example
+ * ```typescript
+ * optionsDeploy: {polling: {queue: {enabled: true, workerCount: 8}}}
+ * ```
+ *
  * @public
  */
-export type IWebhookQueueConfig = {
+export type IUpdateQueueConfig = {
   /**
-   * Enable webhook queue and worker pool.
+   * Enable update queue and worker pool.
    *
    * @remarks
-   * Set this to `true` to activate queue-based processing for webhooks.
+   * Set this to `true` to activate queue-based processing for the mode.
    *
    * @example
    * ```typescript
@@ -152,8 +161,8 @@ export type IWebhookQueueConfig = {
    * Maximum queued updates before backpressure applies.
    *
    * @remarks
-   * When the queue is full, webhook requests will block (default) or be rejected
-   * based on `blockWhenFull`. Rejected by `_validateConfig` unless positive.
+   * When the queue is full, producers block (default) or are rejected based on
+   * `blockWhenFull`. Rejected by `_validateConfig` unless positive.
    *
    * @example
    * ```typescript
@@ -201,11 +210,11 @@ export type IWebhookQueueConfig = {
    */
   perChatConcurrency?: number
   /**
-   * Block webhook requests when queue is full.
+   * Block producers when queue is full.
    *
    * @remarks
-   * When `true`, the HTTP request waits until a queue slot is free. When `false`,
-   * the request is rejected with HTTP 429.
+   * When `true`, the producer waits until a queue slot is free. When `false`,
+   * a webhook request is rejected with HTTP 429 and a polling update is dropped.
    *
    * @example
    * ```typescript
@@ -214,8 +223,9 @@ export type IWebhookQueueConfig = {
    */
   blockWhenFull?: boolean
   /**
-   * Max milliseconds a webhook request waits for a free queue slot before being
-   * rejected with HTTP 429 (only when `blockWhenFull` is true).
+   * Max milliseconds a producer waits for a free queue slot before the enqueue
+   * fails — HTTP 429 for webhook, dropped update for polling (only when
+   * `blockWhenFull` is true).
    *
    * @remarks
    * Rejected by `_validateConfig` when negative. Omit for the queue default.
@@ -243,7 +253,34 @@ export type IWebhookQueueConfig = {
    * ```
    */
   waiterTimeoutMs?: number
+  /**
+   * Max milliseconds `stop()` waits for in-flight handlers before giving up on
+   * the queue drain.
+   *
+   * @remarks
+   * Applies to both deploy modes. When the budget elapses, whatever is still
+   * buffered is counted in `metrics.counts.dropped` and logged — the drain never
+   * silently abandons updates. Teardown waits for the drain, so a larger value
+   * delays shutdown.
+   *
+   * @defaultValue `10000`
+   *
+   * @example
+   * ```typescript
+   * drainTimeoutMs: 10000
+   * ```
+   */
+  drainTimeoutMs?: number
 }
+
+/**
+ * Legacy alias for {@link IUpdateQueueConfig}.
+ *
+ * @deprecated Renamed to {@link IUpdateQueueConfig}. Kept as an alias for the
+ * public barrel; will be removed in the next major version.
+ * @public
+ */
+export type IWebhookQueueConfig = IUpdateQueueConfig
 
 /**
  * Rate-limit configuration for incoming updates (`@grammyjs/ratelimiter`).
@@ -905,4 +942,47 @@ export type IUpdateSuccessEvent = {
    * ```
    */
   isEdit: boolean
+}
+
+/**
+ * Options for {@link UpdateGate}.
+ *
+ * @public
+ */
+export type IUpdateGateOptions = {
+  /** Max concurrent updates per key. `0` disables gating entirely. */
+  perChatConcurrency: number
+  /** Max ms a waiter parks before proceeding ungated, so a hung handler cannot deadlock its key. */
+  waiterTimeoutMs: number
+  /** Called once per waiter that bypassed on timeout. */
+  onTimeout?: (key: string) => void
+}
+
+/**
+ * Options for {@link UpdateDispatcher}.
+ *
+ * @public
+ */
+export type IUpdateDispatcherOptions = {
+  queue: UpdateQueue<Update>
+  workerCount: number
+  perChatConcurrency: number
+  waiterTimeoutMs: number
+  /** Max ms to wait for in-flight handlers on `stop()` before giving up. */
+  drainTimeoutMs: number
+  handle: (update: Update) => Promise<void>
+  onError: (error: unknown, update: Update) => void
+  onWaiterTimeout?: (key: string) => void
+}
+
+/**
+ * Result of {@link UpdateDispatcher.stop}.
+ *
+ * @public
+ */
+export type IUpdateDispatchStopResult = {
+  /** True when `drainTimeoutMs` elapsed with handlers still running. */
+  timedOut: boolean
+  /** Updates still buffered when the drain gave up. */
+  residual: number
 }
