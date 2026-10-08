@@ -45,6 +45,9 @@
       "dependencies": {
         "gramstax": "workspace:*",
       },
+      "devDependencies": {
+        "grammy": "1.46.0",
+      },
     },
     "example/3-helloworld-js": {
       "name": "example-3-helloworld-js",
@@ -109,6 +112,9 @@
     "packages/gramstax": {
       "name": "gramstax",
       "version": "3.0.0",
+      "bin": {
+        "gramstax": "dist/src/cli/gramstax.js",
+      },
       "dependencies": {
         "@grammyjs/auto-retry": "^2.0.2",
         "@grammyjs/chat-members": "^1.2.0",

@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "gramstax": "workspace:*"
+  },
+  "devDependencies": {
+    "grammy": "1.46.0"
   }
 }
