@@ -178,7 +178,7 @@ describe(`F3 polling loop honors stop before retry and cancels backoff sleep`, (
 })
 
 describe(`F4 polling uses a fresh opts object per attempt`, () => {
-  it(`does not mutate the input opts and toggles drop_pending_updates per attempt`, async () => {
+  it(`does not mutate the input opts and never discards the backlog per attempt`, async () => {
     const bot = createTestBot({pollingMaxRetries: 5})
     const seen: Array<Record<string, unknown>> = []
     let n = 0
@@ -192,10 +192,28 @@ describe(`F4 polling uses a fresh opts object per attempt`, () => {
     const input: Record<string, unknown> = {allowed_updates: []}
     await bot._startPollingLoop(input, 0)
     expect(seen.length).toBe(2)
-    expect(seen[0]!.drop_pending_updates).toBe(true)
+    expect(seen[0]!.drop_pending_updates).toBe(false)
     expect(seen[1]!.drop_pending_updates).toBe(false)
     expect(seen[0]).not.toBe(seen[1])
     expect(`drop_pending_updates` in input).toBe(false)
+  })
+
+  it(`discards the backlog only on a first attempt opted in`, async () => {
+    const bot = createTestBot({pollingMaxRetries: 5})
+    ;(bot as unknown as {_pollingDropPendingUpdates: boolean})._pollingDropPendingUpdates = true
+    const seen: Array<Record<string, unknown>> = []
+    let n = 0
+    bot.bot.start = async (opts: unknown) => {
+      seen.push(opts as Record<string, unknown>)
+      n++
+      if (n === 1) {
+        throw new Error(`blip`)
+      }
+    }
+    await bot._startPollingLoop({allowed_updates: []}, 0)
+    expect(seen.length).toBe(2)
+    expect(seen[0]!.drop_pending_updates).toBe(true)
+    expect(seen[1]!.drop_pending_updates).toBe(false)
   })
 })
 

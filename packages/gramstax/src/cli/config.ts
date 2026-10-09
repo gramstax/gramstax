@@ -597,8 +597,8 @@ export class GramstaxConfigLoader {
       throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.polling\` must be an object`)
     }
     for (const key of Object.keys(value)) {
-      if (key !== `maxRetries` && key !== `queue`) {
-        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`optionsDeploy.polling\` (supported: \`maxRetries\`, \`queue\`)`)
+      if (key !== `maxRetries` && key !== `queue` && key !== `dropPendingUpdates`) {
+        throw new Error(`Invalid gramstax config at ${file}: unknown field \`${key}\` in \`optionsDeploy.polling\` (supported: \`maxRetries\`, \`queue\`, \`dropPendingUpdates\`)`)
       }
     }
     const out: IGramstaxPollingDeployOptions = {}
@@ -607,6 +607,12 @@ export class GramstaxConfigLoader {
         throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.polling.maxRetries\` must be -1 or a non-negative number`)
       }
       out.maxRetries = value.maxRetries as number
+    }
+    if (value.dropPendingUpdates !== undefined) {
+      if (typeof value.dropPendingUpdates !== `boolean`) {
+        throw new Error(`Invalid gramstax config at ${file}: \`optionsDeploy.polling.dropPendingUpdates\` must be a boolean`)
+      }
+      out.dropPendingUpdates = value.dropPendingUpdates
     }
     if (value.queue !== undefined) {
       out.queue = this._validateQueue(file, `optionsDeploy.polling.queue`, value.queue)

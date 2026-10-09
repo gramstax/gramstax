@@ -41,7 +41,7 @@ describe(`optionsDeploy.polling.queue validation`, () => {
   })
 
   it(`rejects an unknown field beside a valid queue`, async () => {
-    await expect(load({queue: {workerCount: 2}, nope: 1})).rejects.toThrow(/unknown field `nope` in `optionsDeploy\.polling` \(supported: `maxRetries`, `queue`\)/)
+    await expect(load({queue: {workerCount: 2}, nope: 1})).rejects.toThrow(/unknown field `nope` in `optionsDeploy\.polling` \(supported: `maxRetries`, `queue`, `dropPendingUpdates`\)/)
   })
 
   it(`rejects workerCount below 1`, async () => {

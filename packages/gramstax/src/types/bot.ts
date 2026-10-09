@@ -213,8 +213,12 @@ export type IUpdateQueueConfig = {
    * Block producers when queue is full.
    *
    * @remarks
-   * When `true`, the producer waits until a queue slot is free. When `false`,
-   * a webhook request is rejected with HTTP 429 and a polling update is dropped.
+   * Applies to the webhook branch only. When `false`, a webhook request is
+   * rejected with HTTP 429 and Telegram redelivers it, so nothing is lost.
+   *
+   * Polling ignores this field: grammY has already advanced its `offset` by the
+   * time an update reaches the queue, so discarding one would drop it for good.
+   * A saturated polling queue therefore always blocks the fetcher instead.
    *
    * @example
    * ```typescript
@@ -223,11 +227,11 @@ export type IUpdateQueueConfig = {
    */
   blockWhenFull?: boolean
   /**
-   * Max milliseconds a producer waits for a free queue slot before the enqueue
-   * fails — HTTP 429 for webhook, dropped update for polling (only when
-   * `blockWhenFull` is true).
+   * Max milliseconds a webhook request waits for a free queue slot before it
+   * is rejected with HTTP 429 for Telegram to redeliver.
    *
    * @remarks
+   * Applies to the webhook branch only — see {@link IUpdateQueueConfig.blockWhenFull}.
    * Rejected by `_validateConfig` when negative. Omit for the queue default.
    *
    * @defaultValue `10000`

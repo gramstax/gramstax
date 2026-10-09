@@ -393,6 +393,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   _maxTextLength = 0
   /** Max consecutive polling failures before giving up (-1 = infinite). @internal */
   _pollingMaxRetries = 5
+  /** Whether boot asks Telegram to discard updates queued during downtime. @internal */
+  _pollingDropPendingUpdates = false
   /** Set once `stop()` begins; the polling loop checks it before every retry. @internal */
   _pollingStopped = false
   /** Active polling backoff sleep timer (cleared by `stop()`). @internal */
@@ -591,6 +593,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this._statusServerPort = params.statusServerPort
     this._statusServerHostname = params.statusServerHostname ?? `127.0.0.1`
     this._pollingMaxRetries = params.optionsDeploy?.polling?.maxRetries ?? 5
+    this._pollingDropPendingUpdates = params.optionsDeploy?.polling?.dropPendingUpdates === true
     this.pollingQueue = params.optionsDeploy?.polling?.queue
     this._validateConfig(params)
 
@@ -1650,36 +1653,30 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * added afterwards never runs. Workers call the captured original, which also
    * removes any need for a re-entrancy guard.
    *
-   * Delivery is therefore at-least-once at the enqueue boundary: a crash
-   * re-delivers whatever Telegram had not yet handed over, while an update
-   * dropped by `blockWhenFull: false` is lost.
+   * Delivery is at-least-once at the enqueue boundary and lossless once the
+   * update is in the queue: a crash re-delivers whatever Telegram had not yet
+   * handed over, and a saturated queue blocks the fetcher rather than dropping
+   * an update whose `offset` Telegram has already acknowledged.
    *
    * @internal
    */
   private async _startPollingDispatch(opts: Record<string, unknown>, queueConfig: IUpdateQueueConfig): Promise<void> {
     const queue = new UpdateQueue<Update>(queueConfig.maxQueueSize ?? 5000)
-    const blockWhenFull = queueConfig.blockWhenFull !== false
-    const enqueueTimeoutMs = queueConfig.enqueueTimeoutMs ?? 10_000
 
     this.pollingQueueInstance = queue
 
     const handleUpdate = this.bot.handleUpdate.bind(this.bot)
     this.bot.handleUpdate = (async (update: Update) => {
-      if (blockWhenFull === false) {
-        if (queue.tryEnqueue(update) === false) {
-          this.metrics.counts.blocked += 1
-        }
-        return
-      }
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), enqueueTimeoutMs)
-      timeoutId.unref?.()
       try {
-        await queue.enqueue(update, controller.signal)
+        // Blocks until a slot frees. A saturated queue therefore backpressures
+        // grammY's fetcher instead of discarding an update whose offset
+        // Telegram has already acknowledged — there is no drop path here.
+        await queue.enqueue(update)
       } catch {
-        this.metrics.counts.blocked += 1
-      } finally {
-        clearTimeout(timeoutId)
+        // Only reachable after `stop()` closed the queue. grammY has advanced
+        // `lastTriedUpdateId` past this update, so nothing can replay it.
+        this.metrics.counts.dropped += 1
+        this.log?.warn?.(`Polling update discarded during shutdown (update_id ${update.update_id})`)
       }
     }) as typeof this.bot.handleUpdate
 
@@ -1695,18 +1692,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       onError: (error) => this.log?.error?.(`Polling worker error: ${String(error)}`)
     })
 
-    if (blockWhenFull) {
-      const apiGetUpdates = this.bot.api.getUpdates.bind(this.bot.api)
-      // grammY declares `AbortSignal` twice — global in `api.d.ts`, a shim in
-      // `client.d.ts` — so both sides below are derived from the bound method
-      // rather than annotated, and the one cast sits on the assignment.
-      const clampFetchLimit = async (other: Parameters<typeof apiGetUpdates>[0], signal: Parameters<typeof apiGetUpdates>[1]) => {
-        const ceiling = typeof other?.limit === `number` ? other.limit : POLLING_FETCH_LIMIT_MAX
-        const free = this.pollingDispatcher?.capacity() ?? POLLING_FETCH_LIMIT_MAX
-        return await apiGetUpdates({...other, limit: Math.max(1, Math.min(ceiling, free, POLLING_FETCH_LIMIT_MAX))}, signal)
-      }
-      this.bot.api.getUpdates = clampFetchLimit as typeof this.bot.api.getUpdates
+    const apiGetUpdates = this.bot.api.getUpdates.bind(this.bot.api)
+    // grammY declares `AbortSignal` twice — global in `api.d.ts`, a shim in
+    // `client.d.ts` — so both sides below are derived from the bound method
+    // rather than annotated, and the one cast sits on the assignment.
+    const clampFetchLimit = async (other: Parameters<typeof apiGetUpdates>[0], signal: Parameters<typeof apiGetUpdates>[1]) => {
+      const ceiling = typeof other?.limit === `number` ? other.limit : POLLING_FETCH_LIMIT_MAX
+      const free = this.pollingDispatcher?.capacity() ?? POLLING_FETCH_LIMIT_MAX
+      return await apiGetUpdates({...other, limit: Math.max(1, Math.min(ceiling, free, POLLING_FETCH_LIMIT_MAX))}, signal)
     }
+    this.bot.api.getUpdates = clampFetchLimit as typeof this.bot.api.getUpdates
 
     await this.bot.init()
     this.pollingDispatcher.start()
@@ -1731,7 +1726,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       maxQueueSize: queueConfig.maxQueueSize ?? 5000,
       workerCount: queueConfig.workerCount ?? 8,
       perChatConcurrency: queueConfig.perChatConcurrency ?? 1,
-      blockWhenFull: queueConfig.blockWhenFull !== false,
       drainTimeoutMs: queueConfig.drainTimeoutMs ?? QUEUE_DRAIN_TIMEOUT_DEFAULT,
       activeKeys: gate?.activeKeys ?? 0,
       waiting: gate?.waiting ?? 0,
@@ -1745,8 +1739,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * `_pollingMaxRetries` consecutive failures, or retries forever when `-1`.
    *
    * @remarks
-   * `drop_pending_updates` is only set on the first attempt — retries keep
-   * `false` so updates received during an outage are not discarded.
+   * `drop_pending_updates` stays `false` unless
+   * {@link Gramstax._pollingDropPendingUpdates} is opted in. Telegram holds
+   * undelivered updates for up to 24h, so the default replays whatever arrived
+   * while the process was down instead of deleting it on boot — the flag only
+   * ever applies to the first attempt, since retries must keep the backlog.
    *
    * @param opts - grammY `bot.start` options.
    * @param attempt - Current retry attempt (0 = first run).
@@ -1756,7 +1753,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (this._pollingStopped) {
       return
     }
-    const attemptOpts = {...opts, drop_pending_updates: attempt === 0}
+    const attemptOpts = {...opts, drop_pending_updates: attempt === 0 && this._pollingDropPendingUpdates}
     try {
       await this.bot.start(attemptOpts)
     } catch (error) {

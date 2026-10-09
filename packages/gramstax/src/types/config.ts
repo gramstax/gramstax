@@ -576,6 +576,25 @@ export type IGramstaxPollingDeployOptions = {
    */
   maxRetries?: number
   /**
+   * Delete updates that Telegram buffered while the bot was down, instead of
+   * replaying them once polling starts.
+   *
+   * @remarks
+   * Telegram holds undelivered updates for up to 24 hours, so the default
+   * (`false`) replays whatever arrived during an outage. Setting this to `true`
+   * is the only way to discard that backlog, and it is destructive: every
+   * message sent while the bot was down is dropped without being handled, so
+   * users get no reply at all. Enable it only for a deliberate clean slate.
+   *
+   * @defaultValue `false`
+   *
+   * @example
+   * ```typescript
+   * dropPendingUpdates: false
+   * ```
+   */
+  dropPendingUpdates?: boolean
+  /**
    * Concurrent update sink for polling — backpressure and worker pooling.
    *
    * @remarks

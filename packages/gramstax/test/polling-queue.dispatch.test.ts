@@ -153,15 +153,61 @@ describe("polling queue dispatch", () => {
     expect(peak).toBe(1)
   })
 
-  it(`drops and counts instead of blocking when blockWhenFull is false`, async () => {
+  it(`handles every update on a saturated queue instead of dropping`, async () => {
     mock = new MockTelegramServer({handlers: updateSource(6, false)})
     await mock.start()
+    // maxQueueSize 1 with one worker forces the queue to saturate, so the
+    // fetcher has to backpressure rather than discard.
+    bot = makeBot(mock.apiRoot, {polling: {maxRetries: 5, queue: pollQueue({maxQueueSize: 1, workerCount: 1})}}, `polling`)
+
+    const drained = await waitFor(() => sentCount(mock!) >= 6, 15_000)
+    expect(drained).toBe(true)
+    expect(bot.metrics.snapshot().counts.blocked).toBe(0)
+    expect(bot.getWebhookQueueStats()).toBeNull()
+  })
+
+  it(`drops nothing even when blockWhenFull asks it to`, async () => {
+    mock = new MockTelegramServer({handlers: updateSource(6, false)})
+    await mock.start()
+    // `blockWhenFull` is webhook-only; polling ignores it because grammY has
+    // already advanced its offset past anything it fetched.
     bot = makeBot(mock.apiRoot, {polling: {maxRetries: 5, queue: pollQueue({blockWhenFull: false, maxQueueSize: 1, workerCount: 1})}}, `polling`)
 
-    await sleep(300)
-
-    expect(bot.getWebhookQueueStats()).toBeNull()
+    const drained = await waitFor(() => sentCount(mock!) >= 6, 15_000)
+    expect(drained).toBe(true)
+    expect(bot.metrics.snapshot().counts.blocked).toBe(0)
     expect(peak).toBe(1)
+  })
+
+  it(`keeps updates Telegram buffered during downtime by default`, async () => {
+    mock = new MockTelegramServer({handlers: updateSource(1, false)})
+    await mock.start()
+    bot = makeBot(mock.apiRoot)
+
+    const started: Array<Record<string, unknown>> = []
+    // biome-ignore lint/suspicious/noExplicitAny: stub the grammY loop
+    ;(bot as any).bot.start = async (opts: Record<string, unknown>) => {
+      started.push(opts)
+    }
+    await bot._runPolling()
+
+    // Replaying the backlog is the default: Telegram holds it for up to 24h.
+    expect(started[0]?.drop_pending_updates).toBe(false)
+  })
+
+  it(`discards the downtime backlog only when explicitly opted in`, async () => {
+    mock = new MockTelegramServer({handlers: updateSource(1, false)})
+    await mock.start()
+    bot = makeBot(mock.apiRoot, {polling: {maxRetries: 5, dropPendingUpdates: true, queue: pollQueue()}}, `polling`)
+
+    const started: Array<Record<string, unknown>> = []
+    // biome-ignore lint/suspicious/noExplicitAny: stub the grammY loop
+    ;(bot as any).bot.start = async (opts: Record<string, unknown>) => {
+      started.push(opts)
+    }
+    await bot._runPolling()
+
+    expect(started[0]?.drop_pending_updates).toBe(true)
   })
 
   it(`rejects an invalid polling queue at construction`, () => {

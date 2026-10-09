@@ -60,7 +60,7 @@ class HookedBot extends TestBot {
 
 type TP = ReturnType<TestBot[`_pageLoads`]>
 
-function createBot(params: {skipDuplicateUpdate?: boolean; hookUpdateError?: (event: unknown) => void; hookUpdate?: (event: unknown) => void; pollingMaxRetries?: number} = {}): {bot: HookedBot; pages: TP} {
+function createBot(params: {skipDuplicateUpdate?: boolean; hookUpdateError?: (event: unknown) => void; hookUpdate?: (event: unknown) => void; pollingMaxRetries?: number; dropPendingUpdates?: boolean} = {}): {bot: HookedBot; pages: TP} {
   const tm = new TemplateManager({path: [TEST_PAGES_DIR]})
   const bot = new HookedBot({
     token: `test:token`,
@@ -81,6 +81,7 @@ function createBot(params: {skipDuplicateUpdate?: boolean; hookUpdateError?: (ev
   bot.hookUpdateError = params.hookUpdateError
   bot.hookUpdate = params.hookUpdate
   if (params.pollingMaxRetries !== undefined) (bot as any)._pollingMaxRetries = params.pollingMaxRetries
+  if (params.dropPendingUpdates !== undefined) (bot as any)._pollingDropPendingUpdates = params.dropPendingUpdates
   return {bot, pages: bot.pages}
 }
 
@@ -266,9 +267,27 @@ describe(`Gramstax polling recovery`, () => {
     expect(bot.metrics.counts.updatesFailed).toBe(1)
   })
 
-  it(`disables drop_pending_updates on retry attempts`, async () => {
+  it(`never discards the backlog, on the first attempt or on retries`, async () => {
     const calls: Array<Record<string, unknown> | undefined> = []
     const {bot} = createBot({pollingMaxRetries: 5})
+    bot.bot.start = mock(async (opts?: Record<string, unknown>) => {
+      calls.push(opts ? {...opts} : undefined)
+      if (calls.length === 1) {
+        throw new Error(`transient blip`)
+      }
+    })
+    bot.bot.stop = mock(async () => {})
+
+    await bot.runPollingLoop({}, 0)
+
+    expect(calls.length).toBe(2)
+    expect(calls[0]?.drop_pending_updates).toBe(false)
+    expect(calls[1]?.drop_pending_updates).toBe(false)
+  })
+
+  it(`discards the backlog on boot only when opted in`, async () => {
+    const calls: Array<Record<string, unknown> | undefined> = []
+    const {bot} = createBot({pollingMaxRetries: 5, dropPendingUpdates: true})
     bot.bot.start = mock(async (opts?: Record<string, unknown>) => {
       calls.push(opts ? {...opts} : undefined)
       if (calls.length === 1) {

@@ -131,15 +131,15 @@ describe(`polling fetch limit tracks queue capacity`, () => {
     expect(limits[0]).toBe(1)
   })
 
-  it(`leaves the fetcher untouched when blockWhenFull is false`, async () => {
+  it(`clamps even when blockWhenFull is false, which polling now ignores`, async () => {
     const limits: Array<number | undefined> = []
     mock = new MockTelegramServer({handlers: limitSource(limits, 1)})
     await mock.start()
-    // Drop-fast mode wants the full batch regardless of room, so the clamp
-    // must not apply — a clamped fetch would just delay the drops.
+    // grammY has already advanced `offset` by the time an update reaches the
+    // queue, so polling cannot discard one — `blockWhenFull` is webhook-only.
     bot = makeBot(mock.apiRoot, {blockWhenFull: false, maxQueueSize: 2})
 
     expect(await waitFor(() => limits.length > 0, 10_000)).toBe(true)
-    expect(limits[0]).toBeUndefined()
+    expect(limits[0]).toBe(2)
   })
 })
