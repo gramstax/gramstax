@@ -130,4 +130,57 @@ describe(`fallback page hooks cannot take down the update`, () => {
     expect(errorPageCalls).toBe(0)
     expect(notFoundCalls).toBe(0)
   })
+
+  it(`routes a throw from hookBeforeRoute to hookErrorPage`, async () => {
+    const bot = createTestBot()
+    bot.hookBeforeRoute = async () => {
+      throw new Error(`guard boom`)
+    }
+    const errorSeen: Array<unknown> = []
+    bot.hookErrorPage = async (_ctx: unknown, data?: {error?: unknown}) => {
+      errorSeen.push(data?.error)
+    }
+    let routeCalls = 0
+    // biome-ignore lint/suspicious/noExplicitAny: route stub
+    ;(bot as any)._pageRoutes = async () => {
+      routeCalls += 1
+      return {state: `matched`}
+    }
+
+    await bot._handleCtx(stubCtx, `text`, true, `trace-6`)
+
+    expect(errorSeen.length).toBe(1)
+    expect(routeCalls).toBe(0)
+    expect(bot.metrics.counts.updatesFailed).toBe(1)
+  })
+
+  it(`still short-circuits when hookBeforeRoute returns false`, async () => {
+    const bot = createTestBot()
+    bot.hookBeforeRoute = async () => false
+    let routeCalls = 0
+    // biome-ignore lint/suspicious/noExplicitAny: route stub
+    ;(bot as any)._pageRoutes = async () => {
+      routeCalls += 1
+      return {state: `matched`}
+    }
+
+    await bot._handleCtx(stubCtx, `text`, true, `trace-7`)
+
+    expect(routeCalls).toBe(0)
+    expect(bot.metrics.counts.blocked).toBe(1)
+  })
+
+  it(`contains a throw from hookAfterRoute and still records the update`, async () => {
+    const bot = createTestBot()
+    bot.hookAfterRoute = async () => {
+      throw new Error(`after route boom`)
+    }
+    const before = bot.metrics.snapshot().counts.updatesTotal
+    // biome-ignore lint/suspicious/noExplicitAny: route stub
+    ;(bot as any)._pageRoutes = async () => ({state: `matched`})
+
+    await bot._handleCtx(stubCtx, `text`, true, `trace-8`)
+
+    expect(bot.metrics.snapshot().counts.updatesTotal).toBe(before + 1)
+  })
 })

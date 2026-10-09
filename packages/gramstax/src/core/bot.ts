@@ -3261,13 +3261,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     let state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` = `no-match`
     const isEdit = listenerName === `callbackquerydata`
 
-    const before = await this.hookBeforeRoute?.(ctx, {listenerName, isEdit})
-    if (before === false) {
-      this.metrics.counts.blocked += 1
-      return
-    }
-
     try {
+      const before = await this.hookBeforeRoute?.(ctx, {listenerName, isEdit})
+      if (before === false) {
+        this.metrics.counts.blocked += 1
+        return
+      }
+
       const runRoute = async () => {
         const routeResult = await this._pageRoutes(ctx, listenerName)
         state = routeResult.state
@@ -3311,7 +3311,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         this._emitUpdateError({traceId, listenerName, state: `error`, error, durationMs: Date.now() - startedAt, isEdit})
       }
     }
-    await this.hookAfterRoute?.(ctx, {listenerName, state, isEdit})
+    try {
+      await this.hookAfterRoute?.(ctx, {listenerName, state, isEdit})
+    } catch (hookFailure) {
+      // Post-processing, so the update is already handled and the metrics
+      // record below still has to run.
+      this.log?.error?.(`hookAfterRoute hook failed: ${String(hookFailure)}`)
+    }
     const durationMs = Date.now() - startedAt
     this.metrics.recordUpdate(listenerName, durationMs)
     if (this.hookTrace) {
