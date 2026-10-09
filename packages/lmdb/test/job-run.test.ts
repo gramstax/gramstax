@@ -332,13 +332,14 @@ describe(`LmdbJobRun runner`, () => {
     try {
       const jobs = new LmdbJobRun(env)
       await jobs.recordRun(`k`, Date.now())
+      const stored = jobs.lastRun(`k`)
       let ran = 0
       const handle = jobs.start(`k`, {pattern: `0 3 * * *`, persist: false, task: async () => void ran++})
       try {
         await handle.runNow()
         expect(ran).toBe(1)
         expect(handle.lastRun()).toBeGreaterThan(0) // in-memory
-        expect(jobs.lastRun(`k`)).not.toBe(handle.lastRun()) // nothing written
+        expect(jobs.lastRun(`k`)).toBe(stored) // nothing written
       } finally {
         await settle(handle.stop)
       }

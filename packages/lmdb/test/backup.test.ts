@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it} from "bun:test"
-import {existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync} from "node:fs"
+import {existsSync, mkdirSync, readdirSync, readFileSync, utimesSync, writeFileSync} from "node:fs"
 import {join} from "node:path"
 import type {S3Client} from "@aws-sdk/client-s3"
 import {LmdbBackup, type LmdbBackupHandle, type LmdbBackupS3Options, type LmdbBackupStartOptions} from "../src/backup"
@@ -107,6 +107,45 @@ describe(`LmdbBackup`, () => {
       const entries = LmdbBackup.list(base)
       expect(entries.map((e) => e.path)).toEqual([a, b])
       expect(entries[0]?.mtimeMs).toBeLessThanOrEqual(entries[1]?.mtimeMs ?? 0)
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`list stays oldest-first when mtime order disagrees with creation order`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      const a = await LmdbBackup.backup(env, base, 5)
+      const b = await LmdbBackup.backup(env, base, 5)
+      // Backup `a` was created first but must sort first, so give it the LATER
+      // mtime. A coarse filesystem tick gives two quick backups the same mtime
+      // and leaves the order down to `readdirSync`, which is what made this
+      // fail intermittently in CI; an inverted mtime reproduces that same
+      // "mtime is not creation order" fact deterministically.
+      const older = new Date(1_700_000_000_000)
+      const newer = new Date(1_700_000_060_000)
+      utimesSync(a, newer, newer)
+      utimesSync(b, older, older)
+      expect(LmdbBackup.list(base).map((e) => e.path)).toEqual([a, b])
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`prune keeps the newest when mtime order disagrees with creation order`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      const a = await LmdbBackup.backup(env, base, 5)
+      const b = await LmdbBackup.backup(env, base, 5)
+      const older = new Date(1_700_000_000_000)
+      const newer = new Date(1_700_000_060_000)
+      utimesSync(a, newer, newer)
+      utimesSync(b, older, older)
+      LmdbBackup.prune(base, 1)
+      expect(existsSync(a)).toBe(false)
+      expect(existsSync(b)).toBe(true)
     } finally {
       await env.close()
     }

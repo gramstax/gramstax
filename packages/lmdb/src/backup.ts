@@ -75,6 +75,49 @@ export class LmdbBackup {
   }
 
   /**
+   * Creation time encoded in a backup name, in epoch ms.
+   *
+   * @remarks
+   * Filesystem `mtimeMs` granularity can be coarser than a millisecond, so two
+   * backups taken in quick succession can share an `mtimeMs` and leave the
+   * order down to `readdirSync`. `prune()` deletes from this order, so a tie
+   * means it can drop the newest instead of the oldest. The name carries
+   * `Date.now()` at full precision, so that is the primary key.
+   *
+   * @param name - Directory or archive file name, with or without the prefix
+   * and the `.tar.gz` suffix.
+   * @returns Epoch ms, or `undefined` when the name carries no stamp.
+   *
+   * @internal
+   */
+  private static _stampMs(name: string): number | undefined {
+    const rest = name.startsWith(BACKUP_PREFIX) ? name.slice(BACKUP_PREFIX.length) : name
+    const digits = /^\d+/.exec(rest)?.[0]
+    if (digits === undefined) return undefined
+    const ms = Number(digits)
+    return Number.isFinite(ms) ? ms : undefined
+  }
+
+  /**
+   * Oldest-first comparator shared by {@link LmdbBackup.list} and
+   * {@link LmdbBackup.listArchives}.
+   *
+   * @remarks
+   * Falls back to `mtimeMs` and then to `name` so the result stays a total
+   * order even for entries this package did not write.
+   *
+   * @internal
+   */
+  private static _byOldest(a: {name: string; mtimeMs: number}, b: {name: string; mtimeMs: number}): number {
+    const stampA = LmdbBackup._stampMs(a.name) ?? a.mtimeMs
+    const stampB = LmdbBackup._stampMs(b.name) ?? b.mtimeMs
+    if (stampA !== stampB) return stampA - stampB
+    if (a.mtimeMs !== b.mtimeMs) return a.mtimeMs - b.mtimeMs
+    if (a.name === b.name) return 0
+    return a.name < b.name ? -1 : 1
+  }
+
+  /**
    * Lazily import an optional peer dependency.
    *
    * @param specifier - Package to `import()`.
@@ -189,8 +232,8 @@ export class LmdbBackup {
    * List backups oldest-first.
    *
    * @param baseDir - Directory holding timestamped backup subdirs.
-   * @returns Backup entries sorted by `mtimeMs` ascending; `[]` when the
-   * directory is missing. Foreign (non-`backup-*`) entries are skipped.
+   * @returns Backup entries oldest-first; `[]` when the directory is missing.
+   * Foreign (non-`backup-*`) entries are skipped.
    *
    * @public
    */
@@ -211,7 +254,7 @@ export class LmdbBackup {
         entries.push({name, path: full, mtimeMs: st.mtimeMs})
       } catch {}
     }
-    entries.sort((a, b) => a.mtimeMs - b.mtimeMs)
+    entries.sort((a, b) => LmdbBackup._byOldest(a, b))
     return entries
   }
 
@@ -285,7 +328,7 @@ export class LmdbBackup {
    * List tar.gz archives oldest-first.
    *
    * @param baseDir - Directory holding archives.
-   * @returns Archive entries sorted by `mtimeMs` ascending; `[]` when the
+   * @returns Archive entries oldest-first; `[]` when the directory is missing.
    * directory is missing.
    *
    * @public
@@ -306,7 +349,7 @@ export class LmdbBackup {
         if (st.isFile()) entries.push({name, path: full, mtimeMs: st.mtimeMs, sizeBytes: st.size})
       } catch {}
     }
-    entries.sort((a, b) => a.mtimeMs - b.mtimeMs)
+    entries.sort((a, b) => LmdbBackup._byOldest(a, b))
     return entries
   }
 
