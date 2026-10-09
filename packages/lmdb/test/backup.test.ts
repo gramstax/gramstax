@@ -60,12 +60,7 @@ async function duringSchedule(env: LmdbEnv, opts: LmdbBackupStartOptions, body: 
   try {
     await body(handle)
   } finally {
-    handle.stop()
-    // `stop()` cannot cancel a tick already inside the native LMDB copy, and
-    // the caller closes the env and deletes the temp dir straight after. Let a
-    // bounded settle window elapse so the copy finishes first; otherwise the
-    // close races it and the binding segfaults.
-    await sleep(60)
+    await handle.stop()
   }
 }
 
@@ -165,7 +160,7 @@ describe(`LmdbBackup`, () => {
       const handle = LmdbBackup.start(env, {dir: base, keep: 5, pattern: `* * * * * *`, persist: false})
       expect(handle.label()).toContain(`* * * * * *`)
       await sleep(1300)
-      handle.stop()
+      await handle.stop()
       const count = backupCount(base)
       expect(count).toBeGreaterThanOrEqual(1)
       await sleep(1300)
@@ -323,9 +318,8 @@ describe(`LmdbBackup`, () => {
         expect(jobs.lastRun(`nightly`)).toBeGreaterThan(hourlyAt)
         expect(jobs.lastRun(`hourly`)).toBe(hourlyAt)
       } finally {
-        nightly.stop()
-        hourly.stop()
-        await sleep(60)
+        await nightly.stop()
+        await hourly.stop()
       }
     } finally {
       await env.close()
@@ -377,7 +371,7 @@ describe(`LmdbBackup`, () => {
         leaked = LmdbBackup.start(env, {dir: base, pattern: `0 3 * * *`})
       }).toThrow(LmdbError)
     } finally {
-      leaked?.stop()
+      await leaked?.stop()
     }
   })
 
@@ -401,10 +395,25 @@ describe(`LmdbBackup`, () => {
     try {
       env.register(ValSchema)
       await duringSchedule(env, {dir: base, pattern: `0 3 * * *`, persist: false}, async (handle) => {
-        handle.stop()
+        await handle.stop()
         await handle.runNow()
         expect(backupCount(base)).toBe(1)
       })
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`stop waits for a run already in flight`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      const handle = LmdbBackup.start(env, {dir: base, pattern: `0 0 1 1 *`, persist: false})
+      const running = handle.runNow()
+      await handle.stop()
+      expect(backupCount(base)).toBe(1)
+      await running
+      expect(backupCount(base)).toBe(1)
     } finally {
       await env.close()
     }

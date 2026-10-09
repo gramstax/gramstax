@@ -98,10 +98,13 @@ export interface IJobRunHandle {
    * Stop the schedule — no further scheduled ticks.
    *
    * @remarks
-   * Idempotent, and permanent: croner cannot resume a stopped job. A tick
-   * already in flight still settles through `onError`.
+   * Idempotent, and permanent: croner cannot resume a stopped job. Resolves
+   * once a tick already in flight has settled, so the caller may await it and
+   * then tear down the env or the tick's output directory without racing the
+   * task. A tick cron had queued but not yet started is dropped, not run.
+   * {@link IJobRunHandle.runNow} still works after a stop.
    */
-  stop(): void
+  stop(): Promise<void>
   /**
    * Run the task now and record the run, without disturbing the schedule.
    *

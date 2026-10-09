@@ -254,12 +254,22 @@ export class LmdbJobRun {
       }
     }
 
+    // Set synchronously by `stop()`, so a tick cron already queued but not yet
+    // started is dropped instead of writing into a torn-down env.
+    let stopped = false
+
+    // Cron entry point, gated on `stopped`; `runNow` stays open after a stop.
+    const tick = async (): Promise<void> => {
+      if (stopped) return
+      await runOnce()
+    }
+
     let cron: Cron
     try {
       // `name` is deliberately omitted: croner's named-job registry is
       // process-global and throws on a duplicate, so two envs in one process
       // using the same job key would collide.
-      cron = new Cron(pattern, {paused: true, ...(timezone === undefined ? {} : {timezone})}, () => runOnce())
+      cron = new Cron(pattern, {paused: true, ...(timezone === undefined ? {} : {timezone})}, () => tick())
     } catch (err) {
       throw new LmdbError(`Job '${name}' pattern '${pattern}' is not a valid cron expression: ${String(err)}`)
     }
@@ -272,8 +282,11 @@ export class LmdbJobRun {
     cron.resume()
 
     return {
-      stop: () => {
+      stop: async () => {
+        stopped = true
         cron.stop()
+        const pending = inFlight
+        if (pending !== undefined) await pending
       },
       runNow: () => runOnce(),
       lastRun: () => (last > 0 ? last : undefined),

@@ -17,7 +17,7 @@ const TEST_TMP_BASE = join(import.meta.dir, `.tmp`)
  */
 export function createTestDir(prefix: string): string {
   mkdirSync(TEST_TMP_BASE, {recursive: true})
-  return mkdtempSync(join(TEST_TMP_BASE, prefix))
+  return mkdtempSync(join(TEST_TMP_BASE, `${process.pid}-${prefix}`))
 }
 
 /**

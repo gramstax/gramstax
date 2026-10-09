@@ -119,8 +119,13 @@ export interface IBackupStartOptions {
 export interface IBackupHandle {
   /**
    * Stop the schedule — no further scheduled ticks.
+   *
+   * @remarks
+   * Resolves once a snapshot already in flight has settled. Await it before
+   * closing the env or deleting the backup directory, or the running native
+   * copy races the teardown.
    */
-  stop(): void
+  stop(): Promise<void>
   /**
    * Take a snapshot now and record the run, without disturbing the schedule.
    *
