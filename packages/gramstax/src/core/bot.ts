@@ -1313,6 +1313,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Override this method to handle errors gracefully, e.g., sending
    * an error message to the user or logging to an external service.
    *
+   * A throw from here is contained and logged rather than propagated: this is
+   * the last step that can tell a user their request failed, so letting it
+   * escape would end the update with nothing sent and nothing recorded.
+   *
    * @param ctx - The context instance.
    * @param listenerName - The name of the listener handling this update.
    * @param error - The caught error.
@@ -1343,6 +1347,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Override this method to send a "command not found" message or
    * redirect to a help page.
+   *
+   * @remarks
+   * A throw from here is treated as a handler failure rather than propagated: it
+   * routes to {@link Gramstax.hookErrorPage}, which is guarded, so a broken
+   * fallback page still leaves the user with an error message instead of
+   * silence.
    *
    * @param ctx - The context instance.
    *
@@ -3288,7 +3298,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       } else {
         state = `error`
         this.metrics.counts.updatesFailed += 1
-        await this.hookErrorPage?.(ctx, {listenerName, error, isEdit})
+        try {
+          await this.hookErrorPage?.(ctx, {listenerName, error, isEdit})
+        } catch (hookFailure) {
+          // This is the last step that can tell a user their request failed, so
+          // it must not escape `_handleCtx` — that would skip hookAfterRoute and
+          // the metrics record with nothing sent and nothing logged. A failing
+          // hookNotFoundPage also lands here, so this guard terminates the
+          // fallback cascade.
+          this.log?.error?.(`hookErrorPage hook failed: ${String(hookFailure)}`)
+        }
         this._emitUpdateError({traceId, listenerName, state: `error`, error, durationMs: Date.now() - startedAt, isEdit})
       }
     }
