@@ -746,12 +746,36 @@ function s3Creds(): LmdbBackupS3Options {
   return {bucket: `b`, accessKeyId: `k`, secretAccessKey: `s`}
 }
 
+type DrainableBody = {once: (event: string, fn: () => void) => unknown; resume: () => unknown}
+
+function isDrainable(value: unknown): value is DrainableBody {
+  if (typeof value !== `object` || value === null) return false
+  const candidate = value as DrainableBody
+  return typeof candidate.resume === `function` && typeof candidate.once === `function`
+}
+
+/** Consume a request body the way the real S3 SDK does, and wait for it to close. */
+async function drain(body: DrainableBody): Promise<void> {
+  await new Promise<void>((resolve) => {
+    const done = (): void => resolve()
+    body.once(`close`, done)
+    body.once(`end`, done)
+    body.once(`error`, done)
+    body.resume()
+  })
+}
+
 function fakeS3(calls: Array<string>, objects: Array<{Key: string; LastModified: Date}>, body = `hello`): S3Client {
   return {
     send: async (cmd: unknown) => {
       const kind = (cmd as {constructor: {name: string}}).constructor.name
       calls.push(kind)
-      if (kind === `PutObjectCommand`) return {$metadata: {httpStatusCode: 200}}
+      if (kind === `PutObjectCommand`) {
+        const carrier = cmd as {Body?: unknown; input?: {Body?: unknown}}
+        const payload = carrier.input?.Body ?? carrier.Body
+        if (isDrainable(payload)) await drain(payload)
+        return {$metadata: {httpStatusCode: 200}}
+      }
       if (kind === `ListObjectsV2Command`) {
         return {Contents: objects.map((o) => ({Key: o.Key, LastModified: o.LastModified})), IsTruncated: false}
       }
