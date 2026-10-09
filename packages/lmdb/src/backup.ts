@@ -109,12 +109,23 @@ export class LmdbBackup {
    * @internal
    */
   private static _byOldest(a: {name: string; mtimeMs: number}, b: {name: string; mtimeMs: number}): number {
-    const stampA = LmdbBackup._stampMs(a.name) ?? a.mtimeMs
-    const stampB = LmdbBackup._stampMs(b.name) ?? b.mtimeMs
-    if (stampA !== stampB) return stampA - stampB
+    const stampA = LmdbBackup._stampMs(a.name)
+    const stampB = LmdbBackup._stampMs(b.name)
+    if (stampA !== undefined && stampB !== undefined) {
+      if (stampA !== stampB) return stampA - stampB
+      // Two backups can land in the same millisecond and share a stamp, so the
+      // name suffix decides. Arbitrary but stable, which is what `prune` needs to
+      // pick a deterministic victim.
+      if (a.name !== b.name) return a.name < b.name ? -1 : 1
+      return a.mtimeMs - b.mtimeMs
+    }
+    // At least one name carries no stamp, so there is nothing to compare. `mtimeMs`
+    // is the only signal left, and sorting on it is what keeps a freshly written
+    // backup behind pre-existing entries a package did not create — ordering
+    // these by name instead would put digits first and make `prune` delete the
+    // newest one.
     if (a.mtimeMs !== b.mtimeMs) return a.mtimeMs - b.mtimeMs
-    if (a.name === b.name) return 0
-    return a.name < b.name ? -1 : 1
+    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0
   }
 
   /**

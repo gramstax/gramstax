@@ -38,6 +38,22 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/**
+ * Poll until `check` holds, so a slow snapshot is not mistaken for a missing one.
+ *
+ * @remarks
+ * A fixed sleep is a race on a loaded machine: `mdb_env_copy2` plus the prune
+ * behind it can outlast the window, and the assertion then fails for a backup
+ * that was merely late.
+ */
+async function until(check: () => boolean, timeoutMs = 15_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs
+  while (!check()) {
+    if (Date.now() > deadline) return
+    await sleep(25)
+  }
+}
+
 /** Count created backups, tolerating a base dir the test never made. */
 function backupCount(base: string): number {
   try {
@@ -112,22 +128,43 @@ describe(`LmdbBackup`, () => {
     }
   })
 
+  it(`prune keeps a fresh backup ahead of an entry with no stamp in its name`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      mkdirSync(base, {recursive: true})
+      // A name no run of this package produces, so no stamp can be parsed from it.
+      const legacy = join(base, `backup-old-a`)
+      mkdirSync(legacy, {recursive: true})
+      const old = new Date(1_700_000_000_000)
+      utimesSync(legacy, old, old)
+      const fresh = await LmdbBackup.backup(env, base, 1)
+      // Digits sort before letters, so ordering these by name would put `fresh`
+      // first and `prune` would delete the backup it just wrote.
+      expect(existsSync(legacy)).toBe(false)
+      expect(existsSync(fresh)).toBe(true)
+    } finally {
+      await env.close()
+    }
+  })
+
   it(`list stays oldest-first when mtime order disagrees with creation order`, async () => {
     const {env, base} = setupEnv()
     try {
-      env.register(ValSchema)
-      const a = await LmdbBackup.backup(env, base, 5)
-      const b = await LmdbBackup.backup(env, base, 5)
-      // Backup `a` was created first but must sort first, so give it the LATER
-      // mtime. A coarse filesystem tick gives two quick backups the same mtime
-      // and leaves the order down to `readdirSync`, which is what made this
-      // fail intermittently in CI; an inverted mtime reproduces that same
-      // "mtime is not creation order" fact deterministically.
-      const older = new Date(1_700_000_000_000)
-      const newer = new Date(1_700_000_060_000)
-      utimesSync(a, newer, newer)
-      utimesSync(b, older, older)
-      expect(LmdbBackup.list(base).map((e) => e.path)).toEqual([a, b])
+      mkdirSync(base, {recursive: true})
+      // Fixed names rather than real `backup()` stamps: two real ones can share a
+      // millisecond, which would leave the expected order a coin flip. Here the
+      // creation order is a fact of the test instead of a race.
+      const older = join(base, `backup-0000000000001-aaaa`)
+      const newer = join(base, `backup-0000000000002-bbbb`)
+      mkdirSync(older, {recursive: true})
+      mkdirSync(newer, {recursive: true})
+      // `older` was created first but is given the LATER mtime, so an mtime
+      // ordering would return the opposite answer.
+      const late = new Date(1_700_000_060_000)
+      const early = new Date(1_700_000_000_000)
+      utimesSync(older, late, late)
+      utimesSync(newer, early, early)
+      expect(LmdbBackup.list(base).map((e) => e.path)).toEqual([older, newer])
     } finally {
       await env.close()
     }
@@ -136,16 +173,39 @@ describe(`LmdbBackup`, () => {
   it(`prune keeps the newest when mtime order disagrees with creation order`, async () => {
     const {env, base} = setupEnv()
     try {
-      env.register(ValSchema)
-      const a = await LmdbBackup.backup(env, base, 5)
-      const b = await LmdbBackup.backup(env, base, 5)
-      const older = new Date(1_700_000_000_000)
-      const newer = new Date(1_700_000_060_000)
-      utimesSync(a, newer, newer)
-      utimesSync(b, older, older)
+      mkdirSync(base, {recursive: true})
+      const older = join(base, `backup-0000000000001-aaaa`)
+      const newer = join(base, `backup-0000000000002-bbbb`)
+      mkdirSync(older, {recursive: true})
+      mkdirSync(newer, {recursive: true})
+      const late = new Date(1_700_000_060_000)
+      const early = new Date(1_700_000_000_000)
+      utimesSync(older, late, late)
+      utimesSync(newer, early, early)
       LmdbBackup.prune(base, 1)
-      expect(existsSync(a)).toBe(false)
-      expect(existsSync(b)).toBe(true)
+      expect(existsSync(older)).toBe(false)
+      expect(existsSync(newer)).toBe(true)
+    } finally {
+      await env.close()
+    }
+  })
+
+  it(`list breaks a same-millisecond tie by name, not by mtime`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      mkdirSync(base, {recursive: true})
+      const first = join(base, `backup-0000000000001-aaaa`)
+      const second = join(base, `backup-0000000000001-bbbb`)
+      mkdirSync(first, {recursive: true})
+      mkdirSync(second, {recursive: true})
+      // Identical stamp: `prune` still has to choose a stable victim, so the
+      // name decides. The mtimes are inverted against the names so that an
+      // mtime-first tiebreak returns the opposite answer and gets caught.
+      const late = new Date(1_700_000_060_000)
+      const early = new Date(1_700_000_000_000)
+      utimesSync(first, late, late)
+      utimesSync(second, early, early)
+      expect(LmdbBackup.list(base).map((e) => e.path)).toEqual([first, second])
     } finally {
       await env.close()
     }
@@ -352,6 +412,10 @@ describe(`LmdbBackup`, () => {
       const nightly = LmdbBackup.start(env, {dir: base, pattern: `0 3 * * *`, persistKey: `nightly`})
       const hourly = LmdbBackup.start(env, {dir: base, pattern: `0 3 * * *`, persistKey: `hourly`})
       try {
+        await until(() => backupCount(base) === 1)
+        // `hourly` must NOT catch up. Keep the original window so that "did not
+        // fire" is still being observed, rather than asserted before it had a
+        // chance to run.
         await sleep(350)
         expect(backupCount(base)).toBe(1)
         expect(jobs.lastRun(`nightly`)).toBeGreaterThan(hourlyAt)
