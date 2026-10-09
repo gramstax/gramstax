@@ -52,6 +52,9 @@ type ICustomRouteEntry = {
 /** Max ms {@link Gramstax.stop} waits for in-flight queue handlers to finish. @internal */
 const QUEUE_DRAIN_TIMEOUT_DEFAULT = 10_000
 
+/** Telegram's hard ceiling for `getUpdates.limit`. @internal */
+const POLLING_FETCH_LIMIT_MAX = 100
+
 /**
  * Internal sentinel thrown when an update exceeds `updateTimeoutMs`.
  *
@@ -1691,6 +1694,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       },
       onError: (error) => this.log?.error?.(`Polling worker error: ${String(error)}`)
     })
+
+    if (blockWhenFull) {
+      const apiGetUpdates = this.bot.api.getUpdates.bind(this.bot.api)
+      // grammY declares `AbortSignal` twice — global in `api.d.ts`, a shim in
+      // `client.d.ts` — so both sides below are derived from the bound method
+      // rather than annotated, and the one cast sits on the assignment.
+      const clampFetchLimit = async (other: Parameters<typeof apiGetUpdates>[0], signal: Parameters<typeof apiGetUpdates>[1]) => {
+        const ceiling = typeof other?.limit === `number` ? other.limit : POLLING_FETCH_LIMIT_MAX
+        const free = this.pollingDispatcher?.capacity() ?? POLLING_FETCH_LIMIT_MAX
+        return await apiGetUpdates({...other, limit: Math.max(1, Math.min(ceiling, free, POLLING_FETCH_LIMIT_MAX))}, signal)
+      }
+      this.bot.api.getUpdates = clampFetchLimit as typeof this.bot.api.getUpdates
+    }
 
     await this.bot.init()
     this.pollingDispatcher.start()
