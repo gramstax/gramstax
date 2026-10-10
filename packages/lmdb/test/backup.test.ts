@@ -701,6 +701,63 @@ describe(`LmdbBackup`, () => {
     }
   })
 
+  it(`s3Keep retains remote archives independently of local keep`, async () => {
+    const remote = () => [
+      {Key: `snapshots/old.tar.gz`, LastModified: new Date(`2020-01-01T00:00:00Z`)},
+      {Key: `snapshots/older.tar.gz`, LastModified: new Date(`2019-01-01T00:00:00Z`)}
+    ]
+    const tight = setupEnv()
+    const loose = setupEnv()
+    try {
+      tight.env.register(ValSchema)
+      loose.env.register(ValSchema)
+      const tightCalls: Array<string> = []
+      const looseCalls: Array<string> = []
+
+      await LmdbBackup.snapshot(tight.env, {
+        dir: tight.base,
+        keep: 1,
+        format: `tar.gz`,
+        s3: {...s3Creds(), client: fakeS3(tightCalls, remote())}
+      })
+      await LmdbBackup.snapshot(loose.env, {
+        dir: loose.base,
+        keep: 1,
+        s3Keep: 5,
+        format: `tar.gz`,
+        s3: {...s3Creds(), client: fakeS3(looseCalls, remote())}
+      })
+
+      // Without it the remote copy follows local `keep`; with it the off-host
+      // archives the local prune would have deleted are still there.
+      expect(tightCalls).toContain(`DeleteObjectsCommand`)
+      expect(looseCalls).toContain(`PutObjectCommand`)
+      expect(looseCalls).not.toContain(`DeleteObjectsCommand`)
+    } finally {
+      await tight.env.close()
+      await loose.env.close()
+    }
+  })
+
+  it(`start forwards s3Keep to the scheduled tick`, async () => {
+    const {env, base} = setupEnv()
+    try {
+      env.register(ValSchema)
+      const calls: Array<string> = []
+      const s3 = {
+        ...s3Creds(),
+        client: fakeS3(calls, [{Key: `snapshots/old.tar.gz`, LastModified: new Date(`2020-01-01T00:00:00Z`)}])
+      }
+      const handle = LmdbBackup.start(env, {dir: base, keep: 1, s3Keep: 5, pattern: `0 3 * * *`, format: `tar.gz`, s3})
+      await handle.runNow()
+      await handle.stop()
+      expect(calls).toContain(`PutObjectCommand`)
+      expect(calls).not.toContain(`DeleteObjectsCommand`)
+    } finally {
+      await env.close()
+    }
+  })
+
   it(`pruneS3Archives removes oldest beyond keep`, async () => {
     const calls: Array<string> = []
     const remote = [

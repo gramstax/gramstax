@@ -314,7 +314,7 @@ export class LmdbBackup {
     await rm(staging, {recursive: true, force: true})
     await LmdbBackup.pruneArchives(dir, keep)
     if (!opts.s3) return {path: dest}
-    const uploaded = await LmdbBackup.uploadToS3(dest, opts.s3, keep)
+    const uploaded = await LmdbBackup.uploadToS3(dest, opts.s3, LmdbBackup._normalizeKeep(opts.s3Keep ?? opts.keep))
     return {path: dest, uploaded}
   }
 
@@ -609,7 +609,7 @@ export class LmdbBackup {
       persist: opts.persist,
       runOnStart: opts.runOnStart,
       onError: opts.onError,
-      task: () => LmdbBackup.snapshot(env, {dir, keep, format, s3: opts.s3, compact: opts.compact})
+      task: () => LmdbBackup.snapshot(env, {dir, keep, s3Keep: opts.s3Keep, format, s3: opts.s3, compact: opts.compact})
     })
 
     return {

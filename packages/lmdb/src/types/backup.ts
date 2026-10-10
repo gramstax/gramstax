@@ -35,6 +35,16 @@ export interface IBackupStartOptions {
    */
   keep?: number
   /**
+   * Remote archives to retain after each tick (default: `keep`).
+   *
+   * @remarks
+   * Separate from {@link keep} because off-host retention is usually longer than
+   * local — you prune local copies aggressively to save disk and keep the
+   * archive you can restore from anywhere. Falls back to `keep`, so a caller
+   * that never sets it behaves exactly as before.
+   */
+  s3Keep?: number
+  /**
    * Cron pattern for the schedule, resolved by `croner`.
    *
    * @remarks
@@ -232,6 +242,16 @@ export interface IBackupSnapshotOptions {
    * Local entries to retain (default `3`).
    */
   keep?: number
+  /**
+   * Remote archives to retain after each tick (default: `keep`).
+   *
+   * @remarks
+   * Separate from {@link keep} because off-host retention is usually longer than
+   * local — you prune local copies aggressively to save disk and keep the
+   * archive you can restore from anywhere. Falls back to `keep`, so a caller
+   * that never sets it behaves exactly as before.
+   */
+  s3Keep?: number
   /**
    * `dir` for raw LMDB dirs (default), `tar.gz` for single-file archives.
    */

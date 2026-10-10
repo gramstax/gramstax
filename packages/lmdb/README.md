@@ -734,7 +734,7 @@ const { path, uploaded } = await LmdbBackup.snapshot(env, {
 | Call | Purpose |
 | --- | --- |
 | `backup(env, dir, keep?, compact?)` | `backup-<stamp>/` directory copy, then prune |
-| `snapshot(env, {dir, keep?, format?, s3?})` | Full cycle → `{path, uploaded?}` |
+| `snapshot(env, {dir, keep?, s3Keep?, format?, s3?})` | Full cycle → `{path, uploaded?}` |
 | `list(dir)` / `listArchives(dir)` | Entries oldest-first, `mtimeMs` ordered |
 | `prune(dir, keep)` / `pruneArchives(dir, keep)` | Retention, standalone |
 | `pruneS3Archives(s3, keep)` | Remote retention (paginated listing, batched deletes) |
@@ -772,6 +772,21 @@ const s3 = {
 ```
 
 Every upload is **PUT-verified** (`200`) before the local file is considered done. A failed upload keeps the local archive and logs an error — it is never deleted. The token needs `Put`, `List` and `Delete` on the prefix.
+
+### Retention: `keep` vs `s3Keep`
+
+`keep` trims local archives; `s3Keep` trims the remote ones. They default to the same number, which is usually wrong in practice: you prune local copies aggressively to save disk and keep the off-host archive you can restore from anywhere.
+
+```typescript
+// keep 3 on disk, 30 in the bucket
+const {path, uploaded} = await LmdbBackup.snapshot(env, {
+  dir: `./backups`, keep: 3, s3Keep: 30, format: `tar.gz`, s3
+});
+
+LmdbBackup.start(db, {dir: `./backups`, pattern: `0 3 * * *`, keep: 3, s3Keep: 30, s3});
+```
+
+Both `snapshot` and `start` accept it; `start` forwards it to every tick.
 
 ### `compact`: dense copies, your call
 
