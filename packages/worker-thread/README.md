@@ -100,9 +100,17 @@ worker:       constructor → signals ready → handles RPC → onBeforeExit() �
 | Kill                | `worker.kill()`                                           | Immediate terminate, no cleanup                        |
 | Graceful            | `worker.shutdown(timeoutMs?)`                            | Runs `onBeforeExit()`, force-terminates after the timeout |
 
-A worker can call back into the main thread:
+A worker can call back into the main thread — as long as the main-thread class declares the method:
 
 ```ts
+// main.ts — your launch class, so you own the method name
+export class MainThread extends WorkerThreadLaunch {
+  mtdGetConfig() {
+    return {feature: true}
+  }
+}
+
+// inside your worker
 const answer = await this.request(`mtdGetConfig`, [])
 ```
 
@@ -111,8 +119,9 @@ const answer = await this.request(`mtdGetConfig`, [])
 ```ts
 import {WorkerThreadPool} from "@gramstax/worker-thread"
 
+// `mtdAdd` is the worker method declared in the quick start above.
 const pool = new WorkerThreadPool(await Promise.all([1, 2, 3].map(() => ProcessorJob.launchWorker())))
-const squares = await Promise.all([1, 2, 3, 4].map((n) => pool.execute(`mtdSquare`, [n])))
+const sums = await Promise.all([1, 2, 3, 4].map((n) => pool.execute(`mtdAdd`, [n, 10])))
 ```
 
 `execute` spreads calls round-robin. `broadcastRequest` fans out to every worker and rejects if any fail; `broadcastSettled` returns one result per worker, which is usually what you want for best-effort fan-out. Workers that exit are dropped from the pool automatically, and `threadCount` reflects the live ones.

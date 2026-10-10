@@ -235,6 +235,8 @@ packages/lmdb/
 
 Every option is optional except `path`, and everything but `path` is forwarded to the underlying LMDB `open()` call and inherited by every sub-database.
 
+Only two defaults belong to this package: the constructor reads `mapSize` as `4 * 1024 * 1024 * 1024` and `maxDbs` as `128`, then passes both explicitly. Every other option is spread straight through to [lmdb-js](https://www.npmjs.com/package/lmdb) untouched, so its default is lmdb-js's and is marked as such below — you will not find those numbers in this package's source. A `—` means no default is applied at all.
+
 | Option              | Type                            | Default                | Purpose                                                          |
 | :------------------ | :------------------------------ | :--------------------- | :--------------------------------------------------------------- |
 | `path`              | `string`                        | **required**           | Data directory (or filename when `noSubdir` applies)            |
@@ -242,7 +244,7 @@ Every option is optional except `path`, and everything but `path` is forwarded t
 | `encoding`          | `ILmdbEncoding`                 | `msgpack`              | `msgpack` · `json` · `cbor` · `binary` · `string` · `ordered-binary` |
 | `compression`       | `boolean \| ICompressionOptions` | `false`               | LZ4, off-thread; smaller on disk for a small CPU cost            |
 | `readOnly`          | `boolean`                       | `false`                | Read-only env rejects every write                                |
-| `maxReaders`        | `number`                        | `126`                  | Concurrent readers; each read transaction occupies one           |
+| `maxReaders`        | `number`                        | lmdb-js              | Concurrent readers; each read transaction occupies one           |
 | `mapSize`           | `number`                        | `4294967296` (4 GB)    | Virtual mapping — not RAM. Cannot change after open              |
 | `cache`             | `boolean \| Record<string, unknown>` | `false`          | In-memory read cache; `true` for defaults or an object to tune    |
 | `useVersions`       | `boolean`                       | `false`                | Record versioning, required for optimistic locking via `rootPut`  |
@@ -250,7 +252,7 @@ Every option is optional except `path`, and everything but `path` is forwarded t
 | `dupSort`           | `boolean`                       | `false`                | Duplicate entries per key — one key to many ordered values       |
 | `strictAsyncOrder`  | `boolean`                       | —                      | Order async transactions against async single ops, at a switch cost |
 | `commitDelay`       | `number`                        | `0`                    | Milliseconds to batch writes before committing                   |
-| `pageSize`          | `number`                        | OS page size           | Use `8192` for a database larger than RAM                        |
+| `pageSize`          | `number`                        | OS page size (lmdb-js) | Use `8192` for a database larger than RAM                        |
 | `overlappingSync`   | `boolean`                       | on                     | Flush off the write lock so writes can overlap                   |
 | `separateFlushed`   | `boolean`                       | —                      | Split `committed` (visible) from `flushed` (durable)             |
 | `remapChunks`       | `boolean`                       | on                     | Dynamic mapping; slightly slower reads, kinder to other apps     |
