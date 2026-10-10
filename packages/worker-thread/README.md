@@ -195,21 +195,100 @@ packages/worker-thread/
 
 ## 🔧 Configuration
 
-Defaults are exported constants, so you can read them instead of guessing:
+### `WorkerThreadExport.init`
 
-| Constant                     | Default | Purpose                                              |
-| :--------------------------- | :------ | :--------------------------------------------------- |
-| `DEFAULT_REQUEST_TIMEOUT_MS` | 30000   | Per-request timeout in ms                            |
-| `DEFAULT_MAX_MESSAGE_SIZE`   | 10 MB   | Largest payload accepted in one RPC message          |
+The factory both instantiates the worker and returns the main-thread proxy, so one declaration serves both processes.
 
-Per-call overrides:
+| Option     | Default                 | Purpose                                                                        |
+| :--------- | :---------------------- | :----------------------------------------------------------------------------- |
+| `path`     | **required**            | Path to the worker file — normally `__filename` for a self-referential worker  |
+| `WTInit`   | **required**            | Worker class extending `WorkerThreadInit`                                     |
+| `WTLaunch` | `WorkerThreadLaunch`    | Main-thread class, when you need your own `mtd*` methods on the launch side    |
+| `wrap`     | —                       | Wrap the main-thread handle in a custom type                                  |
+
+### Exported calls
 
 ```ts
-await worker.request(`mtdSlowTask`, [2000], true, undefined, 500) // reject after 500ms
-await worker.request(`mtdHugeTask`, [], true, undefined, 0)        // no timeout
+await Job.launchWorker(argv?)      // spawn + wait until ready
+await Job.launchGatewayClient(path, options)
+await Job.shutdown(timeoutMs?)
 ```
 
-Gateway clients accept `{token, reconnect, retries, maxRetryTime, messagepack}` — `messagepack: true` preserves `Date`, `BigInt`, `undefined`, and typed arrays across the wire instead of flattening them through JSON.
+`argv` items beyond the first two are readable inside the worker as `this.argv[3]...`.
+
+### RPC per call
+
+```ts
+worker.request(method, params, wait?, others?, timeoutMs?)
+```
+
+| Argument     | Default             | Meaning                                                        |
+| :----------- | :------------------ | :------------------------------------------------------------- |
+| `method`     | —                   | Name of the `mtd*` method                                      |
+| `params`     | `[]`                | Arguments passed positionally                                  |
+| `wait`       | `true`              | Resolve when the worker answers; `false` for fire-and-forget   |
+| `others`     | —                   | Broadcast to a pool instead of one worker                      |
+| `timeoutMs`  | `30000`             | Reject after this many ms; **`0` disables the timeout**        |
+
+To change the default for every call on one instance, set `rpc.defaultTimeoutMs`:
+
+```ts
+worker.rpc.defaultTimeoutMs = 60_000
+```
+
+A call that passes `0` keeps running in the worker after the caller gives up, so a naive retry double-executes it. Size the timeout to the work, not to hope.
+
+### Gateway server
+
+```ts
+this.createGatewayServer(path, register?, {token, allowedMethods, maxConnections, maxMessageSize})
+```
+
+| Option           | Default                    | Purpose                                                       |
+| :--------------- | :-------------------------- | :------------------------------------------------------------ |
+| `token`          | —                          | Connections without a matching token are closed immediately   |
+| `allowedMethods` | —                          | Remote call surface; **required** when `register` is the whole worker |
+| `maxConnections` | `net-ipc` default          | Concurrent connection ceiling                                 |
+| `maxMessageSize` | `DEFAULT_MAX_MESSAGE_SIZE` | Estimated cap in bytes for one incoming message               |
+
+Passing `undefined` for `register` would expose the entire worker instance, so that combination throws unless a non-empty `allowedMethods` list is supplied. An empty list denies everything — it never opens anything.
+
+### Gateway client
+
+```ts
+launchGatewayClient(path, {token, reconnect, retries, maxRetryTime, maxMessageSize, messagepack})
+```
+
+| Option           | Default                    | Purpose                                                       |
+| :--------------- | :-------------------------- | :------------------------------------------------------------ |
+| `token`          | —                          | Must match the server's                                       |
+| `reconnect`      | `true`                     | Reconnect automatically when the connection drops              |
+| `retries`        | `net-ipc` default          | Reconnect attempts before giving up                           |
+| `maxRetryTime`   | `net-ipc` default          | Upper bound in ms for the exponential backoff                 |
+| `maxMessageSize` | `DEFAULT_MAX_MESSAGE_SIZE` | Estimated cap in bytes for one incoming message                |
+| `messagepack`    | `false`                    | Use msgpackr instead of JSON, preserving `Date`, `BigInt`, `undefined`, and typed arrays |
+
+`retries` and `maxRetryTime` are only forwarded when you set them; otherwise `net-ipc`'s own defaults apply.
+
+### Constants
+
+| Constant                     | Default | Purpose                                    |
+| :--------------------------- | :------ | :----------------------------------------- |
+| `DEFAULT_REQUEST_TIMEOUT_MS` | `30000` | Per-request timeout in ms                  |
+| `DEFAULT_MAX_MESSAGE_SIZE`   | 10 MB   | Largest payload accepted in one RPC message |
+| `DENIED_RPC_METHODS`         | `__proto__`, `constructor`, `prototype`, … | Refused before dispatch      |
+
+### Error handling
+
+The library never writes to the console. Errors on a worker with no `error` listener go to the package-wide handler, which is silent by default:
+
+```ts
+import {WorkerThreadErrorHandler} from "@gramstax/worker-thread"
+
+WorkerThreadErrorHandler.setDefault((err) => logger.error(err))
+```
+
+Attach it at boot, or a worker crash disappears silently.
 
 ## 🏗️ Architecture
 

@@ -231,20 +231,39 @@ packages/lmdb/
 
 ## 🔧 Configuration
 
-Everything is a constructor option on `LmdbEnv`, forwarded to every sub-database:
+### `LmdbEnv` constructor
 
-| Option           | Default    | Purpose                                          |
-| :--------------- | :--------- | :----------------------------------------------- |
-| `path`           | required   | Data directory                                   |
-| `maxDbs`         | `128`      | Sub-database slots — every schema and index costs one |
-| `encoding`       | `msgpack`  | `msgpack` · `json` · `cbor` · `binary` · `string` |
-| `compression`    | `false`    | LZ4, off-thread                                  |
-| `mapSize`        | 4 GB       | Virtual mapping, not RAM                         |
-| `cache`          | `false`    | In-memory read cache                             |
-| `readOnly`       | `false`    | Open read-only                                   |
-| `useVersions`    | `false`    | Enables optimistic locking via `rootPut`         |
-| `encryptionKey`  | —          | ChaCha8, 32 bytes                                |
-| `onWarn`         | silent     | Diagnostics sink                                 |
+Every option is optional except `path`, and everything but `path` is forwarded to the underlying LMDB `open()` call and inherited by every sub-database.
+
+| Option              | Type                            | Default                | Purpose                                                          |
+| :------------------ | :------------------------------ | :--------------------- | :--------------------------------------------------------------- |
+| `path`              | `string`                        | **required**           | Data directory (or filename when `noSubdir` applies)            |
+| `maxDbs`            | `number`                        | `128`                  | Sub-database slots — each schema and each index takes one        |
+| `encoding`          | `ILmdbEncoding`                 | `msgpack`              | `msgpack` · `json` · `cbor` · `binary` · `string` · `ordered-binary` |
+| `compression`       | `boolean \| ICompressionOptions` | `false`               | LZ4, off-thread; smaller on disk for a small CPU cost            |
+| `readOnly`          | `boolean`                       | `false`                | Read-only env rejects every write                                |
+| `maxReaders`        | `number`                        | `126`                  | Concurrent readers; each read transaction occupies one           |
+| `mapSize`           | `number`                        | `4294967296` (4 GB)    | Virtual mapping — not RAM. Cannot change after open              |
+| `cache`             | `boolean \| Record<string, unknown>` | `false`          | In-memory read cache; `true` for defaults or an object to tune    |
+| `useVersions`       | `boolean`                       | `false`                | Record versioning, required for optimistic locking via `rootPut`  |
+| `keyEncoding`       | `` `uint32` \| `binary` \| `ordered-binary` `` | `ordered-binary` | Key encoding; `ordered-binary` accepts any JS primitive as a key |
+| `dupSort`           | `boolean`                       | `false`                | Duplicate entries per key — one key to many ordered values       |
+| `strictAsyncOrder`  | `boolean`                       | —                      | Order async transactions against async single ops, at a switch cost |
+| `commitDelay`       | `number`                        | `0`                    | Milliseconds to batch writes before committing                   |
+| `pageSize`          | `number`                        | OS page size           | Use `8192` for a database larger than RAM                        |
+| `overlappingSync`   | `boolean`                       | on                     | Flush off the write lock so writes can overlap                   |
+| `separateFlushed`   | `boolean`                       | —                      | Split `committed` (visible) from `flushed` (durable)             |
+| `remapChunks`       | `boolean`                       | on                     | Dynamic mapping; slightly slower reads, kinder to other apps     |
+| `noMemInit`         | `boolean`                       | —                      | Skip zeroing malloc'd data — leaves app data in unused pages      |
+| `useWritemap`       | `boolean`                       | —                      | Writemap writes; faster, but a stray pointer can corrupt data    |
+| `noSubdir`          | `boolean`                       | when `path` has an extension | Treat `path` as a filename instead of a directory          |
+| `noSync`            | `boolean`                       | —                      | Skip flush-to-disk on commit — fast, but a crash can lose data   |
+| `noMetaSync`        | `boolean`                       | —                      | Skip metadata flush — less risky than `noSync`, less benefit     |
+| `encryptionKey`     | `string \| Buffer`              | —                      | At-rest encryption (ChaCha8); exactly 32 bytes or characters     |
+| `eventTurnBatching` | `boolean`                       | `true`                 | Async writes in one event turn share a single commit             |
+| `encoder`           | `unknown`                       | —                      | Custom value encoder; overrides `encoding`                       |
+| `keyEncoder`        | `unknown`                       | —                      | Custom key encoder; overrides `keyEncoding`                      |
+| `onWarn`            | `(message: string) => void`     | silent                 | Diagnostics sink                                                 |
 
 Diagnostics are opt-in on purpose — a library that logs behind your back fights your logger:
 
@@ -252,7 +271,105 @@ Diagnostics are opt-in on purpose — a library that logs behind your back fight
 const db = new Db(`./data`, {onWarn: (message) => logger.warn(message)})
 ```
 
-If your sink throws, the failure is contained and writes still commit.
+If your sink throws, the failure is contained and writes still commit. `close()` clears the listener set, so host callbacks are released and nothing reports after shutdown.
+
+### Schema statics
+
+A schema class carries its shape as statics. `db`, `key`, and `value` are required; the rest are opt-in.
+
+| Static                | Purpose                                                                        |
+| :-------------------- | :----------------------------------------------------------------------------- |
+| `db`                  | Sub-database name — one per entity type, unique across the env                 |
+| `key`                  | Primary key — exactly one `t` builder, never `unique()` or `index()`            |
+| `value`                | A map of `t` column builders, or a single builder for a scalar sub              |
+| `ttl`                  | Repository-wide default expiry in ms; `0` materializes the TTL sub without one  |
+| `version`              | Integer row-shape version, so a migration transform can check for skew          |
+| `dupSort`              | Opt this sub into one-key-to-many-ordered-values                                |
+| `useVersions`          | Per-schema record versioning, overriding the env setting                        |
+| `encoding`             | Per-sub-database value encoding, overriding the env setting                     |
+| `hookBeforeWrite`      | Transform a row before LMDB serializes it — must be declared with the read hook |
+| `hookBeforeRead`       | Transform a row after LMDB deserializes it — must be declared with the write hook |
+
+Declaring either hook without the other throws at `register` time. Declaring hooks, `ttl`, or a scalar value opts the schema out of the positional record codec.
+
+### `LmdbBackup.start`
+
+```ts
+LmdbBackup.start(env, {
+  dir, pattern, keep, s3Keep, timezone, runOnStart, format, compact, s3, onError, persist, persistKey
+})
+```
+
+| Option        | Default              | Purpose                                                              |
+| :------------ | :------------------- | :------------------------------------------------------------------- |
+| `dir`         | —                    | **Required.** Directory holding timestamped backups                  |
+| `pattern`     | —                    | **Required.** Cron expression, read in the local timezone unless `timezone` is set |
+| `keep`        | `3`                  | Local archives to retain; non-positive falls back to `3`            |
+| `s3Keep`      | `keep`               | Remote archives to retain, independent of `keep`                     |
+| `timezone`    | host local           | IANA zone for `pattern`                                              |
+| `runOnStart`  | `false`              | Force one extra run at boot even when not due                        |
+| `format`      | `dir`                | `dir` or `tar.gz`                                                    |
+| `compact`     | `false`              | Rewrite the copy densely — slower, smaller, cheaper to restore       |
+| `s3`          | —                    | Upload per tick; `tar.gz` only                                       |
+| `onError`     | `env.emitWarn`       | Tick failure handler                                                 |
+| `persist`     | `true`               | Persist the last successful run so a restart resumes the schedule    |
+| `persistKey`  | `backup`             | Stamp name, so schedules sharing one env do not overwrite each other |
+
+`snapshot()` takes the same shape minus `pattern`, `timezone`, `runOnStart`, `persist`, and `persistKey`.
+
+### `IBackupS3Options`
+
+| Option           | Default        | Purpose                                        |
+| :--------------- | :------------- | :--------------------------------------------- |
+| `bucket`         | **required**   | Bucket name                                    |
+| `accessKeyId`    | **required**   | Access key — or supply `client`                |
+| `secretAccessKey`| **required**   | Secret key — or supply `client`                |
+| `prefix`         | `""`           | Key prefix                                     |
+| `endpoint`       | AWS default    | R2/MinIO URL                                   |
+| `region`         | `auto`         | `auto` works for R2                            |
+| `forcePathStyle` | `false`        | MinIO-style path URLs                          |
+| `client`         | —              | A preconfigured `S3Client`, which wins over the fields above |
+
+### `LmdbJobRun.start`
+
+| Option       | Default        | Purpose                                                             |
+| :----------- | :------------- | :------------------------------------------------------------------ |
+| `pattern`    | —              | **Required.** Cron expression for the schedule                     |
+| `task`       | —              | **Required.** The work; the stamp is written only after it resolves |
+| `timezone`   | host local     | IANA zone for `pattern`                                             |
+| `runOnStart` | `false`        | Run once even when not due                                          |
+| `catchUp`    | `true`         | Run once at boot when a boundary was missed while the process was down |
+| `onError`    | `env.emitWarn` | Tick failure handler                                                |
+| `persist`    | `true`         | Write the stamp; `false` skips stamp reads and catch-up entirely    |
+
+`LmdbBackup.start` is a thin wrapper over this, which is why it accepts `pattern` too.
+
+### `LmdbJobRun.missed`
+
+The missed-boundary check on its own, for when you want the decision without a schedule.
+
+| Option     | Default      | Purpose                                                   |
+| :--------- | :----------- | :-------------------------------------------------------- |
+| `pattern`  | —            | **Required.** The cron expression to evaluate             |
+| `timezone` | host local   | IANA zone for `pattern`                                   |
+| `now`      | `Date.now()` | Evaluate the boundary as of this instant instead of now  |
+
+```ts
+new LmdbJobRun(db).missed(`weekly-report`, {pattern: `0 4 * * 1`}) // → boolean
+```
+
+### `LmdbReader.open`
+
+```ts
+const replica = await LmdbReader.open(`/var/db`, {maxDbs: 10, pollMs: 1000})
+```
+
+| Option    | Default | Purpose                                                    |
+| :-------- | :------ | :--------------------------------------------------------- |
+| `maxDbs`  | `10`    | Slot budget for the replica                                |
+| `pollMs`  | —       | Periodically `resetReadTxn` so a long-lived reader sees new writes |
+
+The reader is always opened `readOnly`, and it is a different process's data: LMDB gives a consistent snapshot per read transaction, not cross-process replication.
 
 ## 🏗️ Architecture
 
