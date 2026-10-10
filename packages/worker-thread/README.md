@@ -1,331 +1,272 @@
-# @gramstax/worker-thread
+<div align="center">
+  <h1>@gramstax/worker-thread</h1>
 
-Multi-runtime **worker threads** for Bun and Node.js (>= 18) with **type-safe RPC** and a **direct inter-worker gateway** over Unix sockets (named pipes on Windows).
+  <p>Multi-runtime worker threads for Bun and Node.js — spawn a worker, call its methods like local async functions, and let workers talk to each other directly over a socket.</p>
+  <p>
+    <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
+    <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
+    <img alt="Node" src="https://img.shields.io/badge/Node-%23333933.svg?style=flat&logo=nodedotjs&logoColor=white"/>
+    <img alt="License" src="https://img.shields.io/badge/License-Proprietary-lightgrey.svg"/>
+  </p>
+</div>
+
+## ✨ Features
+
+### Lifecycle
+
+- 🧵 **Spawn and forget** — `launchWorker()` spawns the thread and resolves when it signals ready
+- 📞 **Local-looking calls** — `await Job.mtdAdd(2, 3)` reads like an async function; the transport is someone else's problem
+- 🧹 **Two kinds of stop** — `shutdown()` drains through `onBeforeExit()` before terminating; `kill()` is the immediate exit
+- 📡 **Lifecycle events** — `ready`, `exit`, and `error` on the main-thread handle, so you react instead of polling
+
+### Type safety
+
+- 🧩 **The worker class is the contract** — `WorkerThreadExport.init()` derives the client from your real class, so a renamed method is a compile error rather than a runtime one
+- 🚦 **`mtd` prefix** — only `mtd*` methods cross the boundary, keeping internals private and the exposed surface greppable
+
+### Scale
+
+- 🧺 **Pools** — round-robin dispatch across many workers, plus fan-out that reports per worker instead of failing as a batch
+- 🌉 **Worker-to-worker gateway** — a socket channel so sibling workers talk directly, with the main thread off the hot path
+- 🔌 **Cross-platform** — Unix sockets on POSIX, named pipes on Windows, path normalized for you
+
+### Reliability & safety
+
+- ⏱️ **Timeouts with an opt-out** — 30 s default per request; pass `0` for calls that legitimately run longer
+- 💥 **Crash detection** — when a worker dies, its pending calls reject instead of hanging forever
+- 🔒 **Gateway auth** — a shared token plus a per-method allow-list; exposing a worker without a list throws
+- 🛡️ **Prototype-pollution guard** — `__proto__`, `constructor`, and `prototype` are refused as RPC methods
+- 📏 **Message cap** — 10 MB by default, so one oversized frame cannot exhaust memory
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+
+- [Bun](https://bun.sh) v1.0+ or Node.js v18+
+
+### 2. Install
 
 ```bash
 bun add @gramstax/worker-thread
-# or
-npm install @gramstax/worker-thread
 ```
 
-## What it gives you
+### 3. Write the worker
 
-| Capability | What it means |
-| --- | --- |
-| Worker lifecycle | Spawn workers from the main thread, wait until ready, terminate or shut down gracefully |
-| Type-safe RPC | Call worker methods like local `async` functions — `await worker.mtdFoo(args)` |
-| Inter-worker gateway | Workers talk to each other **directly** over a socket — the main thread is never in the hot path |
-| Worker pool | Register many workers, dispatch round-robin (`execute`) or fan out to all (`broadcastRequest`) |
-| Reliability | RPC timeouts, crash detection (pending calls reject automatically), lifecycle events, graceful shutdown with a drain hook |
-| Security | Gateway auth tokens and per-method allow-lists |
-| Cross-platform | Unix sockets on POSIX, named pipes on Windows — paths normalized automatically |
+Extend `WorkerThreadInit` and prefix the methods you want reachable with `mtd`.
 
----
-
-## Core concepts
-
-There are three pieces to understand:
-
-### 1. `WorkerThreadInit` — the worker side
-
-Extend it in the **worker file**. Any method is callable from the main thread via RPC:
-
-```typescript
-// jobs/processor.ts
-import { WorkerThreadInit } from "@gramstax/worker-thread";
+```ts
+import {WorkerThreadExport, WorkerThreadInit} from "@gramstax/worker-thread"
 
 export class ProcessorWorker extends WorkerThreadInit {
   mtdAdd(a: number, b: number) {
-    return a + b;
+    return a + b
   }
 }
-```
-
-### 2. `WorkerThreadExport.init()` — the glue
-
-A factory that detects which process it runs in and returns a **typed proxy**:
-
-- In the worker process → instantiates your `WorkerThreadInit` class.
-- In the main process → returns a proxy whose methods call into the worker.
-
-```typescript
-// jobs/processor.ts (same file, bottom)
-import { WorkerThreadExport } from "@gramstax/worker-thread";
 
 export const ProcessorJob = WorkerThreadExport.init({
-  path: __filename,   // the worker file is this file
-  WTInit: ProcessorWorker,
-});
+  path: __filename,
+  WTInit: ProcessorWorker
+})
 ```
 
-### 3. `WorkerThreadLaunch` — the main-thread handle
+### 4. Launch and call
 
-`launchWorker()` returns a `WorkerThreadLaunch` instance that manages the spawned thread: `ready()`, `request()`, `shutdown()`, lifecycle events.
+```ts
+import {ProcessorJob} from "./processor"
 
----
-
-## Quick start
-
-```typescript
-// main.ts
-import { ProcessorJob } from "./jobs/processor";
-
-const worker = await ProcessorJob.launchWorker();      // spawn + wait until ready
-console.log(await ProcessorJob.mtdAdd(2, 3));          // 5 — RPC to the worker
-
-await worker.shutdown();                               // graceful shutdown
+const worker = await ProcessorJob.launchWorker()
+console.log(await ProcessorJob.mtdAdd(2, 3))
+await worker.shutdown()
 ```
 
-That's the whole pattern: **launch → call methods → shutdown**.
+### 5. Shut down cleanly
 
----
+Override `onBeforeExit()` in the worker to flush state, then `shutdown()` from the main thread. It force-terminates after 5 s if the drain hangs.
 
-## Lifecycle
+## 📖 Usage
 
-```
-main thread:  new WorkerThreadLaunch → spawn → ready() resolves → request()... → shutdown()
-worker:       WorkerThreadInit ctor → signals ready → handles RPC → onBeforeExit() → terminated
-```
+### Lifecycle
 
-| Phase | How | Notes |
-| --- | --- | --- |
-| **Spawn** | `launchWorker(argv?)` | Extra `argv` items are readable as `this.argv[3]...` inside the worker |
-| **Ready** | `await worker.ready()` | Rejects if the worker crashes before signaling ready |
-| **RPC** | `worker.request(method, params, wait?, others?, timeoutMs?)` | Or use the typed proxy: `Job.mtdFoo(...)` |
-| **Kill** | `worker.kill()` | Immediate `terminate()` — no cleanup |
-| **Graceful shutdown** | `worker.shutdown(timeoutMs?)` | Sends a `shutdown` RPC → worker runs `onBeforeExit()` → terminated; force-terminates after `timeoutMs` (default 5s) |
-
-The worker can also call **back into the main thread** by extending `WorkerThreadLaunch` with methods:
-
-```typescript
-export class MainThread extends WorkerThreadLaunch {
-  mtdGetConfig() {
-    return { feature: true };
-  }
-}
-// inside the worker: await this.request("mtdGetConfig", []);
+```text
+main thread:  launch → ready → request… → shutdown
+worker:       constructor → signals ready → handles RPC → onBeforeExit() → terminated
 ```
 
----
+| Phase               | How                                                       | Notes                                                  |
+| :------------------ | :-------------------------------------------------------- | :----------------------------------------------------- |
+| Spawn               | `launchWorker(argv?)`                                    | Extra argv is readable in the worker                   |
+| Ready               | resolves automatically                                   | Rejects if the worker dies before signalling ready      |
+| RPC                 | `Job.mtdFoo(...)` or `worker.request(m, params, wait?, others?, timeoutMs?)` | Typed proxy preferred |
+| Kill                | `worker.kill()`                                           | Immediate terminate, no cleanup                        |
+| Graceful            | `worker.shutdown(timeoutMs?)`                            | Runs `onBeforeExit()`, force-terminates after the timeout |
 
-## Inter-worker gateway
+A worker can call back into the main thread:
 
-`node:worker_threads` gives every worker exactly one channel: its `parentPort` back to the main thread. Two sibling workers cannot talk to each other without the main thread relaying every message.
-
-`@gramstax/worker-thread` adds a **peer-to-peer socket channel**: one worker binds a gateway server (`createGatewayServer`), other workers connect as clients (`createGatewayClient` / `launchGatewayClient`). Inter-worker calls are **one hop, one serialization** — the main thread only orchestrates lifecycle.
-
+```ts
+const answer = await this.request(`mtdGetConfig`, [])
 ```
-Worker A ──parentPort──▶ Main Thread ◀──parentPort── Worker B
-Worker A ──▶ Unix socket ◀── Worker B        (gateway, no relay)
+
+### Worker pool
+
+```ts
+import {WorkerThreadPool} from "@gramstax/worker-thread"
+
+const pool = new WorkerThreadPool(await Promise.all([1, 2, 3].map(() => ProcessorJob.launchWorker())))
+const squares = await Promise.all([1, 2, 3, 4].map((n) => pool.execute(`mtdSquare`, [n])))
 ```
 
-**Hub topology** (most common): one worker runs the server and exposes methods; every other worker connects as a client.
+`execute` spreads calls round-robin. `broadcastRequest` fans out to every worker and rejects if any fail; `broadcastSettled` returns one result per worker, which is usually what you want for best-effort fan-out. Workers that exit are dropped from the pool automatically, and `threadCount` reflects the live ones.
 
-```typescript
-// server-worker.ts
+### Inter-worker gateway
+
+`node:worker_threads` gives each worker exactly one channel — its `parentPort` back to the main thread. The gateway adds a second one, directly between workers.
+
+```text
+Worker A ──parentPort──▶ Main ◀──parentPort── Worker B
+Worker A ─────── socket ─────── Worker B          (gateway, no relay)
+```
+
+Server side:
+
+```ts
 class ServerWorker extends WorkerThreadInit {
-  mtdHello(from: string) {
-    return `Hello ${from}!`;
-  }
-
   async mtdStart() {
-    return await this.createGatewayServer(
-      "/tmp/server.sock",
-      undefined,                                  // expose `this` (the worker instance)
-      { token: "shared-secret", allowedMethods: ["mtdHello"] }  // auth + allow-list
-    );
+    return await this.createGatewayServer(`/tmp/server.sock`, this, {
+      token: `shared-secret`,
+      allowedMethods: [`mtdHello`]
+    })
   }
 }
-
-export const Server = WorkerThreadExport.init({ path: __filename, WTInit: ServerWorker });
-export const ServerGateway = Server.launchGatewayClient("/tmp/server.sock", { token: "shared-secret" });
 ```
 
-```typescript
-// client-worker.ts
-class ClientWorker extends WorkerThreadInit {
-  async mtdCallServer() {
-    return await ServerGateway.mtdHello(this, "ClientWorker");   // socket RPC, no main-thread relay
-  }
-}
+Client side:
 
-export const Client = WorkerThreadExport.init({ path: __filename, WTInit: ClientWorker });
+```ts
+const result = await ServerJob.launchGatewayClient(`/tmp/server.sock`, {token: `shared-secret`})
+console.log(await result.mtdHello(`ClientWorker`))
 ```
 
-```typescript
-// main.ts
-const server = await Server.launchWorker();
-await Server.mtdStart();                    // bind the gateway socket
-await Client.launchWorker();
-console.log(await Client.mtdCallServer());  // "Hello ClientWorker!"
+Clients reconnect automatically with exponential backoff (`reconnect: true` by default, `retries: 50`, `maxRetryTime: 500`).
+
+## 🔍 How it works
+
+```mermaid
+flowchart TD
+    Main["Main thread"] --> P["WorkerThreadExport proxy"]
+    P -->|"launchWorker()"| L["WorkerThreadLaunch"]
+    L -->|spawn| W["Worker thread"]
+    W --> I["WorkerThreadInit"]
+    P -->|"mtd* call"| I
+    I -->|"result / error"| P
+    I -->|"createGatewayServer"| S["Gateway server socket"]
+    S --> C["Gateway client socket"]
+    C --> I
 ```
 
-### Gateway security
+Calls travel as JSON-RPC envelopes (`id`, `method`, `params`, `result`, `error`). The main thread sends, the worker dispatches to the matching `mtd*` method, and the reply carries a value or a structured error. `WorkerThreadRpc` does the framing, size check, timeout, and method filtering underneath — you normally never touch it.
 
-- **`token`** — the server closes any connection that does not present the matching token (`connect(path, { token })` / `launchGatewayClient(path, { token })`).
-- **`allowedMethods`** — only the listed methods are remotely callable; anything else is rejected with a clear error.
-- **Required when exposing the worker** — calling `createGatewayServer(path)` without a `register` object (so the whole worker instance would be callable) **throws** unless a non-empty `allowedMethods` list is supplied. Pass the list explicitly; an empty list denies every method (never opens them).
-- **`maxMessageSize`** — estimated cap in bytes for a single incoming RPC message (default 10 MB, `DEFAULT_MAX_MESSAGE_SIZE`). Oversized messages are rejected with a controlled error instead of being dispatched, so a gateway peer cannot exhaust worker memory with one framed payload. Available on both `createGatewayServer`/`GatewayServer.start` and `connect`/`createGatewayClient` options.
+The gateway is the same protocol over a socket instead of a thread port. That is the whole idea: one hop and one serialization, and the main thread only orchestrates lifecycle.
 
-### Reconnect & resilience
+## 📜 Scripts
 
-Gateway clients reconnect **automatically** with exponential backoff when the connection drops (e.g. the server worker restarts). In-flight requests are retried transparently:
-
-```typescript
-await client.connect("/tmp/server.sock", {
-  reconnect: true,      // default
-  retries: 50,
-  maxRetryTime: 500,    // backoff cap in ms
-});
+```bash
+bun run build   # bundle with tsup
+bun run bench   # RPC round-trip, gateway round-trip, pool benchmarks
 ```
 
-### Gateway reliability semantics
+## 🗂️ Project Structure
 
-- **At-least-once delivery, not exactly-once.** The transport retries failed
-  writes and replays in-flight requests across reconnects, and callers may
-  retry timed-out requests — so a handler can observe the same RPC `id` twice.
-  Request ids are monotonically increasing per client and never reused within
-  a connection lifetime, so the server suppresses duplicates per connection:
-  the first delivery executes, redeliveries replay the cached response
-  (including redeliveries that arrive while the first copy is still running —
-  they are dropped, not queued). Make handlers idempotent anyway — responses
-  over 64KB are never cached (re-executed on redelivery), the cache holds at
-  most 1000 entries per connection (FIFO), and it is dropped on disconnect.
-- **No ordering across reconnect.** Requests sent before a drop may resolve
-  after requests sent after the reconnect; never rely on cross-request order.
-- **`maxMessageSize` is enforced post-buffering, not a wire-level DoS cap.**
-  The full frame is already buffered by `net-ipc` before the estimate runs —
-  the cap stops a peer from growing handler memory or the pending map, it does
-  not stop the bytes crossing the socket (upstream `net-ipc` limitation).
-- **Allow-list escape hatch.** Middleware that short-circuits (sets
-  `ctx.result` without calling `next()`) skips every downstream check,
-  including the `allowedMethods` guard. That is an intentional escape hatch for
-  trusted in-process customization, not a vulnerability: only code that already
-  holds the server instance can register such middleware.
-
-### Structured payloads
-
-By default the gateway uses JSON. Switch to **msgpackr** encoding to preserve `Date`, `BigInt`, `undefined` and typed arrays across the wire:
-
-```typescript
-await client.connect("/tmp/server.sock", { messagepack: true });
+```text
+packages/worker-thread/
+├── src/
+│   ├── init.ts             # WorkerThreadInit — worker side
+│   ├── launch.ts           # WorkerThreadLaunch — main-thread handle
+│   ├── export.ts           # WorkerThreadExport — typed proxy factory
+│   ├── pool.ts             # WorkerThreadPool — round-robin + broadcast
+│   ├── gateway-server.ts   # socket RPC server
+│   ├── gateway-client.ts   # socket RPC client
+│   ├── gateway-path.ts     # socket path normalization
+│   ├── rpc.ts              # low-level JSON-RPC dispatcher
+│   ├── error-handler.ts    # package-wide error routing
+│   └── types/              # one types file per runtime module
+├── example/                # runnable clusters
+└── bench/                  # round-trip and pool benchmarks
 ```
 
----
+## 🔧 Configuration
 
-## Worker pool
+Defaults are exported constants, so you can read them instead of guessing:
 
-`WorkerThreadPool` registers many workers and dispatches work:
+| Constant                     | Default | Purpose                                              |
+| :--------------------------- | :------ | :--------------------------------------------------- |
+| `DEFAULT_REQUEST_TIMEOUT_MS` | 30000   | Per-request timeout in ms                            |
+| `DEFAULT_MAX_MESSAGE_SIZE`   | 10 MB   | Largest payload accepted in one RPC message          |
 
-```typescript
-import { WorkerThreadPool } from "@gramstax/worker-thread";
+Per-call overrides:
 
-const workers = await Promise.all([1, 2, 3].map(() => Job.launchWorker()));
-const pool = new WorkerThreadPool(workers);
-
-// Round-robin dispatch — each call goes to the next worker
-const results = await Promise.all([1, 2, 3, 4].map((n) => pool.execute("mtdCompute", [n])));
-
-// Fan out to every worker
-const statuses = await pool.broadcastRequest("getStatus", []);
-
-// Workers that exit are removed from the pool automatically
-pool.threadCount; // reflects live workers only
+```ts
+await worker.request(`mtdSlowTask`, [2000], true, undefined, 500) // reject after 500ms
+await worker.request(`mtdHugeTask`, [], true, undefined, 0)        // no timeout
 ```
 
----
+Gateway clients accept `{token, reconnect, retries, maxRetryTime, messagepack}` — `messagepack: true` preserves `Date`, `BigInt`, `undefined`, and typed arrays across the wire instead of flattening them through JSON.
 
-## Reliability features
+## 🏗️ Architecture
 
-### RPC timeouts
+- **The `mtd` prefix is the boundary.** Only those methods are reachable, so a refactor inside the worker cannot silently break the main thread.
+- **Types flow one way.** The worker class is the single source of truth and the client is derived from it, so the two cannot drift apart.
+- **Gateway is opt-in.** Single-worker apps never touch it; it exists for meshes, and it reuses the same protocol rather than inventing a second one.
+- **Delivery is at-least-once.** The transport retries failed writes and replays in-flight requests across reconnects, so a handler can observe the same id twice. Request ids are monotonic per client and the server dedupes per connection — but keep handlers idempotent anyway, since responses over 64 KB are never cached.
 
-Any `request()` can take a `timeoutMs` — the call rejects with a timeout error instead of hanging forever, and the pending entry is cleaned up:
+## ✅ Testing
 
-```typescript
-await worker.request("mtdSlowTask", [2000], true, undefined, 500);  // rejects after 500ms
+Workers are plain classes, so a handler can be tested without a thread:
+
+```ts
+const worker = new ProcessorWorker()
+expect(worker.mtdAdd(2, 3)).toBe(5)
 ```
 
-Omitting `timeoutMs` applies a **30s default** (`DEFAULT_REQUEST_TIMEOUT_MS`, overridable per instance via `rpc.defaultTimeoutMs`). Pass `timeoutMs: 0` to opt a call out for genuinely long tasks — otherwise the caller rejects at 30s while the handler keeps running (a retry then double-executes). Pool `execute`/`broadcastRequest` forward their `timeoutMs` to the same default.
-
-### Crash detection
-
-When a worker exits, **all pending RPC requests are rejected automatically** (`Worker ... exited unexpectedly`), and `ready()` rejects if the worker crashes at boot. No more hanging callers.
-
-### Lifecycle events
-
-`WorkerThreadLaunch` extends `EventEmitter`:
-
-```typescript
-const worker = await Job.launchWorker();
-worker.on("ready", () => console.log(`thread ${worker.threadId} ready`));
-worker.on("exit", (code) => console.log(`worker exited with code ${code}`));
-worker.on("error", (err) => console.error(err));
-```
-
-Errors are never written to the console by the library — without an `error`
-listener they are routed to the package-wide handler (silent by default):
-
-```typescript
-import { WorkerThreadErrorHandler } from "@gramstax/worker-thread";
-
-WorkerThreadErrorHandler.setDefault((err) => logger.error(err)); // one call, all instances
-```
-
-### Graceful shutdown
-
-```typescript
-// worker-side: override the drain hook
-class MyWorker extends WorkerThreadInit {
-  async onBeforeExit() {
-    await this.flushState();   // close connections, persist data, ...
-  }
-}
-
-// main-side: worker drains, then terminates (force after 10s)
-await worker.shutdown(10_000);
-```
-
----
-
-## Advanced: RPC middleware & context
-
-`WorkerThreadRpc` supports a middleware chain for incoming requests (logging, metrics, guards) and a shared context merged into every outgoing request (correlation IDs):
-
-```typescript
-worker.rpc.use(async (ctx, next) => {
-  console.log(`calling ${ctx.method} with ${JSON.stringify(ctx.params)}`);
-  await next();                       // or: ctx.result = "short-circuit"; // skip dispatch
-});
-
-worker.rpc.context = { traceId: "abc-123" };  // included in all outgoing payloads
-```
-
----
-
-## API reference
-
-| Export | Description |
-| --- | --- |
-| `WorkerThreadInit` | Base class for worker implementations — RPC register, gateway server/client, `onBeforeExit()` / `onError()` hooks, `shutdown()` |
-| `WorkerThreadLaunch` | Main-thread handle — spawn, `ready()`, `request(..., timeoutMs?)`, `kill()`, `shutdown()`, `ready`/`exit`/`error` events |
-| `WorkerThreadExport.init()` | Typed proxy factory — returns `launchWorker`, `launchGatewayClient` and worker methods |
-| `WorkerThreadPool` | Worker registry — `execute()` round-robin, `broadcastRequest()`, auto-removal of dead workers |
-| `WorkerThreadRpc` | JSON-RPC dispatcher — `makeRequest(..., timeoutMs?)`, `rejectAllPending()`, `use()` middleware, `context` |
-| `WorkerThreadGatewayServer` | Socket server — `start(path, register?, { token, allowedMethods, maxConnections })`, `close()` |
-| `WorkerThreadGatewayClient` | Socket client — `connect(path, { token, reconnect, retries, maxRetryTime, messagepack })`, `close()` |
-| `WorkerThreadGatewayPath.normalize()` | Normalize socket paths for Windows named pipes |
-| `WorkerThreadErrorHandler.setDefault()` | Package-wide error handler for errors without instance listeners (silent by default — the library never logs to the console) |
-
-## Run the examples
-
-The `example/` folder contains runnable clusters showcasing the features:
+For the transport, `example/` holds runnable clusters covering lifecycle events, gateway auth, pools, timeouts, and shutdown:
 
 ```bash
 bun packages/worker-thread/example/worker-main.ts
 ```
 
-This starts an authenticated gateway server worker, three client workers in a pool, runs round-robin compute tasks, demonstrates an RPC timeout, and shuts everything down gracefully.
+That starts an authenticated gateway server, three pooled client workers, round-robin compute tasks, an RPC timeout, and a graceful teardown.
 
-## License
+## 🚢 Deployment
+
+- **A pool is threads, not processes** — it scales CPU work inside one process. Use separate processes when you need memory isolation.
+- **Drain before you close** — shut the worker down before closing whatever it writes to, or an in-flight call lands on a closed handle.
+- **The gateway is single-host** — the socket lives on the machine, so it only reaches workers on the same host.
+- **Errors are silent by default** — the library never logs to the console. Attach `WorkerThreadErrorHandler.setDefault()` or listen for `error` on the handle, or failures disappear.
+
+## 🩺 Troubleshooting
+
+| Symptom                       | Likely cause                                  | Fix                                                         |
+| :---------------------------- | :-------------------------------------------- | :---------------------------------------------------------- |
+| `request is not a function`   | Method lacks the `mtd` prefix                | Rename it — the prefix is the boundary                       |
+| `ready()` rejected            | Worker crashed during boot                    | Read the error event; the worker never signalled ready       |
+| Caller hangs forever          | A call exceeded the timeout                   | Pass an explicit `timeoutMs`, or `0` for long tasks         |
+| `__proto__ is not a function` | A method name collided with a prototype key   | Expected — it is denied on purpose; rename the method        |
+| Gateway rejects the client    | Token mismatch, or path differs between hosts | Both sides need the same secret and the same resolved path   |
+| `allowedMethods` required     | Exposing the whole worker instance            | Pass an explicit non-empty list — an empty list denies all    |
+
+## 🧰 Tech Stack
+
+- [Bun](https://bun.sh) / Node.js `worker_threads`
+- [net-ipc](https://www.npmjs.com/package/net-ipc) — gateway socket transport
+- [mitata](https://github.com/benoitgrelard/mitata) — benchmarks
+- [tsup](https://tsup.egoist.dev) — bundler
+- TypeScript in strict mode (`noUncheckedIndexedAccess`)
+
+## 📚 Learn More
+
+- [Worker-thread best practices](./AGENTS.md) — conventions, topology, and anti-patterns
+- [`example/worker-main.ts`](./example/worker-main.ts) — a full cluster in one file
+- [Node worker_threads](https://nodejs.org/api/worker_threads.html)
+
+## 📄 License
 
 Proprietary — Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).
