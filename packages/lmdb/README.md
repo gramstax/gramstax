@@ -160,6 +160,109 @@ Nested `unique`, `index`, and `search` markers inside an `object`/`array` shape 
 | `string`         | UTF-8             | String-only values                                |
 | `ordered-binary` | same as keys      | dupSort index values                              |
 
+### Naming the row type: `IK*` and `IV*`
+
+A schema class is the single source of truth for its row shape. Export a name for it so services can say `IVUser` instead of repeating `ValueOf<typeof UserSchema>` at every signature:
+
+```ts
+import {KeyOf, LmdbSchema, t, ValueOf} from "@gramstax/lmdb"
+
+export class UserSchema extends LmdbSchema {
+  static db = `user`
+  static key = t.number()
+  static value = {
+    userId: t.number(),
+    firstName: t.string(),
+    lastName: t.string().optional(),
+    username: t.string().optional().unique(),
+    lastActiveAt: t.number(),
+    viewHistory: t.array(t.string())
+  }
+}
+
+export type IKUser = KeyOf<typeof UserSchema>
+export type IVUser = ValueOf<typeof UserSchema>
+```
+
+`IKUser` is the key type after `KeyOf` has intersected it with what lmdb accepts — for a `t.number()` key that is `number`, so an impossible key is a compile error. `IVUser` is the row shape, with `.optional()` and `.default()` columns reflected in whether the field is required.
+
+**These names belong in a service layer's signatures, not on every read.** The handle already returns `ValueOf<S> | undefined`, so annotating a read does not restate the type — it fights it:
+
+```ts
+// TS2322 — `get()` returns IVUser | undefined, and the annotation
+// silently drops the half of the type that says "there may be no row"
+const alice: IVUser = db.users.get(1)
+
+// Correct: the handle is already typed, miss included
+const alice = db.users.get(1) // IVUser | undefined
+```
+
+Where they earn their keep is a repository, where business methods compose several reads and writes and the row shape has to be named:
+
+```ts
+import type {LmdbEnvSub, LmdbTransaction} from "@gramstax/lmdb"
+import type {IKUser, IVUser, UserSchema} from "../schema/user"
+
+type ICreateUser = Pick<IVUser, `userId` | `firstName`> & Partial<Pick<IVUser, `lastName` | `username`>>
+type ITrackView = Pick<IVUser, `userId`> & {viewed: string}
+
+
+export class UserRepository {
+  constructor(public readonly users: LmdbEnvSub<typeof UserSchema>) {}
+
+  getUser(userId: IVUser[`userId`], tx?: LmdbTransaction): IVUser | undefined {
+    return this.users.get(userId, tx)
+  }
+
+  findOrCreate(params: ICreateUser): IVUser | undefined {
+    const existing = this.users.get(params.userId)
+    if (existing) return existing
+    const row: IVUser = {
+      userId: params.userId,
+      firstName: params.firstName,
+      lastName: params.lastName,
+      username: params.username,
+      lastActiveAt: Date.now(),
+      viewHistory: []
+    }
+    this.users.putSync(params.userId, row)
+    return row
+  }
+
+  async trackView(params: ITrackView): Promise<void> {
+    await this.users.owner.transaction(() => {
+      const row = this.users.get(params.userId)
+      if (!row) return
+      this.users.putSync(params.userId, {
+        ...row,
+        lastActiveAt: Date.now(),
+        viewHistory: [...row.viewHistory, params.viewed].slice(-20)
+      })
+    })
+  }
+
+  countAll(): number {
+    return this.users.count()
+  }
+
+  async deleteUser(userId: IKUser): Promise<boolean> {
+    return await this.users.delete(userId)
+  }
+}
+}
+```
+
+What that buys you:
+
+- **`Pick` / `Omit` / `Partial<Pick<…>>`** derive parameter types from the row, so adding a column to the schema updates every call site that constructs it instead of letting them drift apart.
+- **`IVUser['userId']`** types a single argument without restating its type.
+- **`IVUser | undefined`** is the honest return of a read, and making a service declare it forces a decision about a miss.
+- **`IKUser`** for keys crossing a boundary, so a bad key cannot be smuggled in.
+- **Constructor injection of the handle** keeps the repository off `env.sub()` entirely, so the schema class is only ever a type and the import stays `import type`.
+- **`sub.owner.transaction()`** opens the write transaction; the sync callback with `putSync` keeps it reliable.
+
+The row is annotated once — where it is **constructed** for a write. Reads stay unannotated because the handle already did that work.
+
 ### Reads and writes
 
 Point reads are synchronous because the native LMDB calls are:
