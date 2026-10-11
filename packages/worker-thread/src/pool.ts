@@ -1,4 +1,6 @@
+import type {WorkerThreadInit} from "./init"
 import type {WorkerThreadLaunch} from "./launch"
+import type {IWorkerThreadPoolMethods, IWorkerThreadPoolMode, IWorkerThreadPoolOptions, IWorkerThreadWorkerClass} from "./types/pool"
 
 /**
  * Manages multiple worker thread instances, providing pooled access and broadcast functionality.
@@ -23,27 +25,22 @@ import type {WorkerThreadLaunch} from "./launch"
  * console.log(`Pool has ${pool.threadCount} workers`);
  *
  * // Broadcast to all workers
- * const statuses = await pool.broadcastRequest("getStatus", []);
+ * const statuses = await pool.broadcastRequest("mtdGetStatus", []);
  * ```
  *
  * @public
  */
-export class WorkerThreadPool {
+class WorkerThreadPoolBase<TInit extends WorkerThreadInit = WorkerThreadInit> {
+  /** Modes a pool call may select. */
+  private static readonly _modes = new Set<IWorkerThreadPoolMode>([`execute`, `broadcast`, `settled`])
+
   /**
    * Map of all worker instances by thread ID.
    *
    * @remarks
    * Values are {@link WorkerThreadLaunch} instances keyed by thread ID.
    */
-  thread = new Map<number, WorkerThreadLaunch>()
-
-  /**
-   * Current number of workers in the pool.
-   *
-   * @remarks
-   * Incremented on add and decremented on kill or worker exit.
-   */
-  threadCount = 0
+  private readonly _thread = new Map<number, WorkerThreadLaunch>()
 
   /** Round-robin cursor for {@link WorkerThreadPool.execute}. */
   private _cursor = 0
@@ -58,111 +55,52 @@ export class WorkerThreadPool {
    */
   private _exitHandlers = new Map<number, () => void>()
 
-  /**
-   * Creates a new WorkerThreadPool instance.
-   *
-   * @param instance - Initial worker instances to add to the pool.
-   */
-  constructor(instance: WorkerThreadLaunch[]) {
-    this.addMany(instance)
-  }
+  /** Per-method dispatch closures, so a hot loop does not re-allocate. */
+  private readonly _mtd: Map<string, (...args: unknown[]) => Promise<unknown>> = new Map()
 
   /**
-   * Add a single worker to the pool.
+   * Is this the trailing pool options object rather than a worker parameter?
    *
    * @remarks
-   * Re-adding a `threadId` that is already present is idempotent: the
-   * entry is replaced but `threadCount` is not incremented and no
-   * second `exit` listener is stacked (the old listener is detached
-   * first when the instance differs).
-   *
-   * @param instance - Worker to add. Registers by threadId.
-   *
-   * @example
-   * ```typescript
-   * const newWorker = new WorkerThreadLaunch("./worker.ts", ["3"]);
-   * await newWorker.ready();
-   * pool.add(newWorker);
-   * ```
-   * @public
+   * The check is deliberately strict. An object counts as options only when it
+   * carries at least one recognised key, so a worker method whose real
+   * parameter is a plain object is never mistaken for one. An unrecognised
+   * `mode` throws instead of silently falling back to round-robin, because a
+   * typo in a mode string would otherwise look like it worked.
    */
-  add(instance: WorkerThreadLaunch) {
-    const known = this.thread.get(instance.threadId)
-    if (known === instance) {
-      return
+  private static _isPoolOptions(value: unknown): value is IWorkerThreadPoolOptions {
+    if (typeof value !== `object` || value === null || Array.isArray(value)) return false
+    const record = value as Record<string, unknown>
+    const mode = record.mode
+    const hasMode = mode !== undefined
+    const hasTimeout = record.timeoutMs !== undefined
+    if (!hasMode && !hasTimeout) return false
+    if (hasMode && !WorkerThreadPoolBase._modes.has(mode as IWorkerThreadPoolMode)) {
+      throw new Error(`WorkerThreadPool: unknown mode '${String(mode)}' — expected one of ${[...WorkerThreadPoolBase._modes].join(`, `)}`)
     }
-    if (known !== undefined) {
-      this._detachExitListener(known)
-      const handler = () => this._onWorkerExit(instance)
-      this._exitHandlers.set(instance.threadId, handler)
-      this.thread.set(instance.threadId, instance)
-      ;(instance as unknown as {on?: (event: string, cb: () => void) => unknown}).on?.(`exit`, handler)
-      return
+    return true
+  }
+
+  /**
+   * Resolve (and memoise) the dispatch closure for one `mtd*` method.
+   *
+   * @param method - The `mtd*` method name being accessed.
+   * @returns A closure that reads the trailing options and fans out accordingly.
+   */
+  private _dispatch(method: string): (...args: unknown[]) => Promise<unknown> {
+    const cached = this._mtd.get(method)
+    if (cached !== undefined) return cached
+    const fn = (...args: unknown[]): Promise<unknown> => {
+      // `args` is a fresh rest array, so popping the options cannot mutate a
+      // caller's array.
+      const options = WorkerThreadPoolBase._isPoolOptions(args[args.length - 1]) ? (args.pop() as IWorkerThreadPoolOptions) : undefined
+      const mode = options?.mode ?? `execute`
+      if (mode === `broadcast`) return this.broadcastRequest(method, args, options?.timeoutMs)
+      if (mode === `settled`) return this.broadcastSettled(method, args, options?.timeoutMs)
+      return this.execute(method, args, options?.timeoutMs)
     }
-    const handler = () => this._onWorkerExit(instance)
-    this._exitHandlers.set(instance.threadId, handler)
-    this.thread.set(instance.threadId, instance)
-    this.threadCount += 1
-    ;(instance as unknown as {on?: (event: string, cb: () => void) => unknown}).on?.(`exit`, handler)
-  }
-
-  /**
-   * Add multiple workers to the pool.
-   *
-   * @param instance - Workers to add. Registers all workers.
-   *
-   * @example
-   * ```typescript
-   * pool.addMany([worker4, worker5]);
-   * ```
-   * @public
-   */
-  addMany(instance: WorkerThreadLaunch[]) {
-    instance.forEach((it) => {
-      this.add(it)
-    })
-  }
-
-  /**
-   * Get a specific worker by thread ID.
-   *
-   * @param threadId - Worker thread ID. Lookup in pool registry.
-   * @returns Worker instance or undefined if not found.
-   *
-   * @example
-   * ```typescript
-   * const worker = pool.getInstance(123);
-   * if (worker) {
-   *   await worker.request("process", [data]);
-   * }
-   * ```
-   * @public
-   */
-  getInstance(threadId: number) {
-    return this.thread.get(threadId)
-  }
-
-  /**
-   * Kill and remove a specific worker from the pool.
-   *
-   * @param threadId - Worker thread ID. Terminates worker.
-   * @returns The killed worker's threadId, or undefined if not found.
-   *
-   * @example
-   * ```typescript
-   * const killedId = pool.kill(123);
-   * console.log(`Killed worker ${killedId}`);
-   * ```
-   * @public
-   */
-  kill(threadId: number) {
-    const ins = this.thread.get(threadId)
-    if (!ins) return undefined
-    this._detachExitListener(ins)
-    ins.kill()
-    this.thread.delete(threadId)
-    this.threadCount -= 1
-    return ins.threadId
+    this._mtd.set(method, fn)
+    return fn
   }
 
   /**
@@ -184,11 +122,149 @@ export class WorkerThreadPool {
    * @param instance - The worker that exited.
    */
   private _onWorkerExit(instance: WorkerThreadLaunch) {
-    if (this.thread.get(instance.threadId) === instance) {
+    if (this._thread.get(instance.threadId) === instance) {
       this._detachExitListener(instance)
-      this.thread.delete(instance.threadId)
-      this.threadCount -= 1
+      this._thread.delete(instance.threadId)
     }
+  }
+
+  /**
+   * Creates a new WorkerThreadPool instance.
+   *
+   * @param instance - Initial worker instances to add to the pool.
+   */
+  constructor(instance: Array<WorkerThreadLaunch & IWorkerThreadWorkerClass<TInit>>) {
+    this.addMany(instance)
+    // biome-ignore lint/correctness/noConstructorReturn: proxy constructor pattern — returning the Proxy is the specified Phase 3 dispatch design
+    return new Proxy(this, {
+      get: (target: WorkerThreadPoolBase<TInit>, prop: string | symbol): unknown => {
+        if (typeof prop === `string` && prop.startsWith(`mtd`)) {
+          return target._dispatch(prop)
+        }
+        // Receiver is `target`, not the proxy: getters/methods must see the
+        // real instance as `this`, otherwise accessor reads re-enter this trap.
+        return Reflect.get(target, prop, target)
+      }
+    }) as unknown as WorkerThreadPoolBase<TInit>
+  }
+
+  /**
+   * Read-only view of the registry, keyed by thread ID.
+   *
+   * @remarks
+   * Typed `ReadonlyMap` so callers cannot mutate the registry behind the
+   * pool's bookkeeping.
+   */
+  get thread(): ReadonlyMap<number, WorkerThreadLaunch> {
+    return this._thread
+  }
+
+  /**
+   * Current number of workers in the pool.
+   *
+   * @remarks
+   * Derived from `thread.size` so the two can never disagree.
+   */
+  get threadCount(): number {
+    return this._thread.size
+  }
+
+  /**
+   * Add a single worker to the pool.
+   *
+   * @remarks
+   * Re-adding a `threadId` that is already present is idempotent: the
+   * entry is replaced but `threadCount` is not incremented and no
+   * second `exit` listener is stacked (the old listener is detached
+   * first when the instance differs).
+   *
+   * @param instance - Worker to add. Registers by threadId.
+   * @returns The `threadId` the worker is registered under. Re-adding the same
+   * instance is idempotent and returns the same id.
+   *
+   * @example
+   * ```typescript
+   * const newWorker = new WorkerThreadLaunch("./worker.ts", ["3"]);
+   * await newWorker.ready();
+   * pool.add(newWorker);
+   * ```
+   * @public
+   */
+  add(instance: WorkerThreadLaunch): number {
+    const known = this._thread.get(instance.threadId)
+    if (known === instance) {
+      return instance.threadId
+    }
+    if (known !== undefined) {
+      this._detachExitListener(known)
+      const handler = () => this._onWorkerExit(instance)
+      this._exitHandlers.set(instance.threadId, handler)
+      this._thread.set(instance.threadId, instance)
+      ;(instance as unknown as {on?: (event: string, cb: () => void) => unknown}).on?.(`exit`, handler)
+      return instance.threadId
+    }
+    const handler = () => this._onWorkerExit(instance)
+    this._exitHandlers.set(instance.threadId, handler)
+    this._thread.set(instance.threadId, instance)
+    ;(instance as unknown as {on?: (event: string, cb: () => void) => unknown}).on?.(`exit`, handler)
+    return instance.threadId
+  }
+
+  /**
+   * Add multiple workers to the pool.
+   *
+   * @param instance - Workers to add. Registers all workers.
+   * @returns Each worker's `threadId`, in the order supplied.
+   *
+   * @example
+   * ```typescript
+   * pool.addMany([worker4, worker5]);
+   * ```
+   * @public
+   */
+  addMany(instance: WorkerThreadLaunch[]): number[] {
+    return instance.map((it) => this.add(it))
+  }
+
+  /**
+   * Get a specific worker by thread ID.
+   *
+   * @param threadId - Worker thread ID. Lookup in pool registry.
+   * @returns Worker instance or undefined if not found.
+   *
+   * @example
+   * ```typescript
+   * const worker = pool.getInstance(123);
+   * if (worker) {
+   *   await worker.request("process", [data]);
+   * }
+   * ```
+   * @public
+   */
+  getInstance(threadId: number) {
+    return this._thread.get(threadId)
+  }
+
+  /**
+   * Kill and remove a specific worker from the pool.
+   *
+   * @param threadId - Worker thread ID. Terminates worker.
+   * @returns Promise resolving to the killed worker's threadId, or undefined if not found.
+   *
+   * @example
+   * ```typescript
+   * const killedId = await pool.kill(123);
+   * console.log(`Killed worker ${killedId}`);
+   * ```
+   * @public
+   */
+  async kill(threadId: number): Promise<number | undefined> {
+    const ins = this._thread.get(threadId)
+    if (!ins) return undefined
+    this._detachExitListener(ins)
+    await ins.kill()
+    this._thread.delete(threadId)
+    return ins.threadId
   }
 
   /**
@@ -208,12 +284,12 @@ export class WorkerThreadPool {
    * ```
    * @public
    */
-  killAll() {
-    const ids = Array.from(this.thread.keys())
+  async killAll(): Promise<void> {
+    const ids = Array.from(this._thread.keys())
     const failures: Array<unknown> = []
     for (const threadId of ids) {
       try {
-        this.kill(threadId)
+        await this.kill(threadId)
       } catch (err) {
         failures.push(err)
       }
@@ -241,14 +317,17 @@ export class WorkerThreadPool {
    *
    * @example
    * ```typescript
-   * const results = await pool.broadcastRequest("getStatus", []);
+   * const results = await pool.broadcastRequest("mtdGetStatus", []);
    * console.log("All statuses:", results);
    * ```
    * @public
    */
   async broadcastRequest(method: string, params: unknown[], timeoutMs?: number) {
+    if (this._thread.size === 0) {
+      throw new Error(`WorkerThreadPool is empty — add workers before calling broadcastRequest()`)
+    }
     return await Promise.all(
-      Array.from(this.thread.values()).map((ins) => {
+      Array.from(this._thread.values()).map((ins) => {
         return ins.request(method, params, true, undefined, timeoutMs)
       })
     )
@@ -272,7 +351,7 @@ export class WorkerThreadPool {
    *
    * @example
    * ```typescript
-   * const settled = await pool.broadcastSettled("getStatus", []);
+   * const settled = await pool.broadcastSettled("mtdGetStatus", []);
    * for (const outcome of settled) {
    *   if (outcome.ok) console.log(outcome.threadId, outcome.result);
    *   else console.error(outcome.threadId, outcome.error);
@@ -281,10 +360,10 @@ export class WorkerThreadPool {
    * @public
    */
   async broadcastSettled(method: string, params: unknown[], timeoutMs?: number): Promise<Array<{threadId: number; ok: boolean; result?: unknown; error?: unknown}>> {
-    if (this.thread.size === 0) {
+    if (this._thread.size === 0) {
       throw new Error(`WorkerThreadPool is empty — add workers before calling broadcastSettled()`)
     }
-    const workers = Array.from(this.thread.values())
+    const workers = Array.from(this._thread.values())
     const outcomes: Array<{threadId: number; ok: boolean; result?: unknown; error?: unknown}> = []
     for (const ins of workers) {
       try {
@@ -330,8 +409,8 @@ export class WorkerThreadPool {
    * ```
    * @public
    */
-  execute(method: string, params: unknown[], timeoutMs?: number) {
-    const workers = Array.from(this.thread.values())
+  async execute(method: string, params: unknown[], timeoutMs?: number): Promise<unknown> {
+    const workers = Array.from(this._thread.values())
     if (workers.length === 0) {
       throw new Error(`WorkerThreadPool is empty — add workers before calling execute()`)
     }
@@ -356,8 +435,8 @@ export class WorkerThreadPool {
    * @param threadId - Target worker thread ID. Lookup in pool registry.
    * @param method - Method name to call. Targets worker RPC method.
    * @param params - Method parameters. Sent as positional array.
-   * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.
-   * @param _others - Additional RPC data. Merged into RPC payload.
+   * @param wait - Wait for response. If false, fire-and-forget. Defaults to `true`.
+   * @param others - Additional RPC data. Merged into RPC payload.
    * @returns Promise resolving with worker response.
    *
    * @example
@@ -366,11 +445,39 @@ export class WorkerThreadPool {
    * ```
    * @public
    */
-  async request(threadId: number, method: string, params: unknown[], _wait = true, _others?: Record<string, unknown>, timeoutMs?: number) {
-    const ins = this.thread.get(threadId)
+  async request(threadId: number, method: string, params: unknown[], wait = true, others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown> {
+    const ins = this._thread.get(threadId)
     if (ins === undefined) {
       throw new Error(`WorkerThreadPool: unknown threadId ${threadId} — worker not in pool`)
     }
-    return await ins.request(method, params, _wait, _others, timeoutMs)
+    return await ins.request(method, params, wait, others, timeoutMs)
   }
 }
+
+/**
+ * Pool of workers of one worker class, with that class's `mtd*` methods
+ * callable directly on the instance.
+ *
+ * @typeParam TInit - The worker class whose `mtd*` methods should be exposed.
+ *
+ * @remarks
+ * This is a value rather than the class itself so that `new WorkerThreadPool<W>(…)`
+ * is typed as the implementation **and** its `mtd*` surface. A constructor that
+ * returns a `Proxy` cannot widen the type of a `new` expression — TypeScript
+ * types `new C()` as `C` no matter what the constructor returns — so exposing
+ * `mtd*` requires the construct signature to name the intersection itself.
+ *
+ * The accompanying {@link WorkerThreadPool} type alias carries the same
+ * intersection, so the name still works in a type annotation.
+ */
+export const WorkerThreadPool = WorkerThreadPoolBase as unknown as {
+  new <TInit extends WorkerThreadInit = WorkerThreadInit>(instance: Array<WorkerThreadLaunch & IWorkerThreadWorkerClass<TInit>>): WorkerThreadPoolBase<TInit> & IWorkerThreadPoolMethods<TInit>
+}
+
+/**
+ * Type of a {@link WorkerThreadPool} instance: the registry plus the worker
+ * class's `mtd*` dispatch surface.
+ *
+ * @typeParam TInit - The worker class whose `mtd*` methods should be exposed.
+ */
+export type WorkerThreadPool<TInit extends WorkerThreadInit = WorkerThreadInit> = WorkerThreadPoolBase<TInit> & IWorkerThreadPoolMethods<TInit>

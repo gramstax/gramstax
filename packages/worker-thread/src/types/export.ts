@@ -1,4 +1,5 @@
 import type {WorkerThreadInit} from "../init"
+import type {IWorkerThreadWorkerClass} from "./pool"
 import type {WorkerThreadLaunch} from "../launch"
 import type {IGatewayClientOptions} from "./gateway-client"
 
@@ -65,7 +66,7 @@ export type IWorkerThreadGatewayClientFactory<TWorker extends WorkerThreadInit> 
  */
 export type IWorkerThreadExportResult<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = TWrap &
   IWorkerThreadAsyncMethods<TWorker> & {
-    launchWorker: (argv?: unknown[]) => Promise<TMain>
+    launchWorker: (argv?: unknown[]) => Promise<TMain & IWorkerThreadWorkerClass<TWorker>>
     launchGatewayClient: IWorkerThreadGatewayClientFactory<TWorker>
     shutdown: (timeoutMs?: number) => Promise<void>
   }

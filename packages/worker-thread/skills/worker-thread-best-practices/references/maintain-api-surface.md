@@ -51,7 +51,7 @@ for the published `v2.2.0`.
 
 Unchanged and still exported: `DEFAULT_MAX_MESSAGE_SIZE`,
 `DEFAULT_REQUEST_TIMEOUT_MS`, `DENIED_RPC_METHODS`, `WorkerThreadInit`,
-`WorkerThreadLaunch`, `WorkerThreadExport`, `WorkerThreadPool`,
+`WorkerThreadLaunch`, `WorkerThreadExport`, `WorkerThreadPool<TInit>`,
 `WorkerThreadRpc`, `WorkerThreadGatewayServer`, `WorkerThreadGatewayClient`,
 `WorkerThreadGatewayPath`, `WorkerThreadErrorHandler`.
 

@@ -86,9 +86,9 @@ await dead.request(`mtdPing`, []) // wrong: `TypeError` on `undefined`, not the 
 ## Correct
 
 ```typescript
-const pool = new WorkerThreadPool(workers) // addMany once
+const pool = new WorkerThreadPool<Worker>(workers) // addMany once
 // ... dispatch ...
-pool.killAll() // every worker terminated, errors aggregated not aborted
+await pool.killAll() // every worker terminated, errors aggregated not aborted
 pool.threadCount // live workers only
 ```
 

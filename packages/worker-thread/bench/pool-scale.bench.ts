@@ -10,6 +10,7 @@ import {bench, do_not_optimize, group} from "mitata"
 import type {WorkerThreadPool} from "../src/pool"
 import {withTimeout} from "../test/helpers"
 import {makePool, runBench, SMALL_PAYLOAD} from "./_setup"
+import type {EchoWorker} from "./fixtures/echo-worker"
 
 const SIZES = [1, 2, 4, 8] as const
 
@@ -18,10 +19,10 @@ const SIZES = [1, 2, 4, 8] as const
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  const pools = new Map<number, {pool: WorkerThreadPool; workers: {kill: () => Promise<unknown>}[]}>()
+  const pools = new Map<number, {pool: WorkerThreadPool<EchoWorker>; workers: {kill: () => Promise<unknown>}[]}>()
   for (const n of SIZES) {
     const {pool, workers} = await makePool(n)
-    await withTimeout(pool.broadcastRequest(`mtdPing`, []), 10_000, `pool prime`)
+    await withTimeout(pool.mtdPing({mode: `broadcast`}), 10_000, `pool prime`)
     pools.set(n, {pool, workers})
   }
   console.log(`Pools ready (sizes=${SIZES.join(`,`)}).\n`)
@@ -30,7 +31,7 @@ async function main(): Promise<void> {
     for (const n of SIZES) {
       const entry = pools.get(n)!
       bench(`execute N=${n} (1 req)`, async () => {
-        do_not_optimize(await entry.pool.execute(`mtdEcho`, [SMALL_PAYLOAD]))
+        do_not_optimize(await entry.pool.mtdEcho(SMALL_PAYLOAD))
       })
     }
   })
@@ -39,7 +40,7 @@ async function main(): Promise<void> {
     for (const n of SIZES) {
       const entry = pools.get(n)!
       bench(`broadcast N=${n} (${n} reqs)`, async () => {
-        do_not_optimize(await entry.pool.broadcastRequest(`mtdEcho`, [SMALL_PAYLOAD]))
+        do_not_optimize(await entry.pool.mtdEcho(SMALL_PAYLOAD, {mode: `broadcast`}))
       })
     }
   })
@@ -49,7 +50,7 @@ async function main(): Promise<void> {
   } finally {
     for (const {pool} of pools.values()) {
       try {
-        pool.killAll()
+        await pool.killAll()
       } catch {
         // intentionally ignored — best-effort teardown
       }

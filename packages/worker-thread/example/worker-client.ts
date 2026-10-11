@@ -9,7 +9,7 @@ import {WorkerServerGateway} from "./worker-server"
  * token) and also exposes `mtdCompute` so the main thread can dispatch
  * work through a pool.
  */
-class Worker extends WorkerThreadInit {
+export class Worker extends WorkerThreadInit {
   private name: string = `Unknown`
 
   constructor() {

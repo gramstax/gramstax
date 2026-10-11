@@ -17,7 +17,7 @@ import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import type {WorkerThreadLaunch} from "../src/launch"
 import {WorkerThreadPool} from "../src/pool"
 import {withTimeout} from "../test/helpers"
-import {EchoJob} from "./fixtures/echo-worker"
+import {EchoJob, type EchoWorker} from "./fixtures/echo-worker"
 
 let socketCounter = 0
 
@@ -49,9 +49,9 @@ export async function spawnGatewayPair(options: IGatewayClientOptions = {}): Pro
   return {server, client, path}
 }
 
-export async function makePool(n: number): Promise<{pool: WorkerThreadPool; workers: WorkerThreadLaunch[]}> {
+export async function makePool(n: number): Promise<{pool: WorkerThreadPool<EchoWorker>; workers: WorkerThreadLaunch[]}> {
   const workers = (await Promise.all(Array.from({length: n}, () => withTimeout(EchoJob.launchWorker(), 10_000, `pool worker ready`)))) as unknown as WorkerThreadLaunch[]
-  return {pool: new WorkerThreadPool(workers), workers}
+  return {pool: new WorkerThreadPool<EchoWorker>(workers), workers}
 }
 
 export function runBench(): Promise<unknown> {

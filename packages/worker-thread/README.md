@@ -167,16 +167,59 @@ Without `WTLaunch` the main-thread side is the plain `WorkerThreadLaunch`, which
 
 ### Worker pool
 
+A pool fans one worker class out over many threads. The worker class is inferred
+from the handles you hand it, so its `mtd*` methods become callable on the pool
+itself — no type argument, no cast. The trailing options object selects the mode.
+
 ```ts
-// main.ts — `EchoWorker` and `mtdAdd` are from the quick start above
+// main.ts — `EchoWorker` is from the quick start above
 import {WorkerThreadPool} from "@gramstax/worker-thread"
 import {EchoWorker} from "./echo-worker"
 
 const pool = new WorkerThreadPool(await Promise.all([1, 2, 3].map(() => EchoWorker.launchWorker())))
-const sums = await Promise.all([1, 2, 3, 4].map((n) => pool.execute(`mtdAdd`, [n, 10])))
+
+// No options — round-robin across the pool. Returns one value.
+console.log(await pool.mtdAdd(2, 3)) // 5
+
+// mode: "broadcast" — every worker, fail-fast. Returns an array.
+console.log(await pool.mtdAdd(2, 3, {mode: "broadcast"})) // [5, 5, 5]
+
+// mode: "settled" — every worker, settled per worker. Never rejects on a peer.
+console.log(await pool.mtdAdd(2, 3, {mode: "settled"}))
+
+// A timeout rides in the same object.
+console.log(await pool.mtdAdd(2, 3, {mode: "broadcast", timeoutMs: 5000}))
+
+// add() reports the key it registered each worker under.
+const id = pool.add(await EchoWorker.launchWorker())
+console.log(id)
+
+// One specific worker keeps the string form.
+console.log(await pool.request(id, "mtdAdd", [2, 3]))
 ```
 
-`execute` spreads calls round-robin. `broadcastRequest` fans out to every worker and rejects if any fail; `broadcastSettled` returns one result per worker, which is usually what you want for best-effort fan-out. Workers that exit are dropped from the pool automatically, and `threadCount` reflects the live ones.
+| Call | Dispatches to | Returns | Fails when |
+|------|---------------|---------|------------|
+| `pool.mtdX(…)` | `execute` — round-robin, one worker | `Promise<R>` | the chosen worker throws |
+| `pool.mtdX(…, {mode: "broadcast"})` | `broadcastRequest` — all, fail-fast | `Promise<R[]>` | any worker throws |
+| `pool.mtdX(…, {mode: "settled"})` | `broadcastSettled` — all, settled | `Promise<Outcome<R>[]>` | never on a peer; throws on an empty pool |
+| `pool.request(id, "mtdX", params)` | `request` — one specific worker | `Promise<R>` | `id` is not in the pool |
+
+Workers that exit are dropped from the pool automatically, and `threadCount`
+reflects the live ones.
+
+> **The options object is always last.** A worker method that ends in its own
+> optional parameter owns that position first, so you pass a placeholder:
+>
+> ```ts
+> // mtdBroadcast(text: string, key?: string)
+> await pool.mtdBroadcast(text, undefined, {mode: "broadcast"}) // ✅
+> await pool.mtdBroadcast(text, {mode: "broadcast"})             // ❌ TS2345
+> ```
+
+> **Pass the mode as a literal.** Writing `const mode: IWorkerThreadPoolMode = "broadcast"`
+> widens the result to a union of all three shapes. `{mode: "broadcast"}` inline
+> keeps it exact.
 
 ### Gateway topology
 
@@ -408,8 +451,9 @@ Attach it at boot, or a worker crash disappears silently.
 - **Two clients cannot talk directly.** Every gateway call needs a server in between — a client is not a server.
 - **Do not route main-thread work through the gateway.** It is for worker-to-worker calls; orchestration stays on `parentPort`.
 - **Pool broadcast still goes through the main thread.** That is deliberate: the main thread owns lifecycle. Do not use it as a worker-to-worker path.
+- **The `mtd` prefix is not enforced at runtime — by design.** `rpc.ts` only denies the names in `DENIED_RPC_METHODS`; any other worker method is reachable over the wire. The pool's `mtd` filter is a readability surface, not a security boundary.
 - **A call with `timeoutMs: 0` keeps running.** The caller stops waiting; the worker does not stop working. A naive retry double-executes it.
-- **`stop()` is permanent.** A stopped worker cannot be resumed — spawn a new one.
+- **`shutdown()` and `kill()` are permanent.** Neither worker can be resumed — spawn a new one. `shutdown()` drains via `onBeforeExit()` then force-terminates after the timeout; `kill()` terminates immediately with no cleanup.
 
 ## 📚 API Reference
 
@@ -418,7 +462,7 @@ Attach it at boot, or a worker crash disappears silently.
 | `WorkerThreadInit`             | Worker side: RPC registration, gateway server/client, `request()` back to main, `onBeforeExit()` / `onError()`, `shutdown()` |
 | `WorkerThreadLaunch`           | Main-thread handle: `launchWorker()`, `ready()`, `request()`, `kill()`, `shutdown()`, `ready`/`exit`/`error` events |
 | `WorkerThreadExport.init()`    | Typed proxy factory — returns `launchWorker`, `launchGatewayClient`, and every `mtd*` method |
-| `WorkerThreadPool`             | Worker registry — `execute()` round-robin, `broadcastRequest()`, `broadcastSettled()`, auto-removal of dead workers |
+| `WorkerThreadPool`             | Typed worker registry — `mtd*` proxy with trailing `{mode, timeoutMs}` over `execute` round-robin and `broadcastRequest`/`broadcastSettled` fan-out; `add`/`addMany` return ids; dead workers auto-removed |
 | `WorkerThreadRpc`              | JSON-RPC dispatcher — `makeRequest()`, `rejectAllPending()`, `use()` middleware, `context` |
 | `WorkerThreadGatewayServer`    | Socket server — `start(path, register?, {token, allowedMethods, maxConnections})`, `close()` |
 | `WorkerThreadGatewayClient`    | Socket client — `connect(path, {token, reconnect, …})`, `close()`                        |
@@ -455,14 +499,15 @@ Attach it at boot, or a worker crash disappears silently.
 
 | Member                                     | Purpose                                                    |
 | :----------------------------------------- | :--------------------------------------------------------- |
-| `new WorkerThreadPool(instances)`         | Build from already-launched workers                        |
-| `add(instance)` / `addMany(instances)`    | Grow the pool; re-adding a live `threadId` is idempotent  |
+| `new WorkerThreadPool(instances)`          | Build from already-launched workers; the worker class is inferred from them |; `TInit` is the worker class whose `mtd*` methods the pool exposes |
+| `pool.mtdFoo(…args, {mode?, timeoutMs?})`  | Typed dispatch — no options means `execute` round-robin; `{mode: "broadcast"}` fans out fail-fast; `{mode: "settled"}` settles per worker. `timeoutMs` rides in the same object and the result shape follows the mode |
+| `add(instance): number` / `addMany(instances): number[]` | Grow the pool and report each registered `threadId` (`addMany` returns one id per worker, in order); re-adding a live `threadId` is idempotent |
 | `execute(method, params, timeoutMs?)`     | Round-robin to the next worker                            |
 | `request(threadId, method, params, …)`    | Target one specific worker                                |
 | `broadcastRequest(method, params, timeoutMs?)` | Fan out; rejects if any worker fails                  |
-| `broadcastSettled(method, params, timeoutMs?)` | Fan out; one result per worker, never rejects on a peer |
+| `broadcastSettled(method, params, timeoutMs?)` | Fan out; one result per worker, never rejects on a peer failure but throws when the pool is empty |
 | `getInstance(threadId)`                    | Look one up                                               |
-| `kill(threadId)` / `killAll()`             | Remove one or every worker                                |
+| `kill(threadId)` / `killAll()`             | Remove one or every worker; `killAll()` throws `AggregateError` when any worker fails to terminate |
 | `threadCount`                              | Live workers only — exits are dropped automatically       |
 
 ### `WorkerThreadRpc`

@@ -1,5 +1,5 @@
 import {WorkerThreadPool} from "../src/pool"
-import {WorkerClient} from "./worker-client"
+import {WorkerClient, type Worker} from "./worker-client"
 import {WorkerServer} from "./worker-server"
 
 /**
@@ -25,7 +25,7 @@ async function main() {
   console.log(`[Main] pool ready with ${pool.threadCount} workers`)
 
   // 4. Dispatch compute tasks round-robin across the pool.
-  const results = await Promise.all([1, 2, 3, 4].map((n) => pool.execute(`mtdCompute`, [n])))
+  const results = await Promise.all([1, 2, 3, 4].map((n) => pool.mtdCompute(n)))
   console.log(`[Main] pool results:`, results)
 
   // 5. RPC timeout: the task needs 2s but we only wait 500ms.

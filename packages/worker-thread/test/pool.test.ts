@@ -93,33 +93,60 @@ describe(`WorkerThreadPool`, () => {
       expect(pool.threadCount).toBe(1)
       expect(pool.getInstance(101)).toBe(replacement)
     })
+
+    it(`add() returns the threadId it registered the worker under`, () => {
+      const pool = new WorkerThreadPool([])
+      const worker = makeMockWorker(42).worker
+      expect(pool.add(worker)).toBe(42)
+    })
+
+    it(`add() returns the same threadId when re-adding the same instance without changing threadCount`, () => {
+      const pool = new WorkerThreadPool([])
+      const worker = makeMockWorker(42).worker
+      expect(pool.add(worker)).toBe(42)
+      expect(pool.add(worker)).toBe(42)
+      expect(pool.threadCount).toBe(1)
+    })
+
+    it(`addMany() returns threadIds in input order`, () => {
+      const pool = new WorkerThreadPool([])
+      const a = makeMockWorker(3).worker
+      const b = makeMockWorker(1).worker
+      const c = makeMockWorker(2).worker
+      expect(pool.addMany([a, b, c])).toEqual([3, 1, 2])
+    })
+
+    it(`addMany() on an empty array returns an empty array`, () => {
+      const pool = new WorkerThreadPool([])
+      expect(pool.addMany([])).toEqual([])
+    })
   })
 
   describe(`kill`, () => {
-    it(`calls kill() on the worker and removes it from the map`, () => {
+    it(`calls kill() on the worker and removes it from the map`, async () => {
       const pool = new WorkerThreadPool([w1.worker, w2.worker])
-      pool.kill(101)
+      await pool.kill(101)
       expect(w1.killCalls.count).toBe(1)
       expect(pool.getInstance(101)).toBeUndefined()
       expect(pool.threadCount).toBe(1)
     })
 
-    it(`returns the killed worker's threadId`, () => {
+    it(`returns the killed worker's threadId`, async () => {
       const pool = new WorkerThreadPool([w1.worker])
-      expect(pool.kill(101)).toBe(101)
+      expect(await pool.kill(101)).toBe(101)
     })
 
-    it(`returns undefined for unknown threadId and does not throw`, () => {
+    it(`returns undefined for unknown threadId and does not throw`, async () => {
       const pool = new WorkerThreadPool([])
-      expect(pool.kill(999)).toBeUndefined()
+      expect(await pool.kill(999)).toBeUndefined()
       expect(pool.threadCount).toBe(0)
     })
   })
 
   describe(`killAll`, () => {
-    it(`calls kill() on every worker and empties the pool`, () => {
+    it(`calls kill() on every worker and empties the pool`, async () => {
       const pool = new WorkerThreadPool([w1.worker, w2.worker, w3.worker])
-      pool.killAll()
+      await pool.killAll()
       expect(w1.killCalls.count).toBe(1)
       expect(w2.killCalls.count).toBe(1)
       expect(w3.killCalls.count).toBe(1)
@@ -129,9 +156,9 @@ describe(`WorkerThreadPool`, () => {
       expect(pool.getInstance(303)).toBeUndefined()
     })
 
-    it(`is a no-op on empty pool`, () => {
+    it(`is a no-op on empty pool`, async () => {
       const pool = new WorkerThreadPool([])
-      expect(() => pool.killAll()).not.toThrow()
+      await expect(pool.killAll()).resolves.toBeUndefined()
       expect(pool.threadCount).toBe(0)
     })
   })
@@ -174,10 +201,9 @@ describe(`WorkerThreadPool`, () => {
       }
     })
 
-    it(`returns an empty array for an empty pool`, async () => {
+    it(`rejects on an empty pool`, async () => {
       const pool = new WorkerThreadPool([])
-      const results = await pool.broadcastRequest(`ping`, [])
-      expect(results).toEqual([])
+      await expect(pool.broadcastRequest(`ping`, [])).rejects.toThrow(`WorkerThreadPool is empty`)
     })
 
     it(`preserves the order of workers as results`, async () => {
@@ -208,9 +234,9 @@ describe(`WorkerThreadPool`, () => {
       expect(w2.requestCalls).toHaveLength(1)
     })
 
-    it(`throws when the pool is empty`, () => {
+    it(`throws when the pool is empty`, async () => {
       const pool = new WorkerThreadPool([])
-      expect(() => pool.execute(`process`, [])).toThrow(/empty/)
+      await expect(pool.execute(`process`, [])).rejects.toThrow(/empty/)
     })
 
     it(`forwards the timeoutMs`, async () => {
@@ -349,9 +375,9 @@ describe(`WorkerThreadPool`, () => {
   })
 
   describe(`regression: kill/remove detaches the stored exit listener`, () => {
-    it(`kill() off()s the exit listener so a late exit cannot double-decrement`, () => {
+    it(`kill() off()s the exit listener so a late exit cannot double-decrement`, async () => {
       const pool = new WorkerThreadPool([w1.worker])
-      pool.kill(101)
+      await pool.kill(101)
       expect(pool.threadCount).toBe(0)
       w1.emitExit()
       expect(pool.threadCount).toBe(0)
@@ -359,7 +385,7 @@ describe(`WorkerThreadPool`, () => {
   })
 
   describe(`regression: killAll snapshot + error isolation + cursor reset`, () => {
-    it(`kills every worker even when one kill() throws, then throws an aggregate`, () => {
+    it(`kills every worker even when one kill() throws, then throws an aggregate`, async () => {
       const bad = makeMockWorker(404)
       bad.worker.kill = () => {
         throw new Error(`boom-404`)
@@ -367,7 +393,7 @@ describe(`WorkerThreadPool`, () => {
       const pool = new WorkerThreadPool([w1.worker, bad.worker, w2.worker])
       let caught: unknown
       try {
-        pool.killAll()
+        await pool.killAll()
       } catch (err) {
         caught = err
       }
@@ -388,7 +414,7 @@ describe(`WorkerThreadPool`, () => {
       const pool = new WorkerThreadPool([w1.worker, w2.worker])
       await pool.execute(`process`, [1])
       await pool.execute(`process`, [2])
-      pool.killAll()
+      await pool.killAll()
       const fresh = makeMockWorker(505)
       pool.add(fresh.worker)
       await pool.execute(`process`, [3])
@@ -500,6 +526,46 @@ describe(`WorkerThreadPool`, () => {
       for (const id of seen.slice(4)) {
         expect([1, 3]).toContain(id)
       }
+    })
+  })
+
+  describe(`phase 5: breaking coherence`, () => {
+    it(`broadcastRequest rejects on an empty pool, matching execute and broadcastSettled`, async () => {
+      const pool = new WorkerThreadPool([])
+      await expect(pool.broadcastRequest(`ping`, [])).rejects.toThrow(/empty/)
+    })
+
+    it(`threadCount always equals thread.size after add, re-add, and worker-exit removal`, () => {
+      const pool = new WorkerThreadPool([])
+      expect(pool.threadCount).toBe(pool.thread.size)
+      pool.add(w1.worker)
+      expect(pool.threadCount).toBe(pool.thread.size)
+      pool.add(w1.worker)
+      expect(pool.threadCount).toBe(pool.thread.size)
+      pool.add(w2.worker)
+      expect(pool.threadCount).toBe(pool.thread.size)
+      w1.emitExit()
+      expect(pool.threadCount).toBe(pool.thread.size)
+      expect(pool.threadCount).toBe(1)
+    })
+
+    it(`kill() awaits termination before the registry entry disappears`, async () => {
+      const pool = new WorkerThreadPool([w1.worker, w2.worker])
+      await pool.kill(101)
+      expect(w1.killCalls.count).toBe(1)
+      expect(pool.threadCount).toBe(1)
+      expect(pool.threadCount).toBe(pool.thread.size)
+      expect(pool.getInstance(101)).toBeUndefined()
+    })
+
+    it(`killAll() awaits every worker's termination`, async () => {
+      const pool = new WorkerThreadPool([w1.worker, w2.worker, w3.worker])
+      await pool.killAll()
+      expect(w1.killCalls.count).toBe(1)
+      expect(w2.killCalls.count).toBe(1)
+      expect(w3.killCalls.count).toBe(1)
+      expect(pool.threadCount).toBe(0)
+      expect(pool.threadCount).toBe(pool.thread.size)
     })
   })
 })
