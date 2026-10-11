@@ -22,10 +22,10 @@ import type {IGatewayServerOptions} from "./types/gateway-server"
  * class Worker extends WorkerThreadInit {
  *   constructor() {
  *     super(); // Required - signals ready to main thread
- *     log.info(`Worker ${this.id} started`);
+  *     console.info(`Worker ${this.id} started`);
  *   }
  *
- *   mtdProcess(data: any) {
+  *   mtdProcess(data: unknown) {
  *     return { processed: data };
  *   }
  * }
@@ -39,6 +39,24 @@ import type {IGatewayServerOptions} from "./types/gateway-server"
  * @public
  */
 export class WorkerThreadInit {
+  /** Guards {@link WorkerThreadInit.init} against duplicate listeners. */
+  _initDone = false
+
+  /** Parent port {@link WorkerThreadInit.init} last attached to. */
+  _initPort: unknown = undefined
+
+  /** Guards {@link WorkerThreadInit.shutdown} so the hook runs at most once. */
+  _shutdownDone = false
+
+  /**
+   * Check if currently running in the main thread.
+   * Re-exported from `node:worker_threads`.
+   *
+   * @remarks
+   * Use `node:worker_threads:isMainThread` to branch between main and worker logic.
+   */
+  static isMainThread = isMainThread
+
   /**
    * Command line arguments passed to the worker.
    * Same as `process.argv`. Custom args start at index 3.
@@ -141,15 +159,6 @@ export class WorkerThreadInit {
   }
 
   /**
-   * Check if currently running in the main thread.
-   * Re-exported from `node:worker_threads`.
-   *
-   * @remarks
-   * Use `node:worker_threads:isMainThread` to branch between main and worker logic.
-   */
-  static isMainThread = isMainThread
-
-  /**
    * Creates a new WorkerThreadInit instance.
    * Sets up message handling and signals readiness to the main thread.
    *
@@ -165,15 +174,6 @@ export class WorkerThreadInit {
       this.send({method: `readyResolve`})
     })
   }
-
-  /** Guards {@link WorkerThreadInit.init} against duplicate listeners. */
-  _initDone = false
-
-  /** Parent port {@link WorkerThreadInit.init} last attached to. */
-  _initPort: unknown = undefined
-
-  /** Guards {@link WorkerThreadInit.shutdown} so the hook runs at most once. */
-  _shutdownDone = false
 
   /**
    * [LOW-LEVEL] Initialize message handling from parent port and register event message from parent.

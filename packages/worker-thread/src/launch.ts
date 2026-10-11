@@ -61,22 +61,13 @@ import {WorkerThreadRpc} from "./rpc"
  * }
  * export const MyWorker = WorkerThreadExport.init({
  *   path: __filename,
- *   WTInit: MainThread,
+ *   WTInit: Worker,
  * });
  * ```
  *
  * @public
  */
 export class WorkerThreadLaunch extends EventEmitter {
-  /**
-   * Check if currently running in the main thread.
-   * Re-exported from `node:worker_threads`.
-   *
-   * @remarks
-   * Uses `node:worker_threads:isMainThread` to guard main-thread only logic.
-   */
-  static isMainThread = isMainThread
-
   /**
    * Whether the worker has signalled ready. Makes `readyResolve()` one-shot.
    *
@@ -120,6 +111,53 @@ export class WorkerThreadLaunch extends EventEmitter {
   private _sigintHandler?: () => void
   /** Retained `SIGTERM` listener registered in `init()` so `_removeSignalHandlers()` can detach it. */
   private _sigtermHandler?: () => void
+
+  /**
+   * Detach the SIGINT/SIGTERM handlers registered in `init()`.
+   *
+   * @remarks
+   * Called from `kill()` and the `exit` handler so worker pools stop
+   * accumulating `MaxListenersExceededWarning`s.
+   */
+  private _removeSignalHandlers() {
+    if (this._sigintHandler) {
+      process.removeListener(`SIGINT`, this._sigintHandler)
+      this._sigintHandler = undefined
+    }
+    if (this._sigtermHandler) {
+      process.removeListener(`SIGTERM`, this._sigtermHandler)
+      this._sigtermHandler = undefined
+    }
+  }
+
+  /**
+   * Emit an `error` event without risking an uncaught throw.
+   *
+   * @remarks
+   * Node's `EventEmitter` throws when `error` is emitted with no listeners,
+   * which would crash the process for a recoverable worker error. With
+   * listeners, the error is emitted; without, it is routed to the
+   * package-wide handler set via `WorkerThreadErrorHandler.setDefault` (silent by
+   * default — library code never writes to the console).
+   *
+   * @param err - The error to emit (or report).
+   */
+  private _safeEmitError(err: unknown) {
+    if (this.listenerCount(`error`) > 0) {
+      this.emit(`error`, err)
+    } else {
+      WorkerThreadErrorHandler.report(err)
+    }
+  }
+
+  /**
+   * Check if currently running in the main thread.
+   * Re-exported from `node:worker_threads`.
+   *
+   * @remarks
+   * Uses `node:worker_threads:isMainThread` to guard main-thread only logic.
+   */
+  static isMainThread = isMainThread
 
   /**
    * The main process ID.
@@ -256,24 +294,6 @@ export class WorkerThreadLaunch extends EventEmitter {
   }
 
   /**
-   * Detach the SIGINT/SIGTERM handlers registered in `init()`.
-   *
-   * @remarks
-   * Called from `kill()` and the `exit` handler so worker pools stop
-   * accumulating `MaxListenersExceededWarning`s.
-   */
-  private _removeSignalHandlers() {
-    if (this._sigintHandler) {
-      process.removeListener(`SIGINT`, this._sigintHandler)
-      this._sigintHandler = undefined
-    }
-    if (this._sigtermHandler) {
-      process.removeListener(`SIGTERM`, this._sigtermHandler)
-      this._sigtermHandler = undefined
-    }
-  }
-
-  /**
    * [LOW-LEVEL] Handle incoming messages from the worker thread.
    *
    * @param data - Message data from worker.
@@ -283,26 +303,6 @@ export class WorkerThreadLaunch extends EventEmitter {
     this.rpc.make(data).catch((err: unknown) => {
       this._safeEmitError(err)
     })
-  }
-
-  /**
-   * Emit an `error` event without risking an uncaught throw.
-   *
-   * @remarks
-   * Node's `EventEmitter` throws when `error` is emitted with no listeners,
-   * which would crash the process for a recoverable worker error. With
-   * listeners, the error is emitted; without, it is routed to the
-   * package-wide handler set via `WorkerThreadErrorHandler.setDefault` (silent by
-   * default — library code never writes to the console).
-   *
-   * @param err - The error to emit (or report).
-   */
-  private _safeEmitError(err: unknown) {
-    if (this.listenerCount(`error`) > 0) {
-      this.emit(`error`, err)
-    } else {
-      WorkerThreadErrorHandler.report(err)
-    }
   }
 
   /**

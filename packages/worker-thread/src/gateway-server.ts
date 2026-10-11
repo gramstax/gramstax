@@ -53,6 +53,118 @@ const MAX_CACHED_RESPONSE_SIZE = 64 * 1024
  * @public
  */
 export class WorkerThreadGatewayServer extends EventEmitter {
+  /** Shared secret from `start()` options. Connections with a mismatched `auth` payload are closed; `undefined` disables auth. */
+  private _authToken?: string
+
+  /** Allow-list from `start()` options. Non-listed methods are rejected by per-connection RPC middleware; `undefined` leaves the register fully callable. */
+  private _allowedMethods?: Set<string>
+
+  /** Estimation cap for a single incoming message; read per-connection when `start` is called. */
+  private _maxMessageSize = DEFAULT_MAX_MESSAGE_SIZE
+
+  /** Last bound socket path (normalized); unlinked best-effort on `close`. */
+  private _socketPath?: string
+
+  /**
+   * Cached responses per connection for at-least-once duplicate suppression.
+   *
+   * @remarks
+   * Outer key is the connection ID, inner key the RPC request `id`. Entries
+   * are dropped when the connection disconnects and when the server closes.
+   */
+  private _seenResponses = new Map<string, Map<number, Record<string, unknown>>>()
+
+  /**
+   * Inbound request ids currently executing, per connection.
+   *
+   * @remarks
+   * Closes the dedupe race: the response cache is written on send, so a
+   * same-id redelivery arriving *while the first copy still runs* would
+   * otherwise execute twice. Duplicates of an in-flight id are dropped —
+   * the first execution's response serves the retry (ids are never reused
+   * within a connection). Cleared with `seenResponses` on disconnect.
+   */
+  private _inflightRequests = new Map<string, Set<number>>()
+
+  /**
+   * Check the connection payload against the configured auth token.
+   *
+   * @remarks
+   * The token is compared only for presence (`!== undefined`): an explicitly
+   * empty token still enforces auth, it never disables it. Comparison uses
+   * `crypto.timingSafeEqual`; a length mismatch rejects without comparing.
+   *
+   * @param payload - The client `connect` payload (`{auth}` when a token was sent).
+   * @returns Whether the connection may proceed.
+   */
+  private _isAuthorized(payload?: unknown): boolean {
+    if (this._authToken === undefined) {
+      return true
+    }
+    const presented = (payload as {auth?: unknown} | undefined)?.auth
+    if (typeof presented !== `string`) {
+      return false
+    }
+    const expected = Buffer.from(this._authToken, `utf8`)
+    const actual = Buffer.from(presented, `utf8`)
+    if (actual.length !== expected.length) {
+      return false
+    }
+    return timingSafeEqual(actual, expected)
+  }
+
+  /**
+   * Emit an `error` event without risking an uncaught throw.
+   *
+   * @remarks
+   * Node's `EventEmitter` throws when `error` is emitted with no listeners.
+   * With listeners, the error is emitted; without, it is routed to the
+   * package-wide handler set via `WorkerThreadErrorHandler.setDefault` (silent by
+   * default — library code never writes to the console).
+   *
+   * @param err - The error to emit (or report).
+   */
+  private _safeEmitError(err: unknown) {
+    if (this.listenerCount(`error`) > 0) {
+      this.emit(`error`, err)
+    } else {
+      WorkerThreadErrorHandler.report(err)
+    }
+  }
+
+  /**
+   * Single close pass shared by duplicate `close()` callers.
+   */
+  private async _doClose() {
+    const graceful = this.server.close().catch(() => {})
+    await Promise.race([graceful, new Promise((resolve) => setTimeout(resolve, 500))])
+    // wait until the listening socket is fully released so the same instance
+    // can be restarted immediately (net-ipc does not await the net server close)
+    const raw = this.server.server
+    if (raw) {
+      await new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, 500)
+        raw.once(`close`, () => {
+          clearTimeout(timer)
+          resolve()
+        })
+      })
+    }
+    for (const connection of this.server.connections) {
+      connection.destroy()
+    }
+    this.rpc.clear()
+    this._seenResponses.clear()
+    const bound = this._socketPath
+    this._socketPath = undefined
+    if (bound !== undefined && process.platform !== `win32` && !bound.startsWith(`\\\\.\\pipe\\`)) {
+      await unlink(bound).catch(() => {
+        // best-effort cleanup: ENOENT (already gone) and any other fs error
+        // are intentionally ignored — the bind is already released
+      })
+    }
+  }
+
   /**
    * The underlying `net-ipc` Server instance.
    *
@@ -80,41 +192,8 @@ export class WorkerThreadGatewayServer extends EventEmitter {
    */
   register: Record<string, (...args: never[]) => unknown> = {}
 
-  /** Shared secret from `start()` options. Connections with a mismatched `auth` payload are closed; `undefined` disables auth. */
-  private _authToken?: string
-
-  /** Allow-list from `start()` options. Non-listed methods are rejected by per-connection RPC middleware; `undefined` leaves the register fully callable. */
-  private _allowedMethods?: Set<string>
-
-  /** Estimation cap for a single incoming message; read per-connection when `start` is called. */
-  private _maxMessageSize = DEFAULT_MAX_MESSAGE_SIZE
-
-  /** Last bound socket path (normalized); unlinked best-effort on `close`. */
-  private _socketPath?: string
-
   /** In-flight `close()` shared by concurrent/duplicate callers. */
   closePromise: Promise<void> | null = null
-
-  /**
-   * Cached responses per connection for at-least-once duplicate suppression.
-   *
-   * @remarks
-   * Outer key is the connection ID, inner key the RPC request `id`. Entries
-   * are dropped when the connection disconnects and when the server closes.
-   */
-  private _seenResponses = new Map<string, Map<number, Record<string, unknown>>>()
-
-  /**
-   * Inbound request ids currently executing, per connection.
-   *
-   * @remarks
-   * Closes the dedupe race: the response cache is written on send, so a
-   * same-id redelivery arriving *while the first copy still runs* would
-   * otherwise execute twice. Duplicates of an in-flight id are dropped —
-   * the first execution's response serves the retry (ids are never reused
-   * within a connection). Cleared with `seenResponses` on disconnect.
-   */
-  private _inflightRequests = new Map<string, Set<number>>()
 
   /**
    * Creates a new gateway server instance.
@@ -218,52 +297,6 @@ export class WorkerThreadGatewayServer extends EventEmitter {
   }
 
   /**
-   * Check the connection payload against the configured auth token.
-   *
-   * @remarks
-   * The token is compared only for presence (`!== undefined`): an explicitly
-   * empty token still enforces auth, it never disables it. Comparison uses
-   * `crypto.timingSafeEqual`; a length mismatch rejects without comparing.
-   *
-   * @param payload - The client `connect` payload (`{auth}` when a token was sent).
-   * @returns Whether the connection may proceed.
-   */
-  private _isAuthorized(payload?: unknown): boolean {
-    if (this._authToken === undefined) {
-      return true
-    }
-    const presented = (payload as {auth?: unknown} | undefined)?.auth
-    if (typeof presented !== `string`) {
-      return false
-    }
-    const expected = Buffer.from(this._authToken, `utf8`)
-    const actual = Buffer.from(presented, `utf8`)
-    if (actual.length !== expected.length) {
-      return false
-    }
-    return timingSafeEqual(actual, expected)
-  }
-
-  /**
-   * Emit an `error` event without risking an uncaught throw.
-   *
-   * @remarks
-   * Node's `EventEmitter` throws when `error` is emitted with no listeners.
-   * With listeners, the error is emitted; without, it is routed to the
-   * package-wide handler set via `WorkerThreadErrorHandler.setDefault` (silent by
-   * default — library code never writes to the console).
-   *
-   * @param err - The error to emit (or report).
-   */
-  private _safeEmitError(err: unknown) {
-    if (this.listenerCount(`error`) > 0) {
-      this.emit(`error`, err)
-    } else {
-      WorkerThreadErrorHandler.report(err)
-    }
-  }
-
-  /**
    * Start the gateway server.
    *
    * @param path - Unix socket path to bind. Gateway path identifier.
@@ -343,39 +376,6 @@ export class WorkerThreadGatewayServer extends EventEmitter {
       await this.closePromise
     } finally {
       this.closePromise = null
-    }
-  }
-
-  /**
-   * Single close pass shared by duplicate `close()` callers.
-   */
-  private async _doClose() {
-    const graceful = this.server.close().catch(() => {})
-    await Promise.race([graceful, new Promise((resolve) => setTimeout(resolve, 500))])
-    // wait until the listening socket is fully released so the same instance
-    // can be restarted immediately (net-ipc does not await the net server close)
-    const raw = this.server.server
-    if (raw) {
-      await new Promise<void>((resolve) => {
-        const timer = setTimeout(resolve, 500)
-        raw.once(`close`, () => {
-          clearTimeout(timer)
-          resolve()
-        })
-      })
-    }
-    for (const connection of this.server.connections) {
-      connection.destroy()
-    }
-    this.rpc.clear()
-    this._seenResponses.clear()
-    const bound = this._socketPath
-    this._socketPath = undefined
-    if (bound !== undefined && process.platform !== `win32` && !bound.startsWith(`\\\\.\\pipe\\`)) {
-      await unlink(bound).catch(() => {
-        // best-effort cleanup: ENOENT (already gone) and any other fs error
-        // are intentionally ignored — the bind is already released
-      })
     }
   }
 }

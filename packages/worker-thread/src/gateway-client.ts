@@ -19,6 +19,31 @@ import type {IGatewayClientOptions} from "./types/gateway-client"
  * @public
  */
 export class WorkerThreadGatewayClient extends EventEmitter {
+  /** Whether `close()`/`destroy()` has run. Guards `send()` and `connect()` against reuse. */
+  private _closed = false
+
+  /** Raw connection that already has our error-routing listener attached. */
+  private _guardedConnection: unknown = null
+
+  /**
+   * Emit an `error` event without risking an uncaught throw.
+   *
+   * @remarks
+   * Node's `EventEmitter` throws when `error` is emitted with no listeners.
+   * With listeners, the error is emitted; without, it is routed to the
+   * package-wide handler set via `WorkerThreadErrorHandler.setDefault` (silent by
+   * default — library code never writes to the console).
+   *
+   * @param err - The error to emit (or report).
+   */
+  private _safeEmitError(err: unknown) {
+    if (this.listenerCount(`error`) > 0) {
+      this.emit(`error`, err)
+    } else {
+      WorkerThreadErrorHandler.report(err)
+    }
+  }
+
   /**
    * The underlying `net-ipc` Client instance.
    *
@@ -34,12 +59,6 @@ export class WorkerThreadGatewayClient extends EventEmitter {
    * Uses {@link WorkerThreadRpc} to encode and dispatch RPC calls.
    */
   rpc: WorkerThreadRpc
-
-  /** Whether `close()`/`destroy()` has run. Guards `send()` and `connect()` against reuse. */
-  private _closed = false
-
-  /** Raw connection that already has our error-routing listener attached. */
-  private _guardedConnection: unknown = null
 
   /**
    * Creates a new gateway client instance.
@@ -101,25 +120,6 @@ export class WorkerThreadGatewayClient extends EventEmitter {
         this.emit(`close`, reason)
       }
     })
-  }
-
-  /**
-   * Emit an `error` event without risking an uncaught throw.
-   *
-   * @remarks
-   * Node's `EventEmitter` throws when `error` is emitted with no listeners.
-   * With listeners, the error is emitted; without, it is routed to the
-   * package-wide handler set via `WorkerThreadErrorHandler.setDefault` (silent by
-   * default — library code never writes to the console).
-   *
-   * @param err - The error to emit (or report).
-   */
-  private _safeEmitError(err: unknown) {
-    if (this.listenerCount(`error`) > 0) {
-      this.emit(`error`, err)
-    } else {
-      WorkerThreadErrorHandler.report(err)
-    }
   }
 
   /**

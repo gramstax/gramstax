@@ -53,6 +53,84 @@ export const DENIED_RPC_METHODS: ReadonlySet<string> = new Set([`__proto__`, `co
  * @public
  */
 export class WorkerThreadRpc {
+  /** Ordered middleware chain for inbound RPC messages. Mutated by `use()`, run in registration order by `_runMiddleware`. @internal */
+  private _middlewares: IRpcMiddleware[] = []
+
+  /** @internal Counter for unique ID generation (avoids Math.random determinism). */
+  private _nextId = 1
+
+  /**
+   * Send an envelope, routing transport failures to the package error
+   * handler instead of dropping them silently.
+   *
+   * @internal
+   */
+  private _sendEnvelope(envelope: Record<string, unknown>): void {
+    try {
+      const p = this.send(envelope)
+      if (p && typeof (p as Promise<unknown>).then === `function`) {
+        ;(p as Promise<unknown>).catch((err: unknown) => {
+          WorkerThreadErrorHandler.report(err instanceof Error ? err : new Error(String(err)))
+        })
+      }
+    } catch (err) {
+      WorkerThreadErrorHandler.report(err instanceof Error ? err : new Error(String(err)))
+    }
+  }
+
+  /**
+   * Resolve or reject the pending request matching a response envelope.
+   *
+   * @remarks
+   * Discrimination is by key presence (`in`), not by value: a msgpack
+   * `undefined` result still carries the `result` key and must resolve.
+   * Non-number ids are reported and ignored instead of silently dropped.
+   *
+   * @internal
+   */
+  private _handleResponse(data: {id?: number; result?: unknown; error?: unknown}): void {
+    const {id} = data
+    if (typeof id !== `number`) {
+      WorkerThreadErrorHandler.report(new Error(`Invalid RPC response id: expected number, got ${typeof id}`))
+      return
+    }
+    const pending = this.map.get(id)
+    if (!pending) return
+    if (pending.timer) clearTimeout(pending.timer)
+    this.map.delete(id)
+    if (`result` in data) pending.resolve(data.result)
+    else if (`error` in data) pending.reject(data.error)
+  }
+
+  /**
+   * Run the middleware chain, then dispatch the method.
+   *
+   * @param ctx - Mutable request context shared through the chain.
+   * @param index - Current middleware index.
+   */
+  private async _runMiddleware(ctx: IRpcContext, index: number): Promise<void> {
+    if (index >= this._middlewares.length) {
+      const func = this.register[ctx.method]
+      // Accept own properties AND class-prototype methods (gateway registers
+      // worker *instances*, whose mtd* methods live on the prototype), but
+      // never Object.prototype members (`toString`, `hasOwnProperty`, ...) or
+      // the dangerous names below (`constructor` would expose the class).
+      const fromObjectProto = !Object.hasOwn(this.register, ctx.method) && Object.hasOwn(Object.prototype, ctx.method)
+      if (typeof func !== `function` || DENIED_RPC_METHODS.has(ctx.method) || fromObjectProto) {
+        throw new Error(`Method ${ctx.method} not found or not function`)
+      }
+      ctx.result = await (func as (...args: unknown[]) => unknown).apply(this.register, ctx.params)
+      return
+    }
+    const middleware = this._middlewares[index]!
+    let nextCalled = false
+    await middleware(ctx, async () => {
+      if (nextCalled) throw new Error(`next() called multiple times`)
+      nextCalled = true
+      await this._runMiddleware(ctx, index + 1)
+    })
+  }
+
   /**
    * Estimate the in-memory footprint of a structured value.
    *
@@ -120,6 +198,18 @@ export class WorkerThreadRpc {
   }
 
   /**
+   * Validate a timeout value. `0` means no timeout; anything else must be
+   * a non-negative finite number.
+   *
+   * @internal
+   */
+  static assertTimeout(value: unknown, name: string): void {
+    if (typeof value !== `number` || !Number.isFinite(value) || value < 0) {
+      throw new TypeError(`Invalid RPC ${name}: expected non-negative finite number, got ${String(value)}`)
+    }
+  }
+
+  /**
    * Map of pending requests by ID. Stores promise handlers for pending requests.
    *
    * @remarks
@@ -153,9 +243,6 @@ export class WorkerThreadRpc {
    */
   defaultTimeoutMs: number = DEFAULT_REQUEST_TIMEOUT_MS
 
-  /** Ordered middleware chain for inbound RPC messages. Mutated by `use()`, run in registration order by `_runMiddleware`. @internal */
-  private _middlewares: IRpcMiddleware[] = []
-
   /**
    * Creates a new WorkerThreadRpc instance.
    *
@@ -172,37 +259,6 @@ export class WorkerThreadRpc {
     if (options?.defaultTimeoutMs !== undefined) {
       WorkerThreadRpc.assertTimeout(options.defaultTimeoutMs, `defaultTimeoutMs`)
       this.defaultTimeoutMs = options.defaultTimeoutMs
-    }
-  }
-
-  /**
-   * Validate a timeout value. `0` means no timeout; anything else must be
-   * a non-negative finite number.
-   *
-   * @internal
-   */
-  static assertTimeout(value: unknown, name: string): void {
-    if (typeof value !== `number` || !Number.isFinite(value) || value < 0) {
-      throw new TypeError(`Invalid RPC ${name}: expected non-negative finite number, got ${String(value)}`)
-    }
-  }
-
-  /**
-   * Send an envelope, routing transport failures to the package error
-   * handler instead of dropping them silently.
-   *
-   * @internal
-   */
-  private _sendEnvelope(envelope: Record<string, unknown>): void {
-    try {
-      const p = this.send(envelope)
-      if (p && typeof (p as Promise<unknown>).then === `function`) {
-        ;(p as Promise<unknown>).catch((err: unknown) => {
-          WorkerThreadErrorHandler.report(err instanceof Error ? err : new Error(String(err)))
-        })
-      }
-    } catch (err) {
-      WorkerThreadErrorHandler.report(err instanceof Error ? err : new Error(String(err)))
     }
   }
 
@@ -310,62 +366,6 @@ export class WorkerThreadRpc {
       this._handleResponse(data)
     }
   }
-
-  /**
-   * Resolve or reject the pending request matching a response envelope.
-   *
-   * @remarks
-   * Discrimination is by key presence (`in`), not by value: a msgpack
-   * `undefined` result still carries the `result` key and must resolve.
-   * Non-number ids are reported and ignored instead of silently dropped.
-   *
-   * @internal
-   */
-  private _handleResponse(data: {id?: number; result?: unknown; error?: unknown}): void {
-    const {id} = data
-    if (typeof id !== `number`) {
-      WorkerThreadErrorHandler.report(new Error(`Invalid RPC response id: expected number, got ${typeof id}`))
-      return
-    }
-    const pending = this.map.get(id)
-    if (!pending) return
-    if (pending.timer) clearTimeout(pending.timer)
-    this.map.delete(id)
-    if (`result` in data) pending.resolve(data.result)
-    else if (`error` in data) pending.reject(data.error)
-  }
-
-  /**
-   * Run the middleware chain, then dispatch the method.
-   *
-   * @param ctx - Mutable request context shared through the chain.
-   * @param index - Current middleware index.
-   */
-  private async _runMiddleware(ctx: IRpcContext, index: number): Promise<void> {
-    if (index >= this._middlewares.length) {
-      const func = this.register[ctx.method]
-      // Accept own properties AND class-prototype methods (gateway registers
-      // worker *instances*, whose mtd* methods live on the prototype), but
-      // never Object.prototype members (`toString`, `hasOwnProperty`, ...) or
-      // the dangerous names below (`constructor` would expose the class).
-      const fromObjectProto = !Object.hasOwn(this.register, ctx.method) && Object.hasOwn(Object.prototype, ctx.method)
-      if (typeof func !== `function` || DENIED_RPC_METHODS.has(ctx.method) || fromObjectProto) {
-        throw new Error(`Method ${ctx.method} not found or not function`)
-      }
-      ctx.result = await (func as (...args: unknown[]) => unknown).apply(this.register, ctx.params)
-      return
-    }
-    const middleware = this._middlewares[index]!
-    let nextCalled = false
-    await middleware(ctx, async () => {
-      if (nextCalled) throw new Error(`next() called multiple times`)
-      nextCalled = true
-      await this._runMiddleware(ctx, index + 1)
-    })
-  }
-
-  /** @internal Counter for unique ID generation (avoids Math.random determinism). */
-  private _nextId = 1
 
   /**
    * Generate a unique request ID.
