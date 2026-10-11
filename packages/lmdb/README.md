@@ -11,6 +11,18 @@
   </p>
 </div>
 
+## 💡 Why this package
+
+`@gramstax/lmdb` is a thin opinionated layer over [lmdb-js](https://www.npmjs.com/package/lmdb). It does not hide LMDB's semantics; it codifies them into one typed pattern. The value is in what you stop doing on every project:
+
+**No sub-database bookkeeping.** Raw lmdb-js means calling `root.openDB(name, opts)` for every entity, passing handles around by hand, and remembering to forward `encoding`, `compression`, and `cache` every time. Here a schema class is bound to its sub-database at registration — env-level options reach every sub-database on their own.
+
+**No prefix-encoded keys.** The common workaround is keys like `"user:1"` with hand-computed inclusive/exclusive bounds for range scans. Each entity here owns a dedicated sub-database, so keys are intrinsically isolated, `count()` is O(1), and a range over `user` can never see `session` rows.
+
+**No wrapper layer between you and LMDB.** Point reads are synchronous because the native calls are. Wrapping `mdb_get` in a promise would add a microtask and buy nothing.
+
+**No implicit rounding.** Nothing is converted or clamped behind your back. If a value is out of range, you get an `LmdbError` naming it.
+
 ## ✨ Features
 
 ### Storage that declares itself
@@ -102,6 +114,51 @@ db.users.count() // sync — O(1)
 ```
 
 ## 📖 Usage
+
+### Declaring data
+
+Column builders come from `t`. Every one supports the same chain methods.
+
+| Builder                | Value type                    | Notes                                                                  |
+| :--------------------- | :---------------------------- | :--------------------------------------------------------------------- |
+| `t.string()`           | `string`                      | The only kind that can be `.search()`-ed                             |
+| `t.number()`           | `number`                      |                                                                        |
+| `t.bigint()`           | `bigint`                      | msgpack-native; not usable as a primary key                           |
+| `t.boolean()`          | `boolean`                     |                                                                        |
+| `t.date()`             | `Date`                        | msgpack-native                                                         |
+| `t.buffer()`           | `Uint8Array`                  |                                                                        |
+| `t.object<T>()`        | `Record<string, unknown>`     | `T` narrows the row type                                              |
+| `t.array<T>()`         | `unknown[]`                   | Also accepts a shape: `t.array(t.string())` → `string[]`              |
+| `t.map<K, V>()`        | `Map<K, V>`                   | Or a `{key, value}` shape                                             |
+| `t.set<T>()`           | `Set<unknown>`                | Or a shape: `t.set(t.string())` → `Set<string>`                       |
+| `t.any()`              | `unknown`                     | Passthrough                                                            |
+| `t.enum(...)`          | `string \| number \| bigint`  | Runtime-validated; must be homogeneous or `register` throws           |
+| `t.string(...)`        | `string`                      | Literal-typed, same validation as `t.enum`                            |
+
+| Chain method   | Effect                                                                          |
+| :------------- | :------------------------------------------------------------------------------ |
+| `.optional()`  | The field becomes omit-able; absent or `undefined` reads back as absent         |
+| `.unique()`    | A uniqueness constraint, maintained in the row's write transaction              |
+| `.index(name?)`| A secondary index; `name` overrides the derived one                            |
+| `.index([a,b])`| A concatenated-key composite, matched by tuple key                             |
+| `.search()`    | Provisions a posting table so the column is full-text searchable                |
+| `.default(v)`  | Fills the field at write time when it is `undefined`                           |
+| `.$defaultFn(f)` | Same, computed per write                                                     |
+
+Nested `unique`, `index`, and `search` markers inside an `object`/`array` shape throw — they would be silently ignored. Declare them as top-level dotted columns instead, e.g. `bio.email: t.string().unique()`.
+
+### Encoding
+
+`encoding` is a per-env default and can be overridden per sub-database or per schema. It is **not** inherited from the root env by LMDB itself — this package forwards it to every `openDB` call for you.
+
+| Encoder          | Serializer        | Use when                                          |
+| :--------------- | :---------------- | :------------------------------------------------ |
+| `msgpack`        | msgpackr (binary) | Default — fastest, handles `Date`/`Map`/`Set`/`BigInt` |
+| `json`           | `JSON.stringify`  | Human-readable, V8-optimized for small objects    |
+| `cbor`           | cbor-x            | Compact binary, good for typed structures          |
+| `binary`         | raw `Buffer`      | Already-encoded payloads                          |
+| `string`         | UTF-8             | String-only values                                |
+| `ordered-binary` | same as keys      | dupSort index values                              |
 
 ### Reads and writes
 
@@ -389,6 +446,77 @@ The reader is always opened `readOnly`, and it is a different process's data: LM
 | `{limit}` on fan-out reads    | An unbounded non-unique index query materializes every match    |
 | `iterate()` above 100_000 rows | Bulk reads are guarded; the lazy iterator is not               |
 | `putMany(..., {sorted:true})` | The first inversion throws before anything is written           |
+
+## 📚 API Reference
+
+### Env-level
+
+| Method                              | Returns                | Sync/Async |
+| :---------------------------------- | :--------------------- | :--------- |
+| `register(SchemaClass)`            | `LmdbEnvSub<S>`        | sync       |
+| `sub(SchemaClass)`                 | the cached handle      | sync       |
+| `isRegistered(SchemaClass)`        | `boolean`              | sync       |
+| `transaction(fn)`                  | `T`                    | async      |
+| `transactionFast(fn)`              | `T`                    | async      |
+| `readTransaction(fn)`              | `T`                    | async      |
+| `rootTransactionSync(fn)`          | `T`                    | sync       |
+| `subscribe(filter, cb)`            | `unsubscribe`          | sync       |
+| `tailCdc({consumer?, from?, limit?})` | `ICdcRecord[]`      | async      |
+| `ackCdc(consumer, seq)`            | `void`                 | async      |
+| `pruneCdc(keep?)`                  | `number` pruned        | async      |
+| `migrate(steps)`                   | `{applied, currentVersion}` | async |
+| `getMigrationVersion()`            | `number`               | sync       |
+| `getMapSizeUsed()`                 | `{total, used, free, ratio}` | sync |
+| `on`/`off('beforecommit'\|'aftercommit')` | `void`      | sync       |
+| `onWarn`/`offWarn(fn)`             | `void`                 | sync       |
+| `emitWarn(message)`                | `void`                 | sync       |
+| `backup(dest, compact?)`           | —                      | async      |
+| `readerList()`                     | `Array<string>`        | sync       |
+| `resetReadTxn()`                   | `void`                 | sync       |
+| `getWriteTxnId()`                  | `bigint`               | sync       |
+| `close()`                          | `void`                 | async      |
+
+### Sub handle
+
+Point reads and cardinality are synchronous because the native LMDB calls are. Writes are async — lmdb-js queues them and flushes on the next microtask, which batches same-turn writes for free.
+
+| Sync                                                    | Async                                                                    |
+| :------------------------------------------------------ | :----------------------------------------------------------------------- |
+| `get(key, tx?)` → `T \| undefined`                    | `put(key, value, ttlOrTx?)`                                               |
+| `getStrict(key, tx?)` → `T` (throws when absent)       | `putIfNotExists(key, value)` → `boolean`                                 |
+| `has(key, tx?)` → `boolean`                            | `delete(key, tx?)` → `boolean`                                           |
+| `count(tx?)` → `number`                                | `clear(tx?)`, `drop()`                                                    |
+| `getKeys(options?, tx?)`                               | `keys/values/entries(options?, tx?)` — lazy cursor, drained to an array |
+| `getEntry(key)` → `{version, value} \| undefined`     | `putMany(entries, chunk?, {sorted?, onProgress?})`                        |
+| `getBinary` / `getBinaryFast(key)` → `Buffer`          | `importJSONL(jsonl, {sorted?})` → `number`                               |
+| `getValues(key)` / `getValuesCount(key)` (dupSort)     | `findByIndex(query, tx?, {limit}?)`                                       |
+| `first(tx?)` / `last(tx?)`                             | `like(pattern, options?, tx?)`, `findByPrefix(prefix, options?, tx?)`     |
+|                                                      | `countByPrefix`, `deleteByPrefix(prefix, options?, tx?)`                  |
+|                                                      | `search(query, {limit?})` → `K[]`                                        |
+|                                                      | `reindex(name?)` → `{built, skipped}`                                    |
+|                                                      | `syncTo(dest, {name?, checkpoint?, limit?, verify?})`                     |
+|                                                      | `increment(key, delta?)` / `decrement(key, amount?)` — scalar-number subs |
+|                                                      | `addValue` / `removeValue` / `getValues` — dupSort subs                   |
+|                                                      | `putBinary(key, buf)` / `prefetch(keys)` / `getMany(keys)`               |
+|                                                      | `putSync` / `removeSync` — for transaction callbacks                      |
+|                                                      | `purgeExpired()` → `number` — TTL subs                                   |
+|                                                      | `exportJSONL()` → `string`, `for await … of iterate(options?, tx?)`      |
+
+`increment`/`decrement` and `putBinary` are **rejected on indexed or search-enabled subs** — the value would be stored outside the row shape, so an index would go stale. Keep counters on a separate non-indexed sub.
+
+### Other modules
+
+| Module                  | Entry points                                                                 |
+| :---------------------- | :--------------------------------------------------------------------------- |
+| `LmdbQueue`             | `enqueue` · `dequeue` · `peek` · `size` · `clear`                            |
+| `LmdbBackup`            | `backup` · `snapshot` · `start` · `list` · `listArchives` · `prune` · `pruneArchives` · `pruneS3Archives` · `restore` · `restoreArchive` · `uploadToS3` · `downloadFromS3` · `clearStaleStaging` |
+| `LmdbJobRun`            | `start` · `missed` · `lastRun` · `recordRun` · `clear` · `sub`               |
+| `LmdbReader`            | `open(path, {maxDbs?, pollMs?})`                                             |
+| `LmdbSearch`            | `tokenize` · `fingerprintPk`                                                  |
+| `RecordCodec`           | Positional row encoding                                                       |
+| `LmdbSyncStream`        | `hashRowValue`                                                                |
+| `Cdc` · `CdcHub` · `CdcStore` | Per-env change-capture state                                            |
+| `LmdbTransaction`       | `abort` · `commit` · `raw` · `lifecycle` · `isCommitted` · `isAborted`         |
 
 ## ✅ Testing
 

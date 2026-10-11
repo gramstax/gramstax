@@ -126,6 +126,17 @@ const sums = await Promise.all([1, 2, 3, 4].map((n) => pool.execute(`mtdAdd`, [n
 
 `execute` spreads calls round-robin. `broadcastRequest` fans out to every worker and rejects if any fail; `broadcastSettled` returns one result per worker, which is usually what you want for best-effort fan-out. Workers that exit are dropped from the pool automatically, and `threadCount` reflects the live ones.
 
+### Gateway topology
+
+**Hub** is the common shape: one worker binds a server and exposes methods, every other worker connects as a client.
+
+```text
+Worker A ──parentPort──▶ Main ◀──parentPort── Worker B
+Worker A ─────── socket ─────── Worker B          (gateway, no relay)
+```
+
+**Mesh** is the advanced shape: a worker can bind *and* connect at the same time, so peers talk without a single hub. Either way the main thread stays off the inter-worker hot path — it only orchestrates lifecycle.
+
 ### Inter-worker gateway
 
 `node:worker_threads` gives each worker exactly one channel — its `parentPort` back to the main thread. The gateway adds a second one, directly between workers.
@@ -305,6 +316,82 @@ Attach it at boot, or a worker crash disappears silently.
 - **Types flow one way.** The worker class is the single source of truth and the client is derived from it, so the two cannot drift apart.
 - **Gateway is opt-in.** Single-worker apps never touch it; it exists for meshes, and it reuses the same protocol rather than inventing a second one.
 - **Delivery is at-least-once.** The transport retries failed writes and replays in-flight requests across reconnects, so a handler can observe the same id twice. Request ids are monotonic per client and the server dedupes per connection — but keep handlers idempotent anyway, since responses over 64 KB are never cached.
+
+## 📚 API Reference
+
+| Export                         | Owns                                                                                     |
+| :----------------------------- | :---------------------------------------------------------------------------------------- |
+| `WorkerThreadInit`             | Worker side: RPC registration, gateway server/client, `request()` back to main, `onBeforeExit()` / `onError()`, `shutdown()` |
+| `WorkerThreadLaunch`           | Main-thread handle: `launchWorker()`, `ready()`, `request()`, `kill()`, `shutdown()`, `ready`/`exit`/`error` events |
+| `WorkerThreadExport.init()`    | Typed proxy factory — returns `launchWorker`, `launchGatewayClient`, and every `mtd*` method |
+| `WorkerThreadPool`             | Worker registry — `execute()` round-robin, `broadcastRequest()`, `broadcastSettled()`, auto-removal of dead workers |
+| `WorkerThreadRpc`              | JSON-RPC dispatcher — `makeRequest()`, `rejectAllPending()`, `use()` middleware, `context` |
+| `WorkerThreadGatewayServer`    | Socket server — `start(path, register?, {token, allowedMethods, maxConnections})`, `close()` |
+| `WorkerThreadGatewayClient`    | Socket client — `connect(path, {token, reconnect, …})`, `close()`                        |
+| `WorkerThreadGatewayPath`      | `normalize()` — cross-platform socket path resolution                                    |
+| `WorkerThreadErrorHandler`     | `setDefault()` — package-wide error routing, silent until you attach something            |
+
+### `WorkerThreadInit` — the worker side
+
+| Member                                  | Purpose                                                              |
+| :-------------------------------------- | :------------------------------------------------------------------- |
+| `mtd*` methods                          | Everything reachable from the main thread                            |
+| `request(method, params, …)`            | Call back into the main thread                                       |
+| `createGatewayServer(path, register?, options?)` | Bind a socket server                                            |
+| `createGatewayClient(path, options?)`  | Connect to another worker's gateway                                 |
+| `onBeforeExit()`                        | Override — drain hook run by `shutdown()`                           |
+| `onError()`                             | Override — in-worker error surface                                   |
+| `shutdown()`                            | Acknowledge a shutdown request                                      |
+| `init()`, `handleOnMessage()`, `send()` | Transport internals                                                 |
+| `argv`                                  | Extra arguments passed to `launchWorker(argv)`                      |
+
+### `WorkerThreadLaunch` — the main-thread side
+
+| Member                                            | Purpose                                                  |
+| :------------------------------------------------ | :-------------------------------------------------------- |
+| `launchWorker(argv?)`                             | Spawn and resolve when the worker signals ready          |
+| `ready()`                                         | Rejects if the worker died before signalling ready       |
+| `request(method, params, wait?, others?, timeoutMs?)` | Low-level call when you are not using the typed proxy |
+| `kill()`                                          | Immediate terminate, no cleanup                          |
+| `shutdown(timeoutMs?)`                            | Graceful stop; force-terminates after `timeoutMs` (5000) |
+| `threadId`                                        | The worker's thread id                                   |
+| `events`                                          | `ready` · `exit` · `error`                               |
+
+### `WorkerThreadPool`
+
+| Member                                     | Purpose                                                    |
+| :----------------------------------------- | :--------------------------------------------------------- |
+| `new WorkerThreadPool(instances)`         | Build from already-launched workers                        |
+| `add(instance)` / `addMany(instances)`    | Grow the pool; re-adding a live `threadId` is idempotent  |
+| `execute(method, params, timeoutMs?)`     | Round-robin to the next worker                            |
+| `request(threadId, method, params, …)`    | Target one specific worker                                |
+| `broadcastRequest(method, params, timeoutMs?)` | Fan out; rejects if any worker fails                  |
+| `broadcastSettled(method, params, timeoutMs?)` | Fan out; one result per worker, never rejects on a peer |
+| `getInstance(threadId)`                    | Look one up                                               |
+| `kill(threadId)` / `killAll()`             | Remove one or every worker                                |
+| `threadCount`                              | Live workers only — exits are dropped automatically       |
+
+### `WorkerThreadRpc`
+
+| Member                             | Purpose                                                     |
+| :--------------------------------- | :---------------------------------------------------------- |
+| `makeRequest(method, params, timeoutMs?)` | Send a request                                        |
+| `rejectAllPending()`              | Fail every in-flight call — used when a worker dies         |
+| `use(middleware)`                  | Request middleware chain; short-circuit by setting `ctx.result` |
+| `context`                          | Object merged into every outgoing request                   |
+| `defaultTimeoutMs`                 | Per-instance timeout override, default `30000`              |
+
+Middleware can log, measure, or guard every call:
+
+```ts
+worker.rpc.use(async (ctx, next) => {
+  metrics.count(`rpc.${ctx.method}`)
+  await next()
+})
+worker.rpc.context = {traceId: `abc-123`}
+```
+
+Short-circuiting middleware — setting `ctx.result` without calling `next()` — skips dispatch and, on a gateway, also skips the `allowedMethods` guard. That escape hatch is only reachable by code that already holds the server instance.
 
 ## ✅ Testing
 
