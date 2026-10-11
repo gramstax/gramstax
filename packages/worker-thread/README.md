@@ -10,6 +10,18 @@
   </p>
 </div>
 
+## 💡 Why this package
+
+`node:worker_threads` gives you a channel and leaves you the rest. Spawning a worker means wiring a `MessagePort`, inventing a request id scheme, deciding what a reply looks like when it never comes, and — before any of that — figuring out how one worker reaches another, since every worker has exactly one channel and it points at the main thread.
+
+**Main-thread calls look like async functions.** `await Job.mtdAdd(2, 3)` — the transport, the id matching, and the error propagation are somebody else's problem.
+
+**The type is the worker's, not a copy of it.** The client is derived from the worker class, so renaming a method breaks compilation at every call site instead of failing at runtime.
+
+**Workers reach workers.** The gateway adds the second channel `node:worker_threads` does not give you, with a shared token and a per-method allow-list so exposing a worker is a deliberate act.
+
+**Dying is not silent.** When a worker exits, its pending calls reject instead of hanging, and `onBeforeExit()` gives you a place to flush before a graceful stop.
+
 ## ✨ Features
 
 ### Lifecycle
@@ -146,24 +158,39 @@ Worker A ──parentPort──▶ Main ◀──parentPort── Worker B
 Worker A ─────── socket ─────── Worker B          (gateway, no relay)
 ```
 
-Server side:
+Server side — `register` is a map of plain functions. Leaving it `undefined` exposes the worker instance itself, which is allowed only because a non-empty `allowedMethods` is supplied:
 
 ```ts
 class ServerWorker extends WorkerThreadInit {
+  mtdHello(from: string) {
+    return `Hello ${from}!`
+  }
+
   async mtdStart() {
-    return await this.createGatewayServer(`/tmp/server.sock`, this, {
+    return await this.createGatewayServer(`/tmp/server.sock`, undefined, {
       token: `shared-secret`,
       allowedMethods: [`mtdHello`]
     })
   }
 }
+
+// Or expose exactly one method and nothing else:
+await this.createGatewayServer(
+  `/tmp/server.sock`,
+  {mtdHello: (from: string): string => `Hello ${from}!`},
+  {token: `shared-secret`, allowedMethods: [`mtdHello`]}
+)
 ```
 
-Client side:
+Client side — the gateway proxy prepends the calling worker, so the first argument is `this`:
 
 ```ts
-const result = await ServerJob.launchGatewayClient(`/tmp/server.sock`, {token: `shared-secret`})
-console.log(await result.mtdHello(`ClientWorker`))
+class ClientWorker extends WorkerThreadInit {
+  async mtdCallServer() {
+    const gateway = await ServerJob.launchGatewayClient(`/tmp/server.sock`, {token: `shared-secret`})
+    return await gateway.mtdHello(this, `ClientWorker`)
+  }
+}
 ```
 
 Clients reconnect automatically with exponential backoff (`reconnect: true` by default, `retries: 50`, `maxRetryTime: 500`).
@@ -316,6 +343,17 @@ Attach it at boot, or a worker crash disappears silently.
 - **Types flow one way.** The worker class is the single source of truth and the client is derived from it, so the two cannot drift apart.
 - **Gateway is opt-in.** Single-worker apps never touch it; it exists for meshes, and it reuses the same protocol rather than inventing a second one.
 - **Delivery is at-least-once.** The transport retries failed writes and replays in-flight requests across reconnects, so a handler can observe the same id twice. Request ids are monotonic per client and the server dedupes per connection — but keep handlers idempotent anyway, since responses over 64 KB are never cached.
+
+### Gotchas
+
+- **Only `mtd*` methods cross the boundary.** A method without the prefix is invisible to the main thread and there is no warning.
+- **The gateway proxy prepends the caller.** `gateway.mtdHello(from)` becomes `gateway.mtdHello(this, from)` — the calling worker is always the first argument.
+- **`register` is a function map, not a worker.** Passing `this` does not typecheck; pass `undefined` to expose the instance (which then requires a non-empty `allowedMethods`), or pass `{mtdFoo: fn}` to expose only what you name.
+- **Two clients cannot talk directly.** Every gateway call needs a server in between — a client is not a server.
+- **Do not route main-thread work through the gateway.** It is for worker-to-worker calls; orchestration stays on `parentPort`.
+- **Pool broadcast still goes through the main thread.** That is deliberate: the main thread owns lifecycle. Do not use it as a worker-to-worker path.
+- **A call with `timeoutMs: 0` keeps running.** The caller stops waiting; the worker does not stop working. A naive retry double-executes it.
+- **`stop()` is permanent.** A stopped worker cannot be resumed — spawn a new one.
 
 ## 📚 API Reference
 
