@@ -64,36 +64,52 @@ bun add @gramstax/worker-thread
 
 ### 3. Write the worker
 
-Extend `WorkerThreadInit` and prefix the methods you want reachable with `mtd`.
+One file holds both halves. The class is the worker's core, so it is named `Worker`; `WorkerThreadExport.init()` hands back the main-thread proxy, named for what the worker does. Methods reachable from the main thread carry the `mtd` prefix.
 
 ```ts
+// echo-worker.ts
 import {WorkerThreadExport, WorkerThreadInit} from "@gramstax/worker-thread"
 
-export class ProcessorWorker extends WorkerThreadInit {
+export class Worker extends WorkerThreadInit {
   mtdAdd(a: number, b: number) {
     return a + b
   }
 }
 
-export const ProcessorJob = WorkerThreadExport.init({
+export const EchoWorker = WorkerThreadExport.init({
   path: __filename,
-  WTInit: ProcessorWorker
+  WTInit: Worker
 })
 ```
 
 ### 4. Launch and call
 
-```ts
-import {ProcessorJob} from "./processor"
+`EchoWorker` is an ordinary import — `launchWorker` and every `mtd*` method are on it.
 
-const worker = await ProcessorJob.launchWorker()
-console.log(await ProcessorJob.mtdAdd(2, 3))
+```ts
+// main.ts
+import {EchoWorker} from "./echo-worker"
+
+const worker = await EchoWorker.launchWorker()
+console.log(await EchoWorker.mtdAdd(2, 3)) // 5 — an RPC into the worker
 await worker.shutdown()
 ```
 
 ### 5. Shut down cleanly
 
-Override `onBeforeExit()` in the worker to flush state, then `shutdown()` from the main thread. It force-terminates after 5 s if the drain hangs.
+Override `onBeforeExit()` on the worker so it can drain, then `shutdown()` from the main thread. It force-terminates after 5 s if the drain hangs.
+
+```ts
+// echo-worker.ts — inside `Worker`
+async onBeforeExit() {
+  await this.flushState()
+}
+
+// main.ts
+await worker.shutdown()
+```
+
+> **Naming**: `class Worker extends WorkerThreadInit` is the file's core, and the value returned by `WorkerThreadExport.init()` is what the main thread imports. When one file holds a server and one holds a client, both classes are called `Worker` and each export takes the role — `ServerWorker`, `ClientWorker`. The package's own `example/worker-server.ts` and `example/worker-client.ts` follow exactly this shape.
 
 ## 📖 Usage
 
@@ -108,31 +124,55 @@ worker:       constructor → signals ready → handles RPC → onBeforeExit() �
 | :------------------ | :-------------------------------------------------------- | :----------------------------------------------------- |
 | Spawn               | `launchWorker(argv?)`                                    | Extra argv is readable in the worker                   |
 | Ready               | resolves automatically                                   | Rejects if the worker dies before signalling ready      |
-| RPC                 | `Job.mtdFoo(...)` or `worker.request(m, params, wait?, others?, timeoutMs?)` | Typed proxy preferred |
+| RPC                 | `EchoWorker.mtdAdd(…)` — any `mtd*` method on the exported proxy | The proxy is derived from the worker class, so it autocompletes and cannot drift |
 | Kill                | `worker.kill()`                                           | Immediate terminate, no cleanup                        |
 | Graceful            | `worker.shutdown(timeoutMs?)`                            | Runs `onBeforeExit()`, force-terminates after the timeout |
 
-A worker can call back into the main thread — as long as the main-thread class declares the method:
+A worker can call back into the main thread. That needs a class on the **main** side, passed as `WTLaunch`, declaring the methods the worker may reach:
 
 ```ts
-// main.ts — your launch class, so you own the method name
+// main-thread.ts
+import {WorkerThreadLaunch} from "@gramstax/worker-thread"
+
 export class MainThread extends WorkerThreadLaunch {
+  // `WTLaunch` calls this with `argv` possibly absent, so the constructor has
+  // to declare it optional — the base class takes a required one.
+  constructor(path: string, argv?: unknown[]) {
+    super(path, argv ?? [])
+  }
+
   mtdGetConfig() {
     return {feature: true}
   }
 }
-
-// inside your worker
-const answer = await this.request(`mtdGetConfig`, [])
 ```
+
+```ts
+// echo-worker.ts — hand it to init() so the launch side is MainThread
+import {MainThread} from "./main-thread"
+
+export const EchoWorker = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+  WTLaunch: MainThread
+})
+```
+
+```ts
+// echo-worker.ts — inside `Worker`
+const config = await this.request(`mtdGetConfig`, [])
+```
+
+Without `WTLaunch` the main-thread side is the plain `WorkerThreadLaunch`, which has no `mtd*` methods of your own and the call has nowhere to land.
 
 ### Worker pool
 
 ```ts
+// main.ts — `EchoWorker` and `mtdAdd` are from the quick start above
 import {WorkerThreadPool} from "@gramstax/worker-thread"
+import {EchoWorker} from "./echo-worker"
 
-// `mtdAdd` is the worker method declared in the quick start above.
-const pool = new WorkerThreadPool(await Promise.all([1, 2, 3].map(() => ProcessorJob.launchWorker())))
+const pool = new WorkerThreadPool(await Promise.all([1, 2, 3].map(() => EchoWorker.launchWorker())))
 const sums = await Promise.all([1, 2, 3, 4].map((n) => pool.execute(`mtdAdd`, [n, 10])))
 ```
 
@@ -158,10 +198,13 @@ Worker A ──parentPort──▶ Main ◀──parentPort── Worker B
 Worker A ─────── socket ─────── Worker B          (gateway, no relay)
 ```
 
-Server side — `register` is a map of plain functions. Leaving it `undefined` exposes the worker instance itself, which is allowed only because a non-empty `allowedMethods` is supplied:
+Two files, one worker each. The server binds a socket and exposes `mtdHello`; the client connects to it. `register` is a map of plain functions — leaving it `undefined` exposes the worker instance itself, which is allowed only because a non-empty `allowedMethods` is supplied.
 
 ```ts
-class ServerWorker extends WorkerThreadInit {
+// worker-server.ts
+import {WorkerThreadExport, WorkerThreadInit} from "@gramstax/worker-thread"
+
+export class Worker extends WorkerThreadInit {
   mtdHello(from: string) {
     return `Hello ${from}!`
   }
@@ -174,7 +217,13 @@ class ServerWorker extends WorkerThreadInit {
   }
 }
 
-// Or expose exactly one method and nothing else:
+export const ServerWorker = WorkerThreadExport.init({path: __filename, WTInit: Worker})
+```
+
+Exposing one method and nothing else is the tighter form — pass the map instead of `undefined`:
+
+```ts
+// inside `Worker`
 await this.createGatewayServer(
   `/tmp/server.sock`,
   {mtdHello: (from: string): string => `Hello ${from}!`},
@@ -182,15 +231,21 @@ await this.createGatewayServer(
 )
 ```
 
-Client side — the gateway proxy prepends the calling worker, so the first argument is `this`:
+The gateway proxy **prepends the calling worker**, so `this` is always the first argument:
 
 ```ts
-class ClientWorker extends WorkerThreadInit {
+// worker-client.ts
+import {WorkerThreadExport, WorkerThreadInit} from "@gramstax/worker-thread"
+import {ServerWorker} from "./worker-server"
+
+export class Worker extends WorkerThreadInit {
   async mtdCallServer() {
-    const gateway = await ServerJob.launchGatewayClient(`/tmp/server.sock`, {token: `shared-secret`})
+    const gateway = await ServerWorker.launchGatewayClient(`/tmp/server.sock`, {token: `shared-secret`})
     return await gateway.mtdHello(this, `ClientWorker`)
   }
 }
+
+export const ClientWorker = WorkerThreadExport.init({path: __filename, WTInit: Worker})
 ```
 
 Clients reconnect automatically with exponential backoff (`reconnect: true` by default, `retries: 50`, `maxRetryTime: 500`).
@@ -348,6 +403,7 @@ Attach it at boot, or a worker crash disappears silently.
 
 - **Only `mtd*` methods cross the boundary.** A method without the prefix is invisible to the main thread and there is no warning.
 - **The gateway proxy prepends the caller.** `gateway.mtdHello(from)` becomes `gateway.mtdHello(this, from)` — the calling worker is always the first argument.
+- **A custom `WTLaunch` needs an explicit constructor.** `WorkerThreadLaunch` takes a required `argv`, while `init()` may call the constructor without one, so declare `argv?: unknown[]` and forward `argv ?? []`.
 - **`register` is a function map, not a worker.** Passing `this` does not typecheck; pass `undefined` to expose the instance (which then requires a non-empty `allowedMethods`), or pass `{mtdFoo: fn}` to expose only what you name.
 - **Two clients cannot talk directly.** Every gateway call needs a server in between — a client is not a server.
 - **Do not route main-thread work through the gateway.** It is for worker-to-worker calls; orchestration stays on `parentPort`.
@@ -436,7 +492,7 @@ Short-circuiting middleware — setting `ctx.result` without calling `next()` �
 Workers are plain classes, so a handler can be tested without a thread:
 
 ```ts
-const worker = new ProcessorWorker()
+const worker = new Worker() // echo-worker.ts — no thread needed
 expect(worker.mtdAdd(2, 3)).toBe(5)
 ```
 
