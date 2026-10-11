@@ -256,9 +256,9 @@ export abstract class LmdbSchema {
    * Optional `useVersions` flag for the underlying sub-DB.
    *
    * @remarks
-   * Enable optimistic locking via LMDB record versions on this collection
-   * (`env.compareAndSet` / `env.ifVersion` / `env.ifNoExists` require it).
-   * Defaults to the env's `useVersions` when omitted.
+   * Enable optimistic locking via LMDB record versions on this collection —
+   * `env.rootPut(id, value, version, ifVersion)` and `env.rootGetEntry(id)`
+   * require it. Defaults to the env's `useVersions` when omitted.
    */
   static useVersions?: boolean
   /**

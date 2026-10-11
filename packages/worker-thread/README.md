@@ -402,7 +402,19 @@ const worker = new ProcessorWorker()
 expect(worker.mtdAdd(2, 3)).toBe(5)
 ```
 
-For the transport, `example/` holds runnable clusters covering lifecycle events, gateway auth, pools, timeouts, and shutdown:
+For the transport, `example/` holds runnable clusters:
+
+| File                          | Demonstrates                                                          |
+| :---------------------------- | :--------------------------------------------------------------------- |
+| `worker-main.ts`              | Full cluster — gateway server, three pooled clients, timeout, teardown |
+| `worker-server.ts`            | The gateway server half                                               |
+| `worker-client.ts`            | The client half, paired with the above                                |
+| `worker-main-debug.ts`        | A debug-oriented variant of the main orchestration                    |
+| `test-final-main.ts`          | Integration fixture — main side                                       |
+| `test-final-server-main.ts`   | Integration fixture — server side                                      |
+| `test-final-worker-a.ts`      | Integration fixture — worker variant A                                 |
+| `test-final-worker-b.ts`      | Integration fixture — worker variant B                                 |
+| `test-final-worker-c.ts`      | Integration fixture — worker variant C                                 |
 
 ```bash
 bun packages/worker-thread/example/worker-main.ts

@@ -504,6 +504,28 @@ Point reads and cardinality are synchronous because the native LMDB calls are. W
 
 `increment`/`decrement` and `putBinary` are **rejected on indexed or search-enabled subs** — the value would be stored outside the row shape, so an index would go stale. Keep counters on a separate non-indexed sub.
 
+### Types
+
+| Type                | What it is                                                                     |
+| :------------------ | :------------------------------------------------------------------------------ |
+| `LmdbEnvSub<S>`     | The handle `register()` returns, bound to schema `S` — every method is pre-bound |
+| `ILmdbKey`          | Anything lmdb accepts as a key: `string` · `number` · `boolean` · array · `Uint8Array` |
+| `IRangeOptions`     | `{start?, end?}` — inclusive lower and exclusive upper bound for a range scan   |
+| `ICompositeRange`   | `{start?, end?}` of key tuples, for a composite index                          |
+| `IndexQueryValue`   | What a query accepts for one index — a key, a tuple, or a composite range      |
+| `IIndexQuery<T, I>` | The object query accepted by `findByIndex`, typed per declared index            |
+| `IIndexResult<T, I, Q>` | The return type — one row when every queried index is unique, otherwise many |
+| `IIndexDef`         | One resolved index: name, extractor, uniqueness                                |
+| `IIndexDefs`        | The index map keyed by declared index name                                     |
+| `IndexDescriptor`   | `{name, extractor, unique}` — an index as resolved at registration             |
+| `IQueueSchema`      | A schema class with a string primary key, as `LmdbQueue` requires              |
+| `ICodec`            | The positional row encoder contract                                            |
+| `ISearchTable`      | A posting table backing a `.search()` column                                   |
+| `IEnvForSub`        | The env surface a sub handle depends on                                        |
+| `JobRunSchema`      | The schema behind `LmdbJobRun` stamps — `db: '__job_run'`, `key: string`, `value: {at: number}` |
+
+`LmdbSubState` exists but is `@internal` and is not part of the surface.
+
 ### Other modules
 
 | Module                  | Entry points                                                                 |
@@ -517,6 +539,36 @@ Point reads and cardinality are synchronous because the native LMDB calls are. W
 | `LmdbSyncStream`        | `hashRowValue`                                                                |
 | `Cdc` · `CdcHub` · `CdcStore` | Per-env change-capture state                                            |
 | `LmdbTransaction`       | `abort` · `commit` · `raw` · `lifecycle` · `isCommitted` · `isAborted`         |
+
+### Runnable examples
+
+Every file under `example/` runs on its own with `bun packages/lmdb/example/<file>.ts`.
+
+| File                    | Demonstrates                                                             |
+| :---------------------- | :----------------------------------------------------------------------- |
+| `basic.ts`              | Smallest useful env — register, put, get, transaction                    |
+| `schema.ts`             | Schema declaration and the typed handle                                  |
+| `hybrid.ts`             | Two schemas coexisting in one env                                        |
+| `transaction.ts`        | Cross-repository atomicity and rollback                                  |
+| `transaction-fast.ts`   | Off-thread commit without rollback, and when not to reach for it          |
+| `atomic-counter.ts`     | `increment` / `decrement` without read-then-write races                   |
+| `conditional-writes.ts` | `putIfNotExists` and versioned `rootPut` optimistic locking               |
+| `embedded-indexes.ts`   | `.index()` and `.unique()` declared on value columns                      |
+| `composite-keys.ts`     | Tuple keys for tenant isolation without string concatenation             |
+| `range-query.ts`        | Prefix and range scans, keyset pagination                                 |
+| `dupsort.ts`            | One key to many sorted values                                             |
+| `bulk-operations.ts`    | `putMany`, `exportJSONL`, `importJSONL`                                   |
+| `binary-helpers.ts`     | `putBinary` / `getBinary` for blobs outside the row shape                |
+| `custom-codec.ts`       | Write/read hooks for types LMDB cannot represent natively                 |
+| `cbor-encoding.ts`      | The optional CBOR peer encoder                                            |
+| `ttl-repository.ts`     | `static ttl`, per-write overrides, lazy expiry                           |
+| `migrations.ts`         | Versioned steps and resumable row rewrites                                |
+| `queue.ts`              | `LmdbQueue` FIFO shared across processes                                  |
+| `job-run.ts`            | Restart-safe scheduling with `LmdbJobRun`, including the missed check     |
+| `backup-s3-tar.ts`      | snapshot → `tar.gz` → S3 upload → restore                                 |
+| `reader-backup.ts`      | `LmdbReader` for 1-writer N-reader, plus backup retention                 |
+| `search-cdc-demo.ts`    | Full-text search + CDC + composite index end to end                       |
+| `all-features.ts`       | A multi-tenant scenario pulling many features together                     |
 
 ## ✅ Testing
 
