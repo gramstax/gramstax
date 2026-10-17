@@ -1,9 +1,10 @@
 {
+  "type": "module",
   "name": "example-8-newsletter",
   "private": false,
   "scripts": {
-    "start": "gramstax start",
-    "dev": "gramstax start --watch",
+    "start": "bun --bun gramstax start",
+    "dev": "bun --bun gramstax start --watch",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "bun test test/",
     "test:e2e": "bun test e2e/",

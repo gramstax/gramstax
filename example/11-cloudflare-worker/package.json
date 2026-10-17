@@ -3,12 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "gramstax start",
-    "dev": "gramstax start --watch",
+    "start": "bun --bun gramstax start",
+    "dev": "bun --bun gramstax start --watch",
     "test": "bun test test/",
     "test:e2e": "bun test e2e/",
     "test:all": "bun run test:e2e",
-    "build": "gramstax build",
+    "build": "bun --bun gramstax build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "deploy:serverless": "bun run build && npx wrangler deploy --config .gramstax/server/wrangler.toml"
   },
