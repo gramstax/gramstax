@@ -11,8 +11,7 @@ export class StartTestVoicePage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)])
-      await this.renderEditVoice(kb)
+      await this.renderVoice({keyboard: this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)]), mode: "edit"})
     },
     process: () => {}
   }

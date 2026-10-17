@@ -11,14 +11,15 @@ export class StartBlockMapPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([this, StartPage], `1`)
-      const da = {
-        arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
-        status: 1,
-        e: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`,
-        i: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`
-      }
-      await this.renderAuto(kb, da)
+      await this.renderText({
+        keyboard: this.inlineKeyboardT([this, StartPage], `1`),
+        data: {
+          arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
+          status: 1,
+          e: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`,
+          i: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`
+        }
+      })
     },
     process: () => {}
   }

@@ -41,7 +41,7 @@ console.log(`Map output:`, JSON.stringify(outMap))
 if (store.__poc6 === true) {
   console.log(`VULNERABLE: static body breakout executed code`)
   process.exit(1)
-} else if (typeof outSwitch === `string` && outSwitch.includes(`__poc6`) && typeof outMap === `string` && outMap.includes(`__poc6`)) {
+} else if (outSwitch.text.includes(`__poc6`) && outMap.text.includes(`__poc6`)) {
   console.log(`SAFE: payloads rendered inertly (escaped), no code executed`)
 } else {
   console.log(`UNEXPECTED: payload missing from output`)

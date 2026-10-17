@@ -4,7 +4,7 @@ export class MUsersPage extends Ctx {
   static data = this.buildData({name: `admin/users`})
 
   async handleCommandText() {
-    await this.renderAuto(null, {})
+    await this.renderText({data: {}})
   }
 
   helper = {}

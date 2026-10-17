@@ -21,8 +21,7 @@ export class StartResetPage extends PageBase {
       await this.cacheState.delete(`${id}:category`)
       await this.cacheState.delete(`${id}:page`)
 
-      const kb = this.inlineKeyboardT([StartPage])
-      await this.renderAuto(kb)
+      await this.renderText({keyboard: this.inlineKeyboardT([StartPage])})
     },
     process: () => {}
   }

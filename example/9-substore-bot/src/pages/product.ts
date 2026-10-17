@@ -31,20 +31,21 @@ export class ProductPage extends PageBase {
         return await this.gwarnMissing.show()
       }
 
-      const bi = Base.index
-      const kb = this.inlineKeyboardT([this.data.callbackQueryData(`buy`, productId), this.data.callbackQueryData(`add`, productId), CartPage, CatalogPage], `2-1`, bi)
-      const da = {
-        name: product.name,
-        service: product.service,
-        duration: product.duration,
-        accountType: product.accountType,
-        stock: ProductCatalog.detailStockLabel(product),
-        price: ProductCatalog.formatPrice(product.price),
-        description: product.description,
-        benefits: product.benefits.map((benefit) => `• ${benefit}`).join(`\n`),
-        delivery: product.deliveryEstimate
-      }
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({
+        AGBaseId: Base.index,
+        keyboard: this.inlineKeyboardT([this.data.callbackQueryData(`buy`, productId), this.data.callbackQueryData(`add`, productId), CartPage, CatalogPage], `2-1`, Base.index),
+        data: {
+          name: product.name,
+          service: product.service,
+          duration: product.duration,
+          accountType: product.accountType,
+          stock: ProductCatalog.detailStockLabel(product),
+          price: ProductCatalog.formatPrice(product.price),
+          description: product.description,
+          benefits: product.benefits.map((benefit) => `• ${benefit}`).join(`\n`),
+          delivery: product.deliveryEstimate
+        }
+      })
     },
     process: async (action?: string, productId?: string) => {
       if (!productId) {
@@ -74,27 +75,20 @@ export class ProductPage extends PageBase {
   ginfoAdded = {
     show: async (productId: string) => {
       const product = ProductCatalog.getById(productId)
-      const bi = Base.infoAdded
-      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, bi)
-      const da = {name: product?.name ?? `Selected product`}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.infoAdded, keyboard: this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.infoAdded), data: {name: product?.name ?? `Selected product`}})
     },
     process: () => {}
   }
   gwarnStock = {
     show: async (productId: string) => {
       const product = ProductCatalog.getById(productId)
-      const bi = Base.warnStock
-      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, bi)
-      const da = {name: product?.name ?? `This product`}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.warnStock, keyboard: this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnStock), data: {name: product?.name ?? `This product`}})
     },
     process: () => {}
   }
   gwarnMissing = {
     show: async () => {
-      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnMissing)
-      await this.renderAuto(kb, {}, Base.warnMissing)
+      await this.renderText({AGBaseId: Base.warnMissing, keyboard: this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnMissing)})
     },
     process: () => {}
   }

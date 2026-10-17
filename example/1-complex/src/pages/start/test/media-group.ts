@@ -11,8 +11,7 @@ export class StartTestMediaGroupPage extends PageBase {
   gdefault = {
     show: async () => {
       // ATTENTION: <g-media-group> is not support inline/bottom keyboard
-      // const kb = ctx.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)], `1`, bi)
-      await this.renderEditPhotoGroup()
+      await this.renderPhotoGroup({mode: "edit"})
     },
     process: () => {}
   }

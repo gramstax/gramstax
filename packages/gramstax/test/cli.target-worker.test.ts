@@ -16,7 +16,7 @@ const START_JS = `import {Ctx} from "gramstax"
 export class WStartPage extends Ctx {
   static data = this.buildData({name: \`start\`})
   async handleCommandText() {
-    await this.renderAuto(null, {})
+    await this.renderText({data: {}})
   }
   helper = {}
   static template = \`
@@ -31,7 +31,7 @@ const USERS_JS = `import {Ctx} from "gramstax"
 export class WUsersPage extends Ctx {
   static data = this.buildData({name: \`admin/users\`})
   async handleCommandText() {
-    await this.renderAuto(null, {})
+    await this.renderText({data: {}})
   }
   helper = {}
   static template = \`

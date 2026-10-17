@@ -30,31 +30,31 @@ describe(`filter pipes — full TemplateManager integration`, () => {
       count: 1,
       name: `alice`
     })
-    expect(out).toBe(`Price 12.35 on 2026-08-15: item — ALICE`)
+    expect(out.text).toBe(`Price 12.35 on 2026-08-15: item — ALICE`)
   })
 
   it(`plural picks many for non-1 counts`, () => {
     const manager = makeManager([[`plural.html`, `<g-base><g-message>{{count|plural:item:items}}</g-message></g-base>`]])
-    expect(manager.getGMessage(`plural`, `default`, `default`, {count: 3})).toBe(`items`)
+    expect(manager.getGMessage(`plural`, `default`, `default`, {count: 3}).text).toBe(`items`)
   })
 
   it(`chained default applies when value is missing`, () => {
     const manager = makeManager([[`chain.html`, `<g-base><g-message>{{name|upper|default:N/A}}</g-message></g-base>`]])
-    expect(manager.getGMessage(`chain`, `default`, `default`, {})).toBe(`N/A`)
+    expect(manager.getGMessage(`chain`, `default`, `default`, {}).text).toBe(`N/A`)
   })
 
   it(`escapes filter output in {{}} scope`, () => {
     const manager = makeManager([[`escape.html`, `<g-base><g-message>{{name|upper}}</g-message></g-base>`]])
-    expect(manager.getGMessage(`escape`, `default`, `default`, {name: `<b>`})).toBe(`&lt;B&gt;`)
+    expect(manager.getGMessage(`escape`, `default`, `default`, {name: `<b>`}).text).toBe(`&lt;B&gt;`)
   })
 
   it(`raw {{{var|filter}}} scope does not escape`, () => {
     const manager = makeManager([[`raw.html`, `<g-base><g-message>{{{name|upper}}}</g-message></g-base>`]])
-    expect(manager.getGMessage(`raw`, `default`, `default`, {name: `<b>`})).toBe(`<B>`)
+    expect(manager.getGMessage(`raw`, `default`, `default`, {name: `<b>`}).text).toBe(`<B>`)
   })
 
   it(`unknown filter renders empty in the real pipeline`, () => {
     const manager = makeManager([[`unknown.html`, `<g-base><g-message>[{{name|nope}}]</g-message></g-base>`]])
-    expect(manager.getGMessage(`unknown`, `default`, `default`, {name: `x`})).toBe(`[]`)
+    expect(manager.getGMessage(`unknown`, `default`, `default`, {name: `x`}).text).toBe(`[]`)
   })
 })

@@ -23,7 +23,7 @@ export class ListPage extends PageBase {
   }
 
   helper = {
-    buildHomeKb: (AGBaseId: string) => {
+    buildHomeKeyboard: (AGBaseId: string) => {
       return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
     },
     buildKeyboard: (pageNo: number, totalPages: number) => {
@@ -60,10 +60,7 @@ export class ListPage extends PageBase {
         })
         .join(`\n`)
 
-      const bi = Base.index
-      const da = {items: list, pageNo: safePage + 1, totalPages}
-      const kb = this.helper.buildKeyboard(safePage, totalPages)
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.index, keyboard: this.helper.buildKeyboard(safePage, totalPages), data: {items: list, pageNo: safePage + 1, totalPages}})
     },
     process: async (pageNo: string) => {
       const nextPage = Number(pageNo)
@@ -73,9 +70,7 @@ export class ListPage extends PageBase {
   }
   ginfoEmpty = {
     show: async () => {
-      const bi = Base.infoEmpty
-      const kb = this.helper.buildHomeKb(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.infoEmpty, keyboard: this.helper.buildHomeKeyboard(Base.infoEmpty)})
     },
     process: () => {}
   }

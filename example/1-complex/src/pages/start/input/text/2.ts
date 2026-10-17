@@ -24,9 +24,7 @@ export class StartInputText2Page extends PageBase {
   helper = {}
   gindex = {
     show: async () => {
-      const bi = Base.index
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.index, keyboard: this.inlineKeyboardT([StartPage], `1`, Base.index)})
     },
     process: async () => {
       await this.gsuccess.show()
@@ -34,10 +32,7 @@ export class StartInputText2Page extends PageBase {
   }
   gsuccess = {
     show: async () => {
-      const bi = Base.success
-      const da = {res: this.msg?.text}
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.success, keyboard: this.inlineKeyboardT([StartPage], `1`, Base.success), data: {res: this.msg?.text}})
     },
     process: () => {}
   }

@@ -27,7 +27,7 @@ describe(`harness-red-16-watcher-relative`, () => {
       tm.handleFileChange(join(dir, `sub`, `nested.html`))
       await wait(200)
       // watcher must resolve subdir file (basename-only would look at dir/nested.html and fail)
-      expect(tm.getGMessage(`sub/nested`)).toBe(`Nested2`)
+      expect(tm.getGMessage(`sub/nested`).text).toBe(`Nested2`)
       await tm.destroy()
     } finally {
       await rm(second, {recursive: true, force: true})
@@ -67,17 +67,17 @@ describe(`harness-red-18-fallback`, () => {
     await rm(dir, {recursive: true, force: true})
   })
   it(`falls back base->default for message`, () => {
-    expect(tm.getGMessage(`fb`, `missing-base`, `default`)).toBe(`Default Msg`)
+    expect(tm.getGMessage(`fb`, `missing-base`, `default`).text).toBe(`Default Msg`)
   })
   it(`falls back base->default for keyboard`, () => {
-    expect(tm.getGKeyboard(`fb`, `missing-base`, `default`)).toEqual([`Def Btn`])
+    expect(tm.getGKeyboard(`fb`, `missing-base`, `default`).rows).toEqual([`Def Btn`])
   })
   it(`falls back base->default for description`, () => {
-    expect(tm.getGDescription(`fb`, `missing-base`, `default`, `default`)).toBe(`Def Desc`)
+    expect(tm.getGDescription(`fb`, `missing-base`, `default`, `default`).text).toBe(`Def Desc`)
   })
   it(`preserves empty miss contract`, () => {
-    expect(tm.getGMessage(`nope`, `default`, `default`)).toBe(``)
-    expect(tm.getGKeyboard(`nope`, `default`, `default`)).toEqual([])
+    expect(tm.getGMessage(`nope`, `default`, `default`).text).toBe(``)
+    expect(tm.getGKeyboard(`nope`, `default`, `default`).rows).toEqual([])
   })
 })
 
@@ -177,9 +177,9 @@ describe(`harness-red-A4-order-lock`, () => {
     const bot = new Gramstax({token: `test`, deploy: `test`, templateManager: tm, log: false})
     const e2e = bot.e2e!
     // lock: gmsg(page, base, data, lang) === getGMessage(page, base, lang, data)
-    expect(e2e.gmsg(`ord`, `default`, {name: `Z`}, `en`)).toBe(tm.getGMessage(`ord`, `default`, `en`, {name: `Z`}))
+    expect(e2e.gmsg(`ord`, `default`, {name: `Z`}, `en`)).toBe(tm.getGMessage(`ord`, `default`, `en`, {name: `Z`}).text)
     // lock: gkb(page, base, type, data, lang) === getGKeyboard(page, base, lang, type, data)
-    expect(e2e.gkb(`ord`, `default`, `inline`, {name: `Z`}, `en`)).toEqual(tm.getGKeyboard(`ord`, `default`, `en`, `inline`, {name: `Z`}))
+    expect(e2e.gkb(`ord`, `default`, `inline`, {name: `Z`}, `en`)).toEqual(tm.getGKeyboard(`ord`, `default`, `en`, `inline`, {name: `Z`}).rows)
     await bot.stop()
     await tm.destroy()
     await rm(dir, {recursive: true, force: true})

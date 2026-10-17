@@ -47,7 +47,7 @@ describe(`invoice-render`, () => {
   it(`sends a stars invoice with no provider_token`, async () => {
     const api = makeApi()
     const kb = {inline_keyboard: []}
-    await makeCtx(api, starsInvoice).renderInvoice(kb as never, {orderId: `o-1`})
+    await makeCtx(api, starsInvoice).renderInvoice({keyboard: kb as never, data: {orderId: `o-1`}})
     expect(api.sendInvoice).toHaveBeenCalledTimes(1)
     const args = (api.sendInvoice.mock.calls as any)[0]
     expect(args[0]).toBe(1)
@@ -74,13 +74,13 @@ describe(`invoice-render`, () => {
       onSendError: null as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
-    await ctx.renderInvoice(null, {orderId: `o-1`}, `promo`)
+    await ctx.renderInvoice({data: {orderId: `o-1`}, AGBaseId: `promo`})
     expect((getGInvoice.mock.calls as any)[0]).toEqual([`invoicepage`, `promo`, undefined, {orderId: `o-1`}])
   })
 
   it(`sends a fiat invoice with the provider_token from options`, async () => {
     const api = makeApi()
-    await makeCtx(api, fiatInvoice).renderInvoice(null, {orderId: `o-2`}, null, {provider_token: `tok-live`} as never)
+    await makeCtx(api, fiatInvoice).renderInvoice({data: {orderId: `o-2`}, options: {provider_token: `tok-live`} as never})
     expect(api.sendInvoice).toHaveBeenCalledTimes(1)
     const args = (api.sendInvoice.mock.calls as any)[0]
     expect(args[4]).toBe(`USD`)

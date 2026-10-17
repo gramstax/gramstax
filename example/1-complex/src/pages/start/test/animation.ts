@@ -18,7 +18,7 @@ export class StartTestAnimationPage extends PageBase {
   }
 
   helper = {
-    kb: (isDynamic = false) => {
+    animationKeyboard: (isDynamic = false) => {
       return this.inlineKeyboard(
         (k, l) => {
           return k //
@@ -32,9 +32,7 @@ export class StartTestAnimationPage extends PageBase {
   }
   gindex = {
     show: async () => {
-      const bi = Base.index
-      const kb = this.helper.kb()
-      await this.renderEditAnimation(kb, {}, bi)
+      await this.renderAnimation({AGBaseId: Base.index, keyboard: this.helper.animationKeyboard(), mode: "edit"})
     },
     process: () => {}
   }
@@ -44,12 +42,8 @@ export class StartTestAnimationPage extends PageBase {
       if (swc === `static`) {
         await this.handleCallbackQueryData()
       } else if (swc === `dynamic`) {
-        const bi = Base.dynamic
-        const kb = this.helper.kb(true)
-        const da = {
-          src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
-        }
-        await this.renderEditAnimation(kb, da, bi)
+        // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
+        await this.renderAnimation({AGBaseId: Base.dynamic, keyboard: this.helper.animationKeyboard(true), data: {src: `https://www.easygifanimator.net/images/samples/eglite.gif`}, mode: "edit"})
       }
     },
     process: () => {}

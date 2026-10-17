@@ -10,14 +10,23 @@ class TestPage extends Ctx {
 
 // ── Ctx factory ────────────────────────────────────────────────────
 
-function createTestCtx(hasCallbackQuery = false, editMessageMediaImpl?: () => unknown) {
+function createTestCtx(hasCallbackQuery = false, editMessageMediaImpl?: () => unknown, med?: Record<string, unknown>) {
   const editMessageMedia = mock(() => editMessageMediaImpl?.() ?? ({message_id: 1} as any))
   const api = {
     config: {use: () => {}},
     editMessageMedia,
     deleteMessage: mock(() => ({ok: true}) as any),
     sendMessage: mock(() => ({message_id: 2, date: 0, chat: {id: 1, type: `private` as const}}) as any),
-    sendDocument: mock(() => ({message_id: 2}) as any)
+    sendPhoto: mock(() => ({message_id: 2}) as any),
+    sendVideo: mock(() => ({message_id: 2}) as any),
+    sendAudio: mock(() => ({message_id: 2}) as any),
+    sendDocument: mock(() => ({message_id: 2}) as any),
+    sendAnimation: mock(() => ({message_id: 2}) as any),
+    sendVoice: mock(() => ({message_id: 2}) as any),
+    sendVideoNote: mock(() => ({message_id: 2}) as any),
+    sendSticker: mock(() => ({message_id: 2}) as any),
+    sendLocation: mock(() => ({message_id: 2}) as any),
+    sendContact: mock(() => ({message_id: 2}) as any)
   }
 
   const ct = {
@@ -33,8 +42,8 @@ function createTestCtx(hasCallbackQuery = false, editMessageMediaImpl?: () => un
     cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
     templateManager: {
-      getGMessage: () => `hello`,
-      getGMedia: () => ({src: `https://example.com/a.jpg`, caption: `hi`, filename: `a.jpg`})
+      getGMessage: () => ({kind: `message`, text: `hello`, rich: false}),
+      getGMedia: () => med ?? ({src: `https://example.com/a.jpg`, caption: `hi`, filename: `a.jpg`} as Record<string, unknown>)
     } as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
@@ -44,102 +53,82 @@ function createTestCtx(hasCallbackQuery = false, editMessageMediaImpl?: () => un
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe(`Ctx.render*Auto reply mode`, () => {
-  it(`renderPhotoAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderPhotoAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`photo`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+describe(`Ctx per-kind media wrappers reply mode`, () => {
+  it(`renderPhoto sends a photo reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false)
+    await ctx.renderPhoto()
+    expect(api.sendPhoto).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
-  it(`renderVideoAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderVideoAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`video`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+  it(`renderVideo sends a video reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false)
+    await ctx.renderVideo()
+    expect(api.sendVideo).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
-  it(`renderAudioAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderAudioAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`audio`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+  it(`renderAudio sends an audio reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false)
+    await ctx.renderAudio()
+    expect(api.sendAudio).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
-  it(`renderDocumentAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderDocumentAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`document`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+  it(`renderDocument sends a document reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false)
+    await ctx.renderDocument()
+    expect(api.sendDocument).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
-  it(`renderAnimationAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderAnimationAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`animation`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+  it(`renderAnimation sends an animation reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false)
+    await ctx.renderAnimation()
+    expect(api.sendAnimation).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
-  it(`renderVoiceAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderVoiceAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`voice`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+  it(`renderVoice sends a voice reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false, undefined, {type: `voice`, src: `https://example.com/a.ogg`})
+    await ctx.renderVoice()
+    expect(api.sendVoice).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
-  it(`renderVideoNoteAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderVideoNoteAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`video_note`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+  it(`renderVideoNote sends a video note reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false, undefined, {type: `video_note`, src: `https://example.com/a.mp4`})
+    await ctx.renderVideoNote()
+    expect(api.sendVideoNote).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
-  it(`renderStickerAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderStickerAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`sticker`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+  it(`renderSticker sends a sticker reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false, undefined, {type: `sticker`, src: `https://example.com/a.webp`})
+    await ctx.renderSticker()
+    expect(api.sendSticker).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
-  it(`renderLocationAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderLocationAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`location`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+  it(`renderLocation sends a location reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false, undefined, {type: `location`, latitude: `1.5`, longitude: `2.5`})
+    await ctx.renderLocation()
+    expect(api.sendLocation).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
-  it(`renderContactAuto forwards to renderAutoMedia`, async () => {
-    const {ctx} = createTestCtx(false)
-    const spy = mock(() => Promise.resolve({message_id: 1} as any))
-    ctx.renderAutoMedia = spy as any
-    await ctx.renderContactAuto()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(`contact`, undefined, undefined, undefined, undefined, undefined, `delete-reply`)
+  it(`renderContact sends a contact reply through the api`, async () => {
+    const {ctx, api} = createTestCtx(false, undefined, {type: `contact`, phone: `+100`, first_name: `A`})
+    await ctx.renderContact()
+    expect(api.sendContact).toHaveBeenCalledTimes(1)
+    expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 })
 
-describe(`Ctx.renderDocumentAuto edit mode`, () => {
+describe(`Ctx.renderDocument edit mode`, () => {
   it(`forwards options2 to editMessageMedia with callbackQuery update`, async () => {
     const {ctx, api} = createTestCtx(true)
-    await ctx.renderDocumentAuto(null, null, null, null, {business_connection_id: `bc-1`}, `reply`)
+    await ctx.renderDocument({optionsEdit2: {business_connection_id: `bc-1`}, fallbackEdit: `reply`})
     expect(api.editMessageMedia).toHaveBeenCalledTimes(1)
     const rawCalls = api.editMessageMedia.mock.calls as any[][]
     expect(JSON.stringify(rawCalls[0])).toContain(`bc-1`)
@@ -151,6 +140,6 @@ describe(`Ctx.renderDocumentAuto edit mode`, () => {
     const {ctx} = createTestCtx(true, () => {
       throw editError
     })
-    await expect(ctx.renderDocumentAuto(null, null, null, null, null, `disable`)).rejects.toBe(editError)
+    await expect(ctx.renderDocument({fallbackEdit: `disable`})).rejects.toBe(editError)
   })
 })

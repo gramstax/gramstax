@@ -11,8 +11,7 @@ export class StartTestContactPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)])
-      await this.renderEditContact(kb)
+      await this.renderContact({keyboard: this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)]), mode: "edit"})
     },
     process: () => {}
   }

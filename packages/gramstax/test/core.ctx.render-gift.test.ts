@@ -29,7 +29,7 @@ function createTestCtx(extra?: {onSendError?: unknown}) {
     cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
     templateManager: {
-      getGGift: () => `gift card hello`
+      getGGift: () => ({kind: `gift`, text: `gift card hello`})
     } as unknown as ICtxParams[`templateManager`],
     onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
@@ -43,7 +43,7 @@ function createTestCtx(extra?: {onSendError?: unknown}) {
 describe(`Ctx.renderGift`, () => {
   it(`sends the gift with the gift id and the template card text`, async () => {
     const {ctx, api} = createTestCtx()
-    const result = await ctx.renderGift(42, `gift-1`, undefined, undefined, `gift-card`)
+    const result = await ctx.renderGift({target: 42, giftId: `gift-1`, AGBaseId: `gift-card`})
     expect(result).toBe(true)
     expect(api.sendGift).toHaveBeenCalledTimes(1)
     const [target, giftId, extra] = (api.sendGift.mock.calls as any[])[0] as [number, string, Record<string, unknown>]
@@ -63,7 +63,7 @@ describe(`Ctx.renderGift`, () => {
     api.sendGift.mockImplementation(async () => {
       throw err
     })
-    await expect(ctx.renderGift(42, `gift-1`, undefined, undefined, `gift-card`)).rejects.toBe(err)
+    await expect(ctx.renderGift({target: 42, giftId: `gift-1`, AGBaseId: `gift-card`})).rejects.toBe(err)
     expect(seen.length).toBe(1)
     expect(seen[0]!.err).toBe(err)
     expect(seen[0]!.info).toEqual({page: `render-gift-test`, kind: `fallback-text`, chatId: 42})
@@ -72,7 +72,7 @@ describe(`Ctx.renderGift`, () => {
 
   it(`non-null keyboard throws before any API call`, async () => {
     const {ctx, api} = createTestCtx()
-    await expect(ctx.renderGift(42, `gift-1`, {inline_keyboard: []} as any, undefined, `gift-card`)).rejects.toThrow(`no reply markup`)
+    await expect(ctx.renderGift({target: 42, giftId: `gift-1`, keyboard: {inline_keyboard: []} as any, AGBaseId: `gift-card`})).rejects.toThrow(`no reply markup`)
     expect(api.sendGift).not.toHaveBeenCalled()
     expect(api.sendMessage).not.toHaveBeenCalled()
   })

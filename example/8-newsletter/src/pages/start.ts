@@ -23,9 +23,7 @@ export class StartPage extends PageBase {
     show: async () => {
       await this.clearSession()
       const subscribed = await this.db.subs.isSubscribed(this.from!.id)
-      const da = {subscribed}
-      const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`switch`), StatsPage, HelpPage], `2`, null, da)
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([StartPage.data.callbackQueryData(`switch`), StatsPage, HelpPage], `2`, null, {subscribed}), data: {subscribed}})
     },
     process: async (action: string) => {
       if (action === `switch`) {

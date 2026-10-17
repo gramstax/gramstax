@@ -2,7 +2,7 @@ import {existsSync, readdirSync, readFileSync, statSync, writeFileSync} from "no
 import {basename, extname, join, relative, resolve} from "node:path"
 import {type FSWatcher, watch} from "chokidar"
 import {PageManager} from "~/page/manager"
-import type {ICompiledTemplate, ITemplateOptions} from "~/types/template"
+import type {GAnswerNoteResult, GCallbackAnswerResult, GDescriptionResult, GDiceResult, GGiftResult, GInlineButtonResult, GInvoiceResult, GKeyboardResult, GMediaResult, GMessageResult, GPaidMediaResult, GPollResult, GPreCheckoutErrorResult, GShippingErrorResult, GVenueResult, ICompiledTemplate, ITemplateOptions} from "~/types/template"
 import {TemplateEngine} from "./engine"
 
 /**
@@ -909,7 +909,7 @@ export class TemplateManager {
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
    * @param ALang - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
-   * @returns Media object containing type, src, and caption
+   * @returns {@link GMediaResult} with the media payload flat under `kind: "media"`
    *
    * @remarks
    * Retrieves the compiled media function for the specified template and language,
@@ -918,12 +918,12 @@ export class TemplateManager {
    * @example
    * ```typescript
    * const media = tm.getGMedia("photo-page", "default", "en", {photoUrl: "..."})}
-   * // => {type: "photo", src: "...", caption: "..."}
+   * // => {kind: "media", type: "photo", src: "...", caption: "..."}
    * ```
    *
    * @public
    */
-  getGMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]> {
+  getGMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GMediaResult {
     const map = this.getCompiled(key)
     const one = map?.media?.[AGBaseId] ?? map?.media?.default
     const func = one?.[ALang] ?? one?.default
@@ -932,7 +932,7 @@ export class TemplateManager {
       throw new Error(`Media function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `media`, ...func(data)}
   }
 
   /**
@@ -942,7 +942,7 @@ export class TemplateManager {
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
    * @param ALang - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
-   * @returns Poll object containing type, question, options, and quiz grading fields
+   * @returns {@link GPollResult} with the poll payload flat under `kind: "poll"`
    *
    * @remarks
    * Retrieves the compiled poll function for the specified template and language,
@@ -951,12 +951,12 @@ export class TemplateManager {
    * @example
    * ```typescript
    * const poll = tm.getGPoll("quiz-page", "default", "en", {topic: "math"})
-   * // => {type: "quiz", question: "...", options: ["..."], correct: 0, anonymous: true}
+   * // => {kind: "poll", type: "quiz", question: "...", options: ["..."], correct: 0, anonymous: true}
    * ```
    *
    * @public
    */
-  getGPoll(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`poll`][`default`][`default`]> {
+  getGPoll(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GPollResult {
     const map = this.getCompiled(key)
     const one = map?.poll?.[AGBaseId] ?? map?.poll?.default
     const func = one?.[ALang] ?? one?.default
@@ -965,7 +965,7 @@ export class TemplateManager {
       throw new Error(`Poll function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `poll`, ...func(data)}
   }
 
   /**
@@ -975,7 +975,7 @@ export class TemplateManager {
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
    * @param ALang - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
-   * @returns Venue object containing title, address, latitude, and longitude
+   * @returns {@link GVenueResult} with the venue payload flat under `kind: "venue"`
    *
    * @remarks
    * Retrieves the compiled venue function for the specified template and language,
@@ -984,12 +984,12 @@ export class TemplateManager {
    * @example
    * ```typescript
    * const venue = tm.getGVenue("cafe-page", "default", "en", {name: "Cafe"})
-   * // => {title: "Cafe", address: "...", latitude: "-6.2", longitude: "106.8"}
+   * // => {kind: "venue", title: "Cafe", address: "...", latitude: "-6.2", longitude: "106.8"}
    * ```
    *
    * @public
    */
-  getGVenue(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`venue`][`default`][`default`]> {
+  getGVenue(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GVenueResult {
     const map = this.getCompiled(key)
     const one = map?.venue?.[AGBaseId] ?? map?.venue?.default
     const func = one?.[ALang] ?? one?.default
@@ -998,7 +998,7 @@ export class TemplateManager {
       throw new Error(`Venue function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `venue`, ...func(data)}
   }
 
   /**
@@ -1008,7 +1008,7 @@ export class TemplateManager {
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
    * @param ALang - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
-   * @returns Dice object containing the emoji
+   * @returns {@link GDiceResult} with the dice payload flat under `kind: "dice"`
    *
    * @remarks
    * Retrieves the compiled dice function for the specified template and language,
@@ -1017,12 +1017,12 @@ export class TemplateManager {
    * @example
    * ```typescript
    * const dice = tm.getGDice("lucky-page", "default", "en", {dice: "🎯"})
-   * // => {emoji: "🎯"}
+   * // => {kind: "dice", emoji: "🎯"}
    * ```
    *
    * @public
    */
-  getGDice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`dice`][`default`][`default`]> {
+  getGDice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GDiceResult {
     const map = this.getCompiled(key)
     const one = map?.dice?.[AGBaseId] ?? map?.dice?.default
     const func = one?.[ALang] ?? one?.default
@@ -1031,7 +1031,7 @@ export class TemplateManager {
       throw new Error(`Dice function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `dice`, ...func(data)}
   }
 
   /**
@@ -1043,7 +1043,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGCallbackAnswer(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+  getGCallbackAnswer(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GCallbackAnswerResult {
     const map = this.getCompiled(key)
     const one = map?.callbackAnswer?.[AGBaseId] ?? map?.callbackAnswer?.default
     const func = one?.[ALang] ?? one?.default
@@ -1052,7 +1052,7 @@ export class TemplateManager {
       throw new Error(`CallbackAnswer function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `callbackAnswer`, text: func(data)}
   }
 
   /**
@@ -1064,7 +1064,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGPrecheckoutError(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+  getGPrecheckoutError(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GPreCheckoutErrorResult {
     const map = this.getCompiled(key)
     const one = map?.precheckoutError?.[AGBaseId] ?? map?.precheckoutError?.default
     const func = one?.[ALang] ?? one?.default
@@ -1073,7 +1073,7 @@ export class TemplateManager {
       throw new Error(`PrecheckoutError function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `preCheckoutError`, text: func(data)}
   }
 
   /**
@@ -1085,7 +1085,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGShippingError(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+  getGShippingError(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GShippingErrorResult {
     const map = this.getCompiled(key)
     const one = map?.shippingError?.[AGBaseId] ?? map?.shippingError?.default
     const func = one?.[ALang] ?? one?.default
@@ -1094,7 +1094,7 @@ export class TemplateManager {
       throw new Error(`ShippingError function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `shippingError`, text: func(data)}
   }
 
   /**
@@ -1107,7 +1107,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGInlineButton(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`inlineButton`][`default`][`default`]> {
+  getGInlineButton(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GInlineButtonResult {
     const map = this.getCompiled(key)
     const one = map?.inlineButton?.[AGBaseId] ?? map?.inlineButton?.default
     const func = one?.[ALang] ?? one?.default
@@ -1116,7 +1116,7 @@ export class TemplateManager {
       throw new Error(`InlineButton function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `inlineButton`, ...func(data)}
   }
 
   /**
@@ -1129,7 +1129,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGAnswerNote(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+  getGAnswerNote(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GAnswerNoteResult {
     const map = this.getCompiled(key)
     const one = map?.answerNote?.[AGBaseId] ?? map?.answerNote?.default
     const func = one?.[ALang] ?? one?.default
@@ -1138,7 +1138,7 @@ export class TemplateManager {
       throw new Error(`AnswerNote function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `answerNote`, text: func(data)}
   }
 
   /**
@@ -1150,7 +1150,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getGGift(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+  getGGift(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GGiftResult {
     const map = this.getCompiled(key)
     const one = map?.gift?.[AGBaseId] ?? map?.gift?.default
     const func = one?.[ALang] ?? one?.default
@@ -1159,7 +1159,7 @@ export class TemplateManager {
       throw new Error(`Gift function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `gift`, text: func(data)}
   }
 
   /**
@@ -1169,7 +1169,7 @@ export class TemplateManager {
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
    * @param ALang - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
-   * @returns Invoice object containing title, description, payload, currency, and prices
+   * @returns {@link GInvoiceResult} with the invoice payload flat under `kind: "invoice"`
    *
    * @remarks
    * Retrieves the compiled invoice function for the specified template and language,
@@ -1178,12 +1178,12 @@ export class TemplateManager {
    * @example
    * ```typescript
    * const invoice = tm.getGInvoice("vip-page", "default", "en", {orderId: "o-1"})
-   * // => {title: "...", description: "...", payload: "o-1", currency: "XTR", prices: [{label: "...", amount: 100}]}
+   * // => {kind: "invoice", title: "...", description: "...", payload: "o-1", currency: "XTR", prices: [{label: "...", amount: 100}]}
    * ```
    *
    * @public
    */
-  getGInvoice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`invoice`][`default`][`default`]> {
+  getGInvoice(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GInvoiceResult {
     const map = this.getCompiled(key)
     const one = map?.invoice?.[AGBaseId] ?? map?.invoice?.default
     const func = one?.[ALang] ?? one?.default
@@ -1192,7 +1192,7 @@ export class TemplateManager {
       throw new Error(`Invoice function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `invoice`, ...func(data)}
   }
 
   /**
@@ -1202,7 +1202,7 @@ export class TemplateManager {
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
    * @param ALang - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
-   * @returns Paid-media object containing stars and media items
+   * @returns {@link GPaidMediaResult} with the paywall payload flat under `kind: "paidMedia"`
    *
    * @remarks
    * Retrieves the compiled paid-media function for the specified template
@@ -1212,12 +1212,12 @@ export class TemplateManager {
    * @example
    * ```typescript
    * const wall = tm.getGPaidMedia("vip-page", "default", "en", {teaser: "t.jpg"})
-   * // => {stars: 100, media: [{type: "photo", src: "t.jpg", caption: "..."}]}
+   * // => {kind: "paidMedia", stars: 100, media: [{type: "photo", src: "t.jpg", caption: "..."}]}
    * ```
    *
    * @public
    */
-  getGPaidMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`paidMedia`][`default`][`default`]> {
+  getGPaidMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GPaidMediaResult {
     const map = this.getCompiled(key)
     const one = map?.paidMedia?.[AGBaseId] ?? map?.paidMedia?.default
     const func = one?.[ALang] ?? one?.default
@@ -1226,7 +1226,7 @@ export class TemplateManager {
       throw new Error(`Paid media function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
 
-    return func(data)
+    return {kind: `paidMedia`, ...func(data)}
   }
 
   /**
@@ -1236,21 +1236,22 @@ export class TemplateManager {
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
    * @param ALang - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
-   * @returns Rendered message string, or empty string if not found
+   * @returns {@link GMessageResult} — rendered text plus the compile-time rich marker, or `{text: "", rich: false}` when not found
    *
    * @remarks
    * Retrieves the compiled message function for the specified template and language,
-   * then executes it with the provided data to generate the message.
+   * then executes it with the provided data to generate the message. Failures are
+   * swallowed to the empty-text result, preserving the historical fallback contract.
    *
    * @example
    * ```typescript
    * const message = tm.getGMessage("start", "default", "en", {name: "John"})
-   * // => "Hello, John! Welcome to the bot."
+   * // => {kind: "message", text: "Hello, John! Welcome to the bot.", rich: false}
    * ```
    *
    * @public
    */
-  getGMessage(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
+  getGMessage(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GMessageResult {
     try {
       const map = this.getCompiled(key)
       const one = map?.message?.[AGBaseId] ?? map?.message?.default
@@ -1259,9 +1260,10 @@ export class TemplateManager {
         throw TemplateManager._DEFER
       }
 
-      return func(data)
+      const leaf = func(data)
+      return {kind: `message`, text: leaf.text, rich: leaf.rich}
     } catch {
-      return ``
+      return {kind: `message`, text: ``, rich: false}
     }
   }
 
@@ -1273,21 +1275,22 @@ export class TemplateManager {
    * @param ALang - Target language code (falls back to `default`)
    * @param AScope - Telegram bot command scope (e.g., `default`, `admin`)
    * @param data - Template variables for interpolation
-   * @returns Rendered description string, or empty string if not found
+   * @returns {@link GDescriptionResult} — rendered text, or `{text: ""}` when not found
    *
    * @remarks
    * Retrieves the compiled description function for the specified template, scope,
-   * and language, then executes it with the provided data.
+   * and language, then executes it with the provided data. Failures are swallowed
+   * to the empty-text result, preserving the historical fallback contract.
    *
    * @example
    * ```typescript
    * const desc = tm.getGDescription("start", "default", "en")
-   * // => "Start the bot"
+   * // => {kind: "description", text: "Start the bot"}
    * ```
    *
    * @public
    */
-  getGDescription(key: string, AGBaseId = `default`, ALang = `default`, AScope = `default`, data?: Record<string, unknown>): string {
+  getGDescription(key: string, AGBaseId = `default`, ALang = `default`, AScope = `default`, data?: Record<string, unknown>): GDescriptionResult {
     try {
       const map = this.getCompiled(key)
       const one = map?.description?.[AGBaseId]?.[AScope] ?? map?.description?.default?.[AScope]
@@ -1296,9 +1299,9 @@ export class TemplateManager {
         throw TemplateManager._DEFER
       }
 
-      return func(data)
+      return {kind: `description`, text: func(data)}
     } catch {
-      return ``
+      return {kind: `description`, text: ``}
     }
   }
 
@@ -1375,21 +1378,23 @@ export class TemplateManager {
    * @param ALang - Target language code (falls back to `default`)
    * @param AType - Keyboard type: `inline` or `bottom`
    * @param data - Template variables for interpolation
-   * @returns Array of rendered button labels, or empty array if not found
+   * @returns {@link GKeyboardResult} — rendered button labels under `rows`, or `{rows: []}` if not found
    *
    * @remarks
    * Retrieves the compiled keyboard function for the specified template, language,
    * and type, then executes it with the provided data to generate button labels.
+   * Failures are swallowed to the empty-rows result, preserving the historical
+   * fallback contract.
    *
    * @example
    * ```typescript
    * const buttons = tm.getGKeyboard("start", "default", "en", "inline")
-   * // => ["Counter", "Help", "Settings"]
+   * // => {kind: "keyboard", rows: ["Counter", "Help", "Settings"]}
    * ```
    *
    * @public
    */
-  getGKeyboard(key: string, AGBaseId = `default`, ALang = `default`, AType: `inline` | `bottom` = `inline`, data?: Record<string, unknown>): string[] {
+  getGKeyboard(key: string, AGBaseId = `default`, ALang = `default`, AType: `inline` | `bottom` = `inline`, data?: Record<string, unknown>): GKeyboardResult {
     try {
       const map = this.getCompiled(key)
       const one = map?.keyboard?.[AGBaseId] ?? map?.keyboard?.default
@@ -1398,9 +1403,9 @@ export class TemplateManager {
         throw TemplateManager._DEFER
       }
 
-      return func(data)
+      return {kind: `keyboard`, rows: func(data)}
     } catch {
-      return []
+      return {kind: `keyboard`, rows: []}
     }
   }
 

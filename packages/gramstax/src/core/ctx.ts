@@ -16,7 +16,7 @@ import {setTimeout} from "node:timers/promises"
 import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
-import type {EphemeralMessageParameters, InlineQueryResult, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent} from "grammy/types"
+import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent} from "grammy/types"
 import type {CacheExternal} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
 import {TemplateEngine} from "~/template/engine"
@@ -25,9 +25,7 @@ import type {ICacheRpc} from "~/types/cache"
 import type {
   IBottomKb,
   IBottomKbParams,
-  IBroadcastEditOpts,
   IBroadcastEditResult,
-  IBroadcastEditTarget,
   IBuildDataOptions,
   ICt,
   ICtxParams,
@@ -42,37 +40,42 @@ import type {
   IKbCols,
   IKbDest,
   IKbPageLike,
-  IOptCallbackAnswer,
   IOptEdit,
-  IOptEditCaption,
-  IOptEditKeyboard,
-  IOptEditMedia1,
-  IOptEditMedia2,
-  IOptFallbackEdit,
-  IOptGift,
-  IOptGuestAnswer,
   IOptInlineAnswer,
   IOptPreCheckout,
   IOptReply,
-  IOptReplyAnimation,
-  IOptReplyAudio,
-  IOptReplyContact,
-  IOptReplyDocument,
-  IOptReplyLocation,
-  IOptReplyPhoto,
   IOptReplyRich,
-  IOptReplySticker,
-  IOptReplyVideo,
-  IOptReplyVideoNote,
-  IOptReplyVoice,
   IOptShipping,
-  IOptWebAppAnswer,
   IPageData,
   IPageDataBase,
   ISendErrorHook,
   ISendErrorInfo,
   IStoryContent,
-  ITemp
+  ITemp,
+  RenderBroadcastDeleteParams,
+  RenderBroadcastEditParams,
+  RenderBroadcastMediaParams,
+  RenderBroadcastParams,
+  RenderBroadcastPollParams,
+  RenderCallbackAnswerParams,
+  RenderDiceParams,
+  RenderEditCaptionParams,
+  RenderEditKeyboardParams,
+  RenderGiftParams,
+  RenderGuestAnswerParams,
+  RenderInlineAnswerParams,
+  RenderInvoiceParams,
+  RenderMediaGroupKindParams,
+  RenderMediaGroupParams,
+  RenderMediaKindParams,
+  RenderMediaParams,
+  RenderPaidMediaParams,
+  RenderPollParams,
+  RenderPreCheckoutParams,
+  RenderShippingParams,
+  RenderTextParams,
+  RenderVenueParams,
+  RenderWebAppAnswerParams
 } from "~/types/ctx"
 import type {IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock} from "~/types/template"
 
@@ -429,7 +432,7 @@ class Helper {
  * class StartPage extends Ctx {
  *   async handleCallbackQueryData() {
  *     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page])
- *     await this.render(kb)
+ *     await this.renderText({keyboard: kb})
  *   }
  *
  *   static template = `
@@ -450,7 +453,7 @@ class Helper {
  * class StartPage extends Ctx {
  *   async handleCallbackQueryData() {
  *     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page], "2", "special-kb")
- *     await this.render()
+ *     await this.renderText()
  *   }
  *
  *   static template = `
@@ -728,7 +731,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static readonly MEDIA_TYPES = [`photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`]
+  static readonly MEDIA_TYPES: ReadonlySet<string> = new Set([`photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`])
 
   /**
    * Media types that carry a caption (caption length is enforced for these).
@@ -961,7 +964,7 @@ export class Ctx extends Context {
    * @public
    */
   static assertMediaPreconditions(type: string, med: {src?: unknown; caption?: unknown}): void {
-    if (!(Ctx.MEDIA_TYPES as readonly string[]).includes(type)) throw new Error(`Unknown media type: ${type}`)
+    if (!Ctx.MEDIA_TYPES.has(type)) throw new Error(`Unknown media type: ${type}`)
     Ctx.assertMediaSrcSize(type, med.src)
     if (type === `voice` && typeof med.caption === `string` && med.caption.length > 0) throw new Error(`voice messages do not support captions`)
     Ctx.assertMediaCaption(type, med.caption)
@@ -2185,7 +2188,7 @@ export class Ctx extends Context {
    * @remarks
    * Return `false` to **skip only the target route handler** (e.g.
    * `handleFreeText`, `handleCallbackQueryData`, etc.). The rest of the
-   * framework is untouched — you can still call `.render()`, `.renderEdit()`,
+   * framework is untouched — you can still call `.renderText()`,
    * `.renderCallbackAnswer()`, and other Ctx methods normally inside
    * this hook before returning `false`.
    *
@@ -2282,51 +2285,26 @@ export class Ctx extends Context {
    * throughput matters. At ~`40` sends/sec, `1M` recipients take ~`7h` —
    * size chunks and checkpoints accordingly.
    *
-   * @param ids - Array of user IDs to send the message to.
-   * @param languageCode - Array of language codes corresponding to each user.
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).
-   * @param options - Optional send options (or null to omit).
-   * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
-   * @param chunkSize - Optional custom chunk size for pacing sleeps (or null for free-limit pacing only).
-   * @param chunkDelayMs - Optional delay in ms after each `chunkSize` chunk (or null for `500`).
-   * @param excludeIds - Optional user IDs to skip, counted as skipped (or null to send to all).
-   * @param onProgress - Optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip).
-   * @param startFrom - Optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`).
-   * @param concurrency - Optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @param params - Broadcast params: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block message (or null to use default); `options` optional send options (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
    *   const userIds = [123456, 789012]
    *   const langs = [`en`, `id`]
-   *   await this.renderBroadcast(userIds, langs)
+   *   await this.renderBroadcast({ids: userIds, languageCode: langs})
    * }
    * ```
    *
    * @public
    */
-  async renderBroadcast(
-    ids: number[],
-    languageCode: string[],
-    keyboard?: IInBoKb | null,
-    data?: IData | null,
-    AGBaseId?: string | null,
-    options?: IOptReply | null,
-    throwError: boolean | null = false,
-    chunkSize: number | null = null,
-    chunkDelayMs: number | null = null,
-    excludeIds: number[] | null = null,
-    onProgress?: ((done: number, total: number) => void | Promise<void>) | null,
-    startFrom?: number | null,
-    concurrency?: number | null
-  ) {
+  async renderBroadcast(params: RenderBroadcastParams) {
+    const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
     const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: [] as Array<{index: number; id: number; error: unknown}>}
     res.totalCount = ids.length
     const limitFree = 30
     const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
-    const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
+    const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined).text)
     const rawStart = startFrom ?? 0
     const start = !Number.isFinite(rawStart) ? 0 : Math.min(ids.length, Math.max(0, Math.floor(rawStart)))
     res.skippedCount += start
@@ -2429,46 +2407,21 @@ export class Ctx extends Context {
    * via `Ctx.cloneMediaInput`, so parallel workers never share one mutable
    * `InputFile` instance.
    *
-   * @param ids - Array of user IDs to send the media to.
-   * @param languageCode - Array of language codes corresponding to each user.
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
-   * @param options - Optional send options for the inferred media type (or null to omit).
-   * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
-   * @param chunkSize - Optional custom chunk size for pacing sleeps (or null for free-limit pacing only).
-   * @param chunkDelayMs - Optional delay in ms after each `chunkSize` chunk (or null for `500`).
-   * @param excludeIds - Optional user IDs to skip, counted as skipped (or null to send to all).
-   * @param onProgress - Optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip).
-   * @param startFrom - Optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`).
-   * @param concurrency - Optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @param params - Broadcast params: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `options` optional send options for the inferred media type (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
    *   const userIds = [123456, 789012]
    *   const langs = [`en`, `id`]
-   *   await this.renderBroadcastMedia(userIds, langs)
+   *   await this.renderBroadcastMedia({ids: userIds, languageCode: langs})
    * }
    * ```
    *
    * @public
    */
-  async renderBroadcastMedia(
-    ids: number[],
-    languageCode: string[],
-    keyboard?: IInBoKb | null,
-    data?: IData | null,
-    AGBaseId?: string | null,
-    options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact | null,
-    throwError: boolean | null = false,
-    chunkSize: number | null = null,
-    chunkDelayMs: number | null = null,
-    excludeIds: number[] | null = null,
-    onProgress?: ((done: number, total: number) => void | Promise<void>) | null,
-    startFrom?: number | null,
-    concurrency?: number | null
-  ) {
+  async renderBroadcastMedia(params: RenderBroadcastMediaParams) {
+    const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
     const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: [] as Array<{index: number; id: number; error: unknown}>}
     res.totalCount = ids.length
     const limitFree = 30
@@ -2597,7 +2550,7 @@ export class Ctx extends Context {
    * `SentRepository` shape (`Array<{chatId, messageId}>` per content code):
    * pass the rows back here to revise the same messages for every recipient.
    *
-   * Per-recipient semantics mirror `renderEditMedia` exactly: `photo`,
+   * Per-recipient semantics mirror `renderMedia` in `mode: "edit"` exactly: `photo`,
    * `video`, `audio`, `document`, and `animation` edit in place via
    * `editMessageMedia` (with `InputFile` resolution + filename + caption);
    * `voice`, `video_note`, `sticker`, `location`, and `contact` cannot be
@@ -2617,49 +2570,21 @@ export class Ctx extends Context {
    * classifies the primary error directly.
    *
    * @typeParam T - The media type to edit to.
-   * @param targets - Stored `{chatId, messageId}` rows to edit, in stable order (checkpoint index = array index).
-   * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
-   * @param options1 - Type-specific media options (or null to omit; dropped on fallback resend).
-   * @param options2 - Additional edit options (or null to omit; dropped on fallback resend).
-   * @param broadcastOpts - Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`, `fallbackEdit`) (or null for defaults).
+   * @param params - Edit-fanout params: `targets` stored `{chatId, messageId}` rows to edit, in stable order (checkpoint index = array index) (required); `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (required); `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `options1` type-specific media options (or null to omit; dropped on fallback resend); `options2` additional edit options (or null to omit; dropped on fallback resend); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`, `fallbackEdit`) (or null for defaults).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
    * @example
    * ```typescript
    * async handleTypoFix() {
    *   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
-   *   await this.renderBroadcastEdit(sent, `photo`, null, {price: `99`})
+   *   await this.renderBroadcastEdit({targets: sent, type: `photo`, data: {price: `99`}})
    * }
    * ```
    *
    * @public
    */
-  async renderBroadcastEdit<T extends Exclude<IMediaBlock[`type`], `group`>>(
-    targets: IBroadcastEditTarget[],
-    type: T,
-    keyboardInline?: IInlineKb | null,
-    data?: IData | null,
-    AGBaseId?: string | null,
-    options1?:
-      | (T extends `voice`
-          ? IOptReplyVoice
-          : T extends `video_note`
-            ? IOptReplyVideoNote
-            : T extends `sticker`
-              ? IOptReplySticker
-              : T extends `location`
-                ? IOptReplyLocation
-                : T extends `contact`
-                  ? IOptReplyContact
-                  : //
-                    IOptEditMedia1)
-      | null,
-    options2?: IOptEditMedia2 | null,
-    broadcastOpts?: IBroadcastEditOpts | null
-  ): Promise<IBroadcastEditResult> {
+  async renderBroadcastEdit<T extends Exclude<IMediaBlock[`type`], `group`>>(params: RenderBroadcastEditParams<T>): Promise<IBroadcastEditResult> {
+    const {targets, type, keyboardInline, data, AGBaseId, options1, options2, broadcastOpts} = params
     const opts = broadcastOpts ?? {}
     const fallbackEdit = opts.fallbackEdit ?? `delete-reply`
     const onProgress = opts.onProgress ?? null
@@ -2816,21 +2741,21 @@ export class Ctx extends Context {
    * delete has no text fallback by design — there is no replacement content
    * to deliver, so no `sendMessage` is attempted on either path.
    *
-   * @param targets - Stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index).
-   * @param broadcastOpts - Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallbackEdit` is accepted but ignored — deletes have no resend).
+   * @param params - Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallbackEdit` is accepted but ignored — deletes have no resend).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
    * @example
    * ```typescript
    * async handleExpireVip() {
    *   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
-   *   await this.renderBroadcastDelete(sent)
+   *   await this.renderBroadcastDelete({targets: sent})
    * }
    * ```
    *
    * @public
    */
-  async renderBroadcastDelete(targets: IBroadcastEditTarget[], broadcastOpts?: IBroadcastEditOpts | null): Promise<IBroadcastEditResult> {
+  async renderBroadcastDelete(params: RenderBroadcastDeleteParams): Promise<IBroadcastEditResult> {
+    const {targets, broadcastOpts} = params
     const opts = broadcastOpts ?? {}
     const onProgress = opts.onProgress ?? null
     const chunkSize = opts.chunkSize ?? null
@@ -2888,47 +2813,111 @@ export class Ctx extends Context {
   }
 
   /**
-   * Sends a text message reply using the page template.
+   * Sends or edits a text message using the page template.
    *
    * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
-   * Observe-only send-error coverage (mirrors `renderMedia`): failures are
+   * Single method for every text send/edit path, folding the former `render`,
+   * `renderEdit`, `renderRich`, `renderAuto`, `renderAutoRich`, and
+   * `renderEditRich`. `mode` resolves the send-versus-edit decision: `auto`
+   * (default) edits when `this.callbackQuery` exists, `reply` always sends,
+   * `edit` always edits.
+   *
+   * Rich content is chosen at COMPILE time: when the `<g-message>` block
+   * contains Telegram Rich HTML tags, the message is sent or edited through
+   * `replyWithRichMessage`/`editMessageText` with an `InputRichMessage` payload
+   * (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) instead of plain
+   * HTML text. Rich message limits:
+   * - Up to 32,768 UTF-8 characters
+   * - Up to 500 blocks
+   * - Up to 16 nesting levels
+   * - Up to 20 table columns
+   *
+   * If editing fails (e.g. message too old), the fallback behavior is controlled
+   * by `fallbackEdit` (default `delete-reply`: deletes the original message and
+   * sends a new reply — the result looks like an in-place edit).
+   *
+   * Observe-only send-error coverage (mirrors `renderMedia`): reply failures are
    * classified via `Ctx.classifySendError`, reported to `notifySendError`,
    * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
    * Unlike the media paths there is no degraded fallback content for text,
    * so after notify+log the original error is ALWAYS rethrown untouched.
    *
-   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID position for block message (or null to use default).
-   * @param options - Optional reply options (or null to omit).
-   * @returns The sent message object.
+   * When `chunkSize` is present (not `undefined`/`null`) the fully-rendered
+   * block is sent as sequential reply chunks instead (see the `chunkSize`
+   * field of {@link RenderTextParams}): the keyboard lands ONLY on the last
+   * chunk and `mode` does not apply — a multi-message split cannot be edited
+   * in place, so the chunked reply wins when both are passed.
+   *
+   * @param params - Optional render params (defaults to `{}`). See {@link RenderTextParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional plain-text reply/edit options (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `chunkSize` optional max characters per chunk, selecting the chunked reply path (or null for a single message).
+   * @returns The sent or edited message object, or the array of sent message objects when `chunkSize` selects the chunked reply path.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
-   *   // Automatic reply with content from this.template
-   *   await this.render()
+   *   // Automatic reply/edit with content from this.template
+   *   await this.renderText()
    *
    *   // With keyboard builder and data
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.render(kb, {name: "John"})
+   *   await this.renderText({keyboard: kb, data: {name: "John"}})
    *
-   *   // With keyboard short and custom AGBaseId between reply and keyboard
-   *   const kb = this.inlineKeyboardT([StartPage], `1`, "my-custom-id")
-   *   await this.render(kb, {name: "John"}, "id-hello-world")
+   *   // Force a new reply even from a callback query, with a custom base
+   *   await this.renderText({keyboard: kb, data: {name: "John"}, AGBaseId: "id-hello-world", mode: "reply"})
+   *
+   *   // Long message: send in chunks of 4096 characters (keyboard on the last chunk only)
+   *   await this.renderText({keyboard: kb, AGBaseId: "id-hello-world", chunkSize: 4096})
    * }
    * ```
    *
    * @public
    */
-  async render(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReply | null) {
+  async renderText(params: RenderTextParams = {}) {
+    const {keyboard, data, AGBaseId, mode = `auto`, options, richOptions, fallbackEdit = `delete-reply`, chunkSize} = params
+    const {text, rich} = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    if (chunkSize !== undefined && chunkSize !== null) {
+      // Chunked replies are reply-only: Telegram has no in-place edit for a multi-message split, so `mode` does not apply.
+      return await this._renderTextChunked({text, rich, keyboard, options, richOptions, chunkSize})
+    }
+    const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
+    if (edit) {
+      try {
+        if (rich) {
+          return await this.editMessageText({html: text, ...(richOptions?.[0] ?? {})}, {reply_markup: (keyboard as IInlineKb | null | undefined) ?? undefined, ...((richOptions?.[1] ?? {}) as IOptEdit)})
+        }
+        return await this.editMessageText(text, {
+          parse_mode: `HTML`,
+          reply_markup: (keyboard as IInlineKb | null | undefined) ?? undefined,
+          ...((options as IOptEdit | null | undefined) ?? {})
+        })
+      } catch (error) {
+        if (fallbackEdit === `disable`) {
+          throw error
+        }
+        this.log?.warn(`renderText fallback reply for page "${this.sendPageName()}"`)
+        if (fallbackEdit === `delete-reply`) {
+          try {
+            await this.deleteMessage()
+          } catch {
+            // delete failure (e.g. already deleted) must not block the fallback reply
+          }
+        }
+      }
+    }
     try {
-      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-      return await this.reply(msg, {
+      if (rich) {
+        return await this.replyWithRichMessage(
+          {html: text, ...(richOptions?.[0] ?? {})},
+          {
+            reply_markup: keyboard ?? undefined,
+            ...(richOptions?.[1] ?? {})
+          }
+        )
+      }
+      return await this.reply(text, {
         parse_mode: `HTML`,
         reply_markup: keyboard ?? undefined,
-        ...(options ?? {})
+        ...((options as IOptReply | null | undefined) ?? {})
       })
     } catch (error) {
       const kind = Ctx.classifySendError(error)
@@ -2944,37 +2933,37 @@ export class Ctx extends Context {
   }
 
   /**
-   * Sends a long template text as sequential chunks using the page template.
+   * Sends a fully-rendered `<g-message>` text as sequential reply chunks.
    *
-   * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
-   * Renders the full block FIRST (placeholders never split), then splits
-   * deterministically (boundary priority `\n\n` → `\n` → space → hard-cut,
-   * pieces trimmed, empties skipped) and sends sequentially with the keyboard
-   * ONLY on the last chunk. On mid-loop failure the error is classified,
-   * reported to `notifySendError`, stamped with `chunkIndex`, logged, rethrown.
+   * Used by {@link (Ctx:class).renderText} when `chunkSize` is present.
+   * Reply-only by design: Telegram has no in-place edit for a multi-message
+   * split. The text is split deterministically (boundary priority `\n\n` →
+   * `\n` → space → hard-cut; pieces trimmed, empties skipped) and sent
+   * sequentially with the keyboard ONLY on the last chunk — rich templates
+   * through `replyWithRichMessage`, plain text through `reply` with
+   * `parse_mode: HTML`. `chunkSize` is sanitised (`Number.isFinite(chunkSize)
+   * && chunkSize > 0 ? Math.floor(chunkSize) : 4096`). On mid-loop failure
+   * the error is classified, reported to `notifySendError`, stamped with
+   * `chunkIndex`, logged, rethrown.
    *
-   * @param keyboard - Optional keyboard markup, sent only on the last chunk (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position for block message.
-   * @param options - Optional reply options (or null to omit).
-   * @param chunkSize - Max chars per chunk (defaults to `4096`).
+   * @param params - Chunked send params: `text` the fully-rendered block text; `rich` whether the block is a rich template; `keyboard` optional keyboard markup, sent only on the last chunk (or null to omit); `options` optional plain-text reply options spread on every chunk (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `chunkSize` max characters per chunk.
    * @returns The sent message objects in order.
    *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderChunked(undefined, undefined, `long-card`)
-   * }
-   * ```
-   *
-   * @public
+   * @internal
    */
-  async renderChunked(keyboard: IInBoKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptReply | null, chunkSize = 4096) {
-    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+  private async _renderTextChunked(params: {
+    text: string
+    rich: boolean
+    keyboard?: IInBoKb | null
+    options?: IOptReply | IOptEdit | null
+    richOptions?: IOptReplyRich | null
+    chunkSize: number
+  }) {
+    const {text, rich, keyboard, options, richOptions, chunkSize} = params
     const size = Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096
     const chunks: string[] = []
-    let rest = msg
+    let rest = text
     while (rest.length > 0) {
       if (rest.length <= size) {
         const tail = rest.trim()
@@ -2997,16 +2986,24 @@ export class Ctx extends Context {
       if (piece !== ``) chunks.push(piece)
       rest = rest.slice(cut).trimStart()
     }
-    const out: Array<Awaited<ReturnType<Ctx[`reply`]>>> = []
+    const out: Array<Awaited<ReturnType<Ctx[`reply`]>> | Awaited<ReturnType<Ctx[`replyWithRichMessage`]>>> = []
     for (let index = 0; index < chunks.length; index++) {
       const last = index === chunks.length - 1
       try {
         out.push(
-          await this.reply(chunks[index]!, {
-            parse_mode: `HTML`,
-            reply_markup: last ? (keyboard ?? undefined) : undefined,
-            ...(options ?? {})
-          })
+          rich
+            ? await this.replyWithRichMessage(
+                {html: chunks[index]!, ...(richOptions?.[0] ?? {})},
+                {
+                  reply_markup: last ? (keyboard ?? undefined) : undefined,
+                  ...(richOptions?.[1] ?? {})
+                }
+              )
+            : await this.reply(chunks[index]!, {
+                parse_mode: `HTML`,
+                reply_markup: last ? (keyboard ?? undefined) : undefined,
+                ...((options as IOptReply | null | undefined) ?? {})
+              })
         )
       } catch (error) {
         const kind = Ctx.classifySendError(error)
@@ -3033,26 +3030,22 @@ export class Ctx extends Context {
    * failed gift MUST NOT degrade into sending the card as plain text (that
    * would deceive the user). No silent fallback on any path.
    *
-   * @param target - Gift recipient user id.
-   * @param giftId - Telegram gift identifier.
-   * @param keyboard - Must stay null: `sendGift` carries no reply markup, so a non-null keyboard throws before any API call (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position for block message.
-   * @param options - Optional gift options (or null to omit).
+   * @param params - Gift params: `target` gift recipient user id (required); `giftId` Telegram gift identifier (required); `keyboard` must stay null/omitted — `sendGift` carries no reply markup, so a non-null keyboard throws before any API call; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional gift options (or null to omit).
    * @returns `true` on success.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
-   *   await this.renderGift(123456, `gift-id`, undefined, undefined, `gift-card`)
+   *   await this.renderGift({target: 123456, giftId: `gift-id`, AGBaseId: `gift-card`})
    * }
    * ```
    *
    * @public
    */
-  async renderGift(target: number, giftId: string, keyboard: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptGift | null) {
+  async renderGift(params: RenderGiftParams) {
+    const {target, giftId, keyboard, data, AGBaseId, options} = params
     if (keyboard !== undefined && keyboard !== null) throw new Error(`renderGift does not support keyboards: sendGift carries no reply markup (target ${target})`)
-    const msg = this.templateManager.getGGift(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    const msg = this.templateManager.getGGift(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
     try {
       const extra: Parameters<Ctx[`api`][`sendGift`]>[2] = {
         text: msg,
@@ -3089,23 +3082,21 @@ export class Ctx extends Context {
    *
    * Toast text is limited by Telegram to 200 characters — keep the block short.
    *
-   * @param showAlert - Whether to show an alert instead of a toast notification.
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position for the notification text.
-   * @param options - Optional answer options such as `cache_time` (or null to omit).
+   * @param params - Answer params: `showAlert` whether to show an alert instead of a toast notification (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the notification text (required); `options` optional answer options such as `cache_time` (or null to omit).
    * @returns True on success.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
-   *   await this.renderCallbackAnswer(false, undefined, `tap-card`)
+   *   await this.renderCallbackAnswer({showAlert: false, AGBaseId: `tap-card`})
    * }
    * ```
    *
    * @public
    */
-  async renderCallbackAnswer(showAlert: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptCallbackAnswer | null) {
-    const msg = this.templateManager.getGCallbackAnswer(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+  async renderCallbackAnswer(params: RenderCallbackAnswerParams) {
+    const {showAlert, data, AGBaseId, options} = params
+    const msg = this.templateManager.getGCallbackAnswer(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
     try {
       return await this.answerCallbackQuery({text: msg, show_alert: showAlert, ...((typeof options === `object` ? options : {}) ?? {})})
     } catch (error) {
@@ -3137,23 +3128,21 @@ export class Ctx extends Context {
    *
    * Telegram requires the answer within 10 seconds of the query.
    *
-   * @param ok - Whether to approve the checkout.
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position for the error message.
-   * @param options - Optional answer options, or a string overriding the error message (or null to omit).
+   * @param params - Answer params: `ok` whether to approve the checkout (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the error message (required); `options` optional answer options, or a string overriding the error message (or null to omit).
    * @returns True on success.
    *
    * @example
    * ```typescript
    * async handlePreCheckout() {
-   *   await this.renderPreCheckout(false, undefined, `pay-declined-card`)
+   *   await this.renderPreCheckout({ok: false, AGBaseId: `pay-declined-card`})
    * }
    * ```
    *
    * @public
    */
-  async renderPreCheckout(ok: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptPreCheckout | null) {
-    const msg = this.templateManager.getGPrecheckoutError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+  async renderPreCheckout(params: RenderPreCheckoutParams) {
+    const {ok, data, AGBaseId, options} = params
+    const msg = this.templateManager.getGPrecheckoutError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
     try {
       if (ok) return await this.answerPreCheckoutQuery(true, ((typeof options === `object` ? options : {}) ?? {}) as IOptPreCheckout)
       const errorMessage = typeof options === `string` ? options : msg
@@ -3185,23 +3174,21 @@ export class Ctx extends Context {
    * `fallback-text` → `log.warn`). After notify+log the original error is
    * ALWAYS rethrown untouched.
    *
-   * @param ok - Whether the shipping address is acceptable.
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position for the error message.
-   * @param options - Optional answer options such as `shipping_options` (or null to omit).
+   * @param params - Answer params: `ok` whether the shipping address is acceptable (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the error message (required); `options` optional answer options such as `shipping_options` (or null to omit).
    * @returns True on success.
    *
    * @example
    * ```typescript
    * async handleShipping() {
-   *   await this.renderShipping(false, undefined, `ship-rejected-card`)
+   *   await this.renderShipping({ok: false, AGBaseId: `ship-rejected-card`})
    * }
    * ```
    *
    * @public
    */
-  async renderShipping(ok: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptShipping | null) {
-    const msg = this.templateManager.getGShippingError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+  async renderShipping(params: RenderShippingParams) {
+    const {ok, data, AGBaseId, options} = params
+    const msg = this.templateManager.getGShippingError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
     try {
       if (ok) return await this.answerShippingQuery(true, (options ?? {}) as IOptShipping)
       return await this.answerShippingQuery(false, {error_message: msg, ...(options ?? {})})
@@ -3236,23 +3223,20 @@ export class Ctx extends Context {
    * Telegram caps answers at 50 results; cache them with `cache_time` for
    * identical queries.
    *
-   * @param results - Inline results built by the caller (up to 50).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position for the button text.
-   * @param options - Optional answer options (or null to omit).
-   * @param buttonStartParameter - Optional deep-link start parameter; enables the block-text button (or null to omit).
+   * @param params - Answer params: `results` inline results built by the caller, up to 50 (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the button text (required); `options` optional answer options (or null to omit); `buttonStartParameter` optional deep-link start parameter, enabling the block-text button (or null to omit).
    * @returns True on success.
    *
    * @example
    * ```typescript
    * async handleInlineQuery() {
-   *   await this.renderInlineAnswer([article], {name: `Ani`}, `inline-card`, undefined, `start=1`)
+   *   await this.renderInlineAnswer({results: [article], data: {name: `Ani`}, AGBaseId: `inline-card`, buttonStartParameter: `start=1`})
    * }
    * ```
    *
    * @public
    */
-  async renderInlineAnswer(results: readonly InlineQueryResult[], data: IData | null | undefined, AGBaseId: string, options?: IOptInlineAnswer | null, buttonStartParameter?: string | null) {
+  async renderInlineAnswer(params: RenderInlineAnswerParams) {
+    const {results, data, AGBaseId, options, buttonStartParameter} = params
     const button = this.templateManager.getGInlineButton(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
       const extra: IOptInlineAnswer = {...(options ?? {})}
@@ -3288,22 +3272,20 @@ export class Ctx extends Context {
    * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
    * After notify+log the original error is ALWAYS rethrown untouched.
    *
-   * @param result - Inline result built by the caller.
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position (resolved for validation).
-   * @param options - Optional abort signal (or null to omit).
+   * @param params - Answer params: `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position, resolved for validation (required); `options` optional abort signal (or null to omit).
    * @returns The sent guest message object.
    *
    * @example
    * ```typescript
    * async handleGuestMessage() {
-   *   await this.renderGuestAnswer(article, undefined, `guest-card`)
+   *   await this.renderGuestAnswer({result: article, AGBaseId: `guest-card`})
    * }
    * ```
    *
    * @public
    */
-  async renderGuestAnswer(result: InlineQueryResult, data: IData | null | undefined, AGBaseId: string, options?: IOptGuestAnswer | null) {
+  async renderGuestAnswer(params: RenderGuestAnswerParams) {
+    const {result, data, AGBaseId, options} = params
     void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
       return await this.answerGuestQuery(result, options ?? undefined)
@@ -3335,23 +3317,20 @@ export class Ctx extends Context {
    * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
    * After notify+log the original error is ALWAYS rethrown untouched.
    *
-   * @param webAppQueryId - Unique identifier for the query to answer.
-   * @param result - Inline result built by the caller.
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position (resolved for validation).
-   * @param options - Optional abort signal (or null to omit).
+   * @param params - Answer params: `webAppQueryId` unique identifier for the query to answer (required); `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position, resolved for validation (required); `options` optional abort signal (or null to omit).
    * @returns The sent web app message object.
    *
    * @example
    * ```typescript
    * async handleWebAppData() {
-   *   await this.renderWebAppAnswer(queryId, article, undefined, `webapp-card`)
+   *   await this.renderWebAppAnswer({webAppQueryId: queryId, result: article, AGBaseId: `webapp-card`})
    * }
    * ```
    *
    * @public
    */
-  async renderWebAppAnswer(webAppQueryId: string, result: InlineQueryResult, data: IData | null | undefined, AGBaseId: string, options?: IOptWebAppAnswer | null) {
+  async renderWebAppAnswer(params: RenderWebAppAnswerParams) {
+    const {webAppQueryId, result, data, AGBaseId, options} = params
     void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
       return await this.api.answerWebAppQuery(webAppQueryId, result, options ?? undefined)
@@ -3398,179 +3377,22 @@ export class Ctx extends Context {
   }
 
   /**
-   * Sends a rich message reply using the page template.
-   *
-   * @remarks
-   * Observe-only send-error coverage (mirrors `renderMedia`): failures are
-   * classified via `Ctx.classifySendError`, reported to `notifySendError`,
-   * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
-   * Unlike the media paths there is no degraded fallback content for text,
-   * so after notify+log the original error is ALWAYS rethrown untouched.
-   *
-   * Uses `replyWithRichMessage` (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION})
-   * to send structured rich text with headings, lists, tables, media, block
-   * quotations, collapsible blocks, footnotes, and formulas.
-   *
-   * The page template's `<g-message>` HTML content is passed as the `html` field
-   * of `InputRichMessage`. Use the Bot API 10.3 Rich HTML tags in your template
-   * (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by
-   * {@link TemplateEngine.validateBlockGMessageRich}.
-   *
-   * Rich message limits:
-   * - Up to 32,768 UTF-8 characters
-   * - Up to 500 blocks
-   * - Up to 16 nesting levels
-   * - Up to 20 table columns
-   *
-   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID position for block message (or null to use default).
-   * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).
-   * @param options2 - Optional send options (or null to omit).
-   * @returns The sent message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   // Rich message with template content
-   *   await this.renderRich()
-   *
-   *   // With keyboard and data
-   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.renderRich(kb, {name: "John"})
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderRich(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0] | null, options2?: IOptReplyRich[1] | null) {
-    try {
-      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-      return await this.replyWithRichMessage(
-        {html: msg, ...(options1 ?? {})},
-        {
-          reply_markup: keyboard ?? undefined,
-          ...(options2 ?? {})
-        }
-      )
-    } catch (error) {
-      const kind = Ctx.classifySendError(error)
-      this.notifySendError(error, kind, this.sendChatId())
-      if (kind === `retryable`) {
-        this.log?.error(`text send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
-        throw error
-      }
-      // No text fallback for text: there is no degraded content to deliver, so rethrow after notify+log.
-      this.log?.warn(`text send fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
-      throw error
-    }
-  }
-
-  /**
-   * Sends or edits a rich message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderRich} and {@link (Ctx:class).renderEditRich},
-   * auto-detected from `!!this.callbackQuery`.
-   *
-   * Template block: `<g-message>` (read via `renderEditRich/renderRich`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID (or null to use default).
-   * @param options1 - Optional `InputRichMessage` fields (or null to omit).
-   * @param options2 - Optional send/edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderAutoRich()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderAutoRich(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0] | null, options2?: IOptReplyRich[1] | IOptEdit | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    const edit = !!this.callbackQuery
-    if (edit) {
-      return await this.renderEditRich(keyboard as IInlineKb, data, AGBaseId, options1, options2 as unknown as IOptEdit, fallbackEdit)
-    }
-    return await this.renderRich(keyboard, data, AGBaseId, options1, options2 as IOptReplyRich[1])
-  }
-
-  /**
-   * Edits an existing message with rich content using the page template.
-   *
-   * Template block: `<g-message>` (read via `getGMessage`).
-   * @remarks
-   * Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API
-   * {@link TemplateEngine.BOT_API_VERSION}). This method can edit both text and
-   * rich messages — pass a rich HTML template and it will be sent as structured
-   * rich content.
-   *
-   * If editing fails (e.g. message too old), the fallback behavior is controlled
-   * by `fallbackEdit` (default `delete-reply`: deletes the original message and
-   * sends a new rich reply — the result looks like an in-place edit).
-   *
-   * Rich message limits:
-   * - Up to 32,768 UTF-8 characters
-   * - Up to 500 blocks
-   * - Up to 16 nesting levels
-   * - Up to 20 table columns
-   *
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID position for block message (or null to use default).
-   * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).
-   * @param options2 - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.renderEditRich(kb, {status: "updated"})
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditRich(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyRich[0] | null, options2?: IOptEdit | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    try {
-      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-      return await this.editMessageText(
-        {html: msg, ...(options1 ?? {})},
-        {
-          reply_markup: keyboardInline ?? undefined,
-          ...(options2 ?? {})
-        }
-      )
-    } catch (error) {
-      if (fallbackEdit === `disable`) {
-        throw error
-      }
-      this.log?.warn(`renderEditRich fallback reply for page "${this.sendPageName()}"`)
-      if (fallbackEdit === `delete-reply`) {
-        try {
-          await this.deleteMessage()
-        } catch {
-          // delete failure (e.g. already deleted) must not block the fallback reply
-        }
-      }
-      return await this.renderRich(keyboardInline, data, AGBaseId, options1, options2)
-    }
-  }
-
-  /**
-   * Sends a media message reply with dynamic type selection.
+   * Sends or edits a media message with dynamic type selection.
    *
    * Template block: `<g-media>` (read via `getGMedia`).
    * @remarks
-   * This is the base method for all media reply methods. Use specific methods
+   * Single method for every media send/edit path, folding the former
+   * `renderAutoMedia`, `renderEditMedia`, and the per-kind reply base. `mode`
+   * resolves the send-versus-edit decision: `auto` (default) edits when
+   * `this.callbackQuery` exists, `reply` always sends, `edit` always edits.
+   * This is the base method for all media methods. Use specific methods
    * like {@link (Ctx:class).renderPhoto} or {@link (Ctx:class).renderVideo} for simpler usage.
+   *
+   * Edit-mode semantics for media types that cannot be edited (`voice`,
+   * `video_note`, `sticker`, `location`, `contact`) delete the original
+   * message and send a new one. Multi-src media groups cannot replace a
+   * single message, so supported pipe-delimited media groups also delete the
+   * original message and send a new media group.
    *
    * Fail-fast validation (`Ctx.assertMediaPreconditions`, plus
    * `Ctx.assertLocation`/`Ctx.assertContact` in their branches) runs BEFORE
@@ -3579,52 +3401,112 @@ export class Ctx extends Context {
    * original error untouched; `fallback-text` best-effort replies with
    * `resolveFallbackText()` (nested failures ignored) and returns it.
    *
-   * @typeParam T - The media type to send.
-   * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
-   * @param options - Type-specific options for the media (or null to omit).
-   * @returns The sent message object.
+   * If the edit itself fails, the fallback behavior is controlled by `fallbackEdit`
+   * (default `delete-reply`: deletes the original message and re-sends the same media —
+   * the result looks like an in-place edit). The fallback re-send drops `optionsEdit1`/
+   * `optionsEdit2` (edit options do not map to reply options) and logs a `log.warn`
+   * when non-empty options are dropped; the re-send itself follows
+   * `Ctx.classifySendError` via the reply branch (`retryable` rethrows the
+   * original error untouched, `fallback-text` replies with fallback text).
+   *
+   * @typeParam T - The media type to send or edit to.
+   * @param params - Media params. See {@link RenderMediaParams} for field details: `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional type-specific reply options (or null to omit); `optionsEdit1` optional edit payload / non-editable-type reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
-   *   await this.renderMedia("photo")
+   *   // Automatic reply/edit with content from this.template
+   *   await this.renderMedia({type: "photo"})
+   *
+   *   // Force a new reply even from a callback query
+   *   await this.renderMedia({type: "photo", mode: "reply"})
    * }
    * ```
    *
    * @public
    */
-  async renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(
-    type: T,
-    keyboard?: IInBoKb | null,
-    data?: IData | null,
-    AGBaseId?: string | null,
-    options?:
-      | (T extends `photo`
-          ? IOptReplyPhoto
-          : T extends `video`
-            ? IOptReplyVideo
-            : T extends `audio`
-              ? IOptReplyAudio
-              : T extends `document`
-                ? IOptReplyDocument
-                : T extends `animation`
-                  ? IOptReplyAnimation
-                  : T extends `voice`
-                    ? IOptReplyVoice
-                    : T extends `video_note`
-                      ? IOptReplyVideoNote
-                      : T extends `sticker`
-                        ? IOptReplySticker
-                        : T extends `location`
-                          ? IOptReplyLocation
-                          : T extends `contact`
-                            ? IOptReplyContact
-                            : undefined)
-      | null
-  ) {
+  async renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(params: RenderMediaParams<T>) {
+    const {type, keyboard, data, AGBaseId, mode = `auto`, options, optionsEdit1, optionsEdit2, fallbackEdit = `delete-reply`} = params
+    const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
+    if (edit) {
+      const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+      Ctx.assertMediaPreconditions(type, med)
+      let coords: {latitude: number; longitude: number} | undefined
+      if (type === `location`) coords = Ctx.assertLocation(med.latitude, med.longitude)
+      if (type === `contact`) Ctx.assertContact(med.phone, med.first_name)
+      try {
+        const {src, caption} = med
+        const medFilename = med.filename
+        if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
+          await this.deleteMessage()
+          return await this.renderMediaGroup({type, data, AGBaseId, mode: `reply`})
+        }
+        const commonOpt = {reply_markup: keyboard ?? undefined, ...(optionsEdit1 ?? {})} as Record<string, unknown>
+        if (type === `voice`) {
+          await this.deleteMessage()
+          return await this.replyWithVoice(this.resolveMedia(src, medFilename), commonOpt)
+        }
+        if (type === `video_note`) {
+          await this.deleteMessage()
+          return await this.replyWithVideoNote(this.resolveMedia(src, medFilename), commonOpt)
+        }
+        if (type === `sticker`) {
+          await this.deleteMessage()
+          return await this.replyWithSticker(this.resolveMedia(src, medFilename), commonOpt)
+        }
+        if (type === `location`) {
+          await this.deleteMessage()
+          return await this.replyWithLocation(coords!.latitude, coords!.longitude, commonOpt)
+        }
+        if (type === `contact`) {
+          await this.deleteMessage()
+          return await this.replyWithContact(med.phone as string, med.first_name as string, {vcard: med.vcard!, ...commonOpt})
+        }
+
+        return await this.editMessageMedia(
+          {
+            media: this.resolveMedia(src, medFilename),
+            caption,
+            type,
+            parse_mode: `HTML`,
+            ...(optionsEdit1 ?? {})
+          },
+          {reply_markup: (keyboard as IInlineKb | null | undefined) ?? undefined, ...(optionsEdit2 ?? {})}
+        )
+      } catch (error) {
+        if (fallbackEdit === `disable`) {
+          throw error
+        }
+        if ((optionsEdit1 !== null && optionsEdit1 !== undefined && Object.keys(optionsEdit1).length > 0) || (optionsEdit2 !== null && optionsEdit2 !== undefined && Object.keys(optionsEdit2).length > 0)) {
+          this.log?.warn(`renderMedia fallback drops edit options (options1/options2 do not map to reply options)`)
+        }
+        this.log?.warn(`renderMedia fallback re-send for page "${this.sendPageName()}"`)
+        if (fallbackEdit === `delete-reply`) {
+          try {
+            await this.deleteMessage()
+          } catch {
+            // delete failure (e.g. already deleted) must not block the fallback reply
+          }
+        }
+        return await this._renderMediaReply<T>({type, keyboard, data, AGBaseId, options})
+      }
+    }
+    return await this._renderMediaReply<T>({type, keyboard, data, AGBaseId, options})
+  }
+
+  /**
+   * Reply half of {@link (Ctx:class).renderMedia}.
+   *
+   * @remarks
+   * Split out so `renderMedia` can reach its reply path from the edit-failure
+   * fallback without recursing into itself — a self-call makes the return type
+   * uninferable (TS7023). Behaviour here is exactly the reply branch of
+   * `renderMedia`, unchanged.
+   *
+   * @internal
+   */
+  private async _renderMediaReply<T extends Exclude<IMediaBlock[`type`], `group`>>({type, keyboard, data, AGBaseId, options}: {type: T; keyboard?: IInBoKb | null; data?: IData | null; AGBaseId?: string | null; options?: RenderMediaParams<T>[`options`]}) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertMediaPreconditions(type, med)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
@@ -3661,14 +3543,23 @@ export class Ctx extends Context {
   }
 
   /**
-   * Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.
+   * Sends or edits a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.
    *
    * @remarks
    * Only `photo`, `video`, `audio`, and `document` support Telegram media groups.
    * Omit `type` when the template uses `<g-media-group>` with per-item media types.
+   * When the template uses `<g-media-group>` (or null to include all items),
+   * only items matching this type are included. When omitted, all items are sent.
    * The first item receives the template caption. Telegram media groups do not support
    * reply markup, so keyboards are ignored for grouped media. Per-item filenames
    * rely on grammy basename auto-guess (no per-item filename override is applied).
+   *
+   * `mode` resolves the send-versus-edit decision: `auto` (default) edits when
+   * `this.callbackQuery` exists, `reply` always sends, `edit` always edits.
+   * Media groups cannot be edited in place, so the edit branch always deletes
+   * the original message first; when the delete-and-send fails, `fallbackEdit`
+   * decides whether to retry the delete and re-send (`delete-reply`, default),
+   * re-send without deleting (`reply`), or rethrow (`disable`).
    *
    * Fail-fast validation runs BEFORE any API call (group/item size limits,
    * per-item types, upload sizes, caption length) — programmer errors always
@@ -3676,24 +3567,60 @@ export class Ctx extends Context {
    * `retryable` rethrows the original error untouched; `fallback-text`
    * best-effort replies with `resolveFallbackText()` (nested failures ignored).
    *
-   * @param type - Supported media group type. When the template uses `<g-media-group>` (or null to include all items).
-   *   only items matching this type are included. When omitted, all items are sent.
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
-   * @param options - Optional media-group send options (or null to omit).
+   * @param params - Optional media-group params (defaults to `{}`). See {@link RenderMediaGroupParams} for field details: `type` optional media type filter (or null for all items); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional media-group send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
-   *   await this.renderMediaGroup("photo") // only send photo
+   *   await this.renderMediaGroup({type: "photo"}) // only send photo
    *   await this.renderMediaGroup() // send all media group
    * }
    * ```
    *
    * @public
    */
-  async renderMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null) {
+  async renderMediaGroup(params: RenderMediaGroupParams = {}) {
+    const {type, data, AGBaseId, mode = `auto`, options, fallbackEdit = `delete-reply`} = params
+    const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
+    if (edit) {
+      try {
+        try {
+          await this.deleteMessage()
+        } catch {
+          // delete failure (e.g. already deleted) must not block sending the media group
+        }
+        return await this._renderMediaGroupReply({type, data, AGBaseId, options})
+      } catch (error) {
+        if (fallbackEdit === `disable`) {
+          throw error
+        }
+        this.log?.warn(`renderMediaGroup fallback re-send for page "${this.sendPageName()}"`)
+        if (fallbackEdit === `delete-reply`) {
+          try {
+            await this.deleteMessage()
+          } catch {
+            // delete failure (e.g. already deleted) must not block the fallback reply
+          }
+        }
+        return await this._renderMediaGroupReply({type, data, AGBaseId, options})
+      }
+    }
+    return await this._renderMediaGroupReply({type, data, AGBaseId, options})
+  }
+
+  /**
+   * Reply half of {@link (Ctx:class).renderMediaGroup}.
+   *
+   * @remarks
+   * Split out so `renderMediaGroup` can reach its reply path from the
+   * delete-and-send flow without recursing into itself — a self-call makes the
+   * return type uninferable (TS7023). Behaviour here is exactly the reply
+   * branch of `renderMediaGroup`, unchanged.
+   *
+   * @internal
+   */
+  private async _renderMediaGroupReply({type, data, AGBaseId, options}: {type?: IMediaGroupType | null; data?: IData | null; AGBaseId?: string | null; options?: RenderMediaGroupParams[`options`]}) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const opt = {parse_mode: `HTML`, ...(options ?? {})} as Record<string, unknown>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
@@ -3756,17 +3683,14 @@ export class Ctx extends Context {
    * There is no degraded fallback content for polls, so after notify+log
    * the original error is ALWAYS rethrown untouched.
    *
-   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID position for block poll (or null to use default).
-   * @param options - Optional extra `sendPoll` fields (or null to omit).
+   * @param params - Optional params object (defaults to `{}`): `keyboard` optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block poll (or null to use default); `options` optional extra `sendPoll` fields (or null to omit).
    * @returns The sent poll message object.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.renderPoll(kb, {topic: "math"})
+   *   await this.renderPoll({keyboard: kb, data: {topic: "math"}})
    * }
    * ```
    *
@@ -3774,13 +3698,14 @@ export class Ctx extends Context {
    * ```typescript
    * async handleQuiz() {
    *   // Template: <g-poll type="quiz" correct="0" explanation="Because {{reason}}">
-   *   await this.renderPoll(null, {topic: "2+2", reason: "arithmetic"})
+   *   await this.renderPoll({data: {topic: "2+2", reason: "arithmetic"}})
    * }
    * ```
    *
    * @public
    */
-  async renderPoll(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null) {
+  async renderPoll(params: RenderPollParams = {}) {
+    const {keyboard, data, AGBaseId, options} = params
     const poll = this.templateManager.getGPoll(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertPoll(poll)
     const correct = poll.correct ?? 0
@@ -3858,19 +3783,7 @@ export class Ctx extends Context {
    * triggers a best-effort fallback-text send (nested failures ignored) while
    * `retryable` is recorded and the loop continues.
    *
-   * @param ids - Array of user IDs to send the poll to.
-   * @param languageCode - Array of language codes corresponding to each user.
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block poll (or null to use default).
-   * @param options - Optional extra `sendPoll` fields (or null to omit).
-   * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
-   * @param chunkSize - Optional custom chunk size for pacing sleeps (or null for free-limit pacing only).
-   * @param chunkDelayMs - Optional delay in ms after each `chunkSize` chunk (or null for `500`).
-   * @param excludeIds - Optional user IDs to skip, counted as skipped (or null to send to all).
-   * @param onProgress - Optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip).
-   * @param startFrom - Optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`).
-   * @param concurrency - Optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @param params - Broadcast params: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block poll (or null to use default); `options` optional extra `sendPoll` fields (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
    * @example
@@ -3878,27 +3791,14 @@ export class Ctx extends Context {
    * async handleAnnounceVote() {
    *   const userIds = [123456, 789012]
    *   const langs = [`en`, `id`]
-   *   await this.renderBroadcastPoll(userIds, langs, null, {topic: `lunch`})
+   *   await this.renderBroadcastPoll({ids: userIds, languageCode: langs, data: {topic: `lunch`}})
    * }
    * ```
    *
    * @public
    */
-  async renderBroadcastPoll(
-    ids: number[],
-    languageCode: string[],
-    keyboard?: IInBoKb | null,
-    data?: IData | null,
-    AGBaseId?: string | null,
-    options?: Parameters<Ctx[`replyWithPoll`]>[2] | null,
-    throwError: boolean | null = false,
-    chunkSize: number | null = null,
-    chunkDelayMs: number | null = null,
-    excludeIds: number[] | null = null,
-    onProgress?: ((done: number, total: number) => void | Promise<void>) | null,
-    startFrom?: number | null,
-    concurrency?: number | null
-  ) {
+  async renderBroadcastPoll(params: RenderBroadcastPollParams) {
+    const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
     const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: [] as Array<{index: number; id: number; error: unknown}>}
     res.totalCount = ids.length
     const limitFree = 30
@@ -4012,17 +3912,14 @@ export class Ctx extends Context {
    * observes only and never swallows, because swallowing would hide a
    * payment send failure from the caller.
    *
-   * @param keyboard - Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} (or null to omit). Only inline keyboards are accepted — the Bot API `sendInvoice` reply markup is `InlineKeyboardMarkup`.
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID position for block invoice (or null to use default).
-   * @param options - Optional extra `sendInvoice` fields; `provider_token` here is the ONLY way to supply the payment provider secret (or null to omit).
+   * @param params - Optional params object (defaults to `{}`): `keyboard` optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} (or null to omit) — only inline keyboards are accepted, the Bot API `sendInvoice` reply markup is `InlineKeyboardMarkup`; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block invoice (or null to use default); `options` optional extra `sendInvoice` fields, where `provider_token` is the ONLY way to supply the payment provider secret (or null to omit).
    * @returns The sent invoice message object.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.renderInvoice(kb, {days: 30, orderId: "o-1"})
+   *   await this.renderInvoice({keyboard: kb, data: {days: 30, orderId: "o-1"}})
    * }
    * ```
    *
@@ -4030,7 +3927,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleBuyFiat() {
    *   // Template: <g-invoice title="Pro" description="Plan" payload="{{orderId}}" currency="USD"><g-price label="Pro" amount="499"/></g-invoice>
-   *   await this.renderInvoice(null, {orderId: "o-2"}, null, {provider_token: process.env.PAYMENT_PROVIDER_TOKEN})
+   *   await this.renderInvoice({data: {orderId: "o-2"}, options: {provider_token: process.env.PAYMENT_PROVIDER_TOKEN}})
    * }
    * ```
    *
@@ -4043,7 +3940,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderInvoice(keyboard?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {provider_token?: string}) | null) {
+  async renderInvoice(params: RenderInvoiceParams = {}) {
+    const {keyboard, data, AGBaseId, options} = params
     const invoice = this.templateManager.getGInvoice(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertInvoice(invoice)
     const providerToken = options?.provider_token
@@ -4085,17 +3983,14 @@ export class Ctx extends Context {
    * observes only and never swallows, because swallowing would hide a
    * paywall send failure from the caller.
    *
-   * @param keyboard - Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID position for block paid media (or null to use default).
-   * @param options - Optional extra `sendPaidMedia` fields (or null to omit).
+   * @param params - Optional params object (defaults to `{}`): `keyboard` optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block paid media (or null to use default); `options` optional extra `sendPaidMedia` fields (or null to omit).
    * @returns The sent paid-media message object.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.renderPaidMedia(kb, {teaser: `t.jpg`, full: `v.mp4`})
+   *   await this.renderPaidMedia({keyboard: kb, data: {teaser: `t.jpg`, full: `v.mp4`}})
    * }
    * ```
    *
@@ -4103,13 +3998,14 @@ export class Ctx extends Context {
    * ```typescript
    * async handleBuyContent() {
    *   // Template: <g-paid-media stars="100"><g-media type="photo" src="{{teaser}}">Bayar untuk membuka</g-media></g-paid-media>
-   *   await this.renderPaidMedia(null, {teaser: `teaser.jpg`})
+   *   await this.renderPaidMedia({data: {teaser: `teaser.jpg`}})
    * }
    * ```
    *
    * @public
    */
-  async renderPaidMedia(keyboard?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null) {
+  async renderPaidMedia(params: RenderPaidMediaParams = {}) {
+    const {keyboard, data, AGBaseId, options} = params
     const paidMedia = this.templateManager.getGPaidMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertPaidMedia(paidMedia)
     const media = paidMedia.media.map((item) => ({
@@ -4232,11 +4128,8 @@ export class Ctx extends Context {
    * Sends a photo message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
-   * @param options - Optional photo-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4247,17 +4140,15 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPhoto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null) {
-    return this.renderMedia(`photo`, keyboard, data, AGBaseId, options)
+  async renderPhoto(params: RenderMediaKindParams<`photo`> = {}) {
+    return this.renderMedia<`photo`>({type: `photo`, ...params})
   }
 
   /**
    * Sends a photo media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media>` (read via `renderMediaGroup`).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
-   * @param options - Optional photo-specific options (or null to omit).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4269,19 +4160,16 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPhotoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null) {
-    return this.renderMediaGroup(`photo`, data, AGBaseId, options)
+  async renderPhotoGroup(params: RenderMediaGroupKindParams = {}) {
+    return this.renderMediaGroup({...params, type: `photo`})
   }
 
   /**
    * Sends a video message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
-   * @param options - Optional video-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4292,17 +4180,15 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideo(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null) {
-    return this.renderMedia(`video`, keyboard, data, AGBaseId, options)
+  async renderVideo(params: RenderMediaKindParams<`video`> = {}) {
+    return this.renderMedia<`video`>({type: `video`, ...params})
   }
 
   /**
    * Sends a video media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media>` (read via `renderMediaGroup`).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
-   * @param options - Optional video-specific options (or null to omit).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4314,19 +4200,16 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null) {
-    return this.renderMediaGroup(`video`, data, AGBaseId, options)
+  async renderVideoGroup(params: RenderMediaGroupKindParams = {}) {
+    return this.renderMediaGroup({...params, type: `video`})
   }
 
   /**
    * Sends an audio message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
-   * @param options - Optional audio-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4337,17 +4220,15 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAudio(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null) {
-    return this.renderMedia(`audio`, keyboard, data, AGBaseId, options)
+  async renderAudio(params: RenderMediaKindParams<`audio`> = {}) {
+    return this.renderMedia<`audio`>({type: `audio`, ...params})
   }
 
   /**
    * Sends an audio media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media>` (read via `renderMediaGroup`).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
-   * @param options - Optional audio-specific options (or null to omit).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4359,19 +4240,16 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAudioGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null) {
-    return this.renderMediaGroup(`audio`, data, AGBaseId, options)
+  async renderAudioGroup(params: RenderMediaGroupKindParams = {}) {
+    return this.renderMediaGroup({...params, type: `audio`})
   }
 
   /**
    * Sends a document message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
-   * @param options - Optional document-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4382,17 +4260,15 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderDocument(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null) {
-    return this.renderMedia(`document`, keyboard, data, AGBaseId, options)
+  async renderDocument(params: RenderMediaKindParams<`document`> = {}) {
+    return this.renderMedia<`document`>({type: `document`, ...params})
   }
 
   /**
    * Sends a document media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media>` (read via `renderMediaGroup`).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
-   * @param options - Optional document-specific options (or null to omit).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4404,19 +4280,16 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderDocumentGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null) {
-    return this.renderMediaGroup(`document`, data, AGBaseId, options)
+  async renderDocumentGroup(params: RenderMediaGroupKindParams = {}) {
+    return this.renderMediaGroup({...params, type: `document`})
   }
 
   /**
    * Sends an animation/GIF message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).
-   * @param options - Optional animation-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type animation (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional animation-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4427,19 +4300,16 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAnimation(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAnimation | null) {
-    return this.renderMedia(`animation`, keyboard, data, AGBaseId, options)
+  async renderAnimation(params: RenderMediaKindParams<`animation`> = {}) {
+    return this.renderMedia<`animation`>({type: `animation`, ...params})
   }
 
   /**
    * Sends a voice message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).
-   * @param options - Optional voice-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type voice (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional voice-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4450,19 +4320,16 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVoice(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVoice | null) {
-    return this.renderMedia(`voice`, keyboard, data, AGBaseId, options)
+  async renderVoice(params: RenderMediaKindParams<`voice`> = {}) {
+    return this.renderMedia<`voice`>({type: `voice`, ...params})
   }
 
   /**
    * Sends a video note (circular video) using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).
-   * @param options - Optional video note-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video_note (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video note-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4473,19 +4340,16 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideoNote(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideoNote | null) {
-    return this.renderMedia(`video_note`, keyboard, data, AGBaseId, options)
+  async renderVideoNote(params: RenderMediaKindParams<`video_note`> = {}) {
+    return this.renderMedia<`video_note`>({type: `video_note`, ...params})
   }
 
   /**
    * Sends a sticker using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).
-   * @param options - Optional sticker-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type sticker (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional sticker-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4496,8 +4360,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderSticker(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplySticker | null) {
-    return this.renderMedia(`sticker`, keyboard, data, AGBaseId, options)
+  async renderSticker(params: RenderMediaKindParams<`sticker`> = {}) {
+    return this.renderMedia<`sticker`>({type: `sticker`, ...params})
   }
 
   /**
@@ -4509,11 +4373,8 @@ export class Ctx extends Context {
    * (seconds), it is validated by `Ctx.assertLivePeriod` and sent as Bot API
    * `live_period`. Stop it later with {@link (Ctx:class).stopLiveLocation}.
    *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).
-   * @param options - Optional location-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type location (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional location-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4524,19 +4385,16 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderLocation(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyLocation | null) {
-    return this.renderMedia(`location`, keyboard, data, AGBaseId, options)
+  async renderLocation(params: RenderMediaKindParams<`location`> = {}) {
+    return this.renderMedia<`location`>({type: `location`, ...params})
   }
 
   /**
    * Sends a contact using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).
-   * @param options - Optional contact-specific options (or null to omit).
-   * @returns The sent message object.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type contact (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional contact-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
@@ -4547,8 +4405,8 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderContact(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyContact | null) {
-    return this.renderMedia(`contact`, keyboard, data, AGBaseId, options)
+  async renderContact(params: RenderMediaKindParams<`contact`> = {}) {
+    return this.renderMedia<`contact`>({type: `contact`, ...params})
   }
 
   /**
@@ -4594,17 +4452,14 @@ export class Ctx extends Context {
    * There is no degraded fallback content for venues, so after notify+log
    * the original error is ALWAYS rethrown untouched.
    *
-   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID position for block venue (or null to use default).
-   * @param options - Optional extra `sendVenue` fields such as `foursquare_id` (or null to omit).
+   * @param params - Optional params object (defaults to `{}`): `keyboard` optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block venue (or null to use default); `options` optional extra `sendVenue` fields such as `foursquare_id` (or null to omit).
    * @returns The sent venue message object.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.renderVenue(kb, {name: `Cafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`})
+   *   await this.renderVenue({keyboard: kb, data: {name: `Cafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`}})
    * }
    * ```
    *
@@ -4612,13 +4467,14 @@ export class Ctx extends Context {
    * ```typescript
    * async handleVenueId() {
    *   // Template: <g-base id="promo"><g-venue lang="id" title="{{name}}" address="{{street}}" latitude="{{lat}}" longitude="{{long}}"/></g-base>
-   *   await this.renderVenue(null, {name: `Kafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`}, `promo`)
+   *   await this.renderVenue({data: {name: `Kafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`}, AGBaseId: `promo`})
    * }
    * ```
    *
    * @public
    */
-  async renderVenue(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithVenue`]>[4] | null) {
+  async renderVenue(params: RenderVenueParams = {}) {
+    const {keyboard, data, AGBaseId, options} = params
     const venue = this.templateManager.getGVenue(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const checked = Ctx.assertVenue(venue)
     try {
@@ -4653,17 +4509,14 @@ export class Ctx extends Context {
    * There is no degraded fallback content for dice, so after notify+log
    * the original error is ALWAYS rethrown untouched.
    *
-   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID position for block dice (or null to use default).
-   * @param options - Optional extra `sendDice` fields (or null to omit).
+   * @param params - Optional params object (defaults to `{}`): `keyboard` optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block dice (or null to use default); `options` optional extra `sendDice` fields (or null to omit).
    * @returns The sent dice message object.
    *
    * @example
    * ```typescript
    * async handleCallbackQueryData() {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.renderDice(kb, {dice: `🎯`})
+   *   await this.renderDice({keyboard: kb, data: {dice: `🎯`}})
    * }
    * ```
    *
@@ -4671,13 +4524,14 @@ export class Ctx extends Context {
    * ```typescript
    * async handleLuckyRoll() {
    *   // Template: <g-base><g-dice emoji="{{dice}}"/></g-base>
-   *   await this.renderDice(null, {dice: `🏀`})
+   *   await this.renderDice({data: {dice: `🏀`}})
    * }
    * ```
    *
    * @public
    */
-  async renderDice(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithDice`]>[1] | null) {
+  async renderDice(params: RenderDiceParams = {}) {
+    const {keyboard, data, AGBaseId, options} = params
     const dice = this.templateManager.getGDice(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const resolved = Ctx.assertDiceEmoji(dice.emoji)
     try {
@@ -4948,483 +4802,6 @@ export class Ctx extends Context {
   }
 
   /**
-   * Sends or edits a message using the page template, auto-selecting
-   * between {@link (Ctx:class).render} and {@link (Ctx:class).renderEdit} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-message>` (read via `renderEdit/render`).
-   * @remarks
-   * When a callback query is present, delegates to `renderEdit` (inline keyboard only).
-   * Otherwise, delegates to `render` (inline or bottom keyboard).
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template base ID position for block message (or null to use default).
-   * @param options - Optional reply/edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   // Auto-detect: callbackQuery exists → renderEdit
-   *   await this.renderAuto(kb, {status: "updated"})
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEdit | IOptReply | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    const edit = !!this.callbackQuery
-    if (edit) {
-      return await this.renderEdit(keyboard as IInlineKb, data, AGBaseId, options as IOptEdit, fallbackEdit)
-    }
-    return await this.render(keyboard, data, AGBaseId, options as IOptReply)
-  }
-
-  /**
-   * Sends or edits a media message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderMedia} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia/renderMedia`).
-   * @typeParam T - The media type (photo, video, audio, etc.)
-   * @param type - The media type.
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
-   * @param options1 - Type-specific media options (or null to omit).
-   * @param options2 - Additional edit options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @public
-   */
-  async renderAutoMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(
-    type: T,
-    keyboard?: IInBoKb | null,
-    data?: IData | null,
-    AGBaseId?: string | null,
-    options1?:
-      | (T extends `photo`
-          ? IOptReplyPhoto
-          : T extends `video`
-            ? IOptReplyVideo
-            : T extends `audio`
-              ? IOptReplyAudio
-              : T extends `document`
-                ? IOptReplyDocument
-                : T extends `animation`
-                  ? IOptReplyAnimation
-                  : T extends `voice`
-                    ? IOptReplyVoice
-                    : T extends `video_note`
-                      ? IOptReplyVideoNote
-                      : T extends `sticker`
-                        ? IOptReplySticker
-                        : T extends `location`
-                          ? IOptReplyLocation
-                          : T extends `contact`
-                            ? IOptReplyContact
-                            : undefined)
-      | null,
-    options2?: IOptEditMedia2 | null,
-    fallbackEdit: IOptFallbackEdit = `delete-reply`
-  ) {
-    const edit = !!this.callbackQuery
-    if (edit) {
-      return await this.renderEditMedia(type, keyboard as IInlineKb, data, AGBaseId, options1 as never, options2, fallbackEdit)
-    }
-    return await this.renderMedia(type, keyboard, data, AGBaseId, options1)
-  }
-
-  /**
-   * Sends or edits a media group message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderMediaGroup} and {@link (Ctx:class).renderEditMediaGroup} based on
-   * `!!this.callbackQuery`.
-   *
-   * @param type - Optional media group type (or null for all items in `<g-media-group>`).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
-   * @param options - Optional media-group send options (or null to omit).
-   * @returns The sent media group messages.
-   *
-   * @public
-   */
-  async renderAutoMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null) {
-    const edit = !!this.callbackQuery
-    if (edit) {
-      return await this.renderEditMediaGroup(type, data, AGBaseId, options)
-    }
-    return await this.renderMediaGroup(type, data, AGBaseId, options)
-  }
-
-  /**
-   * Sends or edits a photo message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderPhoto} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
-   * @param options1 - Optional photo-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderPhotoAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderPhotoAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyPhoto | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`photo`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Sends or edits a video message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderVideo} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
-   * @param options1 - Optional video-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderVideoAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderVideoAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyVideo | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`video`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Sends or edits an audio message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderAudio} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
-   * @param options1 - Optional audio-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderAudioAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderAudioAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyAudio | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`audio`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Sends or edits a document message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderDocument} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
-   * @param options1 - Optional document-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderDocumentAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderDocumentAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyDocument | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`document`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Sends or edits an animation/GIF message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderAnimation} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).
-   * @param options1 - Optional animation-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderAnimationAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderAnimationAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyAnimation | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`animation`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Sends or edits a voice message using the page template, auto-selecting
-   * between {@link (Ctx:class).renderVoice} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).
-   * @param options1 - Optional voice-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderVoiceAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderVoiceAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyVoice | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`voice`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Sends or edits a video note (circular video) using the page template, auto-selecting
-   * between {@link (Ctx:class).renderVideoNote} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).
-   * @param options1 - Optional video note-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderVideoNoteAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderVideoNoteAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyVideoNote | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`video_note`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Sends or edits a sticker using the page template, auto-selecting
-   * between {@link (Ctx:class).renderSticker} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).
-   * @param options1 - Optional sticker-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderStickerAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderStickerAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplySticker | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`sticker`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Sends or edits a location using the page template, auto-selecting
-   * between {@link (Ctx:class).renderLocation} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).
-   * @param options1 - Optional location-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderLocationAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderLocationAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyLocation | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`location`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Sends or edits a contact using the page template, auto-selecting
-   * between {@link (Ctx:class).renderContact} and {@link (Ctx:class).renderEditMedia} based on
-   * `!!this.callbackQuery`.
-   *
-   * Template block: `<g-media>` (read via `renderAutoMedia`).
-   * @remarks
-   * Callback-query updates edit in place while plain messages reply.
-   *
-   * @param keyboard - Optional keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).
-   * @param options1 - Optional contact-specific options (or null to omit).
-   * @param options2 - Optional edit-specific options (or null to omit, send-only).
-   * @param fallbackEdit - Fallback when the edit fails:
-   *                        `delete-reply` (default) deletes the original message and sends a new one; `reply` sends without deleting; `disable` rethrows.
-   * @returns The sent or edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   await this.renderContactAuto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderContactAuto(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptReplyContact | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderAutoMedia(`contact`, keyboard, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Edits an existing message text using the page template.
-   *
-   * Template block: `<g-message>` (read via `getGMessage`).
-   * @remarks
-   * If editing fails (e.g., message too old), the fallback behavior is controlled
-   * by `fallbackEdit` (default `delete-reply`: deletes the original message and
-   * sends a new one — the result looks like an in-place edit).
-   *
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).
-   * @param options - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.renderEdit(kb, {status: "updated"}) // will edit message
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEdit(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEdit | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    try {
-      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-      return await this.editMessageText(msg, {
-        parse_mode: `HTML`,
-        reply_markup: keyboardInline ?? undefined,
-        ...(options ?? {})
-      })
-    } catch (error) {
-      if (fallbackEdit === `disable`) {
-        throw error
-      }
-      this.log?.warn(`renderEdit fallback reply for page "${this.sendPageName()}"`)
-      if (fallbackEdit === `delete-reply`) {
-        try {
-          await this.deleteMessage()
-        } catch {
-          // delete failure (e.g. already deleted) must not block the fallback reply
-        }
-      }
-      return await this.render(keyboardInline, data, AGBaseId, options)
-    }
-  }
-
-  /**
    * Edits a media message caption using the page template.
    *
    * Template block: `<g-message + g-keyboard>` (read via `getGMessage/getGKeyboard`).
@@ -5433,27 +4810,22 @@ export class Ctx extends Context {
    * sent via `editMessageCaption`. Fallback modes mirror `renderEdit`:
    * `delete-reply`/`reply` resend the caption as plain text, `disable` throws.
    *
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position for block message.
-   * @param options - Optional abort signal for the edit call (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
+   * @param params - Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.renderEditCaption(undefined, undefined, `photo-card`)
+   *   await this.renderEditCaption({AGBaseId: `photo-card`})
    * }
    * ```
    *
    * @public
    */
-  async renderEditCaption(keyboardInline: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptEditCaption | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
+  async renderEditCaption(params: RenderEditCaptionParams) {
+    const {keyboardInline, data, AGBaseId, options, fallbackEdit = `delete-reply`} = params
     try {
-      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
       return await this.editMessageCaption(
         {
           caption: msg,
@@ -5475,7 +4847,7 @@ export class Ctx extends Context {
           // delete failure (e.g. already deleted) must not block the fallback reply
         }
       }
-      return await this.render(keyboardInline, data, AGBaseId)
+      return await this.renderText({keyboard: keyboardInline, data, AGBaseId, mode: `reply`})
     }
   }
 
@@ -5490,26 +4862,24 @@ export class Ctx extends Context {
    * send-fallback (nothing new to send): failures are classified via
    * `Ctx.classifySendError`, reported to `notifySendError`, logged, rethrown.
    *
-   * @param keyboardInline - Optional inline keyboard markup, or null to resolve it from the block.
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Template base ID position for block keyboard.
-   * @param options - Optional abort signal for the edit call (or null to omit).
+   * @param params - Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block keyboard (required); `options` optional abort signal for the edit call (or null to omit).
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.renderEditKeyboard(null, undefined, `photo-card`)
+   *   await this.renderEditKeyboard({keyboardInline: null, AGBaseId: `photo-card`})
    * }
    * ```
    *
    * @public
    */
-  async renderEditKeyboard(keyboardInline: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptEditKeyboard | null) {
+  async renderEditKeyboard(params: RenderEditKeyboardParams) {
+    const {keyboardInline, data, AGBaseId, options} = params
     try {
       let resolved = keyboardInline ?? undefined
       if (resolved === undefined) {
-        const labels = this.templateManager.getGKeyboard(this.data.name, AGBaseId, this.from?.language_code, `inline`, data ?? undefined)
+        const labels = this.templateManager.getGKeyboard(this.data.name, AGBaseId, this.from?.language_code, `inline`, data ?? undefined).rows
         if (labels.length > 0) {
           const built = new InlineKeyboard()
           for (const label of labels) built.text(label, label)
@@ -5532,554 +4902,6 @@ export class Ctx extends Context {
       this.log?.warn(`keyboard edit fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
       throw error
     }
-  }
-
-  /**
-   * Edits an existing media message with dynamic type selection.
-   *
-   * Template block: `<g-media>` (read via `getGMedia`).
-   * @remarks
-   * For media types that cannot be edited (voice, video_note, sticker, location, contact),
-   * the original message is deleted and a new one is sent. Multi-src media groups cannot
-   * replace a single message, so supported pipe-delimited media groups also delete the
-   * original message and send a new media group.
-   *
-   * If the edit itself fails, the fallback behavior is controlled by `fallbackEdit`
-   * (default `delete-reply`: deletes the original message and re-sends the same media —
-   * the result looks like an in-place edit). The fallback re-send drops `options1`/
-   * `options2` (edit options do not map to reply options) and logs a `log.warn`
-   * when non-empty options are dropped; the re-send itself follows
-   * `Ctx.classifySendError` via `renderMedia` (`retryable` rethrows the
-   * original error untouched, `fallback-text` replies with fallback text).
-   * Fail-fast validation runs BEFORE any API call — programmer errors always
-   * throw, never fall back.
-   *
-   * @typeParam T - The media type to edit to.
-   * @param type - The media type.
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
-   * @param options1 - Type-specific media options (or null to omit).
-   * @param options2 - Additional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then re-sends the media; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The edited/sent message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditMedia("photo")
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(
-    type: T,
-    keyboardInline?: IInlineKb | null,
-    data?: IData | null,
-    AGBaseId?: string | null,
-    options1?:
-      | (T extends `voice`
-          ? IOptReplyVoice
-          : T extends `video_note`
-            ? IOptReplyVideoNote
-            : T extends `sticker`
-              ? IOptReplySticker
-              : T extends `location`
-                ? IOptReplyLocation
-                : T extends `contact`
-                  ? IOptReplyContact
-                  : //
-                    IOptEditMedia1)
-      | null,
-    options2?: IOptEditMedia2 | null,
-    fallbackEdit: IOptFallbackEdit = `delete-reply`
-  ) {
-    const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-    Ctx.assertMediaPreconditions(type, med)
-    let coords: {latitude: number; longitude: number} | undefined
-    if (type === `location`) coords = Ctx.assertLocation(med.latitude, med.longitude)
-    if (type === `contact`) Ctx.assertContact(med.phone, med.first_name)
-    try {
-      const {src, caption} = med
-      const medFilename = med.filename
-      if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
-        await this.deleteMessage()
-        return await this.renderMediaGroup(type, data, AGBaseId)
-      }
-      const commonOpt = {reply_markup: keyboardInline ?? undefined, ...(options1 ?? {})} as Record<string, unknown>
-      if (type === `voice`) {
-        await this.deleteMessage()
-        return await this.replyWithVoice(this.resolveMedia(src, medFilename), commonOpt)
-      }
-      if (type === `video_note`) {
-        await this.deleteMessage()
-        return await this.replyWithVideoNote(this.resolveMedia(src, medFilename), commonOpt)
-      }
-      if (type === `sticker`) {
-        await this.deleteMessage()
-        return await this.replyWithSticker(this.resolveMedia(src, medFilename), commonOpt)
-      }
-      if (type === `location`) {
-        await this.deleteMessage()
-        return await this.replyWithLocation(coords!.latitude, coords!.longitude, commonOpt)
-      }
-      if (type === `contact`) {
-        await this.deleteMessage()
-        return await this.replyWithContact(med.phone as string, med.first_name as string, {vcard: med.vcard!, ...commonOpt})
-      }
-
-      return await this.editMessageMedia(
-        {
-          media: this.resolveMedia(src, medFilename),
-          caption,
-          type,
-          parse_mode: `HTML`,
-          ...(options1 ?? {})
-        },
-        {reply_markup: keyboardInline ?? undefined, ...(options2 ?? {})}
-      )
-    } catch (error) {
-      if (fallbackEdit === `disable`) {
-        throw error
-      }
-      if ((options1 !== null && options1 !== undefined && Object.keys(options1).length > 0) || (options2 !== null && options2 !== undefined && Object.keys(options2).length > 0)) {
-        this.log?.warn(`renderEditMedia fallback drops edit options (options1/options2 do not map to reply options)`)
-      }
-      this.log?.warn(`renderEditMedia fallback re-send for page "${this.sendPageName()}"`)
-      if (fallbackEdit === `delete-reply`) {
-        try {
-          await this.deleteMessage()
-        } catch {
-          // delete failure (e.g. already deleted) must not block the fallback reply
-        }
-      }
-      return await this.renderMedia(type, keyboardInline, data, AGBaseId)
-    }
-  }
-
-  /**
-   * Edits an existing message to show a photo.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
-   * @param options1 - Optional media options (or null to omit).
-   * @param options2 - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditPhoto()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditPhoto(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`photo`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Edits an existing message to show a video.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
-   * @param options1 - Optional media options (or null to omit).
-   * @param options2 - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditVideo()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditVideo(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`video`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Edits an existing message to show an audio.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
-   * @param options1 - Optional media options (or null to omit).
-   * @param options2 - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditAudio()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditAudio(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`audio`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Edits an existing message to show a document.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
-   * @param options1 - Optional media options (or null to omit).
-   * @param options2 - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditDocument()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditDocument(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`document`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Replaces the current message with a media group filtered by the given type.
-   *
-   * @remarks
-   * Deletes the original message and sends a new media group via `replyMediaGroup`.
-   * When `type` is omitted or `undefined`, all items in the `<g-media-group>` are sent.
-   * For a hardcoded type, use the convenience methods (`editPhotoGroup`, `editVideoGroup`, etc.).
-   * If the delete-and-send fails, the fallback behavior is controlled by
-   * `fallbackEdit` with identical semantics to `renderEditMedia` (`delete-reply`
-   * retries the delete then re-sends; `reply` re-sends without deleting;
-   * `disable` rethrows). The re-send follows `Ctx.classifySendError` via
-   * `renderMediaGroup`. Fail-fast validation runs BEFORE any API call.
-   *
-   * @param type - Optional media type filter. All items sent when omitted.
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
-   * @param options - Optional media-agnostic options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent media group messages.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   // send only photos
-   *   await this.renderEditMediaGroup("photo")
-   * }
-   *
-   * async handleShowAll() {
-   *   // send all media-group items
-   *   await this.renderEditMediaGroup()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    try {
-      try {
-        await this.deleteMessage()
-      } catch {
-        // delete failure (e.g. already deleted) must not block sending the media group
-      }
-      return await this.renderMediaGroup(type, data, AGBaseId, options)
-    } catch (error) {
-      if (fallbackEdit === `disable`) {
-        throw error
-      }
-      this.log?.warn(`renderEditMediaGroup fallback re-send for page "${this.sendPageName()}"`)
-      if (fallbackEdit === `delete-reply`) {
-        try {
-          await this.deleteMessage()
-        } catch {
-          // delete failure (e.g. already deleted) must not block the fallback reply
-        }
-      }
-      return await this.renderMediaGroup(type, data, AGBaseId, options)
-    }
-  }
-
-  /**
-   * Replaces the current message with a photo media group.
-   *
-   * Template block: `<g-media>` (read via `renderEditMediaGroup`).
-   * @remarks
-   * Deletes the original message and sends a new media group via `replyMediaGroup`.
-   * Useful when the template uses pipe-delimited `src` values.
-   *
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
-   * @param options - Optional photo-specific options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent media group message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditPhotoGroup()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditPhotoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderEditMediaGroup(`photo`, data, AGBaseId, options, fallbackEdit)
-  }
-
-  /**
-   * Replaces the current message with a video media group.
-   *
-   * Template block: `<g-media>` (read via `renderEditMediaGroup`).
-   * @remarks
-   * Deletes the original message and sends a new media group via `replyMediaGroup`.
-   * Useful when the template uses pipe-delimited `src` values.
-   *
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
-   * @param options - Optional video-specific options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent media group message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditVideoGroup()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditVideoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderEditMediaGroup(`video`, data, AGBaseId, options, fallbackEdit)
-  }
-
-  /**
-   * Replaces the current message with an audio media group.
-   *
-   * Template block: `<g-media>` (read via `renderEditMediaGroup`).
-   * @remarks
-   * Deletes the original message and sends a new media group via `replyMediaGroup`.
-   * Useful when the template uses pipe-delimited `src` values.
-   *
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
-   * @param options - Optional audio-specific options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent media group message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditAudioGroup()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditAudioGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyAudio | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderEditMediaGroup(`audio`, data, AGBaseId, options, fallbackEdit)
-  }
-
-  /**
-   * Replaces the current message with a document media group.
-   *
-   * Template block: `<g-media>` (read via `renderEditMediaGroup`).
-   * @remarks
-   * Deletes the original message and sends a new media group via `replyMediaGroup`.
-   * Useful when the template uses pipe-delimited `src` values.
-   *
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
-   * @param options - Optional document-specific options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent media group message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditDocumentGroup()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditDocumentGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return this.renderEditMediaGroup(`document`, data, AGBaseId, options, fallbackEdit)
-  }
-
-  /**
-   * Edits an existing message to show an animation.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).
-   * @param options1 - Optional media options (or null to omit).
-   * @param options2 - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The edited message object.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.renderEditAnimation()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async renderEditAnimation(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options1?: IOptEditMedia1 | null, options2?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`animation`, keyboardInline, data, AGBaseId, options1, options2, fallbackEdit)
-  }
-
-  /**
-   * Replaces the current message with a voice message.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @remarks
-   * Voice messages cannot be edited in-place, so this deletes the original and sends a new one.
-   *
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).
-   * @param options - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent message object.
-   *
-   * @public
-   */
-  async renderEditVoice(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`voice`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
-  }
-
-  /**
-   * Replaces the current message with a video note.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @remarks
-   * Video notes cannot be edited in-place, so this deletes the original and sends a new one.
-   *
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).
-   * @param options - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent message object.
-   *
-   * @public
-   */
-  async renderEditVideoNote(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`video_note`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
-  }
-
-  /**
-   * Replaces the current message with a sticker.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @remarks
-   * Stickers cannot be edited in-place, so this deletes the original and sends a new one.
-   *
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).
-   * @param options - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent message object.
-   *
-   * @public
-   */
-  async renderEditSticker(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`sticker`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
-  }
-
-  /**
-   * Replaces the current message with a location.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @remarks
-   * Locations cannot be edited in-place, so this deletes the original and sends a new one.
-   *
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).
-   * @param options - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent message object.
-   *
-   * @public
-   */
-  async renderEditLocation(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`location`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
-  }
-
-  /**
-   * Replaces the current message with a contact.
-   *
-   * Template block: `<g-media>` (read via `renderEditMedia`).
-   * @remarks
-   * Contacts cannot be edited in-place, so this deletes the original and sends a new one.
-   *
-   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
-   * @param data - Optional template interpolation data (or null to omit).
-   * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).
-   * @param options - Optional edit options (or null to omit).
-   * @param fallbackEdit - Fallback when the edit fails: `delete-reply` (default) deletes
-   *                        the original message then sends a new one; `reply` sends without
-   *                        deleting; `disable` rethrows the error.
-   * @returns The sent message object.
-   *
-   * @public
-   */
-  async renderEditContact(keyboardInline?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptEditMedia2 | null, fallbackEdit: IOptFallbackEdit = `delete-reply`) {
-    return await this.renderEditMedia(`contact`, keyboardInline, data, AGBaseId, options, undefined, fallbackEdit)
   }
 
   /**
@@ -6202,7 +5024,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCallbackQueryData() {
    *   await this.clearSession()
-   *   await this.render()
+   *   await this.renderText()
    * }
    * ```
    *
@@ -6402,7 +5224,7 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCallbackQueryData() {
    *   const kb = this.bottomKeyboardT("2")
-   *   await this.render(kb)
+   *   await this.renderText({keyboard: kb})
    * }
    * ```
    *
@@ -6461,11 +5283,11 @@ export class Ctx extends Context {
    * ```typescript
    * async handleCallbackQueryData() {
    *   const kb = this.inlineKeyboardT([SettingsPage, HelpPage], "2")
-   *   await this.render(kb)
+   *   await this.renderText({keyboard: kb})
    *
    *   // Or with arg
    *   const kb = this.inlineKeyboardT([SettingsPage.data.callbackQueryData(1), HelpPage.data.callbackQueryData(`hi`)], "2")
-   *   await this.render(kb)
+   *   await this.renderText({keyboard: kb})
    *
    *   // Compare with builder for basic but not recomended because very long syntax, only use builder when needed.!
    *   this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callbackQueryData(), a[0]!).text(HelpPage.data.callbackQueryData(), a[1]!))
@@ -6516,7 +5338,7 @@ export class Ctx extends Context {
    *     labels.forEach((label, i) => k.text(label, `action:${i}`))
    *     return k
    *   })
-   *   await this.render(kb)
+   *   await this.renderText({keyboard: kb})
    * }
    * ```
    *
@@ -6529,7 +5351,7 @@ export class Ctx extends Context {
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const ikb = new GramstaxInlineKeyboard()
-        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined)
+        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined).rows
         const rkb = callback(ikb, arr)
         this.cacheKeyboard.set(key, rkb)
         return rkb
@@ -6537,7 +5359,7 @@ export class Ctx extends Context {
       return ckb as IInlineKb
     }
     const ikb = new GramstaxInlineKeyboard()
-    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined)
+    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined).rows
     const rkb = callback(ikb, arr)
     return rkb
   }
@@ -6560,7 +5382,7 @@ export class Ctx extends Context {
    *     labels.forEach(label => k.text(label))
    *     return k
    *   })
-   *   await this.render(kb)
+   *   await this.renderText({keyboard: kb})
    * }
    * ```
    *
@@ -6573,7 +5395,7 @@ export class Ctx extends Context {
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const kb = new GramstaxKeyboard()
-        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined)
+        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined).rows
         const rkb = callback(kb, arr)
         rkb.resized(true)
         this.cacheKeyboard.set(key, rkb)
@@ -6582,7 +5404,7 @@ export class Ctx extends Context {
       return ckb as IBottomKb
     }
     const kb = new GramstaxKeyboard()
-    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined)
+    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined).rows
     const rkb = callback(kb, arr)
     rkb.resized()
     return rkb
@@ -8146,7 +6968,7 @@ export class Ctx extends Context {
    * async handleCallbackQueryData() {
    *   // Set session input for `handleFreeText`
    *   await this.setSessionFreeText({data: "12345"})
-   *   await this.render()
+   *   await this.renderText()
    * }
    * ```
    *

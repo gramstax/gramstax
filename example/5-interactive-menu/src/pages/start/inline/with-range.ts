@@ -19,13 +19,13 @@ export class StartInlineWithRangePage extends PageBase {
   }
 
   helper = {
-    kb: (pageNo: number) => {
+    pageKeyboard: (pageNo: number) => {
       const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / ITEMS_PER_PAGE), 1)
       const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
       const start = safePage * ITEMS_PER_PAGE
       const end = start + ITEMS_PER_PAGE
       const items = CatalogData.menuItems.slice(start, end)
-      const kb = this.inlineKeyboard((k, l) => {
+      return this.inlineKeyboard((k, l) => {
         items.forEach((item) => {
           k.text(item.name, this.data.callbackQueryData(`item`, item.id)).row()
         })
@@ -40,7 +40,6 @@ export class StartInlineWithRangePage extends PageBase {
         }
         return k.row().text(l[3]!, StartPage)
       })
-      return kb
     },
     pageData: (pageNo: number) => {
       const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / ITEMS_PER_PAGE), 1)
@@ -51,9 +50,7 @@ export class StartInlineWithRangePage extends PageBase {
   gdefault = {
     show: async (pageNo: number) => {
       const {pageNo: currentPage, totalPages, safePage} = this.helper.pageData(pageNo)
-      const da = {pageNo: currentPage, totalPages}
-      const kb = this.helper.kb(safePage)
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.helper.pageKeyboard(safePage), data: {pageNo: currentPage, totalPages}})
     },
     process: async (action: string, value: string) => {
       if (action === `page`) {

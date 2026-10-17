@@ -14,9 +14,7 @@ export class StartPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([this])
-      const da = {time: new Date().toString()}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([this]), data: {time: new Date().toString()}})
     },
     process: () => {}
   }

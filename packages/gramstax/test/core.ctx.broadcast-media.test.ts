@@ -55,7 +55,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.renderBroadcastMedia([1, 2], [`default`, `id`])
+    await ctx.renderBroadcastMedia({ids: [1, 2], languageCode: [`default`, `id`]})
 
     expect(sendPhoto).toHaveBeenCalledTimes(2)
     expect(sendPhoto).toHaveBeenNthCalledWith(1, 1, `photo-default.jpg`, expect.objectContaining({caption: `Hello`, parse_mode: `HTML`}))
@@ -91,7 +91,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.renderBroadcastMedia([1], [`default`], new InlineKeyboard())
+    await ctx.renderBroadcastMedia({ids: [1], languageCode: [`default`], keyboard: new InlineKeyboard()})
 
     expect(sendPhoto).not.toHaveBeenCalled()
     expect(sendMediaGroup).toHaveBeenCalledTimes(1)
@@ -131,7 +131,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.renderBroadcastMedia([1], [`default`])
+    await ctx.renderBroadcastMedia({ids: [1], languageCode: [`default`]})
 
     expect(sendMediaGroup).not.toHaveBeenCalled()
     expect(sendAnimation).toHaveBeenCalledTimes(1)
@@ -166,7 +166,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.renderMediaGroup(`document`)
+    await ctx.renderMediaGroup({type: `document`})
 
     expect(replyWithDocument).not.toHaveBeenCalled()
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(1)
@@ -268,7 +268,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.renderMediaGroup(undefined, {photoUrl: `photo.jpg`, videoUrl: `video.mp4`, title: `Album`})
+    await ctx.renderMediaGroup({data: {photoUrl: `photo.jpg`, videoUrl: `video.mp4`, title: `Album`}})
 
     expect(replyWithMediaGroup.mock.calls[0]![1]).toEqual([
       {type: `photo`, media: `photo.jpg`, caption: `Mixed Album`, parse_mode: `HTML`},
@@ -309,7 +309,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
     })
 
     // Default language: only items without lang (2 items)
-    await ctxDefault.renderMediaGroup(undefined)
+    await ctxDefault.renderMediaGroup()
 
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(1)
     expect(replyWithMediaGroup.mock.calls[0]![1]).toEqual([
@@ -347,7 +347,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.renderEditMedia(`video`)
+    await ctx.renderMedia({type: `video`, mode: `edit`})
 
     expect(editMessageMedia).not.toHaveBeenCalled()
     expect(deleteMessage).toHaveBeenCalledTimes(1)
@@ -395,10 +395,10 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     }
 
-    await new PhotoGroupEditCtx(params).renderEditPhotoGroup()
-    await new VideoGroupEditCtx(params).renderEditVideoGroup()
-    await new AudioGroupEditCtx(params).renderEditAudioGroup()
-    await new DocumentGroupEditCtx(params).renderEditDocumentGroup()
+    await new PhotoGroupEditCtx(params).renderPhotoGroup({mode: `edit`})
+    await new VideoGroupEditCtx(params).renderVideoGroup({mode: `edit`})
+    await new AudioGroupEditCtx(params).renderAudioGroup({mode: `edit`})
+    await new DocumentGroupEditCtx(params).renderDocumentGroup({mode: `edit`})
 
     expect(deleteMessage).toHaveBeenCalledTimes(4)
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(4)

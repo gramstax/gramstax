@@ -33,16 +33,14 @@ export class SumNumberPage extends PageBase {
     getSessionParams: () => {
       return (this.temp.session?.params as {step?: (typeof Base)[keyof typeof Base]; left?: number} | undefined) ?? {}
     },
-    kb: (AGBaseId: string) => {
+    homeKeyboard: (AGBaseId: string) => {
       return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
     }
   }
   gleft = {
     show: async () => {
-      const bi = Base.left
-      const kb = this.helper.kb(bi)
-      await this.setSessionFreeText({step: bi})
-      await this.renderAuto(kb, {}, bi)
+      await this.setSessionFreeText({step: Base.left})
+      await this.renderText({AGBaseId: Base.left, keyboard: this.helper.homeKeyboard(Base.left)})
     },
     process: async (left: number) => {
       if (!Number.isFinite(left)) {
@@ -54,10 +52,8 @@ export class SumNumberPage extends PageBase {
   }
   gright = {
     show: async (left: number) => {
-      const bi = Base.right
-      const kb = this.helper.kb(bi)
-      await this.setSessionFreeText({step: bi, left})
-      await this.renderAuto(kb, {}, bi)
+      await this.setSessionFreeText({step: Base.right, left})
+      await this.renderText({AGBaseId: Base.right, keyboard: this.helper.homeKeyboard(Base.right)})
     },
     process: async (value: number, left: number) => {
       if (!Number.isFinite(value)) {
@@ -70,10 +66,7 @@ export class SumNumberPage extends PageBase {
   }
   gsuccess = {
     show: async (left: number, right: number) => {
-      const bi = Base.success
-      const kb = this.helper.kb(bi)
-      const da = {result: left + right}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.success, keyboard: this.helper.homeKeyboard(Base.success), data: {result: left + right}})
     },
     process: () => {}
   }

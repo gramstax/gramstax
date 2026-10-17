@@ -11,8 +11,7 @@ export class StartTestPhotoPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)])
-      await this.renderEditPhoto(kb)
+      await this.renderPhoto({keyboard: this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)]), mode: "edit"})
     },
     process: () => {}
   }

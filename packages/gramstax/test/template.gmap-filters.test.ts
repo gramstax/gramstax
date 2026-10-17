@@ -16,7 +16,7 @@ const render = (tpl: string, scope: Record<string, unknown> = data): string => {
   const manager = new TemplateManager({path: []})
   manager.compile("t", tpl)
   const fn = manager.getCompiled("t")?.message?.default?.default
-  return String(fn?.(scope as never) ?? ``)
+  return fn?.(scope as never)?.text ?? ``
 }
 
 describe(`g-map ordinal`, () => {

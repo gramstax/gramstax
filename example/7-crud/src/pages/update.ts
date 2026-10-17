@@ -29,18 +29,17 @@ export class UpdatePage extends PageBase {
   }
 
   helper = {
-    buildHomeKb: (AGBaseId: string) => {
+    buildHomeKeyboard: (AGBaseId: string) => {
       return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
     },
-    buildSItemKb: async (pageNo: number, items: IVItem[]) => {
+    buildSelectItemKeyboard: async (pageNo: number, items: IVItem[]) => {
       const allItems = await this.db.items.list(this.from!.id!)
       const totalPages = Math.max(Math.ceil(allItems.length / PAGE_SIZE), 1)
       const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
-      const bi = Base.selectItem
       return this.inlineKeyboard(
         (k, l) => {
           items.forEach((item, index) => {
-            k.text(`📝 #${item.id} ${item.title!.slice(0, 5)}..`, this.data.callbackQueryData(bi, `select`, item.id!))
+            k.text(`📝 #${item.id} ${item.title!.slice(0, 5)}..`, this.data.callbackQueryData(Base.selectItem, `select`, item.id!))
             if (index % 2 === 1) {
               k.row()
             }
@@ -48,23 +47,22 @@ export class UpdatePage extends PageBase {
 
           k.row()
           if (safePage > 0) {
-            k.text(l[0]!, this.data.callbackQueryData(bi, `page`, `${safePage - 1}`))
+            k.text(l[0]!, this.data.callbackQueryData(Base.selectItem, `page`, `${safePage - 1}`))
           }
           if (safePage < totalPages - 1) {
-            k.text(l[1]!, this.data.callbackQueryData(bi, `page`, `${safePage + 1}`))
+            k.text(l[1]!, this.data.callbackQueryData(Base.selectItem, `page`, `${safePage + 1}`))
           }
           return k.row().text(l[2]!, StartPage)
         },
-        {AGBaseId: bi}
+        {AGBaseId: Base.selectItem}
       )
     },
-    buildSStatusKb: (id: string) => {
-      const bi = Base.selectStatus
-      const b1 = this.data.callbackQueryData(bi, `todo`, id)
-      const b2 = this.data.callbackQueryData(bi, `in-progress`, id)
-      const b3 = this.data.callbackQueryData(bi, `done`, id)
+    buildSelectStatusKeyboard: (id: string) => {
+      const b1 = this.data.callbackQueryData(Base.selectStatus, `todo`, id)
+      const b2 = this.data.callbackQueryData(Base.selectStatus, `in-progress`, id)
+      const b3 = this.data.callbackQueryData(Base.selectStatus, `done`, id)
       const b4 = StartPage
-      return this.inlineKeyboardT([b1, b2, b3, b4], `3-1`, bi)
+      return this.inlineKeyboardT([b1, b2, b3, b4], `3-1`, Base.selectStatus)
     }
   }
   gselectItem = {
@@ -79,10 +77,7 @@ export class UpdatePage extends PageBase {
         return await this.ginfoEmpty.show()
       }
 
-      const bi = Base.selectItem
-      const da = {count: allItems.length, pageNo: safePage + 1, totalPages}
-      const kb = await this.helper.buildSItemKb(safePage, items)
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.selectItem, keyboard: await this.helper.buildSelectItemKeyboard(safePage, items), data: {count: allItems.length, pageNo: safePage + 1, totalPages}})
     },
     process: async (type: string, idOrPage: string) => {
       if (type === `page`) {
@@ -99,10 +94,7 @@ export class UpdatePage extends PageBase {
   }
   gselectStatus = {
     show: async (item: IVItem) => {
-      const bi = Base.selectStatus
-      const kb = this.helper.buildSStatusKb(item.id!)
-      const da = {id: item.id, title: item.title, status: item.status}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.selectStatus, keyboard: this.helper.buildSelectStatusKeyboard(item.id!), data: {id: item.id, title: item.title, status: item.status}})
     },
     process: async (status: IVItem[`status`], id: string) => {
       const item = await this.db.items.fetch(this.from!.id, id)
@@ -120,27 +112,19 @@ export class UpdatePage extends PageBase {
   }
   ginfoNotFound = {
     show: async (id: string) => {
-      const bi = Base.infoNotFound
-      const kb = this.helper.buildHomeKb(bi)
-      const da = {id}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.infoNotFound, keyboard: this.helper.buildHomeKeyboard(Base.infoNotFound), data: {id}})
     },
     process: () => {}
   }
   ginfoEmpty = {
     show: async () => {
-      const bi = Base.infoEmpty
-      const kb = this.helper.buildHomeKb(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.infoEmpty, keyboard: this.helper.buildHomeKeyboard(Base.infoEmpty)})
     },
     process: () => {}
   }
   gsuccess = {
     show: async (id: string, status: string) => {
-      const bi = Base.success
-      const kb = this.helper.buildHomeKb(bi)
-      const da = {id, status}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.success, keyboard: this.helper.buildHomeKeyboard(Base.success), data: {id, status}})
     },
     process: () => {}
   }

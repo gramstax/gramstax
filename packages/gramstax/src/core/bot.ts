@@ -31,7 +31,7 @@ import {PageManager} from "~/page/manager"
 import {TemplateManager} from "~/template/manager"
 import type {IGramstaxCtxScope, IGramstaxParams, IUpdateErrorEvent, IUpdateQueueConfig, IUpdateSuccessEvent} from "~/types/bot"
 import type {ICacheRpc} from "~/types/cache"
-import {GRAMSTAX_SERVERLESS_ADAPTERS} from "~/types/config"
+import {GRAMSTAX_DEPLOY_MODE_SET, GRAMSTAX_SERVERLESS_ADAPTERS} from "~/types/config"
 import type {ICt, ICtMiddleware, ICtxParams, ISendErrorHook} from "~/types/ctx"
 import type {IAppManifest} from "~/types/manifest"
 import type {IRedisLockClient} from "~/types/session-lock"
@@ -897,8 +897,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (typeof params.deploy === `string` && params.deploy.includes(`:`)) {
       throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test with optionsDeploy {webhook, serverless, polling, raw, test} (legacy colon forms are removed, got "${params.deploy}")`)
     }
-    const modes = [`polling`, `webhook`, `serverless`, `raw`, `test`]
-    if (modes.includes(params.deploy) === false) {
+    if (GRAMSTAX_DEPLOY_MODE_SET.has(params.deploy) === false) {
       throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test (got "${params.deploy}")`)
     }
     const isNonEmptyBranch = (branch: unknown): boolean => {
@@ -1388,7 +1387,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @example
    * ```typescript
    * async hookRateLimited(ctx: Ctx) {
-   *   await ctx.render(`please-wait`)
+   *   await ctx.renderText()
    * }
    * ```
    *
@@ -2350,7 +2349,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         for (const [, page] of Object.entries(allCommands)) {
           const name = page.name
           // Use getDescription which handles fallback logic
-          const desc = this.templateManager.getGDescription(name, `default`, lang, scope)
+          const {text: desc} = this.templateManager.getGDescription(name, `default`, lang, scope)
           if (desc) {
             commands.push({command: name, description: desc})
           }

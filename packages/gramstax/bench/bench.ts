@@ -83,7 +83,7 @@ async function roleBot(): Promise<void> {
     static template = `<g-base><g-message>pong {{echo}}</g-message></g-base>`
 
     async handleFreeText(): Promise<void> {
-      await this.render(null, {echo: this.msg?.text ?? `empty`})
+      await this.renderText({data: {echo: this.msg?.text ?? `empty`}})
     }
   }
 

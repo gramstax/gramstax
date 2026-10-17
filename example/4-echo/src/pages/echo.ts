@@ -69,14 +69,11 @@ export class EchoPage extends PageBase {
   }
 
   helper = {
-    kbIndex: () => this.inlineKeyboardT([StartPage], `1`, Base.index)
+    indexKeyboard: () => this.inlineKeyboardT([StartPage], `1`, Base.index)
   }
   gindex = {
     show: async () => {
-      const bi = Base.index
-      const kb = this.helper.kbIndex()
-      const da = {}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.index, keyboard: this.helper.indexKeyboard()})
     },
     process: () => {}
   }
@@ -87,10 +84,7 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = this.helper.kbIndex()
-      const da = {text}
-      const bi = Base.ftext
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.ftext, keyboard: this.helper.indexKeyboard(), data: {text}})
     },
     process: () => {}
   }
@@ -103,10 +97,7 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = this.helper.kbIndex()
-      const da = {caption, fileId: fileIdLargest}
-      const bi = Base.fphoto
-      await this.renderPhoto(kb, da, bi)
+      await this.renderPhoto({AGBaseId: Base.fphoto, keyboard: this.helper.indexKeyboard(), data: {caption, fileId: fileIdLargest}})
     },
     process: () => {}
   }
@@ -118,10 +109,7 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = this.helper.kbIndex()
-      const da = {caption, fileId}
-      const bi = Base.fvideo
-      await this.renderVideo(kb, da, bi)
+      await this.renderVideo({AGBaseId: Base.fvideo, keyboard: this.helper.indexKeyboard(), data: {caption, fileId}})
     },
     process: () => {}
   }
@@ -133,10 +121,7 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = this.helper.kbIndex()
-      const da = {caption, fileId}
-      const bi = Base.faudio
-      await this.renderAudio(kb, da, bi)
+      await this.renderAudio({AGBaseId: Base.faudio, keyboard: this.helper.indexKeyboard(), data: {caption, fileId}})
     },
     process: () => {}
   }
@@ -148,10 +133,7 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = this.helper.kbIndex()
-      const da = {caption, fileId}
-      const bi = Base.fdocument
-      await this.renderDocument(kb, da, bi)
+      await this.renderDocument({AGBaseId: Base.fdocument, keyboard: this.helper.indexKeyboard(), data: {caption, fileId}})
     },
     process: () => {}
   }
@@ -163,10 +145,7 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = this.helper.kbIndex()
-      const da = {caption, fileId}
-      const bi = Base.fanimation
-      await this.renderAnimation(kb, da, bi)
+      await this.renderAnimation({AGBaseId: Base.fanimation, keyboard: this.helper.indexKeyboard(), data: {caption, fileId}})
     },
     process: () => {}
   }
@@ -178,10 +157,7 @@ export class EchoPage extends PageBase {
         return null
       }
 
-      const kb = this.helper.kbIndex()
-      const da = {caption, fileId}
-      const bi = Base.fvoice
-      await this.renderVoice(kb, da, bi)
+      await this.renderVoice({AGBaseId: Base.fvoice, keyboard: this.helper.indexKeyboard(), data: {caption, fileId}})
     },
     process: () => {}
   }
@@ -189,10 +165,7 @@ export class EchoPage extends PageBase {
     show: async () => {
       // not support caption
       const fileId = this.msg!.video_note!.file_id
-      const kb = this.helper.kbIndex()
-      const da = {fileId}
-      const bi = Base.fvideoNote
-      await this.renderVideoNote(kb, da, bi)
+      await this.renderVideoNote({AGBaseId: Base.fvideoNote, keyboard: this.helper.indexKeyboard(), data: {fileId}})
     },
     process: () => {}
   }
@@ -200,10 +173,7 @@ export class EchoPage extends PageBase {
     show: async () => {
       // not support caption
       const fileId = this.msg!.sticker!.file_id
-      const kb = this.helper.kbIndex()
-      const da = {fileId}
-      const bi = Base.fsticker
-      await this.renderSticker(kb, da, bi)
+      await this.renderSticker({AGBaseId: Base.fsticker, keyboard: this.helper.indexKeyboard(), data: {fileId}})
     },
     process: () => {}
   }
@@ -211,10 +181,7 @@ export class EchoPage extends PageBase {
     show: async () => {
       // not support caption
       const {latitude, longitude} = this.msg!.location!
-      const kb = this.helper.kbIndex()
-      const da = {latitude, longitude}
-      const bi = Base.flocation
-      await this.renderLocation(kb, da, bi)
+      await this.renderLocation({AGBaseId: Base.flocation, keyboard: this.helper.indexKeyboard(), data: {latitude, longitude}})
     },
     process: () => {}
   }
@@ -222,10 +189,7 @@ export class EchoPage extends PageBase {
     show: async () => {
       // not support caption
       const {first_name, last_name, phone_number, user_id, vcard} = this.msg!.contact!
-      const kb = this.helper.kbIndex()
-      const da = {first_name, last_name, phone_number, user_id, vcard}
-      const bi = Base.fcontact
-      await this.renderContact(kb, da, bi)
+      await this.renderContact({AGBaseId: Base.fcontact, keyboard: this.helper.indexKeyboard(), data: {first_name, last_name, phone_number, user_id, vcard}})
     },
     process: () => {}
   }

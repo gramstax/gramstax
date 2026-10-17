@@ -11,9 +11,7 @@ export class StartRandomNumberPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([this, StartRandomPage], `2`)
-      const da = {result: Math.random() * 10 ** 18}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([this, StartRandomPage], `2`), data: {result: Math.random() * 10 ** 18}})
     },
     process: () => {}
   }

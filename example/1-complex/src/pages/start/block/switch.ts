@@ -16,9 +16,7 @@ export class StartBlockSwitchPage extends PageBase {
   helper = {}
   gdefault = {
     show: async (status: string) => {
-      const da = {status}
-      const kb = this.inlineKeyboardT([this.data.callbackQueryData(status === `1` ? `0` : `1`), StartPage], `1`, null, da)
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([this.data.callbackQueryData(status === `1` ? `0` : `1`), StartPage], `1`, null, {status}), data: {status}})
     },
     process: () => {}
   }

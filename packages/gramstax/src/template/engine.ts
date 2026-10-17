@@ -84,7 +84,7 @@ export const DEFAULT_FILTERS: Record<string, ITemplateFilter> = {
  * const keyboards = TemplateEngine.compileBlockGKeyboards(template);
  *
  * const msg = messages.default?.default?.({ name: 'John' });
- * // Result: 'Welcome John!'
+ * // Result: {text: 'Welcome John!', rich: false}
  * ```
  *
  * @public
@@ -162,7 +162,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static ALLOWED_BLOCKS_TELEGRAM_LEGACY = [
+  static ALLOWED_BLOCKS_TELEGRAM_LEGACY: ReadonlySet<string> = new Set([
     // Original Telegram HTML mode tags (parse_mode="HTML", pre-Rich spec)
     `<b>`,
     `<i>`,
@@ -173,7 +173,7 @@ export class TemplateEngine {
     `<a>`,
     `<blockquote>`,
     `<blockquote expandable>`
-  ]
+  ])
   /**
    * Telegram Rich HTML tags passed through to the message `html` field.
    *
@@ -188,7 +188,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static ALLOWED_BLOCKS_TELEGRAM_RICH = [
+  static ALLOWED_BLOCKS_TELEGRAM_RICH: ReadonlySet<string> = new Set([
     // Telegram Rich HTML (passed through to message `html` field)
     // New tags added by the Rich HTML spec (excludes legacy)
     // Inline formatting
@@ -241,7 +241,7 @@ export class TemplateEngine {
     `<video>`,
     // Forms
     `<input/>`
-  ]
+  ])
   /**
    * Combined Telegram tag allowlist: legacy (9) + Rich HTML (45) = 54 tags.
    *
@@ -254,7 +254,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static ALLOWED_BLOCKS_TELEGRAM = [...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY, ...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH]
+  static ALLOWED_BLOCKS_TELEGRAM: ReadonlySet<string> = new Set([...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY, ...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH])
   /**
    * Gramstax `<g-*>` PAGE block allowlist.
    *
@@ -270,7 +270,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static ALLOWED_BLOCKS_PAGE = [
+  static ALLOWED_BLOCKS_PAGE: ReadonlySet<string> = new Set([
     // Content blocks
     `<g-base>`,
     `<g-message>`,
@@ -303,7 +303,7 @@ export class TemplateEngine {
     // Utility blocks
     `<g-import/>`,
     `<g-space/>`
-  ]
+  ])
 
   /**
    * Registry of all supported template block tags.
@@ -323,10 +323,10 @@ export class TemplateEngine {
    * - *Media:* `audio`, `cite`, `figcaption`, `figure`, `img`, `video`
    * - *Forms:* `input`
    */
-  static ALLOWED_BLOCKS = [...this.ALLOWED_BLOCKS_PAGE, ...this.ALLOWED_BLOCKS_TELEGRAM]
+  static ALLOWED_BLOCKS: ReadonlySet<string> = new Set([...this.ALLOWED_BLOCKS_PAGE, ...this.ALLOWED_BLOCKS_TELEGRAM])
 
   /**
-   * Extracts lowercase block tag names from an array of tag literals.
+   * Extracts lowercase block tag names from an iterable of tag literals.
    *
    * @remarks
    * Strips leading `</` or `<`, any trailing `>`, any attributes that follow
@@ -335,7 +335,7 @@ export class TemplateEngine {
    * (e.g. `<blockquote expandable>`) are returned with the attribute suffix
    * preserved.
    *
-   * @param blocks - Array of tag literals (e.g. `["<g-base>", "<message/>", "<blockquote expandable>"]`)
+   * @param blocks - Iterable of tag literals (e.g. `["<g-base>", "<message/>", "<blockquote expandable>"]`)
    * @returns Set of normalized lowercase block names
    *
    * @example
@@ -350,9 +350,9 @@ export class TemplateEngine {
    *
    * @public
    */
-  static _extractBlockNames(blocks: string[]): Set<string> {
+  static _extractBlockNames(blocks: Iterable<string>): Set<string> {
     return new Set(
-      blocks.map((block) =>
+      [...blocks].map((block) =>
         block
           .replace(/^<\/?/, ``)
           .replace(/\s.*?>$/, ``)
@@ -716,7 +716,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static ALLOWED_SCOPE = [`{{}}`, `{~~}`]
+  static ALLOWED_SCOPE: ReadonlySet<string> = new Set([`{{}}`, `{~~}`])
   /**
    * Identifiers that `<g-ifelse>` never rewrites to `data?.x`.
    *
@@ -3428,7 +3428,9 @@ export class TemplateEngine {
    * Output shape:
    * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
    * - Second level key: `ALang` (from `<g-message lang="...">`, or `"default"` if omitted)
-   * - Value: `(data?: Record<string, unknown>) => string`
+   * - Value: `(data?: Record<string, unknown>) => {text: string; rich: boolean}` —
+   *   `text` is the rendered message string, `rich` is computed once from the
+   *   raw block body (`true` when it contains at least one Telegram Rich HTML tag)
    *
    * @param template - Raw template string containing `<g-base>` and `<g-message>` blocks
    * @param baseBlocks - Optional pre-parsed base blocks for reuse
@@ -3444,7 +3446,7 @@ export class TemplateEngine {
    * `;
    * const messages = TemplateEngine.compileBlockGMessages(template);
    * const result = messages.default?.default?.({ name: 'John' });
-   * // Result: 'Hello John!'
+   * // Result: {text: 'Hello John!', rich: false}
    * ```
    *
    * @public
@@ -3453,7 +3455,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: ITemplateData) => string
+        [ALang: string]: (data?: ITemplateData) => {text: string; rich: boolean}
       }
     } = {}
 
@@ -3462,8 +3464,20 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, content] of Object.entries(messages)) {
+        const rich = RICH_MESSAGE_MATCHER.test(content)
         const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(content))))))
-        result[AGBaseId][ALang] = this._compileToFunction(processed, false)
+        if (this.__emitHook !== undefined) {
+          // AOT collect: record the whole `{text, rich}` leaf so emitted modules
+          // freeze the wrapper; message slots never ride the link-rebuild path.
+          if (this.__linkHook !== undefined) {
+            throw new Error(`TemplateEngine __linkHook and __emitHook must never be set simultaneously (AOT collect vs link phase confusion)`)
+          }
+          const functionBody = this._buildFunctionBody(processed, false)
+          result[AGBaseId][ALang] = this.__emitHook(`return {text: ${functionBody.slice(`return `.length)}, rich: ${rich}}`, {isArray: false}) as (data?: ITemplateData) => {text: string; rich: boolean}
+        } else {
+          const render = this._compileToFunction(processed, false)
+          result[AGBaseId][ALang] = (data?: ITemplateData) => ({text: render(data), rich})
+        }
       }
     }
 
@@ -4315,7 +4329,7 @@ export class TemplateEngine {
    */
   static validateScopes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
-    const allowedScopeNames = new Set(TemplateEngine.ALLOWED_SCOPE)
+    const allowedScopeNames = TemplateEngine.ALLOWED_SCOPE
     const scopeRegex = /\{([^\s{}\w])([\s\S]*?)\1\}/g
 
     for (const match of template.matchAll(scopeRegex)) {
@@ -6664,3 +6678,24 @@ export class TemplateEngine {
     }
   }
 }
+
+/**
+ * Builds the rich-marker matcher for `<g-message>` bodies.
+ *
+ * @remarks
+ * Tag names come from an allowlist of angle-bracketed literals
+ * ({@link TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH}): each literal is
+ * stripped of `<`, `>` and `/`, then matched as a single precompiled
+ * alternation `</?(name1|name2|...)(?:\s|/|>)`, case-insensitively. Every
+ * lead is matched as one RegExp — no per-tag `includes()` scan. An empty
+ * allowlist degenerates to `/(?!)/` (never matches) so it can never become
+ * the catch-all `(?:)`.
+ */
+function buildRichMessageMatcher(tags: ReadonlySet<string>): RegExp {
+  const names = [...tags].map((tag) => tag.replace(/[<>/]/g, ``)).sort((a, b) => b.length - a.length)
+  if (names.length === 0) return /(?!)/ // empty allowlist must never match everything
+  return new RegExp(`</?(?:${names.join(`|`)})(?:\\s|/|>)`, `i`)
+}
+
+/** Precompiled single-pass rich-tag matcher over {@link TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH}. */
+const RICH_MESSAGE_MATCHER = buildRichMessageMatcher(TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH)

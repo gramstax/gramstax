@@ -22,8 +22,7 @@ export class StartPage extends PageBase {
   gdefault = {
     show: async () => {
       await this.clearSession()
-      const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
-      await this.renderAuto(kb)
+      await this.renderText({keyboard: this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)})
     },
     process: () => {}
   }

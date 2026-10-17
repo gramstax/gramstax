@@ -35,22 +35,24 @@ export class StartKeyboardBottomPage extends PageBase {
 
   helper = {
     built: async (count?: number, AGBaseId?: string) => {
-      const kb = this.bottomKeyboard(
-        (k, l) => {
-          return k
-            .text(count === undefined ? `${l[0]!} 0` : `${l[0]} ${count + 1}`)
-            .row()
-            .text(l[1]!)
-            .oneTime()
-        },
-        {
-          AGBaseId: Base.index,
-          data: {
-            first: this.data.intentText
+      await this.renderText({
+        keyboard: this.bottomKeyboard(
+          (k, l) => {
+            return k
+              .text(count === undefined ? `${l[0]!} 0` : `${l[0]} ${count + 1}`)
+              .row()
+              .text(l[1]!)
+              .oneTime()
+          },
+          {
+            AGBaseId: Base.index,
+            data: {
+              first: this.data.intentText
+            }
           }
-        }
-      )
-      await this.renderAuto(kb, {}, AGBaseId)
+        ),
+        AGBaseId
+      })
     }
   }
   gindex = {
@@ -75,10 +77,13 @@ export class StartKeyboardBottomPage extends PageBase {
   }
   gdelete = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartPage], `1`, Base.index)
-      await this.renderAuto(kb, {}, Base.delete, {
-        reply_markup: {
-          remove_keyboard: true
+      await this.renderText({
+        AGBaseId: Base.delete,
+        keyboard: this.inlineKeyboardT([StartPage], `1`, Base.index),
+        options: {
+          reply_markup: {
+            remove_keyboard: true
+          }
         }
       })
     },

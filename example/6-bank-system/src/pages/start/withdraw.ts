@@ -22,14 +22,12 @@ export class StartWithdrawPage extends PageBase {
   }
 
   helper = {
-    kb: (AGBaseId?: string) => this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+    homeKeyboard: (AGBaseId?: string) => this.inlineKeyboardT([StartPage], `1`, AGBaseId)
   }
   gindex = {
     show: async () => {
       await this.setSessionFreeText()
-      const bi = Base.index
-      const kb = this.helper.kb(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.index, keyboard: this.helper.homeKeyboard(Base.index)})
     },
     process: async (amountInput: string) => {
       if (!amountInput) {
@@ -60,31 +58,19 @@ export class StartWithdrawPage extends PageBase {
   gsuccess = {
     show: async (amount: bigint, next: bigint) => {
       await this.clearSession()
-      const bi = Base.success
-      const kb = this.helper.kb(bi)
-      const da = {
-        amount: this.bankStore.formatAmount(amount),
-        balance: this.bankStore.formatAmount(next)
-      }
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.success, keyboard: this.helper.homeKeyboard(Base.success), data: {amount: this.bankStore.formatAmount(amount), balance: this.bankStore.formatAmount(next)}})
     },
     process: () => {}
   }
   gwarnInsufficient = {
     show: async (current: bigint) => {
-      const bi = Base.warnInsufficient
-      const kb = this.helper.kb(bi)
-      const da = {balance: this.bankStore.formatAmount(current)}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.warnInsufficient, keyboard: this.helper.homeKeyboard(Base.warnInsufficient), data: {balance: this.bankStore.formatAmount(current)}})
     },
     process: () => {}
   }
   gwarnInvalid = {
     show: async (amount = ``) => {
-      const bi = Base.warnInvalid
-      const kb = this.helper.kb(bi)
-      const da = {amount}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.warnInvalid, keyboard: this.helper.homeKeyboard(Base.warnInvalid), data: {amount}})
     },
     process: () => {}
   }

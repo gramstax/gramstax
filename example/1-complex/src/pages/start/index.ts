@@ -25,7 +25,7 @@ import {StartTestVoicePage} from "./test/voice"
 
 class Base {
   static index = `i`
-  static kbForImport = `kb-for-block-import`
+  static keyboardForImport = `keyboard-for-block-import`
   static forImport = `for-block-import`
 }
 
@@ -59,8 +59,7 @@ export class StartPage extends PageBase {
   helper = {}
   gindex = {
     show: async (condition = 1) => {
-      const bi = Base.index
-      const kb = this.inlineKeyboard(
+      const menuKeyboard = this.inlineKeyboard(
         (k, l) => {
           return k
             .text(l[0]!, StartCounterPage) //
@@ -102,7 +101,7 @@ export class StartPage extends PageBase {
         },
         {cache: true, AGBaseId: Base.index}
       )
-      const da = {
+      const welcomeData = {
         firstName: this.from!.first_name,
         time: new Date().toString(),
         thumbsEmojiId: `5368324170671202286`
@@ -110,23 +109,23 @@ export class StartPage extends PageBase {
 
       await this.clearSession()
       if (condition === 1) {
-        await this.renderRich(kb, da, bi)
+        await this.renderText({AGBaseId: Base.index, keyboard: menuKeyboard, data: welcomeData, mode: "reply"})
       } else if (condition === 2) {
-        await this.renderEditRich(kb, da, bi)
+        await this.renderText({AGBaseId: Base.index, keyboard: menuKeyboard, data: welcomeData, mode: "edit"})
       } else if (condition === 3) {
         await this.deleteMessage()
-        await this.renderRich(kb, da, bi)
+        await this.renderText({AGBaseId: Base.index, keyboard: menuKeyboard, data: welcomeData, mode: "reply"})
       }
     },
     process: () => {}
   }
 
   static template = `
-    <g-base id="${Base.kbForImport}">
+    <g-base id="${Base.keyboardForImport}">
       ${this.kbk.refresh_back()}
     </g-base>
     <g-base id="${Base.forImport}">
-      <g-import src="start" base="${Base.kbForImport}" />
+      <g-import src="start" base="${Base.keyboardForImport}" />
       <g-message>
         🧩 Block import demo
 

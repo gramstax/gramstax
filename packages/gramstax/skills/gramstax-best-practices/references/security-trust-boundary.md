@@ -18,7 +18,7 @@ const template = `<g-base><g-message>${userCustomMessage}</g-message></g-base>`
 ```typescript
 // user text travels as data — rendered literally, never executed
 const template = `<g-base><g-message>{{customMessage}}</g-message></g-base>`
-render({customMessage: userCustomMessage})
+renderText({data: {customMessage: userCustomMessage}})
 ```
 
 ## Notes

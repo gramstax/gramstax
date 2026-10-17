@@ -20,9 +20,7 @@ export class StartCounterThreadPage extends PageBase {
   gdefault = {
     show: async () => {
       const count = await IncrementJob.mtdGetCount() // difference thread
-      const kb = this.inlineKeyboardT([this.data.callbackQueryData(`1`), StartPage])
-      const da = {count, timestamp: Date.now()}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([this.data.callbackQueryData(`1`), StartPage]), data: {count, timestamp: Date.now()}})
     },
     process: async () => {
       await this.gdefault.show()

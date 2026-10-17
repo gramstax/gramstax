@@ -22,7 +22,7 @@ function createCtx(api: Record<string, unknown>, text = `hello`, extra?: {onSend
     ct,
     cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {getGMessage: () => text, getGKeyboard: () => []} as unknown as ICtxParams[`templateManager`],
+    templateManager: {getGMessage: () => ({kind: `message`, text, rich: false}), getGKeyboard: () => []} as unknown as ICtxParams[`templateManager`],
     onSendError: (extra?.onSendError ?? null) as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
@@ -38,15 +38,16 @@ function makeApi(overrides?: Record<string, unknown>) {
 
 const sendExtras = (api: {sendMessage: any}) => (api.sendMessage.mock.calls as any[]).map((call) => call[2] as Record<string, unknown> | undefined)
 
-// ── renderChunked ────────────────────────────────────────────────────
+// ── renderText (chunked) ─────────────────────────────────────────────
 
-describe(`Ctx.renderChunked`, () => {
+describe(`Ctx.renderText chunked`, () => {
   it(`9000-char text yields 3 sends (2x4096 + rest)`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, `a`.repeat(9000))
-    const out = await ctx.renderChunked(undefined, undefined, `long-card`)
+    const out = await ctx.renderText({AGBaseId: `long-card`, chunkSize: 4096})
     expect(api.sendMessage).toHaveBeenCalledTimes(3)
-    expect(out.length).toBe(3)
+    expect(Array.isArray(out)).toBe(true)
+    expect((out as unknown[]).length).toBe(3)
     const texts = (api.sendMessage.mock.calls as any[]).map((call) => call[1] as string)
     expect(texts.map((text) => text.length)).toEqual([4096, 4096, 808])
   })
@@ -55,7 +56,7 @@ describe(`Ctx.renderChunked`, () => {
     const api = makeApi()
     const ctx = createCtx(api, `b`.repeat(5000))
     const kb = {inline_keyboard: []} as any
-    await ctx.renderChunked(kb, undefined, `long-card`)
+    await ctx.renderText({keyboard: kb, AGBaseId: `long-card`, chunkSize: 4096})
     const extras = sendExtras(api)
     expect(extras.length).toBe(2)
     expect(extras[0]?.reply_markup).toBeUndefined()
@@ -65,7 +66,7 @@ describe(`Ctx.renderChunked`, () => {
   it(`placeholders resolve before splitting and never split across chunks`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, `hello World ${`c`.repeat(9000)}`)
-    await ctx.renderChunked(undefined, {name: `World`}, `long-card`)
+    await ctx.renderText({data: {name: `World`}, AGBaseId: `long-card`, chunkSize: 4096})
     const texts = (api.sendMessage.mock.calls as any[]).map((call) => call[1] as string)
     expect(texts.filter((text) => text.includes(`World`)).length).toBe(1)
     expect(texts.join(``)).toContain(`hello World`)
@@ -75,7 +76,7 @@ describe(`Ctx.renderChunked`, () => {
     const api = makeApi()
     const filler = `d`.repeat(100)
     const ctx = createCtx(api, `line-one\n\n${filler}`)
-    await ctx.renderChunked(undefined, undefined, `long-card`, undefined, 20)
+    await ctx.renderText({AGBaseId: `long-card`, chunkSize: 20})
     const texts = (api.sendMessage.mock.calls as any[]).map((call) => call[1] as string)
     expect(texts[0]).toBe(`line-one`)
   })
@@ -96,7 +97,7 @@ describe(`Ctx.renderChunked`, () => {
         seen.push(info)
       }
     })
-    await expect(ctx.renderChunked(undefined, undefined, `long-card`)).rejects.toBe(err)
+    await expect(ctx.renderText({AGBaseId: `long-card`, chunkSize: 4096})).rejects.toBe(err)
     expect((err as {chunkIndex?: number}).chunkIndex).toBe(1)
     expect(api.sendMessage).toHaveBeenCalledTimes(2)
     expect(seen.length).toBe(1)

@@ -291,13 +291,13 @@ describe(`TemplateEngine`, () => {
         status: `active`,
         users: [{name: `Alice`}, {name: `Bob`}]
       }
-      expect(fn(activeData)).toBe(`Status: Alice, Bob`)
+      expect(fn(activeData).text).toBe(`Status: Alice, Bob`)
 
       const inactiveData = {
         status: `offline`,
         users: [{name: `Charlie`}]
       }
-      expect(fn(inactiveData)).toBe(`Status: inactive`)
+      expect(fn(inactiveData).text).toBe(`Status: inactive`)
     })
 
     it(`should compile a full <g-message> with <g-map> in <g-default>`, () => {
@@ -320,10 +320,10 @@ describe(`TemplateEngine`, () => {
         role: `user`,
         notifications: [{title: `New message`}, {title: `System update`}]
       }
-      expect(fn(userData)).toBe(`New message\nSystem update`)
+      expect(fn(userData).text).toBe(`New message\nSystem update`)
 
       const adminData = {role: `admin`}
-      expect(fn(adminData)).toBe(`Admin panel`)
+      expect(fn(adminData).text).toBe(`Admin panel`)
     })
 
     it(`should handle <g-map> with scope exec inside <g-case>`, () => {
@@ -340,8 +340,8 @@ describe(`TemplateEngine`, () => {
       const result = TemplateEngine.compileBlockGMessage(template)
       const fn = result.default!.default!
 
-      expect(fn({show: `true`, nums: [1, 2, 3]})).toBe(`2\n4\n6`)
-      expect(fn({show: `false`, nums: [5]})).toBe(`hidden`)
+      expect(fn({show: `true`, nums: [1, 2, 3]}).text).toBe(`2\n4\n6`)
+      expect(fn({show: `false`, nums: [5]}).text).toBe(`hidden`)
     })
 
     it(`should handle <g-map> with custom join inside <g-case>`, () => {
@@ -875,7 +875,7 @@ describe(`TemplateEngine`, () => {
           items: [{name: `ItemA`, qty: 2}, {name: `ItemB`, qty: 1}]
         }]
       }
-      const result = fn(data)
+      const result = fn(data).text
       expect(result).toContain(`Order 0: Order1`)
       expect(result).toContain(`- ItemA (2)`)
       expect(result).toContain(`- ItemB (1)`)
@@ -975,7 +975,7 @@ describe(`TemplateEngine`, () => {
       const fn = compiled.list!.default
 
       const data = {users: [{name: `X`}, {name: `Y`}]}
-      expect(fn!(data).trim()).toBe(`1. X, 2. Y`)
+      expect(fn!(data).text.trim()).toBe(`1. X, 2. Y`)
     })
   })
 

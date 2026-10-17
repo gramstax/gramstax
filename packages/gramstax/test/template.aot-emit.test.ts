@@ -206,7 +206,7 @@ describe(`AOT emitter`, () => {
       for (const [key, template] of Object.entries(loaded.templates)) aot.registerCompiled(key, template)
       const jit = new TemplateManager({path: [emptyDir]})
       jit.compile(`card`, readFileSync(join(pages, `card.html`), `utf-8`))
-      expect(aot.getGMessage(`card`, `default`, `default`, {})).toBe(jit.getGMessage(`card`, `default`, `default`, {}))
+      expect(aot.getGMessage(`card`, `default`, `default`, {})).toEqual(jit.getGMessage(`card`, `default`, `default`, {}))
     } finally {
       rmSync(pages, {force: true, recursive: true})
       rmSync(outDir, {force: true, recursive: true})

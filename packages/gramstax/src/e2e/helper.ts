@@ -231,7 +231,7 @@ export class E2eHelper {
    * @returns Rendered message string.
    */
   gmsg(page: string, aGBaseId: string, data?: Record<string, any>, aLang = `default`): string {
-    return this.bot.templateManager.getGMessage(page, aGBaseId, aLang, data)
+    return this.bot.templateManager.getGMessage(page, aGBaseId, aLang, data).text
   }
 
   /**
@@ -245,7 +245,7 @@ export class E2eHelper {
    * @returns Array of button text labels (nested keyboard flattened).
    */
   gkb(page: string, aGBaseId: string, aType: `inline` | `bottom` = `inline`, data?: Record<string, any>, aLang = `default`): string[] {
-    return this.bot.templateManager.getGKeyboard(page, aGBaseId, aLang, aType, data)
+    return this.bot.templateManager.getGKeyboard(page, aGBaseId, aLang, aType, data).rows
   }
 
   /**

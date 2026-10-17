@@ -224,8 +224,8 @@ describe(`TemplateEngine <g-ifelse>`, () => {
     it(`should render inside a compiled g-message`, () => {
 const compiled = TemplateEngine.compileBlockGMessage(wrap(`Hello <g-ifelse>isAdmin ? "admin" : "user"</g-ifelse>`))
 const entry = compiled.default?.default
-expect(entry?.({isAdmin: true} as never)).toBe(`Hello admin`)
-expect(entry?.({isAdmin: false} as never)).toBe(`Hello user`)
+expect(entry?.({isAdmin: true} as never)?.text).toBe(`Hello admin`)
+expect(entry?.({isAdmin: false} as never)?.text).toBe(`Hello user`)
     })
   })
 })

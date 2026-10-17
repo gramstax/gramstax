@@ -13,7 +13,7 @@ export class StartItemListPage extends PageBase {
   }
 
   helper = {
-    kb: (categoryId: string, pageNo: number, category = CatalogData.getCategoryById(categoryId)) => {
+    listKeyboard: (categoryId: string, pageNo: number, category = CatalogData.getCategoryById(categoryId)) => {
       if (!category) {
         return this.inlineKeyboardT([StartCategoryPage])
       }
@@ -50,9 +50,7 @@ export class StartItemListPage extends PageBase {
       const category = CatalogData.getCategoryById(categoryId)
       const categoryName = category?.name || `Unknown`
 
-      const da = {category: categoryName}
-      const kb = this.helper.kb(categoryId, pageNo, category)
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.helper.listKeyboard(categoryId, pageNo, category), data: {category: categoryName}})
     },
     process: async (pageNo: string) => {
       const categoryId = await this.cacheState.get(`${this.from!.id}:category`)

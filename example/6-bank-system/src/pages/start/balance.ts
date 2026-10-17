@@ -14,9 +14,7 @@ export class StartBalancePage extends PageBase {
     show: async () => {
       const balance = this.bankStore.getBalance(this.from!.id)
       const formatted = this.bankStore.formatAmount(balance)
-      const da = {balance: formatted}
-      const kb = this.inlineKeyboardT([StartPage])
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([StartPage]), data: {balance: formatted}})
     },
     process: () => {}
   }

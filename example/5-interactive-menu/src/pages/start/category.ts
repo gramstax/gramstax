@@ -26,16 +26,17 @@ export class StartCategoryPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboard((k, l) => {
-        CatalogData.list.forEach((category, index) => {
-          k.text(category.name, this.data.callbackQueryData(category.id))
-          if (index % 2 === 1) {
-            k.row()
-          }
+      await this.renderText({
+        keyboard: this.inlineKeyboard((k, l) => {
+          CatalogData.list.forEach((category, index) => {
+            k.text(category.name, this.data.callbackQueryData(category.id))
+            if (index % 2 === 1) {
+              k.row()
+            }
+          })
+          return k.row().text(l[0]!, StartPage)
         })
-        return k.row().text(l[0]!, StartPage)
       })
-      await this.renderAuto(kb)
     },
     process: async (categoryId: string) => {
       await this.cacheState.set(`${this.from!.id}:category`, categoryId)

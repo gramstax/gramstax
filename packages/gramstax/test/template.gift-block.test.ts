@@ -61,8 +61,8 @@ describe(`gift-manager`, () => {
   it(`compiles and serves gift text via getGGift`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
     manager.compile(`present`, giftTemplate)
-    expect(manager.getGGift(`present`, `gift`, `default`, {item: `kopi`})).toBe(`Hadiah <b>kopi</b> untukmu!`)
-    expect(manager.getGGift(`present`, `gift`, `id`, {item: `kopi`})).toBe(`Hadiah <b>kopi</b> untukmu ya!`)
+    expect(manager.getGGift(`present`, `gift`, `default`, {item: `kopi`}).text).toBe(`Hadiah <b>kopi</b> untukmu!`)
+    expect(manager.getGGift(`present`, `gift`, `id`, {item: `kopi`}).text).toBe(`Hadiah <b>kopi</b> untukmu ya!`)
   })
 
   it(`throws for a missing gift block (strict, never empty text)`, () => {

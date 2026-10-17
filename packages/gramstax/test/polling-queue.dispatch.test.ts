@@ -19,7 +19,7 @@ class PollingQueuePage extends Ctx {
     peak = Math.max(peak, live)
     try {
       await sleep(20)
-      await this.render(null, {})
+      await this.renderText({data: {}})
     } finally {
       live -= 1
     }

@@ -50,7 +50,7 @@ describe(`Ctx.renderInlineAnswer`, () => {
   it(`passes caller results with the query id and no button by default`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, inlineUpdate, `unused`)
-    await ctx.renderInlineAnswer([article] as any, undefined, `inline-card`)
+    await ctx.renderInlineAnswer({results: [article] as any, AGBaseId: `inline-card`})
     expect(api.answerInlineQuery).toHaveBeenCalledTimes(1)
     const [id, results, extra] = (api.answerInlineQuery.mock.calls as any[])[0] as [string, unknown[], Record<string, unknown>]
     expect(id).toBe(`iq1`)
@@ -61,7 +61,7 @@ describe(`Ctx.renderInlineAnswer`, () => {
   it(`builds button text from the block when a start parameter is given`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, inlineUpdate, `Lihat detail`)
-    await ctx.renderInlineAnswer([article] as any, undefined, `inline-card`, undefined, `start=1`)
+    await ctx.renderInlineAnswer({results: [article] as any, AGBaseId: `inline-card`, buttonStartParameter: `start=1`})
     const [, , extra] = (api.answerInlineQuery.mock.calls as any[])[0] as [string, unknown[], Record<string, unknown>]
     expect(extra.button).toEqual({text: `Lihat detail`, start_parameter: `start=1`})
   })
@@ -69,7 +69,7 @@ describe(`Ctx.renderInlineAnswer`, () => {
   it(`uses the block start-parameter when the caller supplies none`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, inlineUpdate, `Label`, null, {text: `Label`, startParameter: `block-9`})
-    await ctx.renderInlineAnswer([article] as any, undefined, `inline-card`)
+    await ctx.renderInlineAnswer({results: [article] as any, AGBaseId: `inline-card`})
     const [, , extra] = (api.answerInlineQuery.mock.calls as any[])[0] as [string, unknown[], Record<string, unknown>]
     expect(extra.button).toEqual({text: `Label`, start_parameter: `block-9`})
   })
@@ -77,7 +77,7 @@ describe(`Ctx.renderInlineAnswer`, () => {
   it(`preserves a caller-supplied button over the block`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, inlineUpdate, `block text`)
-    await ctx.renderInlineAnswer([article] as any, undefined, `inline-card`, {button: {text: `Mine`, start_parameter: `s`}} as any, `start=1`)
+    await ctx.renderInlineAnswer({results: [article] as any, AGBaseId: `inline-card`, options: {button: {text: `Mine`, start_parameter: `s`}} as any, buttonStartParameter: `start=1`})
     const [, , extra] = (api.answerInlineQuery.mock.calls as any[])[0] as [string, unknown[], Record<string, unknown>]
     expect(extra.button).toEqual({text: `Mine`, start_parameter: `s`})
   })
@@ -90,7 +90,7 @@ describe(`Ctx.renderInlineAnswer`, () => {
     })
     const seen: unknown[] = []
     const ctx = createCtx(api, inlineUpdate, `x`, (e: unknown) => seen.push(e))
-    await expect(ctx.renderInlineAnswer([article] as any, undefined, `inline-card`)).rejects.toThrow(err)
+    await expect(ctx.renderInlineAnswer({results: [article] as any, AGBaseId: `inline-card`})).rejects.toThrow(err)
     expect(seen.length).toBe(1)
   })
 })
@@ -101,7 +101,7 @@ describe(`Ctx.renderGuestAnswer`, () => {
   it(`passes the result through with the guest query id`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, guestUpdate, `unused`)
-    await ctx.renderGuestAnswer(article as any, undefined, `guest-card`)
+    await ctx.renderGuestAnswer({result: article as any, AGBaseId: `guest-card`})
     expect(api.answerGuestQuery).toHaveBeenCalledTimes(1)
     const [id, result] = (api.answerGuestQuery.mock.calls as any[])[0] as [string, unknown]
     expect(id).toBe(`gq1`)
@@ -116,7 +116,7 @@ describe(`Ctx.renderGuestAnswer`, () => {
     })
     const seen: unknown[] = []
     const ctx = createCtx(api, guestUpdate, `x`, (e: unknown) => seen.push(e))
-    await expect(ctx.renderGuestAnswer(article as any, undefined, `guest-card`)).rejects.toThrow(err)
+    await expect(ctx.renderGuestAnswer({result: article as any, AGBaseId: `guest-card`})).rejects.toThrow(err)
     expect(seen.length).toBe(1)
   })
 })
@@ -127,7 +127,7 @@ describe(`Ctx.renderWebAppAnswer`, () => {
   it(`calls api.answerWebAppQuery with the explicit id and result`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, messageUpdate, `unused`)
-    await ctx.renderWebAppAnswer(`wq1`, article as any, undefined, `webapp-card`)
+    await ctx.renderWebAppAnswer({webAppQueryId: `wq1`, result: article as any, AGBaseId: `webapp-card`})
     expect(api.answerWebAppQuery).toHaveBeenCalledTimes(1)
     const [id, result] = (api.answerWebAppQuery.mock.calls as any[])[0] as [string, unknown]
     expect(id).toBe(`wq1`)
@@ -142,7 +142,7 @@ describe(`Ctx.renderWebAppAnswer`, () => {
     })
     const seen: unknown[] = []
     const ctx = createCtx(api, messageUpdate, `x`, (e: unknown) => seen.push(e))
-    await expect(ctx.renderWebAppAnswer(`wq1`, article as any, undefined, `webapp-card`)).rejects.toThrow(err)
+    await expect(ctx.renderWebAppAnswer({webAppQueryId: `wq1`, result: article as any, AGBaseId: `webapp-card`})).rejects.toThrow(err)
     expect(seen.length).toBe(1)
   })
 })

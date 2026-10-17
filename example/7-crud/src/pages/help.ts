@@ -12,8 +12,7 @@ export class HelpPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartPage])
-      await this.renderAuto(kb)
+      await this.renderText({keyboard: this.inlineKeyboardT([StartPage])})
     },
     process: () => {}
   }

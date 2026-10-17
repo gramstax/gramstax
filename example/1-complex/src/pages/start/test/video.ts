@@ -11,8 +11,7 @@ export class StartTestVideoPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)])
-      await this.renderEditVideo(kb)
+      await this.renderVideo({keyboard: this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)]), mode: "edit"})
     },
     process: () => {}
   }

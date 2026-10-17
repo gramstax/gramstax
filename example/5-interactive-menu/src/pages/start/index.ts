@@ -29,10 +29,8 @@ export class StartPage extends PageBase {
   helper = {}
   gindex = {
     show: async () => {
-      const bi = Base.index
-      const ikb = this.inlineKeyboardT([StartCategoryPage, StartInlineWithRangePage, StartInlineWithoutRangePage, StartHelpPage, StartResetPage], `2`)
       const isEdit = !!this.callbackQuery
-      await this.renderAuto(ikb, {}, bi)
+      await this.renderText({AGBaseId: Base.index, keyboard: this.inlineKeyboardT([StartCategoryPage, StartInlineWithRangePage, StartInlineWithoutRangePage, StartHelpPage, StartResetPage], `2`)})
       if (!isEdit) {
         await this.ginfoQuick.show()
       }
@@ -41,10 +39,7 @@ export class StartPage extends PageBase {
   }
   ginfoQuick = {
     show: async () => {
-      const bi = Base.infoQuick
-      const bkb = this.bottomKeyboardT(`2`, bi)
-      const da = {}
-      await this.render(bkb, da, bi)
+      await this.renderText({AGBaseId: Base.infoQuick, keyboard: this.bottomKeyboardT(`2`, Base.infoQuick)})
     },
     process: () => {}
   }

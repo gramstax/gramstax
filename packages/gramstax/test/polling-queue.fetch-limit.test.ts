@@ -12,7 +12,7 @@ class FetchLimitPage extends Ctx {
 
   async handleFreeText(): Promise<void> {
     await sleep(5)
-    await this.render(null, {})
+    await this.renderText({data: {}})
   }
 
   static template = TEMPLATE

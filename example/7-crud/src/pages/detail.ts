@@ -33,16 +33,14 @@ export class DetailPage extends PageBase {
   }
 
   helper = {
-    buildHomeKb: (AGBaseId?: string) => {
+    buildHomeKeyboard: (AGBaseId?: string) => {
       return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
     }
   }
   gindex = {
     show: async () => {
-      const bi = Base.index
-      const kb = this.helper.buildHomeKb(bi)
       await this.setSessionFreeText()
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.index, keyboard: this.helper.buildHomeKeyboard(Base.index)})
     },
     process: () => {}
   }
@@ -52,35 +50,31 @@ export class DetailPage extends PageBase {
       const createdAt = TimeUt.formatTimestamp(item.createdAt!)
       const updatedAt = TimeUt.formatTimestamp(item.updatedAt!)
 
-      const bi = Base.success
-      const kb = this.helper.buildHomeKb(bi)
-      const da = {
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        status: item.status,
-        createdAt,
-        updatedAt
-      }
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({
+        AGBaseId: Base.success,
+        keyboard: this.helper.buildHomeKeyboard(Base.success),
+        data: {
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          status: item.status,
+          createdAt,
+          updatedAt
+        }
+      })
     },
     process: () => {}
   }
   ginfoNotFound = {
     show: async (id: string) => {
       await this.clearSession()
-      const bi = Base.infoNotFound
-      const kb = this.helper.buildHomeKb(bi)
-      const da = {id}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.infoNotFound, keyboard: this.helper.buildHomeKeyboard(Base.infoNotFound), data: {id}})
     },
     process: () => {}
   }
   gwarnInvalid = {
     show: async () => {
-      const bi = Base.warnInvalid
-      const kb = this.helper.buildHomeKb(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.warnInvalid, keyboard: this.helper.buildHomeKeyboard(Base.warnInvalid)})
     },
     process: () => {}
   }

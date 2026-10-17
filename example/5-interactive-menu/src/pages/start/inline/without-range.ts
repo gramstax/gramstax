@@ -19,7 +19,7 @@ export class StartInlineWithoutRangePage extends PageBase {
   }
 
   helper = {
-    kb: (pageNo: number) => {
+    pageKeyboard: (pageNo: number) => {
       const safePage = Math.max(pageNo, 0)
       const start = safePage * ITEMS_PER_PAGE
       const end = start + ITEMS_PER_PAGE
@@ -50,9 +50,7 @@ export class StartInlineWithoutRangePage extends PageBase {
   gdefault = {
     show: async (pageNo: number) => {
       const {pageNo: currentPage, safePage} = this.helper.pageData(pageNo)
-      const da = {pageNo: currentPage}
-      const kb = this.helper.kb(safePage)
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.helper.pageKeyboard(safePage), data: {pageNo: currentPage}})
     },
     process: async (action: string, value: string) => {
       if (action === `page`) {

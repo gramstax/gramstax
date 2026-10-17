@@ -1,5 +1,6 @@
 import type {StreamFlavor} from "@grammyjs/stream"
 import type {Context, InlineKeyboard, InputFile, Keyboard, Middleware} from "grammy"
+import type {InlineQueryResult} from "grammy/types"
 
 export type {StreamFlavor}
 
@@ -8,6 +9,7 @@ import type {Ctx} from "~/core/ctx"
 import type {LoggingHelper} from "~/helpers/log"
 import type {TemplateManager} from "~/template/manager"
 import type {ICacheRpc} from "./cache"
+import type {IMediaBlock} from "./template"
 
 /**
  * Page class/instance that defines `handleCallbackQueryData`.
@@ -316,7 +318,7 @@ export type IReplyAction = Parameters<Context[`replyWithChatAction`]>[0]
  * @example
  * ```ts
  * const data: IData = {name: `John`, count: 3}
- * await this.render(null, data)
+ * await this.renderText({data})
  * ```
  *
  * @public
@@ -792,6 +794,1198 @@ export type ITemp = {
  * @public
  */
 export type IOptFallbackEdit = `delete-reply` | `reply` | `disable`
+
+/**
+ * Send-versus-edit resolution for a render call.
+ *
+ * @remarks
+ * - `auto` (default): edits when the update carries a `callbackQuery`,
+ *   otherwise replies.
+ * - `reply`: always sends a new message.
+ * - `edit`: always edits the message tied to the update.
+ *
+ * @public
+ */
+export type IRenderMode = `auto` | `reply` | `edit`
+
+/**
+ * Parameters for `renderText` — the single text send/edit method.
+ *
+ * @remarks
+ * All fields are optional. Rich-versus-plain content is decided at COMPILE time
+ * by the `<g-message>` block contents, not by these params; `richOptions` only
+ * shape the rich payload. `fallbackEdit` mirrors {@link IOptFallbackEdit} and
+ * defaults to `delete-reply`.
+ *
+ * @public
+ */
+export type RenderTextParams = {
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit). Edits accept inline keyboards only.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for block message.
+   *
+   * @defaultValue `null` (default base)
+   */
+  AGBaseId?: string | null
+  /**
+   * Send-versus-edit resolution.
+   *
+   * @defaultValue `auto`
+   */
+  mode?: IRenderMode
+  /**
+   * Optional plain-text reply/edit options.
+   *
+   * @remarks
+   * Used by the reply branch and the non-rich edit branch; rich branches read
+   * their options from `richOptions` instead.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReply | IOptEdit | null
+  /**
+   * Optional `InputRichMessage` fields plus rich send options.
+   *
+   * @remarks
+   * Tuple mirroring `replyWithRichMessage`: `[0]` is merged into the
+   * `InputRichMessage` payload, `[1]` into the send/edit options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  richOptions?: IOptReplyRich | null
+  /**
+   * Fallback when an edit fails.
+   *
+   * @defaultValue `delete-reply`
+   */
+  fallbackEdit?: IOptFallbackEdit
+  /**
+   * Max characters per chunk. When present (not `undefined`/`null`), the
+   * rendered `<g-message>` block is sent as sequential reply chunks instead
+   * of a single message.
+   *
+   * @remarks
+   * The block is rendered fully FIRST (placeholders never split), then split
+   * deterministically: the last `\n\n` in a `chunkSize`-char window wins,
+   * then the last `\n`, then the last space, then a hard cut; each piece is
+   * trimmed and empties are skipped. The keyboard is sent ONLY on the last
+   * chunk, and every chunk carries `parse_mode: HTML` (rich templates send
+   * each chunk through `replyWithRichMessage`).
+   *
+   * The chunked path is a REPLY path: Telegram has no in-place edit for a
+   * multi-message split, so `mode` does not apply to it — when both
+   * `chunkSize` and a `mode` are passed, the chunked reply wins. Values are
+   * sanitised on read: `Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096`.
+   *
+   * @defaultValue `null` (single message)
+   */
+  chunkSize?: number | null
+}
+
+/**
+ * Parameters for `renderBroadcast` — the multi-recipient text fan-out.
+ *
+ * @remarks
+ * Checkpoint-first by design (anti-spam over speed): `startFrom` resumes
+ * without resending, `chunkSize`/`chunkDelayMs` pace the loop with
+ * `onProgress` checkpoints, and `excludeIds` counts skips without sending.
+ *
+ * @public
+ */
+export type RenderBroadcastParams = {
+  /**
+   * Recipient user IDs, in stable order (checkpoint index = array index).
+   */
+  ids: number[]
+  /**
+   * Parallel language codes, one per recipient.
+   */
+  languageCode: string[]
+  /**
+   * Optional keyboard markup.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template g-base ID position for block message.
+   *
+   * @defaultValue `null` (use default)
+   */
+  AGBaseId?: string | null
+  /**
+   * Optional send options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReply | null
+  /**
+   * If true, throws errors instead of swallowing them.
+   *
+   * @defaultValue `false`
+   */
+  throwError?: boolean | null
+  /**
+   * Optional custom chunk size for pacing sleeps.
+   *
+   * @defaultValue `null` (free-limit pacing only)
+   */
+  chunkSize?: number | null
+  /**
+   * Optional delay in ms after each `chunkSize` chunk.
+   *
+   * @defaultValue `null` (→ `500`)
+   */
+  chunkDelayMs?: number | null
+  /**
+   * Optional user IDs to skip, counted as skipped.
+   *
+   * @defaultValue `null` (send to all)
+   */
+  excludeIds?: number[] | null
+  /**
+   * Optional checkpoint callback `(done, total)` fired after every pacing
+   * chunk and once at completion.
+   *
+   * @defaultValue `null` (no callback)
+   */
+  onProgress?: ((done: number, total: number) => void | Promise<void>) | null
+  /**
+   * Optional absolute recipient index to resume from; indexes below count as
+   * skipped and are never resent.
+   *
+   * @defaultValue `null` (start at `0`)
+   */
+  startFrom?: number | null
+  /**
+   * Optional parallel send workers; `1` keeps the sequential loop, floored
+   * at `1`, capped at `10`, non-finite becomes `1`.
+   *
+   * @defaultValue `null` (→ `1`)
+   */
+  concurrency?: number | null
+}
+
+/**
+ * Parameters for `renderBroadcastMedia` — the multi-recipient media fan-out.
+ *
+ * @remarks
+ * Media type and arg are inferred from the template `<g-media>` block. A
+ * pipe-delimited `src` sends as a Telegram media group, and media groups
+ * carry no reply markup, so keyboards are ignored for grouped media. Same
+ * checkpoint-first fan-out semantics as `renderBroadcast`.
+ *
+ * @public
+ */
+export type RenderBroadcastMediaParams = {
+  /**
+   * Recipient user IDs, in stable order (checkpoint index = array index).
+   */
+  ids: number[]
+  /**
+   * Parallel language codes, one per recipient.
+   */
+  languageCode: string[]
+  /**
+   * Optional keyboard markup.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template g-base ID position for block media.
+   *
+   * @defaultValue `null` (use default)
+   */
+  AGBaseId?: string | null
+  /**
+   * Optional send options for the inferred media type.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact | null
+  /**
+   * If true, throws errors instead of swallowing them.
+   *
+   * @defaultValue `false`
+   */
+  throwError?: boolean | null
+  /**
+   * Optional custom chunk size for pacing sleeps.
+   *
+   * @defaultValue `null` (free-limit pacing only)
+   */
+  chunkSize?: number | null
+  /**
+   * Optional delay in ms after each `chunkSize` chunk.
+   *
+   * @defaultValue `null` (→ `500`)
+   */
+  chunkDelayMs?: number | null
+  /**
+   * Optional user IDs to skip, counted as skipped.
+   *
+   * @defaultValue `null` (send to all)
+   */
+  excludeIds?: number[] | null
+  /**
+   * Optional checkpoint callback `(done, total)` fired after every pacing
+   * chunk and once at completion.
+   *
+   * @defaultValue `null` (no callback)
+   */
+  onProgress?: ((done: number, total: number) => void | Promise<void>) | null
+  /**
+   * Optional absolute recipient index to resume from; indexes below count as
+   * skipped and are never resent.
+   *
+   * @defaultValue `null` (start at `0`)
+   */
+  startFrom?: number | null
+  /**
+   * Optional parallel send workers; `1` keeps the sequential loop, floored
+   * at `1`, capped at `10`, non-finite becomes `1`.
+   *
+   * @defaultValue `null` (→ `1`)
+   */
+  concurrency?: number | null
+}
+
+/**
+ * Parameters for `renderBroadcastDelete` — the expiry-cleanup delete fan-out.
+ *
+ * @remarks
+ * Reads no template block — it operates on stored message ids. Same
+ * checkpoint-first controls as `renderBroadcastEdit` via `broadcastOpts`; a
+ * failed delete has no text fallback by design, since there is no
+ * replacement content to deliver.
+ *
+ * @public
+ */
+export type RenderBroadcastDeleteParams = {
+  /**
+   * Stored `{chatId, messageId}` rows to delete, in stable order (checkpoint
+   * index = array index).
+   */
+  targets: IBroadcastEditTarget[]
+  /**
+   * Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`,
+   * `chunkSize`, `chunkDelayMs`).
+   *
+   * @defaultValue `null` (defaults; `fallbackEdit` is accepted but ignored — deletes have no resend)
+   */
+  broadcastOpts?: IBroadcastEditOpts | null
+}
+
+/**
+ * Parameters for `renderBroadcastEdit` — the multi-recipient media edit
+ * fan-out.
+ *
+ * @remarks
+ * `photo`, `video`, `audio`, `document`, and `animation` edit in place via
+ * `editMessageMedia`; the remaining types cannot be edited, so the old
+ * message is deleted and a new one is sent. `broadcastOpts.fallbackEdit`
+ * applies per recipient when the primary edit/resend fails.
+ *
+ * @typeParam T - The media type to edit to.
+ *
+ * @public
+ */
+export type RenderBroadcastEditParams<T extends Exclude<IMediaBlock[`type`], `group`>> = {
+  /**
+   * Stored `{chatId, messageId}` rows to edit, in stable order (checkpoint
+   * index = array index).
+   */
+  targets: IBroadcastEditTarget[]
+  /**
+   * The media type (photo, video, audio, document, animation, voice,
+   * video_note, sticker, location, contact).
+   */
+  type: T
+  /**
+   * Optional inline keyboard markup.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboardInline?: IInlineKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template g-base ID position for block media.
+   *
+   * @defaultValue `null` (use default)
+   */
+  AGBaseId?: string | null
+  /**
+   * Optional type-specific media options; dropped on the fallback resend.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options1?:
+    | (T extends `voice`
+        ? IOptReplyVoice
+        : T extends `video_note`
+          ? IOptReplyVideoNote
+          : T extends `sticker`
+            ? IOptReplySticker
+            : T extends `location`
+              ? IOptReplyLocation
+              : T extends `contact`
+                ? IOptReplyContact
+                : //
+                  IOptEditMedia1)
+    | null
+  /**
+   * Optional additional edit options; dropped on the fallback resend.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options2?: IOptEditMedia2 | null
+  /**
+   * Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`,
+   * `chunkSize`, `chunkDelayMs`, `fallbackEdit`).
+   *
+   * @defaultValue `null` (defaults)
+   */
+  broadcastOpts?: IBroadcastEditOpts | null
+}
+
+/**
+ * Parameters for `renderBroadcastPoll` — the multi-recipient poll fan-out.
+ *
+ * @remarks
+ * Poll counterpart of `renderBroadcastMedia`: `Ctx.assertPoll` runs for
+ * every recipient BEFORE the loop, and the same checkpoint-first controls
+ * (`startFrom`, bounded `concurrency`, pacing, `excludeIds`, `throwError`)
+ * apply.
+ *
+ * @public
+ */
+export type RenderBroadcastPollParams = {
+  /**
+   * Recipient user IDs, in stable order (checkpoint index = array index).
+   */
+  ids: number[]
+  /**
+   * Parallel language codes, one per recipient.
+   */
+  languageCode: string[]
+  /**
+   * Optional keyboard markup.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template g-base ID position for block poll.
+   *
+   * @defaultValue `null` (use default)
+   */
+  AGBaseId?: string | null
+  /**
+   * Optional extra `sendPoll` fields.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: Parameters<Ctx[`replyWithPoll`]>[2] | null
+  /**
+   * If true, throws errors instead of swallowing them.
+   *
+   * @defaultValue `false`
+   */
+  throwError?: boolean | null
+  /**
+   * Optional custom chunk size for pacing sleeps.
+   *
+   * @defaultValue `null` (free-limit pacing only)
+   */
+  chunkSize?: number | null
+  /**
+   * Optional delay in ms after each `chunkSize` chunk.
+   *
+   * @defaultValue `null` (→ `500`)
+   */
+  chunkDelayMs?: number | null
+  /**
+   * Optional user IDs to skip, counted as skipped.
+   *
+   * @defaultValue `null` (send to all)
+   */
+  excludeIds?: number[] | null
+  /**
+   * Optional checkpoint callback `(done, total)` fired after every pacing
+   * chunk and once at completion.
+   *
+   * @defaultValue `null` (no callback)
+   */
+  onProgress?: ((done: number, total: number) => void | Promise<void>) | null
+  /**
+   * Optional absolute recipient index to resume from; indexes below count as
+   * skipped and are never resent.
+   *
+   * @defaultValue `null` (start at `0`)
+   */
+  startFrom?: number | null
+  /**
+   * Optional parallel send workers; `1` keeps the sequential loop, floored
+   * at `1`, capped at `10`, non-finite becomes `1`.
+   *
+   * @defaultValue `null` (→ `1`)
+   */
+  concurrency?: number | null
+}
+
+/**
+ * Parameters for `renderGift`.
+ *
+ * @remarks
+ * `target` (user id) is explicit because gifts do not always go to the
+ * active chat — unlike every other render method. A failed gift never
+ * degrades into sending the card as plain text.
+ *
+ * @public
+ */
+export type RenderGiftParams = {
+  /**
+   * Gift recipient user id.
+   */
+  target: number
+  /**
+   * Telegram gift identifier.
+   */
+  giftId: string
+  /**
+   * Must stay null/omitted — `sendGift` carries no reply markup, so a
+   * non-null keyboard throws before any API call.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInlineKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Template base ID position for block message.
+   */
+  AGBaseId: string
+  /**
+   * Optional gift options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptGift | null
+}
+
+/**
+ * Parameters for `renderCallbackAnswer`.
+ *
+ * @remarks
+ * Template-backed counterpart to answering inline-button taps: the
+ * `<g-callback-answer>` block supplies the notification text. There is no
+ * message to send, so this takes no keyboard and never falls back to a
+ * reply. Toast text is limited by Telegram to 200 characters.
+ *
+ * @public
+ */
+export type RenderCallbackAnswerParams = {
+  /**
+   * Whether to show an alert instead of a toast notification.
+   */
+  showAlert: boolean
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Template base ID position for the notification text.
+   */
+  AGBaseId: string
+  /**
+   * Optional answer options such as `cache_time`.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptCallbackAnswer | null
+}
+
+/**
+ * Parameters for `renderPreCheckout`.
+ *
+ * @remarks
+ * Template-backed counterpart to {@link (Ctx:class).answerPreCheckout}: the
+ * `<g-precheckout-error>` block supplies the `error_message` shown when
+ * payment is declined. Telegram requires the answer within 10 seconds of
+ * the query.
+ *
+ * @public
+ */
+export type RenderPreCheckoutParams = {
+  /**
+   * Whether to approve the checkout.
+   */
+  ok: boolean
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Template base ID position for the error message.
+   */
+  AGBaseId: string
+  /**
+   * Optional answer options, or a string overriding the error message.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptPreCheckout | null
+}
+
+/**
+ * Parameters for `renderShipping`.
+ *
+ * @remarks
+ * The `<g-shipping-error>` block supplies the `error_message` shown when the
+ * shipping address is rejected (multilang via `data`).
+ *
+ * @public
+ */
+export type RenderShippingParams = {
+  /**
+   * Whether the shipping address is acceptable.
+   */
+  ok: boolean
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Template base ID position for the error message.
+   */
+  AGBaseId: string
+  /**
+   * Optional answer options such as `shipping_options`.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptShipping | null
+}
+
+/**
+ * Parameters for `renderInlineAnswer`.
+ *
+ * @remarks
+ * Result contents are built by the caller from `data` (multilang payloads);
+ * the `<g-inline-button>` block supplies the default `button.text` label and
+ * `start_parameter`. Telegram caps answers at 50 results.
+ *
+ * @public
+ */
+export type RenderInlineAnswerParams = {
+  /**
+   * Inline results built by the caller, up to Telegram's 50-result cap.
+   */
+  results: readonly InlineQueryResult[]
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Template base ID position for the button text.
+   */
+  AGBaseId: string
+  /**
+   * Optional answer options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptInlineAnswer | null
+  /**
+   * Optional deep-link start parameter, enabling the block-text button.
+   *
+   * @defaultValue `null` (no start parameter)
+   */
+  buttonStartParameter?: string | null
+}
+
+/**
+ * Parameters for `renderGuestAnswer`.
+ *
+ * @remarks
+ * The result content is built by the caller from `data` (multilang
+ * payloads); the `<g-answer-note>` block is resolved as fail-fast validation
+ * that the template exists.
+ *
+ * @public
+ */
+export type RenderGuestAnswerParams = {
+  /**
+   * Inline result built by the caller.
+   */
+  result: InlineQueryResult
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Template base ID position, resolved for validation.
+   */
+  AGBaseId: string
+  /**
+   * Optional abort signal.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptGuestAnswer | null
+}
+
+/**
+ * Parameters for `renderWebAppAnswer`.
+ *
+ * @remarks
+ * Unlike the other answers this carries an explicit query id (there is no
+ * context-aware alias — web app queries arrive without an answerable
+ * update), mirroring `renderGift`'s explicit target.
+ *
+ * @public
+ */
+export type RenderWebAppAnswerParams = {
+  /**
+   * Unique identifier for the query to answer.
+   */
+  webAppQueryId: string
+  /**
+   * Inline result built by the caller.
+   */
+  result: InlineQueryResult
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Template base ID position, resolved for validation.
+   */
+  AGBaseId: string
+  /**
+   * Optional abort signal.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptWebAppAnswer | null
+}
+
+/**
+ * Parameters for `renderPoll`.
+ *
+ * @remarks
+ * The poll is send-only: the Bot API offers no edit for polls (only
+ * `stopPoll`), so there is no `mode` and no fallback content.
+ *
+ * @public
+ */
+export type RenderPollParams = {
+  /**
+   * Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or
+   * {@link (Ctx:class).bottomKeyboard}.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for block poll.
+   *
+   * @defaultValue `null` (use default)
+   */
+  AGBaseId?: string | null
+  /**
+   * Optional extra `sendPoll` fields.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: Parameters<Ctx[`replyWithPoll`]>[2] | null
+}
+
+/**
+ * Parameters for `renderInvoice`.
+ *
+ * @remarks
+ * Provider tokens are security-critical and NEVER come from templates: the
+ * validator rejects a `provider_token` attribute outright, so `options` is
+ * the only way to supply one.
+ *
+ * @public
+ */
+export type RenderInvoiceParams = {
+  /**
+   * Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} —
+   * only inline keyboards are accepted, the Bot API `sendInvoice` reply
+   * markup is `InlineKeyboardMarkup`.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInlineKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for block invoice.
+   *
+   * @defaultValue `null` (use default)
+   */
+  AGBaseId?: string | null
+  /**
+   * Optional extra `sendInvoice` fields, where `provider_token` is the ONLY
+   * way to supply the payment provider secret.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {provider_token?: string}) | null
+}
+
+/**
+ * Parameters for `renderPaidMedia`.
+ *
+ * @remarks
+ * Each item `src` is resolved through the instance media jail (local files
+ * become `InputFile` uploads, URLs and `file_id` values pass through) and
+ * sent with its caption as HTML. There is no degraded fallback content for
+ * paywalls.
+ *
+ * @public
+ */
+export type RenderPaidMediaParams = {
+  /**
+   * Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard}.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInlineKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for block paid media.
+   *
+   * @defaultValue `null` (use default)
+   */
+  AGBaseId?: string | null
+  /**
+   * Optional extra `sendPaidMedia` fields.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null
+}
+
+/**
+ * Parameters for `renderVenue`.
+ *
+ * @remarks
+ * Fail-fast validation (`Ctx.assertVenue`: non-empty title/address plus
+ * `Ctx.assertLocation` range checks) runs on the COMPILED strings BEFORE any
+ * API call.
+ *
+ * @public
+ */
+export type RenderVenueParams = {
+  /**
+   * Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or
+   * {@link (Ctx:class).bottomKeyboard}.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for block venue.
+   *
+   * @defaultValue `null` (use default)
+   */
+  AGBaseId?: string | null
+  /**
+   * Optional extra `sendVenue` fields such as `foursquare_id`.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: Parameters<Ctx[`replyWithVenue`]>[4] | null
+}
+
+/**
+ * Parameters for `renderDice`.
+ *
+ * @remarks
+ * The emoji comes from the COMPILED block (`🎲` default when the attribute
+ * is absent) and is checked by `Ctx.assertDiceEmoji` BEFORE any API call.
+ *
+ * @public
+ */
+export type RenderDiceParams = {
+  /**
+   * Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or
+   * {@link (Ctx:class).bottomKeyboard}.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for block dice.
+   *
+   * @defaultValue `null` (use default)
+   */
+  AGBaseId?: string | null
+  /**
+   * Optional extra `sendDice` fields.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: Parameters<Ctx[`replyWithDice`]>[1] | null
+}
+
+/**
+ * Parameters for `renderEditCaption`.
+ *
+ * @remarks
+ * Caption text comes from the `<g-base id>` block via `getGMessage` and is
+ * sent via `editMessageCaption`. Fallback modes mirror `renderEdit`:
+ * `delete-reply`/`reply` resend the caption as plain text, `disable` throws.
+ *
+ * @public
+ */
+export type RenderEditCaptionParams = {
+  /**
+   * Optional inline keyboard markup.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboardInline?: IInlineKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Template base ID position for block message.
+   */
+  AGBaseId: string
+  /**
+   * Optional abort signal for the edit call.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptEditCaption | null
+  /**
+   * Fallback when the edit fails — `delete-reply` (default) deletes the
+   * original message then sends a new one; `reply` sends without deleting;
+   * `disable` rethrows the error.
+   *
+   * @defaultValue `delete-reply`
+   */
+  fallbackEdit?: IOptFallbackEdit
+}
+
+/**
+ * Parameters for `renderEditKeyboard`.
+ *
+ * @remarks
+ * Sent via `editMessageReplyMarkup` — never touches message text. When
+ * `keyboardInline` is null, the markup resolves from the `<g-keyboard>`
+ * block of the given `AGBaseId` itself, which is what makes `AGBaseId`
+ * meaningful here.
+ *
+ * @public
+ */
+export type RenderEditKeyboardParams = {
+  /**
+   * Optional inline keyboard markup, or null to resolve it from the block.
+   *
+   * @defaultValue `null` (resolve from the block)
+   */
+  keyboardInline?: IInlineKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Template base ID position for block keyboard.
+   */
+  AGBaseId: string
+  /**
+   * Optional abort signal for the edit call.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptEditKeyboard | null
+}
+
+/**
+ * Media group kinds supported by Telegram media groups.
+ *
+ * @internal
+ */
+type IMediaGroupType = Extract<IMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
+
+/**
+ * Parameters for `renderMedia` — the single media send/edit method.
+ *
+ * @remarks
+ * All fields except `type` are optional. `mode` resolves the send-versus-edit
+ * decision exactly like {@link RenderTextParams}: `auto` (default) edits when
+ * the update carries a `callbackQuery`, `reply` always sends, `edit` always
+ * edits. `options` feeds the reply branch and the `editMessageMedia` error
+ * state; `optionsEdit1`/`optionsEdit2` feed the edit branch only and are
+ * DROPPED by the fallback re-send (edit options do not map to reply options).
+ * `fallbackEdit` mirrors {@link IOptFallbackEdit} and defaults to
+ * `delete-reply`.
+ *
+ * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
+ *
+ * @public
+ */
+export type RenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> = {
+  /**
+   * The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
+   */
+  type: T
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit). Edits accept inline keyboards only.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for block media.
+   *
+   * @defaultValue `null` (default base)
+   */
+  AGBaseId?: string | null
+  /**
+   * Send-versus-edit resolution.
+   *
+   * @defaultValue `auto`
+   */
+  mode?: IRenderMode
+  /**
+   * Optional type-specific reply options.
+   *
+   * @remarks
+   * Used by the reply branch; resolve the right union member through `type`.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?:
+    | (T extends `photo`
+        ? IOptReplyPhoto
+        : T extends `video`
+          ? IOptReplyVideo
+          : T extends `audio`
+            ? IOptReplyAudio
+            : T extends `document`
+              ? IOptReplyDocument
+              : T extends `animation`
+                ? IOptReplyAnimation
+                : T extends `voice`
+                  ? IOptReplyVoice
+                  : T extends `video_note`
+                    ? IOptReplyVideoNote
+                    : T extends `sticker`
+                      ? IOptReplySticker
+                      : T extends `location`
+                        ? IOptReplyLocation
+                        : T extends `contact`
+                          ? IOptReplyContact
+                          : undefined)
+    | null
+  /**
+   * Optional edit payload / non-editable-type reply options.
+   *
+   * @remarks
+   * For `photo`/`video`/`audio`/`document`/`animation` this is the
+   * `editMessageMedia` input saved for the edit branch; for `voice`,
+   * `video_note`, `sticker`, `location`, and `contact` (which cannot be
+   * edited in place) it supplies the delete-then-resend reply options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  optionsEdit1?:
+    | (T extends `voice`
+        ? IOptReplyVoice
+        : T extends `video_note`
+          ? IOptReplyVideoNote
+          : T extends `sticker`
+            ? IOptReplySticker
+            : T extends `location`
+              ? IOptReplyLocation
+              : T extends `contact`
+                ? IOptReplyContact
+                : //
+                  IOptEditMedia1)
+    | null
+  /**
+   * Optional extra `editMessageMedia` call options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  optionsEdit2?: IOptEditMedia2 | null
+  /**
+   * Fallback when an edit fails.
+   *
+   * @defaultValue `delete-reply`
+   */
+  fallbackEdit?: IOptFallbackEdit
+}
+
+/**
+ * `RenderMediaParams` for one media kind — the per-kind wrappers
+ * (`renderPhoto`, `renderVideo`, …) accept this shape and supply `type`.
+ *
+ * @public
+ */
+export type RenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<RenderMediaParams<T>, `type`>
+
+/**
+ * Parameters for `renderMediaGroup` — the single media-group send/edit method.
+ *
+ * @remarks
+ * `options` feeds both the direct reply branch and the delete-then-resend
+ * branches (media groups have no in-place edit). `mode` resolves the
+ * send-versus-edit decision exactly like {@link RenderMediaParams}: `auto`
+ * (default) edits when the update carries a `callbackQuery`. Group edits and
+ * the `delete-reply` fallback delete the original message first.
+ *
+ * @public
+ */
+export type RenderMediaGroupParams = {
+  /**
+   * Optional media type filter for a `<g-media-group>` block.
+   *
+   * @remarks
+   * When set, only items matching this type are included. When omitted, all
+   * items are sent; a non-group template then requires `type`.
+   *
+   * @defaultValue `null` (all items)
+   */
+  type?: IMediaGroupType | null
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for block media.
+   *
+   * @defaultValue `null` (default base)
+   */
+  AGBaseId?: string | null
+  /**
+   * Send-versus-edit resolution.
+   *
+   * @defaultValue `auto`
+   */
+  mode?: IRenderMode
+  /**
+   * Optional media-group send options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null
+  /**
+   * Fallback when an edit fails.
+   *
+   * @defaultValue `delete-reply`
+   */
+  fallbackEdit?: IOptFallbackEdit
+}
+
+/**
+ * `RenderMediaGroupParams` for one group kind — the per-kind group wrappers
+ * (`renderPhotoGroup`, `renderVideoGroup`, …) accept this shape and supply
+ * `type`.
+ *
+ * @public
+ */
+export type RenderMediaGroupKindParams = Omit<RenderMediaGroupParams, `type`>
 
 /**
  * Send-error event delivered to `ICtxParams.onSendError`.

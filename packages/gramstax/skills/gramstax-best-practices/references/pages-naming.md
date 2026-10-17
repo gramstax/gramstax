@@ -1,33 +1,29 @@
 # pages-naming
 
-Kebab-case files, parent-child routes, `sN` base ids, `bi`/`kb`/`da` shorthands — everywhere, no exceptions.
+Kebab-case files, parent-child routes, `sN` base ids — everywhere, no exceptions.
 
 ## Why
 
-Routing derives from file paths and base ids; inconsistent names produce unfindable routes and unreadable diffs. Shorthands keep handler signatures uniform so `kb`/`da`/`bi` always mean the same thing.
+Routing derives from file paths and base ids; inconsistent names produce unfindable routes and unreadable diffs.
 
 ## Incorrect
 
 ```typescript
 // src/pages/AdminList.ts + AGBaseId + keyboardMarkup
-await ctx.edit(keyboardMarkup, templateData, AGBaseId)
+await ctx.renderText({AGBaseId: `s1`, keyboard: keyboardMarkup, data: templateData})
 ```
 
 ## Correct
 
 ```typescript
 // src/pages/admin-list.ts
-const bi = Base.step1
-const da = {amount: 100}
-const kb = this.helper.kb(bi)
-await ctx.edit(kb, da, bi)
+await ctx.renderText({AGBaseId: Base.step1, keyboard: this.inlineKeyboardT([StartPage], `1`, Base.step1), data: {amount: 100}})
 ```
 
 ## Notes
 
 - Files: `kebab-case` only (`admin-list-detail.ts` = grandchild of `admin-list.ts`); base ids `s1`, `s1-form`, `s1-success`; single-base pages omit `id` and use `gdefault`.
 - Base ids live as statics in an internal `class Base` for type-safe referencing (`id="${Base.step1}"`).
-- Shorthands are mandatory in handlers: `bi` (base id), `kb` (keyboard), `da` (template data).
 
 ## Directory-Index Style (Deep Trees)
 

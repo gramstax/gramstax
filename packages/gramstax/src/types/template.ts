@@ -743,6 +743,166 @@ export type IGiftBlock = {
 }
 
 /**
+ * Discriminator identifying which `getG*` block a result was rendered from.
+ *
+ * @remarks
+ * One member per `TemplateManager.getG*` getter. Consumers narrow the
+ * `G*Result` payloads by `kind`; every payload carries its fields flat
+ * alongside this discriminator.
+ *
+ * @public
+ */
+export type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `gift` | `invoice` | `paidMedia` | `description`
+
+/**
+ * Result of `TemplateManager.getGMessage` for a `<g-message>` block.
+ *
+ * @remarks
+ * `text` is exactly the rendered message HTML string; `rich` is computed
+ * once at compile time from the raw block body and is `true` when the block
+ * contains at least one Telegram Rich HTML tag, so callers can pick
+ * `renderRich` over `render`. A missing block yields
+ * `{kind: "message", text: "", rich: false}`.
+ *
+ * @public
+ */
+export type GMessageResult = {kind: `message`; text: string; rich: boolean}
+/**
+ * Result of `TemplateManager.getGMedia` for a `<g-media>` block.
+ *
+ * @remarks
+ * Extends {@link IMediaBlock} with the `media` kind discriminator.
+ *
+ * @public
+ */
+export type GMediaResult = {kind: `media`} & IMediaBlock
+/**
+ * Result of `TemplateManager.getGPoll` for a `<g-poll>` block.
+ *
+ * @remarks
+ * Extends {@link IPollBlock} with the `poll` kind discriminator.
+ *
+ * @public
+ */
+export type GPollResult = {kind: `poll`} & IPollBlock
+/**
+ * Result of `TemplateManager.getGVenue` for a `<g-venue>` block.
+ *
+ * @remarks
+ * Extends {@link IVenueBlock} with the `venue` kind discriminator.
+ *
+ * @public
+ */
+export type GVenueResult = {kind: `venue`} & IVenueBlock
+/**
+ * Result of `TemplateManager.getGDice` for a `<g-dice>` block.
+ *
+ * @remarks
+ * Extends {@link IDiceBlock} with the `dice` kind discriminator.
+ *
+ * @public
+ */
+export type GDiceResult = {kind: `dice`} & IDiceBlock
+/**
+ * Result of `TemplateManager.getGKeyboard` for a `<g-keyboard>` block.
+ *
+ * @remarks
+ * `rows` holds the flattened rendered button labels. A missing block yields
+ * `{kind: "keyboard", rows: []}`.
+ *
+ * @public
+ */
+export type GKeyboardResult = {kind: `keyboard`; rows: string[]}
+/**
+ * Result of `TemplateManager.getGCallbackAnswer` for a `<g-callback-answer>` block.
+ *
+ * @remarks
+ * `text` is the rendered toast text; the getter throws when the block is
+ * missing (callback answers always need text).
+ *
+ * @public
+ */
+export type GCallbackAnswerResult = {kind: `callbackAnswer`; text: string}
+/**
+ * Result of `TemplateManager.getGPrecheckoutError` for a `<g-precheckout-error>` block.
+ *
+ * @remarks
+ * `text` is the rendered decline message; the getter throws when the block
+ * is missing (declined payments need an error message).
+ *
+ * @public
+ */
+export type GPreCheckoutErrorResult = {kind: `preCheckoutError`; text: string}
+/**
+ * Result of `TemplateManager.getGShippingError` for a `<g-shipping-error>` block.
+ *
+ * @remarks
+ * `text` is the rendered rejection message; the getter throws when the block
+ * is missing (rejected shipping needs an error message).
+ *
+ * @public
+ */
+export type GShippingErrorResult = {kind: `shippingError`; text: string}
+/**
+ * Result of `TemplateManager.getGInlineButton` for a `<g-inline-button>` block.
+ *
+ * @remarks
+ * Extends {@link IInlineButtonBlock} with the `inlineButton` kind
+ * discriminator.
+ *
+ * @public
+ */
+export type GInlineButtonResult = {kind: `inlineButton`} & IInlineButtonBlock
+/**
+ * Result of `TemplateManager.getGAnswerNote` for a `<g-answer-note>` block.
+ *
+ * @remarks
+ * `text` is the marker note text; the getter throws when the block is
+ * missing (guest and web app answers require the marker block).
+ *
+ * @public
+ */
+export type GAnswerNoteResult = {kind: `answerNote`; text: string}
+/**
+ * Result of `TemplateManager.getGGift` for a `<g-gift>` block.
+ *
+ * @remarks
+ * `text` is the rendered gift card text; the getter throws when the block
+ * is missing (gifts always need card text).
+ *
+ * @public
+ */
+export type GGiftResult = {kind: `gift`; text: string}
+/**
+ * Result of `TemplateManager.getGInvoice` for a `<g-invoice>` block.
+ *
+ * @remarks
+ * Extends {@link IInvoiceBlock} with the `invoice` kind discriminator.
+ *
+ * @public
+ */
+export type GInvoiceResult = {kind: `invoice`} & IInvoiceBlock
+/**
+ * Result of `TemplateManager.getGPaidMedia` for a `<g-paid-media>` block.
+ *
+ * @remarks
+ * Extends {@link IPaidMediaBlock} with the `paidMedia` kind discriminator.
+ *
+ * @public
+ */
+export type GPaidMediaResult = {kind: `paidMedia`} & IPaidMediaBlock
+/**
+ * Result of `TemplateManager.getGDescription` for a `<g-description>` block.
+ *
+ * @remarks
+ * `text` is the rendered command description; a missing block yields
+ * `{kind: "description", text: ""}`.
+ *
+ * @public
+ */
+export type GDescriptionResult = {kind: `description`; text: string}
+
+/**
  * Compiled template structure containing all parsed template components.
  *
  * @remarks
@@ -852,8 +1012,9 @@ export type ICompiledTemplate = {
    * Compiled message blocks indexed by base ID and language.
    *
    * @remarks
-   * Produced by `TemplateEngine.compileBlockGMessage`. Each leaf renders the
-   * message HTML string for the given render data.
+   * Produced by `TemplateEngine.compileBlockGMessage`. Each leaf resolves the
+   * rendered message text plus the compile-time rich marker for the given
+   * render data.
    */
   message: ReturnType<typeof TemplateEngine.compileBlockGMessage>
   /**

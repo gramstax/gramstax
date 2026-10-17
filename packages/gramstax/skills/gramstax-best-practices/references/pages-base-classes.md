@@ -39,7 +39,7 @@ export abstract class PageAdminBase extends PageBase {
     // `this` IS the page instance — no ctx param on the page-level hook
     if (await isAdmin(this.from!.id)) return true
     // answer from the template, like every other answer — not a hardcoded string
-    await this.renderCallbackAnswer(true, undefined, Base.denied)
+    await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied})
     return false // strict `false` is the only value that denies
   }
 }
@@ -107,7 +107,7 @@ export abstract class PageStaffBase extends PageBase {
     }
   }
   gdone = {
-    show: async () => this.renderAuto(this.helper.kbDone(), {}, Base.done),
+    show: async () => this.renderText({AGBaseId: Base.done, keyboard: this.helper.doneKeyboard()}),
     process: async () => {}
   }
 }

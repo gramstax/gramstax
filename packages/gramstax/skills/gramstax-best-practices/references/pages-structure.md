@@ -35,7 +35,7 @@ export class DepositPage extends PageBase {
   }
 
   helper = {
-    kb: (bi?: string) => this.inlineKeyboardT([StartPage], `1`, bi)
+    buildKeyboard: (baseId?: string) => this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   gamount = {
@@ -80,15 +80,15 @@ Base classes are the right home for any family-wide concern, not only `hookBefor
 - A page that overrides `hookBeforeRoute` **replaces** the inherited family gate. Call `super.hookBeforeRoute()` to compose rather than silently unlocking the page.
 - `g<name>` maps from base id: no id → `gdefault`, `id="s1"` → `gs1`, `id="amount"` → `gamount`.
 - Instance `helper = {}` is MANDATORY alongside `g*`: every page that defines `g*` objects also defines an instance-level `helper = {}` field holding that page's small closures (keyboard builders, param readers), so `g*` show/process stay one-liner delegations to `this.helper.*` — easy to maintain, readable for humans.
-- Instance `helper` vs static `Helper` class: `helper = {}` holds per-page closures capturing `this` (no `ctx` parameter). The static `Helper` class is for shared utilities that take `ctx` explicitly (`Helper.kb(ctx, bi)`). Prefer instance `helper` for page-local logic:
+- Instance `helper` vs static `Helper` class: `helper = {}` holds per-page closures capturing `this` (no `ctx` parameter). The static `Helper` class is for shared utilities that take `ctx` explicitly (`Helper.buildKeyboard(ctx, baseId)`). Prefer instance `helper` for page-local logic:
 
 ```typescript
 helper = {
-  kbIndex: () => this.inlineKeyboardT([StartPage], `1`, Base.index)
+  indexKeyboard: () => this.inlineKeyboardT([StartPage], `1`, Base.index)
 }
 gindex = {
   show: async () => {
-    await this.renderAuto(this.helper.kbIndex(), {}, Base.index)
+    await this.renderText({AGBaseId: Base.index, keyboard: this.helper.indexKeyboard()})
   }
 }
 ```

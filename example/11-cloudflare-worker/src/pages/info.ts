@@ -4,7 +4,7 @@ export class InfoPage extends PageBase {
   static data = this.buildData({name: `info`})
 
   async handleCommandText() {
-    await this.renderAuto(null, {})
+    await this.renderText()
   }
 
   helper = {}

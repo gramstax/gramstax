@@ -42,10 +42,10 @@ describe(`registerCompiled`, () => {
     viaCompile.compile(`jit`, TEMPLATE)
     const viaRegister = new TemplateManager({path: [dir]})
     viaRegister.registerCompiled(`aot`, buildCompiled(TEMPLATE))
-    expect(viaRegister.getGMessage(`aot`, `default`, `default`, DATA)).toBe(viaCompile.getGMessage(`jit`, `default`, `default`, DATA))
+    expect(viaRegister.getGMessage(`aot`, `default`, `default`, DATA)).toEqual(viaCompile.getGMessage(`jit`, `default`, `default`, DATA))
     expect(viaRegister.getGKeyboard(`aot`, `default`, `default`, `inline`, DATA)).toEqual(viaCompile.getGKeyboard(`jit`, `default`, `default`, `inline`, DATA))
-    expect(viaRegister.getGMessage(`aot`, `default`, `default`, DATA)).toContain(`ANN`)
-    expect(viaRegister.getGKeyboard(`aot`, `default`, `default`, `inline`, DATA)).toEqual([`Alice\nBob`])
+    expect(viaRegister.getGMessage(`aot`, `default`, `default`, DATA).text).toContain(`ANN`)
+    expect(viaRegister.getGKeyboard(`aot`, `default`, `default`, `inline`, DATA).rows).toEqual([`Alice\nBob`])
   })
 
   it(`fills _map with no validation and no reload`, () => {
@@ -66,6 +66,6 @@ describe(`registerCompiled`, () => {
     expect(manager.hasCompiled(`aot`)).toBe(true)
     expect(validations).toBe(0)
     expect(reloads).toBe(0)
-    expect(manager.getGMessage(`aot`, `default`, `default`, DATA)).toContain(`ANN`)
+    expect(manager.getGMessage(`aot`, `default`, `default`, DATA).text).toContain(`ANN`)
   })
 })

@@ -7,8 +7,7 @@ export class UserNameNotFoundPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([HelpPage])
-      await this.renderAuto(kb)
+      await this.renderText({keyboard: this.inlineKeyboardT([HelpPage])})
     },
     process: () => {}
   }

@@ -33,31 +33,31 @@ export class CartPage extends PageBase {
         return await this.gempty.show()
       }
 
-      const bi = Base.index
-      const kb = this.inlineKeyboard(
-        (k, l) => {
-          summary.items.forEach((item) => {
-            k.text(`${l[0]!} ${item.product.name}`, this.data.callbackQueryData(bi, `inc`, item.product.id))
-            k.text(l[1]!, this.data.callbackQueryData(bi, `dec`, item.product.id))
-            k.text(l[2]!, this.data.callbackQueryData(bi, `remove`, item.product.id))
+      await this.renderText({
+        AGBaseId: Base.index,
+        keyboard: this.inlineKeyboard(
+          (k, l) => {
+            summary.items.forEach((item) => {
+              k.text(`${l[0]!} ${item.product.name}`, this.data.callbackQueryData(Base.index, `inc`, item.product.id))
+              k.text(l[1]!, this.data.callbackQueryData(Base.index, `dec`, item.product.id))
+              k.text(l[2]!, this.data.callbackQueryData(Base.index, `remove`, item.product.id))
+              k.row()
+            })
+
+            k.text(l[3]!, CheckoutPage)
+            k.text(l[4]!, this.data.callbackQueryData(Base.index, `clear`))
             k.row()
-          })
-
-          k.text(l[3]!, CheckoutPage)
-          k.text(l[4]!, this.data.callbackQueryData(bi, `clear`))
-          k.row()
-          k.text(l[5]!, CatalogPage)
-          k.text(l[6]!, StartPage)
-          return k
-        },
-        {AGBaseId: bi}
-      )
-      const da = {
-        items: OrderStore.formatCart(summary),
-        subtotal: ProductCatalog.formatPrice(summary.subtotal)
-      }
-
-      await this.renderAuto(kb, da, bi)
+            k.text(l[5]!, CatalogPage)
+            k.text(l[6]!, StartPage)
+            return k
+          },
+          {AGBaseId: Base.index}
+        ),
+        data: {
+          items: OrderStore.formatCart(summary),
+          subtotal: ProductCatalog.formatPrice(summary.subtotal)
+        }
+      })
     },
     process: async (action?: string, productId?: string) => {
       const cart = ((await this.cacheState.get(`${this.from!.id}:cart`)) ?? {}) as CartState
@@ -81,17 +81,13 @@ export class CartPage extends PageBase {
   }
   gempty = {
     show: async () => {
-      const bi = Base.empty
-      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.empty, keyboard: this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.empty)})
     },
     process: () => {}
   }
   ginfoCleared = {
     show: async () => {
-      const bi = Base.infoCleared
-      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.infoCleared, keyboard: this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.infoCleared)})
     },
     process: () => {}
   }

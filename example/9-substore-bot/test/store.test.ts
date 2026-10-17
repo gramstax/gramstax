@@ -121,7 +121,7 @@ describe(`CheckoutPage QRIS media`, () => {
   it(`sends order-created as a QRIS photo with deadline, status, and refresh button`, () => {
     const checkoutSource = readFileSync(join(import.meta.dir, `../src/pages/checkout.ts`), `utf8`)
 
-    expect(checkoutSource).toContain(`renderEditPhoto`)
+    expect(checkoutSource).toContain(`renderPhoto(`)
     expect(checkoutSource).toContain(`refresh`)
     expect(checkoutSource).toContain(`deadlineAt`)
     expect(checkoutSource).toContain(`<g-media type="photo" src="{{qrisImageUrl}}">`)
@@ -130,7 +130,7 @@ describe(`CheckoutPage QRIS media`, () => {
   it(`refreshes the QRIS order card as media instead of empty text`, () => {
     const checkoutSource = readFileSync(join(import.meta.dir, `../src/pages/checkout.ts`), `utf8`)
 
-    expect(checkoutSource).toContain(`renderEditPhoto`)
-    expect(checkoutSource).not.toContain(`await ctx.renderEdit(kb, da, bi)\n  }\n}`)
+    expect(checkoutSource).toContain(`renderPhoto(`)
+    expect(checkoutSource).not.toContain(`renderText({keyboard: this.helper.successKeyboard`)
   })
 })

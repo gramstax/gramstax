@@ -19,7 +19,7 @@ let htmlGenDir: string
 let emptyDir: string
 
 function pageSource(className: string, name: string, message: string): string {
-  return `import {Ctx} from "${CTX_ABS}"\nexport class ${className} extends Ctx {\n  static data = this.buildData({name: \`${name}\`})\n  async handleCommandText() {\n    await this.renderAuto(null, {})\n  }\n  helper = {}\n  static template = \`\n    <g-base>\n      <g-message>${message}</g-message>\n    </g-base>\n  \`\n}\n`
+  return `import {Ctx} from "${CTX_ABS}"\nexport class ${className} extends Ctx {\n  static data = this.buildData({name: \`${name}\`})\n  async handleCommandText() {\n    await this.renderText({data: {}})\n  }\n  helper = {}\n  static template = \`\n    <g-base>\n      <g-message>${message}</g-message>\n    </g-base>\n  \`\n}\n`
 }
 
 function relinkCtx(root: string): void {

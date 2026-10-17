@@ -32,7 +32,7 @@ class PleaseWaitPage extends Ctx {
 
   gshow = {
     show: async () => {
-      await this.renderAuto(null, {}, `please-wait`)
+      await this.renderText({data: {}, AGBaseId: `please-wait`})
     }
   }
 }

@@ -13,9 +13,7 @@ export class StatsPage extends PageBase {
     show: async () => {
       const count = await this.db.subs.total()
       const subscribed = await this.db.subs.isSubscribed(this.from!.id)
-      const kb = this.inlineKeyboardT([StartPage])
-      const da = {count, subscribed}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([StartPage]), data: {count, subscribed}})
     },
     process: () => {}
   }

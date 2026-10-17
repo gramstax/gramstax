@@ -19,7 +19,7 @@ const xss = `<script>alert("xss")</script><img src="x" onerror="alert(2)">A & B 
 const template = `<g-base><g-message>Escaped: {{bio}} | Raw: {{{bio}}}</g-message></g-base>`
 const render = TemplateEngine.compileBlockGMessage(template).default?.default
 if (!render) throw new Error(`compile produced no default message`)
-const out = render({bio: xss}) as string
+const {text: out} = render({bio: xss})
 console.log(`Output:`, JSON.stringify(out))
 
 const escapedOk = out.includes(`Escaped: &lt;script&gt;`) && out.includes(`A &amp; B`)

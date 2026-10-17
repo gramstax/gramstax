@@ -11,8 +11,8 @@ Aligned with **gramstax v2.2.0**.
 
 ## route- (CRITICAL)
 
-- `route-render-auto.md` — `renderAuto*` default, forced send/edit, `fallbackEdit`, no manual `callbackQuery` branching
-- `route-render-api.md` — the render family incl. `renderChunked`, `renderEditCaption`, `renderEditKeyboard`, `renderGift`
+- `route-render-auto.md` — `mode` (`auto` default / `reply` / `edit`), forced send/edit, `fallbackEdit`, no manual `callbackQuery` branching
+- `route-render-api.md` — the render family incl. `renderText` + `chunkSize`, `renderEditCaption`, `renderEditKeyboard`, `renderGift`
 - `route-session.md` — session lifecycle: clear on start, `handleSessionFreeText`, never fetch manually
 - `route-handlers.md` — thin handlers delegating to `g*` show/process pairs
 - `route-hooks.md` — the **two** `hookBeforeRoute` gates (bot-level vs page-level), states, full hook surface
@@ -43,7 +43,7 @@ Aligned with **gramstax v2.2.0**.
 
 - `pages-base-classes.md` — base-class policy: admin gate via `hookBeforeRoute`, cases beyond hooks, vs `GuardBase`
 - `pages-structure.md` — file order, `extends` choice, `g*` show/process contract, `static data`
-- `pages-naming.md` — kebab-case files, parent-child routes, `sN` base ids, `bi`/`kb`/`da` shorthands
+- `pages-naming.md` — kebab-case files, parent-child routes, `sN` base ids
 - `pages-data.md` — `buildData` typings and `callbackQueryData` args
 
 ## e2e- (MEDIUM-HIGH)

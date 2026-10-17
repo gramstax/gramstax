@@ -5,7 +5,7 @@ const renderMsg = (inner: string, data: Record<string, unknown> = {}): string =>
   const tpl = `<g-base><g-message>${inner}</g-message></g-base>`
   const fn = TemplateEngine.compileBlockGMessage(tpl).default?.default
   if (!fn) throw new Error(`compile produced no default message`)
-  return fn(data)
+  return fn(data).text
 }
 
 describe(`template engine security RED (findings 01-15)`, () => {

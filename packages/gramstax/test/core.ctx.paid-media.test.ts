@@ -49,7 +49,7 @@ describe(`paid-media-render`, () => {
   it(`sends Stars-locked media with captions as HTML`, async () => {
     const api = makeApi()
     const kb = {inline_keyboard: []}
-    await makeCtx(api, wall).renderPaidMedia(kb as never, {teaser: `t.jpg`})
+    await makeCtx(api, wall).renderPaidMedia({keyboard: kb as never, data: {teaser: `t.jpg`}})
     expect(api.sendPaidMedia).toHaveBeenCalledTimes(1)
     const args = (api.sendPaidMedia.mock.calls as any)[0]
     expect(args[0]).toBe(1)
@@ -85,7 +85,7 @@ describe(`paid-media-render`, () => {
       onSendError: null as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
-    await ctx.renderPaidMedia(null, {teaser: `t.jpg`}, `promo`, {payload: `p`} as never)
+    await ctx.renderPaidMedia({data: {teaser: `t.jpg`}, AGBaseId: `promo`, options: {payload: `p`} as never})
     expect((getGPaidMedia.mock.calls as any)[0]).toEqual([`paidmediapage`, `promo`, undefined, {teaser: `t.jpg`}])
     expect((api.sendPaidMedia.mock.calls as any)[0][3]).toMatchObject({payload: `p`})
   })

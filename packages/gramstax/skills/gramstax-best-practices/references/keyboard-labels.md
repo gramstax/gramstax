@@ -10,9 +10,9 @@ Literal labels scattered across pages drift (`Confirm` vs `Confirm!` vs `✅ Con
 
 ```typescript
 // literals retyped per page — wording drifts silently
-const kbA = ctx.inlineKeyboardT([{...}]) // "Confirm"
+await ctx.renderText({keyboard: ctx.inlineKeyboardT([{text: `Confirm`}])})
 // another page:
-const kbB = ctx.inlineKeyboardT([{...}]) // "Confirm!"
+await ctx.renderText({keyboard: ctx.inlineKeyboardT([{text: `Confirm!`}])})
 ```
 
 ## Correct

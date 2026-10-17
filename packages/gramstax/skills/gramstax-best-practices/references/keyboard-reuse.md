@@ -18,7 +18,7 @@ class KeyboardGBlock extends BlockGKeyboard {
 ```typescript
 // static Helper class — retired; page-local logic lives in instance `helper = {}`
 class Helper {
-  static kb(ctx: PayPage) {
+  static receiptKeyboard(ctx: PayPage) {
     return ctx.inlineKeyboardT([ReceiptPage], `1`)
   }
 }
@@ -37,11 +37,11 @@ class KeyboardGBlock extends BlockGKeyboard {
 // src/pages/pay.ts — single-use: built in the page's instance helper, dies with it
 export class PayPage extends PageBase {
   helper = {
-    kbReceipt: () => this.inlineKeyboardT([ReceiptPage], `1`)
+    receiptKeyboard: () => this.inlineKeyboardT([ReceiptPage], `1`)
   }
   gdefault = {
     show: async () => {
-      await this.renderAuto(this.helper.kbReceipt(), {}, Base.default)
+      await this.renderText({AGBaseId: Base.default, keyboard: this.helper.receiptKeyboard()})
     },
     process: async () => {}
   }

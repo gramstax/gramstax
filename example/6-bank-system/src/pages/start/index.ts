@@ -20,8 +20,7 @@ export class StartPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartBalancePage, StartDepositPage, StartWithdrawPage, StartTransferPage, StartHistoryPage], `2`)
-      await this.renderAuto(kb)
+      await this.renderText({keyboard: this.inlineKeyboardT([StartBalancePage, StartDepositPage, StartWithdrawPage, StartTransferPage, StartHistoryPage], `2`)})
     },
     process: () => {}
   }

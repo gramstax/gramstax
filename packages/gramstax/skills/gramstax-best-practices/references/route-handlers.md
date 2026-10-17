@@ -12,7 +12,7 @@ Fat handlers mix routing, validation, rendering, and business logic — untestab
 async handleCallbackQueryData() {
   const balance = await store.get(this.from.id) // business logic in handler
   if (balance < amount) { /* inline error render */ }
-  await this.render(kb, {balance}) // rendering mixed in
+  await this.renderText({keyboard: this.inlineKeyboardT([StartPage], `1`), data: {balance}}) // rendering mixed in
   await this.setSessionFreeText({step: `confirm`})
 }
 ```

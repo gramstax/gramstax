@@ -19,11 +19,10 @@ import type {
   IGramstaxTemplateManagerRef,
   IGramstaxWebhookDeployOptions
 } from "~/types/config"
-import {GRAMSTAX_SERVERLESS_ADAPTERS, GRAMSTAX_SERVERLESS_FIELDS} from "~/types/config"
+import {GRAMSTAX_DEPLOY_MODE_SET, GRAMSTAX_DEPLOY_MODES, GRAMSTAX_SERVERLESS_ADAPTERS, GRAMSTAX_SERVERLESS_FIELDS} from "~/types/config"
 import type {ISessionLockOnContended} from "~/types/session-lock"
 import type {ITemplateOptions} from "~/types/template"
 
-const VALID_DEPLOYS = [`polling`, `webhook`, `serverless`, `raw`, `test`]
 const TOP_LEVEL_FIELDS = [
   `optionsDeploy`,
   `token`,
@@ -165,8 +164,8 @@ export class GramstaxConfigLoader {
     }
     const deploy = record.deploy
     if (deploy !== undefined) {
-      if (typeof deploy !== `string` || VALID_DEPLOYS.includes(deploy) === false) {
-        throw new Error(`Invalid gramstax config at ${file}: \`deploy\` must be one of polling, webhook, serverless, raw, test (got \`${String(deploy)}\`)`)
+      if (typeof deploy !== `string` || GRAMSTAX_DEPLOY_MODE_SET.has(deploy) === false) {
+        throw new Error(`Invalid gramstax config at ${file}: \`deploy\` must be one of ${GRAMSTAX_DEPLOY_MODES.join(`, `)} (got \`${String(deploy)}\`)`)
       }
       config.deploy = deploy
     }

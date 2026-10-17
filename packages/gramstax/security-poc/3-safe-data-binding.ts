@@ -35,7 +35,7 @@ const result = render({username: maliciousUserInput})
 
 console.log(`Final Result (Should be safe string):`, result)
 
-if (typeof result === `string` && result.includes(maliciousUserInput)) {
+if (result.text.includes(maliciousUserInput)) {
   console.log(`SAFE: user input rendered literally, no code executed`)
 } else {
   console.log(`UNEXPECTED: user input missing from output`)

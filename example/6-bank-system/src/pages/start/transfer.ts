@@ -23,7 +23,7 @@ export class StartTransferPage extends PageBase {
   }
 
   helper = {
-    kb: (AGBaseId?: string) => {
+    homeKeyboard: (AGBaseId?: string) => {
       return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
     },
     resolveTarget: (input: string) => {
@@ -42,9 +42,7 @@ export class StartTransferPage extends PageBase {
   }
   gdefault = {
     show: async () => {
-      const bi = Base.index
-      const kb = this.helper.kb(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.index, keyboard: this.helper.homeKeyboard(Base.index)})
     },
     process: async (input: string) => {
       const [amountInput, targetInput] = input.trim().split(/\s+/)
@@ -98,46 +96,32 @@ export class StartTransferPage extends PageBase {
   }
   gwarnInvalid = {
     show: async (amount = ``) => {
-      const bi = Base.warnInvalid
-      const kb = this.helper.kb(bi)
-      const da = {amount}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.warnInvalid, keyboard: this.helper.homeKeyboard(Base.warnInvalid), data: {amount}})
     },
     process: () => {}
   }
   gwarnUnknownUser = {
     show: async (target: string) => {
-      const bi = Base.warnUnknownUser
-      const kb = this.helper.kb(bi)
-      const da = {target}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.warnUnknownUser, keyboard: this.helper.homeKeyboard(Base.warnUnknownUser), data: {target}})
     },
     process: () => {}
   }
   gwarnSelf = {
     show: async () => {
-      const bi = Base.warnSelf
-      const kb = this.helper.kb(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.warnSelf, keyboard: this.helper.homeKeyboard(Base.warnSelf)})
     },
     process: () => {}
   }
   gwarnInsufficient = {
     show: async (balance: string) => {
-      const bi = Base.warnInsufficient
-      const kb = this.helper.kb(bi)
-      const da = {balance}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.warnInsufficient, keyboard: this.helper.homeKeyboard(Base.warnInsufficient), data: {balance}})
     },
     process: () => {}
   }
   gsuccess = {
     show: async (amount: string, balance: string, target: string) => {
       await this.clearSession()
-      const bi = Base.success
-      const kb = this.helper.kb(bi)
-      const da = {amount, balance, target}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.success, keyboard: this.helper.homeKeyboard(Base.success), data: {amount, balance, target}})
     },
     process: () => {}
   }

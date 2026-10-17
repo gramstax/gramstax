@@ -26,7 +26,7 @@ export class CreatePage extends PageBase {
   }
 
   helper = {
-    buildHomeKb: (AGBaseId?: string) => {
+    buildHomeKeyboard: (AGBaseId?: string) => {
       return this.inlineKeyboardT([StartPage], `1`, AGBaseId)
     },
     getSessionParams: () => {
@@ -40,20 +40,15 @@ export class CreatePage extends PageBase {
   }
   gtitle = {
     show: async () => {
-      const bi = Base.title
-      const kb = this.helper.buildHomeKb(bi)
-      await this.setSessionFreeText({step: bi})
-      await this.renderAuto(kb, {}, bi)
+      await this.setSessionFreeText({step: Base.title})
+      await this.renderText({AGBaseId: Base.title, keyboard: this.helper.buildHomeKeyboard(Base.title)})
     },
     process: () => {}
   }
   gnotes = {
     show: async (title: string) => {
-      const bi = Base.notes
-      const kb = this.helper.buildHomeKb(bi)
-      const da = {title}
-      await this.setSessionFreeText({step: bi, title})
-      await this.renderAuto(kb, da, bi)
+      await this.setSessionFreeText({step: Base.notes, title})
+      await this.renderText({AGBaseId: Base.notes, keyboard: this.helper.buildHomeKeyboard(Base.notes), data: {title}})
     },
     process: () => {}
   }
@@ -61,15 +56,7 @@ export class CreatePage extends PageBase {
     show: async (title: string, input: string) => {
       await this.clearSession()
       const item = await this.db.items.create(this.from!.id, title!, input)
-      const bi = Base.success
-      const kb = this.helper.buildHomeKb(bi)
-      const da = {
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        status: item.status
-      }
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.success, keyboard: this.helper.buildHomeKeyboard(Base.success), data: {id: item.id, title: item.title, description: item.description, status: item.status}})
     },
     process: () => {}
   }

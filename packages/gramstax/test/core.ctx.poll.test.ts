@@ -45,7 +45,7 @@ describe(`poll-render`, () => {
   it(`sends a regular poll with parse mode and anonymity`, async () => {
     const api = makeApi()
     const kb = {inline_keyboard: []}
-    await makeCtx(api, regularPoll).renderPoll(kb as never, {topic: `x`})
+    await makeCtx(api, regularPoll).renderPoll({keyboard: kb as never, data: {topic: `x`}})
     expect(api.sendPoll).toHaveBeenCalledTimes(1)
     const args = (api.sendPoll.mock.calls as any)[0]
     expect(args[0]).toBe(1)

@@ -21,9 +21,7 @@ export class HistoryPage extends PageBase {
       const history = OrderHistoryStore.refreshStatuses(raw)
       await this.cacheState.set(`${this.from!.id}:orders`, history)
 
-      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`)
-      const da = {history: OrderHistoryStore.formatHistory(history)}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([CatalogPage, StartPage], `1`), data: {history: OrderHistoryStore.formatHistory(history)}})
     },
     process: () => {}
   }

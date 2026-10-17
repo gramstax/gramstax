@@ -40,7 +40,7 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
 })
 
 const makeCtx = (med: unknown, api: Record<string, unknown>, extra?: {log?: unknown; mediaRoots?: string[] | null; onSendError?: unknown}) => {
-  const tm = {getGMedia: mock(() => med), getGMessage: mock(() => `hello`)} as never
+  const tm = {getGMedia: mock(() => med), getGMessage: mock(() => ({kind: `message`, text: `hello`, rich: false}))} as never
   const update = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
   const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new JailPage({
@@ -115,7 +115,7 @@ describe(`jail-instance`, () => {
   it(`uploads absolute paths when the jail is unset (non-breaking)`, async () => {
     const {inside} = await setupDirs()
     const api = makeApi()
-    await makeCtx({type: `photo`, src: inside, caption: `Hi`}, api).renderMedia(`photo`)
+    await makeCtx({type: `photo`, src: inside, caption: `Hi`}, api).renderMedia({type: `photo`})
     expect(api.sendPhoto).toHaveBeenCalledTimes(1)
     expect((api.sendPhoto.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
   })
@@ -124,7 +124,7 @@ describe(`jail-instance`, () => {
     const {allowed, outside} = await setupDirs()
     const warn = mock(() => {})
     const api = makeApi()
-    await makeCtx({type: `photo`, src: outside, caption: `Hi`}, api, {log: {warn}, mediaRoots: [allowed]}).renderMedia(`photo`)
+    await makeCtx({type: `photo`, src: outside, caption: `Hi`}, api, {log: {warn}, mediaRoots: [allowed]}).renderMedia({type: `photo`})
     expect(api.sendPhoto).toHaveBeenCalledTimes(1)
     expect((api.sendPhoto.mock.calls as any)[0][1]).toBe(outside)
     expect(warn).toHaveBeenCalledTimes(1)
@@ -135,7 +135,7 @@ describe(`jail-instance`, () => {
     const {allowed, inside} = await setupDirs()
     const warn = mock(() => {})
     const api = makeApi()
-    await makeCtx({type: `photo`, src: inside, caption: `Hi`}, api, {log: {warn}, mediaRoots: [allowed]}).renderMedia(`photo`)
+    await makeCtx({type: `photo`, src: inside, caption: `Hi`}, api, {log: {warn}, mediaRoots: [allowed]}).renderMedia({type: `photo`})
     expect((api.sendPhoto.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
     expect(warn).not.toHaveBeenCalled()
   })
@@ -143,9 +143,9 @@ describe(`jail-instance`, () => {
   it(`denies silently when log is absent and leaves URL/file_id alone with jail set`, async () => {
     const {allowed, outside} = await setupDirs()
     const api = makeApi()
-    await makeCtx({type: `photo`, src: outside, caption: `Hi`}, api, {mediaRoots: [allowed]}).renderMedia(`photo`)
+    await makeCtx({type: `photo`, src: outside, caption: `Hi`}, api, {mediaRoots: [allowed]}).renderMedia({type: `photo`})
     expect((api.sendPhoto.mock.calls as any)[0][1]).toBe(outside)
-    await makeCtx({type: `photo`, src: `https://example.com/a.jpg`, caption: `Hi`}, api, {mediaRoots: [allowed]}).renderMedia(`photo`)
+    await makeCtx({type: `photo`, src: `https://example.com/a.jpg`, caption: `Hi`}, api, {mediaRoots: [allowed]}).renderMedia({type: `photo`})
     expect((api.sendPhoto.mock.calls as any)[1][1]).toBe(`https://example.com/a.jpg`)
   })
 
@@ -179,7 +179,7 @@ describe(`observe-log`, () => {
         throw grammyError(400)
       })
     })
-    await makeCtx(photoMed(), api, {log: {warn}}).renderMedia(`photo`)
+    await makeCtx(photoMed(), api, {log: {warn}}).renderMedia({type: `photo`})
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
     expect(warn).toHaveBeenCalledTimes(1)
     expect((warn.mock.calls as any)[0][0]).toContain(`jailpage`)
@@ -193,7 +193,7 @@ describe(`observe-log`, () => {
         throw err
       })
     })
-    await expect(makeCtx(photoMed(), api, {log: {error}}).renderMedia(`photo`)).rejects.toBe(err)
+    await expect(makeCtx(photoMed(), api, {log: {error}}).renderMedia({type: `photo`})).rejects.toBe(err)
     expect(error).toHaveBeenCalledTimes(1)
     const msg = (error.mock.calls as any)[0][0] as string
     expect(msg).toContain(`jailpage`)
@@ -217,7 +217,7 @@ describe(`observe-log`, () => {
         throw grammyError(400)
       })
     })
-    await makeCtx(pipe, apiPipe, {log: {warn: warnPipe}}).renderMediaGroup(`photo`)
+    await makeCtx(pipe, apiPipe, {log: {warn: warnPipe}}).renderMediaGroup({type: `photo`})
     expect(warnPipe).toHaveBeenCalledTimes(1)
   })
 
@@ -229,7 +229,7 @@ describe(`observe-log`, () => {
         throw err
       })
     })
-    const res = await makeCtx(photoMed(), api, {log: {warn}}).renderBroadcastMedia([7, 8], [`en`, `en`])
+    const res = await makeCtx(photoMed(), api, {log: {warn}}).renderBroadcastMedia({ids: [7, 8], languageCode: [`en`, `en`]})
     expect(res.failedCount).toBe(2)
     expect(warn).toHaveBeenCalledTimes(2)
     const retryApi = makeApi({
@@ -238,7 +238,7 @@ describe(`observe-log`, () => {
       })
     })
     const warnRetry = mock(() => {})
-    const retryRes = await makeCtx(photoMed(), retryApi, {log: {warn: warnRetry}}).renderBroadcastMedia([7], [`en`])
+    const retryRes = await makeCtx(photoMed(), retryApi, {log: {warn: warnRetry}}).renderBroadcastMedia({ids: [7], languageCode: [`en`]})
     expect(retryRes.retryable.length).toBe(1)
     expect(warnRetry).not.toHaveBeenCalled()
   })
@@ -251,7 +251,7 @@ describe(`observe-log`, () => {
         throw grammyError(400)
       })
     })
-    const tm = {getGMessage: mock(() => `hello`)} as never
+    const tm = {getGMessage: mock(() => ({kind: `message`, text: `hello`, rich: false}))} as never
     const update = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
     const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
     const ctx = new JailPage({
@@ -262,7 +262,7 @@ describe(`observe-log`, () => {
       log: {warn} as unknown as ICtxParams[`log`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
-    await ctx.renderBroadcast([7], [`en`])
+    await ctx.renderBroadcast({ids: [7], languageCode: [`en`]})
     expect(warn).toHaveBeenCalledTimes(1)
   })
 
@@ -274,7 +274,7 @@ describe(`observe-log`, () => {
         })
       })
     const warnMedia = mock(() => {})
-    await makeCtx(photoMed(), failingEdit(), {log: {warn: warnMedia}}).renderEditMedia(`photo`)
+    await makeCtx(photoMed(), failingEdit(), {log: {warn: warnMedia}}).renderMedia({type: `photo`, mode: `edit`})
     expect(warnMedia).toHaveBeenCalledTimes(1)
     expect((warnMedia.mock.calls as any)[0][0]).toContain(`jailpage`)
     const failingText = () =>
@@ -284,7 +284,7 @@ describe(`observe-log`, () => {
         })
       })
     const warnEdit = mock(() => {})
-    const tm = {getGMessage: mock(() => `hello`), getGMedia: mock(() => photoMed())} as never
+    const tm = {getGMessage: mock(() => ({kind: `message`, text: `hello`, rich: false})), getGMedia: mock(() => photoMed())} as never
     const update = {callback_query: {id: `q`, data: `x`, chat_instance: `ci`, message: {message_id: 2, date: 2, text: `m`, chat: {id: 1, type: `private`}}}}
     const mkEditCtx = (api: Record<string, unknown>, log: unknown) => {
       const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
@@ -297,13 +297,13 @@ describe(`observe-log`, () => {
         temp: {isAnswer: false, session: {}, data: {}}
       })
     }
-    await mkEditCtx(failingText(), {warn: warnEdit}).renderEdit(null)
+    await mkEditCtx(failingText(), {warn: warnEdit}).renderText({mode: `edit`})
     expect(warnEdit).toHaveBeenCalledTimes(1)
     const warnRich = mock(() => {})
-    await mkEditCtx(failingText(), {warn: warnRich}).renderEditRich(null)
+    await mkEditCtx(failingText(), {warn: warnRich}).renderText({mode: `edit`})
     expect(warnRich).toHaveBeenCalledTimes(1)
     const group = {type: `group`, mediaGroup: [{type: `photo`, src: `a.jpg`}], caption: `Cap`}
-    const tmGroup = {getGMessage: mock(() => `hello`), getGMedia: mock(() => group)} as never
+    const tmGroup = {getGMessage: mock(() => ({kind: `message`, text: `hello`, rich: false})), getGMedia: mock(() => group)} as never
     const mkGroupCtx = (api: Record<string, unknown>, log: unknown) => {
       const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
       return new JailPage({
@@ -326,7 +326,7 @@ describe(`observe-log`, () => {
         throw groupErr
       })
     })
-    await expect(mkGroupCtx(groupApi, {warn: warnGroupEdit, error: errorGroupEdit}).renderEditMediaGroup()).rejects.toBe(groupErr)
+    await expect(mkGroupCtx(groupApi, {warn: warnGroupEdit, error: errorGroupEdit}).renderMediaGroup({mode: `edit`})).rejects.toBe(groupErr)
     expect(warnGroupEdit).toHaveBeenCalledTimes(1)
     expect((warnGroupEdit.mock.calls as any)[0][0]).toContain(`fallback re-send`)
     expect(errorGroupEdit).toHaveBeenCalledTimes(2)
@@ -357,7 +357,7 @@ describe(`observe-hook`, () => {
       onSendError: (err: unknown, info: unknown) => {
         seen.push({err, info})
       }
-    }).renderMedia(`photo`)
+    }).renderMedia({type: `photo`})
     expect(seen.length).toBe(1)
     expect(seen[0]!.info).toEqual({page: `jailpage`, kind: `fallback-text`, chatId: 1})
   })
@@ -375,7 +375,7 @@ describe(`observe-hook`, () => {
         onSendError: (_err: unknown, info: unknown) => {
           seen.push(info)
         }
-      }).renderMedia(`photo`)
+      }).renderMedia({type: `photo`})
     ).rejects.toBe(err)
     expect(seen).toEqual([{page: `jailpage`, kind: `retryable`, chatId: 1}])
   })
@@ -393,7 +393,7 @@ describe(`observe-hook`, () => {
         throw grammyError(500)
       })
     })
-    const res = await makeCtx(photoMed(), api, {onSendError: hook}).renderBroadcastMedia([7, 8], [`en`, `en`])
+    const res = await makeCtx(photoMed(), api, {onSendError: hook}).renderBroadcastMedia({ids: [7, 8], languageCode: [`en`, `en`]})
     expect(res.failedCount).toBe(2)
     expect(seen).toEqual([
       {page: `jailpage`, kind: `fallback-text`, chatId: 7},
@@ -411,7 +411,7 @@ describe(`observe-hook`, () => {
       onSendError: (() => {
         throw new Error(`hook boom`)
       }) as never
-    }).renderMedia(`photo`)
+    }).renderMedia({type: `photo`})
     expect(result).toEqual({message_id: 9})
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
   })
@@ -419,8 +419,8 @@ describe(`observe-hook`, () => {
   it(`never invokes the hook for validation throws`, async () => {
     const hook = mock(() => {})
     const api = makeApi()
-    await expect(makeCtx(photoMed(), api, {onSendError: hook}).renderMedia(`bogus` as never)).rejects.toThrow(/Unknown media type/)
-    await expect(makeCtx({type: `photo`, src: Buffer.alloc(11 * 1024 * 1024), caption: `Hi`}, api, {onSendError: hook}).renderMedia(`photo`)).rejects.toThrow(/exceeds limit/)
+    await expect(makeCtx(photoMed(), api, {onSendError: hook}).renderMedia({type: `bogus` as never})).rejects.toThrow(/Unknown media type/)
+    await expect(makeCtx({type: `photo`, src: Buffer.alloc(11 * 1024 * 1024), caption: `Hi`}, api, {onSendError: hook}).renderMedia({type: `photo`})).rejects.toThrow(/exceeds limit/)
     expect(hook).not.toHaveBeenCalled()
   })
 })
@@ -479,7 +479,7 @@ describe(`observe-bot-channel`, () => {
     })
     const ctx = bot.createCtx(makeBotCt(api))
     ;(ctx as unknown as {data: {name: string}}).data = {name: `hookpage`}
-    await ctx.renderMedia(`photo`)
+    await ctx.renderMedia({type: `photo`})
     expect(bot.seen.length).toBe(1)
     expect(bot.seenSelf).toBe(bot)
     expect(bot.seen[0]!.info).toEqual({page: `hookpage`, kind: `fallback-text`, chatId: 1})

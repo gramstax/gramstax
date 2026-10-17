@@ -33,8 +33,8 @@ function createTestCtx() {
     cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
     templateManager: {
-      getGMessage: () => `caption hello`,
-      getGKeyboard: () => [`Alpha`, `Beta`]
+      getGMessage: () => ({kind: `message`, text: `caption hello`, rich: false}),
+      getGKeyboard: () => ({kind: `keyboard`, rows: [`Alpha`, `Beta`]})
     } as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
@@ -47,7 +47,7 @@ function createTestCtx() {
 describe(`Ctx.renderEditCaption`, () => {
   it(`edits the caption with the block text`, async () => {
     const {ctx, api} = createTestCtx()
-    await ctx.renderEditCaption(undefined, undefined, `photo-card`)
+    await ctx.renderEditCaption({AGBaseId: `photo-card`})
     expect(api.editMessageCaption).toHaveBeenCalledTimes(1)
     expect((api.editMessageCaption.mock.calls as any[])[0][2]).toMatchObject({caption: `caption hello`, parse_mode: `HTML`})
   })
@@ -57,12 +57,10 @@ describe(`Ctx.renderEditCaption`, () => {
     api.editMessageCaption.mockImplementation(async () => {
       throw editError
     })
-    const renderSpy = mock(() => Promise.resolve({message_id: 3} as any))
-    ctx.render = renderSpy as any
-    const result = await ctx.renderEditCaption(undefined, undefined, `photo-card`)
+    const result = await ctx.renderEditCaption({AGBaseId: `photo-card`})
     expect(api.deleteMessage).toHaveBeenCalledTimes(1)
-    expect(renderSpy).toHaveBeenCalledTimes(1)
-    expect(result).toEqual({message_id: 3} as any)
+    expect(api.sendMessage).toHaveBeenCalledTimes(1)
+    expect(result).toEqual({message_id: 3, date: 0, chat: {id: 1, type: `private`}} as any)
   })
 
   it(`reply: renders the caption without deleting the original`, async () => {
@@ -70,11 +68,9 @@ describe(`Ctx.renderEditCaption`, () => {
     api.editMessageCaption.mockImplementation(async () => {
       throw editError
     })
-    const renderSpy = mock(() => Promise.resolve({message_id: 3} as any))
-    ctx.render = renderSpy as any
-    await ctx.renderEditCaption(undefined, undefined, `photo-card`, undefined, `reply`)
+    await ctx.renderEditCaption({AGBaseId: `photo-card`, fallbackEdit: `reply`})
     expect(api.deleteMessage).not.toHaveBeenCalled()
-    expect(renderSpy).toHaveBeenCalledTimes(1)
+    expect(api.sendMessage).toHaveBeenCalledTimes(1)
   })
 
   it(`disable: rethrows the edit error with no fallback`, async () => {
@@ -82,11 +78,9 @@ describe(`Ctx.renderEditCaption`, () => {
     api.editMessageCaption.mockImplementation(async () => {
       throw editError
     })
-    const renderSpy = mock(() => Promise.resolve({message_id: 3} as any))
-    ctx.render = renderSpy as any
-    await expect(ctx.renderEditCaption(undefined, undefined, `photo-card`, undefined, `disable`)).rejects.toBe(editError)
+    await expect(ctx.renderEditCaption({AGBaseId: `photo-card`, fallbackEdit: `disable`})).rejects.toBe(editError)
     expect(api.deleteMessage).not.toHaveBeenCalled()
-    expect(renderSpy).not.toHaveBeenCalled()
+    expect(api.sendMessage).not.toHaveBeenCalled()
   })
 })
 
@@ -94,7 +88,7 @@ describe(`Ctx.renderEditKeyboard`, () => {
   it(`edits only the keyboard and never touches message text`, async () => {
     const {ctx, api} = createTestCtx()
     const kb = {inline_keyboard: []} as any
-    await ctx.renderEditKeyboard(kb, undefined, `photo-card`)
+    await ctx.renderEditKeyboard({keyboardInline: kb, AGBaseId: `photo-card`})
     expect(api.editMessageReplyMarkup).toHaveBeenCalledTimes(1)
     expect((api.editMessageReplyMarkup.mock.calls as any[])[0][2]).toMatchObject({reply_markup: kb})
     expect(api.editMessageText).not.toHaveBeenCalled()
@@ -102,7 +96,7 @@ describe(`Ctx.renderEditKeyboard`, () => {
 
   it(`null keyboard resolves the markup from the AGBaseId keyboard block`, async () => {
     const {ctx, api} = createTestCtx()
-    await ctx.renderEditKeyboard(null, undefined, `photo-card`)
+    await ctx.renderEditKeyboard({keyboardInline: null, AGBaseId: `photo-card`})
     expect(api.editMessageReplyMarkup).toHaveBeenCalledTimes(1)
     const sent = (api.editMessageReplyMarkup.mock.calls as any[])[0][2] as {reply_markup: {inline_keyboard: Array<Array<{text: string; callback_data: string}>>}}
     const flat = sent.reply_markup.inline_keyboard.flat()
@@ -125,15 +119,15 @@ describe(`Ctx.renderEditKeyboard`, () => {
       cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager: {
-        getGMessage: () => `caption hello`,
-        getGKeyboard: () => [`Alpha`]
+        getGMessage: () => ({kind: `message`, text: `caption hello`, rich: false}),
+        getGKeyboard: () => ({kind: `keyboard`, rows: [`Alpha`]})
       } as unknown as ICtxParams[`templateManager`],
       onSendError: ((_e: unknown, info: unknown) => {
         seen.push(info)
       }) as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
-    await expect(probed.renderEditKeyboard(undefined, undefined, `photo-card`)).rejects.toBe(editError)
+    await expect(probed.renderEditKeyboard({AGBaseId: `photo-card`})).rejects.toBe(editError)
     expect(api.sendMessage).not.toHaveBeenCalled()
     expect(seen.length).toBe(1)
     void ctx

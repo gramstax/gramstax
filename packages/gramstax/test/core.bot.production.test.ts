@@ -321,7 +321,7 @@ describe(`Gramstax startup failure handling`, () => {
 describe(`renderBroadcast excludeIds`, () => {
   it(`skips excluded users and counts them separately`, async () => {
     const api = {sendMessage: mock(async () => ({}))}
-    const tm = {getGMessage: mock(() => `msg`)} as any
+    const tm = {getGMessage: mock(() => ({kind: `message`, text: `msg`, rich: false}))} as any
     const ctx = new Ctx({
       ct: {update: {update_id: 1}, api, me: {id: 1, is_bot: true, first_name: `B`, username: `u`}} as any,
       cacheSession: {} as any,
@@ -332,7 +332,7 @@ describe(`renderBroadcast excludeIds`, () => {
     })
     ;(ctx as unknown as {data: {name: string}}).data = {name: `x`}
 
-    const res = await ctx.renderBroadcast([1, 2, 3], [`en`], null, null, null, null, false, null, null, [2])
+    const res = await ctx.renderBroadcast({ids: [1, 2, 3], languageCode: [`en`], throwError: false, excludeIds: [2]})
 
     expect(res.successCount).toBe(2)
     expect(res.skippedCount).toBe(1)

@@ -87,7 +87,7 @@ export class HttpRequestPage extends PageBase {
       const prettyBody = result.contentType.includes(`application/json`) ? HttpService.formatJson(result.rawBody) : result.rawBody
       return this.helper.formatBody(prettyBody)
     },
-    buildMethodKb: () => {
+    buildMethodKeyboard: () => {
       return this.inlineKeyboardT(
         [
           HttpRequestPage.data.callbackQueryData(`GET`), //
@@ -101,19 +101,19 @@ export class HttpRequestPage extends PageBase {
         Base.method
       )
     },
-    buildUrlKb: () => {
+    buildUrlKeyboard: () => {
       return this.inlineKeyboardT([this.data.callbackQueryData(`_back`), StartPage], `2`, Base.url)
     },
-    buildBodyKb: () => {
+    buildBodyKeyboard: () => {
       return this.inlineKeyboardT([this.data.callbackQueryData(`_back`), StartPage], `2`, Base.body)
     },
-    buildTokenKb: () => {
+    buildTokenKeyboard: () => {
       return this.inlineKeyboardT([this.data.callbackQueryData(`skip_token`), StartPage], `2`, Base.token)
     },
-    buildHomeKb: () => {
+    buildHomeKeyboard: () => {
       return this.inlineKeyboardT([StartPage], `1`, Base.warnNetwork)
     },
-    buildSuccessKb: (viewMode: string) => {
+    buildSuccessKeyboard: (viewMode: string) => {
       const toggleLabel = viewMode === `formatted` ? `🔁 Raw` : `🔁 Formatted`
       return this.inlineKeyboardT([this.data.callbackQueryData(`toggle_view`), StartPage], `2`, Base.success, {toggleLabel})
     }
@@ -121,18 +121,18 @@ export class HttpRequestPage extends PageBase {
   gmethod = {
     show: async () => {
       await this.clearSession()
-      await this.renderAuto(this.helper.buildMethodKb(), {}, Base.method)
+      await this.renderText({AGBaseId: Base.method, keyboard: this.helper.buildMethodKeyboard()})
     },
     process: () => {}
   }
   gurl = {
     show: async (method: string) => {
       await this.helper.setFlowSession({httpStep: `url`, httpMethod: method})
-      await this.renderAuto(this.helper.buildUrlKb(), {method}, Base.url)
+      await this.renderText({AGBaseId: Base.url, keyboard: this.helper.buildUrlKeyboard(), data: {method}})
     },
     process: async (input: string, method: string, showToken = false) => {
       if (!HttpService.isValidUrl(input)) {
-        await this.renderAuto(this.helper.buildUrlKb(), {url: this.helper.escapeHtml(input)}, Base.warnInvalid)
+        await this.renderText({AGBaseId: Base.warnInvalid, keyboard: this.helper.buildUrlKeyboard(), data: {url: this.helper.escapeHtml(input)}})
         return
       }
 
@@ -156,7 +156,7 @@ export class HttpRequestPage extends PageBase {
   gtoken = {
     show: async (method: string, url: string) => {
       await this.helper.setFlowSession({httpStep: `token`, httpMethod: method, httpUrl: url})
-      await this.renderAuto(this.helper.buildTokenKb(), {method, url: this.helper.escapeHtml(url)}, Base.token)
+      await this.renderText({AGBaseId: Base.token, keyboard: this.helper.buildTokenKeyboard(), data: {method, url: this.helper.escapeHtml(url)}})
     },
     process: async (token: string | null) => {
       const session = await this.getSession()
@@ -189,8 +189,7 @@ export class HttpRequestPage extends PageBase {
   gbody = {
     show: async (method: string, url: string) => {
       await this.helper.setFlowSession({httpStep: `body`, httpMethod: method, httpUrl: url})
-      const da = {method, url: this.helper.escapeHtml(url)}
-      await this.renderAuto(this.helper.buildBodyKb(), da, Base.body)
+      await this.renderText({AGBaseId: Base.body, keyboard: this.helper.buildBodyKeyboard(), data: {method, url: this.helper.escapeHtml(url)}})
     },
     process: async (body: string) => {
       const session = await this.getSession()
@@ -218,20 +217,22 @@ export class HttpRequestPage extends PageBase {
   }
   gsuccess = {
     show: async (result: IHttpResponse, viewMode = `formatted`) => {
-      const kb = this.helper.buildSuccessKb(viewMode)
       const emoji = result.status >= 200 && result.status < 300 ? `✅` : result.status >= 400 ? `❌` : `⚠️`
       const headersText = this.helper.formatHeaders(result.headers)
       const bodyPreview = this.helper.renderBody(result, viewMode)
-      const da = {
-        status: result.status,
-        statusText: result.statusText,
-        duration: result.duration,
-        method: result.method,
-        emoji,
-        headersText,
-        bodyPreview
-      }
-      await this.renderAuto(kb, da, Base.success)
+      await this.renderText({
+        AGBaseId: Base.success,
+        keyboard: this.helper.buildSuccessKeyboard(viewMode),
+        data: {
+          status: result.status,
+          statusText: result.statusText,
+          duration: result.duration,
+          method: result.method,
+          emoji,
+          headersText,
+          bodyPreview
+        }
+      })
     },
     process: async () => {
       const session = await this.getSession()
@@ -245,15 +246,13 @@ export class HttpRequestPage extends PageBase {
   }
   gwarnInvalid = {
     show: async (url: string) => {
-      await this.renderAuto(this.helper.buildUrlKb(), {url: this.helper.escapeHtml(url)}, Base.warnInvalid)
+      await this.renderText({AGBaseId: Base.warnInvalid, keyboard: this.helper.buildUrlKeyboard(), data: {url: this.helper.escapeHtml(url)}})
     },
     process: () => {}
   }
   gwarnNetwork = {
     show: async (url: string, errorMessage: string) => {
-      const kb = this.helper.buildHomeKb()
-      const da = {url: this.helper.escapeHtml(url), errorMessage: this.helper.escapeHtml(errorMessage)}
-      await this.renderAuto(kb, da, Base.warnNetwork)
+      await this.renderText({AGBaseId: Base.warnNetwork, keyboard: this.helper.buildHomeKeyboard(), data: {url: this.helper.escapeHtml(url), errorMessage: this.helper.escapeHtml(errorMessage)}})
     },
     process: () => {}
   }

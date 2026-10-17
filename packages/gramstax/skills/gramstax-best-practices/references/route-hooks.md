@@ -48,7 +48,7 @@ async hookBeforeRoute() {
 export class AdminPage extends PageAdminBase {
   async hookBeforeRoute() {
     if (await isAdmin(this.from!.id)) return true
-    await this.renderCallbackAnswer(true, undefined, Base.denied) // answer, then deny
+    await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied}) // answer, then deny
     return false // strict `false` only — skips the handler, nothing else
   }
 }
@@ -95,7 +95,7 @@ Consequences worth knowing before you rely on it:
 | `hookAfterRoute` | bot **and** page | bot: always, with `state`. page: only when the page gate allowed, after the handler |
 | `hookErrorPage(ctx, {listenerName, error, isEdit})` | bot | handler threw (non-timeout) |
 | `hookNotFoundPage(ctx, {listenerName, isEdit})` | bot | `no-match` only, and only when the listener opts in |
-| `hookRateLimited(ctx)` | bot | inbound rate limit tripped; `ctx.render` works, default drops silently |
+| `hookRateLimited(ctx)` | bot | inbound rate limit tripped; raw grammY replies work, `render*` cannot resolve a page template here (see `deploy-runtime.md`); default drops silently |
 | `hookKeyGenerator(ctx)` | bot | rate-limit bucket key; **must be synchronous**, defaults to sender id |
 | `hookBeforeStart()` / `hookAfterStart()` | bot | startup phase, not routing — see `deploy-modes.md` |
 | `hookUpdate` / `hookUpdateError` / `hookTrace` / `hookSendError` | bot | observability; `hookUpdate` is skipped for `error`/`timeout` |

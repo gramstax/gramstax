@@ -34,7 +34,7 @@ const flaggedScript = validation.errors.some((e) => e.message.includes(`script`)
 
 const render = TemplateEngine.compileBlockGMessage(template).default?.default
 if (!render) throw new Error(`compile produced no default message`)
-const out = render({}) as string
+const {text: out} = render({})
 console.log(`Output:`, JSON.stringify(out))
 
 if (store.__poc10 === true) {

@@ -15,29 +15,30 @@ export class StartLanguagePage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboard((k, l) => {
-        const languages = l.slice(0, -1)
-        const backButton = l[l.length - 1]! // Get the back button text
+      await this.renderText({
+        keyboard: this.inlineKeyboard((k, l) => {
+          const languages = l.slice(0, -1)
+          const backButton = l[l.length - 1]! // Get the back button text
 
-        // Get current user language for comparison
-        const currentLang = this.from!.language_code!.toLowerCase()
+          // Get current user language for comparison
+          const currentLang = this.from!.language_code!.toLowerCase()
 
-        // Add language buttons in rows of 3
-        for (let i = 0; i < languages.length; i += 3) {
-          const row = languages.slice(i, i + 3)
-          row.forEach((lang) => {
-            const langCode = lang.toLowerCase()
-            const isSelected = langCode.endsWith(currentLang)
-            const displayText = isSelected ? `+ ${lang}` : lang
-            k.text(displayText, this.data.callbackQueryData(langCode))
-          })
-          k.row()
-        }
+          // Add language buttons in rows of 3
+          for (let i = 0; i < languages.length; i += 3) {
+            const row = languages.slice(i, i + 3)
+            row.forEach((lang) => {
+              const langCode = lang.toLowerCase()
+              const isSelected = langCode.endsWith(currentLang)
+              const displayText = isSelected ? `+ ${lang}` : lang
+              k.text(displayText, this.data.callbackQueryData(langCode))
+            })
+            k.row()
+          }
 
-        // Add back button
-        return k.text(backButton, StartPage)
+          // Add back button
+          return k.text(backButton, StartPage)
+        })
       })
-      await this.renderAuto(kb)
     },
     process: async () => {
       const language = this.callbackQueryDataArg.toLowerCase().split(` `)[1] as string

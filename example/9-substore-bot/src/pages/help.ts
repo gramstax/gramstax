@@ -17,9 +17,7 @@ export class HelpPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([CatalogPage, StartPage])
-      const da = {support: Env.STORE_ADMIN_USERNAME}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([CatalogPage, StartPage]), data: {support: Env.STORE_ADMIN_USERNAME}})
     },
     process: () => {}
   }

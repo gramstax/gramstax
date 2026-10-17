@@ -25,14 +25,12 @@ export class StartInputTextPage extends PageBase {
   }
 
   helper = {
-    kb: (AGBaseId?: string) => this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+    homeKeyboard: (AGBaseId?: string) => this.inlineKeyboardT([StartPage], `1`, AGBaseId)
   }
   gindex = {
     show: async () => {
-      const bi = Base.index
-      const kb = this.helper.kb(bi)
-      await this.setSessionFreeText({step: bi})
-      await this.renderAuto(kb, {}, bi)
+      await this.setSessionFreeText({step: Base.index})
+      await this.renderText({AGBaseId: Base.index, keyboard: this.helper.homeKeyboard(Base.index)})
     },
     process: async () => {
       await this.gsuccess.show()
@@ -40,10 +38,7 @@ export class StartInputTextPage extends PageBase {
   }
   gsuccess = {
     show: async () => {
-      const bi = Base.success
-      const da = {res: this.msg?.text}
-      const kb = this.helper.kb(bi)
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.success, keyboard: this.helper.homeKeyboard(Base.success), data: {res: this.msg?.text}})
     },
     process: () => {}
   }

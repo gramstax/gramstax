@@ -18,9 +18,7 @@ export class StatusPage extends PageBase {
 
   helper = {
     built: async () => {
-      const bi = Base.error
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.error, keyboard: this.inlineKeyboardT([StartPage], `1`, Base.error)})
     }
   }
   gerror = {
@@ -33,9 +31,7 @@ export class StatusPage extends PageBase {
   }
   gnotFound = {
     show: async () => {
-      const bi = Base.notFound
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.notFound, keyboard: this.inlineKeyboardT([StartPage], `1`, Base.notFound)})
     },
     process: () => {}
   }

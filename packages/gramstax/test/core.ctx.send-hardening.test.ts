@@ -38,7 +38,7 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
 })
 
 const makeCtx = (med: unknown, api: Record<string, unknown>, log?: unknown) => {
-  const tm = {getGMedia: mock(() => med), getGMessage: mock(() => `hello`)} as never
+  const tm = {getGMedia: mock(() => med), getGMessage: mock(() => ({kind: `message`, text: `hello`, rich: false}))} as never
   const update = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
   const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new HardPage({
@@ -95,7 +95,7 @@ describe(`send-fallback-text`, () => {
         throw err
       })
     })
-    const result = await makeCtx(photoMed(), api).renderMedia(`photo`)
+    const result = await makeCtx(photoMed(), api).renderMedia({type: `photo`})
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
     expect((api.sendMessage.mock.calls as any)[0][1]).toBe(`Media unavailable`)
     expect(result).toEqual({message_id: 9})
@@ -110,7 +110,7 @@ describe(`send-fallback-text`, () => {
     })
     const ctx = makeCtx(photoMed(), api)
     ctx.fallbackText = `Coba lagi nanti`
-    await ctx.renderMedia(`photo`)
+    await ctx.renderMedia({type: `photo`})
     expect((api.sendMessage.mock.calls as any)[0][1]).toBe(`Coba lagi nanti`)
   })
 
@@ -121,7 +121,7 @@ describe(`send-fallback-text`, () => {
         throw err
       })
     })
-    await expect(makeCtx(photoMed(), api).renderMedia(`photo`)).rejects.toBe(err)
+    await expect(makeCtx(photoMed(), api).renderMedia({type: `photo`})).rejects.toBe(err)
     expect(api.sendMessage).not.toHaveBeenCalled()
   })
 
@@ -240,7 +240,7 @@ describe(`send-fail-fast-units`, () => {
 describe(`send-fail-fast-wiring`, () => {
   it(`renderMedia throws on unknown type before any send`, async () => {
     const api = makeApi()
-    await expect(makeCtx(photoMed(), api).renderMedia(`bogus` as never)).rejects.toThrow(/Unknown media type: bogus/)
+    await expect(makeCtx(photoMed(), api).renderMedia({type: `bogus` as never})).rejects.toThrow(/Unknown media type: bogus/)
     expect(api.sendPhoto).not.toHaveBeenCalled()
   })
 
@@ -250,44 +250,44 @@ describe(`send-fail-fast-wiring`, () => {
     const big = join(dir, `big.webp`)
     await writeFile(big, Buffer.alloc(600 * 1024))
     const api = makeApi()
-    await expect(makeCtx({type: `sticker`, src: big}, api).renderMedia(`sticker`)).rejects.toThrow(/Media sticker size .* exceeds limit/)
+    await expect(makeCtx({type: `sticker`, src: big}, api).renderMedia({type: `sticker`})).rejects.toThrow(/Media sticker size .* exceeds limit/)
     expect(api.sendSticker).not.toHaveBeenCalled()
   })
 
   it(`renderMedia rejects oversized Buffer payloads`, async () => {
     const api = makeApi()
-    await expect(makeCtx({type: `photo`, src: Buffer.alloc(11 * 1024 * 1024), caption: `Hi`}, api).renderMedia(`photo`)).rejects.toThrow(/exceeds limit/)
+    await expect(makeCtx({type: `photo`, src: Buffer.alloc(11 * 1024 * 1024), caption: `Hi`}, api).renderMedia({type: `photo`})).rejects.toThrow(/exceeds limit/)
     expect(api.sendPhoto).not.toHaveBeenCalled()
   })
 
   it(`renderMedia rejects captions over 1024`, async () => {
     const api = makeApi()
-    await expect(makeCtx(photoMed({caption: `x`.repeat(1025)}), api).renderMedia(`photo`)).rejects.toThrow(/Caption length 1025 exceeds limit 1024/)
+    await expect(makeCtx(photoMed({caption: `x`.repeat(1025)}), api).renderMedia({type: `photo`})).rejects.toThrow(/Caption length 1025 exceeds limit 1024/)
     expect(api.sendPhoto).not.toHaveBeenCalled()
   })
 
   it(`renderMedia validates location and contact before sending`, async () => {
     const apiLoc = makeApi()
-    await expect(makeCtx({type: `location`, latitude: `bad`, longitude: `2`}, apiLoc).renderMedia(`location`)).rejects.toThrow(/Invalid latitude/)
+    await expect(makeCtx({type: `location`, latitude: `bad`, longitude: `2`}, apiLoc).renderMedia({type: `location`})).rejects.toThrow(/Invalid latitude/)
     expect(apiLoc.sendLocation).not.toHaveBeenCalled()
     const apiContact = makeApi()
-    await expect(makeCtx({type: `contact`, phone: ``, first_name: `A`}, apiContact).renderMedia(`contact`)).rejects.toThrow(/non-empty "phone"/)
+    await expect(makeCtx({type: `contact`, phone: ``, first_name: `A`}, apiContact).renderMedia({type: `contact`})).rejects.toThrow(/non-empty "phone"/)
     expect(apiContact.sendContact).not.toHaveBeenCalled()
   })
 
   it(`renderMedia sends validated location and contact`, async () => {
     const api = makeApi()
-    await makeCtx({type: `location`, latitude: `1.5`, longitude: 2.5}, api).renderMedia(`location`)
+    await makeCtx({type: `location`, latitude: `1.5`, longitude: 2.5}, api).renderMedia({type: `location`})
     expect(api.sendLocation).toHaveBeenCalledTimes(1)
     expect((api.sendLocation.mock.calls as any)[0][1]).toBe(1.5)
     expect((api.sendLocation.mock.calls as any)[0][2]).toBe(2.5)
-    await makeCtx({type: `contact`, phone: `+100`, first_name: `A`, vcard: `vc`}, api).renderMedia(`contact`)
+    await makeCtx({type: `contact`, phone: `+100`, first_name: `A`, vcard: `vc`}, api).renderMedia({type: `contact`})
     expect(api.sendContact).toHaveBeenCalledTimes(1)
   })
 
   it(`renderMedia throws for voice with caption instead of silently dropping it`, async () => {
     const api = makeApi()
-    await expect(makeCtx({type: `voice`, src: `v.ogg`, caption: `hi`}, api).renderMedia(`voice`)).rejects.toThrow(/voice messages do not support captions/)
+    await expect(makeCtx({type: `voice`, src: `v.ogg`, caption: `hi`}, api).renderMedia({type: `voice`})).rejects.toThrow(/voice messages do not support captions/)
     expect(api.sendVoice).not.toHaveBeenCalled()
   })
 
@@ -297,12 +297,12 @@ describe(`send-fail-fast-wiring`, () => {
     await expect(makeCtx(big, api).renderMediaGroup()).rejects.toThrow(/Media group size 11 exceeds limit 10/)
     expect(api.sendMediaGroup).not.toHaveBeenCalled()
     const pipe = {type: `photo`, srcList: Array.from({length: 11}, (_, i) => `p${i}.jpg`), caption: `Album`}
-    await expect(makeCtx(pipe, api).renderMediaGroup(`photo`)).rejects.toThrow(/Media group size 11 exceeds limit 10/)
+    await expect(makeCtx(pipe, api).renderMediaGroup({type: `photo`})).rejects.toThrow(/Media group size 11 exceeds limit 10/)
   })
 
   it(`renderBroadcastMedia fail-fast throws before any recipient send`, async () => {
     const api = makeApi()
-    await expect(makeCtx({type: `voice`, src: `v.ogg`, caption: `hi`}, api).renderBroadcastMedia([1, 2], [`en`, `en`])).rejects.toThrow(/voice messages do not support captions/)
+    await expect(makeCtx({type: `voice`, src: `v.ogg`, caption: `hi`}, api).renderBroadcastMedia({ids: [1, 2], languageCode: [`en`, `en`]})).rejects.toThrow(/voice messages do not support captions/)
     expect(api.sendVoice).not.toHaveBeenCalled()
   })
 })
@@ -318,7 +318,7 @@ describe(`send-broadcast-fallback`, () => {
         return {message_id: 1} as never
       })
     })
-    const res = await makeCtx(photoMed(), api).renderBroadcastMedia([1, 2], [`en`, `en`])
+    const res = await makeCtx(photoMed(), api).renderBroadcastMedia({ids: [1, 2], languageCode: [`en`, `en`]})
     expect(res).toEqual({successCount: 1, failedCount: 1, totalCount: 2, skippedCount: 0, retryable: []})
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
     expect((api.sendMessage.mock.calls as any)[0][0]).toBe(1)
@@ -332,7 +332,7 @@ describe(`send-broadcast-fallback`, () => {
         throw err
       })
     })
-    const res = await makeCtx(photoMed(), api).renderBroadcastMedia([1], [`en`])
+    const res = await makeCtx(photoMed(), api).renderBroadcastMedia({ids: [1], languageCode: [`en`]})
     expect(res.failedCount).toBe(1)
     expect(api.sendMessage).not.toHaveBeenCalled()
   })
@@ -344,7 +344,7 @@ describe(`send-broadcast-fallback`, () => {
         throw grammyError(400)
       })
     })
-    const tm = {getGMessage: mock(() => `hello`)} as never
+    const tm = {getGMessage: mock(() => ({kind: `message`, text: `hello`, rich: false}))} as never
     const update = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`, from: {id: 1, is_bot: false, first_name: `A`}}}
     const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
     const ctx = new HardPage({
@@ -354,7 +354,7 @@ describe(`send-broadcast-fallback`, () => {
       templateManager: tm as ICtxParams[`templateManager`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
-    const res = await ctx.renderBroadcast([1], [`en`])
+    const res = await ctx.renderBroadcast({ids: [1], languageCode: [`en`]})
     expect(res.failedCount).toBe(1)
     expect(api.sendMessage).toHaveBeenCalledTimes(2)
   })
@@ -364,7 +364,7 @@ describe(`send-clone-identity`, () => {
   it(`never mutates shared InputFile instances across broadcast recipients`, async () => {
     const file = new InputFile(Buffer.from(`bytes`), `orig.txt`)
     const api = makeApi()
-    await makeCtx({type: `document`, src: file, filename: `tpl.txt`, caption: `Docs`}, api).renderBroadcastMedia([1, 2], [`en`, `en`])
+    await makeCtx({type: `document`, src: file, filename: `tpl.txt`, caption: `Docs`}, api).renderBroadcastMedia({ids: [1, 2], languageCode: [`en`, `en`]})
     expect(api.sendDocument).toHaveBeenCalledTimes(2)
     const first = (api.sendDocument.mock.calls as any)[0][1] as InputFile
     const second = (api.sendDocument.mock.calls as any)[1][1] as InputFile
@@ -408,7 +408,7 @@ describe(`send-edit-fallback`, () => {
         throw sendErr
       })
     })
-    await makeCtx(photoMed(), api).renderEditMedia(`photo`)
+    await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`})
     expect(api.deleteMessage).toHaveBeenCalledTimes(1)
     expect((api.sendMessage.mock.calls as any)[0][1]).toBe(`Media unavailable`)
   })
@@ -423,7 +423,7 @@ describe(`send-edit-fallback`, () => {
         throw sendErr
       })
     })
-    await expect(makeCtx(photoMed(), api).renderEditMedia(`photo`)).rejects.toBe(sendErr)
+    await expect(makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`})).rejects.toBe(sendErr)
   })
 
   it(`renderEditMedia warns when edit options are dropped by the fallback`, async () => {
@@ -433,7 +433,7 @@ describe(`send-edit-fallback`, () => {
         throw new Error(`too old`)
       })
     })
-    await makeCtx(photoMed(), failing, {warn}).renderEditMedia(`photo`, null, null, null, {caption: `x`} as never, null)
+    await makeCtx(photoMed(), failing, {warn}).renderMedia({type: `photo`, mode: `edit`, optionsEdit1: {caption: `x`} as never})
     expect(warn).toHaveBeenCalledTimes(2)
     expect((warn.mock.calls as any)[0][0]).toContain(`drops edit options`)
     expect((warn.mock.calls as any)[1][0]).toContain(`fallback re-send`)
@@ -443,7 +443,7 @@ describe(`send-edit-fallback`, () => {
         throw new Error(`too old`)
       })
     })
-    await makeCtx(photoMed(), failing2, {warn: warn2}).renderEditMedia(`photo`, null, null, null, null, {business_connection_id: `b`} as never)
+    await makeCtx(photoMed(), failing2, {warn: warn2}).renderMedia({type: `photo`, mode: `edit`, optionsEdit2: {business_connection_id: `b`} as never})
     expect(warn2).toHaveBeenCalledTimes(2)
     const warn3 = mock(() => {})
     const failing3 = makeApi({
@@ -451,7 +451,7 @@ describe(`send-edit-fallback`, () => {
         throw new Error(`too old`)
       })
     })
-    await makeCtx(photoMed(), failing3, {warn: warn3}).renderEditMedia(`photo`)
+    await makeCtx(photoMed(), failing3, {warn: warn3}).renderMedia({type: `photo`, mode: `edit`})
     expect(warn3).toHaveBeenCalledTimes(1)
     expect((warn3.mock.calls as any)[0][0]).toContain(`fallback re-send`)
   })
@@ -459,7 +459,7 @@ describe(`send-edit-fallback`, () => {
   it(`renderEditMediaGroup honors fallbackEdit modes`, async () => {
     const group = {type: `group`, mediaGroup: [{type: `photo`, src: `a.jpg`}], caption: `Cap`}
     const okApi = makeApi()
-    await makeCtx(group, okApi).renderEditMediaGroup()
+    await makeCtx(group, okApi).renderMediaGroup({mode: `edit`})
     expect(okApi.deleteMessage).toHaveBeenCalledTimes(1)
     expect(okApi.sendMediaGroup).toHaveBeenCalledTimes(1)
     const sendErr = grammyError(500)
@@ -468,7 +468,7 @@ describe(`send-edit-fallback`, () => {
         throw sendErr
       })
     })
-    await expect(makeCtx(group, disableApi).renderEditMediaGroup(null, null, null, null, `disable`)).rejects.toBe(sendErr)
+    await expect(makeCtx(group, disableApi).renderMediaGroup({mode: `edit`, fallbackEdit: `disable`})).rejects.toBe(sendErr)
     expect(disableApi.deleteMessage).toHaveBeenCalledTimes(1)
     expect(disableApi.sendMediaGroup).toHaveBeenCalledTimes(1)
     const replyApi = makeApi({
@@ -476,7 +476,7 @@ describe(`send-edit-fallback`, () => {
         throw sendErr
       })
     })
-    await expect(makeCtx(group, replyApi).renderEditMediaGroup(null, null, null, null, `reply`)).rejects.toBe(sendErr)
+    await expect(makeCtx(group, replyApi).renderMediaGroup({mode: `edit`, fallbackEdit: `reply`})).rejects.toBe(sendErr)
     expect(replyApi.deleteMessage).toHaveBeenCalledTimes(1)
     expect(replyApi.sendMediaGroup).toHaveBeenCalledTimes(2)
     const retryApi = makeApi({
@@ -484,7 +484,7 @@ describe(`send-edit-fallback`, () => {
         throw sendErr
       })
     })
-    await expect(makeCtx(group, retryApi).renderEditMediaGroup()).rejects.toBe(sendErr)
+    await expect(makeCtx(group, retryApi).renderMediaGroup({mode: `edit`})).rejects.toBe(sendErr)
     expect(retryApi.deleteMessage).toHaveBeenCalledTimes(2)
     expect(retryApi.sendMediaGroup).toHaveBeenCalledTimes(2)
   })
@@ -496,7 +496,7 @@ describe(`send-edit-fallback`, () => {
         throw new Error(`gone`)
       })
     })
-    await makeCtx(group, api).renderEditMediaGroup()
+    await makeCtx(group, api).renderMediaGroup({mode: `edit`})
     expect(api.sendMediaGroup).toHaveBeenCalledTimes(1)
   })
 
@@ -508,7 +508,7 @@ describe(`send-edit-fallback`, () => {
         throw sendErr
       })
     })
-    await expect(makeCtx(group, api).renderEditPhotoGroup(null, null, null, `disable`)).rejects.toBe(sendErr)
+    await expect(makeCtx(group, api).renderPhotoGroup({mode: `edit`, fallbackEdit: `disable`})).rejects.toBe(sendErr)
     expect(api.deleteMessage).toHaveBeenCalledTimes(1)
   })
 })

@@ -43,18 +43,17 @@ export class DeletePage extends PageBase {
 
   helper = {
     buildListKeyboard: (items: IVItem[]) => {
-      const bi = Base.index
       return this.inlineKeyboard(
         (k, l) => {
           items.forEach((item, index) => {
-            k.text(`🗑️ #${item.id} ${item.title!.slice(0, 5)}..`, this.data.callbackQueryData(bi, item.id!))
+            k.text(`🗑️ #${item.id} ${item.title!.slice(0, 5)}..`, this.data.callbackQueryData(Base.index, item.id!))
             if (index % 2 === 1) {
               k.row()
             }
           })
           return k.row().text(l[0]!, StartPage)
         },
-        {AGBaseId: bi}
+        {AGBaseId: Base.index}
       )
     },
     buildHomeKeyboard: (AGBaseId: string) => {
@@ -63,39 +62,26 @@ export class DeletePage extends PageBase {
   }
   gindex = {
     show: async (items: IVItem[]) => {
-      const bi = Base.index
-      const kb = this.helper.buildListKeyboard(items)
-      const da = {count: items.length}
-      await this.setSessionFreeText({step: bi})
-      await this.renderAuto(kb, da, bi)
+      await this.setSessionFreeText({step: Base.index})
+      await this.renderText({AGBaseId: Base.index, keyboard: this.helper.buildListKeyboard(items), data: {count: items.length}})
     },
     process: async (id: string) => {
       if (!id) {
-        const bi = Base.warnInvalid
-        const kb = this.helper.buildHomeKeyboard(bi)
-        await this.renderAuto(kb, {}, bi)
+        await this.renderText({AGBaseId: Base.warnInvalid, keyboard: this.helper.buildHomeKeyboard(Base.warnInvalid)})
       } else {
         const deleted = await this.db.items.remove(this.from!.id, id)
         if (!deleted) {
-          const bi = Base.errorNotFound
-          const da = {id}
-          const kb = this.helper.buildHomeKeyboard(bi)
-          await this.renderAuto(kb, da, bi)
+          await this.renderText({AGBaseId: Base.errorNotFound, keyboard: this.helper.buildHomeKeyboard(Base.errorNotFound), data: {id}})
         } else {
           await this.clearSession()
-          const bi = Base.success
-          const da = {id}
-          const kb = this.helper.buildHomeKeyboard(bi)
-          await this.renderAuto(kb, da, bi)
+          await this.renderText({AGBaseId: Base.success, keyboard: this.helper.buildHomeKeyboard(Base.success), data: {id}})
         }
       }
     }
   }
   ginfoEmpty = {
     show: async () => {
-      const bi = Base.infoEmpty
-      const kb = this.helper.buildHomeKeyboard(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.infoEmpty, keyboard: this.helper.buildHomeKeyboard(Base.infoEmpty)})
     },
     process: () => {}
   }

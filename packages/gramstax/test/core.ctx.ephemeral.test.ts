@@ -73,7 +73,7 @@ function createCtx() {
     ct,
     cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {getGMessage: () => `hello`} as unknown as ICtxParams[`templateManager`],
+    templateManager: {getGMessage: () => ({kind: `message`, text: `hello`, rich: false})} as unknown as ICtxParams[`templateManager`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
   return {ctx, calls, mocks, api, rawInvoke}

@@ -13,15 +13,13 @@ export class StartCounterPage extends PageBase {
   }
 
   helper = {
-    kb: () => this.inlineKeyboardT([this.data.callbackQueryData(`I`), this.data.callbackQueryData(`D`), StartPage], `2`)
+    counterKeyboard: () => this.inlineKeyboardT([this.data.callbackQueryData(`I`), this.data.callbackQueryData(`D`), StartPage], `2`)
   }
   gdefault = {
     show: async () => {
       const key = `${this.from!.id}`
       const count = (await this.cacheData.get(key)) || `0`
-      const kb = this.helper.kb()
-      const da = {count}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.helper.counterKeyboard(), data: {count}})
     },
     process: async () => {
       const exe = this.callbackQueryDataArg
@@ -37,9 +35,7 @@ export class StartCounterPage extends PageBase {
       }
 
       await this.cacheData.set(key, count)
-      const kb = this.helper.kb()
-      const da = {count}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.helper.counterKeyboard(), data: {count}})
     }
   }
 

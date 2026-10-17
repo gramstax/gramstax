@@ -22,17 +22,13 @@ export class StatusPage extends PageBase {
       log.errorMake(error, this.constructorName, funcName)
 
       await this.clearSession()
-      const bi = Base.error
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.error, keyboard: this.inlineKeyboardT([StartPage], `1`, Base.error)})
     },
     process: () => {}
   }
   gnotFound = {
     show: async () => {
-      const bi = Base.notFound
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.notFound, keyboard: this.inlineKeyboardT([StartPage], `1`, Base.notFound)})
     },
     process: () => {}
   }

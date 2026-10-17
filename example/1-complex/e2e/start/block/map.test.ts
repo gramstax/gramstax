@@ -19,7 +19,7 @@ describe(`E2E: BlockMapPage`, () => {
     const responses = await e2e.sendCallbackQuery(intent, enUser)
     const responsesId = await e2e.sendCallbackQuery(intent, idUser)
 
-    const da = {
+    const mapData = {
       arr: Array.from({length: 7}, () => ({number: 1})),
       status: 1,
       e: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`,
@@ -28,9 +28,9 @@ describe(`E2E: BlockMapPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, da))
-    expect(responsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, da, `id`))
-    expect(e2e.extractButtonLabels(responses[0]!)).toEqual(e2e.gkb(intent, `default`, `inline`, da))
-    expect(e2e.extractButtonLabels(responsesId[0]!)).toEqual(e2e.gkb(intent, `default`, `inline`, da, `id`))
+    expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, mapData))
+    expect(responsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, mapData, `id`))
+    expect(e2e.extractButtonLabels(responses[0]!)).toEqual(e2e.gkb(intent, `default`, `inline`, mapData))
+    expect(e2e.extractButtonLabels(responsesId[0]!)).toEqual(e2e.gkb(intent, `default`, `inline`, mapData, `id`))
   })
 })

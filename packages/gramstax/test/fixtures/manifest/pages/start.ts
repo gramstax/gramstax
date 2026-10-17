@@ -4,7 +4,7 @@ export class MStartPage extends Ctx {
   static data = this.buildData({name: `start`})
 
   async handleCommandText() {
-    await this.renderAuto(null, {})
+    await this.renderText({data: {}})
   }
 
   helper = {}

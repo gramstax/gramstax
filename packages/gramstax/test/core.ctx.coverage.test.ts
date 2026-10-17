@@ -84,7 +84,7 @@ const makeCtx = (Page: typeof Ctx, update: Record<string, unknown>, tm: unknown,
 
 describe(`ctx-coverage-getters`, () => {
   it(`reads grammy field getters`, () => {
-    const tm = {getGMessage: () => ``} as never
+    const tm = {getGMessage: () => ({kind: `message`, text: ``, rich: false})} as never
     const ctx = makeCtx(CovPage, {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}, tm, makeApi())
     for (const key of [`managedBot`, `messageReaction`, `poll`, `pollAnswer`, `preCheckoutQuery`, `purchasedPaidMedia`, `removedChatBoost`, `senderChat`]) {
       expect((ctx as unknown as Record<string, unknown>)[key]).toBeUndefined()
@@ -92,7 +92,7 @@ describe(`ctx-coverage-getters`, () => {
   })
 
   it(`reads convenience getters from message, caption, and callback updates`, () => {
-    const tm = {getGMessage: () => ``} as never
+    const tm = {getGMessage: () => ({kind: `message`, text: ``, rich: false})} as never
     const ctx = makeCtx(CovPage, {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `/cmd a b c`, caption: `cap x y`}}, tm, makeApi())
     expect(ctx.fromFullName).toBe(`Alya Putri`)
     expect(ctx.msgTextArgs).toEqual([`a`, `b`, `c`])
@@ -109,7 +109,7 @@ describe(`ctx-coverage-getters`, () => {
   })
 
   it(`uses args helpers directly`, () => {
-    const tm = {getGMessage: () => ``} as never
+    const tm = {getGMessage: () => ({kind: `message`, text: ``, rich: false})} as never
     const ctx = makeCtx(CovPage, {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}, tm, makeApi())
     expect(ctx.addArgs(`base`, `colon`, [`a`, undefined, ``, `b`])).toBe(`base:a:b`)
     expect(ctx.getArgs(`a:b:c`, `colon`)).toEqual([`b`, `c`])
@@ -130,7 +130,7 @@ describe(`ctx-coverage-builddata`, () => {
     expect(mapped.intentText).toBe(`Hey`)
     expect(mapped.intentTextMap).toBeDefined()
     expect(mapped.intentCommandTextMap).toBeDefined()
-    const tm = {getGMessage: () => ``} as never
+    const tm = {getGMessage: () => ({kind: `message`, text: ``, rich: false})} as never
     const ctx = makeCtx(CovPage, {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}, tm, makeApi())
     const kb = new InlineKeyboard()
     expect(ctx.keyboardCols(kb, [`a`, `b`, `c`, `d`], `2`, (e, i) => kb.text(e, `${i}`))).toBe(kb)
@@ -181,7 +181,7 @@ describe(`ctx-coverage-keyboards`, () => {
 
 describe(`ctx-coverage-download`, () => {
   it(`downloads via getFile and validates paths`, async () => {
-    const tm = {getGMessage: () => ``} as never
+    const tm = {getGMessage: () => ({kind: `message`, text: ``, rich: false})} as never
     const api = makeApi()
     const ctx = makeCtx(CovPage, {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}, tm, api)
     const download = mock(async (p?: string) => `dl:${p ?? `def`}`)
@@ -222,11 +222,11 @@ describe(`ctx-coverage-media`, () => {
       const grp = makeCtx(pageFor(`grp`), msg, tm, api)
       await grp.renderMediaGroup()
       expect(api.sendMediaGroup).toHaveBeenCalled()
-      await expect(grp.renderMediaGroup(`video`)).rejects.toThrow(/no items of type/)
+      await expect(grp.renderMediaGroup({type: `video`})).rejects.toThrow(/no items of type/)
       const single = makeCtx(pageFor(`single`), msg, tm, api)
       await expect(single.renderMediaGroup()).rejects.toThrow(/type is required/)
       const pipe = makeCtx(pageFor(`pipe`), msg, tm, api)
-      await pipe.renderMediaGroup(`photo`)
+      await pipe.renderMediaGroup({type: `photo`})
       await pipe.renderPhotoGroup()
       const vp = makeCtx(pageFor(`vpipe`), msg, tm, api)
       await vp.renderVideoGroup()
@@ -247,11 +247,11 @@ describe(`ctx-coverage-media`, () => {
       await makeCtx(pageFor(`video`), msg, tm, api).renderVideo()
       await makeCtx(pageFor(`audio`), msg, tm, api).renderAudio()
       await makeCtx(pageFor(`doc`), msg, tm, api).renderDocument()
-      await pipe.renderAutoMedia(`photo`)
-      await pipe.renderAutoMediaGroup(`photo`)
+      await pipe.renderMedia({type: `photo`})
+      await pipe.renderMediaGroup({type: `photo`})
       const cb = makeCtx(pageFor(`pipe`), {callback_query: {id: `q`, data: `x`, chat_instance: `ci`, message: {message_id: 2, date: 2, text: `m`}}}, tm, api)
-      await cb.renderAutoMedia(`photo`)
-      await cb.renderAutoMediaGroup(`photo`)
+      await cb.renderMedia({type: `photo`})
+      await cb.renderMediaGroup({type: `photo`})
     } finally {
       await tm.destroy()
     }
@@ -278,40 +278,40 @@ describe(`ctx-coverage-edit`, () => {
     try {
       const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
       const api = makeApi()
-      await makeCtx(pageFor(`single`), msg, tm, api).renderEditMedia(`photo`)
+      await makeCtx(pageFor(`single`), msg, tm, api).renderMedia({type: `photo`, mode: `edit`})
       expect(api.editMessageMedia).toHaveBeenCalled()
-      await makeCtx(pageFor(`voice`), msg, tm, api).renderEditMedia(`voice`)
-      await makeCtx(pageFor(`vnote`), msg, tm, api).renderEditMedia(`video_note`)
-      await makeCtx(pageFor(`sticker`), msg, tm, api).renderEditMedia(`sticker`)
-      await makeCtx(pageFor(`loc`), msg, tm, api).renderEditMedia(`location`)
-      await makeCtx(pageFor(`contact`), msg, tm, api).renderEditMedia(`contact`)
+      await makeCtx(pageFor(`voice`), msg, tm, api).renderMedia({type: `voice`, mode: `edit`})
+      await makeCtx(pageFor(`vnote`), msg, tm, api).renderMedia({type: `video_note`, mode: `edit`})
+      await makeCtx(pageFor(`sticker`), msg, tm, api).renderMedia({type: `sticker`, mode: `edit`})
+      await makeCtx(pageFor(`loc`), msg, tm, api).renderMedia({type: `location`, mode: `edit`})
+      await makeCtx(pageFor(`contact`), msg, tm, api).renderMedia({type: `contact`, mode: `edit`})
       expect(api.sendVoice).toHaveBeenCalled()
       expect(api.sendVideoNote).toHaveBeenCalled()
       expect(api.sendSticker).toHaveBeenCalled()
       expect(api.sendLocation).toHaveBeenCalled()
       expect(api.sendContact).toHaveBeenCalled()
-      await makeCtx(pageFor(`pipe`), msg, tm, api).renderEditMedia(`photo`)
-      await makeCtx(pageFor(`single`), msg, tm, api).renderEditPhoto()
-      await makeCtx(pageFor(`vsingle`), msg, tm, api).renderEditVideo()
-      await makeCtx(pageFor(`asingle`), msg, tm, api).renderEditAudio()
-      await makeCtx(pageFor(`dsingle`), msg, tm, api).renderEditDocument()
-      await expect(makeCtx(pageFor(`pipe`), msg, tm, api).renderEditMediaGroup()).rejects.toThrow(/type is required/)
-      await makeCtx(pageFor(`grp`), msg, tm, api).renderEditMediaGroup()
-      await makeCtx(pageFor(`pipe`), msg, tm, api).renderEditPhotoGroup()
-      await makeCtx(pageFor(`pipe`), msg, tm, api).renderEditVideoGroup()
-      await makeCtx(pageFor(`pipe`), msg, tm, api).renderEditAudioGroup()
-      await makeCtx(pageFor(`pipe`), msg, tm, api).renderEditDocumentGroup()
-      await makeCtx(pageFor(`voice`), msg, tm, api).renderEditVoice()
-      await makeCtx(pageFor(`anim`), msg, tm, api).renderEditAnimation()
-      await makeCtx(pageFor(`vnote`), msg, tm, api).renderEditVideoNote()
-      await makeCtx(pageFor(`sticker`), msg, tm, api).renderEditSticker()
-      await makeCtx(pageFor(`loc`), msg, tm, api).renderEditLocation()
-      await makeCtx(pageFor(`contact`), msg, tm, api).renderEditContact()
+      await makeCtx(pageFor(`pipe`), msg, tm, api).renderMedia({type: `photo`, mode: `edit`})
+      await makeCtx(pageFor(`single`), msg, tm, api).renderPhoto({mode: `edit`})
+      await makeCtx(pageFor(`vsingle`), msg, tm, api).renderVideo({mode: `edit`})
+      await makeCtx(pageFor(`asingle`), msg, tm, api).renderAudio({mode: `edit`})
+      await makeCtx(pageFor(`dsingle`), msg, tm, api).renderDocument({mode: `edit`})
+      await expect(makeCtx(pageFor(`pipe`), msg, tm, api).renderMediaGroup({mode: `edit`})).rejects.toThrow(/type is required/)
+      await makeCtx(pageFor(`grp`), msg, tm, api).renderMediaGroup({mode: `edit`})
+      await makeCtx(pageFor(`pipe`), msg, tm, api).renderPhotoGroup({mode: `edit`})
+      await makeCtx(pageFor(`pipe`), msg, tm, api).renderVideoGroup({mode: `edit`})
+      await makeCtx(pageFor(`pipe`), msg, tm, api).renderAudioGroup({mode: `edit`})
+      await makeCtx(pageFor(`pipe`), msg, tm, api).renderDocumentGroup({mode: `edit`})
+      await makeCtx(pageFor(`voice`), msg, tm, api).renderVoice({mode: `edit`})
+      await makeCtx(pageFor(`anim`), msg, tm, api).renderAnimation({mode: `edit`})
+      await makeCtx(pageFor(`vnote`), msg, tm, api).renderVideoNote({mode: `edit`})
+      await makeCtx(pageFor(`sticker`), msg, tm, api).renderSticker({mode: `edit`})
+      await makeCtx(pageFor(`loc`), msg, tm, api).renderLocation({mode: `edit`})
+      await makeCtx(pageFor(`contact`), msg, tm, api).renderContact({mode: `edit`})
       const failing = makeApi()
       failing.editMessageMedia = mock(async () => {
         throw new Error(`too old`)
       })
-      await makeCtx(pageFor(`single`), msg, tm, failing).renderEditMedia(`photo`)
+      await makeCtx(pageFor(`single`), msg, tm, failing).renderMedia({type: `photo`, mode: `edit`})
       const failingDelete = makeApi()
       failingDelete.editMessageMedia = mock(async () => {
         throw new Error(`too old`)
@@ -319,9 +319,9 @@ describe(`ctx-coverage-edit`, () => {
       failingDelete.deleteMessage = mock(async () => {
         throw new Error(`gone`)
       })
-      await makeCtx(pageFor(`single`), msg, tm, failingDelete).renderEditMedia(`photo`)
-      await makeCtx(pageFor(`single`), msg, tm, failing).renderEditMedia(`photo`, null, null, null, null, null, `reply`)
-      await expect(makeCtx(pageFor(`single`), msg, tm, failing).renderEditMedia(`photo`, null, null, null, null, null, `disable`)).rejects.toThrow(`too old`)
+      await makeCtx(pageFor(`single`), msg, tm, failingDelete).renderMedia({type: `photo`, mode: `edit`})
+      await makeCtx(pageFor(`single`), msg, tm, failing).renderMedia({type: `photo`, mode: `edit`, fallbackEdit: `reply`})
+      await expect(makeCtx(pageFor(`single`), msg, tm, failing).renderMedia({type: `photo`, mode: `edit`, fallbackEdit: `disable`})).rejects.toThrow(`too old`)
       expect(api.sendMediaGroup).toHaveBeenCalled()
     } finally {
       await tm.destroy()
@@ -333,25 +333,25 @@ describe(`ctx-coverage-rich`, () => {
   it(`renders and edits rich messages with fallbacks`, async () => {
     const dir = join(TEST_DIR, `rich`)
     await mkdir(dir, {recursive: true})
-    await writeFile(join(dir, `cov.html`), `<g-base><g-message>Rich Hi</g-message></g-base>`)
+    await writeFile(join(dir, `cov.html`), `<g-base><g-message><h1>Rich Hi</h1></g-message></g-base>`)
     const tm = new TemplateManager({path: [dir]})
     try {
       const api = makeApi()
       const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
       const cbUpdate = {callback_query: {id: `q`, data: `x`, chat_instance: `ci`, message: {message_id: 2, date: 2, text: `m`}}}
-      await makeCtx(CovPage, msg, tm, api).renderRich()
+      await makeCtx(CovPage, msg, tm, api).renderText({mode: `reply`})
       expect(api.sendRichMessage).toHaveBeenCalled()
-      await makeCtx(CovPage, msg, tm, api).renderAutoRich()
-      await makeCtx(CovPage, cbUpdate, tm, api).renderAutoRich()
-      await makeCtx(CovPage, cbUpdate, tm, api).renderEditRich()
+      await makeCtx(CovPage, msg, tm, api).renderText()
+      await makeCtx(CovPage, cbUpdate, tm, api).renderText()
+      await makeCtx(CovPage, cbUpdate, tm, api).renderText({mode: `edit`})
       expect(api.editMessageText).toHaveBeenCalled()
       const failing = makeApi()
       failing.editMessageText = mock(async () => {
         throw new Error(`too old`)
       })
-      await makeCtx(CovPage, cbUpdate, tm, failing).renderEditRich()
-      await makeCtx(CovPage, cbUpdate, tm, failing).renderEditRich(null, null, null, null, null, `reply`)
-      await expect(makeCtx(CovPage, cbUpdate, tm, failing).renderEditRich(null, null, null, null, null, `disable`)).rejects.toThrow(`too old`)
+      await makeCtx(CovPage, cbUpdate, tm, failing).renderText({mode: `edit`})
+      await makeCtx(CovPage, cbUpdate, tm, failing).renderText({mode: `edit`, fallbackEdit: `reply`})
+      await expect(makeCtx(CovPage, cbUpdate, tm, failing).renderText({mode: `edit`, fallbackEdit: `disable`})).rejects.toThrow(`too old`)
     } finally {
       await tm.destroy()
     }
@@ -455,7 +455,7 @@ describe(`ctx-coverage-resolve-media-input`, () => {
     const api = makeApi()
     const tm = {getGMedia: mock(() => ({type: `photo`, src: file, caption: `Hi`}))} as never
     const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
-    await makeCtx(CovPage, msg, tm, api).renderMedia(`photo`)
+    await makeCtx(CovPage, msg, tm, api).renderMedia({type: `photo`})
     expect(api.sendPhoto).toHaveBeenCalledTimes(1)
     expect((api.sendPhoto.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
   })
@@ -468,7 +468,7 @@ describe(`ctx-coverage-resolve-media-input`, () => {
     const api = makeApi()
     const tm = {getGMedia: mock(() => ({type: `photo`, src: file, caption: `Hi`}))} as never
     const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
-    await makeCtx(CovPage, msg, tm, api).renderEditMedia(`photo`)
+    await makeCtx(CovPage, msg, tm, api).renderMedia({type: `photo`, mode: `edit`})
     expect(api.editMessageMedia).toHaveBeenCalledTimes(1)
     const payload = (api.editMessageMedia.mock.calls as any)[0][2] as {media: unknown}
     expect(payload.media).toBeInstanceOf(InputFile)
@@ -496,7 +496,7 @@ describe(`ctx-coverage-resolve-media-input`, () => {
     const api = makeApi()
     const tm = {getGMedia: mock(() => ({type: `photo`, src: file, caption: `Hi`}))} as never
     const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
-    await makeCtx(CovPage, msg, tm, api).renderBroadcastMedia([7], [`en`])
+    await makeCtx(CovPage, msg, tm, api).renderBroadcastMedia({ids: [7], languageCode: [`en`]})
     expect(api.sendPhoto).toHaveBeenCalledTimes(1)
     expect((api.sendPhoto.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
   })
@@ -536,7 +536,7 @@ describe(`ctx-coverage-resolve-media-input`, () => {
       const api = makeApi()
       const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
       const buf = Buffer.from(`doc-bytes`)
-      await makeCtx(pageFor(`doc`), msg, tm, api).renderMedia(`document`, null, {file: buf})
+      await makeCtx(pageFor(`doc`), msg, tm, api).renderMedia({type: `document`, data: {file: buf}})
       expect(api.sendDocument).toHaveBeenCalledTimes(1)
       expect((api.sendDocument.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
     } finally {
@@ -552,7 +552,7 @@ describe(`ctx-coverage-resolve-media-input`, () => {
     try {
       const api = makeApi()
       const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
-      await makeCtx(pageFor(`doc`), msg, tm, api).renderMedia(`document`, null, {file: new InputFile(Buffer.from(`doc-bytes`), `orig.txt`)})
+      await makeCtx(pageFor(`doc`), msg, tm, api).renderMedia({type: `document`, data: {file: new InputFile(Buffer.from(`doc-bytes`), `orig.txt`)}})
       expect(api.sendDocument).toHaveBeenCalledTimes(1)
       const sent = (api.sendDocument.mock.calls as any)[0][1] as InputFile
       expect(sent).toBeInstanceOf(InputFile)

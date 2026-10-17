@@ -244,6 +244,40 @@ export type IGramstaxSessionLockRef = {
 }
 
 /**
+ * Canonical deploy-mode names.
+ *
+ * @remarks
+ * Single runtime source for the deploy-mode vocabulary. Lives here rather than in
+ * `cli/config` so `core/bot` can validate without importing a CLI module.
+ * `IDeployMode` is derived from it and {@link GRAMSTAX_DEPLOY_MODE_SET} is built
+ * from it, so the literal union and the membership test cannot drift apart.
+ *
+ * @public
+ */
+export const GRAMSTAX_DEPLOY_MODES = [`polling`, `webhook`, `serverless`, `raw`, `test`] as const
+
+/**
+ * Name of a deploy mode.
+ *
+ * @public
+ */
+export type IDeployMode = (typeof GRAMSTAX_DEPLOY_MODES)[number]
+
+/**
+ * O(1) membership view of {@link GRAMSTAX_DEPLOY_MODES}.
+ *
+ * @remarks
+ * A `Set` lookup instead of `Array.includes`, which is O(n). Widened to
+ * `ReadonlySet<string>` because call sites test raw `string` input (an `unknown`
+ * config field narrowed by `typeof`, and `params.deploy`); a
+ * `ReadonlySet<IDeployMode>` would force an unsound cast at every call site.
+ * The `as const` tuple above remains the source of truth for the union.
+ *
+ * @public
+ */
+export const GRAMSTAX_DEPLOY_MODE_SET: ReadonlySet<string> = new Set(GRAMSTAX_DEPLOY_MODES)
+
+/**
  * Canonical serverless adapter names.
  *
  * @remarks

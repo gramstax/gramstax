@@ -27,7 +27,7 @@ function createCtx(api: Record<string, unknown>, update: unknown, text = `hello`
     ct,
     cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {getGCallbackAnswer: () => text, getGPrecheckoutError: () => text, getGShippingError: () => text, getGKeyboard: () => []} as unknown as ICtxParams[`templateManager`],
+    templateManager: {getGCallbackAnswer: () => ({kind: `callbackAnswer`, text}), getGPrecheckoutError: () => ({kind: `preCheckoutError`, text}), getGShippingError: () => ({kind: `shippingError`, text}), getGKeyboard: () => ({kind: `keyboard`, rows: []})} as unknown as ICtxParams[`templateManager`],
     onSendError: null as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
@@ -48,7 +48,7 @@ describe(`Ctx.renderCallbackAnswer`, () => {
   it(`answers with block text and show_alert flag`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, callbackUpdate, `tapped!`)
-    await ctx.renderCallbackAnswer(true, undefined, `tap-card`)
+    await ctx.renderCallbackAnswer({showAlert: true, AGBaseId: `tap-card`})
     expect(api.answerCallbackQuery).toHaveBeenCalledTimes(1)
     const [id, extra] = (api.answerCallbackQuery.mock.calls as any[])[0] as [string, Record<string, unknown>]
     expect(id).toBe(`cq1`)
@@ -59,7 +59,7 @@ describe(`Ctx.renderCallbackAnswer`, () => {
   it(`merges object options after defaults`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, callbackUpdate, `tap`)
-    await ctx.renderCallbackAnswer(false, undefined, `tap-card`, {cache_time: 10} as any)
+    await ctx.renderCallbackAnswer({showAlert: false, AGBaseId: `tap-card`, options: {cache_time: 10} as any})
     const [, extra] = (api.answerCallbackQuery.mock.calls as any[])[0] as [string, Record<string, unknown>]
     expect(extra.show_alert).toBe(false)
     expect(extra.cache_time).toBe(10)
@@ -81,11 +81,11 @@ describe(`Ctx.renderCallbackAnswer`, () => {
       ct,
       cacheSession: {} as unknown as ICtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
-      templateManager: {getGCallbackAnswer: () => `tap`, getGPrecheckoutError: () => `tap`, getGShippingError: () => `tap`, getGKeyboard: () => []} as unknown as ICtxParams[`templateManager`],
+      templateManager: {getGCallbackAnswer: () => ({kind: `callbackAnswer`, text: `tap`}), getGPrecheckoutError: () => ({kind: `preCheckoutError`, text: `tap`}), getGShippingError: () => ({kind: `shippingError`, text: `tap`}), getGKeyboard: () => ({kind: `keyboard`, rows: []})} as unknown as ICtxParams[`templateManager`],
       onSendError: ((e: unknown) => seen.push(e)) as unknown as ICtxParams[`onSendError`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
-    await expect(ctx.renderCallbackAnswer(false, undefined, `tap-card`)).rejects.toThrow(err)
+    await expect(ctx.renderCallbackAnswer({showAlert: false, AGBaseId: `tap-card`})).rejects.toThrow(err)
     expect(seen.length).toBe(1)
   })
 })
@@ -96,7 +96,7 @@ describe(`Ctx.renderPreCheckout`, () => {
   it(`answers ok=true with no error_message`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, preCheckoutUpdate, `unused`)
-    await ctx.renderPreCheckout(true, undefined, `pay-card`)
+    await ctx.renderPreCheckout({ok: true, AGBaseId: `pay-card`})
     expect(api.answerPreCheckoutQuery).toHaveBeenCalledTimes(1)
     const [id, ok, extra] = (api.answerPreCheckoutQuery.mock.calls as any[])[0] as [string, boolean, Record<string, unknown>]
     expect(id).toBe(`pq1`)
@@ -107,7 +107,7 @@ describe(`Ctx.renderPreCheckout`, () => {
   it(`answers ok=false with block text as error_message`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, preCheckoutUpdate, `stok habis`)
-    await ctx.renderPreCheckout(false, undefined, `pay-card`)
+    await ctx.renderPreCheckout({ok: false, AGBaseId: `pay-card`})
     const [id, ok, extra] = (api.answerPreCheckoutQuery.mock.calls as any[])[0] as [string, boolean, Record<string, unknown>]
     expect(id).toBe(`pq1`)
     expect(ok).toBe(false)
@@ -117,7 +117,7 @@ describe(`Ctx.renderPreCheckout`, () => {
   it(`string options override the error_message`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, preCheckoutUpdate, `block text`)
-    await ctx.renderPreCheckout(false, undefined, `pay-card`, `custom error` as any)
+    await ctx.renderPreCheckout({ok: false, AGBaseId: `pay-card`, options: `custom error` as any})
     const [, , extra] = (api.answerPreCheckoutQuery.mock.calls as any[])[0] as [string, boolean, Record<string, unknown>]
     expect(extra.error_message).toBe(`custom error`)
   })
@@ -129,7 +129,7 @@ describe(`Ctx.renderShipping`, () => {
   it(`answers ok=true with no error_message`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, shippingUpdate, `unused`)
-    await ctx.renderShipping(true, undefined, `ship-card`)
+    await ctx.renderShipping({ok: true, AGBaseId: `ship-card`})
     expect(api.answerShippingQuery).toHaveBeenCalledTimes(1)
     const [id, ok, extra] = (api.answerShippingQuery.mock.calls as any[])[0] as [string, boolean, Record<string, unknown>]
     expect(id).toBe(`sq1`)
@@ -140,7 +140,7 @@ describe(`Ctx.renderShipping`, () => {
   it(`answers ok=false with block text as error_message`, async () => {
     const api = makeApi()
     const ctx = createCtx(api, shippingUpdate, `di luar zona`)
-    await ctx.renderShipping(false, undefined, `ship-card`)
+    await ctx.renderShipping({ok: false, AGBaseId: `ship-card`})
     const [id, ok, extra] = (api.answerShippingQuery.mock.calls as any[])[0] as [string, boolean, Record<string, unknown>]
     expect(id).toBe(`sq1`)
     expect(ok).toBe(false)

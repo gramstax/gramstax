@@ -76,8 +76,8 @@ describe(`TemplateManager`, () => {
     })
 
     it(`should get <g-message> with fallback`, () => {
-      expect(manager.getGMessage(`fallback`, `default`, `id`)).toBe(`Pesan ID`)
-      expect(manager.getGMessage(`fallback`, `default`, `fr`)).toBe(`Default Msg`)
+      expect(manager.getGMessage(`fallback`, `default`, `id`).text).toBe(`Pesan ID`)
+      expect(manager.getGMessage(`fallback`, `default`, `fr`).text).toBe(`Default Msg`)
     })
 
     it(`should get <g-media> with fallback`, () => {
@@ -90,18 +90,18 @@ describe(`TemplateManager`, () => {
 
     it(`should get <g-keyboard> with fallback`, () => {
       const idKb = manager.getGKeyboard(`fallback`, `default`, `id`)
-      expect(idKb).toEqual([`ID Btn`])
+      expect(idKb.rows).toEqual([`ID Btn`])
 
       const frKb = manager.getGKeyboard(`fallback`, `default`, `fr`)
-      expect(frKb).toEqual([`Def Btn`])
+      expect(frKb.rows).toEqual([`Def Btn`])
     })
 
     it(`should get <g-description> with fallback`, () => {
       const idDesc = manager.getGDescription(`fallback`, `default`, `id`, `private`)
-      expect(idDesc).toBe(`ID Desc`)
+      expect(idDesc.text).toBe(`ID Desc`)
 
       const defDesc = manager.getGDescription(`fallback`, `default`, `fr`, `default`)
-      expect(defDesc).toBe(`Def Desc`)
+      expect(defDesc.text).toBe(`Def Desc`)
     })
   })
 
@@ -116,7 +116,7 @@ describe(`TemplateManager`, () => {
       expect(success).toBe(true)
 
       const msg = manager.getGMessage(`write_test`)
-      expect(msg).toBe(`Updated`)
+      expect(msg.text).toBe(`Updated`)
     })
   })
 
@@ -150,11 +150,11 @@ describe(`TemplateManager`, () => {
       })
 
       await wait(100)
-      expect(manager.getGMessage(`watch_test`)).toBe(`Initial`)
+      expect(manager.getGMessage(`watch_test`).text).toBe(`Initial`)
 
       await writeFile(join(TEST_DIR, `watch_test.html`), `<g-base><g-message>Updated</g-message></g-base>`)
       await manager.loadFile(`watch_test.html`)
-      expect(manager.getGMessage(`watch_test`)).toBe(`Updated`)
+      expect(manager.getGMessage(`watch_test`).text).toBe(`Updated`)
       await manager.destroy()
     })
 
@@ -170,7 +170,7 @@ describe(`TemplateManager`, () => {
       await wait(50)
       await manager.loadFile(`new_file.html`)
       expect(manager.hasCompiled(`new_file`)).toBe(true)
-      expect(manager.getGMessage(`new_file`)).toBe(`New`)
+      expect(manager.getGMessage(`new_file`).text).toBe(`New`)
       await manager.destroy()
     })
 

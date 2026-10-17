@@ -71,17 +71,17 @@ export class CheckoutPage extends PageBase {
     isValidContact: (contact: string) => {
       return contact.length >= 5 && (/^@?[a-zA-Z0-9_]{5,}$/.test(contact) || /^\+?[0-9][0-9\s-]{7,}$/.test(contact) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact))
     },
-    kbCart: (bi?: string) => {
-      return this.inlineKeyboardT([CartPage, CatalogPage], `2`, bi)
+    cartKeyboard: (baseId?: string) => {
+      return this.inlineKeyboardT([CartPage, CatalogPage], `2`, baseId)
     },
-    kbConfirm: (bi?: string) => {
-      return this.inlineKeyboardT([this.data.callbackQueryData(`confirm`), this.data.callbackQueryData(`cancel`), CartPage], `2`, bi)
+    confirmKeyboard: (baseId?: string) => {
+      return this.inlineKeyboardT([this.data.callbackQueryData(`confirm`), this.data.callbackQueryData(`cancel`), CartPage], `2`, baseId)
     },
-    kbHome: (bi?: string) => {
-      return this.inlineKeyboardT([HistoryPage, StartPage, CatalogPage], `2`, bi)
+    homeKeyboard: (baseId?: string) => {
+      return this.inlineKeyboardT([HistoryPage, StartPage, CatalogPage], `2`, baseId)
     },
-    kbSuccess: (orderId: string, bi?: string) => {
-      return this.inlineKeyboardT([this.data.callbackQueryData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage], `2`, bi)
+    successKeyboard: (orderId: string, baseId?: string) => {
+      return this.inlineKeyboardT([this.data.callbackQueryData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage], `2`, baseId)
     }
   }
   gindex = {
@@ -93,13 +93,14 @@ export class CheckoutPage extends PageBase {
       }
 
       await this.setSessionFreeText({position: `contact`})
-      const bi = Base.index
-      const kb = this.helper.kbCart(bi)
-      const da = {
-        items: OrderStore.formatCart(summary),
-        subtotal: ProductCatalog.formatPrice(summary.subtotal)
-      }
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({
+        AGBaseId: Base.index,
+        keyboard: this.helper.cartKeyboard(Base.index),
+        data: {
+          items: OrderStore.formatCart(summary),
+          subtotal: ProductCatalog.formatPrice(summary.subtotal)
+        }
+      })
     },
     process: async () => {
       const {position} = this.helper.getSessionParams()
@@ -124,10 +125,7 @@ export class CheckoutPage extends PageBase {
   }
   gconfirm = {
     show: async (items: string, subtotal: string, contact: string, notes: string) => {
-      const bi = Base.confirm
-      const kb = this.helper.kbConfirm(bi)
-      const da = {items, subtotal, contact, notes}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.confirm, keyboard: this.helper.confirmKeyboard(Base.confirm), data: {items, subtotal, contact, notes}})
     },
     process: async () => {
       const cart = await this.helper.getCart()
@@ -160,57 +158,50 @@ export class CheckoutPage extends PageBase {
   }
   gsuccess = {
     show: async (order: OrderRecord) => {
-      const bi = Base.success
-      const kb = this.helper.kbSuccess(order.id, bi)
-      const da = {
-        orderId: order.id,
-        items: OrderStore.formatCart({items: order.items, subtotal: order.subtotal, isEmpty: order.items.length === 0}),
-        subtotal: ProductCatalog.formatPrice(order.subtotal),
-        contact: order.contact,
-        notes: order.notes,
-        support: order.support,
-        statusLabel: OrderStore.statusLabel(order.status),
-        deadlineMinutes: String(order.deadlineMinutes),
-        deadlineAt: order.deadlineAt,
-        timeNow: new Date(),
-        qrisImageUrl: order.qrisImageUrl
-      }
-      await this.renderEditPhoto(kb, da, bi)
+      await this.renderPhoto({
+        AGBaseId: Base.success,
+        keyboard: this.helper.successKeyboard(order.id, Base.success),
+        data: {
+          orderId: order.id,
+          items: OrderStore.formatCart({items: order.items, subtotal: order.subtotal, isEmpty: order.items.length === 0}),
+          subtotal: ProductCatalog.formatPrice(order.subtotal),
+          contact: order.contact,
+          notes: order.notes,
+          support: order.support,
+          statusLabel: OrderStore.statusLabel(order.status),
+          deadlineMinutes: String(order.deadlineMinutes),
+          deadlineAt: order.deadlineAt,
+          timeNow: new Date(),
+          qrisImageUrl: order.qrisImageUrl
+        },
+        mode: "edit"
+      })
     },
     process: () => {}
   }
   gwarnEmpty = {
     show: async () => {
-      const bi = Base.warnEmpty
-      const kb = this.helper.kbCart(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.warnEmpty, keyboard: this.helper.cartKeyboard(Base.warnEmpty)})
     },
     process: () => {}
   }
   gwarnInvalid = {
     show: async (contact: string) => {
       await this.setSessionFreeText({position: `contact`})
-      const bi = Base.warnInvalid
-      const kb = this.helper.kbCart(bi)
-      const da = {contact}
-      await this.renderAuto(kb, da, bi)
+      await this.renderText({AGBaseId: Base.warnInvalid, keyboard: this.helper.cartKeyboard(Base.warnInvalid), data: {contact}})
     },
     process: () => {}
   }
   ginfoCancel = {
     show: async () => {
       await this.clearSession()
-      const bi = Base.infoCancel
-      const kb = this.helper.kbHome(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.infoCancel, keyboard: this.helper.homeKeyboard(Base.infoCancel)})
     },
     process: () => {}
   }
   ginfoMissing = {
     show: async () => {
-      const bi = Base.infoMissing
-      const kb = this.helper.kbHome(bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.infoMissing, keyboard: this.helper.homeKeyboard(Base.infoMissing)})
     },
     process: () => {}
   }

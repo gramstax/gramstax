@@ -11,9 +11,7 @@ export class StartBlockImportPage extends PageBase {
   helper = {}
   gdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([this, StartPage], `1`)
-      const da = {number: Math.random()}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([this, StartPage], `1`), data: {number: Math.random()}})
     },
     process: () => {}
   }

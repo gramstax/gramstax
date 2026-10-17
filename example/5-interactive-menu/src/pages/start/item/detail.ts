@@ -20,12 +20,7 @@ export class StartItemDetailPage extends PageBase {
       const item = CatalogData.getItemById(categoryId, itemId)
       const getPage = await this.cacheState.get(`${this.from!.id}:page`)
       const page = Number(getPage ?? 0)
-      const kb = this.inlineKeyboardT([StartItemListPage.data.callbackQueryData(`${page}`)], `1`)
-      const da = {
-        name: item?.name,
-        description: item?.description
-      }
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([StartItemListPage.data.callbackQueryData(`${page}`)], `1`), data: {name: item?.name, description: item?.description}})
     },
     process: () => {}
   }

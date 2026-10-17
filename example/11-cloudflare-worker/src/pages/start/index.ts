@@ -18,9 +18,7 @@ export class StartPage extends PageBase {
   gdefault = {
     show: async () => {
       await this.clearSession()
-      const kb = this.inlineKeyboardT([StartRandomPage, SumNumberPage, HelpPage], `2`)
-      const da = {userName: this.from?.username}
-      await this.renderAutoRich(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([StartRandomPage, SumNumberPage, HelpPage], `2`), data: {userName: this.from?.username}})
     },
     process: () => {}
   }

@@ -9,7 +9,7 @@ class GapPage extends Ctx {
 }
 
 const makeCtx = (update: Record<string, unknown>, extra?: {log?: unknown; onSendError?: unknown}): GapPage => {
-  const tm = {getGMessage: mock(() => `hello`), getGMedia: mock(() => undefined)} as never
+  const tm = {getGMessage: mock(() => ({kind: `message`, text: `hello`, rich: false})), getGMedia: mock(() => undefined)} as never
   const ct = {api: {config: {use: () => {}}}, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new GapPage({
     ct,

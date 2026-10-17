@@ -25,8 +25,8 @@ class Base {
   static infoDeliverPhoto = `i-deliver-photo`
   static infoDeliverVideo = `i-deliver-video`
   static infoDeliverAnimation = `i-deliver-animation`
-  static kbHome = `kh`
-  static kbConfirm = `kc`
+  static homeKeyboard = `kh`
+  static confirmKeyboard = `kc`
 }
 
 export class BroadcastPage extends PageAdminBase {
@@ -90,9 +90,7 @@ export class BroadcastPage extends PageAdminBase {
   gindex = {
     show: async (draftText: string, isEmpty = false) => {
       await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto(), this.methodSessionFreeVideo(), this.methodSessionFreeAnimation()], {position: `form`})
-      const kb = this.inlineKeyboardT([this.data.callbackQueryData(Base.index, `hybrid`), this.data.callbackQueryData(Base.index, `cancel`), StartPage], `1-2`, Base.index)
-      const da = {draftText, isEmpty}
-      await this.renderAuto(kb, da, Base.index)
+      await this.renderText({AGBaseId: Base.index, keyboard: this.inlineKeyboardT([this.data.callbackQueryData(Base.index, `hybrid`), this.data.callbackQueryData(Base.index, `cancel`), StartPage], `1-2`, Base.index), data: {draftText, isEmpty}})
     },
     process: async (action: string) => {
       const {position, draftText, mediaType, fileId, caption} = (this.temp.session?.params as ISPBroadcast) ?? {}
@@ -138,111 +136,109 @@ export class BroadcastPage extends PageAdminBase {
   ginfoHybridMedia = {
     show: async () => {
       await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto(), this.methodSessionFreeVideo(), this.methodSessionFreeAnimation()], {position: `form`})
-      const bi = Base.infoHybridMedia
-      const kb = this.inlineKeyboardT([this.data.callbackQueryData(Base.index, `cancel`), StartPage], `2`, bi)
-      await this.renderAuto(kb, {}, bi)
+      await this.renderText({AGBaseId: Base.infoHybridMedia, keyboard: this.inlineKeyboardT([this.data.callbackQueryData(Base.index, `cancel`), StartPage], `2`, Base.infoHybridMedia)})
     },
     process: () => {}
   }
   ginfoHybridMediaNotAvailable = {
     show: async () => {
       await this.clearSession()
-      await this.renderAuto(this.gkbHome.show(), {}, Base.infoHybridMediaNotAvailable)
+      await this.renderText({AGBaseId: Base.infoHybridMediaNotAvailable, keyboard: this.gkeyboardHome.show()})
     },
     process: () => {}
   }
   ginfoConfirmText = {
     show: async (draftText: string) => {
       await this.setSessionArgsCallbackQueryData({position: `confirm`, draftText})
-      await this.renderAuto(this.gkbConfirm.show(), {draftText}, Base.infoConfirmText)
+      await this.renderText({AGBaseId: Base.infoConfirmText, keyboard: this.gkeyboardConfirm.show(), data: {draftText}})
     },
     process: () => {}
   }
   ginfoConfirmPhoto = {
     show: async (fileId: string, caption?: string) => {
       await this.setSessionArgsCallbackQueryData({position: `confirm`, mediaType: `photo`, fileId, caption})
-      await this.renderPhoto(this.gkbConfirm.show(), {fileId, caption}, Base.infoConfirmPhoto)
+      await this.renderPhoto({AGBaseId: Base.infoConfirmPhoto, keyboard: this.gkeyboardConfirm.show(), data: {fileId, caption}})
     },
     process: () => {}
   }
   ginfoConfirmVideo = {
     show: async (fileId: string, caption?: string) => {
       await this.setSessionArgsCallbackQueryData({position: `confirm`, mediaType: `video`, fileId, caption})
-      await this.renderVideo(this.gkbConfirm.show(), {fileId, caption}, Base.infoConfirmVideo)
+      await this.renderVideo({AGBaseId: Base.infoConfirmVideo, keyboard: this.gkeyboardConfirm.show(), data: {fileId, caption}})
     },
     process: () => {}
   }
   ginfoConfirmAnimation = {
     show: async (fileId: string, caption?: string) => {
       await this.setSessionArgsCallbackQueryData({position: `confirm`, mediaType: `animation`, fileId, caption})
-      await this.renderAnimation(this.gkbConfirm.show(), {fileId, caption}, Base.infoConfirmAnimation)
+      await this.renderAnimation({AGBaseId: Base.infoConfirmAnimation, keyboard: this.gkeyboardConfirm.show(), data: {fileId, caption}})
     },
     process: () => {}
   }
   gsuccess = {
     show: async (successCount: number, totalCount: number) => {
       await this.clearSession()
-      await this.renderAuto(this.gkbHome.show(), {successCount, totalCount}, Base.success)
+      await this.renderText({AGBaseId: Base.success, keyboard: this.gkeyboardHome.show(), data: {successCount, totalCount}})
     },
     process: () => {}
   }
   ginfoEmptySubs = {
     show: async () => {
       await this.clearSession()
-      await this.renderAuto(this.gkbHome.show(), {}, Base.infoEmptySubs)
+      await this.renderText({AGBaseId: Base.infoEmptySubs, keyboard: this.gkeyboardHome.show()})
     },
     process: () => {}
   }
   ginfoCancel = {
     show: async () => {
       await this.clearSession()
-      await this.renderAuto(this.gkbHome.show(), {}, Base.infoCancel)
+      await this.renderText({AGBaseId: Base.infoCancel, keyboard: this.gkeyboardHome.show()})
     },
     process: () => {}
   }
-  gkbHome = {
+  gkeyboardHome = {
     show: () => {
-      return this.inlineKeyboardT([StartPage], `1`, Base.kbHome)
+      return this.inlineKeyboardT([StartPage], `1`, Base.homeKeyboard)
     },
     process: () => {}
   }
-  gkbConfirm = {
+  gkeyboardConfirm = {
     show: () => {
       const s1 = Base.index
-      return this.inlineKeyboardT([this.data.callbackQueryData(s1, `send`), this.data.callbackQueryData(s1, `edit`), this.data.callbackQueryData(s1, `cancel`), StartPage], `2-2`, Base.kbConfirm)
+      return this.inlineKeyboardT([this.data.callbackQueryData(s1, `send`), this.data.callbackQueryData(s1, `edit`), this.data.callbackQueryData(s1, `cancel`), StartPage], `2-2`, Base.confirmKeyboard)
     },
     process: () => {}
   }
   ginfoDeliverText = {
     show: async (ids: number[], langs: string[], draftText?: string) => {
-      return await this.renderBroadcast(ids, langs, null, {message: draftText}, Base.infoDeliverText)
+      return await this.renderBroadcast({AGBaseId: Base.infoDeliverText, data: {message: draftText}, ids, languageCode: langs})
     },
     process: () => {}
   }
   ginfoDeliverPhoto = {
     show: async (ids: number[], langs: string[], fileId: string, caption?: string) => {
-      return await this.renderBroadcastMedia(ids, langs, null, {fileId, caption}, Base.infoDeliverPhoto)
+      return await this.renderBroadcastMedia({AGBaseId: Base.infoDeliverPhoto, data: {fileId, caption}, ids, languageCode: langs})
     },
     process: () => {}
   }
   ginfoDeliverVideo = {
     show: async (ids: number[], langs: string[], fileId: string, caption?: string) => {
-      return await this.renderBroadcastMedia(ids, langs, null, {fileId, caption}, Base.infoDeliverVideo)
+      return await this.renderBroadcastMedia({AGBaseId: Base.infoDeliverVideo, data: {fileId, caption}, ids, languageCode: langs})
     },
     process: () => {}
   }
   ginfoDeliverAnimation = {
     show: async (ids: number[], langs: string[], fileId: string, caption?: string) => {
-      return await this.renderBroadcastMedia(ids, langs, null, {fileId, caption}, Base.infoDeliverAnimation)
+      return await this.renderBroadcastMedia({AGBaseId: Base.infoDeliverAnimation, data: {fileId, caption}, ids, languageCode: langs})
     },
     process: () => {}
   }
 
   static template = `
-    <g-base id="${Base.kbHome}">
+    <g-base id="${Base.homeKeyboard}">
       ${this.kbk.home()}
     </g-base>
-    <g-base id="${Base.kbConfirm}">
+    <g-base id="${Base.confirmKeyboard}">
       <g-keyboard type="inline">✅ Send, ✏️ Edit, ${this.kbl.cancelHome.default}</g-keyboard>
       <g-keyboard type="inline" lang="id">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</g-keyboard>
     </g-base>

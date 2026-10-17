@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+Realigns the `route-` render rules with the single-object render API. Every `render*` method now takes ONE params object; `mode: 'auto' | 'reply' | 'edit'` replaces the separate auto/edit method families, and `renderText` resolves plain vs rich `<g-message>` content itself — there is no rich variant to choose.
+
+### Folded
+
+- `renderChunked` is gone; long-text splitting is now the `chunkSize` field on `renderText`. It is documented as a `chunkSize` subsection under `renderText` in `route-render-api.md`: sequential reply chunks, the keyboard rides only the LAST chunk, the cut prefers `\n\n` → `\n` → a space, and the chunked path is a REPLY path, so `mode` does not apply. The picking-table row and the `AGBaseId`-required note are re-pointed.
+
+### Rewritten
+
+- `route-render-auto.md` — rebuilt around `mode` instead of the retired auto/edit method family; manual `callbackQuery` branching is still the anti-pattern.
+- `route-render-api.md` — every signature and sample migrated to object params (`renderEditCaption`, `renderEditKeyboard`, `renderGift`, `renderCallbackAnswer`, `renderPreCheckout`, `renderShipping`, `renderInlineAnswer`).
+
+### Migrated call sites
+
+- `keyboard-choice.md`, `keyboard-reuse.md`, `pages-base-classes.md`, `pages-structure.md`, `route-broadcast.md`, `route-handlers.md`, `route-hooks.md`, `security-trust-boundary.md`, `SKILL.md`, `_sections.md`.
+
 ## 3.1.0
 
 No change to this package. `nx release` moves all four workspace packages as one fixed release group, so `gramstax` reaches `3.1.0` alongside the breaking changes in `@gramstax/lmdb` — `LmdbBackup.start()` is now croner-backed and takes a cron `pattern` instead of `intervalMs`, and `croner` is a new runtime dependency of `@gramstax/lmdb`. Nothing in `gramstax` changed, so reading `3.1.0` here as a delta would overstate it.
@@ -154,7 +171,7 @@ never-existing members. All fixed in the framework:
 
 | File | Defect |
 | --- | --- |
-| `core/ctx.ts:2090,2109` | `hookBeforeRoute` docs called `renderAnswerCallback` with 1 arg; real method is `renderCallbackAnswer(showAlert, data, AGBaseId, options?)` |
+| `core/ctx.ts:2090,2109` | `hookBeforeRoute` docs referenced the callback-answer method by a nonexistent name with the wrong arity; real method is `renderCallbackAnswer` |
 | `core/ctx.ts` ×10 | route examples used `this.msgText`; correct is `this.msg?.text` |
 | `core/ctx.ts` ×24 | route examples used `this.msgCaption`; correct is `this.msg?.caption` |
 | `core/ctx.ts:6623,6659` | examples named `handleTextArgs` / `handleCommandTextArgs`; the handlers are `handleArgsText` / `handleCommandArgsText` |
@@ -203,6 +220,6 @@ while the root `devDependencies` still hold `typescript: ^6.0.3`, so a bare
   `deploy-`), plus `_sections.md` index and `_template.md` for new rules.
 - Rules distilled from `DEPRECATED-rules/` (pages, e2e, structure, linting)
   and the `example/` projects, updated against current source:
-  `renderAuto*` family with `fallbackEdit`, `{{var|filter}}` pipes,
+  the auto send/edit render family with `fallbackEdit`, `{{var|filter}}` pipes,
   `<g-media-group>`, `deploy: "raw"`, session locking, and the
   concat-codegen trust boundary proven by `security-poc/`.

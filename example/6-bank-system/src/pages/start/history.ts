@@ -44,9 +44,7 @@ export class StartHistoryPage extends PageBase {
   gdefault = {
     show: async () => {
       const history = this.helper.formatHistory()
-      const kb = this.inlineKeyboardT([StartPage])
-      const da = {history}
-      await this.renderAuto(kb, da)
+      await this.renderText({keyboard: this.inlineKeyboardT([StartPage]), data: {history}})
     },
     process: () => {}
   }

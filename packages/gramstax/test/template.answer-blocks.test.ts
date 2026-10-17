@@ -185,11 +185,11 @@ describe(`answer-blocks-manager`, () => {
   it(`compiles and serves all five answer blocks via their getters`, () => {
     const manager = new TemplateManager({path: [TEST_DIR]})
     manager.compile(`answers`, fullTemplate)
-    expect(manager.getGCallbackAnswer(`answers`, `card`, `default`, {x: `A`})).toBe(`Tap A`)
-    expect(manager.getGPrecheckoutError(`answers`, `card`, `default`, {x: `B`})).toBe(`No B`)
-    expect(manager.getGShippingError(`answers`, `card`, `default`, {x: `C`})).toBe(`Far C`)
-    expect(manager.getGInlineButton(`answers`, `card`, `default`, {x: `D`})).toEqual({text: `Lihat D`, startParameter: `d-1`})
-    expect(manager.getGAnswerNote(`answers`, `card`, `default`, {x: `E`})).toBe(`Note E`)
+    expect(manager.getGCallbackAnswer(`answers`, `card`, `default`, {x: `A`}).text).toBe(`Tap A`)
+    expect(manager.getGPrecheckoutError(`answers`, `card`, `default`, {x: `B`}).text).toBe(`No B`)
+    expect(manager.getGShippingError(`answers`, `card`, `default`, {x: `C`}).text).toBe(`Far C`)
+    expect(manager.getGInlineButton(`answers`, `card`, `default`, {x: `D`})).toEqual({kind: `inlineButton`, text: `Lihat D`, startParameter: `d-1`})
+    expect(manager.getGAnswerNote(`answers`, `card`, `default`, {x: `E`}).text).toBe(`Note E`)
   })
 
   it(`throws for each missing answer block (strict, never empty)`, () => {
