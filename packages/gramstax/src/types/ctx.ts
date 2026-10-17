@@ -892,19 +892,36 @@ export type RenderTextParams = {
    * @defaultValue `null` (single message)
    */
   chunkSize?: number | null
+  /**
+   * Optional broadcast fan-out (see {@link BroadcastSendParams}).
+   *
+   * @remarks
+   * When present, the fully-rendered `<g-message>` block is SENT (never
+   * edited) to every entry of `broadcast.ids` with its own language code
+   * from `broadcast.languageCode`; rich templates go through
+   * `api.sendRichMessage`, plain templates keep `api.sendMessage` with
+   * `parse_mode: HTML`. `mode`, `fallbackEdit`, and `chunkSize` do not
+   * apply on this path.
+   *
+   * @defaultValue `null` (single-chat send/edit)
+   */
+  broadcast?: BroadcastSendParams | null
 }
 
 /**
- * Parameters for `renderBroadcast` — the multi-recipient text fan-out.
+ * Broadcast-send controls for the `broadcast` field of `renderText`,
+ * `renderPoll`, and `renderMedia`.
  *
  * @remarks
  * Checkpoint-first by design (anti-spam over speed): `startFrom` resumes
  * without resending, `chunkSize`/`chunkDelayMs` pace the loop with
  * `onProgress` checkpoints, and `excludeIds` counts skips without sending.
+ * The send content itself comes from the host method params (`keyboard`,
+ * `data`, `AGBaseId`, `options`/`richOptions`).
  *
  * @public
  */
-export type RenderBroadcastParams = {
+export type BroadcastSendParams = {
   /**
    * Recipient user IDs, in stable order (checkpoint index = array index).
    */
@@ -913,121 +930,6 @@ export type RenderBroadcastParams = {
    * Parallel language codes, one per recipient.
    */
   languageCode: string[]
-  /**
-   * Optional keyboard markup.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInBoKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template g-base ID position for block message.
-   *
-   * @defaultValue `null` (use default)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional send options.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: IOptReply | null
-  /**
-   * If true, throws errors instead of swallowing them.
-   *
-   * @defaultValue `false`
-   */
-  throwError?: boolean | null
-  /**
-   * Optional custom chunk size for pacing sleeps.
-   *
-   * @defaultValue `null` (free-limit pacing only)
-   */
-  chunkSize?: number | null
-  /**
-   * Optional delay in ms after each `chunkSize` chunk.
-   *
-   * @defaultValue `null` (→ `500`)
-   */
-  chunkDelayMs?: number | null
-  /**
-   * Optional user IDs to skip, counted as skipped.
-   *
-   * @defaultValue `null` (send to all)
-   */
-  excludeIds?: number[] | null
-  /**
-   * Optional checkpoint callback `(done, total)` fired after every pacing
-   * chunk and once at completion.
-   *
-   * @defaultValue `null` (no callback)
-   */
-  onProgress?: ((done: number, total: number) => void | Promise<void>) | null
-  /**
-   * Optional absolute recipient index to resume from; indexes below count as
-   * skipped and are never resent.
-   *
-   * @defaultValue `null` (start at `0`)
-   */
-  startFrom?: number | null
-  /**
-   * Optional parallel send workers; `1` keeps the sequential loop, floored
-   * at `1`, capped at `10`, non-finite becomes `1`.
-   *
-   * @defaultValue `null` (→ `1`)
-   */
-  concurrency?: number | null
-}
-
-/**
- * Parameters for `renderBroadcastMedia` — the multi-recipient media fan-out.
- *
- * @remarks
- * Media type and arg are inferred from the template `<g-media>` block. A
- * pipe-delimited `src` sends as a Telegram media group, and media groups
- * carry no reply markup, so keyboards are ignored for grouped media. Same
- * checkpoint-first fan-out semantics as `renderBroadcast`.
- *
- * @public
- */
-export type RenderBroadcastMediaParams = {
-  /**
-   * Recipient user IDs, in stable order (checkpoint index = array index).
-   */
-  ids: number[]
-  /**
-   * Parallel language codes, one per recipient.
-   */
-  languageCode: string[]
-  /**
-   * Optional keyboard markup.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInBoKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template g-base ID position for block media.
-   *
-   * @defaultValue `null` (use default)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional send options for the inferred media type.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact | null
   /**
    * If true, throws errors instead of swallowing them.
    *
@@ -1080,7 +982,8 @@ export type RenderBroadcastMediaParams = {
  *
  * @remarks
  * Reads no template block — it operates on stored message ids. Same
- * checkpoint-first controls as `renderBroadcastEdit` via `broadcastOpts`; a
+ * checkpoint-first controls as the revise fan-out (`renderMedia` with
+ * `broadcast.targets`) via `broadcastOpts`; a
  * failed delete has no text fallback by design, since there is no
  * replacement content to deliver.
  *
@@ -1102,8 +1005,7 @@ export type RenderBroadcastDeleteParams = {
 }
 
 /**
- * Parameters for `renderBroadcastEdit` — the multi-recipient media edit
- * fan-out.
+ * Broadcast revise selector for the `broadcast` field of `renderMedia`.
  *
  * @remarks
  * `photo`, `video`, `audio`, `document`, and `animation` edit in place via
@@ -1111,64 +1013,14 @@ export type RenderBroadcastDeleteParams = {
  * message is deleted and a new one is sent. `broadcastOpts.fallbackEdit`
  * applies per recipient when the primary edit/resend fails.
  *
- * @typeParam T - The media type to edit to.
- *
  * @public
  */
-export type RenderBroadcastEditParams<T extends Exclude<IMediaBlock[`type`], `group`>> = {
+export type BroadcastReviseParams = {
   /**
    * Stored `{chatId, messageId}` rows to edit, in stable order (checkpoint
    * index = array index).
    */
   targets: IBroadcastEditTarget[]
-  /**
-   * The media type (photo, video, audio, document, animation, voice,
-   * video_note, sticker, location, contact).
-   */
-  type: T
-  /**
-   * Optional inline keyboard markup.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboardInline?: IInlineKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template g-base ID position for block media.
-   *
-   * @defaultValue `null` (use default)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional type-specific media options; dropped on the fallback resend.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options1?:
-    | (T extends `voice`
-        ? IOptReplyVoice
-        : T extends `video_note`
-          ? IOptReplyVideoNote
-          : T extends `sticker`
-            ? IOptReplySticker
-            : T extends `location`
-              ? IOptReplyLocation
-              : T extends `contact`
-                ? IOptReplyContact
-                : //
-                  IOptEditMedia1)
-    | null
-  /**
-   * Optional additional edit options; dropped on the fallback resend.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options2?: IOptEditMedia2 | null
   /**
    * Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`,
    * `chunkSize`, `chunkDelayMs`, `fallbackEdit`).
@@ -1176,97 +1028,6 @@ export type RenderBroadcastEditParams<T extends Exclude<IMediaBlock[`type`], `gr
    * @defaultValue `null` (defaults)
    */
   broadcastOpts?: IBroadcastEditOpts | null
-}
-
-/**
- * Parameters for `renderBroadcastPoll` — the multi-recipient poll fan-out.
- *
- * @remarks
- * Poll counterpart of `renderBroadcastMedia`: `Ctx.assertPoll` runs for
- * every recipient BEFORE the loop, and the same checkpoint-first controls
- * (`startFrom`, bounded `concurrency`, pacing, `excludeIds`, `throwError`)
- * apply.
- *
- * @public
- */
-export type RenderBroadcastPollParams = {
-  /**
-   * Recipient user IDs, in stable order (checkpoint index = array index).
-   */
-  ids: number[]
-  /**
-   * Parallel language codes, one per recipient.
-   */
-  languageCode: string[]
-  /**
-   * Optional keyboard markup.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInBoKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template g-base ID position for block poll.
-   *
-   * @defaultValue `null` (use default)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional extra `sendPoll` fields.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: Parameters<Ctx[`replyWithPoll`]>[2] | null
-  /**
-   * If true, throws errors instead of swallowing them.
-   *
-   * @defaultValue `false`
-   */
-  throwError?: boolean | null
-  /**
-   * Optional custom chunk size for pacing sleeps.
-   *
-   * @defaultValue `null` (free-limit pacing only)
-   */
-  chunkSize?: number | null
-  /**
-   * Optional delay in ms after each `chunkSize` chunk.
-   *
-   * @defaultValue `null` (→ `500`)
-   */
-  chunkDelayMs?: number | null
-  /**
-   * Optional user IDs to skip, counted as skipped.
-   *
-   * @defaultValue `null` (send to all)
-   */
-  excludeIds?: number[] | null
-  /**
-   * Optional checkpoint callback `(done, total)` fired after every pacing
-   * chunk and once at completion.
-   *
-   * @defaultValue `null` (no callback)
-   */
-  onProgress?: ((done: number, total: number) => void | Promise<void>) | null
-  /**
-   * Optional absolute recipient index to resume from; indexes below count as
-   * skipped and are never resent.
-   *
-   * @defaultValue `null` (start at `0`)
-   */
-  startFrom?: number | null
-  /**
-   * Optional parallel send workers; `1` keeps the sequential loop, floored
-   * at `1`, capped at `10`, non-finite becomes `1`.
-   *
-   * @defaultValue `null` (→ `1`)
-   */
-  concurrency?: number | null
 }
 
 /**
@@ -1557,6 +1318,19 @@ export type RenderPollParams = {
    * @defaultValue `null` (no extra options)
    */
   options?: Parameters<Ctx[`replyWithPoll`]>[2] | null
+  /**
+   * Optional broadcast fan-out (see {@link BroadcastSendParams}).
+   *
+   * @remarks
+   * When present, the compiled `<g-poll>` block is sent to every entry of
+   * `broadcast.ids` with its own language code from
+   * `broadcast.languageCode`; `Ctx.assertPoll` runs for every recipient
+   * BEFORE the loop and `mode`/`fallbackEdit` do not apply (polls are
+   * send-only).
+   *
+   * @defaultValue `null` (single-chat send)
+   */
+  broadcast?: BroadcastSendParams | null
 }
 
 /**
@@ -1799,27 +1573,15 @@ export type RenderEditKeyboardParams = {
 type IMediaGroupType = Extract<IMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
 
 /**
- * Parameters for `renderMedia` — the single media send/edit method.
+ * `renderMedia` fields shared by every call shape.
  *
  * @remarks
- * All fields except `type` are optional. `mode` resolves the send-versus-edit
- * decision exactly like {@link RenderTextParams}: `auto` (default) edits when
- * the update carries a `callbackQuery`, `reply` always sends, `edit` always
- * edits. `options` feeds the reply branch and the `editMessageMedia` error
- * state; `optionsEdit1`/`optionsEdit2` feed the edit branch only and are
- * DROPPED by the fallback re-send (edit options do not map to reply options).
- * `fallbackEdit` mirrors {@link IOptFallbackEdit} and defaults to
- * `delete-reply`.
+ * Generic over the media kind so `options`/`optionsEdit1` resolve to the
+ * right per-type union member in each branch of {@link RenderMediaParams}.
  *
- * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
- *
- * @public
+ * @internal
  */
-export type RenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> = {
-  /**
-   * The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
-   */
-  type: T
+type RenderMediaCommon<T extends Exclude<IMediaBlock[`type`], `group`>> = {
   /**
    * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
    * omit). Edits accept inline keyboards only.
@@ -1916,12 +1678,96 @@ export type RenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> =
 }
 
 /**
+ * Single-chat `renderMedia` shape — `type` is required and `broadcast` is
+ * absent/null.
+ *
+ * @internal
+ */
+type RenderMediaSingle<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaCommon<T> & {
+  /**
+   * The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
+   */
+  type: T
+  /**
+   * Broadcast fan-out selector.
+   *
+   * @defaultValue `null` (single-chat send/edit)
+   */
+  broadcast?: null | undefined
+}
+
+/**
+ * Broadcast-send `renderMedia` shape — fans out to `broadcast.ids` without
+ * requiring an explicit `type`; the media kind is read from the template
+ * `<g-media>` block instead (never defaulted).
+ *
+ * @internal
+ */
+type RenderMediaBroadcastSend<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaCommon<T> & {
+  /**
+   * The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
+   *
+   * @remarks
+   * Optional on this path and IGNORED when supplied: the kind is read from
+   * the template `<g-media>` block (never defaulted to `photo` or anything
+   * else).
+   *
+   * @defaultValue `null` (read from the template)
+   */
+  type?: T
+  /**
+   * Broadcast-send fan-out (see {@link BroadcastSendParams}).
+   */
+  broadcast: BroadcastSendParams
+}
+
+/**
+ * Broadcast-revise `renderMedia` shape — edits stored messages to `type`.
+ *
+ * @internal
+ */
+type RenderMediaBroadcastRevise<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaCommon<T> & {
+  /**
+   * The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
+   */
+  type: T
+  /**
+   * Broadcast revise fan-out (see {@link BroadcastReviseParams}).
+   */
+  broadcast: BroadcastReviseParams
+}
+
+/**
+ * Parameters for `renderMedia` — the single media send/edit method.
+ *
+ * @remarks
+ * All fields except `type` are optional. `mode` resolves the send-versus-edit
+ * decision exactly like {@link RenderTextParams}: `auto` (default) edits when
+ * the update carries a `callbackQuery`, `reply` always sends, `edit` always
+ * edits. `options` feeds the reply branch and the `editMessageMedia` error
+ * state; `optionsEdit1`/`optionsEdit2` feed the edit branch only and are
+ * DROPPED by the fallback re-send (edit options do not map to reply options).
+ * `fallbackEdit` mirrors {@link IOptFallbackEdit} and defaults to
+ * `delete-reply`.
+ *
+ * `broadcast` switches to multi-recipient fan-out: `broadcast.ids` runs the
+ * send loop (`type` optional — the kind is read from the template), and
+ * `broadcast.targets` runs the revise loop (`type` required). `mode`,
+ * `fallbackEdit`, and the `options*` fields do not apply to the send loop.
+ *
+ * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
+ *
+ * @public
+ */
+export type RenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaSingle<T> | RenderMediaBroadcastSend<T> | RenderMediaBroadcastRevise<T>
+
+/**
  * `RenderMediaParams` for one media kind — the per-kind wrappers
  * (`renderPhoto`, `renderVideo`, …) accept this shape and supply `type`.
  *
  * @public
  */
-export type RenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<RenderMediaParams<T>, `type`>
+export type RenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaParams<T> extends infer P ? (P extends unknown ? Omit<P, `type`> : never) : never
 
 /**
  * Parameters for `renderMediaGroup` — the single media-group send/edit method.
@@ -2120,13 +1966,13 @@ export type ICtxParams = {
  *
  * @remarks
  * Matches the downstream `SentRepository` row shape (`chatId` + `messageId`
- * per content code): list stored rows and pass them back to
- * `renderBroadcastEdit` / `renderBroadcastDelete`.
+ * per content code): list stored rows and pass them back to `renderMedia`
+ * (with `broadcast.targets`) / `renderBroadcastDelete`.
  *
  * @example
  * ```ts
  * const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
- * await this.renderBroadcastEdit(sent, `photo`, null, {price: `99`})
+ * await this.renderMedia({type: `photo`, data: {price: `99`}, broadcast: {targets: sent}})
  * ```
  *
  * @public
@@ -2143,7 +1989,8 @@ export type IBroadcastEditTarget = {
 }
 
 /**
- * Broadcast controls shared by `renderBroadcastEdit` and `renderBroadcastDelete`.
+ * Broadcast controls shared by the `broadcast.targets` revise fan-out of
+ * `renderMedia` and by `renderBroadcastDelete`.
  *
  * @remarks
  * All fields are optional: defaults mirror broadcast-send behavior
@@ -2251,6 +2098,50 @@ export type IBroadcastEditResult = {
     index: number
     chatId: number
     messageId: number
+    error: unknown
+  }>
+}
+
+/**
+ * Bulk send result with a re-drive list.
+ *
+ * @remarks
+ * Broadcast-send counterpart of {@link IBroadcastEditResult}: counts plus
+ * `retryable[]` (absolute `index` + recipient `id` + `error`, completion
+ * order) for a fresh retry pass, and `skippedCount` for
+ * `startFrom`-resumed or `excludeIds`-skipped recipients. Returned by the
+ * `broadcast.ids` paths of {@link (Ctx:class).renderText},
+ * {@link (Ctx:class).renderPoll}, and {@link (Ctx:class).renderMedia}.
+ *
+ * @public
+ */
+export type IBroadcastSendResult = {
+  /**
+   * Count of recipients the block was delivered to successfully.
+   */
+  successCount: number
+  /**
+   * Count of recipients that failed (retryable plus fallback-text).
+   */
+  failedCount: number
+  /**
+   * Total recipients attempted (`ids.length`).
+   */
+  totalCount: number
+  /**
+   * Count of checkpoint-resumed or `excludeIds`-excluded recipients skipped.
+   */
+  skippedCount: number
+  /**
+   * Retryable failures in completion order for a fresh retry pass.
+   *
+   * @remarks
+   * Each entry carries the absolute `index` into the original `ids` array
+   * plus the recipient `id` and the raw `error`.
+   */
+  retryable: Array<{
+    index: number
+    id: number
     error: unknown
   }>
 }

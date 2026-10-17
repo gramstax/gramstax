@@ -16,16 +16,19 @@ import {setTimeout} from "node:timers/promises"
 import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
-import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent} from "grammy/types"
+import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent, Message} from "grammy/types"
 import type {CacheExternal} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
 import {TemplateEngine} from "~/template/engine"
 import type {TemplateManager} from "~/template/manager"
 import type {ICacheRpc} from "~/types/cache"
 import type {
+  BroadcastReviseParams,
+  BroadcastSendParams,
   IBottomKb,
   IBottomKbParams,
   IBroadcastEditResult,
+  IBroadcastSendResult,
   IBuildDataOptions,
   ICt,
   ICtxParams,
@@ -44,7 +47,17 @@ import type {
   IOptInlineAnswer,
   IOptPreCheckout,
   IOptReply,
+  IOptReplyAnimation,
+  IOptReplyAudio,
+  IOptReplyContact,
+  IOptReplyDocument,
+  IOptReplyLocation,
+  IOptReplyPhoto,
   IOptReplyRich,
+  IOptReplySticker,
+  IOptReplyVideo,
+  IOptReplyVideoNote,
+  IOptReplyVoice,
   IOptShipping,
   IPageData,
   IPageDataBase,
@@ -53,10 +66,6 @@ import type {
   IStoryContent,
   ITemp,
   RenderBroadcastDeleteParams,
-  RenderBroadcastEditParams,
-  RenderBroadcastMediaParams,
-  RenderBroadcastParams,
-  RenderBroadcastPollParams,
   RenderCallbackAnswerParams,
   RenderDiceParams,
   RenderEditCaptionParams,
@@ -1289,7 +1298,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async replyFallbackText(): Promise<unknown> {
+  async replyFallbackText(): Promise<Message | undefined> {
     try {
       return await this.reply(this.resolveFallbackText())
     } catch {
@@ -2262,12 +2271,18 @@ export class Ctx extends Context {
   async hookAfterRoute?(): Promise<void>
 
   /**
-   * Sends a message to multiple users in bulk.
+   * Broadcast-send half of {@link (Ctx:class).renderText} — the
+   * multi-recipient text fan-out.
    *
-   * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
-   * Automatically throttles after 30 messages to respect Telegram rate limits.
-   * Uses each user's specified language code for template rendering.
+   * Template block: `<g-message>` (read via `getGMessage`).
+   * Checkpoint-first by design (anti-spam over speed): `startFrom` resumes
+   * without resending, `chunkSize`/`chunkDelayMs` pace the loop with
+   * `onProgress` checkpoints, and `excludeIds` counts skips without sending.
+   * Rich templates (`rich === true`) are sent cross-chat through
+   * `api.sendRichMessage` with the `InputRichMessage` payload (plus
+   * `richOptions`); plain templates keep `api.sendMessage` with
+   * `parse_mode: HTML` (plus `options`).
    * Per-recipient send failures follow `Ctx.classifySendError`: `retryable`
    * errors are counted and the loop continues; `fallback-text` errors
    * additionally trigger a best-effort fallback-text send to that recipient
@@ -2278,33 +2293,30 @@ export class Ctx extends Context {
    * order) while the checkpoint keeps advancing, so callers can re-drive
    * just those entries with a fresh pass. `firstError` stays the first
    * failure of any kind.
-   * Checkpoint-first (anti-spam over speed): `startFrom` resumes after a
-   * restart without resending (indexes below count as skipped, `done` in
-   * `onProgress` counts processed recipients, `total` is `ids.length`);
    * `concurrency` defaults to `1` (sequential) and can be raised when
    * throughput matters. At ~`40` sends/sec, `1M` recipients take ~`7h` —
    * size chunks and checkpoints accordingly.
    *
-   * @param params - Broadcast params: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block message (or null to use default); `options` optional send options (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @param params - Broadcast-send params plus the host `renderText` fields: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block message (or null to use default); `options` optional plain-text send options (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @returns Counts plus `retryable[]` for a re-drive pass.
    *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   const userIds = [123456, 789012]
-   *   const langs = [`en`, `id`]
-   *   await this.renderBroadcast({ids: userIds, languageCode: langs})
-   * }
-   * ```
-   *
-   * @public
+   * @internal
    */
-  async renderBroadcast(params: RenderBroadcastParams) {
-    const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
-    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: [] as Array<{index: number; id: number; error: unknown}>}
+  private async _broadcastSendText(
+    params: BroadcastSendParams & {
+      keyboard?: IInBoKb | null
+      data?: IData | null
+      AGBaseId?: string | null
+      options?: IOptReply | IOptEdit | null
+      richOptions?: IOptReplyRich | null
+    }
+  ): Promise<IBroadcastSendResult> {
+    const {ids, languageCode, keyboard, data, AGBaseId, options, richOptions, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
+    const res: IBroadcastSendResult = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: []}
     res.totalCount = ids.length
     const limitFree = 30
     const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
-    const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined).text)
+    const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
     const rawStart = startFrom ?? 0
     const start = !Number.isFinite(rawStart) ? 0 : Math.min(ids.length, Math.max(0, Math.floor(rawStart)))
     res.skippedCount += start
@@ -2318,17 +2330,21 @@ export class Ctx extends Context {
         return
       }
       const msg = msgs[index] ?? msgs[msgs.length - 1]
-      if (msg === undefined || msg === ``) {
+      if (msg === undefined || msg.text === ``) {
         res.failedCount += 1
         return
       }
       try {
         // Cross-chat by design: recipients differ from the current chat, so this loop keeps `api.*`.
-        await this.api.sendMessage(id!, msg, {
-          parse_mode: `HTML`,
-          reply_markup: keyboard ?? undefined,
-          ...(options ?? {})
-        })
+        if (msg.rich) {
+          await this.api.sendRichMessage(id!, {html: msg.text, ...(richOptions?.[0] ?? {})}, {reply_markup: keyboard ?? undefined, ...(richOptions?.[1] ?? {})})
+        } else {
+          await this.api.sendMessage(id!, msg.text, {
+            parse_mode: `HTML`,
+            reply_markup: keyboard ?? undefined,
+            ...(options ?? {})
+          })
+        }
         res.successCount += 1
       } catch (error) {
         const kind = Ctx.classifySendError(error)
@@ -2378,10 +2394,13 @@ export class Ctx extends Context {
   }
 
   /**
-   * Sends a media message to multiple users in bulk.
+   * Broadcast-send half of {@link (Ctx:class).renderMedia} — the
+   * multi-recipient media fan-out.
    *
    * @remarks
-   * Media type and arg are inferred from the template `<g-media>` block.
+   * Template block: `<g-media>` (read via `getGMedia`).
+   * Media type and arg are inferred from the template `<g-media>` block —
+   * the `type` of the host `renderMedia` params is ignored on this path.
    * If a supported media type (`photo`, `video`, `audio`, `document`) uses a pipe-delimited
    * `src`, it is sent as a Telegram media group. Telegram media groups do not support
    * reply markup, so keyboards are ignored for grouped media.
@@ -2407,22 +2426,21 @@ export class Ctx extends Context {
    * via `Ctx.cloneMediaInput`, so parallel workers never share one mutable
    * `InputFile` instance.
    *
-   * @param params - Broadcast params: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `options` optional send options for the inferred media type (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @param params - Broadcast-send params plus the host `renderMedia` fields: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `options` optional send options for the inferred media type (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @returns Counts plus `retryable[]` for a re-drive pass.
    *
-   * @example
-   * ```typescript
-   * async handleCallbackQueryData() {
-   *   const userIds = [123456, 789012]
-   *   const langs = [`en`, `id`]
-   *   await this.renderBroadcastMedia({ids: userIds, languageCode: langs})
-   * }
-   * ```
-   *
-   * @public
+   * @internal
    */
-  async renderBroadcastMedia(params: RenderBroadcastMediaParams) {
+  private async _broadcastSendMedia(
+    params: BroadcastSendParams & {
+      keyboard?: IInBoKb | null
+      data?: IData | null
+      AGBaseId?: string | null
+      options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact | null
+    }
+  ): Promise<IBroadcastSendResult> {
     const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
-    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: [] as Array<{index: number; id: number; error: unknown}>}
+    const res: IBroadcastSendResult = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: []}
     res.totalCount = ids.length
     const limitFree = 30
     const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
@@ -2534,17 +2552,19 @@ export class Ctx extends Context {
   }
 
   /**
-   * Edits already-sent messages for many recipients in bulk.
+   * Broadcast-revise half of {@link (Ctx:class).renderMedia} (the
+   * `broadcast.targets` path) — edits already-sent messages for many
+   * recipients in bulk.
    *
    * Template block: `<g-media>` (read via `getGMedia`).
    * @remarks
-   * Mass typo-fix / content-revision counterpart of `renderBroadcastMedia`:
-   * same checkpoint-first resume (`startFrom`), bounded-concurrency stride
-   * lanes (`concurrency`, capped at `10`), pacing (`30`-message free-limit
-   * sleep plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`),
-   * retryable separation (`retryable[]` with absolute `index` + `chatId` +
-   * `messageId` + `error`, completion order), and fail-fast validation
-   * (programmer errors throw BEFORE any send).
+   * Mass typo-fix / content-revision counterpart of the broadcast-send
+   * fan-out: same checkpoint-first resume (`startFrom`), bounded-concurrency
+   * stride lanes (`concurrency`, capped at `10`), pacing (`30`-message
+   * free-limit sleep plus optional `chunkSize`/`chunkDelayMs` sleeps with
+   * `onProgress`), retryable separation (`retryable[]` with absolute `index`
+   * + `chatId` + `messageId` + `error`, completion order), and fail-fast
+   * validation (programmer errors throw BEFORE any send).
    *
    * The intended input source is a stored sent-list such as the downstream
    * `SentRepository` shape (`Array<{chatId, messageId}>` per content code):
@@ -2561,8 +2581,8 @@ export class Ctx extends Context {
    *
    * When the primary edit/delete+resend fails, the per-recipient
    * `fallbackEdit` flow runs (default `delete-reply`: best-effort delete,
-   * then resend the media without `options1`/`options2`, with a `log.warn`
-   * when non-empty edit options are dropped). A failed fallback is
+   * then resend the media without `optionsEdit1`/`optionsEdit2`, with a
+   * `log.warn` when non-empty edit options are dropped). A failed fallback is
    * classified via `Ctx.classifySendError`: `fallback-text` triggers a
    * best-effort fallback-text send to that recipient (nested failures
    * ignored) and `failedCount++`; `retryable` appends to `retryable[]` and
@@ -2570,21 +2590,22 @@ export class Ctx extends Context {
    * classifies the primary error directly.
    *
    * @typeParam T - The media type to edit to.
-   * @param params - Edit-fanout params: `targets` stored `{chatId, messageId}` rows to edit, in stable order (checkpoint index = array index) (required); `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (required); `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `options1` type-specific media options (or null to omit; dropped on fallback resend); `options2` additional edit options (or null to omit; dropped on fallback resend); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`, `fallbackEdit`) (or null for defaults).
+   * @param params - Revise-fanout params plus the host `renderMedia` fields: `targets` stored `{chatId, messageId}` rows to edit, in stable order (checkpoint index = array index) (required); `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `optionsEdit1` type-specific media options (or null to omit; dropped on fallback resend); `optionsEdit2` additional edit options (or null to omit; dropped on fallback resend); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`, `fallbackEdit`) (or null for defaults).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
-   * @example
-   * ```typescript
-   * async handleTypoFix() {
-   *   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
-   *   await this.renderBroadcastEdit({targets: sent, type: `photo`, data: {price: `99`}})
-   * }
-   * ```
-   *
-   * @public
+   * @internal
    */
-  async renderBroadcastEdit<T extends Exclude<IMediaBlock[`type`], `group`>>(params: RenderBroadcastEditParams<T>): Promise<IBroadcastEditResult> {
-    const {targets, type, keyboardInline, data, AGBaseId, options1, options2, broadcastOpts} = params
+  private async _broadcastReviseMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(
+    params: BroadcastReviseParams & {
+      type: T
+      keyboard?: IInBoKb | null
+      data?: IData | null
+      AGBaseId?: string | null
+      optionsEdit1?: RenderMediaParams<T>[`optionsEdit1`]
+      optionsEdit2?: RenderMediaParams<T>[`optionsEdit2`]
+    }
+  ): Promise<IBroadcastEditResult> {
+    const {targets, type, keyboard, data, AGBaseId, optionsEdit1, optionsEdit2, broadcastOpts} = params
     const opts = broadcastOpts ?? {}
     const fallbackEdit = opts.fallbackEdit ?? `delete-reply`
     const onProgress = opts.onProgress ?? null
@@ -2651,10 +2672,10 @@ export class Ctx extends Context {
       const messageId = target.messageId
       try {
         // Cross-chat by design: targets differ from the current chat, so this loop keeps `api.*`.
-        const commonOpt = {reply_markup: keyboardInline ?? undefined, ...(options1 ?? {})} as Record<string, unknown>
+        const commonOpt = {reply_markup: keyboard ?? undefined, ...(optionsEdit1 ?? {})} as Record<string, unknown>
         if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
           await this.api.deleteMessage(chatId, messageId)
-          await sendMediaTo(chatId, {parse_mode: `HTML`, reply_markup: keyboardInline ?? undefined})
+          await sendMediaTo(chatId, {parse_mode: `HTML`, reply_markup: keyboard ?? undefined})
         } else if (type === `voice` || type === `video_note` || type === `sticker` || type === `location` || type === `contact`) {
           await this.api.deleteMessage(chatId, messageId)
           await sendMediaTo(chatId, commonOpt)
@@ -2667,9 +2688,9 @@ export class Ctx extends Context {
               caption,
               type,
               parse_mode: `HTML`,
-              ...(options1 ?? {})
+              ...(optionsEdit1 ?? {})
             },
-            {reply_markup: keyboardInline ?? undefined, ...(options2 ?? {})}
+            {reply_markup: (keyboard as IInlineKb | null | undefined) ?? undefined, ...(optionsEdit2 ?? {})}
           )
         }
         res.successCount += 1
@@ -2677,7 +2698,7 @@ export class Ctx extends Context {
         if (fallbackEdit === `disable`) {
           await classifyEditError(index, chatId, messageId, primaryError)
         } else {
-          if ((options1 !== null && options1 !== undefined && Object.keys(options1).length > 0) || (options2 !== null && options2 !== undefined && Object.keys(options2).length > 0)) {
+          if ((optionsEdit1 !== null && optionsEdit1 !== undefined && Object.keys(optionsEdit1).length > 0) || (optionsEdit2 !== null && optionsEdit2 !== undefined && Object.keys(optionsEdit2).length > 0)) {
             this.log?.warn(`renderBroadcastEdit fallback drops edit options (options1/options2 do not map to reply options)`)
           }
           this.log?.warn(`renderBroadcastEdit fallback re-send to ${chatId} for page "${this.sendPageName()}"`)
@@ -2689,7 +2710,7 @@ export class Ctx extends Context {
             }
           }
           try {
-            await sendMediaTo(chatId, {parse_mode: `HTML`, reply_markup: keyboardInline ?? undefined})
+            await sendMediaTo(chatId, {parse_mode: `HTML`, reply_markup: keyboard ?? undefined})
             res.successCount += 1
           } catch (fallbackError) {
             await classifyEditError(index, chatId, messageId, fallbackError)
@@ -2728,7 +2749,8 @@ export class Ctx extends Context {
    *
    * Template block: none — operates on message ids, reads no template block.
    * @remarks
-   * Expiry-cleanup counterpart of `renderBroadcastEdit`: same
+   * Expiry-cleanup counterpart of the revise fan-out (`renderMedia` with
+   * `broadcast.targets`): same
    * checkpoint-first resume (`startFrom`), bounded-concurrency stride lanes
    * (`concurrency`, capped at `10`), pacing (`30`-message free-limit sleep
    * plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`), and
@@ -2818,8 +2840,9 @@ export class Ctx extends Context {
    * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
    * Single method for every text send/edit path, folding the former `render`,
-   * `renderEdit`, `renderRich`, `renderAuto`, `renderAutoRich`, and
-   * `renderEditRich`. `mode` resolves the send-versus-edit decision: `auto`
+   * `renderEdit`, `renderRich`, `renderAuto`, `renderAutoRich`,
+   * `renderEditRich`, and `renderBroadcast`. `mode` resolves the
+   * send-versus-edit decision: `auto`
    * (default) edits when `this.callbackQuery` exists, `reply` always sends,
    * `edit` always edits.
    *
@@ -2849,8 +2872,14 @@ export class Ctx extends Context {
    * chunk and `mode` does not apply — a multi-message split cannot be edited
    * in place, so the chunked reply wins when both are passed.
    *
-   * @param params - Optional render params (defaults to `{}`). See {@link RenderTextParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional plain-text reply/edit options (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `chunkSize` optional max characters per chunk, selecting the chunked reply path (or null for a single message).
-   * @returns The sent or edited message object, or the array of sent message objects when `chunkSize` selects the chunked reply path.
+   * When `broadcast` is present, the block is SENT to every
+   * `broadcast.ids` entry instead (see {@link BroadcastSendParams}): rich
+   * templates through `api.sendRichMessage`, plain templates through
+   * `api.sendMessage` with `parse_mode: HTML`; `mode`, `fallbackEdit`, and
+   * `chunkSize` do not apply on that path.
+   *
+   * @param params - Optional render params (defaults to `{}`). See {@link RenderTextParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional plain-text reply/edit options (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `chunkSize` optional max characters per chunk, selecting the chunked reply path (or null for a single message); `broadcast` optional broadcast fan-out {@link BroadcastSendParams} (or null for a single-chat send/edit).
+   * @returns The sent or edited message object, the array of sent message objects when `chunkSize` selects the chunked reply path, or the {@link IBroadcastSendResult} counts when `broadcast` is present.
    *
    * @example
    * ```typescript
@@ -2867,13 +2896,19 @@ export class Ctx extends Context {
    *
    *   // Long message: send in chunks of 4096 characters (keyboard on the last chunk only)
    *   await this.renderText({keyboard: kb, AGBaseId: "id-hello-world", chunkSize: 4096})
+   *
+   *   // Broadcast: send the block to many users (rich templates send rich)
+   *   await this.renderText({data: {name: "John"}, broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})
    * }
    * ```
    *
    * @public
    */
-  async renderText(params: RenderTextParams = {}) {
-    const {keyboard, data, AGBaseId, mode = `auto`, options, richOptions, fallbackEdit = `delete-reply`, chunkSize} = params
+  async renderText(params: RenderTextParams = {}): Promise<Message | Message[] | true | IBroadcastSendResult> {
+    const {keyboard, data, AGBaseId, mode = `auto`, options, richOptions, fallbackEdit = `delete-reply`, chunkSize, broadcast} = params
+    if (broadcast) {
+      return await this._broadcastSendText({...broadcast, keyboard, data, AGBaseId, options, richOptions})
+    }
     const {text, rich} = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     if (chunkSize !== undefined && chunkSize !== null) {
       // Chunked replies are reply-only: Telegram has no in-place edit for a multi-message split, so `mode` does not apply.
@@ -3382,7 +3417,8 @@ export class Ctx extends Context {
    * Template block: `<g-media>` (read via `getGMedia`).
    * @remarks
    * Single method for every media send/edit path, folding the former
-   * `renderAutoMedia`, `renderEditMedia`, and the per-kind reply base. `mode`
+   * `renderAutoMedia`, `renderEditMedia`, the per-kind reply base, and the
+   * broadcast-media / broadcast-edit fan-outs. `mode`
    * resolves the send-versus-edit decision: `auto` (default) edits when
    * `this.callbackQuery` exists, `reply` always sends, `edit` always edits.
    * This is the base method for all media methods. Use specific methods
@@ -3409,9 +3445,17 @@ export class Ctx extends Context {
    * `Ctx.classifySendError` via the reply branch (`retryable` rethrows the
    * original error untouched, `fallback-text` replies with fallback text).
    *
+   * When `broadcast` is present, multi-recipient fan-out replaces the
+   * single-chat path (see {@link BroadcastSendParams} /
+   * {@link BroadcastReviseParams}): `broadcast.ids` runs the send loop —
+   * the media kind is read from the template `<g-media>` block, so `type`
+   * may be omitted there and is ignored when supplied — and
+   * `broadcast.targets` runs the revise loop. `mode`, `fallbackEdit`, and
+   * the `options*` fields do not apply to the send loop.
+   *
    * @typeParam T - The media type to send or edit to.
-   * @param params - Media params. See {@link RenderMediaParams} for field details: `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional type-specific reply options (or null to omit); `optionsEdit1` optional edit payload / non-editable-type reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
-   * @returns The sent or edited message object.
+   * @param params - Media params. See {@link RenderMediaParams} for field details: `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (omitted only on the broadcast-send path); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional type-specific reply options (or null to omit); `optionsEdit1` optional edit payload / non-editable-type reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast fan-out — `{ids, languageCode, …}` sends, `{targets, broadcastOpts}` revises (or null for a single-chat send/edit).
+   * @returns The sent or edited message object, or the {@link IBroadcastSendResult}/ {@link IBroadcastEditResult} counts on the broadcast paths.
    *
    * @example
    * ```typescript
@@ -3421,12 +3465,25 @@ export class Ctx extends Context {
    *
    *   // Force a new reply even from a callback query
    *   await this.renderMedia({type: "photo", mode: "reply"})
+   *
+   *   // Broadcast: fan out to many users (kind read from the <g-media> block)
+   *   await this.renderMedia({broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})
+   *
+   *   // Broadcast revise: edit already-sent messages to a new media payload
+   *   await this.renderMedia({type: "photo", data: {price: "99"}, broadcast: {targets: sent}})
    * }
    * ```
    *
    * @public
    */
-  async renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(params: RenderMediaParams<T>) {
+  async renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(params: RenderMediaParams<T>): Promise<Message | Message[] | true | undefined | IBroadcastSendResult | IBroadcastEditResult> {
+    const broadcast = params.broadcast
+    if (broadcast) {
+      if (`targets` in broadcast) {
+        return await this._broadcastReviseMedia<T>({targets: broadcast.targets, broadcastOpts: broadcast.broadcastOpts, type: params.type!, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, optionsEdit1: params.optionsEdit1, optionsEdit2: params.optionsEdit2})
+      }
+      return await this._broadcastSendMedia({ids: broadcast.ids, languageCode: broadcast.languageCode, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options, throwError: broadcast.throwError, chunkSize: broadcast.chunkSize, chunkDelayMs: broadcast.chunkDelayMs, excludeIds: broadcast.excludeIds, onProgress: broadcast.onProgress, startFrom: broadcast.startFrom, concurrency: broadcast.concurrency})
+    }
     const {type, keyboard, data, AGBaseId, mode = `auto`, options, optionsEdit1, optionsEdit2, fallbackEdit = `delete-reply`} = params
     const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
     if (edit) {
@@ -3506,7 +3563,7 @@ export class Ctx extends Context {
    *
    * @internal
    */
-  private async _renderMediaReply<T extends Exclude<IMediaBlock[`type`], `group`>>({type, keyboard, data, AGBaseId, options}: {type: T; keyboard?: IInBoKb | null; data?: IData | null; AGBaseId?: string | null; options?: RenderMediaParams<T>[`options`]}) {
+  private async _renderMediaReply<T extends Exclude<IMediaBlock[`type`], `group`>>({type, keyboard, data, AGBaseId, options}: {type: T; keyboard?: IInBoKb | null; data?: IData | null; AGBaseId?: string | null; options?: RenderMediaParams<T>[`options`]}): Promise<Message | undefined> {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertMediaPreconditions(type, med)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
@@ -3580,7 +3637,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderMediaGroup(params: RenderMediaGroupParams = {}) {
+  async renderMediaGroup(params: RenderMediaGroupParams = {}): Promise<Message[] | Message | undefined> {
     const {type, data, AGBaseId, mode = `auto`, options, fallbackEdit = `delete-reply`} = params
     const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
     if (edit) {
@@ -3620,7 +3677,7 @@ export class Ctx extends Context {
    *
    * @internal
    */
-  private async _renderMediaGroupReply({type, data, AGBaseId, options}: {type?: IMediaGroupType | null; data?: IData | null; AGBaseId?: string | null; options?: RenderMediaGroupParams[`options`]}) {
+  private async _renderMediaGroupReply({type, data, AGBaseId, options}: {type?: IMediaGroupType | null; data?: IData | null; AGBaseId?: string | null; options?: RenderMediaGroupParams[`options`]}): Promise<Message[] | Message | undefined> {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const opt = {parse_mode: `HTML`, ...(options ?? {})} as Record<string, unknown>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
@@ -3683,8 +3740,8 @@ export class Ctx extends Context {
    * There is no degraded fallback content for polls, so after notify+log
    * the original error is ALWAYS rethrown untouched.
    *
-   * @param params - Optional params object (defaults to `{}`): `keyboard` optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block poll (or null to use default); `options` optional extra `sendPoll` fields (or null to omit).
-   * @returns The sent poll message object.
+   * @param params - Optional params object (defaults to `{}`): `keyboard` optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block poll (or null to use default); `options` optional extra `sendPoll` fields (or null to omit); `broadcast` optional broadcast fan-out {@link BroadcastSendParams} (or null for a single-chat send).
+   * @returns The sent poll message object, or the {@link IBroadcastSendResult} counts when `broadcast` is present.
    *
    * @example
    * ```typescript
@@ -3702,10 +3759,21 @@ export class Ctx extends Context {
    * }
    * ```
    *
+   * @example
+   * ```typescript
+   * async handleAnnounceVote() {
+   *   // Fan out the compiled poll to many users
+   *   await this.renderPoll({data: {topic: `lunch`}, broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})
+   * }
+   * ```
+   *
    * @public
    */
-  async renderPoll(params: RenderPollParams = {}) {
-    const {keyboard, data, AGBaseId, options} = params
+  async renderPoll(params: RenderPollParams = {}): Promise<Awaited<ReturnType<Ctx[`replyWithPoll`]>> | IBroadcastSendResult> {
+    const {keyboard, data, AGBaseId, options, broadcast} = params
+    if (broadcast) {
+      return await this._broadcastSendPoll({...broadcast, keyboard, data, AGBaseId, options})
+    }
     const poll = this.templateManager.getGPoll(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertPoll(poll)
     const correct = poll.correct ?? 0
@@ -3766,11 +3834,12 @@ export class Ctx extends Context {
   }
 
   /**
-   * Sends a template poll to multiple users in bulk.
+   * Broadcast-send half of {@link (Ctx:class).renderPoll} — the
+   * multi-recipient poll fan-out.
    *
    * Template block: `<g-poll>` (read via `getGPoll`).
    * @remarks
-   * Poll counterpart of `renderBroadcastMedia`: the same checkpoint-first loop
+   * The same checkpoint-first loop as the other broadcast-send helpers
    * (per-language `getGPoll` compilation, fail-fast `Ctx.assertPoll` for every
    * recipient BEFORE the loop, `startFrom` resume without resending,
    * bounded-concurrency stride lanes capped at `10`, `30`-message free-limit
@@ -3779,27 +3848,25 @@ export class Ctx extends Context {
    * `excludeIds` skips, `throwError` rethrow). Per-recipient sends reuse the
    * exact `api.sendPoll` arg construction from {@link (Ctx:class).renderPoll}
    * (duplicated here — not extracted — so `renderPoll` behavior is untouched).
-   * Per-recipient failures mirror the broadcast-media loop: `fallback-text`
+   * Per-recipient failures mirror the broadcast-send loop: `fallback-text`
    * triggers a best-effort fallback-text send (nested failures ignored) while
    * `retryable` is recorded and the loop continues.
    *
-   * @param params - Broadcast params: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block poll (or null to use default); `options` optional extra `sendPoll` fields (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @param params - Broadcast-send params plus the host `renderPoll` fields: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block poll (or null to use default); `options` optional extra `sendPoll` fields (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
-   * @example
-   * ```typescript
-   * async handleAnnounceVote() {
-   *   const userIds = [123456, 789012]
-   *   const langs = [`en`, `id`]
-   *   await this.renderBroadcastPoll({ids: userIds, languageCode: langs, data: {topic: `lunch`}})
-   * }
-   * ```
-   *
-   * @public
+   * @internal
    */
-  async renderBroadcastPoll(params: RenderBroadcastPollParams) {
+  private async _broadcastSendPoll(
+    params: BroadcastSendParams & {
+      keyboard?: IInBoKb | null
+      data?: IData | null
+      AGBaseId?: string | null
+      options?: Parameters<Ctx[`replyWithPoll`]>[2] | null
+    }
+  ): Promise<IBroadcastSendResult> {
     const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
-    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: [] as Array<{index: number; id: number; error: unknown}>}
+    const res: IBroadcastSendResult = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: []}
     res.totalCount = ids.length
     const limitFree = 30
     const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null

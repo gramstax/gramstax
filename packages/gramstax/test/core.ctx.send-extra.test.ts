@@ -2,7 +2,7 @@ import {describe, expect, it, mock} from "bun:test"
 import {GrammyError, HttpError} from "grammy"
 import {Ctx} from "~/core/ctx"
 import {TemplateEngine} from "~/template/engine"
-import type {ICtxParams} from "~/types/ctx"
+import type {IBroadcastSendResult, ICtxParams} from "~/types/ctx"
 import type {IDiceBlock, IPollBlock, IVenueBlock} from "~/types/template"
 
 class ExtraPage extends Ctx {
@@ -53,7 +53,7 @@ describe(`broadcast-poll`, () => {
   it(`sends a regular poll to every recipient with parse mode and anonymity`, async () => {
     const api = makeApi()
     const kb = {inline_keyboard: []}
-    const res = await makePollCtx(api, regularPoll).renderBroadcastPoll({ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], keyboard: kb as never, data: {topic: `x`}})
+    const res = await makePollCtx(api, regularPoll).renderPoll({keyboard: kb as never, data: {topic: `x`}, broadcast: {ids: [1, 2, 3], languageCode: [`en`, `en`, `en`]}})
     expect(res).toEqual({successCount: 3, failedCount: 0, totalCount: 3, skippedCount: 0, retryable: []})
     expect(api.sendPoll).toHaveBeenCalledTimes(3)
     const calls = api.sendPoll.mock.calls as any
@@ -65,7 +65,7 @@ describe(`broadcast-poll`, () => {
 
   it(`forwards quiz grading fields per recipient`, async () => {
     const api = makeApi()
-    const res = await makePollCtx(api, quizPoll).renderBroadcastPoll({ids: [1, 2], languageCode: [`en`, `id`]})
+    const res = (await makePollCtx(api, quizPoll).renderPoll({broadcast: {ids: [1, 2], languageCode: [`en`, `id`]}})) as IBroadcastSendResult
     expect(res.successCount).toBe(2)
     const args = (api.sendPoll.mock.calls as any)[0]
     expect(args[3]).toMatchObject({type: `quiz`, correct_option_id: 1, explanation: `Arithmetic`, explanation_parse_mode: `HTML`})
@@ -73,7 +73,7 @@ describe(`broadcast-poll`, () => {
 
   it(`startFrom skips already-sent recipients without duplicates`, async () => {
     const api = makeApi()
-    const res = await makePollCtx(api, regularPoll).renderBroadcastPoll({ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, startFrom: 2})
+    const res = await makePollCtx(api, regularPoll).renderPoll({broadcast: {ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, startFrom: 2}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 4, skippedCount: 2, retryable: []})
     expect(api.sendPoll).toHaveBeenCalledTimes(2)
     expect((api.sendPoll.mock.calls as any).map((c: any) => c[0])).toEqual([3, 4])
@@ -81,7 +81,7 @@ describe(`broadcast-poll`, () => {
 
   it(`excludeIds skips listed recipients`, async () => {
     const api = makeApi()
-    const res = await makePollCtx(api, regularPoll).renderBroadcastPoll({ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, excludeIds: [2]})
+    const res = await makePollCtx(api, regularPoll).renderPoll({broadcast: {ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, excludeIds: [2]}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 3, skippedCount: 1, retryable: []})
     expect((api.sendPoll.mock.calls as any).map((c: any) => c[0])).toEqual([1, 3])
   })
@@ -94,7 +94,7 @@ describe(`broadcast-poll`, () => {
         return {message_id: 7} as never
       })
     })
-    const res = await makePollCtx(api, regularPoll).renderBroadcastPoll({ids: [1, 2, 3], languageCode: [`en`, `en`, `en`]})
+    const res = (await makePollCtx(api, regularPoll).renderPoll({broadcast: {ids: [1, 2, 3], languageCode: [`en`, `en`, `en`]}})) as IBroadcastSendResult
     expect(res.successCount).toBe(2)
     expect(res.failedCount).toBe(1)
     expect(res.retryable.length).toBe(1)
@@ -109,7 +109,7 @@ describe(`broadcast-poll`, () => {
         throw grammyError(403)
       })
     })
-    const res = await makePollCtx(api, regularPoll).renderBroadcastPoll({ids: [1, 2], languageCode: [`en`, `en`]})
+    const res = await makePollCtx(api, regularPoll).renderPoll({broadcast: {ids: [1, 2], languageCode: [`en`, `en`]}})
     expect(res).toEqual({successCount: 0, failedCount: 2, totalCount: 2, skippedCount: 0, retryable: []})
     expect(api.sendPoll).toHaveBeenCalledTimes(2)
     expect(api.sendMessage).toHaveBeenCalledTimes(2)
@@ -127,19 +127,19 @@ describe(`broadcast-poll`, () => {
       onSendError: (_e: unknown, info: unknown) => {
         seen.push(info)
       }
-    }).renderBroadcastPoll({ids: [5], languageCode: [`en`]})
+    }).renderPoll({broadcast: {ids: [5], languageCode: [`en`]}})
     expect(seen).toEqual([{page: `extrapage`, kind: `retryable`, chatId: 5}])
   })
 
   it(`throws before any api call when the poll is invalid`, async () => {
     const api = makeApi()
-    await expect(makePollCtx(api, {...regularPoll, question: `Q`.repeat(301)}).renderBroadcastPoll({ids: [1], languageCode: [`en`]})).rejects.toThrow(/1-300/)
+    await expect(makePollCtx(api, {...regularPoll, question: `Q`.repeat(301)}).renderPoll({broadcast: {ids: [1], languageCode: [`en`]}})).rejects.toThrow(/1-300/)
     expect(api.sendPoll).not.toHaveBeenCalled()
   })
 
   it(`counts a missing poll template as a retryable failure`, async () => {
     const api = makeApi()
-    const res = await makePollCtx(api, regularPoll).renderBroadcastPoll({ids: [1], languageCode: []})
+    const res = (await makePollCtx(api, regularPoll).renderPoll({broadcast: {ids: [1], languageCode: []}})) as IBroadcastSendResult
     expect(res.successCount).toBe(0)
     expect(res.failedCount).toBe(1)
     expect(res.retryable.length).toBe(1)
@@ -148,7 +148,7 @@ describe(`broadcast-poll`, () => {
 
   it(`fans out across concurrency lanes`, async () => {
     const api = makeApi()
-    const res = await makePollCtx(api, regularPoll).renderBroadcastPoll({ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, startFrom: 0, concurrency: 2})
+    const res = await makePollCtx(api, regularPoll).renderPoll({broadcast: {ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, startFrom: 0, concurrency: 2}})
     expect(res).toEqual({successCount: 4, failedCount: 0, totalCount: 4, skippedCount: 0, retryable: []})
     expect(api.sendPoll).toHaveBeenCalledTimes(4)
   })
@@ -156,7 +156,7 @@ describe(`broadcast-poll`, () => {
   it(`fires per chunk plus final with exact counts`, async () => {
     const api = makeApi()
     const progress = mock(() => {})
-    const res = await makePollCtx(api, regularPoll).renderBroadcastPoll({ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, chunkSize: 2, chunkDelayMs: 1, onProgress: progress})
+    const res = (await makePollCtx(api, regularPoll).renderPoll({broadcast: {ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, chunkSize: 2, chunkDelayMs: 1, onProgress: progress}})) as IBroadcastSendResult
     expect(res.successCount).toBe(4)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [2, 4],
@@ -168,7 +168,7 @@ describe(`broadcast-poll`, () => {
     const api = makeApi()
     const ids = Array.from({length: 30}, (_, i) => i + 1)
     const langs = Array.from({length: 30}, () => `en`)
-    const res = await makePollCtx(api, regularPoll).renderBroadcastPoll({ids, languageCode: langs})
+    const res = (await makePollCtx(api, regularPoll).renderPoll({broadcast: {ids, languageCode: langs}})) as IBroadcastSendResult
     expect(res.successCount).toBe(30)
     expect(api.sendPoll).toHaveBeenCalledTimes(30)
   })
@@ -181,7 +181,7 @@ describe(`broadcast-poll`, () => {
       })
     })
     const caught = await makePollCtx(api, regularPoll)
-      .renderBroadcastPoll({ids: [1], languageCode: [`en`], throwError: true})
+      .renderPoll({broadcast: {ids: [1], languageCode: [`en`], throwError: true}})
       .catch((e: unknown) => e)
     expect((caught as {failedCount: number}).failedCount).toBe(1)
     expect((caught as {err: unknown}).err).toBe(err)

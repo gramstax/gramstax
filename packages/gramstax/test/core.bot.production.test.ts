@@ -6,6 +6,7 @@ import {Gramstax} from "~/core/bot"
 import {Ctx} from "~/core/ctx"
 import {MetricsStore} from "~/helpers/metrics"
 import {TemplateManager} from "~/template/manager"
+import type {IBroadcastSendResult} from "~/types/ctx"
 
 const TEST_PAGES_DIR = join(import.meta.dir, `production-test-pages`)
 
@@ -332,7 +333,7 @@ describe(`renderBroadcast excludeIds`, () => {
     })
     ;(ctx as unknown as {data: {name: string}}).data = {name: `x`}
 
-    const res = await ctx.renderBroadcast({ids: [1, 2, 3], languageCode: [`en`], throwError: false, excludeIds: [2]})
+    const res = (await ctx.renderText({broadcast: {ids: [1, 2, 3], languageCode: [`en`], throwError: false, excludeIds: [2]}})) as IBroadcastSendResult
 
     expect(res.successCount).toBe(2)
     expect(res.skippedCount).toBe(1)

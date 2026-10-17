@@ -496,7 +496,7 @@ describe(`ctx-coverage-resolve-media-input`, () => {
     const api = makeApi()
     const tm = {getGMedia: mock(() => ({type: `photo`, src: file, caption: `Hi`}))} as never
     const msg = {message: {message_id: 1, date: 1, chat: {id: 1, type: `private`}, text: `hi`}}
-    await makeCtx(CovPage, msg, tm, api).renderBroadcastMedia({ids: [7], languageCode: [`en`]})
+    await makeCtx(CovPage, msg, tm, api).renderMedia({broadcast: {ids: [7], languageCode: [`en`]}})
     expect(api.sendPhoto).toHaveBeenCalledTimes(1)
     expect((api.sendPhoto.mock.calls as any)[0][1]).toBeInstanceOf(InputFile)
   })

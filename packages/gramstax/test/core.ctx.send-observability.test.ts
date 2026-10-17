@@ -4,7 +4,7 @@ import {join} from "node:path"
 import {GrammyError, InputFile} from "grammy"
 import {Gramstax} from "~/core/bot"
 import {Ctx} from "~/core/ctx"
-import type {ICt, ICtxParams, ISendErrorInfo} from "~/types/ctx"
+import type {IBroadcastSendResult, ICt, ICtxParams, ISendErrorInfo} from "~/types/ctx"
 
 const TEST_DIR = join(import.meta.dir, `ctx_send_phase45`)
 
@@ -229,7 +229,7 @@ describe(`observe-log`, () => {
         throw err
       })
     })
-    const res = await makeCtx(photoMed(), api, {log: {warn}}).renderBroadcastMedia({ids: [7, 8], languageCode: [`en`, `en`]})
+    const res = (await makeCtx(photoMed(), api, {log: {warn}}).renderMedia({broadcast: {ids: [7, 8], languageCode: [`en`, `en`]}})) as IBroadcastSendResult
     expect(res.failedCount).toBe(2)
     expect(warn).toHaveBeenCalledTimes(2)
     const retryApi = makeApi({
@@ -238,7 +238,7 @@ describe(`observe-log`, () => {
       })
     })
     const warnRetry = mock(() => {})
-    const retryRes = await makeCtx(photoMed(), retryApi, {log: {warn: warnRetry}}).renderBroadcastMedia({ids: [7], languageCode: [`en`]})
+    const retryRes = (await makeCtx(photoMed(), retryApi, {log: {warn: warnRetry}}).renderMedia({broadcast: {ids: [7], languageCode: [`en`]}})) as IBroadcastSendResult
     expect(retryRes.retryable.length).toBe(1)
     expect(warnRetry).not.toHaveBeenCalled()
   })
@@ -262,7 +262,7 @@ describe(`observe-log`, () => {
       log: {warn} as unknown as ICtxParams[`log`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
-    await ctx.renderBroadcast({ids: [7], languageCode: [`en`]})
+    await ctx.renderText({broadcast: {ids: [7], languageCode: [`en`]}})
     expect(warn).toHaveBeenCalledTimes(1)
   })
 
@@ -393,7 +393,7 @@ describe(`observe-hook`, () => {
         throw grammyError(500)
       })
     })
-    const res = await makeCtx(photoMed(), api, {onSendError: hook}).renderBroadcastMedia({ids: [7, 8], languageCode: [`en`, `en`]})
+    const res = (await makeCtx(photoMed(), api, {onSendError: hook}).renderMedia({broadcast: {ids: [7, 8], languageCode: [`en`, `en`]}})) as IBroadcastSendResult
     expect(res.failedCount).toBe(2)
     expect(seen).toEqual([
       {page: `jailpage`, kind: `fallback-text`, chatId: 7},
@@ -407,11 +407,11 @@ describe(`observe-hook`, () => {
         throw grammyError(400)
       })
     })
-    const result = await makeCtx(photoMed(), api, {
+    const result = (await makeCtx(photoMed(), api, {
       onSendError: (() => {
         throw new Error(`hook boom`)
       }) as never
-    }).renderMedia({type: `photo`})
+    }).renderMedia({type: `photo`})) as unknown
     expect(result).toEqual({message_id: 9})
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
   })

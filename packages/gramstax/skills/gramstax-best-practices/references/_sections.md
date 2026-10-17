@@ -16,7 +16,7 @@ Aligned with **gramstax v2.2.0**.
 - `route-session.md` — session lifecycle: clear on start, `handleSessionFreeText`, never fetch manually
 - `route-handlers.md` — thin handlers delegating to `g*` show/process pairs
 - `route-hooks.md` — the **two** `hookBeforeRoute` gates (bot-level vs page-level), states, full hook surface
-- `route-broadcast.md` — `renderBroadcast*` fan-out with per-user langs, counts, throttling
+- `route-broadcast.md` — `broadcast`-field fan-out with per-user langs, counts, throttling
 
 ## security- (CRITICAL)
 

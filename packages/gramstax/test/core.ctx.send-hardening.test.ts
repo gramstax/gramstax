@@ -3,7 +3,7 @@ import {mkdir, rm, writeFile} from "node:fs/promises"
 import {join} from "node:path"
 import {GrammyError, HttpError, InputFile} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ICtxParams} from "~/types/ctx"
+import type {IBroadcastSendResult, ICtxParams} from "~/types/ctx"
 
 const TEST_DIR = join(import.meta.dir, `ctx_send_hardening`)
 
@@ -95,7 +95,7 @@ describe(`send-fallback-text`, () => {
         throw err
       })
     })
-    const result = await makeCtx(photoMed(), api).renderMedia({type: `photo`})
+    const result = (await makeCtx(photoMed(), api).renderMedia({type: `photo`})) as unknown
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
     expect((api.sendMessage.mock.calls as any)[0][1]).toBe(`Media unavailable`)
     expect(result).toEqual({message_id: 9})
@@ -300,9 +300,9 @@ describe(`send-fail-fast-wiring`, () => {
     await expect(makeCtx(pipe, api).renderMediaGroup({type: `photo`})).rejects.toThrow(/Media group size 11 exceeds limit 10/)
   })
 
-  it(`renderBroadcastMedia fail-fast throws before any recipient send`, async () => {
+  it(`renderMedia broadcast fail-fast throws before any recipient send`, async () => {
     const api = makeApi()
-    await expect(makeCtx({type: `voice`, src: `v.ogg`, caption: `hi`}, api).renderBroadcastMedia({ids: [1, 2], languageCode: [`en`, `en`]})).rejects.toThrow(/voice messages do not support captions/)
+    await expect(makeCtx({type: `voice`, src: `v.ogg`, caption: `hi`}, api).renderMedia({broadcast: {ids: [1, 2], languageCode: [`en`, `en`]}})).rejects.toThrow(/voice messages do not support captions/)
     expect(api.sendVoice).not.toHaveBeenCalled()
   })
 })
@@ -318,7 +318,7 @@ describe(`send-broadcast-fallback`, () => {
         return {message_id: 1} as never
       })
     })
-    const res = await makeCtx(photoMed(), api).renderBroadcastMedia({ids: [1, 2], languageCode: [`en`, `en`]})
+    const res = (await makeCtx(photoMed(), api).renderMedia({broadcast: {ids: [1, 2], languageCode: [`en`, `en`]}})) as IBroadcastSendResult
     expect(res).toEqual({successCount: 1, failedCount: 1, totalCount: 2, skippedCount: 0, retryable: []})
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
     expect((api.sendMessage.mock.calls as any)[0][0]).toBe(1)
@@ -332,12 +332,12 @@ describe(`send-broadcast-fallback`, () => {
         throw err
       })
     })
-    const res = await makeCtx(photoMed(), api).renderBroadcastMedia({ids: [1], languageCode: [`en`]})
+    const res = (await makeCtx(photoMed(), api).renderMedia({broadcast: {ids: [1], languageCode: [`en`]}})) as IBroadcastSendResult
     expect(res.failedCount).toBe(1)
     expect(api.sendMessage).not.toHaveBeenCalled()
   })
 
-  it(`renderBroadcast delivers fallback text on 400 for text sends`, async () => {
+  it(`renderText broadcast delivers fallback text on 400 for text sends`, async () => {
     const api = makeApi({
       sendMessage: mock(async (_id: number, text: string) => {
         if (text === `Media unavailable`) return {message_id: 9} as never
@@ -354,7 +354,7 @@ describe(`send-broadcast-fallback`, () => {
       templateManager: tm as ICtxParams[`templateManager`],
       temp: {isAnswer: false, session: {}, data: {}}
     })
-    const res = await ctx.renderBroadcast({ids: [1], languageCode: [`en`]})
+    const res = (await ctx.renderText({broadcast: {ids: [1], languageCode: [`en`]}})) as IBroadcastSendResult
     expect(res.failedCount).toBe(1)
     expect(api.sendMessage).toHaveBeenCalledTimes(2)
   })
@@ -364,7 +364,7 @@ describe(`send-clone-identity`, () => {
   it(`never mutates shared InputFile instances across broadcast recipients`, async () => {
     const file = new InputFile(Buffer.from(`bytes`), `orig.txt`)
     const api = makeApi()
-    await makeCtx({type: `document`, src: file, filename: `tpl.txt`, caption: `Docs`}, api).renderBroadcastMedia({ids: [1, 2], languageCode: [`en`, `en`]})
+    await makeCtx({type: `document`, src: file, filename: `tpl.txt`, caption: `Docs`}, api).renderMedia({broadcast: {ids: [1, 2], languageCode: [`en`, `en`]}})
     expect(api.sendDocument).toHaveBeenCalledTimes(2)
     const first = (api.sendDocument.mock.calls as any)[0][1] as InputFile
     const second = (api.sendDocument.mock.calls as any)[1][1] as InputFile

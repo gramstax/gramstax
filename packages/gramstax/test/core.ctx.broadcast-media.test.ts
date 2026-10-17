@@ -13,7 +13,7 @@ class BroadcastCtx extends Ctx {
   static data = this.buildData({name: `broadcast`})
 }
 
-describe(`Ctx.renderBroadcastMedia`, () => {
+describe(`Ctx.renderMedia broadcast`, () => {
   beforeEach(async () => {
     if (existsSync(TEST_DIR)) {
       await rm(TEST_DIR, {recursive: true, force: true})
@@ -55,7 +55,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.renderBroadcastMedia({ids: [1, 2], languageCode: [`default`, `id`]})
+    await ctx.renderMedia({broadcast: {ids: [1, 2], languageCode: [`default`, `id`]}})
 
     expect(sendPhoto).toHaveBeenCalledTimes(2)
     expect(sendPhoto).toHaveBeenNthCalledWith(1, 1, `photo-default.jpg`, expect.objectContaining({caption: `Hello`, parse_mode: `HTML`}))
@@ -91,7 +91,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.renderBroadcastMedia({ids: [1], languageCode: [`default`], keyboard: new InlineKeyboard()})
+    await ctx.renderMedia({keyboard: new InlineKeyboard(), broadcast: {ids: [1], languageCode: [`default`]}})
 
     expect(sendPhoto).not.toHaveBeenCalled()
     expect(sendMediaGroup).toHaveBeenCalledTimes(1)
@@ -131,7 +131,7 @@ describe(`Ctx.renderBroadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.renderBroadcastMedia({ids: [1], languageCode: [`default`]})
+    await ctx.renderMedia({broadcast: {ids: [1], languageCode: [`default`]}})
 
     expect(sendMediaGroup).not.toHaveBeenCalled()
     expect(sendAnimation).toHaveBeenCalledTimes(1)

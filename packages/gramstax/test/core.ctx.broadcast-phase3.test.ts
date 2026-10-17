@@ -1,7 +1,7 @@
 import {describe, expect, it, mock} from "bun:test"
 import {GrammyError, HttpError, InputFile} from "grammy"
 import {Ctx} from "~/core/ctx"
-import type {ICtxParams} from "~/types/ctx"
+import type {IBroadcastSendResult, ICtxParams} from "~/types/ctx"
 
 class PhasePage extends Ctx {
   static data = Ctx.buildData({name: `phase3`})
@@ -12,6 +12,7 @@ const grammyError = (code: number, params?: Record<string, unknown>) => new Gram
 const makeApi = (overrides?: Record<string, unknown>) => ({
   config: {use: () => {}},
   sendMessage: mock(async () => ({message_id: 9}) as never),
+  sendRichMessage: mock(async () => ({message_id: 11}) as never),
   sendPhoto: mock(async () => ({message_id: 1}) as never),
   sendVideo: mock(async () => ({message_id: 1}) as never),
   sendAudio: mock(async () => ({message_id: 1}) as never),
@@ -49,7 +50,7 @@ const sentIds = (api: Record<string, unknown>, method: string) => (api[method] a
 describe(`broadcast-resume`, () => {
   it(`startFrom skips already-sent text recipients without duplicates`, async () => {
     const api = makeApi()
-    const res = await makeTextCtx(api).renderBroadcast({ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, startFrom: 2})
+    const res = await makeTextCtx(api).renderText({broadcast: {ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, startFrom: 2}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 4, skippedCount: 2, retryable: []})
     expect(api.sendMessage).toHaveBeenCalledTimes(2)
     expect(sentIds(api, `sendMessage`)).toEqual([3, 4])
@@ -57,14 +58,14 @@ describe(`broadcast-resume`, () => {
 
   it(`startFrom past the end attempts nothing`, async () => {
     const api = makeApi()
-    const res = await makeTextCtx(api).renderBroadcast({ids: [1, 2], languageCode: [`en`, `en`], throwError: false, startFrom: 10})
+    const res = await makeTextCtx(api).renderText({broadcast: {ids: [1, 2], languageCode: [`en`, `en`], throwError: false, startFrom: 10}})
     expect(res).toEqual({successCount: 0, failedCount: 0, totalCount: 2, skippedCount: 2, retryable: []})
     expect(api.sendMessage).not.toHaveBeenCalled()
   })
 
   it(`startFrom skips already-sent media recipients`, async () => {
     const api = makeApi()
-    const res = await makeMediaCtx(photoMed(), api).renderBroadcastMedia({ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, startFrom: 1})
+    const res = await makeMediaCtx(photoMed(), api).renderMedia({broadcast: {ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, startFrom: 1}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 3, skippedCount: 1, retryable: []})
     expect(api.sendPhoto).toHaveBeenCalledTimes(2)
     expect(sentIds(api, `sendPhoto`)).toEqual([2, 3])
@@ -73,7 +74,7 @@ describe(`broadcast-resume`, () => {
   it(`non-finite and negative startFrom values start at zero`, async () => {
     for (const start of [-5, Number.NaN, Number.NEGATIVE_INFINITY]) {
       const api = makeApi()
-      const res = await makeTextCtx(api).renderBroadcast({ids: [1, 2], languageCode: [`en`, `en`], throwError: false, startFrom: start})
+      const res = (await makeTextCtx(api).renderText({broadcast: {ids: [1, 2], languageCode: [`en`, `en`], throwError: false, startFrom: start}})) as IBroadcastSendResult
       expect(res.successCount).toBe(2)
       expect(res.skippedCount).toBe(0)
       expect(api.sendMessage).toHaveBeenCalledTimes(2)
@@ -85,7 +86,7 @@ describe(`broadcast-progress`, () => {
   it(`fires per chunk plus final with exact counts for text`, async () => {
     const api = makeApi()
     const progress = mock(() => {})
-    const res = await makeTextCtx(api).renderBroadcast({ids: [1, 2, 3, 4, 5], languageCode: [`en`, `en`, `en`, `en`, `en`], throwError: false, chunkSize: 2, chunkDelayMs: 1, onProgress: progress})
+    const res = (await makeTextCtx(api).renderText({broadcast: {ids: [1, 2, 3, 4, 5], languageCode: [`en`, `en`, `en`, `en`, `en`], throwError: false, chunkSize: 2, chunkDelayMs: 1, onProgress: progress}})) as IBroadcastSendResult
     expect(res.successCount).toBe(5)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [2, 5],
@@ -97,7 +98,7 @@ describe(`broadcast-progress`, () => {
   it(`fires once at completion when no chunking applies`, async () => {
     const api = makeApi()
     const progress = mock(async () => {})
-    const res = await makeTextCtx(api).renderBroadcast({ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, onProgress: progress})
+    const res = (await makeTextCtx(api).renderText({broadcast: {ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, onProgress: progress}})) as IBroadcastSendResult
     expect(res.successCount).toBe(3)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([[3, 3]])
   })
@@ -105,7 +106,7 @@ describe(`broadcast-progress`, () => {
   it(`fires per chunk plus final with exact counts for media`, async () => {
     const api = makeApi()
     const progress = mock(() => {})
-    const res = await makeMediaCtx(photoMed(), api).renderBroadcastMedia({ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, chunkSize: 2, chunkDelayMs: 1, onProgress: progress})
+    const res = (await makeMediaCtx(photoMed(), api).renderMedia({broadcast: {ids: [1, 2, 3, 4], languageCode: [`en`, `en`, `en`, `en`], throwError: false, chunkSize: 2, chunkDelayMs: 1, onProgress: progress}})) as IBroadcastSendResult
     expect(res.successCount).toBe(4)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [2, 4],
@@ -118,7 +119,7 @@ describe(`broadcast-progress`, () => {
     const progress = mock(() => {})
     const ids = Array.from({length: 30}, (_, i) => i + 1)
     const langs = Array.from({length: 30}, () => `en`)
-    const res = await makeTextCtx(api).renderBroadcast({ids, languageCode: langs, throwError: false, onProgress: progress})
+    const res = (await makeTextCtx(api).renderText({broadcast: {ids, languageCode: langs, throwError: false, onProgress: progress}})) as IBroadcastSendResult
     expect(res.successCount).toBe(30)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [30, 30],
@@ -131,7 +132,7 @@ describe(`broadcast-progress`, () => {
     const progress = mock(() => {})
     const ids = Array.from({length: 30}, (_, i) => i + 1)
     const langs = Array.from({length: 30}, () => `en`)
-    const res = await makeMediaCtx(photoMed(), api).renderBroadcastMedia({ids, languageCode: langs, throwError: false, onProgress: progress})
+    const res = (await makeMediaCtx(photoMed(), api).renderMedia({broadcast: {ids, languageCode: langs, throwError: false, onProgress: progress}})) as IBroadcastSendResult
     expect(res.successCount).toBe(30)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [30, 30],
@@ -146,7 +147,7 @@ describe(`broadcast-concurrency`, () => {
     const tm = {getGMessage: mock((...args: Array<unknown>) => ({kind: `message`, text: args[2] as string, rich: false})), getGMedia: mock(() => undefined)}
     const ids = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     const langs = ids.map((id) => `m${id - 1}`)
-    const res = await makeCtx(tm, api).renderBroadcast({ids, languageCode: langs, throwError: false, concurrency: 3})
+    const res = (await makeCtx(tm, api).renderText({broadcast: {ids, languageCode: langs, throwError: false, concurrency: 3}})) as IBroadcastSendResult
     expect(res).toEqual({successCount: 9, failedCount: 0, totalCount: 9, skippedCount: 0, retryable: []})
     expect(api.sendMessage).toHaveBeenCalledTimes(9)
     const calls = (api.sendMessage.mock.calls as Array<Array<unknown>>).slice().sort((a, b) => (a[0] as number) - (b[0] as number))
@@ -156,7 +157,7 @@ describe(`broadcast-concurrency`, () => {
   it(`normalizes degenerate worker counts to the sequential loop`, async () => {
     for (const workers of [0, -4, Number.NaN, Number.POSITIVE_INFINITY]) {
       const api = makeApi()
-      const res = await makeTextCtx(api).renderBroadcast({ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, concurrency: workers})
+      const res = (await makeTextCtx(api).renderText({broadcast: {ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, concurrency: workers}})) as IBroadcastSendResult
       expect(res.successCount).toBe(3)
       expect(sentIds(api, `sendMessage`)).toEqual([1, 2, 3])
     }
@@ -165,7 +166,7 @@ describe(`broadcast-concurrency`, () => {
   it(`caps huge worker counts and floors fractions while delivering all`, async () => {
     for (const workers of [2.7, 3, 100]) {
       const api = makeApi()
-      const res = await makeTextCtx(api).renderBroadcast({ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, concurrency: workers})
+      const res = (await makeTextCtx(api).renderText({broadcast: {ids: [1, 2, 3], languageCode: [`en`, `en`, `en`], throwError: false, concurrency: workers}})) as IBroadcastSendResult
       expect(res.successCount).toBe(3)
       expect(sentIds(api, `sendMessage`).slice().sort()).toEqual([1, 2, 3])
     }
@@ -173,7 +174,7 @@ describe(`broadcast-concurrency`, () => {
 
   it(`delivers all media recipients across lanes while honoring excludes`, async () => {
     const api = makeApi()
-    const res = await makeMediaCtx(photoMed(), api).renderBroadcastMedia({ids: [1, 2, 3, 4, 5, 6], languageCode: [`en`, `en`, `en`, `en`, `en`, `en`], throwError: false, excludeIds: [2, 5], concurrency: 3})
+    const res = (await makeMediaCtx(photoMed(), api).renderMedia({broadcast: {ids: [1, 2, 3, 4, 5, 6], languageCode: [`en`, `en`, `en`, `en`, `en`, `en`], throwError: false, excludeIds: [2, 5], concurrency: 3}})) as IBroadcastSendResult
     expect(res).toEqual({successCount: 4, failedCount: 0, totalCount: 6, skippedCount: 2, retryable: []})
     expect(api.sendPhoto).toHaveBeenCalledTimes(4)
     expect(sentIds(api, `sendPhoto`).slice().sort()).toEqual([1, 3, 4, 6])
@@ -182,7 +183,7 @@ describe(`broadcast-concurrency`, () => {
   it(`never shares one InputFile instance across parallel media sends`, async () => {
     const file = new InputFile(Buffer.from(`bytes`), `orig.bin`)
     const api = makeApi()
-    const res = await makeMediaCtx({type: `document`, src: file, caption: `Docs`}, api).renderBroadcastMedia({ids: [1, 2], languageCode: [`en`, `en`], throwError: false, concurrency: 2})
+    const res = (await makeMediaCtx({type: `document`, src: file, caption: `Docs`}, api).renderMedia({broadcast: {ids: [1, 2], languageCode: [`en`, `en`], throwError: false, concurrency: 2}})) as IBroadcastSendResult
     expect(res.successCount).toBe(2)
     expect(api.sendDocument).toHaveBeenCalledTimes(2)
     const first = (api.sendDocument.mock.calls as Array<Array<unknown>>)[0]![1] as InputFile
@@ -211,7 +212,7 @@ describe(`broadcast-retryable`, () => {
       })
     })
     const progress = mock(() => {})
-    const res = await makeTextCtx(api).renderBroadcast({ids: [1, 2, 3, 4, 5], languageCode: [`en`, `en`, `en`, `en`, `en`], throwError: false, onProgress: progress})
+    const res = (await makeTextCtx(api).renderText({broadcast: {ids: [1, 2, 3, 4, 5], languageCode: [`en`, `en`, `en`, `en`, `en`], throwError: false, onProgress: progress}})) as IBroadcastSendResult
     expect(res.successCount).toBe(2)
     expect(res.failedCount).toBe(3)
     expect(res.totalCount).toBe(5)
@@ -234,7 +235,7 @@ describe(`broadcast-retryable`, () => {
       })
     })
     const thrown = (await makeTextCtx(api)
-      .renderBroadcast({ids: [1, 2], languageCode: [`en`, `en`], throwError: true})
+      .renderText({broadcast: {ids: [1, 2], languageCode: [`en`, `en`], throwError: true}})
       .catch((error: unknown) => error)) as {failedCount: number; retryable: Array<{index: number; id: number; error: unknown}>; err: unknown}
     expect(thrown.failedCount).toBe(2)
     expect(thrown.retryable.length).toBe(1)
@@ -251,7 +252,7 @@ describe(`broadcast-retryable`, () => {
         throw err400
       })
     })
-    const res = await makeMediaCtx(photoMed(), api).renderBroadcastMedia({ids: [1, 2], languageCode: [`en`, `en`]})
+    const res = (await makeMediaCtx(photoMed(), api).renderMedia({broadcast: {ids: [1, 2], languageCode: [`en`, `en`]}})) as IBroadcastSendResult
     expect(res.successCount).toBe(0)
     expect(res.failedCount).toBe(2)
     expect(res.retryable).toEqual([{index: 0, id: 1, error: err429}])
@@ -267,7 +268,7 @@ describe(`broadcast-retryable`, () => {
       })
     })
     const thrown = (await makeMediaCtx(photoMed(), api)
-      .renderBroadcastMedia({ids: [1], languageCode: [`en`], throwError: true})
+      .renderMedia({broadcast: {ids: [1], languageCode: [`en`], throwError: true}})
       .catch((error: unknown) => error)) as {failedCount: number; retryable: Array<{index: number; id: number; error: unknown}>; err: unknown}
     expect(thrown.failedCount).toBe(1)
     expect(thrown.retryable.length).toBe(1)
@@ -277,7 +278,7 @@ describe(`broadcast-retryable`, () => {
 
   it(`records missing template media as retryable without fallback`, async () => {
     const api = makeApi()
-    const res = await makeMediaCtx(undefined, api).renderBroadcastMedia({ids: [1], languageCode: [`en`]})
+    const res = (await makeMediaCtx(undefined, api).renderMedia({broadcast: {ids: [1], languageCode: [`en`]}})) as IBroadcastSendResult
     expect(res.successCount).toBe(0)
     expect(res.failedCount).toBe(1)
     expect(res.retryable.length).toBe(1)
@@ -298,7 +299,7 @@ describe(`broadcast-backward-compat`, () => {
         return {message_id: 9} as never
       })
     })
-    const res = await makeTextCtx(api).renderBroadcast({ids: [1, 2, 3], languageCode: [`en`], throwError: false, excludeIds: [2]})
+    const res = await makeTextCtx(api).renderText({broadcast: {ids: [1, 2, 3], languageCode: [`en`], throwError: false, excludeIds: [2]}})
     expect(res).toEqual({successCount: 1, failedCount: 1, totalCount: 3, skippedCount: 1, retryable: []})
     expect(api.sendMessage).toHaveBeenCalledTimes(3)
     expect(api.sendMessage).toHaveBeenNthCalledWith(1, 1, `hello`, expect.objectContaining({parse_mode: `HTML`}))
@@ -308,17 +309,53 @@ describe(`broadcast-backward-compat`, () => {
 
   it(`counts empty template text as failed without sending`, async () => {
     const api = makeApi()
-    const res = await makeTextCtx(api, ``).renderBroadcast({ids: [1], languageCode: [`en`]})
+    const res = await makeTextCtx(api, ``).renderText({broadcast: {ids: [1], languageCode: [`en`]}})
     expect(res).toEqual({successCount: 0, failedCount: 1, totalCount: 1, skippedCount: 0, retryable: []})
     expect(api.sendMessage).not.toHaveBeenCalled()
   })
 
   it(`keeps the default media call sequence and result shape`, async () => {
     const api = makeApi()
-    const res = await makeMediaCtx(photoMed(), api).renderBroadcastMedia({ids: [1, 2], languageCode: [`en`, `en`]})
+    const res = await makeMediaCtx(photoMed(), api).renderMedia({broadcast: {ids: [1, 2], languageCode: [`en`, `en`]}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 2, skippedCount: 0, retryable: []})
     expect(api.sendPhoto).toHaveBeenCalledTimes(2)
     expect(api.sendPhoto).toHaveBeenNthCalledWith(1, 1, `pic.jpg`, expect.objectContaining({caption: `Hi`, parse_mode: `HTML`}))
     expect(api.sendPhoto).toHaveBeenNthCalledWith(2, 2, `pic.jpg`, expect.objectContaining({caption: `Hi`, parse_mode: `HTML`}))
+  })
+})
+
+describe(`broadcast-rich`, () => {
+  it(`routes rich templates through the rich send path`, async () => {
+    const api = makeApi()
+    const tm = {getGMessage: mock(() => ({kind: `message`, text: `<b>hello</b>`, rich: true})), getGMedia: mock(() => undefined)}
+    const res = (await makeCtx(tm, api).renderText({broadcast: {ids: [1, 2], languageCode: [`en`, `en`]}, richOptions: [{html: `<b>hello</b>`}]})) as IBroadcastSendResult
+    expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 2, skippedCount: 0, retryable: []})
+    expect(api.sendMessage).not.toHaveBeenCalled()
+    expect(api.sendRichMessage).toHaveBeenCalledTimes(2)
+    expect(api.sendRichMessage).toHaveBeenNthCalledWith(1, 1, {html: `<b>hello</b>`}, expect.objectContaining({}))
+    expect(api.sendRichMessage).toHaveBeenNthCalledWith(2, 2, {html: `<b>hello</b>`}, expect.objectContaining({}))
+  })
+
+  it(`keeps legacy templates on sendMessage with parse_mode HTML`, async () => {
+    const api = makeApi()
+    const res = (await makeTextCtx(api).renderText({broadcast: {ids: [3], languageCode: [`en`]}})) as IBroadcastSendResult
+    expect(res).toEqual({successCount: 1, failedCount: 0, totalCount: 1, skippedCount: 0, retryable: []})
+    expect(api.sendRichMessage).not.toHaveBeenCalled()
+    expect(api.sendMessage).toHaveBeenCalledTimes(1)
+    expect(api.sendMessage).toHaveBeenNthCalledWith(1, 3, `hello`, expect.objectContaining({parse_mode: `HTML`}))
+  })
+
+  it(`falls back to plain text per recipient when a rich send fails`, async () => {
+    const err400 = grammyError(400)
+    const api = makeApi({
+      sendRichMessage: mock(async () => {
+        throw err400
+      })
+    })
+    const tm = {getGMessage: mock(() => ({kind: `message`, text: `<b>hello</b>`, rich: true})), getGMedia: mock(() => undefined)}
+    const res = (await makeCtx(tm, api).renderText({broadcast: {ids: [1], languageCode: [`en`]}})) as IBroadcastSendResult
+    expect(res).toEqual({successCount: 0, failedCount: 1, totalCount: 1, skippedCount: 0, retryable: []})
+    expect(api.sendMessage).toHaveBeenCalledTimes(1)
+    expect(api.sendMessage).toHaveBeenNthCalledWith(1, 1, `Media unavailable`)
   })
 })

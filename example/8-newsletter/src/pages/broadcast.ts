@@ -1,3 +1,4 @@
+import type {IBroadcastSendResult} from "gramstax"
 import {PageAdminBase} from "~/base/page-admin"
 import {StartPage} from "./start"
 
@@ -112,7 +113,7 @@ export class BroadcastPage extends PageAdminBase {
 
         const ids = subscribers.map((item) => item.id)
         const langs = subscribers.map((item) => item.language || `default`)
-        let res: Awaited<ReturnType<typeof this.renderBroadcast>>
+        let res: IBroadcastSendResult
         if (mediaType && fileId) {
           if (mediaType === `photo`) {
             res = await this.ginfoDeliverPhoto.show(ids, langs, fileId, caption)
@@ -211,25 +212,25 @@ export class BroadcastPage extends PageAdminBase {
   }
   ginfoDeliverText = {
     show: async (ids: number[], langs: string[], draftText?: string) => {
-      return await this.renderBroadcast({AGBaseId: Base.infoDeliverText, data: {message: draftText}, ids, languageCode: langs})
+      return (await this.renderText({AGBaseId: Base.infoDeliverText, data: {message: draftText}, broadcast: {ids, languageCode: langs}})) as IBroadcastSendResult
     },
     process: () => {}
   }
   ginfoDeliverPhoto = {
     show: async (ids: number[], langs: string[], fileId: string, caption?: string) => {
-      return await this.renderBroadcastMedia({AGBaseId: Base.infoDeliverPhoto, data: {fileId, caption}, ids, languageCode: langs})
+      return (await this.renderMedia({AGBaseId: Base.infoDeliverPhoto, data: {fileId, caption}, broadcast: {ids, languageCode: langs}})) as IBroadcastSendResult
     },
     process: () => {}
   }
   ginfoDeliverVideo = {
     show: async (ids: number[], langs: string[], fileId: string, caption?: string) => {
-      return await this.renderBroadcastMedia({AGBaseId: Base.infoDeliverVideo, data: {fileId, caption}, ids, languageCode: langs})
+      return (await this.renderMedia({AGBaseId: Base.infoDeliverVideo, data: {fileId, caption}, broadcast: {ids, languageCode: langs}})) as IBroadcastSendResult
     },
     process: () => {}
   }
   ginfoDeliverAnimation = {
     show: async (ids: number[], langs: string[], fileId: string, caption?: string) => {
-      return await this.renderBroadcastMedia({AGBaseId: Base.infoDeliverAnimation, data: {fileId, caption}, ids, languageCode: langs})
+      return (await this.renderMedia({AGBaseId: Base.infoDeliverAnimation, data: {fileId, caption}, broadcast: {ids, languageCode: langs}})) as IBroadcastSendResult
     },
     process: () => {}
   }
