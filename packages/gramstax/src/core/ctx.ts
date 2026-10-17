@@ -2699,9 +2699,9 @@ export class Ctx extends Context {
           await classifyEditError(index, chatId, messageId, primaryError)
         } else {
           if ((optionsEdit1 !== null && optionsEdit1 !== undefined && Object.keys(optionsEdit1).length > 0) || (optionsEdit2 !== null && optionsEdit2 !== undefined && Object.keys(optionsEdit2).length > 0)) {
-            this.log?.warn(`renderBroadcastEdit fallback drops edit options (options1/options2 do not map to reply options)`)
+            this.log?.warn(`broadcast revise fallback drops edit options (optionsEdit1/optionsEdit2 do not map to reply options)`)
           }
-          this.log?.warn(`renderBroadcastEdit fallback re-send to ${chatId} for page "${this.sendPageName()}"`)
+          this.log?.warn(`broadcast revise fallback re-send to ${chatId} for page "${this.sendPageName()}"`)
           if (fallbackEdit === `delete-reply`) {
             try {
               await this.api.deleteMessage(chatId, messageId)
@@ -3104,6 +3104,7 @@ export class Ctx extends Context {
   /**
    * Answers the active callback query with template text.
    *
+   * Template block: `<g-callback-answer>` (read via `getGCallbackAnswer`).
    * @remarks
    * Template-backed counterpart to answering inline-button taps: the
    * `<g-callback-answer>` block supplies the notification text (multilang via
@@ -3149,6 +3150,7 @@ export class Ctx extends Context {
   /**
    * Answers the active pre-checkout query with a template-backed error message.
    *
+   * Template block: `<g-precheckout-error>` (read via `getGPrecheckoutError`).
    * @remarks
    * Template-backed counterpart to {@link (Ctx:class).answerPreCheckout}:
    * the `<g-precheckout-error>` block supplies the `error_message` shown when payment
@@ -3197,6 +3199,7 @@ export class Ctx extends Context {
   /**
    * Answers the active shipping query with a template-backed error message.
    *
+   * Template block: `<g-shipping-error>` (read via `getGShippingError`).
    * @remarks
    * The `<g-shipping-error>` block supplies the `error_message` shown when the
    * shipping address is rejected (multilang via `data`). The block is always
@@ -3242,6 +3245,7 @@ export class Ctx extends Context {
   /**
    * Answers the active inline query with caller-built results and template button text.
    *
+   * Template block: `<g-inline-button>` (read via `getGInlineButton`).
    * @remarks
    * Result contents are built by the caller from `data` (multilang payloads);
    * the `<g-inline-button>` block supplies the default `button.text` label
@@ -3297,6 +3301,7 @@ export class Ctx extends Context {
   /**
    * Answers the active guest message query with a caller-built result.
    *
+   * Template block: `<g-answer-note>` (read via `getGAnswerNote`).
    * @remarks
    * The result content is built by the caller from `data` (multilang
    * payloads); the `<g-answer-note>` block is resolved as fail-fast validation
@@ -3339,6 +3344,7 @@ export class Ctx extends Context {
   /**
    * Answers a web app query via the Bot API with a caller-built result.
    *
+   * Template block: `<g-answer-note>` (read via `getGAnswerNote`).
    * @remarks
    * Unlike the other answers this carries an explicit query id (there is no
    * context-aware alias — web app queries arrive without an answerable
@@ -3602,6 +3608,7 @@ export class Ctx extends Context {
   /**
    * Sends or edits a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.
    *
+   * Template block: `<g-media-group>` (read via `getGMedia` — the block's `mediaGroup` items).
    * @remarks
    * Only `photo`, `video`, `audio`, and `document` support Telegram media groups.
    * Omit `type` when the template uses `<g-media-group>` with per-item media types.
@@ -3725,16 +3732,16 @@ export class Ctx extends Context {
   /**
    * Sends a template-driven poll using the page `<g-poll>` block.
    *
+   * Template block: `<g-poll>` (read via `getGPoll`).
    * @remarks
    * Fail-fast validation (`Ctx.assertPoll`) runs BEFORE any API call on the
    * COMPILED strings — programmer errors always throw, never fall back.
    * The question is sent with `parse_mode: HTML` so rich HTML tags work;
    * quiz explanations use `explanation_parse_mode: HTML`.
    *
-   * There is no `renderPollAuto` / `renderEditPoll`: the Bot API offers no
-   * edit for polls (only `stopPoll`), so polls are send-only.
+   * Polls are send-only: the Bot API offers no poll edit (only `stopPoll`), so there is no `mode` field here.
    *
-   * Observe-only send-error coverage (mirrors `render`): failures are
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
    * classified via `Ctx.classifySendError`, reported to `notifySendError`,
    * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
    * There is no degraded fallback content for polls, so after notify+log
@@ -3953,6 +3960,7 @@ export class Ctx extends Context {
   /**
    * Sends a template-driven invoice using the page `<g-invoice>` block.
    *
+   * Template block: `<g-invoice>` (read via `getGInvoice`).
    * @remarks
    * Fail-fast validation (`Ctx.assertInvoice`) runs BEFORE any API call on the
    * COMPILED strings — programmer errors always throw, never fall back. The
@@ -3971,7 +3979,7 @@ export class Ctx extends Context {
    * session flow) on the page and answer with
    * {@link (Ctx:class).answerPreCheckout}. No new routing was added for this.
    *
-   * Observe-only send-error coverage (mirrors `render`): failures are
+   * Observe-only send-error coverage (mirrors `renderDice`): failures are
    * classified via `Ctx.classifySendError`, reported to `notifySendError`,
    * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
    * There is no degraded fallback content for invoices, so after notify+log
@@ -4035,6 +4043,7 @@ export class Ctx extends Context {
   /**
    * Sends Stars-locked photo/video content using the page `<g-paid-media>` block.
    *
+   * Template block: `<g-paid-media>` (read via `getGPaidMedia`).
    * @remarks
    * Fail-fast validation (`Ctx.assertPaidMedia`) runs BEFORE any API call on
    * the COMPILED block — programmer errors always throw, never fall back.
@@ -4214,7 +4223,7 @@ export class Ctx extends Context {
   /**
    * Sends a photo media group using pipe-delimited `src` values from the page template.
    *
-   * Template block: `<g-media>` (read via `renderMediaGroup`).
+   * Template block: `<g-media-group>` (read via `renderMediaGroup`).
    * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
@@ -4254,7 +4263,7 @@ export class Ctx extends Context {
   /**
    * Sends a video media group using pipe-delimited `src` values from the page template.
    *
-   * Template block: `<g-media>` (read via `renderMediaGroup`).
+   * Template block: `<g-media-group>` (read via `renderMediaGroup`).
    * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
@@ -4294,7 +4303,7 @@ export class Ctx extends Context {
   /**
    * Sends an audio media group using pipe-delimited `src` values from the page template.
    *
-   * Template block: `<g-media>` (read via `renderMediaGroup`).
+   * Template block: `<g-media-group>` (read via `renderMediaGroup`).
    * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
@@ -4334,7 +4343,7 @@ export class Ctx extends Context {
   /**
    * Sends a document media group using pipe-delimited `src` values from the page template.
    *
-   * Template block: `<g-media>` (read via `renderMediaGroup`).
+   * Template block: `<g-media-group>` (read via `renderMediaGroup`).
    * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
@@ -4508,6 +4517,7 @@ export class Ctx extends Context {
   /**
    * Sends a template-driven venue using the page `<g-venue>` block.
    *
+   * Template block: `<g-venue>` (read via `getGVenue`).
    * @remarks
    * Fail-fast validation (`Ctx.assertVenue`: non-empty title/address plus
    * `Ctx.assertLocation` range checks) runs on the COMPILED strings BEFORE
@@ -4565,6 +4575,7 @@ export class Ctx extends Context {
   /**
    * Sends a template-driven dice animation using the page `<g-dice>` block.
    *
+   * Template block: `<g-dice>` (read via `getGDice`).
    * @remarks
    * The emoji comes from the COMPILED block (`🎲` default when the
    * attribute is absent) and is checked by `Ctx.assertDiceEmoji` BEFORE
@@ -4871,11 +4882,14 @@ export class Ctx extends Context {
   /**
    * Edits a media message caption using the page template.
    *
-   * Template block: `<g-message + g-keyboard>` (read via `getGMessage/getGKeyboard`).
+   * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
-   * Caption text comes from the `<g-base id>` block via `getGMessage` and is
-   * sent via `editMessageCaption`. Fallback modes mirror `renderEdit`:
-   * `delete-reply`/`reply` resend the caption as plain text, `disable` throws.
+   * Caption text comes from the `<g-message>` block at the `AGBaseId` base via
+   * `getGMessage` and is sent via `editMessageCaption`. The keyboard is NOT
+   * read from a block — it comes from the `keyboardInline` param, and an
+   * omitted/absent keyboard clears the markup. Fallback modes mirror
+   * `renderText`: `delete-reply`/`reply` resend the caption as plain text,
+   * `disable` throws.
    *
    * @param params - Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
    * @returns The edited message object.
@@ -4921,6 +4935,7 @@ export class Ctx extends Context {
   /**
    * Edits only the inline keyboard using the page template.
    *
+   * Template block: `<g-keyboard>` (read via `getGKeyboard`).
    * @remarks
    * Sent via `editMessageReplyMarkup` — never touches message text. When
    * `keyboardInline` is null, the markup resolves from the `<g-keyboard>`
