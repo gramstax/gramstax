@@ -55,6 +55,16 @@ jobs:
       - name: Install Dependencies
         run: bun install --frozen-lockfile
 
+      # Prose claims drift from source in a way tsc, biome and the test suite
+      # cannot see: a renamed type, a moved file, a count that stopped being
+      # true. This compares the authored prose against the source and fails on
+      # identifiers that do not exist, warning on counts and paths.
+      #
+      # It runs BEFORE generation on purpose. A stale claim should stop the run
+      # before anything is regenerated and committed, not after.
+      - name: Audit prose against source
+        run: node scripts/docs/audit-docs.mjs
+
       # Writes into docs-site/reference, then sanitizes for MDX and regenerates
       # config/navigation.json. --local keeps api-extractor from failing on API
       # report drift, which is a separate concern from documentation.

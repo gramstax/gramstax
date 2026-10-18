@@ -211,7 +211,7 @@ The `{{}}` scope supports post-processing pipes compiled at compile-time into ch
 
 ## Runtime Features (Tier 2)
 
-- **Rate limiting (in)** — `rateLimit: {windowMs, max}` param mounts `@grammyjs/ratelimiter` (`timeFrame` in ms). Behavior via class hooks: `hookRateLimited(ctx)` (default: update silently dropped; receives a full page context, `ctx.render` works) and `hookKeyGenerator(ctx)` (default: sender user id; must be synchronous).
+- **Rate limiting (in)** — `rateLimit: {windowMs, max}` param mounts `@grammyjs/ratelimiter` (`timeFrame` in ms). Behavior via class hooks: `hookRateLimited(ctx)` (default: update silently dropped; receives a fully constructed page context — the `render*` helpers are available, but the context is not bound to a page, so a template-backed render has no template behind it) and `hookKeyGenerator(ctx)` (default: sender user id; must be synchronous).
 - **Outgoing throttling (out)** — `throttle: {global?, group?, out?}` param mounts `@grammyjs/transformer-throttler` (`apiThrottler`, Bottleneck buckets) via `api.config.use`, composing with `autoRetry`.
 - **File download** — `@grammyjs/files` (`hydrateFiles`) mounted by default; `ctx.download(path?)` saves the current message's file (temp path when omitted).
 

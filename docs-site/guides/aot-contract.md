@@ -34,7 +34,7 @@ const fn0 = (data) => __fn0(data, __esc, FILTERS)
 export const template = {media: {"default": {}}, ..., message: {"default": {"default": fn0}}, ...}
 ```
 
-Single `export const template` matches `ITCompiledTemplate` (absent blocks omitted); `pages` stays in userland source (023 `manifest.js`).
+Single `export const template` matches `ICompiledTemplate` (absent blocks omitted); `pages` stays in userland source (023 `manifest.js`).
 
 ## Link-table mechanics (3 lines)
 
@@ -108,4 +108,4 @@ for (const [key, template] of Object.entries(loaded.templates)) manager._registe
 - `packages/gramstax/scripts/aot-emit.ts` — `AotEmitter` (collect, guard, emit, `safeKey`)
 - `packages/gramstax/scripts/build-manifest.ts` — `generate(..., {aot})` + `--aot` CLI (additive; legacy single-file contract unchanged)
 - `packages/gramstax/src/template/engine.ts` — `__emitHook` (collect) + `__linkHook` (link); hook unset ⇒ exact JIT path
-- `packages/gramstax/src/template/manager.ts` — `_registerCompiled` (Phase 2; no validation, no reload)
+- `packages/gramstax/src/template/manager.ts` — `registerCompiled` (Phase 2; no validation, no reload)

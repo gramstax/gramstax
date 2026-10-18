@@ -12,7 +12,7 @@ A Telegram bot framework needs to talk to the Telegram Bot API: sending messages
 
 ## Decision
 
-Build `gramstax` **on top of [`grammy`](https://grammy.dev)**. `Gramstax` extends grammY's `Bot` (`core/bot.ts` imports `Bot, webhookCallback`); `Ctx` reuses grammY's `Context`, `InlineKeyboard`, `Keyboard`, and `InputMediaBuilder` (`core/ctx.ts`); public types are aliases of grammY types (`types/t.ctx.ts`: `ITCt = Context`, `ITInlineKb = InlineKeyboard`, `ITBottomKb = Keyboard`).
+Build `gramstax` **on top of [`grammy`](https://grammy.dev)**. `Gramstax` extends grammY's `Bot` (`core/bot.ts` imports `Bot, webhookCallback`); `Ctx` reuses grammY's `Context`, `InlineKeyboard`, `Keyboard`, and `InputMediaBuilder` (`core/ctx.ts`); public types are aliases of grammY types (`types/ctx.ts`: `ICt = Context`, `IInlineKb = InlineKeyboard`, `IBottomKb = Keyboard`).
 
 ## Consequences
 

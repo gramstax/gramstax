@@ -35,7 +35,7 @@ A bot is configured entirely through the `IGramstaxParams` object passed to `new
 | `deploy`                        | Yes      | One of `polling`, `webhook`, `serverless`, `raw`, `test`. Per-mode settings go in `optionsDeploy`.        | —               |
 | `log`                           | No       | `LoggingHelper` instance, `true` (default logger), or `null`/`false` to disable. | `false`         |
 | `botConfig`                     | No       | The client's `BotConfig` (e.g. `apiRoot`).                                             | —               |
-| `webhookQueue`                  | No       | `IUpdateQueueConfig` backpressure (deprecated alias `ITWebhookQueueConfig`). Prefer `optionsDeploy.webhook.queue`. | —               |
+| `webhookQueue`                  | No       | `IUpdateQueueConfig` backpressure (deprecated alias `IWebhookQueueConfig`). Prefer `optionsDeploy.webhook.queue`. | —               |
 | `cacheSession`                  | No       | Custom `CacheExternal` (e.g. Redis).                                             | in-memory `Map` |
 | `cacheKeyboard`                 | No       | Custom keyboard cache `Map`.                                                     | internal `Map`  |
 | `templateManager`               | No       | Custom `TemplateManager` options.                                                | auto-created    |
@@ -155,7 +155,7 @@ Send `/start` to your bot in Telegram; you should receive the rendered `<g-messa
 | Problem                                                 | Cause                                                                               | Solution                                                                                                 |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `File <path> must have export (not default) class page` | Page uses `export default class`.                                                   | Use a named `export class StartPage`. `PageManager._getFile` only reads `mod[0]` (`page/manager.ts:56`). |
-| Keyboard bindings don't work                            | A `<g-base id="x">` is defined but `AGBaseId` isn't passed to the keyboard builder. | Pass the same `id` to `bottomKeyboardT`/`inlineKeyboardT` (`types/t.ctx.ts` warns about this).           |
+| Keyboard bindings don't work                            | A `<g-base id="x">` is defined but `AGBaseId` isn't passed to the keyboard builder. | Pass the same `id` to `bottomKeyboardT`/`inlineKeyboardT` (`types/ctx.ts` warns about this).           |
 | Changes to templates not reflected                      | `enableWatch` is off or the file extension isn't `.html`/`.ts`/`.js`.               | Set `templateManager: {enableWatch: true}` (`TemplateManager._supportedExtensions`, `manager.ts:87`).    |
 | Redis session errors                                    | Wrong `cacheSession` URL.                                                           | Use `new CacheExternal("redis://host:port")` or omit for in-memory (`cache/external.ts:64`).             |
 

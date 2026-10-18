@@ -48,7 +48,41 @@ Full branch tables are in [Deploy](/concepts/deploy) and
 | `updateTimeoutMs` | `number` | `30000` | How long a single handler may run before the update is treated as timed out. It does not cancel the handler — the update is only marked. |
 | `skipDuplicateUpdate` | `boolean` | `false` | Drops an update whose `update_id` was already handled. This is the one to reach for on webhook retries, where delivery is at-least-once. |
 | `maxTextLength` | `number` | `0` | Caps incoming `message.text` / `message.caption`; longer updates are skipped. `0` disables the check. |
-| `rateLimit` | object | — | Inbound limit. Both `windowMs` (fixed window, ms) and `max` (updates per key per window) are required. Mounts `@grammyjs/ratelimiter`, which fires `hookRateLimited(ctx)`. |
+| `rateLimit` | object | — | Inbound limit. Both `windowMs` and `max` are required. See below. |
+
+### Rate limiting
+
+`rateLimit` mounts `@grammyjs/ratelimiter` with `timeFrame: windowMs` and
+`limit: max`. `windowMs` is the length of a **fixed** window in milliseconds —
+handed to the middleware unchanged — and `max` is how many updates a single key
+may send inside one such window. Both are required.
+
+The key is the sender's user id, `ctx.from?.id?.toString()`. The limit is
+therefore per user rather than per chat, and an update that carries no `from`
+yields no key at all. Override `hookKeyGenerator` to bucket differently (per
+chat, per session, one shared global bucket). It must be synchronous: the key is
+read before the update is dispatched, so there is nothing to await.
+
+Past the limit the update is dropped, and by default that is completely silent.
+`hookRateLimited` is optional and the framework ships no implementation, so a
+bot that sets `rateLimit` and nothing else simply stops answering a flood. The
+hook is what turns the drop into a message:
+
+```typescript
+class MyBot extends Gramstax {
+  override async hookRateLimited(ctx: Ctx) {
+    await ctx.reply(`Slow down.`)
+  }
+}
+```
+
+The hook is fired and not awaited — the middleware hands off to it and returns.
+What the context carries is worth being precise about: it is built by
+`createCtx`, the same factory the routing path uses, and is memoized per
+incoming update, so it holds the full scope (`templateManager`, `cacheSession`,
+`cacheKeyboard`, `log`, `mediaRoots`) and every `render*` helper. It is **not**
+bound to a page — `temp.data` starts empty, so there is no page template behind
+a template-backed render. Prefer a plain `ctx.reply` in this hook.
 
 ## Outgoing load
 
@@ -88,9 +122,42 @@ Full branch tables are in [Deploy](/concepts/deploy) and
 
 | Field | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `statusServerPort` | `number` | — | An extra HTTP port serving `GET /health`, `GET /stats` and `GET /metrics` in **any** deploy mode. Unset, those routes exist only on the webhook server. |
+| `statusServerPort` | `number` | — | An extra HTTP port serving `GET /health`, `GET /stats` and `GET /metrics` in **any** deploy mode. Unset, `/health` and `/stats` remain available on the webhook server; `/metrics` does not. |
 | `statusServerHostname` | `string` | `127.0.0.1` | Bind address for that server. |
 | `log` | boolean \| ref \| object | `true` | `true` for the default logger, `false` for silence, a module ref to a `LoggingHelper`, or `{pathFile?, force?, formatTime?}`. Unknown fields are rejected. |
+
+### `GET /metrics`
+
+`GET /metrics` serves Prometheus exposition text as `text/plain; version=0.0.4`
+from the same `MetricsStore` that backs `GET /stats`. It emits:
+
+- `gramstax_updates_total{listener="…"}` — one series per listener name.
+- One series per outcome, named by joining the metric prefix to the outcome and a
+  `_total` suffix — `gramstax_updates_matched_total`, `gramstax_updates_blocked_total`,
+  and the rest. The outcome names are `updatesTotal`, `updatesFailed`, `matched`,
+  `noMatch`, `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`,
+  `skippedValidation` and `dropped`.
+  Counters sitting at zero are skipped rather than emitted as `0`, so an absent
+  series means "never happened" and a metric that should be present has not yet
+  fired.
+- `gramstax_update_duration_ms{quantile="avg"|"max"}` — handler latency, and
+  only once at least one dispatch has completed.
+- `gramstax_uptime_seconds`.
+
+Queue depth adds four gauges — `gramstax_queue_length`, `gramstax_queue_max_size`,
+`gramstax_queue_waiting_enqueue` and `gramstax_queue_waiting_dequeue` — each
+emitted only when its field is defined, so a partially populated snapshot is
+omitted rather than zero-filled.
+
+Those four come from the **webhook** queue only. A polling deployment serves
+`/metrics` with no queue series at all, and a webhook deployment whose queue is
+disabled serves none either, because the route reads the live `UpdateQueue`
+instance and passes `null` when there is no instance. Use
+`getPollingQueueStats()` or `getWebhookQueueStats()` for the other mode; both
+return `null` while their queue is off.
+
+When a webhook secret token is configured, `/stats` and `/metrics` answer `401`
+unless the request carries a matching `X-Telegram-Bot-Api-Secret-Token` header.
 
 ## Behaviour
 
@@ -115,6 +182,6 @@ resolve a module path, and your own code already has the object.
 
 ## Validation is strict on purpose
 
-Every field above rejects unknown siblings rather than ignoring them. A typo like
-`cacheSestion` fails at boot with the supported keys named, instead of silently
-leaving you on the default and wondering why your cache is empty.
+Every field above rejects unknown siblings rather than ignoring them. A misspelled
+key fails at boot with the supported keys named, instead of silently leaving you on
+the default and wondering why your cache is empty.

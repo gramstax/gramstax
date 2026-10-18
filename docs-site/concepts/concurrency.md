@@ -51,10 +51,42 @@ its own `UpdateQueue` instance.
 | `maxQueueSize` | `5000` | Bounded capacity. |
 | `workerCount` | `8` | Concurrent in-process async loops — **not** OS threads. |
 | `perChatConcurrency` | `1` | `1` preserves ordering per chat; `0` disables the gate entirely. |
-| `blockWhenFull` | `true` | `false` means webhook answers HTTP 429 and polling drops the update. |
+| `blockWhenFull` | `true` | Webhook only: `false` answers the request with HTTP 429 so Telegram redelivers it. Polling ignores this field and always blocks the fetcher — its offset has already advanced, so discarding would lose the update for good. |
 | `enqueueTimeoutMs` | `10000` | How long a blocking producer waits for a slot. |
 | `waiterTimeoutMs` | `30000` | How long a worker waits for a per-chat slot. |
 | `drainTimeoutMs` | `10000` | How long `stop()` waits for in-flight handlers. |
+
+## What those fields become
+
+The `queue` block is config. It is not the option type of either runtime class.
+Each mode builds an `UpdateDispatcher` from `IUpdateDispatcherOptions`, and the
+dispatcher builds its own `UpdateGate` from `IUpdateGateOptions` in its
+constructor — so a config field reaches the gate by passing through the
+dispatcher.
+
+| `queue` field | `IUpdateDispatcherOptions` | `IUpdateGateOptions` |
+| --- | --- | --- |
+| `maxQueueSize` | `queue` — constructs the `UpdateQueue` | — |
+| `workerCount` | `workerCount` | — |
+| `perChatConcurrency` | `perChatConcurrency` | `perChatConcurrency` |
+| `waiterTimeoutMs` | `waiterTimeoutMs` | `waiterTimeoutMs` |
+| `drainTimeoutMs` | `drainTimeoutMs` | — |
+| — | `handle`, `onError` — required, wired internally | — |
+| — | `onWaiterTimeout?` | `onTimeout?` |
+
+Two consequences worth stating plainly. The gate is configured by **two** of the
+eight fields, not by the block as a whole — `workerCount` and `drainTimeoutMs`
+stop at the dispatcher. And `handle` / `onError` are required members with no
+config counterpart at all; the two construction sites supply them as the
+dispatcher's wiring to the bot.
+
+`onWaiterTimeout` is the one field with no writer. Neither mode passes it, so
+`onTimeout` is `undefined` for any config-driven bot — the optional callback
+exists for programmatic construction only.
+
+At the gate, `perChatConcurrency` is read as `<= 0`, which returns a no-op release
+immediately; `onTimeout` then fires for every waiter that gave up, and the
+dispatcher proceeds ungated rather than blocking that key forever.
 
 ## Is it worth it
 

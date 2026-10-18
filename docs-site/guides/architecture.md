@@ -40,7 +40,7 @@ Telegram ── update ──▶ Gramstax (core/bot.ts)
 | **Depends On** | `Ctx`, `TemplateManager`, `CacheExternal`, `UpdateQueue`, `UpdateDispatcher`, `PageManager`, `E2eHelper` (when `deploy:"test"`). |
 | **Depended On By** | Application entry points and `create-gramstax` scaffolds. |
 
-The constructor (`bot.ts:275`) reads `IGramstaxParams`, selects a deploy mode (`bot.ts:323-342`): `polling` → `_runPolling`, `webhook` → `_runWebhook`, `serverless` → `_runServerless` (adapter-keyed `optionsDeploy.serverless`), `test` → E2E mode. Hooks (`hookBeforeStart`, `hookBeforeRoute`, `hookAfterStart`, `onCatch`, `hookErrorPage`, `hookNotFoundPage`) are invoked at the documented lifecycle points (`bot.ts:499` notes `hookBeforeRoute` only fires when set to return `true` or unset).
+The constructor (`bot.ts:275`) reads `IGramstaxParams`, selects a deploy mode (`bot.ts:323-342`): `polling` → `_runPolling`, `webhook` → `_runWebhook`, `serverless` → `_runServerless` (adapter-keyed `optionsDeploy.serverless`), `test` → E2E mode. Hooks (`hookBeforeStart`, `hookBeforeRoute`, `hookAfterStart`, `hookUpdateError`, `hookErrorPage`, `hookNotFoundPage`) are invoked at the documented lifecycle points (`bot.ts:499` notes `hookBeforeRoute` only fires when set to return `true` or unset).
 
 ### Ctx (page/context base)
 

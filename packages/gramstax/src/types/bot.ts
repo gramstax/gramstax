@@ -538,7 +538,7 @@ export type IGramstaxParams = {
    *
    * @example
    * ```typescript
-   * manifest: {pages: [{name: `start`, path: `./start.ts`}]}
+   * manifest: {pages: [{path: `start.ts`, routeName: `start`, page: StartPage}]}
    * ```
    */
   manifest?: IAppManifest

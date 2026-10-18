@@ -32,6 +32,88 @@ Telegram capability:
 
 Void elements must self-close: `<g-space/>`, `<g-div/>`, `<g-keyboard/>`.
 
+## Keyboard blocks
+
+A keyboard is not typed out as markup. `LabelGKeyboard` holds the button labels;
+`BlockGKeyboard` turns a named entry into the block string a template embeds.
+
+`static label` is the link between the two, and it is required. `_build` throws
+`Label not found, make sure set this.label from class extends LabelGKeyboard`
+before it looks at anything else, so the wiring fails loudly rather than
+producing an empty keyboard.
+
+```typescript
+import {BlockGKeyboard, LabelGKeyboard} from "gramstax"
+
+class KeyboardGBlock extends BlockGKeyboard {
+  static label = class extends LabelGKeyboard {
+    static backNext = {en: `Back, Next`, id: `Kembali, Lanjut`}
+    static nav = this._reverseObj({en: `Back, Next, Home`, id: `Kembali, Lanjut, Rumah`})
+  }
+
+  static backNext(lang?: string, type?: string) {
+    return this._build(`backNext`, lang, type)
+  }
+}
+
+KeyboardGBlock.backNext()
+// => '<g-keyboard type="inline" lang="en">Back, Next</g-keyboard> <g-keyboard type="inline" lang="id">Kembali, Lanjut</g-keyboard>'
+
+KeyboardGBlock.backNext(`id`)
+// => '<g-keyboard type="inline" lang="id">Kembali, Lanjut</g-keyboard>'
+
+KeyboardGBlock.backNext(`id`, `bottom`)
+// => '<g-keyboard type="bottom" lang="id">Kembali, Lanjut</g-keyboard>'
+```
+
+`_build(key, lang?, type?, reverse?)` always emits `type` and `lang` on the tag.
+`type` defaults to `inline` when omitted.
+
+### One entry, many languages
+
+The object keys *are* the language codes, and each one is a separate label set.
+Omitting `lang` emits one block per key, space-joined; passing one emits only
+that block. `KeyboardGBlock.label.nav` is `{en: "Home, Next, Back", id: "Rumah,
+Lanjut, Kembali"}` — `_reverseObj` flipped each value independently, so the
+fallback order is preserved per language rather than derived from the first key.
+
+At render time the block is resolved by `TemplateManager.getGKeyboard`, which
+looks up the sender's `language_code` first and falls back to the `default`
+bucket: `one?.[ALang]?.[AType] ?? one?.default?.[AType]`. So a `default` entry is
+what a speaker of an unlisted language sees.
+
+### Reversing button order
+
+`LabelGKeyboard._reverse` splits a comma-separated string, reverses it, and joins
+it back with `", "`. A comma escaped as `\,` is protected by a sentinel for the
+duration of the split, so a label that genuinely contains a comma survives:
+
+```typescript
+LabelGKeyboard._reverse(`Back, Next, Submit`)
+// => "Submit, Next, Back"
+
+LabelGKeyboard._reverse(`Option A\\, B, Option C`)
+// => "Option C, Option A\\, B"
+```
+
+`_build` applies the same helper to every value it emits when its fourth argument
+is `true`, which is how a single keyboard definition serves both a forward and a
+reversed layout.
+
+### The three throws
+
+`_build` fails fast on three distinct mistakes, each with a message that names
+the fix:
+
+| Trigger | Error |
+| --- | --- |
+| `static label` unset | `Label not found, make sure set this.label from class extends LabelGKeyboard` |
+| `key` is not a property of the label class | `Object value <key> not found` |
+| `lang` given but absent from that entry | `Language "<lang>" not found in label "<key>"` |
+
+`lang` is checked with `hasOwn`, so `"default"` is an ordinary key here — it
+passes if the entry defines one, and throws if it does not.
+
 ## Telegram Rich HTML
 
 Everything the Bot API accepts passes through too — 54 tags in five groups,

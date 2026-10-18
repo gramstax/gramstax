@@ -1023,8 +1023,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @remarks
    * Optional class override. Default: no reply (the update is silently
-   * ignored). The context is a fully constructed page context, so the
-   * override may render a "please wait" page via `ctx.render`.
+   * ignored). The context is a fully constructed page context carrying the
+   * full scope and the `render*` helpers, so the override can reply
+   * directly. It is not bound to a page, though, so a template-backed
+   * render has no template behind it.
    *
    * @param ctx - The page context instance for the blocked update.
    *

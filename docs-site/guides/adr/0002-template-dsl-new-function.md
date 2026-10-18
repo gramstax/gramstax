@@ -14,7 +14,7 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 ## Decision
 
-`TemplateEngine` parses the `<g-*>` DSL and Telegram Rich HTML into **render functions created with `new Function("data", body)`** (`src/template/engine.ts:1284` and `:1287`). Compilation happens **once** at load (or on hot-reload) and the result is cached by `TemplateManager._map` as `ITCompiledTemplate` (`message`/`keyboard`/`media`/`description` keyed by base id + language). Scopes/interpolation (`{{var}}`, switch, map, script, div) are resolved into the generated function body.
+`TemplateEngine` parses the `<g-*>` DSL and Telegram Rich HTML into **render functions created with `new Function("data", body)`** (`src/template/engine.ts:1284` and `:1287`). Compilation happens **once** at load (or on hot-reload) and the result is cached by `TemplateManager._map` as `ICompiledTemplate` (`message`/`keyboard`/`media`/`description` keyed by base id + language). Scopes/interpolation (`{{var}}`, switch, map, script, div) are resolved into the generated function body.
 
 <Warning>
   The compiled output is dynamic code, so a runtime that forbids `new Function`

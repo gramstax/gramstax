@@ -24,7 +24,7 @@ Terms are defined as they are used in this project. General programming terms ar
 | **Deploy mode**              | One of `polling`, `webhook`, `serverless`, `raw`, or `test`, supplied via `IGramstaxParams.deploy`. Per-mode settings live in `optionsDeploy`.                                                                 | `src/core/bot.ts:323`                              |
 | **E2E / E2eHelper**          | In-process end-to-end test harness (active in `deploy: "test"`) that intercepts Bot API calls with zero HTTP.                                                                 | `src/e2e/helper.ts:62`                             |
 | **MockTelegramServer**       | Lightweight HTTP mock of the Telegram Bot API for offline integration testing.                                                                                                | `src/mock/telegram-server.ts`                      |
-| **Intent**                   | The routing key derived from a page's `name` (or overridden via `buildData` `intentText`/`intentCommandText`/`intentCallbackData`).                                           | `src/types/t.ctx.ts:375`                           |
+| **Intent**                   | The routing key derived from a page's `name` (or overridden via `buildData` `intentText`/`intentCommandText`/`intentCallbackQueryData`).                                           | `src/types/ctx.ts:375`                           |
 | **Scope**                    | Interpolation syntax inside templates (`{{var}}`, switch, map, script, div) resolved at compile time by `TemplateEngine`.                                                     | `src/template/engine.ts` (`_processScope*`)        |
 | **Worker bot**               | A bot that only makes raw Bot API calls, with no page templates. Use `deploy: "raw"` — a bare grammY `Bot`, no pages, no routing, no auto-start. The older `templateManager: {} as any` exception was removed and now throws. | `AGENTS.md` (Raw mode)                              |
 
@@ -32,7 +32,7 @@ Terms are defined as they are used in this project. General programming terms ar
 
 | Acronym | Expansion                         | Meaning                                                                  |
 | ------- | --------------------------------- | ------------------------------------------------------------------------ |
-| RPC     | Remote Procedure Call             | Used in `ITCacheRpc` for cache transport between bot and external store. |
+| RPC     | Remote Procedure Call             | Used in `ICacheRpc` for cache transport between bot and external store. |
 | LRU     | Least Recently Used               | `CacheExternal.refreshLruCache()` re-touches keys to keep them warm.     |
 | API     | Application Programming Interface | Telegram Bot API, reached through the client.                                   |
 | DSL     | Domain-Specific Language          | The `<g-*>` template markup is a DSL compiled by `TemplateEngine`.       |

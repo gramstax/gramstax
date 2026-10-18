@@ -45,7 +45,7 @@ export class Hi extends PageBase {
 }
 ```
 
-Extend `PageBase` (or `PageAdmin` from the scaffold) to inherit the render,
+Extend `PageBase` (or `PageAdminBase` from the scaffold) to inherit the render,
 session and reply helpers.
 
 ## Handlers bind by convention

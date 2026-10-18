@@ -31,7 +31,8 @@ const PROSE = [
       "concepts/render-contract",
       "concepts/templates",
       "concepts/deploy",
-      "concepts/concurrency"
+      "concepts/concurrency",
+      "concepts/extending"
     ]
   },
   {
@@ -44,6 +45,7 @@ const PROSE = [
       "guides/gramstax-start",
       "guides/gramstax-build",
       "guides/e2e-testing",
+      "guides/session-lock",
       "guides/serverless-deploy",
       "guides/aot-contract",
       "guides/adr/index",

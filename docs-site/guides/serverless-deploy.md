@@ -92,7 +92,7 @@ wrangler secret put BOT_WEBHOOK_SECRET   # same value as the config env, never i
 
 ## 3c. What actually reaches the deployed entry
 
-`gramstax start` materializes 20 config fields into `GramstaxParams`. A deployed
+`gramstax start` materializes 20 config fields into `IGramstaxParams`. A deployed
 entry receives fewer, because it boots fs-less from the frozen manifest. Anything
 dropped is reported per-slot at build time, with the reason — including under
 `--dry-run`, which is the cheapest place to catch it.
@@ -169,7 +169,7 @@ Works for both targets. `--target cloudflare-mod --bundle` emits
 </Warning>
 
 **Lambda gains the most from it.** The unbundled `lambda.js` runs as-is, so a
-`pathFile`/`pathRef` pointing at `.ts` source could not be imported by Node.
+`path-ref` pointing at `.ts` source could not be imported by Node.
 Bundling resolves and compiles every specifier ahead of the deployment package.
 It still needs `gramstax` resolvable from the emit dir — true in a real project,
 which walks up to its own `node_modules`, but a constraint if you emit elsewhere.
