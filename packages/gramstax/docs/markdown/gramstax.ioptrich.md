@@ -4,16 +4,16 @@
 
 ## IOptRich type
 
-Rich-options tuple for routes that may reach `editMessageText`<!-- -->.
+Rich-edit options — fields legal on BOTH the rich send and the rich edit.
 
 **Signature:**
 
 ```typescript
-type IOptRich = [IOptReplyRich[0], (NonNullable<IOptReplyRich[1]> & IOptEdit)?];
+type IOptRich = NonNullable<IOptReplyRich[1]> & IOptEdit;
 ```
 **References:** [IOptReplyRich](./gramstax.ioptreplyrich.md)<!-- -->, [IOptEdit](./gramstax.ioptedit.md)
 
 ## Remarks
 
-`[0]` merges into the `InputRichMessage` payload exactly like [IOptReplyRich](./gramstax.ioptreplyrich.md)`[0]`<!-- -->; `[1]` is restricted to fields legal on BOTH rich-send and rich-edit (`NonNullable<IOptReplyRich[1]> & IOptEdit`<!-- -->), so a key that only `replyWithRichMessage` accepts cannot reach `editMessageText`<!-- -->. Index `[1]` stays optional, which keeps `[{html}]` legal.
+`NonNullable<IOptReplyRich[1]> & IOptEdit`<!-- -->: a key that only `replyWithRichMessage` accepts cannot reach `editMessageText`<!-- -->. The old `[payload, options?]` tuple is gone — the `InputRichMessage` payload rides on the route atoms' `rich` field and these options on their `richOptions` field, so neither is a tuple anymore.
 

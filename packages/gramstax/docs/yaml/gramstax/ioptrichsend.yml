@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: IOptRichSend
+uid: gramstax!IOptRichSend:type
+package: gramstax!
+fullName: IOptRichSend
+summary: Rich-send options — the options bag of `replyWithRichMessage` alone.
+remarks: >-
+  The narrow counterpart of [IOptRich](xref:gramstax!IOptRich:type)<!-- -->, for routes that can only ever make the rich
+  SEND: reply, chunked and broadcast-send. Without it those routes would have no field for the rich call's options at
+  all, and the runtime would have to drop them.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptRichSend = NonNullable<IOptReplyRich[1]>;

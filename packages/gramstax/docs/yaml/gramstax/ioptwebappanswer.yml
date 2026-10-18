@@ -3,9 +3,12 @@ name: IOptWebAppAnswer
 uid: gramstax!IOptWebAppAnswer:type
 package: gramstax!
 fullName: IOptWebAppAnswer
-summary: Options parameter mirroring `Api.answerWebAppQuery`<!-- -->.
+summary: >-
+  Options parameter mirroring `Context.api.answerWebAppQuery` argument index `[2]` — the abort signal of the answer
+  call. `Context` has no `answerWebAppQuery` convenience method, so the alias reaches the method through
+  `Context.api`<!-- -->, keeping the `Context[...]` style of the sibling answer aliases.
 remarks: ''
 example: []
 isPreview: false
 isDeprecated: false
-syntax: type IOptWebAppAnswer = Parameters<Ctx[`api`][`answerWebAppQuery`]>[2];
+syntax: type IOptWebAppAnswer = Parameters<Context[`api`][`answerWebAppQuery`]>[2];

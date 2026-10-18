@@ -3,19 +3,19 @@ name: IRenderGiftParams
 uid: gramstax!IRenderGiftParams:type
 package: gramstax!
 fullName: IRenderGiftParams
-summary: Parameters for `renderGift`<!-- -->.
+summary: Parameters for `renderGift` — a single gift send.
 remarks: >-
-  `target` (user id) is explicit because gifts do not always go to the active chat — unlike every other render method. A
-  failed gift never degrades into sending the card as plain text.
+  `params = CONTENT & ROUTE`<!-- -->: the gift content (`target`<!-- -->, `giftId`<!-- -->, `data`<!-- -->,
+  `AGBaseId`<!-- -->) on the forced-send route (`IRouteReply`<!-- -->), with the option slot narrowed to the `sendGift`
+  call (`IOptGift`<!-- -->). `target` (user id) is explicit because gifts do not always go to the active chat — unlike
+  every other render method. A failed gift never degrades into sending the card as plain text.
 example: []
 isPreview: false
 isDeprecated: false
 syntax: |-
-  type IRenderGiftParams = {
+  type IRenderGiftParams = IContent & Omit<IRouteForcedReply, `options`> & {
       target: number;
       giftId: string;
-      keyboard?: null;
-      data?: IData | null;
-      AGBaseId?: string | null;
+      keyboard?: never;
       options?: IOptGift | null;
   };

@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
+Edit params: `keyboard` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional abort signal for the edit call (or null to omit); `fallback` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
 
 
 </td></tr>
@@ -58,7 +58,7 @@ The edited message object.
 
 ## Remarks
 
-Caption text comes from the `<g-message>` block at the `AGBaseId` base via `getGMessage` and is sent via `editMessageCaption`<!-- -->. The keyboard is NOT read from a block — it comes from the `keyboardInline` param, and an omitted/absent keyboard clears the markup. Fallback modes mirror `renderText`<!-- -->: `delete-reply`<!-- -->/`reply` resend the caption as plain text, `disable` throws.
+Caption text comes from the `<g-message>` block at the `AGBaseId` base via `getGMessage` and is sent via `editMessageCaption`<!-- -->. The keyboard is NOT read from a block — it comes from the `keyboard` param, and an omitted/absent keyboard clears the markup. Fallback modes mirror `renderText`<!-- -->: `delete-reply`<!-- -->/`reply` resend the caption as plain text, `disable` throws.
 
 ## Example
 

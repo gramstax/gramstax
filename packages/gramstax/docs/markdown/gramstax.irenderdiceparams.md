@@ -9,16 +9,15 @@ Parameters for `renderDice`<!-- -->.
 **Signature:**
 
 ```typescript
-type IRenderDiceParams = {
-    keyboard?: IInBoKb | null;
-    data?: IData | null;
-    AGBaseId?: string | null;
-    options?: Parameters<Ctx[`replyWithDice`]>[1] | null;
+type IRenderDiceParams = IContent & Omit<IRouteForcedReply, `options`> & {
+    options?: IOptDice | null;
 };
 ```
-**References:** [IInBoKb](./gramstax.iinbokb.md)<!-- -->, [IData](./gramstax.idata.md)<!-- -->, [Ctx](./gramstax.ctx.md)
+**References:** [IContent](./gramstax.icontent.md)<!-- -->, [IRouteForcedReply](./gramstax.irouteforcedreply.md)<!-- -->, [IOptDice](./gramstax.ioptdice.md)
 
 ## Remarks
+
+`params = CONTENT & ROUTE`<!-- -->: the shared template content (`data`<!-- -->, `AGBaseId`<!-- -->, read from the `<g-dice>` block) on the forced-send route (`IRouteReply`<!-- -->), with the option slot narrowed to the `sendDice` call (`IOptDice`<!-- -->).
 
 The emoji comes from the COMPILED block (`🎲` default when the attribute is absent) and is checked by `Ctx.assertDiceEmoji` BEFORE any API call.
 

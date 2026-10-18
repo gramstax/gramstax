@@ -9,18 +9,17 @@ Parameters for `renderInvoice`<!-- -->.
 **Signature:**
 
 ```typescript
-type IRenderInvoiceParams = {
+type IRenderInvoiceParams = IContent & Omit<IRouteForcedReply, `keyboard` | `options`> & {
+    provider_token?: string | null;
     keyboard?: IInlineKb | null;
-    data?: IData | null;
-    AGBaseId?: string | null;
-    options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {
-        provider_token?: string;
-    }) | null;
+    options?: IOptInvoice | null;
 };
 ```
-**References:** [IInlineKb](./gramstax.iinlinekb.md)<!-- -->, [IData](./gramstax.idata.md)<!-- -->, [Ctx](./gramstax.ctx.md)
+**References:** [IContent](./gramstax.icontent.md)<!-- -->, [IRouteForcedReply](./gramstax.irouteforcedreply.md)<!-- -->, [IInlineKb](./gramstax.iinlinekb.md)<!-- -->, [IOptInvoice](./gramstax.ioptinvoice.md)
 
 ## Remarks
 
-Provider tokens are security-critical and NEVER come from templates: the validator rejects a `provider_token` attribute outright, so `options` is the only way to supply one.
+`params = CONTENT & ROUTE`<!-- -->: the shared template content (`data`<!-- -->, `AGBaseId`<!-- -->, read from the `<g-invoice>` block) plus `provider_token`<!-- -->, on the forced-send route (`IRouteReply`<!-- -->), with the option slot narrowed to the `sendInvoice` call (`IOptInvoice`<!-- -->).
+
+Provider tokens are security-critical and NEVER come from templates: the validator rejects a `provider_token` attribute outright, so the params' own `provider_token` field is the only way to supply one.
 

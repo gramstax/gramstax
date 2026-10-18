@@ -1,0 +1,24 @@
+### YamlMime:TSTypeAlias
+name: IRouteReply
+uid: gramstax!IRouteReply:type
+package: gramstax!
+fullName: IRouteReply
+summary: 'Route atom: forced single-message send.'
+remarks: >-
+  `mode: 'reply'` always sends a new message, even from a callback query, so no edit can happen: the edit-only keys
+  (`editOptions`<!-- -->, `fallbackOptions`<!-- -->) and `fallback` are never read — a forced reply never edits, so
+  there is no edit to fall back from. `richOptions` stays live here because the rich SEND still happens; only the rich
+  EDIT is unreachable.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRouteReply = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
+      mode: `reply`;
+      keyboard?: IInBoKb | null;
+      rich?: IOptReplyRich[0] | null;
+      richOptions?: IOptRichSend | null;
+      options?: IOptReply | null;
+      broadcast?: null | undefined;
+      chunkSize?: null | undefined;
+  };

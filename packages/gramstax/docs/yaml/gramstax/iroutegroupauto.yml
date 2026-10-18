@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: IRouteGroupAuto
+uid: gramstax!IRouteGroupAuto:type
+package: gramstax!
+fullName: IRouteGroupAuto
+summary: 'Media-group route atom: runtime-decided group send.'
+remarks: >-
+  `sendMediaGroup` takes no reply markup, so `keyboard` is unread on every group route. A group also never carries a
+  rich message payload.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRouteGroupAuto = INeverFields<`editOptions` | `rich` | `richOptions` | `fallbackOptions`> & {
+      mode?: `auto` | `edit`;
+      keyboard?: never;
+      options?: IOptReply | null;
+      fallback?: IOptFallbackEdit;
+      fallbackOptions?: never;
+      broadcast?: null | undefined;
+      chunkSize?: null | undefined;
+  };

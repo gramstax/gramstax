@@ -9,16 +9,15 @@ Parameters for `renderVenue`<!-- -->.
 **Signature:**
 
 ```typescript
-type IRenderVenueParams = {
-    keyboard?: IInBoKb | null;
-    data?: IData | null;
-    AGBaseId?: string | null;
-    options?: Parameters<Ctx[`replyWithVenue`]>[4] | null;
+type IRenderVenueParams = IContent & Omit<IRouteForcedReply, `options`> & {
+    options?: IOptVenue | null;
 };
 ```
-**References:** [IInBoKb](./gramstax.iinbokb.md)<!-- -->, [IData](./gramstax.idata.md)<!-- -->, [Ctx](./gramstax.ctx.md)
+**References:** [IContent](./gramstax.icontent.md)<!-- -->, [IRouteForcedReply](./gramstax.irouteforcedreply.md)<!-- -->, [IOptVenue](./gramstax.ioptvenue.md)
 
 ## Remarks
+
+`params = CONTENT & ROUTE`<!-- -->: the shared template content (`data`<!-- -->, `AGBaseId`<!-- -->, read from the `<g-venue>` block) on the forced-send route (`IRouteReply`<!-- -->), with the option slot narrowed to the `sendVenue` call (`IOptVenue`<!-- -->).
 
 Fail-fast validation (`Ctx.assertVenue`<!-- -->: non-empty title/address plus `Ctx.assertLocation` range checks) runs on the COMPILED strings BEFORE any API call.
 

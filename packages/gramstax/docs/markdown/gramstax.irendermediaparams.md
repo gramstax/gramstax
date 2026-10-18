@@ -9,12 +9,13 @@ Parameters for `renderMedia` — the single media send/edit method.
 **Signature:**
 
 ```typescript
-type IRenderMediaParams<T extends IMediaKind> = IMediaR1<T> | IMediaR2<T> | IMediaR3<T> | IMediaR4<T>;
+type IRenderMediaParams<T extends IMediaKind> = (IMediaKindContent<T> & IRouteMediaAuto<T>) | (IMediaKindContent<T> & IRouteMediaReply<T>) | (IContent & IRouteMediaBroadcastSend<T>) | (IMediaKindContent<T> & IRouteMediaBroadcastRevise<T>);
 ```
+**References:** [IRouteMediaAuto](./gramstax.iroutemediaauto.md)<!-- -->, [IRouteMediaReply](./gramstax.iroutemediareply.md)<!-- -->, [IContent](./gramstax.icontent.md)<!-- -->, [IRouteMediaBroadcastSend](./gramstax.iroutemediabroadcastsend.md)<!-- -->, [IRouteMediaBroadcastRevise](./gramstax.iroutemediabroadcastrevise.md)
 
 ## Remarks
 
-A disjoint union over the method's four runtime routes. Every field a route never reads is declared `never` on that route, so combinations such as `{mode: 'edit', broadcast: {...}}` are compile errors instead of silently dropped fields. `mode` resolves the send-versus-edit decision exactly like [IRenderTextParams](./gramstax.irendertextparams.md)<!-- -->: `auto` (default) edits when the update carries a `callbackQuery`<!-- -->, `reply` always sends, `edit` always edits. `options` feeds the reply branch (and the fallback re-send); `optionsEdit1`<!-- -->/`optionsEdit2` feed the edit branch only and are DROPPED by the single-chat fallback re-send (edit options do not map to reply options). `fallbackEdit` mirrors [IOptFallbackEdit](./gramstax.ioptfallbackedit.md) and defaults to `delete-reply`<!-- -->.
+`params = CONTENT & ROUTE`<!-- -->. The content is the media kind (`type`<!-- -->) plus the shared template fields (`data`<!-- -->, `AGBaseId`<!-- -->); the routes are the media atoms — `IRouteMediaAuto` (default; also carries `mode: 'edit'`<!-- -->), `IRouteMediaReply`<!-- -->, `IRouteMediaBroadcastSend` and `IRouteMediaBroadcastRevise`<!-- -->. The kind-specific call options (`media`<!-- -->, `captionOptions`<!-- -->, `mediaOptions`<!-- -->, `resendOptions`<!-- -->) ride on those atoms rather than on a shared slots type, because a forced send reads none of them. Every route declares all ten universal route keys, so combinations such as `{mode: 'reply', broadcast: {…}}` are compile errors instead of silently dropped fields.
 
 `broadcast` switches to multi-recipient fan-out: `broadcast.ids` runs the send loop (kind read from the template), and `broadcast.targets` runs the revise loop (`type` required). The per-kind wrappers accept the single-chat and revise routes — see [IRenderMediaKindParams](./gramstax.irendermediakindparams.md)<!-- -->.
 

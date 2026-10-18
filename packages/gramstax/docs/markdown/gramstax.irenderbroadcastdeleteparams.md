@@ -11,12 +11,12 @@ Parameters for `renderBroadcastDelete` — the expiry-cleanup delete fan-out.
 ```typescript
 type IRenderBroadcastDeleteParams = {
     targets: IBroadcastEditTarget[];
-    broadcastOpts?: Omit<IBroadcastEditOpts, `fallbackEdit`> | null;
+    reviseOptions?: Omit<IBroadcastEditOpts, `fallback`> | null;
 };
 ```
 **References:** [IBroadcastEditTarget](./gramstax.ibroadcastedittarget.md)<!-- -->, [IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md)
 
 ## Remarks
 
-Reads no template block — it operates on stored message ids. Same checkpoint-first controls as the revise fan-out (`renderMedia` with `broadcast.targets`<!-- -->) via `broadcastOpts`<!-- -->; a failed delete has no text fallback by design, since there is no replacement content to deliver.
+Reads no template block and renders nothing: it operates on stored message ids, so it has no CONTENT half (`data`<!-- -->/`AGBaseId`<!-- -->) and no route layer at all. Same checkpoint-first controls as the revise fan-out (`renderMedia` with `broadcast.targets`<!-- -->) via `reviseOptions`<!-- -->; a failed delete has no text fallback by design, since there is no replacement content to deliver.
 

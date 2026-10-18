@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptDice
+uid: gramstax!IOptDice:type
+package: gramstax!
+fullName: IOptDice
+summary: Dice send options — `Ctx.replyWithDice` argument index `[1]` (the `other` bag of `sendDice`<!-- -->).
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptDice = Parameters<Ctx[`replyWithDice`]>[1];

@@ -1,0 +1,24 @@
+### YamlMime:TSTypeAlias
+name: IRouteEdit
+uid: gramstax!IRouteEdit:type
+package: gramstax!
+fullName: IRouteEdit
+summary: 'Route atom: forced edit of the message tied to the update.'
+remarks: >-
+  The call always reaches `editMessageText`<!-- -->, so there is no send slot at all: `options` is never read, and the
+  fallback resend draws its reply options from `fallbackOptions`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRouteEdit = INeverFields<`options`> & {
+      mode: `edit`;
+      keyboard?: IInlineKb | null;
+      rich?: IOptReplyRich[0] | null;
+      richOptions?: IOptRich | null;
+      editOptions?: IOptEdit | null;
+      fallbackOptions?: IOptReply | null;
+      fallback?: IOptFallbackEdit;
+      broadcast?: null | undefined;
+      chunkSize?: null | undefined;
+  };

@@ -79,6 +79,8 @@ items:
             uid: gramstax!ICallbackAnswerBlock:type
           - name: ICompiledTemplate
             uid: gramstax!ICompiledTemplate:type
+          - name: IContent
+            uid: gramstax!IContent:type
           - name: ICt
             uid: gramstax!ICt:type
           - name: ICtMiddleware
@@ -217,8 +219,12 @@ items:
             uid: gramstax!IMockTelegramUpdateOptions:type
           - name: IMockTelegramUser
             uid: gramstax!IMockTelegramUser:type
+          - name: INeverFields
+            uid: gramstax!INeverFields:type
           - name: IOptCallbackAnswer
             uid: gramstax!IOptCallbackAnswer:type
+          - name: IOptDice
+            uid: gramstax!IOptDice:type
           - name: IOptEdit
             uid: gramstax!IOptEdit:type
           - name: IOptEditCaption
@@ -237,6 +243,12 @@ items:
             uid: gramstax!IOptGuestAnswer:type
           - name: IOptInlineAnswer
             uid: gramstax!IOptInlineAnswer:type
+          - name: IOptInvoice
+            uid: gramstax!IOptInvoice:type
+          - name: IOptPaidMedia
+            uid: gramstax!IOptPaidMedia:type
+          - name: IOptPoll
+            uid: gramstax!IOptPoll:type
           - name: IOptPreCheckout
             uid: gramstax!IOptPreCheckout:type
           - name: IOptReply
@@ -265,8 +277,12 @@ items:
             uid: gramstax!IOptReplyVoice:type
           - name: IOptRich
             uid: gramstax!IOptRich:type
+          - name: IOptRichSend
+            uid: gramstax!IOptRichSend:type
           - name: IOptShipping
             uid: gramstax!IOptShipping:type
+          - name: IOptVenue
+            uid: gramstax!IOptVenue:type
           - name: IOptWebAppAnswer
             uid: gramstax!IOptWebAppAnswer:type
           - name: IPageData
@@ -311,8 +327,6 @@ items:
             uid: gramstax!IRenderMediaKindParams:type
           - name: IRenderMediaParams
             uid: gramstax!IRenderMediaParams:type
-          - name: IRenderMode
-            uid: gramstax!IRenderMode:type
           - name: IRenderPaidMediaParams
             uid: gramstax!IRenderPaidMediaParams:type
           - name: IRenderPollParams
@@ -329,8 +343,32 @@ items:
             uid: gramstax!IRenderWebAppAnswerParams:type
           - name: IReplyAction
             uid: gramstax!IReplyAction:type
+          - name: IRouteAuto
+            uid: gramstax!IRouteAuto:type
+          - name: IRouteBroadcastSend
+            uid: gramstax!IRouteBroadcastSend:type
+          - name: IRouteChunked
+            uid: gramstax!IRouteChunked:type
+          - name: IRouteEdit
+            uid: gramstax!IRouteEdit:type
+          - name: IRouteForcedReply
+            uid: gramstax!IRouteForcedReply:type
+          - name: IRouteGroupAuto
+            uid: gramstax!IRouteGroupAuto:type
+          - name: IRouteGroupReply
+            uid: gramstax!IRouteGroupReply:type
           - name: IRouteManifestEntry
             uid: gramstax!IRouteManifestEntry:type
+          - name: IRouteMediaAuto
+            uid: gramstax!IRouteMediaAuto:type
+          - name: IRouteMediaBroadcastRevise
+            uid: gramstax!IRouteMediaBroadcastRevise:type
+          - name: IRouteMediaBroadcastSend
+            uid: gramstax!IRouteMediaBroadcastSend:type
+          - name: IRouteMediaReply
+            uid: gramstax!IRouteMediaReply:type
+          - name: IRouteReply
+            uid: gramstax!IRouteReply:type
           - name: ISendErrorHook
             uid: gramstax!ISendErrorHook:type
           - name: ISendErrorInfo

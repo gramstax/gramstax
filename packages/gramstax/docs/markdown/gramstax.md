@@ -739,6 +739,17 @@ Compiled template structure containing all parsed template components.
 </td></tr>
 <tr><td>
 
+[IContent](./gramstax.icontent.md)
+
+
+</td><td>
+
+Template content shared by every render method: what to render.
+
+
+</td></tr>
+<tr><td>
+
 [ICt](./gramstax.ict.md)
 
 
@@ -1487,12 +1498,34 @@ Basic Telegram mock user profile used when generating updates.
 </td></tr>
 <tr><td>
 
+[INeverFields](./gramstax.ineverfields.md)
+
+
+</td><td>
+
+Route-completeness marker: fields this route never reads.
+
+
+</td></tr>
+<tr><td>
+
 [IOptCallbackAnswer](./gramstax.ioptcallbackanswer.md)
 
 
 </td><td>
 
 Options parameter mirroring `Context.answerCallbackQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IOptDice](./gramstax.ioptdice.md)
+
+
+</td><td>
+
+Dice send options — `Ctx.replyWithDice` argument index `[1]` (the `other` bag of `sendDice`<!-- -->).
 
 
 </td></tr>
@@ -1592,6 +1625,39 @@ Options parameter mirroring `Context.answerGuestQuery`<!-- -->.
 </td><td>
 
 Options parameter mirroring `Context.answerInlineQuery`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IOptInvoice](./gramstax.ioptinvoice.md)
+
+
+</td><td>
+
+Invoice send options — `Ctx.replyWithInvoice` argument index `[5]` (the `other` bag of `sendInvoice`<!-- -->). `provider_token` is deliberately NOT part of this type: the payment provider secret is content, not a call option, and rides on the invoice params' own `provider_token` field.
+
+
+</td></tr>
+<tr><td>
+
+[IOptPaidMedia](./gramstax.ioptpaidmedia.md)
+
+
+</td><td>
+
+Paid-media send options — `Ctx.replyWithPaidMedia` argument index `[2]` (the `other` bag of `sendPaidMedia`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[IOptPoll](./gramstax.ioptpoll.md)
+
+
+</td><td>
+
+Poll send options — `Ctx.replyWithPoll` argument index `[2]` (the `other` bag of `sendPoll`<!-- -->).
 
 
 </td></tr>
@@ -1745,7 +1811,18 @@ Options parameter mirroring `Context.replyWithVoice`<!-- -->.
 
 </td><td>
 
-Rich-options tuple for routes that may reach `editMessageText`<!-- -->.
+Rich-edit options — fields legal on BOTH the rich send and the rich edit.
+
+
+</td></tr>
+<tr><td>
+
+[IOptRichSend](./gramstax.ioptrichsend.md)
+
+
+</td><td>
+
+Rich-send options — the options bag of `replyWithRichMessage` alone.
 
 
 </td></tr>
@@ -1762,12 +1839,23 @@ Options parameter mirroring `Context.answerShippingQuery`<!-- -->.
 </td></tr>
 <tr><td>
 
+[IOptVenue](./gramstax.ioptvenue.md)
+
+
+</td><td>
+
+Venue send options — `Ctx.replyWithVenue` argument index `[4]` (the `other` bag of `sendVenue`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
 [IOptWebAppAnswer](./gramstax.ioptwebappanswer.md)
 
 
 </td><td>
 
-Options parameter mirroring `Api.answerWebAppQuery`<!-- -->.
+Options parameter mirroring `Context.api.answerWebAppQuery` argument index `[2]` — the abort signal of the answer call. `Context` has no `answerWebAppQuery` convenience method, so the alias reaches the method through `Context.api`<!-- -->, keeping the `Context[...]` style of the sibling answer aliases.
 
 
 </td></tr>
@@ -1921,7 +2009,7 @@ Parameters for `renderEditKeyboard`<!-- -->.
 
 </td><td>
 
-Parameters for `renderGift`<!-- -->.
+Parameters for `renderGift` — a single gift send.
 
 
 </td></tr>
@@ -1999,17 +2087,6 @@ Parameters for `renderMediaGroup` — the single media-group send/edit method.
 </td><td>
 
 Parameters for `renderMedia` — the single media send/edit method.
-
-
-</td></tr>
-<tr><td>
-
-[IRenderMode](./gramstax.irendermode.md)
-
-
-</td><td>
-
-Send-versus-edit resolution for a render call.
 
 
 </td></tr>
@@ -2103,12 +2180,144 @@ Action parameter mirroring `Context.replyWithChatAction`<!-- -->.
 </td></tr>
 <tr><td>
 
+[IRouteAuto](./gramstax.irouteauto.md)
+
+
+</td><td>
+
+Route atom: runtime-decided single message.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteBroadcastSend](./gramstax.iroutebroadcastsend.md)
+
+
+</td><td>
+
+Route atom: broadcast send.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteChunked](./gramstax.iroutechunked.md)
+
+
+</td><td>
+
+Route atom: chunked reply.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteEdit](./gramstax.irouteedit.md)
+
+
+</td><td>
+
+Route atom: forced edit of the message tied to the update.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteForcedReply](./gramstax.irouteforcedreply.md)
+
+
+</td><td>
+
+Route atom: forced reply for a method whose ONLY route is a send.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteGroupAuto](./gramstax.iroutegroupauto.md)
+
+
+</td><td>
+
+Media-group route atom: runtime-decided group send.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteGroupReply](./gramstax.iroutegroupreply.md)
+
+
+</td><td>
+
+Media-group route atom: forced group send.
+
+
+</td></tr>
+<tr><td>
+
 [IRouteManifestEntry](./gramstax.iroutemanifestentry.md)
 
 
 </td><td>
 
 One route entry of a static app manifest.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteMediaAuto](./gramstax.iroutemediaauto.md)
+
+
+</td><td>
+
+Media route atom: runtime-decided single media message.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteMediaBroadcastRevise](./gramstax.iroutemediabroadcastrevise.md)
+
+
+</td><td>
+
+Media route atom: broadcast revise fan-out.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteMediaBroadcastSend](./gramstax.iroutemediabroadcastsend.md)
+
+
+</td><td>
+
+Media route atom: broadcast send fan-out.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteMediaReply](./gramstax.iroutemediareply.md)
+
+
+</td><td>
+
+Media route atom: forced single-media send.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteReply](./gramstax.iroutereply.md)
+
+
+</td><td>
+
+Route atom: forced single-message send.
 
 
 </td></tr>

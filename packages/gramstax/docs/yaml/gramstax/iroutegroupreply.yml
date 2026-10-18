@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: IRouteGroupReply
+uid: gramstax!IRouteGroupReply:type
+package: gramstax!
+fullName: IRouteGroupReply
+summary: 'Media-group route atom: forced group send.'
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRouteGroupReply = INeverFields<`rich` | `richOptions` | `editOptions` | `fallback` | `fallbackOptions`> & {
+      mode: `reply`;
+      keyboard?: never;
+      options?: IOptReply | null;
+      broadcast?: null | undefined;
+      chunkSize?: null | undefined;
+  };

@@ -9,16 +9,14 @@ Parameters for `renderEditKeyboard`<!-- -->.
 **Signature:**
 
 ```typescript
-type IRenderEditKeyboardParams = {
-    keyboardInline?: IInlineKb | null;
-    data?: IData | null;
-    AGBaseId?: string | null;
+type IRenderEditKeyboardParams = IContent & Omit<IRouteEdit, `mode` | `options`> & {
+    mode?: never;
     options?: IOptEditKeyboard | null;
 };
 ```
-**References:** [IInlineKb](./gramstax.iinlinekb.md)<!-- -->, [IData](./gramstax.idata.md)<!-- -->, [IOptEditKeyboard](./gramstax.iopteditkeyboard.md)
+**References:** [IContent](./gramstax.icontent.md)<!-- -->, [IRouteEdit](./gramstax.irouteedit.md)<!-- -->, [IOptEditKeyboard](./gramstax.iopteditkeyboard.md)
 
 ## Remarks
 
-Sent via `editMessageReplyMarkup` — never touches message text. When `keyboardInline` is null, the markup resolves from the `<g-keyboard>` block of the given `AGBaseId` itself, which is what makes `AGBaseId` meaningful here.
+`params = CONTENT & ROUTE`<!-- -->: the shared template content (`data`<!-- -->, `AGBaseId`<!-- -->) on the forced-edit route (`IRouteEdit`<!-- -->), with `mode` declared `never` — this method always edits, the mode is not a choice. Sent via `editMessageReplyMarkup` and never touching message text; when `keyboard` is null, the markup resolves from the `<g-keyboard>` block of the given `AGBaseId` itself, which is what makes `AGBaseId` meaningful here. The `keyboard` slot stays inline-only, because `editMessageReplyMarkup` rejects a bottom keyboard.
 

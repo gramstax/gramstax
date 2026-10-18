@@ -5,94 +5,19 @@ package: gramstax!
 fullName: IRenderTextParams
 summary: Parameters for `renderText` — the single text send/edit method.
 remarks: >-
-  A disjoint union over the method's four runtime routes. Every field a route never reads is declared `never` on that
-  route (or `null | undefined` where an explicit `null` must stay legal), so combinations such as `{mode: 'edit',
-  broadcast: {...}}` are compile errors instead of silently dropped fields.
+  `params = CONTENT & ROUTE`<!-- -->: the shared template content (`data`<!-- -->, `AGBaseId`<!-- -->) intersected with
+  the five delivery routes this method resolves to — the runtime-decided `IRouteAuto` (default), the forced
+  `IRouteEdit`<!-- -->, the forced `IRouteReply`<!-- -->, the chunked `IRouteChunked`<!-- -->, and the
+  `IRouteBroadcastSend` fan-out. Every route declares all ten universal route keys — with a real type where the route
+  reads the key, and `never` (or `null | undefined` where an explicit `null` must stay legal) where it does not — so
+  combinations such as `{mode: 'edit', broadcast: {...}}` are compile errors instead of silently dropped fields.
 
 
   Rich-versus-plain content is decided at COMPILE time by the `<g-message>` block contents, not by these params: each
-  route carries both `options` (plain text) and `richOptions` (rich payload), and the block decides which one is read.
-  Passing the other one logs a one-time `log.warn` and is ignored — never a throw, since a `--watch` hot reload can flip
-  a page rich↔plain in one process.
+  route carries both `options` (plain text) and `rich` (rich payload), and the block decides which one is read. Passing
+  the other one logs a one-time `log.warn` and is ignored — never a throw, since a `--watch` hot reload can flip a page
+  rich↔plain in one process.
 example: []
 isPreview: false
 isDeprecated: false
-syntax: |-
-  type IRenderTextParams = 
-  /**
-   * Route 1 — single message, `auto` (default) or `edit`. `auto` edits when the
-   * update carries a `callbackQuery`, otherwise replies; `edit` always edits.
-   * Fields: `mode` `auto`|`edit`; `fallbackEdit` fallback when the edit fails
-   * (default `delete-reply`); `options` plain-text options used by BOTH
-   * `editMessageText` and, after a failed edit, the fallback `reply()` (the
-   * intersection is deliberate — a union would let a key reach a call that
-   * cannot honour it); `richOptions` rich payload plus options legal on both
-   * rich send and rich edit (index `[1]` may reach `editMessageText`);
-   * `chunkSize` and `broadcast` must stay absent or `null` on this route.
-   */
-  (ITextBase & {
-      mode?: `auto` | `edit`;
-      fallbackEdit?: IOptFallbackEdit;
-      options?: IOptReply & IOptEdit;
-      richOptions?: IOptRich | null;
-      chunkSize?: null | undefined;
-      broadcast?: null | undefined;
-  })
-  /**
-   * Route 2 — forced reply (`mode: 'reply'`): always sends a new message, so no
-   * edit can happen. Fields: `mode` `reply` (required); `options` plain-text
-   * reply options; `richOptions` full rich send options; `chunkSize` and
-   * `broadcast` must stay absent or `null`. `fallbackEdit` is never read
-   * (nothing edits).
-   */
-   | (ITextBase & {
-      mode: `reply`;
-      fallbackEdit?: never;
-      options?: IOptReply;
-      richOptions?: IOptReplyRich | null;
-      chunkSize?: null | undefined;
-      broadcast?: null | undefined;
-  })
-  /**
-   * Route 3 — chunked reply: `chunkSize` is present (not `undefined`/`null`), so
-   * the fully-rendered block is sent as sequential reply chunks. Fields:
-   * `chunkSize` max characters per chunk (required); `mode` may only be `reply`
-   * (or absent) — Telegram cannot edit a multi-message split, so `auto`/`edit`
-   * are rejected; `options`/`richOptions` feed the per-chunk sends; `broadcast`
-   * must stay absent or `null`. `fallbackEdit` is never read.
-   *
-   * @remarks
-   * The block is rendered fully FIRST (placeholders never split), then split
-   * deterministically: the last `\n\n` in a `chunkSize`-char window wins, then
-   * the last `\n`, then the last space, then a hard cut; each piece is trimmed
-   * and empties are skipped. The keyboard is sent ONLY on the last chunk, and
-   * every chunk carries `parse_mode: HTML` (rich templates send each chunk
-   * through `replyWithRichMessage`). Values are sanitised on read:
-   * `Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096`.
-   */
-   | (ITextBase & {
-      mode?: `reply`;
-      fallbackEdit?: never;
-      options?: IOptReply;
-      richOptions?: IOptReplyRich | null;
-      chunkSize: number;
-      broadcast?: null | undefined;
-  })
-  /**
-   * Route 4 — broadcast send: the fully-rendered block is SENT (never edited) to
-   * every entry of `broadcast.ids` with its own language code from
-   * `broadcast.languageCode`. Fields: `broadcast` fan-out params (required);
-   * `options` plain-text send options, `richOptions` rich send options (the
-   * per-recipient template decides which one is read); `keyboard`, `data`, and
-   * `AGBaseId` are forwarded. `mode`, `fallbackEdit`, and `chunkSize` are never
-   * read on this route, and the fan-out pacing uses `broadcast.chunkSize`
-   * instead.
-   */
-   | (ITextBase & {
-      mode?: never;
-      fallbackEdit?: never;
-      options?: IOptReply;
-      richOptions?: IOptReplyRich | null;
-      chunkSize?: never;
-      broadcast: IBroadcastSendParams;
-  });
+syntax: type IRenderTextParams = IContent & (IRouteAuto | IRouteEdit | IRouteReply | IRouteChunked | IRouteBroadcastSend);

@@ -9,16 +9,16 @@ Parameters for `renderPaidMedia`<!-- -->.
 **Signature:**
 
 ```typescript
-type IRenderPaidMediaParams = {
+type IRenderPaidMediaParams = IContent & Omit<IRouteForcedReply, `keyboard` | `options`> & {
     keyboard?: IInlineKb | null;
-    data?: IData | null;
-    AGBaseId?: string | null;
-    options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null;
+    options?: IOptPaidMedia | null;
 };
 ```
-**References:** [IInlineKb](./gramstax.iinlinekb.md)<!-- -->, [IData](./gramstax.idata.md)<!-- -->, [Ctx](./gramstax.ctx.md)
+**References:** [IContent](./gramstax.icontent.md)<!-- -->, [IRouteForcedReply](./gramstax.irouteforcedreply.md)<!-- -->, [IInlineKb](./gramstax.iinlinekb.md)<!-- -->, [IOptPaidMedia](./gramstax.ioptpaidmedia.md)
 
 ## Remarks
+
+`params = CONTENT & ROUTE`<!-- -->: the shared template content (`data`<!-- -->, `AGBaseId`<!-- -->, read from the `<g-paid-media>` block) on the forced-send route (`IRouteReply`<!-- -->), with the option slot narrowed to the `sendPaidMedia` call (`IOptPaidMedia`<!-- -->) and `keyboard` kept inline-only.
 
 Each item `src` is resolved through the instance media jail (local files become `InputFile` uploads, URLs and `file_id` values pass through) and sent with its caption as HTML. There is no degraded fallback content for paywalls.
 

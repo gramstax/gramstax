@@ -274,9 +274,9 @@ export type IOptEdit = Parameters<Context[`editMessageText`]>[1]
  * declares it), so `never` is what turns "silently ignored" into a compile
  * error.
  *
- * @internal
+ * @public
  */
-type INeverFields<K extends PropertyKey> = {[P in K]?: never}
+export type INeverFields<K extends PropertyKey> = {[P in K]?: never}
 
 /**
  * Rich-edit options — fields legal on BOTH the rich send and the rich edit.
@@ -316,9 +316,9 @@ export type IOptRichSend = NonNullable<IOptReplyRich[1]>
  * failed edit, and `rich`/`richOptions` the rich payload and its
  * edit-legal options.
  *
- * @internal
+ * @public
  */
-type IRouteAuto = {
+export type IRouteAuto = {
   /**
    * Send-versus-edit resolution, decided at runtime from the update.
    *
@@ -403,9 +403,9 @@ type IRouteAuto = {
  * fall back from. `richOptions` stays live here because the rich SEND still
  * happens; only the rich EDIT is unreachable.
  *
- * @internal
+ * @public
  */
-type IRouteReply = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
+export type IRouteReply = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
   /**
    * Forces a new message even from a callback query.
    */
@@ -459,9 +459,9 @@ type IRouteReply = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> 
  * explicit `mode: 'reply'` is still accepted and anything else is a compile
  * error.
  *
- * @internal
+ * @public
  */
-type IRouteForcedReply = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
+export type IRouteForcedReply = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
   /**
    * The only mode this method supports; optional because there is no second
    * route to choose between.
@@ -514,9 +514,9 @@ type IRouteForcedReply = INeverFields<`editOptions` | `fallbackOptions` | `fallb
  * `options` is never read, and the fallback resend draws its reply options from
  * `fallbackOptions`.
  *
- * @internal
+ * @public
  */
-type IRouteEdit = INeverFields<`options`> & {
+export type IRouteEdit = INeverFields<`options`> & {
   /**
    * Always edits, even when the update carries no `callbackQuery`.
    */
@@ -593,9 +593,9 @@ type IRouteEdit = INeverFields<`options`> & {
  * (`editOptions`, `fallbackOptions`) and `fallback` are never read.
  * `richOptions` stays live — every chunk still goes out through the rich send.
  *
- * @internal
+ * @public
  */
-type IRouteChunked = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
+export type IRouteChunked = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
   /**
    * The only mode the chunked path can honour (the chunked reply wins whenever
    * `chunkSize` is present).
@@ -657,9 +657,9 @@ type IRouteChunked = INeverFields<`editOptions` | `fallbackOptions` | `fallback`
  * top-level `chunkSize` is never read — and `mode`, the edit-only keys, and
  * `fallback` are never read either, since nothing edits.
  *
- * @internal
+ * @public
  */
-type IRouteBroadcastSend = INeverFields<`mode` | `editOptions` | `fallbackOptions` | `fallback` | `chunkSize`> & {
+export type IRouteBroadcastSend = INeverFields<`mode` | `editOptions` | `fallbackOptions` | `fallback` | `chunkSize`> & {
   /**
    * Broadcast fan-out (see {@link IBroadcastSendParams}): rich templates go
    * through `api.sendRichMessage`, plain templates keep `api.sendMessage` with
@@ -1303,9 +1303,9 @@ export type IOptFallbackEdit = `delete-reply` | `reply` | `disable`
  *
  * @typeParam T - The media type.
  *
- * @internal
+ * @public
  */
-type IRouteMediaAuto<T extends IMediaKind> = INeverFields<`options` | `editOptions` | `rich` | `richOptions` | `captionOptions`> & {
+export type IRouteMediaAuto<T extends IMediaKind> = INeverFields<`options` | `editOptions` | `rich` | `richOptions` | `captionOptions`> & {
   /**
    * Send-versus-edit resolution. `edit` always edits; absent or `auto` lets the
    * runtime decide from the update.
@@ -1373,9 +1373,9 @@ type IRouteMediaAuto<T extends IMediaKind> = INeverFields<`options` | `editOptio
  *
  * @typeParam T - The media type.
  *
- * @internal
+ * @public
  */
-type IRouteMediaReply<T extends IMediaKind> = INeverFields<`options` | `editOptions` | `rich` | `richOptions` | `fallback` | `fallbackOptions` | `media` | `mediaOptions` | `resendOptions`> & {
+export type IRouteMediaReply<T extends IMediaKind> = INeverFields<`options` | `editOptions` | `rich` | `richOptions` | `fallback` | `fallbackOptions` | `media` | `mediaOptions` | `resendOptions`> & {
   /**
    * Forces a new message even from a callback query.
    */
@@ -1413,9 +1413,9 @@ type IRouteMediaReply<T extends IMediaKind> = INeverFields<`options` | `editOpti
  *
  * @typeParam T - The media type.
  *
- * @internal
+ * @public
  */
-type IRouteMediaBroadcastSend<T extends IMediaKind> = INeverFields<`mode` | `options` | `editOptions` | `rich` | `richOptions` | `fallback` | `fallbackOptions` | `media` | `mediaOptions` | `resendOptions` | `chunkSize` | `type`> & {
+export type IRouteMediaBroadcastSend<T extends IMediaKind> = INeverFields<`mode` | `options` | `editOptions` | `rich` | `richOptions` | `fallback` | `fallbackOptions` | `media` | `mediaOptions` | `resendOptions` | `chunkSize` | `type`> & {
   /**
    * Broadcast fan-out (see {@link IBroadcastSendParams}).
    */
@@ -1454,9 +1454,9 @@ type IRouteMediaBroadcastSend<T extends IMediaKind> = INeverFields<`mode` | `opt
  *
  * @typeParam T - The media type.
  *
- * @internal
+ * @public
  */
-type IRouteMediaBroadcastRevise<T extends IMediaKind> = INeverFields<`mode` | `options` | `editOptions` | `rich` | `richOptions` | `fallbackOptions` | `captionOptions` | `chunkSize`> & {
+export type IRouteMediaBroadcastRevise<T extends IMediaKind> = INeverFields<`mode` | `options` | `editOptions` | `rich` | `richOptions` | `fallbackOptions` | `captionOptions` | `chunkSize`> & {
   /**
    * Broadcast-revise fan-out (see {@link IBroadcastReviseParams}).
    */
@@ -1503,9 +1503,9 @@ type IRouteMediaBroadcastRevise<T extends IMediaKind> = INeverFields<`mode` | `o
  * `sendMediaGroup` takes no reply markup, so `keyboard` is unread on every
  * group route. A group also never carries a rich message payload.
  *
- * @internal
+ * @public
  */
-type IRouteGroupAuto = INeverFields<`editOptions` | `rich` | `richOptions` | `fallbackOptions`> & {
+export type IRouteGroupAuto = INeverFields<`editOptions` | `rich` | `richOptions` | `fallbackOptions`> & {
   /**
    * Send-versus-edit resolution.
    *
@@ -1551,9 +1551,9 @@ type IRouteGroupAuto = INeverFields<`editOptions` | `rich` | `richOptions` | `fa
 /**
  * Media-group route atom: forced group send.
  *
- * @internal
+ * @public
  */
-type IRouteGroupReply = INeverFields<`rich` | `richOptions` | `editOptions` | `fallback` | `fallbackOptions`> & {
+export type IRouteGroupReply = INeverFields<`rich` | `richOptions` | `editOptions` | `fallback` | `fallbackOptions`> & {
   /**
    * Forces a new group even from a callback query.
    */
@@ -1587,9 +1587,9 @@ type IRouteGroupReply = INeverFields<`rich` | `richOptions` | `editOptions` | `f
  * (send, edit, chunked, broadcast). A method with a richer content body (media
  * kind, gift target, template-backed answer) intersects its own fields on top.
  *
- * @internal
+ * @public
  */
-type IContent = {
+export type IContent = {
   /**
    * Optional template interpolation data.
    *

@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptPoll
+uid: gramstax!IOptPoll:type
+package: gramstax!
+fullName: IOptPoll
+summary: Poll send options — `Ctx.replyWithPoll` argument index `[2]` (the `other` bag of `sendPoll`<!-- -->).
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptPoll = Parameters<Ctx[`replyWithPoll`]>[2];

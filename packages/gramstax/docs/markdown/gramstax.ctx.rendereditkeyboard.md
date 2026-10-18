@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block keyboard (or null to use default); `options` optional abort signal for the edit call (or null to omit).
+Edit params: `keyboard` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block keyboard (or null to use default); `options` optional abort signal for the edit call (or null to omit).
 
 
 </td></tr>
@@ -58,14 +58,14 @@ The edited message object.
 
 ## Remarks
 
-Sent via `editMessageReplyMarkup` — never touches message text. When `keyboardInline` is null, the markup resolves from the `<g-keyboard>` block of the given `AGBaseId` itself (via `getGKeyboard` with `data` for dynamic labels), which is what makes `AGBaseId` meaningful here. No send-fallback (nothing new to send): failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, logged, rethrown.
+Sent via `editMessageReplyMarkup` — never touches message text. When `keyboard` is null, the markup resolves from the `<g-keyboard>` block of the given `AGBaseId` itself (via `getGKeyboard` with `data` for dynamic labels), which is what makes `AGBaseId` meaningful here. No send-fallback (nothing new to send): failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, logged, rethrown.
 
 ## Example
 
 
 ```typescript
 async handleArgsCallback() {
-  await this.renderEditKeyboard({keyboardInline: null, AGBaseId: `photo-card`})
+  await this.renderEditKeyboard({keyboard: null, AGBaseId: `photo-card`})
 }
 ```
 

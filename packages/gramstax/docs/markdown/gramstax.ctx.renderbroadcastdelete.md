@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `broadcastOpts` optional broadcast controls (`onProgress`<!-- -->, `startFrom`<!-- -->, `concurrency`<!-- -->, `chunkSize`<!-- -->, `chunkDelayMs`<!-- -->) (or null for defaults; `fallbackEdit` is not part of the type — deletes have no resend to fall back to).
+Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `reviseOptions` optional broadcast controls (`onProgress`<!-- -->, `startFrom`<!-- -->, `concurrency`<!-- -->, `chunkSize`<!-- -->, `chunkDelayMs`<!-- -->) (or null for defaults; `fallback` is not part of the type — deletes have no resend to fall back to).
 
 
 </td></tr>

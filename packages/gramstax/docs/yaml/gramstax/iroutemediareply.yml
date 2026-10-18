@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IRouteMediaReply
+uid: gramstax!IRouteMediaReply:type
+package: gramstax!
+fullName: IRouteMediaReply
+summary: 'Media route atom: forced single-media send.'
+remarks: A forced send never edits, so every edit-only key is unread.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type IRouteMediaReply<T extends IMediaKind> = INeverFields<`options` | `editOptions` | `rich` | `richOptions` |
+  `fallback` | `fallbackOptions` | `media` | `mediaOptions` | `resendOptions`> & {
+      mode: `reply`;
+      keyboard?: IInBoKb | null;
+      captionOptions?: IMediaReplyOpt<T> | null;
+      broadcast?: null | undefined;
+      chunkSize?: null | undefined;
+  };

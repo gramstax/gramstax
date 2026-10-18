@@ -13,9 +13,9 @@ type IBroadcastEditOpts = {
     onProgress?: ((done: number, total: number) => void | Promise<void>) | null;
     startFrom?: number | null;
     concurrency?: number | null;
-    chunkSize?: number | null;
+    batchSize?: number | null;
     chunkDelayMs?: number | null;
-    fallbackEdit?: IOptFallbackEdit | null;
+    fallback?: IOptFallbackEdit | null;
 };
 ```
 **References:** [IOptFallbackEdit](./gramstax.ioptfallbackedit.md)

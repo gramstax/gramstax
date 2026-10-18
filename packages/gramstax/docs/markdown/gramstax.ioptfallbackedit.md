@@ -20,6 +20,6 @@ type IOptFallbackEdit = `delete-reply` | `reply` | `disable`;
 
 
 ```ts
-await ctx.edit({fallbackEdit: `reply`})
+await ctx.edit({fallback: `reply`})
 ```
 

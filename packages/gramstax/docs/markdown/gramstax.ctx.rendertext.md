@@ -62,13 +62,13 @@ Single method for every text send/edit path, folding the former `render`<!-- -->
 
 Rich content is chosen at COMPILE time: when the `<g-message>` block contains Telegram Rich HTML tags, the message is sent or edited through `replyWithRichMessage`<!-- -->/`editMessageText` with an `InputRichMessage` payload (Telegram Bot API [TemplateEngine.BOT\_API\_VERSION](./gramstax.templateengine.bot_api_version.md)<!-- -->) instead of plain HTML text. Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns
 
-If editing fails (e.g. message too old), the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`<!-- -->: deletes the original message and sends a new reply — the result looks like an in-place edit).
+If editing fails (e.g. message too old), the fallback behavior is controlled by `fallback` (default `delete-reply`<!-- -->: deletes the original message and sends a new reply — the result looks like an in-place edit).
 
 Observe-only send-error coverage (mirrors `renderMedia`<!-- -->): reply failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!-- -->, `fallback-text` → `log.warn`<!-- -->). Unlike the media paths there is no degraded fallback content for text, so after notify+log the original error is ALWAYS rethrown untouched.
 
 When `chunkSize` is present (not `undefined`<!-- -->/`null`<!-- -->) the fully-rendered block is sent as sequential reply chunks instead (see the `chunkSize` field of [IRenderTextParams](./gramstax.irendertextparams.md)<!-- -->): the keyboard lands ONLY on the last chunk. The chunked route is a REPLY route — a multi-message split cannot be edited in place — so the params type accepts only `mode: 'reply'` (or no `mode`<!-- -->) alongside `chunkSize`<!-- -->; passing `mode: 'auto'`<!-- -->/`'edit'` with a `chunkSize` is a compile error (and throws for plain-JS callers) because that `mode` would never be read.
 
-When `broadcast` is present, the block is SENT to every `broadcast.ids` entry instead (see [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md)<!-- -->): rich templates through `api.sendRichMessage`<!-- -->, plain templates through `api.sendMessage` with `parse_mode: HTML`<!-- -->. The broadcast route is send-only, so its params type rejects `mode`<!-- -->, `fallbackEdit`<!-- -->, and `chunkSize` outright (pacing uses `broadcast.chunkSize`<!-- -->).
+When `broadcast` is present, the block is SENT to every `broadcast.ids` entry instead (see [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md)<!-- -->): rich templates through `api.sendRichMessage`<!-- -->, plain templates through `api.sendMessage` with `parse_mode: HTML`<!-- -->. The broadcast route is send-only, so its params type rejects `mode`<!-- -->, `fallback`<!-- -->, and `chunkSize` outright (pacing uses `broadcast.chunkSize`<!-- -->).
 
 A bottom (reply) keyboard is rejected on an edit route before any API call — `editMessageText` accepts inline keyboards only, so the throw names `mode: 'reply'` as the fix.
 

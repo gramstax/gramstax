@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptPaidMedia
+uid: gramstax!IOptPaidMedia:type
+package: gramstax!
+fullName: IOptPaidMedia
+summary: Paid-media send options — `Ctx.replyWithPaidMedia` argument index `[2]` (the `other` bag of `sendPaidMedia`<!-- -->).
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptPaidMedia = Parameters<Ctx[`replyWithPaidMedia`]>[2];

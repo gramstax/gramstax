@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IOptVenue
+uid: gramstax!IOptVenue:type
+package: gramstax!
+fullName: IOptVenue
+summary: Venue send options — `Ctx.replyWithVenue` argument index `[4]` (the `other` bag of `sendVenue`<!-- -->).
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptVenue = Parameters<Ctx[`replyWithVenue`]>[4];

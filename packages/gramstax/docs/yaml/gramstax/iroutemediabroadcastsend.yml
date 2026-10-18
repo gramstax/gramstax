@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IRouteMediaBroadcastSend
+uid: gramstax!IRouteMediaBroadcastSend:type
+package: gramstax!
+fullName: IRouteMediaBroadcastSend
+summary: 'Media route atom: broadcast send fan-out.'
+remarks: >-
+  The kind is read from the `<g-media>` block, not from `type`<!-- -->, because the same fan-out loop serves every kind
+  — so `type` is unread here even on `renderMedia` where it is otherwise required.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type IRouteMediaBroadcastSend<T extends IMediaKind> = INeverFields<`mode` | `options` | `editOptions` | `rich` |
+  `richOptions` | `fallback` | `fallbackOptions` | `media` | `mediaOptions` | `resendOptions` | `chunkSize` | `type`> &
+  {
+      broadcast: IBroadcastSendParams;
+      type?: never;
+      keyboard?: IInBoKb | null;
+      captionOptions?: IMediaReplyOpt<T> | null;
+  };

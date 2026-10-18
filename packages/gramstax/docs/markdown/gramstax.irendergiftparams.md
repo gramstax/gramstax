@@ -4,23 +4,21 @@
 
 ## IRenderGiftParams type
 
-Parameters for `renderGift`<!-- -->.
+Parameters for `renderGift` — a single gift send.
 
 **Signature:**
 
 ```typescript
-type IRenderGiftParams = {
+type IRenderGiftParams = IContent & Omit<IRouteForcedReply, `options`> & {
     target: number;
     giftId: string;
-    keyboard?: null;
-    data?: IData | null;
-    AGBaseId?: string | null;
+    keyboard?: never;
     options?: IOptGift | null;
 };
 ```
-**References:** [IData](./gramstax.idata.md)<!-- -->, [IOptGift](./gramstax.ioptgift.md)
+**References:** [IContent](./gramstax.icontent.md)<!-- -->, [IRouteForcedReply](./gramstax.irouteforcedreply.md)<!-- -->, [IOptGift](./gramstax.ioptgift.md)
 
 ## Remarks
 
-`target` (user id) is explicit because gifts do not always go to the active chat — unlike every other render method. A failed gift never degrades into sending the card as plain text.
+`params = CONTENT & ROUTE`<!-- -->: the gift content (`target`<!-- -->, `giftId`<!-- -->, `data`<!-- -->, `AGBaseId`<!-- -->) on the forced-send route (`IRouteReply`<!-- -->), with the option slot narrowed to the `sendGift` call (`IOptGift`<!-- -->). `target` (user id) is explicit because gifts do not always go to the active chat — unlike every other render method. A failed gift never degrades into sending the card as plain text.
 

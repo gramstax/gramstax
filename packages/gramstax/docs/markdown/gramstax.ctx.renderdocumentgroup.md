@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-_(Optional)_ Optional per-kind params (defaults to `{}`<!-- -->). See [IRenderMediaGroupKindParams](./gramstax.irendermediagroupkindparams.md) for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`<!-- -->); `options` optional document-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`<!-- -->).
+_(Optional)_ Optional per-kind params (defaults to `{}`<!-- -->). See [IRenderMediaGroupKindParams](./gramstax.irendermediagroupkindparams.md) for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`<!-- -->); `options` optional document-specific options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`<!-- -->).
 
 
 </td></tr>

@@ -9,17 +9,14 @@ Parameters for `renderEditCaption`<!-- -->.
 **Signature:**
 
 ```typescript
-type IRenderEditCaptionParams = {
-    keyboardInline?: IInlineKb | null;
-    data?: IData | null;
-    AGBaseId?: string | null;
+type IRenderEditCaptionParams = IContent & Omit<IRouteEdit, `mode` | `options`> & {
+    mode?: never;
     options?: IOptEditCaption | null;
-    fallbackEdit?: IOptFallbackEdit;
 };
 ```
-**References:** [IInlineKb](./gramstax.iinlinekb.md)<!-- -->, [IData](./gramstax.idata.md)<!-- -->, [IOptEditCaption](./gramstax.iopteditcaption.md)<!-- -->, [IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
+**References:** [IContent](./gramstax.icontent.md)<!-- -->, [IRouteEdit](./gramstax.irouteedit.md)<!-- -->, [IOptEditCaption](./gramstax.iopteditcaption.md)
 
 ## Remarks
 
-Caption text comes from the `<g-base id>` block via `getGMessage` and is sent via `editMessageCaption`<!-- -->. Fallback modes mirror `renderEdit`<!-- -->: `delete-reply`<!-- -->/`reply` resend the caption as plain text, `disable` throws.
+`params = CONTENT & ROUTE`<!-- -->: the shared template content (`data`<!-- -->, `AGBaseId`<!-- -->) on the forced-edit route (`IRouteEdit`<!-- -->), with `mode` declared `never` — this method always edits, the mode is not a choice. Caption text comes from the `<g-base id>` block via `getGMessage` and is sent via `editMessageCaption`<!-- -->, which rejects a bottom keyboard, so the `keyboard` slot stays inline-only. Fallback modes mirror `renderEdit`<!-- -->: `delete-reply`<!-- -->/`reply` resend the caption as plain text, `disable` throws.
 

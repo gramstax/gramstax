@@ -11,12 +11,12 @@ Broadcast revise selector for the `broadcast` field of `renderMedia`<!-- -->.
 ```typescript
 type IBroadcastReviseParams = {
     targets: IBroadcastEditTarget[];
-    broadcastOpts?: IBroadcastEditOpts | null;
+    reviseOptions?: IBroadcastEditOpts | null;
 };
 ```
 **References:** [IBroadcastEditTarget](./gramstax.ibroadcastedittarget.md)<!-- -->, [IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md)
 
 ## Remarks
 
-`photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, `document`<!-- -->, and `animation` edit in place via `editMessageMedia`<!-- -->; the remaining types cannot be edited, so the old message is deleted and a new one is sent. `broadcastOpts.fallbackEdit` applies per recipient when the primary edit/resend fails.
+`photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, `document`<!-- -->, and `animation` edit in place via `editMessageMedia`<!-- -->; the remaining types cannot be edited, so the old message is deleted and a new one is sent. `reviseOptions.fallback` applies per recipient when the primary edit/resend fails.
 

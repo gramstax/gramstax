@@ -4,12 +4,10 @@
 
 ## IOptWebAppAnswer type
 
-Options parameter mirroring `Api.answerWebAppQuery`<!-- -->.
+Options parameter mirroring `Context.api.answerWebAppQuery` argument index `[2]` — the abort signal of the answer call. `Context` has no `answerWebAppQuery` convenience method, so the alias reaches the method through `Context.api`<!-- -->, keeping the `Context[...]` style of the sibling answer aliases.
 
 **Signature:**
 
 ```typescript
-type IOptWebAppAnswer = Parameters<Ctx[`api`][`answerWebAppQuery`]>[2];
+type IOptWebAppAnswer = Parameters<Context[`api`][`answerWebAppQuery`]>[2];
 ```
-**References:** [Ctx](./gramstax.ctx.md)
-

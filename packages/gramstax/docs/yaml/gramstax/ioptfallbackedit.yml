@@ -11,7 +11,7 @@ remarks: >-
 example:
   - |-
     ```ts
-    await ctx.edit({fallbackEdit: `reply`})
+    await ctx.edit({fallback: `reply`})
     ```
 isPreview: false
 isDeprecated: false

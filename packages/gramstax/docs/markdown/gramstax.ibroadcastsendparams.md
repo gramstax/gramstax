@@ -24,5 +24,5 @@ type IBroadcastSendParams = {
 
 ## Remarks
 
-Checkpoint-first by design (anti-spam over speed): `startFrom` resumes without resending, `chunkSize`<!-- -->/`chunkDelayMs` pace the loop with `onProgress` checkpoints, and `excludeIds` counts skips without sending. The send content itself comes from the host method params (`keyboard`<!-- -->, `data`<!-- -->, `AGBaseId`<!-- -->, `options`<!-- -->/`richOptions`<!-- -->).
+Checkpoint-first by design (anti-spam over speed): `startFrom` resumes without resending, `chunkSize`<!-- -->/`chunkDelayMs` pace the loop with `onProgress` checkpoints, and `excludeIds` counts skips without sending. The send content itself comes from the host method params (`keyboard`<!-- -->, `data`<!-- -->, `AGBaseId`<!-- -->, `options`<!-- -->/`rich`<!-- -->).
 

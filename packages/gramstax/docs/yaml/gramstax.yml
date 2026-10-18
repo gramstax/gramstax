@@ -52,6 +52,7 @@ typeAliases:
   - gramstax!ICacheRpc:type
   - gramstax!ICallbackAnswerBlock:type
   - gramstax!ICompiledTemplate:type
+  - gramstax!IContent:type
   - gramstax!ICt:type
   - gramstax!ICtMiddleware:type
   - gramstax!ICtxParams:type
@@ -120,7 +121,9 @@ typeAliases:
   - gramstax!IMockTelegramServerOptions:type
   - gramstax!IMockTelegramUpdateOptions:type
   - gramstax!IMockTelegramUser:type
+  - gramstax!INeverFields:type
   - gramstax!IOptCallbackAnswer:type
+  - gramstax!IOptDice:type
   - gramstax!IOptEdit:type
   - gramstax!IOptEditCaption:type
   - gramstax!IOptEditKeyboard:type
@@ -130,6 +133,9 @@ typeAliases:
   - gramstax!IOptGift:type
   - gramstax!IOptGuestAnswer:type
   - gramstax!IOptInlineAnswer:type
+  - gramstax!IOptInvoice:type
+  - gramstax!IOptPaidMedia:type
+  - gramstax!IOptPoll:type
   - gramstax!IOptPreCheckout:type
   - gramstax!IOptReply:type
   - gramstax!IOptReplyAnimation:type
@@ -144,7 +150,9 @@ typeAliases:
   - gramstax!IOptReplyVideoNote:type
   - gramstax!IOptReplyVoice:type
   - gramstax!IOptRich:type
+  - gramstax!IOptRichSend:type
   - gramstax!IOptShipping:type
+  - gramstax!IOptVenue:type
   - gramstax!IOptWebAppAnswer:type
   - gramstax!IPageData:type
   - gramstax!IPageDataBase:type
@@ -167,7 +175,6 @@ typeAliases:
   - gramstax!IRenderMediaGroupParams:type
   - gramstax!IRenderMediaKindParams:type
   - gramstax!IRenderMediaParams:type
-  - gramstax!IRenderMode:type
   - gramstax!IRenderPaidMediaParams:type
   - gramstax!IRenderPollParams:type
   - gramstax!IRenderPreCheckoutParams:type
@@ -176,7 +183,19 @@ typeAliases:
   - gramstax!IRenderVenueParams:type
   - gramstax!IRenderWebAppAnswerParams:type
   - gramstax!IReplyAction:type
+  - gramstax!IRouteAuto:type
+  - gramstax!IRouteBroadcastSend:type
+  - gramstax!IRouteChunked:type
+  - gramstax!IRouteEdit:type
+  - gramstax!IRouteForcedReply:type
+  - gramstax!IRouteGroupAuto:type
+  - gramstax!IRouteGroupReply:type
   - gramstax!IRouteManifestEntry:type
+  - gramstax!IRouteMediaAuto:type
+  - gramstax!IRouteMediaBroadcastRevise:type
+  - gramstax!IRouteMediaBroadcastSend:type
+  - gramstax!IRouteMediaReply:type
+  - gramstax!IRouteReply:type
   - gramstax!ISendErrorHook:type
   - gramstax!ISendErrorInfo:type
   - gramstax!IServerlessRef:type

@@ -9,10 +9,11 @@
 **Signature:**
 
 ```typescript
-type IRenderMediaGroupKindParams = Omit<IGroupR1, `type`> | Omit<IGroupR2, `type`>;
+type IRenderMediaGroupKindParams = IContent & (IRouteGroupAuto | IRouteGroupReply);
 ```
+**References:** [IContent](./gramstax.icontent.md)<!-- -->, [IRouteGroupAuto](./gramstax.iroutegroupauto.md)<!-- -->, [IRouteGroupReply](./gramstax.iroutegroupreply.md)
 
 ## Remarks
 
-`Omit` is applied per union member — applied to the union it would collapse the routes together.
+The kind filter rides on the content type, so dropping `type` here drops it from every route at once.
 
