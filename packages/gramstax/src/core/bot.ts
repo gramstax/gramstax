@@ -1699,8 +1699,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * `polling.maxRetries` consecutive failures, or retries forever when `-1`.
    *
    * @remarks
-   * `drop_pending_updates` stays `false` unless
-   * {@link Gramstax.polling.dropPendingUpdates} is opted in. Telegram holds
+   * `drop_pending_updates` stays `false` unless `polling.dropPendingUpdates`
+   * is opted in. Telegram holds
    * undelivered updates for up to 24h, so the default replays whatever arrived
    * while the process was down instead of deleting it on boot — the flag only
    * ever applies to the first attempt, since retries must keep the backlog.
