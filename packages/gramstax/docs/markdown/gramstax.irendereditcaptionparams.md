@@ -12,7 +12,7 @@ Parameters for `renderEditCaption`<!-- -->.
 type IRenderEditCaptionParams = {
     keyboardInline?: IInlineKb | null;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptEditCaption | null;
     fallbackEdit?: IOptFallbackEdit;
 };

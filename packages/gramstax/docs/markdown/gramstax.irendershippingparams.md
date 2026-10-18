@@ -12,7 +12,7 @@ Parameters for `renderShipping`<!-- -->.
 type IRenderShippingParams = {
     ok: boolean;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptShipping | null;
 };
 ```

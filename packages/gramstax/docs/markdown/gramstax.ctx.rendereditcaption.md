@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
+Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
 
 
 </td></tr>

@@ -143,6 +143,7 @@ typeAliases:
   - gramstax!IOptReplyVideo:type
   - gramstax!IOptReplyVideoNote:type
   - gramstax!IOptReplyVoice:type
+  - gramstax!IOptRich:type
   - gramstax!IOptShipping:type
   - gramstax!IOptWebAppAnswer:type
   - gramstax!IPageData:type

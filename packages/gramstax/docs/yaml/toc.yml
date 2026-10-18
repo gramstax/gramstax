@@ -263,6 +263,8 @@ items:
             uid: gramstax!IOptReplyVideoNote:type
           - name: IOptReplyVoice
             uid: gramstax!IOptReplyVoice:type
+          - name: IOptRich
+            uid: gramstax!IOptRich:type
           - name: IOptShipping
             uid: gramstax!IOptShipping:type
           - name: IOptWebAppAnswer

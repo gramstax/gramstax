@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Answer params: `showAlert` whether to show an alert instead of a toast notification (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the notification text (required); `options` optional answer options such as `cache_time` (or null to omit).
+Answer params: `showAlert` whether to show an alert instead of a toast notification (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the notification text (or null to use default); `options` optional answer options such as `cache_time` (or null to omit).
 
 
 </td></tr>

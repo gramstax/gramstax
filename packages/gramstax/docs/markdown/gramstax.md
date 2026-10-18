@@ -1740,6 +1740,17 @@ Options parameter mirroring `Context.replyWithVoice`<!-- -->.
 </td></tr>
 <tr><td>
 
+[IOptRich](./gramstax.ioptrich.md)
+
+
+</td><td>
+
+Rich-options tuple for routes that may reach `editMessageText`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [IOptShipping](./gramstax.ioptshipping.md)
 
 

@@ -14,5 +14,5 @@ isDeprecated: false
 syntax: |-
   type IRenderBroadcastDeleteParams = {
       targets: IBroadcastEditTarget[];
-      broadcastOpts?: IBroadcastEditOpts | null;
+      broadcastOpts?: Omit<IBroadcastEditOpts, `fallbackEdit`> | null;
   };

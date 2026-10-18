@@ -6,8 +6,8 @@ fullName: IRenderMediaGroupKindParams
 summary: >-
   `IRenderMediaGroupParams` for one group kind — the per-kind group wrappers (`renderPhotoGroup`<!-- -->,
   `renderVideoGroup`<!-- -->, …) accept this shape and supply `type`<!-- -->.
-remarks: ''
+remarks: '`Omit` is applied per union member — applied to the union it would collapse the routes together.'
 example: []
 isPreview: false
 isDeprecated: false
-syntax: type IRenderMediaGroupKindParams = Omit<IRenderMediaGroupParams, `type`>;
+syntax: type IRenderMediaGroupKindParams = Omit<IGroupR1, `type`> | Omit<IGroupR2, `type`>;

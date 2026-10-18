@@ -12,7 +12,7 @@ Parameters for `renderGuestAnswer`<!-- -->.
 type IRenderGuestAnswerParams = {
     result: InlineQueryResult;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptGuestAnswer | null;
 };
 ```

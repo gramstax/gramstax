@@ -12,13 +12,13 @@ Parameters for `renderGift`<!-- -->.
 type IRenderGiftParams = {
     target: number;
     giftId: string;
-    keyboard?: IInlineKb | null;
+    keyboard?: null;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptGift | null;
 };
 ```
-**References:** [IInlineKb](./gramstax.iinlinekb.md)<!-- -->, [IData](./gramstax.idata.md)<!-- -->, [IOptGift](./gramstax.ioptgift.md)
+**References:** [IData](./gramstax.idata.md)<!-- -->, [IOptGift](./gramstax.ioptgift.md)
 
 ## Remarks
 

@@ -13,7 +13,7 @@ type IRenderWebAppAnswerParams = {
     webAppQueryId: string;
     result: InlineQueryResult;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptWebAppAnswer | null;
 };
 ```

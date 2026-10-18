@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Answer params: `results` inline results built by the caller, up to 50 (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the button text (required); `options` optional answer options (or null to omit); `buttonStartParameter` optional deep-link start parameter, enabling the block-text button (or null to omit).
+Answer params: `results` inline results built by the caller, up to 50 (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the button text (or null to use default); `options` optional answer options (or null to omit); `buttonStartParameter` optional deep-link start parameter, enabling the block-text button (or null to omit).
 
 
 </td></tr>

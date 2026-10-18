@@ -12,7 +12,7 @@ Parameters for `renderCallbackAnswer`<!-- -->.
 type IRenderCallbackAnswerParams = {
     showAlert: boolean;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptCallbackAnswer | null;
 };
 ```

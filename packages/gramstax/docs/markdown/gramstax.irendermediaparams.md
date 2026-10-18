@@ -9,13 +9,12 @@ Parameters for `renderMedia` — the single media send/edit method.
 **Signature:**
 
 ```typescript
-type IRenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> = IRenderMediaSingle<T> | IRenderMediaBroadcastSend<T> | IRenderMediaBroadcastRevise<T>;
+type IRenderMediaParams<T extends IMediaKind> = IMediaR1<T> | IMediaR2<T> | IMediaR3<T> | IMediaR4<T>;
 ```
-**References:** [IMediaBlock](./gramstax.imediablock.md)
 
 ## Remarks
 
-All fields except `type` are optional. `mode` resolves the send-versus-edit decision exactly like [IRenderTextParams](./gramstax.irendertextparams.md)<!-- -->: `auto` (default) edits when the update carries a `callbackQuery`<!-- -->, `reply` always sends, `edit` always edits. `options` feeds the reply branch and the `editMessageMedia` error state; `optionsEdit1`<!-- -->/`optionsEdit2` feed the edit branch only and are DROPPED by the fallback re-send (edit options do not map to reply options). `fallbackEdit` mirrors [IOptFallbackEdit](./gramstax.ioptfallbackedit.md) and defaults to `delete-reply`<!-- -->.
+A disjoint union over the method's four runtime routes. Every field a route never reads is declared `never` on that route, so combinations such as `{mode: 'edit', broadcast: {...}}` are compile errors instead of silently dropped fields. `mode` resolves the send-versus-edit decision exactly like [IRenderTextParams](./gramstax.irendertextparams.md)<!-- -->: `auto` (default) edits when the update carries a `callbackQuery`<!-- -->, `reply` always sends, `edit` always edits. `options` feeds the reply branch (and the fallback re-send); `optionsEdit1`<!-- -->/`optionsEdit2` feed the edit branch only and are DROPPED by the single-chat fallback re-send (edit options do not map to reply options). `fallbackEdit` mirrors [IOptFallbackEdit](./gramstax.ioptfallbackedit.md) and defaults to `delete-reply`<!-- -->.
 
-`broadcast` switches to multi-recipient fan-out: `broadcast.ids` runs the send loop (`type` optional — the kind is read from the template), and `broadcast.targets` runs the revise loop (`type` required). `mode`<!-- -->, `fallbackEdit`<!-- -->, and the `options*` fields do not apply to the send loop. The per-kind wrappers accept only the revise loop — see [IRenderMediaKindParams](./gramstax.irendermediakindparams.md)<!-- -->.
+`broadcast` switches to multi-recipient fan-out: `broadcast.ids` runs the send loop (kind read from the template), and `broadcast.targets` runs the revise loop (`type` required). The per-kind wrappers accept the single-chat and revise routes — see [IRenderMediaKindParams](./gramstax.irendermediakindparams.md)<!-- -->.
 

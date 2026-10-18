@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Answer params: `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position, resolved for validation (required); `options` optional abort signal (or null to omit).
+Answer params: `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position, resolved for validation (or null to use default); `options` optional abort signal (or null to omit).
 
 
 </td></tr>
@@ -58,7 +58,7 @@ The sent guest message object.
 
 ## Remarks
 
-The result content is built by the caller from `data` (multilang payloads); the `<g-answer-note>` block is resolved as fail-fast validation that the template exists, per the AGBaseId-required policy.
+The result content is built by the caller from `data` (multilang payloads); the `<g-answer-note>` block is resolved as fail-fast validation that the template exists.
 
 Observe-only send-error coverage (mirrors `renderDice`<!-- -->): failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!-- -->, `fallback-text` → `log.warn`<!-- -->). After notify+log the original error is ALWAYS rethrown untouched.
 

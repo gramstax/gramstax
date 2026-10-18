@@ -14,8 +14,8 @@ syntax: |-
   type IRenderGiftParams = {
       target: number;
       giftId: string;
-      keyboard?: IInlineKb | null;
+      keyboard?: null;
       data?: IData | null;
-      AGBaseId: string;
+      AGBaseId?: string | null;
       options?: IOptGift | null;
   };

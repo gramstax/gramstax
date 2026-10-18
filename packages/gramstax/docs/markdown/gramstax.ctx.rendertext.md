@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-_(Optional)_ Optional render params (defaults to `{}`<!-- -->). See [IRenderTextParams](./gramstax.irendertextparams.md) for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `mode` send-versus-edit resolution (default `auto`<!-- -->); `options` optional plain-text reply/edit options (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`<!-- -->); `chunkSize` optional max characters per chunk, selecting the chunked reply path (or null for a single message); `broadcast` optional broadcast fan-out [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md) (or null for a single-chat send/edit).
+_(Optional)_ Optional render params (defaults to `{}`<!-- -->), resolved as one of four routes — see [IRenderTextParams](./gramstax.irendertextparams.md) for the exact field set of each route: route 1 single message (`auto`<!-- -->/`edit`<!-- -->); route 2 forced reply (`mode: 'reply'`<!-- -->); route 3 chunked reply (`chunkSize`<!-- -->, reply-only); route 4 broadcast send (`broadcast`<!-- -->, send-only).
 
 
 </td></tr>
@@ -66,9 +66,11 @@ If editing fails (e.g. message too old), the fallback behavior is controlled by 
 
 Observe-only send-error coverage (mirrors `renderMedia`<!-- -->): reply failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!-- -->, `fallback-text` → `log.warn`<!-- -->). Unlike the media paths there is no degraded fallback content for text, so after notify+log the original error is ALWAYS rethrown untouched.
 
-When `chunkSize` is present (not `undefined`<!-- -->/`null`<!-- -->) the fully-rendered block is sent as sequential reply chunks instead (see the `chunkSize` field of [IRenderTextParams](./gramstax.irendertextparams.md)<!-- -->): the keyboard lands ONLY on the last chunk and `mode` does not apply — a multi-message split cannot be edited in place, so the chunked reply wins when both are passed.
+When `chunkSize` is present (not `undefined`<!-- -->/`null`<!-- -->) the fully-rendered block is sent as sequential reply chunks instead (see the `chunkSize` field of [IRenderTextParams](./gramstax.irendertextparams.md)<!-- -->): the keyboard lands ONLY on the last chunk. The chunked route is a REPLY route — a multi-message split cannot be edited in place — so the params type accepts only `mode: 'reply'` (or no `mode`<!-- -->) alongside `chunkSize`<!-- -->; passing `mode: 'auto'`<!-- -->/`'edit'` with a `chunkSize` is a compile error (and throws for plain-JS callers) because that `mode` would never be read.
 
-When `broadcast` is present, the block is SENT to every `broadcast.ids` entry instead (see [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md)<!-- -->): rich templates through `api.sendRichMessage`<!-- -->, plain templates through `api.sendMessage` with `parse_mode: HTML`<!-- -->; `mode`<!-- -->, `fallbackEdit`<!-- -->, and `chunkSize` do not apply on that path.
+When `broadcast` is present, the block is SENT to every `broadcast.ids` entry instead (see [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md)<!-- -->): rich templates through `api.sendRichMessage`<!-- -->, plain templates through `api.sendMessage` with `parse_mode: HTML`<!-- -->. The broadcast route is send-only, so its params type rejects `mode`<!-- -->, `fallbackEdit`<!-- -->, and `chunkSize` outright (pacing uses `broadcast.chunkSize`<!-- -->).
+
+A bottom (reply) keyboard is rejected on an edit route before any API call — `editMessageText` accepts inline keyboards only, so the throw names `mode: 'reply'` as the fix.
 
 ## Example
 

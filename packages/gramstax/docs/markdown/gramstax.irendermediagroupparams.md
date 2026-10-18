@@ -9,18 +9,10 @@ Parameters for `renderMediaGroup` — the single media-group send/edit method.
 **Signature:**
 
 ```typescript
-type IRenderMediaGroupParams = {
-    type?: IMediaGroupType | null;
-    data?: IData | null;
-    AGBaseId?: string | null;
-    mode?: IRenderMode;
-    options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null;
-    fallbackEdit?: IOptFallbackEdit;
-};
+type IRenderMediaGroupParams = IGroupR1 | IGroupR2;
 ```
-**References:** [IData](./gramstax.idata.md)<!-- -->, [IRenderMode](./gramstax.irendermode.md)<!-- -->, [IOptReplyPhoto](./gramstax.ioptreplyphoto.md)<!-- -->, [IOptReplyVideo](./gramstax.ioptreplyvideo.md)<!-- -->, [IOptReplyAudio](./gramstax.ioptreplyaudio.md)<!-- -->, [IOptReplyDocument](./gramstax.ioptreplydocument.md)<!-- -->, [IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
 
 ## Remarks
 
-`options` feeds both the direct reply branch and the delete-then-resend branches (media groups have no in-place edit). `mode` resolves the send-versus-edit decision exactly like [IRenderMediaParams](./gramstax.irendermediaparams.md)<!-- -->: `auto` (default) edits when the update carries a `callbackQuery`<!-- -->. Group edits and the `delete-reply` fallback delete the original message first.
+A two-route union: `auto` (default) edits when the update carries a `callbackQuery`<!-- -->, `reply` always sends. Media groups have no in-place edit, so every edit route deletes the original message first and the `delete-reply` fallback deletes again before re-sending. `options` feeds the direct reply branch and the delete-then-resend branches alike, and there is no keyboard field — Telegram media groups do not support reply markup.
 

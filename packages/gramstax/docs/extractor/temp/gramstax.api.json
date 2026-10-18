@@ -14682,7 +14682,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderBroadcastDelete:member(1)",
-              "docComment": "/**\n * Deletes already-sent messages for many recipients in bulk.\n *\n * Template block: none — operates on message ids, reads no template block.\n *\n * @remarks\n *\n * Expiry-cleanup counterpart of the revise fan-out (`renderMedia` with\n * `broadcast.targets`): same\n * checkpoint-first resume (`startFrom`), bounded-concurrency stride lanes\n * (`concurrency`, capped at `10`), pacing (`30`-message free-limit sleep\n * plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`), and\n * retryable separation (`retryable[]` with absolute `index` + `chatId` +\n * `messageId` + `error`, completion order).\n *\n * Per-recipient failures are classified via `Ctx.classifySendError`:\n * `retryable` errors are recorded and the loop continues; `fallback-text`\n * errors only notify (`notifySendError`) and count as failed. A failed\n * delete has no text fallback by design — there is no replacement content\n * to deliver, so no `sendMessage` is attempted on either path.\n *\n * @param params - Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallbackEdit` is accepted but ignored — deletes have no resend).\n *\n * @returns Counts plus `retryable[]` for a re-drive pass.\n *\n * @example\n * ```typescript\n * async handleExpireVip() {\n *   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)\n *   await this.renderBroadcastDelete({targets: sent})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Deletes already-sent messages for many recipients in bulk.\n *\n * Template block: none — operates on message ids, reads no template block.\n *\n * @remarks\n *\n * Expiry-cleanup counterpart of the revise fan-out (`renderMedia` with\n * `broadcast.targets`): same\n * checkpoint-first resume (`startFrom`), bounded-concurrency stride lanes\n * (`concurrency`, capped at `10`), pacing (`30`-message free-limit sleep\n * plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`), and\n * retryable separation (`retryable[]` with absolute `index` + `chatId` +\n * `messageId` + `error`, completion order).\n *\n * Per-recipient failures are classified via `Ctx.classifySendError`:\n * `retryable` errors are recorded and the loop continues; `fallback-text`\n * errors only notify (`notifySendError`) and count as failed. A failed\n * delete has no text fallback by design — there is no replacement content\n * to deliver, so no `sendMessage` is attempted on either path.\n *\n * @param params - Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallbackEdit` is not part of the type — deletes have no resend to fall back to).\n *\n * @returns Counts plus `retryable[]` for a re-drive pass.\n *\n * @example\n * ```typescript\n * async handleExpireVip() {\n *   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)\n *   await this.renderBroadcastDelete({targets: sent})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -14745,7 +14745,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderCallbackAnswer:member(1)",
-              "docComment": "/**\n * Answers the active callback query with template text.\n *\n * Template block: `<g-callback-answer>` (read via `getGCallbackAnswer`).\n *\n * @remarks\n *\n * Template-backed counterpart to answering inline-button taps: the\n * `<g-callback-answer>` block supplies the notification text (multilang via\n * `data`), shown either as a toast or as an alert. There is no message\n * to send, so this takes no keyboard and never falls back to a reply.\n *\n * Observe-only send-error coverage (mirrors `renderDice`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * Toast text is limited by Telegram to 200 characters — keep the block short.\n *\n * @param params - Answer params: `showAlert` whether to show an alert instead of a toast notification (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the notification text (required); `options` optional answer options such as `cache_time` (or null to omit).\n *\n * @returns True on success.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderCallbackAnswer({showAlert: false, AGBaseId: `tap-card`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Answers the active callback query with template text.\n *\n * Template block: `<g-callback-answer>` (read via `getGCallbackAnswer`).\n *\n * @remarks\n *\n * Template-backed counterpart to answering inline-button taps: the\n * `<g-callback-answer>` block supplies the notification text (multilang via\n * `data`), shown either as a toast or as an alert. There is no message\n * to send, so this takes no keyboard and never falls back to a reply.\n *\n * Observe-only send-error coverage (mirrors `renderDice`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * Toast text is limited by Telegram to 200 characters — keep the block short.\n *\n * @param params - Answer params: `showAlert` whether to show an alert instead of a toast notification (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the notification text (or null to use default); `options` optional answer options such as `cache_time` (or null to omit).\n *\n * @returns True on success.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderCallbackAnswer({showAlert: false, AGBaseId: `tap-card`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15122,7 +15122,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditCaption:member(1)",
-              "docComment": "/**\n * Edits a media message caption using the page template.\n *\n * Template block: `<g-message>` (read via `getGMessage`).\n *\n * @remarks\n *\n * Caption text comes from the `<g-message>` block at the `AGBaseId` base via\n * `getGMessage` and is sent via `editMessageCaption`. The keyboard is NOT\n * read from a block — it comes from the `keyboardInline` param, and an\n * omitted/absent keyboard clears the markup. Fallback modes mirror\n * `renderText`: `delete-reply`/`reply` resend the caption as plain text,\n * `disable` throws.\n *\n * @param params - Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditCaption({AGBaseId: `photo-card`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits a media message caption using the page template.\n *\n * Template block: `<g-message>` (read via `getGMessage`).\n *\n * @remarks\n *\n * Caption text comes from the `<g-message>` block at the `AGBaseId` base via\n * `getGMessage` and is sent via `editMessageCaption`. The keyboard is NOT\n * read from a block — it comes from the `keyboardInline` param, and an\n * omitted/absent keyboard clears the markup. Fallback modes mirror\n * `renderText`: `delete-reply`/`reply` resend the caption as plain text,\n * `disable` throws.\n *\n * @param params - Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditCaption({AGBaseId: `photo-card`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15221,7 +15221,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditKeyboard:member(1)",
-              "docComment": "/**\n * Edits only the inline keyboard using the page template.\n *\n * Template block: `<g-keyboard>` (read via `getGKeyboard`).\n *\n * @remarks\n *\n * Sent via `editMessageReplyMarkup` — never touches message text. When\n * `keyboardInline` is null, the markup resolves from the `<g-keyboard>`\n * block of the given `AGBaseId` itself (via `getGKeyboard` with `data` for\n * dynamic labels), which is what makes `AGBaseId` meaningful here. No\n * send-fallback (nothing new to send): failures are classified via\n * `Ctx.classifySendError`, reported to `notifySendError`, logged, rethrown.\n *\n * @param params - Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block keyboard (required); `options` optional abort signal for the edit call (or null to omit).\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditKeyboard({keyboardInline: null, AGBaseId: `photo-card`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits only the inline keyboard using the page template.\n *\n * Template block: `<g-keyboard>` (read via `getGKeyboard`).\n *\n * @remarks\n *\n * Sent via `editMessageReplyMarkup` — never touches message text. When\n * `keyboardInline` is null, the markup resolves from the `<g-keyboard>`\n * block of the given `AGBaseId` itself (via `getGKeyboard` with `data` for\n * dynamic labels), which is what makes `AGBaseId` meaningful here. No\n * send-fallback (nothing new to send): failures are classified via\n * `Ctx.classifySendError`, reported to `notifySendError`, logged, rethrown.\n *\n * @param params - Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block keyboard (or null to use default); `options` optional abort signal for the edit call (or null to omit).\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.renderEditKeyboard({keyboardInline: null, AGBaseId: `photo-card`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15293,7 +15293,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderGift:member(1)",
-              "docComment": "/**\n * Sends a Telegram gift with card text from the page template.\n *\n * Template block: `<g-gift>` (read via `getGGift`).\n *\n * @remarks\n *\n * Card text comes from the `<g-gift>` block via `getGGift` (the\n * `text` param on `sendGift` is what qualifies this as `render*`) and is\n * sent via `api.sendGift`. `target` (user id) is explicit because gifts do\n * not always go to the active chat — unlike every other render method.\n *\n * Failure rule: insufficient Stars balance (`400`) throws after notify — a\n * failed gift MUST NOT degrade into sending the card as plain text (that\n * would deceive the user). No silent fallback on any path.\n *\n * @param params - Gift params: `target` gift recipient user id (required); `giftId` Telegram gift identifier (required); `keyboard` must stay null/omitted — `sendGift` carries no reply markup, so a non-null keyboard throws before any API call; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional gift options (or null to omit).\n *\n * @returns `true` on success.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderGift({target: 123456, giftId: `gift-id`, AGBaseId: `gift-card`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a Telegram gift with card text from the page template.\n *\n * Template block: `<g-gift>` (read via `getGGift`).\n *\n * @remarks\n *\n * Card text comes from the `<g-gift>` block via `getGGift` (the\n * `text` param on `sendGift` is what qualifies this as `render*`) and is\n * sent via `api.sendGift`. `target` (user id) is explicit because gifts do\n * not always go to the active chat — unlike every other render method.\n *\n * Failure rule: insufficient Stars balance (`400`) throws after notify — a\n * failed gift MUST NOT degrade into sending the card as plain text (that\n * would deceive the user). No silent fallback on any path.\n *\n * @param params - Gift params: `target` gift recipient user id (required); `giftId` Telegram gift identifier (required); `keyboard` must stay null/omitted — `sendGift` carries no reply markup, so any keyboard value throws before any API call; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional gift options (or null to omit).\n *\n * @returns `true` on success.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderGift({target: 123456, giftId: `gift-id`, AGBaseId: `gift-card`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15347,7 +15347,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderGuestAnswer:member(1)",
-              "docComment": "/**\n * Answers the active guest message query with a caller-built result.\n *\n * Template block: `<g-answer-note>` (read via `getGAnswerNote`).\n *\n * @remarks\n *\n * The result content is built by the caller from `data` (multilang\n * payloads); the `<g-answer-note>` block is resolved as fail-fast validation\n * that the template exists, per the AGBaseId-required policy.\n *\n * Observe-only send-error coverage (mirrors `renderDice`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * @param params - Answer params: `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position, resolved for validation (required); `options` optional abort signal (or null to omit).\n *\n * @returns The sent guest message object.\n *\n * @example\n * ```typescript\n * async handleGuestMessage() {\n *   await this.renderGuestAnswer({result: article, AGBaseId: `guest-card`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Answers the active guest message query with a caller-built result.\n *\n * Template block: `<g-answer-note>` (read via `getGAnswerNote`).\n *\n * @remarks\n *\n * The result content is built by the caller from `data` (multilang\n * payloads); the `<g-answer-note>` block is resolved as fail-fast validation\n * that the template exists.\n *\n * Observe-only send-error coverage (mirrors `renderDice`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * @param params - Answer params: `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position, resolved for validation (or null to use default); `options` optional abort signal (or null to omit).\n *\n * @returns The sent guest message object.\n *\n * @example\n * ```typescript\n * async handleGuestMessage() {\n *   await this.renderGuestAnswer({result: article, AGBaseId: `guest-card`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15410,7 +15410,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderInlineAnswer:member(1)",
-              "docComment": "/**\n * Answers the active inline query with caller-built results and template button text.\n *\n * Template block: `<g-inline-button>` (read via `getGInlineButton`).\n *\n * @remarks\n *\n * Result contents are built by the caller from `data` (multilang payloads);\n * the `<g-inline-button>` block supplies the default `button.text` label\n * and `start_parameter`. Precedence: a caller-supplied `options.button`\n * wins first, then the explicit `buttonStartParameter`, then the block's\n * own `start-parameter`. The block is always resolved — even when no\n * button is built — as fail-fast validation that the template exists.\n *\n * Observe-only send-error coverage (mirrors `renderDice`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * Telegram caps answers at 50 results; cache them with `cache_time` for\n * identical queries.\n *\n * @param params - Answer params: `results` inline results built by the caller, up to 50 (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the button text (required); `options` optional answer options (or null to omit); `buttonStartParameter` optional deep-link start parameter, enabling the block-text button (or null to omit).\n *\n * @returns True on success.\n *\n * @example\n * ```typescript\n * async handleInlineQuery() {\n *   await this.renderInlineAnswer({results: [article], data: {name: `Ani`}, AGBaseId: `inline-card`, buttonStartParameter: `start=1`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Answers the active inline query with caller-built results and template button text.\n *\n * Template block: `<g-inline-button>` (read via `getGInlineButton`).\n *\n * @remarks\n *\n * Result contents are built by the caller from `data` (multilang payloads);\n * the `<g-inline-button>` block supplies the default `button.text` label\n * and `start_parameter`. Precedence: a caller-supplied `options.button`\n * wins first, then the explicit `buttonStartParameter`, then the block's\n * own `start-parameter`. The block is always resolved — even when no\n * button is built — as fail-fast validation that the template exists.\n *\n * Observe-only send-error coverage (mirrors `renderDice`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * Telegram caps answers at 50 results; cache them with `cache_time` for\n * identical queries.\n *\n * @param params - Answer params: `results` inline results built by the caller, up to 50 (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the button text (or null to use default); `options` optional answer options (or null to omit); `buttonStartParameter` optional deep-link start parameter, enabling the block-text button (or null to omit).\n *\n * @returns True on success.\n *\n * @example\n * ```typescript\n * async handleInlineQuery() {\n *   await this.renderInlineAnswer({results: [article], data: {name: `Ani`}, AGBaseId: `inline-card`, buttonStartParameter: `start=1`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15621,7 +15621,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderMedia:member(1)",
-              "docComment": "/**\n * Sends or edits a media message with dynamic type selection.\n *\n * Template block: `<g-media>` (read via `getGMedia`).\n *\n * @remarks\n *\n * Single method for every media send/edit path, folding the former\n * `renderAutoMedia`, `renderEditMedia`, the per-kind reply base, and the\n * broadcast-media / broadcast-edit fan-outs. `mode`\n * resolves the send-versus-edit decision: `auto` (default) edits when\n * `this.callbackQuery` exists, `reply` always sends, `edit` always edits.\n * This is the base method for all media methods. Use specific methods\n * like {@link (Ctx:class).renderPhoto} or {@link (Ctx:class).renderVideo} for simpler usage.\n *\n * Edit-mode semantics for media types that cannot be edited (`voice`,\n * `video_note`, `sticker`, `location`, `contact`) delete the original\n * message and send a new one. Multi-src media groups cannot replace a\n * single message, so supported pipe-delimited media groups also delete the\n * original message and send a new media group.\n *\n * Fail-fast validation (`Ctx.assertMediaPreconditions`, plus\n * `Ctx.assertLocation`/`Ctx.assertContact` in their branches) runs BEFORE\n * any API call — programmer errors always throw, never fall back.\n * Send failures follow `Ctx.classifySendError`: `retryable` rethrows the\n * original error untouched; `fallback-text` best-effort replies with\n * `resolveFallbackText()` (nested failures ignored) and returns it.\n *\n * If the edit itself fails, the fallback behavior is controlled by `fallbackEdit`\n * (default `delete-reply`: deletes the original message and re-sends the same media —\n * the result looks like an in-place edit). The fallback re-send drops `optionsEdit1`/\n * `optionsEdit2` (edit options do not map to reply options) and logs a `log.warn`\n * when non-empty options are dropped; the re-send itself follows\n * `Ctx.classifySendError` via the reply branch (`retryable` rethrows the\n * original error untouched, `fallback-text` replies with fallback text).\n *\n * When `broadcast` is present, multi-recipient fan-out replaces the\n * single-chat path (see {@link IBroadcastSendParams} /\n * {@link IBroadcastReviseParams}): `broadcast.ids` runs the send loop —\n * the media kind is read from the template `<g-media>` block, so `type`\n * may be omitted there and is ignored when supplied — and\n * `broadcast.targets` runs the revise loop. `mode`, `fallbackEdit`, and\n * the `options*` fields do not apply to the send loop.\n *\n * @param params - Media params. See {@link IRenderMediaParams} for field details: `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (omitted only on the broadcast-send path); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional type-specific reply options (or null to omit); `optionsEdit1` optional edit payload / non-editable-type reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast fan-out — `{ids, languageCode, …}` sends, `{targets, broadcastOpts}` revises (or null for a single-chat send/edit).\n *\n * @typeParam T - The media type to send or edit to.\n *\n * @returns The sent or edited message object, or the {@link IBroadcastSendResult}/ {@link IBroadcastEditResult} counts on the broadcast paths.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply/edit with content from this.template\n *   await this.renderMedia({type: \"photo\"})\n *\n *   // Force a new reply even from a callback query\n *   await this.renderMedia({type: \"photo\", mode: \"reply\"})\n *\n *   // Broadcast: fan out to many users (kind read from the <g-media> block)\n *   await this.renderMedia({broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})\n *\n *   // Broadcast revise: edit already-sent messages to a new media payload\n *   await this.renderMedia({type: \"photo\", data: {price: \"99\"}, broadcast: {targets: sent}})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a media message with dynamic type selection.\n *\n * Template block: `<g-media>` (read via `getGMedia`).\n *\n * @remarks\n *\n * Single method for every media send/edit path, folding the former\n * `renderAutoMedia`, `renderEditMedia`, the per-kind reply base, and the\n * broadcast-media / broadcast-edit fan-outs. `mode`\n * resolves the send-versus-edit decision: `auto` (default) edits when\n * `this.callbackQuery` exists, `reply` always sends, `edit` always edits.\n * This is the base method for all media methods. Use specific methods\n * like {@link (Ctx:class).renderPhoto} or {@link (Ctx:class).renderVideo} for simpler usage.\n *\n * Edit-mode semantics for media types that cannot be edited (`voice`,\n * `video_note`, `sticker`, `location`, `contact`) delete the original\n * message and send a new one. Multi-src media groups cannot replace a\n * single message, so supported pipe-delimited media groups also delete the\n * original message and send a new media group.\n *\n * Fail-fast validation (`Ctx.assertMediaPreconditions`, plus\n * `Ctx.assertLocation`/`Ctx.assertContact` in their branches) runs BEFORE\n * any API call — programmer errors always throw, never fall back.\n * Send failures follow `Ctx.classifySendError`: `retryable` rethrows the\n * original error untouched; `fallback-text` best-effort replies with\n * `resolveFallbackText()` (nested failures ignored) and returns it.\n *\n * If the edit itself fails, the fallback behavior is controlled by `fallbackEdit`\n * (default `delete-reply`: deletes the original message and re-sends the same media —\n * the result looks like an in-place edit). The fallback re-send drops `optionsEdit1`/\n * `optionsEdit2` (edit options do not map to reply options) and logs a `log.warn`\n * when non-empty options are dropped; the re-send itself follows\n * `Ctx.classifySendError` via the reply branch (`retryable` rethrows the\n * original error untouched, `fallback-text` replies with fallback text).\n *\n * When `broadcast` is present, multi-recipient fan-out replaces the\n * single-chat path (see {@link IBroadcastSendParams} /\n * {@link IBroadcastReviseParams}): `broadcast.ids` runs the send loop and\n * `broadcast.targets` runs the revise loop. The send loop reads the media\n * kind from the template `<g-media>` block, so its route type rejects `type`\n * (and `mode`, `fallbackEdit`, and the `options*` fields — it never edits);\n * the revise loop requires `type` and rejects `mode`, `options`, and\n * `fallbackEdit` (its per-recipient fallback lives in\n * `broadcast.broadcastOpts.fallbackEdit`).\n *\n * A bottom (reply) keyboard is rejected before any API call when the route\n * edits in place — `editMessageMedia` accepts inline keyboards only, so the\n * throw names `mode: 'reply'` as the fix. The delete-then-resend kinds are\n * plain sends and keep accepting either keyboard type.\n *\n * @param params - Media params, resolved as one of four routes — see\n * {@link IRenderMediaParams} for the exact field set of each route: route 1\n * single chat (`auto`/`edit`); route 2 single chat forced reply\n * (`mode: 'reply'`); route 3 broadcast send (`broadcast.ids`, kind from the\n * block); route 4 broadcast revise (`broadcast.targets`, `type` required).\n *\n * @typeParam T - The media type to send or edit to.\n *\n * @returns The sent or edited message object, or the {@link IBroadcastSendResult}/ {@link IBroadcastEditResult} counts on the broadcast paths.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply/edit with content from this.template\n *   await this.renderMedia({type: \"photo\"})\n *\n *   // Force a new reply even from a callback query\n *   await this.renderMedia({type: \"photo\", mode: \"reply\"})\n *\n *   // Broadcast: fan out to many users (kind read from the <g-media> block)\n *   await this.renderMedia({broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})\n *\n *   // Broadcast revise: edit already-sent messages to a new media payload\n *   await this.renderMedia({type: \"photo\", data: {price: \"99\"}, broadcast: {targets: sent}})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15750,7 +15750,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderMediaGroup:member(1)",
-              "docComment": "/**\n * Sends or edits a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.\n *\n * Template block: `<g-media-group>` (read via `getGMedia` — the block's `mediaGroup` items).\n *\n * @remarks\n *\n * Only `photo`, `video`, `audio`, and `document` support Telegram media groups.\n * Omit `type` when the template uses `<g-media-group>` with per-item media types.\n * When the template uses `<g-media-group>` (or null to include all items),\n * only items matching this type are included. When omitted, all items are sent.\n * The first item receives the template caption. Telegram media groups do not support\n * reply markup, so keyboards are ignored for grouped media. Per-item filenames\n * rely on grammy basename auto-guess (no per-item filename override is applied).\n *\n * `mode` resolves the send-versus-edit decision: `auto` (default) edits when\n * `this.callbackQuery` exists, `reply` always sends, `edit` always edits.\n * Media groups cannot be edited in place, so the edit branch always deletes\n * the original message first; when the delete-and-send fails, `fallbackEdit`\n * decides whether to retry the delete and re-send (`delete-reply`, default),\n * re-send without deleting (`reply`), or rethrow (`disable`).\n *\n * Fail-fast validation runs BEFORE any API call (group/item size limits,\n * per-item types, upload sizes, caption length) — programmer errors always\n * throw, never fall back. Send failures follow `Ctx.classifySendError`:\n * `retryable` rethrows the original error untouched; `fallback-text`\n * best-effort replies with `resolveFallbackText()` (nested failures ignored).\n *\n * @param params - Optional media-group params (defaults to `{}`). See {@link IRenderMediaGroupParams} for field details: `type` optional media type filter (or null for all items); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional media-group send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderMediaGroup({type: \"photo\"}) // only send photo\n *   await this.renderMediaGroup() // send all media group\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.\n *\n * Template block: `<g-media-group>` (read via `getGMedia` — the block's `mediaGroup` items).\n *\n * @remarks\n *\n * Only `photo`, `video`, `audio`, and `document` support Telegram media groups.\n * Omit `type` when the template uses `<g-media-group>` with per-item media types.\n * When the template uses `<g-media-group>` (or null to include all items),\n * only items matching this type are included. When omitted, all items are sent.\n * The first item receives the template caption. Telegram media groups do not support\n * reply markup, so keyboards are ignored for grouped media. Per-item filenames\n * rely on grammy basename auto-guess (no per-item filename override is applied).\n *\n * `mode` resolves the send-versus-edit decision: `auto` (default) edits when\n * `this.callbackQuery` exists, `reply` always sends, `edit` always edits.\n * Media groups cannot be edited in place, so the edit branch always deletes\n * the original message first; when the delete-and-send fails, `fallbackEdit`\n * decides whether to retry the delete and re-send (`delete-reply`, default),\n * re-send without deleting (`reply`), or rethrow (`disable`). The forced\n * reply route (`mode: 'reply'`) never reads `fallbackEdit`, so its params\n * type rejects it (and the runtime guard throws for plain-JS callers).\n *\n * Fail-fast validation runs BEFORE any API call (group/item size limits,\n * per-item types, upload sizes, caption length) — programmer errors always\n * throw, never fall back. Send failures follow `Ctx.classifySendError`:\n * `retryable` rethrows the original error untouched; `fallback-text`\n * best-effort replies with `resolveFallbackText()` (nested failures ignored).\n *\n * @param params - Optional media-group params (defaults to `{}`), resolved as\n * one of two routes — see {@link IRenderMediaGroupParams} for the exact field\n * set of each route: route 1 `auto`/`edit`; route 2 forced reply\n * (`mode: 'reply'`, no `fallbackEdit`). The same two-route split backs\n * {@link IRenderMediaGroupKindParams}, which the per-kind wrappers\n * (`renderPhotoGroup`, …) accept and supply `type` for.\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderMediaGroup({type: \"photo\"}) // only send photo\n *   await this.renderMediaGroup() // send all media group\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16141,7 +16141,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderPreCheckout:member(1)",
-              "docComment": "/**\n * Answers the active pre-checkout query with a template-backed error message.\n *\n * Template block: `<g-precheckout-error>` (read via `getGPrecheckoutError`).\n *\n * @remarks\n *\n * Template-backed counterpart to {@link (Ctx:class).answerPreCheckout}:\n * the `<g-precheckout-error>` block supplies the `error_message` shown when payment\n * is declined (multilang via `data`). The block is always resolved — even\n * for `ok=true` — as fail-fast validation that the template exists.\n * A string `options` overrides the block text as the error message.\n *\n * Observe-only send-error coverage (mirrors `renderDice`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * Telegram requires the answer within 10 seconds of the query.\n *\n * @param params - Answer params: `ok` whether to approve the checkout (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the error message (required); `options` optional answer options, or a string overriding the error message (or null to omit).\n *\n * @returns True on success.\n *\n * @example\n * ```typescript\n * async handlePreCheckout() {\n *   await this.renderPreCheckout({ok: false, AGBaseId: `pay-declined-card`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Answers the active pre-checkout query with a template-backed error message.\n *\n * Template block: `<g-precheckout-error>` (read via `getGPrecheckoutError`).\n *\n * @remarks\n *\n * Template-backed counterpart to {@link (Ctx:class).answerPreCheckout}:\n * the `<g-precheckout-error>` block supplies the `error_message` shown when payment\n * is declined (multilang via `data`). The block is always resolved — even\n * for `ok=true` — as fail-fast validation that the template exists.\n * A string `options` overrides the block text as the error message.\n *\n * Observe-only send-error coverage (mirrors `renderDice`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * Telegram requires the answer within 10 seconds of the query.\n *\n * @param params - Answer params: `ok` whether to approve the checkout (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the error message (or null to use default); `options` optional answer options, or a string overriding the error message (or null to omit).\n *\n * @returns True on success.\n *\n * @example\n * ```typescript\n * async handlePreCheckout() {\n *   await this.renderPreCheckout({ok: false, AGBaseId: `pay-declined-card`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16195,7 +16195,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderShipping:member(1)",
-              "docComment": "/**\n * Answers the active shipping query with a template-backed error message.\n *\n * Template block: `<g-shipping-error>` (read via `getGShippingError`).\n *\n * @remarks\n *\n * The `<g-shipping-error>` block supplies the `error_message` shown when the\n * shipping address is rejected (multilang via `data`). The block is always\n * resolved — even for `ok=true` — as fail-fast validation that the\n * template exists.\n *\n * Observe-only send-error coverage (mirrors `renderPreCheckout`):\n * failures are classified via `Ctx.classifySendError`, reported to\n * `notifySendError`, and logged (`retryable` → `log.error`,\n * `fallback-text` → `log.warn`). After notify+log the original error is\n * ALWAYS rethrown untouched.\n *\n * @param params - Answer params: `ok` whether the shipping address is acceptable (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the error message (required); `options` optional answer options such as `shipping_options` (or null to omit).\n *\n * @returns True on success.\n *\n * @example\n * ```typescript\n * async handleShipping() {\n *   await this.renderShipping({ok: false, AGBaseId: `ship-rejected-card`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Answers the active shipping query with a template-backed error message.\n *\n * Template block: `<g-shipping-error>` (read via `getGShippingError`).\n *\n * @remarks\n *\n * The `<g-shipping-error>` block supplies the `error_message` shown when the\n * shipping address is rejected (multilang via `data`). The block is always\n * resolved — even for `ok=true` — as fail-fast validation that the\n * template exists.\n *\n * Observe-only send-error coverage (mirrors `renderPreCheckout`):\n * failures are classified via `Ctx.classifySendError`, reported to\n * `notifySendError`, and logged (`retryable` → `log.error`,\n * `fallback-text` → `log.warn`). After notify+log the original error is\n * ALWAYS rethrown untouched.\n *\n * @param params - Answer params: `ok` whether the shipping address is acceptable (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the error message (or null to use default); `options` optional answer options such as `shipping_options` (or null to omit).\n *\n * @returns True on success.\n *\n * @example\n * ```typescript\n * async handleShipping() {\n *   await this.renderShipping({ok: false, AGBaseId: `ship-rejected-card`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16343,7 +16343,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderText:member(1)",
-              "docComment": "/**\n * Sends or edits a text message using the page template.\n *\n * Template block: `<g-message>` (read via `getGMessage`).\n *\n * @remarks\n *\n * Single method for every text send/edit path, folding the former `render`,\n * `renderEdit`, `renderRich`, `renderAuto`, `renderAutoRich`,\n * `renderEditRich`, and `renderBroadcast`. `mode` resolves the\n * send-versus-edit decision: `auto`\n * (default) edits when `this.callbackQuery` exists, `reply` always sends,\n * `edit` always edits.\n *\n * Rich content is chosen at COMPILE time: when the `<g-message>` block\n * contains Telegram Rich HTML tags, the message is sent or edited through\n * `replyWithRichMessage`/`editMessageText` with an `InputRichMessage` payload\n * (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) instead of plain\n * HTML text. Rich message limits:\n * - Up to 32,768 UTF-8 characters\n * - Up to 500 blocks\n * - Up to 16 nesting levels\n * - Up to 20 table columns\n *\n * If editing fails (e.g. message too old), the fallback behavior is controlled\n * by `fallbackEdit` (default `delete-reply`: deletes the original message and\n * sends a new reply — the result looks like an in-place edit).\n *\n * Observe-only send-error coverage (mirrors `renderMedia`): reply failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * Unlike the media paths there is no degraded fallback content for text,\n * so after notify+log the original error is ALWAYS rethrown untouched.\n *\n * When `chunkSize` is present (not `undefined`/`null`) the fully-rendered\n * block is sent as sequential reply chunks instead (see the `chunkSize`\n * field of {@link IRenderTextParams}): the keyboard lands ONLY on the last\n * chunk and `mode` does not apply — a multi-message split cannot be edited\n * in place, so the chunked reply wins when both are passed.\n *\n * When `broadcast` is present, the block is SENT to every\n * `broadcast.ids` entry instead (see {@link IBroadcastSendParams}): rich\n * templates through `api.sendRichMessage`, plain templates through\n * `api.sendMessage` with `parse_mode: HTML`; `mode`, `fallbackEdit`, and\n * `chunkSize` do not apply on that path.\n *\n * @param params - Optional render params (defaults to `{}`). See {@link IRenderTextParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional plain-text reply/edit options (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `chunkSize` optional max characters per chunk, selecting the chunked reply path (or null for a single message); `broadcast` optional broadcast fan-out {@link IBroadcastSendParams} (or null for a single-chat send/edit).\n *\n * @returns The sent or edited message object, the array of sent message objects when `chunkSize` selects the chunked reply path, or the {@link IBroadcastSendResult} counts when `broadcast` is present.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply/edit with content from this.template\n *   await this.renderText()\n *\n *   // With keyboard builder and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderText({keyboard: kb, data: {name: \"John\"}})\n *\n *   // Force a new reply even from a callback query, with a custom base\n *   await this.renderText({keyboard: kb, data: {name: \"John\"}, AGBaseId: \"id-hello-world\", mode: \"reply\"})\n *\n *   // Long message: send in chunks of 4096 characters (keyboard on the last chunk only)\n *   await this.renderText({keyboard: kb, AGBaseId: \"id-hello-world\", chunkSize: 4096})\n *\n *   // Broadcast: send the block to many users (rich templates send rich)\n *   await this.renderText({data: {name: \"John\"}, broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a text message using the page template.\n *\n * Template block: `<g-message>` (read via `getGMessage`).\n *\n * @remarks\n *\n * Single method for every text send/edit path, folding the former `render`,\n * `renderEdit`, `renderRich`, `renderAuto`, `renderAutoRich`,\n * `renderEditRich`, and `renderBroadcast`. `mode` resolves the\n * send-versus-edit decision: `auto`\n * (default) edits when `this.callbackQuery` exists, `reply` always sends,\n * `edit` always edits.\n *\n * Rich content is chosen at COMPILE time: when the `<g-message>` block\n * contains Telegram Rich HTML tags, the message is sent or edited through\n * `replyWithRichMessage`/`editMessageText` with an `InputRichMessage` payload\n * (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) instead of plain\n * HTML text. Rich message limits:\n * - Up to 32,768 UTF-8 characters\n * - Up to 500 blocks\n * - Up to 16 nesting levels\n * - Up to 20 table columns\n *\n * If editing fails (e.g. message too old), the fallback behavior is controlled\n * by `fallbackEdit` (default `delete-reply`: deletes the original message and\n * sends a new reply — the result looks like an in-place edit).\n *\n * Observe-only send-error coverage (mirrors `renderMedia`): reply failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * Unlike the media paths there is no degraded fallback content for text,\n * so after notify+log the original error is ALWAYS rethrown untouched.\n *\n * When `chunkSize` is present (not `undefined`/`null`) the fully-rendered\n * block is sent as sequential reply chunks instead (see the `chunkSize`\n * field of {@link IRenderTextParams}): the keyboard lands ONLY on the last\n * chunk. The chunked route is a REPLY route — a multi-message split cannot be\n * edited in place — so the params type accepts only `mode: 'reply'` (or no\n * `mode`) alongside `chunkSize`; passing `mode: 'auto'`/`'edit'` with a\n * `chunkSize` is a compile error (and throws for plain-JS callers) because\n * that `mode` would never be read.\n *\n * When `broadcast` is present, the block is SENT to every\n * `broadcast.ids` entry instead (see {@link IBroadcastSendParams}): rich\n * templates through `api.sendRichMessage`, plain templates through\n * `api.sendMessage` with `parse_mode: HTML`. The broadcast route is\n * send-only, so its params type rejects `mode`, `fallbackEdit`, and\n * `chunkSize` outright (pacing uses `broadcast.chunkSize`).\n *\n * A bottom (reply) keyboard is rejected on an edit route before any API\n * call — `editMessageText` accepts inline keyboards only, so the throw names\n * `mode: 'reply'` as the fix.\n *\n * @param params - Optional render params (defaults to `{}`), resolved as one\n * of four routes — see {@link IRenderTextParams} for the exact field set of\n * each route: route 1 single message (`auto`/`edit`); route 2 forced reply\n * (`mode: 'reply'`); route 3 chunked reply (`chunkSize`, reply-only); route 4\n * broadcast send (`broadcast`, send-only).\n *\n * @returns The sent or edited message object, the array of sent message objects when `chunkSize` selects the chunked reply path, or the {@link IBroadcastSendResult} counts when `broadcast` is present.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply/edit with content from this.template\n *   await this.renderText()\n *\n *   // With keyboard builder and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderText({keyboard: kb, data: {name: \"John\"}})\n *\n *   // Force a new reply even from a callback query, with a custom base\n *   await this.renderText({keyboard: kb, data: {name: \"John\"}, AGBaseId: \"id-hello-world\", mode: \"reply\"})\n *\n *   // Long message: send in chunks of 4096 characters (keyboard on the last chunk only)\n *   await this.renderText({keyboard: kb, AGBaseId: \"id-hello-world\", chunkSize: 4096})\n *\n *   // Broadcast: send the block to many users (rich templates send rich)\n *   await this.renderText({data: {name: \"John\"}, broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16841,7 +16841,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderWebAppAnswer:member(1)",
-              "docComment": "/**\n * Answers a web app query via the Bot API with a caller-built result.\n *\n * Template block: `<g-answer-note>` (read via `getGAnswerNote`).\n *\n * @remarks\n *\n * Unlike the other answers this carries an explicit query id (there is no\n * context-aware alias — web app queries arrive without an answerable\n * update), mirroring `renderGift`'s explicit target. The result content is\n * built by the caller from `data` (multilang payloads); the `<g-answer-note>`\n * block is resolved as fail-fast validation that the template exists, per\n * the AGBaseId-required policy.\n *\n * Observe-only send-error coverage (mirrors `renderGift`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * @param params - Answer params: `webAppQueryId` unique identifier for the query to answer (required); `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position, resolved for validation (required); `options` optional abort signal (or null to omit).\n *\n * @returns The sent web app message object.\n *\n * @example\n * ```typescript\n * async handleWebAppData() {\n *   await this.renderWebAppAnswer({webAppQueryId: queryId, result: article, AGBaseId: `webapp-card`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Answers a web app query via the Bot API with a caller-built result.\n *\n * Template block: `<g-answer-note>` (read via `getGAnswerNote`).\n *\n * @remarks\n *\n * Unlike the other answers this carries an explicit query id (there is no\n * context-aware alias — web app queries arrive without an answerable\n * update), mirroring `renderGift`'s explicit target. The result content is\n * built by the caller from `data` (multilang payloads); the `<g-answer-note>`\n * block is resolved as fail-fast validation that the template exists, per\n * the same fail-fast validation.\n *\n * Observe-only send-error coverage (mirrors `renderGift`): failures are\n * classified via `Ctx.classifySendError`, reported to `notifySendError`,\n * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).\n * After notify+log the original error is ALWAYS rethrown untouched.\n *\n * @param params - Answer params: `webAppQueryId` unique identifier for the query to answer (required); `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position, resolved for validation (or null to use default); `options` optional abort signal (or null to omit).\n *\n * @returns The sent web app message object.\n *\n * @example\n * ```typescript\n * async handleWebAppData() {\n *   await this.renderWebAppAnswer({webAppQueryId: queryId, result: article, AGBaseId: `webapp-card`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -36479,6 +36479,68 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IOptRich:type",
+          "docComment": "/**\n * Rich-options tuple for routes that may reach `editMessageText`.\n *\n * @remarks\n *\n * `[0]` merges into the `InputRichMessage` payload exactly like\n * {@link IOptReplyRich}`[0]`; `[1]` is restricted to fields legal on BOTH\n * rich-send and rich-edit (`NonNullable<IOptReplyRich[1]> & IOptEdit`), so a\n * key that only `replyWithRichMessage` accepts cannot reach\n * `editMessageText`. Index `[1]` stays optional, which keeps `[{html}]`\n * legal.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IOptRich = "
+            },
+            {
+              "kind": "Content",
+              "text": "["
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptReplyRich",
+              "canonicalReference": "gramstax!IOptReplyRich:type"
+            },
+            {
+              "kind": "Content",
+              "text": "[0], ("
+            },
+            {
+              "kind": "Reference",
+              "text": "NonNullable",
+              "canonicalReference": "!NonNullable:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptReplyRich",
+              "canonicalReference": "gramstax!IOptReplyRich:type"
+            },
+            {
+              "kind": "Content",
+              "text": "[1]> & "
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptEdit",
+              "canonicalReference": "gramstax!IOptEdit:type"
+            },
+            {
+              "kind": "Content",
+              "text": ")?]"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IOptRich",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 10
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!IOptShipping:type",
           "docComment": "/**\n * Options parameter mirroring `Context.answerShippingQuery`.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -36918,12 +36980,21 @@
             },
             {
               "kind": "Reference",
+              "text": "Omit",
+              "canonicalReference": "!Omit:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
               "text": "IBroadcastEditOpts",
               "canonicalReference": "gramstax!IBroadcastEditOpts:type"
             },
             {
               "kind": "Content",
-              "text": " | null;\n}"
+              "text": ", `fallbackEdit`> | null;\n}"
             },
             {
               "kind": "Content",
@@ -36935,7 +37006,7 @@
           "name": "IRenderBroadcastDeleteParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 6
+            "endIndex": 8
           }
         },
         {
@@ -36958,7 +37029,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    AGBaseId: string;\n    options?: "
+              "text": " | null;\n    AGBaseId?: string | null;\n    options?: "
             },
             {
               "kind": "Reference",
@@ -37073,7 +37144,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    AGBaseId: string;\n    options?: "
+              "text": " | null;\n    AGBaseId?: string | null;\n    options?: "
             },
             {
               "kind": "Reference",
@@ -37135,7 +37206,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    AGBaseId: string;\n    options?: "
+              "text": " | null;\n    AGBaseId?: string | null;\n    options?: "
             },
             {
               "kind": "Reference",
@@ -37170,16 +37241,7 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    target: number;\n    giftId: string;\n    keyboard?: "
-            },
-            {
-              "kind": "Reference",
-              "text": "IInlineKb",
-              "canonicalReference": "gramstax!IInlineKb:type"
-            },
-            {
-              "kind": "Content",
-              "text": " | null;\n    data?: "
+              "text": "{\n    target: number;\n    giftId: string;\n    keyboard?: null;\n    data?: "
             },
             {
               "kind": "Reference",
@@ -37188,7 +37250,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    AGBaseId: string;\n    options?: "
+              "text": " | null;\n    AGBaseId?: string | null;\n    options?: "
             },
             {
               "kind": "Reference",
@@ -37209,7 +37271,7 @@
           "name": "IRenderGiftParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 8
+            "endIndex": 6
           }
         },
         {
@@ -37241,7 +37303,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    AGBaseId: string;\n    options?: "
+              "text": " | null;\n    AGBaseId?: string | null;\n    options?: "
             },
             {
               "kind": "Reference",
@@ -37294,7 +37356,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    AGBaseId: string;\n    options?: "
+              "text": " | null;\n    AGBaseId?: string | null;\n    options?: "
             },
             {
               "kind": "Reference",
@@ -37383,7 +37445,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!IRenderMediaGroupKindParams:type",
-          "docComment": "/**\n * `IRenderMediaGroupParams` for one group kind — the per-kind group wrappers\n * (`renderPhotoGroup`, `renderVideoGroup`, …) accept this shape and supply\n * `type`.\n *\n * @public\n */\n",
+          "docComment": "/**\n * `IRenderMediaGroupParams` for one group kind — the per-kind group wrappers\n * (`renderPhotoGroup`, `renderVideoGroup`, …) accept this shape and supply\n * `type`.\n *\n * @remarks\n *\n * `Omit` is applied per union member — applied to the union it would collapse\n * the routes together.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -37400,8 +37462,26 @@
             },
             {
               "kind": "Reference",
-              "text": "IRenderMediaGroupParams",
-              "canonicalReference": "gramstax!IRenderMediaGroupParams:type"
+              "text": "IGroupR1",
+              "canonicalReference": "gramstax!~IGroupR1:type"
+            },
+            {
+              "kind": "Content",
+              "text": ", `type`> | "
+            },
+            {
+              "kind": "Reference",
+              "text": "Omit",
+              "canonicalReference": "!Omit:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "IGroupR2",
+              "canonicalReference": "gramstax!~IGroupR2:type"
             },
             {
               "kind": "Content",
@@ -37417,53 +37497,22 @@
           "name": "IRenderMediaGroupKindParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 5
+            "endIndex": 9
           }
         },
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!IRenderMediaGroupParams:type",
-          "docComment": "/**\n * Parameters for `renderMediaGroup` — the single media-group send/edit method.\n *\n * @remarks\n *\n * `options` feeds both the direct reply branch and the delete-then-resend\n * branches (media groups have no in-place edit). `mode` resolves the\n * send-versus-edit decision exactly like {@link IRenderMediaParams}: `auto`\n * (default) edits when the update carries a `callbackQuery`. Group edits and\n * the `delete-reply` fallback delete the original message first.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Parameters for `renderMediaGroup` — the single media-group send/edit method.\n *\n * @remarks\n *\n * A two-route union: `auto` (default) edits when the update carries a\n * `callbackQuery`, `reply` always sends. Media groups have no in-place edit, so\n * every edit route deletes the original message first and the `delete-reply`\n * fallback deletes again before re-sending. `options` feeds the direct reply\n * branch and the delete-then-resend branches alike, and there is no keyboard\n * field — Telegram media groups do not support reply markup.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
               "text": "type IRenderMediaGroupParams = "
             },
             {
-              "kind": "Content",
-              "text": "{\n    type?: "
-            },
-            {
               "kind": "Reference",
-              "text": "IMediaGroupType",
-              "canonicalReference": "gramstax!~IMediaGroupType:type"
-            },
-            {
-              "kind": "Content",
-              "text": " | null;\n    data?: "
-            },
-            {
-              "kind": "Reference",
-              "text": "IData",
-              "canonicalReference": "gramstax!IData:type"
-            },
-            {
-              "kind": "Content",
-              "text": " | null;\n    AGBaseId?: string | null;\n    mode?: "
-            },
-            {
-              "kind": "Reference",
-              "text": "IRenderMode",
-              "canonicalReference": "gramstax!IRenderMode:type"
-            },
-            {
-              "kind": "Content",
-              "text": ";\n    options?: "
-            },
-            {
-              "kind": "Reference",
-              "text": "IOptReplyPhoto",
-              "canonicalReference": "gramstax!IOptReplyPhoto:type"
+              "text": "IGroupR1",
+              "canonicalReference": "gramstax!~IGroupR1:type"
             },
             {
               "kind": "Content",
@@ -37471,39 +37520,8 @@
             },
             {
               "kind": "Reference",
-              "text": "IOptReplyVideo",
-              "canonicalReference": "gramstax!IOptReplyVideo:type"
-            },
-            {
-              "kind": "Content",
-              "text": " | "
-            },
-            {
-              "kind": "Reference",
-              "text": "IOptReplyAudio",
-              "canonicalReference": "gramstax!IOptReplyAudio:type"
-            },
-            {
-              "kind": "Content",
-              "text": " | "
-            },
-            {
-              "kind": "Reference",
-              "text": "IOptReplyDocument",
-              "canonicalReference": "gramstax!IOptReplyDocument:type"
-            },
-            {
-              "kind": "Content",
-              "text": " | null;\n    fallbackEdit?: "
-            },
-            {
-              "kind": "Reference",
-              "text": "IOptFallbackEdit",
-              "canonicalReference": "gramstax!IOptFallbackEdit:type"
-            },
-            {
-              "kind": "Content",
-              "text": ";\n}"
+              "text": "IGroupR2",
+              "canonicalReference": "gramstax!~IGroupR2:type"
             },
             {
               "kind": "Content",
@@ -37515,13 +37533,13 @@
           "name": "IRenderMediaGroupParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 18
+            "endIndex": 4
           }
         },
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!IRenderMediaKindParams:type",
-          "docComment": "/**\n * `IRenderMediaParams` for one media kind — the per-kind wrappers\n * (`renderPhoto`, `renderVideo`, …) accept this shape and supply `type`.\n *\n * @remarks\n *\n * The broadcast-SEND member is deliberately EXCLUDED. On that loop `renderMedia`\n * never forwards `params.type` to `_broadcastSendMedia` — the kind is read from\n * the `<g-media>` block — so a wrapper whose whole purpose is to fix the kind\n * would fix nothing: `renderPhoto({broadcast: {ids}})` would send whatever the\n * block holds while the method name said photo. That path is rejected at the\n * type level; use `renderMedia` for it.\n *\n * The broadcast-REVISE member IS kept, because that loop forwards `type` and\n * therefore honours the wrapper's fixed kind.\n *\n * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).\n *\n * @public\n */\n",
+          "docComment": "/**\n * `IRenderMediaParams` for one media kind — the per-kind wrappers\n * (`renderPhoto`, `renderVideo`, …) accept this shape and supply `type`.\n *\n * @remarks\n *\n * The broadcast-SEND route (R3) is deliberately EXCLUDED. On that loop\n * `renderMedia` never forwards `params.type` to `_broadcastSendMedia` — the\n * kind is read from the `<g-media>` block — so a wrapper whose whole purpose is\n * to fix the kind would fix nothing: `renderPhoto({broadcast: {ids}})` would\n * send whatever the block holds while the method name said photo. That route is\n * rejected at the type level; use `renderMedia` for it.\n *\n * The broadcast-REVISE route (R4) IS kept, because that loop forwards `type`\n * and therefore honours the wrapper's fixed kind. `Omit` is applied per union\n * member — applied to the union it would collapse the routes together.\n *\n * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -37529,21 +37547,8 @@
             },
             {
               "kind": "Reference",
-              "text": "Exclude",
-              "canonicalReference": "!Exclude:type"
-            },
-            {
-              "kind": "Content",
-              "text": "<"
-            },
-            {
-              "kind": "Reference",
-              "text": "IMediaBlock",
-              "canonicalReference": "gramstax!IMediaBlock:type"
-            },
-            {
-              "kind": "Content",
-              "text": "[`type`], `group`>"
+              "text": "IMediaKind",
+              "canonicalReference": "gramstax!~IMediaKind:type"
             },
             {
               "kind": "Content",
@@ -37560,8 +37565,8 @@
             },
             {
               "kind": "Reference",
-              "text": "IRenderMediaSingle",
-              "canonicalReference": "gramstax!~IRenderMediaSingle:type"
+              "text": "IMediaR1",
+              "canonicalReference": "gramstax!~IMediaR1:type"
             },
             {
               "kind": "Content",
@@ -37578,8 +37583,26 @@
             },
             {
               "kind": "Reference",
-              "text": "IRenderMediaBroadcastRevise",
-              "canonicalReference": "gramstax!~IRenderMediaBroadcastRevise:type"
+              "text": "IMediaR2",
+              "canonicalReference": "gramstax!~IMediaR2:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<T>, `type`> | "
+            },
+            {
+              "kind": "Reference",
+              "text": "Omit",
+              "canonicalReference": "!Omit:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "IMediaR4",
+              "canonicalReference": "gramstax!~IMediaR4:type"
             },
             {
               "kind": "Content",
@@ -37598,7 +37621,7 @@
               "typeParameterName": "T",
               "constraintTokenRange": {
                 "startIndex": 1,
-                "endIndex": 5
+                "endIndex": 2
               },
               "defaultTypeTokenRange": {
                 "startIndex": 0,
@@ -37607,14 +37630,14 @@
             }
           ],
           "typeTokenRange": {
-            "startIndex": 6,
-            "endIndex": 14
+            "startIndex": 3,
+            "endIndex": 15
           }
         },
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!IRenderMediaParams:type",
-          "docComment": "/**\n * Parameters for `renderMedia` — the single media send/edit method.\n *\n * @remarks\n *\n * All fields except `type` are optional. `mode` resolves the send-versus-edit\n * decision exactly like {@link IRenderTextParams}: `auto` (default) edits when\n * the update carries a `callbackQuery`, `reply` always sends, `edit` always\n * edits. `options` feeds the reply branch and the `editMessageMedia` error\n * state; `optionsEdit1`/`optionsEdit2` feed the edit branch only and are\n * DROPPED by the fallback re-send (edit options do not map to reply options).\n * `fallbackEdit` mirrors {@link IOptFallbackEdit} and defaults to\n * `delete-reply`.\n *\n * `broadcast` switches to multi-recipient fan-out: `broadcast.ids` runs the\n * send loop (`type` optional — the kind is read from the template), and\n * `broadcast.targets` runs the revise loop (`type` required). `mode`,\n * `fallbackEdit`, and the `options*` fields do not apply to the send loop.\n * The per-kind wrappers accept only the revise loop — see\n * {@link IRenderMediaKindParams}.\n *\n * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).\n *\n * @public\n */\n",
+          "docComment": "/**\n * Parameters for `renderMedia` — the single media send/edit method.\n *\n * @remarks\n *\n * A disjoint union over the method's four runtime routes. Every field a route\n * never reads is declared `never` on that route, so combinations such as\n * `{mode: 'edit', broadcast: {...}}` are compile errors instead of silently\n * dropped fields. `mode` resolves the send-versus-edit decision exactly like\n * {@link IRenderTextParams}: `auto` (default) edits when the update carries a\n * `callbackQuery`, `reply` always sends, `edit` always edits. `options` feeds\n * the reply branch (and the fallback re-send); `optionsEdit1`/`optionsEdit2`\n * feed the edit branch only and are DROPPED by the single-chat fallback re-send\n * (edit options do not map to reply options). `fallbackEdit` mirrors\n * {@link IOptFallbackEdit} and defaults to `delete-reply`.\n *\n * `broadcast` switches to multi-recipient fan-out: `broadcast.ids` runs the\n * send loop (kind read from the template), and `broadcast.targets` runs the\n * revise loop (`type` required). The per-kind wrappers accept the single-chat\n * and revise routes — see {@link IRenderMediaKindParams}.\n *\n * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -37622,21 +37645,8 @@
             },
             {
               "kind": "Reference",
-              "text": "Exclude",
-              "canonicalReference": "!Exclude:type"
-            },
-            {
-              "kind": "Content",
-              "text": "<"
-            },
-            {
-              "kind": "Reference",
-              "text": "IMediaBlock",
-              "canonicalReference": "gramstax!IMediaBlock:type"
-            },
-            {
-              "kind": "Content",
-              "text": "[`type`], `group`>"
+              "text": "IMediaKind",
+              "canonicalReference": "gramstax!~IMediaKind:type"
             },
             {
               "kind": "Content",
@@ -37644,8 +37654,8 @@
             },
             {
               "kind": "Reference",
-              "text": "IRenderMediaSingle",
-              "canonicalReference": "gramstax!~IRenderMediaSingle:type"
+              "text": "IMediaR1",
+              "canonicalReference": "gramstax!~IMediaR1:type"
             },
             {
               "kind": "Content",
@@ -37653,8 +37663,8 @@
             },
             {
               "kind": "Reference",
-              "text": "IRenderMediaBroadcastSend",
-              "canonicalReference": "gramstax!~IRenderMediaBroadcastSend:type"
+              "text": "IMediaR2",
+              "canonicalReference": "gramstax!~IMediaR2:type"
             },
             {
               "kind": "Content",
@@ -37662,8 +37672,17 @@
             },
             {
               "kind": "Reference",
-              "text": "IRenderMediaBroadcastRevise",
-              "canonicalReference": "gramstax!~IRenderMediaBroadcastRevise:type"
+              "text": "IMediaR3",
+              "canonicalReference": "gramstax!~IMediaR3:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<T> | "
+            },
+            {
+              "kind": "Reference",
+              "text": "IMediaR4",
+              "canonicalReference": "gramstax!~IMediaR4:type"
             },
             {
               "kind": "Content",
@@ -37682,7 +37701,7 @@
               "typeParameterName": "T",
               "constraintTokenRange": {
                 "startIndex": 1,
-                "endIndex": 5
+                "endIndex": 2
               },
               "defaultTypeTokenRange": {
                 "startIndex": 0,
@@ -37691,8 +37710,8 @@
             }
           ],
           "typeTokenRange": {
-            "startIndex": 6,
-            "endIndex": 12
+            "startIndex": 3,
+            "endIndex": 11
           }
         },
         {
@@ -37874,7 +37893,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    AGBaseId: string;\n    options?: "
+              "text": " | null;\n    AGBaseId?: string | null;\n    options?: "
             },
             {
               "kind": "Reference",
@@ -37918,7 +37937,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    AGBaseId: string;\n    options?: "
+              "text": " | null;\n    AGBaseId?: string | null;\n    options?: "
             },
             {
               "kind": "Reference",
@@ -37945,38 +37964,29 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!IRenderTextParams:type",
-          "docComment": "/**\n * Parameters for `renderText` — the single text send/edit method.\n *\n * @remarks\n *\n * All fields are optional. Rich-versus-plain content is decided at COMPILE time\n * by the `<g-message>` block contents, not by these params; `richOptions` only\n * shape the rich payload. `fallbackEdit` mirrors {@link IOptFallbackEdit} and\n * defaults to `delete-reply`.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Parameters for `renderText` — the single text send/edit method.\n *\n * @remarks\n *\n * A disjoint union over the method's four runtime routes. Every field a route\n * never reads is declared `never` on that route (or `null | undefined` where an\n * explicit `null` must stay legal), so combinations such as\n * `{mode: 'edit', broadcast: {...}}` are compile errors instead of silently\n * dropped fields.\n *\n * Rich-versus-plain content is decided at COMPILE time by the `<g-message>`\n * block contents, not by these params: each route carries both `options` (plain\n * text) and `richOptions` (rich payload), and the block decides which one is\n * read. Passing the other one logs a one-time `log.warn` and is ignored — never\n * a throw, since a `--watch` hot reload can flip a page rich↔plain in one\n * process.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "type IRenderTextParams = "
+              "text": "type IRenderTextParams = \n/**\n * Route 1 — single message, `auto` (default) or `edit`. `auto` edits when the\n * update carries a `callbackQuery`, otherwise replies; `edit` always edits.\n * Fields: `mode` `auto`|`edit`; `fallbackEdit` fallback when the edit fails\n * (default `delete-reply`); `options` plain-text options used by BOTH\n * `editMessageText` and, after a failed edit, the fallback `reply()` (the\n * intersection is deliberate — a union would let a key reach a call that\n * cannot honour it); `richOptions` rich payload plus options legal on both\n * rich send and rich edit (index `[1]` may reach `editMessageText`);\n * `chunkSize` and `broadcast` must stay absent or `null` on this route.\n */\n"
             },
             {
               "kind": "Content",
-              "text": "{\n    keyboard?: "
+              "text": "("
             },
             {
               "kind": "Reference",
-              "text": "IInBoKb",
-              "canonicalReference": "gramstax!IInBoKb:type"
+              "text": "ITextBase",
+              "canonicalReference": "gramstax!~ITextBase:type"
             },
             {
               "kind": "Content",
-              "text": " | null;\n    data?: "
+              "text": " & {\n    mode?: `auto` | `edit`;\n    fallbackEdit?: "
             },
             {
               "kind": "Reference",
-              "text": "IData",
-              "canonicalReference": "gramstax!IData:type"
-            },
-            {
-              "kind": "Content",
-              "text": " | null;\n    AGBaseId?: string | null;\n    mode?: "
-            },
-            {
-              "kind": "Reference",
-              "text": "IRenderMode",
-              "canonicalReference": "gramstax!IRenderMode:type"
+              "text": "IOptFallbackEdit",
+              "canonicalReference": "gramstax!IOptFallbackEdit:type"
             },
             {
               "kind": "Content",
@@ -37989,7 +37999,7 @@
             },
             {
               "kind": "Content",
-              "text": " | "
+              "text": " & "
             },
             {
               "kind": "Reference",
@@ -37998,7 +38008,34 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    richOptions?: "
+              "text": ";\n    richOptions?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptRich",
+              "canonicalReference": "gramstax!IOptRich:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n    chunkSize?: null | undefined;\n    broadcast?: null | undefined;\n})\n/**\n * Route 2 — forced reply (`mode: 'reply'`): always sends a new message, so no\n * edit can happen. Fields: `mode` `reply` (required); `options` plain-text\n * reply options; `richOptions` full rich send options; `chunkSize` and\n * `broadcast` must stay absent or `null`. `fallbackEdit` is never read\n * (nothing edits).\n */\n | ("
+            },
+            {
+              "kind": "Reference",
+              "text": "ITextBase",
+              "canonicalReference": "gramstax!~ITextBase:type"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    mode: `reply`;\n    fallbackEdit?: never;\n    options?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptReply",
+              "canonicalReference": "gramstax!IOptReply:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    richOptions?: "
             },
             {
               "kind": "Reference",
@@ -38007,16 +38044,61 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    fallbackEdit?: "
+              "text": " | null;\n    chunkSize?: null | undefined;\n    broadcast?: null | undefined;\n})\n/**\n * Route 3 — chunked reply: `chunkSize` is present (not `undefined`/`null`), so\n * the fully-rendered block is sent as sequential reply chunks. Fields:\n * `chunkSize` max characters per chunk (required); `mode` may only be `reply`\n * (or absent) — Telegram cannot edit a multi-message split, so `auto`/`edit`\n * are rejected; `options`/`richOptions` feed the per-chunk sends; `broadcast`\n * must stay absent or `null`. `fallbackEdit` is never read.\n *\n * @remarks\n * The block is rendered fully FIRST (placeholders never split), then split\n * deterministically: the last `\\n\\n` in a `chunkSize`-char window wins, then\n * the last `\\n`, then the last space, then a hard cut; each piece is trimmed\n * and empties are skipped. The keyboard is sent ONLY on the last chunk, and\n * every chunk carries `parse_mode: HTML` (rich templates send each chunk\n * through `replyWithRichMessage`). Values are sanitised on read:\n * `Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096`.\n */\n | ("
             },
             {
               "kind": "Reference",
-              "text": "IOptFallbackEdit",
-              "canonicalReference": "gramstax!IOptFallbackEdit:type"
+              "text": "ITextBase",
+              "canonicalReference": "gramstax!~ITextBase:type"
             },
             {
               "kind": "Content",
-              "text": ";\n    chunkSize?: number | null;\n    broadcast?: "
+              "text": " & {\n    mode?: `reply`;\n    fallbackEdit?: never;\n    options?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptReply",
+              "canonicalReference": "gramstax!IOptReply:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    richOptions?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptReplyRich",
+              "canonicalReference": "gramstax!IOptReplyRich:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n    chunkSize: number;\n    broadcast?: null | undefined;\n})\n/**\n * Route 4 — broadcast send: the fully-rendered block is SENT (never edited) to\n * every entry of `broadcast.ids` with its own language code from\n * `broadcast.languageCode`. Fields: `broadcast` fan-out params (required);\n * `options` plain-text send options, `richOptions` rich send options (the\n * per-recipient template decides which one is read); `keyboard`, `data`, and\n * `AGBaseId` are forwarded. `mode`, `fallbackEdit`, and `chunkSize` are never\n * read on this route, and the fan-out pacing uses `broadcast.chunkSize`\n * instead.\n */\n | ("
+            },
+            {
+              "kind": "Reference",
+              "text": "ITextBase",
+              "canonicalReference": "gramstax!~ITextBase:type"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    mode?: never;\n    fallbackEdit?: never;\n    options?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptReply",
+              "canonicalReference": "gramstax!IOptReply:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    richOptions?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptReplyRich",
+              "canonicalReference": "gramstax!IOptReplyRich:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n    chunkSize?: never;\n    broadcast: "
             },
             {
               "kind": "Reference",
@@ -38025,7 +38107,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n}"
+              "text": ";\n})"
             },
             {
               "kind": "Content",
@@ -38037,7 +38119,7 @@
           "name": "IRenderTextParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 18
+            "endIndex": 32
           }
         },
         {
@@ -38131,7 +38213,7 @@
             },
             {
               "kind": "Content",
-              "text": " | null;\n    AGBaseId: string;\n    options?: "
+              "text": " | null;\n    AGBaseId?: string | null;\n    options?: "
             },
             {
               "kind": "Reference",

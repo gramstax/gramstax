@@ -12,7 +12,7 @@ Parameters for `renderInlineAnswer`<!-- -->.
 type IRenderInlineAnswerParams = {
     results: readonly InlineQueryResult[];
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptInlineAnswer | null;
     buttonStartParameter?: string | null;
 };

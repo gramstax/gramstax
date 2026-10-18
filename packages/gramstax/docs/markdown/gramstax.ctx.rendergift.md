@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Gift params: `target` gift recipient user id (required); `giftId` Telegram gift identifier (required); `keyboard` must stay null/omitted — `sendGift` carries no reply markup, so a non-null keyboard throws before any API call; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional gift options (or null to omit).
+Gift params: `target` gift recipient user id (required); `giftId` Telegram gift identifier (required); `keyboard` must stay null/omitted — `sendGift` carries no reply markup, so any keyboard value throws before any API call; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional gift options (or null to omit).
 
 
 </td></tr>

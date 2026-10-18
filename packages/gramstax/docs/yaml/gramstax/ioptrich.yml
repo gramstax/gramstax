@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: IOptRich
+uid: gramstax!IOptRich:type
+package: gramstax!
+fullName: IOptRich
+summary: Rich-options tuple for routes that may reach `editMessageText`<!-- -->.
+remarks: >-
+  `[0]` merges into the `InputRichMessage` payload exactly like
+  [IOptReplyRich](xref:gramstax!IOptReplyRich:type)`[0]`<!-- -->; `[1]` is restricted to fields legal on BOTH rich-send
+  and rich-edit (`NonNullable<IOptReplyRich[1]> & IOptEdit`<!-- -->), so a key that only `replyWithRichMessage` accepts
+  cannot reach `editMessageText`<!-- -->. Index `[1]` stays optional, which keeps `[{html}]` legal.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IOptRich = [IOptReplyRich[0], (NonNullable<IOptReplyRich[1]> & IOptEdit)?];

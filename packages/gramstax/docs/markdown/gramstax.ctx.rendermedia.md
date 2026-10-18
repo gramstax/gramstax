@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Media params. See [IRenderMediaParams](./gramstax.irendermediaparams.md) for field details: `type` the media type (photo, video, audio, document, animation, voice, video\_note, sticker, location, contact) (omitted only on the broadcast-send path); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`<!-- -->); `options` optional type-specific reply options (or null to omit); `optionsEdit1` optional edit payload / non-editable-type reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`<!-- -->); `broadcast` optional broadcast fan-out — `{ids, languageCode, …}` sends, `{targets, broadcastOpts}` revises (or null for a single-chat send/edit).
+Media params, resolved as one of four routes — see [IRenderMediaParams](./gramstax.irendermediaparams.md) for the exact field set of each route: route 1 single chat (`auto`<!-- -->/`edit`<!-- -->); route 2 single chat forced reply (`mode: 'reply'`<!-- -->); route 3 broadcast send (`broadcast.ids`<!-- -->, kind from the block); route 4 broadcast revise (`broadcast.targets`<!-- -->, `type` required).
 
 
 </td></tr>
@@ -66,7 +66,9 @@ Fail-fast validation (`Ctx.assertMediaPreconditions`<!-- -->, plus `Ctx.assertLo
 
 If the edit itself fails, the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`<!-- -->: deletes the original message and re-sends the same media — the result looks like an in-place edit). The fallback re-send drops `optionsEdit1`<!-- -->/ `optionsEdit2` (edit options do not map to reply options) and logs a `log.warn` when non-empty options are dropped; the re-send itself follows `Ctx.classifySendError` via the reply branch (`retryable` rethrows the original error untouched, `fallback-text` replies with fallback text).
 
-When `broadcast` is present, multi-recipient fan-out replaces the single-chat path (see [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md) / [IBroadcastReviseParams](./gramstax.ibroadcastreviseparams.md)<!-- -->): `broadcast.ids` runs the send loop — the media kind is read from the template `<g-media>` block, so `type` may be omitted there and is ignored when supplied — and `broadcast.targets` runs the revise loop. `mode`<!-- -->, `fallbackEdit`<!-- -->, and the `options*` fields do not apply to the send loop.
+When `broadcast` is present, multi-recipient fan-out replaces the single-chat path (see [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md) / [IBroadcastReviseParams](./gramstax.ibroadcastreviseparams.md)<!-- -->): `broadcast.ids` runs the send loop and `broadcast.targets` runs the revise loop. The send loop reads the media kind from the template `<g-media>` block, so its route type rejects `type` (and `mode`<!-- -->, `fallbackEdit`<!-- -->, and the `options*` fields — it never edits); the revise loop requires `type` and rejects `mode`<!-- -->, `options`<!-- -->, and `fallbackEdit` (its per-recipient fallback lives in `broadcast.broadcastOpts.fallbackEdit`<!-- -->).
+
+A bottom (reply) keyboard is rejected before any API call when the route edits in place — `editMessageMedia` accepts inline keyboards only, so the throw names `mode: 'reply'` as the fix. The delete-then-resend kinds are plain sends and keep accepting either keyboard type.
 
 ## Example
 

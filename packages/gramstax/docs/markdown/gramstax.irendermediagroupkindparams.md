@@ -9,7 +9,10 @@
 **Signature:**
 
 ```typescript
-type IRenderMediaGroupKindParams = Omit<IRenderMediaGroupParams, `type`>;
+type IRenderMediaGroupKindParams = Omit<IGroupR1, `type`> | Omit<IGroupR2, `type`>;
 ```
-**References:** [IRenderMediaGroupParams](./gramstax.irendermediagroupparams.md)
+
+## Remarks
+
+`Omit` is applied per union member — applied to the union it would collapse the routes together.
 

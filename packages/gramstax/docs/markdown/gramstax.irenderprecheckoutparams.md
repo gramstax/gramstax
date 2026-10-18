@@ -12,7 +12,7 @@ Parameters for `renderPreCheckout`<!-- -->.
 type IRenderPreCheckoutParams = {
     ok: boolean;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptPreCheckout | null;
 };
 ```

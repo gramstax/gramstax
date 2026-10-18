@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block keyboard (required); `options` optional abort signal for the edit call (or null to omit).
+Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block keyboard (or null to use default); `options` optional abort signal for the edit call (or null to omit).
 
 
 </td></tr>

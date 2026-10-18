@@ -11,7 +11,7 @@ Parameters for `renderBroadcastDelete` — the expiry-cleanup delete fan-out.
 ```typescript
 type IRenderBroadcastDeleteParams = {
     targets: IBroadcastEditTarget[];
-    broadcastOpts?: IBroadcastEditOpts | null;
+    broadcastOpts?: Omit<IBroadcastEditOpts, `fallbackEdit`> | null;
 };
 ```
 **References:** [IBroadcastEditTarget](./gramstax.ibroadcastedittarget.md)<!-- -->, [IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md)

@@ -70,15 +70,21 @@ export class Ctx extends Context {
         src?: unknown;
         caption?: unknown;
     }>): void;
+    // @internal
+    static _assertMediaGroupRoute(params: IRenderMediaGroupParams): void;
     static assertMediaPreconditions(type: string, med: {
         src?: unknown;
         caption?: unknown;
     }): void;
+    // @internal
+    static _assertMediaRoute<T extends Exclude<IMediaBlock[`type`], `group`>>(params: IRenderMediaParams<T>): void;
     static assertMediaSize(type: string, bytes: number): void;
     static assertMediaSrcList(type: string, srcList: Array<unknown>): void;
     static assertMediaSrcSize(type: string, src: unknown): void;
     static assertPaidMedia(paidMedia: IPaidMediaBlock): void;
     static assertPoll(poll: IPollBlock): void;
+    // @internal
+    static _assertTextRoute(params: IRenderTextParams): void;
     static assertVenue(venue: {
         title: unknown;
         address: unknown;
@@ -469,6 +475,8 @@ export class Ctx extends Context {
     resolveMedia(src: string | InputFile | Buffer | Uint8Array | undefined, filename?: string): string | InputFile;
     static resolveMediaInput(src: string | InputFile | Buffer | Uint8Array | undefined, filename?: string, roots?: readonly string[] | null): string | InputFile;
     static retryAfterMs(err: unknown): number | undefined;
+    // @internal
+    static readonly _richAxisWarned: Set<string>;
     sendChatId(): number | undefined;
     get senderChat(): NonNullable<Context[`senderChat`]>;
     sendPageName(): string;
@@ -2760,6 +2768,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     ready: Promise<void>;
     // @internal
     _redactToken(value: string): string;
+    // Warning: (ae-forgotten-export) The symbol "ICustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+    //
     // @virtual
     registerCustomRoute(entry: ICustomRouteEntry_2): void;
     // @virtual
@@ -3599,6 +3609,9 @@ export type IOptReplyVideoNote = Parameters<Context[`replyWithVideoNote`]>[1];
 export type IOptReplyVoice = Parameters<Context[`replyWithVoice`]>[1];
 
 // @public
+export type IOptRich = [IOptReplyRich[0], (NonNullable<IOptReplyRich[1]> & IOptEdit)?];
+
+// @public
 export type IOptShipping = Parameters<Context[`answerShippingQuery`]>[1];
 
 // @public
@@ -3674,14 +3687,14 @@ export type IRedisLockClient = {
 // @public
 export type IRenderBroadcastDeleteParams = {
     targets: IBroadcastEditTarget[];
-    broadcastOpts?: IBroadcastEditOpts | null;
+    broadcastOpts?: Omit<IBroadcastEditOpts, `fallbackEdit`> | null;
 };
 
 // @public
 export type IRenderCallbackAnswerParams = {
     showAlert: boolean;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptCallbackAnswer | null;
 };
 
@@ -3697,7 +3710,7 @@ export type IRenderDiceParams = {
 export type IRenderEditCaptionParams = {
     keyboardInline?: IInlineKb | null;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptEditCaption | null;
     fallbackEdit?: IOptFallbackEdit;
 };
@@ -3706,7 +3719,7 @@ export type IRenderEditCaptionParams = {
 export type IRenderEditKeyboardParams = {
     keyboardInline?: IInlineKb | null;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptEditKeyboard | null;
 };
 
@@ -3714,9 +3727,9 @@ export type IRenderEditKeyboardParams = {
 export type IRenderGiftParams = {
     target: number;
     giftId: string;
-    keyboard?: IInlineKb | null;
+    keyboard?: null;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptGift | null;
 };
 
@@ -3724,7 +3737,7 @@ export type IRenderGiftParams = {
 export type IRenderGuestAnswerParams = {
     result: InlineQueryResult;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptGuestAnswer | null;
 };
 
@@ -3732,7 +3745,7 @@ export type IRenderGuestAnswerParams = {
 export type IRenderInlineAnswerParams = {
     results: readonly InlineQueryResult[];
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptInlineAnswer | null;
     buttonStartParameter?: string | null;
 };
@@ -3747,29 +3760,27 @@ export type IRenderInvoiceParams = {
     }) | null;
 };
 
-// @public
-export type IRenderMediaGroupKindParams = Omit<IRenderMediaGroupParams, `type`>;
-
-// @public
-export type IRenderMediaGroupParams = {
-    type?: IMediaGroupType | null;
-    data?: IData | null;
-    AGBaseId?: string | null;
-    mode?: IRenderMode;
-    options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null;
-    fallbackEdit?: IOptFallbackEdit;
-};
-
-// Warning: (ae-forgotten-export) The symbol "IRenderMediaSingle" needs to be exported by the entry point index.d.ts
-// Warning: (ae-forgotten-export) The symbol "IRenderMediaBroadcastRevise" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "IGroupR1" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "IGroupR2" needs to be exported by the entry point index.d.ts
 //
 // @public
-export type IRenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<IRenderMediaSingle<T>, `type`> | Omit<IRenderMediaBroadcastRevise<T>, `type`>;
+export type IRenderMediaGroupKindParams = Omit<IGroupR1, `type`> | Omit<IGroupR2, `type`>;
 
-// Warning: (ae-forgotten-export) The symbol "IRenderMediaBroadcastSend" needs to be exported by the entry point index.d.ts
+// @public
+export type IRenderMediaGroupParams = IGroupR1 | IGroupR2;
+
+// Warning: (ae-forgotten-export) The symbol "IMediaKind" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "IMediaR1" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "IMediaR2" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "IMediaR4" needs to be exported by the entry point index.d.ts
 //
 // @public
-export type IRenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> = IRenderMediaSingle<T> | IRenderMediaBroadcastSend<T> | IRenderMediaBroadcastRevise<T>;
+export type IRenderMediaKindParams<T extends IMediaKind> = Omit<IMediaR1<T>, `type`> | Omit<IMediaR2<T>, `type`> | Omit<IMediaR4<T>, `type`>;
+
+// Warning: (ae-forgotten-export) The symbol "IMediaR3" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type IRenderMediaParams<T extends IMediaKind> = IMediaR1<T> | IMediaR2<T> | IMediaR3<T> | IMediaR4<T>;
 
 // @public
 export type IRenderMode = `auto` | `reply` | `edit`;
@@ -3795,7 +3806,7 @@ export type IRenderPollParams = {
 export type IRenderPreCheckoutParams = {
     ok: boolean;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptPreCheckout | null;
 };
 
@@ -3803,22 +3814,91 @@ export type IRenderPreCheckoutParams = {
 export type IRenderShippingParams = {
     ok: boolean;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptShipping | null;
 };
 
+// Warning: (ae-forgotten-export) The symbol "ITextBase" needs to be exported by the entry point index.d.ts
+//
 // @public
-export type IRenderTextParams = {
-    keyboard?: IInBoKb | null;
-    data?: IData | null;
-    AGBaseId?: string | null;
-    mode?: IRenderMode;
-    options?: IOptReply | IOptEdit | null;
-    richOptions?: IOptReplyRich | null;
+export type IRenderTextParams =
+/**
+* Route 1 — single message, `auto` (default) or `edit`. `auto` edits when the
+* update carries a `callbackQuery`, otherwise replies; `edit` always edits.
+* Fields: `mode` `auto`|`edit`; `fallbackEdit` fallback when the edit fails
+* (default `delete-reply`); `options` plain-text options used by BOTH
+* `editMessageText` and, after a failed edit, the fallback `reply()` (the
+* intersection is deliberate — a union would let a key reach a call that
+* cannot honour it); `richOptions` rich payload plus options legal on both
+* rich send and rich edit (index `[1]` may reach `editMessageText`);
+* `chunkSize` and `broadcast` must stay absent or `null` on this route.
+*/
+(ITextBase & {
+    mode?: `auto` | `edit`;
     fallbackEdit?: IOptFallbackEdit;
-    chunkSize?: number | null;
-    broadcast?: IBroadcastSendParams | null;
-};
+    options?: IOptReply & IOptEdit;
+    richOptions?: IOptRich | null;
+    chunkSize?: null | undefined;
+    broadcast?: null | undefined;
+})
+/**
+* Route 2 — forced reply (`mode: 'reply'`): always sends a new message, so no
+* edit can happen. Fields: `mode` `reply` (required); `options` plain-text
+* reply options; `richOptions` full rich send options; `chunkSize` and
+* `broadcast` must stay absent or `null`. `fallbackEdit` is never read
+* (nothing edits).
+*/
+| (ITextBase & {
+    mode: `reply`;
+    fallbackEdit?: never;
+    options?: IOptReply;
+    richOptions?: IOptReplyRich | null;
+    chunkSize?: null | undefined;
+    broadcast?: null | undefined;
+})
+/**
+* Route 3 — chunked reply: `chunkSize` is present (not `undefined`/`null`), so
+* the fully-rendered block is sent as sequential reply chunks. Fields:
+* `chunkSize` max characters per chunk (required); `mode` may only be `reply`
+* (or absent) — Telegram cannot edit a multi-message split, so `auto`/`edit`
+* are rejected; `options`/`richOptions` feed the per-chunk sends; `broadcast`
+* must stay absent or `null`. `fallbackEdit` is never read.
+*
+* @remarks
+* The block is rendered fully FIRST (placeholders never split), then split
+* deterministically: the last `\n\n` in a `chunkSize`-char window wins, then
+* the last `\n`, then the last space, then a hard cut; each piece is trimmed
+* and empties are skipped. The keyboard is sent ONLY on the last chunk, and
+* every chunk carries `parse_mode: HTML` (rich templates send each chunk
+* through `replyWithRichMessage`). Values are sanitised on read:
+* `Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096`.
+*/
+| (ITextBase & {
+    mode?: `reply`;
+    fallbackEdit?: never;
+    options?: IOptReply;
+    richOptions?: IOptReplyRich | null;
+    chunkSize: number;
+    broadcast?: null | undefined;
+})
+/**
+* Route 4 — broadcast send: the fully-rendered block is SENT (never edited) to
+* every entry of `broadcast.ids` with its own language code from
+* `broadcast.languageCode`. Fields: `broadcast` fan-out params (required);
+* `options` plain-text send options, `richOptions` rich send options (the
+* per-recipient template decides which one is read); `keyboard`, `data`, and
+* `AGBaseId` are forwarded. `mode`, `fallbackEdit`, and `chunkSize` are never
+* read on this route, and the fan-out pacing uses `broadcast.chunkSize`
+* instead.
+*/
+| (ITextBase & {
+    mode?: never;
+    fallbackEdit?: never;
+    options?: IOptReply;
+    richOptions?: IOptReplyRich | null;
+    chunkSize?: never;
+    broadcast: IBroadcastSendParams;
+});
 
 // @public
 export type IRenderVenueParams = {
@@ -3833,7 +3913,7 @@ export type IRenderWebAppAnswerParams = {
     webAppQueryId: string;
     result: InlineQueryResult;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptWebAppAnswer | null;
 };
 
@@ -4937,10 +5017,8 @@ export type WebhookQueue<T = unknown> = UpdateQueue<T>;
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:7052:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
-// dist/src/index.d.ts:8058:5 - (ae-forgotten-export) The symbol "IMediaGroupType" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:21125:9 - (ae-forgotten-export) The symbol "ICustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:22706:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
+// dist/src/index.d.ts:7082:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
+// dist/src/index.d.ts:23146:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 

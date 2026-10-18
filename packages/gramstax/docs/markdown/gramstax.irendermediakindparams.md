@@ -9,13 +9,12 @@
 **Signature:**
 
 ```typescript
-type IRenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<IRenderMediaSingle<T>, `type`> | Omit<IRenderMediaBroadcastRevise<T>, `type`>;
+type IRenderMediaKindParams<T extends IMediaKind> = Omit<IMediaR1<T>, `type`> | Omit<IMediaR2<T>, `type`> | Omit<IMediaR4<T>, `type`>;
 ```
-**References:** [IMediaBlock](./gramstax.imediablock.md)
 
 ## Remarks
 
-The broadcast-SEND member is deliberately EXCLUDED. On that loop `renderMedia` never forwards `params.type` to `_broadcastSendMedia` — the kind is read from the `<g-media>` block — so a wrapper whose whole purpose is to fix the kind would fix nothing: `renderPhoto({broadcast: {ids}})` would send whatever the block holds while the method name said photo. That path is rejected at the type level; use `renderMedia` for it.
+The broadcast-SEND route (R3) is deliberately EXCLUDED. On that loop `renderMedia` never forwards `params.type` to `_broadcastSendMedia` — the kind is read from the `<g-media>` block — so a wrapper whose whole purpose is to fix the kind would fix nothing: `renderPhoto({broadcast: {ids}})` would send whatever the block holds while the method name said photo. That route is rejected at the type level; use `renderMedia` for it.
 
-The broadcast-REVISE member IS kept, because that loop forwards `type` and therefore honours the wrapper's fixed kind.
+The broadcast-REVISE route (R4) IS kept, because that loop forwards `type` and therefore honours the wrapper's fixed kind. `Omit` is applied per union member — applied to the union it would collapse the routes together.
 

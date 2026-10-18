@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-_(Optional)_ Optional media-group params (defaults to `{}`<!-- -->). See [IRenderMediaGroupParams](./gramstax.irendermediagroupparams.md) for field details: `type` optional media type filter (or null for all items); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`<!-- -->); `options` optional media-group send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`<!-- -->).
+_(Optional)_ Optional media-group params (defaults to `{}`<!-- -->), resolved as one of two routes — see [IRenderMediaGroupParams](./gramstax.irendermediagroupparams.md) for the exact field set of each route: route 1 `auto`<!-- -->/`edit`<!-- -->; route 2 forced reply (`mode: 'reply'`<!-- -->, no `fallbackEdit`<!-- -->). The same two-route split backs [IRenderMediaGroupKindParams](./gramstax.irendermediagroupkindparams.md)<!-- -->, which the per-kind wrappers (`renderPhotoGroup`<!-- -->, …) accept and supply `type` for.
 
 
 </td></tr>
@@ -60,7 +60,7 @@ The sent media group messages.
 
 Only `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, and `document` support Telegram media groups. Omit `type` when the template uses `<g-media-group>` with per-item media types. When the template uses `<g-media-group>` (or null to include all items), only items matching this type are included. When omitted, all items are sent. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media. Per-item filenames rely on grammy basename auto-guess (no per-item filename override is applied).
 
-`mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. Media groups cannot be edited in place, so the edit branch always deletes the original message first; when the delete-and-send fails, `fallbackEdit` decides whether to retry the delete and re-send (`delete-reply`<!-- -->, default), re-send without deleting (`reply`<!-- -->), or rethrow (`disable`<!-- -->).
+`mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. Media groups cannot be edited in place, so the edit branch always deletes the original message first; when the delete-and-send fails, `fallbackEdit` decides whether to retry the delete and re-send (`delete-reply`<!-- -->, default), re-send without deleting (`reply`<!-- -->), or rethrow (`disable`<!-- -->). The forced reply route (`mode: 'reply'`<!-- -->) never reads `fallbackEdit`<!-- -->, so its params type rejects it (and the runtime guard throws for plain-JS callers).
 
 Fail-fast validation runs BEFORE any API call (group/item size limits, per-item types, upload sizes, caption length) — programmer errors always throw, never fall back. Send failures follow `Ctx.classifySendError`<!-- -->: `retryable` rethrows the original error untouched; `fallback-text` best-effort replies with `resolveFallbackText()` (nested failures ignored).
 

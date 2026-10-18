@@ -12,7 +12,7 @@ Parameters for `renderEditKeyboard`<!-- -->.
 type IRenderEditKeyboardParams = {
     keyboardInline?: IInlineKb | null;
     data?: IData | null;
-    AGBaseId: string;
+    AGBaseId?: string | null;
     options?: IOptEditKeyboard | null;
 };
 ```

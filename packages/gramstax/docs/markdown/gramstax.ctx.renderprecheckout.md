@@ -44,7 +44,7 @@ params
 
 </td><td>
 
-Answer params: `ok` whether to approve the checkout (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the error message (required); `options` optional answer options, or a string overriding the error message (or null to omit).
+Answer params: `ok` whether to approve the checkout (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the error message (or null to use default); `options` optional answer options, or a string overriding the error message (or null to omit).
 
 
 </td></tr>
