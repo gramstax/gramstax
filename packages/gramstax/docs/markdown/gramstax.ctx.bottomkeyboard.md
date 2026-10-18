@@ -83,7 +83,7 @@ async handleCallbackQueryData() {
     labels.forEach(label => k.text(label))
     return k
   })
-  await this.render(kb)
+  await this.renderText({keyboard: kb})
 }
 ```
 

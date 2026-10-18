@@ -9,7 +9,7 @@ Stops a live location message, freezing it at its last position.
 **Signature:**
 
 ```typescript
-stopLiveLocation(chatId: number, messageId: number, options?: Parameters<Ctx[`api`][`stopMessageLiveLocation`]>[2] | null): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+stopLiveLocation(chatId: number, messageId: number, options?: Parameters<Ctx[`api`][`stopMessageLiveLocation`]>[2] | null): Promise<true | (grammy_types.Update.Edited & Message.CommonMessage & {
         location: grammy_types.Location;
     })>;
 ```
@@ -84,7 +84,7 @@ _(Optional)_ Optional extra `stopMessageLiveLocation` fields (or null to omit).
 
 **Returns:**
 
-Promise&lt;true \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { location: grammy\_types.Location; })&gt;
+Promise&lt;true \| (grammy\_types.Update.Edited &amp; Message.CommonMessage &amp; { location: grammy\_types.Location; })&gt;
 
 `true` on success.
 

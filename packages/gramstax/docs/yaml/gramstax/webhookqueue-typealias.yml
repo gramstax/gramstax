@@ -1,0 +1,12 @@
+### YamlMime:TSTypeAlias
+name: WebhookQueue
+uid: gramstax!WebhookQueue:type
+package: gramstax!
+fullName: WebhookQueue
+summary: Legacy type alias for [UpdateQueue](xref:gramstax!UpdateQueue:class)<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: true
+customDeprecatedMessage: Renamed to [UpdateQueue](xref:gramstax!UpdateQueue:class)<!-- -->. Will be removed in the next major version.
+syntax: type WebhookQueue<T = unknown> = UpdateQueue<T>;

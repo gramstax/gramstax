@@ -1,0 +1,20 @@
+### YamlMime:TSTypeAlias
+name: IRenderInlineAnswerParams
+uid: gramstax!IRenderInlineAnswerParams:type
+package: gramstax!
+fullName: IRenderInlineAnswerParams
+summary: Parameters for `renderInlineAnswer`<!-- -->.
+remarks: >-
+  Result contents are built by the caller from `data` (multilang payloads); the `<g-inline-button>` block supplies the
+  default `button.text` label and `start_parameter`<!-- -->. Telegram caps answers at 50 results.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderInlineAnswerParams = {
+      results: readonly InlineQueryResult[];
+      data?: IData | null;
+      AGBaseId: string;
+      options?: IOptInlineAnswer | null;
+      buttonStartParameter?: string | null;
+  };

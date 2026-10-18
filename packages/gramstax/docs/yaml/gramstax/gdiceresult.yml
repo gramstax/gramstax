@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: GDiceResult
+uid: gramstax!GDiceResult:type
+package: gramstax!
+fullName: GDiceResult
+summary: Result of `TemplateManager.getGDice` for a `<g-dice>` block.
+remarks: Extends [IDiceBlock](xref:gramstax!IDiceBlock:type) with the `dice` kind discriminator.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GDiceResult = {
+      kind: `dice`;
+  } & IDiceBlock;

@@ -4,14 +4,14 @@
 
 ## Ctx.renderMedia() method
 
-Sends a media message reply with dynamic type selection.
+Sends or edits a media message with dynamic type selection.
 
 Template block: `<g-media>` (read via `getGMedia`<!-- -->).
 
 **Signature:**
 
 ```typescript
-renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(type: T, keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: (T extends `photo` ? IOptReplyPhoto : T extends `video` ? IOptReplyVideo : T extends `audio` ? IOptReplyAudio : T extends `document` ? IOptReplyDocument : T extends `animation` ? IOptReplyAnimation : T extends `voice` ? IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact : undefined) | null): Promise<unknown>;
+renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(params: IRenderMediaParams<T>): Promise<Message | Message[] | true | undefined | IBroadcastSendResult | IBroadcastEditResult>;
 ```
 
 ## Parameters
@@ -34,81 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-type
+params
 
 
 </td><td>
 
-T
+[IRenderMediaParams](./gramstax.irendermediaparams.md)<!-- -->&lt;T&gt;
 
 
 </td><td>
 
-The media type (photo, video, audio, document, animation, voice, video\_note, sticker, location, contact).
-
-
-</td></tr>
-<tr><td>
-
-keyboard
-
-
-</td><td>
-
-[IInBoKb](./gramstax.iinbokb.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional keyboard markup (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template g-base ID position for block media (or null to use default).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-(T extends \`photo\` ? [IOptReplyPhoto](./gramstax.ioptreplyphoto.md) : T extends \`video\` ? [IOptReplyVideo](./gramstax.ioptreplyvideo.md) : T extends \`audio\` ? [IOptReplyAudio](./gramstax.ioptreplyaudio.md) : T extends \`document\` ? [IOptReplyDocument](./gramstax.ioptreplydocument.md) : T extends \`animation\` ? [IOptReplyAnimation](./gramstax.ioptreplyanimation.md) : T extends \`voice\` ? [IOptReplyVoice](./gramstax.ioptreplyvoice.md) : T extends \`video\_note\` ? [IOptReplyVideoNote](./gramstax.ioptreplyvideonote.md) : T extends \`sticker\` ? [IOptReplySticker](./gramstax.ioptreplysticker.md) : T extends \`location\` ? [IOptReplyLocation](./gramstax.ioptreplylocation.md) : T extends \`contact\` ? [IOptReplyContact](./gramstax.ioptreplycontact.md) : undefined) \| null
-
-
-</td><td>
-
-_(Optional)_ Type-specific options for the media (or null to omit).
+Media params. See [IRenderMediaParams](./gramstax.irendermediaparams.md) for field details: `type` the media type (photo, video, audio, document, animation, voice, video\_note, sticker, location, contact) (omitted only on the broadcast-send path); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`<!-- -->); `options` optional type-specific reply options (or null to omit); `optionsEdit1` optional edit payload / non-editable-type reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`<!-- -->); `broadcast` optional broadcast fan-out — `{ids, languageCode, …}` sends, `{targets, broadcastOpts}` revises (or null for a single-chat send/edit).
 
 
 </td></tr>
@@ -116,22 +52,38 @@ _(Optional)_ Type-specific options for the media (or null to omit).
 
 **Returns:**
 
-Promise&lt;unknown&gt;
+Promise&lt;Message \| Message\[\] \| true \| undefined \| [IBroadcastSendResult](./gramstax.ibroadcastsendresult.md) \| [IBroadcastEditResult](./gramstax.ibroadcasteditresult.md)<!-- -->&gt;
 
-The sent message object.
+The sent or edited message object, or the [IBroadcastSendResult](./gramstax.ibroadcastsendresult.md)<!-- -->/ [IBroadcastEditResult](./gramstax.ibroadcasteditresult.md) counts on the broadcast paths.
 
 ## Remarks
 
-This is the base method for all media reply methods. Use specific methods like [Ctx.renderPhoto()](./gramstax.ctx.renderphoto.md) or [Ctx.renderVideo()](./gramstax.ctx.rendervideo.md) for simpler usage.
+Single method for every media send/edit path, folding the former `renderAutoMedia`<!-- -->, `renderEditMedia`<!-- -->, the per-kind reply base, and the broadcast-media / broadcast-edit fan-outs. `mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. This is the base method for all media methods. Use specific methods like [Ctx.renderPhoto()](./gramstax.ctx.renderphoto.md) or [Ctx.renderVideo()](./gramstax.ctx.rendervideo.md) for simpler usage.
+
+Edit-mode semantics for media types that cannot be edited (`voice`<!-- -->, `video_note`<!-- -->, `sticker`<!-- -->, `location`<!-- -->, `contact`<!-- -->) delete the original message and send a new one. Multi-src media groups cannot replace a single message, so supported pipe-delimited media groups also delete the original message and send a new media group.
 
 Fail-fast validation (`Ctx.assertMediaPreconditions`<!-- -->, plus `Ctx.assertLocation`<!-- -->/`Ctx.assertContact` in their branches) runs BEFORE any API call — programmer errors always throw, never fall back. Send failures follow `Ctx.classifySendError`<!-- -->: `retryable` rethrows the original error untouched; `fallback-text` best-effort replies with `resolveFallbackText()` (nested failures ignored) and returns it.
+
+If the edit itself fails, the fallback behavior is controlled by `fallbackEdit` (default `delete-reply`<!-- -->: deletes the original message and re-sends the same media — the result looks like an in-place edit). The fallback re-send drops `optionsEdit1`<!-- -->/ `optionsEdit2` (edit options do not map to reply options) and logs a `log.warn` when non-empty options are dropped; the re-send itself follows `Ctx.classifySendError` via the reply branch (`retryable` rethrows the original error untouched, `fallback-text` replies with fallback text).
+
+When `broadcast` is present, multi-recipient fan-out replaces the single-chat path (see [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md) / [IBroadcastReviseParams](./gramstax.ibroadcastreviseparams.md)<!-- -->): `broadcast.ids` runs the send loop — the media kind is read from the template `<g-media>` block, so `type` may be omitted there and is ignored when supplied — and `broadcast.targets` runs the revise loop. `mode`<!-- -->, `fallbackEdit`<!-- -->, and the `options*` fields do not apply to the send loop.
 
 ## Example
 
 
 ```typescript
 async handleCallbackQueryData() {
-  await this.renderMedia("photo")
+  // Automatic reply/edit with content from this.template
+  await this.renderMedia({type: "photo"})
+
+  // Force a new reply even from a callback query
+  await this.renderMedia({type: "photo", mode: "reply"})
+
+  // Broadcast: fan out to many users (kind read from the <g-media> block)
+  await this.renderMedia({broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})
+
+  // Broadcast revise: edit already-sent messages to a new media payload
+  await this.renderMedia({type: "photo", data: {price: "99"}, broadcast: {targets: sent}})
 }
 ```
 

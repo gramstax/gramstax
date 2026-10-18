@@ -9,5 +9,5 @@ All sendable single-media types (`ITMediaBlock` minus `group`<!-- -->).
 **Signature:**
 
 ```typescript
-static readonly MEDIA_TYPES: string[];
+static readonly MEDIA_TYPES: ReadonlySet<string>;
 ```

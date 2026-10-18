@@ -1,0 +1,28 @@
+### YamlMime:TSTypeAlias
+name: IBroadcastSendParams
+uid: gramstax!IBroadcastSendParams:type
+package: gramstax!
+fullName: IBroadcastSendParams
+summary: >-
+  Broadcast-send controls for the `broadcast` field of `renderText`<!-- -->, `renderPoll`<!-- -->, and `renderMedia`<!--
+  -->.
+remarks: >-
+  Checkpoint-first by design (anti-spam over speed): `startFrom` resumes without resending, `chunkSize`<!--
+  -->/`chunkDelayMs` pace the loop with `onProgress` checkpoints, and `excludeIds` counts skips without sending. The
+  send content itself comes from the host method params (`keyboard`<!-- -->, `data`<!-- -->, `AGBaseId`<!-- -->,
+  `options`<!-- -->/`richOptions`<!-- -->).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IBroadcastSendParams = {
+      ids: number[];
+      languageCode: string[];
+      throwError?: boolean | null;
+      chunkSize?: number | null;
+      chunkDelayMs?: number | null;
+      excludeIds?: number[] | null;
+      onProgress?: ((done: number, total: number) => void | Promise<void>) | null;
+      startFrom?: number | null;
+      concurrency?: number | null;
+  };

@@ -9,7 +9,7 @@ Gets compiled from block <g-venue>.
 **Signature:**
 
 ```typescript
-getGVenue(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`venue`][`default`][`default`]>;
+getGVenue(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GVenueResult;
 ```
 
 ## Parameters
@@ -98,9 +98,9 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`venue\`\]\[\`default\`\]\[\`default\`\]&gt;
+[GVenueResult](./gramstax.gvenueresult.md)
 
-Venue object containing title, address, latitude, and longitude
+[GVenueResult](./gramstax.gvenueresult.md) with the venue payload flat under `kind: "venue"`
 
 ## Remarks
 
@@ -111,6 +111,6 @@ Retrieves the compiled venue function for the specified template and language, t
 
 ```typescript
 const venue = tm.getGVenue("cafe-page", "default", "en", {name: "Cafe"})
-// => {title: "Cafe", address: "...", latitude: "-6.2", longitude: "106.8"}
+// => {kind: "venue", title: "Cafe", address: "...", latitude: "-6.2", longitude: "106.8"}
 ```
 

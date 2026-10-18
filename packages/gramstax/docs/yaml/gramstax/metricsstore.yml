@@ -33,7 +33,8 @@ properties:
     summary: Lifetime counters for every update outcome.
     remarks: >-
       Includes: `updatesTotal`<!-- -->, `updatesFailed`<!-- -->, `matched`<!-- -->, `noMatch`<!-- -->, `noHandler`<!--
-      -->, `blocked`<!-- -->, `timeouts`<!-- -->, `skippedDuplicate`<!-- -->, `skippedValidation`<!-- -->.
+      -->, `blocked`<!-- -->, `timeouts`<!-- -->, `skippedDuplicate`<!-- -->, `skippedValidation`<!-- -->, `dropped`<!--
+      -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -49,6 +50,7 @@ properties:
                 timeouts: number;
                 skippedDuplicate: number;
                 skippedValidation: number;
+                dropped: number;
             };
       return:
         type: |-
@@ -62,6 +64,7 @@ properties:
                   timeouts: number;
                   skippedDuplicate: number;
                   skippedValidation: number;
+                  dropped: number;
               }
   - name: startedAt
     uid: gramstax!MetricsStore#startedAt:member
@@ -121,6 +124,7 @@ methods:
                     timeouts: number;
                     skippedDuplicate: number;
                     skippedValidation: number;
+                    dropped: number;
                 };
                 byListener: {
                     [x: string]: number;
@@ -145,6 +149,7 @@ methods:
                       timeouts: number;
                       skippedDuplicate: number;
                       skippedValidation: number;
+                      dropped: number;
                   };
                   byListener: {
                       [x: string]: number;

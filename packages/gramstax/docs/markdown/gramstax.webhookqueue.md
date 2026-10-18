@@ -2,208 +2,22 @@
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [WebhookQueue](./gramstax.webhookqueue.md)
 
-## WebhookQueue class
+## WebhookQueue variable
 
-Webhook update queue — in-memory bounded FIFO for sequential processing.
+> Warning: This API is now obsolete.
+> 
+> Renamed to [UpdateQueue](./gramstax.updatequeue.md)<!-- -->. Kept as an alias for the public barrel; will be removed in the next major version.
+> 
+
+Legacy alias for [UpdateQueue](./gramstax.updatequeue.md)<!-- -->.
 
 **Signature:**
 
 ```typescript
-declare class WebhookQueue<T = unknown> 
+WebhookQueue: typeof UpdateQueue
 ```
 
 ## Remarks
 
-Provides a bounded FIFO queue for Telegram webhook updates, ensuring they are processed sequentially. Useful for long-polling fallback or rate-limited webhook processing.
-
-## Constructors
-
-<table><thead><tr><th>
-
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(maxSize)](./gramstax.webhookqueue._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Create a new queue with a maximum size.
-
-
-</td></tr>
-</tbody></table>
-
-## Properties
-
-<table><thead><tr><th>
-
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[isClosed](./gramstax.webhookqueue.isclosed.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-Whether the queue has been closed.
-
-
-</td></tr>
-<tr><td>
-
-[length](./gramstax.webhookqueue.length.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-Get current queue length.
-
-
-</td></tr>
-</tbody></table>
-
-## Methods
-
-<table><thead><tr><th>
-
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[close()](./gramstax.webhookqueue.close.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Close the queue and release all waiting consumers and producers.
-
-
-</td></tr>
-<tr><td>
-
-[dequeue(signal)](./gramstax.webhookqueue.dequeue.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Dequeue a value, blocking when the queue is empty.
-
-
-</td></tr>
-<tr><td>
-
-[enqueue(value, signal)](./gramstax.webhookqueue.enqueue.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Enqueue a value, blocking when the queue is full.
-
-
-</td></tr>
-<tr><td>
-
-[getStats()](./gramstax.webhookqueue.getstats.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Get current queue statistics.
-
-
-</td></tr>
-<tr><td>
-
-[tryEnqueue(value)](./gramstax.webhookqueue.tryenqueue.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Offer a value without blocking.
-
-
-</td></tr>
-</tbody></table>
+The queue stopped being webhook-specific when polling adopted it, so the class was renamed. The alias is the same object — not a subclass — so `WebhookQueue === UpdateQueue` holds and `instanceof` works both ways.
 

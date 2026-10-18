@@ -6,12 +6,12 @@
 
 Edits a media message caption using the page template.
 
-Template block: `<g-message + g-keyboard>` (read via `getGMessage/getGKeyboard`<!-- -->).
+Template block: `<g-message>` (read via `getGMessage`<!-- -->).
 
 **Signature:**
 
 ```typescript
-renderEditCaption(keyboardInline: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptEditCaption | null, fallbackEdit?: IOptFallbackEdit): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CaptionableMessage)>;
+renderEditCaption(params: IRenderEditCaptionParams): Promise<true | Message | (grammy_types.Update.Edited & Message.CaptionableMessage) | IBroadcastSendResult | Message[]>;
 ```
 
 ## Parameters
@@ -34,81 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-keyboardInline
+params
 
 
 </td><td>
 
-[IInlineKb](./gramstax.iinlinekb.md) \| null \| undefined
+[IRenderEditCaptionParams](./gramstax.irendereditcaptionparams.md)
 
 
 </td><td>
 
-Optional inline keyboard markup (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null \| undefined
-
-
-</td><td>
-
-Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Template base ID position for block message.
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptEditCaption](./gramstax.iopteditcaption.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional abort signal for the edit call (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-fallbackEdit
-
-
-</td><td>
-
-[IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
-
-
-</td><td>
-
-_(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
+Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
 
 
 </td></tr>
@@ -116,20 +52,20 @@ _(Optional)_ Fallback when the edit fails: `delete-reply` (default) deletes the 
 
 **Returns:**
 
-Promise&lt;true \| grammy\_types.Message.TextMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CaptionableMessage)&gt;
+Promise&lt;true \| Message \| (grammy\_types.Update.Edited &amp; Message.CaptionableMessage) \| [IBroadcastSendResult](./gramstax.ibroadcastsendresult.md) \| Message\[\]&gt;
 
 The edited message object.
 
 ## Remarks
 
-Caption text comes from the `<g-base id>` block via `getGMessage` and is sent via `editMessageCaption`<!-- -->. Fallback modes mirror `renderEdit`<!-- -->: `delete-reply`<!-- -->/`reply` resend the caption as plain text, `disable` throws.
+Caption text comes from the `<g-message>` block at the `AGBaseId` base via `getGMessage` and is sent via `editMessageCaption`<!-- -->. The keyboard is NOT read from a block — it comes from the `keyboardInline` param, and an omitted/absent keyboard clears the markup. Fallback modes mirror `renderText`<!-- -->: `delete-reply`<!-- -->/`reply` resend the caption as plain text, `disable` throws.
 
 ## Example
 
 
 ```typescript
 async handleArgsCallback() {
-  await this.renderEditCaption(undefined, undefined, `photo-card`)
+  await this.renderEditCaption({AGBaseId: `photo-card`})
 }
 ```
 

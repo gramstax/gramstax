@@ -122,7 +122,7 @@ methods:
       Supported cases and extensions: - Extensions: `.ts` and `.js` only — other files are ignored. - Flat file:
       `start.ts` → route `start`<!-- -->. - Nested file: `admin/ban.ts` → route `admin/ban` (arbitrary depth). -
       Directory index: `admin/index.ts` → route `admin`<!-- -->. - A root-level `index.ts`<!-- -->/`index.js` has no
-      parent route and is rejected with an empty-routeName error — rename it to a named file instead.
+      parent route and is rejected  with an empty-routeName error — rename it to a named file instead.
     remarks: ''
     example:
       - |-

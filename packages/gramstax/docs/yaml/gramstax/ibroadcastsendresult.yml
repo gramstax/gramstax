@@ -1,0 +1,28 @@
+### YamlMime:TSTypeAlias
+name: IBroadcastSendResult
+uid: gramstax!IBroadcastSendResult:type
+package: gramstax!
+fullName: IBroadcastSendResult
+summary: Bulk send result with a re-drive list.
+remarks: >-
+  Broadcast-send counterpart of [IBroadcastEditResult](xref:gramstax!IBroadcastEditResult:type)<!-- -->: counts plus
+  `retryable[]` (absolute `index` + recipient `id` + `error`<!-- -->, completion order) for a fresh retry pass, and
+  `skippedCount` for `startFrom`<!-- -->-resumed or `excludeIds`<!-- -->-skipped recipients. Returned by the
+  `broadcast.ids` paths of [Ctx.renderText()](xref:gramstax!Ctx%23renderText:member(1))<!-- -->,
+  [Ctx.renderPoll()](xref:gramstax!Ctx%23renderPoll:member(1))<!-- -->, and
+  [Ctx.renderMedia()](xref:gramstax!Ctx%23renderMedia:member(1))<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IBroadcastSendResult = {
+      successCount: number;
+      failedCount: number;
+      totalCount: number;
+      skippedCount: number;
+      retryable: Array<{
+          index: number;
+          id: number;
+          error: unknown;
+      }>;
+  };

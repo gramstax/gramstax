@@ -57,6 +57,10 @@ The trace span with `name`<!-- -->, `durationMs`<!-- -->, and `attributes`<!-- -
 
 void
 
+## Default Value
+
+`undefined` (no trace export)
+
 ## Remarks
 
 Sibling hooks: `hookSendError` (per-send failures) and `hookUpdateError` (dead updates). Routing rule: retry-queue ← `hookSendError`<!-- -->, Sentry ← `hookUpdateError`<!-- -->, dashboard ← `hookTrace`<!-- -->.

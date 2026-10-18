@@ -6,10 +6,12 @@
 
 Answers the active inline query with caller-built results and template button text.
 
+Template block: `<g-inline-button>` (read via `getGInlineButton`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderInlineAnswer(results: readonly InlineQueryResult[], data: IData | null | undefined, AGBaseId: string, options?: IOptInlineAnswer | null, buttonStartParameter?: string | null): Promise<true>;
+renderInlineAnswer(params: IRenderInlineAnswerParams): Promise<true>;
 ```
 
 ## Parameters
@@ -32,81 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-results
+params
 
 
 </td><td>
 
-readonly InlineQueryResult\[\]
+[IRenderInlineAnswerParams](./gramstax.irenderinlineanswerparams.md)
 
 
 </td><td>
 
-Inline results built by the caller (up to 50).
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null \| undefined
-
-
-</td><td>
-
-Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Template base ID position for the button text.
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptInlineAnswer](./gramstax.ioptinlineanswer.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional answer options (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-buttonStartParameter
-
-
-</td><td>
-
-string \| null
-
-
-</td><td>
-
-_(Optional)_ Optional deep-link start parameter; enables the block-text button (or null to omit).
+Answer params: `results` inline results built by the caller, up to 50 (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the button text (required); `options` optional answer options (or null to omit); `buttonStartParameter` optional deep-link start parameter, enabling the block-text button (or null to omit).
 
 
 </td></tr>
@@ -131,7 +69,7 @@ Telegram caps answers at 50 results; cache them with `cache_time` for identical 
 
 ```typescript
 async handleInlineQuery() {
-  await this.renderInlineAnswer([article], {name: `Ani`}, `inline-card`, undefined, `start=1`)
+  await this.renderInlineAnswer({results: [article], data: {name: `Ani`}, AGBaseId: `inline-card`, buttonStartParameter: `start=1`})
 }
 ```
 

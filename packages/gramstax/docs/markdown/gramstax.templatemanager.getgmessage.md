@@ -9,7 +9,7 @@ Gets compiled from block <g-message>.
 **Signature:**
 
 ```typescript
-getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
+getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GMessageResult;
 ```
 
 ## Parameters
@@ -98,19 +98,19 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-string
+[GMessageResult](./gramstax.gmessageresult.md)
 
-Rendered message string, or empty string if not found
+[GMessageResult](./gramstax.gmessageresult.md) — rendered text plus the compile-time rich marker, or `{text: "", rich: false}` when not found
 
 ## Remarks
 
-Retrieves the compiled message function for the specified template and language, then executes it with the provided data to generate the message.
+Retrieves the compiled message function for the specified template and language, then executes it with the provided data to generate the message. Failures are swallowed to the empty-text result, preserving the historical fallback contract.
 
 ## Example
 
 
 ```typescript
 const message = tm.getGMessage("start", "default", "en", {name: "John"})
-// => "Hello, John! Welcome to the bot."
+// => {kind: "message", text: "Hello, John! Welcome to the bot.", rich: false}
 ```
 

@@ -6,10 +6,12 @@
 
 Answers the active callback query with template text.
 
+Template block: `<g-callback-answer>` (read via `getGCallbackAnswer`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderCallbackAnswer(showAlert: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptCallbackAnswer | null): Promise<true>;
+renderCallbackAnswer(params: IRenderCallbackAnswerParams): Promise<true>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-showAlert
+params
 
 
 </td><td>
 
-boolean
+[IRenderCallbackAnswerParams](./gramstax.irendercallbackanswerparams.md)
 
 
 </td><td>
 
-Whether to show an alert instead of a toast notification.
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null \| undefined
-
-
-</td><td>
-
-Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Template base ID position for the notification text.
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptCallbackAnswer](./gramstax.ioptcallbackanswer.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional answer options such as `cache_time` (or null to omit).
+Answer params: `showAlert` whether to show an alert instead of a toast notification (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the notification text (required); `options` optional answer options such as `cache_time` (or null to omit).
 
 
 </td></tr>
@@ -115,7 +69,7 @@ Toast text is limited by Telegram to 200 characters — keep the block short.
 
 ```typescript
 async handleCallbackQueryData() {
-  await this.renderCallbackAnswer(false, undefined, `tap-card`)
+  await this.renderCallbackAnswer({showAlert: false, AGBaseId: `tap-card`})
 }
 ```
 

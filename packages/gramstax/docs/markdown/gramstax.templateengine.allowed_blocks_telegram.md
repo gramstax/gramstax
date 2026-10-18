@@ -9,7 +9,7 @@ Combined Telegram tag allowlist: legacy (9) + Rich HTML (45) = 54 tags.
 **Signature:**
 
 ```typescript
-static ALLOWED_BLOCKS_TELEGRAM: string[];
+static ALLOWED_BLOCKS_TELEGRAM: ReadonlySet<string>;
 ```
 
 ## Remarks

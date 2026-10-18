@@ -1,0 +1,23 @@
+### YamlMime:TSTypeAlias
+name: IRenderMediaGroupParams
+uid: gramstax!IRenderMediaGroupParams:type
+package: gramstax!
+fullName: IRenderMediaGroupParams
+summary: Parameters for `renderMediaGroup` — the single media-group send/edit method.
+remarks: >-
+  `options` feeds both the direct reply branch and the delete-then-resend branches (media groups have no in-place edit).
+  `mode` resolves the send-versus-edit decision exactly like
+  [IRenderMediaParams](xref:gramstax!IRenderMediaParams:type)<!-- -->: `auto` (default) edits when the update carries a
+  `callbackQuery`<!-- -->. Group edits and the `delete-reply` fallback delete the original message first.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderMediaGroupParams = {
+      type?: IMediaGroupType | null;
+      data?: IData | null;
+      AGBaseId?: string | null;
+      mode?: IRenderMode;
+      options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null;
+      fallbackEdit?: IOptFallbackEdit;
+  };

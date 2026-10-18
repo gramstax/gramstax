@@ -9,14 +9,14 @@ Registry of supported scope interpolation syntaxes.
 **Signature:**
 
 ```typescript
-static ALLOWED_SCOPE: string[];
+static ALLOWED_SCOPE: ReadonlySet<string>;
 ```
 
 ## Remarks
 
 These are the variable/expression delimiters recognized within template content. Each entry represents a pair of opening/closing delimiters that trigger a specific interpolation behavior at compile time.
 
-\*\*Supported scopes:\*\* - `{{}}` — Mustache-style variable interpolation. Placeholders like `{{name}}` are replaced with the corresponding value from the `data` object at render time. Nullish values produce an empty string. - `{~~}` — Inline execution blocks. Expressions like `{~ status ? "Success" : "Failed" ~}` are evaluated as JavaScript expressions with access to the `data` object.
+\*\*Supported scopes:\*\* - `{{}}` — Mustache-style variable interpolation. Placeholders like `{{name}}` are  replaced with the corresponding value from the `data` object at render time.  Nullish values produce an empty string. - `{~~}` — Inline execution blocks. Expressions like `{~ status ? "Success" : "Failed" ~}` are  evaluated as JavaScript expressions with access to the `data` object.
 
 This array is used for reference/documentation purposes; the actual parsing is handled by `_processScopeVariables` (for `{{}}`<!-- -->) and `_processScopeExec` (for `{~~}`<!-- -->).
 

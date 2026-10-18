@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: GInvoiceResult
+uid: gramstax!GInvoiceResult:type
+package: gramstax!
+fullName: GInvoiceResult
+summary: Result of `TemplateManager.getGInvoice` for a `<g-invoice>` block.
+remarks: Extends [IInvoiceBlock](xref:gramstax!IInvoiceBlock:type) with the `invoice` kind discriminator.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GInvoiceResult = {
+      kind: `invoice`;
+  } & IInvoiceBlock;

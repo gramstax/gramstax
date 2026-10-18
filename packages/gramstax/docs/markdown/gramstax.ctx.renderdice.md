@@ -6,10 +6,12 @@
 
 Sends a template-driven dice animation using the page `<g-dice>` block.
 
+Template block: `<g-dice>` (read via `getGDice`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderDice(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithDice`]>[1] | null): Promise<grammy_types.Message.DiceMessage>;
+renderDice(params?: IRenderDiceParams): Promise<Message.DiceMessage>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-keyboard
+params
 
 
 </td><td>
 
-[IInBoKb](./gramstax.iinbokb.md) \| null
+[IRenderDiceParams](./gramstax.irenderdiceparams.md)
 
 
 </td><td>
 
-_(Optional)_ Optional keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) or [Ctx.bottomKeyboard()](./gramstax.ctx.bottomkeyboard.md) (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template base ID position for block dice (or null to use default).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-Parameters&lt;[Ctx](./gramstax.ctx.md)<!-- -->\[\`replyWithDice\`\]&gt;\[1\] \| null
-
-
-</td><td>
-
-_(Optional)_ Optional extra `sendDice` fields (or null to omit).
+_(Optional)_ Optional params object (defaults to `{}`<!-- -->): `keyboard` optional keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) or [Ctx.bottomKeyboard()](./gramstax.ctx.bottomkeyboard.md) (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block dice (or null to use default); `options` optional extra `sendDice` fields (or null to omit).
 
 
 </td></tr>
@@ -98,7 +52,7 @@ _(Optional)_ Optional extra `sendDice` fields (or null to omit).
 
 **Returns:**
 
-Promise&lt;grammy\_types.Message.DiceMessage&gt;
+Promise&lt;Message.DiceMessage&gt;
 
 The sent dice message object.
 
@@ -114,7 +68,7 @@ Observe-only send-error coverage (mirrors `renderPoll`<!-- -->): failures are cl
 ```typescript
 async handleCallbackQueryData() {
   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-  await this.renderDice(kb, {dice: `🎯`})
+  await this.renderDice({keyboard: kb, data: {dice: `🎯`}})
 }
 ```
 
@@ -124,7 +78,7 @@ async handleCallbackQueryData() {
 ```typescript
 async handleLuckyRoll() {
   // Template: <g-base><g-dice emoji="{{dice}}"/></g-base>
-  await this.renderDice(null, {dice: `🏀`})
+  await this.renderDice({data: {dice: `🏀`}})
 }
 ```
 

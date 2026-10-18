@@ -4,12 +4,12 @@
 
 ## TemplateEngine.\_extractBlockNames() method
 
-Extracts lowercase block tag names from an array of tag literals.
+Extracts lowercase block tag names from an iterable of tag literals.
 
 **Signature:**
 
 ```typescript
-static _extractBlockNames(blocks: string[]): Set<string>;
+static _extractBlockNames(blocks: Iterable<string>): Set<string>;
 ```
 
 ## Parameters
@@ -37,12 +37,12 @@ blocks
 
 </td><td>
 
-string\[\]
+Iterable&lt;string&gt;
 
 
 </td><td>
 
-Array of tag literals (e.g. `["<g-base>", "<message/>", "<blockquote expandable>"]`<!-- -->)
+Iterable of tag literals (e.g. `["<g-base>", "<message/>", "<blockquote expandable>"]`<!-- -->)
 
 
 </td></tr>

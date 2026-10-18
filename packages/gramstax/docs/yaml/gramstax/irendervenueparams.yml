@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IRenderVenueParams
+uid: gramstax!IRenderVenueParams:type
+package: gramstax!
+fullName: IRenderVenueParams
+summary: Parameters for `renderVenue`<!-- -->.
+remarks: >-
+  Fail-fast validation (`Ctx.assertVenue`<!-- -->: non-empty title/address plus `Ctx.assertLocation` range checks) runs
+  on the COMPILED strings BEFORE any API call.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderVenueParams = {
+      keyboard?: IInBoKb | null;
+      data?: IData | null;
+      AGBaseId?: string | null;
+      options?: Parameters<Ctx[`replyWithVenue`]>[4] | null;
+  };

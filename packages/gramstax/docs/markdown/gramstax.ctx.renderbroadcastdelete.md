@@ -11,7 +11,7 @@ Template block: none — operates on message ids, reads no template block.
 **Signature:**
 
 ```typescript
-renderBroadcastDelete(targets: IBroadcastEditTarget[], broadcastOpts?: IBroadcastEditOpts | null): Promise<IBroadcastEditResult>;
+renderBroadcastDelete(params: IRenderBroadcastDeleteParams): Promise<IBroadcastEditResult>;
 ```
 
 ## Parameters
@@ -34,33 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-targets
+params
 
 
 </td><td>
 
-[IBroadcastEditTarget](./gramstax.ibroadcastedittarget.md)<!-- -->\[\]
+[IRenderBroadcastDeleteParams](./gramstax.irenderbroadcastdeleteparams.md)
 
 
 </td><td>
 
-Stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index).
-
-
-</td></tr>
-<tr><td>
-
-broadcastOpts
-
-
-</td><td>
-
-[IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional broadcast controls (`onProgress`<!-- -->, `startFrom`<!-- -->, `concurrency`<!-- -->, `chunkSize`<!-- -->, `chunkDelayMs`<!-- -->) (or null for defaults; `fallbackEdit` is accepted but ignored — deletes have no resend).
+Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `broadcastOpts` optional broadcast controls (`onProgress`<!-- -->, `startFrom`<!-- -->, `concurrency`<!-- -->, `chunkSize`<!-- -->, `chunkDelayMs`<!-- -->) (or null for defaults; `fallbackEdit` is accepted but ignored — deletes have no resend).
 
 
 </td></tr>
@@ -74,7 +58,7 @@ Counts plus `retryable[]` for a re-drive pass.
 
 ## Remarks
 
-Expiry-cleanup counterpart of `renderBroadcastEdit`<!-- -->: same checkpoint-first resume (`startFrom`<!-- -->), bounded-concurrency stride lanes (`concurrency`<!-- -->, capped at `10`<!-- -->), pacing (`30`<!-- -->-message free-limit sleep plus optional `chunkSize`<!-- -->/`chunkDelayMs` sleeps with `onProgress`<!-- -->), and retryable separation (`retryable[]` with absolute `index` + `chatId` + `messageId` + `error`<!-- -->, completion order).
+Expiry-cleanup counterpart of the revise fan-out (`renderMedia` with `broadcast.targets`<!-- -->): same checkpoint-first resume (`startFrom`<!-- -->), bounded-concurrency stride lanes (`concurrency`<!-- -->, capped at `10`<!-- -->), pacing (`30`<!-- -->-message free-limit sleep plus optional `chunkSize`<!-- -->/`chunkDelayMs` sleeps with `onProgress`<!-- -->), and retryable separation (`retryable[]` with absolute `index` + `chatId` + `messageId` + `error`<!-- -->, completion order).
 
 Per-recipient failures are classified via `Ctx.classifySendError`<!-- -->: `retryable` errors are recorded and the loop continues; `fallback-text` errors only notify (`notifySendError`<!-- -->) and count as failed. A failed delete has no text fallback by design — there is no replacement content to deliver, so no `sendMessage` is attempted on either path.
 
@@ -84,7 +68,7 @@ Per-recipient failures are classified via `Ctx.classifySendError`<!-- -->: `retr
 ```typescript
 async handleExpireVip() {
   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
-  await this.renderBroadcastDelete(sent)
+  await this.renderBroadcastDelete({targets: sent})
 }
 ```
 

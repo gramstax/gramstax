@@ -11,7 +11,7 @@ Template block: `<g-gift>` (read via `getGGift`<!-- -->).
 **Signature:**
 
 ```typescript
-renderGift(target: number, giftId: string, keyboard: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptGift | null): Promise<true>;
+renderGift(params: IRenderGiftParams): Promise<true>;
 ```
 
 ## Parameters
@@ -34,97 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-target
+params
 
 
 </td><td>
 
-number
+[IRenderGiftParams](./gramstax.irendergiftparams.md)
 
 
 </td><td>
 
-Gift recipient user id.
-
-
-</td></tr>
-<tr><td>
-
-giftId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Telegram gift identifier.
-
-
-</td></tr>
-<tr><td>
-
-keyboard
-
-
-</td><td>
-
-[IInlineKb](./gramstax.iinlinekb.md) \| null \| undefined
-
-
-</td><td>
-
-Must stay null: `sendGift` carries no reply markup, so a non-null keyboard throws before any API call (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null \| undefined
-
-
-</td><td>
-
-Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Template base ID position for block message.
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptGift](./gramstax.ioptgift.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional gift options (or null to omit).
+Gift params: `target` gift recipient user id (required); `giftId` Telegram gift identifier (required); `keyboard` must stay null/omitted — `sendGift` carries no reply markup, so a non-null keyboard throws before any API call; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional gift options (or null to omit).
 
 
 </td></tr>
@@ -147,7 +67,7 @@ Failure rule: insufficient Stars balance (`400`<!-- -->) throws after notify —
 
 ```typescript
 async handleCallbackQueryData() {
-  await this.renderGift(123456, `gift-id`, undefined, undefined, `gift-card`)
+  await this.renderGift({target: 123456, giftId: `gift-id`, AGBaseId: `gift-card`})
 }
 ```
 

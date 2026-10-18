@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: GPreCheckoutErrorResult
+uid: gramstax!GPreCheckoutErrorResult:type
+package: gramstax!
+fullName: GPreCheckoutErrorResult
+summary: Result of `TemplateManager.getGPrecheckoutError` for a `<g-precheckout-error>` block.
+remarks: >-
+  `text` is the rendered decline message; the getter throws when the block is missing (declined payments need an error
+  message).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GPreCheckoutErrorResult = {
+      kind: `preCheckoutError`;
+      text: string;
+  };

@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: IBroadcastReviseParams
+uid: gramstax!IBroadcastReviseParams:type
+package: gramstax!
+fullName: IBroadcastReviseParams
+summary: Broadcast revise selector for the `broadcast` field of `renderMedia`<!-- -->.
+remarks: >-
+  `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, `document`<!-- -->, and `animation` edit in place via
+  `editMessageMedia`<!-- -->; the remaining types cannot be edited, so the old message is deleted and a new one is sent.
+  `broadcastOpts.fallbackEdit` applies per recipient when the primary edit/resend fails.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IBroadcastReviseParams = {
+      targets: IBroadcastEditTarget[];
+      broadcastOpts?: IBroadcastEditOpts | null;
+  };

@@ -79,7 +79,7 @@ These methods are shortcuts for [Ctx.setSession()](./gramstax.ctx.setsession.md)
 async handleCallbackQueryData() {
   // Set session input for `handleFreeText`
   await this.setSessionFreeText({data: "12345"})
-  await this.render()
+  await this.renderText()
 }
 ```
 

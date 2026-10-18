@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IServerlessRef
+uid: gramstax!IServerlessRef:type
+package: gramstax!
+fullName: IServerlessRef
+summary: A config slot resolved to an imported module for a serverless bundle.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IServerlessRef = {
+      slot: IServerlessSlot;
+      module: string;
+      exportName?: string;
+      args: unknown[];
+  };

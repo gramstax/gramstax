@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IRenderInvoiceParams
+uid: gramstax!IRenderInvoiceParams:type
+package: gramstax!
+fullName: IRenderInvoiceParams
+summary: Parameters for `renderInvoice`<!-- -->.
+remarks: >-
+  Provider tokens are security-critical and NEVER come from templates: the validator rejects a `provider_token`
+  attribute outright, so `options` is the only way to supply one.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderInvoiceParams = {
+      keyboard?: IInlineKb | null;
+      data?: IData | null;
+      AGBaseId?: string | null;
+      options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {
+          provider_token?: string;
+      }) | null;
+  };

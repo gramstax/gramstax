@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: GBlockKind
+uid: gramstax!GBlockKind:type
+package: gramstax!
+fullName: GBlockKind
+summary: Discriminator identifying which `getG*` block a result was rendered from.
+remarks: >-
+  One member per `TemplateManager.getG*` getter. Consumers narrow the `G*Result` payloads by `kind`<!-- -->; every
+  payload carries its fields flat alongside this discriminator.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError`
+  | `shippingError` | `inlineButton` | `answerNote` | `gift` | `invoice` | `paidMedia` | `description`;

@@ -6,10 +6,12 @@
 
 Answers a web app query via the Bot API with a caller-built result.
 
+Template block: `<g-answer-note>` (read via `getGAnswerNote`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderWebAppAnswer(webAppQueryId: string, result: InlineQueryResult, data: IData | null | undefined, AGBaseId: string, options?: IOptWebAppAnswer | null): Promise<grammy_types.SentWebAppMessage>;
+renderWebAppAnswer(params: IRenderWebAppAnswerParams): Promise<grammy_types.SentWebAppMessage>;
 ```
 
 ## Parameters
@@ -32,81 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-webAppQueryId
+params
 
 
 </td><td>
 
-string
+[IRenderWebAppAnswerParams](./gramstax.irenderwebappanswerparams.md)
 
 
 </td><td>
 
-Unique identifier for the query to answer.
-
-
-</td></tr>
-<tr><td>
-
-result
-
-
-</td><td>
-
-InlineQueryResult
-
-
-</td><td>
-
-Inline result built by the caller.
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null \| undefined
-
-
-</td><td>
-
-Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Template base ID position (resolved for validation).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptWebAppAnswer](./gramstax.ioptwebappanswer.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional abort signal (or null to omit).
+Answer params: `webAppQueryId` unique identifier for the query to answer (required); `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position, resolved for validation (required); `options` optional abort signal (or null to omit).
 
 
 </td></tr>
@@ -129,7 +67,7 @@ Observe-only send-error coverage (mirrors `renderGift`<!-- -->): failures are cl
 
 ```typescript
 async handleWebAppData() {
-  await this.renderWebAppAnswer(queryId, article, undefined, `webapp-card`)
+  await this.renderWebAppAnswer({webAppQueryId: queryId, result: article, AGBaseId: `webapp-card`})
 }
 ```
 

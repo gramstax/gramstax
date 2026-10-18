@@ -6,10 +6,12 @@
 
 Sends a template-driven poll using the page `<g-poll>` block.
 
+Template block: `<g-poll>` (read via `getGPoll`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderPoll(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPoll`]>[2] | null): Promise<grammy_types.Message.PollMessage>;
+renderPoll(params?: IRenderPollParams): Promise<Awaited<ReturnType<Ctx[`replyWithPoll`]>> | IBroadcastSendResult>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-keyboard
+params
 
 
 </td><td>
 
-[IInBoKb](./gramstax.iinbokb.md) \| null
+[IRenderPollParams](./gramstax.irenderpollparams.md)
 
 
 </td><td>
 
-_(Optional)_ Optional keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) or [Ctx.bottomKeyboard()](./gramstax.ctx.bottomkeyboard.md) (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template base ID position for block poll (or null to use default).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-Parameters&lt;[Ctx](./gramstax.ctx.md)<!-- -->\[\`replyWithPoll\`\]&gt;\[2\] \| null
-
-
-</td><td>
-
-_(Optional)_ Optional extra `sendPoll` fields (or null to omit).
+_(Optional)_ Optional params object (defaults to `{}`<!-- -->): `keyboard` optional keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) or [Ctx.bottomKeyboard()](./gramstax.ctx.bottomkeyboard.md) (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block poll (or null to use default); `options` optional extra `sendPoll` fields (or null to omit); `broadcast` optional broadcast fan-out [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md) (or null for a single-chat send).
 
 
 </td></tr>
@@ -98,17 +52,17 @@ _(Optional)_ Optional extra `sendPoll` fields (or null to omit).
 
 **Returns:**
 
-Promise&lt;grammy\_types.Message.PollMessage&gt;
+Promise&lt;Awaited&lt;ReturnType&lt;[Ctx](./gramstax.ctx.md)<!-- -->\[\`replyWithPoll\`\]&gt;&gt; \| [IBroadcastSendResult](./gramstax.ibroadcastsendresult.md)<!-- -->&gt;
 
-The sent poll message object.
+The sent poll message object, or the [IBroadcastSendResult](./gramstax.ibroadcastsendresult.md) counts when `broadcast` is present.
 
 ## Remarks
 
 Fail-fast validation (`Ctx.assertPoll`<!-- -->) runs BEFORE any API call on the COMPILED strings — programmer errors always throw, never fall back. The question is sent with `parse_mode: HTML` so rich HTML tags work; quiz explanations use `explanation_parse_mode: HTML`<!-- -->.
 
-There is no `renderPollAuto` / `renderEditPoll`<!-- -->: the Bot API offers no edit for polls (only `stopPoll`<!-- -->), so polls are send-only.
+Polls are send-only: the Bot API offers no poll edit (only `stopPoll`<!-- -->), so there is no `mode` field here.
 
-Observe-only send-error coverage (mirrors `render`<!-- -->): failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!-- -->, `fallback-text` → `log.warn`<!-- -->). There is no degraded fallback content for polls, so after notify+log the original error is ALWAYS rethrown untouched.
+Observe-only send-error coverage (mirrors `renderDice`<!-- -->): failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!-- -->, `fallback-text` → `log.warn`<!-- -->). There is no degraded fallback content for polls, so after notify+log the original error is ALWAYS rethrown untouched.
 
 ## Example 1
 
@@ -116,7 +70,7 @@ Observe-only send-error coverage (mirrors `render`<!-- -->): failures are classi
 ```typescript
 async handleCallbackQueryData() {
   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-  await this.renderPoll(kb, {topic: "math"})
+  await this.renderPoll({keyboard: kb, data: {topic: "math"}})
 }
 ```
 
@@ -126,7 +80,17 @@ async handleCallbackQueryData() {
 ```typescript
 async handleQuiz() {
   // Template: <g-poll type="quiz" correct="0" explanation="Because {{reason}}">
-  await this.renderPoll(null, {topic: "2+2", reason: "arithmetic"})
+  await this.renderPoll({data: {topic: "2+2", reason: "arithmetic"}})
+}
+```
+
+## Example 3
+
+
+```typescript
+async handleAnnounceVote() {
+  // Fan out the compiled poll to many users
+  await this.renderPoll({data: {topic: `lunch`}, broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})
 }
 ```
 

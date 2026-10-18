@@ -58,7 +58,7 @@ The template with `<g-space />` lines removed
 
 This internal method identifies lines that contain only a `<g-space />` tag (with optional surrounding whitespace) and removes the entire line. This is useful for controlling whitespace in templates.
 
-\*\*Attributes:\*\* - none
+\*\*Attributes:\*\*  - none
 
 ## Example
 

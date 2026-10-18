@@ -17,9 +17,27 @@ classes:
   - gramstax!SessionLock:class
   - gramstax!TemplateEngine:class
   - gramstax!TemplateManager:class
-  - gramstax!WebhookQueue:class
+  - gramstax!UpdateDispatcher:class
+  - gramstax!UpdateGate:class
+  - gramstax!UpdateQueue:class
 typeAliases:
+  - gramstax!GAnswerNoteResult:type
+  - gramstax!GBlockKind:type
+  - gramstax!GCallbackAnswerResult:type
+  - gramstax!GDescriptionResult:type
+  - gramstax!GDiceResult:type
+  - gramstax!GGiftResult:type
+  - gramstax!GInlineButtonResult:type
+  - gramstax!GInvoiceResult:type
+  - gramstax!GKeyboardResult:type
+  - gramstax!GMediaResult:type
+  - gramstax!GMessageResult:type
+  - gramstax!GPaidMediaResult:type
+  - gramstax!GPollResult:type
+  - gramstax!GPreCheckoutErrorResult:type
   - gramstax!GramstaxConfig:type
+  - gramstax!GShippingErrorResult:type
+  - gramstax!GVenueResult:type
   - gramstax!IAnswerNoteBlock:type
   - gramstax!IAppManifest:type
   - gramstax!IBottomKb:type
@@ -27,6 +45,9 @@ typeAliases:
   - gramstax!IBroadcastEditOpts:type
   - gramstax!IBroadcastEditResult:type
   - gramstax!IBroadcastEditTarget:type
+  - gramstax!IBroadcastReviseParams:type
+  - gramstax!IBroadcastSendParams:type
+  - gramstax!IBroadcastSendResult:type
   - gramstax!IBuildDataOptions:type
   - gramstax!ICacheRpc:type
   - gramstax!ICallbackAnswerBlock:type
@@ -36,6 +57,7 @@ typeAliases:
   - gramstax!ICtxParams:type
   - gramstax!ICustomRouteEntry:type
   - gramstax!IData:type
+  - gramstax!IDeployMode:type
   - gramstax!IDiceBlock:type
   - gramstax!IE2eApiCall:type
   - gramstax!IE2eCallbackQueryOptions:type
@@ -131,10 +153,33 @@ typeAliases:
   - gramstax!IPrecheckoutErrorBlock:type
   - gramstax!IRateLimitOptions:type
   - gramstax!IRedisLockClient:type
+  - gramstax!IRenderBroadcastDeleteParams:type
+  - gramstax!IRenderCallbackAnswerParams:type
+  - gramstax!IRenderDiceParams:type
+  - gramstax!IRenderEditCaptionParams:type
+  - gramstax!IRenderEditKeyboardParams:type
+  - gramstax!IRenderGiftParams:type
+  - gramstax!IRenderGuestAnswerParams:type
+  - gramstax!IRenderInlineAnswerParams:type
+  - gramstax!IRenderInvoiceParams:type
+  - gramstax!IRenderMediaGroupKindParams:type
+  - gramstax!IRenderMediaGroupParams:type
+  - gramstax!IRenderMediaKindParams:type
+  - gramstax!IRenderMediaParams:type
+  - gramstax!IRenderMode:type
+  - gramstax!IRenderPaidMediaParams:type
+  - gramstax!IRenderPollParams:type
+  - gramstax!IRenderPreCheckoutParams:type
+  - gramstax!IRenderShippingParams:type
+  - gramstax!IRenderTextParams:type
+  - gramstax!IRenderVenueParams:type
+  - gramstax!IRenderWebAppAnswerParams:type
   - gramstax!IReplyAction:type
   - gramstax!IRouteManifestEntry:type
   - gramstax!ISendErrorHook:type
   - gramstax!ISendErrorInfo:type
+  - gramstax!IServerlessRef:type
+  - gramstax!IServerlessSlot:type
   - gramstax!ISessionLockOnContended:type
   - gramstax!ISessionLockOptions:type
   - gramstax!IShippingErrorBlock:type
@@ -142,10 +187,15 @@ typeAliases:
   - gramstax!ITemp:type
   - gramstax!ITemplateManifestEntry:type
   - gramstax!ITemplateOptions:type
+  - gramstax!IUpdateDispatcherOptions:type
+  - gramstax!IUpdateDispatchStopResult:type
   - gramstax!IUpdateErrorEvent:type
+  - gramstax!IUpdateGateOptions:type
+  - gramstax!IUpdateQueueConfig:type
   - gramstax!IUpdateSuccessEvent:type
   - gramstax!IVenueBlock:type
   - gramstax!IWebhookQueueConfig:type
+  - gramstax!WebhookQueue:type
 interfaces:
   - gramstax!IBottomKbWithCtx:interface
   - gramstax!IInlineKbWithCtx:interface
@@ -174,3 +224,38 @@ functions:
       return:
         type: string
         description: Prometheus exposition text.
+  - name: resolveGateKey(update)
+    uid: gramstax!resolveGateKey:function(1)
+    package: gramstax!
+    summary: Resolve the concurrency-gate key for an update.
+    remarks: >-
+      Layered, narrowest-resource-first. The gate exists because session writes are last-write-wins with no
+      compare-and-swap, so two updates touching the same logical resource must never run at once.
+
+
+      1. `chat.id` — all traffic for one chat serializes regardless of sender. 2. `from.id` — chat-less user-originated
+      updates (`inline_query`<!-- -->,  `chosen_inline_result`<!-- -->, `poll_answer`<!-- -->, `join_request`<!-- -->,
+      `my_chat_member`<!-- -->,  `chat_member`<!-- -->, `chat_join_request`<!-- -->, and `callback_query` without a
+      message).  For an anonymous poll voter `poll_answer.voter_chat.id` stands in. 3. `update_id` — globally unique, so
+      each such update gets a private slot.  This degrades to "no serialization" rather than over-serializing unrelated 
+      updates against each other.
+
+
+      Note: `poll` carries no actor — Bot API 7.0 removed `Poll.user`<!-- -->, so a poll change reaches this function's
+      step 3 and gets a private slot.
+
+
+      Returns `undefined` only when the update carries no `update_id`<!-- -->, in which case the caller must not gate
+      it.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'declare function resolveGateKey(update: Update): string | undefined;'
+      parameters:
+        - id: update
+          description: ''
+          type: <xref uid="@grammyjs/types!Update:interface" />
+      return:
+        type: string | undefined
+        description: ''

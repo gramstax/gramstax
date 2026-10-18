@@ -93,6 +93,31 @@ properties:
       return:
         type: <xref uid="gramstax!IE2eApiCall:type" />[]
 methods:
+  - name: bodyOf(call)
+    uid: gramstax!E2eHelper#bodyOf:member(1)
+    package: gramstax!
+    fullName: bodyOf(call)
+    summary: Narrows one captured API call's `body` to the shape a test expects.
+    remarks: >-
+      `IE2eApiCall.body` is `Record<string, unknown>` on purpose: the Bot API body differs per method, so the library
+      cannot narrow it without lying about half the methods. Assertions that reach into a method-specific field
+      (`media`<!-- -->, `reply_markup`<!-- -->, `rich_message`<!-- -->) declare that shape here at the call site.
+    example:
+      - |-
+        ```typescript
+        expect(e2e.bodyOf<{media?: {type?: string}}>(call)?.media?.type).toBe(`photo`)
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'bodyOf<T = Record<string, unknown>>(call: IE2eApiCall | undefined): T | undefined;'
+      parameters:
+        - id: call
+          description: Captured API call, or `undefined` when there was no reply.
+          type: <xref uid="gramstax!IE2eApiCall:type" /> | undefined
+      return:
+        type: T | undefined
+        description: The body cast to `T`<!-- -->, or `undefined` when the call is absent.
   - name: clearCalls()
     uid: gramstax!E2eHelper#clearCalls:member(1)
     package: gramstax!

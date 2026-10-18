@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IDeployMode
+uid: gramstax!IDeployMode:type
+package: gramstax!
+fullName: IDeployMode
+summary: Name of a deploy mode.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IDeployMode = (typeof GRAMSTAX_DEPLOY_MODES)[number];

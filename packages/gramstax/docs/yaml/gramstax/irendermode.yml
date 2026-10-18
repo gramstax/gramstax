@@ -1,0 +1,13 @@
+### YamlMime:TSTypeAlias
+name: IRenderMode
+uid: gramstax!IRenderMode:type
+package: gramstax!
+fullName: IRenderMode
+summary: Send-versus-edit resolution for a render call.
+remarks: >-
+  - `auto` (default): edits when the update carries a `callbackQuery`<!-- -->,  otherwise replies. - `reply`<!-- -->:
+  always sends a new message. - `edit`<!-- -->: always edits the message tied to the update.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IRenderMode = `auto` | `reply` | `edit`;

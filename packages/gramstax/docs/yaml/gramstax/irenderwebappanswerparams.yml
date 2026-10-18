@@ -1,0 +1,20 @@
+### YamlMime:TSTypeAlias
+name: IRenderWebAppAnswerParams
+uid: gramstax!IRenderWebAppAnswerParams:type
+package: gramstax!
+fullName: IRenderWebAppAnswerParams
+summary: Parameters for `renderWebAppAnswer`<!-- -->.
+remarks: >-
+  Unlike the other answers this carries an explicit query id (there is no context-aware alias — web app queries arrive
+  without an answerable update), mirroring `renderGift`<!-- -->'s explicit target.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderWebAppAnswerParams = {
+      webAppQueryId: string;
+      result: InlineQueryResult;
+      data?: IData | null;
+      AGBaseId: string;
+      options?: IOptWebAppAnswer | null;
+  };

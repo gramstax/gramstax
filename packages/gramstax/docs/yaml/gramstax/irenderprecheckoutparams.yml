@@ -1,0 +1,20 @@
+### YamlMime:TSTypeAlias
+name: IRenderPreCheckoutParams
+uid: gramstax!IRenderPreCheckoutParams:type
+package: gramstax!
+fullName: IRenderPreCheckoutParams
+summary: Parameters for `renderPreCheckout`<!-- -->.
+remarks: >-
+  Template-backed counterpart to [Ctx.answerPreCheckout()](xref:gramstax!Ctx%23answerPreCheckout:member(1))<!-- -->: the
+  `<g-precheckout-error>` block supplies the `error_message` shown when payment is declined. Telegram requires the
+  answer within 10 seconds of the query.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderPreCheckoutParams = {
+      ok: boolean;
+      data?: IData | null;
+      AGBaseId: string;
+      options?: IOptPreCheckout | null;
+  };

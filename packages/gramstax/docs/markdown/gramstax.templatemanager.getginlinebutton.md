@@ -9,7 +9,7 @@ Gets compiled button from block <g-inline-button>.
 **Signature:**
 
 ```typescript
-getGInlineButton(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`inlineButton`][`default`][`default`]>;
+getGInlineButton(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GInlineButtonResult;
 ```
 
 ## Parameters
@@ -96,7 +96,7 @@ _(Optional)_
 
 **Returns:**
 
-ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`inlineButton\`\]\[\`default\`\]\[\`default\`\]&gt;
+[GInlineButtonResult](./gramstax.ginlinebuttonresult.md)
 
 ## Remarks
 

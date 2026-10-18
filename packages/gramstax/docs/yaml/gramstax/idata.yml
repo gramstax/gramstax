@@ -9,7 +9,7 @@ example:
   - |-
     ```ts
     const data: IData = {name: `John`, count: 3}
-    await this.render(null, data)
+    await this.renderText({data})
     ```
 isPreview: false
 isDeprecated: false

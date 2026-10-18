@@ -106,11 +106,11 @@ Template with all `<g-import>` blocks resolved and replaced
 
 This method resolves all `<g-import>` placeholders produced by `_processGImportBlocks` by invoking a user-provided `resolver` function.
 
-Resolution behavior: - Each `<g-import>` is resolved by calling `resolver(src)` to obtain raw template content. - The resolved content is filtered using `_extractBlock` based on the import metadata (`blocks`<!-- -->, `base`<!-- -->, `section`<!-- -->, `lang`<!-- -->). - If the resolved content itself contains `<g-import>` directives, they are processed recursively.
+Resolution behavior: - Each `<g-import>` is resolved by calling `resolver(src)` to obtain raw template content. - The resolved content is filtered using `_extractBlock` based on the import metadata  (`blocks`<!-- -->, `base`<!-- -->, `section`<!-- -->, `lang`<!-- -->). - If the resolved content itself contains `<g-import>` directives, they are processed  recursively.
 
-Recursion and safety: - Recursive import resolution is limited to a maximum depth of \*\*10\*\* to prevent infinite import loops. - If the depth limit is exceeded, an empty string is returned.
+Recursion and safety: - Recursive import resolution is limited to a maximum depth of \*\*10\*\* to prevent  infinite import loops. - If the depth limit is exceeded, an empty string is returned.
 
-Output behavior: - `<g-import>` placeholders (`__IMPORT_N__`<!-- -->) are replaced sequentially. - If the resolver returns `null` or an empty result, the import is replaced with an empty string.
+Output behavior: - `<g-import>` placeholders (`__IMPORT_N__`<!-- -->) are replaced sequentially. - If the resolver returns `null` or an empty result, the import is replaced with  an empty string.
 
 ## Example
 

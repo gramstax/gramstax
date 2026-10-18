@@ -6,10 +6,12 @@
 
 Sends Stars-locked photo/video content using the page `<g-paid-media>` block.
 
+Template block: `<g-paid-media>` (read via `getGPaidMedia`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderPaidMedia(keyboard?: IInlineKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null): Promise<grammy_types.Message.PaidMediaMessage>;
+renderPaidMedia(params?: IRenderPaidMediaParams): Promise<Message.PaidMediaMessage>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-keyboard
+params
 
 
 </td><td>
 
-[IInlineKb](./gramstax.iinlinekb.md) \| null
+[IRenderPaidMediaParams](./gramstax.irenderpaidmediaparams.md)
 
 
 </td><td>
 
-_(Optional)_ Optional inline keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template base ID position for block paid media (or null to use default).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-Parameters&lt;[Ctx](./gramstax.ctx.md)<!-- -->\[\`replyWithPaidMedia\`\]&gt;\[2\] \| null
-
-
-</td><td>
-
-_(Optional)_ Optional extra `sendPaidMedia` fields (or null to omit).
+_(Optional)_ Optional params object (defaults to `{}`<!-- -->): `keyboard` optional inline keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block paid media (or null to use default); `options` optional extra `sendPaidMedia` fields (or null to omit).
 
 
 </td></tr>
@@ -98,7 +52,7 @@ _(Optional)_ Optional extra `sendPaidMedia` fields (or null to omit).
 
 **Returns:**
 
-Promise&lt;grammy\_types.Message.PaidMediaMessage&gt;
+Promise&lt;Message.PaidMediaMessage&gt;
 
 The sent paid-media message object.
 
@@ -114,7 +68,7 @@ Observe-only send-error coverage (mirrors `renderInvoice`<!-- -->): failures are
 ```typescript
 async handleCallbackQueryData() {
   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-  await this.renderPaidMedia(kb, {teaser: `t.jpg`, full: `v.mp4`})
+  await this.renderPaidMedia({keyboard: kb, data: {teaser: `t.jpg`, full: `v.mp4`}})
 }
 ```
 
@@ -124,7 +78,7 @@ async handleCallbackQueryData() {
 ```typescript
 async handleBuyContent() {
   // Template: <g-paid-media stars="100"><g-media type="photo" src="{{teaser}}">Bayar untuk membuka</g-media></g-paid-media>
-  await this.renderPaidMedia(null, {teaser: `teaser.jpg`})
+  await this.renderPaidMedia({data: {teaser: `teaser.jpg`}})
 }
 ```
 

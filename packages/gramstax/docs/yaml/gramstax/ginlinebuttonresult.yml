@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: GInlineButtonResult
+uid: gramstax!GInlineButtonResult:type
+package: gramstax!
+fullName: GInlineButtonResult
+summary: Result of `TemplateManager.getGInlineButton` for a `<g-inline-button>` block.
+remarks: Extends [IInlineButtonBlock](xref:gramstax!IInlineButtonBlock:type) with the `inlineButton` kind discriminator.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GInlineButtonResult = {
+      kind: `inlineButton`;
+  } & IInlineButtonBlock;

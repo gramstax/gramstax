@@ -1,0 +1,20 @@
+### YamlMime:TSTypeAlias
+name: IRenderCallbackAnswerParams
+uid: gramstax!IRenderCallbackAnswerParams:type
+package: gramstax!
+fullName: IRenderCallbackAnswerParams
+summary: Parameters for `renderCallbackAnswer`<!-- -->.
+remarks: >-
+  Template-backed counterpart to answering inline-button taps: the `<g-callback-answer>` block supplies the notification
+  text. There is no message to send, so this takes no keyboard and never falls back to a reply. Toast text is limited by
+  Telegram to 200 characters.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderCallbackAnswerParams = {
+      showAlert: boolean;
+      data?: IData | null;
+      AGBaseId: string;
+      options?: IOptCallbackAnswer | null;
+  };

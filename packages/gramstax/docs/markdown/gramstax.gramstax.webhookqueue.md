@@ -9,10 +9,10 @@ Webhook queue configuration.
 **Signature:**
 
 ```typescript
-webhookQueue?: IWebhookQueueConfig;
+webhookQueue?: IUpdateQueueConfig;
 ```
 
 ## Remarks
 
-See [IWebhookQueueConfig](./gramstax.iwebhookqueueconfig.md) for queue settings.
+See [IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md) for queue settings.
 

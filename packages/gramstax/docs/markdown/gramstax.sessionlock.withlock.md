@@ -68,5 +68,5 @@ The work to perform under the lock.
 
 Promise&lt;T \| null&gt;
 
-The return value of `fn`<!-- -->, or `null` when the lock could not be acquired and the contention policy is `skip`<!-- -->.
+The return value of `fn`<!-- -->, or `null` when the lock could not be  acquired and the contention policy is `skip`<!-- -->.
 

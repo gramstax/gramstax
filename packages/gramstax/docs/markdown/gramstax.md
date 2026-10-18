@@ -162,12 +162,34 @@ Manages template loading, compilation, caching, and hot-reloading from page file
 </td></tr>
 <tr><td>
 
-[WebhookQueue](./gramstax.webhookqueue.md)
+[UpdateDispatcher](./gramstax.updatedispatcher.md)
 
 
 </td><td>
 
-Webhook update queue — in-memory bounded FIFO for sequential processing.
+Worker pool that drains a bounded queue through a per-key gate.
+
+
+</td></tr>
+<tr><td>
+
+[UpdateGate](./gramstax.updategate.md)
+
+
+</td><td>
+
+Per-key concurrency gate.
+
+
+</td></tr>
+<tr><td>
+
+[UpdateQueue](./gramstax.updatequeue.md)
+
+
+</td><td>
+
+Update queue — in-memory bounded FIFO for sequential processing.
 
 
 </td></tr>
@@ -194,6 +216,17 @@ Description
 </td><td>
 
 Serializes a [MetricsStore](./gramstax.metricsstore.md) snapshot into Prometheus text format.
+
+
+</td></tr>
+<tr><td>
+
+[resolveGateKey(update)](./gramstax.resolvegatekey.md)
+
+
+</td><td>
+
+Resolve the concurrency-gate key for an update.
 
 
 </td></tr>
@@ -284,6 +317,28 @@ Runtime filter table for AOT-generated template code.
 </td></tr>
 <tr><td>
 
+[GRAMSTAX\_DEPLOY\_MODE\_SET](./gramstax.gramstax_deploy_mode_set.md)
+
+
+</td><td>
+
+O(1) membership view of [GRAMSTAX\_DEPLOY\_MODES](./gramstax.gramstax_deploy_modes.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[GRAMSTAX\_DEPLOY\_MODES](./gramstax.gramstax_deploy_modes.md)
+
+
+</td><td>
+
+Canonical deploy-mode names.
+
+
+</td></tr>
+<tr><td>
+
 [GRAMSTAX\_SERVERLESS\_ADAPTERS](./gramstax.gramstax_serverless_adapters.md)
 
 
@@ -315,6 +370,17 @@ Pre-instantiated [LoggingHelper](./gramstax.logginghelper.md) singleton for conv
 
 
 </td></tr>
+<tr><td>
+
+[WebhookQueue](./gramstax.webhookqueue.md)
+
+
+</td><td>
+
+Legacy alias for [UpdateQueue](./gramstax.updatequeue.md)<!-- -->.
+
+
+</td></tr>
 </tbody></table>
 
 ## Type Aliases
@@ -332,12 +398,188 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[GAnswerNoteResult](./gramstax.ganswernoteresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGAnswerNote` for a `<g-answer-note>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GBlockKind](./gramstax.gblockkind.md)
+
+
+</td><td>
+
+Discriminator identifying which `getG*` block a result was rendered from.
+
+
+</td></tr>
+<tr><td>
+
+[GCallbackAnswerResult](./gramstax.gcallbackanswerresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGCallbackAnswer` for a `<g-callback-answer>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GDescriptionResult](./gramstax.gdescriptionresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGDescription` for a `<g-description>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GDiceResult](./gramstax.gdiceresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGDice` for a `<g-dice>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GGiftResult](./gramstax.ggiftresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGGift` for a `<g-gift>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GInlineButtonResult](./gramstax.ginlinebuttonresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGInlineButton` for a `<g-inline-button>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GInvoiceResult](./gramstax.ginvoiceresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGInvoice` for a `<g-invoice>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GKeyboardResult](./gramstax.gkeyboardresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGKeyboard` for a `<g-keyboard>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GMediaResult](./gramstax.gmediaresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGMedia` for a `<g-media>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GMessageResult](./gramstax.gmessageresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGMessage` for a `<g-message>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GPaidMediaResult](./gramstax.gpaidmediaresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGPaidMedia` for a `<g-paid-media>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GPollResult](./gramstax.gpollresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGPoll` for a `<g-poll>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GPreCheckoutErrorResult](./gramstax.gprecheckouterrorresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGPrecheckoutError` for a `<g-precheckout-error>` block.
+
+
+</td></tr>
+<tr><td>
+
 [GramstaxConfig](./gramstax.gramstaxconfig.md)
 
 
 </td><td>
 
 NextConfig-style alias for the `gramstax.config.ts` shape.
+
+
+</td></tr>
+<tr><td>
+
+[GShippingErrorResult](./gramstax.gshippingerrorresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGShippingError` for a `<g-shipping-error>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GVenueResult](./gramstax.gvenueresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGVenue` for a `<g-venue>` block.
 
 
 </td></tr>
@@ -392,7 +634,7 @@ Parameters for bottom keyboard configuration.
 
 </td><td>
 
-Broadcast controls shared by `renderBroadcastEdit` and `renderBroadcastDelete`<!-- -->.
+Broadcast controls shared by the `broadcast.targets` revise fan-out of `renderMedia` and by `renderBroadcastDelete`<!-- -->.
 
 
 </td></tr>
@@ -415,6 +657,39 @@ Bulk edit/delete result with a re-drive list.
 </td><td>
 
 One already-sent message to revise or remove in bulk.
+
+
+</td></tr>
+<tr><td>
+
+[IBroadcastReviseParams](./gramstax.ibroadcastreviseparams.md)
+
+
+</td><td>
+
+Broadcast revise selector for the `broadcast` field of `renderMedia`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IBroadcastSendParams](./gramstax.ibroadcastsendparams.md)
+
+
+</td><td>
+
+Broadcast-send controls for the `broadcast` field of `renderText`<!-- -->, `renderPoll`<!-- -->, and `renderMedia`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IBroadcastSendResult](./gramstax.ibroadcastsendresult.md)
+
+
+</td><td>
+
+Bulk send result with a re-drive list.
 
 
 </td></tr>
@@ -514,6 +789,17 @@ A custom filter-based route entry, registered via [Gramstax.registerCustomRoute(
 </td><td>
 
 Generic data object for template interpolation.
+
+
+</td></tr>
+<tr><td>
+
+[IDeployMode](./gramstax.ideploymode.md)
+
+
+</td><td>
+
+Name of a deploy mode.
 
 
 </td></tr>
@@ -1564,6 +1850,237 @@ Minimal Redis client surface used by `SessionLock`<!-- -->.
 </td></tr>
 <tr><td>
 
+[IRenderBroadcastDeleteParams](./gramstax.irenderbroadcastdeleteparams.md)
+
+
+</td><td>
+
+Parameters for `renderBroadcastDelete` — the expiry-cleanup delete fan-out.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderCallbackAnswerParams](./gramstax.irendercallbackanswerparams.md)
+
+
+</td><td>
+
+Parameters for `renderCallbackAnswer`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderDiceParams](./gramstax.irenderdiceparams.md)
+
+
+</td><td>
+
+Parameters for `renderDice`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderEditCaptionParams](./gramstax.irendereditcaptionparams.md)
+
+
+</td><td>
+
+Parameters for `renderEditCaption`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderEditKeyboardParams](./gramstax.irendereditkeyboardparams.md)
+
+
+</td><td>
+
+Parameters for `renderEditKeyboard`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderGiftParams](./gramstax.irendergiftparams.md)
+
+
+</td><td>
+
+Parameters for `renderGift`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderGuestAnswerParams](./gramstax.irenderguestanswerparams.md)
+
+
+</td><td>
+
+Parameters for `renderGuestAnswer`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderInlineAnswerParams](./gramstax.irenderinlineanswerparams.md)
+
+
+</td><td>
+
+Parameters for `renderInlineAnswer`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderInvoiceParams](./gramstax.irenderinvoiceparams.md)
+
+
+</td><td>
+
+Parameters for `renderInvoice`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderMediaGroupKindParams](./gramstax.irendermediagroupkindparams.md)
+
+
+</td><td>
+
+`IRenderMediaGroupParams` for one group kind — the per-kind group wrappers (`renderPhotoGroup`<!-- -->, `renderVideoGroup`<!-- -->, …) accept this shape and supply `type`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderMediaGroupParams](./gramstax.irendermediagroupparams.md)
+
+
+</td><td>
+
+Parameters for `renderMediaGroup` — the single media-group send/edit method.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderMediaKindParams](./gramstax.irendermediakindparams.md)
+
+
+</td><td>
+
+`IRenderMediaParams` for one media kind — the per-kind wrappers (`renderPhoto`<!-- -->, `renderVideo`<!-- -->, …) accept this shape and supply `type`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderMediaParams](./gramstax.irendermediaparams.md)
+
+
+</td><td>
+
+Parameters for `renderMedia` — the single media send/edit method.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderMode](./gramstax.irendermode.md)
+
+
+</td><td>
+
+Send-versus-edit resolution for a render call.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderPaidMediaParams](./gramstax.irenderpaidmediaparams.md)
+
+
+</td><td>
+
+Parameters for `renderPaidMedia`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderPollParams](./gramstax.irenderpollparams.md)
+
+
+</td><td>
+
+Parameters for `renderPoll`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderPreCheckoutParams](./gramstax.irenderprecheckoutparams.md)
+
+
+</td><td>
+
+Parameters for `renderPreCheckout`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderShippingParams](./gramstax.irendershippingparams.md)
+
+
+</td><td>
+
+Parameters for `renderShipping`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderTextParams](./gramstax.irendertextparams.md)
+
+
+</td><td>
+
+Parameters for `renderText` — the single text send/edit method.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderVenueParams](./gramstax.irendervenueparams.md)
+
+
+</td><td>
+
+Parameters for `renderVenue`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderWebAppAnswerParams](./gramstax.irenderwebappanswerparams.md)
+
+
+</td><td>
+
+Parameters for `renderWebAppAnswer`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [IReplyAction](./gramstax.ireplyaction.md)
 
 
@@ -1603,6 +2120,28 @@ Best-effort send-error hook.
 </td><td>
 
 Send-error event delivered to `ICtxParams.onSendError`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IServerlessRef](./gramstax.iserverlessref.md)
+
+
+</td><td>
+
+A config slot resolved to an imported module for a serverless bundle.
+
+
+</td></tr>
+<tr><td>
+
+[IServerlessSlot](./gramstax.iserverlessslot.md)
+
+
+</td><td>
+
+Config slot that may hold a module reference in a serverless build.
 
 
 </td></tr>
@@ -1685,12 +2224,56 @@ Configuration options for TemplateManager initialization.
 </td></tr>
 <tr><td>
 
+[IUpdateDispatcherOptions](./gramstax.iupdatedispatcheroptions.md)
+
+
+</td><td>
+
+Options for [UpdateDispatcher](./gramstax.updatedispatcher.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IUpdateDispatchStopResult](./gramstax.iupdatedispatchstopresult.md)
+
+
+</td><td>
+
+Result of [UpdateDispatcher.stop()](./gramstax.updatedispatcher.stop.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [IUpdateErrorEvent](./gramstax.iupdateerrorevent.md)
 
 
 </td><td>
 
 Structured error event emitted by `onUpdateError`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IUpdateGateOptions](./gramstax.iupdategateoptions.md)
+
+
+</td><td>
+
+Options for [UpdateGate](./gramstax.updategate.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)
+
+
+</td><td>
+
+Update queue configuration for backpressure and worker pooling.
 
 
 </td></tr>
@@ -1723,7 +2306,18 @@ Venue block configuration for Telegram venues.
 
 </td><td>
 
-Webhook queue configuration for backpressure and worker pooling.
+Legacy alias for [IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[WebhookQueue](./gramstax.webhookqueue.md)
+
+
+</td><td>
+
+Legacy type alias for [UpdateQueue](./gramstax.updatequeue.md)<!-- -->.
 
 
 </td></tr>

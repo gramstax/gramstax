@@ -1,0 +1,13 @@
+### YamlMime:TSTypeAlias
+name: IRenderMediaGroupKindParams
+uid: gramstax!IRenderMediaGroupKindParams:type
+package: gramstax!
+fullName: IRenderMediaGroupKindParams
+summary: >-
+  `IRenderMediaGroupParams` for one group kind — the per-kind group wrappers (`renderPhotoGroup`<!-- -->,
+  `renderVideoGroup`<!-- -->, …) accept this shape and supply `type`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IRenderMediaGroupKindParams = Omit<IRenderMediaGroupParams, `type`>;

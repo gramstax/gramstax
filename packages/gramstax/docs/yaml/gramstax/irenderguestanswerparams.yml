@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IRenderGuestAnswerParams
+uid: gramstax!IRenderGuestAnswerParams:type
+package: gramstax!
+fullName: IRenderGuestAnswerParams
+summary: Parameters for `renderGuestAnswer`<!-- -->.
+remarks: >-
+  The result content is built by the caller from `data` (multilang payloads); the `<g-answer-note>` block is resolved as
+  fail-fast validation that the template exists.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderGuestAnswerParams = {
+      result: InlineQueryResult;
+      data?: IData | null;
+      AGBaseId: string;
+      options?: IOptGuestAnswer | null;
+  };

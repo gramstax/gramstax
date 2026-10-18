@@ -58,7 +58,7 @@ The template with `<g-script>` blocks converted to executable expressions
 
 This internal method converts `<g-script>` blocks into self-invoking functions that execute with access to the `data` object via `with(data)`<!-- -->. If the script throws an error or `data` is undefined, an empty string is returned. By design this executes developer-authored template code (templates are code, only `data` values are untrusted input); no strict/no-script mode is provided.
 
-\*\*Attributes:\*\* - none
+\*\*Attributes:\*\*  - none
 
 ## Example
 

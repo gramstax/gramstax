@@ -9,7 +9,7 @@ Gets a command description for Telegram menu.
 **Signature:**
 
 ```typescript
-getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string, unknown>): string;
+getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string, unknown>): GDescriptionResult;
 ```
 
 ## Parameters
@@ -114,19 +114,19 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-string
+[GDescriptionResult](./gramstax.gdescriptionresult.md)
 
-Rendered description string, or empty string if not found
+[GDescriptionResult](./gramstax.gdescriptionresult.md) — rendered text, or `{text: ""}` when not found
 
 ## Remarks
 
-Retrieves the compiled description function for the specified template, scope, and language, then executes it with the provided data.
+Retrieves the compiled description function for the specified template, scope, and language, then executes it with the provided data. Failures are swallowed to the empty-text result, preserving the historical fallback contract.
 
 ## Example
 
 
 ```typescript
 const desc = tm.getGDescription("start", "default", "en")
-// => "Start the bot"
+// => {kind: "description", text: "Start the bot"}
 ```
 

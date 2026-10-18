@@ -60,7 +60,7 @@ Processing pipeline (in order, per keyboard label): 1. `_processGScriptBlocks` â
 
 Notes: - Keyboard content is split by commas into individual labels. - Escaped commas with double backslash (`\\,`<!-- -->) are preserved as literal commas. - Each label is processed independently through the pipeline.
 
-Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second level key: `ALang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key: `mode`<!-- -->: - `inline` (default) - `bottom` - Value: `(data?: Record<string, unknown>) => string[]`
+Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second level key: `ALang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key: `mode`<!-- -->:  - `inline` (default)  - `bottom` - Value: `(data?: Record<string, unknown>) => string[]`
 
 ## Example
 

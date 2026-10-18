@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: IRenderBroadcastDeleteParams
+uid: gramstax!IRenderBroadcastDeleteParams:type
+package: gramstax!
+fullName: IRenderBroadcastDeleteParams
+summary: Parameters for `renderBroadcastDelete` — the expiry-cleanup delete fan-out.
+remarks: >-
+  Reads no template block — it operates on stored message ids. Same checkpoint-first controls as the revise fan-out
+  (`renderMedia` with `broadcast.targets`<!-- -->) via `broadcastOpts`<!-- -->; a failed delete has no text fallback by
+  design, since there is no replacement content to deliver.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderBroadcastDeleteParams = {
+      targets: IBroadcastEditTarget[];
+      broadcastOpts?: IBroadcastEditOpts | null;
+  };

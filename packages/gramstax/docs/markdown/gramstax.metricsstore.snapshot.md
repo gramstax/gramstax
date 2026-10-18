@@ -21,6 +21,7 @@ snapshot(): {
             timeouts: number;
             skippedDuplicate: number;
             skippedValidation: number;
+            dropped: number;
         };
         byListener: {
             [x: string]: number;
@@ -34,7 +35,7 @@ snapshot(): {
 ```
 **Returns:**
 
-{ uptimeSeconds: number; counts: { updatesTotal: number; updatesFailed: number; matched: number; noMatch: number; noHandler: number; blocked: number; timeouts: number; skippedDuplicate: number; skippedValidation: number; }; byListener: { \[x: string\]: number; }; latency: { count: number; avgMs: number; maxMs: number; }; }
+{ uptimeSeconds: number; counts: { updatesTotal: number; updatesFailed: number; matched: number; noMatch: number; noHandler: number; blocked: number; timeouts: number; skippedDuplicate: number; skippedValidation: number; dropped: number; }; byListener: { \[x: string\]: number; }; latency: { count: number; avgMs: number; maxMs: number; }; }
 
 A plain JSON-serializable object.
 

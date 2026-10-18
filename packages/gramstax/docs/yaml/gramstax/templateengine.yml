@@ -29,7 +29,7 @@ example:
     const keyboards = TemplateEngine.compileBlockGKeyboards(template);
 
     const msg = messages.default?.default?.({ name: 'John' });
-    // Result: 'Welcome John!'
+    // Result: {text: 'Welcome John!', rich: false}
     ```
 isPreview: false
 isDeprecated: false
@@ -76,6 +76,22 @@ properties:
       content: 'static __linkHook?: (body: string, isArray: boolean) => (...args: unknown[]) => unknown;'
       return:
         type: '(body: string, isArray: boolean) =&gt; (...args: unknown[]) =&gt; unknown'
+  - name: _IFELSE_PASSTHROUGH
+    uid: gramstax!TemplateEngine._IFELSE_PASSTHROUGH:member
+    package: gramstax!
+    fullName: _IFELSE_PASSTHROUGH
+    summary: Identifiers that `<g-ifelse>` never rewrites to `data?.x`<!-- -->.
+    remarks: >-
+      Three groups: reserved words that cannot be references, the parameter names every compiled template body already
+      has in scope (`data`<!-- -->, `__esc`<!-- -->, `FILTERS`<!-- -->), and the standard globals a template author may
+      legitimately call.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _IFELSE_PASSTHROUGH: Set<string>;'
+      return:
+        type: Set&lt;string&gt;
   - name: _PAGE_ATTR_VALUE_VALIDATORS
     uid: gramstax!TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS:member
     package: gramstax!
@@ -213,7 +229,7 @@ properties:
     summary: Required-attribute specification for Telegram Rich HTML tags.
     remarks: >-
       Per-tag table mapping tag name to the attribute(s) it must have. Two shapes are supported: - `string[]` — every
-      entry must be present - `{ oneOf: string[][] }` — at least one of the listed sets must be fully present (used for
+      entry must be present - `{ oneOf: string[][] }` — at least one of the listed sets must be fully  present (used for
       `<a>` which can be either a link or an anchor)
 
 
@@ -257,9 +273,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static ALLOWED_BLOCKS_PAGE: string[];'
+      content: 'static ALLOWED_BLOCKS_PAGE: ReadonlySet<string>;'
       return:
-        type: string[]
+        type: ReadonlySet&lt;string&gt;
   - name: ALLOWED_BLOCKS_TELEGRAM_LEGACY
     uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY:member
     package: gramstax!
@@ -276,9 +292,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static ALLOWED_BLOCKS_TELEGRAM_LEGACY: string[];'
+      content: 'static ALLOWED_BLOCKS_TELEGRAM_LEGACY: ReadonlySet<string>;'
       return:
-        type: string[]
+        type: ReadonlySet&lt;string&gt;
   - name: ALLOWED_BLOCKS_TELEGRAM_RICH
     uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH:member
     package: gramstax!
@@ -295,9 +311,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static ALLOWED_BLOCKS_TELEGRAM_RICH: string[];'
+      content: 'static ALLOWED_BLOCKS_TELEGRAM_RICH: ReadonlySet<string>;'
       return:
-        type: string[]
+        type: ReadonlySet&lt;string&gt;
   - name: ALLOWED_BLOCKS_TELEGRAM
     uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM:member
     package: gramstax!
@@ -312,9 +328,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static ALLOWED_BLOCKS_TELEGRAM: string[];'
+      content: 'static ALLOWED_BLOCKS_TELEGRAM: ReadonlySet<string>;'
       return:
-        type: string[]
+        type: ReadonlySet&lt;string&gt;
   - name: ALLOWED_BLOCKS
     uid: gramstax!TemplateEngine.ALLOWED_BLOCKS:member
     package: gramstax!
@@ -343,9 +359,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static ALLOWED_BLOCKS: string[];'
+      content: 'static ALLOWED_BLOCKS: ReadonlySet<string>;'
       return:
-        type: string[]
+        type: ReadonlySet&lt;string&gt;
   - name: ALLOWED_SCOPE
     uid: gramstax!TemplateEngine.ALLOWED_SCOPE:member
     package: gramstax!
@@ -356,9 +372,9 @@ properties:
       opening/closing delimiters that trigger a specific interpolation behavior at compile time.
 
 
-      \*\*Supported scopes:\*\* - `{{}}` — Mustache-style variable interpolation. Placeholders like `{{name}}` are
-      replaced with the corresponding value from the `data` object at render time. Nullish values produce an empty
-      string. - `{~~}` — Inline execution blocks. Expressions like `{~ status ? "Success" : "Failed" ~}` are evaluated
+      \*\*Supported scopes:\*\* - `{{}}` — Mustache-style variable interpolation. Placeholders like `{{name}}` are 
+      replaced with the corresponding value from the `data` object at render time.  Nullish values produce an empty
+      string. - `{~~}` — Inline execution blocks. Expressions like `{~ status ? "Success" : "Failed" ~}` are  evaluated
       as JavaScript expressions with access to the `data` object.
 
 
@@ -373,9 +389,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static ALLOWED_SCOPE: string[];'
+      content: 'static ALLOWED_SCOPE: ReadonlySet<string>;'
       return:
-        type: string[]
+        type: ReadonlySet&lt;string&gt;
   - name: BOT_API_VERSION
     uid: gramstax!TemplateEngine.BOT_API_VERSION:member
     package: gramstax!
@@ -478,6 +494,35 @@ methods:
       return:
         type: string
         description: The `return` statement source for the compiled function.
+  - name: _compileFilterChain(access, expr, warned)
+    uid: gramstax!TemplateEngine._compileFilterChain:member(1)
+    package: gramstax!
+    fullName: _compileFilterChain(access, expr, warned)
+    summary: Applies `|filter:arg` pipes to an already-resolved head expression.
+    remarks: >-
+      Split out of
+      [TemplateEngine.\_processScopeVariables()](xref:gramstax!TemplateEngine._processScopeVariables:member(1)) so
+      `<g-map>` can run the same whitelist over its own loop variables instead of re-deriving the pipe grammar. The
+      caller resolves the head — a `data` path or a loop variable — and passes the whole expression; the leading segment
+      is dropped because it is already baked into `access`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _compileFilterChain(access: string, expr: string, warned: Set<string>): string;'
+      parameters:
+        - id: access
+          description: JavaScript expression for the head, e.g. `(data?.user)` or `(e.name)`
+          type: string
+        - id: expr
+          description: The full expression including its head segment, used for the warning text
+          type: string
+        - id: warned
+          description: Filter names already reported, so each unknown filter warns once
+          type: Set&lt;string&gt;
+      return:
+        type: string
+        description: The chained call, or `""` when a filter is not on the whitelist
   - name: _compileMediaSrc(rawSrc, stringFn)
     uid: gramstax!TemplateEngine._compileMediaSrc:member(1)
     package: gramstax!
@@ -662,7 +707,7 @@ methods:
     uid: gramstax!TemplateEngine._extractBlockNames:member(1)
     package: gramstax!
     fullName: _extractBlockNames(blocks)
-    summary: Extracts lowercase block tag names from an array of tag literals.
+    summary: Extracts lowercase block tag names from an iterable of tag literals.
     remarks: >-
       Strips leading `</` or `<`<!-- -->, any trailing `>`<!-- -->, any attributes that follow a space, and lowercases
       the result. Self-closing tags like `<g-import/>` are normalised to their bare name. Entries with attributes after
@@ -680,14 +725,74 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static _extractBlockNames(blocks: string[]): Set<string>;'
+      content: 'static _extractBlockNames(blocks: Iterable<string>): Set<string>;'
       parameters:
         - id: blocks
-          description: Array of tag literals (e.g. `["<g-base>", "<message/>", "<blockquote expandable>"]`<!-- -->)
-          type: string[]
+          description: Iterable of tag literals (e.g. `["<g-base>", "<message/>", "<blockquote expandable>"]`<!-- -->)
+          type: Iterable&lt;string&gt;
       return:
         type: Set&lt;string&gt;
         description: Set of normalized lowercase block names
+  - name: _ifelseArrowLocals(tokens)
+    uid: gramstax!TemplateEngine._ifelseArrowLocals:member(1)
+    package: gramstax!
+    fullName: _ifelseArrowLocals(tokens)
+    summary: Collects the parameter names introduced by every arrow function in a token list.
+    remarks: >-
+      A conditional body may contain `items.filter((item) => item.on).length > 0`<!-- -->. Those parameters are locals,
+      not scope reads, and must survive the rewrite untouched.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _ifelseArrowLocals(tokens: Array<{
+                type: string;
+                value: string;
+            }>): Set<string>;
+      parameters:
+        - id: tokens
+          description: >-
+            Output of
+            [TemplateEngine.\_tokenizeExpression()](xref:gramstax!TemplateEngine._tokenizeExpression:member(1))
+          type: |-
+            Array&lt;{
+                    type: string;
+                    value: string;
+                }&gt;
+      return:
+        type: Set&lt;string&gt;
+        description: The local names, valid for the whole expression
+  - name: _isConditionalExpression(tokens)
+    uid: gramstax!TemplateEngine._isConditionalExpression:member(1)
+    package: gramstax!
+    fullName: _isConditionalExpression(tokens)
+    summary: Reports whether a `<g-ifelse>` body actually branches.
+    remarks: >-
+      `<g-ifelse>` exists for conditionals only, so a body with no ternary and no short-circuit operator is rejected
+      rather than silently becoming an `{~~}` clone.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _isConditionalExpression(tokens: Array<{
+                type: string;
+                value: string;
+            }>): boolean;
+      parameters:
+        - id: tokens
+          description: >-
+            Output of
+            [TemplateEngine.\_tokenizeExpression()](xref:gramstax!TemplateEngine._tokenizeExpression:member(1))
+          type: |-
+            Array&lt;{
+                    type: string;
+                    value: string;
+                }&gt;
+      return:
+        type: boolean
+        description: True when the body contains `?:`<!-- -->, `&&`<!-- -->, `||`<!-- -->, or `??`
   - name: _isGeneratedCode(code)
     uid: gramstax!TemplateEngine._isGeneratedCode:member(1)
     package: gramstax!
@@ -718,6 +823,37 @@ methods:
       return:
         type: boolean
         description: A function that accepts optional data and returns the rendered string or string array
+  - name: _isObjectLiteralBrace(tokens, index)
+    uid: gramstax!TemplateEngine._isObjectLiteralBrace:member(1)
+    package: gramstax!
+    fullName: _isObjectLiteralBrace(tokens, index)
+    summary: Decides whether a `{` opens an object literal (keys are not scope reads) or a block.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _isObjectLiteralBrace(tokens: Array<{
+                type: string;
+                value: string;
+            }>, index: number): boolean;
+      parameters:
+        - id: tokens
+          description: >-
+            Output of
+            [TemplateEngine.\_tokenizeExpression()](xref:gramstax!TemplateEngine._tokenizeExpression:member(1))
+          type: |-
+            Array&lt;{
+                    type: string;
+                    value: string;
+                }&gt;
+        - id: index
+          description: Index of the `{` token
+          type: number
+      return:
+        type: boolean
+        description: True when the brace opens an object literal
   - name: _matchBareMediaPlaceholder(rawSrc)
     uid: gramstax!TemplateEngine._matchBareMediaPlaceholder:member(1)
     package: gramstax!
@@ -786,8 +922,8 @@ methods:
       and surrounding newlines are trimmed from the inner content.
 
 
-      \*\*Attributes:\*\* - `id` (optional): Identifier for the base block. If not specified, defaults to
-      `"default"`<!-- -->. Used to reference specific base blocks when compiling templates or extracting content.
+      \*\*Attributes:\*\*  - `id` (optional): Identifier for the base block. If not specified,  defaults to
+      `"default"`<!-- -->. Used to reference specific base blocks when compiling  templates or extracting content.
     example:
       - |-
         ```typescript
@@ -877,7 +1013,7 @@ methods:
       attribute are stored under `"default"` scope.
 
 
-      \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. -
+      \*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.  -
       `scope` (optional): Scope key for the nested output map. Defaults to `"default"`<!-- -->.
     remarks: ''
     example:
@@ -959,7 +1095,7 @@ methods:
       line and trimming surrounding newlines. The `<g-div>` tags themselves are removed from the output.
 
 
-      \*\*Attributes:\*\* - none
+      \*\*Attributes:\*\*  - none
     example:
       - |-
         ```typescript
@@ -1011,6 +1147,39 @@ methods:
                   [lang: string]: string;
               }
         description: An object mapping language keys to their raw text content
+  - name: _processGIfElseBlocks(template)
+    uid: gramstax!TemplateEngine._processGIfElseBlocks:member(1)
+    package: gramstax!
+    fullName: _processGIfElseBlocks(template)
+    summary: 'Block: g-ifelse Evaluates a conditional expression and inlines the chosen value.'
+    remarks: >-
+      Unlike `{~~}`<!-- -->, this block never emits `with`<!-- -->, so the compiled body is valid in an ESM strict-mode
+      module and survives the AOT `with(` guard. Bare identifiers are rewritten to optional `data` reads by
+      [TemplateEngine.\_rewriteScopeIdentifiers()](xref:gramstax!TemplateEngine._rewriteScopeIdentifiers:member(1))<!--
+      -->.
+    example:
+      - >-
+        ```typescript
+
+        const template = '<g-ifelse>isAdmin ? "admin" : "user"</g-ifelse>';
+
+        const processed = TemplateEngine._processGIfElseBlocks(template);
+
+        // Result: '${(() => { if (!data) return \'\'; try { return data?.isAdmin ? "admin" : "user" } catch(e) { return
+        \'\' } })()}'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processGIfElseBlocks(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `<g-ifelse>` blocks
+          type: string
+      return:
+        type: string
+        description: The template with each block replaced by its interpolation
   - name: _processGImportBlocks(template)
     uid: gramstax!TemplateEngine._processGImportBlocks:member(1)
     package: gramstax!
@@ -1022,13 +1191,13 @@ methods:
       `processGImportBlocks`<!-- -->.
 
 
-      \*\*Attributes:\*\* - `src` (required): Import source identifier (e.g., template/page key). If missing, the tag is
-      removed (replaced with an empty string). - `block` (optional): Block selector. Supported forms: - `"all"`<!-- -->:
-      import all supported blocks - `"block1"`<!-- -->: import a single block - `"block1,block2"` / `"block1,
-      block2"`<!-- -->: import multiple blocks (comma-separated) - `base` (optional): Base id selector for the imported
-      template. Defaults to `"default"`<!-- -->. - `lang` (optional): Language selector for the imported content (passed
-      through as metadata). - `section` (optional): Import section selector. Supported values: - `"all"` (default):
-      include block - `"value"`<!-- -->: only value
+      \*\*Attributes:\*\*  - `src` (required): Import source identifier (e.g., template/page key). If missing, the tag
+      is removed (replaced with an empty string).  - `block` (optional): Block selector. Supported forms:  - `"all"`<!--
+      -->: import all supported blocks  - `"block1"`<!-- -->: import a single block  - `"block1,block2"` / `"block1,
+      block2"`<!-- -->: import multiple blocks (comma-separated)  - `base` (optional): Base id selector for the imported
+      template. Defaults to `"default"`<!-- -->.  - `lang` (optional): Language selector for the imported content
+      (passed through as metadata).  - `section` (optional): Import section selector. Supported values:  - `"all"`
+      (default): include block  - `"value"`<!-- -->: only value
     example:
       - |-
         ```typescript
@@ -1160,8 +1329,8 @@ methods:
       attribute defaults to `"inline"` unless explicitly set to `"bottom"`<!-- -->.
 
 
-      \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. -
-      `type` (optional): Keyboard type. Supported values: - `"inline"` (default) - `"bottom"`
+      \*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.  -
+      `type` (optional): Keyboard type. Supported values:  - `"inline"` (default)  - `"bottom"`
     example:
       - |-
         ```typescript
@@ -1210,7 +1379,7 @@ methods:
       properties, and `{{i}}` to the current index. The `join` attribute specifies the separator.
 
 
-      \*\*Attributes:\*\* - `src` (required): The key name in the `data` object whose value is treated as an array. -
+      \*\*Attributes:\*\*  - `src` (required): The key name in the `data` object whose value is treated as an array.  -
       `join` (optional): Join separator string. Defaults to `"\\n"` (a newline escape sequence).
     example:
       - |-
@@ -1241,27 +1410,27 @@ methods:
       contact. The inner content becomes the caption for supported types.
 
 
-      \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. -
-      `type` (required): Media type discriminator. Expected values: - `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->,
-      `document`<!-- -->, `animation`<!-- -->, `voice`<!-- -->, `video_note`<!-- -->, - `sticker`<!-- -->,
-      `location`<!-- -->, `contact`<!-- -->. - `src` (optional): File path / URL / file identifier for file-based media.
-      - `latitude` (optional): Location latitude (used when `type="location"`<!-- -->). - `longitude` (optional):
-      Location longitude (used when `type="location"`<!-- -->). - `phone` (optional): Contact phone number (used when
-      `type="contact"`<!-- -->). - `first_name` (optional): Contact first name (used when `type="contact"`<!-- -->). -
-      `last_name` (optional): Contact last name (used when `type="contact"`<!-- -->). - `vcard` (optional): Contact
-      vCard payload (used when `type="contact"`<!-- -->).
+      \*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.  -
+      `type` (required): Media type discriminator. Expected values:  - `photo`<!-- -->, `video`<!-- -->, `audio`<!--
+      -->, `document`<!-- -->, `animation`<!-- -->, `voice`<!-- -->, `video_note`<!-- -->,  - `sticker`<!-- -->,
+      `location`<!-- -->, `contact`<!-- -->.  - `src` (optional): File path / URL / file identifier for file-based
+      media.  - `latitude` (optional): Location latitude (used when `type="location"`<!-- -->).  - `longitude`
+      (optional): Location longitude (used when `type="location"`<!-- -->).  - `phone` (optional): Contact phone number
+      (used when `type="contact"`<!-- -->).  - `first_name` (optional): Contact first name (used when
+      `type="contact"`<!-- -->).  - `last_name` (optional): Contact last name (used when `type="contact"`<!-- -->).  -
+      `vcard` (optional): Contact vCard payload (used when `type="contact"`<!-- -->).
 
 
       Media rules (based on `type`<!-- -->): - If `src` exists, it is assigned as `mediaBlock.src` (for any type). - If
-      `src` contains pipe-delimited values, `mediaBlock.srcList` is populated with up to 10 trimmed entries for Telegram
-      media groups. - If caption exists and `type !== "video_note"` and `type !== "sticker"`<!-- -->, it is assigned as
-      `mediaBlock.caption`<!-- -->. - If `type === "location"`<!-- -->, `latitude` and `longitude` are copied if
-      present, and caption (if present) is also allowed. - If `type === "contact"`<!-- -->, `phone`<!-- -->,
-      `first_name`<!-- -->, `last_name`<!-- -->, and `vcard` are copied if present, and caption (if present) is also
+      `src` contains pipe-delimited values, `mediaBlock.srcList` is populated  with up to 10 trimmed entries for
+      Telegram media groups. - If caption exists and `type !== "video_note"` and `type !== "sticker"`<!-- -->,  it is
+      assigned as `mediaBlock.caption`<!-- -->. - If `type === "location"`<!-- -->, `latitude` and `longitude` are
+      copied if present,  and caption (if present) is also allowed. - If `type === "contact"`<!-- -->, `phone`<!-- -->,
+      `first_name`<!-- -->, `last_name`<!-- -->, and `vcard`  are copied if present, and caption (if present) is also
       allowed.
 
 
-      Note: - If multiple `<g-media>` blocks share the same `lang`<!-- -->, the last one wins (it overwrites the
+      Note: - If multiple `<g-media>` blocks share the same `lang`<!-- -->, the last one wins  (it overwrites the
       previous entry).
     example:
       - >-
@@ -1333,7 +1502,7 @@ methods:
       trimmed.
 
 
-      \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.
+      \*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.
     example:
       - |-
         ```typescript
@@ -1487,7 +1656,7 @@ methods:
       untrusted input); no strict/no-script mode is provided.
 
 
-      \*\*Attributes:\*\* - none
+      \*\*Attributes:\*\*  - none
     example:
       - >-
         ```typescript
@@ -1557,7 +1726,7 @@ methods:
       and removes the entire line. This is useful for controlling whitespace in templates.
 
 
-      \*\*Attributes:\*\* - none
+      \*\*Attributes:\*\*  - none
     example:
       - |-
         ```typescript
@@ -1587,9 +1756,9 @@ methods:
       comma-separated for multiple matches.
 
 
-      \*\*Attributes:\*\* - <g-switch> - `value` (required): The key name in the `data` object whose value will be used
-      as the switch expression. - <g-case> - `is` (required): One or more literal match values. Multiple values may be
-      provided as a comma-separated list. - <g-default> - none
+      \*\*Attributes:\*\*  - <g-switch>  - `value` (required): The key name in the `data` object whose value will be
+      used as the switch expression.  - <g-case>  - `is` (required): One or more literal match values. Multiple values
+      may be provided as a comma-separated list.  - <g-default>  - none
     example:
       - |-
         ```typescript
@@ -1774,6 +1943,34 @@ methods:
       return:
         type: unknown
         description: Resolved value, or `undefined` when any segment is missing.
+  - name: _rewriteScopeIdentifiers(expr)
+    uid: gramstax!TemplateEngine._rewriteScopeIdentifiers:member(1)
+    package: gramstax!
+    fullName: _rewriteScopeIdentifiers(expr)
+    summary: Rewrites bare identifiers in a `<g-ifelse>` body to optional `data` reads.
+    remarks: >-
+      `user.name` becomes `data?.user?.name` — an optional chain, so a missing branch never throws — rather than
+      `(data?.user).name`<!-- -->, which would. A member chain is consumed as a unit so the whole chain stays optional.
+      Identifiers already qualified by `.`<!-- -->/`?.`<!-- -->, object-literal keys, arrow-function parameters,
+      reserved words, and the standard globals are left alone; shorthand object properties are expanded so they keep
+      reading from `data`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        TemplateEngine._rewriteScopeIdentifiers(`user.isAdmin ? "admin" : "user"`);
+        // Result: 'data?.user?.isAdmin ? "admin" : "user"'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _rewriteScopeIdentifiers(expr: string): string;'
+      parameters:
+        - id: expr
+          description: The raw `<g-ifelse>` body
+          type: string
+      return:
+        type: string
+        description: Source with every scope read anchored to `data`
   - name: _splitKeyboardLabels(content)
     uid: gramstax!TemplateEngine._splitKeyboardLabels:member(1)
     package: gramstax!
@@ -1798,7 +1995,7 @@ methods:
 
       Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
       level key: `ALang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key:
-      `mode`<!-- -->: - `inline` (default) - `bottom` - Value: `(data?: Record<string, unknown>) => string[]`
+      `mode`<!-- -->:  - `inline` (default)  - `bottom` - Value: `(data?: Record<string, unknown>) => string[]`
     example:
       - |-
         ```typescript
@@ -1868,6 +2065,47 @@ methods:
       return:
         type: string
         description: A JS expression evaluating to the rendered string.
+  - name: _tokenizeExpression(expr)
+    uid: gramstax!TemplateEngine._tokenizeExpression:member(1)
+    package: gramstax!
+    fullName: _tokenizeExpression(expr)
+    summary: Splits a `<g-ifelse>` body into tokens so identifiers can be rewritten without a JavaScript parser dependency.
+    remarks: >-
+      Token types: `word`<!-- -->, `number`<!-- -->, `string`<!-- -->, `template`<!-- -->, `regex`<!-- -->, `punct`<!--
+      -->. Whitespace and comments are dropped — spacing is not preserved because the output is re-emitted source.
+
+
+      Two constructs are tokenized as opaque single tokens and therefore never rewritten: regex literals, and template
+      literals (so `${...}` inside them cannot be silently reinterpreted). Template literals that do carry `${`
+      interpolation are rejected by
+      [TemplateEngine.validateBlockGIfElseBody()](xref:gramstax!TemplateEngine.validateBlockGIfElseBody:member(1))
+      rather than mis-rewritten here.
+
+
+      A `/` is read as division when the previous token can end a value (word, number, string, template, `)`<!-- -->,
+      `]`<!-- -->, `++`<!-- -->, `--`<!-- -->) and as a regex literal otherwise. This is the standard heuristic and is
+      ambiguous for `if (x) /re/.test(s)`<!-- -->; it resolves toward division, which is the common case in a template
+      conditional.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _tokenizeExpression(expr: string): Array<{
+                type: string;
+                value: string;
+            }>;
+      parameters:
+        - id: expr
+          description: The raw `<g-ifelse>` body
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  type: string;
+                  value: string;
+              }&gt;
+        description: The token list
   - name: _validateAnswerTextContent(template, tag, maxLength)
     uid: gramstax!TemplateEngine._validateAnswerTextContent:member(1)
     package: gramstax!
@@ -2853,7 +3091,8 @@ methods:
 
       Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
       level key: `ALang` (from `<g-message lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?:
-      Record<string, unknown>) => string`
+      Record<string, unknown>) => {text: string; rich: boolean}` —  `text` is the rendered message string, `rich` is
+      computed once from the  raw block body (`true` when it contains at least one Telegram Rich HTML tag)
     example:
       - |-
         ```typescript
@@ -2865,7 +3104,7 @@ methods:
         `;
         const messages = TemplateEngine.compileBlockGMessages(template);
         const result = messages.default?.default?.({ name: 'John' });
-        // Result: 'Hello John!'
+        // Result: {text: 'Hello John!', rich: false}
         ```
     isPreview: false
     isDeprecated: false
@@ -2874,7 +3113,10 @@ methods:
         static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof
         TemplateEngine._processGBaseBlocks>): {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: ITemplateData) => string;
+                    [ALang: string]: (data?: ITemplateData) => {
+                        text: string;
+                        rich: boolean;
+                    };
                 };
             };
       parameters:
@@ -2888,7 +3130,10 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; {
+                          text: string;
+                          rich: boolean;
+                      };
                   };
               }
         description: Compiled message functions organized by base ID and language
@@ -3144,17 +3389,17 @@ methods:
 
 
       Resolution behavior: - Each `<g-import>` is resolved by calling `resolver(src)` to obtain raw template content. -
-      The resolved content is filtered using `_extractBlock` based on the import metadata (`blocks`<!-- -->, `base`<!--
+      The resolved content is filtered using `_extractBlock` based on the import metadata  (`blocks`<!-- -->, `base`<!--
       -->, `section`<!-- -->, `lang`<!-- -->). - If the resolved content itself contains `<g-import>` directives, they
-      are processed recursively.
+      are processed  recursively.
 
 
-      Recursion and safety: - Recursive import resolution is limited to a maximum depth of \*\*10\*\* to prevent
+      Recursion and safety: - Recursive import resolution is limited to a maximum depth of \*\*10\*\* to prevent 
       infinite import loops. - If the depth limit is exceeded, an empty string is returned.
 
 
       Output behavior: - `<g-import>` placeholders (`__IMPORT_N__`<!-- -->) are replaced sequentially. - If the resolver
-      returns `null` or an empty result, the import is replaced with an empty string.
+      returns `null` or an empty result, the import is replaced with  an empty string.
     example:
       - |-
         ```typescript
@@ -3524,6 +3769,96 @@ methods:
     syntax:
       content: |-
         static validateBlockGGiftAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGIfElseAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGIfElseAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGIfElseAttributes(template)
+    summary: Validates attributes on `<g-ifelse>` blocks.
+    remarks: >-
+      `<g-ifelse>` takes no attributes — the whole conditional is the block body, so there is nothing for an attribute
+      to configure.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockGIfElseAttributes(`<g-ifelse>a ? "x" : "y"</g-ifelse>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGIfElseAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGIfElseBody(template)
+    uid: gramstax!TemplateEngine.validateBlockGIfElseBody:member(1)
+    package: gramstax!
+    fullName: validateBlockGIfElseBody(template)
+    summary: Validates the body of every `<g-ifelse>` block.
+    remarks: >-
+      Four rules, all required to keep the block a conditional and unambiguous:
+
+
+      1. The body must not be empty. 2. `{{}}` and `{~~}` interpolation must not appear — the body is already
+      JavaScript, and  nesting the interpolation syntaxes inside it would give one construct two grammars. 3. Template
+      literals must not interpolate `${...}` — that is a third spelling of the same  interpolation. Use string
+      concatenation inside the conditional instead. 4. The body must actually branch: a ternary, or a `&&` / `||` / `??`
+      short-circuit.  A plain expression such as `items.length` belongs in `{~~}` and is rejected here so  `<g-ifelse>`
+      cannot silently become a second `{~~}`<!-- -->.
+    example:
+      - >-
+        ```typescript
+
+        TemplateEngine.validateBlockGIfElseBody(`<g-ifelse>items.length</g-ifelse>`);
+
+        // Result: { valid: false, errors: [{ line: 1, message: '<g-ifelse> body must be a conditional expression — use
+        a ternary (test ? a : b) or a short-circuit (&&, ||, ??), got "items.length". Use {~~ items.length ~~} for a
+        plain expression' }] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGIfElseBody(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -3973,7 +4308,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive
+          An object with a `valid` boolean and a combined `errors` array containing  line numbers and descriptive
           messages for every violation found
   - name: validateBlockGPaidMediaAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGPaidMediaAttributes:member(1)
@@ -4343,11 +4678,11 @@ methods:
 
 
       \*\*Must NOT be self-closing (must use open/close tags):\*\* - `<g-base>...</g-base>`<!-- -->,
-      `<g-message>...</g-message>`<!-- -->, `<g-keyboard>...</g-keyboard>`<!-- -->, `<g-media>...</g-media>`<!-- -->,
-      `<g-poll>...</g-poll>`<!-- -->, `<g-question>...</g-question>`<!-- -->, `<g-option>...</g-option>`<!-- -->,
+      `<g-message>...</g-message>`<!-- -->, `<g-keyboard>...</g-keyboard>`<!-- -->,  `<g-media>...</g-media>`<!-- -->,
+      `<g-poll>...</g-poll>`<!-- -->, `<g-question>...</g-question>`<!-- -->,  `<g-option>...</g-option>`<!-- -->,
       `<g-invoice>...</g-invoice>`<!-- -->, `<g-paid-media>...</g-paid-media>`<!-- -->,
-      `<g-description>...</g-description>`<!-- -->, `<g-script>...</g-script>`<!-- -->, `<g-switch>...</g-switch>`<!--
-      -->, `<g-case>...</g-case>`<!-- -->, `<g-default>...</g-default>`<!-- -->, `<g-map>...</g-map>`<!-- -->,
+      `<g-description>...</g-description>`<!-- -->, `<g-script>...</g-script>`<!-- -->,  `<g-switch>...</g-switch>`<!--
+      -->, `<g-case>...</g-case>`<!-- -->, `<g-default>...</g-default>`<!-- -->,  `<g-map>...</g-map>`<!-- -->,
       `<g-div>...</g-div>`
 
 
@@ -4388,7 +4723,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
+          An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for
           each format violation found
   - name: validateNamesBlock(template)
     uid: gramstax!TemplateEngine.validateNamesBlock:member(1)
@@ -4434,7 +4769,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
+          An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for
           each unknown block found
   - name: validatePageAttributesBlock(template)
     uid: gramstax!TemplateEngine.validatePageAttributesBlock:member(1)
@@ -4610,9 +4945,9 @@ methods:
       can only appear directly inside `<g-invoice>`<!-- -->. - `<g-switch>`<!-- -->, `<g-map>` can only appear inside
       `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, or `<g-description>`<!-- -->. - `<g-case>` and
       `<g-default>` can only appear inside `<g-switch>`<!-- -->. - `<g-map>` is also allowed inside `<g-case>` and
-      `<g-default>` (explicitly and via parent-child inheritance — see `inheritsContentFromParent`<!-- -->). - Telegram
+      `<g-default>` (explicitly and via  parent-child inheritance — see `inheritsContentFromParent`<!-- -->). - Telegram
       formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->,
-      `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during
+      `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->)  are passthrough and ignored during
       validation.
     example:
       - |-
@@ -4661,7 +4996,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
+          An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for
           each violation found
   - name: validateScopes(template)
     uid: gramstax!TemplateEngine.validateScopes:member(1)
@@ -4706,7 +5041,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
+          An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for
           each unsupported scope found
   - name: validateTelegramAttributesBlock(template)
     uid: gramstax!TemplateEngine.validateTelegramAttributesBlock:member(1)
@@ -4987,5 +5322,5 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive
+          An object with a `valid` boolean and a combined `errors` array containing  line numbers and descriptive
           messages for every violation found

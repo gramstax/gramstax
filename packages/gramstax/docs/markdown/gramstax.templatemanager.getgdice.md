@@ -9,7 +9,7 @@ Gets compiled from block <g-dice>.
 **Signature:**
 
 ```typescript
-getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`dice`][`default`][`default`]>;
+getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GDiceResult;
 ```
 
 ## Parameters
@@ -98,9 +98,9 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`dice\`\]\[\`default\`\]\[\`default\`\]&gt;
+[GDiceResult](./gramstax.gdiceresult.md)
 
-Dice object containing the emoji
+[GDiceResult](./gramstax.gdiceresult.md) with the dice payload flat under `kind: "dice"`
 
 ## Remarks
 
@@ -111,6 +111,6 @@ Retrieves the compiled dice function for the specified template and language, th
 
 ```typescript
 const dice = tm.getGDice("lucky-page", "default", "en", {dice: "🎯"})
-// => {emoji: "🎯"}
+// => {kind: "dice", emoji: "🎯"}
 ```
 

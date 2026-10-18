@@ -362,14 +362,14 @@ properties:
     package: gramstax!
     fullName: webhookQueue
     summary: Webhook queue configuration.
-    remarks: See [IWebhookQueueConfig](xref:gramstax!IWebhookQueueConfig:type) for queue settings.
+    remarks: See [IUpdateQueueConfig](xref:gramstax!IUpdateQueueConfig:type) for queue settings.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'webhookQueue?: IWebhookQueueConfig;'
+      content: 'webhookQueue?: IUpdateQueueConfig;'
       return:
-        type: <xref uid="gramstax!IWebhookQueueConfig:type" />
+        type: <xref uid="gramstax!IUpdateQueueConfig:type" />
 methods:
   - name: _pageRoutes(ctx, fromListener)
     uid: gramstax!Gramstax#_pageRoutes:member(1)
@@ -384,31 +384,32 @@ methods:
       \*\*Routing Priority (executed in order):\*\*
 
 
-      1. \*\*staticSession\*\* — Session-aware routes, filtered by input type (O(n) lookup) - Only runs when the user
-      has an active session (`session.method` is set) - Iterates `routeStaticSession` and matches by `session.method`
-      value - \*\*Filtered by input type\*\*: only routes whose name ends with `fromListener` are checked (e.g.,
-      callback queries only match `*CallbackQueryData` session routes, text only matches `*Text`<!-- -->, photo captions
-      only match `*CaptionPhoto`<!-- -->, etc.) - This prevents cross-type handler misdispatch (e.g., a callback query
-      accidentally matching `handleSessionFreeText`<!-- -->) - Example: session with method "7-mypage" → finds
-      `handleSessionFreeText["7-mypage"]` when `fromListener = "text"`
+      1. \*\*staticSession\*\* — Session-aware routes, filtered by input type (O(n) lookup)  - Only runs when the user
+      has an active session (`session.method` is set)  - Iterates `routeStaticSession` and matches by `session.method`
+      value  - \*\*Filtered by input type\*\*: only routes whose name ends with `fromListener`  are checked (e.g.,
+      callback queries only match `*CallbackQueryData` session routes,  text only matches `*Text`<!-- -->, photo
+      captions only match `*CaptionPhoto`<!-- -->, etc.)  - This prevents cross-type handler misdispatch (e.g., a
+      callback query  accidentally matching `handleSessionFreeText`<!-- -->)  - Example: session with method "7-mypage"
+      → finds `handleSessionFreeText["7-mypage"]`  when `fromListener = "text"`
 
 
-      2. \*\*static\*\* — Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents -
+      2. \*\*static\*\* — Exact intent match routes (O(1) lookup)  - Matches exact text/callback data to page intents  -
       Example: "start" → `handleText()`<!-- -->, "/help" → `handleCommandText()`
 
 
-      3. \*\*staticIntent\*\* — Intent with args routes (O(1) lookup) - Matches intent prefix when args are present -
+      3. \*\*staticIntent\*\* — Intent with args routes (O(1) lookup)  - Matches intent prefix when args are present  -
       Example: "start:123" → `handleArgsCallbackQueryData()`<!-- -->, "/add item" → `handleCommandArgsText()`
 
 
-      4. \*\*dynamicSpesific\*\* — Non-session free handlers (O(n) iteration) - Runs all `handleFree*` handlers (defined
-      directly on the page, not inherited) - `handleSessionFree*` variants are NOT dispatched here — they go through
-      id=1 - Example: `handleFreeText()`<!-- -->, `handleFreePhoto()` - \*\*All matching handlers are executed\*\* (no
-      early return)
+      4. \*\*dynamicSpesific\*\* — Non-session free handlers (O(n) iteration)  - Runs all `handleFree*` handlers
+      (defined directly on the page, not inherited)  - `handleSessionFree*` variants are NOT dispatched here — they go
+      through id=1  - Example: `handleFreeText()`<!-- -->, `handleFreePhoto()`  - \*\*All matching handlers are
+      executed\*\* (no early return)
 
 
-      5. \*\*dynamic\*\* — Global fallback handlers (O(n) iteration) - Runs all `handleFree()` handlers from pages that
-      define them - Last resort when nothing else matches - \*\*All matching handlers are executed\*\* (no early return)
+      5. \*\*dynamic\*\* — Global fallback handlers (O(n) iteration)  - Runs all `handleFree()` handlers from pages that
+      define them  - Last resort when nothing else matches  - \*\*All matching handlers are executed\*\* (no early
+      return)
     example: []
     isPreview: false
     isDeprecated: false
@@ -508,18 +509,18 @@ methods:
       return:
         type: ICtx
         description: A new Ctx instance.
-  - name: getWebhookQueueStats()
-    uid: gramstax!Gramstax#getWebhookQueueStats:member(1)
+  - name: getPollingQueueStats()
+    uid: gramstax!Gramstax#getPollingQueueStats:member(1)
     package: gramstax!
-    fullName: getWebhookQueueStats()
-    summary: Get current webhook queue statistics.
+    fullName: getPollingQueueStats()
+    summary: Live polling queue statistics.
     remarks: ''
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        getWebhookQueueStats(): {
+        getPollingQueueStats(): {
                 length: number;
                 maxSize: number;
                 waitingEnqueue: number;
@@ -528,7 +529,9 @@ methods:
                 maxQueueSize: number;
                 workerCount: number;
                 perChatConcurrency: number;
-                blockWhenFull: boolean;
+                drainTimeoutMs: number;
+                activeKeys: number;
+                waiting: number;
             } | null;
       return:
         type: |-
@@ -541,7 +544,54 @@ methods:
                   maxQueueSize: number;
                   workerCount: number;
                   perChatConcurrency: number;
+                  drainTimeoutMs: number;
+                  activeKeys: number;
+                  waiting: number;
+              } | null
+        description: Stats when the polling queue is enabled, otherwise `null`<!-- -->.
+  - name: getWebhookQueueStats()
+    uid: gramstax!Gramstax#getWebhookQueueStats:member(1)
+    package: gramstax!
+    fullName: getWebhookQueueStats()
+    summary: Get current webhook queue statistics.
+    remarks: >-
+      Superset of the queue-only shape: every previously returned key is still present, plus the dispatcher's per-key
+      gate (`activeKeys`<!-- -->/`waiting`<!-- -->) and its `drainTimeoutMs` budget. Gate values are `0` before
+      `_runWebhook` builds the dispatcher.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        getWebhookQueueStats(): {
+                activeKeys: number;
+                waiting: number;
+                length: number;
+                maxSize: number;
+                waitingEnqueue: number;
+                waitingDequeue: number;
+                enabled: boolean;
+                maxQueueSize: number;
+                workerCount: number;
+                perChatConcurrency: number;
+                blockWhenFull: boolean;
+                drainTimeoutMs: number;
+            } | null;
+      return:
+        type: |-
+          {
+                  activeKeys: number;
+                  waiting: number;
+                  length: number;
+                  maxSize: number;
+                  waitingEnqueue: number;
+                  waitingDequeue: number;
+                  enabled: boolean;
+                  maxQueueSize: number;
+                  workerCount: number;
+                  perChatConcurrency: number;
                   blockWhenFull: boolean;
+                  drainTimeoutMs: number;
               } | null
         description: Stats object when queue is enabled, otherwise `null`<!-- -->.
   - name: hookAfterRoute(ctx, data)
@@ -729,6 +779,10 @@ methods:
     remarks: >-
       Override this method to handle errors gracefully, e.g., sending an error message to the user or logging to an
       external service.
+
+
+      A throw from here is contained and logged rather than propagated: this is the last step that can tell a user their
+      request failed, so letting it escape would end the update with nothing sent and nothing recorded.
     example:
       - |-
         Simple
@@ -805,7 +859,10 @@ methods:
     package: gramstax!
     fullName: hookNotFoundPage(ctx, data)
     summary: Hook called when no page handler matches the input.
-    remarks: Override this method to send a "command not found" message or redirect to a help page.
+    remarks: >-
+      A throw from here is treated as a handler failure rather than propagated: it routes to
+      [Gramstax.hookErrorPage()](xref:gramstax!Gramstax%23hookErrorPage:member(1))<!-- -->, which is guarded, so a
+      broken fallback page still leaves the user with an error message instead of silence.
     example:
       - |-
         Simple
@@ -858,7 +915,7 @@ methods:
       - |-
         ```typescript
         async hookRateLimited(ctx: Ctx) {
-          await ctx.render(`please-wait`)
+          await ctx.renderText()
         }
         ```
     isPreview: false
@@ -920,6 +977,7 @@ methods:
           }
         }
         ```
+    defaultValue: '`undefined` (no hook)'
     isPreview: false
     isDeprecated: false
     syntax:
@@ -950,6 +1008,7 @@ methods:
           }
         }
         ```
+    defaultValue: '`undefined` (no trace export)'
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1082,10 +1141,10 @@ methods:
       Difference vs. the other lifecycle hooks:
 
 
-      - `hookBeforeStart` — for one-off side effects before the bot starts. Anything you want to happen exactly once at
-      boot goes there. - `registerLowPlugin` — for middleware that must run on \*\*every update\*\*. Use this when you
-      need middleware semantics (filter queries, `next()` chaining, scope-aware registration). - `hookBeforeRoute` /
-      `hookAfterRoute` — for per-update hooks that run inside the router, after gramstax has already routed to a page.
+      - `hookBeforeStart` — for one-off side effects before the bot starts.  Anything you want to happen exactly once at
+      boot goes there. - `registerLowPlugin` — for middleware that must run on \*\*every update\*\*.  Use this when you
+      need middleware semantics (filter queries,  `next()` chaining, scope-aware registration). - `hookBeforeRoute` /
+      `hookAfterRoute` — for per-update hooks that run  inside the router, after gramstax has already routed to a page.
 
 
       The base implementation is not provided — subclasses override this to contribute their own plugins. Returning an
@@ -1126,7 +1185,10 @@ methods:
     package: gramstax!
     fullName: stop()
     summary: Stop bot
-    remarks: ''
+    remarks: >-
+      Drains the webhook dispatcher (bounded by `drainTimeoutMs`<!-- -->) before any teardown, so in-flight handlers
+      never race `templateManager.destroy()` or the keyboard cache clear. A drain that gives up is counted as
+      `dropped`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false

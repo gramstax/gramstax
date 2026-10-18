@@ -9,7 +9,7 @@ Telegram HTML-mode tags from the pre-Rich spec (`parse_mode="HTML"`<!-- -->).
 **Signature:**
 
 ```typescript
-static ALLOWED_BLOCKS_TELEGRAM_LEGACY: string[];
+static ALLOWED_BLOCKS_TELEGRAM_LEGACY: ReadonlySet<string>;
 ```
 
 ## Remarks

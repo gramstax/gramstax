@@ -9,7 +9,7 @@ Registry of all supported template block tags.
 **Signature:**
 
 ```typescript
-static ALLOWED_BLOCKS: string[];
+static ALLOWED_BLOCKS: ReadonlySet<string>;
 ```
 
 ## Remarks

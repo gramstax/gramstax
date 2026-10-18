@@ -39,6 +39,55 @@ constructors:
           description: Server options.
           type: <xref uid="gramstax!IMockTelegramServerOptions:type" />
 properties:
+  - name: _getUpdatesLog
+    uid: gramstax!MockTelegramServer#_getUpdatesLog:member
+    package: gramstax!
+    fullName: _getUpdatesLog
+    summary: Trailing `getUpdates` calls, kept short, for diagnosing polling behaviour.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        _getUpdatesLog: Array<{
+                offset: number;
+                limit: number;
+                returned: number;
+            }>;
+      return:
+        type: |-
+          Array&lt;{
+                  offset: number;
+                  limit: number;
+                  returned: number;
+              }&gt;
+  - name: _lastUpdate
+    uid: gramstax!MockTelegramServer#_lastUpdate:member
+    package: gramstax!
+    fullName: _lastUpdate
+    summary: Most recently accepted inbound update.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_lastUpdate: Record<string, unknown> | undefined;'
+      return:
+        type: Record&lt;string, unknown&gt; | undefined
+  - name: _servedCount
+    uid: gramstax!MockTelegramServer#_servedCount:member
+    package: gramstax!
+    fullName: _servedCount
+    summary: Total updates handed out by `getUpdates`<!-- -->, so served-vs-processed stays comparable.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_servedCount: number;'
+      return:
+        type: number
   - name: apiRoot
     uid: gramstax!MockTelegramServer#apiRoot:member
     package: gramstax!
@@ -117,6 +166,22 @@ properties:
       content: 'log?: IMockTelegramLog;'
       return:
         type: <xref uid="gramstax!IMockTelegramLog:type" />
+  - name: pendingUpdates
+    uid: gramstax!MockTelegramServer#pendingUpdates:member
+    package: gramstax!
+    fullName: pendingUpdates
+    summary: Inbound updates waiting to be collected by a polling bot's `getUpdates`<!-- -->.
+    remarks: >-
+      Real Telegram queues an update until either the webhook delivers it or a polling bot retrieves it. `_postUpdate`
+      covers the webhook half; this queue covers the polling half, so both deploy modes are driven through the same
+      inbound endpoint.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'pendingUpdates: Record<string, unknown>[];'
+      return:
+        type: Record&lt;string, unknown&gt;[]
   - name: port
     uid: gramstax!MockTelegramServer#port:member
     package: gramstax!
@@ -208,6 +273,22 @@ properties:
       content: 'static userResponsePrefixes: string[];'
       return:
         type: string[]
+  - name: webhookSecretToken
+    uid: gramstax!MockTelegramServer#webhookSecretToken:member
+    package: gramstax!
+    fullName: webhookSecretToken
+    summary: '`secret_token` registered through `setWebhook`<!-- -->, replayed on every outbound webhook POST.'
+    remarks: >-
+      Real Telegram sends `X-Telegram-Bot-Api-Secret-Token` on each webhook delivery, and `Gramstax` rejects deliveries
+      without it whenever `optionsDeploy.webhook.secretToken` is set. Omitting the header here made `_postUpdate`
+      unusable against such a bot (every call 401s), so the mock now mirrors the header the same way Telegram does.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'webhookSecretToken: string | undefined;'
+      return:
+        type: string | undefined
   - name: webhookUrl
     uid: gramstax!MockTelegramServer#webhookUrl:member
     package: gramstax!

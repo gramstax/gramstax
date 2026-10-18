@@ -4,7 +4,7 @@
 
 ## IBroadcastEditOpts type
 
-Broadcast controls shared by `renderBroadcastEdit` and `renderBroadcastDelete`<!-- -->.
+Broadcast controls shared by the `broadcast.targets` revise fan-out of `renderMedia` and by `renderBroadcastDelete`<!-- -->.
 
 **Signature:**
 

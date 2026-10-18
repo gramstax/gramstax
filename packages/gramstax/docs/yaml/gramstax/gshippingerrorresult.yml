@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: GShippingErrorResult
+uid: gramstax!GShippingErrorResult:type
+package: gramstax!
+fullName: GShippingErrorResult
+summary: Result of `TemplateManager.getGShippingError` for a `<g-shipping-error>` block.
+remarks: >-
+  `text` is the rendered rejection message; the getter throws when the block is missing (rejected shipping needs an
+  error message).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GShippingErrorResult = {
+      kind: `shippingError`;
+      text: string;
+  };

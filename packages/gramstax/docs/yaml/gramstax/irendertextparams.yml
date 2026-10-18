@@ -1,0 +1,25 @@
+### YamlMime:TSTypeAlias
+name: IRenderTextParams
+uid: gramstax!IRenderTextParams:type
+package: gramstax!
+fullName: IRenderTextParams
+summary: Parameters for `renderText` — the single text send/edit method.
+remarks: >-
+  All fields are optional. Rich-versus-plain content is decided at COMPILE time by the `<g-message>` block contents, not
+  by these params; `richOptions` only shape the rich payload. `fallbackEdit` mirrors
+  [IOptFallbackEdit](xref:gramstax!IOptFallbackEdit:type) and defaults to `delete-reply`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderTextParams = {
+      keyboard?: IInBoKb | null;
+      data?: IData | null;
+      AGBaseId?: string | null;
+      mode?: IRenderMode;
+      options?: IOptReply | IOptEdit | null;
+      richOptions?: IOptReplyRich | null;
+      fallbackEdit?: IOptFallbackEdit;
+      chunkSize?: number | null;
+      broadcast?: IBroadcastSendParams | null;
+  };

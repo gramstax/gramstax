@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: GMediaResult
+uid: gramstax!GMediaResult:type
+package: gramstax!
+fullName: GMediaResult
+summary: Result of `TemplateManager.getGMedia` for a `<g-media>` block.
+remarks: Extends [IMediaBlock](xref:gramstax!IMediaBlock:type) with the `media` kind discriminator.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GMediaResult = {
+      kind: `media`;
+  } & IMediaBlock;

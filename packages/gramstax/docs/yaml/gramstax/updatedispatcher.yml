@@ -1,0 +1,95 @@
+### YamlMime:TSType
+name: UpdateDispatcher
+uid: gramstax!UpdateDispatcher:class
+package: gramstax!
+fullName: UpdateDispatcher
+summary: Worker pool that drains a bounded queue through a per-key gate.
+remarks: >-
+  Replaces the fire-and-forget loop in `Gramstax._startWebhookWorker`<!-- -->. Unlike that loop it stores its worker
+  promises so `stop()` can join them, wraps the whole iteration in `try/catch` so one throw cannot silently shrink the
+  pool, and reports the residual count instead of abandoning updates without a trace.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(_options)
+    uid: gramstax!UpdateDispatcher:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(_options)
+    summary: Constructs a new instance of the `UpdateDispatcher` class
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(_options: IUpdateDispatcherOptions);'
+      parameters:
+        - id: _options
+          description: ''
+          type: <xref uid="gramstax!IUpdateDispatcherOptions:type" />
+methods:
+  - name: capacity()
+    uid: gramstax!UpdateDispatcher#capacity:member(1)
+    package: gramstax!
+    fullName: capacity()
+    summary: Free slots in the queue — feed this back as the fetch `limit`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'capacity(): number;'
+      return:
+        type: number
+        description: ''
+  - name: start()
+    uid: gramstax!UpdateDispatcher#start:member(1)
+    package: gramstax!
+    fullName: start()
+    summary: Start the worker loops.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'start(): void;'
+      return:
+        type: void
+        description: ''
+  - name: stats()
+    uid: gramstax!UpdateDispatcher#stats:member(1)
+    package: gramstax!
+    fullName: stats()
+    summary: Live gate stats for metrics.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        stats(): {
+                activeKeys: number;
+                waiting: number;
+            };
+      return:
+        type: |-
+          {
+                  activeKeys: number;
+                  waiting: number;
+              }
+        description: ''
+  - name: stop()
+    uid: gramstax!UpdateDispatcher#stop:member(1)
+    package: gramstax!
+    fullName: stop()
+    summary: Stop fetching, wake parked waiters, and join in-flight handlers.
+    remarks: Idempotent. Never rejects — a drain timeout is reported, not thrown.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'stop(): Promise<IUpdateDispatchStopResult>;'
+      return:
+        type: Promise&lt;<xref uid="gramstax!IUpdateDispatchStopResult:type" />&gt;
+        description: ''

@@ -9,7 +9,7 @@ Gets compiled from block <g-poll>.
 **Signature:**
 
 ```typescript
-getGPoll(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`poll`][`default`][`default`]>;
+getGPoll(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GPollResult;
 ```
 
 ## Parameters
@@ -98,9 +98,9 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`poll\`\]\[\`default\`\]\[\`default\`\]&gt;
+[GPollResult](./gramstax.gpollresult.md)
 
-Poll object containing type, question, options, and quiz grading fields
+[GPollResult](./gramstax.gpollresult.md) with the poll payload flat under `kind: "poll"`
 
 ## Remarks
 
@@ -111,6 +111,6 @@ Retrieves the compiled poll function for the specified template and language, th
 
 ```typescript
 const poll = tm.getGPoll("quiz-page", "default", "en", {topic: "math"})
-// => {type: "quiz", question: "...", options: ["..."], correct: 0, anonymous: true}
+// => {kind: "poll", type: "quiz", question: "...", options: ["..."], correct: 0, anonymous: true}
 ```
 

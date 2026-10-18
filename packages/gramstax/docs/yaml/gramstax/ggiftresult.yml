@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: GGiftResult
+uid: gramstax!GGiftResult:type
+package: gramstax!
+fullName: GGiftResult
+summary: Result of `TemplateManager.getGGift` for a `<g-gift>` block.
+remarks: '`text` is the rendered gift card text; the getter throws when the block is missing (gifts always need card text).'
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GGiftResult = {
+      kind: `gift`;
+      text: string;
+  };

@@ -4,36 +4,17 @@
 
 ## IWebhookQueueConfig type
 
-Webhook queue configuration for backpressure and worker pooling.
+> Warning: This API is now obsolete.
+> 
+> Renamed to [IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)<!-- -->. Kept as an alias for the public barrel; will be removed in the next major version.
+> 
+
+Legacy alias for [IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)<!-- -->.
 
 **Signature:**
 
 ```typescript
-type IWebhookQueueConfig = {
-    enabled?: boolean;
-    maxQueueSize?: number;
-    workerCount?: number;
-    perChatConcurrency?: number;
-    blockWhenFull?: boolean;
-    enqueueTimeoutMs?: number;
-    waiterTimeoutMs?: number;
-};
+type IWebhookQueueConfig = IUpdateQueueConfig;
 ```
-
-## Remarks
-
-Enable this only for webhook deployments. The queue buffers incoming updates and dispatches them to a worker pool, decoupling HTTP latency from handler work.
-
-## Example
-
-
-```typescript
-webhookQueue: {
-  enabled: true,
-  maxQueueSize: 5000,
-  workerCount: 8,
-  perChatConcurrency: 1,
-  blockWhenFull: true
-}
-```
+**References:** [IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)
 

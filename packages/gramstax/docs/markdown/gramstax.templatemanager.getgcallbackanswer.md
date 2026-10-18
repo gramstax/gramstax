@@ -9,7 +9,7 @@ Gets compiled text from block <g-callback-answer>.
 **Signature:**
 
 ```typescript
-getGCallbackAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
+getGCallbackAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GCallbackAnswerResult;
 ```
 
 ## Parameters
@@ -96,7 +96,7 @@ _(Optional)_
 
 **Returns:**
 
-string
+[GCallbackAnswerResult](./gramstax.gcallbackanswerresult.md)
 
 ## Remarks
 

@@ -74,7 +74,7 @@ Promise&lt;void&gt;
 
 ## Remarks
 
-Override this method to send a "command not found" message or redirect to a help page.
+A throw from here is treated as a handler failure rather than propagated: it routes to [Gramstax.hookErrorPage()](./gramstax.gramstax.hookerrorpage.md)<!-- -->, which is guarded, so a broken fallback page still leaves the user with an error message instead of silence.
 
 ## Example 1
 

@@ -168,6 +168,20 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[bodyOf(call)](./gramstax.e2ehelper.bodyof.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Narrows one captured API call's `body` to the shape a test expects.
+
+
+</td></tr>
+<tr><td>
+
 [clearCalls()](./gramstax.e2ehelper.clearcalls.md)
 
 

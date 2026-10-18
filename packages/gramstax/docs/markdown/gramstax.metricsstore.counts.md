@@ -19,10 +19,11 @@ readonly counts: {
         timeouts: number;
         skippedDuplicate: number;
         skippedValidation: number;
+        dropped: number;
     };
 ```
 
 ## Remarks
 
-Includes: `updatesTotal`<!-- -->, `updatesFailed`<!-- -->, `matched`<!-- -->, `noMatch`<!-- -->, `noHandler`<!-- -->, `blocked`<!-- -->, `timeouts`<!-- -->, `skippedDuplicate`<!-- -->, `skippedValidation`<!-- -->.
+Includes: `updatesTotal`<!-- -->, `updatesFailed`<!-- -->, `matched`<!-- -->, `noMatch`<!-- -->, `noHandler`<!-- -->, `blocked`<!-- -->, `timeouts`<!-- -->, `skippedDuplicate`<!-- -->, `skippedValidation`<!-- -->, `dropped`<!-- -->.
 

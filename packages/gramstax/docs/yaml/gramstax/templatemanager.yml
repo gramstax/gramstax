@@ -292,7 +292,9 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'getGAnswerNote(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      content: >-
+        getGAnswerNote(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
+        GAnswerNoteResult;
       parameters:
         - id: key
           description: ''
@@ -307,7 +309,7 @@ methods:
           description: ''
           type: Record&lt;string, unknown&gt;
       return:
-        type: string
+        type: <xref uid="gramstax!GAnswerNoteResult:type" />
         description: ''
   - name: getGBaseAtLine(template, line)
     uid: gramstax!TemplateManager#getGBaseAtLine:member(1)
@@ -361,7 +363,9 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'getGCallbackAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      content: >-
+        getGCallbackAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
+        GCallbackAnswerResult;
       parameters:
         - id: key
           description: ''
@@ -376,7 +380,7 @@ methods:
           description: ''
           type: Record&lt;string, unknown&gt;
       return:
-        type: string
+        type: <xref uid="gramstax!GCallbackAnswerResult:type" />
         description: ''
   - name: getGDescription(key, AGBaseId, ALang, AScope, data)
     uid: gramstax!TemplateManager#getGDescription:member(1)
@@ -385,19 +389,19 @@ methods:
     summary: Gets a command description for Telegram menu.
     remarks: >-
       Retrieves the compiled description function for the specified template, scope, and language, then executes it with
-      the provided data.
+      the provided data. Failures are swallowed to the empty-text result, preserving the historical fallback contract.
     example:
       - |-
         ```typescript
         const desc = tm.getGDescription("start", "default", "en")
-        // => "Start the bot"
+        // => {kind: "description", text: "Start the bot"}
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: >-
         getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string,
-        unknown>): string;
+        unknown>): GDescriptionResult;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -415,8 +419,8 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: string
-        description: Rendered description string, or empty string if not found
+        type: <xref uid="gramstax!GDescriptionResult:type" />
+        description: '[GDescriptionResult](xref:gramstax!GDescriptionResult:type) — rendered text, or `{text: ""}` when not found'
   - name: getGDice(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGDice:member(1)
     package: gramstax!
@@ -429,14 +433,12 @@ methods:
       - |-
         ```typescript
         const dice = tm.getGDice("lucky-page", "default", "en", {dice: "🎯"})
-        // => {emoji: "🎯"}
+        // => {kind: "dice", emoji: "🎯"}
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ICompiledTemplate[`dice`][`default`][`default`]>;
+      content: 'getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GDiceResult;'
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -451,8 +453,8 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`dice`][`default`][`default`]&gt;
-        description: Dice object containing the emoji
+        type: <xref uid="gramstax!GDiceResult:type" />
+        description: '[GDiceResult](xref:gramstax!GDiceResult:type) with the dice payload flat under `kind: "dice"`'
   - name: getGGift(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGGift:member(1)
     package: gramstax!
@@ -465,7 +467,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'getGGift(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      content: 'getGGift(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GGiftResult;'
       parameters:
         - id: key
           description: ''
@@ -480,7 +482,7 @@ methods:
           description: ''
           type: Record&lt;string, unknown&gt;
       return:
-        type: string
+        type: <xref uid="gramstax!GGiftResult:type" />
         description: ''
   - name: getGInlineButton(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGInlineButton:member(1)
@@ -496,7 +498,7 @@ methods:
     syntax:
       content: >-
         getGInlineButton(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ICompiledTemplate[`inlineButton`][`default`][`default`]>;
+        GInlineButtonResult;
       parameters:
         - id: key
           description: ''
@@ -511,7 +513,7 @@ methods:
           description: ''
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`inlineButton`][`default`][`default`]&gt;
+        type: <xref uid="gramstax!GInlineButtonResult:type" />
         description: ''
   - name: getGInvoice(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGInvoice:member(1)
@@ -522,17 +524,19 @@ methods:
       Retrieves the compiled invoice function for the specified template and language, then executes it with the
       provided data to generate the invoice payload.
     example:
-      - |-
+      - >-
         ```typescript
+
         const invoice = tm.getGInvoice("vip-page", "default", "en", {orderId: "o-1"})
-        // => {title: "...", description: "...", payload: "o-1", currency: "XTR", prices: [{label: "...", amount: 100}]}
+
+        // => {kind: "invoice", title: "...", description: "...", payload: "o-1", currency: "XTR", prices: [{label:
+        "...", amount: 100}]}
+
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        getGInvoice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ICompiledTemplate[`invoice`][`default`][`default`]>;
+      content: 'getGInvoice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GInvoiceResult;'
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -547,8 +551,8 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`invoice`][`default`][`default`]&gt;
-        description: Invoice object containing title, description, payload, currency, and prices
+        type: <xref uid="gramstax!GInvoiceResult:type" />
+        description: '[GInvoiceResult](xref:gramstax!GInvoiceResult:type) with the invoice payload flat under `kind: "invoice"`'
   - name: getGKeyboard(key, AGBaseId, ALang, AType, data)
     uid: gramstax!TemplateManager#getGKeyboard:member(1)
     package: gramstax!
@@ -556,19 +560,20 @@ methods:
     summary: Gets compiled from block <g-keyboard>.
     remarks: >-
       Retrieves the compiled keyboard function for the specified template, language, and type, then executes it with the
-      provided data to generate button labels.
+      provided data to generate button labels. Failures are swallowed to the empty-rows result, preserving the
+      historical fallback contract.
     example:
       - |-
         ```typescript
         const buttons = tm.getGKeyboard("start", "default", "en", "inline")
-        // => ["Counter", "Help", "Settings"]
+        // => {kind: "keyboard", rows: ["Counter", "Help", "Settings"]}
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: >-
         getGKeyboard(key: string, AGBaseId?: string, ALang?: string, AType?: `inline` | `bottom`, data?: Record<string,
-        unknown>): string[];
+        unknown>): GKeyboardResult;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -586,8 +591,10 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: string[]
-        description: Array of rendered button labels, or empty array if not found
+        type: <xref uid="gramstax!GKeyboardResult:type" />
+        description: >-
+          [GKeyboardResult](xref:gramstax!GKeyboardResult:type) — rendered button labels under `rows`<!-- -->, or
+          `{rows: []}` if not found
   - name: getGMedia(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGMedia:member(1)
     package: gramstax!
@@ -600,14 +607,12 @@ methods:
       - |-
         ```typescript
         const media = tm.getGMedia("photo-page", "default", "en", {photoUrl: "..."})}
-        // => {type: "photo", src: "...", caption: "..."}
+        // => {kind: "media", type: "photo", src: "...", caption: "..."}
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ICompiledTemplate[`media`][`default`][`default`]>;
+      content: 'getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GMediaResult;'
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -622,8 +627,8 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`media`][`default`][`default`]&gt;
-        description: Media object containing type, src, and caption
+        type: <xref uid="gramstax!GMediaResult:type" />
+        description: '[GMediaResult](xref:gramstax!GMediaResult:type) with the media payload flat under `kind: "media"`'
   - name: getGMessage(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGMessage:member(1)
     package: gramstax!
@@ -631,17 +636,18 @@ methods:
     summary: Gets compiled from block <g-message>.
     remarks: >-
       Retrieves the compiled message function for the specified template and language, then executes it with the
-      provided data to generate the message.
+      provided data to generate the message. Failures are swallowed to the empty-text result, preserving the historical
+      fallback contract.
     example:
       - |-
         ```typescript
         const message = tm.getGMessage("start", "default", "en", {name: "John"})
-        // => "Hello, John! Welcome to the bot."
+        // => {kind: "message", text: "Hello, John! Welcome to the bot.", rich: false}
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      content: 'getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GMessageResult;'
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -656,8 +662,10 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: string
-        description: Rendered message string, or empty string if not found
+        type: <xref uid="gramstax!GMessageResult:type" />
+        description: >-
+          [GMessageResult](xref:gramstax!GMessageResult:type) — rendered text plus the compile-time rich marker, or
+          `{text: "", rich: false}` when not found
   - name: getGPaidMedia(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGPaidMedia:member(1)
     package: gramstax!
@@ -670,14 +678,12 @@ methods:
       - |-
         ```typescript
         const wall = tm.getGPaidMedia("vip-page", "default", "en", {teaser: "t.jpg"})
-        // => {stars: 100, media: [{type: "photo", src: "t.jpg", caption: "..."}]}
+        // => {kind: "paidMedia", stars: 100, media: [{type: "photo", src: "t.jpg", caption: "..."}]}
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        getGPaidMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ICompiledTemplate[`paidMedia`][`default`][`default`]>;
+      content: 'getGPaidMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GPaidMediaResult;'
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -692,8 +698,10 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`paidMedia`][`default`][`default`]&gt;
-        description: Paid-media object containing stars and media items
+        type: <xref uid="gramstax!GPaidMediaResult:type" />
+        description: >-
+          [GPaidMediaResult](xref:gramstax!GPaidMediaResult:type) with the paywall payload flat under `kind:
+          "paidMedia"`
   - name: getGPoll(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGPoll:member(1)
     package: gramstax!
@@ -706,14 +714,12 @@ methods:
       - |-
         ```typescript
         const poll = tm.getGPoll("quiz-page", "default", "en", {topic: "math"})
-        // => {type: "quiz", question: "...", options: ["..."], correct: 0, anonymous: true}
+        // => {kind: "poll", type: "quiz", question: "...", options: ["..."], correct: 0, anonymous: true}
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        getGPoll(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ICompiledTemplate[`poll`][`default`][`default`]>;
+      content: 'getGPoll(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GPollResult;'
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -728,8 +734,8 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`poll`][`default`][`default`]&gt;
-        description: Poll object containing type, question, options, and quiz grading fields
+        type: <xref uid="gramstax!GPollResult:type" />
+        description: '[GPollResult](xref:gramstax!GPollResult:type) with the poll payload flat under `kind: "poll"`'
   - name: getGPrecheckoutError(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGPrecheckoutError:member(1)
     package: gramstax!
@@ -742,7 +748,9 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'getGPrecheckoutError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      content: >-
+        getGPrecheckoutError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
+        GPreCheckoutErrorResult;
       parameters:
         - id: key
           description: ''
@@ -757,7 +765,7 @@ methods:
           description: ''
           type: Record&lt;string, unknown&gt;
       return:
-        type: string
+        type: <xref uid="gramstax!GPreCheckoutErrorResult:type" />
         description: ''
   - name: getGShippingError(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGShippingError:member(1)
@@ -771,7 +779,9 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'getGShippingError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
+      content: >-
+        getGShippingError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
+        GShippingErrorResult;
       parameters:
         - id: key
           description: ''
@@ -786,7 +796,7 @@ methods:
           description: ''
           type: Record&lt;string, unknown&gt;
       return:
-        type: string
+        type: <xref uid="gramstax!GShippingErrorResult:type" />
         description: ''
   - name: getGVenue(key, AGBaseId, ALang, data)
     uid: gramstax!TemplateManager#getGVenue:member(1)
@@ -800,14 +810,12 @@ methods:
       - |-
         ```typescript
         const venue = tm.getGVenue("cafe-page", "default", "en", {name: "Cafe"})
-        // => {title: "Cafe", address: "...", latitude: "-6.2", longitude: "106.8"}
+        // => {kind: "venue", title: "Cafe", address: "...", latitude: "-6.2", longitude: "106.8"}
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        getGVenue(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
-        ReturnType<ICompiledTemplate[`venue`][`default`][`default`]>;
+      content: 'getGVenue(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GVenueResult;'
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -822,8 +830,8 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, unknown&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!ICompiledTemplate:type" />[`venue`][`default`][`default`]&gt;
-        description: Venue object containing title, address, latitude, and longitude
+        type: <xref uid="gramstax!GVenueResult:type" />
+        description: '[GVenueResult](xref:gramstax!GVenueResult:type) with the venue payload flat under `kind: "venue"`'
   - name: handleFileAdd(filepath)
     uid: gramstax!TemplateManager#handleFileAdd:member(1)
     package: gramstax!

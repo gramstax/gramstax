@@ -9,7 +9,7 @@ Gets compiled from block <g-keyboard>.
 **Signature:**
 
 ```typescript
-getGKeyboard(key: string, AGBaseId?: string, ALang?: string, AType?: `inline` | `bottom`, data?: Record<string, unknown>): string[];
+getGKeyboard(key: string, AGBaseId?: string, ALang?: string, AType?: `inline` | `bottom`, data?: Record<string, unknown>): GKeyboardResult;
 ```
 
 ## Parameters
@@ -114,19 +114,19 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-string\[\]
+[GKeyboardResult](./gramstax.gkeyboardresult.md)
 
-Array of rendered button labels, or empty array if not found
+[GKeyboardResult](./gramstax.gkeyboardresult.md) — rendered button labels under `rows`<!-- -->, or `{rows: []}` if not found
 
 ## Remarks
 
-Retrieves the compiled keyboard function for the specified template, language, and type, then executes it with the provided data to generate button labels.
+Retrieves the compiled keyboard function for the specified template, language, and type, then executes it with the provided data to generate button labels. Failures are swallowed to the empty-rows result, preserving the historical fallback contract.
 
 ## Example
 
 
 ```typescript
 const buttons = tm.getGKeyboard("start", "default", "en", "inline")
-// => ["Counter", "Help", "Settings"]
+// => {kind: "keyboard", rows: ["Counter", "Help", "Settings"]}
 ```
 

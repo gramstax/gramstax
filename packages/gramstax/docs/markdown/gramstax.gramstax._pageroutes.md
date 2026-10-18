@@ -78,13 +78,13 @@ The routing follows a strict \*\*priority hierarchy\*\*. When a match is found a
 
 \*\*Routing Priority (executed in order):\*\*
 
-1. \*\*staticSession\*\* — Session-aware routes, filtered by input type (O(n) lookup) - Only runs when the user has an active session (`session.method` is set) - Iterates `routeStaticSession` and matches by `session.method` value - \*\*Filtered by input type\*\*: only routes whose name ends with `fromListener` are checked (e.g., callback queries only match `*CallbackQueryData` session routes, text only matches `*Text`<!-- -->, photo captions only match `*CaptionPhoto`<!-- -->, etc.) - This prevents cross-type handler misdispatch (e.g., a callback query accidentally matching `handleSessionFreeText`<!-- -->) - Example: session with method "7-mypage" → finds `handleSessionFreeText["7-mypage"]` when `fromListener = "text"`
+1. \*\*staticSession\*\* — Session-aware routes, filtered by input type (O(n) lookup)  - Only runs when the user has an active session (`session.method` is set)  - Iterates `routeStaticSession` and matches by `session.method` value  - \*\*Filtered by input type\*\*: only routes whose name ends with `fromListener`  are checked (e.g., callback queries only match `*CallbackQueryData` session routes,  text only matches `*Text`<!-- -->, photo captions only match `*CaptionPhoto`<!-- -->, etc.)  - This prevents cross-type handler misdispatch (e.g., a callback query  accidentally matching `handleSessionFreeText`<!-- -->)  - Example: session with method "7-mypage" → finds `handleSessionFreeText["7-mypage"]`  when `fromListener = "text"`
 
-2. \*\*static\*\* — Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents - Example: "start" → `handleText()`<!-- -->, "/help" → `handleCommandText()`
+2. \*\*static\*\* — Exact intent match routes (O(1) lookup)  - Matches exact text/callback data to page intents  - Example: "start" → `handleText()`<!-- -->, "/help" → `handleCommandText()`
 
-3. \*\*staticIntent\*\* — Intent with args routes (O(1) lookup) - Matches intent prefix when args are present - Example: "start:123" → `handleArgsCallbackQueryData()`<!-- -->, "/add item" → `handleCommandArgsText()`
+3. \*\*staticIntent\*\* — Intent with args routes (O(1) lookup)  - Matches intent prefix when args are present  - Example: "start:123" → `handleArgsCallbackQueryData()`<!-- -->, "/add item" → `handleCommandArgsText()`
 
-4. \*\*dynamicSpesific\*\* — Non-session free handlers (O(n) iteration) - Runs all `handleFree*` handlers (defined directly on the page, not inherited) - `handleSessionFree*` variants are NOT dispatched here — they go through id=1 - Example: `handleFreeText()`<!-- -->, `handleFreePhoto()` - \*\*All matching handlers are executed\*\* (no early return)
+4. \*\*dynamicSpesific\*\* — Non-session free handlers (O(n) iteration)  - Runs all `handleFree*` handlers (defined directly on the page, not inherited)  - `handleSessionFree*` variants are NOT dispatched here — they go through id=1  - Example: `handleFreeText()`<!-- -->, `handleFreePhoto()`  - \*\*All matching handlers are executed\*\* (no early return)
 
-5. \*\*dynamic\*\* — Global fallback handlers (O(n) iteration) - Runs all `handleFree()` handlers from pages that define them - Last resort when nothing else matches - \*\*All matching handlers are executed\*\* (no early return)
+5. \*\*dynamic\*\* — Global fallback handlers (O(n) iteration)  - Runs all `handleFree()` handlers from pages that define them  - Last resort when nothing else matches  - \*\*All matching handlers are executed\*\* (no early return)
 

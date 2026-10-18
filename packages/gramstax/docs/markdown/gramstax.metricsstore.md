@@ -72,7 +72,7 @@ Total update count per listener name (e.g. text, callbackquerydata).
 
 </td><td>
 
-{ updatesTotal: number; updatesFailed: number; matched: number; noMatch: number; noHandler: number; blocked: number; timeouts: number; skippedDuplicate: number; skippedValidation: number; }
+{ updatesTotal: number; updatesFailed: number; matched: number; noMatch: number; noHandler: number; blocked: number; timeouts: number; skippedDuplicate: number; skippedValidation: number; dropped: number; }
 
 
 </td><td>

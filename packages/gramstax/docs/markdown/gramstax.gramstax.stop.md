@@ -15,3 +15,7 @@ stop(): Promise<void>;
 
 Promise&lt;void&gt;
 
+## Remarks
+
+Drains the webhook dispatcher (bounded by `drainTimeoutMs`<!-- -->) before any teardown, so in-flight handlers never race `templateManager.destroy()` or the keyboard cache clear. A drain that gives up is counted as `dropped`<!-- -->.
+

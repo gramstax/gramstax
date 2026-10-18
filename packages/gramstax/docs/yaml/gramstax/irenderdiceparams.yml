@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IRenderDiceParams
+uid: gramstax!IRenderDiceParams:type
+package: gramstax!
+fullName: IRenderDiceParams
+summary: Parameters for `renderDice`<!-- -->.
+remarks: >-
+  The emoji comes from the COMPILED block (`🎲` default when the attribute is absent) and is checked by
+  `Ctx.assertDiceEmoji` BEFORE any API call.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderDiceParams = {
+      keyboard?: IInBoKb | null;
+      data?: IData | null;
+      AGBaseId?: string | null;
+      options?: Parameters<Ctx[`replyWithDice`]>[1] | null;
+  };

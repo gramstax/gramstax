@@ -9,7 +9,7 @@ Gets compiled text from block <g-gift>.
 **Signature:**
 
 ```typescript
-getGGift(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
+getGGift(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GGiftResult;
 ```
 
 ## Parameters
@@ -96,7 +96,7 @@ _(Optional)_
 
 **Returns:**
 
-string
+[GGiftResult](./gramstax.ggiftresult.md)
 
 ## Remarks
 

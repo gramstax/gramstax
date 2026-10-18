@@ -6,10 +6,12 @@
 
 Edits only the inline keyboard using the page template.
 
+Template block: `<g-keyboard>` (read via `getGKeyboard`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderEditKeyboard(keyboardInline: IInlineKb | null | undefined, data: IData | null | undefined, AGBaseId: string, options?: IOptEditKeyboard | null): Promise<true | (grammy_types.Update.Edited & grammy_types.Message)>;
+renderEditKeyboard(params: IRenderEditKeyboardParams): Promise<true | (grammy_types.Update.Edited & Message)>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-keyboardInline
+params
 
 
 </td><td>
 
-[IInlineKb](./gramstax.iinlinekb.md) \| null \| undefined
+[IRenderEditKeyboardParams](./gramstax.irendereditkeyboardparams.md)
 
 
 </td><td>
 
-Optional inline keyboard markup, or null to resolve it from the block.
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null \| undefined
-
-
-</td><td>
-
-Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Template base ID position for block keyboard.
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptEditKeyboard](./gramstax.iopteditkeyboard.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional abort signal for the edit call (or null to omit).
+Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block keyboard (required); `options` optional abort signal for the edit call (or null to omit).
 
 
 </td></tr>
@@ -98,7 +52,7 @@ _(Optional)_ Optional abort signal for the edit call (or null to omit).
 
 **Returns:**
 
-Promise&lt;true \| (grammy\_types.Update.Edited &amp; grammy\_types.Message)&gt;
+Promise&lt;true \| (grammy\_types.Update.Edited &amp; Message)&gt;
 
 The edited message object.
 
@@ -111,7 +65,7 @@ Sent via `editMessageReplyMarkup` — never touches message text. When `keyboard
 
 ```typescript
 async handleArgsCallback() {
-  await this.renderEditKeyboard(null, undefined, `photo-card`)
+  await this.renderEditKeyboard({keyboardInline: null, AGBaseId: `photo-card`})
 }
 ```
 

@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: GDescriptionResult
+uid: gramstax!GDescriptionResult:type
+package: gramstax!
+fullName: GDescriptionResult
+summary: Result of `TemplateManager.getGDescription` for a `<g-description>` block.
+remarks: '`text` is the rendered command description; a missing block yields `{kind: "description", text: ""}`<!-- -->.'
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GDescriptionResult = {
+      kind: `description`;
+      text: string;
+  };

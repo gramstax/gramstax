@@ -20,7 +20,7 @@ Promise&lt;boolean&gt;
 
 ## Remarks
 
-Return `false` to \*\*skip only the target route handler\*\* (e.g. `handleFreeText`<!-- -->, `handleCallbackQueryData`<!-- -->, etc.). The rest of the framework is untouched — you can still call `.render()`<!-- -->, `.renderEdit()`<!-- -->, `.renderCallbackAnswer()`<!-- -->, and other Ctx methods normally inside this hook before returning `false`<!-- -->.
+Return `false` to \*\*skip only the target route handler\*\* (e.g. `handleFreeText`<!-- -->, `handleCallbackQueryData`<!-- -->, etc.). The rest of the framework is untouched — you can still call `.renderText()`<!-- -->, `.renderCallbackAnswer()`<!-- -->, and other Ctx methods normally inside this hook before returning `false`<!-- -->.
 
 In other words: returning `false` does NOT freeze the page — it only prevents one specific handler from running.
 

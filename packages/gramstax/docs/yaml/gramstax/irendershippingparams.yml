@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IRenderShippingParams
+uid: gramstax!IRenderShippingParams:type
+package: gramstax!
+fullName: IRenderShippingParams
+summary: Parameters for `renderShipping`<!-- -->.
+remarks: >-
+  The `<g-shipping-error>` block supplies the `error_message` shown when the shipping address is rejected (multilang via
+  `data`<!-- -->).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderShippingParams = {
+      ok: boolean;
+      data?: IData | null;
+      AGBaseId: string;
+      options?: IOptShipping | null;
+  };

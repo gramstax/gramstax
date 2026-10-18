@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IUpdateDispatcherOptions
+uid: gramstax!IUpdateDispatcherOptions:type
+package: gramstax!
+fullName: IUpdateDispatcherOptions
+summary: Options for [UpdateDispatcher](xref:gramstax!UpdateDispatcher:class)<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IUpdateDispatcherOptions = {
+      queue: UpdateQueue<Update>;
+      workerCount: number;
+      perChatConcurrency: number;
+      waiterTimeoutMs: number;
+      drainTimeoutMs: number;
+      handle: (update: Update) => Promise<void>;
+      onError: (error: unknown, update: Update) => void;
+      onWaiterTimeout?: (key: string) => void;
+  };

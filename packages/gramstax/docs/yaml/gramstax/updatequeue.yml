@@ -1,0 +1,174 @@
+### YamlMime:TSType
+name: UpdateQueue
+uid: gramstax!UpdateQueue:class
+package: gramstax!
+fullName: UpdateQueue
+summary: Update queue — in-memory bounded FIFO for sequential processing.
+remarks: >-
+  Provides a bounded FIFO queue for Telegram updates, ensuring they are processed sequentially. Shared by both deploy
+  modes: webhook/serverless enqueue from HTTP requests, polling enqueues from the `getUpdates` loop. Useful for
+  long-polling fallback or rate-limited processing.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(maxSize)
+    uid: gramstax!UpdateQueue:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(maxSize)
+    summary: Create a new queue with a maximum size.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(maxSize: number);'
+      parameters:
+        - id: maxSize
+          description: Maximum number of items allowed in the queue.
+          type: number
+properties:
+  - name: isClosed
+    uid: gramstax!UpdateQueue#isClosed:member
+    package: gramstax!
+    fullName: isClosed
+    summary: Whether the queue has been closed.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get isClosed(): boolean;'
+      return:
+        type: boolean
+  - name: length
+    uid: gramstax!UpdateQueue#length:member
+    package: gramstax!
+    fullName: length
+    summary: Get current queue length.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get length(): number;'
+      return:
+        type: number
+methods:
+  - name: capacity()
+    uid: gramstax!UpdateQueue#capacity:member(1)
+    package: gramstax!
+    fullName: capacity()
+    summary: Number of free slots available right now.
+    remarks: >-
+      Used as the `getUpdates` `limit` hint so fetch slows under load instead of over-fetching into a full buffer.
+      Saturates at 0; callers clamp to 1..100. A closed queue reports 0 because it accepts nothing, however much room is
+      physically left in the buffer.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'capacity(): number;'
+      return:
+        type: number
+        description: ''
+  - name: close()
+    uid: gramstax!UpdateQueue#close:member(1)
+    package: gramstax!
+    fullName: close()
+    summary: Close the queue and release all waiting consumers and producers.
+    remarks: Workers waiting on `dequeue()` resolve with `undefined` (sentinel). Enqueueing after close throws.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'close(): void;'
+      return:
+        type: void
+        description: ''
+  - name: dequeue(signal)
+    uid: gramstax!UpdateQueue#dequeue:member(1)
+    package: gramstax!
+    fullName: dequeue(signal)
+    summary: Dequeue a value, blocking when the queue is empty.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'dequeue(signal?: AbortSignal): Promise<T | undefined>;'
+      parameters:
+        - id: signal
+          description: Optional AbortSignal to cancel a blocked dequeue.
+          type: AbortSignal
+      return:
+        type: Promise&lt;T | undefined&gt;
+        description: Promise resolved with the next value, or `undefined` when closed and empty.
+  - name: enqueue(value, signal)
+    uid: gramstax!UpdateQueue#enqueue:member(1)
+    package: gramstax!
+    fullName: enqueue(value, signal)
+    summary: Enqueue a value, blocking when the queue is full.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'enqueue(value: T, signal?: AbortSignal): Promise<void>;'
+      parameters:
+        - id: value
+          description: Value to enqueue.
+          type: T
+        - id: signal
+          description: Optional AbortSignal to cancel a blocked enqueue.
+          type: AbortSignal
+      return:
+        type: Promise&lt;void&gt;
+        description: Promise resolved when enqueued.
+  - name: getStats()
+    uid: gramstax!UpdateQueue#getStats:member(1)
+    package: gramstax!
+    fullName: getStats()
+    summary: Get current queue statistics.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        getStats(): {
+                length: number;
+                maxSize: number;
+                waitingEnqueue: number;
+                waitingDequeue: number;
+            };
+      return:
+        type: |-
+          {
+                  length: number;
+                  maxSize: number;
+                  waitingEnqueue: number;
+                  waitingDequeue: number;
+              }
+        description: Queue stats including length and waiters.
+  - name: tryEnqueue(value)
+    uid: gramstax!UpdateQueue#tryEnqueue:member(1)
+    package: gramstax!
+    fullName: tryEnqueue(value)
+    summary: Offer a value without blocking.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'tryEnqueue(value: T): boolean;'
+      parameters:
+        - id: value
+          description: Value to enqueue.
+          type: T
+      return:
+        type: boolean
+        description: >-
+          `true` when the value was accepted (buffered or handed to a waiting dequeuer), `false` when the queue is
+          closed or full.

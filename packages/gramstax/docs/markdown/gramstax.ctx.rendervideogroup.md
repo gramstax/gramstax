@@ -6,12 +6,12 @@
 
 Sends a video media group using pipe-delimited `src` values from the page template.
 
-Template block: `<g-media>` (read via `renderMediaGroup`<!-- -->).
+Template block: `<g-media-group>` (read via `renderMediaGroup`<!-- -->).
 
 **Signature:**
 
 ```typescript
-renderVideoGroup(data?: IData | null, AGBaseId?: string | null, options?: IOptReplyVideo | null): Promise<unknown>;
+renderVideoGroup(params?: IRenderMediaGroupKindParams): Promise<Message | Message[] | undefined>;
 ```
 
 ## Parameters
@@ -34,49 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-data
+params
 
 
 </td><td>
 
-[IData](./gramstax.idata.md) \| null
+[IRenderMediaGroupKindParams](./gramstax.irendermediagroupkindparams.md)
 
 
 </td><td>
 
-_(Optional)_ Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template g-base ID position for block media type video (or null to use default).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptReplyVideo](./gramstax.ioptreplyvideo.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional video-specific options (or null to omit).
+_(Optional)_ Optional per-kind params (defaults to `{}`<!-- -->). See [IRenderMediaGroupKindParams](./gramstax.irendermediagroupkindparams.md) for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`<!-- -->); `options` optional video-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`<!-- -->).
 
 
 </td></tr>
@@ -84,7 +52,7 @@ _(Optional)_ Optional video-specific options (or null to omit).
 
 **Returns:**
 
-Promise&lt;unknown&gt;
+Promise&lt;Message \| Message\[\] \| undefined&gt;
 
 The sent media group messages.
 

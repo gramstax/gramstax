@@ -9,11 +9,11 @@ Best-effort fallback-text reply; never throws (nested failures are ignored).
 **Signature:**
 
 ```typescript
-replyFallbackText(): Promise<unknown>;
+replyFallbackText(): Promise<Message | undefined>;
 ```
 **Returns:**
 
-Promise&lt;unknown&gt;
+Promise&lt;Message \| undefined&gt;
 
 The fallback message, or `undefined` when the fallback reply also failed.
 

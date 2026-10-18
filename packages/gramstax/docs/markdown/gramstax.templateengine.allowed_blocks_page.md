@@ -9,7 +9,7 @@ Gramstax `<g-*>` PAGE block allowlist.
 **Signature:**
 
 ```typescript
-static ALLOWED_BLOCKS_PAGE: string[];
+static ALLOWED_BLOCKS_PAGE: ReadonlySet<string>;
 ```
 
 ## Remarks

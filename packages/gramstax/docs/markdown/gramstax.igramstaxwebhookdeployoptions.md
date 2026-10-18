@@ -12,10 +12,10 @@ Webhook deploy branch of `optionsDeploy`<!-- -->.
 type IGramstaxWebhookDeployOptions = {
     url?: string;
     secretToken?: string;
-    queue?: IWebhookQueueConfig;
+    queue?: IUpdateQueueConfig;
 };
 ```
-**References:** [IWebhookQueueConfig](./gramstax.iwebhookqueueconfig.md)
+**References:** [IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)
 
 ## Remarks
 

@@ -6,10 +6,12 @@
 
 Answers the active pre-checkout query with a template-backed error message.
 
+Template block: `<g-precheckout-error>` (read via `getGPrecheckoutError`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderPreCheckout(ok: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptPreCheckout | null): Promise<true>;
+renderPreCheckout(params: IRenderPreCheckoutParams): Promise<true>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-ok
+params
 
 
 </td><td>
 
-boolean
+[IRenderPreCheckoutParams](./gramstax.irenderprecheckoutparams.md)
 
 
 </td><td>
 
-Whether to approve the checkout.
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null \| undefined
-
-
-</td><td>
-
-Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Template base ID position for the error message.
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptPreCheckout](./gramstax.ioptprecheckout.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional answer options, or a string overriding the error message (or null to omit).
+Answer params: `ok` whether to approve the checkout (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the error message (required); `options` optional answer options, or a string overriding the error message (or null to omit).
 
 
 </td></tr>
@@ -115,7 +69,7 @@ Telegram requires the answer within 10 seconds of the query.
 
 ```typescript
 async handlePreCheckout() {
-  await this.renderPreCheckout(false, undefined, `pay-declined-card`)
+  await this.renderPreCheckout({ok: false, AGBaseId: `pay-declined-card`})
 }
 ```
 

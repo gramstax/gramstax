@@ -9,7 +9,7 @@ Telegram Rich HTML tags passed through to the message `html` field.
 **Signature:**
 
 ```typescript
-static ALLOWED_BLOCKS_TELEGRAM_RICH: string[];
+static ALLOWED_BLOCKS_TELEGRAM_RICH: ReadonlySet<string>;
 ```
 
 ## Remarks

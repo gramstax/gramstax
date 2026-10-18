@@ -9,7 +9,7 @@ Gets compiled text from block <g-precheckout-error>.
 **Signature:**
 
 ```typescript
-getGPrecheckoutError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
+getGPrecheckoutError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GPreCheckoutErrorResult;
 ```
 
 ## Parameters
@@ -96,7 +96,7 @@ _(Optional)_
 
 **Returns:**
 
-string
+[GPreCheckoutErrorResult](./gramstax.gprecheckouterrorresult.md)
 
 ## Remarks
 

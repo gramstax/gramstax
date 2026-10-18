@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: GAnswerNoteResult
+uid: gramstax!GAnswerNoteResult:type
+package: gramstax!
+fullName: GAnswerNoteResult
+summary: Result of `TemplateManager.getGAnswerNote` for a `<g-answer-note>` block.
+remarks: >-
+  `text` is the marker note text; the getter throws when the block is missing (guest and web app answers require the
+  marker block).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GAnswerNoteResult = {
+      kind: `answerNote`;
+      text: string;
+  };

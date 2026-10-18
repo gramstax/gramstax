@@ -11,7 +11,7 @@ Template block: `<g-media>` (read via `renderMedia`<!-- -->).
 **Signature:**
 
 ```typescript
-renderDocument(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyDocument | null): Promise<unknown>;
+renderDocument(params?: IRenderMediaKindParams<`document`>): Promise<true | Message | IBroadcastEditResult | IBroadcastSendResult | Message[] | undefined>;
 ```
 
 ## Parameters
@@ -34,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-keyboard
+params
 
 
 </td><td>
 
-[IInBoKb](./gramstax.iinbokb.md) \| null
+[IRenderMediaKindParams](./gramstax.irendermediakindparams.md)<!-- -->&lt;\`document\`&gt;
 
 
 </td><td>
 
-_(Optional)_ Optional keyboard markup (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template g-base ID position for block media type document (or null to use default).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptReplyDocument](./gramstax.ioptreplydocument.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional document-specific options (or null to omit).
+_(Optional)_ Optional per-kind params (defaults to `{}`<!-- -->). See [IRenderMediaKindParams](./gramstax.irendermediakindparams.md) for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`<!-- -->); `options` optional document-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`<!-- -->); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`<!-- -->) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
 
 
 </td></tr>
@@ -100,9 +52,9 @@ _(Optional)_ Optional document-specific options (or null to omit).
 
 **Returns:**
 
-Promise&lt;unknown&gt;
+Promise&lt;true \| Message \| [IBroadcastEditResult](./gramstax.ibroadcasteditresult.md) \| [IBroadcastSendResult](./gramstax.ibroadcastsendresult.md) \| Message\[\] \| undefined&gt;
 
-The sent message object.
+The sent or edited message object.
 
 ## Example
 

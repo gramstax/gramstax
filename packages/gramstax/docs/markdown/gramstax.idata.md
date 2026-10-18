@@ -21,6 +21,6 @@ Used throughout Gramstax for passing dynamic data to templates and methods. Acce
 
 ```ts
 const data: IData = {name: `John`, count: 3}
-await this.render(null, data)
+await this.renderText({data})
 ```
 

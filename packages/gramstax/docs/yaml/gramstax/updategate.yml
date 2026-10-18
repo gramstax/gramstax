@@ -1,0 +1,106 @@
+### YamlMime:TSType
+name: UpdateGate
+uid: gramstax!UpdateGate:class
+package: gramstax!
+fullName: UpdateGate
+summary: Per-key concurrency gate.
+remarks: >-
+  Extracted verbatim from the closure that used to live inside `Gramstax._runWebhook`<!-- -->, then generalized from
+  "chat id" to "gate key" so polling and webhook share one implementation. Same-key updates serialize; different keys
+  run concurrently. Entries are removed as soon as their last holder releases, so the maps do not grow with key
+  cardinality.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(_options)
+    uid: gramstax!UpdateGate:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(_options)
+    summary: Constructs a new instance of the `UpdateGate` class
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(_options: IUpdateGateOptions);'
+      parameters:
+        - id: _options
+          description: ''
+          type: <xref uid="gramstax!IUpdateGateOptions:type" />
+methods:
+  - name: acquire(key)
+    uid: gramstax!UpdateGate#acquire:member(1)
+    package: gramstax!
+    fullName: acquire(key)
+    summary: Acquire the gate for `key`<!-- -->, returning a release function.
+    remarks: >-
+      Resolves immediately (with a no-op release) when gating is disabled or `key` is `undefined`<!-- -->. Otherwise
+      parks FIFO until the key has a free slot.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'acquire(key: string | undefined): Promise<() => void>;'
+      parameters:
+        - id: key
+          description: ''
+          type: string | undefined
+      return:
+        type: Promise&lt;() =&gt; void&gt;
+        description: ''
+  - name: activeCount(key)
+    uid: gramstax!UpdateGate#activeCount:member(1)
+    package: gramstax!
+    fullName: activeCount(key)
+    summary: Current holder count for `key`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'activeCount(key: string): number;'
+      parameters:
+        - id: key
+          description: ''
+          type: string
+      return:
+        type: number
+        description: ''
+  - name: releaseAll()
+    uid: gramstax!UpdateGate#releaseAll:member(1)
+    package: gramstax!
+    fullName: releaseAll()
+    summary: Wake every waiter so shutdown cannot hang on a parked gate.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'releaseAll(): void;'
+      return:
+        type: void
+        description: ''
+  - name: stats()
+    uid: gramstax!UpdateGate#stats:member(1)
+    package: gramstax!
+    fullName: stats()
+    summary: Live gate stats for metrics.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        stats(): {
+                activeKeys: number;
+                waiting: number;
+            };
+      return:
+        type: |-
+          {
+                  activeKeys: number;
+                  waiting: number;
+              }
+        description: ''

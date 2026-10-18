@@ -9,7 +9,7 @@ Gets compiled from block <g-invoice>.
 **Signature:**
 
 ```typescript
-getGInvoice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`invoice`][`default`][`default`]>;
+getGInvoice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GInvoiceResult;
 ```
 
 ## Parameters
@@ -98,9 +98,9 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`invoice\`\]\[\`default\`\]\[\`default\`\]&gt;
+[GInvoiceResult](./gramstax.ginvoiceresult.md)
 
-Invoice object containing title, description, payload, currency, and prices
+[GInvoiceResult](./gramstax.ginvoiceresult.md) with the invoice payload flat under `kind: "invoice"`
 
 ## Remarks
 
@@ -111,6 +111,6 @@ Retrieves the compiled invoice function for the specified template and language,
 
 ```typescript
 const invoice = tm.getGInvoice("vip-page", "default", "en", {orderId: "o-1"})
-// => {title: "...", description: "...", payload: "o-1", currency: "XTR", prices: [{label: "...", amount: 100}]}
+// => {kind: "invoice", title: "...", description: "...", payload: "o-1", currency: "XTR", prices: [{label: "...", amount: 100}]}
 ```
 

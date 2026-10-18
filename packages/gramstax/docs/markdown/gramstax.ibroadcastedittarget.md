@@ -17,13 +17,13 @@ type IBroadcastEditTarget = {
 
 ## Remarks
 
-Matches the downstream `SentRepository` row shape (`chatId` + `messageId` per content code): list stored rows and pass them back to `renderBroadcastEdit` / `renderBroadcastDelete`<!-- -->.
+Matches the downstream `SentRepository` row shape (`chatId` + `messageId` per content code): list stored rows and pass them back to `renderMedia` (with `broadcast.targets`<!-- -->) / `renderBroadcastDelete`<!-- -->.
 
 ## Example
 
 
 ```ts
 const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
-await this.renderBroadcastEdit(sent, `photo`, null, {price: `99`})
+await this.renderMedia({type: `photo`, data: {price: `99`}, broadcast: {targets: sent}})
 ```
 

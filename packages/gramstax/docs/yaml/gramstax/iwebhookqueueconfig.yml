@@ -3,30 +3,12 @@ name: IWebhookQueueConfig
 uid: gramstax!IWebhookQueueConfig:type
 package: gramstax!
 fullName: IWebhookQueueConfig
-summary: Webhook queue configuration for backpressure and worker pooling.
-remarks: >-
-  Enable this only for webhook deployments. The queue buffers incoming updates and dispatches them to a worker pool,
-  decoupling HTTP latency from handler work.
-example:
-  - |-
-    ```typescript
-    webhookQueue: {
-      enabled: true,
-      maxQueueSize: 5000,
-      workerCount: 8,
-      perChatConcurrency: 1,
-      blockWhenFull: true
-    }
-    ```
+summary: Legacy alias for [IUpdateQueueConfig](xref:gramstax!IUpdateQueueConfig:type)<!-- -->.
+remarks: ''
+example: []
 isPreview: false
-isDeprecated: false
-syntax: |-
-  type IWebhookQueueConfig = {
-      enabled?: boolean;
-      maxQueueSize?: number;
-      workerCount?: number;
-      perChatConcurrency?: number;
-      blockWhenFull?: boolean;
-      enqueueTimeoutMs?: number;
-      waiterTimeoutMs?: number;
-  };
+isDeprecated: true
+customDeprecatedMessage: >-
+  Renamed to [IUpdateQueueConfig](xref:gramstax!IUpdateQueueConfig:type)<!-- -->. Kept as an alias for the public
+  barrel; will be removed in the next major version.
+syntax: type IWebhookQueueConfig = IUpdateQueueConfig;

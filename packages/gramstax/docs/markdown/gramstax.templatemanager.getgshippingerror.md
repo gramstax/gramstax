@@ -9,7 +9,7 @@ Gets compiled text from block <g-shipping-error>.
 **Signature:**
 
 ```typescript
-getGShippingError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
+getGShippingError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GShippingErrorResult;
 ```
 
 ## Parameters
@@ -96,7 +96,7 @@ _(Optional)_
 
 **Returns:**
 
-string
+[GShippingErrorResult](./gramstax.gshippingerrorresult.md)
 
 ## Remarks
 

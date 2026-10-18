@@ -1,0 +1,20 @@
+### YamlMime:TSTypeAlias
+name: IRenderPollParams
+uid: gramstax!IRenderPollParams:type
+package: gramstax!
+fullName: IRenderPollParams
+summary: Parameters for `renderPoll`<!-- -->.
+remarks: >-
+  The poll is send-only: the Bot API offers no edit for polls (only `stopPoll`<!-- -->), so there is no `mode` and no
+  fallback content.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderPollParams = {
+      keyboard?: IInBoKb | null;
+      data?: IData | null;
+      AGBaseId?: string | null;
+      options?: Parameters<Ctx[`replyWithPoll`]>[2] | null;
+      broadcast?: IBroadcastSendParams | null;
+  };

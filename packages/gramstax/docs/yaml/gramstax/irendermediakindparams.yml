@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: IRenderMediaKindParams
+uid: gramstax!IRenderMediaKindParams:type
+package: gramstax!
+fullName: IRenderMediaKindParams
+summary: >-
+  `IRenderMediaParams` for one media kind — the per-kind wrappers (`renderPhoto`<!-- -->, `renderVideo`<!-- -->, …)
+  accept this shape and supply `type`<!-- -->.
+remarks: >-
+  The broadcast-SEND member is deliberately EXCLUDED. On that loop `renderMedia` never forwards `params.type` to
+  `_broadcastSendMedia` — the kind is read from the `<g-media>` block — so a wrapper whose whole purpose is to fix the
+  kind would fix nothing: `renderPhoto({broadcast: {ids}})` would send whatever the block holds while the method name
+  said photo. That path is rejected at the type level; use `renderMedia` for it.
+
+
+  The broadcast-REVISE member IS kept, because that loop forwards `type` and therefore honours the wrapper's fixed kind.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type IRenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<IRenderMediaSingle<T>, `type`> |
+  Omit<IRenderMediaBroadcastRevise<T>, `type`>;

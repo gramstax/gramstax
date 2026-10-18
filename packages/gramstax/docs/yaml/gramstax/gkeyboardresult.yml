@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: GKeyboardResult
+uid: gramstax!GKeyboardResult:type
+package: gramstax!
+fullName: GKeyboardResult
+summary: Result of `TemplateManager.getGKeyboard` for a `<g-keyboard>` block.
+remarks: '`rows` holds the flattened rendered button labels. A missing block yields `{kind: "keyboard", rows: []}`<!-- -->.'
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GKeyboardResult = {
+      kind: `keyboard`;
+      rows: string[];
+  };

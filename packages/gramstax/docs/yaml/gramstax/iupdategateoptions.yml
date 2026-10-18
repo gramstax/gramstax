@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IUpdateGateOptions
+uid: gramstax!IUpdateGateOptions:type
+package: gramstax!
+fullName: IUpdateGateOptions
+summary: Options for [UpdateGate](xref:gramstax!UpdateGate:class)<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IUpdateGateOptions = {
+      perChatConcurrency: number;
+      waiterTimeoutMs: number;
+      onTimeout?: (key: string) => void;
+  };

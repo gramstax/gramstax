@@ -1,0 +1,39 @@
+### YamlMime:TSTypeAlias
+name: IUpdateQueueConfig
+uid: gramstax!IUpdateQueueConfig:type
+package: gramstax!
+fullName: IUpdateQueueConfig
+summary: Update queue configuration for backpressure and worker pooling.
+remarks: >-
+  Enable this for polling and webhook deployments. The queue buffers incoming updates and dispatches them to a worker
+  pool, decoupling source latency from handler work. Both modes configure the same
+  [UpdateQueue](xref:gramstax!UpdateQueue:class) class; each keeps its own instance, so the two never contend with one
+  another.
+example:
+  - |-
+    ```typescript
+    webhookQueue: {
+      enabled: true,
+      maxQueueSize: 5000,
+      workerCount: 8,
+      perChatConcurrency: 1,
+      blockWhenFull: true
+    }
+    ```
+  - |-
+    ```typescript
+    optionsDeploy: {polling: {queue: {enabled: true, workerCount: 8}}}
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IUpdateQueueConfig = {
+      enabled?: boolean;
+      maxQueueSize?: number;
+      workerCount?: number;
+      perChatConcurrency?: number;
+      blockWhenFull?: boolean;
+      enqueueTimeoutMs?: number;
+      waiterTimeoutMs?: number;
+      drainTimeoutMs?: number;
+  };

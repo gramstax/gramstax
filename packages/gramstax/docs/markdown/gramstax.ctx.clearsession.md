@@ -27,7 +27,7 @@ Removes the session from external cache and resets the local session property. U
 ```typescript
 async handleCallbackQueryData() {
   await this.clearSession()
-  await this.render()
+  await this.renderText()
 }
 ```
 

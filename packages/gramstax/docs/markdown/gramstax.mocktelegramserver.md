@@ -85,6 +85,63 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_getUpdatesLog](./gramstax.mocktelegramserver._getupdateslog.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Array&lt;{ offset: number; limit: number; returned: number; }&gt;
+
+
+</td><td>
+
+Trailing `getUpdates` calls, kept short, for diagnosing polling behaviour.
+
+
+</td></tr>
+<tr><td>
+
+[\_lastUpdate](./gramstax.mocktelegramserver._lastupdate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Record&lt;string, unknown&gt; \| undefined
+
+
+</td><td>
+
+Most recently accepted inbound update.
+
+
+</td></tr>
+<tr><td>
+
+[\_servedCount](./gramstax.mocktelegramserver._servedcount.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Total updates handed out by `getUpdates`<!-- -->, so served-vs-processed stays comparable.
+
+
+</td></tr>
+<tr><td>
+
 [apiRoot](./gramstax.mocktelegramserver.apiroot.md)
 
 
@@ -194,6 +251,25 @@ IMockTelegramLog
 </td><td>
 
 _(Optional)_ Optional logger for mock server lifecycle and request events.
+
+
+</td></tr>
+<tr><td>
+
+[pendingUpdates](./gramstax.mocktelegramserver.pendingupdates.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;\[\]
+
+
+</td><td>
+
+Inbound updates waiting to be collected by a polling bot's `getUpdates`<!-- -->.
 
 
 </td></tr>
@@ -312,6 +388,25 @@ string\[\]
 </td><td>
 
 Method-name prefixes declared as user-facing replies.
+
+
+</td></tr>
+<tr><td>
+
+[webhookSecretToken](./gramstax.mocktelegramserver.webhooksecrettoken.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string \| undefined
+
+
+</td><td>
+
+`secret_token` registered through `setWebhook`<!-- -->, replayed on every outbound webhook POST.
 
 
 </td></tr>

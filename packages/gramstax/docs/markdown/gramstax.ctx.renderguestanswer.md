@@ -6,10 +6,12 @@
 
 Answers the active guest message query with a caller-built result.
 
+Template block: `<g-answer-note>` (read via `getGAnswerNote`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderGuestAnswer(result: InlineQueryResult, data: IData | null | undefined, AGBaseId: string, options?: IOptGuestAnswer | null): Promise<grammy_types.SentGuestMessage>;
+renderGuestAnswer(params: IRenderGuestAnswerParams): Promise<grammy_types.SentGuestMessage>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-result
+params
 
 
 </td><td>
 
-InlineQueryResult
+[IRenderGuestAnswerParams](./gramstax.irenderguestanswerparams.md)
 
 
 </td><td>
 
-Inline result built by the caller.
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null \| undefined
-
-
-</td><td>
-
-Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Template base ID position (resolved for validation).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptGuestAnswer](./gramstax.ioptguestanswer.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional abort signal (or null to omit).
+Answer params: `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position, resolved for validation (required); `options` optional abort signal (or null to omit).
 
 
 </td></tr>
@@ -113,7 +67,7 @@ Observe-only send-error coverage (mirrors `renderDice`<!-- -->): failures are cl
 
 ```typescript
 async handleGuestMessage() {
-  await this.renderGuestAnswer(article, undefined, `guest-card`)
+  await this.renderGuestAnswer({result: article, AGBaseId: `guest-card`})
 }
 ```
 

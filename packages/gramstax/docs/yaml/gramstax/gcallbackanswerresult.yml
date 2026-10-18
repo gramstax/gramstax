@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: GCallbackAnswerResult
+uid: gramstax!GCallbackAnswerResult:type
+package: gramstax!
+fullName: GCallbackAnswerResult
+summary: Result of `TemplateManager.getGCallbackAnswer` for a `<g-callback-answer>` block.
+remarks: '`text` is the rendered toast text; the getter throws when the block is missing (callback answers always need text).'
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GCallbackAnswerResult = {
+      kind: `callbackAnswer`;
+      text: string;
+  };

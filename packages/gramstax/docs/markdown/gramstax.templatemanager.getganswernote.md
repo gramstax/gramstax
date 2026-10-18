@@ -9,7 +9,7 @@ Gets compiled text from block <g-answer-note>.
 **Signature:**
 
 ```typescript
-getGAnswerNote(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
+getGAnswerNote(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GAnswerNoteResult;
 ```
 
 ## Parameters
@@ -96,7 +96,7 @@ _(Optional)_
 
 **Returns:**
 
-string
+[GAnswerNoteResult](./gramstax.ganswernoteresult.md)
 
 ## Remarks
 

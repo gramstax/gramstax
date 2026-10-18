@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IRenderGiftParams
+uid: gramstax!IRenderGiftParams:type
+package: gramstax!
+fullName: IRenderGiftParams
+summary: Parameters for `renderGift`<!-- -->.
+remarks: >-
+  `target` (user id) is explicit because gifts do not always go to the active chat — unlike every other render method. A
+  failed gift never degrades into sending the card as plain text.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderGiftParams = {
+      target: number;
+      giftId: string;
+      keyboard?: IInlineKb | null;
+      data?: IData | null;
+      AGBaseId: string;
+      options?: IOptGift | null;
+  };

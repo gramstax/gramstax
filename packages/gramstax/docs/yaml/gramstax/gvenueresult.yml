@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: GVenueResult
+uid: gramstax!GVenueResult:type
+package: gramstax!
+fullName: GVenueResult
+summary: Result of `TemplateManager.getGVenue` for a `<g-venue>` block.
+remarks: Extends [IVenueBlock](xref:gramstax!IVenueBlock:type) with the `venue` kind discriminator.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GVenueResult = {
+      kind: `venue`;
+  } & IVenueBlock;

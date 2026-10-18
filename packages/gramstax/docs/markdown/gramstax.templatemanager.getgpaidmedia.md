@@ -9,7 +9,7 @@ Gets compiled from block <g-paid-media>.
 **Signature:**
 
 ```typescript
-getGPaidMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`paidMedia`][`default`][`default`]>;
+getGPaidMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GPaidMediaResult;
 ```
 
 ## Parameters
@@ -98,9 +98,9 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`paidMedia\`\]\[\`default\`\]\[\`default\`\]&gt;
+[GPaidMediaResult](./gramstax.gpaidmediaresult.md)
 
-Paid-media object containing stars and media items
+[GPaidMediaResult](./gramstax.gpaidmediaresult.md) with the paywall payload flat under `kind: "paidMedia"`
 
 ## Remarks
 
@@ -111,6 +111,6 @@ Retrieves the compiled paid-media function for the specified template and langua
 
 ```typescript
 const wall = tm.getGPaidMedia("vip-page", "default", "en", {teaser: "t.jpg"})
-// => {stars: 100, media: [{type: "photo", src: "t.jpg", caption: "..."}]}
+// => {kind: "paidMedia", stars: 100, media: [{type: "photo", src: "t.jpg", caption: "..."}]}
 ```
 

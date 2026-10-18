@@ -6,10 +6,12 @@
 
 Answers the active shipping query with a template-backed error message.
 
+Template block: `<g-shipping-error>` (read via `getGShippingError`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderShipping(ok: boolean, data: IData | null | undefined, AGBaseId: string, options?: IOptShipping | null): Promise<true>;
+renderShipping(params: IRenderShippingParams): Promise<true>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-ok
+params
 
 
 </td><td>
 
-boolean
+[IRenderShippingParams](./gramstax.irendershippingparams.md)
 
 
 </td><td>
 
-Whether the shipping address is acceptable.
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null \| undefined
-
-
-</td><td>
-
-Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-Template base ID position for the error message.
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptShipping](./gramstax.ioptshipping.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional answer options such as `shipping_options` (or null to omit).
+Answer params: `ok` whether the shipping address is acceptable (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the error message (required); `options` optional answer options such as `shipping_options` (or null to omit).
 
 
 </td></tr>
@@ -113,7 +67,7 @@ Observe-only send-error coverage (mirrors `renderPreCheckout`<!-- -->): failures
 
 ```typescript
 async handleShipping() {
-  await this.renderShipping(false, undefined, `ship-rejected-card`)
+  await this.renderShipping({ok: false, AGBaseId: `ship-rejected-card`})
 }
 ```
 

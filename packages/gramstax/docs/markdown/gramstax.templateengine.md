@@ -35,7 +35,7 @@ const messages = TemplateEngine.compileBlockGMessages(template);
 const keyboards = TemplateEngine.compileBlockGKeyboards(template);
 
 const msg = messages.default?.default?.({ name: 'John' });
-// Result: 'Welcome John!'
+// Result: {text: 'Welcome John!', rich: false}
 ```
 
 ## Properties
@@ -100,6 +100,27 @@ _(Optional)_ AOT collect hook: when set, `_compileToFunction` records the body a
 </td><td>
 
 _(Optional)_ AOT link hook: when set, `_compileToFunction` returns the pre-registered inline function matching the body instead of calling `new Function`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[\_IFELSE\_PASSTHROUGH](./gramstax.templateengine._ifelse_passthrough.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Set&lt;string&gt;
+
+
+</td><td>
+
+Identifiers that `<g-ifelse>` never rewrites to `data?.x`<!-- -->.
 
 
 </td></tr>
@@ -220,7 +241,7 @@ Required-attribute specification for Telegram Rich HTML tags.
 
 </td><td>
 
-string\[\]
+ReadonlySet&lt;string&gt;
 
 
 </td><td>
@@ -241,7 +262,7 @@ Gramstax `<g-*>` PAGE block allowlist.
 
 </td><td>
 
-string\[\]
+ReadonlySet&lt;string&gt;
 
 
 </td><td>
@@ -262,7 +283,7 @@ Telegram HTML-mode tags from the pre-Rich spec (`parse_mode="HTML"`<!-- -->).
 
 </td><td>
 
-string\[\]
+ReadonlySet&lt;string&gt;
 
 
 </td><td>
@@ -283,7 +304,7 @@ Telegram Rich HTML tags passed through to the message `html` field.
 
 </td><td>
 
-string\[\]
+ReadonlySet&lt;string&gt;
 
 
 </td><td>
@@ -304,7 +325,7 @@ Combined Telegram tag allowlist: legacy (9) + Rich HTML (45) = 54 tags.
 
 </td><td>
 
-string\[\]
+ReadonlySet&lt;string&gt;
 
 
 </td><td>
@@ -325,7 +346,7 @@ Registry of all supported template block tags.
 
 </td><td>
 
-string\[\]
+ReadonlySet&lt;string&gt;
 
 
 </td><td>
@@ -477,6 +498,22 @@ Builds the JavaScript function body for a processed template.
 </td></tr>
 <tr><td>
 
+[\_compileFilterChain(access, expr, warned)](./gramstax.templateengine._compilefilterchain.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Applies `|filter:arg` pipes to an already-resolved head expression.
+
+
+</td></tr>
+<tr><td>
+
 [\_compileMediaSrc(rawSrc, stringFn)](./gramstax.templateengine._compilemediasrc.md)
 
 
@@ -583,7 +620,39 @@ Extracts specific blocks from template content with optional filtering.
 
 </td><td>
 
-Extracts lowercase block tag names from an array of tag literals.
+Extracts lowercase block tag names from an iterable of tag literals.
+
+
+</td></tr>
+<tr><td>
+
+[\_ifelseArrowLocals(tokens)](./gramstax.templateengine._ifelsearrowlocals.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Collects the parameter names introduced by every arrow function in a token list.
+
+
+</td></tr>
+<tr><td>
+
+[\_isConditionalExpression(tokens)](./gramstax.templateengine._isconditionalexpression.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Reports whether a `<g-ifelse>` body actually branches.
 
 
 </td></tr>
@@ -600,6 +669,22 @@ Extracts lowercase block tag names from an array of tag literals.
 </td><td>
 
 Compiles a processed template string into an executable function.
+
+
+</td></tr>
+<tr><td>
+
+[\_isObjectLiteralBrace(tokens, index)](./gramstax.templateengine._isobjectliteralbrace.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Decides whether a `{` opens an object literal (keys are not scope reads) or a block.
 
 
 </td></tr>
@@ -683,7 +768,7 @@ Block: g-description Extracts and parses `<g-description>` blocks from a templat
 
 This internal method identifies all `<g-description>` blocks and extracts their content organized by language and scope. Blocks without a `lang` attribute are stored under `"default"` language, and blocks without a `scope` attribute are stored under `"default"` scope.
 
-\*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. - `scope` (optional): Scope key for the nested output map. Defaults to `"default"`<!-- -->.
+\*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.  - `scope` (optional): Scope key for the nested output map. Defaults to `"default"`<!-- -->.
 
 
 </td></tr>
@@ -732,6 +817,22 @@ Block: g-div Normalizes content within `<g-div>` blocks by removing indentation.
 </td><td>
 
 Block: g-gift Extracts `<g-gift>` card-text blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGIfElseBlocks(template)](./gramstax.templateengine._processgifelseblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-ifelse Evaluates a conditional expression and inlines the chosen value.
 
 
 </td></tr>
@@ -1059,6 +1160,22 @@ Null-safe dotted-path lookup against template data.
 </td></tr>
 <tr><td>
 
+[\_rewriteScopeIdentifiers(expr)](./gramstax.templateengine._rewritescopeidentifiers.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Rewrites bare identifiers in a `<g-ifelse>` body to optional `data` reads.
+
+
+</td></tr>
+<tr><td>
+
 [\_splitKeyboardLabels(content)](./gramstax.templateengine._splitkeyboardlabels.md)
 
 
@@ -1102,6 +1219,22 @@ Splits a pipe-delimited `src` attribute into media-group items.
 </td><td>
 
 Converts processed template output into a concatenation expression.
+
+
+</td></tr>
+<tr><td>
+
+[\_tokenizeExpression(expr)](./gramstax.templateengine._tokenizeexpression.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Splits a `<g-ifelse>` body into tokens so identifiers can be rewritten without a JavaScript parser dependency.
 
 
 </td></tr>
@@ -1726,6 +1859,38 @@ Validates attributes on `<g-div>` blocks.
 </td><td>
 
 Validates attributes on `<g-gift>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGIfElseAttributes(template)](./gramstax.templateengine.validateblockgifelseattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<g-ifelse>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGIfElseBody(template)](./gramstax.templateengine.validateblockgifelsebody.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates the body of every `<g-ifelse>` block.
 
 
 </td></tr>

@@ -1,0 +1,13 @@
+### YamlMime:TSTypeAlias
+name: IServerlessSlot
+uid: gramstax!IServerlessSlot:type
+package: gramstax!
+fullName: IServerlessSlot
+summary: Config slot that may hold a module reference in a serverless build.
+remarks: >-
+  Declared here so `cli/build.ts` can type-check its `REF_SLOTS` list against a single definition instead of the union
+  being spelled out twice.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IServerlessSlot = `cacheSession` | `cacheKeyboard` | `log`;

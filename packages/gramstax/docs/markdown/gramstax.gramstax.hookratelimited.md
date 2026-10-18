@@ -62,7 +62,7 @@ Optional class override. Default: no reply (the update is silently ignored). The
 
 ```typescript
 async hookRateLimited(ctx: Ctx) {
-  await ctx.render(`please-wait`)
+  await ctx.renderText()
 }
 ```
 

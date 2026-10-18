@@ -42,7 +42,7 @@ string \| string\[\]
 
 </td><td>
 
-Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.
+Route method name(s). Use `this.methodSession*()` helpers  for type-safe names, not a hardcoded string.
 
 
 </td></tr>
@@ -90,7 +90,7 @@ True if the session was set successfully, or null on error.
 
 Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g. [Ctx.setSessionFreeText()](./gramstax.ctx.setsessionfreetext.md)<!-- -->, [Ctx.setSessionCallbackQueryData()](./gramstax.ctx.setsessioncallbackquerydata.md)<!-- -->).
 
-This method is only needed when: - \*\*Multi-session\*\* — binding the same params to multiple route handlers at once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* — method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.
+This method is only needed when: - \*\*Multi-session\*\* — binding the same params to multiple route handlers at once:  `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* — method string is computed at runtime  rather than known at dev-time, so `methodSession*()` cannot be called.
 
 ## Example
 

@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IRenderEditCaptionParams
+uid: gramstax!IRenderEditCaptionParams:type
+package: gramstax!
+fullName: IRenderEditCaptionParams
+summary: Parameters for `renderEditCaption`<!-- -->.
+remarks: >-
+  Caption text comes from the `<g-base id>` block via `getGMessage` and is sent via `editMessageCaption`<!-- -->.
+  Fallback modes mirror `renderEdit`<!-- -->: `delete-reply`<!-- -->/`reply` resend the caption as plain text, `disable`
+  throws.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderEditCaptionParams = {
+      keyboardInline?: IInlineKb | null;
+      data?: IData | null;
+      AGBaseId: string;
+      options?: IOptEditCaption | null;
+      fallbackEdit?: IOptFallbackEdit;
+  };

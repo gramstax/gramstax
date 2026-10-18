@@ -9,7 +9,7 @@ Gets compiled from block <g-media>.
 **Signature:**
 
 ```typescript
-getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]>;
+getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GMediaResult;
 ```
 
 ## Parameters
@@ -98,9 +98,9 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;[ICompiledTemplate](./gramstax.icompiledtemplate.md)<!-- -->\[\`media\`\]\[\`default\`\]\[\`default\`\]&gt;
+[GMediaResult](./gramstax.gmediaresult.md)
 
-Media object containing type, src, and caption
+[GMediaResult](./gramstax.gmediaresult.md) with the media payload flat under `kind: "media"`
 
 ## Remarks
 
@@ -111,6 +111,6 @@ Retrieves the compiled media function for the specified template and language, t
 
 ```typescript
 const media = tm.getGMedia("photo-page", "default", "en", {photoUrl: "..."})}
-// => {type: "photo", src: "...", caption: "..."}
+// => {kind: "media", type: "photo", src: "...", caption: "..."}
 ```
 

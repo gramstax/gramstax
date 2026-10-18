@@ -58,7 +58,7 @@ The template with `<g-map>` blocks converted to map expressions
 
 This internal method converts `<g-map>` blocks into array mapping operations. The `src` attribute specifies which data key contains the array. Inside the block, `{{e}}` refers to the current element, `{{e.prop}}` to element properties, and `{{i}}` to the current index. The `join` attribute specifies the separator.
 
-\*\*Attributes:\*\* - `src` (required): The key name in the `data` object whose value is treated as an array. - `join` (optional): Join separator string. Defaults to `"\\n"` (a newline escape sequence).
+\*\*Attributes:\*\*  - `src` (required): The key name in the `data` object whose value is treated as an array.  - `join` (optional): Join separator string. Defaults to `"\\n"` (a newline escape sequence).
 
 ## Example
 

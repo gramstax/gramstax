@@ -60,7 +60,7 @@ An object mapping base IDs to their cleaned inner content
 
 This internal method identifies all `<g-base>` blocks in the template and extracts their content, organizing them by their `id` attribute. Blocks without an `id` are stored under the key `"default"`<!-- -->. Leading whitespace and surrounding newlines are trimmed from the inner content.
 
-\*\*Attributes:\*\* - `id` (optional): Identifier for the base block. If not specified, defaults to `"default"`<!-- -->. Used to reference specific base blocks when compiling templates or extracting content.
+\*\*Attributes:\*\*  - `id` (optional): Identifier for the base block. If not specified,  defaults to `"default"`<!-- -->. Used to reference specific base blocks when compiling  templates or extracting content.
 
 ## Example
 

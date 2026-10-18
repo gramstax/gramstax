@@ -13,10 +13,42 @@ items:
             uid: gramstax!Ctx:class
           - name: E2eHelper
             uid: gramstax!E2eHelper:class
+          - name: GAnswerNoteResult
+            uid: gramstax!GAnswerNoteResult:type
+          - name: GBlockKind
+            uid: gramstax!GBlockKind:type
+          - name: GCallbackAnswerResult
+            uid: gramstax!GCallbackAnswerResult:type
+          - name: GDescriptionResult
+            uid: gramstax!GDescriptionResult:type
+          - name: GDiceResult
+            uid: gramstax!GDiceResult:type
+          - name: GGiftResult
+            uid: gramstax!GGiftResult:type
+          - name: GInlineButtonResult
+            uid: gramstax!GInlineButtonResult:type
+          - name: GInvoiceResult
+            uid: gramstax!GInvoiceResult:type
+          - name: GKeyboardResult
+            uid: gramstax!GKeyboardResult:type
+          - name: GMediaResult
+            uid: gramstax!GMediaResult:type
+          - name: GMessageResult
+            uid: gramstax!GMessageResult:type
+          - name: GPaidMediaResult
+            uid: gramstax!GPaidMediaResult:type
+          - name: GPollResult
+            uid: gramstax!GPollResult:type
+          - name: GPreCheckoutErrorResult
+            uid: gramstax!GPreCheckoutErrorResult:type
           - name: Gramstax
             uid: gramstax!Gramstax:class
           - name: GramstaxConfig
             uid: gramstax!GramstaxConfig:type
+          - name: GShippingErrorResult
+            uid: gramstax!GShippingErrorResult:type
+          - name: GVenueResult
+            uid: gramstax!GVenueResult:type
           - name: IAnswerNoteBlock
             uid: gramstax!IAnswerNoteBlock:type
           - name: IAppManifest
@@ -33,6 +65,12 @@ items:
             uid: gramstax!IBroadcastEditResult:type
           - name: IBroadcastEditTarget
             uid: gramstax!IBroadcastEditTarget:type
+          - name: IBroadcastReviseParams
+            uid: gramstax!IBroadcastReviseParams:type
+          - name: IBroadcastSendParams
+            uid: gramstax!IBroadcastSendParams:type
+          - name: IBroadcastSendResult
+            uid: gramstax!IBroadcastSendResult:type
           - name: IBuildDataOptions
             uid: gramstax!IBuildDataOptions:type
           - name: ICacheRpc
@@ -51,6 +89,8 @@ items:
             uid: gramstax!ICustomRouteEntry:type
           - name: IData
             uid: gramstax!IData:type
+          - name: IDeployMode
+            uid: gramstax!IDeployMode:type
           - name: IDiceBlock
             uid: gramstax!IDiceBlock:type
           - name: IE2eApiCall
@@ -243,6 +283,48 @@ items:
             uid: gramstax!IRateLimitOptions:type
           - name: IRedisLockClient
             uid: gramstax!IRedisLockClient:type
+          - name: IRenderBroadcastDeleteParams
+            uid: gramstax!IRenderBroadcastDeleteParams:type
+          - name: IRenderCallbackAnswerParams
+            uid: gramstax!IRenderCallbackAnswerParams:type
+          - name: IRenderDiceParams
+            uid: gramstax!IRenderDiceParams:type
+          - name: IRenderEditCaptionParams
+            uid: gramstax!IRenderEditCaptionParams:type
+          - name: IRenderEditKeyboardParams
+            uid: gramstax!IRenderEditKeyboardParams:type
+          - name: IRenderGiftParams
+            uid: gramstax!IRenderGiftParams:type
+          - name: IRenderGuestAnswerParams
+            uid: gramstax!IRenderGuestAnswerParams:type
+          - name: IRenderInlineAnswerParams
+            uid: gramstax!IRenderInlineAnswerParams:type
+          - name: IRenderInvoiceParams
+            uid: gramstax!IRenderInvoiceParams:type
+          - name: IRenderMediaGroupKindParams
+            uid: gramstax!IRenderMediaGroupKindParams:type
+          - name: IRenderMediaGroupParams
+            uid: gramstax!IRenderMediaGroupParams:type
+          - name: IRenderMediaKindParams
+            uid: gramstax!IRenderMediaKindParams:type
+          - name: IRenderMediaParams
+            uid: gramstax!IRenderMediaParams:type
+          - name: IRenderMode
+            uid: gramstax!IRenderMode:type
+          - name: IRenderPaidMediaParams
+            uid: gramstax!IRenderPaidMediaParams:type
+          - name: IRenderPollParams
+            uid: gramstax!IRenderPollParams:type
+          - name: IRenderPreCheckoutParams
+            uid: gramstax!IRenderPreCheckoutParams:type
+          - name: IRenderShippingParams
+            uid: gramstax!IRenderShippingParams:type
+          - name: IRenderTextParams
+            uid: gramstax!IRenderTextParams:type
+          - name: IRenderVenueParams
+            uid: gramstax!IRenderVenueParams:type
+          - name: IRenderWebAppAnswerParams
+            uid: gramstax!IRenderWebAppAnswerParams:type
           - name: IReplyAction
             uid: gramstax!IReplyAction:type
           - name: IRouteManifestEntry
@@ -251,6 +333,10 @@ items:
             uid: gramstax!ISendErrorHook:type
           - name: ISendErrorInfo
             uid: gramstax!ISendErrorInfo:type
+          - name: IServerlessRef
+            uid: gramstax!IServerlessRef:type
+          - name: IServerlessSlot
+            uid: gramstax!IServerlessSlot:type
           - name: ISessionLockOnContended
             uid: gramstax!ISessionLockOnContended:type
           - name: ISessionLockOptions
@@ -265,8 +351,16 @@ items:
             uid: gramstax!ITemplateManifestEntry:type
           - name: ITemplateOptions
             uid: gramstax!ITemplateOptions:type
+          - name: IUpdateDispatcherOptions
+            uid: gramstax!IUpdateDispatcherOptions:type
+          - name: IUpdateDispatchStopResult
+            uid: gramstax!IUpdateDispatchStopResult:type
           - name: IUpdateErrorEvent
             uid: gramstax!IUpdateErrorEvent:type
+          - name: IUpdateGateOptions
+            uid: gramstax!IUpdateGateOptions:type
+          - name: IUpdateQueueConfig
+            uid: gramstax!IUpdateQueueConfig:type
           - name: IUpdateSuccessEvent
             uid: gramstax!IUpdateSuccessEvent:type
           - name: IVenueBlock
@@ -289,5 +383,11 @@ items:
             uid: gramstax!TemplateEngine:class
           - name: TemplateManager
             uid: gramstax!TemplateManager:class
-          - name: WebhookQueue
-            uid: gramstax!WebhookQueue:class
+          - name: UpdateDispatcher
+            uid: gramstax!UpdateDispatcher:class
+          - name: UpdateGate
+            uid: gramstax!UpdateGate:class
+          - name: UpdateQueue
+            uid: gramstax!UpdateQueue:class
+          - name: WebhookQueue (TypeAlias)
+            uid: gramstax!WebhookQueue:type

@@ -3,7 +3,9 @@ name: IBroadcastEditOpts
 uid: gramstax!IBroadcastEditOpts:type
 package: gramstax!
 fullName: IBroadcastEditOpts
-summary: Broadcast controls shared by `renderBroadcastEdit` and `renderBroadcastDelete`<!-- -->.
+summary: >-
+  Broadcast controls shared by the `broadcast.targets` revise fan-out of `renderMedia` and by
+  `renderBroadcastDelete`<!-- -->.
 remarks: >-
   All fields are optional: defaults mirror broadcast-send behavior (sequential pool, `delete-reply` edit fallback).
   Checkpoint-first — `startFrom` resumes after a restart without re-editing (indexes below count as skipped).

@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: IRenderPaidMediaParams
+uid: gramstax!IRenderPaidMediaParams:type
+package: gramstax!
+fullName: IRenderPaidMediaParams
+summary: Parameters for `renderPaidMedia`<!-- -->.
+remarks: >-
+  Each item `src` is resolved through the instance media jail (local files become `InputFile` uploads, URLs and
+  `file_id` values pass through) and sent with its caption as HTML. There is no degraded fallback content for paywalls.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRenderPaidMediaParams = {
+      keyboard?: IInlineKb | null;
+      data?: IData | null;
+      AGBaseId?: string | null;
+      options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null;
+  };

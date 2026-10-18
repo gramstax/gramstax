@@ -385,7 +385,7 @@ Manages template loading and rendering for pages.
 
 </td><td>
 
-[IWebhookQueueConfig](./gramstax.iwebhookqueueconfig.md)
+[IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)
 
 
 </td><td>
@@ -467,6 +467,20 @@ Creates the Bot instance.
 </td><td>
 
 Creates a context instance for handling an update.
+
+
+</td></tr>
+<tr><td>
+
+[getPollingQueueStats()](./gramstax.gramstax.getpollingqueuestats.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Live polling queue statistics.
 
 
 </td></tr>

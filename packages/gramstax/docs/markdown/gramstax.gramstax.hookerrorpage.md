@@ -77,6 +77,8 @@ Promise&lt;void&gt;
 
 Override this method to handle errors gracefully, e.g., sending an error message to the user or logging to an external service.
 
+A throw from here is contained and logged rather than propagated: this is the last step that can tell a user their request failed, so letting it escape would end the update with nothing sent and nothing recorded.
+
 ## Example 1
 
 Simple

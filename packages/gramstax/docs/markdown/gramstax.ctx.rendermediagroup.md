@@ -4,12 +4,14 @@
 
 ## Ctx.renderMediaGroup() method
 
-Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.
+Sends or edits a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.
+
+Template block: `<g-media-group>` (read via `getGMedia` — the block's `mediaGroup` items).
 
 **Signature:**
 
 ```typescript
-renderMediaGroup(type?: IMediaGroupType | null, data?: IData | null, AGBaseId?: string | null, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null): Promise<unknown>;
+renderMediaGroup(params?: IRenderMediaGroupParams): Promise<Message[] | Message | undefined>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-type
+params
 
 
 </td><td>
 
-IMediaGroupType \| null
+[IRenderMediaGroupParams](./gramstax.irendermediagroupparams.md)
 
 
 </td><td>
 
-_(Optional)_ Supported media group type. When the template uses `<g-media-group>` (or null to include all items). only items matching this type are included. When omitted, all items are sent.
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template g-base ID position for block media (or null to use default).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[IOptReplyPhoto](./gramstax.ioptreplyphoto.md) \| [IOptReplyVideo](./gramstax.ioptreplyvideo.md) \| [IOptReplyAudio](./gramstax.ioptreplyaudio.md) \| [IOptReplyDocument](./gramstax.ioptreplydocument.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional media-group send options (or null to omit).
+_(Optional)_ Optional media-group params (defaults to `{}`<!-- -->). See [IRenderMediaGroupParams](./gramstax.irendermediagroupparams.md) for field details: `type` optional media type filter (or null for all items); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`<!-- -->); `options` optional media-group send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`<!-- -->).
 
 
 </td></tr>
@@ -98,13 +52,15 @@ _(Optional)_ Optional media-group send options (or null to omit).
 
 **Returns:**
 
-Promise&lt;unknown&gt;
+Promise&lt;Message\[\] \| Message \| undefined&gt;
 
 The sent media group messages.
 
 ## Remarks
 
-Only `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, and `document` support Telegram media groups. Omit `type` when the template uses `<g-media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media. Per-item filenames rely on grammy basename auto-guess (no per-item filename override is applied).
+Only `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, and `document` support Telegram media groups. Omit `type` when the template uses `<g-media-group>` with per-item media types. When the template uses `<g-media-group>` (or null to include all items), only items matching this type are included. When omitted, all items are sent. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media. Per-item filenames rely on grammy basename auto-guess (no per-item filename override is applied).
+
+`mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. Media groups cannot be edited in place, so the edit branch always deletes the original message first; when the delete-and-send fails, `fallbackEdit` decides whether to retry the delete and re-send (`delete-reply`<!-- -->, default), re-send without deleting (`reply`<!-- -->), or rethrow (`disable`<!-- -->).
 
 Fail-fast validation runs BEFORE any API call (group/item size limits, per-item types, upload sizes, caption length) — programmer errors always throw, never fall back. Send failures follow `Ctx.classifySendError`<!-- -->: `retryable` rethrows the original error untouched; `fallback-text` best-effort replies with `resolveFallbackText()` (nested failures ignored).
 
@@ -113,7 +69,7 @@ Fail-fast validation runs BEFORE any API call (group/item size limits, per-item 
 
 ```typescript
 async handleCallbackQueryData() {
-  await this.renderMediaGroup("photo") // only send photo
+  await this.renderMediaGroup({type: "photo"}) // only send photo
   await this.renderMediaGroup() // send all media group
 }
 ```

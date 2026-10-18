@@ -6,10 +6,12 @@
 
 Sends a template-driven venue using the page `<g-venue>` block.
 
+Template block: `<g-venue>` (read via `getGVenue`<!-- -->).
+
 **Signature:**
 
 ```typescript
-renderVenue(keyboard?: IInBoKb | null, data?: IData | null, AGBaseId?: string | null, options?: Parameters<Ctx[`replyWithVenue`]>[4] | null): Promise<grammy_types.Message.VenueMessage>;
+renderVenue(params?: IRenderVenueParams): Promise<Message.VenueMessage>;
 ```
 
 ## Parameters
@@ -32,65 +34,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-keyboard
+params
 
 
 </td><td>
 
-[IInBoKb](./gramstax.iinbokb.md) \| null
+[IRenderVenueParams](./gramstax.irendervenueparams.md)
 
 
 </td><td>
 
-_(Optional)_ Optional keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) or [Ctx.bottomKeyboard()](./gramstax.ctx.bottomkeyboard.md) (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-data
-
-
-</td><td>
-
-[IData](./gramstax.idata.md) \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template interpolation data (or null to omit).
-
-
-</td></tr>
-<tr><td>
-
-AGBaseId
-
-
-</td><td>
-
-string \| null
-
-
-</td><td>
-
-_(Optional)_ Optional template base ID position for block venue (or null to use default).
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-Parameters&lt;[Ctx](./gramstax.ctx.md)<!-- -->\[\`replyWithVenue\`\]&gt;\[4\] \| null
-
-
-</td><td>
-
-_(Optional)_ Optional extra `sendVenue` fields such as `foursquare_id` (or null to omit).
+_(Optional)_ Optional params object (defaults to `{}`<!-- -->): `keyboard` optional keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) or [Ctx.bottomKeyboard()](./gramstax.ctx.bottomkeyboard.md) (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block venue (or null to use default); `options` optional extra `sendVenue` fields such as `foursquare_id` (or null to omit).
 
 
 </td></tr>
@@ -98,7 +52,7 @@ _(Optional)_ Optional extra `sendVenue` fields such as `foursquare_id` (or null 
 
 **Returns:**
 
-Promise&lt;grammy\_types.Message.VenueMessage&gt;
+Promise&lt;Message.VenueMessage&gt;
 
 The sent venue message object.
 
@@ -114,7 +68,7 @@ Observe-only send-error coverage (mirrors `renderPoll`<!-- -->): failures are cl
 ```typescript
 async handleCallbackQueryData() {
   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-  await this.renderVenue(kb, {name: `Cafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`})
+  await this.renderVenue({keyboard: kb, data: {name: `Cafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`}})
 }
 ```
 
@@ -124,7 +78,7 @@ async handleCallbackQueryData() {
 ```typescript
 async handleVenueId() {
   // Template: <g-base id="promo"><g-venue lang="id" title="{{name}}" address="{{street}}" latitude="{{lat}}" longitude="{{long}}"/></g-base>
-  await this.renderVenue(null, {name: `Kafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`}, `promo`)
+  await this.renderVenue({data: {name: `Kafe`, street: `Jl. Merdeka 1`, lat: `-6.2`, long: `106.8`}, AGBaseId: `promo`})
 }
 ```
 

@@ -8,7 +8,7 @@ Synchronously load all page modules from a directory.
 
 Supports both flat `.ts`<!-- -->/`.js` files and subfolder `index.ts`<!-- -->/`index.js` entries. In a subfolder, \*\*any\*\* `.ts`<!-- -->/`.js` file (not just `index`<!-- -->) is recognised as a page — its route name becomes `parentDir/basename`<!-- -->. A file `help.ts` is equivalent to `help/index.ts`<!-- -->; using both simultaneously produces a duplicate error. Nesting can be arbitrary deep.
 
-Supported cases and extensions: - Extensions: `.ts` and `.js` only — other files are ignored. - Flat file: `start.ts` → route `start`<!-- -->. - Nested file: `admin/ban.ts` → route `admin/ban` (arbitrary depth). - Directory index: `admin/index.ts` → route `admin`<!-- -->. - A root-level `index.ts`<!-- -->/`index.js` has no parent route and is rejected with an empty-routeName error — rename it to a named file instead.
+Supported cases and extensions: - Extensions: `.ts` and `.js` only — other files are ignored. - Flat file: `start.ts` → route `start`<!-- -->. - Nested file: `admin/ban.ts` → route `admin/ban` (arbitrary depth). - Directory index: `admin/index.ts` → route `admin`<!-- -->. - A root-level `index.ts`<!-- -->/`index.js` has no parent route and is rejected  with an empty-routeName error — rename it to a named file instead.
 
 **Signature:**
 

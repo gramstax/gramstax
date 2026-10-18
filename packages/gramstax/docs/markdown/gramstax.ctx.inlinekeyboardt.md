@@ -112,11 +112,11 @@ Shorthand for [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) with auto
 ```typescript
 async handleCallbackQueryData() {
   const kb = this.inlineKeyboardT([SettingsPage, HelpPage], "2")
-  await this.render(kb)
+  await this.renderText({keyboard: kb})
 
   // Or with arg
   const kb = this.inlineKeyboardT([SettingsPage.data.callbackQueryData(1), HelpPage.data.callbackQueryData(`hi`)], "2")
-  await this.render(kb)
+  await this.renderText({keyboard: kb})
 
   // Compare with builder for basic but not recomended because very long syntax, only use builder when needed.!
   this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callbackQueryData(), a[0]!).text(HelpPage.data.callbackQueryData(), a[1]!))

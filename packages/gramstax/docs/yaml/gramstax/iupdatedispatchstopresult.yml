@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: IUpdateDispatchStopResult
+uid: gramstax!IUpdateDispatchStopResult:type
+package: gramstax!
+fullName: IUpdateDispatchStopResult
+summary: Result of [UpdateDispatcher.stop()](xref:gramstax!UpdateDispatcher%23stop:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IUpdateDispatchStopResult = {
+      timedOut: boolean;
+      residual: number;
+  };
