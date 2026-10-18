@@ -1754,6 +1754,8 @@ type RenderMediaBroadcastRevise<T extends Exclude<IMediaBlock[`type`], `group`>>
  * send loop (`type` optional — the kind is read from the template), and
  * `broadcast.targets` runs the revise loop (`type` required). `mode`,
  * `fallbackEdit`, and the `options*` fields do not apply to the send loop.
+ * The per-kind wrappers accept only the revise loop — see
+ * {@link RenderMediaKindParams}.
  *
  * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
  *
@@ -1765,9 +1767,22 @@ export type RenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> =
  * `RenderMediaParams` for one media kind — the per-kind wrappers
  * (`renderPhoto`, `renderVideo`, …) accept this shape and supply `type`.
  *
+ * @remarks
+ * The broadcast-SEND member is deliberately EXCLUDED. On that loop `renderMedia`
+ * never forwards `params.type` to `_broadcastSendMedia` — the kind is read from
+ * the `<g-media>` block — so a wrapper whose whole purpose is to fix the kind
+ * would fix nothing: `renderPhoto({broadcast: {ids}})` would send whatever the
+ * block holds while the method name said photo. That path is rejected at the
+ * type level; use `renderMedia` for it.
+ *
+ * The broadcast-REVISE member IS kept, because that loop forwards `type` and
+ * therefore honours the wrapper's fixed kind.
+ *
+ * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
+ *
  * @public
  */
-export type RenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaParams<T> extends infer P ? (P extends unknown ? Omit<P, `type`> : never) : never
+export type RenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<RenderMediaSingle<T>, `type`> | Omit<RenderMediaBroadcastRevise<T>, `type`>
 
 /**
  * Parameters for `renderMediaGroup` — the single media-group send/edit method.
