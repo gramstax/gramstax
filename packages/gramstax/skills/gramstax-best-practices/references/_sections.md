@@ -11,7 +11,7 @@ Aligned with **gramstax v2.2.0**.
 
 ## route- (CRITICAL)
 
-- `route-render-auto.md` — `mode` (`auto` default / `reply` / `edit`), forced send/edit, `fallbackEdit`, no manual `callbackQuery` branching
+- `route-render-auto.md` — `mode` (`auto` default / `reply` / `edit`), forced send/edit, `fallback` + `fallbackOptions`, no manual `callbackQuery` branching
 - `route-render-api.md` — the render family incl. `renderText` + `chunkSize`, `renderEditCaption`, `renderEditKeyboard`, `renderGift`
 - `route-session.md` — session lifecycle: clear on start, `handleSessionFreeText`, never fetch manually
 - `route-handlers.md` — thin handlers delegating to `g*` show/process pairs

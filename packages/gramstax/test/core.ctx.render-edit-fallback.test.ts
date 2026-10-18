@@ -48,7 +48,7 @@ function createTestCtx() {
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe(`Ctx.renderText edit fallbackEdit modes`, () => {
+describe(`Ctx.renderText edit fallback modes`, () => {
   it(`default delete-reply: deletes the message, then renders a new reply`, async () => {
     const {ctx, api} = createTestCtx()
 
@@ -65,7 +65,7 @@ describe(`Ctx.renderText edit fallbackEdit modes`, () => {
       throw new Error(`message already deleted`)
     })
 
-    const result = await ctx.renderText({mode: `edit`, fallbackEdit: `delete-reply`})
+    const result = await ctx.renderText({mode: `edit`, fallback: `delete-reply`})
 
     expect(api.deleteMessage).toHaveBeenCalledTimes(1)
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
@@ -75,7 +75,7 @@ describe(`Ctx.renderText edit fallbackEdit modes`, () => {
   it(`reply: renders a new reply without deleting the original`, async () => {
     const {ctx, api} = createTestCtx()
 
-    const result = await ctx.renderText({mode: `edit`, fallbackEdit: `reply`})
+    const result = await ctx.renderText({mode: `edit`, fallback: `reply`})
 
     expect(api.deleteMessage).not.toHaveBeenCalled()
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
@@ -85,18 +85,18 @@ describe(`Ctx.renderText edit fallbackEdit modes`, () => {
   it(`disable: rethrows the edit error with no fallback`, async () => {
     const {ctx, api, editError} = createTestCtx()
 
-    await expect(ctx.renderText({mode: `edit`, fallbackEdit: `disable`})).rejects.toBe(editError)
+    await expect(ctx.renderText({mode: `edit`, fallback: `disable`})).rejects.toBe(editError)
 
     expect(api.deleteMessage).not.toHaveBeenCalled()
     expect(api.sendMessage).not.toHaveBeenCalled()
   })
 })
 
-describe(`Ctx.renderMedia edit fallbackEdit modes`, () => {
+describe(`Ctx.renderMedia edit fallback modes`, () => {
   it(`delete-reply: deletes the message, then re-sends the same media type`, async () => {
     const {ctx, api} = createTestCtx()
 
-    const result = await ctx.renderMedia({type: `photo`, mode: `edit`, fallbackEdit: `delete-reply`})
+    const result = await ctx.renderMedia({type: `photo`, mode: `edit`, fallback: `delete-reply`})
 
     expect(api.deleteMessage).toHaveBeenCalledTimes(1)
     expect(api.sendPhoto).toHaveBeenCalledTimes(1)
@@ -106,7 +106,7 @@ describe(`Ctx.renderMedia edit fallbackEdit modes`, () => {
   it(`disable: rethrows the edit error with no fallback`, async () => {
     const {ctx, api, editError} = createTestCtx()
 
-    await expect(ctx.renderMedia({type: `photo`, mode: `edit`, fallbackEdit: `disable`})).rejects.toBe(editError)
+    await expect(ctx.renderMedia({type: `photo`, mode: `edit`, fallback: `disable`})).rejects.toBe(editError)
 
     expect(api.deleteMessage).not.toHaveBeenCalled()
     expect(api.sendPhoto).not.toHaveBeenCalled()

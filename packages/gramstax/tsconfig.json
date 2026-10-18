@@ -32,6 +32,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "test/.type-guard"
+    "test/.type-guard",
+    "test/.symmetry"
   ]
 }

@@ -120,7 +120,7 @@ describe(`broadcast-edit-success`, () => {
 describe(`broadcast-edit-resume-progress-concurrency`, () => {
   it(`startFrom skips already-revised recipients without duplicates`, async () => {
     const api = makeApi()
-    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(4), broadcastOpts: {startFrom: 2}}})
+    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(4), reviseOptions: {startFrom: 2}}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 4, skippedCount: 2, retryable: []})
     expect(api.editMessageMedia).toHaveBeenCalledTimes(2)
     expect(calls(api, `editMessageMedia`).map((c) => c[0])).toEqual([103, 104])
@@ -129,7 +129,7 @@ describe(`broadcast-edit-resume-progress-concurrency`, () => {
   it(`fires per chunk plus final with exact counts`, async () => {
     const api = makeApi()
     const progress = mock(() => {})
-    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(5), broadcastOpts: {chunkSize: 2, chunkDelayMs: 1, onProgress: progress}}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(5), reviseOptions: {batchSize: 2, chunkDelayMs: 1, onProgress: progress}}})) as IBroadcastEditResult
     expect(res.successCount).toBe(5)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [2, 5],
@@ -140,7 +140,7 @@ describe(`broadcast-edit-resume-progress-concurrency`, () => {
 
   it(`delivers all recipients across lanes with aligned targets`, async () => {
     const api = makeApi()
-    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(6), broadcastOpts: {concurrency: 3}}})
+    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(6), reviseOptions: {concurrency: 3}}})
     expect(res).toEqual({successCount: 6, failedCount: 0, totalCount: 6, skippedCount: 0, retryable: []})
     expect(api.editMessageMedia).toHaveBeenCalledTimes(6)
     expect(
@@ -153,7 +153,7 @@ describe(`broadcast-edit-resume-progress-concurrency`, () => {
   it(`fires at the free-limit boundary and at completion`, async () => {
     const api = makeApi()
     const progress = mock(() => {})
-    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(30), broadcastOpts: {onProgress: progress}}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(30), reviseOptions: {onProgress: progress}}})) as IBroadcastEditResult
     expect(res.successCount).toBe(30)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [30, 30],
@@ -185,7 +185,7 @@ describe(`broadcast-edit-fallback`, () => {
         throw grammyError(400)
       })
     })
-    const res = (await makeCtx(photoMed(), api, {warn}).renderMedia({type: `photo`, optionsEdit1: {caption: `X`} as never, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api, {warn}).renderMedia({type: `photo`, media: {caption: `X`} as never, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
     expect(res.successCount).toBe(1)
     expect(warn).toHaveBeenCalled()
   })
@@ -233,7 +233,7 @@ describe(`broadcast-edit-fallback`, () => {
         throw err429
       })
     })
-    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(1), broadcastOpts: {fallbackEdit: `disable`}}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(1), reviseOptions: {fallback: `disable`}}})) as IBroadcastEditResult
     expect(res.failedCount).toBe(1)
     expect(res.retryable).toEqual([{index: 0, chatId: 101, messageId: 1000, error: err429}])
     expect(api.sendPhoto).not.toHaveBeenCalled()
@@ -318,7 +318,7 @@ describe(`broadcast-delete`, () => {
 
   it(`resumes from a checkpoint without duplicates`, async () => {
     const api = makeApi()
-    const res = await makeCtx(photoMed(), api).renderBroadcastDelete({targets: targets(3), broadcastOpts: {startFrom: 1}})
+    const res = await makeCtx(photoMed(), api).renderBroadcastDelete({targets: targets(3), reviseOptions: {startFrom: 1}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 3, skippedCount: 1, retryable: []})
     expect(calls(api, `deleteMessage`)).toEqual([
       [102, 1001],
@@ -329,7 +329,7 @@ describe(`broadcast-delete`, () => {
   it(`fires per chunk plus final with exact counts`, async () => {
     const api = makeApi()
     const progress = mock(() => {})
-    const res = await makeCtx(photoMed(), api).renderBroadcastDelete({targets: targets(4), broadcastOpts: {chunkSize: 2, chunkDelayMs: 1, onProgress: progress}})
+    const res = await makeCtx(photoMed(), api).renderBroadcastDelete({targets: targets(4), reviseOptions: {batchSize: 2, chunkDelayMs: 1, onProgress: progress}})
     expect(res.successCount).toBe(4)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [2, 4],
@@ -339,7 +339,7 @@ describe(`broadcast-delete`, () => {
 
   it(`deletes across lanes with aligned targets`, async () => {
     const api = makeApi()
-    const res = await makeCtx(photoMed(), api).renderBroadcastDelete({targets: targets(4), broadcastOpts: {concurrency: 2}})
+    const res = await makeCtx(photoMed(), api).renderBroadcastDelete({targets: targets(4), reviseOptions: {concurrency: 2}})
     expect(res).toEqual({successCount: 4, failedCount: 0, totalCount: 4, skippedCount: 0, retryable: []})
     expect(
       calls(api, `deleteMessage`)
@@ -351,7 +351,7 @@ describe(`broadcast-delete`, () => {
   it(`fires at the free-limit boundary and at completion`, async () => {
     const api = makeApi()
     const progress = mock(() => {})
-    const res = await makeCtx(photoMed(), api).renderBroadcastDelete({targets: targets(30), broadcastOpts: {onProgress: progress}})
+    const res = await makeCtx(photoMed(), api).renderBroadcastDelete({targets: targets(30), reviseOptions: {onProgress: progress}})
     expect(res.successCount).toBe(30)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [30, 30],

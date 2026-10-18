@@ -24,19 +24,40 @@ Send-vs-edit resolution (`mode`) is in `route-render-auto.md`; media block autho
 ## `renderText`
 
 ```typescript
+// params = CONTENT & (one of five delivery routes — see IRenderTextParams)
 async renderText(params: {
-  keyboard?: IInBoKb | null
   data?: IData | null
   AGBaseId?: string | null
-  mode?: `auto` | `reply` | `edit`
-  options?: IOptReply | IOptEdit | null
-  richOptions?: IOptReplyRich | null
-  fallbackEdit?: IOptFallbackEdit
+  mode?: `auto` | `edit` | `reply`
+  keyboard?: IInBoKb | null
+  options?: IOptReply | null
+  editOptions?: IOptEdit | null
+  fallback?: IOptFallbackEdit
+  fallbackOptions?: IOptReply | null
+  rich?: InputRichMessage | null
+  richEditOptions?: IOptRich | null
   chunkSize?: number | null
+  broadcast?: IBroadcastSendParams | null
 })
 ```
 
-The single text method. `mode` defaults to `auto` (send-vs-edit resolution in `route-render-auto.md`); plain-vs-rich is decided at compile time by the `<g-message>` block, so `richOptions` only shapes the rich payload. Without `chunkSize` this is the everyday send/edit call.
+The single text method. **It is one flat object, but the type is a five-member union over delivery routes**, and each route declares every field — either with a real type or as unread. That is what turns "silently ignored" into a compile error: `renderText({mode: 'edit', fallback: 'reply'})` does not typecheck, because `fallback` is unread on an explicit edit.
+
+| field | feeds | unread on |
+| --- | --- | --- |
+| `options` | the send call (`sendMessage`) | `edit` |
+| `editOptions` | `editMessageText` | `reply`, chunked, broadcast |
+| `fallback` | what to do when the edit fails | `reply`, chunked, broadcast |
+| `fallbackOptions` | the fallback resend's send options | `reply`, chunked, broadcast |
+| `rich` | the `InputRichMessage` payload | broadcast |
+| `richEditOptions` | options legal on rich send AND rich edit | `reply`, chunked, broadcast |
+| `keyboard` | reply markup — **narrowed to `IInlineKb` when `mode: 'edit'`** | — |
+| `chunkSize` | selects the chunked route (value is chars per chunk) | every other route |
+| `broadcast` | fan-out send to many chats | every other route |
+
+One field, one call. There is no intersection to satisfy and no option bag that quietly means different things per route — so `{message_thread_id: id}` goes in `options` on a reply route and in `editOptions` on an edit route, and neither call can receive a key it cannot honour.
+
+`mode` defaults to `auto` (send-vs-edit resolution in `route-render-auto.md`). Plain-versus-rich is decided at COMPILE time by the `<g-message>` block, so `rich` only shapes the rich payload — passing it on a plain block logs a one-time warning and is ignored, never a throw, because a hot reload can flip a page between the two.
 
 ### `chunkSize`
 
@@ -60,15 +81,15 @@ A mid-loop failure throws with the recorded chunk index — a partial send is ne
 async renderEditCaption(params: {
   keyboard?: IInlineKb | null
   data?: IData | null
-  AGBaseId: string
+  AGBaseId?: string | null
   options?: IOptEditCaption | null
-  fallbackEdit?: IOptFallbackEdit
+  fallback?: IOptFallbackEdit
 })
 ```
 
 Edits the caption in place, keeping the media. `keyboard` and `data` are both optional — it is inline-only because `editMessageCaption` rejects a bottom keyboard: `await this.renderEditCaption({AGBaseId: 'photo-card'})` reuses whatever the template's base already declares.
 
-`fallbackEdit` is a field here precisely because caption edits fail on a message that has no caption, so a fallback reply is often needed. Same three values as everywhere else: `delete-reply` (default), `reply`, `disable`.
+`fallback` is a field here precisely because caption edits fail on a message that has no caption, so a fallback reply is often needed. Same three values as everywhere else: `delete-reply` (default), `reply`, `disable`.
 
 ## `renderEditKeyboard`
 
@@ -76,7 +97,7 @@ Edits the caption in place, keeping the media. `keyboard` and `data` are both op
 async renderEditKeyboard(params: {
   keyboard?: IInlineKb | null
   data?: IData | null
-  AGBaseId: string
+  AGBaseId?: string | null
   options?: IOptEditKeyboard | null
 })
 ```
@@ -85,7 +106,7 @@ Swaps only the reply markup — text and media untouched, no resend.
 
 When `keyboard` is omitted (or `null`), markup builds from the template's `<g-keyboard type="inline">` labels, and **each label becomes both the button text and its callback data** (`built.text(label, label)`). That is why template-driven keyboards should use labels that are valid callback payloads.
 
-Note there is **no `fallbackEdit`** field here — unlike `renderEditCaption`. Editing markup on an uncaptioned, unkeyboarded message is the only realistic failure and is not papered over.
+Note there is **no `fallback`** field here — unlike `renderEditCaption`. Editing markup on an uncaptioned, unkeyboarded message is the only realistic failure and is not papered over.
 
 ## `renderGift`
 
@@ -93,14 +114,15 @@ Note there is **no `fallbackEdit`** field here — unlike `renderEditCaption`. E
 async renderGift(params: {
   target: number
   giftId: string
-  keyboard?: IInlineKb | null
   data?: IData | null
-  AGBaseId: string
+  AGBaseId?: string | null
   options?: IOptGift | null
 })
 ```
 
 Sends a gift; `target` is the chat/user id. HTML markup **inside `<g-gift>` is legal** because the send uses `text_parse_mode: HTML` — so the block can carry formatting, not just a plain caption.
+
+`renderGift` has no `keyboard` field at all: Telegram's `sendGift` cannot carry reply markup, so passing one is rejected at compile time rather than failing at runtime.
 
 ## Template-backed query answers
 
@@ -168,7 +190,7 @@ Every method in this rule is locked by a unit test, but **none is used in `examp
 
 ## Notes
 
-- `AGBaseId` is required on the methods that resolve an explicit block (the two edit methods, `renderGift`, and the query answers) — the base id is what selects the block, so it cannot be omitted. The other fields accept `undefined`/`null`.
+- `AGBaseId` is **optional everywhere** — omit it to use the template's default base. All fields on every method accept `undefined`/`null`; the base id is what selects the block, so passing it is what picks a non-default one.
 - `options` is generally an abort signal, spread last into the Telegram call, except on the answers where it can override the block text (`renderPreCheckout`).
 - Every one of these emits the matching `ITCompiledTemplate` field, so all of them are covered by the AOT parity suite. See `template-aot.md`.
 - The `<g-callback-answer>`, `<g-precheckout-error>`, `<g-shipping-error>`, `<g-inline-button>`, `<g-answer-note>`, and `<g-gift>` blocks are in the PAGE registry — see `template-logic.md`.

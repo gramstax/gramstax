@@ -320,8 +320,8 @@ describe(`ctx-coverage-edit`, () => {
         throw new Error(`gone`)
       })
       await makeCtx(pageFor(`single`), msg, tm, failingDelete).renderMedia({type: `photo`, mode: `edit`})
-      await makeCtx(pageFor(`single`), msg, tm, failing).renderMedia({type: `photo`, mode: `edit`, fallbackEdit: `reply`})
-      await expect(makeCtx(pageFor(`single`), msg, tm, failing).renderMedia({type: `photo`, mode: `edit`, fallbackEdit: `disable`})).rejects.toThrow(`too old`)
+      await makeCtx(pageFor(`single`), msg, tm, failing).renderMedia({type: `photo`, mode: `edit`, fallback: `reply`})
+      await expect(makeCtx(pageFor(`single`), msg, tm, failing).renderMedia({type: `photo`, mode: `edit`, fallback: `disable`})).rejects.toThrow(`too old`)
       expect(api.sendMediaGroup).toHaveBeenCalled()
     } finally {
       await tm.destroy()
@@ -350,8 +350,8 @@ describe(`ctx-coverage-rich`, () => {
         throw new Error(`too old`)
       })
       await makeCtx(CovPage, cbUpdate, tm, failing).renderText({mode: `edit`})
-      await makeCtx(CovPage, cbUpdate, tm, failing).renderText({mode: `edit`, fallbackEdit: `reply`})
-      await expect(makeCtx(CovPage, cbUpdate, tm, failing).renderText({mode: `edit`, fallbackEdit: `disable`})).rejects.toThrow(`too old`)
+      await makeCtx(CovPage, cbUpdate, tm, failing).renderText({mode: `edit`, fallback: `reply`})
+      await expect(makeCtx(CovPage, cbUpdate, tm, failing).renderText({mode: `edit`, fallback: `disable`})).rejects.toThrow(`too old`)
     } finally {
       await tm.destroy()
     }

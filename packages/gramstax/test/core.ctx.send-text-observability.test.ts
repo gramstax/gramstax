@@ -241,7 +241,7 @@ describe(`text-edit-observe`, () => {
         throw err
       })
     })
-    await expect(makeCtx(api, {onSendError: hook}, editUpdate).renderText({mode: `edit`, fallbackEdit: `disable`})).rejects.toBe(err)
+    await expect(makeCtx(api, {onSendError: hook}, editUpdate).renderText({mode: `edit`, fallback: `disable`})).rejects.toBe(err)
     expect(hook).not.toHaveBeenCalled()
     expect(api.sendMessage).not.toHaveBeenCalled()
   })

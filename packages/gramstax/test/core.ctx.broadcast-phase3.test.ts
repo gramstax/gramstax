@@ -328,7 +328,7 @@ describe(`broadcast-rich`, () => {
   it(`routes rich templates through the rich send path`, async () => {
     const api = makeApi()
     const tm = {getGMessage: mock(() => ({kind: `message`, text: `<b>hello</b>`, rich: true})), getGMedia: mock(() => undefined)}
-    const res = (await makeCtx(tm, api).renderText({broadcast: {ids: [1, 2], languageCode: [`en`, `en`]}, richOptions: [{html: `<b>hello</b>`}]})) as IBroadcastSendResult
+    const res = (await makeCtx(tm, api).renderText({broadcast: {ids: [1, 2], languageCode: [`en`, `en`]}, rich: {html: `<b>hello</b>`}})) as IBroadcastSendResult
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 2, skippedCount: 0, retryable: []})
     expect(api.sendMessage).not.toHaveBeenCalled()
     expect(api.sendRichMessage).toHaveBeenCalledTimes(2)

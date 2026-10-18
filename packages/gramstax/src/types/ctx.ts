@@ -138,6 +138,48 @@ export type ICtMiddleware<C extends ICt = ICt> = Middleware<C>
 export type IOptReplyRich = Parameters<Context[`replyWithRichMessage`]>
 
 /**
+ * Poll send options — `Ctx.replyWithPoll` argument index `[2]` (the `other` bag
+ * of `sendPoll`).
+ *
+ * @public
+ */
+export type IOptPoll = Parameters<Ctx[`replyWithPoll`]>[2]
+
+/**
+ * Invoice send options — `Ctx.replyWithInvoice` argument index `[5]` (the
+ * `other` bag of `sendInvoice`). `provider_token` is deliberately NOT part of
+ * this type: the payment provider secret is content, not a call option, and
+ * rides on the invoice params' own `provider_token` field.
+ *
+ * @public
+ */
+export type IOptInvoice = Parameters<Ctx[`replyWithInvoice`]>[5]
+
+/**
+ * Paid-media send options — `Ctx.replyWithPaidMedia` argument index `[2]` (the
+ * `other` bag of `sendPaidMedia`).
+ *
+ * @public
+ */
+export type IOptPaidMedia = Parameters<Ctx[`replyWithPaidMedia`]>[2]
+
+/**
+ * Venue send options — `Ctx.replyWithVenue` argument index `[4]` (the `other`
+ * bag of `sendVenue`).
+ *
+ * @public
+ */
+export type IOptVenue = Parameters<Ctx[`replyWithVenue`]>[4]
+
+/**
+ * Dice send options — `Ctx.replyWithDice` argument index `[1]` (the `other` bag
+ * of `sendDice`).
+ *
+ * @public
+ */
+export type IOptDice = Parameters<Ctx[`replyWithDice`]>[1]
+
+/**
  * Options parameter mirroring `Context.reply`.
  *
  * @public
@@ -237,19 +279,422 @@ export type IOptEdit = Parameters<Context[`editMessageText`]>[1]
 type INeverFields<K extends PropertyKey> = {[P in K]?: never}
 
 /**
- * Rich-options tuple for routes that may reach `editMessageText`.
+ * Rich-edit options — fields legal on BOTH the rich send and the rich edit.
  *
  * @remarks
- * `[0]` merges into the `InputRichMessage` payload exactly like
- * {@link IOptReplyRich}`[0]`; `[1]` is restricted to fields legal on BOTH
- * rich-send and rich-edit (`NonNullable<IOptReplyRich[1]> & IOptEdit`), so a
- * key that only `replyWithRichMessage` accepts cannot reach
- * `editMessageText`. Index `[1]` stays optional, which keeps `[{html}]`
- * legal.
+ * `NonNullable<IOptReplyRich[1]> & IOptEdit`: a key that only
+ * `replyWithRichMessage` accepts cannot reach `editMessageText`. The old
+ * `[payload, options?]` tuple is gone — the `InputRichMessage` payload rides on
+ * the route atoms' `rich` field and these options on their `richOptions`
+ * field, so neither is a tuple anymore.
  *
  * @public
  */
-export type IOptRich = [IOptReplyRich[0], (NonNullable<IOptReplyRich[1]> & IOptEdit)?]
+export type IOptRich = NonNullable<IOptReplyRich[1]> & IOptEdit
+
+/**
+ * Rich-send options — the options bag of `replyWithRichMessage` alone.
+ *
+ * @remarks
+ * The narrow counterpart of {@link IOptRich}, for routes that can only ever make
+ * the rich SEND: reply, chunked and broadcast-send. Without it those routes
+ * would have no field for the rich call's options at all, and the runtime would
+ * have to drop them.
+ *
+ * @public
+ */
+export type IOptRichSend = NonNullable<IOptReplyRich[1]>
+
+/**
+ * Route atom: runtime-decided single message.
+ *
+ * @remarks
+ * `auto` edits when the update carries a `callbackQuery`, otherwise replies —
+ * so `keyboard` may be inline OR bottom (the runtime picks the call). It is the
+ * only atom that reads every one of the ten universal route keys: `options`
+ * feeds the reply, `editOptions` the edit, `fallbackOptions` the resend after a
+ * failed edit, and `rich`/`richOptions` the rich payload and its
+ * edit-legal options.
+ *
+ * @internal
+ */
+type IRouteAuto = {
+  /**
+   * Send-versus-edit resolution, decided at runtime from the update.
+   *
+   * @defaultValue `auto`
+   */
+  mode?: `auto`
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit).
+   *
+   * @remarks
+   * Routes that can send accept a bottom keyboard as well. Routes that always
+   * reach `editMessageText` narrow this to inline markup — see `IRouteEdit`.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional `InputRichMessage` payload for a rich template.
+   *
+   * @remarks
+   * Rich-versus-plain content is decided at COMPILE time by the `<g-message>`
+   * block contents, not by these params: a route carries both `options` (plain
+   * text) and `rich` (rich payload), and the block decides which one is read.
+   * Passing the other one logs a one-time `log.warn` and is ignored — never a
+   * throw, since a `--watch` hot reload can flip a page rich↔plain in one
+   * process.
+   *
+   * @defaultValue `null` (plain template)
+   */
+  rich?: IOptReplyRich[0] | null
+  /**
+   * Optional rich-edit options: fields legal on both the rich send and the rich
+   * edit, so no key reaches a call that cannot honour it.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  richOptions?: IOptRich | null
+  /**
+   * Optional plain-text reply/send options, spread into the reply call.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReply | null
+  /**
+   * Optional plain-text edit options, spread into the `editMessageText` call.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  editOptions?: IOptEdit | null
+  /**
+   * Optional reply options for the fallback resend, used when the edit fails
+   * and `fallback` resends instead of rethrowing.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  fallbackOptions?: IOptReply | null
+  /**
+   * Fallback when the edit fails.
+   *
+   * @defaultValue `delete-reply`
+   */
+  fallback?: IOptFallbackEdit
+  /**
+   * Never read on this route — omit (or pass `null`) for a single-chat
+   * send/edit.
+   */
+  broadcast?: null | undefined
+  /**
+   * Never read on this route — omit (or pass `null`) for a single message.
+   */
+  chunkSize?: null | undefined
+}
+
+/**
+ * Route atom: forced single-message send.
+ *
+ * @remarks
+ * `mode: 'reply'` always sends a new message, even from a callback query, so no
+ * edit can happen: the edit-only keys (`editOptions`, `fallbackOptions`) and
+ * `fallback` are never read — a forced reply never edits, so there is no edit to
+ * fall back from. `richOptions` stays live here because the rich SEND still
+ * happens; only the rich EDIT is unreachable.
+ *
+ * @internal
+ */
+type IRouteReply = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
+  /**
+   * Forces a new message even from a callback query.
+   */
+  mode: `reply`
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit).
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional `InputRichMessage` payload for a rich template. The block decides
+   * rich-versus-plain at compile time — see `IRouteAuto`.
+   *
+   * @defaultValue `null` (plain template)
+   */
+  rich?: IOptReplyRich[0] | null
+  /**
+   * Optional options for the rich send (`replyWithRichMessage`). The block
+   * decides rich-versus-plain at compile time — see `IRouteAuto`.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  richOptions?: IOptRichSend | null
+  /**
+   * Optional plain-text reply options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReply | null
+  /**
+   * Never read on this route — omit (or pass `null`) for a single-chat send.
+   */
+  broadcast?: null | undefined
+  /**
+   * Never read on this route — omit (or pass `null`) for a single message.
+   */
+  chunkSize?: null | undefined
+}
+
+/**
+ * Route atom: forced reply for a method whose ONLY route is a send.
+ *
+ * @remarks
+ * Identical to {@link IRouteReply} except that `mode` is optional. On a method
+ * with a single route there is nothing for `mode` to discriminate, so requiring
+ * it would force every call site to write a value that carries no information —
+ * `renderDice({mode: 'reply'})` says nothing the method name has not already
+ * said. `mode` stays in the key set and keeps its single legal value, so an
+ * explicit `mode: 'reply'` is still accepted and anything else is a compile
+ * error.
+ *
+ * @internal
+ */
+type IRouteForcedReply = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
+  /**
+   * The only mode this method supports; optional because there is no second
+   * route to choose between.
+   *
+   * @defaultValue `reply`
+   */
+  mode?: `reply`
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit).
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional `InputRichMessage` payload for a rich template. The block decides
+   * rich-versus-plain at compile time — see {@link IRouteAuto}.
+   *
+   * @defaultValue `null` (plain template)
+   */
+  rich?: IOptReplyRich[0] | null
+  /**
+   * Optional options for the rich send (`replyWithRichMessage`). The block
+   * decides rich-versus-plain at compile time — see `IRouteAuto`.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  richOptions?: IOptRichSend | null
+  /**
+   * Optional plain-text reply options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReply | null
+  /**
+   * Never read on this route — omit (or pass `null`) for a single-chat send.
+   */
+  broadcast?: null | undefined
+  /**
+   * Never read on this route — omit (or pass `null`) for a single message.
+   */
+  chunkSize?: null | undefined
+}
+
+/**
+ * Route atom: forced edit of the message tied to the update.
+ *
+ * @remarks
+ * The call always reaches `editMessageText`, so there is no send slot at all:
+ * `options` is never read, and the fallback resend draws its reply options from
+ * `fallbackOptions`.
+ *
+ * @internal
+ */
+type IRouteEdit = INeverFields<`options`> & {
+  /**
+   * Always edits, even when the update carries no `callbackQuery`.
+   */
+  mode: `edit`
+  /**
+   * Inline keyboard markup from `inlineKeyboard` (or null to omit).
+   *
+   * @remarks
+   * `editMessageText` rejects a bottom keyboard, so only inline markup is
+   * accepted on a route that always edits. A bottom keyboard stays legal on the
+   * runtime-decided route (`mode: 'auto'`), where it is guarded at runtime
+   * instead of being rejected by the compiler.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInlineKb | null
+  /**
+   * Optional `InputRichMessage` payload for a rich template. The block decides
+   * rich-versus-plain at compile time — see `IRouteAuto`.
+   *
+   * @defaultValue `null` (plain template)
+   */
+  rich?: IOptReplyRich[0] | null
+  /**
+   * Optional rich-edit options: fields legal on both the rich send and the rich
+   * edit, so no key reaches the `editMessageText` call that cannot honour it.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  richOptions?: IOptRich | null
+  /**
+   * Optional plain-text edit options, spread into the `editMessageText` call.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  editOptions?: IOptEdit | null
+  /**
+   * Optional reply options for the fallback resend, used when the edit fails
+   * and `fallback` resends instead of rethrowing.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  fallbackOptions?: IOptReply | null
+  /**
+   * Fallback when the edit fails.
+   *
+   * @defaultValue `delete-reply`
+   */
+  fallback?: IOptFallbackEdit
+  /**
+   * Never read on this route — omit (or pass `null`) for a single-chat edit.
+   */
+  broadcast?: null | undefined
+  /**
+   * Never read on this route — omit (or pass `null`) for a single message.
+   */
+  chunkSize?: null | undefined
+}
+
+/**
+ * Route atom: chunked reply.
+ *
+ * @remarks
+ * A present (not `undefined`/`null`) `chunkSize` selects the chunked path: the
+ * fully-rendered block is sent as sequential reply chunks. The block is rendered
+ * fully FIRST (placeholders never split), then split deterministically: the last
+ * `\n\n` in a `chunkSize`-char window wins, then the last `\n`, then the last
+ * space, then a hard cut; each piece is trimmed and empties are skipped. The
+ * keyboard is sent ONLY on the last chunk, and every chunk carries
+ * `parse_mode: HTML` (rich templates send each chunk through
+ * `replyWithRichMessage`). Values are sanitised on read:
+ * `Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096`.
+ * Telegram cannot edit a multi-message split, so the edit-only keys
+ * (`editOptions`, `fallbackOptions`) and `fallback` are never read.
+ * `richOptions` stays live — every chunk still goes out through the rich send.
+ *
+ * @internal
+ */
+type IRouteChunked = INeverFields<`editOptions` | `fallbackOptions` | `fallback`> & {
+  /**
+   * The only mode the chunked path can honour (the chunked reply wins whenever
+   * `chunkSize` is present).
+   *
+   * @remarks
+   * Optional: `chunkSize` is required and is what discriminates this route from
+   * {@link IRouteReply}, so there is nothing for `mode` to decide here.
+   *
+   * @defaultValue `reply`
+   */
+  mode?: `reply`
+  /**
+   * Max characters per chunk, selecting the chunked reply path.
+   */
+  chunkSize: number
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit) — sent on the LAST chunk only.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional `InputRichMessage` payload for a rich template, sent chunk by
+   * chunk. The block decides rich-versus-plain at compile time — see
+   * `IRouteAuto`.
+   *
+   * @defaultValue `null` (plain template)
+   */
+  rich?: IOptReplyRich[0] | null
+  /**
+   * Optional options for the rich send (`replyWithRichMessage`), spread on every
+   * chunk. The block decides rich-versus-plain at compile time — see
+   * `IRouteAuto`.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  richOptions?: IOptRichSend | null
+  /**
+   * Optional plain-text reply options, spread on every chunk.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReply | null
+  /**
+   * Never read on this route — omit (or pass `null`) for a single-chat send.
+   */
+  broadcast?: null | undefined
+}
+
+/**
+ * Route atom: broadcast send.
+ *
+ * @remarks
+ * The fully-rendered block is SENT (never edited) to every entry of
+ * `broadcast.ids` with its own language code from `broadcast.languageCode`;
+ * `keyboard`, `data`, `AGBaseId`, `options`, and `rich` are forwarded. The
+ * fan-out pacing uses `broadcast.chunkSize`/`broadcast.chunkDelayMs`, so the
+ * top-level `chunkSize` is never read — and `mode`, the edit-only keys, and
+ * `fallback` are never read either, since nothing edits.
+ *
+ * @internal
+ */
+type IRouteBroadcastSend = INeverFields<`mode` | `editOptions` | `fallbackOptions` | `fallback` | `chunkSize`> & {
+  /**
+   * Broadcast fan-out (see {@link IBroadcastSendParams}): rich templates go
+   * through `api.sendRichMessage`, plain templates keep `api.sendMessage` with
+   * `parse_mode: HTML`.
+   */
+  broadcast: IBroadcastSendParams
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit).
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional `InputRichMessage` payload for a rich template. The per-recipient
+   * template decides rich-versus-plain at compile time — see `IRouteAuto`.
+   *
+   * @defaultValue `null` (plain template)
+   */
+  rich?: IOptReplyRich[0] | null
+  /**
+   * Optional options for the rich send (`sendRichMessage`). The per-recipient
+   * template decides rich-versus-plain at compile time — see `IRouteAuto`.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  richOptions?: IOptRichSend | null
+  /**
+   * Optional plain-text send options (read for plain templates).
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReply | null
+}
+
 
 /**
  * Media parameter mirroring `Context.editMessageMedia` first parameter.
@@ -322,11 +767,15 @@ export type IOptInlineAnswer = Parameters<Context[`answerInlineQuery`]>[1]
 export type IOptGuestAnswer = Parameters<Context[`answerGuestQuery`]>[1]
 
 /**
- * Options parameter mirroring `Api.answerWebAppQuery`.
+ * Options parameter mirroring `Context.api.answerWebAppQuery` argument index
+ * `[2]` — the abort signal of the answer call. `Context` has no
+ * `answerWebAppQuery` convenience method, so the alias reaches the method
+ * through `Context.api`, keeping the `Context[...]` style of the sibling answer
+ * aliases.
  *
  * @public
  */
-export type IOptWebAppAnswer = Parameters<Ctx[`api`][`answerWebAppQuery`]>[2]
+export type IOptWebAppAnswer = Parameters<Context[`api`][`answerWebAppQuery`]>[2]
 
 /**
  * Action parameter mirroring `Context.replyWithChatAction`.
@@ -818,33 +1267,329 @@ export type ITemp = {
  *
  * @example
  * ```ts
- * await ctx.edit({fallbackEdit: `reply`})
+ * await ctx.edit({fallback: `reply`})
  * ```
  *
  * @public
  */
 export type IOptFallbackEdit = `delete-reply` | `reply` | `disable`
 
-/**
- * Send-versus-edit resolution for a render call.
+/* ---------------------------------------------------------------------------
+ * Media and media-group route atoms.
  *
- * @remarks
- * - `auto` (default): edits when the update carries a `callbackQuery`,
- *   otherwise replies.
- * - `reply`: always sends a new message.
- * - `edit`: always edits the message tied to the update.
+ * A media send is not `sendMessage` — it is `replyWithPhoto`, `replyWithVideo`,
+ * … — and a media group is `sendMediaGroup`, which takes no reply markup at
+ * all. The text atoms therefore do not fit these methods: their `options` slot is
+ * the `sendMessage` bag and would sit there unread, and their edit slot is
+ * `editMessageText`, which neither call makes. Six more atoms state the real
+ * call graph instead of forcing the text one onto it.
  *
- * @public
- */
-export type IRenderMode = `auto` | `reply` | `edit`
+ * `keyboard` is deliberately NOT narrowed to inline markup anywhere in the media
+ * family: the kinds that cannot be edited in place (voice, video_note, sticker,
+ * location, contact) are deleted and re-SENT, and a send accepts either type.
+ *
+ * Every atom still declares all ten universal route keys, so the key set stays
+ * uniform across every method that sends a message.
+ * ------------------------------------------------------------------------- */
 
 /**
- * `renderText` fields shared by every route.
+ * Media route atom: runtime-decided single media message.
+ *
+ * @remarks
+ * `auto` edits when the update carries a `callbackQuery`, otherwise sends; `edit`
+ * always edits. Both reach the same kind-specific calls, so they share one
+ * member — narrowing `keyboard` per mode is not possible here anyway, because
+ * the delete-and-resend path is a send.
+ *
+ * @typeParam T - The media type.
  *
  * @internal
  */
-/** Template fields every `renderText` route shares. */
-type ITextData = {
+type IRouteMediaAuto<T extends IMediaKind> = INeverFields<`options` | `editOptions` | `rich` | `richOptions` | `captionOptions`> & {
+  /**
+   * Send-versus-edit resolution. `edit` always edits; absent or `auto` lets the
+   * runtime decide from the update.
+   *
+   * @defaultValue `auto`
+   */
+  mode?: `auto` | `edit`
+  /**
+   * Keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to omit).
+   *
+   * @remarks
+   * Not narrowed: the kinds that cannot be edited in place are deleted and
+   * re-sent, and a send accepts either keyboard type.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional `editMessageMedia` payload merged into the edit call's media input
+   * (resolved to `never` for the kinds that cannot be edited in place).
+   *
+   * @defaultValue `null` (no extra payload)
+   */
+  media?: IMediaEditOpt1<T> | null
+  /**
+   * Optional extra `editMessageMedia` call options (the call's `other` bag).
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  mediaOptions?: IOptEditMedia2 | null
+  /**
+   * Optional options for the delete-then-resend path — the primary path of the
+   * kinds that cannot be edited in place.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  resendOptions?: IMediaReplyOpt<T> | null
+  /**
+   * Fallback when the edit fails.
+   *
+   * @defaultValue `delete-reply`
+   */
+  fallback?: IOptFallbackEdit
+  /**
+   * Optional send options for the fallback resend after a failed edit.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  fallbackOptions?: IMediaReplyOpt<T> | null
+  /**
+   * Never read on this route — omit (or pass `null`) for a single-chat send.
+   */
+  broadcast?: null | undefined
+  /**
+   * Never read on this route — omit (or pass `null`) for a single message.
+   */
+  chunkSize?: null | undefined
+}
+
+/**
+ * Media route atom: forced single-media send.
+ *
+ * @remarks
+ * A forced send never edits, so every edit-only key is unread.
+ *
+ * @typeParam T - The media type.
+ *
+ * @internal
+ */
+type IRouteMediaReply<T extends IMediaKind> = INeverFields<`options` | `editOptions` | `rich` | `richOptions` | `fallback` | `fallbackOptions` | `media` | `mediaOptions` | `resendOptions`> & {
+  /**
+   * Forces a new message even from a callback query.
+   */
+  mode: `reply`
+  /**
+   * Keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to omit).
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional options for the kind's caption-bearing send call
+   * (`replyWithPhoto`, …) — the single call this route makes.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  captionOptions?: IMediaReplyOpt<T> | null
+  /**
+   * Never read on this route — omit (or pass `null`) for a single-chat send.
+   */
+  broadcast?: null | undefined
+  /**
+   * Never read on this route — omit (or pass `null`) for a single message.
+   */
+  chunkSize?: null | undefined
+}
+
+/**
+ * Media route atom: broadcast send fan-out.
+ *
+ * @remarks
+ * The kind is read from the `<g-media>` block, not from `type`, because the same
+ * fan-out loop serves every kind — so `type` is unread here even on `renderMedia`
+ * where it is otherwise required.
+ *
+ * @typeParam T - The media type.
+ *
+ * @internal
+ */
+type IRouteMediaBroadcastSend<T extends IMediaKind> = INeverFields<`mode` | `options` | `editOptions` | `rich` | `richOptions` | `fallback` | `fallbackOptions` | `media` | `mediaOptions` | `resendOptions` | `chunkSize` | `type`> & {
+  /**
+   * Broadcast fan-out (see {@link IBroadcastSendParams}).
+   */
+  broadcast: IBroadcastSendParams
+  /**
+   * Never read on this route — the kind comes from the `<g-media>` block.
+   */
+  type?: never
+  /**
+   * Keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to omit).
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional options for the kind's caption-bearing send call.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  captionOptions?: IMediaReplyOpt<T> | null
+}
+
+/**
+ * Media route atom: broadcast revise fan-out.
+ *
+ * @remarks
+ * Revises stored messages in place where the kind allows it, and deletes then
+ * re-sends where it does not — which is why the keyboard stays wide and
+ * `resendOptions` is live.
+ *
+ * `type` is deliberately NOT declared here. On `renderMedia` it comes from
+ * `IMediaKindContent`, which is what makes it REQUIRED there; on the per-kind
+ * wrappers the method name already fixes the kind, so the key is absent
+ * altogether and passing it is an excess-property error — the same behaviour as
+ * before.
+ *
+ * @typeParam T - The media type.
+ *
+ * @internal
+ */
+type IRouteMediaBroadcastRevise<T extends IMediaKind> = INeverFields<`mode` | `options` | `editOptions` | `rich` | `richOptions` | `fallbackOptions` | `captionOptions` | `chunkSize`> & {
+  /**
+   * Broadcast-revise fan-out (see {@link IBroadcastReviseParams}).
+   */
+  broadcast: IBroadcastReviseParams
+  /**
+   * Keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to omit).
+   *
+   * @remarks
+   * Not narrowed: kinds that cannot be edited in place are deleted and re-sent.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional `editMessageMedia` payload merged into the revise call.
+   *
+   * @defaultValue `null` (no extra payload)
+   */
+  media?: IMediaEditOpt1<T> | null
+  /**
+   * Optional extra `editMessageMedia` call options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  mediaOptions?: IOptEditMedia2 | null
+  /**
+   * Optional options for the delete-then-resend path.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  resendOptions?: IMediaReplyOpt<T> | null
+  /**
+   * Fallback when the per-recipient revise (or its delete) fails.
+   *
+   * @defaultValue `delete-reply`
+   */
+  fallback?: IOptFallbackEdit
+}
+
+/**
+ * Media-group route atom: runtime-decided group send.
+ *
+ * @remarks
+ * `sendMediaGroup` takes no reply markup, so `keyboard` is unread on every
+ * group route. A group also never carries a rich message payload.
+ *
+ * @internal
+ */
+type IRouteGroupAuto = INeverFields<`editOptions` | `rich` | `richOptions` | `fallbackOptions`> & {
+  /**
+   * Send-versus-edit resolution.
+   *
+   * @defaultValue `auto`
+   */
+  mode?: `auto` | `edit`
+  /**
+   * Never read — Telegram's `sendMediaGroup` carries no reply markup.
+   */
+  keyboard?: never
+  /**
+   * Optional group-send options.
+   *
+   * @remarks
+   * Read on this route too: the edit path deletes the original and re-sends the
+   * group, and that re-send is a send, so it takes the same options bag.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReply | null
+  /**
+   * Fallback when the edit fails.
+   *
+   * @defaultValue `delete-reply`
+   */
+  fallback?: IOptFallbackEdit
+  /**
+   * Never read — a group has no in-place edit: the edit path deletes the
+   * original and re-SENDS the group, and its `catch` re-runs that very same
+   * send. One call means one options bag, which is `options`.
+   */
+  fallbackOptions?: never
+  /**
+   * Never read on this route — omit (or pass `null`) for a single-chat send.
+   */
+  broadcast?: null | undefined
+  /**
+   * Never read on this route — omit (or pass `null`) for a single message.
+   */
+  chunkSize?: null | undefined
+}
+
+/**
+ * Media-group route atom: forced group send.
+ *
+ * @internal
+ */
+type IRouteGroupReply = INeverFields<`rich` | `richOptions` | `editOptions` | `fallback` | `fallbackOptions`> & {
+  /**
+   * Forces a new group even from a callback query.
+   */
+  mode: `reply`
+  /**
+   * Never read — Telegram's `sendMediaGroup` carries no reply markup.
+   */
+  keyboard?: never
+  /**
+   * Optional group-send options.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptReply | null
+  /**
+   * Never read on this route — omit (or pass `null`) for a single-chat send.
+   */
+  broadcast?: null | undefined
+  /**
+   * Never read on this route — omit (or pass `null`) for a single message.
+   */
+  chunkSize?: null | undefined
+}
+
+/**
+ * Template content shared by every render method: what to render.
+ *
+ * @remarks
+ * `params = CONTENT & ROUTE`: the content half names the template fields
+ * (`data`, `AGBaseId`), the route atoms say how the rendered block is delivered
+ * (send, edit, chunked, broadcast). A method with a richer content body (media
+ * kind, gift target, template-backed answer) intersects its own fields on top.
+ *
+ * @internal
+ */
+type IContent = {
   /**
    * Optional template interpolation data.
    *
@@ -852,286 +1597,42 @@ type ITextData = {
    */
   data?: IData | null
   /**
-   * Optional template base ID position for block message.
+   * Optional template base ID position for the rendered block.
+   *
+   * @remarks
+   * IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set
+   * AGBaseId to the same value. Leaving AGBaseId as undefined in this case will
+   * cause errors (for example, keyboard bindings will not work). A common
+   * mistake is defining a base ID in the template but not reusing it here.
    *
    * @defaultValue `null` (default base)
    */
   AGBaseId?: string | null
 }
 
-type ITextBase = ITextData & {
-  /**
-   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
-   * omit).
-   *
-   * @remarks
-   * Routes that can send accept a bottom keyboard as well. Routes that always
-   * reach `editMessageText` narrow this to inline markup — see
-   * `IRenderTextParams` route 1b.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInBoKb | null
-}
-
-/** `ITextBase` for the routes that always reach `editMessageText`. */
-type ITextEditBase = Omit<ITextBase, `keyboard`> & {
-  /**
-   * Inline keyboard markup from `inlineKeyboard` (or null to omit).
-   *
-   * @remarks
-   * `editMessageText` rejects a bottom keyboard, so only inline markup is
-   * accepted on a route that always edits. A bottom keyboard stays legal on the
-   * runtime-decided route (`mode: 'auto'`), where it is guarded at runtime
-   * instead of being rejected by the compiler.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInlineKb | null
-}
-
 /**
  * Parameters for `renderText` — the single text send/edit method.
  *
  * @remarks
- * A disjoint union over the method's four runtime routes. Every field a route
- * never reads is declared `never` on that route (or `null | undefined` where an
- * explicit `null` must stay legal), so combinations such as
+ * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`)
+ * intersected with the five delivery routes this method resolves to — the
+ * runtime-decided `IRouteAuto` (default), the forced `IRouteEdit`, the forced
+ * `IRouteReply`, the chunked `IRouteChunked`, and the `IRouteBroadcastSend`
+ * fan-out. Every route declares all ten universal route keys — with a real type
+ * where the route reads the key, and `never` (or `null | undefined` where an
+ * explicit `null` must stay legal) where it does not — so combinations such as
  * `{mode: 'edit', broadcast: {...}}` are compile errors instead of silently
  * dropped fields.
  *
  * Rich-versus-plain content is decided at COMPILE time by the `<g-message>`
  * block contents, not by these params: each route carries both `options` (plain
- * text) and `richOptions` (rich payload), and the block decides which one is
- * read. Passing the other one logs a one-time `log.warn` and is ignored — never
- * a throw, since a `--watch` hot reload can flip a page rich↔plain in one
- * process.
+ * text) and `rich` (rich payload), and the block decides which one is read.
+ * Passing the other one logs a one-time `log.warn` and is ignored — never a
+ * throw, since a `--watch` hot reload can flip a page rich↔plain in one process.
  *
  * @public
  */
-export type IRenderTextParams =
-  /**
-   * Route 1a — single message, `auto` (default). `auto` edits when the update
-   * carries a `callbackQuery`, otherwise replies.
-   * Fields: `mode` `auto`; `keyboard` may be inline OR bottom, because the
-   * runtime decides the call; `fallbackEdit` fallback when the edit fails
-   * (default `delete-reply`); `options` plain-text options used by BOTH
-   * `editMessageText` and, after a failed edit, the fallback `reply()` (the
-   * intersection is deliberate — a union would let a key reach a call that
-   * cannot honour it); `richOptions` rich payload plus options legal on both
-   * rich send and rich edit; `chunkSize` and `broadcast` must stay absent or
-   * `null` on this route.
-   */
-  | (ITextBase & {
-      /**
-       * Send-versus-edit resolution, decided at runtime from the update.
-       *
-       * @defaultValue `auto`
-       */
-      mode?: `auto`
-      /**
-       * Fallback when the edit fails.
-       *
-       * @defaultValue `delete-reply`
-       */
-      fallbackEdit?: IOptFallbackEdit
-      /**
-       * Optional plain-text options, spread into the edit call AND (after a
-       * failed edit) into the fallback reply.
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      options?: IOptReply & IOptEdit
-      /**
-       * Optional `InputRichMessage` fields plus options legal on both rich
-       * send and rich edit.
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      richOptions?: IOptRich | null
-      /**
-       * Never read on this route — omit (or pass `null`) for a single message.
-       */
-      chunkSize?: null | undefined
-      /**
-       * Never read on this route — omit (or pass `null`) for a single-chat
-       * send/edit.
-       */
-      broadcast?: null | undefined
-    })
-  /**
-   * Route 1b — single message, `mode: 'edit'` (explicit). The call always
-   * reaches `editMessageText`, so `keyboard` is narrowed to inline markup: a
-   * bottom keyboard is a compile error here rather than a Telegram 400 at
-   * runtime. Everything else matches route 1a.
-   */
-  | (ITextEditBase & {
-      /**
-       * Always edits, even when the update carries no `callbackQuery`.
-       */
-      mode: `edit`
-      /**
-       * Fallback when the edit fails.
-       *
-       * @defaultValue `delete-reply`
-       */
-      fallbackEdit?: IOptFallbackEdit
-      /**
-       * Optional plain-text options, spread into the edit call AND (after a
-       * failed edit) into the fallback reply.
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      options?: IOptReply & IOptEdit
-      /**
-       * Optional `InputRichMessage` fields plus options legal on both rich
-       * send and rich edit.
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      richOptions?: IOptRich | null
-      /**
-       * Never read on this route — omit (or pass `null`) for a single message.
-       */
-      chunkSize?: null | undefined
-      /**
-       * Never read on this route — omit (or pass `null`) for a single-chat
-       * send/edit.
-       */
-      broadcast?: null | undefined
-    })
-  /**
-   * Route 2 — forced reply (`mode: 'reply'`): always sends a new message, so no
-   * edit can happen. Fields: `mode` `reply` (required); `options` plain-text
-   * reply options; `richOptions` full rich send options; `chunkSize` and
-   * `broadcast` must stay absent or `null`. `fallbackEdit` is never read
-   * (nothing edits).
-   */
-  | (ITextBase & {
-      /**
-       * Forces a new message even from a callback query.
-       */
-      mode: `reply`
-      /**
-       * Never read on this route — a forced reply never edits, so there is no
-       * edit to fall back from. Use `mode: 'auto'` or `mode: 'edit'` when the
-       * fallback matters.
-       */
-      fallbackEdit?: never
-      /**
-       * Optional plain-text reply options.
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      options?: IOptReply
-      /**
-       * Optional `InputRichMessage` fields plus rich send options.
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      richOptions?: IOptReplyRich | null
-      /**
-       * Never read on this route — omit (or pass `null`) for a single message.
-       */
-      chunkSize?: null | undefined
-      /**
-       * Never read on this route — omit (or pass `null`) for a single-chat send.
-       */
-      broadcast?: null | undefined
-    })
-  /**
-   * Route 3 — chunked reply: `chunkSize` is present (not `undefined`/`null`), so
-   * the fully-rendered block is sent as sequential reply chunks. Fields:
-   * `chunkSize` max characters per chunk (required); `mode` may only be `reply`
-   * (or absent) — Telegram cannot edit a multi-message split, so `auto`/`edit`
-   * are rejected; `options`/`richOptions` feed the per-chunk sends; `broadcast`
-   * must stay absent or `null`. `fallbackEdit` is never read.
-   *
-   * @remarks
-   * The block is rendered fully FIRST (placeholders never split), then split
-   * deterministically: the last `\n\n` in a `chunkSize`-char window wins, then
-   * the last `\n`, then the last space, then a hard cut; each piece is trimmed
-   * and empties are skipped. The keyboard is sent ONLY on the last chunk, and
-   * every chunk carries `parse_mode: HTML` (rich templates send each chunk
-   * through `replyWithRichMessage`). Values are sanitised on read:
-   * `Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096`.
-   */
-  | (ITextBase & {
-      /**
-       * Optional explicit `reply` — the only mode the chunked path can honour
-       * (the chunked reply wins whenever `chunkSize` is present).
-       */
-      mode?: `reply`
-      /**
-       * Never read on this route — the chunked path never edits.
-       */
-      fallbackEdit?: never
-      /**
-       * Optional plain-text reply options, spread on every chunk.
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      options?: IOptReply
-      /**
-       * Optional `InputRichMessage` fields plus rich send options, spread on
-       * every chunk.
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      richOptions?: IOptReplyRich | null
-      /**
-       * Max characters per chunk, selecting the chunked reply path.
-       */
-      chunkSize: number
-      /**
-       * Never read on this route — omit (or pass `null`) for a single-chat send.
-       */
-      broadcast?: null | undefined
-    })
-  /**
-   * Route 4 — broadcast send: the fully-rendered block is SENT (never edited) to
-   * every entry of `broadcast.ids` with its own language code from
-   * `broadcast.languageCode`. Fields: `broadcast` fan-out params (required);
-   * `options` plain-text send options, `richOptions` rich send options (the
-   * per-recipient template decides which one is read); `keyboard`, `data`, and
-   * `AGBaseId` are forwarded. `mode`, `fallbackEdit`, and `chunkSize` are never
-   * read on this route, and the fan-out pacing uses `broadcast.chunkSize`
-   * instead.
-   */
-  | (ITextBase & {
-      /**
-       * Never read on this route — the broadcast send never edits.
-       */
-      mode?: never
-      /**
-       * Never read on this route — the broadcast send never edits.
-       */
-      fallbackEdit?: never
-      /**
-       * Optional plain-text send options (read for plain templates).
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      options?: IOptReply
-      /**
-       * Optional `InputRichMessage` fields plus rich send options (read for
-       * rich templates).
-       *
-       * @defaultValue `null` (no extra options)
-       */
-      richOptions?: IOptReplyRich | null
-      /**
-       * Never read on this route — broadcast pacing is configured through
-       * `broadcast.chunkSize`/`broadcast.chunkDelayMs`.
-       */
-      chunkSize?: never
-      /**
-       * Broadcast fan-out (see {@link IBroadcastSendParams}): rich templates go
-       * through `api.sendRichMessage`, plain templates keep `api.sendMessage`
-       * with `parse_mode: HTML`.
-       */
-      broadcast: IBroadcastSendParams
-    })
+export type IRenderTextParams = IContent & (IRouteAuto | IRouteEdit | IRouteReply | IRouteChunked | IRouteBroadcastSend)
 
 /**
  * Broadcast-send controls for the `broadcast` field of `renderText`,
@@ -1142,7 +1643,7 @@ export type IRenderTextParams =
  * without resending, `chunkSize`/`chunkDelayMs` pace the loop with
  * `onProgress` checkpoints, and `excludeIds` counts skips without sending.
  * The send content itself comes from the host method params (`keyboard`,
- * `data`, `AGBaseId`, `options`/`richOptions`).
+ * `data`, `AGBaseId`, `options`/`rich`).
  *
  * @public
  */
@@ -1206,11 +1707,11 @@ export type IBroadcastSendParams = {
  * Parameters for `renderBroadcastDelete` — the expiry-cleanup delete fan-out.
  *
  * @remarks
- * Reads no template block — it operates on stored message ids. Same
- * checkpoint-first controls as the revise fan-out (`renderMedia` with
- * `broadcast.targets`) via `broadcastOpts`; a
- * failed delete has no text fallback by design, since there is no
- * replacement content to deliver.
+ * Reads no template block and renders nothing: it operates on stored message
+ * ids, so it has no CONTENT half (`data`/`AGBaseId`) and no route layer at all.
+ * Same checkpoint-first controls as the revise fan-out (`renderMedia` with
+ * `broadcast.targets`) via `reviseOptions`; a failed delete has no text fallback
+ * by design, since there is no replacement content to deliver.
  *
  * @public
  */
@@ -1222,15 +1723,15 @@ export type IRenderBroadcastDeleteParams = {
   targets: IBroadcastEditTarget[]
   /**
    * Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`,
-   * `chunkSize`, `chunkDelayMs`).
+   * `batchSize`, `chunkDelayMs`).
    *
    * @remarks
-   * `fallbackEdit` is omitted from the type: deletes have no resend to fall
-   * back to, so the field would be accepted only to be ignored.
+   * `fallback` is omitted from the type: deletes have no resend to fall back
+   * to, so the field would be accepted only to be ignored.
    *
    * @defaultValue `null` (defaults)
    */
-  broadcastOpts?: Omit<IBroadcastEditOpts, `fallbackEdit`> | null
+  reviseOptions?: Omit<IBroadcastEditOpts, `fallback`> | null
 }
 
 /**
@@ -1239,7 +1740,7 @@ export type IRenderBroadcastDeleteParams = {
  * @remarks
  * `photo`, `video`, `audio`, `document`, and `animation` edit in place via
  * `editMessageMedia`; the remaining types cannot be edited, so the old
- * message is deleted and a new one is sent. `broadcastOpts.fallbackEdit`
+ * message is deleted and a new one is sent. `reviseOptions.fallback`
  * applies per recipient when the primary edit/resend fails.
  *
  * @public
@@ -1252,58 +1753,47 @@ export type IBroadcastReviseParams = {
   targets: IBroadcastEditTarget[]
   /**
    * Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`,
-   * `chunkSize`, `chunkDelayMs`, `fallbackEdit`).
+   * `batchSize`, `chunkDelayMs`, `fallback`).
    *
    * @defaultValue `null` (defaults)
    */
-  broadcastOpts?: IBroadcastEditOpts | null
+  reviseOptions?: IBroadcastEditOpts | null
 }
 
 /**
- * Parameters for `renderGift`.
+ * Parameters for `renderGift` — a single gift send.
  *
  * @remarks
- * `target` (user id) is explicit because gifts do not always go to the
- * active chat — unlike every other render method. A failed gift never
- * degrades into sending the card as plain text.
+ * `params = CONTENT & ROUTE`: the gift content (`target`, `giftId`, `data`,
+ * `AGBaseId`) on the forced-send route (`IRouteReply`), with the option slot
+ * narrowed to the `sendGift` call (`IOptGift`). `target` (user id) is explicit
+ * because gifts do not always go to the active chat — unlike every other render
+ * method. A failed gift never degrades into sending the card as plain text.
  *
  * @public
  */
-export type IRenderGiftParams = {
-  /**
-   * Gift recipient user id.
-   */
-  target: number
-  /**
-   * Telegram gift identifier.
-   */
-  giftId: string
-  /**
-   * Must stay null/omitted — `sendGift` carries no reply markup, so any
-   * keyboard value throws before any API call.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block message.
-   *
-   * @defaultValue `null` (default base)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional gift options.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: IOptGift | null
-}
+export type IRenderGiftParams = IContent &
+  Omit<IRouteForcedReply, `options`> & {
+    /**
+     * Gift recipient user id.
+     */
+    target: number
+    /**
+     * Telegram gift identifier.
+     */
+    giftId: string
+    /**
+     * Never read — `sendGift` carries no reply markup, so any keyboard value
+     * throws before any API call.
+     */
+    keyboard?: never
+    /**
+     * Optional `sendGift` options.
+     *
+     * @defaultValue `null` (no extra options)
+     */
+    options?: IOptGift | null
+  }
 
 /**
  * Parameters for `renderCallbackAnswer`.
@@ -1530,96 +2020,82 @@ export type IRenderWebAppAnswerParams = {
  * Parameters for `renderPoll`.
  *
  * @remarks
- * The poll is send-only: the Bot API offers no edit for polls (only
- * `stopPoll`), so there is no `mode` and no fallback content.
+ * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`,
+ * read from the `<g-poll>` block) on the send-only routes — the runtime-decided
+ * `IRouteAuto`, the forced `IRouteReply`, and the `IRouteBroadcastSend`
+ * fan-out. The Bot API offers no edit for polls (only `stopPoll`), so there is
+ * no edit route and no fallback content, and the option slot is narrowed to the
+ * `sendPoll` call (`IOptPoll`).
+ *
+ * On the broadcast-send route the compiled `<g-poll>` block is fanned out to
+ * every entry of `broadcast.ids` with its own language code;
+ * `Ctx.assertPoll` runs for every recipient BEFORE the loop and the route's
+ * `mode`/`fallback` are never read (polls are send-only).
  *
  * @public
  */
-export type IRenderPollParams = {
-  /**
-   * Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or
-   * {@link (Ctx:class).bottomKeyboard}.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInBoKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block poll.
-   *
-   * @defaultValue `null` (use default)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional extra `sendPoll` fields.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: Parameters<Ctx[`replyWithPoll`]>[2] | null
-  /**
-   * Optional broadcast fan-out (see {@link IBroadcastSendParams}).
-   *
-   * @remarks
-   * When present, the compiled `<g-poll>` block is sent to every entry of
-   * `broadcast.ids` with its own language code from
-   * `broadcast.languageCode`; `Ctx.assertPoll` runs for every recipient
-   * BEFORE the loop and `mode`/`fallbackEdit` do not apply (polls are
-   * send-only).
-   *
-   * @defaultValue `null` (single-chat send)
-   */
-  broadcast?: IBroadcastSendParams | null
-}
+export type IRenderPollParams = IContent &
+  (Omit<IRouteAuto, `options`> | Omit<IRouteReply, `options`> | Omit<IRouteBroadcastSend, `options`>) & {
+    /**
+     * Optional extra `sendPoll` fields.
+     *
+     * @defaultValue `null` (no extra options)
+     */
+    options?: IOptPoll | null
+  }
 
 /**
  * Parameters for `renderInvoice`.
  *
  * @remarks
+ * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`,
+ * read from the `<g-invoice>` block) plus `provider_token`, on the forced-send
+ * route (`IRouteReply`), with the option slot narrowed to the `sendInvoice`
+ * call (`IOptInvoice`).
+ *
  * Provider tokens are security-critical and NEVER come from templates: the
- * validator rejects a `provider_token` attribute outright, so `options` is
- * the only way to supply one.
+ * validator rejects a `provider_token` attribute outright, so the params' own
+ * `provider_token` field is the only way to supply one.
  *
  * @public
  */
-export type IRenderInvoiceParams = {
-  /**
-   * Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} —
-   * only inline keyboards are accepted, the Bot API `sendInvoice` reply
-   * markup is `InlineKeyboardMarkup`.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInlineKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block invoice.
-   *
-   * @defaultValue `null` (use default)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional extra `sendInvoice` fields, where `provider_token` is the ONLY
-   * way to supply the payment provider secret.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: (Parameters<Ctx[`replyWithInvoice`]>[5] & {provider_token?: string}) | null
-}
+export type IRenderInvoiceParams = IContent &
+  Omit<IRouteForcedReply, `keyboard` | `options`> & {
+    /**
+     * Payment provider secret for this send.
+     *
+     * @remarks
+     * Security-critical and never template-sourced — the validator rejects a
+     * `provider_token` attribute outright.
+     *
+     * @defaultValue `null` (no provider token)
+     */
+    provider_token?: string | null
+    /**
+     * Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} —
+     * only inline keyboards are accepted, the Bot API `sendInvoice` reply
+     * markup is `InlineKeyboardMarkup`.
+     *
+     * @defaultValue `null` (no keyboard)
+     */
+    keyboard?: IInlineKb | null
+    /**
+     * Optional extra `sendInvoice` fields.
+     *
+     * @defaultValue `null` (no extra options)
+     */
+    options?: IOptInvoice | null
+  }
 
 /**
  * Parameters for `renderPaidMedia`.
  *
  * @remarks
+ * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`,
+ * read from the `<g-paid-media>` block) on the forced-send route
+ * (`IRouteReply`), with the option slot narrowed to the `sendPaidMedia` call
+ * (`IOptPaidMedia`) and `keyboard` kept inline-only.
+ *
  * Each item `src` is resolved through the instance media jail (local files
  * become `InputFile` uploads, URLs and `file_id` values pass through) and
  * sent with its caption as HTML. There is no degraded fallback content for
@@ -1627,202 +2103,125 @@ export type IRenderInvoiceParams = {
  *
  * @public
  */
-export type IRenderPaidMediaParams = {
-  /**
-   * Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard}.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInlineKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block paid media.
-   *
-   * @defaultValue `null` (use default)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional extra `sendPaidMedia` fields.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: Parameters<Ctx[`replyWithPaidMedia`]>[2] | null
-}
+export type IRenderPaidMediaParams = IContent &
+  Omit<IRouteForcedReply, `keyboard` | `options`> & {
+    /**
+     * Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard}.
+     *
+     * @defaultValue `null` (no keyboard)
+     */
+    keyboard?: IInlineKb | null
+    /**
+     * Optional extra `sendPaidMedia` fields.
+     *
+     * @defaultValue `null` (no extra options)
+     */
+    options?: IOptPaidMedia | null
+  }
 
 /**
  * Parameters for `renderVenue`.
  *
  * @remarks
+ * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`,
+ * read from the `<g-venue>` block) on the forced-send route (`IRouteReply`),
+ * with the option slot narrowed to the `sendVenue` call (`IOptVenue`).
+ *
  * Fail-fast validation (`Ctx.assertVenue`: non-empty title/address plus
  * `Ctx.assertLocation` range checks) runs on the COMPILED strings BEFORE any
  * API call.
  *
  * @public
  */
-export type IRenderVenueParams = {
-  /**
-   * Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or
-   * {@link (Ctx:class).bottomKeyboard}.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInBoKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block venue.
-   *
-   * @defaultValue `null` (use default)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional extra `sendVenue` fields such as `foursquare_id`.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: Parameters<Ctx[`replyWithVenue`]>[4] | null
-}
+export type IRenderVenueParams = IContent &
+  Omit<IRouteForcedReply, `options`> & {
+    /**
+     * Optional extra `sendVenue` fields such as `foursquare_id`.
+     *
+     * @defaultValue `null` (no extra options)
+     */
+    options?: IOptVenue | null
+  }
 
 /**
  * Parameters for `renderDice`.
  *
  * @remarks
+ * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`,
+ * read from the `<g-dice>` block) on the forced-send route (`IRouteReply`),
+ * with the option slot narrowed to the `sendDice` call (`IOptDice`).
+ *
  * The emoji comes from the COMPILED block (`🎲` default when the attribute
  * is absent) and is checked by `Ctx.assertDiceEmoji` BEFORE any API call.
  *
  * @public
  */
-export type IRenderDiceParams = {
-  /**
-   * Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or
-   * {@link (Ctx:class).bottomKeyboard}.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInBoKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block dice.
-   *
-   * @defaultValue `null` (use default)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional extra `sendDice` fields.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: Parameters<Ctx[`replyWithDice`]>[1] | null
-}
+export type IRenderDiceParams = IContent &
+  Omit<IRouteForcedReply, `options`> & {
+    /**
+     * Optional extra `sendDice` fields.
+     *
+     * @defaultValue `null` (no extra options)
+     */
+    options?: IOptDice | null
+  }
 
 /**
  * Parameters for `renderEditCaption`.
  *
  * @remarks
- * Caption text comes from the `<g-base id>` block via `getGMessage` and is
- * sent via `editMessageCaption`. Fallback modes mirror `renderEdit`:
- * `delete-reply`/`reply` resend the caption as plain text, `disable` throws.
+ * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`)
+ * on the forced-edit route (`IRouteEdit`), with `mode` declared `never` — this
+ * method always edits, the mode is not a choice. Caption text comes from the
+ * `<g-base id>` block via `getGMessage` and is sent via `editMessageCaption`,
+ * which rejects a bottom keyboard, so the `keyboard` slot stays inline-only.
+ * Fallback modes mirror `renderEdit`: `delete-reply`/`reply` resend the caption
+ * as plain text, `disable` throws.
  *
  * @public
  */
-export type IRenderEditCaptionParams = {
-  /**
-   * Optional inline keyboard markup from `inlineKeyboard`.
-   *
-   * @remarks
-   * Named `keyboard` like every other render method. The inline-only type is what
-   * carries this method's constraint: Telegram rejects a bottom keyboard on
-   * `editMessageCaption` / `editMessageReplyMarkup`, so the compiler rejects it
-   * here.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInlineKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block message.
-   *
-   * @defaultValue `null` (default base)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional abort signal for the edit call.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: IOptEditCaption | null
-  /**
-   * Fallback when the edit fails — `delete-reply` (default) deletes the
-   * original message then sends a new one; `reply` sends without deleting;
-   * `disable` rethrows the error.
-   *
-   * @defaultValue `delete-reply`
-   */
-  fallbackEdit?: IOptFallbackEdit
-}
+export type IRenderEditCaptionParams = IContent &
+  Omit<IRouteEdit, `mode` | `options`> & {
+    /**
+     * Always edits — declared `never` on the edit-only methods.
+     */
+    mode?: never
+    /**
+     * Optional abort signal for the `editMessageCaption` call.
+     *
+     * @defaultValue `null` (no extra options)
+     */
+    options?: IOptEditCaption | null
+  }
 
 /**
  * Parameters for `renderEditKeyboard`.
  *
  * @remarks
- * Sent via `editMessageReplyMarkup` — never touches message text. When
- * `keyboard` is null, the markup resolves from the `<g-keyboard>`
- * block of the given `AGBaseId` itself, which is what makes `AGBaseId`
- * meaningful here.
+ * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`)
+ * on the forced-edit route (`IRouteEdit`), with `mode` declared `never` — this
+ * method always edits, the mode is not a choice. Sent via
+ * `editMessageReplyMarkup` and never touching message text; when `keyboard` is
+ * null, the markup resolves from the `<g-keyboard>` block of the given
+ * `AGBaseId` itself, which is what makes `AGBaseId` meaningful here. The
+ * `keyboard` slot stays inline-only, because `editMessageReplyMarkup` rejects a
+ * bottom keyboard.
  *
  * @public
  */
-export type IRenderEditKeyboardParams = {
-  /**
-   * Optional inline keyboard markup from `inlineKeyboard`, or null to resolve it
-   * from the block.
-   *
-   * @remarks
-   * Named `keyboard` like every other render method. The inline-only type is what
-   * carries this method's constraint: `editMessageReplyMarkup` rejects a bottom
-   * keyboard, so the compiler rejects it here.
-   *
-   * @defaultValue `null` (resolve from the block)
-   */
-  keyboard?: IInlineKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block keyboard.
-   *
-   * @defaultValue `null` (default base)
-   */
-  AGBaseId?: string | null
-  /**
-   * Optional abort signal for the edit call.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: IOptEditKeyboard | null
-}
+export type IRenderEditKeyboardParams = IContent &
+  Omit<IRouteEdit, `mode` | `options`> & {
+    /**
+     * Always edits — declared `never` on the edit-only methods.
+     */
+    mode?: never
+    /**
+     * Optional abort signal for the `editMessageReplyMarkup` call.
+     *
+     * @defaultValue `null` (no extra options)
+     */
+    options?: IOptEditKeyboard | null
+  }
 
 /**
  * Media group kinds supported by Telegram media groups.
@@ -1868,217 +2267,51 @@ type IMediaReplyOpt<T extends IMediaKind> =
                       : undefined
 
 /**
- * Optional edit payload / non-editable-type reply options, resolved through the
- * media kind.
+ * Type-specific `editMessageMedia` payload, resolved through the media kind.
  *
  * @remarks
- * For `photo`/`video`/`audio`/`document`/`animation` this is the
- * `editMessageMedia` input saved for the edit branch; for `voice`,
- * `video_note`, `sticker`, `location`, and `contact` (which cannot be edited in
- * place) it supplies the delete-then-resend reply options.
+ * `photo`, `video`, `audio`, `document`, and `animation` edit in place, so the
+ * `media` slot accepts the `editMessageMedia` media input for them. `voice`,
+ * `video_note`, `sticker`, `location`, and `contact` cannot be edited in place
+ * — their edit route deletes the old message and resends — so the slot resolves
+ * to `never` there, and the delete-then-resend options ride on `resendOptions`
+ * instead.
  *
  * @internal
  */
-type IMediaEditOpt1<T extends IMediaKind> =
-  T extends `voice`
-    ? IOptReplyVoice
-    : T extends `video_note`
-      ? IOptReplyVideoNote
-      : T extends `sticker`
-        ? IOptReplySticker
-        : T extends `location`
-          ? IOptReplyLocation
-          : T extends `contact`
-            ? IOptReplyContact
-            : //
-              IOptEditMedia1
+type IMediaEditOpt1<T extends IMediaKind> = T extends `voice` | `video_note` | `sticker` | `location` | `contact` ? never : IOptEditMedia1
 
 /**
- * `renderMedia` fields shared by every route.
+ * `renderMedia` content: the media kind selector on top of {@link IContent}.
+ *
+ * @remarks
+ * The optional `editMessageMedia` payload rides on the route atoms as `media`
+ * rather than here: a forced send never reads it, so it has to be readable only
+ * on the routes that actually call the edit.
  *
  * @internal
  */
-type IMediaBase = {
-  /**
-   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
-   * omit). In-place edit routes (`editMessageMedia`) accept inline keyboards
-   * only — a bottom keyboard there throws, naming `mode: 'reply'` as the fix;
-   * the delete-then-resend routes send, so they accept either.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInBoKb | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block media.
-   *
-   * @defaultValue `null` (default base)
-   */
-  AGBaseId?: string | null
-}
-
-/**
- * Route 1 — single chat, `auto` (default) or `edit`. `auto` edits when the
- * update carries a `callbackQuery`, otherwise replies; `edit` always edits.
- * Fields: `type` the media kind (required); `mode` `auto`|`edit`;
- * `options` is the reply payload, and the `fallbackEdit` re-send reuses it
- * (edit options do not map to reply options); `optionsEdit1` the type-specific
- * edit payload (or the delete-then-resend reply options for kinds that cannot
- * be edited); `optionsEdit2` extra `editMessageMedia` call options;
- * `fallbackEdit` fallback when the edit fails (default `delete-reply`);
- * `broadcast` must stay absent or `null`.
- */
-type IMediaR1<T extends IMediaKind> = IMediaBase & {
+type IMediaKindContent<T extends IMediaKind> = IContent & {
   /**
    * The media type (photo, video, audio, document, animation, voice,
    * video_note, sticker, location, contact).
    */
   type: T
-  /**
-   * Send-versus-edit resolution on the single-chat route.
-   *
-   * @defaultValue `auto`
-   */
-  mode?: `auto` | `edit`
-  /**
-   * Optional type-specific reply options.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: IMediaReplyOpt<T>
-  /**
-   * Optional edit payload / non-editable-type reply options.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  optionsEdit1?: IMediaEditOpt1<T> | null
-  /**
-   * Optional extra `editMessageMedia` call options.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  optionsEdit2?: IOptEditMedia2 | null
-  /**
-   * Fallback when an edit fails. The re-send drops `optionsEdit1`/
-   * `optionsEdit2` (edit options do not map to reply options).
-   *
-   * @defaultValue `delete-reply`
-   */
-  fallbackEdit?: IOptFallbackEdit
-  /**
-   * Never read on this route — omit (or pass `null`) for a single-chat
-   * send/edit.
-   */
-  broadcast?: null | undefined
 }
-
-/**
- * Route 2 — single chat, forced reply (`mode: 'reply'`): always sends a new
- * message, so no edit can happen. Fields: `type` the media kind (required);
- * `mode` `reply` (required); `options` the reply payload; `broadcast` must stay
- * absent or `null`. `optionsEdit1`, `optionsEdit2`, and `fallbackEdit` are
- * never read (nothing edits).
- */
-type IMediaR2<T extends IMediaKind> = IMediaBase &
-  INeverFields<`optionsEdit1` | `optionsEdit2` | `fallbackEdit`> & {
-    /**
-     * The media type (photo, video, audio, document, animation, voice,
-     * video_note, sticker, location, contact).
-     */
-    type: T
-    /**
-     * Forces a new message even from a callback query.
-     */
-    mode: `reply`
-    /**
-     * Optional type-specific reply options.
-     *
-     * @defaultValue `null` (no extra options)
-     */
-    options?: IMediaReplyOpt<T>
-    /**
-     * Never read on this route — omit (or pass `null`) for a single-chat send.
-     */
-    broadcast?: null | undefined
-  }
-
-/**
- * Route 3 — broadcast send: fans out to `broadcast.ids` (see
- * {@link IBroadcastSendParams}) and the media kind comes from the template
- * `<g-media>` block, never from these params (the loop never forwards `type`).
- * Fields: `broadcast` fan-out params (required); `options` the send options for
- * the block's kind; `keyboard`, `data`, and `AGBaseId` are forwarded.
- * `type`, `mode`, `optionsEdit1`, `optionsEdit2`, and `fallbackEdit` are never
- * read (nothing edits).
- */
-type IMediaR3<T extends IMediaKind> = IMediaBase &
-  INeverFields<`type` | `mode` | `optionsEdit1` | `optionsEdit2` | `fallbackEdit`> & {
-    /**
-     * Optional send options for the media kind read from the `<g-media>` block.
-     *
-     * @defaultValue `null` (no extra options)
-     */
-    options?: IMediaReplyOpt<T>
-    /**
-     * Broadcast-send fan-out (see {@link IBroadcastSendParams}).
-     */
-    broadcast: IBroadcastSendParams
-  }
-
-/**
- * Route 4 — broadcast revise: edits the stored `broadcast.targets` messages to
- * `type` (see {@link IBroadcastReviseParams}), deleting and resending for kinds
- * that cannot be edited. Fields: `type` the media kind (required); `broadcast`
- * revise fan-out (required); `optionsEdit1` the type-specific edit payload (or
- * delete-then-resend reply options); `optionsEdit2` extra `editMessageMedia`
- * call options; `keyboard`, `data`, and `AGBaseId` are forwarded. `mode`,
- * `options`, and `fallbackEdit` are never read — the per-recipient fallback
- * lives in `broadcast.broadcastOpts.fallbackEdit`.
- */
-type IMediaR4<T extends IMediaKind> = IMediaBase &
-  INeverFields<`mode` | `options` | `fallbackEdit`> & {
-    /**
-     * The media type (photo, video, audio, document, animation, voice,
-     * video_note, sticker, location, contact).
-     */
-    type: T
-    /**
-     * Optional edit payload / non-editable-type reply options.
-     *
-     * @defaultValue `null` (no extra options)
-     */
-    optionsEdit1?: IMediaEditOpt1<T> | null
-    /**
-     * Optional extra `editMessageMedia` call options.
-     *
-     * @defaultValue `null` (no extra options)
-     */
-    optionsEdit2?: IOptEditMedia2 | null
-    /**
-     * Broadcast-revise fan-out (see {@link IBroadcastReviseParams}).
-     */
-    broadcast: IBroadcastReviseParams
-  }
 
 /**
  * Parameters for `renderMedia` — the single media send/edit method.
  *
  * @remarks
- * A disjoint union over the method's four runtime routes. Every field a route
- * never reads is declared `never` on that route, so combinations such as
- * `{mode: 'edit', broadcast: {...}}` are compile errors instead of silently
- * dropped fields. `mode` resolves the send-versus-edit decision exactly like
- * {@link IRenderTextParams}: `auto` (default) edits when the update carries a
- * `callbackQuery`, `reply` always sends, `edit` always edits. `options` feeds
- * the reply branch (and the fallback re-send); `optionsEdit1`/`optionsEdit2`
- * feed the edit branch only and are DROPPED by the single-chat fallback re-send
- * (edit options do not map to reply options). `fallbackEdit` mirrors
- * {@link IOptFallbackEdit} and defaults to `delete-reply`.
+ * `params = CONTENT & ROUTE`. The content is the media kind (`type`) plus the
+ * shared template fields (`data`, `AGBaseId`); the routes are the media atoms —
+ * `IRouteMediaAuto` (default; also carries `mode: 'edit'`), `IRouteMediaReply`,
+ * `IRouteMediaBroadcastSend` and `IRouteMediaBroadcastRevise`. The kind-specific
+ * call options (`media`, `captionOptions`, `mediaOptions`, `resendOptions`) ride
+ * on those atoms rather than on a shared slots type, because a forced send reads
+ * none of them. Every route declares all ten universal route keys, so
+ * combinations such as `{mode: 'reply', broadcast: {…}}` are compile errors
+ * instead of silently dropped fields.
  *
  * `broadcast` switches to multi-recipient fan-out: `broadcast.ids` runs the
  * send loop (kind read from the template), and `broadcast.targets` runs the
@@ -2089,36 +2322,41 @@ type IMediaR4<T extends IMediaKind> = IMediaBase &
  *
  * @public
  */
-export type IRenderMediaParams<T extends IMediaKind> = IMediaR1<T> | IMediaR2<T> | IMediaR3<T> | IMediaR4<T>
+export type IRenderMediaParams<T extends IMediaKind> =
+  | (IMediaKindContent<T> & IRouteMediaAuto<T>)
+  | (IMediaKindContent<T> & IRouteMediaReply<T>)
+  | (IContent & IRouteMediaBroadcastSend<T>)
+  | (IMediaKindContent<T> & IRouteMediaBroadcastRevise<T>)
 
 /**
  * `IRenderMediaParams` for one media kind — the per-kind wrappers
  * (`renderPhoto`, `renderVideo`, …) accept this shape and supply `type`.
  *
  * @remarks
- * The broadcast-SEND route (R3) is deliberately EXCLUDED. On that loop
+ * The broadcast-SEND route is deliberately EXCLUDED. On that loop
  * `renderMedia` never forwards `params.type` to `_broadcastSendMedia` — the
  * kind is read from the `<g-media>` block — so a wrapper whose whole purpose is
  * to fix the kind would fix nothing: `renderPhoto({broadcast: {ids}})` would
  * send whatever the block holds while the method name said photo. That route is
  * rejected at the type level; use `renderMedia` for it.
  *
- * The broadcast-REVISE route (R4) IS kept, because that loop forwards `type`
- * and therefore honours the wrapper's fixed kind. `Omit` is applied per union
- * member — applied to the union it would collapse the routes together.
+ * The broadcast-REVISE route IS kept, because that loop forwards `type` and
+ * therefore honours the wrapper's fixed kind. The kind rides on the content
+ * type, so dropping `type` here drops it from every route at once.
  *
  * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
  *
  * @public
  */
-export type IRenderMediaKindParams<T extends IMediaKind> = Omit<IMediaR1<T>, `type`> | Omit<IMediaR2<T>, `type`> | Omit<IMediaR4<T>, `type`>
+export type IRenderMediaKindParams<T extends IMediaKind> = IContent & (IRouteMediaAuto<T> | IRouteMediaReply<T> | IRouteMediaBroadcastRevise<T>)
 
 /**
- * `renderMediaGroup` fields shared by every route.
+ * Media-group content shared by `renderMediaGroup` and its per-kind wrappers:
+ * the optional group-kind filter on top of the shared template content.
  *
  * @internal
  */
-type IGroupBase = {
+type IGroupContent = IContent & {
   /**
    * Optional media type filter for a `<g-media-group>` block.
    *
@@ -2129,91 +2367,23 @@ type IGroupBase = {
    * @defaultValue `null` (all items)
    */
   type?: IMediaGroupType | null
-  /**
-   * Optional template interpolation data.
-   *
-   * @defaultValue `null` (no data)
-   */
-  data?: IData | null
-  /**
-   * Optional template base ID position for block media.
-   *
-   * @defaultValue `null` (default base)
-   */
-  AGBaseId?: string | null
-}
-
-/**
- * Optional media-group send options.
- *
- * @internal
- */
-type IGroupOpt = IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | null
-
-/**
- * Route 1 — `auto` (default) or `edit`: `auto` deletes the original message and
- * re-sends the group when the update carries a `callbackQuery`, `edit` always
- * does. Fields: `mode` `auto`|`edit`; `options` send options (also used by the
- * `reply` fallback); `fallbackEdit` fallback when the delete-and-send fails
- * (default `delete-reply`); `type`, `data`, and `AGBaseId` are forwarded.
- */
-type IGroupR1 = IGroupBase & {
-  /**
-   * Send-versus-edit resolution.
-   *
-   * @defaultValue `auto`
-   */
-  mode?: `auto` | `edit`
-  /**
-   * Optional media-group send options.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: IGroupOpt
-  /**
-   * Fallback when the delete-and-send edit fails.
-   *
-   * @defaultValue `delete-reply`
-   */
-  fallbackEdit?: IOptFallbackEdit
-}
-
-/**
- * Route 2 — forced reply (`mode: 'reply'`): always sends a new group, so
- * `fallbackEdit` is never read. Fields: `mode` `reply` (required); `options`
- * send options; `type`, `data`, and `AGBaseId` are forwarded.
- */
-type IGroupR2 = IGroupBase & {
-  /**
-   * Forces a new message even from a callback query.
-   */
-  mode: `reply`
-  /**
-   * Optional media-group send options.
-   *
-   * @defaultValue `null` (no extra options)
-   */
-  options?: IGroupOpt
-  /**
-   * Never read on this route — a forced reply cannot fail an edit.
-   */
-  fallbackEdit?: never
 }
 
 /**
  * Parameters for `renderMediaGroup` — the single media-group send/edit method.
  *
  * @remarks
- * A two-route union: `auto` (default) edits when the update carries a
- * `callbackQuery`, `reply` always sends. Media groups have no in-place edit, so
- * every edit route deletes the original message first and the `delete-reply`
- * fallback deletes again before re-sending. `options` feeds the direct reply
- * branch and the delete-then-resend branches alike, and there is no keyboard
- * field — Telegram media groups do not support reply markup.
+ * `params = CONTENT & ROUTE`: the group content (`type` as a FILTER, `data`,
+ * `AGBaseId`) on the `IRouteAuto` and `IRouteReply` routes — `auto` (default)
+ * edits when the update carries a `callbackQuery`, `reply` always sends. Media
+ * groups have no in-place edit, so every edit route deletes the original
+ * message first and the `delete-reply` fallback deletes again before
+ * re-sending; `options` feeds the direct reply branch and the delete-then-resend
+ * branches alike. Telegram media groups carry no reply markup.
  *
  * @public
  */
-export type IRenderMediaGroupParams = IGroupR1 | IGroupR2
+export type IRenderMediaGroupParams = IGroupContent & (IRouteGroupAuto | IRouteGroupReply)
 
 /**
  * `IRenderMediaGroupParams` for one group kind — the per-kind group wrappers
@@ -2221,12 +2391,12 @@ export type IRenderMediaGroupParams = IGroupR1 | IGroupR2
  * `type`.
  *
  * @remarks
- * `Omit` is applied per union member — applied to the union it would collapse
- * the routes together.
+ * The kind filter rides on the content type, so dropping `type` here drops it
+ * from every route at once.
  *
  * @public
  */
-export type IRenderMediaGroupKindParams = Omit<IGroupR1, `type`> | Omit<IGroupR2, `type`>
+export type IRenderMediaGroupKindParams = IContent & (IRouteGroupAuto | IRouteGroupReply)
 
 /**
  * Send-error event delivered to `ICtxParams.onSendError`.
@@ -2425,20 +2595,21 @@ export type IBroadcastEditOpts = {
    */
   concurrency?: number | null
   /**
-   * Messages per pacing chunk before a sleep plus progress tick.
+   * Messages per pacing batch before a sleep plus progress tick.
    *
    * @remarks
-   * Ignored when null or non-positive; the 30-message free-limit sleep
-   * always applies regardless.
+   * Broadcast pacing — NOT the message-splitting `chunkSize` of the render
+   * params (that one caps characters per split chunk). Ignored when null or
+   * non-positive; the 30-message free-limit sleep always applies regardless.
    *
    * @defaultValue `null` (free-limit pacing only)
    */
-  chunkSize?: number | null
+  batchSize?: number | null
   /**
-   * Sleep in milliseconds after each `chunkSize` chunk.
+   * Sleep in milliseconds after each `batchSize` batch.
    *
    * @remarks
-   * Only read when `chunkSize` triggers a chunk sleep.
+   * Only read when `batchSize` triggers a batch sleep.
    *
    * @defaultValue `500`
    */
@@ -2452,7 +2623,7 @@ export type IBroadcastEditOpts = {
    *
    * @defaultValue `delete-reply`
    */
-  fallbackEdit?: IOptFallbackEdit | null
+  fallback?: IOptFallbackEdit | null
 }
 
 /**

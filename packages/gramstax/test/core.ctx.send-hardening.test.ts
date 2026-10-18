@@ -433,7 +433,7 @@ describe(`send-edit-fallback`, () => {
         throw new Error(`too old`)
       })
     })
-    await makeCtx(photoMed(), failing, {warn}).renderMedia({type: `photo`, mode: `edit`, optionsEdit1: {caption: `x`} as never})
+    await makeCtx(photoMed(), failing, {warn}).renderMedia({type: `photo`, mode: `edit`, media: {caption: `x`} as never})
     expect(warn).toHaveBeenCalledTimes(2)
     expect((warn.mock.calls as any)[0][0]).toContain(`drops edit options`)
     expect((warn.mock.calls as any)[1][0]).toContain(`fallback re-send`)
@@ -443,7 +443,7 @@ describe(`send-edit-fallback`, () => {
         throw new Error(`too old`)
       })
     })
-    await makeCtx(photoMed(), failing2, {warn: warn2}).renderMedia({type: `photo`, mode: `edit`, optionsEdit2: {business_connection_id: `b`} as never})
+    await makeCtx(photoMed(), failing2, {warn: warn2}).renderMedia({type: `photo`, mode: `edit`, mediaOptions: {business_connection_id: `b`} as never})
     expect(warn2).toHaveBeenCalledTimes(2)
     const warn3 = mock(() => {})
     const failing3 = makeApi({
@@ -456,7 +456,7 @@ describe(`send-edit-fallback`, () => {
     expect((warn3.mock.calls as any)[0][0]).toContain(`fallback re-send`)
   })
 
-  it(`renderEditMediaGroup honors fallbackEdit modes`, async () => {
+  it(`renderEditMediaGroup honors fallback modes`, async () => {
     const group = {type: `group`, mediaGroup: [{type: `photo`, src: `a.jpg`}], caption: `Cap`}
     const okApi = makeApi()
     await makeCtx(group, okApi).renderMediaGroup({mode: `edit`})
@@ -468,7 +468,7 @@ describe(`send-edit-fallback`, () => {
         throw sendErr
       })
     })
-    await expect(makeCtx(group, disableApi).renderMediaGroup({mode: `edit`, fallbackEdit: `disable`})).rejects.toBe(sendErr)
+    await expect(makeCtx(group, disableApi).renderMediaGroup({mode: `edit`, fallback: `disable`})).rejects.toBe(sendErr)
     expect(disableApi.deleteMessage).toHaveBeenCalledTimes(1)
     expect(disableApi.sendMediaGroup).toHaveBeenCalledTimes(1)
     const replyApi = makeApi({
@@ -476,7 +476,7 @@ describe(`send-edit-fallback`, () => {
         throw sendErr
       })
     })
-    await expect(makeCtx(group, replyApi).renderMediaGroup({mode: `edit`, fallbackEdit: `reply`})).rejects.toBe(sendErr)
+    await expect(makeCtx(group, replyApi).renderMediaGroup({mode: `edit`, fallback: `reply`})).rejects.toBe(sendErr)
     expect(replyApi.deleteMessage).toHaveBeenCalledTimes(1)
     expect(replyApi.sendMediaGroup).toHaveBeenCalledTimes(2)
     const retryApi = makeApi({
@@ -500,7 +500,7 @@ describe(`send-edit-fallback`, () => {
     expect(api.sendMediaGroup).toHaveBeenCalledTimes(1)
   })
 
-  it(`edit-group convenience wrappers forward fallbackEdit`, async () => {
+  it(`edit-group convenience wrappers forward fallback`, async () => {
     const group = {type: `group`, mediaGroup: [{type: `photo`, src: `a.jpg`}], caption: `Cap`}
     const sendErr = grammyError(500)
     const api = makeApi({
@@ -508,7 +508,7 @@ describe(`send-edit-fallback`, () => {
         throw sendErr
       })
     })
-    await expect(makeCtx(group, api).renderPhotoGroup({mode: `edit`, fallbackEdit: `disable`})).rejects.toBe(sendErr)
+    await expect(makeCtx(group, api).renderPhotoGroup({mode: `edit`, fallback: `disable`})).rejects.toBe(sendErr)
     expect(api.deleteMessage).toHaveBeenCalledTimes(1)
   })
 })

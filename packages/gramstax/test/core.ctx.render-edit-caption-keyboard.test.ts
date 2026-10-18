@@ -68,7 +68,7 @@ describe(`Ctx.renderEditCaption`, () => {
     api.editMessageCaption.mockImplementation(async () => {
       throw editError
     })
-    await ctx.renderEditCaption({AGBaseId: `photo-card`, fallbackEdit: `reply`})
+    await ctx.renderEditCaption({AGBaseId: `photo-card`, fallback: `reply`})
     expect(api.deleteMessage).not.toHaveBeenCalled()
     expect(api.sendMessage).toHaveBeenCalledTimes(1)
   })
@@ -78,7 +78,7 @@ describe(`Ctx.renderEditCaption`, () => {
     api.editMessageCaption.mockImplementation(async () => {
       throw editError
     })
-    await expect(ctx.renderEditCaption({AGBaseId: `photo-card`, fallbackEdit: `disable`})).rejects.toBe(editError)
+    await expect(ctx.renderEditCaption({AGBaseId: `photo-card`, fallback: `disable`})).rejects.toBe(editError)
     expect(api.deleteMessage).not.toHaveBeenCalled()
     expect(api.sendMessage).not.toHaveBeenCalled()
   })

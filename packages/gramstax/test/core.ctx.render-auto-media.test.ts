@@ -126,20 +126,20 @@ describe(`Ctx per-kind media wrappers reply mode`, () => {
 })
 
 describe(`Ctx.renderDocument edit mode`, () => {
-  it(`forwards options2 to editMessageMedia with callbackQuery update`, async () => {
+  it(`forwards mediaOptions to editMessageMedia with callbackQuery update`, async () => {
     const {ctx, api} = createTestCtx(true)
-    await ctx.renderDocument({optionsEdit2: {business_connection_id: `bc-1`}, fallbackEdit: `reply`})
+    await ctx.renderDocument({mediaOptions: {business_connection_id: `bc-1`}, fallback: `reply`})
     expect(api.editMessageMedia).toHaveBeenCalledTimes(1)
     const rawCalls = api.editMessageMedia.mock.calls as any[][]
     expect(JSON.stringify(rawCalls[0])).toContain(`bc-1`)
     expect(api.deleteMessage).not.toHaveBeenCalled()
   })
 
-  it(`keeps fallbackEdit disable behavior intact`, async () => {
+  it(`keeps fallback disable behavior intact`, async () => {
     const editError = new Error(`cannot edit`)
     const {ctx} = createTestCtx(true, () => {
       throw editError
     })
-    await expect(ctx.renderDocument({fallbackEdit: `disable`})).rejects.toBe(editError)
+    await expect(ctx.renderDocument({fallback: `disable`})).rejects.toBe(editError)
   })
 })

@@ -47,6 +47,7 @@ import type {
   IOptPreCheckout,
   IOptReply,
   IOptReplyRich,
+  IOptRichSend,
   IOptShipping,
   IPageData,
   IPageDataBase,
@@ -2284,10 +2285,9 @@ export class Ctx extends Context {
    *
    * @internal
    */
-  private _warnIgnoredRichAxis(method: string, rich: boolean, options: IOptReply | null | undefined, richOptions: IOptReplyRich | null | undefined, lang: string | null | undefined = this.from?.language_code): void {
+  private _warnIgnoredRichAxis(method: string, rich: boolean, options: IOptReply | null | undefined, richAxisPassed: boolean, lang: string | null | undefined = this.from?.language_code): void {
     const plainPassed = options !== null && options !== undefined && Object.keys(options).length > 0
-    const richPassed = richOptions !== null && richOptions !== undefined
-    const ignored = rich && plainPassed ? `options (a rich <g-message> block never reads plain-text options — pass richOptions instead)` : !rich && richPassed ? `richOptions (a plain <g-message> block never reads rich options — pass options instead)` : null
+    const ignored = rich && plainPassed ? `options (a rich <g-message> block never reads plain-text options — pass richOptions instead)` : !rich && richAxisPassed ? `rich/richOptions (a plain <g-message> block never reads the rich axis — pass options instead)` : null
     if (ignored === null) return
     const language = lang ?? `default`
     const key = `${this.data.name}\u0000${language}`
@@ -2319,109 +2319,86 @@ export class Ctx extends Context {
   }
 
   /**
-   * Runtime route check for {@link (Ctx:class).renderText}.
+   * Runtime route check shared by every `render*()` method that takes a route.
    *
    * @remarks
-   * TypeScript callers cannot reach a failure — the params union already
-   * rejects these pairs. This guard exists for plain-JS callers, where a field
-   * would otherwise be silently dropped. Every throw names the offending field
-   * pair and the fix.
+   * TypeScript callers cannot reach a failure — the params union already rejects
+   * these pairs. This guard exists for plain-JS callers, where a field would
+   * otherwise be silently dropped. Every throw names the offending field and the
+   * fix.
    *
+   * One function, not one per method: the route is resolved from the same
+   * discriminators for every method (the `broadcast` shape first, then
+   * `chunkSize`, then `mode`), and each would-be-dropped field is read out of
+   * `params` by key. A key the method does not have is simply `undefined` and
+   * is skipped, so the media-only fields are harmless on text and the text-only
+   * fields are harmless on media. That indirection is the point: the three
+   * hand-maintained copies this replaced had already drifted apart.
+   *
+   * @param method - The render method name, used in the error message.
    * @param params - The render params to validate.
+   * @param richAxis - Whether this method has a rich-message axis at all. Only
+   * `renderText` does: media goes through `replyWithPhoto` and friends, which
+   * have no rich variant, so `rich`/`richOptions` are unread there. The key
+   * lookup below cannot tell the families apart on its own — the same key is
+   * live on text and dead on media — so the method states it.
    *
    * @internal
    */
-  static _assertTextRoute(params: IRenderTextParams): void {
-    const {mode, fallbackEdit, chunkSize, broadcast} = params
+  static _assertRenderRoute(method: string, params: object, richAxis: boolean): void {
+    const fields = params as {[key: string]: unknown}
+    const broadcast = fields.broadcast
+    const chunkSize = fields.chunkSize
+    const mode = fields.mode
+    const dropped: string[] = []
+    const note = (key: string, bare = false): void => {
+      const value = fields[key]
+      if (value === null || value === undefined) return
+      dropped.push(bare ? key : `${key}: "${String(value)}"`)
+    }
+    const noteRich = (): void => {
+      if (richAxis) return
+      note(`rich`, true)
+      note(`richOptions`, true)
+    }
     if (broadcast !== null && broadcast !== undefined) {
-      const dropped: string[] = []
-      if (mode !== null && mode !== undefined) dropped.push(`mode: "${mode}"`)
-      if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
-      if (chunkSize !== null && chunkSize !== undefined) dropped.push(`chunkSize: ${chunkSize}`)
+      if (typeof broadcast === `object` && broadcast !== null && `targets` in broadcast) {
+        note(`mode`)
+        note(`fallback`)
+        for (const key of [`options`, `captionOptions`, `editOptions`, `fallbackOptions`, `chunkSize`]) note(key, true)
+        noteRich()
+        if (dropped.length > 0) {
+          throw new Error(`${method} illegal combination: broadcast.targets + ${dropped.join(`, broadcast.targets + `)} — the revise route edits the stored messages and never reads ${dropped.length > 1 ? `these fields` : `this field`}; drop ${dropped.length > 1 ? `them` : `it`} (the per-recipient fallback lives in broadcast.reviseOptions.fallback) or drop broadcast.targets and mode: "edit" for a single chat`)
+        }
+        return
+      }
+      note(`type`)
+      note(`mode`)
+      note(`chunkSize`)
+      note(`fallback`)
+      for (const key of [`editOptions`, `fallbackOptions`, `media`, `mediaOptions`, `resendOptions`]) note(key, true)
+      noteRich()
       if (dropped.length > 0) {
-        throw new Error(`renderText illegal combination: broadcast + ${dropped.join(`, broadcast + `)} — the broadcast route SENDS to every recipient and never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`} (broadcast pacing uses broadcast.chunkSize) or remove broadcast and use mode: "edit" for an in-place edit`)
+        throw new Error(`${method} illegal combination: broadcast + ${dropped.join(`, broadcast + `)} — the broadcast-send route reads the media kind from the <g-media> block and never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`} or use broadcast.targets to revise already-sent messages`)
       }
       return
     }
     if (chunkSize !== null && chunkSize !== undefined) {
-      const dropped: string[] = []
-      if (mode !== null && mode !== undefined && mode !== `reply`) dropped.push(`mode: "${mode}"`)
-      if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
+      if (mode !== null && mode !== undefined && mode !== `reply`) note(`mode`)
+      note(`fallback`)
+      for (const key of [`editOptions`, `fallbackOptions`, `media`, `mediaOptions`, `resendOptions`]) note(key, true)
       if (dropped.length > 0) {
-        throw new Error(`renderText illegal combination: chunkSize + ${dropped.join(`, chunkSize + `)} — the chunked route is a REPLY route (Telegram has no in-place edit for a multi-message split) and never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`} (or pass mode: "reply" only) and drop chunkSize when you need an edit`)
-      }
-      return
-    }
-    if (mode === `reply` && fallbackEdit !== null && fallbackEdit !== undefined) {
-      throw new Error(`renderText illegal combination: mode: "reply" + fallbackEdit: "${fallbackEdit}" — a forced reply never edits, so fallbackEdit is never read; drop fallbackEdit, or use mode: "auto"/"edit" when the edit fallback matters`)
-    }
-  }
-
-  /**
-   * Runtime route check for {@link (Ctx:class).renderMedia}.
-   *
-   * @remarks
-   * TypeScript callers cannot reach a failure — the params union already
-   * rejects these pairs. This guard exists for plain-JS callers, where a field
-   * would otherwise be silently dropped. Every throw names the offending field
-   * pair and the fix.
-   *
-   * @param params - The render params to validate.
-   *
-   * @internal
-   */
-  static _assertMediaRoute<T extends Exclude<IMediaBlock[`type`], `group`>>(params: IRenderMediaParams<T>): void {
-    const {type, mode, options, optionsEdit1, optionsEdit2, fallbackEdit, broadcast} = params
-    if (broadcast !== null && broadcast !== undefined) {
-      if (`targets` in broadcast) {
-        const dropped: string[] = []
-        if (mode !== null && mode !== undefined) dropped.push(`mode: "${mode}"`)
-        if (options !== null && options !== undefined) dropped.push(`options`)
-        if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
-        if (dropped.length > 0) {
-          throw new Error(`renderMedia illegal combination: broadcast.targets + ${dropped.join(`, broadcast.targets + `)} — the revise route edits the stored messages and never reads ${dropped.length > 1 ? `these fields` : `this field`}; drop ${dropped.length > 1 ? `them` : `it`} (the per-recipient fallback lives in broadcast.broadcastOpts.fallbackEdit) or drop broadcast.targets and use mode: "edit" for a single chat`)
-        }
-        return
-      }
-      const dropped: string[] = []
-      if (type !== null && type !== undefined) dropped.push(`type: "${type}"`)
-      if (mode !== null && mode !== undefined) dropped.push(`mode: "${mode}"`)
-      if (optionsEdit1 !== null && optionsEdit1 !== undefined) dropped.push(`optionsEdit1`)
-      if (optionsEdit2 !== null && optionsEdit2 !== undefined) dropped.push(`optionsEdit2`)
-      if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
-      if (dropped.length > 0) {
-        throw new Error(`renderMedia illegal combination: broadcast + ${dropped.join(`, broadcast + `)} — the broadcast-send route reads the media kind from the <g-media> block and never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`} or use broadcast.targets to revise already-sent messages`)
+        throw new Error(`${method} illegal combination: chunkSize + ${dropped.join(`, chunkSize + `)} — the chunked route is a REPLY route (Telegram has no in-place edit for a multi-message split) and never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`} (or pass mode: "reply" only) and drop chunkSize when you need an edit`)
       }
       return
     }
     if (mode === `reply`) {
-      const dropped: string[] = []
-      if (optionsEdit1 !== null && optionsEdit1 !== undefined) dropped.push(`optionsEdit1`)
-      if (optionsEdit2 !== null && optionsEdit2 !== undefined) dropped.push(`optionsEdit2`)
-      if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
+      note(`fallback`)
+      for (const key of [`editOptions`, `fallbackOptions`, `media`, `mediaOptions`, `resendOptions`]) note(key, true)
+      noteRich()
       if (dropped.length > 0) {
-        throw new Error(`renderMedia illegal combination: mode: "reply" + ${dropped.join(`, mode: "reply" + `)} — a forced reply never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`}, or use mode: "auto"/"edit" when the edit path matters`)
+        throw new Error(`${method} illegal combination: mode: "reply" + ${dropped.join(`, mode: "reply" + `)} — a forced reply never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`}, or use mode: "auto"/"edit" when the edit path matters`)
       }
-    }
-  }
-
-  /**
-   * Runtime route check for {@link (Ctx:class).renderMediaGroup}.
-   *
-   * @remarks
-   * TypeScript callers cannot reach a failure — the params union already
-   * rejects the pair. This guard exists for plain-JS callers, where the field
-   * would otherwise be silently dropped. The throw names the offending field
-   * pair and the fix.
-   *
-   * @param params - The render params to validate.
-   *
-   * @internal
-   */
-  static _assertMediaGroupRoute(params: IRenderMediaGroupParams): void {
-    const {mode, fallbackEdit} = params
-    if (mode === `reply` && fallbackEdit !== null && fallbackEdit !== undefined) {
-      throw new Error(`renderMediaGroup illegal combination: mode: "reply" + fallbackEdit: "${fallbackEdit}" — a forced reply cannot fail an edit, so fallbackEdit is never read; drop fallbackEdit, or use mode: "auto"/"edit" when the delete-and-resend fallback matters`)
     }
   }
 
@@ -2465,17 +2442,18 @@ export class Ctx extends Context {
       data?: IData | null
       AGBaseId?: string | null
       options?: IOptReply | null
-      richOptions?: IOptReplyRich | null
+      rich?: IOptReplyRich[0] | null
+      richOptions?: IOptRichSend | null
     }
   ): Promise<IBroadcastSendResult> {
-    const {ids, languageCode, keyboard, data, AGBaseId, options, richOptions, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
+    const {ids, languageCode, keyboard, data, AGBaseId, options, rich, richOptions, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
     const res: IBroadcastSendResult = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: []}
     res.totalCount = ids.length
     const limitFree = 30
     const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
     const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
     msgs.forEach((msg, index) => {
-      if (msg) this._warnIgnoredRichAxis(`renderText broadcast`, msg.rich, options, richOptions, languageCode[index])
+      if (msg) this._warnIgnoredRichAxis(`renderText broadcast`, msg.rich, options, rich !== null && rich !== undefined || richOptions !== null && richOptions !== undefined, languageCode[index])
     })
     const rawStart = startFrom ?? 0
     const start = !Number.isFinite(rawStart) ? 0 : Math.min(ids.length, Math.max(0, Math.floor(rawStart)))
@@ -2497,7 +2475,7 @@ export class Ctx extends Context {
       try {
         // Cross-chat by design: recipients differ from the current chat, so this loop keeps `api.*`.
         if (msg.rich) {
-          await this.api.sendRichMessage(id!, {html: msg.text, ...(richOptions?.[0] ?? {})}, {reply_markup: keyboard ?? undefined, ...(richOptions?.[1] ?? {})})
+          await this.api.sendRichMessage(id!, {html: msg.text, ...(rich ?? {})}, {reply_markup: keyboard ?? undefined, ...(richOptions ?? {})})
         } else {
           await this.api.sendMessage(id!, msg.text, {
             parse_mode: `HTML`,
@@ -2596,7 +2574,7 @@ export class Ctx extends Context {
       keyboard?: IInBoKb | null
       data?: IData | null
       AGBaseId?: string | null
-      options?: IRenderMediaParams<T>[`options`]
+      options?: IRenderMediaParams<T>[`captionOptions`]
     }
   ): Promise<IBroadcastSendResult> {
     const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
@@ -2740,17 +2718,17 @@ export class Ctx extends Context {
    * so parallel workers never share one mutable `InputFile` instance.
    *
    * When the primary edit/delete+resend fails, the per-recipient
-   * `fallbackEdit` flow runs (default `delete-reply`: best-effort delete,
-   * then resend the media without `optionsEdit1`/`optionsEdit2`, with a
+   * `fallback` flow runs (default `delete-reply`: best-effort delete,
+   * then resend the media without `media`/`mediaOptions`, with a
    * `log.warn` when non-empty edit options are dropped). A failed fallback is
    * classified via `Ctx.classifySendError`: `fallback-text` triggers a
    * best-effort fallback-text send to that recipient (nested failures
    * ignored) and `failedCount++`; `retryable` appends to `retryable[]` and
-   * the loop continues. `fallbackEdit: disable` skips the resend and
+   * the loop continues. `fallback: disable` skips the resend and
    * classifies the primary error directly.
    *
    * @typeParam T - The media type to edit to.
-   * @param params - Revise-fanout params plus the host `renderMedia` fields: `targets` stored `{chatId, messageId}` rows to edit, in stable order (checkpoint index = array index) (required); `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `optionsEdit1` type-specific media options (or null to omit; dropped on fallback resend); `optionsEdit2` additional edit options (or null to omit; dropped on fallback resend); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`, `fallbackEdit`) (or null for defaults).
+   * @param params - Revise-fanout params plus the host `renderMedia` fields: `targets` stored `{chatId, messageId}` rows to edit, in stable order (checkpoint index = array index) (required); `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `resendOptions` optional delete-then-resend reply options (or null to omit; dropped on fallback resend); `mediaOptions` additional edit options (or null to omit; dropped on fallback resend); `reviseOptions` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`, `fallback`) (or null for defaults).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
    * @internal
@@ -2761,15 +2739,16 @@ export class Ctx extends Context {
       keyboard?: IInBoKb | null
       data?: IData | null
       AGBaseId?: string | null
-      optionsEdit1?: IRenderMediaParams<T>[`optionsEdit1`]
-      optionsEdit2?: IRenderMediaParams<T>[`optionsEdit2`]
+      media?: IRenderMediaParams<T>[`media`]
+      resendOptions?: IRenderMediaParams<T>[`resendOptions`]
+      mediaOptions?: IRenderMediaParams<T>[`mediaOptions`]
     }
   ): Promise<IBroadcastEditResult> {
-    const {targets, type, keyboard, data, AGBaseId, optionsEdit1, optionsEdit2, broadcastOpts} = params
-    const opts = broadcastOpts ?? {}
-    const fallbackEdit = opts.fallbackEdit ?? `delete-reply`
+    const {targets, type, keyboard, data, AGBaseId, media, resendOptions, mediaOptions, reviseOptions} = params
+    const opts = reviseOptions ?? {}
+    const fallback = opts.fallback ?? `delete-reply`
     const onProgress = opts.onProgress ?? null
-    const chunkSize = opts.chunkSize ?? null
+    const batchSize = opts.batchSize ?? null
     const chunkDelayMs = opts.chunkDelayMs ?? null
     const res: IBroadcastEditResult = {successCount: 0, failedCount: 0, totalCount: targets.length, skippedCount: 0, retryable: []}
     const limitFree = 30
@@ -2832,7 +2811,7 @@ export class Ctx extends Context {
       const messageId = target.messageId
       try {
         // Cross-chat by design: targets differ from the current chat, so this loop keeps `api.*`.
-        const commonOpt = {reply_markup: keyboard ?? undefined, ...(optionsEdit1 ?? {})} as Record<string, unknown>
+        const commonOpt = {reply_markup: keyboard ?? undefined, ...(resendOptions ?? {})} as Record<string, unknown>
         if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
           await this.api.deleteMessage(chatId, messageId)
           await sendMediaTo(chatId, {parse_mode: `HTML`, reply_markup: keyboard ?? undefined})
@@ -2848,21 +2827,21 @@ export class Ctx extends Context {
               caption,
               type,
               parse_mode: `HTML`,
-              ...(optionsEdit1 ?? {})
+              ...(media ?? {})
             },
-            {reply_markup: (keyboard as IInlineKb | null | undefined) ?? undefined, ...(optionsEdit2 ?? {})}
+            {reply_markup: (keyboard as IInlineKb | null | undefined) ?? undefined, ...(mediaOptions ?? {})}
           )
         }
         res.successCount += 1
       } catch (primaryError) {
-        if (fallbackEdit === `disable`) {
+        if (fallback === `disable`) {
           await classifyEditError(index, chatId, messageId, primaryError)
         } else {
-          if ((optionsEdit1 !== null && optionsEdit1 !== undefined && Object.keys(optionsEdit1).length > 0) || (optionsEdit2 !== null && optionsEdit2 !== undefined && Object.keys(optionsEdit2).length > 0)) {
-            this.log?.warn(`broadcast revise fallback drops edit options (optionsEdit1/optionsEdit2 do not map to reply options)`)
+          if ((media !== null && media !== undefined && Object.keys(media).length > 0) || (mediaOptions !== null && mediaOptions !== undefined && Object.keys(mediaOptions).length > 0)) {
+            this.log?.warn(`broadcast revise fallback drops edit options (media/mediaOptions do not map to reply options)`)
           }
           this.log?.warn(`broadcast revise fallback re-send to ${chatId} for page "${this.sendPageName()}"`)
-          if (fallbackEdit === `delete-reply`) {
+          if (fallback === `delete-reply`) {
             try {
               await this.api.deleteMessage(chatId, messageId)
             } catch {
@@ -2880,7 +2859,7 @@ export class Ctx extends Context {
       if ((index + 1) % limitFree === 0) {
         await setTimeout(1200)
         await onProgress?.(res.successCount + res.failedCount, res.totalCount)
-      } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < targets.length) {
+      } else if (batchSize !== null && batchSize > 0 && (index + 1) % batchSize === 0 && index + 1 < targets.length) {
         await setTimeout(chunkDelayMs ?? 500)
         await onProgress?.(res.successCount + res.failedCount, res.totalCount)
       }
@@ -2923,7 +2902,7 @@ export class Ctx extends Context {
    * delete has no text fallback by design — there is no replacement content
    * to deliver, so no `sendMessage` is attempted on either path.
    *
-   * @param params - Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallbackEdit` is not part of the type — deletes have no resend to fall back to).
+   * @param params - Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `reviseOptions` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallback` is not part of the type — deletes have no resend to fall back to).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
    * @example
@@ -2937,10 +2916,10 @@ export class Ctx extends Context {
    * @public
    */
   async renderBroadcastDelete(params: IRenderBroadcastDeleteParams): Promise<IBroadcastEditResult> {
-    const {targets, broadcastOpts} = params
-    const opts = broadcastOpts ?? {}
+    const {targets, reviseOptions} = params
+    const opts = reviseOptions ?? {}
     const onProgress = opts.onProgress ?? null
-    const chunkSize = opts.chunkSize ?? null
+    const batchSize = opts.batchSize ?? null
     const chunkDelayMs = opts.chunkDelayMs ?? null
     const res: IBroadcastEditResult = {successCount: 0, failedCount: 0, totalCount: targets.length, skippedCount: 0, retryable: []}
     const limitFree = 30
@@ -2970,7 +2949,7 @@ export class Ctx extends Context {
       if ((index + 1) % limitFree === 0) {
         await setTimeout(1200)
         await onProgress?.(res.successCount + res.failedCount, res.totalCount)
-      } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < targets.length) {
+      } else if (batchSize !== null && batchSize > 0 && (index + 1) % batchSize === 0 && index + 1 < targets.length) {
         await setTimeout(chunkDelayMs ?? 500)
         await onProgress?.(res.successCount + res.failedCount, res.totalCount)
       }
@@ -3017,7 +2996,7 @@ export class Ctx extends Context {
    * - Up to 20 table columns
    *
    * If editing fails (e.g. message too old), the fallback behavior is controlled
-   * by `fallbackEdit` (default `delete-reply`: deletes the original message and
+   * by `fallback` (default `delete-reply`: deletes the original message and
    * sends a new reply — the result looks like an in-place edit).
    *
    * Observe-only send-error coverage (mirrors `renderMedia`): reply failures are
@@ -3039,7 +3018,7 @@ export class Ctx extends Context {
    * `broadcast.ids` entry instead (see {@link IBroadcastSendParams}): rich
    * templates through `api.sendRichMessage`, plain templates through
    * `api.sendMessage` with `parse_mode: HTML`. The broadcast route is
-   * send-only, so its params type rejects `mode`, `fallbackEdit`, and
+   * send-only, so its params type rejects `mode`, `fallback`, and
    * `chunkSize` outright (pacing uses `broadcast.chunkSize`).
    *
    * A bottom (reply) keyboard is rejected on an edit route before any API
@@ -3078,64 +3057,66 @@ export class Ctx extends Context {
    */
   async renderText(params: IRenderTextParams = {}): Promise<Message | Message[] | true | IBroadcastSendResult> {
     // Plain-JS callers can still hand in a field the winning route never reads — the union only guards TypeScript.
-    Ctx._assertTextRoute(params)
+    Ctx._assertRenderRoute(`renderText`, params, true)
     const broadcast = params.broadcast
     if (broadcast !== null && broadcast !== undefined) {
-      return await this._broadcastSendText({...broadcast, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options, richOptions: params.richOptions})
+      return await this._broadcastSendText({...broadcast, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options, rich: params.rich, richOptions: params.richOptions})
     }
     const chunkSize = params.chunkSize
-    const {text, rich} = this.templateManager.getGMessage(this.data.name, params.AGBaseId ?? undefined, this.from?.language_code, params.data ?? undefined)
-    this._warnIgnoredRichAxis(`renderText`, rich, params.options, params.richOptions)
+    const {text, rich: isRichBlock} = this.templateManager.getGMessage(this.data.name, params.AGBaseId ?? undefined, this.from?.language_code, params.data ?? undefined)
+    this._warnIgnoredRichAxis(`renderText`, isRichBlock, params.options, params.rich !== null && params.rich !== undefined || params.richOptions !== null && params.richOptions !== undefined)
     if (chunkSize !== undefined && chunkSize !== null) {
       // Chunked replies are reply-only: Telegram has no in-place edit for a multi-message split, so the params type accepts only `mode: 'reply'` (or no mode) alongside `chunkSize`.
-      return await this._renderTextChunked({text, rich, keyboard: params.keyboard, options: params.options, richOptions: params.richOptions, chunkSize})
+      return await this._renderTextChunked({text, isRich: isRichBlock, keyboard: params.keyboard, options: params.options, rich: params.rich, richOptions: params.richOptions, chunkSize})
     }
     const mode = params.mode
-    // `mode: 'reply'` (route 2) skips the edit attempt entirely; the narrowing also pins the edit branch to route 1 below.
+    // A forced reply skips the edit attempt entirely; the narrowing also pins the edit branch to the auto/edit route below.
+    let viaFallback = false
     if (mode !== `reply`) {
-      // Route 1: `auto` is the default and edits when the update carries a `callbackQuery`; `edit` always edits.
+      // `auto` is the default and edits when the update carries a `callbackQuery`; `edit` always edits.
       const edit = mode === undefined || mode === `auto` ? !!this.callbackQuery : mode === `edit`
       if (edit) {
-        const fallbackEdit = params.fallbackEdit ?? `delete-reply`
+        const fallback = params.fallback ?? `delete-reply`
         const keyboardInline = this._assertInlineKeyboardForEdit(`renderText`, params.keyboard)
         try {
-          if (rich) {
-            return await this.editMessageText({html: text, ...(params.richOptions?.[0] ?? {})}, {reply_markup: keyboardInline ?? undefined, ...(params.richOptions?.[1] ?? {})})
+          if (isRichBlock) {
+            return await this.editMessageText({html: text, ...(params.rich ?? {})}, {reply_markup: keyboardInline ?? undefined, ...(params.richOptions ?? {})})
           }
           return await this.editMessageText(text, {
             parse_mode: `HTML`,
             reply_markup: keyboardInline ?? undefined,
-            ...(params.options ?? {})
+            ...(params.editOptions ?? {})
           })
         } catch (error) {
-          if (fallbackEdit === `disable`) {
+          if (fallback === `disable`) {
             throw error
           }
           this.log?.warn(`renderText fallback reply for page "${this.sendPageName()}"`)
-          if (fallbackEdit === `delete-reply`) {
+          if (fallback === `delete-reply`) {
             try {
               await this.deleteMessage()
             } catch {
               // delete failure (e.g. already deleted) must not block the fallback reply
             }
           }
+          viaFallback = true
         }
       }
     }
+    // The call below serves BOTH the everyday send and the post-edit fallback
+    // resend, so pick the bag that belongs to the one actually running:
+    // `options` for the plain send, `fallbackOptions` for the resend. On an
+    // explicit `edit` route `options` is unread, which is why the fallback is not
+    // a silent no-op there — `fallbackOptions` is its only legal bag.
+    const sendOptions = viaFallback ? (params.fallbackOptions ?? params.options) : params.options
     try {
-      if (rich) {
-        return await this.replyWithRichMessage(
-          {html: text, ...(params.richOptions?.[0] ?? {})},
-          {
-            reply_markup: params.keyboard ?? undefined,
-            ...(params.richOptions?.[1] ?? {})
-          }
-        )
+      if (isRichBlock) {
+        return await this.replyWithRichMessage({html: text, ...(params.rich ?? {})}, {reply_markup: params.keyboard ?? undefined, ...(params.richOptions ?? {})})
       }
       return await this.reply(text, {
         parse_mode: `HTML`,
         reply_markup: params.keyboard ?? undefined,
-        ...(params.options ?? {})
+        ...(sendOptions ?? {})
       })
     } catch (error) {
       const kind = Ctx.classifySendError(error)
@@ -3171,13 +3152,14 @@ export class Ctx extends Context {
    */
   private async _renderTextChunked(params: {
     text: string
-    rich: boolean
+    isRich: boolean
     keyboard?: IInBoKb | null
     options?: IOptReply | null
-    richOptions?: IOptReplyRich | null
+    rich?: IOptReplyRich[0] | null
+    richOptions?: IOptRichSend | null
     chunkSize: number
   }) {
-    const {text, rich, keyboard, options, richOptions, chunkSize} = params
+    const {text, isRich, keyboard, options, rich, richOptions, chunkSize} = params
     const size = Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096
     const chunks: string[] = []
     let rest = text
@@ -3208,12 +3190,12 @@ export class Ctx extends Context {
       const last = index === chunks.length - 1
       try {
         out.push(
-          rich
+          isRich
             ? await this.replyWithRichMessage(
-                {html: chunks[index]!, ...(richOptions?.[0] ?? {})},
+                {html: chunks[index]!, ...(rich ?? {})},
                 {
                   reply_markup: last ? (keyboard ?? undefined) : undefined,
-                  ...(richOptions?.[1] ?? {})
+                  ...(richOptions ?? {})
                 }
               )
             : await this.reply(chunks[index]!, {
@@ -3625,10 +3607,10 @@ export class Ctx extends Context {
    * original error untouched; `fallback-text` best-effort replies with
    * `resolveFallbackText()` (nested failures ignored) and returns it.
    *
-   * If the edit itself fails, the fallback behavior is controlled by `fallbackEdit`
+   * If the edit itself fails, the fallback behavior is controlled by `fallback`
    * (default `delete-reply`: deletes the original message and re-sends the same media —
-   * the result looks like an in-place edit). The fallback re-send drops `optionsEdit1`/
-   * `optionsEdit2` (edit options do not map to reply options) and logs a `log.warn`
+   * the result looks like an in-place edit). The fallback re-send drops `media`/
+   * `mediaOptions` (edit options do not map to reply options) and logs a `log.warn`
    * when non-empty options are dropped; the re-send itself follows
    * `Ctx.classifySendError` via the reply branch (`retryable` rethrows the
    * original error untouched, `fallback-text` replies with fallback text).
@@ -3638,10 +3620,10 @@ export class Ctx extends Context {
    * {@link IBroadcastReviseParams}): `broadcast.ids` runs the send loop and
    * `broadcast.targets` runs the revise loop. The send loop reads the media
    * kind from the template `<g-media>` block, so its route type rejects `type`
-   * (and `mode`, `fallbackEdit`, and the `options*` fields — it never edits);
+   * (and `mode`, `fallback`, and the `options*` fields — it never edits);
    * the revise loop requires `type` and rejects `mode`, `options`, and
-   * `fallbackEdit` (its per-recipient fallback lives in
-   * `broadcast.broadcastOpts.fallbackEdit`).
+   * `fallback` (its per-recipient fallback lives in
+   * `broadcast.reviseOptions.fallback`).
    *
    * A bottom (reply) keyboard is rejected before any API call when the route
    * edits in place — `editMessageMedia` accepts inline keyboards only, so the
@@ -3677,7 +3659,7 @@ export class Ctx extends Context {
    */
   async renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(params: IRenderMediaParams<T>): Promise<Message | Message[] | true | undefined | IBroadcastSendResult | IBroadcastEditResult> {
     // Plain-JS callers can still hand in a field the winning route never reads — the union only guards TypeScript.
-    Ctx._assertMediaRoute<T>(params)
+    Ctx._assertRenderRoute(`renderMedia`, params, false)
     const broadcast = params.broadcast
     if (broadcast !== null && broadcast !== undefined) {
       if (`targets` in broadcast) {
@@ -3685,9 +3667,9 @@ export class Ctx extends Context {
         if (type === undefined) {
           throw new Error(`renderMedia illegal combination: broadcast.targets + type is required — the revise route edits every stored message to the kind named by type; pass type, or use broadcast.ids (the send route reads the kind from the <g-media> block)`)
         }
-        return await this._broadcastReviseMedia<T>({targets: broadcast.targets, broadcastOpts: broadcast.broadcastOpts, type, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, optionsEdit1: params.optionsEdit1, optionsEdit2: params.optionsEdit2})
+        return await this._broadcastReviseMedia<T>({targets: broadcast.targets, reviseOptions: broadcast.reviseOptions, type, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, media: params.media, resendOptions: params.resendOptions, mediaOptions: params.mediaOptions})
       }
-      return await this._broadcastSendMedia<T>({ids: broadcast.ids, languageCode: broadcast.languageCode, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options, throwError: broadcast.throwError, chunkSize: broadcast.chunkSize, chunkDelayMs: broadcast.chunkDelayMs, excludeIds: broadcast.excludeIds, onProgress: broadcast.onProgress, startFrom: broadcast.startFrom, concurrency: broadcast.concurrency})
+      return await this._broadcastSendMedia<T>({ids: broadcast.ids, languageCode: broadcast.languageCode, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.captionOptions, throwError: broadcast.throwError, chunkSize: broadcast.chunkSize, chunkDelayMs: broadcast.chunkDelayMs, excludeIds: broadcast.excludeIds, onProgress: broadcast.onProgress, startFrom: broadcast.startFrom, concurrency: broadcast.concurrency})
     }
     const type = params.type
     if (type === undefined) {
@@ -3715,7 +3697,7 @@ export class Ctx extends Context {
             await this.deleteMessage()
             return await this.renderMediaGroup({type, data: params.data, AGBaseId: params.AGBaseId, mode: `reply`})
           }
-          const commonOpt = {reply_markup: params.keyboard ?? undefined, ...(params.optionsEdit1 ?? {})} as Record<string, unknown>
+          const commonOpt = {reply_markup: params.keyboard ?? undefined, ...(params.resendOptions ?? {})} as Record<string, unknown>
           if (type === `voice`) {
             await this.deleteMessage()
             return await this.replyWithVoice(this.resolveMedia(src, medFilename), commonOpt)
@@ -3743,31 +3725,31 @@ export class Ctx extends Context {
               caption,
               type,
               parse_mode: `HTML`,
-              ...(params.optionsEdit1 ?? {})
+              ...(params.media ?? {})
             },
-            {reply_markup: keyboardInline ?? undefined, ...(params.optionsEdit2 ?? {})}
+            {reply_markup: keyboardInline ?? undefined, ...(params.mediaOptions ?? {})}
           )
         } catch (error) {
-          const fallbackEdit = params.fallbackEdit ?? `delete-reply`
-          if (fallbackEdit === `disable`) {
+          const fallback = params.fallback ?? `delete-reply`
+          if (fallback === `disable`) {
             throw error
           }
-          if ((params.optionsEdit1 !== null && params.optionsEdit1 !== undefined && Object.keys(params.optionsEdit1).length > 0) || (params.optionsEdit2 !== null && params.optionsEdit2 !== undefined && Object.keys(params.optionsEdit2).length > 0)) {
-            this.log?.warn(`renderMedia fallback drops edit options (options1/options2 do not map to reply options)`)
+          if ((params.media !== null && params.media !== undefined && Object.keys(params.media).length > 0) || (params.mediaOptions !== null && params.mediaOptions !== undefined && Object.keys(params.mediaOptions).length > 0)) {
+            this.log?.warn(`renderMedia fallback drops edit options (media/mediaOptions do not map to reply options)`)
           }
           this.log?.warn(`renderMedia fallback re-send for page "${this.sendPageName()}"`)
-          if (fallbackEdit === `delete-reply`) {
+          if (fallback === `delete-reply`) {
             try {
               await this.deleteMessage()
             } catch {
               // delete failure (e.g. already deleted) must not block the fallback reply
             }
           }
-          return await this._renderMediaReply<T>({type, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options})
+          return await this._renderMediaReply<T>({type, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.fallbackOptions})
         }
       }
     }
-    return await this._renderMediaReply<T>({type, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options})
+    return await this._renderMediaReply<T>({type, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.captionOptions})
   }
 
   /**
@@ -3781,7 +3763,7 @@ export class Ctx extends Context {
    *
    * @internal
    */
-  private async _renderMediaReply<T extends Exclude<IMediaBlock[`type`], `group`>>({type, keyboard, data, AGBaseId, options}: {type: T; keyboard?: IInBoKb | null; data?: IData | null; AGBaseId?: string | null; options?: IRenderMediaParams<T>[`options`]}): Promise<Message | undefined> {
+  private async _renderMediaReply<T extends Exclude<IMediaBlock[`type`], `group`>>({type, keyboard, data, AGBaseId, options}: {type: T; keyboard?: IInBoKb | null; data?: IData | null; AGBaseId?: string | null; options?: IRenderMediaParams<T>[`captionOptions`]}): Promise<Message | undefined> {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertMediaPreconditions(type, med)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
@@ -3833,10 +3815,10 @@ export class Ctx extends Context {
    * `mode` resolves the send-versus-edit decision: `auto` (default) edits when
    * `this.callbackQuery` exists, `reply` always sends, `edit` always edits.
    * Media groups cannot be edited in place, so the edit branch always deletes
-   * the original message first; when the delete-and-send fails, `fallbackEdit`
+   * the original message first; when the delete-and-send fails, `fallback`
    * decides whether to retry the delete and re-send (`delete-reply`, default),
    * re-send without deleting (`reply`), or rethrow (`disable`). The forced
-   * reply route (`mode: 'reply'`) never reads `fallbackEdit`, so its params
+   * reply route (`mode: 'reply'`) never reads `fallback`, so its params
    * type rejects it (and the runtime guard throws for plain-JS callers).
    *
    * Fail-fast validation runs BEFORE any API call (group/item size limits,
@@ -3848,7 +3830,7 @@ export class Ctx extends Context {
    * @param params - Optional media-group params (defaults to `{}`), resolved as
    * one of two routes — see {@link IRenderMediaGroupParams} for the exact field
    * set of each route: route 1 `auto`/`edit`; route 2 forced reply
-   * (`mode: 'reply'`, no `fallbackEdit`). The same two-route split backs
+   * (`mode: 'reply'`, no `fallback`). The same two-route split backs
    * {@link IRenderMediaGroupKindParams}, which the per-kind wrappers
    * (`renderPhotoGroup`, …) accept and supply `type` for.
    * @returns The sent media group messages.
@@ -3865,8 +3847,8 @@ export class Ctx extends Context {
    */
   async renderMediaGroup(params: IRenderMediaGroupParams = {}): Promise<Message[] | Message | undefined> {
     // Plain-JS callers can still hand in a field the winning route never reads — the union only guards TypeScript.
-    Ctx._assertMediaGroupRoute(params)
-    const {type, data, AGBaseId, mode = `auto`, options, fallbackEdit = `delete-reply`} = params
+    Ctx._assertRenderRoute(`renderMediaGroup`, params, false)
+    const {type, data, AGBaseId, mode = `auto`, options, fallback = `delete-reply`} = params
     const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
     if (edit) {
       try {
@@ -3877,11 +3859,11 @@ export class Ctx extends Context {
         }
         return await this._renderMediaGroupReply({type, data, AGBaseId, options})
       } catch (error) {
-        if (fallbackEdit === `disable`) {
+        if (fallback === `disable`) {
           throw error
         }
         this.log?.warn(`renderMediaGroup fallback re-send for page "${this.sendPageName()}"`)
-        if (fallbackEdit === `delete-reply`) {
+        if (fallback === `delete-reply`) {
           try {
             await this.deleteMessage()
           } catch {
@@ -4425,7 +4407,7 @@ export class Ctx extends Context {
    * Sends a photo message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific reply options (or null to omit); `media` optional `editMessageMedia` payload (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4445,7 +4427,7 @@ export class Ctx extends Context {
    * Sends a photo media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media-group>` (read via `renderMediaGroup`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4465,7 +4447,7 @@ export class Ctx extends Context {
    * Sends a video message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific reply options (or null to omit); `media` optional `editMessageMedia` payload (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4485,7 +4467,7 @@ export class Ctx extends Context {
    * Sends a video media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media-group>` (read via `renderMediaGroup`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4505,7 +4487,7 @@ export class Ctx extends Context {
    * Sends an audio message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific reply options (or null to omit); `media` optional `editMessageMedia` payload (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4525,7 +4507,7 @@ export class Ctx extends Context {
    * Sends an audio media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media-group>` (read via `renderMediaGroup`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4545,7 +4527,7 @@ export class Ctx extends Context {
    * Sends a document message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific reply options (or null to omit); `media` optional `editMessageMedia` payload (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4565,7 +4547,7 @@ export class Ctx extends Context {
    * Sends a document media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media-group>` (read via `renderMediaGroup`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4585,7 +4567,7 @@ export class Ctx extends Context {
    * Sends an animation/GIF message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type animation (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional animation-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type animation (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional animation-specific reply options (or null to omit); `media` optional `editMessageMedia` payload (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4605,7 +4587,7 @@ export class Ctx extends Context {
    * Sends a voice message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type voice (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional voice-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type voice (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional voice-specific reply options (or null to omit); `resendOptions` optional delete-then-resend reply options (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4625,7 +4607,7 @@ export class Ctx extends Context {
    * Sends a video note (circular video) using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video_note (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video note-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video_note (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video note-specific reply options (or null to omit); `resendOptions` optional delete-then-resend reply options (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4645,7 +4627,7 @@ export class Ctx extends Context {
    * Sends a sticker using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type sticker (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional sticker-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type sticker (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional sticker-specific reply options (or null to omit); `resendOptions` optional delete-then-resend reply options (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4670,7 +4652,7 @@ export class Ctx extends Context {
    * (seconds), it is validated by `Ctx.assertLivePeriod` and sent as Bot API
    * `live_period`. Stop it later with {@link (Ctx:class).stopLiveLocation}.
    *
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type location (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional location-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type location (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional location-specific reply options (or null to omit); `resendOptions` optional delete-then-resend reply options (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4690,7 +4672,7 @@ export class Ctx extends Context {
    * Sends a contact using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type contact (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional contact-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type contact (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional contact-specific reply options (or null to omit); `resendOptions` optional delete-then-resend reply options (or null to omit); `mediaOptions` optional extra `editMessageMedia` call options (or null to omit); `fallback` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, reviseOptions}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -5112,7 +5094,7 @@ export class Ctx extends Context {
    * `renderText`: `delete-reply`/`reply` resend the caption as plain text,
    * `disable` throws.
    *
-   * @param params - Edit params: `keyboard` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
+   * @param params - Edit params: `keyboard` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional abort signal for the edit call (or null to omit); `fallback` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
@@ -5125,7 +5107,7 @@ export class Ctx extends Context {
    * @public
    */
   async renderEditCaption(params: IRenderEditCaptionParams) {
-    const {keyboard, data, AGBaseId, options, fallbackEdit = `delete-reply`} = params
+    const {keyboard, data, AGBaseId, options, fallback = `delete-reply`} = params
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined).text
       return await this.editMessageCaption(
@@ -5137,12 +5119,12 @@ export class Ctx extends Context {
         options ?? undefined
       )
     } catch (error) {
-      if (fallbackEdit === `disable`) {
+      if (fallback === `disable`) {
         throw error
       }
       this.log?.warn(`renderEditCaption fallback reply for page "${this.sendPageName()}"`)
       if (options !== undefined && options !== null) this.log?.warn(`renderEditCaption dropping abort signal on fallback reply for page "${this.sendPageName()}"`)
-      if (fallbackEdit === `delete-reply`) {
+      if (fallback === `delete-reply`) {
         try {
           await this.deleteMessage()
         } catch {
