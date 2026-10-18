@@ -1581,7 +1581,7 @@ type IMediaGroupType = Extract<IMediaBlock[`type`], `photo` | `video` | `audio` 
  *
  * @internal
  */
-type RenderMediaCommon<T extends Exclude<IMediaBlock[`type`], `group`>> = {
+type IRenderMediaCommon<T extends Exclude<IMediaBlock[`type`], `group`>> = {
   /**
    * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
    * omit). Edits accept inline keyboards only.
@@ -1683,7 +1683,7 @@ type RenderMediaCommon<T extends Exclude<IMediaBlock[`type`], `group`>> = {
  *
  * @internal
  */
-type RenderMediaSingle<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaCommon<T> & {
+type IRenderMediaSingle<T extends Exclude<IMediaBlock[`type`], `group`>> = IRenderMediaCommon<T> & {
   /**
    * The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
    */
@@ -1703,7 +1703,7 @@ type RenderMediaSingle<T extends Exclude<IMediaBlock[`type`], `group`>> = Render
  *
  * @internal
  */
-type RenderMediaBroadcastSend<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaCommon<T> & {
+type IRenderMediaBroadcastSend<T extends Exclude<IMediaBlock[`type`], `group`>> = IRenderMediaCommon<T> & {
   /**
    * The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
    *
@@ -1726,7 +1726,7 @@ type RenderMediaBroadcastSend<T extends Exclude<IMediaBlock[`type`], `group`>> =
  *
  * @internal
  */
-type RenderMediaBroadcastRevise<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaCommon<T> & {
+type IRenderMediaBroadcastRevise<T extends Exclude<IMediaBlock[`type`], `group`>> = IRenderMediaCommon<T> & {
   /**
    * The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
    */
@@ -1761,7 +1761,7 @@ type RenderMediaBroadcastRevise<T extends Exclude<IMediaBlock[`type`], `group`>>
  *
  * @public
  */
-export type IRenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaSingle<T> | RenderMediaBroadcastSend<T> | RenderMediaBroadcastRevise<T>
+export type IRenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> = IRenderMediaSingle<T> | IRenderMediaBroadcastSend<T> | IRenderMediaBroadcastRevise<T>
 
 /**
  * `IRenderMediaParams` for one media kind — the per-kind wrappers
@@ -1782,7 +1782,7 @@ export type IRenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> 
  *
  * @public
  */
-export type IRenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<RenderMediaSingle<T>, `type`> | Omit<RenderMediaBroadcastRevise<T>, `type`>
+export type IRenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<IRenderMediaSingle<T>, `type`> | Omit<IRenderMediaBroadcastRevise<T>, `type`>
 
 /**
  * Parameters for `renderMediaGroup` — the single media-group send/edit method.
