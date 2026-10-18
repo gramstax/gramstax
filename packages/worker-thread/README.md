@@ -469,6 +469,29 @@ Attach it at boot, or a worker crash disappears silently.
 | `WorkerThreadGatewayPath`      | `normalize()`: cross-platform socket path resolution                                    |
 | `WorkerThreadErrorHandler`     | `setDefault()`: package-wide error routing, silent until you attach something            |
 
+### Module map
+
+Everything the package exports comes from one of these files. Nine runtime modules are re-exported wholesale by `src/index.ts` with `export *`; the five `types/` modules are re-exported with explicit `export type` lists.
+
+| Module | What it gives you | Key exports |
+| :----- | :---------------- | :---------- |
+| `./init` | Worker-side base class: RPC registration, gateway creation, drain hook | `WorkerThreadInit` |
+| `./launch` | Main-thread handle: spawn, ready detection, request, kill, shutdown | `WorkerThreadLaunch` |
+| `./export` | Typed proxy factory that turns a worker class into a main-thread client | `WorkerThreadExport` |
+| `./pool` | Registry over many handles: round-robin, fail-fast fan-out, settled fan-out | `WorkerThreadPool` (a const value and a same-named type) |
+| `./rpc` | JSON-RPC framing, pending map, per-request timeouts, middleware | `WorkerThreadRpc`, `DEFAULT_MAX_MESSAGE_SIZE`, `DEFAULT_REQUEST_TIMEOUT_MS`, `DENIED_RPC_METHODS` |
+| `./gateway-server` | Socket RPC server: bind, token auth, method allow-list, duplicate suppression | `WorkerThreadGatewayServer` |
+| `./gateway-client` | Socket RPC client: connect, reconnect with backoff, request | `WorkerThreadGatewayClient` |
+| `./gateway-path` | Cross-platform socket path resolution, shared by server and client | `WorkerThreadGatewayPath` |
+| `./error-handler` | Package-wide error routing, silent until you attach something | `WorkerThreadErrorHandler` |
+| `./types/export` | Type-only: `init()` options, gateway proxy, and the value `init()` returns | `IWorkerThreadExportOpt`, `IWorkerThreadExportResult`, `IWorkerThreadAsyncMethods`, `IWorkerThreadGatewayProxy`, `IWorkerThreadGatewayClientFactory` |
+| `./types/pool` | Type-only: pool modes, trailing options, per-worker outcomes, the `mtd*` surface | `IWorkerThreadPoolMode`, `IWorkerThreadPoolOptions`, `IWorkerThreadPoolOutcome`, `IWorkerThreadPoolMethods`, `IWorkerThreadWorkerClass` |
+| `./types/gateway-client` | Type-only: gateway client connect options | `IGatewayClientOptions` |
+| `./types/gateway-server` | Type-only: gateway server start options | `IGatewayServerOptions` |
+| `./types/rpc` | Type-only: pending-request map, middleware context, middleware function | `IMapRpc`, `IRpcContext`, `IRpcMiddleware` |
+
+The consolidated per-module index lives at the end of this section, under [Full export index by module](#full-export-index-by-module). Nothing below that heading repeats the prose already given for `WorkerThreadInit`, `WorkerThreadLaunch`, `WorkerThreadPool`, `WorkerThreadRpc`, the gateway option tables, the constants, or the error handler.
+
 ### `WorkerThreadInit`: the worker side
 
 | Member                                  | Purpose                                                              |
@@ -531,6 +554,222 @@ worker.rpc.context = {traceId: `abc-123`}
 ```
 
 Short-circuiting middleware (setting `ctx.result` without calling `next()`) skips dispatch and, on a gateway, also skips the `allowedMethods` guard. That escape hatch is only reachable by code that already holds the server instance.
+
+### Full export index by module
+
+Every symbol the package exports, grouped by its source module. The tables below are an index: for a module that already has prose above, the row links back to it rather than repeating the explanation.
+
+#### `./error-handler`
+
+Prose: [Error handling](#error-handling) and the deployment note on silent defaults.
+
+| Symbol | Kind | What it does |
+| :----- | :--- | :----------- |
+| `WorkerThreadErrorHandler` | class, statics only | Package-wide fallback for every error reported by `WorkerThreadLaunch`, `WorkerThreadInit`, `WorkerThreadPool`, and gateway peers. Never instantiated, and never writes to the console |
+| `WorkerThreadErrorHandler.setDefault(handler)` | static | Installs the handler used when no per-instance `error` listener exists. `undefined` restores the silent drop; a non-function, non-`undefined` value throws `TypeError` |
+| `WorkerThreadErrorHandler.resetDefault()` | static | Restores the silent drop without passing `undefined` |
+
+`WorkerThreadErrorHandler.report(err)` is also on the class but is marked `@internal`: it routes an error to the current default and swallows a throwing user handler so a bad logger cannot kill the transport that reported.
+
+#### `./export`
+
+Prose: [`WorkerThreadExport.init`](#workerthreadexportinit) and [Exported calls](#exported-calls).
+
+| Symbol | Kind | What it does |
+| :----- | :--- | :----------- |
+| `WorkerThreadExport` | class, statics only | Factory that pairs a worker class with its main-thread client. Never instantiated |
+| `WorkerThreadExport.init(options)` | static | The factory itself. Detects its own context from `process.argv[2]`: in worker context it constructs `WTInit` and returns only `launchGatewayClient`; on the main thread it returns `launchWorker`, `launchGatewayClient`, `shutdown`, every `mtd*` method, and whatever `wrap` adds. Typed by `IWorkerThreadExportOpt` in, `IWorkerThreadExportResult` out |
+| `WorkerThreadExport.launchGatewayClient(path, options?)` | static | Builds a typed gateway proxy for a peer worker, usable statically (calling worker passed as the first argument) or with `new` (owner bound to the instance). Throws when `path` is absent or empty |
+
+The returned proxy refuses the props `then`, `toString`, `constructor`, `__proto__`, `prototype`, and `inspect`, and its `has` trap reports only the proxy's own members plus props that really exist on `WTInit.prototype`, so a typo fails a feature-detection check instead of passing it and throwing at call time.
+
+#### `./gateway-client`
+
+Prose: [Gateway client](#gateway-client) for the options table.
+
+| Symbol | Kind | What it does |
+| :----- | :--- | :----------- |
+| `WorkerThreadGatewayClient` | class, extends `EventEmitter` | Socket RPC client for worker-to-worker calls. Built for you by `WorkerThreadInit.createGatewayClient`; the low-level way to construct one directly |
+| `.client` | field | The underlying `net-ipc` `Client` |
+| `.rpc` | field | The `WorkerThreadRpc` instance framing every call on this connection |
+| `.connect(path, options?)` | method | Normalizes the path, applies `reconnect` (default `true`), `retries`, `maxRetryTime`, `messagepack`, and `maxMessageSize` (default `DEFAULT_MAX_MESSAGE_SIZE`), sends `token` as the handshake `auth` payload. Resolves to the client on `ready`, rejects on close or connect failure. Throws if already closed, if `path` is empty, or if `messagepack: true` without `msgpackr` installed |
+| `.request(method, params, wait?, others?, timeoutMs?)` | method | One RPC call over the socket; the same argument shape as `WorkerThreadInit.request` |
+| `.isClosed()` | method | Whether `close()` or `destroy()` has already run; a closed client cannot be reused |
+| `.close()` | method | Permanent close: disables auto-reconnect, rejects every pending request, closes gracefully then force-destroys after 500 ms |
+| `.destroy()` | method | Same cleanup without the graceful handshake |
+| events | | `status` (numeric transport status), `close` (reason), and `error` (routed to `WorkerThreadErrorHandler` when unlistened, so an unhandled error is never fatal) |
+
+#### `./gateway-path`
+
+| Symbol | Kind | What it does |
+| :----- | :--- | :----------- |
+| `WorkerThreadGatewayPath` | class, statics only | Stateless path helper, never instantiated, shared by the gateway server and client so both resolve the same string |
+| `WorkerThreadGatewayPath.normalize(path)` | static | On Windows turns POSIX-style paths and bare identifiers into named pipes (`gateway-main` becomes `\\.\pipe\gateway--main`; dashes are escaped before slashes are mapped, so `/tmp/a-b` and `/tmp/a/b` stay distinct) and passes existing `\\.\pipe\` paths through. On POSIX passes absolute paths through after a length check and resolves relative paths against `os.tmpdir()`. Throws when the resolved POSIX path exceeds 104 characters |
+
+#### `./gateway-server`
+
+Prose: [Gateway server](#gateway-server) for the options table, and `WorkerThreadInit.createGatewayServer` in [Inter-worker gateway](#inter-worker-gateway).
+
+| Symbol | Kind | What it does |
+| :----- | :--- | :----------- |
+| `WorkerThreadGatewayServer` | class, extends `EventEmitter` | Socket RPC server for worker-to-worker calls. Built for you by `WorkerThreadInit.createGatewayServer`; the low-level way to construct one directly |
+| `.server` | field | The underlying `net-ipc` `Server` |
+| `.rpc` | field | `Map` of connection id to that connection's `WorkerThreadRpc` |
+| `.register` | field | The object exposed to clients. Never wrapped, so registered methods keep reading their own instance state through `this` |
+| `.closePromise` | field | The in-flight `close()` promise, or `null` when nothing is closing |
+| `.start(path, register?, options?)` | method | Normalizes the path, binds the socket, and only after a successful bind applies `token`, `allowedMethods`, and `maxMessageSize` (default `DEFAULT_MAX_MESSAGE_SIZE`), so a failed bind leaves no half-configured instance. Resolves to the server on `ready`. Throws on an empty path |
+| `.close()` | method | Releases the socket so the path can be reused: graceful close, force-destroy after 500 ms, best-effort unlink of the socket file on POSIX, then clears the RPC, dedupe, and inflight maps. Safe to call twice |
+| events | | `connect` (connection), `disconnect` (connection, reason), `ready` (normalized path), and `error` (routed to `WorkerThreadErrorHandler` when unlistened) |
+
+Token auth is checked per connection with `crypto.timingSafeEqual`; the token is compared for presence, so an explicitly empty token still enforces auth rather than disabling it. Redelivered request ids are suppressed per connection: the first delivery executes, redeliveries replay the cached response, responses over 64 KB are never cached, and the cache holds 1000 entries FIFO per connection.
+
+#### `./init`
+
+Prose: [`WorkerThreadInit`: the worker side](#workerthreadinit-the-worker-side).
+
+| Symbol | Kind | What it does |
+| :----- | :--- | :----------- |
+| `WorkerThreadInit` | class | Worker-side base class. Extend it, add `mtd*` methods, and the constructor wires the RPC handler and signals ready |
+| `.isMainThread` | static | Re-exported `node:worker_threads` flag, for branching between main and worker logic |
+| `new WorkerThreadInit()` | constructor | Runs `init()`, builds `rpc`, and defers the ready signal by one microtask so subclass field initializers are applied before the main thread can observe worker state |
+| `.argv` | field | `process.argv`; the worker's own arguments are readable from index `3` upward |
+| `.id` | field | The worker `threadId` |
+| `.pid` | field | `process.pid`, shared by every worker in the process |
+| `.rpc` | field | The worker's `WorkerThreadRpc` instance |
+| `.parentPort` | field | The `node:worker_threads` parent port |
+| `.gatewayServer` | field | The `WorkerThreadGatewayServer` created by `createGatewayServer`, if any |
+| `.gatewayClients` | field | `Map` of socket path to the `WorkerThreadGatewayClient` created for it |
+| `.gatewayClientLatest` | field | The most recently created gateway client |
+| `.gatewayClient` | getter | Alias for `gatewayClientLatest` |
+| `.request(method, params, wait?, others?, timeoutMs?)` | method | Call back into the main thread over `parentPort` |
+| `.createGatewayServer(path, register?, options?)` | method | Closes any previous server, then binds a new one. Returns `true` when ready. Throws when `register` is omitted without a non-empty `allowedMethods`, because omitting it exposes the whole worker instance |
+| `.createGatewayClient(serverPath, options?)` | method | Closes the previous client for that path, connects a new one, registers it, and returns it |
+| `.onBeforeExit()` | hook | Override to drain before a graceful stop; awaited by `shutdown()` |
+| `.onError(err)` | hook | Override to see in-worker RPC failures. The default forwards to `WorkerThreadErrorHandler.report`, so call `super.onError(err)` inside an override to keep package-wide observability |
+| `.shutdown()` | method | Runs `onBeforeExit()` at most once, then closes gateway resources in a `finally` block and clears `gatewayClients`, `gatewayServer`, and `gatewayClientLatest`. Returns `true` |
+| `.send(payload)` | method | Posts a raw payload to `parentPort`; returns `false` when there is no port |
+| `.init()` | method | `[LOW-LEVEL]` attaches the `message` listener to `parentPort`; idempotent per port |
+| `.handleOnMessage(data)` | method | `[LOW-LEVEL]` feeds an incoming envelope into `rpc.make()` and routes failures to `onError` |
+| `._initDone`, `._initPort`, `._shutdownDone` | fields | Underscore-prefixed guards, so they are technically public: listener attachment and the once-only drain |
+
+#### `./launch`
+
+Prose: [`WorkerThreadLaunch`: the main-thread side](#workerthreadlaunch-the-main-thread-side).
+
+| Symbol | Kind | What it does |
+| :----- | :--- | :----------- |
+| `WorkerThreadLaunch` | class, extends `EventEmitter` | Main-thread handle for one worker: spawn, ready detection, request, and termination |
+| `.isMainThread` | static | Re-exported `node:worker_threads` flag |
+| `new WorkerThreadLaunch(path, argv, register?)` | constructor | Normalizes empty or `[undefined]` argv to `[]`, then spawns immediately. `register` defaults to the instance itself and is what a worker calling back can reach |
+| `.path` | field | The worker file path passed to the constructor |
+| `.argv` | field | The normalized argv passed to the worker |
+| `.register` | field | The object exposed to the worker for inbound RPC |
+| `.pid` | field | `process.pid` on the main thread |
+| `.thread` | field | The underlying `node:worker_threads` `Worker` |
+| `.threadId` | field | The worker thread id |
+| `.rpc` | field | The handle's `WorkerThreadRpc` instance |
+| `.ready()` | method | Resolves once the worker signals ready; rejects if the worker exited first, and rejects rather than resolving when called on a worker that already died |
+| `.request(method, params, wait?, others?, timeoutMs?)` | method | Low-level RPC call. Throws once the worker has exited or started exiting |
+| `.send(payload)` | method | Posts a raw payload to the worker. Throws once exited or exiting |
+| `.kill()` | method | Immediate terminate with no cleanup; safe after exit, since terminating an exited thread hangs on some runtimes. Detaches the signal handlers |
+| `.shutdown(timeoutMs = 5000)` | method | Graceful drain: sends the `shutdown` RPC so the worker runs `onBeforeExit()`, then kills it, force-terminating after `timeoutMs`. Concurrent callers share one drain; an already-exited worker returns immediately |
+| `.readyResolve()` | method | `[LOW-LEVEL]` one-shot; resolves `ready()` and emits `ready` |
+| `.init()` | method | `[LOW-LEVEL]` spawns the worker, wires `message`/`error`/`exit`, and registers `once` `SIGINT`/`SIGTERM` handlers that call `kill()`. On exit it rejects every pending RPC and rejects `ready()` if it never signalled |
+| `.handleOnMessage(data)` | method | `[LOW-LEVEL]` feeds an incoming envelope into `rpc.make()` and routes failures to the `error` event or the package handler |
+| events | | `ready`, `exit` (with the exit code), and `error` |
+
+#### `./pool`
+
+Prose: [Worker pool](#worker-pool) and [`WorkerThreadPool`](#workerthreadpool) for the mode table.
+
+| Symbol | Kind | What it does |
+| :----- | :--- | :----------- |
+| `WorkerThreadPool` | const value | Construct-signature only. `new WorkerThreadPool(handles)` returns a `Proxy` over the pool, so any `mtd*` property resolves to a cached dispatch closure. It is a const rather than a class because TypeScript types `new C()` as `C` regardless of what the constructor returns, so the construct signature itself has to name the `mtd*` intersection |
+| `WorkerThreadPool<TInit>` | type | The instance type: the registry plus the worker class's `mtd*` surface (`IWorkerThreadPoolMethods<TInit>`). Same name as the const, so it still works in a type annotation |
+| `new WorkerThreadPool(instances)` | constructor | Takes already-launched handles and registers them with `addMany` |
+| `.thread` | getter | `ReadonlyMap<number, WorkerThreadLaunch>` view of the registry, keyed by `threadId` |
+| `.threadCount` | getter | Live worker count, derived from the registry so the two cannot disagree |
+| `.add(instance)` | method | Registers one worker by `threadId` and returns that id. Re-adding the same id replaces the entry without incrementing the count or stacking a second `exit` listener |
+| `.addMany(instances)` | method | Registers many and returns their ids in the order supplied |
+| `.getInstance(threadId)` | method | One worker by `threadId`, or `undefined` |
+| `.kill(threadId)` | method | Kills and removes one worker; returns its `threadId`, or `undefined` when not in the pool |
+| `.killAll()` | method | Kills every worker from a key snapshot, resets the round-robin cursor, and throws a single `AggregateError` after processing them all if any failed |
+| `.execute(method, params, timeoutMs?)` | method | Round-robin to the next worker, cursor rebased modulo the live size after a shrink. Throws on an empty pool |
+| `.request(threadId, method, params, wait?, others?, timeoutMs?)` | method | Targets one specific worker; throws on an unknown `threadId` rather than resolving `undefined` |
+| `.broadcastRequest(method, params, timeoutMs?)` | method | Fail-fast fan-out built on `Promise.all`: the first rejection rejects the whole call and the other results are discarded. Throws on an empty pool |
+| `.broadcastSettled(method, params, timeoutMs?)` | method | Fan-out that resolves one `{threadId, ok, result?, error?}` envelope per worker in insertion order and never rejects on a peer failure. Throws only on an empty pool |
+| `.mtd*` | proxy members | Any `mtd`-prefixed name is dispatched according to the trailing `IWorkerThreadPoolOptions`: no options or `mode: "execute"` goes round-robin, `broadcast` fans out fail-fast, `settled` fans out per worker. An unrecognised `mode` throws instead of silently falling back |
+
+Workers are removed automatically on their `exit` event, so `threadCount` only ever counts live workers.
+
+#### `./rpc`
+
+Prose: [Constants](#constants) and [`WorkerThreadRpc`](#workerthreadrpc).
+
+| Symbol | Kind | What it does |
+| :----- | :--- | :----------- |
+| `WorkerThreadRpc` | class | JSON-RPC dispatcher: decodes an incoming envelope, runs the middleware chain, dispatches to the registered method, and sends back a result or a structured error |
+| `new WorkerThreadRpc(send, register, options?)` | constructor | `send` posts an envelope, `register` is the callable method map, `options` accepts `maxMessageSize` and `defaultTimeoutMs` |
+| `.map` | field | `IMapRpc` of in-flight requests keyed by id, each holding `resolve`, `reject`, and an optional timeout `timer` |
+| `.context` | field | Object merged into every outgoing payload; per-call `others` take precedence. Reserved envelope fields (`id`, `method`, `params`) always win |
+| `.maxMessageSize` | field | Cap on the estimated size of an incoming message; `undefined` disables it, which is the default for the trusted `parentPort` channel |
+| `.defaultTimeoutMs` | field | Timeout for `makeRequest` calls that omit `timeoutMs`, initialised to `DEFAULT_REQUEST_TIMEOUT_MS`. `0` waits indefinitely |
+| `.send` | field | The transport function, swappable at runtime (`shutdown()` swaps it temporarily) |
+| `.register` | field | The method map dispatch resolves against |
+| `WorkerThreadRpc.estimatePayloadSize(value)` | static | Approximates a decoded value's in-memory footprint without serializing it, so it tolerates `BigInt`. The gateway server uses it to decide whether a response is worth caching |
+| `.use(...middlewares)` | method | Appends middleware to the inbound chain, run in registration order; returns `this` for chaining |
+| `.make(data)` | method | Processes one envelope: request, result, or error. Enforces `maxMessageSize` before dispatch, and turns an `undefined` result into `null` so the caller resolves instead of hanging |
+| `.makeId()` | method | Monotonic request id, unique within the instance |
+| `.makeRequest(method, params, wait?, others?, timeoutMs?)` | method | Sends a request and, unless `wait` is `false`, returns a promise resolved by the matching reply. A send failure or timeout rejects and clears the pending entry |
+| `.rejectAllPending(error)` | method | Rejects and clears every in-flight request; used when a worker dies so callers do not hang |
+
+`WorkerThreadRpc.assertTimeout(value, name)` is also on the class but is marked `@internal`. Dispatch is gated by `DENIED_RPC_METHODS`, by `Object.prototype` ownership, and by the `mtd*` surface on the pool; the prefix itself is not enforced at runtime.
+
+#### Type-only exports
+
+Not exported at runtime; import them with `import type` or under `verbatimModuleSyntax`.
+
+`./types/export`:
+
+| Symbol | What it is |
+| :----- | :---------- |
+| `IWorkerThreadExportOpt<TWorker, TMain, TWrap>` | The options object accepted by `WorkerThreadExport.init`: required `path` and `WTInit`, optional `WTLaunch` and `wrap` |
+| `IWorkerThreadExportResult<TWorker, TMain, TWrap>` | What `init()` returns: `TWrap` plus every `mtd*` method as async, plus `launchWorker`, `launchGatewayClient`, and `shutdown` |
+| `IWorkerThreadAsyncMethods<T>` | A worker class's own methods, each returning `Promise<Awaited<R>>`; members inherited from `WorkerThreadInit` are filtered out |
+| `IWorkerThreadGatewayProxy<T>` | The same methods with the calling worker prepended as the first argument, so the gateway proxy can hand it to the server |
+| `IWorkerThreadGatewayClientFactory<TWorker>` | The signature of `launchGatewayClient`: a callable proxy or a `new`-able one bound to an owner |
+
+`./types/pool`:
+
+| Symbol | What it is |
+| :----- | :---------- |
+| `IWorkerThreadPoolMode` | `"execute" \| "broadcast" \| "settled"` |
+| `IWorkerThreadPoolOptions<TMode>` | The trailing options object: `mode?` and `timeoutMs?`. The mode literal picks the result shape |
+| `IWorkerThreadPoolOutcome<TResult>` | One worker's `{threadId, ok, result?, error?}` envelope from `broadcastSettled` |
+| `IWorkerThreadPoolMethods<TInit>` | The pool's `mtd*` surface, filtered on the `mtd` prefix rather than on `WorkerThreadInit` membership |
+| `IWorkerThreadWorkerClass<TInit>` | A purely phantom, never-assigned carrier so a `launchWorker()` result still knows its worker class after crossing into an array, which is what lets the pool constructor infer it |
+
+`IWorkerThreadPoolResult<TResult, TMode>` also exists in `./types/pool` but is marked `@internal` and is not re-exported from the barrel.
+
+`./types/gateway-client`:
+
+| Symbol | What it is |
+| :----- | :---------- |
+| `IGatewayClientOptions` | `token?`, `reconnect?`, `retries?`, `maxRetryTime?`, `maxMessageSize?`, `messagepack?` |
+
+`./types/gateway-server`:
+
+| Symbol | What it is |
+| :----- | :---------- |
+| `IGatewayServerOptions` | `token?`, `allowedMethods?`, `maxConnections?`, `maxMessageSize?` |
+
+`./types/rpc`:
+
+| Symbol | What it is |
+| :----- | :---------- |
+| `IMapRpc` | `Map<number, {resolve, reject, timer?}>` of in-flight requests |
+| `IRpcContext` | The mutable context passed through the middleware chain: `method`, `params`, and `result?` |
+| `IRpcMiddleware` | `(ctx, next) => Promise<void>`; set `ctx.result` without calling `next` to short-circuit, or throw to reject |
 
 ## ✅ Testing
 

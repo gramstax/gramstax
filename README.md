@@ -9,6 +9,7 @@
     <img alt="Telegram" src="https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white"/>
     <img alt="Biome" src="https://img.shields.io/badge/Biome-60A5FA.svg?style=flat&logo=biome&logoColor=white"/>
     <img alt="Nx" src="https://img.shields.io/badge/Nx-143C20.svg?style=flat&logo=nx&logoColor=white"/>
+    <a href="https://gramstax.mintlify.site/"><img alt="Docs" src="https://img.shields.io/badge/Docs-gramstax.mintlify.site-3b82f6.svg?style=flat"/></a>
     <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
   </p>
 </div>
@@ -17,19 +18,8 @@
 
 Most Telegram frameworks hand you a registration call and leave the rest to be
 decided per file: where markup lives, how a second language gets added, whether a
-tap edits the message it came from or orphans it. These are the parts that end up
-decided differently in every file.
-
-**A page is a file.** `start.ts` is `/start`, `admin/ban.ts` is `/admin/ban`, at
-any depth. There is no route table to keep in sync, so adding a page cannot break
-an unrelated one.
-
-**One template owns every language.** `lang="id"` beside the default block gives
-an Indonesian client Indonesian, with no branch in the handler and no second
-source of truth to keep in step.
-
-**`mode: "auto"` decides send versus edit.** The framework reads the update in
-one place instead of every handler branching on `ctx.callbackQuery`.
+tap edits the message it came from or orphans it. Three of those gaps are closed
+by construction here rather than by convention.
 
 **Render params cannot describe a state that cannot happen.** Each `render*()`
 params type is a union over its real delivery routes, with `?: never` where a key
@@ -1042,20 +1032,39 @@ Base ids map the same way: no `id` → `gdefault`, `id="s1"` → `gs1`, `id="amo
 
 ## 📚 API Reference
 
-### Generated docs
+### Live documentation
 
-`packages/gramstax/docs/` holds the API-extractor output: `markdown/` (one file per exported symbol), `yaml/`, and hand-written guides (`architecture.md`, `getting-started.md`, `glossary.md`, `overview.md`, `development.md`). Regenerate with `bun run build:docs` inside the package.
+**https://gramstax.mintlify.site/**
 
-### Guides in `docs/`
+Every exported symbol of the `gramstax` package has a page, alongside material
+written for readers rather than for the extractor. The API section is generated
+from the package's TSDoc: 1 032 pages under [`docs-site/reference/`](./docs-site/reference),
+sanitized for MDX and committed by CI on every push to `main`. You never write it
+by hand.
 
-| Document | Covers |
-| :------- | :----- |
-| [`docs-site/guides/gramstax-start.md`](./docs-site/guides/gramstax-start.md) | Boot from config: discovery, precedence, ref slots, `--watch`, the queue field table |
-| [`docs-site/guides/gramstax-build.md`](./docs-site/guides/gramstax-build.md) | The `.gramstax/` output tree, CLI flags, manifest boot, exit codes |
-| [`docs-site/guides/serverless-deploy.md`](./docs-site/guides/serverless-deploy.md) | Cloudflare Workers and Lambda: build → secret → deploy → verify |
-| [`docs-site/guides/aot-contract.md`](./docs-site/guides/aot-contract.md) | The `gen/` emit contract and its v1 limits |
+Regenerate with `bun run build:docs` from the repository root.
+
+### Guides
+
+| Page | Covers |
+| :--- | :----- |
+| [Introduction](./docs-site/introduction.md) · [Quickstart](./docs-site/quickstart.md) | Start here |
+| [Page routing](./docs-site/concepts/page-routing.md) | Routes as file paths, handler-name convention, sessions, gates |
+| [The render contract](./docs-site/concepts/render-contract.md) | The 12 route atoms behind every `render*()` |
+| [Templates](./docs-site/concepts/templates.md) | PAGE blocks, Rich HTML, filter pipes, keyboards, i18n |
+| [Deploy](./docs-site/concepts/deploy.md) | The five modes and their nested option branches |
+| [Concurrency](./docs-site/concepts/concurrency.md) | The update queue, the worker pool and the per-chat gate |
+| [Extending](./docs-site/concepts/extending.md) | `buildData`, `Ctx` subclassing, send-error hooks, manifest boot |
+| [Configuration](./docs-site/guides/configuration.md) | Every `gramstax.config.ts` field |
+| [`gramstax start`](./docs-site/guides/gramstax-start.md) | Boot from config: discovery, precedence, ref slots, `--watch` |
+| [`gramstax build`](./docs-site/guides/gramstax-build.md) | The `.gramstax/` output tree, CLI flags, manifest boot, exit codes |
+| [Serverless deploy](./docs-site/guides/serverless-deploy.md) | Cloudflare Workers and Lambda, end to end |
+| [AOT contract](./docs-site/guides/aot-contract.md) | The `gen/` emit contract and its limits |
+| [E2E testing](./docs-site/guides/e2e-testing.md) | Driving the compiled template against the in-process mock |
+| [Session lock](./docs-site/guides/session-lock.md) | Serialising one user across instances |
+| [Architecture](./docs-site/guides/architecture.md) · [Development](./docs-site/guides/development.md) · [Glossary](./docs-site/guides/glossary.md) | Internals, contributing, vocabulary |
+| [ADRs](./docs-site/guides/adr/index.md) | 8 decision records |
 | [`docs/capacity-model-50m-peak.md`](./docs/capacity-model-50m-peak.md) | Capacity modelling for large deployments |
-| [`docs/agents/`](./docs/agents) | Domain docs, issue tracker, and triage-label conventions for agents |
 
 ### Agent skills
 

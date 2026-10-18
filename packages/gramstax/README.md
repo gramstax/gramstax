@@ -8,7 +8,8 @@
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
     <img alt="Telegram" src="https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white"/>
     <img alt="Biome" src="https://img.shields.io/badge/Biome-60A5FA.svg?style=flat&logo=biome&logoColor=white"/>
-    <img alt="npm" src="https://img.shields.io/badge/npm-5.0.0-CB3837.svg?style=flat&logo=npm&logoColor=white"/>
+    <img alt="npm" src="https://img.shields.io/badge/npm-6.0.0-CB3837.svg?style=flat&logo=npm&logoColor=white"/>
+    <a href="https://gramstax.mintlify.site/"><img alt="Docs" src="https://img.shields.io/badge/Docs-gramstax.mintlify.site-3b82f6.svg?style=flat"/></a>
     <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
   </p>
 </div>
@@ -17,19 +18,8 @@
 
 Most Telegram frameworks hand you a registration call and leave the rest to be
 decided per file: where markup lives, how a second language gets added, whether a
-tap edits the message it came from or orphans it. These are the parts that end up
-decided differently in every file.
-
-**A page is a file.** `start.ts` is `/start`, `admin/ban.ts` is `/admin/ban`, at
-any depth. There is no route table to keep in sync, so adding a page cannot break
-an unrelated one.
-
-**One template owns every language.** `lang="id"` beside the default block gives
-an Indonesian client Indonesian, with no branch in the handler and no second
-source of truth to keep in step.
-
-**`mode: "auto"` decides send versus edit.** The framework reads the update in
-one place instead of every handler branching on `ctx.callbackQuery`.
+tap edits the message it came from or orphans it. Three of those gaps are closed
+by construction here rather than by convention.
 
 **Render params cannot describe a state that cannot happen.** Each `render*()`
 params type is a union over its real delivery routes, with `?: never` where a key
@@ -915,17 +905,30 @@ Why opt-in: measured with `bench/bench.ts`, the queue is neutral below saturatio
 
 ## 📚 API Reference
 
-### Generated reference
+### Live documentation
+
+**https://gramstax.mintlify.site/**
+
+Every exported symbol has a page, alongside material written for readers rather
+than for the extractor: page routing, the render contract, templates, deploy
+modes, concurrency, extending gramstax, and guides for `gramstax start`,
+`gramstax build`, serverless deploys, the AOT contract, e2e testing and the
+distributed session lock.
+
+The API section of that site is generated from this package's TSDoc: 1 032 pages
+under [`docs-site/reference/`](../../docs-site/reference), sanitized for MDX and
+committed by CI on every push to `main`. You never write it by hand.
+
+### Generated reference in the package
 
 | Directory | What it is |
-| :-------- | :---------- |
-| [`docs/markdown/`](./docs/markdown/index.md) | One page per symbol: `gramstax.ctx.rendertext.md`, `gramstax.templateengine.md`, … (1 032 files) |
-| [`docs/yaml/`](./docs/yaml/gramstax.yml) | The same surface as YAML + a `toc.yml` for machine consumption |
+| :-------- | :--------- |
 | [`docs/extractor/`](./docs/extractor/etc/gramstax.api.md) | The api-extractor API report and its rollup in `temp/` |
-| [`docs/architecture.md`](./docs/architecture.md) · [`getting-started.md`](./docs/getting-started.md) · [`overview.md`](./docs/overview.md) · [`glossary.md`](./docs/glossary.md) · [`development.md`](./docs/development.md) | Hand-written |
-| [`docs/adr/`](./docs/adr) | 8 decision records: why that Bot API client, why the template DSL, why Keyv/Redis, why convention routing, why hot reload, why in-process e2e, why Bun + tsup + Nx |
+| [`docs/yaml/`](./docs/yaml/gramstax.yml) | The same surface as YAML, plus a `toc.yml` for machine consumption |
 
-Regenerate with `bun run build:docs` inside `packages/gramstax` (`tsup --dts-only` → `api-extractor` → `api-documenter markdown` + `yaml`).
+Regenerate with `bun run build:docs` from the repository root: `tsup --dts-only`,
+then `api-extractor`, then the Markdown and YAML emitters, then the MDX sanitizer
+and the navigation build.
 
 ### Barrel: `src/index.ts`
 

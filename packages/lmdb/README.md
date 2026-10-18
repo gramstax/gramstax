@@ -574,9 +574,9 @@ The reader is always opened `readOnly`, and it is a different process's data: LM
 | `onWarn`/`offWarn(fn)`             | `void`                 | sync       |
 | `emitWarn(message)`                | `void`                 | sync       |
 | `backup(dest, compact?)`           | _void_                 | async      |
-| `readerList()`                     | `Array<string>`        | sync       |
+| `readerList()`                     | `string`               | sync       |
 | `resetReadTxn()`                   | `void`                 | sync       |
-| `getWriteTxnId()`                  | `bigint`               | sync       |
+| `getWriteTxnId()`                  | `number`               | sync       |
 | `close()`                          | `void`                 | async      |
 
 ### Sub handle
@@ -672,6 +672,323 @@ Every file under `example/` runs on its own with `bun packages/lmdb/example/<fil
 | `reader-backup.ts`      | `LmdbReader` for 1-writer N-reader, plus backup retention                 |
 | `search-cdc-demo.ts`    | Full-text search + CDC + composite index end to end                       |
 | `all-features.ts`       | A multi-tenant scenario pulling many features together                     |
+
+## 🧾 API Reference: every exported symbol, by module
+
+Exhaustive list of what the barrel `src/index.ts` re-exports: 20 modules, 68 exported names. Everything imports from the package root (`@gramstax/lmdb`), never from `dist/src/...`. The tables above are the orientation; these are the surface.
+
+### Modules at a glance
+
+| Module              | What it gives you                                | Key exports                                                   |
+| :------------------ | :----------------------------------------------- | :------------------------------------------------------------ |
+| `./env`             | The root handle: lifecycle, registration, transactions, migrations, CDC entry points, raw root access | `LmdbEnv` · `IEnvForSub`                                      |
+| `./schema`          | The declaration surface: `t` column builders, the schema base class, and the row/key type helpers | `t` · `LmdbSchema` · `ValueOf` · `KeyOf`                       |
+| `./sub`             | The typed per-entity handle every operation hangs off, plus the materialization cap | `LmdbEnvSub` · `MAX_MATERIALIZE`                    |
+| `./transaction`     | The lifecycle wrapper handed to every transaction callback | `LmdbTransaction` · `ITransactionLifecycle`                    |
+| `./errors`          | The single error class the package throws        | `LmdbError`                                                   |
+| `./queue`           | FIFO queue with single-transaction enqueue and dequeue | `LmdbQueue` · `IQueueSchema`                              |
+| `./job-run`         | Restart-safe cron scheduling backed by persisted run stamps | `LmdbJobRun` · `JobRunSchema` · `LmdbJobRunHandle`  |
+| `./backup`          | Timestamped backups, tar.gz, S3, pruning, restore, scheduling | `LmdbBackup` · seven `LmdbBackup*` types             |
+| `./reader`          | Read-only replica attach for a 1-writer / N-reader setup | `LmdbReader`                                            |
+| `./cdc`             | Change data capture: durable outbox, in-process hub, the per-env facade | `Cdc` · `CdcHub` · `CdcStore` · five `ICdc*` types |
+| `./sync`            | Resumable differential sync between two subs    | `LmdbSyncStream` · `ISyncOptions` · `ISyncResult`              |
+| `./search`          | Tokenizer and primary-key fingerprinting for full-text search | `LmdbSearch`                                           |
+| `./codec`           | Positional row encoding for hook-free schemas   | `RecordCodec`                                                |
+| `./types/env`       | Env options, encoding union, lifecycle state     | `ILmdbEnvOptions` · `ILmdbEncoding` · `ICompressionOptions` · `ILmdbEnvState` |
+| `./types/indexes`   | Index definition, query, and result types        | `IIndexDef` · `IIndexQuery` · `IIndexResult` · `IndexDescriptor` and four more |
+| `./types/key`       | What LMDB accepts as a key                      | `ILmdbKey`                                                   |
+| `./types/range`     | Bounds for range scans and iteration            | `IRangeOptions`                                              |
+| `./types/search`    | Runtime shape of one attached posting table     | `ISearchTable`                                               |
+| `./types/codec`     | The write/read hook contract                    | `ICodec`                                                     |
+| `./types/sub-state` | Per-sub-DB state the env keeps                  | `LmdbSubState`                                               |
+
+### `./env`
+
+| Export         | Kind             | What it is                                                                                                                             |
+| :------------- | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| `LmdbEnv`      | `class`          | The root handle for one LMDB environment. You extend it, never wrap it: construction opens the env, there is no `open()`.                |
+| `IEnvForSub`   | `type`           | The subset of `LmdbEnv` a sub handle depends on: an lmdb `Database` plus `transaction`, `readTransaction`, and `readOnly`, picked straight off `LmdbEnv` so the signatures cannot drift. |
+
+`LmdbEnv` declares no public statics. Instance surface:
+
+| Member                                             | Sync/Async | What it does                                                                                                        |
+| :------------------------------------------------- | :--------- | :------------------------------------------------------------------------------------------------------------------- |
+| `constructor(options)`                            | sync       | Opens the env immediately. Only `path` is required; `mapSize` defaults to 4 GB and `maxDbs` to 128, everything else is spread straight to lmdb-js.        |
+| `path` · `maxDbs` · `readOnly` · `encoding` · `useVersions` | sync | Readonly echo of the resolved constructor options.                                                                 |
+| `state`                                           | sync       | The lifecycle state: `closed` · `opening` · `open` · `closing`.                                                     |
+| `register(SchemaClass)`                           | sync       | The only registration path. Validates the schema, opens the sub-DB and returns the cached `LmdbEnvSub<S>`. Duplicate class or duplicate `db` throws. |
+| `sub(SchemaClass)`                                | sync       | Returns the handle `register` already made; throws when the class was never registered.                             |
+| `isRegistered(SchemaClass)`                       | sync       | Whether the class is registered, without throwing.                                                                  |
+| `transaction(fn)`                                 | async      | Runs `fn` in one native write transaction. Nested calls join; concurrent calls serialize. A throw rolls back.        |
+| `transactionFast(fn)`                             | async      | Same shape, committed off the main thread. `tx.abort()` throws, and a throwing callback still commits: there is no rollback path. |
+| `readTransaction(fn)`                             | async      | Pins a consistent snapshot for `fn` and releases the reader slot when it returns.                                     |
+| `rootTransactionSync(fn, flags?)`                 | sync       | One synchronous write transaction around `fn`; the primitive the queue and internal bulk paths sit on.                |
+| `subscribe(filter, cb)`                           | sync       | Delivers committed writes to `cb` post-commit, from now. Returns an idempotent unsubscribe.                          |
+| `tailCdc({consumer?, from?, limit?})`             | async      | Reads the durable outbox above a floor; a named consumer resumes past its persisted ack.                             |
+| `ackCdc(consumer, seq)`                           | async      | Persists a consumer's position so a later `tailCdc` resumes there, across restarts.                                  |
+| `pruneCdc(keep?)`                                 | async      | Deletes outbox records at or below `min(minAck, newest - keep)`; returns how many went.                               |
+| `migrate(migrations)`                             | async      | Runs each step's `transform` then `up` inside writer transactions, bumping the stored version only on success.        |
+| `getMigrationVersion()`                           | sync       | The highest applied migration version, or `0`.                                                                       |
+| `getMapSizeUsed()`                                | sync       | `{total, used, free, ratio}` measured with `statSync` on the data file.                                             |
+| `backup(destPath, compact?)`                      | async      | Direct lmdb `mdb_env_copy2` to an **existing** directory. `LmdbBackup.backup` creates the directory for you.           |
+| `getDb(name, overrides?)` · `openDB(name, opts?)` | sync       | Low-level raw sub-DB open. Reach for a typed `register` handle instead.                                              |
+| `on` / `off('beforecommit' \| 'aftercommit', cb)`  | sync       | Attach and detach commit listeners. `close()` detaches them all.                                                     |
+| `onWarn(fn)` · `offWarn(fn)` · `emitWarn(message)` | sync       | The diagnostics surface. The package never writes to `console`; with no listener attached it is silent.               |
+| `rootGetEntry` · `rootPut` · `rootPutSync` · `rootGetRange` · `rootGetKeys` · `rootGetCount` · `rootDoesExist` | sync / async | The raw root-DB surface, forwarded from lmdb-js for untyped access. `rootPut(id, value, version, ifVersion)` is the optimistic-locking overload. |
+| `readerList()`                                    | sync       | A debugging description of the current reader locks.                                                                |
+| `getWriteTxnId()`                                 | sync       | The current write-transaction id, callable inside a transaction callback.                                            |
+| `resetReadTxn()`                                  | sync       | Renews the shared read snapshot so a long-lived reader sees new writes.                                              |
+| `close()`                                         | async      | Closes the root store, clears the sub cache and listeners, and purges this env's handles from lmdb-js's `allDbs`. Every op throws after. |
+
+### `./schema`
+
+| Export                 | Kind    | What it is                                                                                                             |
+| :--------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------- |
+| `t`                    | `const` | The column builders. `string` · `number` · `bigint` · `boolean` · `date` · `buffer` · `any` are zero-arg; `enum` infers its kind from the first literal and rejects mixed kinds. `object` · `array` · `map` · `set` also accept a shape (`t.array(t.string())` narrows the row field to `string[]`). The first three also take literal params for runtime-validated enums. |
+| `LmdbSchema`           | `class` | The abstract base every schema extends. Abstract in the type system, concrete at runtime.                               |
+| `ValueOf<S>`           | `type`  | The row shape of schema class `S`, with `.optional()` and `.default()` columns reflected in requiredness.                |
+| `KeyOf<S>`             | `type`  | The key type of `S`, intersected with what lmdb accepts, so an impossible key is a compile error.                       |
+| `IColumnBuilder`       | `type`  | One column builder: `kind` · `isUnique` · `indexName` · `indexFlag` · `compositeColumns` · `isSearchable` · `isOptional` · `enumValues` · `defaultValue` · `hasDefault` · `defaultFn`, plus the chain methods `unique()` · `index(nameOrColumns)` · `search()` · `optional()` · `default(v)` · `$defaultFn(f)`. |
+| `IColumnKind`          | `type`  | The literal union of column kinds: `string` · `number` · `bigint` · `boolean` · `object` · `array` · `date` · `buffer` · `any` · `map` · `set`. |
+| `IColumnIndexFlag`     | `type`  | The literal union of index markers: `none` · `index` · `unique`. Carried as a generic so index names stay literal in `ISchemaIndexesOf`. |
+| `IInferSchemaValue<D>` | `type`  | Walks a column map into the row object type.                                                                            |
+| `IInferSchemaKey<C>`   | `type`  | Resolves one key builder into its lmdb key type (a `bigint` key degrades to `never`).                                  |
+| `ISchemaIndexesOf<D>`  | `type`  | The index-name map for a schema, keyed by the declared `unique`/`index`/composite literals; what narrows `findByIndex`.   |
+| `IAnyColumnBuilder`    | `type`  | The erased `IColumnBuilder`, so a generic column map can be stored and passed without losing assignability.              |
+| `IAnyShapeParam`       | `type`  | The union a shape argument may take: one builder, an array of builders, or a `{key, value}` record.                    |
+| `IShapeValueOf<S>`     | `type`  | The value type of an `t.object({...})` shape.                                                                         |
+| `IShapeElementOf<S>`   | `type`  | The element type of a `t.array(...)` / `t.set(...)` shape, whether it came from a builder, an array, or a record.       |
+| `IShapeMapOf<S>`       | `type`  | The `Map<K, V>` type of a `t.map({key, value})` shape.                                                                 |
+
+`LmdbSchema` statics:
+
+| Static                          | What it is                                                                                                   |
+| :------------------------------ | :------------------------------------------------------------------------------------------------------------ |
+| `db`                            | Sub-DB name. Required, non-empty, unique per env.                                                              |
+| `key`                           | The primary key builder. Required, and it must not carry `unique()` or `.index()`.                              |
+| `value`                         | A map of column builders (row shape) or a single builder (scalar sub). Required.                               |
+| `dupSort?`                      | One key to many ordered values. Requires a scalar `value`.                                                    |
+| `useVersions?`                  | Per-schema record versioning; defaults to the env setting. Enables `rootPut(id, value, version, ifVersion)`.   |
+| `encoding?`                     | Per-sub-DB value encoding, overriding the env default.                                                        |
+| `hookBeforeWrite?`              | Transforms a row before LMDB serializes it. Must be declared together with `hookBeforeRead`.                   |
+| `hookBeforeRead?`               | Transforms a decoded value back into a row. Must be declared together with `hookBeforeWrite`.                   |
+| `ttl?`                          | Repository-wide default expiry in ms. `0` materializes the TTL sub with no default.                            |
+| `version?`                      | Integer row-shape version, checked against a migration transform's `schemaVersion`.                           |
+| `_schemaBrand`                  | Runtime discriminator inherited by every subclass; what lets `register` recognize a schema class. Never read by your code. |
+| `validate(schemaClass)`         | The registration-time rule check. Throws `LmdbError` for a missing `db`/`key`/`value`, a lone hook, an indexed `key`, a non-integer `version`, `dupSort` on a row shape, `.search()` on a non-string column, or duplicate index names. |
+| `deriveIndexes(columns)`        | Turns the `unique()`/`.index(...)` columns of a `value` map into resolved index descriptors.                     |
+| `deriveSearch(columns)`         | Returns the column names carrying `.search()`.                                                                  |
+| `deriveRecordColumns(columns)`  | Returns the ordered column list used by the positional record codec.                                           |
+| `compositeTuple(value, parts)`  | Builds the ordered key tuple for a composite index, or `null` when a component is absent.                       |
+| `isColumnBuilder(value)`        | Type guard: is this `static value` a single builder (scalar sub) rather than a column map?                    |
+| `makeBuilder(...)`              | The builder factory behind every `t.*` function and every chain method. Each call returns a fresh immutable builder. |
+
+### `./sub`
+
+| Export             | Kind             | What it is                                                                                                                       |
+| :----------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| `LmdbEnvSub<S>`    | `class`          | The typed handle `register()` returns, bound to one schema. Self-contained: it owns its sub-DB state, so `env.register(S) === env.sub(S)`. |
+| `MAX_MATERIALIZE`  | `const`          | `100_000`. The hard cap on a materializing range read. `keys` · `values` · `entries` · `like` · `findByPrefix` · `deleteByPrefix` throw `LmdbError` past it; `iterate()` is lazy and never guarded. |
+
+`LmdbEnvSub<S>` members. Point reads and cardinality are sync because the native calls are; writes are async because lmdb-js queues them.
+
+| Group                | Members                                                                                                                                                    |
+| :------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity             | `dbName` · `owner` (the owning `LmdbEnv`) · `schemaClass` · `keyType` · `valueType` (type-level only, never read at runtime)                                 |
+| Point reads (sync)   | `get(key, tx?)` → `T \| undefined` · `getStrict(key, tx?)` → `T`, throws when absent · `has(key, tx?)` · `count(tx?)` (O(1) `mdb_stat`)                        |
+| Writes (async)        | `put(key, value, ttlOrTx?)` · `putSync` · `removeSync` · `putIfNotExists(key, value)` → `boolean` · `delete(key, tx?)` → `boolean` · `clear(tx?)` · `drop()` |
+| Range reads (async)   | `keys` · `values` · `entries` · `iterate` (lazy, returns an `AsyncIterableIterator`) · `first(tx?)` · `last(tx?)` · `getKeys(options?)` (sync `Iterable`)        |
+| Prefix reads (async)  | `like(pattern, options?, tx?)` · `findByPrefix(prefix, options?, tx?)` · `countByPrefix(prefix)` · `deleteByPrefix(prefix)` (the last rejects an empty prefix) |
+| Bulk (async)          | `putMany(entries, chunk?, {sorted?, onProgress?})` · `importJSONL(jsonl, {sorted?, onProgress?})` → `number` · `exportJSONL()` → `string`                  |
+| Batch reads (async)   | `getMany(keys)` · `prefetch(keys)`                                                                                                                          |
+| Binary (mixed)        | `putBinary(key, buf)` → `Promise<boolean>` · `getBinary(key)` · `getBinaryFast(key)` → `Buffer` \| `undefined` (both sync)                                    |
+| Scalar counters       | `increment(key, delta?)` · `decrement(key, amount?)` → `Promise<number>`; rejected on an indexed or search-enabled sub                                                 |
+| dupSort values        | `addValue` · `removeValue` → `Promise<boolean>` · `getValues(key)` → `Promise<T[]>` · `getValuesCount(key)` → `number`                                             |
+| Index reads (async)   | `findByIndex(query, tx?, {limit?})`, typed so an all-unique query returns one row and any non-unique key returns many · `reindex(name?)` → `{built, skipped}`     |
+| Search (async)        | `search(query, {limit?})` → `Promise<KeyOf<S>[]>`, terms ANDed across every searched column and ranked by hits |
+| Versions              | `getEntry(key)` → `{version, value} \| undefined` for optimistic locking (needs `useVersions`)                                                               |
+| TTL (async)           | `put(key, value, {ttlMs})` per-write override · `purgeExpired()` → `Promise<number>`                                                                          |
+| Sync (async)          | `syncTo(dest, {name?, checkpoint?, limit?, verify?})` → `{copied, checkpoint, verified}`                                                                      |
+
+### `./transaction`
+
+| Export                   | Kind             | What it is                                                                                                                            |
+| :----------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
+| `LmdbTransaction`        | `class`          | The lifecycle wrapper handed to your `transaction` / `transactionFast` / `readTransaction` callback. You never construct it.             |
+| `ITransactionLifecycle`  | `type`           | `active` · `committed` · `aborted` · `released`. A read transaction that finishes normally reports `released`, not `aborted`.           |
+| `IRawReadTransaction`    | `type`           | The underlying lmdb read transaction, exposed as `LmdbTransaction.raw` for low-level escape hatches.                                   |
+
+`LmdbTransaction` members: `lifecycle` · `done` · `isAborted` · `isCommitted` · `abortRejected` (getters) · `raw` (the wrapped read txn) · `commit()` · `abort()` · `release()`.
+
+- `commit()` sets the flag so LMDB commits when the wrapper callback returns. No-op for read transactions, which release automatically.
+- `abort()` rolls back a write transaction. Inside `transactionFast` it **throws** `LmdbError`, because that path commits through lmdb-js even when the callback throws: pretending to roll back would be worse than saying so.
+- `release()` marks a read transaction finished without reporting an abort. `readTransaction` calls it for you.
+
+### `./errors`
+
+| Export      | Kind    | What it is                                                                                                          |
+| :---------- | :------ | :------------------------------------------------------------------------------------------------------------------- |
+| `LmdbError` | `class` | The only error class this package throws. `name` is fixed to `LmdbError`; `cause` is set when an original error is wrapped (a `transactionFast` callback that threw, for instance). Catch it to handle any failure from the package. |
+
+### `./queue`
+
+| Export         | Kind             | What it is                                                                                                                          |
+| :------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
+| `LmdbQueue<S>` | `class`          | FIFO queue over one sub-DB. `new LmdbQueue(env, Schema)`. Enqueue bumps a monotonic counter and stores the payload in **one** synchronous transaction; dequeue reads the head and deletes it in one. At-least-once across processes. |
+| `IQueueSchema` | `type`           | The schema constraint `LmdbQueue` requires: a schema class whose `key` is string-kind (`t.string()`, `t.string('a','b')`, or `t.enum('a','b')`). A structural check, not a base class to extend. |
+
+`LmdbQueue<S>` members: `enqueue(job)` → the generated zero-padded id (async) · `dequeue()` → `[id, job] \| undefined` (async) · `peek()` → `[id, job] \| undefined` (sync) · `size()` → `number` (sync) · `clear()` (async).
+
+### `./job-run`
+
+| Export                      | Kind             | What it is                                                                                                                     |
+| :-------------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| `LmdbJobRun`                | `class`          | Restart-safe cron scheduling. Owns both halves: croner decides *when* to fire, this class persists *that a run happened*, so the next boot can tell whether the job is due. |
+| `JobRunSchema`              | `class`          | The schema behind the stamps: `db: '__job_run'`, `key: t.string()`, `value: {at: t.number()}`. Registered rather than reached through a raw handle, so rows are typed and readable via `env.sub(JobRunSchema)`. |
+| `LmdbJobRunHandle`          | `type`           | What `LmdbJobRun.start` returns: `stop()` · `runNow()` · `lastRun()` · `nextRun()` · `label()`.                                      |
+| `LmdbJobRunScheduleOptions` | `type`           | `{pattern, task, timezone?, runOnStart?, catchUp?, onError?, persist?}`. `pattern` and `task` are required.                        |
+| `LmdbJobRunMissedOptions`   | `type`           | `{pattern, timezone?, now?}` for the standalone missed-boundary check.                                                          |
+
+`LmdbJobRun` members: `sub` (the `__job_run` handle) · `lastRun(key)` → epoch ms or `undefined` (sync) · `recordRun(key, at?)` (async, call it only after the work succeeded) · `clear(key)` → `Promise<boolean>` · `missed(key, opts)` → `boolean` · `start(key, opts)` → `LmdbJobRunHandle`. The constructor registers `JobRunSchema` idempotently and costs one `maxDbs` slot eagerly, unlike CDC and sync which open theirs lazily.
+
+### `./backup`
+
+| Export                          | Kind    | What it is                                                                                                                            |
+| :------------------------------ | :------ | :------------------------------------------------------------------------------------------------------------------------------------- |
+| `LmdbBackup`                    | `class` | Timestamped backup lifecycle: directory backups, tar.gz archives, S3 upload, pruning, restore, and scheduling. Only `backup-*` entries are ever listed or pruned, so foreign files in the directory are left alone. |
+| `LmdbBackupStartOptions`        | `type`  | `{dir, pattern, keep?, s3Keep?, timezone?, runOnStart?, format?, compact?, s3?, onError?, persist?, persistKey?}`. `dir` and `pattern` are required. |
+| `LmdbBackupHandle`              | `type`  | What `start` returns: `stop()` · `runNow()` · `lastRun()` · `nextRun()` · `label()`.                                                      |
+| `LmdbBackupSnapshotOptions`     | `type`  | The same shape minus `pattern`, `timezone`, `runOnStart`, `persist`, and `persistKey`.                                                    |
+| `LmdbBackupSnapshotResult`      | `type`  | `{path, ...}` from `snapshot`: the archive path (or backup dir) plus the remote key when uploaded.                                        |
+| `LmdbBackupEntry`               | `type`  | One directory backup from `list`: `name` (`backup-<stamp>`), absolute `path`, and `mtimeMs` (the directory mtime, the prune order key). |
+| `LmdbBackupArchiveEntry`        | `type`  | One tar.gz archive from `listArchives`: `name` (`backup-<stamp>.tar.gz`), absolute `path`, `mtimeMs`, and `sizeBytes`.                  |
+| `LmdbBackupS3Options`           | `type`  | `{bucket, accessKeyId?, secretAccessKey?, client?, prefix?, endpoint?, region?, forcePathStyle?}`. Supply `client` for a preconfigured `S3Client`; it wins over the fields. |
+
+`LmdbBackup` statics:
+
+| Static                                                             | Returns                                              | What it does                                                                                       |
+| :----------------------------------------------------------------- | :--------------------------------------------------- | :-------------------------------------------------------------------------------------------------- |
+| `backup(env, baseDir, keep?, compact?)`                            | the backup directory name                            | Copies the env into `backup-<stamp>` under `baseDir`, creating it first, then prunes.                |
+| `list(baseDir)`                                                    | `LmdbBackupEntry[]`                                  | Directory backups, oldest first.                                                                     |
+| `prune(baseDir, keep?)`                                            | `{kept, removed}`                                    | Drops the oldest directory backups beyond `keep`; non-positive `keep` falls back to `3`.            |
+| `restore(backupPath, destPath, {overwrite?})`                     | the restored path                                    | Validates `data.mdb` in the source before copying out.                                               |
+| `snapshot(env, opts)`                                              | `LmdbBackupSnapshotResult`                           | One-shot `dir` or `tar.gz` copy, optional S3 upload, local and remote pruning.                      |
+| `listArchives(baseDir)`                                            | `LmdbBackupArchiveEntry[]`                           | `tar.gz` archives, oldest first.                                                                    |
+| `pruneArchives(baseDir, keep?)`                                    | `{kept, removed}`                                    | Drops the oldest archives beyond `keep`.                                                            |
+| `restoreArchive(archivePath, destParent, destName)`                | the restored path                                    | Extracts an archive into a named directory under `destParent`.                                     |
+| `uploadToS3(archivePath, s3, keep?)`                               | the remote key                                       | PUTs the archive and verifies it landed before pruning the remote.                                  |
+| `pruneS3Archives(s3, keep?)`                                       | `{removed}`                                          | Drops the oldest remote archives beyond `keep`.                                                    |
+| `downloadFromS3(s3, key, destDir, fileName)`                       | the local path                                       | Downloads to a `Math.random()`-suffixed `.part` sibling, so parallel downloads cannot interleave.   |
+| `clearStaleStaging(dir)`                                           | `void`                                               | Removes orphaned staging leftovers from a crashed run.                                              |
+| `start(env, opts)`                                                 | `LmdbBackupHandle`                                   | A thin wrapper that supplies the snapshot task and delegates every scheduling decision to `LmdbJobRun.start`. |
+
+The `tar.gz` and S3 paths load their peer dependencies lazily: an install without `tar` or `@aws-sdk/client-s3` pays nothing and only those two paths throw.
+
+### `./reader`
+
+| Export       | Kind    | What it is                                                                                                                                                          |
+| :----------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LmdbReader` | `class` | Read-only replica helper. `LmdbReader.open(path, {maxDbs?, pollMs?})` returns a `readOnly` `LmdbEnv` you must `close()`. `maxDbs` defaults to `10`; `pollMs` periodically calls `resetReadTxn` so a long-lived reader sees new writes, and `close()` is patched to clear that timer. |
+
+This is a same-machine, same-file attach, not replication: LMDB gives a consistent snapshot per read transaction, so the reader sees whatever the writer has flushed.
+
+### `./cdc`
+
+| Export          | Kind            | What it is                                                                                                                  |
+| :-------------- | :-------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| `Cdc`           | `class`         | Per-env CDC entry point, all statics and `@internal`. `Cdc.for(env)` returns the cached `{store, hub}` pair from a `WeakMap`, so a closed env drops its entry with no manual cleanup. Never construct it. |
+| `CdcHub`        | `class`         | In-process subscriber hub, one per env, `@internal`. `active` · `activate()` · `subscribe(filter, cb)` → unsubscribe · `drain()` · `tail(options?)` · `ack(consumer, seq)`. The `aftercommit` hook attaches on the first `subscribe` and detaches when the last one leaves. |
+| `CdcStore`      | `class`         | The durable outbox, `@internal`. `ensure()` · `append(db, event, mode)` · `maxSeq()` · `scan(floor, limit?)` · `getAck(consumer)` · `setAck(consumer, seq)` · `prune(keep?)`. Backed by `__cdc_log` and `__cdc_meta`. |
+| `ICdcEvent`     | `type`          | `{type, key, value}`. `type` is `put` · `delete` · `clear`; a delete is key-only and a clear has neither key nor value.            |
+| `ICdcRecord`    | `type`          | `ICdcEvent` plus the gapless per-env outbox `seq` and the source `db`, appended in the same writer transaction as the write.    |
+| `ICdcFilter`    | `type`          | `string` (a sub-DB name) or `{db, op?}` to narrow to `put` · `delete` · `clear`.                                                  |
+| `ICdcCallback`  | `type`          | `(event: ICdcEvent) => void`, invoked post-commit on the `aftercommit` tail.                                                     |
+| `ICdcTailOptions` | `type`        | `{consumer?, from?, limit?}` for `tailCdc`. A named consumer auto-registers on first tail and resumes past its persisted ack.    |
+
+You reach all of this through `LmdbEnv`: `subscribe`, `tailCdc`, `ackCdc`, `pruneCdc`. Capture arms on the first CDC touch, so writes made before that are invisible; `__`-prefixed internal subs are excluded.
+
+### `./sync`
+
+| Export             | Kind    | What it is                                                                                                                       |
+| :----------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------- |
+| `LmdbSyncStream<S>` | `class` | One differential-sync run, constructed with `(source, dest, options?)` and single-use. Copies rows past a checkpoint through a keyset cursor in 500-row chunks, persisting the cursor after each committed chunk so a kill resumes mid-stream. |
+| `ISyncOptions<S>`  | `type`  | `{name?, checkpoint?, limit?, verify?}`. `name` defaults to the destination db; an explicit `checkpoint` runs one-shot without touching the stored cursor; `verify` defaults to `true`. |
+| `ISyncResult<S>`   | `type`  | `{copied, checkpoint, verified}`. A truncated run reports `verified: false`.                                                       |
+
+Members: `run()` → `Promise<ISyncResult<S>>` (throws on self-sync and on verify divergence) · `LmdbSyncStream.hashRowValue(value)` → an unsigned 32-bit hash over a canonicalized row, used for the verify spot-checks. Sync upserts and never deletes destination-only rows; quiesce writes on both subs before running it.
+
+### `./search`
+
+| Export       | Kind    | What it is                                                                                                                                                       |
+| :----------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LmdbSearch` | `class` | Full-text search primitives, all statics. Tokenization is deliberately minimal: lowercase plus a split on `[^a-z0-9]+`, no stemming, so non-ASCII letters act as separators. |
+
+- `LmdbSearch.tokenize(text)` → lowercase alphanumeric terms, `[]` for empty or punctuation-only input.
+- `LmdbSearch.tokenizeField(value)` → the same for a field value; non-strings contribute no terms, mirroring how `null` extracts skip embedded indexes.
+- `LmdbSearch.fingerprintPk(pk)` → a stable string encoding of a key's *value*, so array and buffer primary keys still map to the same score-map entry across reads (a `Map` key would compare by reference identity).
+
+### `./codec`
+
+| Export        | Kind    | What it is                                                                                                                                             |
+| :------------ | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RecordCodec` | `class` | The positional row codec installed automatically on hook-free, non-TTL, row-shaped schemas. Rows encode as arrays in column declaration order (field names never reach disk) and decode back to row objects. Implements `ICodec<unknown>`. |
+
+Members: `constructor(columns)` (the column order is the codec's configuration) · `columns` (readonly) · `hookBeforeWrite(value)` → the positional cell array · `hookBeforeRead(raw)` → the rebuilt row, with `undefined` cells left absent. Statics `RecordCodec.getPath(row, column)` and `RecordCodec.setPath(row, column, cell)` walk and rebuild dotted paths such as `"profile.email"`; `getPath` returns `undefined` for an absent path rather than throwing. Non-array stored values decode through untouched, so rows written before the codec (or raw bytes from `putBinary`) still read.
+
+### `./types/env`
+
+| Export                 | Kind    | What it is                                                                                                                    |
+| :--------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------- |
+| `ILmdbEnvOptions`      | `type`  | The constructor options object. `path` is required; every other lmdb `open()` parameter is available and forwarded.              |
+| `ILmdbEncoding`        | `type`  | `msgpack` · `json` · `cbor` · `string` · `binary` · `ordered-binary`.                                                           |
+| `ICompressionOptions`  | `type`  | `{threshold?, dictionary?}` for the LZ4 settings, as an alternative to the `compression` boolean.                              |
+| `ILmdbEnvState`        | `type`  | `closed` · `opening` · `open` · `closing`, what `LmdbEnv.state` returns.                                                        |
+
+The `IMigration` and `ITransformStep` shapes `migrate()` consumes live in `src/types/env.ts` but are not re-exported from the barrel; annotate migrations inline or import them from your own alias.
+
+### `./types/indexes`
+
+| Export              | Kind    | What it is                                                                                                                                    |
+| :------------------ | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `IIndexDef<T, K>`   | `type`  | One declarative index: `extractor?` · `unique?` · `dbName?` · `composite?`. An extractor returning `undefined`/`null` skips the entry.        |
+| `IIndexDefs<T>`     | `type`  | The index map, `Record<string, IIndexDef<T, ILmdbKey>>`, keyed by declared index name.                                                        |
+| `IndexQueryValue<T, P, D>` | `type` | What a query accepts for one index: the indexed field's type when the name is a field path on `T`, else `ILmdbKey`, or `ILmdbKey \| ICompositeRange` for a composite. |
+| `IIndexQuery<T, I>` | `type`  | The object query `findByIndex` accepts. Every supplied key is ANDed; the intersection term makes `{}` a compile error.                      |
+| `IIndexResult<T, I, Q>` | `type` | The return type: `T \| undefined` when every queried index is unique, `T[]` when any is not. Without `as const` on the index map the check widens and every query degrades to `T[]`. |
+| `ICompositeRange`   | `type`  | `{start?, end?}` of key tuples for a composite range seek; `start` inclusive, `end` exclusive, either may be open-ended.                     |
+| `IndexDescriptor`   | `type`  | One index as resolved at registration: `name` · `extractor` · `unique` · `state` · `autoResolved` · `composite`.                              |
+
+### `./types/key`
+
+| Export      | Kind    | What it is                                                                                                                              |
+| :---------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------- |
+| `ILmdbKey`  | `type`  | Anything lmdb accepts as a key, re-exported from `lmdb` as `Key`: `string` · `number` · `boolean` · `symbol` · `Uint8Array` · arrays of primitives. The array form is what makes `["tenant-a", 42]` composite keys sort lexicographically. |
+
+### `./types/range`
+
+| Export          | Kind    | What it is                                                                                                                                                                |
+| :-------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `IRangeOptions` | `type`  | Bounds for a range read: `start?` (inclusive) · `end?` (exclusive) · `inclusiveEnd?` · `exclusiveStart?` · `limit?` · `offset?` · `reverse?`. Omitting both bounds walks the whole key space in lexicographic order. |
+
+`IRangeOptions` also carries a `transaction?` field, but it is `@internal`: `LmdbEnv` fills it in when you pass a transaction to a sub read, and you never set it yourself.
+
+### `./types/search`
+
+| Export          | Kind    | What it is                                                                                                     |
+| :-------------- | :------ | :--------------------------------------------------------------------------------------------------------------- |
+| `ISearchTable`  | `type`  | One attached posting table: the searched `column` name plus the `{db}:search:{column}` dupSort `state` holding term to primary-key rows. |
+
+### `./types/codec`
+
+| Export    | Kind    | What it is                                                                                                                    |
+| :-------- | :------ | :------------------------------------------------------------------------------------------------------------------------------- |
+| `ICodec<T>` | `type` | The write/read hook pair: `hookBeforeWrite(value: T): unknown` and `hookBeforeRead(raw: unknown): T`. Both run at the repository boundary, before and after lmdb's native encoding. |
+
+### `./types/sub-state`
+
+| Export         | Kind    | What it is                                                                                                              |
+| :------------- | :------ | :------------------------------------------------------------------------------------------------------------------------- |
+| `LmdbSubState` | `type`  | Per-sub-DB state the env's sub manager keeps: `dbName` · `env` · `codec?` · `hookBeforeRead` · `indexes` · `indexByName` · `searchTables` · `keyType?` · `opts` · `isTtl` · `ttlMs?`. It is `@internal`: reachable from the barrel so `ISearchTable` and `IndexDescriptor` can reference it, not part of the surface you code against. |
 
 ## ✅ Testing
 
