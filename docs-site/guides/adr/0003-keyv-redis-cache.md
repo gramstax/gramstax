@@ -1,7 +1,10 @@
 # ADR-0003: Unified keyv / Redis cache via `CacheExternal`
 
-**Status:** Accepted
-**Date:** 2025 (inferred from package history)
+<Info>
+  **Status:** Accepted
+
+  **Date:** 2025 (inferred from package history)
+</Info>
 
 ## Context
 
@@ -16,6 +19,12 @@ Provide a single cache abstraction: `CacheExternal<V>` **extends `keyv`** (`src/
 - `more.forceStore` → a custom store.
 
 `Gramstax.cacheSession` and `Ctx`-level session reads/writes go through this object. `cacheKeyboard` is a plain `Map` for in-process keyboard reuse.
+
+<Note>
+  Two limits follow from the store choice: `@keyv/redis` is only loaded when
+  `url` starts with `redis`, and `refreshLruCache()` only operates on the memory
+  `Map` store.
+</Note>
 
 ## Consequences
 

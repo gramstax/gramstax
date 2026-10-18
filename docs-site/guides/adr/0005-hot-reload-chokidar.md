@@ -1,7 +1,10 @@
 # ADR-0005: Hot-reload templates with `chokidar`
 
-**Status:** Accepted
-**Date:** 2025 (inferred from package history)
+<Info>
+  **Status:** Accepted
+
+  **Date:** 2025 (inferred from package history)
+</Info>
 
 ## Context
 
@@ -10,6 +13,12 @@ Templates (the `<g-*>` DSL) are the primary thing a bot author edits during deve
 ## Decision
 
 `TemplateManager` watches template source files with **`chokidar`** (`src/template/manager.ts:14` imports `watch, FSWatcher`). When `ITTemplateOptions.enableWatch` is set, the constructor calls `_initializeWatcher` and stores `FSWatcher` instances in `_watcher` (`manager.ts:71`). On add/change/delete it reloads and **recompiles** the affected template into `_map` — no bot restart required. Supported extensions are `.html`, `.ts`, `.js` (`_supportedExtensions`, `manager.ts:87`).
+
+<Note>
+  Watching costs you a descriptor held open for the life of the process, and each
+  change is per-file but still runs the full `TemplateEngine` pipeline. Only
+  `.html`, `.ts`, and `.js` are watched.
+</Note>
 
 ## Consequences
 

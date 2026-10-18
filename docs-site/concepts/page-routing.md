@@ -25,6 +25,12 @@ Depth is not a convention you have to remember — it is the directory nesting.
 One rule: a root-level `src/pages/index.ts` has no parent route and is rejected
 rather than silently swallowing the whole tree.
 
+<Note>
+  This is deliberate. A stray root `index.ts` is the natural place to put shared
+  code, and the failure mode of allowing it — every route resolving to the same
+  page — is invisible until someone deploys.
+</Note>
+
 ## The page class
 
 The scanner takes the **first named export** as the page class. There are no

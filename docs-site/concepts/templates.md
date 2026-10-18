@@ -89,6 +89,13 @@ blocks ahead of time. The practical consequences:
 - **Script blocks are rejected** — `g-script` and `{~~ … ~~}` both compile to
   `with(data …)`, which is illegal in ESM strict mode. Move the logic into the
   page class as a method returning plain data.
+
+  <Danger>
+    This is the one constraint that will bite you first. A template containing a
+    script block does not degrade — the build refuses it, and says which block was
+    rejected.
+  </Danger>
+
 - Runtime-assembled templates cannot be emitted; only static sources are.
 
 The error message for a blocked script is explicit about this. See

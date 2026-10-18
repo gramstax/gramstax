@@ -41,6 +41,7 @@ const PROSE = [
       "guides/getting-started",
       "guides/gramstax-start",
       "guides/gramstax-build",
+      "guides/e2e-testing",
       "guides/serverless-deploy",
       "guides/aot-contract",
       "guides/adr/index",

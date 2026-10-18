@@ -42,7 +42,7 @@ themselves, as the template does for local defaults).
 
 `token` holds the bot token VALUE itself (author-written env-or-literal,
 mirroring `IGramstaxParams.token`). The scaffold writes
-`token: process.env.BOT_TOKEN ?? ``` — `start` boots from
+`token: process.env.BOT_TOKEN ?? ""` — `start` boots from
 `config.token` and a missing/empty value throws the constructor message
 verbatim:
 
@@ -56,16 +56,23 @@ only `start` enforces non-empty. Same pass-through rule for
 `optionsDeploy.webhook.secretToken` and `optionsDeploy.serverless.secretToken`
 (env expression, never a literal; serverless duality — config value sets the
 webhook, edge reads the `BOT_WEBHOOK_SECRET` binding — see
-`docs-site/guides/serverless-deploy.md`). Never commit real
-token/secret values; keep them in `.env` (see `.env.example`). The
-framework cannot distinguish a literal from an env-derived value, so no
-warning is possible — the caution above is the whole guardrail.
+`docs-site/guides/serverless-deploy.md`).
+
+<Warning>
+  Never commit real token/secret values; keep them in `.env` (see
+  `.env.example`). The framework cannot distinguish a literal from an
+  env-derived value, so no warning is possible — that caution is the whole
+  guardrail.
+</Warning>
 
 ## Path-ref form
 
-INSTANCE slots accept a bare string (default export, zero args) or
-`{override: {module, export?, args?}}` (named export, spread args). Paths resolve relative
-to the project root (cwd). A bare module ref without the `override` wrapper is rejected.
+<Warning>
+  INSTANCE slots accept a bare string (default export, zero args) or
+  `{override: {module, export?, args?}}` (named export, spread args). Paths
+  resolve relative to the project root (cwd). A bare module ref **without** the
+  `override` wrapper is rejected.
+</Warning>
 
 ```ts
 import type {GramstaxConfig} from "gramstax"
@@ -110,10 +117,12 @@ gramstax start: invalid `cacheSession` from ./src/cache.ts#NotACache — expecte
 
 ## Start-only resolution
 
-Path-ref IMPORT happens only in `gramstax start`, never in `gramstax build`.
-Builds stay static: when the config carries any override slot and the target
-set includes `cloudflare-mod`, `gramstax build` prints a
-non-blocking warning per slot and keeps emitting:
+<Info>
+  Path-ref IMPORT happens only in `gramstax start`, never in `gramstax build`.
+  Builds stay static: when the config carries any override slot and the target set
+  includes `cloudflare-mod`, `gramstax build` prints a non-blocking warning per
+  slot and keeps emitting.
+</Info>
 
 ```text
 gramstax build: custom `cacheSession` ignored on cloudflare-mod (edge boots from frozen manifest output)
@@ -142,11 +151,15 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 | `statusServerHostname`  | `string`                          | —         | Non-empty                               |
 | `optionsPage`           | `{shortCallbackQueryData?}`       | —         | Boolean when present                    |
 
-Scope: `polling` plus `webhook` (`serverless`/`test` behave exactly as the
-constructor does today — no special-casing). `optionsDeploy`
-branches (`serverless`/`webhook`/`polling`/`raw`/`test`), polling/webhook/test/raw sections, and real lambda fields
-are unchanged; see `docs-site/guides/gramstax-build.md` and `docs-site/guides/serverless-deploy.md`.
-Paths follow the `src/pages` + `.gramstax/` convention (no path knobs).
+<Note>
+  This table's scope is `polling` plus `webhook`. `serverless` and `test` behave
+  exactly as the constructor does today — no special-casing. `optionsDeploy`
+  branches (`serverless`/`webhook`/`polling`/`raw`/`test`),
+  polling/webhook/test/raw sections, and real lambda fields are unchanged; see
+  `docs-site/guides/gramstax-build.md` and
+  `docs-site/guides/serverless-deploy.md`. Paths follow the `src/pages` +
+  `.gramstax/` convention (no path knobs).
+</Note>
 
 ### The update queue (`queue?` on `polling` and `webhook`)
 

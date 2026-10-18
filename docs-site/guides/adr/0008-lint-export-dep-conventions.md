@@ -1,7 +1,10 @@
 # ADR-0008: No `@ts-ignore`, named exports only, minimal deps
 
-**Status:** Accepted
-**Date:** 2025 (inferred from package history)
+<Info>
+  **Status:** Accepted
+
+  **Date:** 2025 (inferred from package history)
+</Info>
 
 ## Context
 
@@ -16,7 +19,14 @@ Encode these conventions (from `AGENTS.md` "Anti-Patterns" and the lint config):
 3. **Minimal dependencies** — prefer `grammy`, `keyv`, `logging-pretty`; avoid adding new packages.
 4. **`vitest`/`jest` banned** — use `bun:test` exclusively.
 5. **`any` allowed but discouraged** in source; type suppression is acceptable *only in tests* (`as any`).
-6. **Prettier/ESLint rules** (`eslint.config.ts`): backtick strings (`quotes: backtick`), `object-curly-spacing: never`, `no-explicit-any: off`, `no-unused-vars: error` (ignore `_*`).
+6. **Formatting is enforced by Biome** (`biome.json`): 2-space indent, no semicolons, `printWidth: 300` for TS and `200` for JSON, `trailingComma: none`. Backtick string literals are a convention only — `biome.json` sets `quoteStyle: "double"` and `plugins: []`, so no rule fails on a non-backtick string.t-any: off`, `no-unused-vars: error` (ignore `_*`).
+
+<Warning>
+  Rule 1 is machine-checked: a `@ts-ignore` or `@ts-expect-error` in source fails
+  the gate. Suppression is acceptable only in tests, as `as any`. Rule 2 is
+  enforced at load time — `PageManager._getFile` requires a named page export, so
+  a default export throws rather than falling back.
+</Warning>
 
 ## Consequences
 
@@ -44,10 +54,9 @@ Encode these conventions (from `AGENTS.md` "Anti-Patterns" and the lint config):
 | Source Type | Reference |
 |-------------|-----------|
 | Docs | `AGENTS.md` — "Anti-Patterns: Do not add `@ts-ignore`/`@ts-expect-error` … No default exports — always named exports … Avoid adding new dependencies; prefer grammy, keyv, logging-pretty … Do not use vitest or jest." |
-| Config | `eslint.config.ts:22-31` — `quotes: backtick`, `no-explicit-any: off`, `no-unused-vars: error`, `object-curly-spacing: never` |
+| Config | `biome.json` — `lineWidth` 300 (TS)/200 (JSON), `semicolons: "asNeeded"`, `useTabs: false`, `trailingComma: "none"` | never` |
 | Code | `src/index.ts:13-29` — named `export *` barrel with `// type` separator |
 | Code | `src/page/manager.ts:56-63` — `_getFile` requires a non-default export |
-| Config | `.prettierrc` — printWidth 300 (TS)/200 (JSON), no semi, useTabs false |
 
 ## Related
 

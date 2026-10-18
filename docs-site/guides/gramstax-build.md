@@ -11,12 +11,19 @@ For all deploys: one `gramstax build` freezes a project's `pages/` into a single
 | `serverless` (key `aws-lambda-async`) | auto-loads `.gramstax/` (fs fallback) |
 | `serverless` (key `cloudflare-mod`) | same auto-load |
 
-Auto-load applies to `serverless` deploys exclusively (matches `Bot._loadBuildManifest` early-return for non-serverless).
+<Note>
+  Auto-load applies to `serverless` deploys exclusively (matches
+  `Bot._loadBuildManifest` early-return for non-serverless). Every other deploy
+  keeps the filesystem boot unless you pass the `manifest` param explicitly.
+</Note>
 
-`queue` is orthogonal to `build` — it is a runtime knob, never frozen into
-`.gramstax/`, and both `optionsDeploy.polling.queue` and
-`optionsDeploy.webhook.queue` configure the same `UpdateQueue` class. See
-`docs-site/guides/gramstax-start.md` for the field table and the opt-in default.
+<Note>
+  `queue` is orthogonal to `build` — it is a runtime knob, never frozen into
+  `.gramstax/`. Both `optionsDeploy.polling.queue` and
+  `optionsDeploy.webhook.queue` configure the same `UpdateQueue` class; see
+  `docs-site/guides/gramstax-start.md` for the field table and the opt-in
+  default.
+</Note>
 
 ```bash
 gramstax build
@@ -63,6 +70,12 @@ ignored.
 working); its value comes from an env expression, never a literal. Duality —
 config value sets the webhook, edge reads the `BOT_WEBHOOK_SECRET`
 binding — is specified once in `docs-site/guides/serverless-deploy.md`.
+
+<Warning>
+  Never write `secretToken` as a literal. It is never baked into a bundle and
+  never written into `wrangler.toml` — the deployed entry reads the
+  `BOT_WEBHOOK_SECRET` binding instead.
+</Warning>
 
 The scaffolded `gramstax.config.ts`
 (`packages/create-gramstax/src/templates/gramstax.config.ts`) lists all
@@ -196,7 +209,12 @@ on this fallback.
 
 ## Parity guarantee
 
-Proven by `cli.build-parity.test.ts` + `core.manifest-parity.test.ts` on helloworld-like and `.html` fixture projects: manifest boot produces routing tables deep-equal to fs boot and byte-identical `/start` output. Regenerate after every pages/templates change.
+<Check>
+  Proven by `cli.build-parity.test.ts` + `core.manifest-parity.test.ts` on
+  helloworld-like and `.html` fixture projects: manifest boot produces routing
+  tables deep-equal to fs boot and byte-identical `/start` output. Regenerate
+  after every pages/templates change.
+</Check>
 
 ## Raw projects
 

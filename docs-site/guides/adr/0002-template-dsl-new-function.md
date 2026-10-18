@@ -1,7 +1,10 @@
 # ADR-0002: Template DSL compiled with `new Function()`
 
-**Status:** Accepted
-**Date:** 2025 (inferred from package history)
+<Info>
+  **Status:** Accepted
+
+  **Date:** 2025 (inferred from package history)
+</Info>
 
 ## Context
 
@@ -13,6 +16,12 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 `TemplateEngine` parses the `<g-*>` DSL and Telegram Rich HTML into **render functions created with `new Function("data", body)`** (`src/template/engine.ts:1284` and `:1287`). Compilation happens **once** at load (or on hot-reload) and the result is cached by `TemplateManager._map` as `ITCompiledTemplate` (`message`/`keyboard`/`media`/`description` keyed by base id + language). Scopes/interpolation (`{{var}}`, switch, map, script, div) are resolved into the generated function body.
 
+<Warning>
+  The compiled output is dynamic code, so a runtime that forbids `new Function`
+  cannot execute it — some sandboxes and CSP setups do. For those runtimes, see
+  the [AOT contract](/guides/aot-contract), which emits frozen modules instead.
+</Warning>
+
 ## Consequences
 
 ### Benefits
@@ -23,7 +32,7 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 ### Trade-offs
 
-- `new Function()` is dynamic code generation (some sandboxes/CSP disallow it); acceptable here because templates are **first-party authoring**, not user-supplied untrusted input.
+- `new Function()` is dynamic code generation (some sandboxes/CSP disallow it); acceptable here because templates are **first-party authoring**, not user-supplied untrusted input. See the [AOT contract](/guides/aot-contract) for the codegen-free output path.
 - Errors surface at compile time, not necessarily at the exact template location (the engine still reports line numbers via validators).
 
 ### Alternatives Considered

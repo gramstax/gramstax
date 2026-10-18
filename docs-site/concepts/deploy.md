@@ -55,6 +55,12 @@ a public endpoint that will drive your bot.
 Keyed by adapter: `cloudflare-mod` or `aws-lambda-async`. Also requires `url`
 and `secretToken`.
 
+<Warning>
+  Keep the secret out of `gramstax.config.ts`. It comes only from the
+  `BOT_WEBHOOK_SECRET` runtime binding — `wrangler secret put BOT_WEBHOOK_SECRET`
+  — never as a literal in a file that gets committed.
+</Warning>
+
 This is the **only** mode that auto-loads `.gramstax/` — the output of
 `gramstax build`. Polling, webhook and test boot from the filesystem, because
 they have a filesystem. A serverless isolate does not, so the frozen artifact is

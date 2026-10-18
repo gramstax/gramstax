@@ -60,17 +60,20 @@ wrangler secret delete BOT_TOKEN
 wrangler secret put BOT_TOKEN   # paste the NEW token only here, never in a file
 ```
 
-**Revoke warning:** the old committed token must be revoked via BotFather
-before/after rotation — a committed token is compromised by definition.
+<Danger>
+  The old committed token must be revoked via BotFather before/after rotation — a
+  committed token is compromised by definition.
+</Danger>
 
-**Vars-vs-secret collision (proven live 2026-09-29):** never put `BOT_TOKEN`
-(or any secret name) in `[vars]` — not even as a placeholder. A vars entry
-occupies the binding name: `secret put` then fails with `already in use`,
-`secret list` shows nothing, and the worker throws error 1101 (the var value
-reaches the code, not the secret). Recovery: remove the vars line, redeploy
-(`--keep-vars` defaults to false, so the stale var is wiped and only
-configured vars are set), then `secret put` succeeds. The emitted toml
-deliberately carries no `BOT_TOKEN` vars line for this reason.
+<Warning>
+  Never put `BOT_TOKEN` (or any secret name) in `[vars]` — not even as a
+  placeholder. A vars entry occupies the binding name: `secret put` then fails
+  with `already in use`, `secret list` shows nothing, and the worker throws error
+  1101 (the var value reaches the code, not the secret). Recovery: remove the
+  vars line, redeploy (`--keep-vars` defaults to false, so the stale var is wiped
+  and only configured vars are set), then `secret put` succeeds. The emitted toml
+  deliberately carries no `BOT_TOKEN` vars line for this reason.
+</Warning>
 
 ## 3b. Webhook secret duality (`secretToken`)
 
@@ -94,51 +97,60 @@ entry receives fewer, because it boots fs-less from the frozen manifest. Anythin
 dropped is reported per-slot at build time, with the reason — including under
 `--dry-run`, which is the cheapest place to catch it.
 
-**Passed through** (plain data, works without a filesystem):
+<AccordionGroup>
+  <Accordion title="Which slots are passed through?">
+    Plain data, works without a filesystem.
 
-| Slot | Notes |
-| --- | --- |
-| `autoRetry`, `autoRetryOptions`, `maxTextLength`, `skipDuplicateUpdate`, `updateTimeoutMs` | scalars / pure logic |
-| `optionsPage`, `rateLimit`, `throttle` | plain objects, in-memory |
-| `cacheSession` | only the `{store, ttlMs, namespace}` form |
-| `cacheKeyboard` | only the array / plain-object form |
-| `log` | only `true`/`false`, or options without `pathFile` and without `force: 'file'\|'all'` |
+    | Slot | Notes |
+    | --- | --- |
+    | `autoRetry`, `autoRetryOptions`, `maxTextLength`, `skipDuplicateUpdate`, `updateTimeoutMs` | scalars / pure logic |
+    | `optionsPage`, `rateLimit`, `throttle` | plain objects, in-memory |
+    | `cacheSession` | only the `{store, ttlMs, namespace}` form |
+    | `cacheKeyboard` | only the array / plain-object form |
+    | `log` | only `true`/`false`, or options without `pathFile` and without `force: 'file'\|'all'` |
+  </Accordion>
 
-**Reached via a static top-level import** — `cacheSession`, `cacheKeyboard` and
-`log` may each be a path-ref:
+  <Accordion title="How is a path-ref slot resolved?">
+    `cacheSession`, `cacheKeyboard` and `log` may each be a path-ref:
 
-```ts
-log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}}
-```
+    ```ts
+    log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}}
+    ```
 
-The emitter writes `import * as __ref0 from "../../src/helpers/log.ts"` at the
-top of `worker.js` / `lambda.js` and resolves it at the construction site:
+    The emitter writes `import * as __ref0 from "../../src/helpers/log.ts"` at the
+    top of `worker.js` / `lambda.js` and resolves it at the construction site:
 
-```js
-log: __pick(__ref0, "LogHe", [])
-```
+    ```js
+    log: __pick(__ref0, "LogHe", [])
+    ```
 
-`__pick` mirrors `gramstax start`: the named `export` if given, else
-`default ?? first export`, then instantiated if it is a constructor. Because the
-import is static, the platform bundler resolves — and, for `.ts`, compiles — it at
-build time, so a bad path fails the build instead of the first request. For the
-lambda target this requires `--bundle` (see §4b), since Node cannot import `.ts`
-itself.
+    `__pick` mirrors `gramstax start`: the named `export` if given, else
+    `default ?? first export`, then instantiated if it is a constructor. Because the
+    import is static, the platform bundler resolves — and, for `.ts`, compiles — it at
+    build time, so a bad path fails the build instead of the first request. For the
+    lambda target this requires `--bundle` (see §4b), since Node cannot import `.ts`
+    itself.
+  </Accordion>
 
-**Dropped, with a warning naming the reason:**
+  <Accordion title="Which slots get dropped?">
+    Each one is reported with a warning naming the reason.
 
-| Slot | Why |
-| --- | --- |
-| `templateManager` | resolves template files from disk; the entry uses the frozen manifest |
-| `sessionLock` | needs a redis client over TCP |
-| `mediaRoots` | jails local file paths; there is nothing to jail against |
-| `statusServerPort`, `statusServerHostname` | there is no status server in a deployed entry |
-| `log` with `pathFile` / `force: 'file'\|'all'` | writes to disk |
+    | Slot | Why |
+    | --- | --- |
+    | `templateManager` | resolves template files from disk; the entry uses the frozen manifest |
+    | `sessionLock` | needs a redis client over TCP |
+    | `mediaRoots` | jails local file paths; there is nothing to jail against |
+    | `statusServerPort`, `statusServerHostname` | there is no status server in a deployed entry |
+    | `log` with `pathFile` / `force: 'file'\|'all'` | writes to disk |
+  </Accordion>
+</AccordionGroup>
 
 
 
-Always pass an ABSOLUTE `--config` path — a bare relative path resolves
-against the invoker's cwd, not the project:
+<Note>
+  Always pass an ABSOLUTE `--config` path — a bare relative path resolves against
+  the invoker's cwd, not the project.
+</Note>
 
 ```bash
 wrangler deploy --config <abs path>/.gramstax/server/wrangler.toml
@@ -151,8 +163,10 @@ Works for both targets. `--target cloudflare-mod --bundle` emits
 --bundle` emits `server/bundle.js` and **changes the Lambda handler path** from
 `server/lambda.js` to `server/bundle.js`. Default (no flag) stays multi-file.
 
-Deprecated: prefer the multi-file output (debuggable, no stub tradeoffs). The
-bundle exists only for single-file portability.
+<Warning>
+  Deprecated: prefer the multi-file output (debuggable, no stub tradeoffs). The
+  bundle exists only for single-file portability.
+</Warning>
 
 **Lambda gains the most from it.** The unbundled `lambda.js` runs as-is, so a
 `pathFile`/`pathRef` pointing at `.ts` source could not be imported by Node.

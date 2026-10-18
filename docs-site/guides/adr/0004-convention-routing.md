@@ -1,7 +1,10 @@
 # ADR-0004: Convention-based routing via page class names + `handle*` methods
 
-**Status:** Accepted
-**Date:** 2025 (inferred from package history)
+<Info>
+  **Status:** Accepted
+
+  **Date:** 2025 (inferred from package history)
+</Info>
 
 ## Context
 
@@ -14,7 +17,15 @@ Route updates **by convention**, not by manual `bot.on` registration:
 - **Discovery**: `PageManager` (`src/page/manager.ts`) scans `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`), loads each file, and takes the **first named export** (no default export — `_getFile` throws if `mod[0]` is undefined, `manager.ts:56-63`).
 - **Route key**: a page's `name` is derived from the file/class; `Ctx.buildData` can override `intentText` / `intentCommandText` / `intentCallbackData`.
 - **Handler methods**: each page declares optional `async handle*` methods on its `Ctx` subclass — `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleCallbackData`, `handleArgsCallbackData`, `handleFreeText`, the `handleSession*` and `handle*Caption*` variants, etc. (`src/core/ctx.ts:2711-3180+`).
-- **Worker exception**: bots that make raw API calls only (no page templates) pass `templateManager: {} as any` (documented in `AGENTS.md`).
+- **Worker bots**: bots that only make raw API calls use `deploy: "raw"`, which
+  skips page discovery entirely. An earlier `templateManager: {} as any`
+  exception for this case has been removed and now throws.
+
+<Note>
+  Routing is implicit — harder to trace than explicit `bot.on` calls, and
+  name/intent collisions are resolved by convention rather than by a typed route
+  table.
+</Note>
 
 ## Consequences
 

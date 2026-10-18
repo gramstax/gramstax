@@ -1,7 +1,10 @@
 # ADR-0007: Bun + tsup + Nx + API-Extractor toolchain
 
-**Status:** Accepted
-**Date:** 2025 (inferred from package history)
+<Info>
+  **Status:** Accepted
+
+  **Date:** 2025 (inferred from package history)
+</Info>
 
 ## Context
 
@@ -15,6 +18,11 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 - **Build**: `tsup` (`tsup.config.ts`) emits to `dist/src` as `cjs` + `esm` with `dts: true`, `minify: true`, `platform: node`, `target: esnext`, keeping `bun` external. `project.json` wires Nx `build` → `tsup` in `packages/gramstax`.
 - **Orchestration**: Nx (`nx.json`) defines `build`/`lint`/`test` target defaults (cache, `dependsOn: ^build`, production inputs) and a `release` config (conventional-commits versioning, git tag `v{version}`, GitHub changelog, `packages/*` projects).
 - **API docs**: `api-extractor` + `api-documenter` (`build:docs` script, `api-extractor.json`) generate `docs/markdown/*` and `docs/yaml/*` from the emitted `.d.ts`.
+
+<Warning>
+  `docs/markdown` and `docs/yaml` are generated artifacts and must not be
+  hand-edited — change the source and regenerate with `bun run build:docs`.
+</Warning>
 
 ## Consequences
 

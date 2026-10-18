@@ -1,7 +1,10 @@
 # ADR-0006: In-process E2E testing via `deploy:"test"`
 
-**Status:** Accepted
-**Date:** 2025 (inferred from package history)
+<Info>
+  **Status:** Accepted
+
+  **Date:** 2025 (inferred from package history)
+</Info>
 
 ## Context
 
@@ -12,6 +15,12 @@ Testing a Telegram bot normally requires a live bot token and a reachable webhoo
 When a bot is created with **`deploy: "test"`**, `Gramstax` attaches an **`E2eHelper`** instance (`src/e2e/helper.ts:62`) to `bot.e2e` instead of starting a real transport. The helper installs a grammY API interceptor via `bot.bot.api.config.use(...)` (`helper.ts:78`) that captures every outbound call into `calls` and returns canned success objects (e.g. `getMe`, `setWebhook`). Tests then "send" updates with `sendText` / `sendPhoto` / `sendCallbackQuery` / … which build a raw Telegram `Update` and feed it through `bot.bot.handleUpdate()`; assertions read `e2e.lastCall("sendMessage")`, `e2e.extractText(call)`, `e2e.extractButtonLabels(call)`.
 
 A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provides a lightweight HTTP mock of the Bot API for offline _integration_ tests that do want a server.
+
+<Warning>
+  `bot.e2e` is typed as `undefined` unless `deploy` is a `"test"` variant
+  (`core/bot.ts:184`), so the helper will not type-check outside test mode. The
+  interceptor must also stay in sync with grammY's `api.config.use` contract.
+</Warning>
 
 ## Consequences
 

@@ -1,7 +1,10 @@
 # ADR-0001: Build on grammY instead of the raw Bot API
 
-**Status:** Accepted
-**Date:** 2025 (inferred from package history)
+<Info>
+  **Status:** Accepted
+
+  **Date:** 2025 (inferred from package history)
+</Info>
 
 ## Context
 
@@ -21,8 +24,11 @@ Build `gramstax` **on top of [`grammy`](https://grammy.dev)**. `Gramstax` extend
 
 ### Trade-offs
 
-- Tight coupling to grammY's API surface and versioning.
-- `peerDependencies` must keep `typescript` aligned; grammY major bumps can ripple into `Ctx`/`Bot` signatures.
+<Note>
+  Tight coupling to grammY's API surface and versioning. `peerDependencies` must
+  keep `typescript` aligned; grammY major bumps can ripple into `Ctx`/`Bot`
+  signatures.
+</Note>
 
 ### Alternatives Considered
 

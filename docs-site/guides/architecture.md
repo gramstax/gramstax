@@ -57,7 +57,7 @@ Handler methods follow a naming convention (all optional, all `async`): `handleC
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/template/engine.ts` (3386 lines) |
+| **Location** | `src/template/engine.ts` |
 | **Responsibility** | Parse, compile, and validate the `<g-*>` DSL and Telegram Rich HTML. |
 | **Depends On** | Nothing external (pure string→function compilation via `new Function()`). |
 | **Depended On By** | `TemplateManager`. |
@@ -85,6 +85,11 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 | **Depended On By** | `TemplateManager`, `Gramstax`. |
 
 `_getFile` throws if `mod[0]` is undefined — i.e. a page file must `export class` (not `export default`) (`manager.ts:56-63`).
+
+<Warning>
+  A default export is not a fallback here — it is a load-time throw. Page modules
+  must use a named `export class`.
+</Warning>
 
 ### CacheExternal
 
@@ -124,11 +129,37 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 ## Data Flow
 
-1. **Startup** — `new Gramstax(params)` (`bot.ts:275`) selects a deploy mode and calls `bot.init()`. `TemplateManager` loads + compiles all page templates once and starts the `chokidar` watcher if `enableWatch`.
-2. **Incoming update** — grammY hands the update to `Gramstax`. `PageManager` resolves the target `Ctx` subclass by route/intent. When `queue.enabled` is set, `UpdateQueue` + `UpdateDispatcher` buffer the update and drain it on a worker pool (both `polling` and `webhook`); otherwise the update is handled inline.
-3. **Handler** — The matched `handle*` method on the page runs. It calls `reply`/`edit`/`broadcast`, which pull the compiled `<g-base>` message/keyboard/media from `TemplateManager` (keyed by `AGBaseId` + language), interpolate `{{data}}`, and send via grammY.
-4. **State** — `Ctx.session` reads/writes user state through `CacheExternal` (keyv → memory or Redis). Keyboard layouts are cached per language in `cacheKeyboard`.
-5. **Hot reload** — If a template file changes, `chokidar` triggers recompile in `TemplateManager._map`; no restart needed.
+<Steps>
+  <Step title="Startup">
+    `new Gramstax(params)` (`bot.ts:275`) selects a deploy mode and calls
+    `bot.init()`. `TemplateManager` loads + compiles all page templates once and
+    starts the `chokidar` watcher if `enableWatch`.
+  </Step>
+
+  <Step title="Incoming update">
+    grammY hands the update to `Gramstax`. `PageManager` resolves the target
+    `Ctx` subclass by route/intent. When `queue.enabled` is set, `UpdateQueue` +
+    `UpdateDispatcher` buffer the update and drain it on a worker pool (both
+    `polling` and `webhook`); otherwise the update is handled inline.
+  </Step>
+
+  <Step title="Handler">
+    The matched `handle*` method on the page runs. It calls
+    `reply`/`edit`/`broadcast`, which pull the compiled `<g-base>`
+    message/keyboard/media from `TemplateManager` (keyed by `AGBaseId` +
+    language), interpolate `{{data}}`, and send via grammY.
+  </Step>
+
+  <Step title="State">
+    `Ctx.session` reads/writes user state through `CacheExternal` (keyv → memory
+    or Redis). Keyboard layouts are cached per language in `cacheKeyboard`.
+  </Step>
+
+  <Step title="Hot reload">
+    If a template file changes, `chokidar` triggers recompile in
+    `TemplateManager._map`; no restart needed.
+  </Step>
+</Steps>
 
 ## Key Interfaces
 
@@ -166,6 +197,14 @@ Key architectural choices and their rationale:
 
 ## Related Documentation
 
-- [Overview](/introduction) - Project purpose and scope
-- [Glossary](/guides/glossary) - Domain terminology used here
-- [Decisions](/guides/adr/index) - Architecture Decision Records
+<CardGroup cols={2}>
+  <Card title="Overview" icon="compass" href="/introduction">
+    Project purpose and scope
+  </Card>
+  <Card title="Glossary" icon="book-open" href="/guides/glossary">
+    Domain terminology used here
+  </Card>
+  <Card title="Decisions" icon="git-branch" href="/guides/adr/index">
+    Architecture Decision Records
+  </Card>
+</CardGroup>

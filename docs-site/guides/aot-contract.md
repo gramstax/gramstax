@@ -38,9 +38,25 @@ Single `export const template` matches `ITCompiledTemplate` (absent blocks omitt
 
 ## Link-table mechanics (3 lines)
 
-1. Build collects every `_compileToFunction` body while `__emitHook` is installed; message/keyboard-style leaves freeze into the `__fN`/`fN` pairs above.
-2. Media-style leaves are engine closures (opaque to any walk), so those fields rebuild at import: bodies go into a `Map` keyed `${isArray}:${body}`, `__linkHook` resolves hits (miss throws = template drift, regenerate), then the same block compilers re-run on the embedded raw template.
-3. Emitted files contain zero codegen tokens (`new Function`, `Function(`, `eval(`) — asserted by test on every emitted file, including under a sabotaged `globalThis.Function`.
+<Steps>
+  <Step title="Collect">
+    Build collects every `_compileToFunction` body while `__emitHook` is installed;
+    message/keyboard-style leaves freeze into the `__fN`/`fN` pairs above.
+  </Step>
+
+  <Step title="Link">
+    Media-style leaves are engine closures (opaque to any walk), so those fields
+    rebuild at import: bodies go into a `Map` keyed `${isArray}:${body}`,
+    `__linkHook` resolves hits (miss throws = template drift, regenerate), then the
+    same block compilers re-run on the embedded raw template.
+  </Step>
+
+  <Step title="Assert">
+    Emitted files contain zero codegen tokens (`new Function`, `Function(`,
+    `eval(`) — asserted by test on every emitted file, including under a sabotaged
+    `globalThis.Function`.
+  </Step>
+</Steps>
 
 ## Consuming (024)
 
@@ -50,13 +66,37 @@ const manager = new TemplateManager({path: [emptyDir]})
 for (const [key, template] of Object.entries(loaded.templates)) manager._registerCompiled(key, template)
 ```
 
-Registered templates render identically to JIT for all 15 `ICompiledTemplate` fields — proven by `template.aot-parity.test.ts` (media, poll, venue, dice, callbackAnswer, precheckoutError, shippingError, inlineButton, answerNote, gift, invoice, paidMedia, message, keyboard, description × 2 datasets each). One field per `compileBlockG*` static on `TemplateEngine`; there is no single dispatcher method.
+<Check>
+  Registered templates render identically to JIT for all 15 `ICompiledTemplate`
+  fields — proven by `template.aot-parity.test.ts` (media, poll, venue, dice,
+  callbackAnswer, precheckoutError, shippingError, inlineButton, answerNote, gift,
+  invoice, paidMedia, message, keyboard, description × 2 datasets each). One field
+  per `compileBlockG*` static on `TemplateEngine`; there is no single dispatcher
+  method.
+</Check>
 
 ## v1 limits
 
-- Script blocks rejected at build. The message reads ``AOT blocked for template "<key>" (<id>): body contains `with(` — `with` is forbidden in ESM strict mode ...`` — so move the logic into the page class, as a method returning plain data, rather than into `{~~ ... ~~}` or `<g-script>`. The two are equivalent: both compile to `with(data ...)`.
-- Runtime-dynamic templates impossible: AOT freezes bodies at build time, so templates assembled at runtime (string-concatenated sources, per-request codegen) cannot be emitted — only static `.html` sources.
-- Filenames are sanitized (`safeKey`): any non-identifier character becomes `_`, leading digits gain a `_` prefix. Distinct keys mapping to one filename (`a/b` vs `a_b`) collide — keep keys distinct.
+<AccordionGroup>
+  <Accordion title="Script blocks are rejected at build">
+    The message reads ``AOT blocked for template "<key>" (<id>): body contains
+    `with(` — `with` is forbidden in ESM strict mode ...`` — so move the logic into
+    the page class, as a method returning plain data, rather than into `{~~ ... ~~}`
+    or `<g-script>`. The two are equivalent: both compile to `with(data ...)`.
+  </Accordion>
+
+  <Accordion title="Runtime-dynamic templates are impossible">
+    AOT freezes bodies at build time, so templates assembled at runtime
+    (string-concatenated sources, per-request codegen) cannot be emitted — only
+    static `.html` sources.
+  </Accordion>
+
+  <Accordion title="How are filenames sanitized?">
+    Any non-identifier character becomes `_`, leading digits gain a `_` prefix.
+    Distinct keys mapping to one filename (`a/b` vs `a_b`) collide — keep keys
+    distinct.
+  </Accordion>
+</AccordionGroup>
 
 ## v2 roadmap
 

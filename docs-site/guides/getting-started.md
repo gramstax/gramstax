@@ -32,7 +32,7 @@ A bot is configured entirely through the `IGramstaxParams` object passed to `new
 | Field                           | Required | Description                                                                      | Default         |
 | ------------------------------- | -------- | -------------------------------------------------------------------------------- | --------------- |
 | `token`                         | Yes      | Telegram Bot API token from BotFather.                                           | —               |
-| `deploy`                        | Yes      | One of `polling`, `webhook`, `serverless`, `test`. Per-mode settings go in `optionsDeploy`.        | —               |
+| `deploy`                        | Yes      | One of `polling`, `webhook`, `serverless`, `raw`, `test`. Per-mode settings go in `optionsDeploy`.        | —               |
 | `log`                           | No       | `LoggingHelper` instance, `true` (default logger), or `null`/`false` to disable. | `false`         |
 | `botConfig`                     | No       | grammY `BotConfig` (e.g. `apiRoot`).                                             | —               |
 | `webhookQueue`                  | No       | `IUpdateQueueConfig` backpressure (deprecated alias `ITWebhookQueueConfig`). Prefer `optionsDeploy.webhook.queue`. | —               |
@@ -43,25 +43,32 @@ A bot is configured entirely through the `IGramstaxParams` object passed to `new
 
 ## Running Locally
 
-The simplest local setup uses **polling** (no public URL needed):
+The simplest local setup uses **polling** (no public URL needed). The bot is
+constructed by the CLI from `gramstax.config.ts` — there is no `src/index.ts` and
+no hand-written `new Gramstax({...})` entry point:
 
 ```typescript
-// src/bot.ts
-import { Gramstax } from "gramstax";
+// gramstax.config.ts
+import type {GramstaxConfig} from "gramstax"
 
-const bot = new Gramstax({
-  token: process.env.BOT_TOKEN!,
-  deploy: "polling",
-  log: true,
-});
+const config: GramstaxConfig = {
+  token: process.env.BOT_TOKEN,
+  deploy: `polling`
+}
 
-bot.start(); // registers handlers, calls bot.init(), begins polling
+export default config
 ```
 
 ```bash
-# Run with Bun (from the package or your bot project)
-BOT_TOKEN="123456:ABC…" bun run src/bot.ts
+# Run with Bun — the CLI resolves TypeScript paths and the ~ alias
+BOT_TOKEN="123456:ABC…" bun --bun gramstax start
 ```
+
+<Warning>
+  `Gramstax` has no `start()` method. Construction *is* boot — the CLI
+  discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref
+  slot, constructs it, and the bot is running. Only `stop()` exists.
+</Warning>
 
 ### Pages
 
@@ -85,13 +92,48 @@ export class StartPage extends Ctx {
 }
 ```
 
+<Warning>
+  The export must be named. `export default class` breaks discovery —
+  `PageManager._getFile` only reads the first named export
+  (`page/manager.ts:56`) and throws without one.
+</Warning>
+
 ### Webhook / serverless / test
 
-```typescript
-new Gramstax({ token, deploy: "webhook:https://example.com/bot" }); // Bun HTTP server + setWebhook
-new Gramstax({ token, deploy: "serverless:std/http" }); // export handler for your runtime
-new Gramstax({ token: "test", deploy: "test" }); // E2E mode, no HTTP
-```
+<Tabs sync={false}>
+  <Tab title="Webhook">
+    ```typescript
+    // gramstax.config.ts — the branch must be named after `deploy`
+    {
+      deploy: `webhook`,
+      optionsDeploy: {
+        webhook: {url: `https://example.com/bot`, secretToken: process.env.BOT_WEBHOOK_SECRET}
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Serverless">
+    ```typescript
+    {
+      deploy: `serverless`,
+      optionsDeploy: {
+        serverless: {
+          adapter: `cloudflare-mod`, // or `aws-lambda-async`
+          url: `https://example.com/bot`,
+          secretToken: process.env.BOT_WEBHOOK_SECRET
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Test">
+    ```typescript
+    {deploy: `test`} // E2E mode: MockTelegramServer stands in for the Bot API
+    ```
+  </Tab>
+</Tabs>
 
 ## Verifying It Works
 
@@ -119,6 +161,14 @@ Send `/start` to your bot in Telegram; you should receive the rendered `<g-messa
 
 ## Next Steps
 
-- [Development](/guides/development) - Learn how to contribute
-- [Architecture](/guides/architecture) - Understand the system design
-- [Decisions](/guides/adr/index) - Why the framework is built this way
+<CardGroup cols={3}>
+  <Card title="Development" icon="code" href="/guides/development">
+    Learn how to contribute
+  </Card>
+  <Card title="Architecture" icon="layers" href="/guides/architecture">
+    Understand the system design
+  </Card>
+  <Card title="Decisions" icon="git-branch" href="/guides/adr/index">
+    Why the framework is built this way
+  </Card>
+</CardGroup>
