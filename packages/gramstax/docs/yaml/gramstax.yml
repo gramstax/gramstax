@@ -254,10 +254,10 @@ functions:
 
 
       1. `chat.id` — all traffic for one chat serializes regardless of sender. 2. `from.id` — chat-less user-originated
-      updates (`inline_query`<!-- -->,  `chosen_inline_result`<!-- -->, `poll_answer`<!-- -->, `join_request`<!-- -->,
-      `my_chat_member`<!-- -->,  `chat_member`<!-- -->, `chat_join_request`<!-- -->, and `callback_query` without a
-      message).  For an anonymous poll voter `poll_answer.voter_chat.id` stands in. 3. `update_id` — globally unique, so
-      each such update gets a private slot.  This degrades to "no serialization" rather than over-serializing unrelated 
+      updates (`inline_query`<!-- -->, `chosen_inline_result`<!-- -->, `poll_answer`<!-- -->, `join_request`<!-- -->,
+      `my_chat_member`<!-- -->, `chat_member`<!-- -->, `chat_join_request`<!-- -->, and `callback_query` without a
+      message). For an anonymous poll voter `poll_answer.voter_chat.id` stands in. 3. `update_id` — globally unique, so
+      each such update gets a private slot. This degrades to "no serialization" rather than over-serializing unrelated
       updates against each other.
 
 

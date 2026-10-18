@@ -60,7 +60,7 @@ The raw template string to validate
 
 \{ valid: boolean; errors: Array&lt;\{ line: number; message: string; }&gt;; }
 
-An object with a `valid` boolean and a combined `errors` array containing  line numbers and descriptive messages for every violation found
+An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found
 
 ## Remarks
 

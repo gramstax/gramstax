@@ -53,10 +53,6 @@ Parameters&lt;[ISendErrorHook](./gramstax.isenderrorhook.md)&gt;
 
 void
 
-## Default Value
-
-`undefined` (no hook)
-
 ## Remarks
 
 Sibling hooks: `hookUpdateError` (dead updates — terminal) and `hookTrace` (every routed update). This one is the recoverable layer: a `fallback-text` send still serves the user, a `retryable` send still throws to your caller. Routing rule: retry-queue ← `hookSendError`, Sentry ← `hookUpdateError`, dashboard ← `hookTrace`.

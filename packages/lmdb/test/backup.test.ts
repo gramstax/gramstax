@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it} from "bun:test"
 import {existsSync, mkdirSync, readdirSync, readFileSync, utimesSync, writeFileSync} from "node:fs"
-import {join} from "node:path"
+import {join, basename} from "node:path"
 import type {S3Client} from "@aws-sdk/client-s3"
 import {LmdbBackup, type LmdbBackupHandle, type LmdbBackupS3Options, type LmdbBackupStartOptions} from "../src/backup"
 import {LmdbEnv} from "../src/env"
@@ -119,6 +119,14 @@ describe(`LmdbBackup`, () => {
     try {
       env.register(ValSchema)
       const a = await LmdbBackup.backup(env, base, 5)
+      // Two backups created inside the same millisecond share a stamp, and
+      // _byOldest then falls back to the random name suffix — documented as
+      // "arbitrary but stable", which is what `prune` needs to pick a
+      // deterministic victim, but which is NOT creation order. Wait for the
+      // clock to advance so this asserts the oldest-first ordering it is named
+      // for. Without it the test passes or fails on how fast the machine is.
+      const stampA = Number(basename(a).split(`-`)[0])
+      while (Date.now() <= stampA) await new Promise(resolve => setTimeout(resolve, 1))
       const b = await LmdbBackup.backup(env, base, 5)
       const entries = LmdbBackup.list(base)
       expect(entries.map((e) => e.path)).toEqual([a, b])

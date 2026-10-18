@@ -60,7 +60,7 @@ The template with `<g-switch>` blocks converted to executable switch expressions
 
 This internal method converts `<g-switch>` blocks with `<g-case>` and `<g-default>` sub-blocks into self-invoking JavaScript switch expressions. The `value` attribute specifies which data key to switch on. Case values can be comma-separated for multiple matches.
 
-\*\*Attributes:\*\*  - \<g-switch>  - `value` (required): The key name in the `data` object whose value will be used as the switch expression.  - \<g-case>  - `is` (required): One or more literal match values. Multiple values may be provided as a comma-separated list.  - \<g-default>  - none
+\*\*Attributes:\*\* - \<g-switch> - `value` (required): The key name in the `data` object whose value will be used as the switch expression. - \<g-case> - `is` (required): One or more literal match values. Multiple values may be provided as a comma-separated list. - \<g-default> - none
 
 ## Example
 

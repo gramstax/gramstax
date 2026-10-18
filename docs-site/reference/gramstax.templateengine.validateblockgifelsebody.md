@@ -66,7 +66,7 @@ An object with a `valid` boolean and an `errors` array
 
 Four rules, all required to keep the block a conditional and unambiguous:
 
-1. The body must not be empty. 2. `{{}}` and `{~~}` interpolation must not appear — the body is already JavaScript, and  nesting the interpolation syntaxes inside it would give one construct two grammars. 3. Template literals must not interpolate `${...}` — that is a third spelling of the same  interpolation. Use string concatenation inside the conditional instead. 4. The body must actually branch: a ternary, or a `&&` / `||` / `??` short-circuit.  A plain expression such as `items.length` belongs in `{~~}` and is rejected here so  `<g-ifelse>` cannot silently become a second `{~~}`.
+1. The body must not be empty. 2. `{{}}` and `{~~}` interpolation must not appear — the body is already JavaScript, and nesting the interpolation syntaxes inside it would give one construct two grammars. 3. Template literals must not interpolate `${...}` — that is a third spelling of the same interpolation. Use string concatenation inside the conditional instead. 4. The body must actually branch: a ternary, or a `&&` / `||` / `??` short-circuit. A plain expression such as `items.length` belongs in `{~~}` and is rejected here so `<g-ifelse>` cannot silently become a second `{~~}`.
 
 ## Example
 

@@ -136,5 +136,5 @@ methods:
       return:
         type: Promise&lt;T | null&gt;
         description: >-
-          The return value of `fn`<!-- -->, or `null` when the lock could not be  acquired and the contention policy is
+          The return value of `fn`<!-- -->, or `null` when the lock could not be acquired and the contention policy is
           `skip`<!-- -->.

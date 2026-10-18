@@ -21,7 +21,7 @@ type IGramstaxLogRef = boolean | IGramstaxPathRef | {
 
 ## Remarks
 
-Four accepted shapes (enforced by the loader): - a boolean (`true` mounts the default logger, `false` stays silent) - a module path string resolving to a `LoggingHelper` - an `{override: {module, export?, args?}}` ref resolving to a `LoggingHelper` - logger options `{pathFile?, force?, formatTime?}` — `pathFile` is a  string or `null`, `force` is one of `console`, `file`, `all`,  `formatTime` is a string. Unknown fields are rejected.
+Four accepted shapes (enforced by the loader): - a boolean (`true` mounts the default logger, `false` stays silent) - a module path string resolving to a `LoggingHelper` - an `{override: {module, export?, args?}}` ref resolving to a `LoggingHelper` - logger options `{pathFile?, force?, formatTime?}` — `pathFile` is a string or `null`, `force` is one of `console`, `file`, `all`, `formatTime` is a string. Unknown fields are rejected.
 
 ## Example
 

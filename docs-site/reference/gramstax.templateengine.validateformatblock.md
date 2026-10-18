@@ -60,7 +60,7 @@ The raw template string to validate
 
 \{ valid: boolean; errors: Array&lt;\{ line: number; message: string; }&gt;; }
 
-An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for each format violation found
+An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each format violation found
 
 ## Remarks
 
@@ -68,7 +68,7 @@ This method checks that each block tag uses the correct syntax format:
 
 \*\*Must be self-closing:\*\* - `<g-space />` — whitespace control block - `<g-import ... />` — import directive block - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements
 
-\*\*Must NOT be self-closing (must use open/close tags):\*\* - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,  `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,  `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,  `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,  `<g-map>...</g-map>`, `<g-div>...</g-div>`
+\*\*Must NOT be self-closing (must use open/close tags):\*\* - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`, `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`, `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`, `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`, `<g-map>...</g-map>`, `<g-div>...</g-div>`
 
 Telegram HTML formatting tags with content (e.g. `<b>`, `<p>`, `<table>`) passthrough and are not format-checked — both `<b>text</b>` and `<b/>` are accepted.
 

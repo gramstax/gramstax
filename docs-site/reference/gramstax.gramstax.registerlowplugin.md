@@ -28,7 +28,7 @@ Each element of the returned array is a [ICtMiddleware](./gramstax.ictmiddleware
 
 Difference vs. the other lifecycle hooks:
 
-- `hookBeforeStart` — for one-off side effects before the bot starts.  Anything you want to happen exactly once at boot goes there. - `registerLowPlugin` — for middleware that must run on \*\*every update\*\*.  Use this when you need middleware semantics (filter queries,  `next()` chaining, scope-aware registration). - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run  inside the router, after gramstax has already routed to a page.
+- `hookBeforeStart` — for one-off side effects before the bot starts. Anything you want to happen exactly once at boot goes there. - `registerLowPlugin` — for middleware that must run on \*\*every update\*\*. Use this when you need middleware semantics (filter queries, `next()` chaining, scope-aware registration). - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run inside the router, after gramstax has already routed to a page.
 
 The base implementation is not provided — subclasses override this to contribute their own plugins. Returning an empty array (or not overriding) installs no plugins, which is the default behavior.
 

@@ -18,7 +18,7 @@ static _TELEGRAM_REQUIRED_ATTRS: Record<string, string[] | {
 
 ## Remarks
 
-Per-tag table mapping tag name to the attribute(s) it must have. Two shapes are supported: - `string[]` — every entry must be present - `{ oneOf: string[][] }` — at least one of the listed sets must be fully  present (used for `<a>` which can be either a link or an anchor)
+Per-tag table mapping tag name to the attribute(s) it must have. Two shapes are supported: - `string[]` — every entry must be present - `{ oneOf: string[][] }` — at least one of the listed sets must be fully present (used for `<a>` which can be either a link or an anchor)
 
 Tags not listed here have no required attributes.
 

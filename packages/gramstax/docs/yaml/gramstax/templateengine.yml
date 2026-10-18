@@ -229,7 +229,7 @@ properties:
     summary: Required-attribute specification for Telegram Rich HTML tags.
     remarks: >-
       Per-tag table mapping tag name to the attribute(s) it must have. Two shapes are supported: - `string[]` — every
-      entry must be present - `{ oneOf: string[][] }` — at least one of the listed sets must be fully  present (used for
+      entry must be present - `{ oneOf: string[][] }` — at least one of the listed sets must be fully present (used for
       `<a>` which can be either a link or an anchor)
 
 
@@ -372,9 +372,9 @@ properties:
       opening/closing delimiters that trigger a specific interpolation behavior at compile time.
 
 
-      \*\*Supported scopes:\*\* - `{{}}` — Mustache-style variable interpolation. Placeholders like `{{name}}` are 
-      replaced with the corresponding value from the `data` object at render time.  Nullish values produce an empty
-      string. - `{~~}` — Inline execution blocks. Expressions like `{~ status ? "Success" : "Failed" ~}` are  evaluated
+      \*\*Supported scopes:\*\* - `{{}}` — Mustache-style variable interpolation. Placeholders like `{{name}}` are
+      replaced with the corresponding value from the `data` object at render time. Nullish values produce an empty
+      string. - `{~~}` — Inline execution blocks. Expressions like `{~ status ? "Success" : "Failed" ~}` are evaluated
       as JavaScript expressions with access to the `data` object.
 
 
@@ -922,8 +922,8 @@ methods:
       and surrounding newlines are trimmed from the inner content.
 
 
-      \*\*Attributes:\*\*  - `id` (optional): Identifier for the base block. If not specified,  defaults to
-      `"default"`<!-- -->. Used to reference specific base blocks when compiling  templates or extracting content.
+      \*\*Attributes:\*\* - `id` (optional): Identifier for the base block. If not specified, defaults to
+      `"default"`<!-- -->. Used to reference specific base blocks when compiling templates or extracting content.
     example:
       - |-
         ```typescript
@@ -1013,7 +1013,7 @@ methods:
       attribute are stored under `"default"` scope.
 
 
-      \*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.  -
+      \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. -
       `scope` (optional): Scope key for the nested output map. Defaults to `"default"`<!-- -->.
     remarks: ''
     example:
@@ -1095,7 +1095,7 @@ methods:
       line and trimming surrounding newlines. The `<g-div>` tags themselves are removed from the output.
 
 
-      \*\*Attributes:\*\*  - none
+      \*\*Attributes:\*\* - none
     example:
       - |-
         ```typescript
@@ -1191,13 +1191,13 @@ methods:
       `processGImportBlocks`<!-- -->.
 
 
-      \*\*Attributes:\*\*  - `src` (required): Import source identifier (e.g., template/page key). If missing, the tag
-      is removed (replaced with an empty string).  - `block` (optional): Block selector. Supported forms:  - `"all"`<!--
-      -->: import all supported blocks  - `"block1"`<!-- -->: import a single block  - `"block1,block2"` / `"block1,
-      block2"`<!-- -->: import multiple blocks (comma-separated)  - `base` (optional): Base id selector for the imported
-      template. Defaults to `"default"`<!-- -->.  - `lang` (optional): Language selector for the imported content
-      (passed through as metadata).  - `section` (optional): Import section selector. Supported values:  - `"all"`
-      (default): include block  - `"value"`<!-- -->: only value
+      \*\*Attributes:\*\* - `src` (required): Import source identifier (e.g., template/page key). If missing, the tag is
+      removed (replaced with an empty string). - `block` (optional): Block selector. Supported forms: - `"all"`<!-- -->:
+      import all supported blocks - `"block1"`<!-- -->: import a single block - `"block1,block2"` / `"block1,
+      block2"`<!-- -->: import multiple blocks (comma-separated) - `base` (optional): Base id selector for the imported
+      template. Defaults to `"default"`<!-- -->. - `lang` (optional): Language selector for the imported content (passed
+      through as metadata). - `section` (optional): Import section selector. Supported values: - `"all"` (default):
+      include block - `"value"`<!-- -->: only value
     example:
       - |-
         ```typescript
@@ -1329,8 +1329,8 @@ methods:
       attribute defaults to `"inline"` unless explicitly set to `"bottom"`<!-- -->.
 
 
-      \*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.  -
-      `type` (optional): Keyboard type. Supported values:  - `"inline"` (default)  - `"bottom"`
+      \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. -
+      `type` (optional): Keyboard type. Supported values: - `"inline"` (default) - `"bottom"`
     example:
       - |-
         ```typescript
@@ -1379,7 +1379,7 @@ methods:
       properties, and `{{i}}` to the current index. The `join` attribute specifies the separator.
 
 
-      \*\*Attributes:\*\*  - `src` (required): The key name in the `data` object whose value is treated as an array.  -
+      \*\*Attributes:\*\* - `src` (required): The key name in the `data` object whose value is treated as an array. -
       `join` (optional): Join separator string. Defaults to `"\\n"` (a newline escape sequence).
     example:
       - |-
@@ -1410,27 +1410,27 @@ methods:
       contact. The inner content becomes the caption for supported types.
 
 
-      \*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.  -
-      `type` (required): Media type discriminator. Expected values:  - `photo`<!-- -->, `video`<!-- -->, `audio`<!--
-      -->, `document`<!-- -->, `animation`<!-- -->, `voice`<!-- -->, `video_note`<!-- -->,  - `sticker`<!-- -->,
-      `location`<!-- -->, `contact`<!-- -->.  - `src` (optional): File path / URL / file identifier for file-based
-      media.  - `latitude` (optional): Location latitude (used when `type="location"`<!-- -->).  - `longitude`
-      (optional): Location longitude (used when `type="location"`<!-- -->).  - `phone` (optional): Contact phone number
-      (used when `type="contact"`<!-- -->).  - `first_name` (optional): Contact first name (used when
-      `type="contact"`<!-- -->).  - `last_name` (optional): Contact last name (used when `type="contact"`<!-- -->).  -
-      `vcard` (optional): Contact vCard payload (used when `type="contact"`<!-- -->).
+      \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. -
+      `type` (required): Media type discriminator. Expected values: - `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->,
+      `document`<!-- -->, `animation`<!-- -->, `voice`<!-- -->, `video_note`<!-- -->, - `sticker`<!-- -->,
+      `location`<!-- -->, `contact`<!-- -->. - `src` (optional): File path / URL / file identifier for file-based media.
+      - `latitude` (optional): Location latitude (used when `type="location"`<!-- -->). - `longitude` (optional):
+      Location longitude (used when `type="location"`<!-- -->). - `phone` (optional): Contact phone number (used when
+      `type="contact"`<!-- -->). - `first_name` (optional): Contact first name (used when `type="contact"`<!-- -->). -
+      `last_name` (optional): Contact last name (used when `type="contact"`<!-- -->). - `vcard` (optional): Contact
+      vCard payload (used when `type="contact"`<!-- -->).
 
 
       Media rules (based on `type`<!-- -->): - If `src` exists, it is assigned as `mediaBlock.src` (for any type). - If
-      `src` contains pipe-delimited values, `mediaBlock.srcList` is populated  with up to 10 trimmed entries for
-      Telegram media groups. - If caption exists and `type !== "video_note"` and `type !== "sticker"`<!-- -->,  it is
-      assigned as `mediaBlock.caption`<!-- -->. - If `type === "location"`<!-- -->, `latitude` and `longitude` are
-      copied if present,  and caption (if present) is also allowed. - If `type === "contact"`<!-- -->, `phone`<!-- -->,
-      `first_name`<!-- -->, `last_name`<!-- -->, and `vcard`  are copied if present, and caption (if present) is also
+      `src` contains pipe-delimited values, `mediaBlock.srcList` is populated with up to 10 trimmed entries for Telegram
+      media groups. - If caption exists and `type !== "video_note"` and `type !== "sticker"`<!-- -->, it is assigned as
+      `mediaBlock.caption`<!-- -->. - If `type === "location"`<!-- -->, `latitude` and `longitude` are copied if
+      present, and caption (if present) is also allowed. - If `type === "contact"`<!-- -->, `phone`<!-- -->,
+      `first_name`<!-- -->, `last_name`<!-- -->, and `vcard` are copied if present, and caption (if present) is also
       allowed.
 
 
-      Note: - If multiple `<g-media>` blocks share the same `lang`<!-- -->, the last one wins  (it overwrites the
+      Note: - If multiple `<g-media>` blocks share the same `lang`<!-- -->, the last one wins (it overwrites the
       previous entry).
     example:
       - >-
@@ -1502,7 +1502,7 @@ methods:
       trimmed.
 
 
-      \*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.
+      \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.
     example:
       - |-
         ```typescript
@@ -1656,7 +1656,7 @@ methods:
       untrusted input); no strict/no-script mode is provided.
 
 
-      \*\*Attributes:\*\*  - none
+      \*\*Attributes:\*\* - none
     example:
       - >-
         ```typescript
@@ -1726,7 +1726,7 @@ methods:
       and removes the entire line. This is useful for controlling whitespace in templates.
 
 
-      \*\*Attributes:\*\*  - none
+      \*\*Attributes:\*\* - none
     example:
       - |-
         ```typescript
@@ -1756,9 +1756,9 @@ methods:
       comma-separated for multiple matches.
 
 
-      \*\*Attributes:\*\*  - <g-switch>  - `value` (required): The key name in the `data` object whose value will be
-      used as the switch expression.  - <g-case>  - `is` (required): One or more literal match values. Multiple values
-      may be provided as a comma-separated list.  - <g-default>  - none
+      \*\*Attributes:\*\* - <g-switch> - `value` (required): The key name in the `data` object whose value will be used
+      as the switch expression. - <g-case> - `is` (required): One or more literal match values. Multiple values may be
+      provided as a comma-separated list. - <g-default> - none
     example:
       - |-
         ```typescript
@@ -1995,7 +1995,7 @@ methods:
 
       Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
       level key: `ALang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key:
-      `mode`<!-- -->:  - `inline` (default)  - `bottom` - Value: `(data?: Record<string, unknown>) => string[]`
+      `mode`<!-- -->: - `inline` (default) - `bottom` - Value: `(data?: Record<string, unknown>) => string[]`
     example:
       - |-
         ```typescript
@@ -3091,8 +3091,8 @@ methods:
 
       Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
       level key: `ALang` (from `<g-message lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?:
-      Record<string, unknown>) => {text: string; rich: boolean}` —  `text` is the rendered message string, `rich` is
-      computed once from the  raw block body (`true` when it contains at least one Telegram Rich HTML tag)
+      Record<string, unknown>) => {text: string; rich: boolean}` — `text` is the rendered message string, `rich` is
+      computed once from the raw block body (`true` when it contains at least one Telegram Rich HTML tag)
     example:
       - |-
         ```typescript
@@ -3389,17 +3389,17 @@ methods:
 
 
       Resolution behavior: - Each `<g-import>` is resolved by calling `resolver(src)` to obtain raw template content. -
-      The resolved content is filtered using `_extractBlock` based on the import metadata  (`blocks`<!-- -->, `base`<!--
+      The resolved content is filtered using `_extractBlock` based on the import metadata (`blocks`<!-- -->, `base`<!--
       -->, `section`<!-- -->, `lang`<!-- -->). - If the resolved content itself contains `<g-import>` directives, they
-      are processed  recursively.
+      are processed recursively.
 
 
-      Recursion and safety: - Recursive import resolution is limited to a maximum depth of \*\*10\*\* to prevent 
+      Recursion and safety: - Recursive import resolution is limited to a maximum depth of \*\*10\*\* to prevent
       infinite import loops. - If the depth limit is exceeded, an empty string is returned.
 
 
       Output behavior: - `<g-import>` placeholders (`__IMPORT_N__`<!-- -->) are replaced sequentially. - If the resolver
-      returns `null` or an empty result, the import is replaced with  an empty string.
+      returns `null` or an empty result, the import is replaced with an empty string.
     example:
       - |-
         ```typescript
@@ -3838,10 +3838,10 @@ methods:
 
 
       1. The body must not be empty. 2. `{{}}` and `{~~}` interpolation must not appear — the body is already
-      JavaScript, and  nesting the interpolation syntaxes inside it would give one construct two grammars. 3. Template
-      literals must not interpolate `${...}` — that is a third spelling of the same  interpolation. Use string
+      JavaScript, and nesting the interpolation syntaxes inside it would give one construct two grammars. 3. Template
+      literals must not interpolate `${...}` — that is a third spelling of the same interpolation. Use string
       concatenation inside the conditional instead. 4. The body must actually branch: a ternary, or a `&&` / `||` / `??`
-      short-circuit.  A plain expression such as `items.length` belongs in `{~~}` and is rejected here so  `<g-ifelse>`
+      short-circuit. A plain expression such as `items.length` belongs in `{~~}` and is rejected here so `<g-ifelse>`
       cannot silently become a second `{~~}`<!-- -->.
     example:
       - >-
@@ -4308,7 +4308,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and a combined `errors` array containing  line numbers and descriptive
+          An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive
           messages for every violation found
   - name: validateBlockGPaidMediaAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGPaidMediaAttributes:member(1)
@@ -4678,11 +4678,11 @@ methods:
 
 
       \*\*Must NOT be self-closing (must use open/close tags):\*\* - `<g-base>...</g-base>`<!-- -->,
-      `<g-message>...</g-message>`<!-- -->, `<g-keyboard>...</g-keyboard>`<!-- -->,  `<g-media>...</g-media>`<!-- -->,
-      `<g-poll>...</g-poll>`<!-- -->, `<g-question>...</g-question>`<!-- -->,  `<g-option>...</g-option>`<!-- -->,
+      `<g-message>...</g-message>`<!-- -->, `<g-keyboard>...</g-keyboard>`<!-- -->, `<g-media>...</g-media>`<!-- -->,
+      `<g-poll>...</g-poll>`<!-- -->, `<g-question>...</g-question>`<!-- -->, `<g-option>...</g-option>`<!-- -->,
       `<g-invoice>...</g-invoice>`<!-- -->, `<g-paid-media>...</g-paid-media>`<!-- -->,
-      `<g-description>...</g-description>`<!-- -->, `<g-script>...</g-script>`<!-- -->,  `<g-switch>...</g-switch>`<!--
-      -->, `<g-case>...</g-case>`<!-- -->, `<g-default>...</g-default>`<!-- -->,  `<g-map>...</g-map>`<!-- -->,
+      `<g-description>...</g-description>`<!-- -->, `<g-script>...</g-script>`<!-- -->, `<g-switch>...</g-switch>`<!--
+      -->, `<g-case>...</g-case>`<!-- -->, `<g-default>...</g-default>`<!-- -->, `<g-map>...</g-map>`<!-- -->,
       `<g-div>...</g-div>`
 
 
@@ -4723,7 +4723,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for
+          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
           each format violation found
   - name: validateNamesBlock(template)
     uid: gramstax!TemplateEngine.validateNamesBlock:member(1)
@@ -4769,7 +4769,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for
+          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
           each unknown block found
   - name: validatePageAttributesBlock(template)
     uid: gramstax!TemplateEngine.validatePageAttributesBlock:member(1)
@@ -4945,9 +4945,9 @@ methods:
       can only appear directly inside `<g-invoice>`<!-- -->. - `<g-switch>`<!-- -->, `<g-map>` can only appear inside
       `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, or `<g-description>`<!-- -->. - `<g-case>` and
       `<g-default>` can only appear inside `<g-switch>`<!-- -->. - `<g-map>` is also allowed inside `<g-case>` and
-      `<g-default>` (explicitly and via  parent-child inheritance — see `inheritsContentFromParent`<!-- -->). - Telegram
+      `<g-default>` (explicitly and via parent-child inheritance — see `inheritsContentFromParent`<!-- -->). - Telegram
       formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->,
-      `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->)  are passthrough and ignored during
+      `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during
       validation.
     example:
       - |-
@@ -4996,7 +4996,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for
+          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
           each violation found
   - name: validateScopes(template)
     uid: gramstax!TemplateEngine.validateScopes:member(1)
@@ -5041,7 +5041,7 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for
+          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
           each unsupported scope found
   - name: validateTelegramAttributesBlock(template)
     uid: gramstax!TemplateEngine.validateTelegramAttributesBlock:member(1)
@@ -5322,5 +5322,5 @@ methods:
                   }&gt;;
               }
         description: >-
-          An object with a `valid` boolean and a combined `errors` array containing  line numbers and descriptive
+          An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive
           messages for every violation found

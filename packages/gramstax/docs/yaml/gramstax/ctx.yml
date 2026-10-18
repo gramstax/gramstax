@@ -8489,8 +8489,8 @@ methods:
 
 
       This method is only needed when: - \*\*Multi-session\*\* — binding the same params to multiple route handlers at
-      once:  `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* —
-      method string is computed at runtime  rather than known at dev-time, so `methodSession*()` cannot be called.
+      once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* —
+      method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.
     example:
       - |-
         ```typescript
@@ -8511,7 +8511,7 @@ methods:
         Promise<boolean | null>;
       parameters:
         - id: method
-          description: Route method name(s). Use `this.methodSession*()` helpers  for type-safe names, not a hardcoded string.
+          description: Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.
           type: string | string[]
         - id: params
           description: The session parameters to store.

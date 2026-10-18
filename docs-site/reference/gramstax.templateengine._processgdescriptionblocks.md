@@ -10,7 +10,7 @@ Block: g-description Extracts and parses `<g-description>` blocks from a templat
 
 This internal method identifies all `<g-description>` blocks and extracts their content organized by language and scope. Blocks without a `lang` attribute are stored under `"default"` language, and blocks without a `scope` attribute are stored under `"default"` scope.
 
-\*\*Attributes:\*\*  - `lang` (optional): Language key for the output map. Defaults to `"default"`.  - `scope` (optional): Scope key for the nested output map. Defaults to `"default"`.
+\*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`. - `scope` (optional): Scope key for the nested output map. Defaults to `"default"`.
 
 **Signature:**
 

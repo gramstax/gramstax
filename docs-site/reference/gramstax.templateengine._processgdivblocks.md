@@ -60,7 +60,7 @@ The template with `<g-div>` blocks replaced by their de-indented content
 
 This internal method processes `<g-div>` blocks and cleans their inner content by removing leading tabs/spaces per line and trimming surrounding newlines. The `<g-div>` tags themselves are removed from the output.
 
-\*\*Attributes:\*\*  - none
+\*\*Attributes:\*\* - none
 
 ## Example
 

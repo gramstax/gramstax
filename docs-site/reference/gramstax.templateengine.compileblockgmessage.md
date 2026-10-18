@@ -85,7 +85,7 @@ This method parses `<g-message>` blocks from the template and compiles them into
 
 Processing pipeline (in order, per message): 1. `_processGScriptBlocks` - converts `<g-script>` blocks into executable expressions 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions 3. `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` - evaluates scope execution blocks (implementation-defined) 5. `_processScopeVariables` - resolves scope variables (implementation-defined) 6. `_compileToFunction(processed, false)` - produces the final render function
 
-Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted) - Second level key: `ALang` (from `<g-message lang="...">`, or `"default"` if omitted) - Value: `(data?: Record<string, unknown>) => {text: string; rich: boolean}` —  `text` is the rendered message string, `rich` is computed once from the  raw block body (`true` when it contains at least one Telegram Rich HTML tag)
+Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted) - Second level key: `ALang` (from `<g-message lang="...">`, or `"default"` if omitted) - Value: `(data?: Record<string, unknown>) => {text: string; rich: boolean}` — `text` is the rendered message string, `rich` is computed once from the raw block body (`true` when it contains at least one Telegram Rich HTML tag)
 
 ## Example
 
