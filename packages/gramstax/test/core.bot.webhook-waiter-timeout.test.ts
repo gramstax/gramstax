@@ -42,7 +42,7 @@ describe(`Gramstax webhook waiter timeout (K6)`, () => {
       log: false,
       templateManager
     })
-    ;(bot as any).webhookQueue = {enabled: true, maxQueueSize: 100, workerCount: 2, perChatConcurrency: 1, waiterTimeoutMs: 300, drainTimeoutMs: 200}
+    ;(bot as any).webhook.queue = {enabled: true, maxQueueSize: 100, workerCount: 2, perChatConcurrency: 1, waiterTimeoutMs: 300, drainTimeoutMs: 200}
 
     const realBot = new Bot(`test`) as any
     Object.defineProperty(realBot, `api`, {
@@ -68,7 +68,7 @@ describe(`Gramstax webhook waiter timeout (K6)`, () => {
 
   afterEach(async () => {
     await bot.stop()
-    ;(bot as any).webhookServer?.stop(true)
+    ;(bot as any).webhook.server?.stop(true)
     if (existsSync(TEST_DIR)) {
       await rm(TEST_DIR, {recursive: true, force: true})
     }

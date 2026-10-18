@@ -125,7 +125,7 @@ describe("polling queue dispatch", () => {
 
     expect(started.length).toBe(1)
     expect(started[0]?.allowed_updates).toBeDefined()
-    expect((bot as unknown as {pollingDispatcher?: unknown}).pollingDispatcher).toBeUndefined()
+    expect((bot as unknown as {polling: {dispatcher?: unknown}}).polling.dispatcher).toBeUndefined()
     expect(peak).toBe(0)
   })
 
@@ -134,9 +134,9 @@ describe("polling queue dispatch", () => {
     await mock.start()
     bot = makeBot(mock.apiRoot, {polling: {maxRetries: 5, queue: pollQueue()}}, `polling`)
 
-    const started = await waitFor(() => (bot as unknown as {pollingDispatcher?: unknown}).pollingDispatcher !== undefined, 10_000)
+    const started = await waitFor(() => (bot as unknown as {polling: {dispatcher?: unknown}}).polling.dispatcher !== undefined, 10_000)
     expect(started).toBe(true)
-    expect((bot as unknown as {pollingDispatcher?: unknown}).pollingDispatcher).toBeInstanceOf(UpdateDispatcher)
+    expect((bot as unknown as {polling: {dispatcher?: unknown}}).polling.dispatcher).toBeInstanceOf(UpdateDispatcher)
     const drained = await waitFor(() => sentCount(mock!) >= 8, 15_000)
     expect(drained).toBe(true)
     // distinct chats may overlap — this is the whole point of the queue

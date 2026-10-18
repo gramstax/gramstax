@@ -44,7 +44,7 @@ describe(`Gramstax webhook secret token`, () => {
       templateManager,
       log: false
     })
-    ;(bot as any)._webhookSecretToken = SECRET
+    ;(bot as any).webhook.secretToken = SECRET
 
     setWebhookMock = mock(() => true)
     const realBot = new Bot(`test`) as any
@@ -66,7 +66,7 @@ describe(`Gramstax webhook secret token`, () => {
   })
 
   afterEach(async () => {
-    ;(bot as any).webhookServer?.stop()
+    ;(bot as any).webhook.server?.stop()
     if (existsSync(TEST_DIR)) {
       await rm(TEST_DIR, {recursive: true, force: true})
     }

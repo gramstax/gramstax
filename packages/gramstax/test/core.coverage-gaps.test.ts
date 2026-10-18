@@ -154,10 +154,10 @@ describe(`coverage-gaps`, () => {
     const blocker = Bun.serve({port: 0, hostname: `127.0.0.1`, fetch: () => new Response(`busy`)})
     try {
       const bot = new Gramstax({token: `test`, deploy: `test`, templateManager: new TemplateManager({path: [TEST_DIR]}), log: false})
-      ;(bot as unknown as {_statusServerPort: number})._statusServerPort = blocker.port ?? 0
+      ;(bot as unknown as {status: {port: number}}).status.port = blocker.port ?? 0
       bot._startStatusServer()
       await sleep(100)
-      expect(bot._statusServer).toBeUndefined()
+      expect(bot.status.server).toBeUndefined()
       await bot.stop()
     } finally {
       blocker.stop(true)

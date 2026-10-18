@@ -152,7 +152,7 @@ describe(`F3 polling loop honors stop before retry and cancels backoff sleep`, (
       starts++
       throw new Error(`down`)
     }
-    bot._pollingStopped = true
+    bot.polling.stopped = true
     await bot._startPollingLoop({}, 0)
     expect(starts).toBe(0)
   })
@@ -200,7 +200,7 @@ describe(`F4 polling uses a fresh opts object per attempt`, () => {
 
   it(`discards the backlog only on a first attempt opted in`, async () => {
     const bot = createTestBot({pollingMaxRetries: 5})
-    ;(bot as unknown as {_pollingDropPendingUpdates: boolean})._pollingDropPendingUpdates = true
+    ;(bot as unknown as {polling: {dropPendingUpdates: boolean}}).polling.dropPendingUpdates = true
     const seen: Array<Record<string, unknown>> = []
     let n = 0
     bot.bot.start = async (opts: unknown) => {

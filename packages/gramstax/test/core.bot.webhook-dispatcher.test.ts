@@ -51,7 +51,7 @@ describe(`Gramstax webhook dispatcher`, () => {
     await mkdir(TEST_DIR, {recursive: true})
     templateManager = new TemplateManager({path: [TEST_DIR]})
     bot = new TestGramstax({token: `test`, deploy: `test`, log: false, templateManager})
-    ;(bot as any).webhookQueue = queue
+    ;(bot as any).webhook.queue = queue
     ;(bot as any).log = {
       warn: (message: string) => warns.push(message),
       error: () => {},
@@ -99,7 +99,7 @@ describe(`Gramstax webhook dispatcher`, () => {
 
   afterEach(async () => {
     releaseHandler()
-    ;(bot as any)?.webhookServer?.stop(true)
+    ;(bot as any)?.webhook.server?.stop(true)
     await (bot as any)?.stop?.()
     if (existsSync(TEST_DIR)) {
       await rm(TEST_DIR, {recursive: true, force: true})
@@ -151,7 +151,7 @@ describe(`Gramstax webhook dispatcher`, () => {
   it(`composes UpdateDispatcher instead of its own worker pool`, async () => {
     await makeBot({enabled: true, maxQueueSize: 100, workerCount: 2, perChatConcurrency: 1, drainTimeoutMs: 250}, async () => {})
 
-    expect((bot as any).webhookDispatcher).toBeInstanceOf(UpdateDispatcher)
+    expect((bot as any).webhook.dispatcher).toBeInstanceOf(UpdateDispatcher)
     expect(bot.getWebhookQueueStats()?.drainTimeoutMs).toBe(250)
     expect((Gramstax.prototype as any)._startWebhookWorker).toBeUndefined()
     expect((Gramstax.prototype as any)._releaseWebhookChat).toBeUndefined()

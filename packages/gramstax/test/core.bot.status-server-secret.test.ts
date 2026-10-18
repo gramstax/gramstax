@@ -49,7 +49,7 @@ describe(`Gramstax status server secret gate`, () => {
       templateManager,
       log: false
     })
-    ;(bot as any)._webhookSecretToken = SECRET
+    ;(bot as any).webhook.secretToken = SECRET
 
     // _startStatusServer is async (dynamic Bun import) — wait until bound
     for (let attempt = 0; attempt < 20; attempt++) {

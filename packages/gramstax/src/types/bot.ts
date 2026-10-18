@@ -5,6 +5,7 @@ import type {Ctx} from "~/core/ctx"
 import type {LoggingHelper} from "~/helpers/log"
 import type {TemplateManager} from "~/template/manager"
 import type {UpdateQueue} from "~/update/queue"
+import type {UpdateDispatcher} from "~/update/dispatcher"
 import type {Update} from "grammy/types"
 import type {IGramstaxOptionsDeploy} from "~/types/config"
 import type {ICtxParams} from "./ctx"
@@ -635,7 +636,7 @@ export type IGramstaxParams = {
    * failure is recorded via `hookUpdateError` and metrics).
    *
    * @remarks
-   * Stored as `this._updateTimeoutMs`. Rejected by `_validateConfig` when
+   * Stored as `this.limits.updateTimeoutMs`. Rejected by `_validateConfig` when
    * negative or non-finite.
    *
    * @defaultValue `30000`
@@ -653,7 +654,7 @@ export type IGramstaxParams = {
    * @remarks
    * Uses a bounded LRU of recent update ids. Handy for webhook retries /
    * at-least-once delivery where a duplicate should not be handled twice.
-   * Stored as `this._skipDuplicateUpdate` (`true` only on exact `true`).
+   * Stored as `this.limits.skipDuplicateUpdate` (`true` only on exact `true`).
    *
    * @defaultValue `false`
    *
@@ -669,7 +670,7 @@ export type IGramstaxParams = {
    * than this are skipped (counted as invalid). `0` disables the check.
    *
    * @remarks
-   * Stored as `this._maxTextLength`. Rejected by `_validateConfig` when
+   * Stored as `this.limits.maxTextLength`. Rejected by `_validateConfig` when
    * negative or non-finite.
    *
    * @defaultValue `0` (unlimited)
@@ -687,7 +688,7 @@ export type IGramstaxParams = {
    * on the webhook server (if deployed via `webhook`).
    *
    * @remarks
-   * Stored as `this._statusServerPort`. Rejected by `_validateConfig`
+   * Stored as `this.status.port`. Rejected by `_validateConfig`
    * outside `0`–`65535`.
    *
    * @example
@@ -703,7 +704,7 @@ export type IGramstaxParams = {
    * @remarks
    * Defaults to `127.0.0.1` so metrics are not exposed to the network. Set to
    * `0.0.0.0` only when the endpoint is intentionally public. Stored as
-   * `this._statusServerHostname`.
+   * `this.status.hostname`.
    *
    * @defaultValue `"127.0.0.1"`
    *
@@ -743,6 +744,79 @@ export type IGramstaxParams = {
     shortCallbackQueryData?: boolean
   }
 }
+/**
+ * Webhook-path runtime state on {@link Gramstax} — see `Gramstax.webhook`.
+ *
+ * @internal
+ */
+export type IGramstaxWebhookState = {
+  /** Webhook queue configuration (see {@link IUpdateQueueConfig}). */
+  queue?: IUpdateQueueConfig
+  /** Active webhook queue instance. */
+  instance?: UpdateQueue<Update>
+  /** Worker pool draining `instance` through a per-chat gate. */
+  dispatcher?: UpdateDispatcher
+  /** Drain budget handed to `dispatcher`, reported by `getWebhookQueueStats()`. */
+  drainTimeoutMs: number
+  /** Active webhook server instance. */
+  server?: {stop: () => void}
+  /** Webhook secret token checked on POST requests. */
+  secretToken?: string
+}
+
+/**
+ * Polling-path runtime state on {@link Gramstax} — see `Gramstax.polling`.
+ *
+ * @internal
+ */
+export type IGramstaxPollingState = {
+  /** Polling queue configuration, read from `optionsDeploy.polling.queue`. */
+  queue?: IUpdateQueueConfig
+  /** Active polling queue instance. */
+  instance?: UpdateQueue<Update>
+  /** Active polling dispatcher, or `undefined` while polling is inline. */
+  dispatcher?: UpdateDispatcher
+  /** Max consecutive polling failures before giving up (-1 = infinite). */
+  maxRetries: number
+  /** Whether boot asks Telegram to discard updates queued during downtime. */
+  dropPendingUpdates: boolean
+  /** Set once `stop()` begins; the polling loop checks it before every retry. */
+  stopped: boolean
+  /** Active polling backoff sleep timer (cleared by `stop()`). */
+  sleepTimer?: ReturnType<typeof setTimeout>
+  /** Resolver for the active polling backoff sleep (settled by `stop()`). */
+  sleepResolve?: () => void
+}
+
+/**
+ * Status/health server state on {@link Gramstax} — see `Gramstax.status`.
+ *
+ * @internal
+ */
+export type IGramstaxStatusState = {
+  /** Hostname for the status/health server. */
+  hostname: string
+  /** Optional HTTP port for `/health` and `/stats`. */
+  port?: number
+  /** Optional status/health HTTP server (any deploy mode). */
+  server?: {stop: () => void}
+}
+
+/**
+ * Per-update guards and limits on {@link Gramstax} — see `Gramstax.limits`.
+ *
+ * @internal
+ */
+export type IGramstaxLimitsState = {
+  /** Max time (ms) an update handler may run before being treated as timed out. */
+  updateTimeoutMs: number
+  /** Max accepted `message.text`/`caption` length (0 = unlimited). */
+  maxTextLength: number
+  /** Skip updates with a previously seen `update_id`. */
+  skipDuplicateUpdate: boolean
+}
+
+
 
 /**
  * Forwarded `Ctx` fields owned by `Gramstax.ctxScope`.

@@ -81,8 +81,8 @@ function createBot(params: {skipDuplicateUpdate?: boolean; hookUpdateError?: (ev
   })
   bot.hookUpdateError = params.hookUpdateError
   bot.hookUpdate = params.hookUpdate
-  if (params.pollingMaxRetries !== undefined) (bot as any)._pollingMaxRetries = params.pollingMaxRetries
-  if (params.dropPendingUpdates !== undefined) (bot as any)._pollingDropPendingUpdates = params.dropPendingUpdates
+  if (params.pollingMaxRetries !== undefined) (bot as any).polling.maxRetries = params.pollingMaxRetries
+  if (params.dropPendingUpdates !== undefined) (bot as any).polling.dropPendingUpdates = params.dropPendingUpdates
   return {bot, pages: bot.pages}
 }
 

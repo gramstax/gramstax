@@ -14,7 +14,7 @@ class TestGramstax extends Gramstax {
   }
 
   setQueue(queue: UpdateQueue<any>) {
-    this.webhookQueueInstance = queue
+    this.webhook.instance = queue
   }
 }
 
@@ -40,7 +40,7 @@ describe(`Gramstax webhook queue stats`, () => {
       log: false,
       templateManager
     })
-    ;(bot as any).webhookQueue = {enabled: true, maxQueueSize: 2, workerCount: 3, perChatConcurrency: 1, blockWhenFull: true}
+    ;(bot as any).webhook.queue = {enabled: true, maxQueueSize: 2, workerCount: 3, perChatConcurrency: 1, blockWhenFull: true}
 
     bot.bot = {} as any
 
@@ -63,7 +63,7 @@ describe(`Gramstax webhook queue stats`, () => {
       log: false,
       templateManager
     })
-    ;(bot as any).webhookQueue = {enabled: true, maxQueueSize: 7, workerCount: 2, perChatConcurrency: 3, blockWhenFull: false}
+    ;(bot as any).webhook.queue = {enabled: true, maxQueueSize: 7, workerCount: 2, perChatConcurrency: 3, blockWhenFull: false}
 
     bot.bot = {} as any
 
