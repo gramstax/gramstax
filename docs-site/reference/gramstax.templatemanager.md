@@ -33,7 +33,7 @@ const tm = new TemplateManager({
 })
 
 // Get a compiled message
-const message = tm.getMessage("start", "default", "en", {name: "John"})
+const message = tm.getGMessage("start", "default", "en", {name: "John"})
 ```
 
 ## Constructors

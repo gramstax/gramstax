@@ -57,7 +57,7 @@ Promise&lt;void&gt;
 
 ## Remarks
 
-Optional class override. Default: no reply (the update is silently ignored). The context is a fully constructed page context, so the override may render a "please wait" page via `ctx.render`.
+Optional class override. Default: no reply (the update is silently ignored). The context is a fully constructed page context carrying the full scope and the `render*` helpers, so the override can reply directly. It is not bound to a page, though, so a template-backed render has no template behind it.
 
 ## Example
 

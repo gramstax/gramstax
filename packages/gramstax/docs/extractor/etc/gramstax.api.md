@@ -5066,7 +5066,7 @@ export type WebhookQueue<T = unknown> = UpdateQueue<T>;
 // dist/src/index.d.ts:7518:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
 // dist/src/index.d.ts:7609:5 - (ae-forgotten-export) The symbol "IMediaEditOpt1" needs to be exported by the entry point index.d.ts
 // dist/src/index.d.ts:7622:5 - (ae-forgotten-export) The symbol "IMediaReplyOpt" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:23353:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
+// dist/src/index.d.ts:23355:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 
