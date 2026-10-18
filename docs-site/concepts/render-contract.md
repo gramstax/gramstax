@@ -25,11 +25,11 @@ this.renderText({mode: `edit`, options: {parse_mode: `HTML`}})
 this.renderText({broadcast: {chatIds}, args: [`Deploy finished.`]})
 ```
 
-## The thirteen route atoms
+## The twelve route atoms
 
 `renderText` defaults to `auto`, which edits the message a callback query is
 attached to and replies otherwise. Everything else is explicit. The route
-vocabulary is written once, as thirteen atoms, and every `render*()` params type
+vocabulary is written once, as twelve atoms, and every `render*()` params type
 is a union over the subset that method can actually take:
 
 `IRouteAuto` · `IRouteReply` · `IRouteEdit` · `IRouteChunked` ·

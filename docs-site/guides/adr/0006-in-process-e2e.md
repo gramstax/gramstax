@@ -49,7 +49,7 @@ A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provide
 | Code        | `src/e2e/helper.ts:62,78` — `E2eHelper` + `bot.bot.api.config.use(...)` interceptor                  |
 | Code        | `src/e2e/helper.ts:283-567` — `sendText`, `sendPhoto`, `sendCallbackQuery`, `sendDice`, … simulators |
 | Code        | `src/core/bot.ts:184` — `e2e?: E2eHelper` (typed only for `deploy:"test"`)                           |
-| Code        | `src/types/t.bot.ts:133` — `deploy: "test"` documented as E2E mode                                   |
+| Code        | `src/types/bot.ts` — `deploy: "test"` documented as E2E mode                                      |
 | Code        | `src/mock/telegram-server.ts` — `MockTelegramServer` HTTP mock                                       |
 | Docs        | `AGENTS.md` — "Test mode via `deploy: 'test'` + `MockTelegramServer`."                               |
 

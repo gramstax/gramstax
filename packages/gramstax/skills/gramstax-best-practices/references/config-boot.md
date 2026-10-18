@@ -121,7 +121,7 @@ Five slots accept a module reference the CLI resolves and instantiates for you: 
 | `"path string"` | default export, zero-arg constructor |
 | `{override: {module, export?, args?}}` | named export, spread into `new Export(...args)` |
 | `{module, ...}` bare | **rejected** — `uses removed bare {module, ...} form` |
-| plain data (`{store, ttlMs, namespace}`, `true`/`false`, `ITTemplateOptions`) | built with the builtin constructor |
+| plain data (`{store, ttlMs, namespace}`, `true`/`false`, `ITemplateOptions`) | built with the builtin constructor |
 
 ```typescript
 log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}} // named export

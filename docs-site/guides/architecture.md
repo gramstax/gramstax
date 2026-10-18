@@ -17,8 +17,8 @@ Telegram ── update ──▶ Gramstax (core/bot.ts)
                                 ▼
                  ┌──────────────────────────────────────┐
                  │ Ctx (core/ctx.ts)                        │
-                 │  handleText / handleCallbackData / …     │
-                 │  reply / edit / broadcast / session       │
+                 │  handleText / handleCallbackQueryData /…     │
+                 │  render*() · session · keyboard       │
                  └───────┬───────────────────────┬──────┘
                          │ renders                  │ reads/writes
                          ▼                          ▼
@@ -46,12 +46,28 @@ The constructor (`bot.ts:275`) reads `IGramstaxParams`, selects a deploy mode (`
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/core/ctx.ts` (4006 lines) |
+| **Location** | `src/core/ctx.ts` |
 | **Responsibility** | Per-update context: template rendering, reply/edit/broadcast, session get/set/clear, routing helpers, keyboard builders. |
 | **Depends On** | `TemplateManager`, `CacheExternal`, the client's `InlineKeyboard`/`Keyboard`/`InputMediaBuilder`. |
 | **Depended On By** | Every user page class. |
 
-Handler methods follow a naming convention (all optional, all `async`): `handleCallbackData`, `handleArgsCallbackData`, `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleFreeText`, plus `handle*Session*`, `handle*Caption*` (photo/video/audio/document), `handleFree*` variants (`ctx.ts:2711-3180+`). Reply surface includes `reply`, `replyRich`, `replyMedia`, `replyPhoto/Video/Audio/Document/Animation/Voice/VideoNote/Sticker/Location/Contact`, `replyMediaGroup`, `edit`, `editMedia`, `broadcast`, `broadcastMedia` (`ctx.ts:1037-2153`). Keyboard builders: `bottomKeyboardT` (`ctx.ts:2467`), `inlineKeyboardT` (`ctx.ts:2505`), `buildData` for route config (`ctx.ts:2340-2367`).
+Handler methods follow a naming convention — all optional, all `async`. The name is
+assembled in a fixed order (`handle` · `Session`/`Free` · `Command` · `Caption` ·
+`Args` · kind), and the `Args` piece is independent of the command piece:
+`handleText` and `handleCommandText` match exactly, while `handleArgsText` (args
+**without** a command) and `handleCommandArgsText` (`/cmd <args>`) match by
+`startsWith`. Caption variants exist for photo, video, audio, document,
+animation and voice.
+
+You never call a send method. `render*()` is the entire outbound surface — 32
+methods that pick the underlying call for you from the route you pass
+(`replyWithPhoto`, `editMessageText`, and so on). Broadcast is a route
+(`renderBroadcast`), not a method. Broadcast and edit are selected by the route,
+never named directly.
+
+Keyboard builders: `bottomKeyboardT`, `inlineKeyboardT`, and `buildData` for
+route configuration. See [the render contract](/concepts/render-contract) for the
+full atom list.
 
 ### TemplateEngine
 
@@ -68,18 +84,23 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/template/manager.ts` (1012 lines) |
+| **Location** | `src/template/manager.ts` |
 | **Responsibility** | Load templates from `.html`/`.ts`/`.js`, compile via `TemplateEngine`, cache compiled results in `_map`, and hot-reload via `chokidar`. |
 | **Depends On** | `TemplateEngine`, `PageManager`, `chokidar`. |
 | **Depended On By** | `Gramstax`, `Ctx`, `E2eHelper`. |
 
-`_supportedExtensions = {".html",".ts",".js"}` (`manager.ts:87`). `enableWatch` drives `_initializeWatcher` (`chokidar.watch`). Public getters: `getMessage`, `getKeyboard`, `getGMedia`, `getGDescription` (used by `E2eHelper.gmsg/gkb/gmedia`).
+`_supportedExtensions = new Set([".html", ".ts", ".js"])` gates which files load at
+all. `enableWatch` drives the `chokidar` watcher. The public read surface is the
+`getG*` family — `getGMessage`, `getGKeyboard`, `getGMedia`, `getGDescription`,
+`getGPoll`, `getGVenue`, `getGDice`, `getGInvoice`, `getGCallbackAnswer` and
+friends, each taking `(key, AGBaseId, ALang, data)`. The bare `getMessage` name
+does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for these.
 
 ### PageManager
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/page/manager.ts` (194 lines) |
+| **Location** | `src/page/manager.ts` |
 | **Responsibility** | Discover page modules under `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`) and extract the **first named export** (no default export). |
 | **Depends On** | `node:fs`, `node:module` (`createRequire`). |
 | **Depended On By** | `TemplateManager`, `Gramstax`. |
@@ -95,7 +116,7 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/cache/external.ts` (111 lines) |
+| **Location** | `src/cache/external.ts` |
 | **Responsibility** | Unified cache/session store extending `keyv`. Modes: `memory` (default `Map`), `redis://…` (`@keyv/redis`), or `forceStore` custom. |
 | **Depends On** | `keyv`, `@keyv/redis`. |
 | **Depended On By** | `Gramstax.cacheSession`, `Ctx`, template keyboard cache. |
@@ -104,7 +125,7 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/update/queue.ts` (323 lines), `src/update/dispatcher.ts` (131 lines), `src/update/gate.ts` (119 lines) |
+| **Location** | `src/update/queue.ts`, `src/update/dispatcher.ts`, `src/update/gate.ts`, `src/update/gate-key.ts` |
 | **Responsibility** | In-memory bounded FIFO. `enqueue` blocks when full; `dequeue` blocks when empty; exposes `getStats()`. `UpdateDispatcher` owns the worker pool and drains it before teardown. |
 | **Depends On** | Nothing. |
 | **Depended On By** | `Gramstax` — opt-in via `optionsDeploy.polling.queue` or `optionsDeploy.webhook.queue`, each mode getting its own instance. `WebhookQueue` is a deprecated alias of `UpdateQueue`. |
@@ -165,12 +186,12 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 | Interface | Location | Purpose |
 |-----------|----------|---------|
-| `IGramstaxParams` | `src/types/bot.ts` | Constructor options (`token`, `deploy`, `log`, `botConfig`, `webhookQueue`, `cacheSession`, `cacheKeyboard`, `templateManager`, `optionsPage`, `optionsDeploy`). |
-| `IUpdateQueueConfig` | `src/types/bot.ts:145` | `enabled`, `maxQueueSize`, `workerCount`, `perChatConcurrency`, `blockWhenFull`, `enqueueTimeoutMs`, `waiterTimeoutMs`. Aliased as the deprecated `IWebhookQueueConfig`. |
-| `ITTemplateOptions` | `src/types/t.template.ts:41` | `path[]`, `enableWatch?`, `watchOptions?`. |
-| `ITCompiledTemplate` | `src/types/t.template.ts:12` | Cached compiled `media`/`message`/`keyboard`/`description`. |
-| `ITPageData` | `src/types/t.ctx.ts:375` | Route metadata: `name`, `callbackData`, `intentText`, `intentCommandText`, `intentCallbackData`. |
-| `Ctx` handler signatures | `src/core/ctx.ts:2711+` | `handleText`, `handleCallbackData`, `handleFree*`, `handleSession*`, `handle*Caption*`. |
+| `IGramstaxParams` | `src/types/bot.ts` | Constructor options (`token`, `deploy`, `optionsDeploy`, `log`, `botConfig`, `cacheSession`, `cacheKeyboard`, `templateManager`, `manifest`, `optionsPage`, `rateLimit`, `throttle`, `sessionLock`). |
+| `IUpdateQueueConfig` | `src/types/bot.ts` | `enabled`, `maxQueueSize`, `workerCount`, `perChatConcurrency`, `blockWhenFull`, `enqueueTimeoutMs`, `waiterTimeoutMs`, `drainTimeoutMs`. Aliased as the deprecated `IWebhookQueueConfig`. |
+| `ITemplateOptions` | `src/types/template.ts` | `path[]`, `enableWatch?`, `watchOptions?`, `onReload?`. |
+| `ICompiledTemplate` | `src/types/template.ts` | Cached compiled `media`/`message`/`keyboard`/`description`. |
+| `IPageData` | `src/types/ctx.ts` | Route metadata: `name`, `intentText`, `intentCommandText`, `intentCallbackQueryData`, plus the optional `intentTextMap` / `intentCommandTextMap` language variants. |
+| `Ctx` handler signatures | `src/core/ctx.ts` | `handleText`, `handleCallbackQueryData`, `handleFree*`, `handleSession*`, `handle*Caption*`. |
 
 ## External Dependencies
 

@@ -23,7 +23,7 @@ packages/gramstax/
 │   ├── update/gate.ts       UpdateGate (per-chat concurrency gate)
 │   ├── mock/telegram-server.ts  MockTelegramServer
 │   ├── e2e/helper.ts        E2eHelper (in-process test harness)
-│   ├── types/               t.bot.ts, t.ctx.ts, t.template.ts, t.e2e.ts
+│   ├── types/               bot.ts, ctx.ts, template.ts, config.ts, e2e.ts, …
 │   └── index.ts             Public barrel (runtime exports, then `// type` separator)
 ├── test/                    Bun unit tests
 ├── docs/                    This superdocs set + generated API reference (markdown/, yaml/, extractor/)

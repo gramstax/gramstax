@@ -51,16 +51,34 @@ session and reply helpers.
 ## Handlers bind by convention
 
 You do not register handlers. You name methods, and the naming says what they
-handle:
+handle. The name is assembled in a fixed order — `handle` · `Session`/`Free` ·
+`Command` · `Caption` · `Args` · kind — and each piece changes which route table
+the method lands in.
 
-| Method | Fires on |
-| --- | --- |
-| `handleCommandText()` | any text message |
-| `handleArgsText()` | `/cmd <args>` |
-| `handleCallbackQueryData()` | a callback query, with `callbackData` in scope |
-| `handleSession*()` | the matching session step |
-| `handleFree*()` | the same shapes, outside a session |
-| `handleCaption*()` | the same shapes, on a media caption |
+| Method | Fires on | Route table |
+| --- | --- | --- |
+| `handleText()` | plain text matching `intentText` | `routeStatic` |
+| `handleCommandText()` | `/cmd` — command, **no** args | `routeStatic` |
+| `handleArgsText()` | `<args>` — args **without** a command | `routeStaticIntent` |
+| `handleCommandArgsText()` | `/cmd <args>` — command **with** args | `routeStaticIntent` |
+| `handleCallbackQueryData()` | a callback query, exact match | `routeStatic` |
+| `handleArgsCallbackQueryData()` | a callback query with args | `routeStaticIntent` |
+| `handleCaption*()` | a media caption | `routeStatic` |
+| `handleCaptionArgs*()` | a media caption with args | `routeStaticIntent` |
+| `handleCommandCaption*()` | `/cmd` on a media caption | `routeStatic` |
+| `handleCommandCaptionArgs*()` | `/cmd <args>` on a media caption | `routeStaticIntent` |
+| `handleSession*()` | the matching session step | `routeStaticSession` |
+| `handleFree*()` | the same shapes, outside a session | `routeDynamic` |
+
+The `Args` in the name and the `/cmd` in the input are **independent**. That is
+the part most get wrong: `handleArgsText` is *not* `/cmd <args>`. Args without a
+command is `handleArgsText`; `/cmd <args>` is `handleCommandArgsText`.
+
+<Note>
+  The `Args*` variants resolve by `startsWith` after the separator rather than by
+  exact match, so `handleArgsText` also catches longer inputs. The no-`Args`
+  variants are exact-match.
+</Note>
 
 The `handle*` / `handleSession*` / `handleFree*` split is not decoration. A
 session step and a free-form message reach the page by different paths, and the

@@ -41,10 +41,10 @@ Build `gramstax` **on top of [`grammy`](https://grammy.dev)**. `Gramstax` extend
 
 | Source Type | Reference |
 |-------------|-----------|
-| Dependency | `package.json` — `"grammy": "^1.44.0"` |
+| Dependency | `package.json` — `"grammy": "^1.46.0"` |
 | Code | `src/core/bot.ts:20` — `import {Bot, webhookCallback, type BotConfig, type BotError} from "grammy"` |
 | Code | `src/core/ctx.ts:14` — `import {InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"` |
-| Config | `src/types/t.ctx.ts:1,14,24` — `ITCt = Context`, `ITInlineKb = InlineKeyboard`, `ITBottomKb = Keyboard` |
+| Config | `src/types/ctx.ts` — `ICt = Context`; `InlineKeyboard` / `Keyboard` / `InputMediaBuilder` are used directly from `grammy` with no local alias |
 | Docs | `AGENTS.md` — "Built on top of the Telegram Bot API framework with page-based routing." |
 
 ## Related

@@ -89,7 +89,7 @@ Every exported symbol, generated from the TypeScript declarations and kept in
 step by CI — 1,032 pages grouped by class and type.
 
 <Card title="Browse the reference" icon="code" href="/reference/gramstax">
-  `Ctx`, `Gramstax`, `TemplateEngine`, every `render*()` method, and the 13 route
+  `Ctx`, `Gramstax`, `TemplateEngine`, every `render*()` method, and the 12 route
   unions behind them.
 </Card>
 

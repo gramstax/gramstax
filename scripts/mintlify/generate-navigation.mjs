@@ -30,7 +30,8 @@ const PROSE = [
       "concepts/page-routing",
       "concepts/render-contract",
       "concepts/templates",
-      "concepts/deploy"
+      "concepts/deploy",
+      "concepts/concurrency"
     ]
   },
   {
@@ -39,6 +40,7 @@ const PROSE = [
     boost: 1.5,
     pages: [
       "guides/getting-started",
+      "guides/configuration",
       "guides/gramstax-start",
       "guides/gramstax-build",
       "guides/e2e-testing",

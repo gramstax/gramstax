@@ -1,0 +1,120 @@
+---
+title: Configuration reference
+description: Every gramstax.config.ts field, what it does, and when you should reach for it.
+---
+
+# Configuration reference
+
+`gramstax.config.ts` holds twenty fields. All are optional — a missing file yields
+`{deploy: "polling"}` — and anything else throws `unknown field` with the list of
+supported keys.
+
+<Note>
+  The config file holds **refs and plain data, never instances**. `cacheSession`
+  takes `{store, ttlMs?, namespace?}` or a module ref, not a constructed
+  `CacheExternal`. The CLI materializes each slot and `instanceof`-checks it. The
+  one exception is the programmatic constructor, which takes instances — see
+  [Constructor params](#constructor-params).
+</Note>
+
+## Identity
+
+| Field | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `token` | `string` | — | The bot token **value**, not a variable name. `""` is accepted at load so `process.env.BOT_TOKEN ?? ""` typechecks; `gramstax start` then throws `Token is not valid or empty`. |
+| `deploy` | `string` | `polling` | The mode. Plain `string`, not a literal union, so `process.env.DEPLOY ?? "polling"` typechecks — membership is enforced by the loader, not the type. CLI `--deploy` wins. |
+
+<Tip>
+  `token` holding the value rather than the name is deliberate: the framework
+  cannot tell a literal from an env-derived string, so a literal in this file is a
+  committed secret. See [gramstax start](/guides/gramstax-start).
+</Tip>
+
+## Deploy
+
+| Field | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `optionsDeploy` | object | `{deploy: "polling"}` | Per-mode settings in nested branches. At most one branch may be non-empty and it must equal `deploy`; unknown branches and unknown fields inside a branch are rejected. |
+
+Full branch tables are in [Deploy](/concepts/deploy) and
+[gramstax start](/guides/gramstax-start).
+
+## Reliability
+
+| Field | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `autoRetry` | `boolean` | `true` | Mounts the auto-retry plugin, which absorbs Telegram rate limits by retrying failed requests. |
+| `autoRetryOptions` | object | — | `maxRetryAttempts` (≥ 1) and `retryOnInternalServerErrors`. Unknown keys are rejected. |
+| `updateTimeoutMs` | `number` | `30000` | How long a single handler may run before the update is treated as timed out. It does not cancel the handler — the update is only marked. |
+| `skipDuplicateUpdate` | `boolean` | `false` | Drops an update whose `update_id` was already handled. This is the one to reach for on webhook retries, where delivery is at-least-once. |
+| `maxTextLength` | `number` | `0` | Caps incoming `message.text` / `message.caption`; longer updates are skipped. `0` disables the check. |
+| `rateLimit` | object | — | Inbound limit. Both `windowMs` (fixed window, ms) and `max` (updates per key per window) are required. Mounts `@grammyjs/ratelimiter`, which fires `hookRateLimited(ctx)`. |
+
+## Outgoing load
+
+| Field | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `throttle` | object | — | Outgoing throttling via `@grammyjs/transformer-throttler`. Bottleneck buckets: `global`, `group`, `out`. Composes with `autoRetry` rather than replacing it. |
+
+<Note>
+  `rateLimit` is inbound and `throttle` is outbound. They solve opposite problems
+  and are frequently confused: `rateLimit` protects your bot from a chatty user,
+  `throttle` protects the Bot API from your bot.
+</Note>
+
+## Storage and caches
+
+| Field | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `cacheSession` | ref \| builtin | `memory` | `{"store", "ttlMs"?, "namespace"?}`, or a module ref to a `CacheExternal` subclass. `memory` is in-process; `redis://…` is shared across instances. |
+| `cacheKeyboard` | ref \| array \| object | internal `Map` | Keyboard memoization. Accepts a module ref to a `Map` subclass, an entries array, or a plain object. |
+| `sessionLock` | object | off | Distributed lease for multi-instance deployments. `enabled`, `leaseMs`, `onContended` (`skip` \| `wait` \| `serialize`), `key`. **Redis only** — a memory store auto-disables it with a warning. |
+
+## Templates and media
+
+| Field | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `templateManager` | ref \| builtin | `new TemplateManager({path: [<cwd>/src/pages]})` | Usually left alone. Set it only to share one manager across several page directories. Accepts a module ref to a `TemplateManager` subclass, or `{path}` with a non-empty array. |
+| `mediaRoots` | `string[] \| null` | `null` | A local-path jail for media uploads. `undefined`, `null` and `[]` all leave it **off**; a non-empty array only allows paths resolving under one of the roots. |
+
+<Warning>
+  `mediaRoots` off is not the same as permissive — it is simply not enforced. With
+  no roots there is no local-path jail at all, so a `file` input resolved from
+  user input can reach outside the project. Set it whenever you accept uploads from
+  a public bot.
+</Warning>
+
+## Observability
+
+| Field | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `statusServerPort` | `number` | — | An extra HTTP port serving `GET /health`, `GET /stats` and `GET /metrics` in **any** deploy mode. Unset, those routes exist only on the webhook server. |
+| `statusServerHostname` | `string` | `127.0.0.1` | Bind address for that server. |
+| `log` | boolean \| ref \| object | `true` | `true` for the default logger, `false` for silence, a module ref to a `LoggingHelper`, or `{pathFile?, force?, formatTime?}`. Unknown fields are rejected. |
+
+## Behaviour
+
+| Field | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `optionsPage` | `{shortCallbackQueryData?}` | `false` | Numeric callback ids instead of names. Shrinks callback payloads, at the cost of the callback data no longer being readable in the Telegram UI. |
+| `botConfig` | `BotConfig` | — | Forwarded to the client (`apiRoot` and friends). Use it for a self-hosted Bot API server. |
+
+## Constructor params
+
+`new Gramstax(params)` takes **instances**, not refs, and adds one field the
+config file cannot carry:
+
+| Field | Difference from the config file |
+| --- | --- |
+| `cacheSession`, `cacheKeyboard`, `templateManager`, `log` | Pass the constructed instance, not a ref or builtin form. |
+| `manifest` | **Rejected** in the config file with `unknown field`. It is constructor-only — it skips directory scanning entirely for a fs-less boot. |
+| `token`, `deploy` | Required here, optional on the config type. |
+
+This is the one place the two shapes diverge, and it is deliberate: the CLI can
+resolve a module path, and your own code already has the object.
+
+## Validation is strict on purpose
+
+Every field above rejects unknown siblings rather than ignoring them. A typo like
+`cacheSestion` fails at boot with the supported keys named, instead of silently
+leaving you on the default and wondering why your cache is empty.

@@ -29,7 +29,7 @@ import {TemplateEngine} from "./engine"
  * })
  *
  * // Get a compiled message
- * const message = tm.getMessage("start", "default", "en", {name: "John"})
+ * const message = tm.getGMessage("start", "default", "en", {name: "John"})
  * ```
  *
  * @public

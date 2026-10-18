@@ -16,7 +16,7 @@ Route updates **by convention**, not by manual `bot.on` registration:
 
 - **Discovery**: `PageManager` (`src/page/manager.ts`) scans `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`), loads each file, and takes the **first named export** (no default export — `_getFile` throws if `mod[0]` is undefined, `manager.ts:56-63`).
 - **Route key**: a page's `name` is derived from the file/class; `Ctx.buildData` can override `intentText` / `intentCommandText` / `intentCallbackData`.
-- **Handler methods**: each page declares optional `async handle*` methods on its `Ctx` subclass — `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleCallbackData`, `handleArgsCallbackData`, `handleFreeText`, the `handleSession*` and `handle*Caption*` variants, etc. (`src/core/ctx.ts:2711-3180+`).
+- **Handler methods**: each page declares optional `async handle*` methods on its `Ctx` subclass — `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleCallbackQueryData`, `handleArgsCallbackData`, `handleFreeText`, the `handleSession*` and `handle*Caption*` variants, etc. (`src/core/ctx.ts:2711-3180+`).
 - **Worker bots**: bots that only make raw API calls use `deploy: "raw"`, which
   skips page discovery entirely. An earlier `templateManager: {} as any`
   exception for this case has been removed and now throws.
@@ -32,7 +32,7 @@ Route updates **by convention**, not by manual `bot.on` registration:
 ### Benefits
 
 - Adding a screen = create a class in `src/pages`; zero router wiring.
-- Handler names make intent obvious (`handleFreeText` vs `handleCallbackData`).
+- Handler names make intent obvious (`handleFreeText` vs `handleCallbackQueryData`).
 - `buildData` overrides let one page serve multiple intents without renaming.
 
 ### Trade-offs
@@ -52,9 +52,9 @@ Route updates **by convention**, not by manual `bot.on` registration:
 | Source Type | Reference |
 |-------------|-----------|
 | Code | `src/page/manager.ts:56-63` — `_getFile` requires a non-default export |
-| Code | `src/core/ctx.ts:2711+` — `handleText`, `handleCallbackData`, `handleFreeText`, `handleSession*`, `handle*Caption*` |
+| Code | `src/core/ctx.ts` — `handleText`, `handleCallbackQueryData`, `handleFreeText`, `handleSession*`, `handle*Caption*` |
 | Code | `src/core/bot.ts:323-342` — deploy-mode selection that feeds routing |
-| Config | `src/types/t.ctx.ts:375` — `ITPageData` (name/intent* fields) |
+| Config | `src/types/ctx.ts` — `IPageData` (name/intent* fields) |
 | Docs | `AGENTS.md` — "Convention-based routing: `handle*`, `handleSession*`, `handleFree*`, intent/callback naming." |
 
 ## Related

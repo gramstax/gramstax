@@ -108,7 +108,7 @@ gramstax start: invalid `cacheSession` from ./src/cache.ts#NotACache — expecte
 | ----------------- | ---------------- | -------------------------------------------------- |
 | `cacheSession`    | `CacheExternal`  | `{store, ttlMs?, namespace?}` → `new CacheExternal(store, ttlMs, namespace)` |
 | `cacheKeyboard`   | `Map`            | entries array or plain object → `new Map(...)`     |
-| `templateManager` | `TemplateManager`| `ITTemplateOptions` (`path` required)              |
+| `templateManager` | `TemplateManager`| `ITemplateOptions` (`path` required)              |
 | `log`             | `LoggingHelper`  | `true` → default logger, `false`/omitted → silent, options → `new LoggingHelper(opts)` |
 | `sessionLock`     | — (scalars)      | `{enabled?, leaseMs?, onContended?, key?}` where `key` is a path-ref to a `(ctx) => string` factory |
 
