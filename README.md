@@ -15,23 +15,23 @@
 
 ## 💡 Why this repository
 
-Most Telegram frameworks give you a `bot.command("start", …)` and a template literal. Everything after that — where the markup lives, how a second language is added, whether a tap edits the existing message or leaves an orphan, how you prove the bot actually called the Bot API the way you think it did — becomes your problem, decided differently in every file.
+Most Telegram frameworks give you `bot.command("start", …)` and a template literal, then leave you to decide — differently in every file — where markup lives, how a second language gets added, and whether a tap edits the message it came from or orphans it.
 
-**No router, ever.** A page's route *is* its file path. `start.ts` is the `start` route, `admin/ban.ts` is `admin/ban` at whatever depth you like, `admin/index.ts` is `admin`. The scanner takes the first named export as the page class and binds every handler you name by convention — `handleCommandText`, `handleCallbackQueryData`, `handleArgs*`, `handleSession*`, `handleFree*`, `handleCaption*`. Adding a page is adding a file; there is no table to register it in, so it cannot break an unrelated page.
+**No router.** A page's route *is* its path: `start.ts` → `start`, `admin/ban.ts` → `admin/ban` at any depth, `admin/index.ts` → `admin`. The scanner takes the first named export as the page class and binds every `handle*` method you name. Naming a method *is* registering it — there is no central table, so adding a page cannot break an unrelated one.
 
-**A template engine, not a string library.** Markup is a typed block vocabulary — `g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-invoice`, `g-callback-answer` and the rest — parsed and compiled ahead of time, with 29 PAGE blocks and 54 Bot API 10.3 Rich HTML tags validated in three layers. `lang="id"` beside a block buys a second language with no branch in the handler; `{{var|upper}}` buys formatting without code in the page; `<g-ifelse>` buys a conditional that survives AOT compilation.
+**No template engine to build.** Text, keyboards, captions, poll options, invoices and error toasts live in one `static template`, compiled ahead of time: 29 PAGE blocks and 54 Bot API 10.3 Rich HTML tags, validated in three layers. `lang="id"` buys a second language, `{{var|upper}}` buys formatting, `<g-ifelse>` buys a conditional that survives AOT — none of it in the handler.
 
-**No hand-written entry point.** A generated project has no `src/index.ts` and no `new Gramstax({...})`. `gramstax start` reads `gramstax.config.ts`, discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref slot, and constructs it. Construction *is* boot — there is no `.run()` to remember, and no ordering to get wrong.
+**No render call whose params are a guess.** Each `render*()` params type is a union over its real delivery routes, and every universal key is a real type where the route reads it, `?: never` where it does not. `{mode: "reply", fallback: "reply"}` does not compile, because a forced reply never edits and so never reaches a fallback. `Ctx._assertRenderRoute` enforces the same combinations at runtime for plain-JS callers.
 
-**No markup in strings passed to an API call.** A page owns a `static template` block, so the same source renders in every language the page declares and stays translatable. `<g-message>` and `<g-message lang="id">` sitting side by side means an Indonesian Telegram client gets Indonesian with no branch in the handler.
+**No markup inside API calls.** A page owns its blocks, so one source renders every language the page declares and stays translatable — `<g-message>` and `<g-message lang="id">` side by side means an Indonesian Telegram client gets Indonesian with no branch in the handler.
 
-**No guessing at the Telegram dialect at runtime.** The template engine parses to typed blocks and validates against Bot API **10.3** (`TemplateEngine.BOT_API_VERSION`), covering 54 Rich HTML / `tg-*` tags in three layers: required attributes, attribute value formats, and a per-tag allow-list that rejects unknown attributes instead of ignoring them.
+**No guessing at the Telegram dialect.** The engine parses to typed blocks and validates against Bot API 10.3 (`TemplateEngine.BOT_API_VERSION`): required attributes, attribute value formats, and a per-tag allow-list that rejects unknown attributes instead of ignoring them.
 
-**No render call whose params are a guess.** Render params are a union over delivery routes, so a field the winning route would ignore is a compile error rather than something quietly dropped. `{mode: "reply", fallback: "reply"}` does not typecheck, because a forced reply never edits and so never reaches a fallback. `_assertRenderRoute` enforces the same combinations at runtime for plain-JS callers.
+**No boot file that drifts from `.env`.** No `src/index.ts`, no hand-written `new Gramstax({...})`. `gramstax start` reads `gramstax.config.ts`, discovers the `Gramstax` subclass, materializes each ref slot, constructs it. Construction *is* boot — nothing to run afterwards, no ordering to get wrong.
 
-**One deploy field, five behaviours.** `polling`, `webhook`, `serverless`, `raw`, `test` — and per-mode settings live in `optionsDeploy` nested branches where at most one branch may be non-empty and it must equal `deploy`. The old `webhook:<url>` / `serverless:<adapter>` colon grammar throws.
+**One deploy field, five behaviours.** `polling`, `webhook`, `serverless`, `raw`, `test` — per-mode settings sit in `optionsDeploy` nested branches where at most one branch may be non-empty and it must equal `deploy`. The old `webhook:<url>` colon grammar throws.
 
-**No updates that vanish without a trace.** An in-process `MetricsStore` counts every outcome — `matched`, `noMatch`, `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`, `skippedValidation`, `dropped` — and surfaces as JSON at `GET /stats` and Prometheus text at `GET /metrics`.
+**No updates that vanish without a trace.** An in-process `MetricsStore` counts `matched`, `noMatch`, `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`, `skippedValidation`, `dropped` — JSON at `GET /stats`, Prometheus text at `GET /metrics`.
 
 ## ✨ Features
 
@@ -288,6 +288,59 @@ await this.setSessionArgsCallbackQueryData({position: `confirm`, mediaType: `pho
 
 The matching `handleSession*` handler picks the step back up, and `handleSessionArgsCallbackQueryData` receives the step in `this.callbackQueryDataArgs`.
 
+### Guards
+
+| You want | Use |
+| :------ | :-- |
+| every route in a page family gated | a base class + `hookBeforeRoute()` — the framework calls it on every matched route, so a new page cannot opt out |
+| one check inside one handler or step | a `GuardBase` subclass whose method returns a value you branch on |
+| every route in the whole bot | `BotCore.hookBeforeRoute(ctx, data)` |
+
+```ts
+// page-level gate — no params, `this` IS the page
+export abstract class PageAdminBase extends PageBase {
+  async hookBeforeRoute() {
+    if (await isAdmin(this.from!.id)) return true
+    await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied})
+    return false // strict `false` only
+  }
+}
+```
+
+```ts
+// bot-level gate — example/1-complex/src/core/bot.ts
+export class BotCore extends Gramstax {
+  async hookBeforeRoute(ctx: CtxCore) {
+    const user = await new UserGuard(ctx).overrideLang()
+    return user !== null
+  }
+  async hookErrorPage(ctx: CtxCore, data: {listenerName: string; error: unknown}) {
+    await new StatusPage(ctx).gerror.show(`${data.listenerName}:hookErrorPage`, data.error)
+  }
+}
+```
+
+`!== false` is the test — omitting the hook allows, and so does returning `undefined`, `null`, `0` or `""`. Denying is silent by default: answer the callback or render a page, or the user sees nothing. A page that overrides an inherited gate **replaces** it; call `super.hookBeforeRoute()` to compose.
+
+### Query answers
+
+Six methods take their text from a template block instead of a literal string, so the answer is localizable and lives with the page's markup:
+
+| Method | Block | Telegram call | Params |
+| :----- | :---- | :------------ | :----- |
+| `renderCallbackAnswer` | `<g-callback-answer>` | `answerCallbackQuery` | `{showAlert, data?, AGBaseId?, options?}` |
+| `renderPreCheckout` | `<g-precheckout-error>` | `answerPreCheckoutQuery` | `{ok, data?, AGBaseId?, options?}` |
+| `renderShipping` | `<g-shipping-error>` | `answerShippingQuery` | `{ok, data?, AGBaseId?, options?}` |
+| `renderInlineAnswer` | `<g-inline-button>` | `answerInlineQuery` | `{results, data?, AGBaseId?, options?, buttonStartParameter?}` |
+| `renderGuestAnswer` | `<g-answer-note>` | `answerGuestQuery` | `{result, data?, AGBaseId?, options?}` |
+| `renderWebAppAnswer` | — | `api.answerWebAppQuery` | `{webAppQueryId, result, data?, AGBaseId?, options?}` |
+
+```ts
+await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied})
+```
+
+Send failures are classified via `Ctx.classifySendError`, reported to the `hookSendError` surface, logged, and then **always rethrown** — plan for the throw. `renderPreCheckout` resolves its block even when `ok: true`, as fail-fast validation that the template exists.
+
 ### Broadcasting
 
 The same call fans out and reports what happened:
@@ -299,6 +352,72 @@ const langs = subscribers.map((item) => item.language || `default`)
 const res = await this.renderText({AGBaseId: Base.infoDeliverText, data: {message: draftText}, broadcast: {ids, languageCode: langs}}) as IBroadcastSendResult
 await this.gsuccess.show(res.successCount, res.totalCount)
 ```
+
+### Deploy modes
+
+| `deploy` | What boots | Startup hooks | `optionsDeploy` branch |
+| :------- | :---------- | :------------- | :---------------------- |
+| `polling` (default) | the `getUpdates` loop | `hookBeforeStart` → `hookAfterStart` | `{maxRetries?, dropPendingUpdates?, queue?}` |
+| `webhook` | `Bun.serve` HTTP server + optional queue | both | `{url, secretToken, queue?}` — both mandatory |
+| `serverless` | the platform handler, fs-less from the frozen manifest | both | `{[adapter]: {url, secretToken, …}}` — the adapter **is the key** |
+| `raw` | nothing — a bare grammY `Bot`, no pages, no auto-start | `hookBeforeStart` only | `{}` |
+| `test` | the in-process e2e harness | both, no network | `{}` |
+
+```ts
+const config: GramstaxConfig = {
+  token: process.env.BOT_TOKEN ?? ``,
+  deploy: `webhook`,
+  optionsDeploy: {webhook: {url: `https://bot.example.com/hook`, secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``}}
+}
+```
+
+```ts
+const config: GramstaxConfig = {
+  deploy: `serverless`,
+  optionsDeploy: {
+    serverless: {
+      'cloudflare-mod': {
+        name: `gramstax-worker`,
+        url: `https://gramstax-worker.workers.dev/webhook`,
+        secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``,
+        compatibilityDate: `2026-01-01`,
+        compatibilityFlags: [`nodejs_compat`]
+      }
+    }
+  }
+}
+```
+
+`--deploy <mode>` on `gramstax start` overrides the file; precedence is flag → config → `polling`, with no env-var channel. The colon grammar (`webhook:https://…`) was removed and throws by name.
+
+### The build
+
+```bash
+gramstax build                            # freeze src/pages into .gramstax/
+gramstax build --dry-run                  # print the resolved plan, write nothing
+gramstax build --target cloudflare-mod    # Workers entry only
+gramstax build --target aws-lambda-async # Lambda entry only
+gramstax build --raw                      # raw projects: skip, exit 0
+gramstax build --bundle                   # single-file bundle (deprecated)
+```
+
+`pagesDir` is always `src/pages` and `outDir` always `.gramstax/`. The output tree:
+
+```text
+.gramstax/
+  routes.json        # frozen route list (pure data, diffable) — always
+  manifest.js        # static page-class imports + embedded templates — always
+  gen/               # AOT template modules — always
+    <key>.g.js       # one module per template key (`sub/note` → `sub_note.g.js`)
+    manifest.js      # {templates: Record<key, ICompiledTemplate>}
+  server/            # only for a resolved serverless target
+    worker.js        # cloudflare-mod entry
+    wrangler.toml    # complete deployable Workers config
+    bun-stub.ts      # `bun` resolve stub for the Workers bundler
+    lambda.js        # aws-lambda-async entry
+```
+
+AOT is unconditional — there is no `--aot` flag on `gramstax build` (it exists only on the raw `build-manifest.ts` script). Regenerate after every page or template change: there is no staleness check at boot, and the quietest symptom of a stale `gen/` is a blank message rather than an error.
 
 ### E2E against the compiled template
 
