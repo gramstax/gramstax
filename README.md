@@ -92,64 +92,11 @@ bunx create-gramstax@latest my-bot --pm bun --runtime bun --skip-install
 
 Each optional feature has a matching negation — `--no-lmdb`, `--no-worker-thread`, `--no-biome` — and `--runtime node` rewires the scripts to `node`, `tsc --outDir dist`, and `node --test`.
 
-### 3. Read the page the scaffold wrote
+### 3. Declare a page
 
-The generator already wrote `src/pages/start/index.ts` — a page is a class, the markup is a `static template`, and the handlers are convention-named. It ships wired to three sibling pages:
-
-```ts
-// src/pages/start/index.ts
-export class StartPage extends PageBase {
-  static data = this.buildData()
-
-  async handleCommandText() {
-    await this.gdefault.show()
-  }
-
-  helper = {}
-  gdefault = {
-    show: async () => {
-      await this.clearSession()
-      await this.renderText({keyboard: this.inlineKeyboardT([StartRandomPage, SumNumberPage, HelpPage], `2`), data: {userName: this.from?.username}})
-    },
-    process: () => {}
-  }
-}
-```
-
-Two `<g-message>` blocks follow, one of them `lang="id"`. Drop your own page into `src/pages/` and the file path becomes the route.
-
-### 4. Run it
-
-```bash
-bun --bun gramstax start           # boot from gramstax.config.ts
-bun --bun gramstax start --watch   # restart on src change
-bun --bun gramstax build           # freeze into .gramstax/
-```
-
-Token and deploy mode come from the config file at the project root:
+A page is a class. The markup is a static template; the keyboard is built from the page's own blocks. This is [`example/2-helloworld/src/pages/start.ts`](./example/2-helloworld/src/pages/start.ts), verbatim:
 
 ```ts
-// gramstax.config.ts
-import type {GramstaxConfig} from "gramstax"
-
-const config: GramstaxConfig = {
-  token: process.env.BOT_TOKEN,
-  deploy: process.env.BOT_DEPLOY ?? `polling`,
-  cacheSession: {store: process.env.CACHE_SESSION_STORE ?? `memory`, ttlMs: 4 * 60 * 60 * 1000, namespace: `s`},
-  log: true
-}
-
-export default config
-```
-
-## 📖 Usage
-
-### A page is a class
-
-Handlers stay thin; the work lives in `g*` objects, which is what makes each step renderable, processable, and independently testable. Both languages live in the same block set, so `renderText` serves both without a branch.
-
-```ts
-// example/2-helloworld/src/pages/start.ts
 import {PageBase} from "~/base/page"
 
 export class StartPage extends PageBase {
@@ -188,105 +135,328 @@ export class StartPage extends PageBase {
 }
 ```
 
-### Rendering: params are CONTENT & ROUTE
+Because both languages live in the same block set, the bot renders Indonesian for an Indonesian Telegram client and English for everyone else — without a branch in the handler.
 
-Every send-family `render*` method takes **one** params object. `mode` picks the route; `AGBaseId` selects which `<g-base>` block resolves.
+### 4. Configure and run
 
-```ts
-// edit when the update is a callback query, reply otherwise
-await this.renderText({keyboard: this.inlineKeyboardT([this]), data: {name: "John"}})
-
-// force the route
-await this.renderText({keyboard: this.inlineKeyboardT([this]), mode: `reply`})
-
-// pick the block and the media kind
-await this.renderPhoto({AGBaseId: Base.infoConfirmPhoto, keyboard: this.gkeyboardConfirm.show(), data: {fileId, caption}})
-
-// broadcast, same call
-await this.renderText({data: {name: "John"}, broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})
-```
-
-The route atoms are exported so the contract is documented per route, not only per method: `IRouteAuto`, `IRouteReply`, `IRouteForcedReply`, `IRouteEdit`, `IRouteChunked`, `IRouteBroadcastSend`, `IRouteMediaAuto`, `IRouteMediaReply`, `IRouteMediaBroadcastSend`, `IRouteMediaBroadcastRevise`, `IRouteGroupAuto`, `IRouteGroupReply`.
-
-Long text, caption edits, and keyboard-only edits are separate methods rather than `renderText` plus a manual delete: `renderEditCaption`, `renderEditKeyboard`, `renderText({chunkSize})`, `renderBroadcastDelete`.
-
-### Templates: blocks, filters, imports
+`gramstax.config.ts` at the project root, default export, annotated. This is [`example/2-helloworld/gramstax.config.ts`](./example/2-helloworld/gramstax.config.ts), trimmed to the fields that matter:
 
 ```ts
-// example/1-complex/src/pages/start/block/import.ts — reuse another page's base
-static template = `
-  <g-base>
-    <g-import src="start" base="for-block-import" />
-  </g-base>
-`
+import type {GramstaxConfig} from "gramstax"
+
+const config: GramstaxConfig = {
+  token: process.env.BOT_TOKEN,
+  deploy: process.env.BOT_DEPLOY ?? `polling`,
+  cacheSession: {
+    store: process.env.CACHE_SESSION_STORE ?? `memory`,
+    ttlMs: 4 * 60 * 60 * 1000,
+    namespace: `s`
+  },
+  log: true,
+  optionsDeploy: {polling: {maxRetries: undefined, queue: undefined}}
+}
+
+export default config
 ```
 
-Filters compile once and chain left to right; `default` applies only to undefined/null/empty, so `0` and `false` pass through.
+```bash
+bun --bun gramstax start          # boot
+bun --bun gramstax start --watch  # boot + restart on src change
+```
+
+### 5. Next steps
+
+- Write more pages under `src/pages` — routing is filesystem discovery, there is no registry to update
+- Add a shared keyboard block in `src/blocks/g-keyboard.ts` once two or more pages need it
+- Add the global error / not-found pages via `hookErrorPage` and `hookNotFoundPage` on `src/core/bot.ts`
+- Add `e2e/setup.ts` and drive the bot through `bot.e2e` with `deploy: "test"`
+- Run [`gramstax build`](./docs-site/guides/gramstax-build.md) before any `serverless` deploy
+
+## 📖 Usage
+
+### Page anatomy
+
+Four moving parts, in this order:
+
+| Piece | Declared as | What it is |
+| :---- | :---------- | :--------- |
+| `static data` | `this.buildData(...)` | Route identity — the page name, the text/command/callback intents, and the typed `callbackQueryData(...)` signature |
+| handlers | `handle*` methods | The entry points routing dispatches to; each stays thin and delegates to a `g*` step |
+| `helper` / `g*` | instance fields | Page-local closures and the `{show, process}` step objects |
+| `static template` | a template literal | The markup — `<g-base>` blocks containing `<g-message>`, `<g-keyboard>`, `<g-media>` and friends |
+
+`buildData` has four shapes:
 
 ```ts
-static template = `<g-base><g-message>{{name|upper}}! Joined {{createdAt|date:YYYY-MM-DD}} ({{count|plural:item:items}})</g-message></g-base>`
+// no args — callbackQueryData() takes zero arguments
+static data = this.buildData()
+
+// a callback-arg mapper — types data.callbackQueryData(id)
+static data = this.buildData((id: string) => [id])
+
+// optional args
+static data = this.buildData((exe?: string) => [exe])
+
+// a name override plus per-language intents
+static data = this.buildData({name: `lang`, intentTextMap: {en: `hello`, default: `hello`}})
 ```
 
-Logic is declarative, not JavaScript:
+A page **without** `static data` still routes, but `callbackQueryData` is not available — `IPageDataBase` deliberately omits it, so a page cannot wire a callback it never declared. `data.callbackQueryData(...)` returns `{result, page, args}`: `result` is the string Telegram carries, `page` is the destination class, `args` the tuple you passed.
+
+```ts
+// example/1-complex/src/pages/start/counter/index.ts
+helper = {
+  counterKeyboard: () => this.inlineKeyboardT([this.data.callbackQueryData(`I`), this.data.callbackQueryData(`D`), StartPage], `2`)
+}
+```
+
+`inlineKeyboardT` resolves each destination into its callback payload — a `IKbCallbackData` object uses `result`, a page class has `callbackQueryData()` called for you, and a bare string passes through — and `Helper.ensurePageHasCallback` throws if the destination page has no `handleCallbackQueryData`.
+
+#### Handler naming
+
+| Handler | Fires on |
+| :------ | :-------- |
+| `handleText` / `handleArgsText` | a plain text message matching `data.intentText` (and its `lang` variants) |
+| `handleCommandText` / `handleCommandArgsText` | `/command` matching `data.intentCommandText` |
+| `handleCallbackQueryData` / `handleArgsCallbackQueryData` | a callback query matching `data.intentCallbackQueryData` |
+| `handleCaptionPhoto` / `handleCommandCaptionPhoto` / … | a caption on that media kind |
+| `handleFree*` | any update of that kind, whatever the intent (dynamic route) |
+| `handleSession*` | the update the armed session points at (see [sessions](#sessions)) |
+| `handleChatMember*` / `handleMyChatMember*` | a status transition, e.g. `handleMyChatMemberOutAdmin` |
+| `handleFree()` | the global fallback for every unmatched free update |
+
+Args come **after** the verb, and the singular getters return the first token:
+
+| Getter | Returns |
+| :----- | :------ |
+| `this.msg?.text` | `string \| undefined` — always optional-chain; a caption update carries no text |
+| `this.msgTextArg` / `this.msgTextArgs` | the first token / all tokens after the intent |
+| `this.msgTextCommandArg` / `msgTextCommandArgs` | the same for the command payload |
+| `this.msgCaptionArg` / `msgCaptionArgs` | the same for captions |
+| `this.callbackQueryDataArg` / `callbackQueryDataArgs` | the first callback argument / all of them |
+
+### The render contract
+
+`renderText`, `renderMedia`, `renderMediaGroup` and friends share one rule, and it is the part worth knowing before anything else.
+
+**Params are a union over delivery routes.** `IRenderTextParams = IContent & (IRouteAuto | IRouteEdit | IRouteReply | IRouteChunked | IRouteBroadcastSend)`. `IContent` is the shared `data` (interpolation) + `AGBaseId` (which `<g-base>` to resolve). On top of it, every route declares the same **ten universal keys**:
+
+| Key | Feeds |
+| :-- | :---- |
+| `mode` | send-versus-edit resolution — `auto` (default), `reply`, or `edit` |
+| `keyboard` | reply markup; narrowed to `IInlineKb` where the call is always an edit |
+| `rich` | the `InputRichMessage` payload |
+| `richOptions` | rich-call options (send-only routes get `IOptRichSend`, edit-capable ones `IOptRich`) |
+| `options` | the send call |
+| `editOptions` | `editMessageText` |
+| `fallback` | `delete-reply` (default) · `reply` · `disable` |
+| `fallbackOptions` | options for the fallback resend |
+| `broadcast` | fan-out to `broadcast.ids` / `broadcast.targets` |
+| `chunkSize` | characters per chunk on the split route |
+
+A combination the winning route would ignore is a **compile error**, not a field quietly dropped:
+
+```ts
+// ❌ a forced reply never edits, so it never reaches a fallback
+await this.renderText({mode: `reply`, fallback: `reply`})
+
+// ✅
+await this.renderText({mode: `edit`, keyboard: this.inlineKeyboardT([this]), editOptions: {parse_mode: `HTML`}})
+```
+
+**One field, one call.** There is no options bag that has to satisfy two Telegram methods at once. `options` feeds the send, `editOptions` the edit, `fallbackOptions` the resend after a failed edit. On the media family the same rule splits one overloaded field into `captionOptions` (the caption-bearing send), `media` + `mediaOptions` (`editMessageMedia`), and `resendOptions` (the delete-then-resend path for kinds that cannot be edited in place).
+
+**The runtime backs it up.** `Ctx._assertRenderRoute(method, params, richAxis)` is one function shared by `renderText`, `renderMedia` and `renderMediaGroup`; it resolves the route from the same discriminators (`broadcast` shape, then `chunkSize`, then `mode`) and throws naming every dropped field and the fix. `Ctx._assertInlineKeyboardForEdit` rejects a bottom keyboard on an edit route before any API call — `editMessageText` would otherwise come back as an opaque Telegram 400.
+
+**Rich versus plain is a compile-time decision.** The `<g-message>` block decides, not the params: each route carries both `options` (plain) and `rich` (rich payload), and passing the one the block does not read logs a one-time `log.warn` and is ignored — never a throw, because a `--watch` hot reload can flip a page between the two in one process.
+
+#### Route atoms
+
+The twelve atoms are exported, so the contract is documented per route rather than only per method:
+
+| Atom | Route | Unread keys |
+| :--- | :---- | :---------- |
+| `IRouteAuto` | runtime-decided single message | `broadcast`, `chunkSize` |
+| `IRouteEdit` | forced edit of the message tied to the update | `options` |
+| `IRouteReply` | forced send, `mode` required | `editOptions`, `fallbackOptions`, `fallback` |
+| `IRouteForcedReply` | the same for send-only methods — `mode` optional | `editOptions`, `fallbackOptions`, `fallback` |
+| `IRouteChunked` | sequential reply chunks (`chunkSize` required) | `editOptions`, `fallbackOptions`, `fallback` |
+| `IRouteBroadcastSend` | fan-out to `broadcast.ids` | `mode`, `editOptions`, `fallbackOptions`, `fallback`, `chunkSize` |
+| `IRouteMediaAuto<T>` | runtime-decided single media | `options`, `editOptions`, `rich`, `richOptions`, `captionOptions` |
+| `IRouteMediaReply<T>` | forced media send | everything edit-side, plus `media`, `mediaOptions`, `resendOptions` |
+| `IRouteMediaBroadcastSend<T>` | media fan-out — the kind comes from the block | `mode`, `type`, and every edit-side key |
+| `IRouteMediaBroadcastRevise<T>` | revise stored `broadcast.targets` | `mode`, `options`, `captionOptions`, `fallbackOptions`, … |
+| `IRouteGroupAuto` | runtime-decided group send | `keyboard` (groups carry no markup), `rich`, `richOptions`, `fallbackOptions` |
+| `IRouteGroupReply` | forced group send | same, plus `fallback` |
+
+The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error rather than a silently dropped field: `IRouteEdit` declares `broadcast` as `null | undefined`.
+
+### Template blocks
+
+29 PAGE blocks, grouped by what they do.
+
+**Structure and sharing**
 
 ```html
-<g-message>
-  📣 Broadcast Message
-  <g-ifelse>isEmpty ? "⚠️ Message cannot be empty.\n" : ""</g-ifelse>
-  Current draft: {{draftText}}
-</g-message>
+<g-base id="i">
+  <g-message>Hello</g-message>
+</g-base>
+<g-base id="s">
+  <g-import src="start" base="i" />   <!-- reuse a base's keyboard -->
+  <g-message>Done</g-message>
+</g-base>
+<g-space />                             <!-- void, self-closing -->
 ```
+
+**Logic** — conditionals live in the template, not in a near-duplicate base:
+
+```html
+<g-ifelse>deletedAt ? "Yes" : "No"</g-ifelse>
+<g-switch value="status">
+  <g-case is="1">🔴 Off</g-case>
+  <g-default>🟢 On</g-default>
+</g-switch>
+<g-map src="arr" join="\n\n">
+  Position: {{ord}}      <!-- 1-based -->
+  Number: {{e.number}}   <!-- current element -->
+</g-map>
+```
+
+`<g-script>` and every `{~~ … ~~}` scope emit `with(`, which is forbidden in ESM strict mode — they work under `gramstax start` (JIT) and hard-fail `gramstax build`. `<g-ifelse>` is the AOT-safe conditional: it emits a plain optional-`data` ternary. For anything computed, put it in a page-class method and interpolate it with `{{}}`.
+
+**Content**
+
+```html
+<g-message>Plain or Telegram Rich HTML, {{escaped}}</g-message>
+<g-keyboard type="inline">🔢 Counter, ❓ Help, 🔄 Refresh</g-keyboard>
+<g-keyboard type="bottom">🏠 Home, ⌨️ Keyboard</g-keyboard>
+<g-media type="photo" src="https://example.com/a.jpg">🖼️ Caption goes here</g-media>
+<g-media-group>
+  <g-media type="photo" src="a.jpg">…</g-media>
+  <g-media type="video" src="b.mp4">…</g-media>
+</g-media-group>
+<g-poll type="quiz" correct="0">
+  <g-question>2 + 2?</g-question>
+  <g-option>3</g-option>
+  <g-option>4</g-option>
+</g-poll>
+<g-invoice title="Pro" description="30 days" payload="sub-42" currency="USD">
+  <g-price label="Monthly" amount="999" />
+</g-invoice>
+<g-paid-media stars="100"><g-media type="photo" src="a.jpg">…</g-media></g-paid-media>
+<g-venue title="HQ" address="Somewhere" latitude="-6.2" longitude="106.8" />
+<g-dice emoji="🎲" />
+<g-description>Shown in the /command list</g-description>
+<g-gift>🎁 Gift text</g-gift>
+```
+
+**Answers** — the text a query is answered with is a template block, so it is localizable: `<g-callback-answer>Saved</g-callback-answer>`, `<g-inline-button text="Search" start-parameter="q" />`, `<g-precheckout-error>Card declined</g-precheckout-error>`, `<g-shipping-error>We cannot ship there</g-shipping-error>`, `<g-answer-note>Note appended to the inline result</g-answer-note>`.
+
+**Telegram Rich HTML.** 54 tags pass straight through to the message `html` field: `a`, `b`, `code`, `del`, `em`, `i`, `ins`, `mark`, `s`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`, `u`; `aside`, `blockquote`, `blockquote expandable`, `br`, `caption`, `details`, `footer`, `h1`–`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul`; `tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`; `audio`, `cite`, `figcaption`, `figure`, `img`, `video`; `input`. Void elements must self-close (`<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>`). Required attributes, value formats and the per-tag allowlist are all validated — `<tg-time unix="1647531900">` is legal, `<tg-time unix="abc">` is not, and `<table ngasal="x">` is rejected by name.
+
+### Interpolation and filters
+
+| Syntax | Behaviour |
+| :----- | :-------- |
+| `{{key}}` | HTML-escaped interpolation (`&`, `<`, `>` escaped) |
+| `{{{key}}}` | raw pass-through — developer-authored markup only |
+| `{{key|filter:arg}}` | post-processing pipe, compiled into a chained call |
+| `<g-ifelse>…</g-ifelse>` | AOT-safe conditional, raw output |
+| `{{user.name|upper}}` | dotted paths work |
+
+| Filter | Signature | Behaviour |
+| :----- | :-------- | :-------- |
+| `upper` / `lower` | `{{name\|upper}}` | case conversion; nullish becomes `""` |
+| `number` | `{{price\|number:2}}` | fixed decimals (default 0); non-numeric renders empty, never `NaN` |
+| `date` | `{{at\|date:YYYY-MM-DD}}` | UTC formatting over `YYYY MM DD HH mm ss`; default `YYYY-MM-DD` |
+| `plural` | `{{count\|plural:item:items}}` | first arg when the value is exactly `1`, second otherwise |
+| `default` | `{{x\|upper\|default:N/A}}` | applies only to undefined / null / empty — `0` and `false` pass through |
+
+Pipes chain left to right. `DEFAULT_FILTERS` is a strict whitelist: an unknown filter renders empty and logs one `console.warn` per compile, because a template cannot execute arbitrary code through a pipe.
 
 ### Keyboards
 
-Template-backed, shared across pages:
+Two builders, two template block types:
 
 ```ts
-// example/2-helloworld/src/blocks/g-keyboard.ts
+// inline — button text and callback data both come from the labels
+const inline = this.inlineKeyboardT([StartCounterPage, StartHelpPage], `2`)
+const inlineFn = this.inlineKeyboard((k, l) => k.text(l[0]!, StartCounterPage).row().text(l[1]!, StartHelpPage), {cache: true, AGBaseId: Base.index})
+
+// bottom — text buttons that re-trigger text routing
+const bottom = this.bottomKeyboard((k, l) => k.text(l[0]!).row().text(l[1]!).oneTime())
+```
+
+`layout` is an `IKbCols` — a fixed `"1"`–`"6"` or a responsive range like `"2-4"`; `AGBaseId` picks which base's `<g-keyboard>` block supplies the labels; `cache: true` memoizes the built keyboard per `page:base:lang:i`.
+
+Inline is right for anything that should edit in place (the callback query makes `mode: 'auto'` edit the same message). Bottom is right for durable input modes — a city name, a persistent action — because bottom buttons send plain text. `renderEditKeyboard` swaps only the markup, with no resend.
+
+**Shared blocks.** Once two or more pages need the same board, lift it into `src/blocks/g-keyboard.ts` and expose it on `PageBase`:
+
+```ts
+// src/blocks/g-keyboard.ts — example/1-complex
 import {BlockGKeyboard, LabelGKeyboard} from "gramstax"
 
 export class KeyboardGBlock extends BlockGKeyboard {
   static label = class extends LabelGKeyboard {
-    static home = {default: `.. Home`}
-    static back = {default: `Back`}
-    static cancel = {default: `Cancel`}
+    static home = {default: `🏠 Home`, id: `🏠 Beranda`}
+    static back = {default: `⬅️ Back`, id: `⬅️ Kembali`}
   }
   static home = (lang?: string, type?: string) => this._build(`home`, lang, type)
   static back = (lang?: string, type?: string) => this._build(`back`, lang, type)
-  static cancel = (lang?: string, type?: string) => this._build(`cancel`, lang, type)
+}
+
+// src/base/page.ts
+export abstract class PageBase extends CtxCore {
+  static kbk = KeyboardGBlock
+  static kbl = KeyboardGBlock.label
 }
 ```
 
-Computed, for paginated lists:
+Then `${this.kbk.back()}` emits every language variant of the block, and `${this.kbl.back.default}` / `.id` gives the raw label string when you need it inside a sentence.
+
+### Sessions
+
+A session is a cache entry keyed `userId:chatId` that names which `handleSession*` method owns the next update. Arm one with the shorthand setter, read it from `this.temp.session`:
 
 ```ts
-// example/5-interactive-menu/src/pages/start/inline/with-range.ts
-return this.inlineKeyboard((k, l) => {
-  items.forEach((item) => {
-    k.text(item.name, this.data.callbackQueryData(`item`, item.id)).row()
-  })
+// example/1-complex/src/pages/start/input/text/index.ts
+export class StartInputTextPage extends PageBase {
+  static data = this.buildData({intentCommandText: `input_text`})
 
-  k.row()
-  if (safePage > 0) {
-    k.text(l[0]!, this.data.callbackQueryData(`page`, String(safePage - 1)))
+  async handleCommandText() {
+    await this.gindex.show()
   }
-  k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage)
-  if (safePage < totalPages - 1) {
-    k.text(l[1]!, this.data.callbackQueryData(`page`, String(safePage + 1)))
+
+  async handleSessionFreeText() {
+    const {step} = this.temp.session.params ?? {}
+    if (step === Base.index) {
+      await this.gindex.process()
+    }
   }
-  return k.row().text(l[3]!, StartPage)
-})
+
+  helper = {
+    homeKeyboard: (AGBaseId?: string) => this.inlineKeyboardT([StartPage], `1`, AGBaseId)
+  }
+  gindex = {
+    show: async () => {
+      await this.setSessionFreeText({step: Base.index})
+      await this.renderText({AGBaseId: Base.index, keyboard: this.helper.homeKeyboard(Base.index)})
+    },
+    process: async () => {
+      await this.gsuccess.show()
+    }
+  }
+  // …gsuccess…
+}
 ```
 
-### Sessions and multi-step flows
+Four behaviours worth knowing:
 
-```ts
-// example/8-newsletter/src/pages/broadcast.ts — park the user in a step
-await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto()], {position: `form`})
-await this.setSessionArgsCallbackQueryData({position: `confirm`, mediaType: `photo`, fileId, caption})
-```
-
-The matching `handleSession*` handler picks the step back up, and `handleSessionArgsCallbackQueryData` receives the step in `this.callbackQueryDataArgs`.
+- **Non-session routes auto-clear.** Once per dispatch, the first matched non-session route clears any existing session — so nothing leaks into the next update. Session routes never auto-clear.
+- **Do not fetch the session by hand.** The framework injects it into `this.temp.session` before your handler runs; a manual `getSession()` races a dispatch that already happened.
+- **Clear explicitly on `/start`.** `await this.clearSession()` at the top of the command handler is the cheapest way to guarantee a clean slate.
+- **`setSession([...])` for multi-input.** Bind one payload to several handlers at once — `await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto()], {position: `form`})`.
 
 ### Guards
 
@@ -341,17 +511,29 @@ await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied})
 
 Send failures are classified via `Ctx.classifySendError`, reported to the `hookSendError` surface, logged, and then **always rethrown** — plan for the throw. `renderPreCheckout` resolves its block even when `ok: true`, as fail-fast validation that the template exists.
 
-### Broadcasting
+### Broadcast
 
-The same call fans out and reports what happened:
+`broadcast.ids` fans out; `broadcast.targets` revises already-sent messages. The template is resolved once per language, rate limits are paced, and the result carries counts plus a re-drive list:
 
 ```ts
 // example/8-newsletter/src/pages/broadcast.ts
-const ids = subscribers.map((item) => item.id)
-const langs = subscribers.map((item) => item.language || `default`)
-const res = await this.renderText({AGBaseId: Base.infoDeliverText, data: {message: draftText}, broadcast: {ids, languageCode: langs}}) as IBroadcastSendResult
-await this.gsuccess.show(res.successCount, res.totalCount)
+ginfoDeliverText = {
+  show: async (ids: number[], langs: string[], draftText?: string) => {
+    return (await this.renderText({AGBaseId: Base.infoDeliverText, data: {message: draftText}, broadcast: {ids, languageCode: langs}})) as IBroadcastSendResult
+  },
+  process: () => {}
+}
 ```
+
+| Where | Method |
+| :---- | :----- |
+| text fan-out | `renderText({broadcast: {ids, languageCode}})` |
+| media fan-out | `renderMedia({broadcast: {ids, languageCode}})` — no `type`; the kind comes from the `<g-media>` block |
+| poll fan-out | `renderPoll({broadcast})` |
+| revise stored messages | `renderMedia({type, broadcast: {targets}})` |
+| delete stored messages | `renderBroadcastDelete({targets})` |
+
+`IBroadcastSendParams` adds `chunkSize` / `chunkDelayMs` pacing (different from the render-level `chunkSize`, which splits one message), `excludeIds`, `concurrency` (1–10), `startFrom` for resuming a checkpoint, `throwError`, and `onProgress`. The result is `{successCount, failedCount, totalCount, skippedCount, retryable: [{index, id, error}]}` — retryable failures never abort the run.
 
 ### Deploy modes
 
@@ -533,38 +715,63 @@ export const IncrementJob = WorkerThreadExport.init({path: __filename, WTInit: W
 
 ## 🔍 How it works
 
-### Boot
-
 ```mermaid
 flowchart TD
-    C["gramstax.config.ts"] --> L["loadConfig(cwd) + validation"]
-    L --> D["discover src/core/bot.ts"]
-    D --> M["materialize ref slots (instanceof-checked)"]
-    M --> B["new BotCore(params) — construction is boot"]
-    B --> P["PageManager walks src/pages"]
-    B --> T["TemplateManager compiles templates"]
-    P --> R["route tables"]
-    T --> R
-    R --> U["Update middleware"]
+    CLI["gramstax start"] --> Cfg["gramstax.config.ts<br/>(GramstaxConfigLoader)"]
+    Cfg --> Disc["src/core/bot.ts<br/>first export instanceof Gramstax"]
+    Disc --> Ctor["new BotCore(params) — construction IS boot"]
+    Ctor --> Bot["Gramstax (core/bot.ts)"]
+    PM["PageManager<br/>discovers src/pages"] --> Sort["_pageSorts → route tables"]
+    Sort --> Bot
+    Upd["Telegram update"] --> Bot
+    Bot -->|by listener name| Routes["_pageRoutes"]
+    Routes -->|route name| Ctx["new Page(ctx) — Ctx (core/ctx.ts)"]
+    Ctx -->|handle*| Page
+    Page -->|render*()| TM["TemplateManager"]
+    TM --> TE["TemplateEngine<br/>parse → validate → compile"]
+    TM --> Cache["CacheExternal<br/>memory | redis"]
 ```
 
-`gramstax start [--deploy <mode>] [--watch]` reads `gramstax.config.ts` from the project root, takes its default export, and validates it. Unknown top-level fields throw `Invalid gramstax config at <file>: …` — including `manifest`, which is a constructor param and not a config field. It then imports `src/core/bot.ts` and takes the first value export whose `prototype instanceof Gramstax`. Ref slots (`cacheSession`, `cacheKeyboard`, `templateManager`, `log`) are materialized and each checked against its expected base; a wrong export fails with the slot name and the base it wanted. Finally it constructs the subclass — no `.run()`.
+### The boot path
 
-The e2e harness is the one deliberate exception: `e2e/setup.ts` constructs `BotCore` directly to inject `deploy: "test"`, `token: "test"`, and a `TemplateManager`.
+`src/cli/gramstax.ts` builds a Commander program with two subcommands; `exitOverride` turns `--help` and `--version` into exit code 0 rather than `process.exit`. Each action translates its flags into a positional `argv` array and copies the resolved code onto `process.exitCode`.
 
-### Template pipeline
+`GramstaxStart.boot()` ([`src/cli/start.ts`](packages/gramstax/src/cli/start.ts)) then, in order:
 
-`TemplateManager` watches and loads template files; `TemplateEngine` parses them into typed compiled blocks — one `compileBlockG*` static per `ICompiledTemplate` field — and compiles `{{}}` interpolation and filter pipes into callable bodies. Unknown filters render empty plus a one-time `console.warn`; the whitelist cannot execute arbitrary code.
+1. `new GramstaxConfigLoader().loadConfig(cwd)` — imports `gramstax.config.ts` through a `file://` URL. A **missing** file is legal and yields `{deploy: 'polling'}` (that is what keeps zero-config `gramstax build` working); a file that exists but cannot be imported is fatal. Every unknown key throws `unknown field`.
+2. `_resolveToken` — the loader allows `""` so `process.env.X ?? ""` typechecks and an env-less build still works; `start` is where an empty token throws.
+3. `_resolveDeploy` — flag, then config, then `polling`. A colon in the flag is rejected separately, by name.
+4. `_discoverBotCore(cwd)` — imports `src/core/bot.ts` (then `.js`) and takes the **first export whose `prototype instanceof Gramstax`**. The export name is free: `BotCore`, `App`, anything.
+5. `_buildParams` — materializes each ref slot (`cacheSession`, `cacheKeyboard`, `templateManager`, `log`, `sessionLock.key`) and `instanceof`-checks it against its expected base.
+6. `return new BotCore(params)` — there is no `.run()`. The `Gramstax` constructor creates the underlying `Bot`, mounts `autoRetry`, `stream`, the optional ratelimiter and throttler, `hydrateFiles`, registers the listeners and starts the deploy-mode loop.
 
-For `serverless`, `gramstax build` runs the same compiler with emit hooks installed and writes `.gramstax/gen/*.g.js` instead: bodies are frozen at build time, media-style closures rebuild at import through a body-keyed link table, and a miss throws (regenerate). The output carries no `new Function`, `Function(`, or `eval(` — which is what makes it runnable on a Workers isolate that has no `Function` constructor.
+### The template compile pipeline
 
-### Routing
+[`TemplateManager.compile`](packages/gramstax/src/template/manager.ts) runs the same sequence for a page's `static template` or for a `.html` file under `src/pages`:
 
-Route names come from file paths, never from a router table: `shop/index.ts` → `shop`, `shop/detail.ts` → `shop/detail`. `PageManager.getFileManySync` computes the walk once and the same value feeds both fs boot and the frozen `.gramstax/routes.json`.
+1. **Expand `<g-import/>`** — a base importing another base's blocks (`processGImportBlocks`), recursively resolved against the import cache.
+2. **`validateTemplate`** — [`TemplateEngine.validateTemplate`](packages/gramstax/src/template/engine.ts) walks the tag allowlist (`ALLOWED_BLOCKS_PAGE` + `ALLOWED_BLOCKS_TELEGRAM`), then the per-block PAGE attribute validators, then the three Telegram steps (required attributes, value formats, unknown attributes), then positions, format blocks and scopes.
+3. **Compile each block family** — one static per block kind: `compileBlockGMessage`, `compileBlockGKeyboards`, `compileBlockGMedia`, `compileBlockGPoll`, `compileBlockGVenue`, `compileBlockGDice`, `compileBlockGGift`, `compileBlockGInvoice`, `compileBlockGPaidMedia`, `compileBlockGDescription`, `compileBlockGCallbackAnswer`, `compileBlockGPrecheckoutError`, `compileBlockGShippingError`, `compileBlockGInlineButton`, `compileBlockGAnswerNote`.
+4. **Produce an `ICompiledTemplate`** — 15 fields, each indexed by base id and then by language. That is the shape cached in the manager and frozen by AOT.
+5. **`new Function`** on the JIT path (`gramstax start`), or plain ESM source on the AOT path (`gramstax build`) — the AOT emitter is asserted per file to contain no codegen tokens.
 
-Inside `_pageRoutes`, priority is: chat-member → static session (matched by `session.method`) → static intents → intent-with-args → `handleFree*` → a global `handleFree()` fallback. `blocked` short-circuits the remaining routes for that listener. Two `hookBeforeRoute` hooks exist and both must pass — a bot-level gate `(ctx, data)` running once per update before matching, and a page-level gate running after a route matches on the instantiated page. `hookAfterRoute` reports state: `matched`, `no-match`, `no-handler`, `blocked`, `error`, `timeout`.
+Under `gramstax start --watch`, chokidar re-runs this for a changed template file only.
 
-Two operational details worth knowing: the page gate runs **before** `clearSessionOnce()`, so denying a non-session route does not wipe a user's step state; and the page instance is throwaway per route, so a gate must not depend on state a previous handler left on it.
+### Routing an update
+
+`_pageSorts` (in [`core/bot.ts`](packages/gramstax/src/core/bot.ts)) walks each page prototype once at boot and fills the routing tables — `all`, `routeStatic`, `routeStaticIntent`, `routeStaticSession`, `routeDynamicSpesific`, `routeDynamic` and `routeChatMember`. `_pageRoutes` then resolves an update against them in priority order, returning `matched` · `no-match` · `no-handler` · `blocked`:
+
+| Id | Type | Algorithm | Example |
+| :- | :--- | :-------- | :------ |
+| 0 | chat-member | O(n) over `routeChatMember`, pre-computed filters | `handleMyChatMemberOutAdmin` |
+| 1 | static session | O(x) keyed by `session.method`, filtered by listener | `handleSessionFreeText` |
+| 2 | static | O(1) exact lookup on the intent | `handleCommandText`, `handleCallbackQueryData` |
+| 3 | static intent | O(x) `startsWith` after the separator | `handleCommandArgsText`, `handleArgsCallbackQueryData` |
+| 4 | dynamic specific | `handleFree*` defined on the page | `handleFreeText` |
+| 5 | dynamic global | the page's `handleFree()` | catch-all free updates |
+| 6 | custom routes | `registerCustomRoute` entries | app-defined listeners |
+
+At every site the shape is the same — `const initPage = new Page(ctx)`, gate on `hookBeforeRoute`, then `await initPage[route.routeName]()`, then `hookAfterRoute`. `blocked` short-circuits the remaining routes for that listener.
 
 ## 📜 Scripts
 
@@ -638,73 +845,111 @@ gramstax/
 
 ## 🔧 Configuration
 
-`gramstax.config.ts` is the single composition point. Every field is optional, so a missing file yields `{deploy: "polling"}`; the annotated `: GramstaxConfig` type (a thin alias of `IGramstaxConfig`) typo-checks every key.
+### `GramstaxConfig` vs `IGramstaxParams`
+
+They are two different shapes for two different things, and the difference is the whole boot story.
+
+| | `GramstaxConfig` | `IGramstaxParams` |
+| :-- | :--------------- | :---------------- |
+| Used by | `gramstax.config.ts` (annotated, default export) | `new Gramstax(params)` |
+| Field strictness | **every field optional** — a missing file yields `{deploy: 'polling'}` | `token` and `deploy` required |
+| Instance values | **not possible** — slots hold refs or plain data | `cacheSession: CacheExternal`, `cacheKeyboard: Map`, `templateManager: TemplateManager`, `log: LoggingHelper` |
+| `manifest` | **rejected** (`unknown field`) — it is a constructor param | accepted: `IAppManifest`, the fs-less boot |
+| Who fills it | the CLI, materializing each slot and `instanceof`-checking it | you |
+
+### Ref slots
+
+Five slots accept a module reference the CLI resolves and instantiates:
+
+| Form | Meaning |
+| :--- | :------ |
+| `"path string"` | default export, zero-arg constructor |
+| `{override: {module, export?, args?}}` | named export, `args` spread into `new Export(...args)` |
+| `{module, ...}` bare | **rejected** — `uses removed bare {module, ...} form` |
+| plain data | builtin form, passed to the default constructor |
+
+| Slot | Expected base | Builtin form |
+| :--- | :------------ | :------------ |
+| `cacheSession` | `CacheExternal` | `{store, ttlMs?, namespace?}` |
+| `cacheKeyboard` | `Map` | entries array or plain object |
+| `templateManager` | `TemplateManager` | `{path, enableWatch?, watchOptions?, onReload?}` |
+| `log` | `LoggingHelper` | `true` · `false` · `{pathFile?, force?, formatTime?}` |
+| `sessionLock.key` | a non-class `(ctx) => string` | — |
+
+Paths resolve relative to the **project root**, not the config file.
+
+### Top-level fields
+
+20 fields; anything else throws `unknown field`. All are optional.
+
+| Field | Type | Default | Purpose |
+| :---- | :--- | :------ | :------ |
+| `token` | `string` | — | Bot token value. `""` is accepted at load so `process.env.X ?? ""` typechecks; `gramstax start` throws `Token is not valid or empty` |
+| `deploy` | `string` | `polling` | One of `polling` · `webhook` · `serverless` · `raw` · `test`; membership enforced by the loader. Plain `string` so `process.env.DEPLOY ?? "polling"` typechecks |
+| `optionsDeploy` | object | `{deploy: 'polling'}` | Nested per-mode branches — see below |
+| `mediaRoots` | `string[] \| null` | `null` | Opt-in local-path jail for media uploads; `[]` and `undefined` leave it off |
+| `botConfig` | `BotConfig` | — | Forwarded to the underlying client (`apiRoot`, …) |
+| `autoRetry` | `boolean` | `true` | Mount `@grammyjs/auto-retry` |
+| `autoRetryOptions` | `{maxRetryAttempts?, retryOnInternalServerErrors?}` | — | Backoff / retry policy |
+| `rateLimit` | `{windowMs, max}` | — | Inbound limit; both must be positive |
+| `throttle` | `APIThrottlerOptions` | — | Outgoing Bottleneck buckets (`global`, `group`, `out`) |
+| `updateTimeoutMs` | `number` | `30000` | A handler past it lands in `timeout` state |
+| `skipDuplicateUpdate` | `boolean` | `false` | Idempotency on `update_id` |
+| `maxTextLength` | `number` | `0` | Cap on `message.text` / `message.caption`; `0` = unlimited |
+| `statusServerPort` | `number` | — | `0`–`65535`; enables `GET /health`, `/stats`, `/metrics` |
+| `statusServerHostname` | `string` | `127.0.0.1` | Status-server bind address |
+| `optionsPage` | `{shortCallbackQueryData?}` | `false` | Numeric callback ids instead of names |
+| `cacheSession` | ref \| builtin | `memory` | Session store; `memory` or `redis:<url>` |
+| `cacheKeyboard` | ref \| array \| object | internal `Map` | Keyboard memoization store |
+| `templateManager` | ref \| builtin | `new TemplateManager({path: [<cwd>/src/pages]})` | Set only to share one manager across several page directories |
+| `log` | `boolean` \| ref \| `{pathFile?, force?, formatTime?}` | silent | `true` mounts the default logger |
+| `sessionLock` | `{enabled?, leaseMs?, onContended?, key?}` | off | Redis-only distributed lease; a memory store auto-disables it with a warning |
+
+### `optionsDeploy`
+
+Nested branches, **at most one non-empty**, and that branch must equal `deploy`:
 
 ```ts
-import type {GramstaxConfig} from "gramstax"
-
-const config: GramstaxConfig = {
-  token: process.env.BOT_TOKEN ?? ``,
-  deploy: process.env.DEPLOY ?? `polling`,
-  cacheSession: {store: `redis://localhost:6379`, ttlMs: 3600000},
-  log: {pathFile: `./logs/bot.log`, force: `all`},
-  optionsDeploy: {webhook: {url: `https://example.com/bot`, secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``}}
+optionsDeploy: {
+  polling: {maxRetries: 5},
+  webhook: {url: `https://bot.example.com/hook`, secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``},
+  serverless: undefined,
+  raw: undefined,
+  test: undefined
 }
-
-export default config
 ```
 
-### Field groups
+| Branch | Fields |
+| :----- | :----- |
+| `polling` | `maxRetries` (`-1` = forever, default `5`), `dropPendingUpdates` (default `false`), `queue` |
+| `webhook` | `url`, `secretToken` — **both required** — plus `queue` |
+| `serverless` | exactly one adapter key: `{'cloudflare-mod': {...}}` or `{'aws-lambda-async': {...}}` |
+| `raw` | none — `Record<string, never>`; any key throws |
+| `test` | none — `Record<string, never>`; any key throws |
 
-| Group | Fields | Notes |
-| :---- | :----- | :---- |
-| Identity | `token`, `deploy` | `deploy` is a bare `string` so env expressions typecheck; membership is enforced by the loader |
-| Deploy | `optionsDeploy` | Nested branches — see below |
-| Caches | `cacheSession`, `cacheKeyboard` | `{store, ttlMs?, namespace?}`, or a module ref; `memory` / `redis://…` are the built-in stores |
-| Templates | `templateManager` | A module ref, or builtin `{path, enableWatch?, watchOptions?, onReload?}` |
-| Logging | `log` | `true` (default logger) / `false` (silent) / a module ref / `{pathFile?, force?, formatTime?}` |
-| Routing | `optionsPage`, `updateTimeoutMs`, `maxTextLength`, `skipDuplicateUpdate`, `mediaRoots`, `botConfig` | `shortCallbackQueryData: true` shortens callback args; `mediaRoots` is a local-path jail for uploads |
-| Reliability | `autoRetry`, `autoRetryOptions`, `rateLimit`, `throttle` | `{windowMs, max}`; throttler options `{global, group, out}` |
-| Observability | `statusServerPort`, `statusServerHostname` | Serves `GET /health` and `GET /stats` in any deploy mode |
-| Multi-instance | `sessionLock` | `{enabled, leaseMs, onContended: skip \| wait \| serialize, key?}` — Redis only; memory store disables it with a warning |
+| Adapter | Accepted fields |
+| :------ | :--------------- |
+| `cloudflare-mod` | `url`, `secretToken` (required) + `name`, `compatibilityDate`, `compatibilityFlags`, `toml` |
+| `aws-lambda-async` | `url`, `secretToken` (required) only |
 
-Instance slots hold **refs and plain data, never instances**. A bare `{module}` without the `override` wrapper is rejected:
+A field that does not apply to the chosen adapter is **rejected**, not ignored. `toml` is flat-merged last into the emitted `wrangler.toml`, so it overrides every typed field. `secretToken` must match `^[A-Za-z0-9_-]{1,256}$` — generate with `openssl rand -hex 32` — and is never baked into an emitted bundle; the deployed entry reads the `BOT_WEBHOOK_SECRET` runtime binding.
 
-```ts
-log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}}
-```
+### Update queue
 
-### `optionsDeploy` branches
+`optionsDeploy.polling.queue` and `optionsDeploy.webhook.queue` configure the **same** class, `UpdateQueue`, with one independent instance per mode.
 
-At most one branch may be non-empty, and it must equal `deploy`. The legacy `webhook:<url>` / `serverless:<adapter>` colon grammar throws.
+| Field | Default | Effect |
+| :---- | :------ | :----- |
+| `enabled` | `false` | Opt-in. Absent or `false`, both modes drain strictly sequentially — polling is exactly what it was before the queue existed |
+| `maxQueueSize` | `5000` | Bounded capacity |
+| `workerCount` | `8` | Concurrent in-process drain loops (not OS threads) |
+| `perChatConcurrency` | `1` | `1` preserves ordering per chat; `0` disables the gate |
+| `blockWhenFull` | `true` | `false` = webhook answers HTTP 429, polling drops the update |
+| `enqueueTimeoutMs` | `10000` | How long a blocking producer waits for a slot |
+| `waiterTimeoutMs` | `30000` | How long a worker waits for a per-chat slot |
+| `drainTimeoutMs` | `10000` | How long `stop()` waits for in-flight handlers |
 
-| Branch | Fields | Required |
-| :----- | :----- | :------- |
-| `polling` | `maxRetries` (default `5`, `-1` retries forever), `dropPendingUpdates`, `queue` | — |
-| `webhook` | `url`, `secretToken`, `queue` | `url` + `secretToken` |
-| `serverless` | keyed by adapter — exactly one of `cloudflare-mod` (adds `name`, `compatibilityDate`, `compatibilityFlags`, `toml`) or `aws-lambda-async` | `url` + `secretToken` |
-| `raw` | none — any defined key is rejected | — |
-| `test` | none — any defined key is rejected | — |
-
-The adapter is the **key**, and a field that does not apply to an adapter is rejected rather than ignored. `secretToken` is runtime-required but type-optional so a zero-config `gramstax build` keeps working; it is never baked into an emitted bundle — the edge reads the `BOT_WEBHOOK_SECRET` binding.
-
-The `queue` block is the same shape on `polling` and `webhook` and configures the same `UpdateQueue` class, each mode keeping its own instance: `enabled` (default `false`, so both modes drain sequentially until you opt in), `maxQueueSize` (`5000`), `workerCount` (`8`), `perChatConcurrency` (`1`), `blockWhenFull` (`true`), `enqueueTimeoutMs` (`10000`), `waiterTimeoutMs` (`30000`), `drainTimeoutMs` (`10000`). `getWebhookQueueStats()` and `getPollingQueueStats()` each return `null` while their queue is off.
-
-### Deploy modes
-
-| `deploy` | What boots |
-| :------- | :--------- |
-| `polling` | Long-polling against the Bot API |
-| `webhook` | Webhook server with health/status endpoints |
-| `serverless` | Cloudflare Workers (`cloudflare-mod`) or AWS Lambda (`aws-lambda-async`); reads the frozen `.gramstax/` output |
-| `test` | In-process `MockTelegramServer` for e2e |
-| `raw` | A bare `Bot` instance — no pages, no templates, no routing, no auto-start |
-
-`gramstax build` freezes `src/pages` into `.gramstax/` — `routes.json`, `manifest.js`, AOT `gen/`, and `server/` entries per target. Only `serverless` auto-loads it; every other deploy boots from the filesystem so hot reload keeps working.
-
-```bash
-gramstax build [--target cloudflare-mod|aws-lambda-async] [--bundle] [--dry-run] [--raw]
-```
+Why opt-in: measured with `bench/bench.ts`, the queue is neutral below saturation but holds p95 flat past it — at a 600 users/s target the sequential drain managed 377 users/s at p95 1828 ms, the queue sustained 601 users/s at p95 124 ms. Polling delivery is at-least-once at the enqueue boundary, because the client advances its offset when the update is buffered. `getWebhookQueueStats()` / `getPollingQueueStats()` each return `null` while their queue is disabled.
 
 ## 🏗️ Architecture
 
@@ -750,18 +995,20 @@ Base ids map the same way: no `id` → `gdefault`, `id="s1"` → `gs1`, `id="amo
 ### Guardrails worth knowing
 
 | Rule | Why |
-| :--- | :--- |
-| `bun --bun`, always | Plain `node` cannot resolve TS paths or the `~` alias, and config path-refs need it |
-| One workspace version | `nx release` moves all four packages together; mixing versions is unsupported |
-| Build packages before running an example | Bun resolves `workspace:*` to `dist/src/index.js`, so examples execute the *built* output; typechecking resolves to `src` |
-| `bun --bun gramstax build` after every page or template change | The frozen manifest is a snapshot; `gramstax build` is not incremental |
-| One `gramstax` copy in a project | Two copies break `prototype instanceof Gramstax` discovery and surface as `no Gramstax subclass export` |
-| `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` self-closing | Void-element format validation, wired into `validateTemplate` the same way `<g-space/>` and `<g-import/>` are |
-| Every `g*` object needs `show` **and** `process` | Uniform shape keeps every step renderable and processable; define `process: () => {}` when no input is expected |
-| A page override of `hookBeforeRoute` replaces the family gate | Call `super.hookBeforeRoute()` to compose, or you have silently unlocked the page |
-| `bun:test` only | No Jest, no Vitest, anywhere |
-| Never commit a token or secret | The framework cannot tell a literal from an env-derived value, so no warning is possible |
-| `@ts-ignore` / `@ts-expect-error` are banned in `src` | Suppression hides the bug it was hiding |
+| :--- | :-- |
+| **The `?: never` convention** | Merely *omitting* an unread key from one union member is not enough — TypeScript's excess-property check treats a property as known when **any** member declares it. `never` is what makes it a compile error. |
+| **`Ctx._assertRenderRoute`** | One function, not one per method: the route resolves from the same discriminators everywhere, and a key the method does not have reads as `undefined` and is skipped. The three hand-maintained copies it replaced had already drifted apart. |
+| **`Ctx._assertInlineKeyboardForEdit`** | `editMessageText`/`editMessageMedia` accept inline keyboards only. The throw names `mode: 'reply'` as the fix instead of returning an opaque Telegram 400. |
+| **No default exports** | `PageManager._getFile` reads the *first named export* and throws `must have export (not default) class page`. The same rule covers page modules, `gramstax.config.ts` and every module in the barrel. |
+| **No `@ts-ignore` / `@ts-expect-error`** | In source, never. `tsc --noEmit` runs over `packages/gramstax` in CI. Type suppression is confined to test files. |
+| **Only 20 config fields** | Anything else — including `manifest` — throws `unknown field`, and the message lists the supported keys. |
+| **One `optionsDeploy` branch** | Two live branches means one of them is a lie. A non-empty branch that does not equal `deploy` fails at boot, by name. |
+| **Regenerate `.gramstax/`** | There is no staleness check at boot. A stale manifest serves the **old version with no error at all** — the most confusing report this framework produces. |
+| **`<g-script>` and `{~~ … ~~}` are AOT-blocked** | They emit `with(`, forbidden in ESM strict mode. They work in dev and kill the deploy — the worst possible split. |
+| **Deny is strict `false`** | `hookBeforeRoute` tests `!== false`, so `undefined`, `null`, `0` and `""` all **allow**. Coerce explicitly. |
+| **Secrets are never literals** | `token` and `secretToken` hold `process.env.X ?? ""`. A literal in the config file is a committed secret. |
+| **Never concatenate user input into template source** | Templates compile to executable functions. User input belongs in `data` (inert by construction — `security-poc/3-safe-data-binding.ts`); the same string in the source is an RCE (`security-poc/4-untrusted-template-rce.ts`). |
+| **`deploy: 'raw'` needs `optionsDeploy: {raw: {}}`** | The branch is `Record<string, never>`: present-but-empty counts as empty, which is what lets the one-branch rule pass. Any key inside it throws. |
 
 ## 📚 API Reference
 
