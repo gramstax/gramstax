@@ -1,0 +1,42 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ICustomRouteEntry](./gramstax.icustomrouteentry.md)
+
+## ICustomRouteEntry type
+
+A custom filter-based route entry, registered via [Gramstax.registerCustomRoute()](./gramstax.gramstax.registercustomroute.md).
+
+**Signature:**
+
+```typescript
+type ICustomRouteEntry$1 = {
+    name: string;
+    routeName: string;
+    listenerName: string;
+    event: FilterQuery;
+    filter: (ctx: Ctx) => boolean;
+    shouldCheckNotFound?: boolean;
+};
+```
+**References:** [Ctx](./gramstax.ctx.md)
+
+## Remarks
+
+Similar to chat member routes but for any `listenerName`. The route fires at dispatch stage id=6 in [Gramstax.\_pageRoutes()](./gramstax.gramstax._pageroutes.md) when: 1. `fromListener === listenerName`, AND 2. `filter(ctx)` returns `true`
+
+`registerCustomRoute` automatically calls `this.bot.on(entry.event, ...)` to subscribe the listener — no separate `registerLowOn*` override needed.
+
+## Example
+
+
+```typescript
+const entry: ICustomRouteEntry = {
+  name: `search`,
+  routeName: `handleInlineQuery`,
+  listenerName: `inlinequery`,
+  event: `inline_query`,
+  filter: (ctx) => !!ctx.inlineQuery,
+  shouldCheckNotFound: false
+}
+```
+

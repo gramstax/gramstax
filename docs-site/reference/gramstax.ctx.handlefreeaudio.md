@@ -1,0 +1,31 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleFreeAudio](./gramstax.ctx.handlefreeaudio.md)
+
+## Ctx.handleFreeAudio() method
+
+Route handler for free-form audio input.
+
+**Signature:**
+
+```typescript
+/** @virtual */
+handleFreeAudio?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Triggered by any audio not matching other routes, typically used with sessions.
+
+## Example
+
+
+```typescript
+async handleFreeAudio() {
+   this.msg?.audio // {...}
+}
+```
+

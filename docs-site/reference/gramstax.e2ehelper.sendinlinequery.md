@@ -1,0 +1,72 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendInlineQuery](./gramstax.e2ehelper.sendinlinequery.md)
+
+## E2eHelper.sendInlineQuery() method
+
+Simulate an inline query sent by a user.
+
+**Signature:**
+
+```typescript
+sendInlineQuery(query: string, options?: IE2eUpdateOptions): Promise<IE2eApiCall[]>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+query
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The inline query text.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md)
+
+
+</td><td>
+
+_(Optional)_ User, chat, and response options.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)\[\]&gt;
+
+API calls made while processing this update.
+

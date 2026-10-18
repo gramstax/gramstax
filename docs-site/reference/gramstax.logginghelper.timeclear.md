@@ -1,0 +1,29 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md) &gt; [timeClear](./gramstax.logginghelper.timeclear.md)
+
+## LoggingHelper.timeClear() method
+
+Clear all active timers.
+
+**Signature:**
+
+```typescript
+timeClear(): void;
+```
+**Returns:**
+
+void
+
+## Example
+
+
+```typescript
+const logger = new LoggingHelper();
+
+logger.time("task1");
+logger.time("task2");
+logger.timeClear();
+// All timers cleared
+```
+

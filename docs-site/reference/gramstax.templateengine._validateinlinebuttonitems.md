@@ -1,0 +1,63 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validateInlineButtonItems](./gramstax.templateengine._validateinlinebuttonitems.md)
+
+## TemplateEngine.\_validateInlineButtonItems() method
+
+Validates `<g-inline-button>` items beyond attribute names.
+
+**Signature:**
+
+```typescript
+static _validateInlineButtonItems(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template source to inspect.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Array&lt;&#123; line: number; message: string; &#125;&gt;
+
+Validation errors (empty when valid).
+
+## Remarks
+
+Enforces the structural rules: every block needs a non-empty `text`, and every static `start-parameter` must match the Bot API deep-link format. Called by `validateBlockGInlineButtonAttributes`; errors carry 1-based line numbers.
+

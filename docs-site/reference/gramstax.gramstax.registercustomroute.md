@@ -1,0 +1,61 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [registerCustomRoute](./gramstax.gramstax.registercustomroute.md)
+
+## Gramstax.registerCustomRoute() method
+
+Registers a custom filter-based route entry with automatic listener subscription.
+
+**Signature:**
+
+```typescript
+/** @virtual */
+registerCustomRoute(entry: ICustomRouteEntry): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+entry
+
+
+</td><td>
+
+ICustomRouteEntry
+
+
+</td><td>
+
+The custom route entry. See ICustomRouteEntry.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+
+## Remarks
+
+Adds a route entry to `this.pages.routeCustom` for dispatch at stage id=6 in \_pageRoutes. The route fires when: 1. listenerName matches entry.listenerName, AND 2. entry.filter(ctx) returns true
+
+For events with a built-in listener, the route is dispatched by the existing built-in subscription (the listenerName must match the built-in one). For any other event, a grammY listener is subscribed automatically via this.bot.on(entry.event, ...).
+

@@ -1,0 +1,4857 @@
+{
+  "groups": [
+    {
+      "group": "Overview",
+      "icon": "book-open",
+      "boost": 2,
+      "pages": [
+        "index",
+        "reference/gramstax",
+        "reference/index"
+      ]
+    },
+    {
+      "group": "Classes",
+      "pages": [
+        "reference/gramstax.blockgkeyboard",
+        "reference/gramstax.cacheexternal",
+        "reference/gramstax.ctx",
+        "reference/gramstax.e2ehelper",
+        "reference/gramstax.gramstax",
+        "reference/gramstax.labelgkeyboard",
+        "reference/gramstax.logginghelper",
+        "reference/gramstax.metricsstore",
+        "reference/gramstax.mocktelegramserver",
+        "reference/gramstax.pagemanager",
+        "reference/gramstax.sessionlock",
+        "reference/gramstax.templateengine",
+        "reference/gramstax.templatemanager",
+        "reference/gramstax.updatedispatcher",
+        "reference/gramstax.updategate",
+        "reference/gramstax.updatequeue"
+      ],
+      "boost": 1
+    },
+    {
+      "group": "Types",
+      "pages": [
+        "reference/gramstax.ganswernoteresult",
+        "reference/gramstax.gblockkind",
+        "reference/gramstax.gcallbackanswerresult",
+        "reference/gramstax.gdescriptionresult",
+        "reference/gramstax.gdiceresult",
+        "reference/gramstax.ggiftresult",
+        "reference/gramstax.ginlinebuttonresult",
+        "reference/gramstax.ginvoiceresult",
+        "reference/gramstax.gkeyboardresult",
+        "reference/gramstax.gmediaresult",
+        "reference/gramstax.gmessageresult",
+        "reference/gramstax.gpaidmediaresult",
+        "reference/gramstax.gpollresult",
+        "reference/gramstax.gprecheckouterrorresult",
+        "reference/gramstax.gramstaxconfig",
+        "reference/gramstax.gshippingerrorresult",
+        "reference/gramstax.gvenueresult",
+        "reference/gramstax.ianswernoteblock",
+        "reference/gramstax.iappmanifest",
+        "reference/gramstax.ibottomkb",
+        "reference/gramstax.ibottomkbparams",
+        "reference/gramstax.ibottomkbwithctx",
+        "reference/gramstax.ibroadcasteditopts",
+        "reference/gramstax.ibroadcasteditresult",
+        "reference/gramstax.ibroadcastedittarget",
+        "reference/gramstax.ibroadcastreviseparams",
+        "reference/gramstax.ibroadcastsendparams",
+        "reference/gramstax.ibroadcastsendresult",
+        "reference/gramstax.ibuilddataoptions",
+        "reference/gramstax.icacherpc",
+        "reference/gramstax.icallbackanswerblock",
+        "reference/gramstax.icompiledtemplate",
+        "reference/gramstax.icontent",
+        "reference/gramstax.ict",
+        "reference/gramstax.ictmiddleware",
+        "reference/gramstax.ictxparams",
+        "reference/gramstax.icustomrouteentry",
+        "reference/gramstax.idata",
+        "reference/gramstax.ideploymode",
+        "reference/gramstax.idiceblock",
+        "reference/gramstax.ie2eapicall",
+        "reference/gramstax.ie2ecallbackqueryoptions",
+        "reference/gramstax.ie2echat",
+        "reference/gramstax.ie2echatmemberoptions",
+        "reference/gramstax.ie2econtactoptions",
+        "reference/gramstax.ie2ediceoptions",
+        "reference/gramstax.ie2elocationoptions",
+        "reference/gramstax.ie2emediaoptions",
+        "reference/gramstax.ie2eupdateoptions",
+        "reference/gramstax.ie2euser",
+        "reference/gramstax.igiftblock",
+        "reference/gramstax.igiveawayoptions",
+        "reference/gramstax.igiveawayparams",
+        "reference/gramstax.igramstaxawslambdaasyncoptions",
+        "reference/gramstax.igramstaxbotclass",
+        "reference/gramstax.igramstaxbuildoptions",
+        "reference/gramstax.igramstaxbuildplan",
+        "reference/gramstax.igramstaxcachekeyboardref",
+        "reference/gramstax.igramstaxcachesessionref",
+        "reference/gramstax.igramstaxcloudflaremodoptions",
+        "reference/gramstax.igramstaxconfig",
+        "reference/gramstax.igramstaxctxscope",
+        "reference/gramstax.igramstaxexplicitbuildkeys",
+        "reference/gramstax.igramstaxlogref",
+        "reference/gramstax.igramstaxmoduleref",
+        "reference/gramstax.igramstaxoptionsdeploy",
+        "reference/gramstax.igramstaxparams",
+        "reference/gramstax.igramstaxpathref",
+        "reference/gramstax.igramstaxplansource",
+        "reference/gramstax.igramstaxpollingdeployoptions",
+        "reference/gramstax.igramstaxrawdeployoptions",
+        "reference/gramstax.igramstaxserverlessadapter",
+        "reference/gramstax.igramstaxserverlessdeployoptions",
+        "reference/gramstax.igramstaxsessionlockref",
+        "reference/gramstax.igramstaxstartoptions",
+        "reference/gramstax.igramstaxtemplatemanagerref",
+        "reference/gramstax.igramstaxtestdeployoptions",
+        "reference/gramstax.igramstaxwebhookdeployoptions",
+        "reference/gramstax.iinbokb",
+        "reference/gramstax.iinlinebuttonblock",
+        "reference/gramstax.iinlinekb",
+        "reference/gramstax.iinlinekbparams",
+        "reference/gramstax.iinlinekbwithctx",
+        "reference/gramstax.iinvoiceblock",
+        "reference/gramstax.ikbbuttonwithpagetext",
+        "reference/gramstax.ikbcallbackdata",
+        "reference/gramstax.ikbcols",
+        "reference/gramstax.ikbdest",
+        "reference/gramstax.ikbpagelike",
+        "reference/gramstax.imediablock",
+        "reference/gramstax.imetricsqueuestats",
+        "reference/gramstax.imocktelegramcallbackqueryoptions",
+        "reference/gramstax.imocktelegramchat",
+        "reference/gramstax.imocktelegramcontactoptions",
+        "reference/gramstax.imocktelegramhandler",
+        "reference/gramstax.imocktelegramjson",
+        "reference/gramstax.imocktelegramlocationoptions",
+        "reference/gramstax.imocktelegrammediaoptions",
+        "reference/gramstax.imocktelegramrequestrecord",
+        "reference/gramstax.imocktelegramserveroptions",
+        "reference/gramstax.imocktelegramupdateoptions",
+        "reference/gramstax.imocktelegramuser",
+        "reference/gramstax.ineverfields",
+        "reference/gramstax.ioptcallbackanswer",
+        "reference/gramstax.ioptdice",
+        "reference/gramstax.ioptedit",
+        "reference/gramstax.iopteditcaption",
+        "reference/gramstax.iopteditkeyboard",
+        "reference/gramstax.iopteditmedia1",
+        "reference/gramstax.iopteditmedia2",
+        "reference/gramstax.ioptfallbackedit",
+        "reference/gramstax.ioptgift",
+        "reference/gramstax.ioptguestanswer",
+        "reference/gramstax.ioptinlineanswer",
+        "reference/gramstax.ioptinvoice",
+        "reference/gramstax.ioptpaidmedia",
+        "reference/gramstax.ioptpoll",
+        "reference/gramstax.ioptprecheckout",
+        "reference/gramstax.ioptreply",
+        "reference/gramstax.ioptreplyanimation",
+        "reference/gramstax.ioptreplyaudio",
+        "reference/gramstax.ioptreplycontact",
+        "reference/gramstax.ioptreplydocument",
+        "reference/gramstax.ioptreplylocation",
+        "reference/gramstax.ioptreplyphoto",
+        "reference/gramstax.ioptreplyrich",
+        "reference/gramstax.ioptreplysticker",
+        "reference/gramstax.ioptreplyvideo",
+        "reference/gramstax.ioptreplyvideonote",
+        "reference/gramstax.ioptreplyvoice",
+        "reference/gramstax.ioptrich",
+        "reference/gramstax.ioptrichsend",
+        "reference/gramstax.ioptshipping",
+        "reference/gramstax.ioptvenue",
+        "reference/gramstax.ioptwebappanswer",
+        "reference/gramstax.ipagedata",
+        "reference/gramstax.ipagedatabase",
+        "reference/gramstax.ipagemanifestentry",
+        "reference/gramstax.ipaidmediablock",
+        "reference/gramstax.ipollblock",
+        "reference/gramstax.iprecheckouterrorblock",
+        "reference/gramstax.iratelimitoptions",
+        "reference/gramstax.iredislockclient",
+        "reference/gramstax.irenderbroadcastdeleteparams",
+        "reference/gramstax.irendercallbackanswerparams",
+        "reference/gramstax.irenderdiceparams",
+        "reference/gramstax.irendereditcaptionparams",
+        "reference/gramstax.irendereditkeyboardparams",
+        "reference/gramstax.irendergiftparams",
+        "reference/gramstax.irenderguestanswerparams",
+        "reference/gramstax.irenderinlineanswerparams",
+        "reference/gramstax.irenderinvoiceparams",
+        "reference/gramstax.irendermediagroupkindparams",
+        "reference/gramstax.irendermediagroupparams",
+        "reference/gramstax.irendermediakindparams",
+        "reference/gramstax.irendermediaparams",
+        "reference/gramstax.irenderpaidmediaparams",
+        "reference/gramstax.irenderpollparams",
+        "reference/gramstax.irenderprecheckoutparams",
+        "reference/gramstax.irendershippingparams",
+        "reference/gramstax.irendertextparams",
+        "reference/gramstax.irendervenueparams",
+        "reference/gramstax.irenderwebappanswerparams",
+        "reference/gramstax.ireplyaction",
+        "reference/gramstax.irouteauto",
+        "reference/gramstax.iroutebroadcastsend",
+        "reference/gramstax.iroutechunked",
+        "reference/gramstax.irouteedit",
+        "reference/gramstax.irouteforcedreply",
+        "reference/gramstax.iroutegroupauto",
+        "reference/gramstax.iroutegroupreply",
+        "reference/gramstax.iroutemanifestentry",
+        "reference/gramstax.iroutemediaauto",
+        "reference/gramstax.iroutemediabroadcastrevise",
+        "reference/gramstax.iroutemediabroadcastsend",
+        "reference/gramstax.iroutemediareply",
+        "reference/gramstax.iroutereply",
+        "reference/gramstax.isenderrorhook",
+        "reference/gramstax.isenderrorinfo",
+        "reference/gramstax.iserverlessref",
+        "reference/gramstax.iserverlessslot",
+        "reference/gramstax.isessionlockoncontended",
+        "reference/gramstax.isessionlockoptions",
+        "reference/gramstax.ishippingerrorblock",
+        "reference/gramstax.istorycontent",
+        "reference/gramstax.itemp",
+        "reference/gramstax.itemplatemanifestentry",
+        "reference/gramstax.itemplateoptions",
+        "reference/gramstax.iupdatedispatcheroptions",
+        "reference/gramstax.iupdatedispatchstopresult",
+        "reference/gramstax.iupdateerrorevent",
+        "reference/gramstax.iupdategateoptions",
+        "reference/gramstax.iupdatequeueconfig",
+        "reference/gramstax.iupdatesuccessevent",
+        "reference/gramstax.ivenueblock",
+        "reference/gramstax.iwebhookqueueconfig"
+      ],
+      "boost": 1
+    },
+    {
+      "group": "Functions",
+      "pages": [
+        "reference/gramstax.metricstoprometheus",
+        "reference/gramstax.resolvegatekey"
+      ],
+      "boost": 1
+    },
+    {
+      "group": "Variables",
+      "pages": [
+        "reference/gramstax.__esc",
+        "reference/gramstax.default_filters",
+        "reference/gramstax.filters",
+        "reference/gramstax.gramstax_deploy_mode_set",
+        "reference/gramstax.gramstax_deploy_modes",
+        "reference/gramstax.gramstax_serverless_adapters",
+        "reference/gramstax.gramstax_serverless_fields",
+        "reference/gramstax.log",
+        "reference/gramstax.webhookqueue"
+      ],
+      "boost": 0.8
+    },
+    {
+      "group": "Members",
+      "pages": [
+        {
+          "group": "__emithook",
+          "pages": [
+            "reference/gramstax.templateengine.__emithook"
+          ]
+        },
+        {
+          "group": "__linkhook",
+          "pages": [
+            "reference/gramstax.templateengine.__linkhook"
+          ]
+        },
+        {
+          "group": "_build",
+          "pages": [
+            "reference/gramstax.blockgkeyboard._build"
+          ]
+        },
+        {
+          "group": "_buildfunctionbody",
+          "pages": [
+            "reference/gramstax.templateengine._buildfunctionbody"
+          ]
+        },
+        {
+          "group": "_compilefilterchain",
+          "pages": [
+            "reference/gramstax.templateengine._compilefilterchain"
+          ]
+        },
+        {
+          "group": "_compilemediasrc",
+          "pages": [
+            "reference/gramstax.templateengine._compilemediasrc"
+          ]
+        },
+        {
+          "group": "_compiletofunction",
+          "pages": [
+            "reference/gramstax.templateengine._compiletofunction"
+          ]
+        },
+        {
+          "group": "_constructor_",
+          "pages": [
+            "reference/gramstax.cacheexternal._constructor_",
+            "reference/gramstax.ctx._constructor_",
+            "reference/gramstax.e2ehelper._constructor_",
+            "reference/gramstax.gramstax._constructor_",
+            "reference/gramstax.mocktelegramserver._constructor_",
+            "reference/gramstax.sessionlock._constructor_",
+            "reference/gramstax.templatemanager._constructor_",
+            "reference/gramstax.updatedispatcher._constructor_",
+            "reference/gramstax.updategate._constructor_",
+            "reference/gramstax.updatequeue._constructor_"
+          ]
+        },
+        {
+          "group": "_escape",
+          "pages": [
+            "reference/gramstax.templateengine._escape"
+          ]
+        },
+        {
+          "group": "_escapedata",
+          "pages": [
+            "reference/gramstax.templateengine._escapedata"
+          ]
+        },
+        {
+          "group": "_escapestaticexceptinterpolation",
+          "pages": [
+            "reference/gramstax.templateengine._escapestaticexceptinterpolation"
+          ]
+        },
+        {
+          "group": "_extractblock",
+          "pages": [
+            "reference/gramstax.templateengine._extractblock"
+          ]
+        },
+        {
+          "group": "_extractblocknames",
+          "pages": [
+            "reference/gramstax.templateengine._extractblocknames"
+          ]
+        },
+        {
+          "group": "_formaterrorobj",
+          "pages": [
+            "reference/gramstax.logginghelper._formaterrorobj"
+          ]
+        },
+        {
+          "group": "_getfile",
+          "pages": [
+            "reference/gramstax.pagemanager._getfile"
+          ]
+        },
+        {
+          "group": "_getupdateslog",
+          "pages": [
+            "reference/gramstax.mocktelegramserver._getupdateslog"
+          ]
+        },
+        {
+          "group": "_ifelse_passthrough",
+          "pages": [
+            "reference/gramstax.templateengine._ifelse_passthrough"
+          ]
+        },
+        {
+          "group": "_ifelsearrowlocals",
+          "pages": [
+            "reference/gramstax.templateengine._ifelsearrowlocals"
+          ]
+        },
+        {
+          "group": "_internal_methods",
+          "pages": [
+            "reference/gramstax.e2ehelper._internal_methods"
+          ]
+        },
+        {
+          "group": "_isconditionalexpression",
+          "pages": [
+            "reference/gramstax.templateengine._isconditionalexpression"
+          ]
+        },
+        {
+          "group": "_isgeneratedcode",
+          "pages": [
+            "reference/gramstax.templateengine._isgeneratedcode"
+          ]
+        },
+        {
+          "group": "_isobjectliteralbrace",
+          "pages": [
+            "reference/gramstax.templateengine._isobjectliteralbrace"
+          ]
+        },
+        {
+          "group": "_lastupdate",
+          "pages": [
+            "reference/gramstax.mocktelegramserver._lastupdate"
+          ]
+        },
+        {
+          "group": "_matchbaremediaplaceholder",
+          "pages": [
+            "reference/gramstax.templateengine._matchbaremediaplaceholder"
+          ]
+        },
+        {
+          "group": "_page_attr_value_validators",
+          "pages": [
+            "reference/gramstax.templateengine._page_attr_value_validators"
+          ]
+        },
+        {
+          "group": "_page_required_attrs",
+          "pages": [
+            "reference/gramstax.templateengine._page_required_attrs"
+          ]
+        },
+        {
+          "group": "_pageroutes",
+          "pages": [
+            "reference/gramstax.gramstax._pageroutes"
+          ]
+        },
+        {
+          "group": "_processganswernoteblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processganswernoteblocks"
+          ]
+        },
+        {
+          "group": "_processgbaseblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgbaseblocks"
+          ]
+        },
+        {
+          "group": "_processgcallbackanswerblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgcallbackanswerblocks"
+          ]
+        },
+        {
+          "group": "_processgdescriptionblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgdescriptionblocks"
+          ]
+        },
+        {
+          "group": "_processgdiceblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgdiceblocks"
+          ]
+        },
+        {
+          "group": "_processgdivblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgdivblocks"
+          ]
+        },
+        {
+          "group": "_processggiftblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processggiftblocks"
+          ]
+        },
+        {
+          "group": "_processgifelseblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgifelseblocks"
+          ]
+        },
+        {
+          "group": "_processgimportblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgimportblocks"
+          ]
+        },
+        {
+          "group": "_processginlinebuttonblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processginlinebuttonblocks"
+          ]
+        },
+        {
+          "group": "_processginvoiceblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processginvoiceblocks"
+          ]
+        },
+        {
+          "group": "_processgkeyboardblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgkeyboardblocks"
+          ]
+        },
+        {
+          "group": "_processgmapblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgmapblocks"
+          ]
+        },
+        {
+          "group": "_processgmediablocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgmediablocks"
+          ]
+        },
+        {
+          "group": "_processgmediagroupblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgmediagroupblocks"
+          ]
+        },
+        {
+          "group": "_processgmessageblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgmessageblocks"
+          ]
+        },
+        {
+          "group": "_processgpaidmediablocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgpaidmediablocks"
+          ]
+        },
+        {
+          "group": "_processgpollblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgpollblocks"
+          ]
+        },
+        {
+          "group": "_processgprecheckouterrorblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgprecheckouterrorblocks"
+          ]
+        },
+        {
+          "group": "_processgscriptblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgscriptblocks"
+          ]
+        },
+        {
+          "group": "_processgshippingerrorblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgshippingerrorblocks"
+          ]
+        },
+        {
+          "group": "_processgspaceblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgspaceblocks"
+          ]
+        },
+        {
+          "group": "_processgswitchblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgswitchblocks"
+          ]
+        },
+        {
+          "group": "_processgvenueblocks",
+          "pages": [
+            "reference/gramstax.templateengine._processgvenueblocks"
+          ]
+        },
+        {
+          "group": "_processmediagroupitems",
+          "pages": [
+            "reference/gramstax.templateengine._processmediagroupitems"
+          ]
+        },
+        {
+          "group": "_processscopeexec",
+          "pages": [
+            "reference/gramstax.templateengine._processscopeexec"
+          ]
+        },
+        {
+          "group": "_processscopevariables",
+          "pages": [
+            "reference/gramstax.templateengine._processscopevariables"
+          ]
+        },
+        {
+          "group": "_resolvemediadatapath",
+          "pages": [
+            "reference/gramstax.templateengine._resolvemediadatapath"
+          ]
+        },
+        {
+          "group": "_reverse",
+          "pages": [
+            "reference/gramstax.labelgkeyboard._reverse"
+          ]
+        },
+        {
+          "group": "_reverseobj",
+          "pages": [
+            "reference/gramstax.labelgkeyboard._reverseobj"
+          ]
+        },
+        {
+          "group": "_rewritescopeidentifiers",
+          "pages": [
+            "reference/gramstax.templateengine._rewritescopeidentifiers"
+          ]
+        },
+        {
+          "group": "_servedcount",
+          "pages": [
+            "reference/gramstax.mocktelegramserver._servedcount"
+          ]
+        },
+        {
+          "group": "_splitkeyboardlabels",
+          "pages": [
+            "reference/gramstax.templateengine._splitkeyboardlabels"
+          ]
+        },
+        {
+          "group": "_splitmediasrclist",
+          "pages": [
+            "reference/gramstax.templateengine._splitmediasrclist"
+          ]
+        },
+        {
+          "group": "_telegram_allowed_attrs",
+          "pages": [
+            "reference/gramstax.templateengine._telegram_allowed_attrs"
+          ]
+        },
+        {
+          "group": "_telegram_attr_value_validators",
+          "pages": [
+            "reference/gramstax.templateengine._telegram_attr_value_validators"
+          ]
+        },
+        {
+          "group": "_telegram_required_attrs",
+          "pages": [
+            "reference/gramstax.templateengine._telegram_required_attrs"
+          ]
+        },
+        {
+          "group": "_toconcatexpr",
+          "pages": [
+            "reference/gramstax.templateengine._toconcatexpr"
+          ]
+        },
+        {
+          "group": "_tokenizeexpression",
+          "pages": [
+            "reference/gramstax.templateengine._tokenizeexpression"
+          ]
+        },
+        {
+          "group": "_validateanswertextcontent",
+          "pages": [
+            "reference/gramstax.templateengine._validateanswertextcontent"
+          ]
+        },
+        {
+          "group": "_validateblockattributes",
+          "pages": [
+            "reference/gramstax.templateengine._validateblockattributes"
+          ]
+        },
+        {
+          "group": "_validatediceitems",
+          "pages": [
+            "reference/gramstax.templateengine._validatediceitems"
+          ]
+        },
+        {
+          "group": "_validateinlinebuttonitems",
+          "pages": [
+            "reference/gramstax.templateengine._validateinlinebuttonitems"
+          ]
+        },
+        {
+          "group": "_validateinvoiceitems",
+          "pages": [
+            "reference/gramstax.templateengine._validateinvoiceitems"
+          ]
+        },
+        {
+          "group": "_validatemediagroupitems",
+          "pages": [
+            "reference/gramstax.templateengine._validatemediagroupitems"
+          ]
+        },
+        {
+          "group": "_validatepagetagattributes",
+          "pages": [
+            "reference/gramstax.templateengine._validatepagetagattributes"
+          ]
+        },
+        {
+          "group": "_validatepagetagattributevalues",
+          "pages": [
+            "reference/gramstax.templateengine._validatepagetagattributevalues"
+          ]
+        },
+        {
+          "group": "_validatepaidmediaitems",
+          "pages": [
+            "reference/gramstax.templateengine._validatepaidmediaitems"
+          ]
+        },
+        {
+          "group": "_validatepollitems",
+          "pages": [
+            "reference/gramstax.templateengine._validatepollitems"
+          ]
+        },
+        {
+          "group": "_validatetelegramtagattributes",
+          "pages": [
+            "reference/gramstax.templateengine._validatetelegramtagattributes"
+          ]
+        },
+        {
+          "group": "_validatetelegramtagattributevalues",
+          "pages": [
+            "reference/gramstax.templateengine._validatetelegramtagattributevalues"
+          ]
+        },
+        {
+          "group": "_validatetelegramtagunknownattributes",
+          "pages": [
+            "reference/gramstax.templateengine._validatetelegramtagunknownattributes"
+          ]
+        },
+        {
+          "group": "_validatevenueitems",
+          "pages": [
+            "reference/gramstax.templateengine._validatevenueitems"
+          ]
+        },
+        {
+          "group": "acquire",
+          "pages": [
+            "reference/gramstax.sessionlock.acquire",
+            "reference/gramstax.updategate.acquire"
+          ]
+        },
+        {
+          "group": "activecount",
+          "pages": [
+            "reference/gramstax.updategate.activecount"
+          ]
+        },
+        {
+          "group": "addargs",
+          "pages": [
+            "reference/gramstax.ctx.addargs"
+          ]
+        },
+        {
+          "group": "allowed_blocks",
+          "pages": [
+            "reference/gramstax.templateengine.allowed_blocks"
+          ]
+        },
+        {
+          "group": "allowed_blocks_page",
+          "pages": [
+            "reference/gramstax.templateengine.allowed_blocks_page"
+          ]
+        },
+        {
+          "group": "allowed_blocks_telegram",
+          "pages": [
+            "reference/gramstax.templateengine.allowed_blocks_telegram"
+          ]
+        },
+        {
+          "group": "allowed_blocks_telegram_legacy",
+          "pages": [
+            "reference/gramstax.templateengine.allowed_blocks_telegram_legacy"
+          ]
+        },
+        {
+          "group": "allowed_blocks_telegram_rich",
+          "pages": [
+            "reference/gramstax.templateengine.allowed_blocks_telegram_rich"
+          ]
+        },
+        {
+          "group": "allowed_scope",
+          "pages": [
+            "reference/gramstax.templateengine.allowed_scope"
+          ]
+        },
+        {
+          "group": "answer_api_methods",
+          "pages": [
+            "reference/gramstax.ctx.answer_api_methods"
+          ]
+        },
+        {
+          "group": "answerprecheckout",
+          "pages": [
+            "reference/gramstax.ctx.answerprecheckout"
+          ]
+        },
+        {
+          "group": "apiroot",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.apiroot"
+          ]
+        },
+        {
+          "group": "assertcontact",
+          "pages": [
+            "reference/gramstax.ctx.assertcontact"
+          ]
+        },
+        {
+          "group": "assertdiceemoji",
+          "pages": [
+            "reference/gramstax.ctx.assertdiceemoji"
+          ]
+        },
+        {
+          "group": "assertinvoice",
+          "pages": [
+            "reference/gramstax.ctx.assertinvoice"
+          ]
+        },
+        {
+          "group": "assertliveperiod",
+          "pages": [
+            "reference/gramstax.ctx.assertliveperiod"
+          ]
+        },
+        {
+          "group": "assertlocation",
+          "pages": [
+            "reference/gramstax.ctx.assertlocation"
+          ]
+        },
+        {
+          "group": "assertmediacaption",
+          "pages": [
+            "reference/gramstax.ctx.assertmediacaption"
+          ]
+        },
+        {
+          "group": "assertmediagroupitems",
+          "pages": [
+            "reference/gramstax.ctx.assertmediagroupitems"
+          ]
+        },
+        {
+          "group": "assertmediapreconditions",
+          "pages": [
+            "reference/gramstax.ctx.assertmediapreconditions"
+          ]
+        },
+        {
+          "group": "assertmediasize",
+          "pages": [
+            "reference/gramstax.ctx.assertmediasize"
+          ]
+        },
+        {
+          "group": "assertmediasrclist",
+          "pages": [
+            "reference/gramstax.ctx.assertmediasrclist"
+          ]
+        },
+        {
+          "group": "assertmediasrcsize",
+          "pages": [
+            "reference/gramstax.ctx.assertmediasrcsize"
+          ]
+        },
+        {
+          "group": "assertpaidmedia",
+          "pages": [
+            "reference/gramstax.ctx.assertpaidmedia"
+          ]
+        },
+        {
+          "group": "assertpoll",
+          "pages": [
+            "reference/gramstax.ctx.assertpoll"
+          ]
+        },
+        {
+          "group": "assertvenue",
+          "pages": [
+            "reference/gramstax.ctx.assertvenue"
+          ]
+        },
+        {
+          "group": "bodyof",
+          "pages": [
+            "reference/gramstax.e2ehelper.bodyof"
+          ]
+        },
+        {
+          "group": "bot",
+          "pages": [
+            "reference/gramstax.e2ehelper.bot",
+            "reference/gramstax.gramstax.bot"
+          ]
+        },
+        {
+          "group": "bot_api_version",
+          "pages": [
+            "reference/gramstax.templateengine.bot_api_version"
+          ]
+        },
+        {
+          "group": "botconfig",
+          "pages": [
+            "reference/gramstax.gramstax.botconfig"
+          ]
+        },
+        {
+          "group": "bottoken",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.bottoken"
+          ]
+        },
+        {
+          "group": "bottomkeyboard",
+          "pages": [
+            "reference/gramstax.ctx.bottomkeyboard"
+          ]
+        },
+        {
+          "group": "bottomkeyboardt",
+          "pages": [
+            "reference/gramstax.ctx.bottomkeyboardt"
+          ]
+        },
+        {
+          "group": "bottomkeyboardt_1",
+          "pages": [
+            "reference/gramstax.ctx.bottomkeyboardt_1"
+          ]
+        },
+        {
+          "group": "buildctxparams",
+          "pages": [
+            "reference/gramstax.gramstax.buildctxparams"
+          ]
+        },
+        {
+          "group": "builddata",
+          "pages": [
+            "reference/gramstax.ctx.builddata"
+          ]
+        },
+        {
+          "group": "builddata_1",
+          "pages": [
+            "reference/gramstax.ctx.builddata_1"
+          ]
+        },
+        {
+          "group": "builddata_2",
+          "pages": [
+            "reference/gramstax.ctx.builddata_2"
+          ]
+        },
+        {
+          "group": "builddata_3",
+          "pages": [
+            "reference/gramstax.ctx.builddata_3"
+          ]
+        },
+        {
+          "group": "businessconnection",
+          "pages": [
+            "reference/gramstax.ctx.businessconnection"
+          ]
+        },
+        {
+          "group": "businessmessage",
+          "pages": [
+            "reference/gramstax.ctx.businessmessage"
+          ]
+        },
+        {
+          "group": "bylistener",
+          "pages": [
+            "reference/gramstax.metricsstore.bylistener"
+          ]
+        },
+        {
+          "group": "cachekeyboard",
+          "pages": [
+            "reference/gramstax.ctx.cachekeyboard",
+            "reference/gramstax.gramstax.cachekeyboard"
+          ]
+        },
+        {
+          "group": "cachesession",
+          "pages": [
+            "reference/gramstax.ctx.cachesession",
+            "reference/gramstax.gramstax.cachesession"
+          ]
+        },
+        {
+          "group": "callbackquery",
+          "pages": [
+            "reference/gramstax.ctx.callbackquery"
+          ]
+        },
+        {
+          "group": "callbackquerydataarg",
+          "pages": [
+            "reference/gramstax.ctx.callbackquerydataarg"
+          ]
+        },
+        {
+          "group": "callbackquerydataargs",
+          "pages": [
+            "reference/gramstax.ctx.callbackquerydataargs"
+          ]
+        },
+        {
+          "group": "calls",
+          "pages": [
+            "reference/gramstax.e2ehelper.calls"
+          ]
+        },
+        {
+          "group": "capacity",
+          "pages": [
+            "reference/gramstax.updatedispatcher.capacity",
+            "reference/gramstax.updatequeue.capacity"
+          ]
+        },
+        {
+          "group": "channelpost",
+          "pages": [
+            "reference/gramstax.ctx.channelpost"
+          ]
+        },
+        {
+          "group": "chat",
+          "pages": [
+            "reference/gramstax.ctx.chat"
+          ]
+        },
+        {
+          "group": "chatboost",
+          "pages": [
+            "reference/gramstax.ctx.chatboost"
+          ]
+        },
+        {
+          "group": "chatjoinrequest",
+          "pages": [
+            "reference/gramstax.ctx.chatjoinrequest"
+          ]
+        },
+        {
+          "group": "chatmember",
+          "pages": [
+            "reference/gramstax.ctx.chatmember"
+          ]
+        },
+        {
+          "group": "choseninlineresult",
+          "pages": [
+            "reference/gramstax.ctx.choseninlineresult"
+          ]
+        },
+        {
+          "group": "classifysenderror",
+          "pages": [
+            "reference/gramstax.ctx.classifysenderror"
+          ]
+        },
+        {
+          "group": "clearall",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.clearall"
+          ]
+        },
+        {
+          "group": "clearcache",
+          "pages": [
+            "reference/gramstax.templatemanager.clearcache"
+          ]
+        },
+        {
+          "group": "clearcacherequire",
+          "pages": [
+            "reference/gramstax.pagemanager.clearcacherequire"
+          ]
+        },
+        {
+          "group": "clearcalls",
+          "pages": [
+            "reference/gramstax.e2ehelper.clearcalls"
+          ]
+        },
+        {
+          "group": "clearrequests",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.clearrequests"
+          ]
+        },
+        {
+          "group": "clearsession",
+          "pages": [
+            "reference/gramstax.ctx.clearsession"
+          ]
+        },
+        {
+          "group": "clearupdates",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.clearupdates"
+          ]
+        },
+        {
+          "group": "clonemediainput",
+          "pages": [
+            "reference/gramstax.ctx.clonemediainput"
+          ]
+        },
+        {
+          "group": "close",
+          "pages": [
+            "reference/gramstax.updatequeue.close"
+          ]
+        },
+        {
+          "group": "closewatchers",
+          "pages": [
+            "reference/gramstax.templatemanager.closewatchers"
+          ]
+        },
+        {
+          "group": "compile",
+          "pages": [
+            "reference/gramstax.templatemanager.compile"
+          ]
+        },
+        {
+          "group": "compileblockganswernote",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockganswernote"
+          ]
+        },
+        {
+          "group": "compileblockgcallbackanswer",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgcallbackanswer"
+          ]
+        },
+        {
+          "group": "compileblockgdescription",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgdescription"
+          ]
+        },
+        {
+          "group": "compileblockgdice",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgdice"
+          ]
+        },
+        {
+          "group": "compileblockggift",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockggift"
+          ]
+        },
+        {
+          "group": "compileblockginlinebutton",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockginlinebutton"
+          ]
+        },
+        {
+          "group": "compileblockginvoice",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockginvoice"
+          ]
+        },
+        {
+          "group": "compileblockgkeyboards",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgkeyboards"
+          ]
+        },
+        {
+          "group": "compileblockgmedia",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgmedia"
+          ]
+        },
+        {
+          "group": "compileblockgmessage",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgmessage"
+          ]
+        },
+        {
+          "group": "compileblockgpaidmedia",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgpaidmedia"
+          ]
+        },
+        {
+          "group": "compileblockgpoll",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgpoll"
+          ]
+        },
+        {
+          "group": "compileblockgprecheckouterror",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgprecheckouterror"
+          ]
+        },
+        {
+          "group": "compileblockgshippingerror",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgshippingerror"
+          ]
+        },
+        {
+          "group": "compileblockgvenue",
+          "pages": [
+            "reference/gramstax.templateengine.compileblockgvenue"
+          ]
+        },
+        {
+          "group": "counts",
+          "pages": [
+            "reference/gramstax.metricsstore.counts"
+          ]
+        },
+        {
+          "group": "createbot",
+          "pages": [
+            "reference/gramstax.gramstax.createbot"
+          ]
+        },
+        {
+          "group": "createctx",
+          "pages": [
+            "reference/gramstax.gramstax.createctx"
+          ]
+        },
+        {
+          "group": "ctxscope",
+          "pages": [
+            "reference/gramstax.gramstax.ctxscope"
+          ]
+        },
+        {
+          "group": "data",
+          "pages": [
+            "reference/gramstax.ctx.data"
+          ]
+        },
+        {
+          "group": "defaulthandler",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.defaulthandler"
+          ]
+        },
+        {
+          "group": "deletebusinessstory",
+          "pages": [
+            "reference/gramstax.ctx.deletebusinessstory"
+          ]
+        },
+        {
+          "group": "deletedbusinessmessages",
+          "pages": [
+            "reference/gramstax.ctx.deletedbusinessmessages"
+          ]
+        },
+        {
+          "group": "deploytype",
+          "pages": [
+            "reference/gramstax.gramstax.deploytype"
+          ]
+        },
+        {
+          "group": "dequeue",
+          "pages": [
+            "reference/gramstax.updatequeue.dequeue"
+          ]
+        },
+        {
+          "group": "destroy",
+          "pages": [
+            "reference/gramstax.templatemanager.destroy"
+          ]
+        },
+        {
+          "group": "dice_emoji",
+          "pages": [
+            "reference/gramstax.ctx.dice_emoji",
+            "reference/gramstax.templateengine.dice_emoji"
+          ]
+        },
+        {
+          "group": "download",
+          "pages": [
+            "reference/gramstax.ctx.download"
+          ]
+        },
+        {
+          "group": "e2e",
+          "pages": [
+            "reference/gramstax.gramstax.e2e"
+          ]
+        },
+        {
+          "group": "editbusinessstory",
+          "pages": [
+            "reference/gramstax.ctx.editbusinessstory"
+          ]
+        },
+        {
+          "group": "editedbusinessmessage",
+          "pages": [
+            "reference/gramstax.ctx.editedbusinessmessage"
+          ]
+        },
+        {
+          "group": "editedchannelpost",
+          "pages": [
+            "reference/gramstax.ctx.editedchannelpost"
+          ]
+        },
+        {
+          "group": "editedmessage",
+          "pages": [
+            "reference/gramstax.ctx.editedmessage"
+          ]
+        },
+        {
+          "group": "engine",
+          "pages": [
+            "reference/gramstax.templatemanager.engine"
+          ]
+        },
+        {
+          "group": "enqueue",
+          "pages": [
+            "reference/gramstax.updatequeue.enqueue"
+          ]
+        },
+        {
+          "group": "ephemeralparams",
+          "pages": [
+            "reference/gramstax.ctx.ephemeralparams"
+          ]
+        },
+        {
+          "group": "errormake",
+          "pages": [
+            "reference/gramstax.logginghelper.errormake"
+          ]
+        },
+        {
+          "group": "extractbuttonlabels",
+          "pages": [
+            "reference/gramstax.e2ehelper.extractbuttonlabels"
+          ]
+        },
+        {
+          "group": "extracttext",
+          "pages": [
+            "reference/gramstax.e2ehelper.extracttext"
+          ]
+        },
+        {
+          "group": "fallback_text",
+          "pages": [
+            "reference/gramstax.ctx.fallback_text"
+          ]
+        },
+        {
+          "group": "fallbacktext",
+          "pages": [
+            "reference/gramstax.ctx.fallbacktext"
+          ]
+        },
+        {
+          "group": "from",
+          "pages": [
+            "reference/gramstax.ctx.from"
+          ]
+        },
+        {
+          "group": "fromfullname",
+          "pages": [
+            "reference/gramstax.ctx.fromfullname"
+          ]
+        },
+        {
+          "group": "getagdescriptionlang",
+          "pages": [
+            "reference/gramstax.templatemanager.getagdescriptionlang"
+          ]
+        },
+        {
+          "group": "getagdescriptionscopes",
+          "pages": [
+            "reference/gramstax.templatemanager.getagdescriptionscopes"
+          ]
+        },
+        {
+          "group": "getargs",
+          "pages": [
+            "reference/gramstax.ctx.getargs"
+          ]
+        },
+        {
+          "group": "getcompiled",
+          "pages": [
+            "reference/gramstax.templatemanager.getcompiled"
+          ]
+        },
+        {
+          "group": "getfile",
+          "pages": [
+            "reference/gramstax.pagemanager.getfile"
+          ]
+        },
+        {
+          "group": "getfilemanysync",
+          "pages": [
+            "reference/gramstax.pagemanager.getfilemanysync"
+          ]
+        },
+        {
+          "group": "getfilepath",
+          "pages": [
+            "reference/gramstax.pagemanager.getfilepath"
+          ]
+        },
+        {
+          "group": "getfilesync",
+          "pages": [
+            "reference/gramstax.pagemanager.getfilesync"
+          ]
+        },
+        {
+          "group": "getganswernote",
+          "pages": [
+            "reference/gramstax.templatemanager.getganswernote"
+          ]
+        },
+        {
+          "group": "getgbaseatline",
+          "pages": [
+            "reference/gramstax.templatemanager.getgbaseatline"
+          ]
+        },
+        {
+          "group": "getgcallbackanswer",
+          "pages": [
+            "reference/gramstax.templatemanager.getgcallbackanswer"
+          ]
+        },
+        {
+          "group": "getgdescription",
+          "pages": [
+            "reference/gramstax.templatemanager.getgdescription"
+          ]
+        },
+        {
+          "group": "getgdice",
+          "pages": [
+            "reference/gramstax.templatemanager.getgdice"
+          ]
+        },
+        {
+          "group": "getggift",
+          "pages": [
+            "reference/gramstax.templatemanager.getggift"
+          ]
+        },
+        {
+          "group": "getginlinebutton",
+          "pages": [
+            "reference/gramstax.templatemanager.getginlinebutton"
+          ]
+        },
+        {
+          "group": "getginvoice",
+          "pages": [
+            "reference/gramstax.templatemanager.getginvoice"
+          ]
+        },
+        {
+          "group": "getgkeyboard",
+          "pages": [
+            "reference/gramstax.templatemanager.getgkeyboard"
+          ]
+        },
+        {
+          "group": "getgmedia",
+          "pages": [
+            "reference/gramstax.templatemanager.getgmedia"
+          ]
+        },
+        {
+          "group": "getgmessage",
+          "pages": [
+            "reference/gramstax.templatemanager.getgmessage"
+          ]
+        },
+        {
+          "group": "getgpaidmedia",
+          "pages": [
+            "reference/gramstax.templatemanager.getgpaidmedia"
+          ]
+        },
+        {
+          "group": "getgpoll",
+          "pages": [
+            "reference/gramstax.templatemanager.getgpoll"
+          ]
+        },
+        {
+          "group": "getgprecheckouterror",
+          "pages": [
+            "reference/gramstax.templatemanager.getgprecheckouterror"
+          ]
+        },
+        {
+          "group": "getgshippingerror",
+          "pages": [
+            "reference/gramstax.templatemanager.getgshippingerror"
+          ]
+        },
+        {
+          "group": "getgvenue",
+          "pages": [
+            "reference/gramstax.templatemanager.getgvenue"
+          ]
+        },
+        {
+          "group": "getintent",
+          "pages": [
+            "reference/gramstax.ctx.getintent"
+          ]
+        },
+        {
+          "group": "getpollingqueuestats",
+          "pages": [
+            "reference/gramstax.gramstax.getpollingqueuestats"
+          ]
+        },
+        {
+          "group": "getseperatortag",
+          "pages": [
+            "reference/gramstax.ctx.getseperatortag"
+          ]
+        },
+        {
+          "group": "getsession",
+          "pages": [
+            "reference/gramstax.ctx.getsession"
+          ]
+        },
+        {
+          "group": "getstartransactions",
+          "pages": [
+            "reference/gramstax.ctx.getstartransactions"
+          ]
+        },
+        {
+          "group": "getstats",
+          "pages": [
+            "reference/gramstax.updatequeue.getstats"
+          ]
+        },
+        {
+          "group": "getwebhookqueuestats",
+          "pages": [
+            "reference/gramstax.gramstax.getwebhookqueuestats"
+          ]
+        },
+        {
+          "group": "gkb",
+          "pages": [
+            "reference/gramstax.e2ehelper.gkb"
+          ]
+        },
+        {
+          "group": "gmedia",
+          "pages": [
+            "reference/gramstax.e2ehelper.gmedia"
+          ]
+        },
+        {
+          "group": "gmsg",
+          "pages": [
+            "reference/gramstax.e2ehelper.gmsg"
+          ]
+        },
+        {
+          "group": "guestmessage",
+          "pages": [
+            "reference/gramstax.ctx.guestmessage"
+          ]
+        },
+        {
+          "group": "handleargscallbackquerydata",
+          "pages": [
+            "reference/gramstax.ctx.handleargscallbackquerydata"
+          ]
+        },
+        {
+          "group": "handleargstext",
+          "pages": [
+            "reference/gramstax.ctx.handleargstext"
+          ]
+        },
+        {
+          "group": "handlecallbackquerydata",
+          "pages": [
+            "reference/gramstax.ctx.handlecallbackquerydata"
+          ]
+        },
+        {
+          "group": "handlecaptionanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionanimation"
+          ]
+        },
+        {
+          "group": "handlecaptionargsanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionargsanimation"
+          ]
+        },
+        {
+          "group": "handlecaptionargsaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionargsaudio"
+          ]
+        },
+        {
+          "group": "handlecaptionargsdocument",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionargsdocument"
+          ]
+        },
+        {
+          "group": "handlecaptionargsphoto",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionargsphoto"
+          ]
+        },
+        {
+          "group": "handlecaptionargsvideo",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionargsvideo"
+          ]
+        },
+        {
+          "group": "handlecaptionargsvoice",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionargsvoice"
+          ]
+        },
+        {
+          "group": "handlecaptionaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionaudio"
+          ]
+        },
+        {
+          "group": "handlecaptiondocument",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptiondocument"
+          ]
+        },
+        {
+          "group": "handlecaptionphoto",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionphoto"
+          ]
+        },
+        {
+          "group": "handlecaptionvideo",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionvideo"
+          ]
+        },
+        {
+          "group": "handlecaptionvoice",
+          "pages": [
+            "reference/gramstax.ctx.handlecaptionvoice"
+          ]
+        },
+        {
+          "group": "handlechatmemberoutin",
+          "pages": [
+            "reference/gramstax.ctx.handlechatmemberoutin"
+          ]
+        },
+        {
+          "group": "handlecommandargstext",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandargstext"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionanimation"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionargsanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionargsanimation"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionargsaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionargsaudio"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionargsdocument",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionargsdocument"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionargsphoto",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionargsphoto"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionargsvideo",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionargsvideo"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionargsvoice",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionargsvoice"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionaudio"
+          ]
+        },
+        {
+          "group": "handlecommandcaptiondocument",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptiondocument"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionphoto",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionphoto"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionvideo",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionvideo"
+          ]
+        },
+        {
+          "group": "handlecommandcaptionvoice",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandcaptionvoice"
+          ]
+        },
+        {
+          "group": "handlecommandtext",
+          "pages": [
+            "reference/gramstax.ctx.handlecommandtext"
+          ]
+        },
+        {
+          "group": "handlefileadd",
+          "pages": [
+            "reference/gramstax.templatemanager.handlefileadd"
+          ]
+        },
+        {
+          "group": "handlefilechange",
+          "pages": [
+            "reference/gramstax.templatemanager.handlefilechange"
+          ]
+        },
+        {
+          "group": "handlefiledelete",
+          "pages": [
+            "reference/gramstax.templatemanager.handlefiledelete"
+          ]
+        },
+        {
+          "group": "handlefree",
+          "pages": [
+            "reference/gramstax.ctx.handlefree"
+          ]
+        },
+        {
+          "group": "handlefreeanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlefreeanimation"
+          ]
+        },
+        {
+          "group": "handlefreeaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlefreeaudio"
+          ]
+        },
+        {
+          "group": "handlefreecontact",
+          "pages": [
+            "reference/gramstax.ctx.handlefreecontact"
+          ]
+        },
+        {
+          "group": "handlefreedocument",
+          "pages": [
+            "reference/gramstax.ctx.handlefreedocument"
+          ]
+        },
+        {
+          "group": "handlefreelocation",
+          "pages": [
+            "reference/gramstax.ctx.handlefreelocation"
+          ]
+        },
+        {
+          "group": "handlefreephoto",
+          "pages": [
+            "reference/gramstax.ctx.handlefreephoto"
+          ]
+        },
+        {
+          "group": "handlefreesticker",
+          "pages": [
+            "reference/gramstax.ctx.handlefreesticker"
+          ]
+        },
+        {
+          "group": "handlefreetext",
+          "pages": [
+            "reference/gramstax.ctx.handlefreetext"
+          ]
+        },
+        {
+          "group": "handlefreevideo",
+          "pages": [
+            "reference/gramstax.ctx.handlefreevideo"
+          ]
+        },
+        {
+          "group": "handlefreevideonote",
+          "pages": [
+            "reference/gramstax.ctx.handlefreevideonote"
+          ]
+        },
+        {
+          "group": "handlefreevoice",
+          "pages": [
+            "reference/gramstax.ctx.handlefreevoice"
+          ]
+        },
+        {
+          "group": "handlemychatmemberadminregular",
+          "pages": [
+            "reference/gramstax.ctx.handlemychatmemberadminregular"
+          ]
+        },
+        {
+          "group": "handlemychatmemberoutadmin",
+          "pages": [
+            "reference/gramstax.ctx.handlemychatmemberoutadmin"
+          ]
+        },
+        {
+          "group": "handlemychatmemberoutregular",
+          "pages": [
+            "reference/gramstax.ctx.handlemychatmemberoutregular"
+          ]
+        },
+        {
+          "group": "handlemychatmemberregularadmin",
+          "pages": [
+            "reference/gramstax.ctx.handlemychatmemberregularadmin"
+          ]
+        },
+        {
+          "group": "handlerbotupdate",
+          "pages": [
+            "reference/gramstax.gramstax.handlerbotupdate"
+          ]
+        },
+        {
+          "group": "handlers",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.handlers"
+          ]
+        },
+        {
+          "group": "handlesessionargscallbackquerydata",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionargscallbackquerydata"
+          ]
+        },
+        {
+          "group": "handlesessionargstext",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionargstext"
+          ]
+        },
+        {
+          "group": "handlesessioncallbackquerydata",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncallbackquerydata"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionanimation"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionargsanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionargsanimation"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionargsaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionargsaudio"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionargsdocument",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionargsdocument"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionargsphoto",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionargsphoto"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionargsvideo",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionargsvideo"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionargsvoice",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionargsvoice"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionaudio"
+          ]
+        },
+        {
+          "group": "handlesessioncaptiondocument",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptiondocument"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionphoto",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionphoto"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionvideo",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionvideo"
+          ]
+        },
+        {
+          "group": "handlesessioncaptionvoice",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncaptionvoice"
+          ]
+        },
+        {
+          "group": "handlesessioncommandargstext",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandargstext"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionanimation"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionargsanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionargsanimation"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionargsaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionargsaudio"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionargsdocument",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionargsdocument"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionargsphoto",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionargsphoto"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionargsvideo",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionargsvideo"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionargsvoice",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionargsvoice"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionaudio"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptiondocument",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptiondocument"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionphoto",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionphoto"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionvideo",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionvideo"
+          ]
+        },
+        {
+          "group": "handlesessioncommandcaptionvoice",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandcaptionvoice"
+          ]
+        },
+        {
+          "group": "handlesessioncommandtext",
+          "pages": [
+            "reference/gramstax.ctx.handlesessioncommandtext"
+          ]
+        },
+        {
+          "group": "handlesessionfree",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfree"
+          ]
+        },
+        {
+          "group": "handlesessionfreeanimation",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreeanimation"
+          ]
+        },
+        {
+          "group": "handlesessionfreeaudio",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreeaudio"
+          ]
+        },
+        {
+          "group": "handlesessionfreecontact",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreecontact"
+          ]
+        },
+        {
+          "group": "handlesessionfreedocument",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreedocument"
+          ]
+        },
+        {
+          "group": "handlesessionfreelocation",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreelocation"
+          ]
+        },
+        {
+          "group": "handlesessionfreephoto",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreephoto"
+          ]
+        },
+        {
+          "group": "handlesessionfreesticker",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreesticker"
+          ]
+        },
+        {
+          "group": "handlesessionfreetext",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreetext"
+          ]
+        },
+        {
+          "group": "handlesessionfreevideo",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreevideo"
+          ]
+        },
+        {
+          "group": "handlesessionfreevideonote",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreevideonote"
+          ]
+        },
+        {
+          "group": "handlesessionfreevoice",
+          "pages": [
+            "reference/gramstax.ctx.handlesessionfreevoice"
+          ]
+        },
+        {
+          "group": "handlesessiontext",
+          "pages": [
+            "reference/gramstax.ctx.handlesessiontext"
+          ]
+        },
+        {
+          "group": "handletext",
+          "pages": [
+            "reference/gramstax.ctx.handletext"
+          ]
+        },
+        {
+          "group": "handleupdate",
+          "pages": [
+            "reference/gramstax.e2ehelper.handleupdate"
+          ]
+        },
+        {
+          "group": "handlewatcherror",
+          "pages": [
+            "reference/gramstax.templatemanager.handlewatcherror"
+          ]
+        },
+        {
+          "group": "hascompiled",
+          "pages": [
+            "reference/gramstax.templatemanager.hascompiled"
+          ]
+        },
+        {
+          "group": "haveargs",
+          "pages": [
+            "reference/gramstax.ctx.haveargs"
+          ]
+        },
+        {
+          "group": "hookafterroute",
+          "pages": [
+            "reference/gramstax.ctx.hookafterroute",
+            "reference/gramstax.gramstax.hookafterroute"
+          ]
+        },
+        {
+          "group": "hookafterstart",
+          "pages": [
+            "reference/gramstax.gramstax.hookafterstart"
+          ]
+        },
+        {
+          "group": "hookbeforeroute",
+          "pages": [
+            "reference/gramstax.ctx.hookbeforeroute",
+            "reference/gramstax.gramstax.hookbeforeroute"
+          ]
+        },
+        {
+          "group": "hookbeforestart",
+          "pages": [
+            "reference/gramstax.gramstax.hookbeforestart"
+          ]
+        },
+        {
+          "group": "hookerrorpage",
+          "pages": [
+            "reference/gramstax.gramstax.hookerrorpage"
+          ]
+        },
+        {
+          "group": "hookkeygenerator",
+          "pages": [
+            "reference/gramstax.gramstax.hookkeygenerator"
+          ]
+        },
+        {
+          "group": "hooknotfoundpage",
+          "pages": [
+            "reference/gramstax.gramstax.hooknotfoundpage"
+          ]
+        },
+        {
+          "group": "hookratelimited",
+          "pages": [
+            "reference/gramstax.gramstax.hookratelimited"
+          ]
+        },
+        {
+          "group": "hooksenderror",
+          "pages": [
+            "reference/gramstax.gramstax.hooksenderror"
+          ]
+        },
+        {
+          "group": "hooktrace",
+          "pages": [
+            "reference/gramstax.gramstax.hooktrace"
+          ]
+        },
+        {
+          "group": "hookupdate",
+          "pages": [
+            "reference/gramstax.gramstax.hookupdate"
+          ]
+        },
+        {
+          "group": "hookupdateerror",
+          "pages": [
+            "reference/gramstax.gramstax.hookupdateerror"
+          ]
+        },
+        {
+          "group": "hostname",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.hostname"
+          ]
+        },
+        {
+          "group": "inlinekeyboard",
+          "pages": [
+            "reference/gramstax.ctx.inlinekeyboard"
+          ]
+        },
+        {
+          "group": "inlinekeyboardt",
+          "pages": [
+            "reference/gramstax.ctx.inlinekeyboardt"
+          ]
+        },
+        {
+          "group": "inlinequery",
+          "pages": [
+            "reference/gramstax.ctx.inlinequery"
+          ]
+        },
+        {
+          "group": "invoice_description_limit",
+          "pages": [
+            "reference/gramstax.ctx.invoice_description_limit"
+          ]
+        },
+        {
+          "group": "invoice_payload_limit",
+          "pages": [
+            "reference/gramstax.ctx.invoice_payload_limit"
+          ]
+        },
+        {
+          "group": "invoice_prices_min",
+          "pages": [
+            "reference/gramstax.ctx.invoice_prices_min"
+          ]
+        },
+        {
+          "group": "invoice_title_limit",
+          "pages": [
+            "reference/gramstax.ctx.invoice_title_limit"
+          ]
+        },
+        {
+          "group": "isclosed",
+          "pages": [
+            "reference/gramstax.updatequeue.isclosed"
+          ]
+        },
+        {
+          "group": "ispathunderroots",
+          "pages": [
+            "reference/gramstax.ctx.ispathunderroots"
+          ]
+        },
+        {
+          "group": "keyboardcols",
+          "pages": [
+            "reference/gramstax.ctx.keyboardcols"
+          ]
+        },
+        {
+          "group": "keyscompiled",
+          "pages": [
+            "reference/gramstax.templatemanager.keyscompiled"
+          ]
+        },
+        {
+          "group": "label",
+          "pages": [
+            "reference/gramstax.blockgkeyboard.label"
+          ]
+        },
+        {
+          "group": "lastcall",
+          "pages": [
+            "reference/gramstax.e2ehelper.lastcall"
+          ]
+        },
+        {
+          "group": "lastrequest",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.lastrequest"
+          ]
+        },
+        {
+          "group": "length",
+          "pages": [
+            "reference/gramstax.updatequeue.length"
+          ]
+        },
+        {
+          "group": "loadfile",
+          "pages": [
+            "reference/gramstax.templatemanager.loadfile"
+          ]
+        },
+        {
+          "group": "log",
+          "pages": [
+            "reference/gramstax.ctx.log",
+            "reference/gramstax.gramstax.log",
+            "reference/gramstax.mocktelegramserver.log"
+          ]
+        },
+        {
+          "group": "managedbot",
+          "pages": [
+            "reference/gramstax.ctx.managedbot"
+          ]
+        },
+        {
+          "group": "max_media_group_items",
+          "pages": [
+            "reference/gramstax.templateengine.max_media_group_items"
+          ]
+        },
+        {
+          "group": "max_paid_media_items",
+          "pages": [
+            "reference/gramstax.templateengine.max_paid_media_items"
+          ]
+        },
+        {
+          "group": "max_paid_media_stars",
+          "pages": [
+            "reference/gramstax.templateengine.max_paid_media_stars"
+          ]
+        },
+        {
+          "group": "media_caption_limit",
+          "pages": [
+            "reference/gramstax.ctx.media_caption_limit"
+          ]
+        },
+        {
+          "group": "media_caption_types",
+          "pages": [
+            "reference/gramstax.ctx.media_caption_types"
+          ]
+        },
+        {
+          "group": "media_group_limit",
+          "pages": [
+            "reference/gramstax.ctx.media_group_limit"
+          ]
+        },
+        {
+          "group": "media_types",
+          "pages": [
+            "reference/gramstax.ctx.media_types"
+          ]
+        },
+        {
+          "group": "media_upload_limits",
+          "pages": [
+            "reference/gramstax.ctx.media_upload_limits"
+          ]
+        },
+        {
+          "group": "mediaroots",
+          "pages": [
+            "reference/gramstax.ctx.mediaroots",
+            "reference/gramstax.gramstax.mediaroots"
+          ]
+        },
+        {
+          "group": "message",
+          "pages": [
+            "reference/gramstax.ctx.message"
+          ]
+        },
+        {
+          "group": "messagereaction",
+          "pages": [
+            "reference/gramstax.ctx.messagereaction"
+          ]
+        },
+        {
+          "group": "methodsession",
+          "pages": [
+            "reference/gramstax.ctx.methodsession"
+          ]
+        },
+        {
+          "group": "methodsessionargscallbackquerydata",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionargscallbackquerydata"
+          ]
+        },
+        {
+          "group": "methodsessionargstext",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionargstext"
+          ]
+        },
+        {
+          "group": "methodsessioncallbackquerydata",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncallbackquerydata"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionanimation",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionanimation"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionargsanimation",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionargsanimation"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionargsaudio",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionargsaudio"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionargsdocument",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionargsdocument"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionargsphoto",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionargsphoto"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionargsvideo",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionargsvideo"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionargsvoice",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionargsvoice"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionaudio",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionaudio"
+          ]
+        },
+        {
+          "group": "methodsessioncaptiondocument",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptiondocument"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionphoto",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionphoto"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionvideo",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionvideo"
+          ]
+        },
+        {
+          "group": "methodsessioncaptionvoice",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncaptionvoice"
+          ]
+        },
+        {
+          "group": "methodsessionchatmemberoutin",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionchatmemberoutin"
+          ]
+        },
+        {
+          "group": "methodsessioncommandargstext",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandargstext"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionanimation",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionanimation"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionargsanimation",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionargsanimation"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionargsaudio",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionargsaudio"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionargsdocument",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionargsdocument"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionargsphoto",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionargsphoto"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionargsvideo",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionargsvideo"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionargsvoice",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionargsvoice"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionaudio",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionaudio"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptiondocument",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptiondocument"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionphoto",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionphoto"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionvideo",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionvideo"
+          ]
+        },
+        {
+          "group": "methodsessioncommandcaptionvoice",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandcaptionvoice"
+          ]
+        },
+        {
+          "group": "methodsessioncommandtext",
+          "pages": [
+            "reference/gramstax.ctx.methodsessioncommandtext"
+          ]
+        },
+        {
+          "group": "methodsessionfreeanimation",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeanimation"
+          ]
+        },
+        {
+          "group": "methodsessionfreeaudio",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeaudio"
+          ]
+        },
+        {
+          "group": "methodsessionfreebusinessconnection",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreebusinessconnection"
+          ]
+        },
+        {
+          "group": "methodsessionfreebusinessmessage",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreebusinessmessage"
+          ]
+        },
+        {
+          "group": "methodsessionfreechannelchatcreated",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreechannelchatcreated"
+          ]
+        },
+        {
+          "group": "methodsessionfreechannelpost",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreechannelpost"
+          ]
+        },
+        {
+          "group": "methodsessionfreechatbackgroundset",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreechatbackgroundset"
+          ]
+        },
+        {
+          "group": "methodsessionfreechatboost",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreechatboost"
+          ]
+        },
+        {
+          "group": "methodsessionfreechatjoinrequest",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreechatjoinrequest"
+          ]
+        },
+        {
+          "group": "methodsessionfreechatshared",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreechatshared"
+          ]
+        },
+        {
+          "group": "methodsessionfreechoseninlineresult",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreechoseninlineresult"
+          ]
+        },
+        {
+          "group": "methodsessionfreecommunitychatjoined",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreecommunitychatjoined"
+          ]
+        },
+        {
+          "group": "methodsessionfreeconnectedwebsite",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeconnectedwebsite"
+          ]
+        },
+        {
+          "group": "methodsessionfreecontact",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreecontact"
+          ]
+        },
+        {
+          "group": "methodsessionfreedeletechatphoto",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreedeletechatphoto"
+          ]
+        },
+        {
+          "group": "methodsessionfreedeletedbusinessmessages",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreedeletedbusinessmessages"
+          ]
+        },
+        {
+          "group": "methodsessionfreedocument",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreedocument"
+          ]
+        },
+        {
+          "group": "methodsessionfreeedit",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeedit"
+          ]
+        },
+        {
+          "group": "methodsessionfreeeditchannelpost",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeeditchannelpost"
+          ]
+        },
+        {
+          "group": "methodsessionfreeeditedbusinessmessage",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeeditedbusinessmessage"
+          ]
+        },
+        {
+          "group": "methodsessionfreeforumtopicclosed",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeforumtopicclosed"
+          ]
+        },
+        {
+          "group": "methodsessionfreeforumtopiccreated",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeforumtopiccreated"
+          ]
+        },
+        {
+          "group": "methodsessionfreeforumtopicedited",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeforumtopicedited"
+          ]
+        },
+        {
+          "group": "methodsessionfreeforumtopicreopened",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeforumtopicreopened"
+          ]
+        },
+        {
+          "group": "methodsessionfreegeneralforumtopichidden",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreegeneralforumtopichidden"
+          ]
+        },
+        {
+          "group": "methodsessionfreegeneralforumtopicunhidden",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreegeneralforumtopicunhidden"
+          ]
+        },
+        {
+          "group": "methodsessionfreegiveaway",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreegiveaway"
+          ]
+        },
+        {
+          "group": "methodsessionfreegiveawaycompleted",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreegiveawaycompleted"
+          ]
+        },
+        {
+          "group": "methodsessionfreegiveawaycreated",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreegiveawaycreated"
+          ]
+        },
+        {
+          "group": "methodsessionfreegiveawaywinners",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreegiveawaywinners"
+          ]
+        },
+        {
+          "group": "methodsessionfreegroupchatcreated",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreegroupchatcreated"
+          ]
+        },
+        {
+          "group": "methodsessionfreeinlinequery",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeinlinequery"
+          ]
+        },
+        {
+          "group": "methodsessionfreeleftchatmember",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeleftchatmember"
+          ]
+        },
+        {
+          "group": "methodsessionfreelocation",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreelocation"
+          ]
+        },
+        {
+          "group": "methodsessionfreemessageautodeletetimerchanged",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreemessageautodeletetimerchanged"
+          ]
+        },
+        {
+          "group": "methodsessionfreemessagereactioncount",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreemessagereactioncount"
+          ]
+        },
+        {
+          "group": "methodsessionfreenewchatmembers",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreenewchatmembers"
+          ]
+        },
+        {
+          "group": "methodsessionfreenewchatphoto",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreenewchatphoto"
+          ]
+        },
+        {
+          "group": "methodsessionfreenewchattitle",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreenewchattitle"
+          ]
+        },
+        {
+          "group": "methodsessionfreepassportdata",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreepassportdata"
+          ]
+        },
+        {
+          "group": "methodsessionfreephoto",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreephoto"
+          ]
+        },
+        {
+          "group": "methodsessionfreepinmessage",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreepinmessage"
+          ]
+        },
+        {
+          "group": "methodsessionfreepoll",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreepoll"
+          ]
+        },
+        {
+          "group": "methodsessionfreepollanswer",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreepollanswer"
+          ]
+        },
+        {
+          "group": "methodsessionfreeprecheckoutquery",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeprecheckoutquery"
+          ]
+        },
+        {
+          "group": "methodsessionfreeproximityalerttriggered",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeproximityalerttriggered"
+          ]
+        },
+        {
+          "group": "methodsessionfreereaction",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreereaction"
+          ]
+        },
+        {
+          "group": "methodsessionfreerefundedpayment",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreerefundedpayment"
+          ]
+        },
+        {
+          "group": "methodsessionfreeremovedchatboost",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeremovedchatboost"
+          ]
+        },
+        {
+          "group": "methodsessionfreeshippingquery",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeshippingquery"
+          ]
+        },
+        {
+          "group": "methodsessionfreesticker",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreesticker"
+          ]
+        },
+        {
+          "group": "methodsessionfreestoppedgeneration",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreestoppedgeneration"
+          ]
+        },
+        {
+          "group": "methodsessionfreesuccessfulpayment",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreesuccessfulpayment"
+          ]
+        },
+        {
+          "group": "methodsessionfreesupergroupchatcreated",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreesupergroupchatcreated"
+          ]
+        },
+        {
+          "group": "methodsessionfreetext",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreetext"
+          ]
+        },
+        {
+          "group": "methodsessionfreeusershared",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreeusershared"
+          ]
+        },
+        {
+          "group": "methodsessionfreevideo",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreevideo"
+          ]
+        },
+        {
+          "group": "methodsessionfreevideochatended",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreevideochatended"
+          ]
+        },
+        {
+          "group": "methodsessionfreevideochatparticipantsinvited",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreevideochatparticipantsinvited"
+          ]
+        },
+        {
+          "group": "methodsessionfreevideochatscheduled",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreevideochatscheduled"
+          ]
+        },
+        {
+          "group": "methodsessionfreevideochatstarted",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreevideochatstarted"
+          ]
+        },
+        {
+          "group": "methodsessionfreevideonote",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreevideonote"
+          ]
+        },
+        {
+          "group": "methodsessionfreevoice",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreevoice"
+          ]
+        },
+        {
+          "group": "methodsessionfreewebappdata",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreewebappdata"
+          ]
+        },
+        {
+          "group": "methodsessionfreewriteaccessallowed",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionfreewriteaccessallowed"
+          ]
+        },
+        {
+          "group": "methodsessionmychatmemberadminregular",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionmychatmemberadminregular"
+          ]
+        },
+        {
+          "group": "methodsessionmychatmemberoutadmin",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionmychatmemberoutadmin"
+          ]
+        },
+        {
+          "group": "methodsessionmychatmemberoutregular",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionmychatmemberoutregular"
+          ]
+        },
+        {
+          "group": "methodsessionmychatmemberregularadmin",
+          "pages": [
+            "reference/gramstax.ctx.methodsessionmychatmemberregularadmin"
+          ]
+        },
+        {
+          "group": "methodsessiontext",
+          "pages": [
+            "reference/gramstax.ctx.methodsessiontext"
+          ]
+        },
+        {
+          "group": "metrics",
+          "pages": [
+            "reference/gramstax.gramstax.metrics"
+          ]
+        },
+        {
+          "group": "msg",
+          "pages": [
+            "reference/gramstax.ctx.msg"
+          ]
+        },
+        {
+          "group": "msgcaptionarg",
+          "pages": [
+            "reference/gramstax.ctx.msgcaptionarg"
+          ]
+        },
+        {
+          "group": "msgcaptionargs",
+          "pages": [
+            "reference/gramstax.ctx.msgcaptionargs"
+          ]
+        },
+        {
+          "group": "msgcommandcaptionarg",
+          "pages": [
+            "reference/gramstax.ctx.msgcommandcaptionarg"
+          ]
+        },
+        {
+          "group": "msgcommandcaptionargs",
+          "pages": [
+            "reference/gramstax.ctx.msgcommandcaptionargs"
+          ]
+        },
+        {
+          "group": "msgtextarg",
+          "pages": [
+            "reference/gramstax.ctx.msgtextarg"
+          ]
+        },
+        {
+          "group": "msgtextargs",
+          "pages": [
+            "reference/gramstax.ctx.msgtextargs"
+          ]
+        },
+        {
+          "group": "msgtextcommandarg",
+          "pages": [
+            "reference/gramstax.ctx.msgtextcommandarg"
+          ]
+        },
+        {
+          "group": "msgtextcommandargs",
+          "pages": [
+            "reference/gramstax.ctx.msgtextcommandargs"
+          ]
+        },
+        {
+          "group": "notifysenderror",
+          "pages": [
+            "reference/gramstax.ctx.notifysenderror"
+          ]
+        },
+        {
+          "group": "onsenderror",
+          "pages": [
+            "reference/gramstax.ctx.onsenderror"
+          ]
+        },
+        {
+          "group": "options",
+          "pages": [
+            "reference/gramstax.sessionlock.options"
+          ]
+        },
+        {
+          "group": "optionspage",
+          "pages": [
+            "reference/gramstax.gramstax.optionspage"
+          ]
+        },
+        {
+          "group": "pagemanager",
+          "pages": [
+            "reference/gramstax.templatemanager.pagemanager"
+          ]
+        },
+        {
+          "group": "pages",
+          "pages": [
+            "reference/gramstax.gramstax.pages"
+          ]
+        },
+        {
+          "group": "paid_media_items_max",
+          "pages": [
+            "reference/gramstax.ctx.paid_media_items_max"
+          ]
+        },
+        {
+          "group": "paid_media_items_min",
+          "pages": [
+            "reference/gramstax.ctx.paid_media_items_min"
+          ]
+        },
+        {
+          "group": "paid_media_stars_max",
+          "pages": [
+            "reference/gramstax.ctx.paid_media_stars_max"
+          ]
+        },
+        {
+          "group": "paid_media_stars_min",
+          "pages": [
+            "reference/gramstax.ctx.paid_media_stars_min"
+          ]
+        },
+        {
+          "group": "path",
+          "pages": [
+            "reference/gramstax.templatemanager.path"
+          ]
+        },
+        {
+          "group": "pendingupdates",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.pendingupdates"
+          ]
+        },
+        {
+          "group": "poll",
+          "pages": [
+            "reference/gramstax.ctx.poll"
+          ]
+        },
+        {
+          "group": "poll_explanation_limit",
+          "pages": [
+            "reference/gramstax.ctx.poll_explanation_limit"
+          ]
+        },
+        {
+          "group": "poll_option_limit",
+          "pages": [
+            "reference/gramstax.ctx.poll_option_limit"
+          ]
+        },
+        {
+          "group": "poll_options_max",
+          "pages": [
+            "reference/gramstax.ctx.poll_options_max"
+          ]
+        },
+        {
+          "group": "poll_options_min",
+          "pages": [
+            "reference/gramstax.ctx.poll_options_min"
+          ]
+        },
+        {
+          "group": "poll_question_limit",
+          "pages": [
+            "reference/gramstax.ctx.poll_question_limit"
+          ]
+        },
+        {
+          "group": "pollanswer",
+          "pages": [
+            "reference/gramstax.ctx.pollanswer"
+          ]
+        },
+        {
+          "group": "port",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.port"
+          ]
+        },
+        {
+          "group": "postbusinessstory",
+          "pages": [
+            "reference/gramstax.ctx.postbusinessstory"
+          ]
+        },
+        {
+          "group": "precheckoutquery",
+          "pages": [
+            "reference/gramstax.ctx.precheckoutquery"
+          ]
+        },
+        {
+          "group": "processgimportblocks",
+          "pages": [
+            "reference/gramstax.templateengine.processgimportblocks"
+          ]
+        },
+        {
+          "group": "purchasedpaidmedia",
+          "pages": [
+            "reference/gramstax.ctx.purchasedpaidmedia"
+          ]
+        },
+        {
+          "group": "readtemplatefile",
+          "pages": [
+            "reference/gramstax.templatemanager.readtemplatefile"
+          ]
+        },
+        {
+          "group": "ready",
+          "pages": [
+            "reference/gramstax.gramstax.ready"
+          ]
+        },
+        {
+          "group": "recordupdate",
+          "pages": [
+            "reference/gramstax.metricsstore.recordupdate"
+          ]
+        },
+        {
+          "group": "redis",
+          "pages": [
+            "reference/gramstax.sessionlock.redis"
+          ]
+        },
+        {
+          "group": "refreshlrucache",
+          "pages": [
+            "reference/gramstax.cacheexternal.refreshlrucache"
+          ]
+        },
+        {
+          "group": "refundstars",
+          "pages": [
+            "reference/gramstax.ctx.refundstars"
+          ]
+        },
+        {
+          "group": "registercompiled",
+          "pages": [
+            "reference/gramstax.templatemanager.registercompiled"
+          ]
+        },
+        {
+          "group": "registercustomroute",
+          "pages": [
+            "reference/gramstax.gramstax.registercustomroute"
+          ]
+        },
+        {
+          "group": "registerlowplugin",
+          "pages": [
+            "reference/gramstax.gramstax.registerlowplugin"
+          ]
+        },
+        {
+          "group": "release",
+          "pages": [
+            "reference/gramstax.sessionlock.release"
+          ]
+        },
+        {
+          "group": "releaseall",
+          "pages": [
+            "reference/gramstax.updategate.releaseall"
+          ]
+        },
+        {
+          "group": "removedchatboost",
+          "pages": [
+            "reference/gramstax.ctx.removedchatboost"
+          ]
+        },
+        {
+          "group": "renderanimation",
+          "pages": [
+            "reference/gramstax.ctx.renderanimation"
+          ]
+        },
+        {
+          "group": "renderaudio",
+          "pages": [
+            "reference/gramstax.ctx.renderaudio"
+          ]
+        },
+        {
+          "group": "renderaudiogroup",
+          "pages": [
+            "reference/gramstax.ctx.renderaudiogroup"
+          ]
+        },
+        {
+          "group": "renderbroadcastdelete",
+          "pages": [
+            "reference/gramstax.ctx.renderbroadcastdelete"
+          ]
+        },
+        {
+          "group": "rendercallbackanswer",
+          "pages": [
+            "reference/gramstax.ctx.rendercallbackanswer"
+          ]
+        },
+        {
+          "group": "rendercontact",
+          "pages": [
+            "reference/gramstax.ctx.rendercontact"
+          ]
+        },
+        {
+          "group": "renderdice",
+          "pages": [
+            "reference/gramstax.ctx.renderdice"
+          ]
+        },
+        {
+          "group": "renderdocument",
+          "pages": [
+            "reference/gramstax.ctx.renderdocument"
+          ]
+        },
+        {
+          "group": "renderdocumentgroup",
+          "pages": [
+            "reference/gramstax.ctx.renderdocumentgroup"
+          ]
+        },
+        {
+          "group": "rendereditcaption",
+          "pages": [
+            "reference/gramstax.ctx.rendereditcaption"
+          ]
+        },
+        {
+          "group": "rendereditkeyboard",
+          "pages": [
+            "reference/gramstax.ctx.rendereditkeyboard"
+          ]
+        },
+        {
+          "group": "rendergift",
+          "pages": [
+            "reference/gramstax.ctx.rendergift"
+          ]
+        },
+        {
+          "group": "renderguestanswer",
+          "pages": [
+            "reference/gramstax.ctx.renderguestanswer"
+          ]
+        },
+        {
+          "group": "renderinlineanswer",
+          "pages": [
+            "reference/gramstax.ctx.renderinlineanswer"
+          ]
+        },
+        {
+          "group": "renderinvoice",
+          "pages": [
+            "reference/gramstax.ctx.renderinvoice"
+          ]
+        },
+        {
+          "group": "renderlocation",
+          "pages": [
+            "reference/gramstax.ctx.renderlocation"
+          ]
+        },
+        {
+          "group": "rendermedia",
+          "pages": [
+            "reference/gramstax.ctx.rendermedia"
+          ]
+        },
+        {
+          "group": "rendermediagroup",
+          "pages": [
+            "reference/gramstax.ctx.rendermediagroup"
+          ]
+        },
+        {
+          "group": "renderpaidmedia",
+          "pages": [
+            "reference/gramstax.ctx.renderpaidmedia"
+          ]
+        },
+        {
+          "group": "renderphoto",
+          "pages": [
+            "reference/gramstax.ctx.renderphoto"
+          ]
+        },
+        {
+          "group": "renderphotogroup",
+          "pages": [
+            "reference/gramstax.ctx.renderphotogroup"
+          ]
+        },
+        {
+          "group": "renderpoll",
+          "pages": [
+            "reference/gramstax.ctx.renderpoll"
+          ]
+        },
+        {
+          "group": "renderprecheckout",
+          "pages": [
+            "reference/gramstax.ctx.renderprecheckout"
+          ]
+        },
+        {
+          "group": "rendershipping",
+          "pages": [
+            "reference/gramstax.ctx.rendershipping"
+          ]
+        },
+        {
+          "group": "rendersticker",
+          "pages": [
+            "reference/gramstax.ctx.rendersticker"
+          ]
+        },
+        {
+          "group": "rendertext",
+          "pages": [
+            "reference/gramstax.ctx.rendertext"
+          ]
+        },
+        {
+          "group": "rendervenue",
+          "pages": [
+            "reference/gramstax.ctx.rendervenue"
+          ]
+        },
+        {
+          "group": "rendervideo",
+          "pages": [
+            "reference/gramstax.ctx.rendervideo"
+          ]
+        },
+        {
+          "group": "rendervideogroup",
+          "pages": [
+            "reference/gramstax.ctx.rendervideogroup"
+          ]
+        },
+        {
+          "group": "rendervideonote",
+          "pages": [
+            "reference/gramstax.ctx.rendervideonote"
+          ]
+        },
+        {
+          "group": "rendervoice",
+          "pages": [
+            "reference/gramstax.ctx.rendervoice"
+          ]
+        },
+        {
+          "group": "renderwebappanswer",
+          "pages": [
+            "reference/gramstax.ctx.renderwebappanswer"
+          ]
+        },
+        {
+          "group": "replyfallbacktext",
+          "pages": [
+            "reference/gramstax.ctx.replyfallbacktext"
+          ]
+        },
+        {
+          "group": "replywithhtmlstream",
+          "pages": [
+            "reference/gramstax.ctx.replywithhtmlstream"
+          ]
+        },
+        {
+          "group": "replywithmarkdownstream",
+          "pages": [
+            "reference/gramstax.ctx.replywithmarkdownstream"
+          ]
+        },
+        {
+          "group": "replywithstream",
+          "pages": [
+            "reference/gramstax.ctx.replywithstream"
+          ]
+        },
+        {
+          "group": "requests",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.requests"
+          ]
+        },
+        {
+          "group": "reset",
+          "pages": [
+            "reference/gramstax.e2ehelper.reset",
+            "reference/gramstax.mocktelegramserver.reset"
+          ]
+        },
+        {
+          "group": "resolvefallbacktext",
+          "pages": [
+            "reference/gramstax.ctx.resolvefallbacktext"
+          ]
+        },
+        {
+          "group": "resolvemedia",
+          "pages": [
+            "reference/gramstax.ctx.resolvemedia"
+          ]
+        },
+        {
+          "group": "resolvemediainput",
+          "pages": [
+            "reference/gramstax.ctx.resolvemediainput"
+          ]
+        },
+        {
+          "group": "retryafterms",
+          "pages": [
+            "reference/gramstax.ctx.retryafterms"
+          ]
+        },
+        {
+          "group": "sendanimation",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendanimation",
+            "reference/gramstax.mocktelegramserver.sendanimation"
+          ]
+        },
+        {
+          "group": "sendaudio",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendaudio",
+            "reference/gramstax.mocktelegramserver.sendaudio"
+          ]
+        },
+        {
+          "group": "sendcallbackquery",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendcallbackquery",
+            "reference/gramstax.mocktelegramserver.sendcallbackquery"
+          ]
+        },
+        {
+          "group": "sendchannelpost",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendchannelpost",
+            "reference/gramstax.mocktelegramserver.sendchannelpost"
+          ]
+        },
+        {
+          "group": "sendchatid",
+          "pages": [
+            "reference/gramstax.ctx.sendchatid"
+          ]
+        },
+        {
+          "group": "sendchatmemberupdate",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendchatmemberupdate",
+            "reference/gramstax.mocktelegramserver.sendchatmemberupdate"
+          ]
+        },
+        {
+          "group": "sendchoseninlineresult",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendchoseninlineresult",
+            "reference/gramstax.mocktelegramserver.sendchoseninlineresult"
+          ]
+        },
+        {
+          "group": "sendcommunitychatjoined",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendcommunitychatjoined",
+            "reference/gramstax.mocktelegramserver.sendcommunitychatjoined"
+          ]
+        },
+        {
+          "group": "sendcontact",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendcontact",
+            "reference/gramstax.mocktelegramserver.sendcontact"
+          ]
+        },
+        {
+          "group": "senddice",
+          "pages": [
+            "reference/gramstax.e2ehelper.senddice"
+          ]
+        },
+        {
+          "group": "senddocument",
+          "pages": [
+            "reference/gramstax.e2ehelper.senddocument",
+            "reference/gramstax.mocktelegramserver.senddocument"
+          ]
+        },
+        {
+          "group": "sendeditedtext",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendeditedtext",
+            "reference/gramstax.mocktelegramserver.sendeditedtext"
+          ]
+        },
+        {
+          "group": "senderchat",
+          "pages": [
+            "reference/gramstax.ctx.senderchat"
+          ]
+        },
+        {
+          "group": "sendgiftinfo",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendgiftinfo",
+            "reference/gramstax.mocktelegramserver.sendgiftinfo"
+          ]
+        },
+        {
+          "group": "sendinlinequery",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendinlinequery",
+            "reference/gramstax.mocktelegramserver.sendinlinequery"
+          ]
+        },
+        {
+          "group": "sendlocation",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendlocation",
+            "reference/gramstax.mocktelegramserver.sendlocation"
+          ]
+        },
+        {
+          "group": "sendmychatmemberupdate",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendmychatmemberupdate",
+            "reference/gramstax.mocktelegramserver.sendmychatmemberupdate"
+          ]
+        },
+        {
+          "group": "sendnewchatmembers",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendnewchatmembers",
+            "reference/gramstax.mocktelegramserver.sendnewchatmembers"
+          ]
+        },
+        {
+          "group": "sendpagename",
+          "pages": [
+            "reference/gramstax.ctx.sendpagename"
+          ]
+        },
+        {
+          "group": "sendphoto",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendphoto",
+            "reference/gramstax.mocktelegramserver.sendphoto"
+          ]
+        },
+        {
+          "group": "sendpollanswer",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendpollanswer",
+            "reference/gramstax.mocktelegramserver.sendpollanswer"
+          ]
+        },
+        {
+          "group": "sendsticker",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendsticker",
+            "reference/gramstax.mocktelegramserver.sendsticker"
+          ]
+        },
+        {
+          "group": "sendstoppedgeneration",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendstoppedgeneration",
+            "reference/gramstax.mocktelegramserver.sendstoppedgeneration"
+          ]
+        },
+        {
+          "group": "sendstoppedmessagegeneration",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendstoppedmessagegeneration",
+            "reference/gramstax.mocktelegramserver.sendstoppedmessagegeneration"
+          ]
+        },
+        {
+          "group": "sendtext",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendtext",
+            "reference/gramstax.mocktelegramserver.sendtext"
+          ]
+        },
+        {
+          "group": "sendvideo",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendvideo",
+            "reference/gramstax.mocktelegramserver.sendvideo"
+          ]
+        },
+        {
+          "group": "sendvideonote",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendvideonote",
+            "reference/gramstax.mocktelegramserver.sendvideonote"
+          ]
+        },
+        {
+          "group": "sendvoice",
+          "pages": [
+            "reference/gramstax.e2ehelper.sendvoice",
+            "reference/gramstax.mocktelegramserver.sendvoice"
+          ]
+        },
+        {
+          "group": "server",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.server"
+          ]
+        },
+        {
+          "group": "sessionkey",
+          "pages": [
+            "reference/gramstax.ctx.sessionkey"
+          ]
+        },
+        {
+          "group": "setsession",
+          "pages": [
+            "reference/gramstax.ctx.setsession"
+          ]
+        },
+        {
+          "group": "setsessionargscallbackquerydata",
+          "pages": [
+            "reference/gramstax.ctx.setsessionargscallbackquerydata"
+          ]
+        },
+        {
+          "group": "setsessionargstext",
+          "pages": [
+            "reference/gramstax.ctx.setsessionargstext"
+          ]
+        },
+        {
+          "group": "setsessioncallbackquerydata",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncallbackquerydata"
+          ]
+        },
+        {
+          "group": "setsessioncaptionanimation",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionanimation"
+          ]
+        },
+        {
+          "group": "setsessioncaptionargsanimation",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionargsanimation"
+          ]
+        },
+        {
+          "group": "setsessioncaptionargsaudio",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionargsaudio"
+          ]
+        },
+        {
+          "group": "setsessioncaptionargsdocument",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionargsdocument"
+          ]
+        },
+        {
+          "group": "setsessioncaptionargsphoto",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionargsphoto"
+          ]
+        },
+        {
+          "group": "setsessioncaptionargsvideo",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionargsvideo"
+          ]
+        },
+        {
+          "group": "setsessioncaptionargsvoice",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionargsvoice"
+          ]
+        },
+        {
+          "group": "setsessioncaptionaudio",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionaudio"
+          ]
+        },
+        {
+          "group": "setsessioncaptiondocument",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptiondocument"
+          ]
+        },
+        {
+          "group": "setsessioncaptionphoto",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionphoto"
+          ]
+        },
+        {
+          "group": "setsessioncaptionvideo",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionvideo"
+          ]
+        },
+        {
+          "group": "setsessioncaptionvoice",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncaptionvoice"
+          ]
+        },
+        {
+          "group": "setsessionchatmemberoutin",
+          "pages": [
+            "reference/gramstax.ctx.setsessionchatmemberoutin"
+          ]
+        },
+        {
+          "group": "setsessioncommandargstext",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandargstext"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionanimation",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionanimation"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionargsanimation",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionargsanimation"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionargsaudio",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionargsaudio"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionargsdocument",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionargsdocument"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionargsphoto",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionargsphoto"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionargsvideo",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionargsvideo"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionargsvoice",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionargsvoice"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionaudio",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionaudio"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptiondocument",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptiondocument"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionphoto",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionphoto"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionvideo",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionvideo"
+          ]
+        },
+        {
+          "group": "setsessioncommandcaptionvoice",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandcaptionvoice"
+          ]
+        },
+        {
+          "group": "setsessioncommandtext",
+          "pages": [
+            "reference/gramstax.ctx.setsessioncommandtext"
+          ]
+        },
+        {
+          "group": "setsessionfreeanimation",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeanimation"
+          ]
+        },
+        {
+          "group": "setsessionfreeaudio",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeaudio"
+          ]
+        },
+        {
+          "group": "setsessionfreebusinessconnection",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreebusinessconnection"
+          ]
+        },
+        {
+          "group": "setsessionfreebusinessmessage",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreebusinessmessage"
+          ]
+        },
+        {
+          "group": "setsessionfreechannelchatcreated",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreechannelchatcreated"
+          ]
+        },
+        {
+          "group": "setsessionfreechannelpost",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreechannelpost"
+          ]
+        },
+        {
+          "group": "setsessionfreechatbackgroundset",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreechatbackgroundset"
+          ]
+        },
+        {
+          "group": "setsessionfreechatboost",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreechatboost"
+          ]
+        },
+        {
+          "group": "setsessionfreechatjoinrequest",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreechatjoinrequest"
+          ]
+        },
+        {
+          "group": "setsessionfreechatshared",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreechatshared"
+          ]
+        },
+        {
+          "group": "setsessionfreechoseninlineresult",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreechoseninlineresult"
+          ]
+        },
+        {
+          "group": "setsessionfreecommunitychatjoined",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreecommunitychatjoined"
+          ]
+        },
+        {
+          "group": "setsessionfreeconnectedwebsite",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeconnectedwebsite"
+          ]
+        },
+        {
+          "group": "setsessionfreecontact",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreecontact"
+          ]
+        },
+        {
+          "group": "setsessionfreedeletechatphoto",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreedeletechatphoto"
+          ]
+        },
+        {
+          "group": "setsessionfreedeletedbusinessmessages",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreedeletedbusinessmessages"
+          ]
+        },
+        {
+          "group": "setsessionfreedocument",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreedocument"
+          ]
+        },
+        {
+          "group": "setsessionfreeedit",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeedit"
+          ]
+        },
+        {
+          "group": "setsessionfreeeditchannelpost",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeeditchannelpost"
+          ]
+        },
+        {
+          "group": "setsessionfreeeditedbusinessmessage",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeeditedbusinessmessage"
+          ]
+        },
+        {
+          "group": "setsessionfreeforumtopicclosed",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeforumtopicclosed"
+          ]
+        },
+        {
+          "group": "setsessionfreeforumtopiccreated",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeforumtopiccreated"
+          ]
+        },
+        {
+          "group": "setsessionfreeforumtopicedited",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeforumtopicedited"
+          ]
+        },
+        {
+          "group": "setsessionfreeforumtopicreopened",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeforumtopicreopened"
+          ]
+        },
+        {
+          "group": "setsessionfreegeneralforumtopichidden",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreegeneralforumtopichidden"
+          ]
+        },
+        {
+          "group": "setsessionfreegeneralforumtopicunhidden",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreegeneralforumtopicunhidden"
+          ]
+        },
+        {
+          "group": "setsessionfreegiveaway",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreegiveaway"
+          ]
+        },
+        {
+          "group": "setsessionfreegiveawaycompleted",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreegiveawaycompleted"
+          ]
+        },
+        {
+          "group": "setsessionfreegiveawaycreated",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreegiveawaycreated"
+          ]
+        },
+        {
+          "group": "setsessionfreegiveawaywinners",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreegiveawaywinners"
+          ]
+        },
+        {
+          "group": "setsessionfreegroupchatcreated",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreegroupchatcreated"
+          ]
+        },
+        {
+          "group": "setsessionfreeinlinequery",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeinlinequery"
+          ]
+        },
+        {
+          "group": "setsessionfreeleftchatmember",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeleftchatmember"
+          ]
+        },
+        {
+          "group": "setsessionfreelocation",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreelocation"
+          ]
+        },
+        {
+          "group": "setsessionfreemessageautodeletetimerchanged",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreemessageautodeletetimerchanged"
+          ]
+        },
+        {
+          "group": "setsessionfreemessagereactioncount",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreemessagereactioncount"
+          ]
+        },
+        {
+          "group": "setsessionfreenewchatmembers",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreenewchatmembers"
+          ]
+        },
+        {
+          "group": "setsessionfreenewchatphoto",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreenewchatphoto"
+          ]
+        },
+        {
+          "group": "setsessionfreenewchattitle",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreenewchattitle"
+          ]
+        },
+        {
+          "group": "setsessionfreepassportdata",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreepassportdata"
+          ]
+        },
+        {
+          "group": "setsessionfreephoto",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreephoto"
+          ]
+        },
+        {
+          "group": "setsessionfreepinmessage",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreepinmessage"
+          ]
+        },
+        {
+          "group": "setsessionfreepoll",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreepoll"
+          ]
+        },
+        {
+          "group": "setsessionfreepollanswer",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreepollanswer"
+          ]
+        },
+        {
+          "group": "setsessionfreeprecheckoutquery",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeprecheckoutquery"
+          ]
+        },
+        {
+          "group": "setsessionfreeproximityalerttriggered",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeproximityalerttriggered"
+          ]
+        },
+        {
+          "group": "setsessionfreereaction",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreereaction"
+          ]
+        },
+        {
+          "group": "setsessionfreerefundedpayment",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreerefundedpayment"
+          ]
+        },
+        {
+          "group": "setsessionfreeremovedchatboost",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeremovedchatboost"
+          ]
+        },
+        {
+          "group": "setsessionfreeshippingquery",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeshippingquery"
+          ]
+        },
+        {
+          "group": "setsessionfreesticker",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreesticker"
+          ]
+        },
+        {
+          "group": "setsessionfreestoppedgeneration",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreestoppedgeneration"
+          ]
+        },
+        {
+          "group": "setsessionfreesuccessfulpayment",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreesuccessfulpayment"
+          ]
+        },
+        {
+          "group": "setsessionfreesupergroupchatcreated",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreesupergroupchatcreated"
+          ]
+        },
+        {
+          "group": "setsessionfreetext",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreetext"
+          ]
+        },
+        {
+          "group": "setsessionfreeusershared",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreeusershared"
+          ]
+        },
+        {
+          "group": "setsessionfreevideo",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreevideo"
+          ]
+        },
+        {
+          "group": "setsessionfreevideochatended",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreevideochatended"
+          ]
+        },
+        {
+          "group": "setsessionfreevideochatparticipantsinvited",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreevideochatparticipantsinvited"
+          ]
+        },
+        {
+          "group": "setsessionfreevideochatscheduled",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreevideochatscheduled"
+          ]
+        },
+        {
+          "group": "setsessionfreevideochatstarted",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreevideochatstarted"
+          ]
+        },
+        {
+          "group": "setsessionfreevideonote",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreevideonote"
+          ]
+        },
+        {
+          "group": "setsessionfreevoice",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreevoice"
+          ]
+        },
+        {
+          "group": "setsessionfreewebappdata",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreewebappdata"
+          ]
+        },
+        {
+          "group": "setsessionfreewriteaccessallowed",
+          "pages": [
+            "reference/gramstax.ctx.setsessionfreewriteaccessallowed"
+          ]
+        },
+        {
+          "group": "setsessionmychatmemberadminregular",
+          "pages": [
+            "reference/gramstax.ctx.setsessionmychatmemberadminregular"
+          ]
+        },
+        {
+          "group": "setsessionmychatmemberoutadmin",
+          "pages": [
+            "reference/gramstax.ctx.setsessionmychatmemberoutadmin"
+          ]
+        },
+        {
+          "group": "setsessionmychatmemberoutregular",
+          "pages": [
+            "reference/gramstax.ctx.setsessionmychatmemberoutregular"
+          ]
+        },
+        {
+          "group": "setsessionmychatmemberregularadmin",
+          "pages": [
+            "reference/gramstax.ctx.setsessionmychatmemberregularadmin"
+          ]
+        },
+        {
+          "group": "setsessiontext",
+          "pages": [
+            "reference/gramstax.ctx.setsessiontext"
+          ]
+        },
+        {
+          "group": "snapshot",
+          "pages": [
+            "reference/gramstax.metricsstore.snapshot"
+          ]
+        },
+        {
+          "group": "start",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.start",
+            "reference/gramstax.updatedispatcher.start"
+          ]
+        },
+        {
+          "group": "startedat",
+          "pages": [
+            "reference/gramstax.metricsstore.startedat"
+          ]
+        },
+        {
+          "group": "startgiveaway",
+          "pages": [
+            "reference/gramstax.ctx.startgiveaway"
+          ]
+        },
+        {
+          "group": "stats",
+          "pages": [
+            "reference/gramstax.updatedispatcher.stats",
+            "reference/gramstax.updategate.stats"
+          ]
+        },
+        {
+          "group": "stop",
+          "pages": [
+            "reference/gramstax.gramstax.stop",
+            "reference/gramstax.mocktelegramserver.stop",
+            "reference/gramstax.updatedispatcher.stop"
+          ]
+        },
+        {
+          "group": "stoplivelocation",
+          "pages": [
+            "reference/gramstax.ctx.stoplivelocation"
+          ]
+        },
+        {
+          "group": "stoppoll",
+          "pages": [
+            "reference/gramstax.ctx.stoppoll"
+          ]
+        },
+        {
+          "group": "story_periods",
+          "pages": [
+            "reference/gramstax.ctx.story_periods"
+          ]
+        },
+        {
+          "group": "streamcalls",
+          "pages": [
+            "reference/gramstax.e2ehelper.streamcalls"
+          ]
+        },
+        {
+          "group": "streamchunks",
+          "pages": [
+            "reference/gramstax.e2ehelper.streamchunks"
+          ]
+        },
+        {
+          "group": "temp",
+          "pages": [
+            "reference/gramstax.ctx.temp"
+          ]
+        },
+        {
+          "group": "template",
+          "pages": [
+            "reference/gramstax.ctx.template"
+          ]
+        },
+        {
+          "group": "templatemanager",
+          "pages": [
+            "reference/gramstax.ctx.templatemanager",
+            "reference/gramstax.gramstax.templatemanager"
+          ]
+        },
+        {
+          "group": "text",
+          "pages": [
+            "reference/gramstax.ibottomkbwithctx.text",
+            "reference/gramstax.iinlinekbwithctx.text"
+          ]
+        },
+        {
+          "group": "text_1",
+          "pages": [
+            "reference/gramstax.iinlinekbwithctx.text_1"
+          ]
+        },
+        {
+          "group": "time",
+          "pages": [
+            "reference/gramstax.logginghelper.time"
+          ]
+        },
+        {
+          "group": "timeactive",
+          "pages": [
+            "reference/gramstax.logginghelper.timeactive"
+          ]
+        },
+        {
+          "group": "timecheck",
+          "pages": [
+            "reference/gramstax.logginghelper.timecheck"
+          ]
+        },
+        {
+          "group": "timeclear",
+          "pages": [
+            "reference/gramstax.logginghelper.timeclear"
+          ]
+        },
+        {
+          "group": "timeend",
+          "pages": [
+            "reference/gramstax.logginghelper.timeend"
+          ]
+        },
+        {
+          "group": "timelog",
+          "pages": [
+            "reference/gramstax.logginghelper.timelog"
+          ]
+        },
+        {
+          "group": "tryenqueue",
+          "pages": [
+            "reference/gramstax.updatequeue.tryenqueue"
+          ]
+        },
+        {
+          "group": "updates",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.updates"
+          ]
+        },
+        {
+          "group": "url",
+          "pages": [
+            "reference/gramstax.cacheexternal.url"
+          ]
+        },
+        {
+          "group": "userresponsemethods",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.userresponsemethods"
+          ]
+        },
+        {
+          "group": "userresponseprefixes",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.userresponseprefixes"
+          ]
+        },
+        {
+          "group": "validateblockganswernoteattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockganswernoteattributes"
+          ]
+        },
+        {
+          "group": "validateblockgbaseattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgbaseattributes"
+          ]
+        },
+        {
+          "group": "validateblockgcallbackanswerattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgcallbackanswerattributes"
+          ]
+        },
+        {
+          "group": "validateblockgcaseattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgcaseattributes"
+          ]
+        },
+        {
+          "group": "validateblockgdefaultattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgdefaultattributes"
+          ]
+        },
+        {
+          "group": "validateblockgdescriptionattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgdescriptionattributes"
+          ]
+        },
+        {
+          "group": "validateblockgdiceattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgdiceattributes"
+          ]
+        },
+        {
+          "group": "validateblockgdivattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgdivattributes"
+          ]
+        },
+        {
+          "group": "validateblockggiftattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockggiftattributes"
+          ]
+        },
+        {
+          "group": "validateblockgifelseattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgifelseattributes"
+          ]
+        },
+        {
+          "group": "validateblockgifelsebody",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgifelsebody"
+          ]
+        },
+        {
+          "group": "validateblockgimportattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgimportattributes"
+          ]
+        },
+        {
+          "group": "validateblockginlinebuttonattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockginlinebuttonattributes"
+          ]
+        },
+        {
+          "group": "validateblockginvoiceattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockginvoiceattributes"
+          ]
+        },
+        {
+          "group": "validateblockgkeyboardattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgkeyboardattributes"
+          ]
+        },
+        {
+          "group": "validateblockgmapattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgmapattributes"
+          ]
+        },
+        {
+          "group": "validateblockgmediaattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgmediaattributes"
+          ]
+        },
+        {
+          "group": "validateblockgmediagroupattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgmediagroupattributes"
+          ]
+        },
+        {
+          "group": "validateblockgmessageattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgmessageattributes"
+          ]
+        },
+        {
+          "group": "validateblockgmessagerich",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgmessagerich"
+          ]
+        },
+        {
+          "group": "validateblockgpaidmediaattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgpaidmediaattributes"
+          ]
+        },
+        {
+          "group": "validateblockgpollattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgpollattributes"
+          ]
+        },
+        {
+          "group": "validateblockgprecheckouterrorattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgprecheckouterrorattributes"
+          ]
+        },
+        {
+          "group": "validateblockgpriceattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgpriceattributes"
+          ]
+        },
+        {
+          "group": "validateblockgscriptattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgscriptattributes"
+          ]
+        },
+        {
+          "group": "validateblockgshippingerrorattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgshippingerrorattributes"
+          ]
+        },
+        {
+          "group": "validateblockgspaceattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgspaceattributes"
+          ]
+        },
+        {
+          "group": "validateblockgswitchattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgswitchattributes"
+          ]
+        },
+        {
+          "group": "validateblockgvenueattributes",
+          "pages": [
+            "reference/gramstax.templateengine.validateblockgvenueattributes"
+          ]
+        },
+        {
+          "group": "validateformatblock",
+          "pages": [
+            "reference/gramstax.templateengine.validateformatblock"
+          ]
+        },
+        {
+          "group": "validatenamesblock",
+          "pages": [
+            "reference/gramstax.templateengine.validatenamesblock"
+          ]
+        },
+        {
+          "group": "validatepageattributesblock",
+          "pages": [
+            "reference/gramstax.templateengine.validatepageattributesblock"
+          ]
+        },
+        {
+          "group": "validatepageattributevaluesblock",
+          "pages": [
+            "reference/gramstax.templateengine.validatepageattributevaluesblock"
+          ]
+        },
+        {
+          "group": "validatepositionsblock",
+          "pages": [
+            "reference/gramstax.templateengine.validatepositionsblock"
+          ]
+        },
+        {
+          "group": "validatescopes",
+          "pages": [
+            "reference/gramstax.templateengine.validatescopes"
+          ]
+        },
+        {
+          "group": "validatetelegramattributesblock",
+          "pages": [
+            "reference/gramstax.templateengine.validatetelegramattributesblock"
+          ]
+        },
+        {
+          "group": "validatetelegramattributevaluesblock",
+          "pages": [
+            "reference/gramstax.templateengine.validatetelegramattributevaluesblock"
+          ]
+        },
+        {
+          "group": "validatetelegramunknownattributesblock",
+          "pages": [
+            "reference/gramstax.templateengine.validatetelegramunknownattributesblock"
+          ]
+        },
+        {
+          "group": "validatetemplate",
+          "pages": [
+            "reference/gramstax.templateengine.validatetemplate",
+            "reference/gramstax.templatemanager.validatetemplate"
+          ]
+        },
+        {
+          "group": "webhooksecrettoken",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.webhooksecrettoken"
+          ]
+        },
+        {
+          "group": "webhookurl",
+          "pages": [
+            "reference/gramstax.mocktelegramserver.webhookurl"
+          ]
+        },
+        {
+          "group": "withlock",
+          "pages": [
+            "reference/gramstax.sessionlock.withlock"
+          ]
+        },
+        {
+          "group": "write",
+          "pages": [
+            "reference/gramstax.templatemanager.write"
+          ]
+        }
+      ],
+      "boost": 0.4
+    },
+    {
+      "group": "Other",
+      "pages": [
+        "reference/index",
+        "reference/gramstax"
+      ],
+      "boost": 0.4
+    }
+  ]
+}

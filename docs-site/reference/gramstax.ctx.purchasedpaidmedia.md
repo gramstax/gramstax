@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [purchasedPaidMedia](./gramstax.ctx.purchasedpaidmedia.md)
+
+## Ctx.purchasedPaidMedia property
+
+The full [Ctx.purchasedPaidMedia](./gramstax.ctx.purchasedpaidmedia.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.purchased_paid_media`.
+
+**Signature:**
+
+```typescript
+get purchasedPaidMedia(): NonNullable<Context[`purchasedPaidMedia`]>;
+```

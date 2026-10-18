@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [INVOICE\_PAYLOAD\_LIMIT](./gramstax.ctx.invoice_payload_limit.md)
+
+## Ctx.INVOICE\_PAYLOAD\_LIMIT property
+
+Bot API invoice payload limit in bytes (`sendInvoice` payload 1–128 bytes).
+
+**Signature:**
+
+```typescript
+static readonly INVOICE_PAYLOAD_LIMIT = 128;
+```

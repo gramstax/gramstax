@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [chatBoost](./gramstax.ctx.chatboost.md)
+
+## Ctx.chatBoost property
+
+The full [Ctx.chatBoost](./gramstax.ctx.chatboost.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.chat_boost`.
+
+**Signature:**
+
+```typescript
+get chatBoost(): NonNullable<Context[`chatBoost`]>;
+```

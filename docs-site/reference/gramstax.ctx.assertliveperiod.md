@@ -1,0 +1,60 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertLivePeriod](./gramstax.ctx.assertliveperiod.md)
+
+## Ctx.assertLivePeriod() method
+
+Parse and check a `<g-media type="location">` `live` period (seconds → `live_period`).
+
+**Signature:**
+
+```typescript
+static assertLivePeriod(live: unknown): number | undefined;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+live
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+Raw template `live` (string or number).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+number \| undefined
+
+Validated seconds, or `undefined` when absent.
+
+## Remarks
+
+Absent (`undefined`/`null`/empty) means a static location and returns `undefined`. Otherwise the value must be a positive integer — non-numeric, fractional, or non-positive values throw. Programmer error — always throws, never falls back.
+

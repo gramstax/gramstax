@@ -1,0 +1,70 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGVenueBlocks](./gramstax.templateengine._processgvenueblocks.md)
+
+## TemplateEngine.\_processGVenueBlocks() method
+
+Block: g-venue Extracts and parses `<g-venue>` blocks from a template string.
+
+**Signature:**
+
+```typescript
+static _processGVenueBlocks(template: string): {
+        [lang: string]: IVenueBlock;
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The template string containing `<g-venue>` blocks
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; \[lang: string\]: [IVenueBlock](./gramstax.ivenueblock.md); &#125;
+
+An object mapping language keys to their venue configurations
+
+## Remarks
+
+Each block declares one venue per language (`lang` defaults to `"default"`; last block wins per lang). All four venue fields (`title`, `address`, `latitude`, `longitude`) are carried as raw attribute strings verbatim (including `{{var|filter}}` spans) for later compilation. Both `<g-venue ...></g-venue>` and self-closing `<g-venue .../>` forms parse identically; the block carries no children. Presence and static numeric rules are enforced by `validateBlockGVenueAttributes`, not here.
+
+## Example
+
+
+```typescript
+const venues = TemplateEngine._processGVenueBlocks(`<g-venue title="{{name}}" address="Jl. Merdeka 1" latitude="-6.2" longitude="106.8"/>`);
+// Result: { default: { title: '{{name}}', address: 'Jl. Merdeka 1', latitude: '-6.2', longitude: '106.8' } }
+```
+

@@ -1,0 +1,56 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [extractButtonLabels](./gramstax.e2ehelper.extractbuttonlabels.md)
+
+## E2eHelper.extractButtonLabels() method
+
+Extract inline keyboard button labels from a captured API call.
+
+**Signature:**
+
+```typescript
+extractButtonLabels(call: IE2eApiCall): string[];
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+call
+
+
+</td><td>
+
+[IE2eApiCall](./gramstax.ie2eapicall.md)
+
+
+</td><td>
+
+Captured API call (e.g. from `sendText` response array).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+string\[\]
+
+Flat array of button text labels.
+

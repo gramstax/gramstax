@@ -1,0 +1,76 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGIfElseBody](./gramstax.templateengine.validateblockgifelsebody.md)
+
+## TemplateEngine.validateBlockGIfElseBody() method
+
+Validates the body of every `<g-ifelse>` block.
+
+**Signature:**
+
+```typescript
+static validateBlockGIfElseBody(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template string to validate
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; valid: boolean; errors: Array&lt;&#123; line: number; message: string; &#125;&gt;; &#125;
+
+An object with a `valid` boolean and an `errors` array
+
+## Remarks
+
+Four rules, all required to keep the block a conditional and unambiguous:
+
+1. The body must not be empty. 2. `{{}}` and `{~~}` interpolation must not appear — the body is already JavaScript, and  nesting the interpolation syntaxes inside it would give one construct two grammars. 3. Template literals must not interpolate `${...}` — that is a third spelling of the same  interpolation. Use string concatenation inside the conditional instead. 4. The body must actually branch: a ternary, or a `&&` / `||` / `??` short-circuit.  A plain expression such as `items.length` belongs in `{~~}` and is rejected here so  `<g-ifelse>` cannot silently become a second `{~~}`.
+
+## Example
+
+
+```typescript
+TemplateEngine.validateBlockGIfElseBody(`<g-ifelse>items.length</g-ifelse>`);
+// Result: { valid: false, errors: [{ line: 1, message: '<g-ifelse> body must be a conditional expression — use a ternary (test ? a : b) or a short-circuit (&&, ||, ??), got "items.length". Use {~~ items.length ~~} for a plain expression' }] }
+```
+

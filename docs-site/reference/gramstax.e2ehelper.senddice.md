@@ -1,0 +1,56 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendDice](./gramstax.e2ehelper.senddice.md)
+
+## E2eHelper.sendDice() method
+
+Simulate a user sending a dice message.
+
+**Signature:**
+
+```typescript
+sendDice(options?: IE2eDiceOptions): Promise<IE2eApiCall[]>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+options
+
+
+</td><td>
+
+[IE2eDiceOptions](./gramstax.ie2ediceoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Dice emoji, user, chat, and response options.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)\[\]&gt;
+
+API calls made while processing this update.
+

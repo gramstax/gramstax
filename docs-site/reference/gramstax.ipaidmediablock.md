@@ -1,0 +1,35 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IPaidMediaBlock](./gramstax.ipaidmediablock.md)
+
+## IPaidMediaBlock type
+
+Stars paid-media block for Telegram paywalls.
+
+**Signature:**
+
+```typescript
+type IPaidMediaBlock = {
+    stars: number;
+    media: Array<{
+        type: `photo` | `video`;
+        src: string;
+        caption?: string;
+    }>;
+};
+```
+
+## Remarks
+
+Declared with `<g-paid-media>` blocks. `stars` is the Stars price unlocking the content (1–25000 per the Bot API `sendPaidMedia` limit); `media` holds 1–10 items of type `photo` or `video` only. Item `src` and `caption` support the same `{{var|filter}}` interpolation pipeline as media captions; the compiled strings are length-checked at runtime before any API call (non-empty `src`, caption at most 1024 chars).
+
+## Example
+
+
+```typescript
+const paywall: IPaidMediaBlock = {
+  stars: 100,
+  media: [{type: `photo`, src: `teaser.jpg`, caption: `Bayar untuk membuka`}]
+}
+```
+

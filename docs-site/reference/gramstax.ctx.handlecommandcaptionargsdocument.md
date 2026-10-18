@@ -1,0 +1,35 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCommandCaptionArgsDocument](./gramstax.ctx.handlecommandcaptionargsdocument.md)
+
+## Ctx.handleCommandCaptionArgsDocument() method
+
+Route function for `handleCommandCaptionArgsDocument` with slash command and arg match intent `this.data.name`
+
+**Signature:**
+
+```typescript
+/** @virtual */
+handleCommandCaptionArgsDocument?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Triggered by document with caption command and args.
+
+## Example
+
+this.data.name = "/start 123 aaa"
+
+```typescript
+async handleCommandCaptionArgsDocument() {
+  this.msg?.document // {...}
+  this.msg?.caption // "/start 123 aaa"
+  this.msgCaptionArg // "123"
+  this.msgCaptionArgs // ["123", "aaa"]
+}
+```
+

@@ -1,0 +1,74 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGGiftAttributes](./gramstax.templateengine.validateblockggiftattributes.md)
+
+## TemplateEngine.validateBlockGGiftAttributes() method
+
+Validates attributes on `<g-gift>` blocks.
+
+**Signature:**
+
+```typescript
+static validateBlockGGiftAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template string to validate
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; valid: boolean; errors: Array&lt;&#123; line: number; message: string; &#125;&gt;; &#125;
+
+An object with a `valid` boolean and an `errors` array
+
+## Remarks
+
+Allowed attributes are `lang` only. Unlike the answer payload blocks, HTML markup inside `<g-gift>` is legal (`renderGift` sends with `text_parse_mode: HTML`), so no content check runs here.
+
+## Example
+
+
+```typescript
+const result = TemplateEngine.validateBlockGGiftAttributes(`<g-base><g-gift>Hadiah <b>x</b>!</g-gift></g-base>`);
+// Result: { valid: true, errors: [] }
+```
+

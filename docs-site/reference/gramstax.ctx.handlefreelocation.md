@@ -1,0 +1,31 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleFreeLocation](./gramstax.ctx.handlefreelocation.md)
+
+## Ctx.handleFreeLocation() method
+
+Route handler for free-form location input.
+
+**Signature:**
+
+```typescript
+/** @virtual */
+handleFreeLocation?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Triggered by any location not matching other routes, typically used with sessions.
+
+## Example
+
+
+```typescript
+async handleFreeLocation() {
+   this.msg?.location // {...}
+}
+```
+

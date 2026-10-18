@@ -1,0 +1,70 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [hookUpdate](./gramstax.gramstax.hookupdate.md)
+
+## Gramstax.hookUpdate() method
+
+Hook invoked with a structured success event after every routed update.
+
+**Signature:**
+
+```typescript
+/** @virtual */
+hookUpdate?(event: IUpdateSuccessEvent): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+event
+
+
+</td><td>
+
+[IUpdateSuccessEvent](./gramstax.iupdatesuccessevent.md)
+
+
+</td><td>
+
+The structured success event. See [IUpdateSuccessEvent](./gramstax.iupdatesuccessevent.md).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+
+## Remarks
+
+Audit trail counterpart of `hookUpdateError`. Fires for matched, no-match, no-handler and blocked states (not for errors/timeouts).
+
+## Example
+
+
+```typescript
+class MyBot extends Gramstax {
+  override hookUpdate(event: IUpdateSuccessEvent): void {
+    metrics.count(event.listenerName, event.state)
+  }
+}
+```
+

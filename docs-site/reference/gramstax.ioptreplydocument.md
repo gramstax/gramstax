@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplyDocument](./gramstax.ioptreplydocument.md)
+
+## IOptReplyDocument type
+
+Options parameter mirroring `Context.replyWithDocument`.
+
+**Signature:**
+
+```typescript
+type IOptReplyDocument = Parameters<Context[`replyWithDocument`]>[1];
+```

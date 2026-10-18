@@ -1,0 +1,18 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [ctxScope](./gramstax.gramstax.ctxscope.md)
+
+## Gramstax.ctxScope property
+
+Forwarded `Ctx` fields, built once in the constructor.
+
+**Signature:**
+
+```typescript
+ctxScope: IGramstaxCtxScope;
+```
+
+## Remarks
+
+Single source of truth for `Gramstax` → `Ctx` forwarding, spread by `buildCtxParams` on every `createCtx` call. To forward a new field: 1. add it to `IGramstaxParams` (input) and `ICtxParams` (output), 2. add it to `IGramstaxCtxScope` (keeps the guard below honest), 3. set it here in the constructor scope literal (raw branch included), 4. copy it field-by-field in the `Ctx` constructor. Skipping step 2 fails `tsc` with the missing field name.
+

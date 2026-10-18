@@ -1,0 +1,31 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md) &gt; [timeActive](./gramstax.logginghelper.timeactive.md)
+
+## LoggingHelper.timeActive() method
+
+Get all active timer labels.
+
+**Signature:**
+
+```typescript
+timeActive(): string[];
+```
+**Returns:**
+
+string\[\]
+
+Array of active timer labels.
+
+## Example
+
+
+```typescript
+const logger = new LoggingHelper();
+
+logger.time("task1");
+logger.time("task2");
+const active = logger.timeActive();
+// => ["task1", "task2"]
+```
+

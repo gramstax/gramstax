@@ -1,0 +1,19 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IInlineKbParams](./gramstax.iinlinekbparams.md)
+
+## IInlineKbParams type
+
+Parameters for inline keyboard configuration.
+
+**Signature:**
+
+```typescript
+type IInlineKbParams = {
+    AGBaseId?: string | null;
+    data?: IData | null;
+    cache?: boolean;
+};
+```
+**References:** [IData](./gramstax.idata.md)
+

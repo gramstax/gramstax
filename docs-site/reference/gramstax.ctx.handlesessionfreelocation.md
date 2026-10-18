@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleSessionFreeLocation](./gramstax.ctx.handlesessionfreelocation.md)
+
+## Ctx.handleSessionFreeLocation() method
+
+Optional `handleSessionFreeLocation` route handler declaration.
+
+**Signature:**
+
+```typescript
+handleSessionFreeLocation?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Executed on `location` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via [Ctx.setSessionFreeLocation()](./gramstax.ctx.setsessionfreelocation.md) which wires [Ctx.methodSessionFreeLocation()](./gramstax.ctx.methodsessionfreelocation.md) — and dispatches this handler through `new Page(ctx)`. When no session is active, the same update falls through to the non-session route [Ctx.handleFreeLocation()](./gramstax.ctx.handlefreelocation.md) instead.
+

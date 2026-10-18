@@ -1,0 +1,35 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IUpdateSuccessEvent](./gramstax.iupdatesuccessevent.md)
+
+## IUpdateSuccessEvent type
+
+Structured success event emitted by `onUpdate`.
+
+**Signature:**
+
+```typescript
+type IUpdateSuccessEvent = {
+    traceId: string;
+    listenerName: string;
+    state: `matched` | `no-match` | `no-handler` | `blocked`;
+    durationMs: number;
+    isEdit: boolean;
+};
+```
+
+## Remarks
+
+Audit-trail counterpart of [IUpdateErrorEvent](./gramstax.iupdateerrorevent.md). Delivered to the `hookUpdate` class hook for matched, no-match, no-handler and blocked states (not for errors/timeouts).
+
+## Example
+
+
+```typescript
+class MyBot extends Gramstax {
+  override hookUpdate(event: IUpdateSuccessEvent): void {
+    metrics.count(event.listenerName, event.state)
+  }
+}
+```
+

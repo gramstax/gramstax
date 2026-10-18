@@ -1,0 +1,30 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxModuleRef](./gramstax.igramstaxmoduleref.md)
+
+## IGramstaxModuleRef type
+
+File-path reference to a class or value living in a project module.
+
+**Signature:**
+
+```typescript
+type IGramstaxModuleRef = {
+    module: string;
+    export?: string;
+    args?: unknown[];
+};
+```
+
+## Remarks
+
+A bare string resolves the module's default export with zero arguments. The object form picks a named export and spreads `args` into the constructor. Paths resolve relative to the project root (cwd). Materialized only by `gramstax start` — never by `gramstax build`.
+
+## Example
+
+
+```typescript
+const ref: IGramstaxModuleRef = {module: `./src/cache.ts`}
+const named: IGramstaxModuleRef = {module: `./src/cache.ts`, export: `RedisCache`, args: [`redis://localhost:6379`]}
+```
+

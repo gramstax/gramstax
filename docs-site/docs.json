@@ -1,0 +1,40 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "gramstax",
+  "description": "Page-based routing and a template system for Telegram bots, built on grammY.",
+  "colors": {
+    "primary": "#2563eb",
+    "light": "#60a5fa",
+    "dark": "#1d4ed8"
+  },
+  "appearance": {
+    "default": "system"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/gramstax/gramstax"
+      }
+    ],
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/gramstax/gramstax"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/gramstax/gramstax"
+    }
+  },
+  "seo": {
+    "indexing": "all"
+  },
+  "navigation": {
+    "$ref": "./config/navigation.json"
+  }
+}

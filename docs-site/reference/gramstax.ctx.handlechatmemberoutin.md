@@ -1,0 +1,22 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleChatMemberOutIn](./gramstax.ctx.handlechatmemberoutin.md)
+
+## Ctx.handleChatMemberOutIn() method
+
+User joins the chat (kicked/left → member/admin/creator).
+
+**Signature:**
+
+```typescript
+/** @virtual */
+handleChatMemberOutIn?(): Promise<void>;
+```
+**Returns:**
+
+Promise&lt;void&gt;
+
+## Remarks
+
+Triggered when a user transitions from an "out" status (`kicked`, `left`, or `restricted` with `is_member=false`) to an "in" status (`member`, `administrator`, `creator`, or `restricted` with `is_member=true`). Uses `chatMemberFilter("out", "in")`.
+

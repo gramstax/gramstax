@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleSessionCommandCaptionAnimation](./gramstax.ctx.handlesessioncommandcaptionanimation.md)
+
+## Ctx.handleSessionCommandCaptionAnimation() method
+
+Optional `handleSessionCommandCaptionAnimation` route handler declaration.
+
+**Signature:**
+
+```typescript
+handleSessionCommandCaptionAnimation?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Executed on `animation` updates while the session is active. Routing id=1 (session) runs BEFORE static/intent matching (id=2-3): it reads `ctx.getSession().method` — set via [Ctx.setSessionCommandCaptionAnimation()](./gramstax.ctx.setsessioncommandcaptionanimation.md) which wires [Ctx.methodSessionCommandCaptionAnimation()](./gramstax.ctx.methodsessioncommandcaptionanimation.md) — and dispatches this handler through `new Page(ctx)`. When no session is active, the same update falls through to the non-session route [Ctx.handleCommandCaptionAnimation()](./gramstax.ctx.handlecommandcaptionanimation.md) instead.
+

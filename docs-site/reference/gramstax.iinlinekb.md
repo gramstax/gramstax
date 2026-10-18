@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IInlineKb](./gramstax.iinlinekb.md)
+
+## IInlineKb type
+
+Inline keyboard whose `.text()` also accepts a page class/instance as the callback data — resolves to `page.data.callbackQueryData()` automatically.
+
+**Signature:**
+
+```typescript
+type IInlineKb = IInlineKbWithCtx;
+```
+**References:** [IInlineKbWithCtx](./gramstax.iinlinekbwithctx.md)
+

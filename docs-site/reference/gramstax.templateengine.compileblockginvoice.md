@@ -1,0 +1,93 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGInvoice](./gramstax.templateengine.compileblockginvoice.md)
+
+## TemplateEngine.compileBlockGInvoice() method
+
+Compiles invoice blocks from a template into executable functions.
+
+**Signature:**
+
+```typescript
+static compileBlockGInvoice(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITemplateData) => IInvoiceBlock;
+        };
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Raw template string containing `<g-base>` and `<g-invoice>` blocks
+
+
+</td></tr>
+<tr><td>
+
+baseBlocks
+
+
+</td><td>
+
+ReturnType&lt;typeof TemplateEngine.\_processGBaseBlocks&gt;
+
+
+</td><td>
+
+_(Optional)_ Optional pre-parsed base blocks for reuse
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; \[AGBaseId: string\]: &#123; \[ALang: string\]: (data?: ITemplateData) =&gt; [IInvoiceBlock](./gramstax.iinvoiceblock.md); &#125;; &#125;
+
+Compiled invoice functions organized by base ID and language
+
+## Remarks
+
+This method parses `<g-invoice>` blocks from the template and compiles the interpolable fields (`title`, `description`, `payload`, each price `label`) into functions; `currency` and `amount` pass through as parsed (amounts are static integers — dynamic amounts are rejected by the validator). The result is organized by base ID and language. Pre-parsed base blocks can be provided for efficiency.
+
+Processing pipeline (in order, per string field): 1. `_processGScriptBlocks` - converts `<g-script>` blocks into executable expressions 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions 3. `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` - evaluates scope execution blocks (implementation-defined) 5. `_processScopeVariables` - resolves scope variables (implementation-defined) 6. `_compileToFunction(processed, false)` - produces the final render function
+
+Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted) - Second level key: `ALang` (from `<g-invoice lang="...">`, or `"default"` if omitted) - Value: `(data?: Record<string, unknown>) => ITInvoiceBlock`
+
+## Example
+
+
+```typescript
+const invoices = TemplateEngine.compileBlockGInvoice(`<g-base><g-invoice title="VIP {{days}} hari" description="Akses" payload="{{orderId}}" currency="XTR"><g-price label="VIP {{days}} hari" amount="100"/></g-invoice></g-base>`);
+const result = invoices.default?.default?.({ days: 30, orderId: 'o-1' });
+// Result: { title: 'VIP 30 hari', description: 'Akses', payload: 'o-1', currency: 'XTR', prices: [{label: 'VIP 30 hari', amount: 100}] }
+```
+

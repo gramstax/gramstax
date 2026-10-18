@@ -1,0 +1,90 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [\_pageRoutes](./gramstax.gramstax._pageroutes.md)
+
+## Gramstax.\_pageRoutes() method
+
+Routes an incoming update to the appropriate page handler.
+
+**Signature:**
+
+```typescript
+_pageRoutes(ctx: ICtx, fromListener: string): Promise<{
+        state: `matched` | `no-match` | `no-handler` | `blocked`;
+    }>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+ctx
+
+
+</td><td>
+
+ICtx
+
+
+</td><td>
+
+The context instance.
+
+
+</td></tr>
+<tr><td>
+
+fromListener
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The listener type that triggered the route.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;\{ state: \`matched\` \| \`no-match\` \| \`no-handler\` \| \`blocked\`; }&gt;
+
+A `PageRouteResult` with `state` indicating what happened
+
+## Remarks
+
+The routing follows a strict \*\*priority hierarchy\*\*. When a match is found at any level, the method executes the handler and returns immediately. If no match is found, it falls through to the next level.
+
+\*\*Routing Priority (executed in order):\*\*
+
+1. \*\*staticSession\*\* — Session-aware routes, filtered by input type (O(n) lookup)  - Only runs when the user has an active session (`session.method` is set)  - Iterates `routeStaticSession` and matches by `session.method` value  - \*\*Filtered by input type\*\*: only routes whose name ends with `fromListener`  are checked (e.g., callback queries only match `*CallbackQueryData` session routes,  text only matches `*Text`, photo captions only match `*CaptionPhoto`, etc.)  - This prevents cross-type handler misdispatch (e.g., a callback query  accidentally matching `handleSessionFreeText`)  - Example: session with method "7-mypage" → finds `handleSessionFreeText["7-mypage"]`  when `fromListener = "text"`
+
+2. \*\*static\*\* — Exact intent match routes (O(1) lookup)  - Matches exact text/callback data to page intents  - Example: "start" → `handleText()`, "/help" → `handleCommandText()`
+
+3. \*\*staticIntent\*\* — Intent with args routes (O(1) lookup)  - Matches intent prefix when args are present  - Example: "start:123" → `handleArgsCallbackQueryData()`, "/add item" → `handleCommandArgsText()`
+
+4. \*\*dynamicSpesific\*\* — Non-session free handlers (O(n) iteration)  - Runs all `handleFree*` handlers (defined directly on the page, not inherited)  - `handleSessionFree*` variants are NOT dispatched here — they go through id=1  - Example: `handleFreeText()`, `handleFreePhoto()`  - \*\*All matching handlers are executed\*\* (no early return)
+
+5. \*\*dynamic\*\* — Global fallback handlers (O(n) iteration)  - Runs all `handleFree()` handlers from pages that define them  - Last resort when nothing else matches  - \*\*All matching handlers are executed\*\* (no early return)
+

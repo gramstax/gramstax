@@ -1,0 +1,69 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGIfElseBlocks](./gramstax.templateengine._processgifelseblocks.md)
+
+## TemplateEngine.\_processGIfElseBlocks() method
+
+Block: g-ifelse Evaluates a conditional expression and inlines the chosen value.
+
+**Signature:**
+
+```typescript
+static _processGIfElseBlocks(template: string): string;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The template string containing `<g-ifelse>` blocks
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+string
+
+The template with each block replaced by its interpolation
+
+## Remarks
+
+Unlike `{~~}`, this block never emits `with`, so the compiled body is valid in an ESM strict-mode module and survives the AOT `with(` guard. Bare identifiers are rewritten to optional `data` reads by [TemplateEngine.\_rewriteScopeIdentifiers()](./gramstax.templateengine._rewritescopeidentifiers.md).
+
+## Example
+
+
+```typescript
+const template = '<g-ifelse>isAdmin ? "admin" : "user"</g-ifelse>';
+const processed = TemplateEngine._processGIfElseBlocks(template);
+// Result: '${(() => { if (!data) return \'\'; try { return data?.isAdmin ? "admin" : "user" } catch(e) { return \'\' } })()}'
+```
+

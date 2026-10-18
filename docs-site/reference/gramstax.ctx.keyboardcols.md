@@ -1,0 +1,117 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [keyboardCols](./gramstax.ctx.keyboardcols.md)
+
+## Ctx.keyboardCols() method
+
+Helper method to arrange keyboard buttons in a grid layout.
+
+**Signature:**
+
+```typescript
+keyboardCols<T = unknown>(k: T, l: string[], layout: IKbCols, cb: (e: string, i: number) => unknown): T;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+k
+
+
+</td><td>
+
+T
+
+
+</td><td>
+
+The keyboard instance.
+
+
+</td></tr>
+<tr><td>
+
+l
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+Array of button labels.
+
+
+</td></tr>
+<tr><td>
+
+layout
+
+
+</td><td>
+
+[IKbCols](./gramstax.ikbcols.md)
+
+
+</td><td>
+
+Layout format: "cols" or "cols-lastRow" (e.g., "2" or "3-2").
+
+
+</td></tr>
+<tr><td>
+
+cb
+
+
+</td><td>
+
+(e: string, i: number) =&gt; unknown
+
+
+</td><td>
+
+Callback to create each button.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+T
+
+The keyboard instance with buttons arranged.
+
+## Remarks
+
+Supports custom column configurations and special handling for the last row.
+
+## Example
+
+
+```typescript
+const kb = this.keyboardCols(new InlineKeyboard(), ["A", "B", "C"], "2", (e, i) => {
+  kb.text(e, `btn:${i}`)
+})
+```
+

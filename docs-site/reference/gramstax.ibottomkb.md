@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBottomKb](./gramstax.ibottomkb.md)
+
+## IBottomKb type
+
+Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to `page.data.intentText` automatically.
+
+**Signature:**
+
+```typescript
+type IBottomKb = IBottomKbWithCtx;
+```
+**References:** [IBottomKbWithCtx](./gramstax.ibottomkbwithctx.md)
+

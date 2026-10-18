@@ -1,0 +1,19 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [keysCompiled](./gramstax.templatemanager.keyscompiled.md)
+
+## TemplateManager.keysCompiled() method
+
+Get a keys string for all pre-compiled template from mapping.
+
+**Signature:**
+
+```typescript
+keysCompiled(): MapIterator<string>;
+```
+**Returns:**
+
+MapIterator&lt;string&gt;
+
+`string[]` all keys compiled
+

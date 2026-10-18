@@ -1,0 +1,23 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IAppManifest](./gramstax.iappmanifest.md)
+
+## IAppManifest type
+
+Static page/template manifest for filesystem-less boot.
+
+**Signature:**
+
+```typescript
+type IAppManifest = {
+    pages: Array<IPageManifestEntry>;
+    templates: Array<ITemplateManifestEntry>;
+    routes?: Array<IRouteManifestEntry>;
+};
+```
+**References:** [IPageManifestEntry](./gramstax.ipagemanifestentry.md), [ITemplateManifestEntry](./gramstax.itemplatemanifestentry.md), [IRouteManifestEntry](./gramstax.iroutemanifestentry.md)
+
+## Remarks
+
+Emitted by `buildManifest` (static imports + embedded `.html`) and consumed by `_pageLoadsFromManifest` — same routing tables as the directory scan, with no directory read. `routes` is optional: when present, registration walks `routes` (joined to `pages` by `routeName`); otherwise it walks `pages` directly.
+

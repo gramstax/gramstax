@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [close](./gramstax.updatequeue.close.md)
+
+## UpdateQueue.close() method
+
+Close the queue and release all waiting consumers and producers.
+
+**Signature:**
+
+```typescript
+close(): void;
+```
+**Returns:**
+
+void
+
+## Remarks
+
+Workers waiting on `dequeue()` resolve with `undefined` (sentinel). Enqueueing after close throws.
+

@@ -1,0 +1,20 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateDispatcher](./gramstax.updatedispatcher.md) &gt; [stats](./gramstax.updatedispatcher.stats.md)
+
+## UpdateDispatcher.stats() method
+
+Live gate stats for metrics.
+
+**Signature:**
+
+```typescript
+stats(): {
+        activeKeys: number;
+        waiting: number;
+    };
+```
+**Returns:**
+
+\{ activeKeys: number; waiting: number; }
+

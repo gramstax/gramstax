@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GInvoiceResult](./gramstax.ginvoiceresult.md)
+
+## GInvoiceResult type
+
+Result of `TemplateManager.getGInvoice` for a `<g-invoice>` block.
+
+**Signature:**
+
+```typescript
+type GInvoiceResult = {
+    kind: `invoice`;
+} & IInvoiceBlock;
+```
+**References:** [IInvoiceBlock](./gramstax.iinvoiceblock.md)
+
+## Remarks
+
+Extends [IInvoiceBlock](./gramstax.iinvoiceblock.md) with the `invoice` kind discriminator.
+

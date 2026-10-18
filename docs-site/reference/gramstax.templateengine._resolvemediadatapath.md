@@ -1,0 +1,72 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_resolveMediaDataPath](./gramstax.templateengine._resolvemediadatapath.md)
+
+## TemplateEngine.\_resolveMediaDataPath() method
+
+Null-safe dotted-path lookup against template data.
+
+**Signature:**
+
+```typescript
+static _resolveMediaDataPath(data: ITemplateData | undefined, path: string): unknown;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+data
+
+
+</td><td>
+
+ITemplateData \| undefined
+
+
+</td><td>
+
+Template data passed to the compiled block.
+
+
+</td></tr>
+<tr><td>
+
+path
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Dotted path such as `a.b.c`.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+unknown
+
+Resolved value, or `undefined` when any segment is missing.
+

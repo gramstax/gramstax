@@ -1,0 +1,68 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendChatMemberUpdate](./gramstax.e2ehelper.sendchatmemberupdate.md)
+
+## E2eHelper.sendChatMemberUpdate() method
+
+Simulate a chat member status transition (`chat_member` update).
+
+**Signature:**
+
+```typescript
+sendChatMemberUpdate(options?: IE2eChatMemberOptions): Promise<IE2eApiCall[]>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+options
+
+
+</td><td>
+
+[IE2eChatMemberOptions](./gramstax.ie2echatmemberoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Old/new statuses and user/chat configuration.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)\[\]&gt;
+
+API calls made while processing this update.
+
+## Remarks
+
+Fires `chatMemberFilter` handlers on pages that define corresponding `handleChatMember*` methods. The bot must be admin in the chat to normally receive these updates. In test mode the update is injected directly via [E2eHelper.handleUpdate()](./gramstax.e2ehelper.handleupdate.md).
+
+## Example
+
+
+```typescript
+// Simulate a user joining (kicked → member)
+await e2e.sendChatMemberUpdate({oldStatus: "kicked", newStatus: "member", chat: {type: "supergroup"}})
+```
+

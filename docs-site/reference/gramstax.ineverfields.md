@@ -1,0 +1,20 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [INeverFields](./gramstax.ineverfields.md)
+
+## INeverFields type
+
+Route-completeness marker: fields this route never reads.
+
+**Signature:**
+
+```typescript
+type INeverFields<K extends PropertyKey> = {
+    [P in K]?: never;
+};
+```
+
+## Remarks
+
+The render params types are disjoint unions over their runtime routes. Declaring an unread field as `never` is load-bearing: merely omitting the field from that member still lets TypeScript accept it (its excess-property check treats a property as known when ANY union member declares it), so `never` is what turns "silently ignored" into a compile error.
+

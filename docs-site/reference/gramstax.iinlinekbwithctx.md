@@ -1,0 +1,60 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IInlineKbWithCtx](./gramstax.iinlinekbwithctx.md)
+
+## IInlineKbWithCtx interface
+
+Inline keyboard whose `.text()` also accepts a page class/instance as callback data — calls `page.data.callbackQueryData()` automatically.
+
+**Signature:**
+
+```typescript
+interface IInlineKbWithCtx extends InlineKeyboard 
+```
+**Extends:** InlineKeyboard
+
+## Example
+
+
+```ts
+k.text(`Settings`, SettingsPage)
+// equivalent to: k.text(`Settings`, SettingsPage.data.callbackQueryData())
+```
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[text(text, data)](./gramstax.iinlinekbwithctx.text.md)
+
+
+</td><td>
+
+Add a callback button. `text` and/or `data` can be a page (class/instance) or string. A page passed as `text` resolves to its `intentText` label; a page passed as `data` resolves to its `callbackQueryData()`.
+
+When `data` is a callback data object (`Page.data.callbackQueryData(...)`), the destination page must define `handleCallbackQueryData` (no args) or `handleArgsCallbackQueryData` (with args) — enforced at compile time.
+
+
+</td></tr>
+<tr><td>
+
+[text(text, data)](./gramstax.iinlinekbwithctx.text_1.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
+

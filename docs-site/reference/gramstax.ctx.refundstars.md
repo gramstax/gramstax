@@ -1,0 +1,87 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [refundStars](./gramstax.ctx.refundstars.md)
+
+## Ctx.refundStars() method
+
+Refunds a successful Stars payment to the user.
+
+**Signature:**
+
+```typescript
+refundStars(userId: number, chargeId: string): Promise<true>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+userId
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Telegram user id that made the payment.
+
+
+</td></tr>
+<tr><td>
+
+chargeId
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Payment charge id (`telegram_payment_charge_id`) to refund.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;true&gt;
+
+`true` on success.
+
+## Remarks
+
+Thin passthrough to `api.refundStarPayment` — no template involved. Use for admin-initiated refunds of paywalled content sold via [Ctx.renderPaidMedia()](./gramstax.ctx.renderpaidmedia.md). The `chargeId` is the `telegram_payment_charge_id` from the `successful_payment` update.
+
+why-not-base: base `Context.refundStarPayment` takes no ids; this refunds any `(userId, chargeId)` pair.
+
+## Example
+
+
+```typescript
+async handleRefund() {
+  await this.refundStars(123, `ch_1`)
+}
+```
+

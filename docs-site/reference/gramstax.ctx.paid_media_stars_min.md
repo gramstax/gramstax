@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [PAID\_MEDIA\_STARS\_MIN](./gramstax.ctx.paid_media_stars_min.md)
+
+## Ctx.PAID\_MEDIA\_STARS\_MIN property
+
+Minimum Stars price for a `<g-paid-media>` paywall.
+
+**Signature:**
+
+```typescript
+static readonly PAID_MEDIA_STARS_MIN = 1;
+```

@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplyPhoto](./gramstax.ioptreplyphoto.md)
+
+## IOptReplyPhoto type
+
+Options parameter mirroring `Context.replyWithPhoto`.
+
+**Signature:**
+
+```typescript
+type IOptReplyPhoto = Parameters<Context[`replyWithPhoto`]>[1];
+```

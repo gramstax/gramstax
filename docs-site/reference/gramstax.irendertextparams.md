@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderTextParams](./gramstax.irendertextparams.md)
+
+## IRenderTextParams type
+
+Parameters for `renderText` — the single text send/edit method.
+
+**Signature:**
+
+```typescript
+type IRenderTextParams = IContent & (IRouteAuto | IRouteEdit | IRouteReply | IRouteChunked | IRouteBroadcastSend);
+```
+**References:** [IContent](./gramstax.icontent.md), [IRouteAuto](./gramstax.irouteauto.md), [IRouteEdit](./gramstax.irouteedit.md), [IRouteReply](./gramstax.iroutereply.md), [IRouteChunked](./gramstax.iroutechunked.md), [IRouteBroadcastSend](./gramstax.iroutebroadcastsend.md)
+
+## Remarks
+
+`params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`) intersected with the five delivery routes this method resolves to — the runtime-decided `IRouteAuto` (default), the forced `IRouteEdit`, the forced `IRouteReply`, the chunked `IRouteChunked`, and the `IRouteBroadcastSend` fan-out. Every route declares all ten universal route keys — with a real type where the route reads the key, and `never` (or `null | undefined` where an explicit `null` must stay legal) where it does not — so combinations such as `{mode: 'edit', broadcast: {...}}` are compile errors instead of silently dropped fields.
+
+Rich-versus-plain content is decided at COMPILE time by the `<g-message>` block contents, not by these params: each route carries both `options` (plain text) and `rich` (rich payload), and the block decides which one is read. Passing the other one logs a one-time `log.warn` and is ignored — never a throw, since a `--watch` hot reload can flip a page rich↔plain in one process.
+

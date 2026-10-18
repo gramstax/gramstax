@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [reset](./gramstax.e2ehelper.reset.md)
+
+## E2eHelper.reset() method
+
+Resets the helper: clears calls and restarts update/message counters.
+
+**Signature:**
+
+```typescript
+reset(): void;
+```
+**Returns:**
+
+void
+
+## Remarks
+
+Unlike `clearCalls` (calls-only), `reset` also restores `_nextUpdateId`, `_nextMessageId`, `_nextApiMsgId` to `1` and requires re-initialization.
+

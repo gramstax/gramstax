@@ -1,0 +1,24 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [getStats](./gramstax.updatequeue.getstats.md)
+
+## UpdateQueue.getStats() method
+
+Get current queue statistics.
+
+**Signature:**
+
+```typescript
+getStats(): {
+        length: number;
+        maxSize: number;
+        waitingEnqueue: number;
+        waitingDequeue: number;
+    };
+```
+**Returns:**
+
+\{ length: number; maxSize: number; waitingEnqueue: number; waitingDequeue: number; }
+
+Queue stats including length and waiters.
+

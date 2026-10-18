@@ -1,0 +1,63 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_ifelseArrowLocals](./gramstax.templateengine._ifelsearrowlocals.md)
+
+## TemplateEngine.\_ifelseArrowLocals() method
+
+Collects the parameter names introduced by every arrow function in a token list.
+
+**Signature:**
+
+```typescript
+static _ifelseArrowLocals(tokens: Array<{
+        type: string;
+        value: string;
+    }>): Set<string>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+tokens
+
+
+</td><td>
+
+Array&lt;&#123; type: string; value: string; &#125;&gt;
+
+
+</td><td>
+
+Output of [TemplateEngine.\_tokenizeExpression()](./gramstax.templateengine._tokenizeexpression.md)
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Set&lt;string&gt;
+
+The local names, valid for the whole expression
+
+## Remarks
+
+A conditional body may contain `items.filter((item) => item.on).length > 0`. Those parameters are locals, not scope reads, and must survive the rewrite untouched.
+

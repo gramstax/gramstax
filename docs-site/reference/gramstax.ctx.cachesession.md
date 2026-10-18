@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [cacheSession](./gramstax.ctx.cachesession.md)
+
+## Ctx.cacheSession property
+
+External cache for session storage.
+
+**Signature:**
+
+```typescript
+cacheSession: CacheExternal<ICacheRpc>;
+```

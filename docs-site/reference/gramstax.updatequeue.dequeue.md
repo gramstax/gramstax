@@ -1,0 +1,56 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [dequeue](./gramstax.updatequeue.dequeue.md)
+
+## UpdateQueue.dequeue() method
+
+Dequeue a value, blocking when the queue is empty.
+
+**Signature:**
+
+```typescript
+dequeue(signal?: AbortSignal): Promise<T | undefined>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+signal
+
+
+</td><td>
+
+AbortSignal
+
+
+</td><td>
+
+_(Optional)_ Optional AbortSignal to cancel a blocked dequeue.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;T \| undefined&gt;
+
+Promise resolved with the next value, or `undefined` when closed and empty.
+

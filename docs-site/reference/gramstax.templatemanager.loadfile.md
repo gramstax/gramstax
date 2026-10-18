@@ -1,0 +1,69 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [loadFile](./gramstax.templatemanager.loadfile.md)
+
+## TemplateManager.loadFile() method
+
+Loads and compiles a single template file.
+
+**Signature:**
+
+```typescript
+loadFile(filename: string): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+filename
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Filename with extension to load
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+
+## Exceptions
+
+Error if the file extension is not supported
+
+## Remarks
+
+This method is primarily used by the file watcher for hot-reloading. It searches all paths and compiles the first matching file found.
+
+## Example
+
+
+```typescript
+this.loadFile("welcome.html")
+```
+

@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eDiceOptions](./gramstax.ie2ediceoptions.md)
+
+## IE2eDiceOptions type
+
+E2E options for dice messages.
+
+**Signature:**
+
+```typescript
+type IE2eDiceOptions = IE2eUpdateOptions & {
+    emoji?: `🎲` | `🎯` | `🏀` | `⚽` | `🎰` | `🎳`;
+};
+```
+**References:** [IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md)
+
+## Remarks
+
+Extends `IE2eUpdateOptions` with the dice emoji selector. Used by `E2eHelper.sendDice`, which always rolls value `1`.
+

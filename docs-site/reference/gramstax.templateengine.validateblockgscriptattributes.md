@@ -1,0 +1,74 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGScriptAttributes](./gramstax.templateengine.validateblockgscriptattributes.md)
+
+## TemplateEngine.validateBlockGScriptAttributes() method
+
+Validates attributes on `<g-script>` blocks.
+
+**Signature:**
+
+```typescript
+static validateBlockGScriptAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template string to validate
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; valid: boolean; errors: Array&lt;&#123; line: number; message: string; &#125;&gt;; &#125;
+
+An object with a `valid` boolean and an `errors` array
+
+## Remarks
+
+No attributes are allowed on `<g-script>` blocks.
+
+## Example
+
+
+```typescript
+const result = TemplateEngine.validateBlockGScriptAttributes(`<g-script>return x;</g-script>`);
+// Result: { valid: true, errors: [] }
+```
+

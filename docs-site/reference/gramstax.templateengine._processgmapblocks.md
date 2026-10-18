@@ -1,0 +1,71 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGMapBlocks](./gramstax.templateengine._processgmapblocks.md)
+
+## TemplateEngine.\_processGMapBlocks() method
+
+Block: g-map Transforms `<g-map>` blocks into JavaScript array map expressions.
+
+**Signature:**
+
+```typescript
+static _processGMapBlocks(template: string): string;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The template string containing `<g-map>` blocks
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+string
+
+The template with `<g-map>` blocks converted to map expressions
+
+## Remarks
+
+This internal method converts `<g-map>` blocks into array mapping operations. The `src` attribute specifies which data key contains the array. Inside the block, `{{e}}` refers to the current element, `{{e.prop}}` to element properties, and `{{i}}` to the current index. The `join` attribute specifies the separator.
+
+\*\*Attributes:\*\*  - `src` (required): The key name in the `data` object whose value is treated as an array.  - `join` (optional): Join separator string. Defaults to `"\\n"` (a newline escape sequence).
+
+## Example
+
+
+```typescript
+const template = '<g-map src="items" join=", "> - {{e.name}} ({{i}})</g-map>';
+const processed = TemplateEngine._processGMapBlocks(template);
+// Result: '${(data && data["items"] || []).map((e, i) => ` - ${e.name} (${i})`).join(", ")}'
+```
+

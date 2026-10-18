@@ -1,0 +1,22 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IContent](./gramstax.icontent.md)
+
+## IContent type
+
+Template content shared by every render method: what to render.
+
+**Signature:**
+
+```typescript
+type IContent = {
+    data?: IData | null;
+    AGBaseId?: string | null;
+};
+```
+**References:** [IData](./gramstax.idata.md)
+
+## Remarks
+
+`params = CONTENT & ROUTE`: the content half names the template fields (`data`, `AGBaseId`), the route atoms say how the rendered block is delivered (send, edit, chunked, broadcast). A method with a richer content body (media kind, gift target, template-backed answer) intersects its own fields on top.
+

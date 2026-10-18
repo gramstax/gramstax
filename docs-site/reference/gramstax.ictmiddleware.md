@@ -1,0 +1,19 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ICtMiddleware](./gramstax.ictmiddleware.md)
+
+## ICtMiddleware type
+
+Type alias for Middleware.
+
+**Signature:**
+
+```typescript
+type ICtMiddleware<C extends ICt = ICt> = Middleware<C>;
+```
+**References:** [ICt](./gramstax.ict.md)
+
+## Remarks
+
+Middleware used to handle updates.
+

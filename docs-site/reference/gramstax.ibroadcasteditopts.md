@@ -1,0 +1,26 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md)
+
+## IBroadcastEditOpts type
+
+Broadcast controls shared by the `broadcast.targets` revise fan-out of `renderMedia` and by `renderBroadcastDelete`.
+
+**Signature:**
+
+```typescript
+type IBroadcastEditOpts = {
+    onProgress?: ((done: number, total: number) => void | Promise<void>) | null;
+    startFrom?: number | null;
+    concurrency?: number | null;
+    batchSize?: number | null;
+    chunkDelayMs?: number | null;
+    fallback?: IOptFallbackEdit | null;
+};
+```
+**References:** [IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
+
+## Remarks
+
+All fields are optional: defaults mirror broadcast-send behavior (sequential pool, `delete-reply` edit fallback). Checkpoint-first — `startFrom` resumes after a restart without re-editing (indexes below count as skipped).
+

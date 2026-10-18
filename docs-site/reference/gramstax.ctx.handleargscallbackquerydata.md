@@ -1,0 +1,34 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleArgsCallbackQueryData](./gramstax.ctx.handleargscallbackquerydata.md)
+
+## Ctx.handleArgsCallbackQueryData() method
+
+Route handler for callback queries with args matching `intentCallbackQueryData`.
+
+**Signature:**
+
+```typescript
+/** @virtual */
+handleArgsCallbackQueryData?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Triggered by callback data with args.
+
+## Example
+
+this.callbackQueryData = "start:123"
+
+```typescript
+async handleArgsCallbackQueryData() {
+   this.callbackQueryData // "start:123"
+   this.callbackQueryDataArg // "123"
+   this.callbackQueryDataArgs // ["123"]
+}
+```
+

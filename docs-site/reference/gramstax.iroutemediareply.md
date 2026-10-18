@@ -1,0 +1,25 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteMediaReply](./gramstax.iroutemediareply.md)
+
+## IRouteMediaReply type
+
+Media route atom: forced single-media send.
+
+**Signature:**
+
+```typescript
+type IRouteMediaReply<T extends IMediaKind> = INeverFields<`options` | `editOptions` | `rich` | `richOptions` | `fallback` | `fallbackOptions` | `media` | `mediaOptions` | `resendOptions`> & {
+    mode: `reply`;
+    keyboard?: IInBoKb | null;
+    captionOptions?: IMediaReplyOpt<T> | null;
+    broadcast?: null | undefined;
+    chunkSize?: null | undefined;
+};
+```
+**References:** [INeverFields](./gramstax.ineverfields.md), [IInBoKb](./gramstax.iinbokb.md)
+
+## Remarks
+
+A forced send never edits, so every edit-only key is unread.
+

@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [requests](./gramstax.mocktelegramserver.requests.md)
+
+## MockTelegramServer.requests property
+
+Captured outbound Bot API requests made by the bot under test.
+
+**Signature:**
+
+```typescript
+requests: IMockTelegramRequestRecord[];
+```

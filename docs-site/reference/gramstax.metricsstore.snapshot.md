@@ -1,0 +1,41 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MetricsStore](./gramstax.metricsstore.md) &gt; [snapshot](./gramstax.metricsstore.snapshot.md)
+
+## MetricsStore.snapshot() method
+
+Create a frozen snapshot of the current counters.
+
+**Signature:**
+
+```typescript
+snapshot(): {
+        uptimeSeconds: number;
+        counts: {
+            updatesTotal: number;
+            updatesFailed: number;
+            matched: number;
+            noMatch: number;
+            noHandler: number;
+            blocked: number;
+            timeouts: number;
+            skippedDuplicate: number;
+            skippedValidation: number;
+            dropped: number;
+        };
+        byListener: {
+            [x: string]: number;
+        };
+        latency: {
+            count: number;
+            avgMs: number;
+            maxMs: number;
+        };
+    };
+```
+**Returns:**
+
+\{ uptimeSeconds: number; counts: \{ updatesTotal: number; updatesFailed: number; matched: number; noMatch: number; noHandler: number; blocked: number; timeouts: number; skippedDuplicate: number; skippedValidation: number; dropped: number; }; byListener: \{ \[x: string\]: number; }; latency: \{ count: number; avgMs: number; maxMs: number; }; }
+
+A plain JSON-serializable object.
+

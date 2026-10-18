@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [stop](./gramstax.gramstax.stop.md)
+
+## Gramstax.stop() method
+
+Stop bot
+
+**Signature:**
+
+```typescript
+stop(): Promise<void>;
+```
+**Returns:**
+
+Promise&lt;void&gt;
+
+## Remarks
+
+Drains the webhook dispatcher (bounded by `drainTimeoutMs`) before any teardown, so in-flight handlers never race `templateManager.destroy()` or the keyboard cache clear. A drain that gives up is counted as `dropped`.
+

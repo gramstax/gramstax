@@ -1,0 +1,17 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IUpdateGateOptions](./gramstax.iupdategateoptions.md)
+
+## IUpdateGateOptions type
+
+Options for [UpdateGate](./gramstax.updategate.md).
+
+**Signature:**
+
+```typescript
+type IUpdateGateOptions = {
+    perChatConcurrency: number;
+    waiterTimeoutMs: number;
+    onTimeout?: (key: string) => void;
+};
+```

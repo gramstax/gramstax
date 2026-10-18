@@ -1,0 +1,33 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCommandText](./gramstax.ctx.handlecommandtext.md)
+
+## Ctx.handleCommandText() method
+
+Route handler for command messages match intent `intentCommandText`.
+
+**Signature:**
+
+```typescript
+/** @virtual */
+handleCommandText?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Triggered by text with slash commands.
+
+## Example
+
+
+```typescript
+// text = "/start"
+// validate "/start" from mapping hash
+async handleCommandText() {
+   this.msg?.text // "/start"
+}
+```
+

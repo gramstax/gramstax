@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [INVOICE\_TITLE\_LIMIT](./gramstax.ctx.invoice_title_limit.md)
+
+## Ctx.INVOICE\_TITLE\_LIMIT property
+
+Bot API invoice title limit in characters (`sendInvoice` title 1–32).
+
+**Signature:**
+
+```typescript
+static readonly INVOICE_TITLE_LIMIT = 32;
+```

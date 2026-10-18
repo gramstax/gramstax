@@ -1,0 +1,33 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCommandCaptionVoice](./gramstax.ctx.handlecommandcaptionvoice.md)
+
+## Ctx.handleCommandCaptionVoice() method
+
+Route function for voiceCaption with slash command match intent `this.data.name`
+
+**Signature:**
+
+```typescript
+/** @virtual */
+handleCommandCaptionVoice?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Triggered by voice with caption command.
+
+## Example
+
+this.data.name = "/start"
+
+```typescript
+async voiceCommandCaption() {
+  this.msg?.voice // {...}
+  this.msg?.caption // "/start"
+}
+```
+

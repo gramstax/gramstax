@@ -1,0 +1,33 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCaptionPhoto](./gramstax.ctx.handlecaptionphoto.md)
+
+## Ctx.handleCaptionPhoto() method
+
+Route function for photoCaptio match intent `this.data.name`
+
+**Signature:**
+
+```typescript
+/** @virtual */
+handleCaptionPhoto?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Triggered by photo with caption.
+
+## Example
+
+this.data.name = "start" &amp;&amp; this.msg?.photo
+
+```typescript
+async handleCaptionPhoto() {
+  this.msg?.photo // {...}
+  this.msg?.caption // "start"
+}
+```
+

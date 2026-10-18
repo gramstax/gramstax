@@ -1,0 +1,11 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [bot](./gramstax.e2ehelper.bot.md)
+
+## E2eHelper.bot property
+
+**Signature:**
+
+```typescript
+bot: Gramstax;
+```

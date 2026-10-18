@@ -1,0 +1,33 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCommandCaptionVideo](./gramstax.ctx.handlecommandcaptionvideo.md)
+
+## Ctx.handleCommandCaptionVideo() method
+
+Route function for videoCaption with slash command match intent `this.data.name`
+
+**Signature:**
+
+```typescript
+/** @virtual */
+handleCommandCaptionVideo?(): Promise<unknown>;
+```
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+## Remarks
+
+Triggered by video with caption command.
+
+## Example
+
+this.data.name = "/start" &amp;&amp; this.msg?.video
+
+```typescript
+async handleCommandCaptionVideo() {
+  this.msg?.video // {...}
+  this.msg?.caption // "/start"
+}
+```
+

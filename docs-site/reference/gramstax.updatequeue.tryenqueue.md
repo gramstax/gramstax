@@ -1,0 +1,56 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [tryEnqueue](./gramstax.updatequeue.tryenqueue.md)
+
+## UpdateQueue.tryEnqueue() method
+
+Offer a value without blocking.
+
+**Signature:**
+
+```typescript
+tryEnqueue(value: T): boolean;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+value
+
+
+</td><td>
+
+T
+
+
+</td><td>
+
+Value to enqueue.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+boolean
+
+`true` when the value was accepted (buffered or handed to a waiting dequeuer), `false` when the queue is closed or full.
+

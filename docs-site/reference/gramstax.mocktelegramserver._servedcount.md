@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [\_servedCount](./gramstax.mocktelegramserver._servedcount.md)
+
+## MockTelegramServer.\_servedCount property
+
+Total updates handed out by `getUpdates`, so served-vs-processed stays comparable.
+
+**Signature:**
+
+```typescript
+_servedCount: number;
+```

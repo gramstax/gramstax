@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [length](./gramstax.updatequeue.length.md)
+
+## UpdateQueue.length property
+
+Get current queue length.
+
+**Signature:**
+
+```typescript
+get length(): number;
+```

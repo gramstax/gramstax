@@ -1,0 +1,30 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eApiCall](./gramstax.ie2eapicall.md)
+
+## IE2eApiCall type
+
+Captured outbound Bot API call record.
+
+**Signature:**
+
+```typescript
+type IE2eApiCall = {
+    method: string;
+    body: Record<string, unknown>;
+    timestamp: number;
+};
+```
+
+## Remarks
+
+Each entry represents one call made by the bot handler (e.g. `sendMessage`, `answerCallbackQuery`, `editMessageText`). Access fields by iterating `e2e.calls` or using `e2e.lastCall(method)`. Recorded by the `bot.api.config.use()` interceptor in `E2eHelper`.
+
+## Example
+
+
+```typescript
+const sendMsg = e2e.lastCall(`sendMessage`)
+expect(sendMsg?.body?.text).toBe(`Hello`)
+```
+

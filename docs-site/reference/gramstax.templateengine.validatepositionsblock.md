@@ -1,0 +1,130 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validatePositionsBlock](./gramstax.templateengine.validatepositionsblock.md)
+
+## TemplateEngine.validatePositionsBlock() method
+
+Validates block positioning and nesting rules in a template string.
+
+**Signature:**
+
+```typescript
+static validatePositionsBlock(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template string to validate
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+\{ valid: boolean; errors: Array&lt;\{ line: number; message: string; }&gt;; }
+
+An object with a `valid` boolean and an `errors` array containing  line numbers and descriptive messages for each violation found
+
+## Remarks
+
+This method checks a template string for structural block nesting violations. It ensures that blocks are placed in their allowed parent contexts.
+
+\*\*Nesting hierarchy:\*\*
+
+```
+__root__
+  ├── g-base             (root level only)
+  │   ├── g-message      (content block)
+  │   │   ├── g-switch   (logic block)
+  │   │   │   ├── case
+  │   │   │   └── default
+  │   │   ├── g-map      (logic block)
+  │   │   ├── g-script   (logic block)
+  │   │   └── g-space    (utility)
+  │   ├── g-keyboard     (content block)
+  │   │   ├── g-switch   (logic block)
+  │   │   │   ├── g-case
+  │   │   │   └── g-default
+  │   │   ├── g-map      (logic block)
+  │   │   ├── g-script   (logic block)
+  │   │   └── g-space    (utility)
+  │   ├── g-media        (content block)
+  │   │   ├── g-switch   (logic block)
+  │   │   │   ├── g-case
+  │   │   │   └── g-default
+  │   │   ├── g-map      (logic block)
+  │   │   ├── g-script   (logic block)
+  │   │   └── g-space    (utility)
+  │   ├── g-description  (content block)
+  │   │   ├── g-switch   (logic block)
+  │   │   │   ├── g-case
+  │   │   │   └── g-default
+  │   │   ├── g-map      (logic block)
+  │   │   ├── g-script   (logic block)
+  │   │   └── g-space    (utility)
+  │   ├── g-import       (utility)
+  │   ├── g-description  (utility)
+  │   ├── g-script       (logic block)
+  └   └── g-space        (utility)
+```
+\*\*Enforced rules:\*\* - `<g-base>` must be at the outermost level and cannot be nested inside any other block. - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-invoice>`, `<g-paid-media>`, `<g-venue>`, `<g-dice>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`. - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a paywall item. - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`. - `<g-price>` can only appear directly inside `<g-invoice>`. - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`. - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`. - `<g-map>` is also allowed inside `<g-case>` and `<g-default>` (explicitly and via  parent-child inheritance — see `inheritsContentFromParent`). - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`)  are passthrough and ignored during validation.
+
+## Example
+
+
+```typescript
+// Valid template
+const result = TemplateEngine.validatePositionsBlock(`
+  <g-base>
+    <g-message>Hello {{name}}!</g-message>
+    <g-keyboard>Yes, No</g-keyboard>
+  </g-base>
+`);
+// Result: { valid: true, errors: [] }
+
+// Invalid: <g-base> nested inside <g-message>
+const bad = TemplateEngine.validatePositionsBlock(`
+  <g-base>
+    <g-message>
+      <g-base>Nested base</g-base>
+    </g-message>
+  </g-base>
+`);
+// Result: { valid: false, errors: [{ line: 4, message: 'Block <g-base> is not allowed inside <g-message>' }] }
+```
+

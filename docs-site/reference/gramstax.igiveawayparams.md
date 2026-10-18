@@ -1,0 +1,23 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGiveawayParams](./gramstax.igiveawayparams.md)
+
+## IGiveawayParams type
+
+Giveaway params accepted by [Ctx.startGiveaway()](./gramstax.ctx.startgiveaway.md).
+
+**Signature:**
+
+```typescript
+type IGiveawayParams = {
+    channels: Array<number | string> | string;
+    date: number;
+    winners: number;
+    prize: string;
+};
+```
+
+## Remarks
+
+Data-driven by design: `sendGiveaway` carries no `parse_mode`, so a template block would add surface without value.
+

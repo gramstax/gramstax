@@ -1,0 +1,67 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [bodyOf](./gramstax.e2ehelper.bodyof.md)
+
+## E2eHelper.bodyOf() method
+
+Narrows one captured API call's `body` to the shape a test expects.
+
+**Signature:**
+
+```typescript
+bodyOf<T = Record<string, unknown>>(call: IE2eApiCall | undefined): T | undefined;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+call
+
+
+</td><td>
+
+[IE2eApiCall](./gramstax.ie2eapicall.md) \| undefined
+
+
+</td><td>
+
+Captured API call, or `undefined` when there was no reply.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+T \| undefined
+
+The body cast to `T`, or `undefined` when the call is absent.
+
+## Remarks
+
+`IE2eApiCall.body` is `Record<string, unknown>` on purpose: the Bot API body differs per method, so the library cannot narrow it without lying about half the methods. Assertions that reach into a method-specific field (`media`, `reply_markup`, `rich_message`) declare that shape here at the call site.
+
+## Example
+
+
+```typescript
+expect(e2e.bodyOf<{media?: {type?: string}}>(call)?.media?.type).toBe(`photo`)
+```
+

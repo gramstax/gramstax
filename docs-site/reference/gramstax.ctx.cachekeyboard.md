@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [cacheKeyboard](./gramstax.ctx.cachekeyboard.md)
+
+## Ctx.cacheKeyboard property
+
+Cache for keyboard instances.
+
+**Signature:**
+
+```typescript
+cacheKeyboard: Map<string, unknown>;
+```

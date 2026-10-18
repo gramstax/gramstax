@@ -1,0 +1,33 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [clearSession](./gramstax.ctx.clearsession.md)
+
+## Ctx.clearSession() method
+
+Clears session data for the current user.
+
+**Signature:**
+
+```typescript
+clearSession(): Promise<boolean | null>;
+```
+**Returns:**
+
+Promise&lt;boolean \| null&gt;
+
+True if the session was cleared, or null on error.
+
+## Remarks
+
+Removes the session from external cache and resets the local session property. Uses the scoped `sessionKey()` (`user:chat`), matching `setSession`/`getSession`. Sets `memoization.sessionLoaded` to `true` so a subsequent `getSession()` within the same request returns `null` without re-hitting the external cache.
+
+## Example
+
+
+```typescript
+async handleCallbackQueryData() {
+  await this.clearSession()
+  await this.renderText()
+}
+```
+

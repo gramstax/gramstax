@@ -1,0 +1,16 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IUpdateDispatchStopResult](./gramstax.iupdatedispatchstopresult.md)
+
+## IUpdateDispatchStopResult type
+
+Result of [UpdateDispatcher.stop()](./gramstax.updatedispatcher.stop.md).
+
+**Signature:**
+
+```typescript
+type IUpdateDispatchStopResult = {
+    timedOut: boolean;
+    residual: number;
+};
+```

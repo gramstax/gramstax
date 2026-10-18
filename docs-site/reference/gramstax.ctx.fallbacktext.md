@@ -1,0 +1,18 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [fallbackText](./gramstax.ctx.fallbacktext.md)
+
+## Ctx.fallbackText property
+
+Per-page fallback text override for media-send failures.
+
+**Signature:**
+
+```typescript
+fallbackText?: string | null;
+```
+
+## Remarks
+
+When a media send fails with a `fallback-text` error (see `Ctx.classifySendError`), the page replies with this text instead. `undefined`/`null` falls back to `Ctx.FALLBACK_TEXT`.
+

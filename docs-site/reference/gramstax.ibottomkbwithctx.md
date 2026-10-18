@@ -1,0 +1,49 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBottomKbWithCtx](./gramstax.ibottomkbwithctx.md)
+
+## IBottomKbWithCtx interface
+
+Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to `page.data.intentText` automatically.
+
+**Signature:**
+
+```typescript
+interface IBottomKbWithCtx extends Keyboard 
+```
+**Extends:** Keyboard
+
+## Example
+
+
+```ts
+k.text(BalancePage)
+// equivalent to: k.text(BalancePage.data.intentText)
+```
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[text(text, options)](./gramstax.ibottomkbwithctx.text.md)
+
+
+</td><td>
+
+Add a text button. `text` is a page (class/instance) or string.
+
+
+</td></tr>
+</tbody></table>
+

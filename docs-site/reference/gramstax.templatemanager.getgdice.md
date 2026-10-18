@@ -1,0 +1,116 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGDice](./gramstax.templatemanager.getgdice.md)
+
+## TemplateManager.getGDice() method
+
+Gets compiled from block \<g-dice>.
+
+**Signature:**
+
+```typescript
+getGDice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GDiceResult;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Template identifier (filename without extension)
+
+
+</td></tr>
+<tr><td>
+
+AGBaseId
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Base block ID matching `<g-base id="...">`
+
+
+</td></tr>
+<tr><td>
+
+ALang
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Target language code (falls back to `default`)
+
+
+</td></tr>
+<tr><td>
+
+data
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;
+
+
+</td><td>
+
+_(Optional)_ Template variables for interpolation
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+[GDiceResult](./gramstax.gdiceresult.md)
+
+[GDiceResult](./gramstax.gdiceresult.md) with the dice payload flat under `kind: "dice"`
+
+## Remarks
+
+Retrieves the compiled dice function for the specified template and language, then executes it with the provided data to generate the dice payload.
+
+## Example
+
+
+```typescript
+const dice = tm.getGDice("lucky-page", "default", "en", {dice: "🎯"})
+// => {kind: "dice", emoji: "🎯"}
+```
+

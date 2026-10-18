@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GAnswerNoteResult](./gramstax.ganswernoteresult.md)
+
+## GAnswerNoteResult type
+
+Result of `TemplateManager.getGAnswerNote` for a `<g-answer-note>` block.
+
+**Signature:**
+
+```typescript
+type GAnswerNoteResult = {
+    kind: `answerNote`;
+    text: string;
+};
+```
+
+## Remarks
+
+`text` is the marker note text; the getter throws when the block is missing (guest and web app answers require the marker block).
+

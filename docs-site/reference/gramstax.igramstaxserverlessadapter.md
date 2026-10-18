@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxServerlessAdapter](./gramstax.igramstaxserverlessadapter.md)
+
+## IGramstaxServerlessAdapter type
+
+Name of a serverless adapter.
+
+**Signature:**
+
+```typescript
+type IGramstaxServerlessAdapter = (typeof GRAMSTAX_SERVERLESS_ADAPTERS)[number];
+```
+**References:** [GRAMSTAX\_SERVERLESS\_ADAPTERS](./gramstax.gramstax_serverless_adapters.md)
+

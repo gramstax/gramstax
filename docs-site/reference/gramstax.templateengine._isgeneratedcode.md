@@ -1,0 +1,68 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_isGeneratedCode](./gramstax.templateengine._isgeneratedcode.md)
+
+## TemplateEngine.\_isGeneratedCode() method
+
+Compiles a processed template string into an executable function.
+
+**Signature:**
+
+```typescript
+static _isGeneratedCode(code: string): boolean;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+code
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+boolean
+
+A function that accepts optional data and returns the rendered string or string array
+
+## Remarks
+
+This internal method takes a pre-processed template (or array of templates) and compiles it into a JavaScript function that accepts a `data` object and returns the rendered result. The function is created using `new Function()`. Static segments are emitted via string concatenation (`JSON.stringify` literals joined with `+`), never wrapped in a raw backtick literal, so static backticks, backslashes, and `${` sequences cannot break out into code. Only `${...}` spans produced by the block/scope processors are evaluated.
+
+## Example
+
+
+```typescript
+const processed = '${(data && data["name"]) ?? ""}';
+const fn = TemplateEngine._compileToFunction(processed, false);
+const result = fn({ name: 'John' });
+// Result: 'John'
+```
+

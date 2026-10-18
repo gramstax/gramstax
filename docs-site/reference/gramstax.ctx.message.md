@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [message](./gramstax.ctx.message.md)
+
+## Ctx.message property
+
+The full [Ctx.message](./gramstax.ctx.message.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.message`.
+
+**Signature:**
+
+```typescript
+get message(): NonNullable<Context[`message`]>;
+```

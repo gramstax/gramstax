@@ -1,0 +1,58 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertMediaGroupItems](./gramstax.ctx.assertmediagroupitems.md)
+
+## Ctx.assertMediaGroupItems() method
+
+Fail-fast checks for a `<g-media-group>` item list: group size limit, per-item group type, upload size, and caption length.
+
+**Signature:**
+
+```typescript
+static assertMediaGroupItems(items: Array<{
+        type: string;
+        src?: unknown;
+        caption?: unknown;
+    }>): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+items
+
+
+</td><td>
+
+Array&lt;&#123; type: string; src?: unknown; caption?: unknown; &#125;&gt;
+
+
+</td><td>
+
+Media-group items to validate.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+

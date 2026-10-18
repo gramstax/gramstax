@@ -1,0 +1,89 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [inlineKeyboard](./gramstax.ctx.inlinekeyboard.md)
+
+## Ctx.inlineKeyboard() method
+
+Creates an inline keyboard using a builder callback.
+
+**Signature:**
+
+```typescript
+inlineKeyboard(callback: (k: IInlineKb, l: string[]) => IInlineKb, params?: IInlineKbParams | null): IInlineKb;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+callback
+
+
+</td><td>
+
+(k: [IInlineKb](./gramstax.iinlinekb.md), l: string\[\]) =&gt; [IInlineKb](./gramstax.iinlinekb.md)
+
+
+</td><td>
+
+Builder function that receives keyboard and labels.
+
+
+</td></tr>
+<tr><td>
+
+params
+
+
+</td><td>
+
+[IInlineKbParams](./gramstax.iinlinekbparams.md) \| null
+
+
+</td><td>
+
+_(Optional)_ Optional parameters (or null to omit). [IInlineKbParams](./gramstax.iinlinekbparams.md) for details.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+[IInlineKb](./gramstax.iinlinekb.md)
+
+The inline keyboard instance.
+
+## Remarks
+
+The callback receives the keyboard instance and an array of button labels from the template. Supports optional caching for performance.
+
+## Example
+
+
+```typescript
+async handleCallbackQueryData() {
+  const kb = this.inlineKeyboard((k, labels) => {
+    labels.forEach((label, i) => k.text(label, `action:${i}`))
+    return k
+  })
+  await this.renderText({keyboard: kb})
+}
+```
+

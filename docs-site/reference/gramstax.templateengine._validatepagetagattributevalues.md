@@ -1,0 +1,77 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validatePageTagAttributeValues](./gramstax.templateengine._validatepagetagattributevalues.md)
+
+## TemplateEngine.\_validatePageTagAttributeValues() method
+
+Scans a template for `<g-*>` PAGE blocks whose attribute values fail format checks.
+
+**Signature:**
+
+```typescript
+static _validatePageTagAttributeValues(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template string to scan
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Array&lt;&#123; line: number; message: string; &#125;&gt;
+
+Array of `{line, message}` errors (empty if all values are valid)
+
+## Remarks
+
+For every tag in [TemplateEngine.\_PAGE\_ATTR\_VALUE\_VALIDATORS](./gramstax.templateengine._page_attr_value_validators.md), each present attribute is extracted and run through its validator. Boolean attributes (without `=value`) are skipped. Only attributes with value declarations are checked. Missing required attributes are NOT reported here — that is [TemplateEngine.\_validatePageTagAttributes()](./gramstax.templateengine._validatepagetagattributes.md)'s job.
+
+## Example
+
+
+```typescript
+const errors = TemplateEngine._validatePageTagAttributeValues(`
+  <g-keyboard type="sidebar">A, B</g-keyboard>
+  <g-media type="unknown" src="x.jpg"/>
+`);
+// => [
+//   {line: 2, message: 'Attribute "type" on <g-keyboard> must be "inline" or "bottom", got "sidebar"'},
+//   {line: 3, message: 'Attribute "type" on <g-media> must be one of: photo, video, ..., got "unknown"'}
+// ]
+```
+

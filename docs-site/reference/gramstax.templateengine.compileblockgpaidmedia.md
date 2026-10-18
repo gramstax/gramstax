@@ -1,0 +1,93 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGPaidMedia](./gramstax.templateengine.compileblockgpaidmedia.md)
+
+## TemplateEngine.compileBlockGPaidMedia() method
+
+Compiles paid-media blocks from a template into executable functions.
+
+**Signature:**
+
+```typescript
+static compileBlockGPaidMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITemplateData) => IPaidMediaBlock;
+        };
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Raw template string containing `<g-base>` and `<g-paid-media>` blocks
+
+
+</td></tr>
+<tr><td>
+
+baseBlocks
+
+
+</td><td>
+
+ReturnType&lt;typeof TemplateEngine.\_processGBaseBlocks&gt;
+
+
+</td><td>
+
+_(Optional)_ Optional pre-parsed base blocks for reuse
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; \[AGBaseId: string\]: &#123; \[ALang: string\]: (data?: ITemplateData) =&gt; [IPaidMediaBlock](./gramstax.ipaidmediablock.md); &#125;; &#125;
+
+Compiled paid-media functions organized by base ID and language
+
+## Remarks
+
+This method parses `<g-paid-media>` blocks from the template and compiles the interpolable fields (each item `src` and `caption`) into functions; `stars` and item `type` pass through as parsed (dynamic prices are rejected by the validator and re-checked at runtime). The result is organized by base ID and language.
+
+Processing pipeline (in order, per string field): 1. `_processGScriptBlocks` - converts `<g-script>` blocks into executable expressions 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions 3. `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` - evaluates scope execution blocks (implementation-defined) 5. `_processScopeVariables` - resolves scope variables (implementation-defined) 6. `_compileToFunction(processed, false)` - produces the final render function
+
+Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted) - Second level key: `ALang` (from `<g-paid-media lang="...">`, or `"default"` if omitted) - Value: `(data?: Record<string, unknown>) => ITPaidMediaBlock`
+
+## Example
+
+
+```typescript
+const walls = TemplateEngine.compileBlockGPaidMedia(`<g-base><g-paid-media stars="100"><g-media type="photo" src="{{teaser}}">Bayar untuk membuka</g-media></g-paid-media></g-base>`);
+const result = walls.default?.default?.({ teaser: 't.jpg' });
+// Result: { stars: 100, media: [{type: 'photo', src: 't.jpg', caption: 'Bayar untuk membuka'}] }
+```
+

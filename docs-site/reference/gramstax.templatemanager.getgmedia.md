@@ -1,0 +1,116 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGMedia](./gramstax.templatemanager.getgmedia.md)
+
+## TemplateManager.getGMedia() method
+
+Gets compiled from block \<g-media>.
+
+**Signature:**
+
+```typescript
+getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GMediaResult;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Template identifier (filename without extension)
+
+
+</td></tr>
+<tr><td>
+
+AGBaseId
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Base block ID matching `<g-base id="...">`
+
+
+</td></tr>
+<tr><td>
+
+ALang
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Target language code (falls back to `default`)
+
+
+</td></tr>
+<tr><td>
+
+data
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;
+
+
+</td><td>
+
+_(Optional)_ Template variables for interpolation
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+[GMediaResult](./gramstax.gmediaresult.md)
+
+[GMediaResult](./gramstax.gmediaresult.md) with the media payload flat under `kind: "media"`
+
+## Remarks
+
+Retrieves the compiled media function for the specified template and language, then executes it with the provided data to generate the media payload.
+
+## Example
+
+
+```typescript
+const media = tm.getGMedia("photo-page", "default", "en", {photoUrl: "..."})}
+// => {kind: "media", type: "photo", src: "...", caption: "..."}
+```
+

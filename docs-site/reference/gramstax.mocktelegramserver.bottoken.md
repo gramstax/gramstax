@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [botToken](./gramstax.mocktelegramserver.bottoken.md)
+
+## MockTelegramServer.botToken property
+
+Latest bot token observed from the URL path (e.g. /bot\<token>/getMe).
+
+**Signature:**
+
+```typescript
+botToken: string;
+```

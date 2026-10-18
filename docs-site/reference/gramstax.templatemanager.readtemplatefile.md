@@ -1,0 +1,68 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [readTemplateFile](./gramstax.templatemanager.readtemplatefile.md)
+
+## TemplateManager.readTemplateFile() method
+
+Reads a template file's content from disk.
+
+**Signature:**
+
+```typescript
+readTemplateFile(filename: string): string | null;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+filename
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Filename to read (with or without extension)
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+string \| null
+
+Template content string, or `null` if not found
+
+## Remarks
+
+If no extension is provided, tries `.ts`, `.js`, then `.html` in order. Searches all configured paths until a match is found.
+
+## Example
+
+
+```typescript
+this.readTemplateFile("welcome")
+// => "<g-base>...</g-base>"
+```
+

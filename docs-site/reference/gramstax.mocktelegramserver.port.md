@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [port](./gramstax.mocktelegramserver.port.md)
+
+## MockTelegramServer.port property
+
+Port for the local server (0 selects a random free port).
+
+**Signature:**
+
+```typescript
+port: number;
+```

@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [MEDIA\_CAPTION\_LIMIT](./gramstax.ctx.media_caption_limit.md)
+
+## Ctx.MEDIA\_CAPTION\_LIMIT property
+
+Bot API caption limit in characters (caption-carrying types + media groups).
+
+**Signature:**
+
+```typescript
+static readonly MEDIA_CAPTION_LIMIT = 1024;
+```

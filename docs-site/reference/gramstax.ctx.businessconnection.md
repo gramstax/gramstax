@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [businessConnection](./gramstax.ctx.businessconnection.md)
+
+## Ctx.businessConnection property
+
+The full [Ctx.businessConnection](./gramstax.ctx.businessconnection.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.business_connection`.
+
+**Signature:**
+
+```typescript
+get businessConnection(): NonNullable<Context[`businessConnection`]>;
+```

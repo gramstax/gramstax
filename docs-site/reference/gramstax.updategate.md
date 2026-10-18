@@ -1,0 +1,128 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateGate](./gramstax.updategate.md)
+
+## UpdateGate class
+
+Per-key concurrency gate.
+
+**Signature:**
+
+```typescript
+declare class UpdateGate 
+```
+
+## Remarks
+
+Extracted verbatim from the closure that used to live inside `Gramstax._runWebhook`, then generalized from "chat id" to "gate key" so polling and webhook share one implementation. Same-key updates serialize; different keys run concurrently. Entries are removed as soon as their last holder releases, so the maps do not grow with key cardinality.
+
+## Constructors
+
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(\_options)](./gramstax.updategate._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Constructs a new instance of the `UpdateGate` class
+
+
+</td></tr>
+</tbody></table>
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[acquire(key)](./gramstax.updategate.acquire.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Acquire the gate for `key`, returning a release function.
+
+
+</td></tr>
+<tr><td>
+
+[activeCount(key)](./gramstax.updategate.activecount.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Current holder count for `key`.
+
+
+</td></tr>
+<tr><td>
+
+[releaseAll()](./gramstax.updategate.releaseall.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Wake every waiter so shutdown cannot hang on a parked gate.
+
+
+</td></tr>
+<tr><td>
+
+[stats()](./gramstax.updategate.stats.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Live gate stats for metrics.
+
+
+</td></tr>
+</tbody></table>
+

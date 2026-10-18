@@ -1,0 +1,22 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [ALLOWED\_BLOCKS](./gramstax.templateengine.allowed_blocks.md)
+
+## TemplateEngine.ALLOWED\_BLOCKS property
+
+Registry of all supported template block tags.
+
+**Signature:**
+
+```typescript
+static ALLOWED_BLOCKS: ReadonlySet<string>;
+```
+
+## Remarks
+
+These are the actual XML-like tags recognized by `TemplateEngine`. Each corresponds to a `<tagName>` element in template strings.
+
+\*\*Content blocks:\*\* `g-base`, `g-message`, `g-keyboard`, `g-media`, `g-description` \*\*Logic blocks:\*\* `g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div` \*\*Utility blocks:\*\* `import`, `space`
+
+\*\*Telegram Rich HTML (passed through to `html` field):\*\* - \*Inline:\* `a`, `b`, `code`, `del`, `em`, `i`, `ins`, `mark`, `s`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`, `u` - \*Block/structural:\* `aside`, `blockquote`, `blockquote expandable`, `br`, `caption`, `details`, `footer`, `h1`-`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul` - \*Telegram-specific:\* `tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time` - \*Media:\* `audio`, `cite`, `figcaption`, `figure`, `img`, `video` - \*Forms:\* `input`
+

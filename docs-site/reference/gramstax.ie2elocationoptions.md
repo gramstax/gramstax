@@ -1,0 +1,22 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eLocationOptions](./gramstax.ie2elocationoptions.md)
+
+## IE2eLocationOptions type
+
+E2E options for location messages.
+
+**Signature:**
+
+```typescript
+type IE2eLocationOptions = IE2eUpdateOptions & {
+    latitude?: number;
+    longitude?: number;
+};
+```
+**References:** [IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md)
+
+## Remarks
+
+Extends `IE2eUpdateOptions` with geographic coordinates. Used by `E2eHelper.sendLocation`, which defaults both axes to `0`.
+

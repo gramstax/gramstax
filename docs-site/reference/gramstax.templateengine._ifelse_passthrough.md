@@ -1,0 +1,18 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_IFELSE\_PASSTHROUGH](./gramstax.templateengine._ifelse_passthrough.md)
+
+## TemplateEngine.\_IFELSE\_PASSTHROUGH property
+
+Identifiers that `<g-ifelse>` never rewrites to `data?.x`.
+
+**Signature:**
+
+```typescript
+static _IFELSE_PASSTHROUGH: Set<string>;
+```
+
+## Remarks
+
+Three groups: reserved words that cannot be references, the parameter names every compiled template body already has in scope (`data`, `__esc`, `FILTERS`), and the standard globals a template author may legitimately call.
+

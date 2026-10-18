@@ -1,0 +1,66 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGPollAttributes](./gramstax.templateengine.validateblockgpollattributes.md)
+
+## TemplateEngine.validateBlockGPollAttributes() method
+
+Validates attributes and item constraints on `<g-poll>` blocks.
+
+**Signature:**
+
+```typescript
+static validateBlockGPollAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template source to validate.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; valid: boolean; errors: Array&lt;&#123; line: number; message: string; &#125;&gt;; &#125;
+
+`{valid, errors}`; `errors` carry 1-based line numbers.
+
+## Remarks
+
+Checks the block-level attributes (`lang`, `type`, `correct`, `explanation`, `anonymous`, `multiple`) via `_validateBlockAttributes`, then delegates structural rules (exactly one `<g-question>`, 2–10 `<g-option>` items, `correct` required and in range for quiz but rejected on regular, `multiple`/`explanation` quiz/regular coherence, static Bot API length limits where no `{{}}` interpolation is present) to [TemplateEngine.\_validatePollItems()](./gramstax.templateengine._validatepollitems.md). Returns `valid: false` with per-line errors instead of throwing, so callers can aggregate across blocks.
+

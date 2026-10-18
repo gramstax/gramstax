@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [managedBot](./gramstax.ctx.managedbot.md)
+
+## Ctx.managedBot property
+
+The full [Ctx.managedBot](./gramstax.ctx.managedbot.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.managed_bot`.
+
+**Signature:**
+
+```typescript
+get managedBot(): NonNullable<Context[`managedBot`]>;
+```

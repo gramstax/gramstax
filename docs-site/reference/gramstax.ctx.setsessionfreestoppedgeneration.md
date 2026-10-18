@@ -1,0 +1,76 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeStoppedGeneration](./gramstax.ctx.setsessionfreestoppedgeneration.md)
+
+## Ctx.setSessionFreeStoppedGeneration() method
+
+Set the session method for `handleSessionFreeStoppedGeneration` routing.
+
+**Signature:**
+
+```typescript
+setSessionFreeStoppedGeneration(this: Ctx & {
+        handleSessionFreeStoppedGeneration: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+this
+
+
+</td><td>
+
+[Ctx](./gramstax.ctx.md) &amp; &#123; handleSessionFreeStoppedGeneration: (...args: unknown\[\]) =&gt; unknown; &#125;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+params
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;
+
+
+</td><td>
+
+_(Optional)_ Optional session parameters
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;boolean \| null&gt;
+
+The `setSession` result, or null when no user/chat id is available.
+
+## Remarks
+
+Stores the key from [Ctx.methodSessionFreeStoppedGeneration()](./gramstax.ctx.methodsessionfreestoppedgeneration.md) via [Ctx.setSession()](./gramstax.ctx.setsession.md).
+

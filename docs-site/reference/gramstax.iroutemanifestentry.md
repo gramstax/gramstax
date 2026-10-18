@@ -1,0 +1,22 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteManifestEntry](./gramstax.iroutemanifestentry.md)
+
+## IRouteManifestEntry type
+
+One route entry of a static app manifest.
+
+**Signature:**
+
+```typescript
+type IRouteManifestEntry = {
+    name: string;
+    file: string;
+    routeName: string;
+};
+```
+
+## Remarks
+
+Collected by `RouteCollector.collect` and persisted to `routes.json`. Joined with `pages` by `routeName` in `_pageLoadsFromManifest` — a route with no matching page throws. `file` becomes the registration `path`.
+

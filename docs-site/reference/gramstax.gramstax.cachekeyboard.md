@@ -1,0 +1,18 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [cacheKeyboard](./gramstax.gramstax.cachekeyboard.md)
+
+## Gramstax.cacheKeyboard property
+
+In-memory cache for keyboard instances by language.
+
+**Signature:**
+
+```typescript
+cacheKeyboard: Map<string, unknown>;
+```
+
+## Remarks
+
+Cached values are built from [BlockGKeyboard](./gramstax.blockgkeyboard.md) and reused per language.
+

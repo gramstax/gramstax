@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplyVoice](./gramstax.ioptreplyvoice.md)
+
+## IOptReplyVoice type
+
+Options parameter mirroring `Context.replyWithVoice`.
+
+**Signature:**
+
+```typescript
+type IOptReplyVoice = Parameters<Context[`replyWithVoice`]>[1];
+```

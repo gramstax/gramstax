@@ -1,0 +1,72 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [handleUpdate](./gramstax.e2ehelper.handleupdate.md)
+
+## E2eHelper.handleUpdate() method
+
+Inject an Update object directly into the bot and capture responses.
+
+**Signature:**
+
+```typescript
+handleUpdate(update: Record<string, unknown>, settleMs?: number): Promise<IE2eApiCall[]>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+update
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;
+
+
+</td><td>
+
+A raw Telegram Update object.
+
+
+</td></tr>
+<tr><td>
+
+settleMs
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)\[\]&gt;
+
+All API calls made while processing this update.
+

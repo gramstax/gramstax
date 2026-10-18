@@ -1,0 +1,12 @@
+# docs-site/ is the Mintlify content root, configured via the dashboard toggle
+# "docs.json is in a subdirectory". Everything outside this directory is out of
+# scope by construction — that is what keeps real-projects/, plans/, prompts/,
+# AGENTS.md and the other packages' generated docs off a public site.
+#
+# What remains is a second layer, not the primary control. Over-broad patterns
+# here turn inbound links into reported broken links, so only paths that must
+# never ship are listed.
+node_modules/
+.mintlify/
+.astro/
+dist/

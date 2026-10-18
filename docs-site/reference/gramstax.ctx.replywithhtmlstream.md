@@ -1,0 +1,126 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [replyWithHtmlStream](./gramstax.ctx.replywithhtmlstream.md)
+
+## Ctx.replyWithHtmlStream() method
+
+Streams an iterator of HTML strings to the current chat as a single rich message that updates progressively.
+
+**Signature:**
+
+```typescript
+replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[1], otherRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[2], baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[3], signal?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[4]): Promise<unknown>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+stream
+
+
+</td><td>
+
+Iterable&lt;string&gt; \| AsyncIterable&lt;string&gt;
+
+
+</td><td>
+
+An iterable of HTML string chunks.
+
+
+</td></tr>
+<tr><td>
+
+otherRichMessageDraft
+
+
+</td><td>
+
+Parameters&lt;StreamContextExtension\[\`replyWithHtmlStream\`\]&gt;\[1\]
+
+
+</td><td>
+
+_(Optional)_ Optional remaining parameters for `sendRichMessageDraft`.
+
+
+</td></tr>
+<tr><td>
+
+otherRichMessage
+
+
+</td><td>
+
+Parameters&lt;StreamContextExtension\[\`replyWithHtmlStream\`\]&gt;\[2\]
+
+
+</td><td>
+
+_(Optional)_ Optional remaining parameters for `sendRichMessage`.
+
+
+</td></tr>
+<tr><td>
+
+baseInputRichMessage
+
+
+</td><td>
+
+Parameters&lt;StreamContextExtension\[\`replyWithHtmlStream\`\]&gt;\[3\]
+
+
+</td><td>
+
+_(Optional)_ Optional fields merged into the `rich_message` of every API call.
+
+
+</td></tr>
+<tr><td>
+
+signal
+
+
+</td><td>
+
+Parameters&lt;StreamContextExtension\[\`replyWithHtmlStream\`\]&gt;\[4\]
+
+
+</td><td>
+
+_(Optional)_ Optional `AbortSignal` to cancel streaming.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+The sent rich message object.
+
+## Remarks
+
+Provided at runtime by the `\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.
+
+Uses `sendRichMessageDraft` for intermediate updates and `sendRichMessage` for the final message. The draft identifier is derived from the current `update_id`.
+

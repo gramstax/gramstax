@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GPollResult](./gramstax.gpollresult.md)
+
+## GPollResult type
+
+Result of `TemplateManager.getGPoll` for a `<g-poll>` block.
+
+**Signature:**
+
+```typescript
+type GPollResult = {
+    kind: `poll`;
+} & IPollBlock;
+```
+**References:** [IPollBlock](./gramstax.ipollblock.md)
+
+## Remarks
+
+Extends [IPollBlock](./gramstax.ipollblock.md) with the `poll` kind discriminator.
+

@@ -1,0 +1,28 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [e2e](./gramstax.gramstax.e2e.md)
+
+## Gramstax.e2e property
+
+In-process E2E testing helper.
+
+**Signature:**
+
+```typescript
+e2e?: E2eHelper;
+```
+
+## Remarks
+
+Available only when `deploy: "test"`. Provides methods to simulate Telegram updates without any HTTP server. See [E2eHelper](./gramstax.e2ehelper.md) for full API documentation.
+
+When `deploy` is a `"test"` variant, this is typed as `E2eHelper`; otherwise it is `undefined`.
+
+## Example
+
+
+```typescript
+const bot = new Gramstax({deploy: "test", token: "test"})
+const responses = await bot.e2e.sendText("/start", {user: {id: 2001}})
+```
+

@@ -1,0 +1,97 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderInvoice](./gramstax.ctx.renderinvoice.md)
+
+## Ctx.renderInvoice() method
+
+Sends a template-driven invoice using the page `<g-invoice>` block.
+
+Template block: `<g-invoice>` (read via `getGInvoice`).
+
+**Signature:**
+
+```typescript
+renderInvoice(params?: IRenderInvoiceParams): Promise<Message.InvoiceMessage>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+params
+
+
+</td><td>
+
+[IRenderInvoiceParams](./gramstax.irenderinvoiceparams.md)
+
+
+</td><td>
+
+_(Optional)_ Optional params object (defaults to `{}`): `keyboard` optional inline keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) (or null to omit) — only inline keyboards are accepted, the Bot API `sendInvoice` reply markup is `InlineKeyboardMarkup`; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block invoice (or null to use default); `options` optional extra `sendInvoice` fields, where `provider_token` is the ONLY way to supply the payment provider secret (or null to omit).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;Message.InvoiceMessage&gt;
+
+The sent invoice message object.
+
+## Remarks
+
+Fail-fast validation (`Ctx.assertInvoice`) runs BEFORE any API call on the COMPILED strings — programmer errors always throw, never fall back. The invoice is sent with NO `parse_mode`: the Bot API offers no HTML parsing for invoices.
+
+Provider tokens are security-critical and NEVER come from templates: the validator rejects a `provider_token` attribute outright. Resolution order is `options.provider_token` when present, otherwise Telegram Stars (`currency: "XTR"`) sends with no token at all, and any other (fiat) currency without a token throws before any API call.
+
+Pre-checkout queries for the sent invoice already route to page handlers via the existing `precheckoutquery` listener — define `handleFreePreCheckoutQuery` (or `handleSessionFreePreCheckoutQuery` in a session flow) on the page and answer with [Ctx.answerPreCheckout()](./gramstax.ctx.answerprecheckout.md). No new routing was added for this.
+
+Observe-only send-error coverage (mirrors `renderDice`): failures are classified via `Ctx.classifySendError`, reported to `notifySendError`, and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`). There is no degraded fallback content for invoices, so after notify+log the original error is ALWAYS rethrown untouched — the `catch` below observes only and never swallows, because swallowing would hide a payment send failure from the caller.
+
+## Example 1
+
+
+```typescript
+async handleCallbackQueryData() {
+  const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+  await this.renderInvoice({keyboard: kb, data: {days: 30, orderId: "o-1"}})
+}
+```
+
+## Example 2
+
+
+```typescript
+async handleBuyFiat() {
+  // Template: <g-invoice title="Pro" description="Plan" payload="{{orderId}}" currency="USD"><g-price label="Pro" amount="499"/></g-invoice>
+  await this.renderInvoice({data: {orderId: "o-2"}, options: {provider_token: process.env.PAYMENT_PROVIDER_TOKEN}})
+}
+```
+
+## Example 3
+
+
+```typescript
+async handleFreePreCheckoutQuery() {
+  await this.answerPreCheckout(true)
+}
+```
+

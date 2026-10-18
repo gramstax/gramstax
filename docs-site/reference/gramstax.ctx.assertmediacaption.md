@@ -1,0 +1,74 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertMediaCaption](./gramstax.ctx.assertmediacaption.md)
+
+## Ctx.assertMediaCaption() method
+
+Throw when `caption` exceeds `MEDIA_CAPTION_LIMIT` for caption-carrying types.
+
+**Signature:**
+
+```typescript
+static assertMediaCaption(type: string, caption: unknown): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+type
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Media type (e.g. `photo`).
+
+
+</td></tr>
+<tr><td>
+
+caption
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+Template caption, if any.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+
+## Remarks
+
+Only enforced for `MEDIA_CAPTION_TYPES`; other types ignore captions. Programmer error — always throws, never falls back.
+

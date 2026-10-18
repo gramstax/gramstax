@@ -18,7 +18,7 @@
       "!!docs/extractor/temp",
       "!!docs/extractor/etc",
       "!!docs/yaml",
-      "!!docs/markdown",
+      "!!docs-site/reference",
       "!!**/*.api.json",
       "!!**/*.api.md",
       "!!packages/create-gramstax/src/templates"

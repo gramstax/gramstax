@@ -1,0 +1,29 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGiftBlock](./gramstax.igiftblock.md)
+
+## IGiftBlock type
+
+Gift block for Telegram gifts.
+
+**Signature:**
+
+```typescript
+type IGiftBlock = {
+    text: string;
+};
+```
+
+## Remarks
+
+Declared with `<g-gift>` blocks. `text` supports the same `{{var|filter}}` interpolation pipeline as poll questions including HTML markup (`renderGift` sends with `text_parse_mode: HTML`).
+
+## Example
+
+
+```typescript
+const gift: IGiftBlock = {
+  text: `Hadiah <b>{{item}}</b> untukmu!`
+}
+```
+

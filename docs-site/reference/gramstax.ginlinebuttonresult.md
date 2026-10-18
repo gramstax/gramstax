@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GInlineButtonResult](./gramstax.ginlinebuttonresult.md)
+
+## GInlineButtonResult type
+
+Result of `TemplateManager.getGInlineButton` for a `<g-inline-button>` block.
+
+**Signature:**
+
+```typescript
+type GInlineButtonResult = {
+    kind: `inlineButton`;
+} & IInlineButtonBlock;
+```
+**References:** [IInlineButtonBlock](./gramstax.iinlinebuttonblock.md)
+
+## Remarks
+
+Extends [IInlineButtonBlock](./gramstax.iinlinebuttonblock.md) with the `inlineButton` kind discriminator.
+

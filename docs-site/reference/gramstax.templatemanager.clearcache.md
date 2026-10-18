@@ -1,0 +1,17 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [clearCache](./gramstax.templatemanager.clearcache.md)
+
+## TemplateManager.clearCache() method
+
+Clears compiled template and import caches.
+
+**Signature:**
+
+```typescript
+clearCache(): void;
+```
+**Returns:**
+
+void
+

@@ -1,0 +1,116 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGInvoice](./gramstax.templatemanager.getginvoice.md)
+
+## TemplateManager.getGInvoice() method
+
+Gets compiled from block \<g-invoice>.
+
+**Signature:**
+
+```typescript
+getGInvoice(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GInvoiceResult;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Template identifier (filename without extension)
+
+
+</td></tr>
+<tr><td>
+
+AGBaseId
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Base block ID matching `<g-base id="...">`
+
+
+</td></tr>
+<tr><td>
+
+ALang
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Target language code (falls back to `default`)
+
+
+</td></tr>
+<tr><td>
+
+data
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;
+
+
+</td><td>
+
+_(Optional)_ Template variables for interpolation
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+[GInvoiceResult](./gramstax.ginvoiceresult.md)
+
+[GInvoiceResult](./gramstax.ginvoiceresult.md) with the invoice payload flat under `kind: "invoice"`
+
+## Remarks
+
+Retrieves the compiled invoice function for the specified template and language, then executes it with the provided data to generate the invoice payload.
+
+## Example
+
+
+```typescript
+const invoice = tm.getGInvoice("vip-page", "default", "en", {orderId: "o-1"})
+// => {kind: "invoice", title: "...", description: "...", payload: "o-1", currency: "XTR", prices: [{label: "...", amount: 100}]}
+```
+

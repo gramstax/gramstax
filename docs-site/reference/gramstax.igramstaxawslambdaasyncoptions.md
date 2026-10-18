@@ -1,0 +1,30 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxAwsLambdaAsyncOptions](./gramstax.igramstaxawslambdaasyncoptions.md)
+
+## IGramstaxAwsLambdaAsyncOptions type
+
+`aws-lambda-async` adapter section of `optionsDeploy.serverless`.
+
+**Signature:**
+
+```typescript
+type IGramstaxAwsLambdaAsyncOptions = {
+    url?: string;
+    secretToken?: string;
+};
+```
+
+## Remarks
+
+The adapter is the KEY, so this type only exists under the `aws-lambda-async` key.
+
+This section currently has NO adapter-specific fields: `lambda.ts` emits only `lambda.js` and no AWS-side artifact, so there is nothing to configure yet. AWS settings (`functionName`, `memorySize`, `timeoutMs`, `architecture`) are deliberately absent — adding them before an emitter exists would create knobs that silently do nothing.
+
+## Example
+
+
+```typescript
+const section: IGramstaxAwsLambdaAsyncOptions = {url: `https://example.com/webhook`, secretToken: process.env.BOT_WEBHOOK_SECRET ?? ``}
+```
+

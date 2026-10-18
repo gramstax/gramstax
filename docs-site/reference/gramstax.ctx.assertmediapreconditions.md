@@ -1,0 +1,73 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertMediaPreconditions](./gramstax.ctx.assertmediapreconditions.md)
+
+## Ctx.assertMediaPreconditions() method
+
+Fail-fast pre-send checks for one single-media payload (programmer errors always throw, never fall back): unknown type, upload size, voice caption, caption length.
+
+**Signature:**
+
+```typescript
+static assertMediaPreconditions(type: string, med: {
+        src?: unknown;
+        caption?: unknown;
+    }): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+type
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Media type (e.g. `photo`).
+
+
+</td></tr>
+<tr><td>
+
+med
+
+
+</td><td>
+
+&#123; src?: unknown; caption?: unknown; &#125;
+
+
+</td><td>
+
+Template media block (`src` + `caption` are read).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+

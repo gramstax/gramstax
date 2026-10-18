@@ -1,0 +1,18 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [\_\_esc](./gramstax.__esc.md)
+
+## \_\_esc variable
+
+Runtime escape helper for AOT-generated template code.
+
+**Signature:**
+
+```typescript
+__esc: typeof TemplateEngine._escapeData
+```
+
+## Remarks
+
+Same function the JIT path closes over (`__esc` in generated bodies).
+

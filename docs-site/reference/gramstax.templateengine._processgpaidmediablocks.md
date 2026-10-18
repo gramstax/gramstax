@@ -1,0 +1,70 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGPaidMediaBlocks](./gramstax.templateengine._processgpaidmediablocks.md)
+
+## TemplateEngine.\_processGPaidMediaBlocks() method
+
+Parses `<g-paid-media>` blocks into Stars paywall definitions.
+
+**Signature:**
+
+```typescript
+static _processGPaidMediaBlocks(template: string): {
+        [lang: string]: IPaidMediaBlock;
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The template string containing `<g-paid-media>` blocks
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; \[lang: string\]: [IPaidMediaBlock](./gramstax.ipaidmediablock.md); &#125;
+
+An object mapping language keys to their paid-media configurations
+
+## Remarks
+
+Each block carries its price as a `stars` attribute (optional `lang`) with 1–10 inner `<g-media type="photo"|"video" src>` items as children. Raw attribute strings are preserved verbatim (including `{{var|filter}}` spans) for later compilation; `stars` is parsed to a number eagerly (`NaN` when non-numeric — rejected by the validator and at runtime). Child `type` values pass through as-is so the validator can reject non-photo/video types with a clear message. Structural rules (required `stars`, price range, item count/types) are enforced by `validateBlockGPaidMediaAttributes`, not here.
+
+## Example
+
+
+```typescript
+const walls = TemplateEngine._processGPaidMediaBlocks(`<g-paid-media stars="100"><g-media type="photo" src="{{teaser}}">Bayar untuk membuka</g-media></g-paid-media>`);
+// Result: { default: { stars: 100, media: [{type: 'photo', src: '{{teaser}}', caption: 'Bayar untuk membuka'}] } }
+```
+

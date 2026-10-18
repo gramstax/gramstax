@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [handlers](./gramstax.mocktelegramserver.handlers.md)
+
+## MockTelegramServer.handlers property
+
+Custom handlers for specific Telegram methods (e.g. getMe).
+
+**Signature:**
+
+```typescript
+handlers: Record<string, IMockTelegramHandler>;
+```

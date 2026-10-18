@@ -1,0 +1,70 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md) &gt; [timeCheck](./gramstax.logginghelper.timecheck.md)
+
+## LoggingHelper.timeCheck() method
+
+Get the elapsed time for a running timer without ending it.
+
+**Signature:**
+
+```typescript
+timeCheck(label: string): string | undefined;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+label
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The timer label to check.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+string \| undefined
+
+Elapsed time in milliseconds, or `undefined` if timer doesn't exist.
+
+## Example
+
+
+```typescript
+const logger = new LoggingHelper();
+
+logger.time("long-process");
+// ... do some work ...
+const elapsed = logger.timeCheck("long-process");
+logger.info(`Progress check: ${elapsed}ms elapsed`);
+// ... continue work ...
+logger.timeEnd("long-process");
+```
+

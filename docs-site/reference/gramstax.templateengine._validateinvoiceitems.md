@@ -1,0 +1,63 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validateInvoiceItems](./gramstax.templateengine._validateinvoiceitems.md)
+
+## TemplateEngine.\_validateInvoiceItems() method
+
+Validates `<g-invoice>` required attributes, secrets ban, and `<g-price>` items.
+
+**Signature:**
+
+```typescript
+static _validateInvoiceItems(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template source to inspect.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Array&lt;&#123; line: number; message: string; &#125;&gt;
+
+Validation errors (empty when valid).
+
+## Remarks
+
+Enforces the Telegram `sendInvoice` constraints: `title`, `description`, `payload`, and `currency` must be present and non-empty; `provider_token` is forbidden (secrets must come from `renderInvoice` options, never templates); at least one `<g-price>` with a non-empty `label` and a positive integer `amount` is required; `currency` must be a 3-letter code. Static length limits (title 1–32 chars, description 1–255 chars, payload 1–128 bytes per the Bot API) apply only when the value carries no `{{}}` / `{~ ~}` interpolation — dynamic lengths are checked at runtime on the compiled strings. Called by [TemplateEngine.validateBlockGInvoiceAttributes()](./gramstax.templateengine.validateblockginvoiceattributes.md); errors carry 1-based line numbers.
+

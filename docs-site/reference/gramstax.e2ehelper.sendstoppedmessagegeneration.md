@@ -1,0 +1,60 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendStoppedMessageGeneration](./gramstax.e2ehelper.sendstoppedmessagegeneration.md)
+
+## E2eHelper.sendStoppedMessageGeneration() method
+
+Alias for `sendStoppedGeneration` (Bot API 10.3).
+
+**Signature:**
+
+```typescript
+sendStoppedMessageGeneration(options?: IE2eUpdateOptions & {
+        chat?: IE2eChat;
+        draft_id?: number;
+        message_thread_id?: number;
+    }): Promise<IE2eApiCall[]>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+options
+
+
+</td><td>
+
+[IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md) &amp; &#123; chat?: [IE2eChat](./gramstax.ie2echat.md); draft\_id?: number; message\_thread\_id?: number; &#125;
+
+
+</td><td>
+
+_(Optional)_ Chat, draft, thread and response options
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;[IE2eApiCall](./gramstax.ie2eapicall.md)\[\]&gt;
+
+API calls made while processing this update
+

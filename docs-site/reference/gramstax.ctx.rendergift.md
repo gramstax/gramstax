@@ -1,0 +1,73 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderGift](./gramstax.ctx.rendergift.md)
+
+## Ctx.renderGift() method
+
+Sends a Telegram gift with card text from the page template.
+
+Template block: `<g-gift>` (read via `getGGift`).
+
+**Signature:**
+
+```typescript
+renderGift(params: IRenderGiftParams): Promise<true>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+params
+
+
+</td><td>
+
+[IRenderGiftParams](./gramstax.irendergiftparams.md)
+
+
+</td><td>
+
+Gift params: `target` gift recipient user id (required); `giftId` Telegram gift identifier (required); `keyboard` must stay null/omitted — `sendGift` carries no reply markup, so any keyboard value throws before any API call; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional gift options (or null to omit).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;true&gt;
+
+`true` on success.
+
+## Remarks
+
+Card text comes from the `<g-gift>` block via `getGGift` (the `text` param on `sendGift` is what qualifies this as `render*`) and is sent via `api.sendGift`. `target` (user id) is explicit because gifts do not always go to the active chat — unlike every other render method.
+
+Failure rule: insufficient Stars balance (`400`) throws after notify — a failed gift MUST NOT degrade into sending the card as plain text (that would deceive the user). No silent fallback on any path.
+
+## Example
+
+
+```typescript
+async handleCallbackQueryData() {
+  await this.renderGift({target: 123456, giftId: `gift-id`, AGBaseId: `gift-card`})
+}
+```
+

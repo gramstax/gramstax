@@ -1,0 +1,56 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [extractText](./gramstax.e2ehelper.extracttext.md)
+
+## E2eHelper.extractText() method
+
+Extract text content from a captured API call, handling both `sendMessage` (body.text) and `sendRichMessage` (body.rich\_message.html).
+
+**Signature:**
+
+```typescript
+extractText(call: IE2eApiCall): string | undefined;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+call
+
+
+</td><td>
+
+[IE2eApiCall](./gramstax.ie2eapicall.md)
+
+
+</td><td>
+
+Captured API call.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+string \| undefined
+
+The message text, or `undefined` if neither field is present.
+

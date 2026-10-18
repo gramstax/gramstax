@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptGift](./gramstax.ioptgift.md)
+
+## IOptGift type
+
+Options parameter mirroring `Context.replyWithGift`.
+
+**Signature:**
+
+```typescript
+type IOptGift = Parameters<Context[`replyWithGift`]>[1];
+```

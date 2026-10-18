@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptInlineAnswer](./gramstax.ioptinlineanswer.md)
+
+## IOptInlineAnswer type
+
+Options parameter mirroring `Context.answerInlineQuery`.
+
+**Signature:**
+
+```typescript
+type IOptInlineAnswer = Parameters<Context[`answerInlineQuery`]>[1];
+```

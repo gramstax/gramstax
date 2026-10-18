@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptInvoice](./gramstax.ioptinvoice.md)
+
+## IOptInvoice type
+
+Invoice send options — `Ctx.replyWithInvoice` argument index `[5]` (the `other` bag of `sendInvoice`). `provider_token` is deliberately NOT part of this type: the payment provider secret is content, not a call option, and rides on the invoice params' own `provider_token` field.
+
+**Signature:**
+
+```typescript
+type IOptInvoice = Parameters<Ctx[`replyWithInvoice`]>[5];
+```
+**References:** [Ctx](./gramstax.ctx.md)
+

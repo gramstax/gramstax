@@ -1,0 +1,70 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBottomKbWithCtx](./gramstax.ibottomkbwithctx.md) &gt; [text](./gramstax.ibottomkbwithctx.text.md)
+
+## IBottomKbWithCtx.text() method
+
+Add a text button. `text` is a page (class/instance) or string.
+
+**Signature:**
+
+```typescript
+text(text: string | typeof Ctx | Ctx, options?: Parameters<Keyboard[`text`]>[1]): this;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+text
+
+
+</td><td>
+
+string \| typeof [Ctx](./gramstax.ctx.md) \| [Ctx](./gramstax.ctx.md)
+
+
+</td><td>
+
+string or class Page
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+Parameters&lt;Keyboard\[\`text\`\]&gt;\[1\]
+
+
+</td><td>
+
+_(Optional)_ for styling
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+this
+

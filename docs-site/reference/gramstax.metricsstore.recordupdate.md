@@ -1,0 +1,70 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MetricsStore](./gramstax.metricsstore.md) &gt; [recordUpdate](./gramstax.metricsstore.recordupdate.md)
+
+## MetricsStore.recordUpdate() method
+
+Record one routed update.
+
+**Signature:**
+
+```typescript
+recordUpdate(listenerName: string, durationMs: number): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+listenerName
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Listener that triggered the update.
+
+
+</td></tr>
+<tr><td>
+
+durationMs
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Handler wall time in milliseconds.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+

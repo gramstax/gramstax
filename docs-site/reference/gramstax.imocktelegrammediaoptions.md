@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMockTelegramMediaOptions](./gramstax.imocktelegrammediaoptions.md)
+
+## IMockTelegramMediaOptions type
+
+Options for generated mock media message updates.
+
+**Signature:**
+
+```typescript
+type IMockTelegramMediaOptions = IMockTelegramUpdateOptions & {
+    caption?: string;
+};
+```
+**References:** [IMockTelegramUpdateOptions](./gramstax.imocktelegramupdateoptions.md)
+
+## Remarks
+
+Extends `IMockTelegramUpdateOptions` with a `caption` field. Used by `sendPhoto`, `sendVideo`, `sendAudio`, `sendDocument`, `sendAnimation`, and `sendVoice`.
+

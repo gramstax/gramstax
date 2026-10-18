@@ -1,0 +1,31 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [getPollingQueueStats](./gramstax.gramstax.getpollingqueuestats.md)
+
+## Gramstax.getPollingQueueStats() method
+
+Live polling queue statistics.
+
+**Signature:**
+
+```typescript
+getPollingQueueStats(): {
+        length: number;
+        maxSize: number;
+        waitingEnqueue: number;
+        waitingDequeue: number;
+        enabled: boolean;
+        maxQueueSize: number;
+        workerCount: number;
+        perChatConcurrency: number;
+        drainTimeoutMs: number;
+        activeKeys: number;
+        waiting: number;
+    } | null;
+```
+**Returns:**
+
+\{ length: number; maxSize: number; waitingEnqueue: number; waitingDequeue: number; enabled: boolean; maxQueueSize: number; workerCount: number; perChatConcurrency: number; drainTimeoutMs: number; activeKeys: number; waiting: number; } \| null
+
+Stats when the polling queue is enabled, otherwise `null`.
+

@@ -1,0 +1,15 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptVenue](./gramstax.ioptvenue.md)
+
+## IOptVenue type
+
+Venue send options — `Ctx.replyWithVenue` argument index `[4]` (the `other` bag of `sendVenue`).
+
+**Signature:**
+
+```typescript
+type IOptVenue = Parameters<Ctx[`replyWithVenue`]>[4];
+```
+**References:** [Ctx](./gramstax.ctx.md)
+

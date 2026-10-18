@@ -1,0 +1,68 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LabelGKeyboard](./gramstax.labelgkeyboard.md) &gt; [\_reverse](./gramstax.labelgkeyboard._reverse.md)
+
+## LabelGKeyboard.\_reverse() method
+
+Reverse the order of comma-separated button labels.
+
+**Signature:**
+
+```typescript
+static _reverse(input: string): string;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+input
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Comma-separated button labels. Escaped commas (`\,`) are preserved.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+string
+
+Reversed comma-separated labels.
+
+## Example
+
+
+```typescript
+const reversed = LabelGKeyboard._reverse("Back, Next, Submit");
+// => "Submit, Next, Back"
+
+// Escaped commas are preserved
+const preserved = LabelGKeyboard._reverse("Option A\\, B, Option C");
+// => "Option C, Option A\\, B"
+```
+

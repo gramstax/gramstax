@@ -1,0 +1,13 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [metrics](./gramstax.gramstax.metrics.md)
+
+## Gramstax.metrics property
+
+Runtime metrics snapshot source (observability).
+
+**Signature:**
+
+```typescript
+readonly metrics: MetricsStore;
+```

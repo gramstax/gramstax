@@ -1,0 +1,19 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [resolveFallbackText](./gramstax.ctx.resolvefallbacktext.md)
+
+## Ctx.resolveFallbackText() method
+
+Resolve the effective fallback text (per-page override or framework default).
+
+**Signature:**
+
+```typescript
+resolveFallbackText(): string;
+```
+**Returns:**
+
+string
+
+`this.fallbackText` when set, else `Ctx.FALLBACK_TEXT`.
+

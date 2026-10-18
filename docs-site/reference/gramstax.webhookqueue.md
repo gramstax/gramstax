@@ -1,0 +1,23 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [WebhookQueue](./gramstax.webhookqueue.md)
+
+## WebhookQueue variable
+
+> Warning: This API is now obsolete.
+> 
+> Renamed to [UpdateQueue](./gramstax.updatequeue.md). Kept as an alias for the public barrel; will be removed in the next major version.
+> 
+
+Legacy alias for [UpdateQueue](./gramstax.updatequeue.md).
+
+**Signature:**
+
+```typescript
+WebhookQueue: typeof UpdateQueue
+```
+
+## Remarks
+
+The queue stopped being webhook-specific when polling adopted it, so the class was renamed. The alias is the same object — not a subclass — so `WebhookQueue === UpdateQueue` holds and `instanceof` works both ways.
+

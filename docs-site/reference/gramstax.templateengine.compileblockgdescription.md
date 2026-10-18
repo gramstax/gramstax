@@ -1,0 +1,101 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGDescription](./gramstax.templateengine.compileblockgdescription.md)
+
+## TemplateEngine.compileBlockGDescription() method
+
+Compiles description blocks from a template into executable functions.
+
+**Signature:**
+
+```typescript
+static compileBlockGDescription(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [AScope: string]: {
+                [ALang: string]: (data?: ITemplateData) => string;
+            };
+        };
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Raw template string containing `<g-base>` and `<g-description>` blocks
+
+
+</td></tr>
+<tr><td>
+
+gBaseBlocks
+
+
+</td><td>
+
+ReturnType&lt;typeof TemplateEngine.\_processGBaseBlocks&gt;
+
+
+</td><td>
+
+_(Optional)_ Optional pre-parsed base blocks for reuse
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; \[AGBaseId: string\]: &#123; \[AScope: string\]: &#123; \[ALang: string\]: (data?: ITemplateData) =&gt; string; &#125;; &#125;; &#125;
+
+Compiled description functions organized by base ID, scope, and language
+
+## Remarks
+
+This method parses `<g-description>` blocks from the template and compiles them into functions that generate rendered description strings. The result is organized by base ID, scope, and language. Used for Telegram bot command descriptions.
+
+Processing pipeline (in order, per description): 1. `_processGScriptBlocks` – converts `<g-script>` blocks into executable expressions 2. `_processGMapBlocks` – converts `<g-map>` blocks into array map expressions 3. `_processGSwitchBlocks` – converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` – evaluates scope execution blocks (implementation-defined) 5. `_processScopeVariables` – resolves scope variables (implementation-defined) 6. `_compileToFunction(processed, false)` – produces the final render function
+
+Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted) - Second level key: `AScope` (from `<g-description scope="...">`, or `"default"` if omitted) - Third level key: `ALang` (from `<g-description lang="...">`, or `"default"` if omitted) - Value: `(data?: Record<string, unknown>) => string`
+
+## Example
+
+
+```typescript
+const template = `
+  <g-base>
+    <g-description>Start the bot</g-description>
+    <g-description scope="chat_administrators">Admin command</g-description>
+  </g-base>
+`;
+const descriptions = TemplateEngine.compileBlockGDescription(template);
+const result = descriptions.default?.default?.default?.({});
+// Result: 'Start the bot'
+```
+

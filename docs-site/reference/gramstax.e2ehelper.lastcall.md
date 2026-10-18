@@ -1,0 +1,64 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [lastCall](./gramstax.e2ehelper.lastcall.md)
+
+## E2eHelper.lastCall() method
+
+Find the most recent captured API call.
+
+**Signature:**
+
+```typescript
+lastCall(method?: string): IE2eApiCall | undefined;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+method
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Optional method name to filter by (e.g. `"sendMessage"`).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+[IE2eApiCall](./gramstax.ie2eapicall.md) \| undefined
+
+The last matching call, or `undefined` if none found.
+
+## Example
+
+
+```typescript
+const last = e2e.lastCall()
+const msg  = e2e.lastCall("sendMessage")
+```
+

@@ -1,0 +1,24 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxExplicitBuildKeys](./gramstax.igramstaxexplicitbuildkeys.md)
+
+## IGramstaxExplicitBuildKeys type
+
+Which build-relevant keys a `gramstax.config.ts` file explicitly defines.
+
+**Signature:**
+
+```typescript
+type IGramstaxExplicitBuildKeys = {
+    hasFile: boolean;
+    deploy: boolean;
+    adapter: boolean;
+    name: boolean;
+    url: boolean;
+};
+```
+
+## Remarks
+
+The merged `loadConfig` result cannot distinguish "from file" vs "default", so `gramstax build --dry-run` consults this helper to annotate each printed value with its source (`flag` wins, else `config` when the file exists and defines the key, else `default`). Reads the raw default export without validation — callers must `loadConfig` first so invalid shapes still throw the usual `Invalid gramstax config` error.
+

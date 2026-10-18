@@ -1,0 +1,105 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [stopLiveLocation](./gramstax.ctx.stoplivelocation.md)
+
+## Ctx.stopLiveLocation() method
+
+Stops a live location message, freezing it at its last position.
+
+**Signature:**
+
+```typescript
+stopLiveLocation(chatId: number, messageId: number, options?: Parameters<Ctx[`api`][`stopMessageLiveLocation`]>[2] | null): Promise<true | (grammy_types.Update.Edited & Message.CommonMessage & {
+        location: grammy_types.Location;
+    })>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+chatId
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Chat holding the live location message.
+
+
+</td></tr>
+<tr><td>
+
+messageId
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Message id of the live location to stop.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+Parameters&lt;[Ctx](./gramstax.ctx.md)\[\`api\`\]\[\`stopMessageLiveLocation\`\]&gt;\[2\] \| null
+
+
+</td><td>
+
+_(Optional)_ Optional extra `stopMessageLiveLocation` fields (or null to omit).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;true \| (grammy\_types.Update.Edited &amp; Message.CommonMessage &amp; \{ location: grammy\_types.Location; })&gt;
+
+`true` on success.
+
+## Remarks
+
+Thin passthrough to `api.stopMessageLiveLocation` — no template involved. Use with a message previously sent by [Ctx.renderLocation()](./gramstax.ctx.renderlocation.md) with a `live` period. There is no live-edit method by design: live position updates go via raw `api.editMessageLiveLocation`.
+
+why-not-base: base `Context.stopMessageLiveLocation` omits `chat_id`/`message_id` (current-context only); this targets any chat/message.
+
+## Example
+
+
+```typescript
+async handleStopSharing() {
+  await this.stopLiveLocation(this.chat!.id, 42)
+}
+```
+

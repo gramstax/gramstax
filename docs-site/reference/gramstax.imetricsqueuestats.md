@@ -1,0 +1,23 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMetricsQueueStats](./gramstax.imetricsqueuestats.md)
+
+## IMetricsQueueStats type
+
+Queue statistics accepted by [metricsToPrometheus()](./gramstax.metricstoprometheus.md).
+
+**Signature:**
+
+```typescript
+type IMetricsQueueStats = {
+    length?: number;
+    maxSize?: number;
+    waitingEnqueue?: number;
+    waitingDequeue?: number;
+};
+```
+
+## Remarks
+
+Snapshot of the webhook queue depth at scrape time. All fields are point-in-time counts (unitless). Omitted fields are skipped in the Prometheus exposition instead of being emitted as zero.
+

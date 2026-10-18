@@ -1,0 +1,22 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBroadcastReviseParams](./gramstax.ibroadcastreviseparams.md)
+
+## IBroadcastReviseParams type
+
+Broadcast revise selector for the `broadcast` field of `renderMedia`.
+
+**Signature:**
+
+```typescript
+type IBroadcastReviseParams = {
+    targets: IBroadcastEditTarget[];
+    reviseOptions?: IBroadcastEditOpts | null;
+};
+```
+**References:** [IBroadcastEditTarget](./gramstax.ibroadcastedittarget.md), [IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md)
+
+## Remarks
+
+`photo`, `video`, `audio`, `document`, and `animation` edit in place via `editMessageMedia`; the remaining types cannot be edited, so the old message is deleted and a new one is sent. `reviseOptions.fallback` applies per recipient when the primary edit/resend fails.
+

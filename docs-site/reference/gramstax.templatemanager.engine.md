@@ -1,0 +1,18 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [engine](./gramstax.templatemanager.engine.md)
+
+## TemplateManager.engine property
+
+Reference to the TemplateEngine class for compilation.
+
+**Signature:**
+
+```typescript
+engine: typeof TemplateEngine;
+```
+
+## Remarks
+
+Uses [TemplateEngine](./gramstax.templateengine.md) static compile helpers.
+

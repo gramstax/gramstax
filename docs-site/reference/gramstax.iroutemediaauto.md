@@ -1,0 +1,29 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteMediaAuto](./gramstax.iroutemediaauto.md)
+
+## IRouteMediaAuto type
+
+Media route atom: runtime-decided single media message.
+
+**Signature:**
+
+```typescript
+type IRouteMediaAuto<T extends IMediaKind> = INeverFields<`options` | `editOptions` | `rich` | `richOptions` | `captionOptions`> & {
+    mode?: `auto` | `edit`;
+    keyboard?: IInBoKb | null;
+    media?: IMediaEditOpt1<T> | null;
+    mediaOptions?: IOptEditMedia2 | null;
+    resendOptions?: IMediaReplyOpt<T> | null;
+    fallback?: IOptFallbackEdit;
+    fallbackOptions?: IMediaReplyOpt<T> | null;
+    broadcast?: null | undefined;
+    chunkSize?: null | undefined;
+};
+```
+**References:** [INeverFields](./gramstax.ineverfields.md), [IInBoKb](./gramstax.iinbokb.md), [IOptEditMedia2](./gramstax.iopteditmedia2.md), [IOptFallbackEdit](./gramstax.ioptfallbackedit.md)
+
+## Remarks
+
+`auto` edits when the update carries a `callbackQuery`, otherwise sends; `edit` always edits. Both reach the same kind-specific calls, so they share one member — narrowing `keyboard` per mode is not possible here anyway, because the delete-and-resend path is a send.
+

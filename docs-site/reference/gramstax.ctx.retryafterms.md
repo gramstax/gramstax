@@ -1,0 +1,60 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [retryAfterMs](./gramstax.ctx.retryafterms.md)
+
+## Ctx.retryAfterMs() method
+
+Extract the Bot API `retry_after` hint in milliseconds, if present.
+
+**Signature:**
+
+```typescript
+static retryAfterMs(err: unknown): number | undefined;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+err
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+The error thrown by the send call.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+number \| undefined
+
+Milliseconds to wait, or `undefined` when unknown.
+
+## Remarks
+
+Reads `parameters.retry_after` (seconds) off a `GrammyError` and converts to ms. Returns `undefined` for non-`GrammyError` errors and when the hint is missing or non-numeric. Informational only — pacing is owned elsewhere.
+

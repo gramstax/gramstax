@@ -1,0 +1,98 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [hookNotFoundPage](./gramstax.gramstax.hooknotfoundpage.md)
+
+## Gramstax.hookNotFoundPage() method
+
+Hook called when no page handler matches the input.
+
+**Signature:**
+
+```typescript
+/** @virtual */
+hookNotFoundPage?(ctx: ICtx, data?: {
+        listenerName: string;
+        isEdit: boolean;
+    }): Promise<void>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+ctx
+
+
+</td><td>
+
+ICtx
+
+
+</td><td>
+
+The context instance.
+
+
+</td></tr>
+<tr><td>
+
+data
+
+
+</td><td>
+
+&#123; listenerName: string; isEdit: boolean; &#125;
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;void&gt;
+
+## Remarks
+
+A throw from here is treated as a handler failure rather than propagated: it routes to [Gramstax.hookErrorPage()](./gramstax.gramstax.hookerrorpage.md), which is guarded, so a broken fallback page still leaves the user with an error message instead of silence.
+
+## Example 1
+
+Simple
+
+```typescript
+async hookNotFoundPage(ctx: Ctx) {
+  await new StatusPage(ctx).bnotFound.show()
+}
+```
+
+## Example 2
+
+Advanced
+
+```typescript
+async hookNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookNotFoundPage`]>>[1]>) {
+  await new StatusPage(ctx).bnotFound.show()
+}
+```
+

@@ -1,0 +1,21 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GGiftResult](./gramstax.ggiftresult.md)
+
+## GGiftResult type
+
+Result of `TemplateManager.getGGift` for a `<g-gift>` block.
+
+**Signature:**
+
+```typescript
+type GGiftResult = {
+    kind: `gift`;
+    text: string;
+};
+```
+
+## Remarks
+
+`text` is the rendered gift card text; the getter throws when the block is missing (gifts always need card text).
+

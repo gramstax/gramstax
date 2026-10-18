@@ -1,0 +1,123 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validateBlockAttributes](./gramstax.templateengine._validateblockattributes.md)
+
+## TemplateEngine.\_validateBlockAttributes() method
+
+Shared helper: validates attributes on a specific block tag.
+
+**Signature:**
+
+```typescript
+static _validateBlockAttributes(template: string, tagName: string, allowedAttributes: Set<string>, allowedLabel: string, valueValidators?: Record<string, (value: string) => string | null>): Array<{
+        line: number;
+        message: string;
+    }>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template string
+
+
+</td></tr>
+<tr><td>
+
+tagName
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Block tag name (e.g. `g-base`, `g-message`)
+
+
+</td></tr>
+<tr><td>
+
+allowedAttributes
+
+
+</td><td>
+
+Set&lt;string&gt;
+
+
+</td><td>
+
+Set of allowed attribute names
+
+
+</td></tr>
+<tr><td>
+
+allowedLabel
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Text listing allowed attributes for error messages (e.g. `"id"`)
+
+
+</td></tr>
+<tr><td>
+
+valueValidators
+
+
+</td><td>
+
+Record&lt;string, (value: string) =&gt; string \| null&gt;
+
+
+</td><td>
+
+_(Optional)_ Optional per-attribute value validators; return error message or null
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Array&lt;\{ line: number; message: string; }&gt;
+
+Array of line, message errors
+

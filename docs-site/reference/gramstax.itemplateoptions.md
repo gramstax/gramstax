@@ -1,0 +1,34 @@
+
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ITemplateOptions](./gramstax.itemplateoptions.md)
+
+## ITemplateOptions type
+
+Configuration options for TemplateManager initialization.
+
+**Signature:**
+
+```typescript
+type ITemplateOptions = {
+    path: string[];
+    enableWatch?: boolean;
+    watchOptions?: ChokidarOptions;
+    onReload?: () => void;
+};
+```
+
+## Remarks
+
+Pass this object to the TemplateManager constructor to configure template paths, hot-reloading, and watcher behavior.
+
+## Example
+
+
+```typescript
+const options = {
+  path: [join(process.cwd(), `src`, `pages`)],
+  enableWatch: true,
+  watchOptions: {ignored: /node_modules/}
+}
+```
+
