@@ -315,7 +315,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   webhookQueueInstance?: UpdateQueue<Update>
 
   /**
-   * Worker pool draining {@link webhookQueueInstance} through a per-chat gate.
+   * Worker pool draining {@link (Gramstax:class).webhookQueueInstance} through a per-chat gate.
    *
    * @remarks
    * `undefined` unless the queue is enabled. `stop()` awaits
@@ -326,8 +326,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   webhookDispatcher?: UpdateDispatcher
 
   /**
-   * Drain budget handed to {@link webhookDispatcher}, reported by
-   * {@link getWebhookQueueStats}.
+   * Drain budget handed to {@link (Gramstax:class).webhookDispatcher}, reported by
+   * {@link (Gramstax:class).getWebhookQueueStats}.
    * @internal
    */
   webhookDrainTimeoutMs = QUEUE_DRAIN_TIMEOUT_DEFAULT

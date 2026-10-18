@@ -1437,7 +1437,7 @@ export class TemplateEngine {
    * strict-mode module and survives the AOT `with(` guard. Bare identifiers are rewritten to
    * optional `data` reads by {@link TemplateEngine._rewriteScopeIdentifiers}.
    *
-   * `@param template - The template string containing `<g-ifelse>` blocks
+   * @param template - The template string containing `<g-ifelse>` blocks
    * @returns The template with each block replaced by its interpolation
    *
    * @example

@@ -564,8 +564,7 @@ export type IGramstaxWebhookDeployOptions = {
    * `maxQueueSize (positive number)`, `workerCount (number >= 1)`,
    * `perChatConcurrency (number >= 0)`, `blockWhenFull (boolean)`,
    * `enqueueTimeoutMs (non-negative number)`, `waiterTimeoutMs (non-negative number)`,
-   * `drainTimeoutMs (non-negative number)`. Unknown
-   * fields are rejected.s are rejected.
+   * `drainTimeoutMs (non-negative number)`. Unknown fields are rejected.
    *
    * @example
    * ```typescript
@@ -640,8 +639,8 @@ export type IGramstaxPollingDeployOptions = {
    * Accepted keys: `enabled (boolean)`, `maxQueueSize (positive number)`,
    * `workerCount (number >= 1)`, `perChatConcurrency (number >= 0)`,
    * `blockWhenFull (boolean)`, `enqueueTimeoutMs (non-negative number)`,
-   * `waiterTimeoutMs (non-negative number)`, `drainTimeoutMs (non-negative
-   * number)`. Unknown fields are rejected.
+   * `waiterTimeoutMs (non-negative number)`, `drainTimeoutMs (non-negative number)`.
+   * Unknown fields are rejected.
    *
    * @example
    * ```typescript

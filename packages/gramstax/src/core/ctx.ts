@@ -2977,10 +2977,9 @@ export class Ctx extends Context {
    * `\n` → space → hard-cut; pieces trimmed, empties skipped) and sent
    * sequentially with the keyboard ONLY on the last chunk — rich templates
    * through `replyWithRichMessage`, plain text through `reply` with
-   * `parse_mode: HTML`. `chunkSize` is sanitised (`Number.isFinite(chunkSize)
-   * && chunkSize > 0 ? Math.floor(chunkSize) : 4096`). On mid-loop failure
-   * the error is classified, reported to `notifySendError`, stamped with
-   * `chunkIndex`, logged, rethrown.
+   * `parse_mode: HTML`. `chunkSize` is sanitised (`Number.isFinite(chunkSize) && chunkSize > 0 ? Math.floor(chunkSize) : 4096`).
+   * On mid-loop failure the error is classified, reported to `notifySendError`,
+   * stamped with `chunkIndex`, logged, rethrown.
    *
    * @param params - Chunked send params: `text` the fully-rendered block text; `rich` whether the block is a rich template; `keyboard` optional keyboard markup, sent only on the last chunk (or null to omit); `options` optional plain-text reply options spread on every chunk (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `chunkSize` max characters per chunk.
    * @returns The sent message objects in order.
