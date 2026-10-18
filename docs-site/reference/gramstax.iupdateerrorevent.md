@@ -1,4 +1,6 @@
-
+---
+title: "IUpdateErrorEvent"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IUpdateErrorEvent](./gramstax.iupdateerrorevent.md)
 

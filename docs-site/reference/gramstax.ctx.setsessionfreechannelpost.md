@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeChannelPost()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeChannelPost](./gramstax.ctx.setsessionfreechannelpost.md)
 

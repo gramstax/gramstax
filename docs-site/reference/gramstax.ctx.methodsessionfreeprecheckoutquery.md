@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreePreCheckoutQuery()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreePreCheckoutQuery](./gramstax.ctx.methodsessionfreeprecheckoutquery.md)
 

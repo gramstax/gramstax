@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.handlerBotUpdate"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [handlerBotUpdate](./gramstax.gramstax.handlerbotupdate.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IUpdateQueueConfig"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)
 

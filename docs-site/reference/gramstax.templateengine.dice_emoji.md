@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.DICE_EMOJI"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [DICE\_EMOJI](./gramstax.templateengine.dice_emoji.md)
 

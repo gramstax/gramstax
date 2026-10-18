@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._TELEGRAM_ALLOWED_ATTRS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_TELEGRAM\_ALLOWED\_ATTRS](./gramstax.templateengine._telegram_allowed_attrs.md)
 

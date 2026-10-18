@@ -1,4 +1,6 @@
-
+---
+title: "IE2eApiCall"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eApiCall](./gramstax.ie2eapicall.md)
 

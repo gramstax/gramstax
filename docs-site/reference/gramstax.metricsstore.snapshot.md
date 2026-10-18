@@ -1,4 +1,6 @@
-
+---
+title: "MetricsStore.snapshot()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MetricsStore](./gramstax.metricsstore.md) &gt; [snapshot](./gramstax.metricsstore.snapshot.md)
 

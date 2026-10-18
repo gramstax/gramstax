@@ -1,4 +1,6 @@
-
+---
+title: "IDeployMode"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IDeployMode](./gramstax.ideploymode.md)
 

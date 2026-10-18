@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderGuestAnswer()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderGuestAnswer](./gramstax.ctx.renderguestanswer.md)
 

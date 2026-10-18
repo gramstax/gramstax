@@ -1,4 +1,6 @@
-
+---
+title: "IRenderInvoiceParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderInvoiceParams](./gramstax.irenderinvoiceparams.md)
 

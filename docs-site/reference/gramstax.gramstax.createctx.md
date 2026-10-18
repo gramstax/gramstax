@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.createCtx()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [createCtx](./gramstax.gramstax.createctx.md)
 

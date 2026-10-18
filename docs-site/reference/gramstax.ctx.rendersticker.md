@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderSticker()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderSticker](./gramstax.ctx.rendersticker.md)
 

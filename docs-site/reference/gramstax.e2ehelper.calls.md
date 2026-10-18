@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.calls"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [calls](./gramstax.e2ehelper.calls.md)
 

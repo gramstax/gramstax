@@ -1,4 +1,6 @@
-
+---
+title: "IKbPageLike"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IKbPageLike](./gramstax.ikbpagelike.md)
 

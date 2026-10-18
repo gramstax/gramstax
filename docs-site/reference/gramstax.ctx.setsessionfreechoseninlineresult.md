@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeChosenInlineResult()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeChosenInlineResult](./gramstax.ctx.setsessionfreechoseninlineresult.md)
 

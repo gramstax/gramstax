@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGIfElseAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGIfElseAttributes](./gramstax.templateengine.validateblockgifelseattributes.md)
 

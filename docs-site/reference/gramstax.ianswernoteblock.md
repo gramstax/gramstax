@@ -1,4 +1,6 @@
-
+---
+title: "IAnswerNoteBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IAnswerNoteBlock](./gramstax.ianswernoteblock.md)
 

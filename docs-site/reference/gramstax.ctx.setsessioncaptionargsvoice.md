@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionCaptionArgsVoice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionCaptionArgsVoice](./gramstax.ctx.setsessioncaptionargsvoice.md)
 

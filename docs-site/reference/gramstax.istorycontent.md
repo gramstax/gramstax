@@ -1,4 +1,6 @@
-
+---
+title: "IStoryContent"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IStoryContent](./gramstax.istorycontent.md)
 

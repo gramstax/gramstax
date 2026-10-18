@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeRefundedPayment()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeRefundedPayment](./gramstax.ctx.setsessionfreerefundedpayment.md)
 

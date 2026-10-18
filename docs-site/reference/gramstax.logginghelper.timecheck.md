@@ -1,4 +1,6 @@
-
+---
+title: "LoggingHelper.timeCheck()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md) &gt; [timeCheck](./gramstax.logginghelper.timecheck.md)
 

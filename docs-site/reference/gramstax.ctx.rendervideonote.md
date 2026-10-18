@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderVideoNote()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderVideoNote](./gramstax.ctx.rendervideonote.md)
 

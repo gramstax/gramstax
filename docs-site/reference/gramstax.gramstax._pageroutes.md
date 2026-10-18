@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax._pageRoutes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [\_pageRoutes](./gramstax.gramstax._pageroutes.md)
 

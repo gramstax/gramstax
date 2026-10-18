@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateScopes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateScopes](./gramstax.templateengine.validatescopes.md)
 

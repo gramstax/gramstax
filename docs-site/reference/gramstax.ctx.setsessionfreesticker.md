@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeSticker()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeSticker](./gramstax.ctx.setsessionfreesticker.md)
 

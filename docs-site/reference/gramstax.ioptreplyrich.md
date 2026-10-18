@@ -1,4 +1,6 @@
-
+---
+title: "IOptReplyRich"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplyRich](./gramstax.ioptreplyrich.md)
 

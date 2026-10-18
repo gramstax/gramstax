@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.editedBusinessMessage"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [editedBusinessMessage](./gramstax.ctx.editedbusinessmessage.md)
 

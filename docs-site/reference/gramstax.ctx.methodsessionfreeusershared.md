@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeUserShared()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeUserShared](./gramstax.ctx.methodsessionfreeusershared.md)
 

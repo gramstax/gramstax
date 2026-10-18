@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeChannelChatCreated()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeChannelChatCreated](./gramstax.ctx.methodsessionfreechannelchatcreated.md)
 

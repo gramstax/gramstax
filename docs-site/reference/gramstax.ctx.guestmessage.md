@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.guestMessage"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [guestMessage](./gramstax.ctx.guestmessage.md)
 

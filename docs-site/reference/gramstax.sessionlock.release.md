@@ -1,4 +1,6 @@
-
+---
+title: "SessionLock.release()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [SessionLock](./gramstax.sessionlock.md) &gt; [release](./gramstax.sessionlock.release.md)
 

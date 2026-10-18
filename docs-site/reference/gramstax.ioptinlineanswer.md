@@ -1,4 +1,6 @@
-
+---
+title: "IOptInlineAnswer"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptInlineAnswer](./gramstax.ioptinlineanswer.md)
 

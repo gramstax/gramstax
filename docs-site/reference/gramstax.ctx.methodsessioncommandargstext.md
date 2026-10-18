@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionCommandArgsText()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionCommandArgsText](./gramstax.ctx.methodsessioncommandargstext.md)
 

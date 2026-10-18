@@ -1,4 +1,6 @@
-
+---
+title: "IWebhookQueueConfig"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IWebhookQueueConfig](./gramstax.iwebhookqueueconfig.md)
 

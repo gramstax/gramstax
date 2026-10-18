@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.callbackQuery"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [callbackQuery](./gramstax.ctx.callbackquery.md)
 

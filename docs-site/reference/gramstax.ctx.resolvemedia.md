@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.resolveMedia()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [resolveMedia](./gramstax.ctx.resolvemedia.md)
 

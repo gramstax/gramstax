@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderDocumentGroup()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderDocumentGroup](./gramstax.ctx.renderdocumentgroup.md)
 

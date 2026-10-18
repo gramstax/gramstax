@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeGiveaway()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeGiveaway](./gramstax.ctx.setsessionfreegiveaway.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "LoggingHelper.time()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md) &gt; [time](./gramstax.logginghelper.time.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IBroadcastSendParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IServerlessSlot"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IServerlessSlot](./gramstax.iserverlessslot.md)
 

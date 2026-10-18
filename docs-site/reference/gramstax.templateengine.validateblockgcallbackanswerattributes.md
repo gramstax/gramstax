@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGCallbackAnswerAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGCallbackAnswerAttributes](./gramstax.templateengine.validateblockgcallbackanswerattributes.md)
 

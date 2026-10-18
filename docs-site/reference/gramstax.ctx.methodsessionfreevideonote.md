@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeVideoNote()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeVideoNote](./gramstax.ctx.methodsessionfreevideonote.md)
 

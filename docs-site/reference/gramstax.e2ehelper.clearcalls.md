@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.clearCalls()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [clearCalls](./gramstax.e2ehelper.clearcalls.md)
 

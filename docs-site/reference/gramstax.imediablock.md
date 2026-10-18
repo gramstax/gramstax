@@ -1,4 +1,6 @@
-
+---
+title: "IMediaBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMediaBlock](./gramstax.imediablock.md)
 

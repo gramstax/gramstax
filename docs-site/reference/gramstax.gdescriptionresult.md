@@ -1,4 +1,6 @@
-
+---
+title: "GDescriptionResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GDescriptionResult](./gramstax.gdescriptionresult.md)
 

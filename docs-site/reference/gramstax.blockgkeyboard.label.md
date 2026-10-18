@@ -1,4 +1,6 @@
-
+---
+title: "BlockGKeyboard.label"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [BlockGKeyboard](./gramstax.blockgkeyboard.md) &gt; [label](./gramstax.blockgkeyboard.label.md)
 

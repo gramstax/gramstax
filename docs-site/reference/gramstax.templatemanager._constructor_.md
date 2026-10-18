@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.(constructor)"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [(constructor)](./gramstax.templatemanager._constructor_.md)
 

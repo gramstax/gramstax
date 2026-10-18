@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._matchBareMediaPlaceholder()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_matchBareMediaPlaceholder](./gramstax.templateengine._matchbaremediaplaceholder.md)
 

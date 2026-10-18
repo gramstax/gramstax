@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxPollingDeployOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxPollingDeployOptions](./gramstax.igramstaxpollingdeployoptions.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGKeyboard()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGKeyboard](./gramstax.templatemanager.getgkeyboard.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "LoggingHelper._formatErrorObj()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md) &gt; [\_formatErrorObj](./gramstax.logginghelper._formaterrorobj.md)
 

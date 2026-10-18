@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._validateMediaGroupItems()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validateMediaGroupItems](./gramstax.templateengine._validatemediagroupitems.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_TELEGRAM\_ATTR\_VALUE\_VALIDATORS](./gramstax.templateengine._telegram_attr_value_validators.md)
 

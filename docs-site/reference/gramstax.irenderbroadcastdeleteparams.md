@@ -1,4 +1,6 @@
-
+---
+title: "IRenderBroadcastDeleteParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderBroadcastDeleteParams](./gramstax.irenderbroadcastdeleteparams.md)
 

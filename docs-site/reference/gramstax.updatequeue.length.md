@@ -1,4 +1,6 @@
-
+---
+title: "UpdateQueue.length"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [length](./gramstax.updatequeue.length.md)
 

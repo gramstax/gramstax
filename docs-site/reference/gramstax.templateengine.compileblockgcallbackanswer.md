@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.compileBlockGCallbackAnswer()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGCallbackAnswer](./gramstax.templateengine.compileblockgcallbackanswer.md)
 

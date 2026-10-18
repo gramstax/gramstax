@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeGeneralForumTopicUnhidden()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeGeneralForumTopicUnhidden](./gramstax.ctx.setsessionfreegeneralforumtopicunhidden.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IRenderInlineAnswerParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderInlineAnswerParams](./gramstax.irenderinlineanswerparams.md)
 

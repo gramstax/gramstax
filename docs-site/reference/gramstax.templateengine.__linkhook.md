@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.__linkHook"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_\_linkHook](./gramstax.templateengine.__linkhook.md)
 

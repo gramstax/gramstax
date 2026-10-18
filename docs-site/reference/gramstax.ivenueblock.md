@@ -1,4 +1,6 @@
-
+---
+title: "IVenueBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IVenueBlock](./gramstax.ivenueblock.md)
 

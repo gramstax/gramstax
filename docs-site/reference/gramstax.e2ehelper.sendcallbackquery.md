@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendCallbackQuery()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendCallbackQuery](./gramstax.e2ehelper.sendcallbackquery.md)
 

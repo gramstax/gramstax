@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionCommandText()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionCommandText](./gramstax.ctx.setsessioncommandtext.md)
 

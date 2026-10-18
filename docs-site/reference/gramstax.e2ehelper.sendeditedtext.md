@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendEditedText()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendEditedText](./gramstax.e2ehelper.sendeditedtext.md)
 

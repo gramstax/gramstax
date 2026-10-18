@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.log"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [log](./gramstax.mocktelegramserver.log.md)
 

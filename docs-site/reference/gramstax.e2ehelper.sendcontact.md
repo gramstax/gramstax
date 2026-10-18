@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendContact()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendContact](./gramstax.e2ehelper.sendcontact.md)
 

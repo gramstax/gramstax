@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.assertContact()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertContact](./gramstax.ctx.assertcontact.md)
 

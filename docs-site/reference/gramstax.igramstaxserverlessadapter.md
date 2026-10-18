@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxServerlessAdapter"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxServerlessAdapter](./gramstax.igramstaxserverlessadapter.md)
 

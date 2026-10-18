@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeMessageAutoDeleteTimerChanged()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeMessageAutoDeleteTimerChanged](./gramstax.ctx.methodsessionfreemessageautodeletetimerchanged.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.registerCustomRoute()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [registerCustomRoute](./gramstax.gramstax.registercustomroute.md)
 

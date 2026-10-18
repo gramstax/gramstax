@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGMedia()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGMedia](./gramstax.templatemanager.getgmedia.md)
 

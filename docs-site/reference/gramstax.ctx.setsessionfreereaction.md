@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeReaction()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeReaction](./gramstax.ctx.setsessionfreereaction.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleSessionFreeText()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleSessionFreeText](./gramstax.ctx.handlesessionfreetext.md)
 

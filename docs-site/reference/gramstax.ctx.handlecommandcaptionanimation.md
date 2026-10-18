@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleCommandCaptionAnimation()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCommandCaptionAnimation](./gramstax.ctx.handlecommandcaptionanimation.md)
 

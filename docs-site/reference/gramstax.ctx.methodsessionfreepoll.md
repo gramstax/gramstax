@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreePoll()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreePoll](./gramstax.ctx.methodsessionfreepoll.md)
 

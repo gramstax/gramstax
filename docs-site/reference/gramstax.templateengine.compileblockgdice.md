@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.compileBlockGDice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGDice](./gramstax.templateengine.compileblockgdice.md)
 

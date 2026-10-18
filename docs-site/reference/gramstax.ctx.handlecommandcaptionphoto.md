@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleCommandCaptionPhoto()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCommandCaptionPhoto](./gramstax.ctx.handlecommandcaptionphoto.md)
 

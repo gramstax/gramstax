@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._validateAnswerTextContent()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validateAnswerTextContent](./gramstax.templateengine._validateanswertextcontent.md)
 

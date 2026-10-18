@@ -1,4 +1,6 @@
-
+---
+title: "UpdateGate.activeCount()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateGate](./gramstax.updategate.md) &gt; [activeCount](./gramstax.updategate.activecount.md)
 

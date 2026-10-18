@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderPoll()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderPoll](./gramstax.ctx.renderpoll.md)
 

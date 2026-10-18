@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.hookBeforeRoute()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [hookBeforeRoute](./gramstax.gramstax.hookbeforeroute.md)
 

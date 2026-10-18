@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._validatePaidMediaItems()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validatePaidMediaItems](./gramstax.templateengine._validatepaidmediaitems.md)
 

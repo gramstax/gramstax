@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.haveArgs()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [haveArgs](./gramstax.ctx.haveargs.md)
 

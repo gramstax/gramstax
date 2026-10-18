@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleSessionCaptionAnimation()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleSessionCaptionAnimation](./gramstax.ctx.handlesessioncaptionanimation.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.handleFileAdd()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [handleFileAdd](./gramstax.templatemanager.handlefileadd.md)
 

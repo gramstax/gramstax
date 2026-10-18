@@ -1,4 +1,6 @@
-
+---
+title: "IBottomKb"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBottomKb](./gramstax.ibottomkb.md)
 

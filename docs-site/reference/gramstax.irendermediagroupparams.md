@@ -1,4 +1,6 @@
-
+---
+title: "IRenderMediaGroupParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderMediaGroupParams](./gramstax.irendermediagroupparams.md)
 

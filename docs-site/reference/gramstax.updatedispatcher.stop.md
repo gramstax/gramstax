@@ -1,4 +1,6 @@
-
+---
+title: "UpdateDispatcher.stop()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateDispatcher](./gramstax.updatedispatcher.md) &gt; [stop](./gramstax.updatedispatcher.stop.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGDiceBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGDiceBlocks](./gramstax.templateengine._processgdiceblocks.md)
 

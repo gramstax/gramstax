@@ -1,4 +1,6 @@
-
+---
+title: "IOptReplyVideoNote"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplyVideoNote](./gramstax.ioptreplyvideonote.md)
 

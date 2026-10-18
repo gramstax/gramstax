@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendChosenInlineResult()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendChosenInlineResult](./gramstax.e2ehelper.sendchoseninlineresult.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IKbCallbackData"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IKbCallbackData](./gramstax.ikbcallbackdata.md)
 

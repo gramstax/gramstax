@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGPoll()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGPoll](./gramstax.templatemanager.getgpoll.md)
 

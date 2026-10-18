@@ -1,4 +1,6 @@
-
+---
+title: "IE2eContactOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eContactOptions](./gramstax.ie2econtactoptions.md)
 

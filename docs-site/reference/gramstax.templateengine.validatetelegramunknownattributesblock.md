@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateTelegramUnknownAttributesBlock()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateTelegramUnknownAttributesBlock](./gramstax.templateengine.validatetelegramunknownattributesblock.md)
 

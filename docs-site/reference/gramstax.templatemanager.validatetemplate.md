@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.validateTemplate()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [validateTemplate](./gramstax.templatemanager.validatetemplate.md)
 

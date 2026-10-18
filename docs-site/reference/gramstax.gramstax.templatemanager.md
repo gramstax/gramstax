@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.templateManager"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [templateManager](./gramstax.gramstax.templatemanager.md)
 

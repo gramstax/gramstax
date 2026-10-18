@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeInlineQuery()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeInlineQuery](./gramstax.ctx.methodsessionfreeinlinequery.md)
 

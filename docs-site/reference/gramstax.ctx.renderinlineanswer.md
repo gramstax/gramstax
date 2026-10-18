@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderInlineAnswer()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderInlineAnswer](./gramstax.ctx.renderinlineanswer.md)
 

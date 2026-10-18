@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.assertVenue()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertVenue](./gramstax.ctx.assertvenue.md)
 

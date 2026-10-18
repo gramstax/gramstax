@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeSuccessfulPayment()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeSuccessfulPayment](./gramstax.ctx.methodsessionfreesuccessfulpayment.md)
 

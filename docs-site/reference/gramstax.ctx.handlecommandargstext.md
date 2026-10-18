@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleCommandArgsText()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCommandArgsText](./gramstax.ctx.handlecommandargstext.md)
 

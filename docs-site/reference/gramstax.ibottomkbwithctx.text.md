@@ -1,4 +1,6 @@
-
+---
+title: "IBottomKbWithCtx.text()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBottomKbWithCtx](./gramstax.ibottomkbwithctx.md) &gt; [text](./gramstax.ibottomkbwithctx.text.md)
 

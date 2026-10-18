@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxSessionLockRef"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxSessionLockRef](./gramstax.igramstaxsessionlockref.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IRenderTextParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderTextParams](./gramstax.irendertextparams.md)
 

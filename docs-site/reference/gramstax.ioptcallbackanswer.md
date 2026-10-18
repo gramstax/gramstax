@@ -1,4 +1,6 @@
-
+---
+title: "IOptCallbackAnswer"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptCallbackAnswer](./gramstax.ioptcallbackanswer.md)
 

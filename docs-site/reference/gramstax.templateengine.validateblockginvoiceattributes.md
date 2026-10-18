@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGInvoiceAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGInvoiceAttributes](./gramstax.templateengine.validateblockginvoiceattributes.md)
 

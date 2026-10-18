@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleSessionFreeAnimation()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleSessionFreeAnimation](./gramstax.ctx.handlesessionfreeanimation.md)
 

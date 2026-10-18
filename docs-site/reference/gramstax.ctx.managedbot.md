@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.managedBot"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [managedBot](./gramstax.ctx.managedbot.md)
 

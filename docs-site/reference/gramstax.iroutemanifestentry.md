@@ -1,4 +1,6 @@
-
+---
+title: "IRouteManifestEntry"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteManifestEntry](./gramstax.iroutemanifestentry.md)
 

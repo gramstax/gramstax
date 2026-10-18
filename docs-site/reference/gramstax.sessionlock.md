@@ -1,4 +1,6 @@
-
+---
+title: "SessionLock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [SessionLock](./gramstax.sessionlock.md)
 

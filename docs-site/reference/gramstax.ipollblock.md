@@ -1,4 +1,6 @@
-
+---
+title: "IPollBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IPollBlock](./gramstax.ipollblock.md)
 

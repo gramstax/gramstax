@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.cacheKeyboard"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [cacheKeyboard](./gramstax.gramstax.cachekeyboard.md)
 

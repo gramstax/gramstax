@@ -1,4 +1,6 @@
-
+---
+title: "ISessionLockOnContended"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ISessionLockOnContended](./gramstax.isessionlockoncontended.md)
 

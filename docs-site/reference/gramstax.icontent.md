@@ -1,4 +1,6 @@
-
+---
+title: "IContent"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IContent](./gramstax.icontent.md)
 

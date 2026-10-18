@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.gkb()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [gkb](./gramstax.e2ehelper.gkb.md)
 

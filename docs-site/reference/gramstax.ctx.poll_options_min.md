@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.POLL_OPTIONS_MIN"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [POLL\_OPTIONS\_MIN](./gramstax.ctx.poll_options_min.md)
 

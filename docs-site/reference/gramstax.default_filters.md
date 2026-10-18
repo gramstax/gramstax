@@ -1,4 +1,6 @@
-
+---
+title: "DEFAULT_FILTERS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [DEFAULT\_FILTERS](./gramstax.default_filters.md)
 

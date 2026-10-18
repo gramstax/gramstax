@@ -1,4 +1,6 @@
-
+---
+title: "IRouteBroadcastSend"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteBroadcastSend](./gramstax.iroutebroadcastsend.md)
 

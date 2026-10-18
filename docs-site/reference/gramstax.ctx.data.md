@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.data"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [data](./gramstax.ctx.data.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGDiceAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGDiceAttributes](./gramstax.templateengine.validateblockgdiceattributes.md)
 

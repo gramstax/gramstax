@@ -1,4 +1,6 @@
-
+---
+title: "IOptEditKeyboard"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptEditKeyboard](./gramstax.iopteditkeyboard.md)
 

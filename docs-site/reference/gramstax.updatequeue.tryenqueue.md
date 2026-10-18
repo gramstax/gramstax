@@ -1,4 +1,6 @@
-
+---
+title: "UpdateQueue.tryEnqueue()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [tryEnqueue](./gramstax.updatequeue.tryenqueue.md)
 

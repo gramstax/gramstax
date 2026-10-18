@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleFreeContact()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleFreeContact](./gramstax.ctx.handlefreecontact.md)
 

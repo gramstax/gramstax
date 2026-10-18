@@ -1,4 +1,6 @@
-
+---
+title: "IOptPoll"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptPoll](./gramstax.ioptpoll.md)
 

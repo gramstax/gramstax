@@ -38,7 +38,7 @@ const HTML_ELEMENTS = new Set([
 const FENCE = /^(\s*)(`{3,}|~{3,})/
 const HTML_TAG = /<\/?([a-zA-Z][a-zA-Z0-9-]*)[^>]*>/g
 
-const stats = {files: 0, changed: 0, comments: 0, tags: 0, braces: 0}
+const stats = {files: 0, changed: 0, comments: 0, tags: 0, braces: 0, titles: 0}
 
 function outsideCodeSpans(segment, fn) {
   let out = ""
@@ -128,12 +128,41 @@ function sanitize(text) {
   return out.join("\n")
 }
 
+// Mintlify falls back to deriving a title from the file path, replacing dashes
+// and underscores with spaces. Dots are not in that set, so every generated
+// page would be titled "Gramstax.irouteauto" instead of "IRouteAuto" — wrong in
+// the browser tab, in search results and in the social preview. The real name is
+// already in the page's own heading, so take it from there.
+const TITLE_KIND = /\s+(class|type|interface|function|variable|enum|namespace|package|method|property)\s*$/
+
+function deriveTitle(text) {
+  const heading = text.match(/^## (.+)$/m)
+  if (!heading) return null
+  const name = heading[1].replace(TITLE_KIND, "").replace(/\\/g, "").trim()
+  return name.length > 0 ? name : null
+}
+
+// Double-quoted YAML, so any quote or backslash in a symbol name is escaped
+// rather than silently terminating the scalar.
+function yamlQuote(value) {
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`
+}
+
+function addFrontmatter(text) {
+  if (text.startsWith("---")) return text
+  const title = deriveTitle(text)
+  if (!title) return text
+  stats.titles++
+  return `---\ntitle: ${yamlQuote(title)}\n---\n\n${text.replace(/^\n+/, "")}`
+}
+
 function resetStats() {
   stats.files = 0
   stats.changed = 0
   stats.comments = 0
   stats.tags = 0
   stats.braces = 0
+  stats.titles = 0
 }
 
 export function report(label) {
@@ -141,11 +170,12 @@ export function report(label) {
   console.log(`    komentar HTML dibuang: ${stats.comments}`)
   console.log(`    tag semu di-escape   : ${stats.tags}`)
   console.log(`    '{' di-escape        : ${stats.braces}`)
+  console.log(`    judul ditambahkan    : ${stats.titles}`)
 }
 
 export function runFile(p) {
   const before = readFileSync(p, "utf8")
-  const after = sanitize(before)
+  const after = addFrontmatter(sanitize(before))
   if (after !== before) writeFileSync(p, after, "utf8")
   stats.files++
   if (after !== before) stats.changed++

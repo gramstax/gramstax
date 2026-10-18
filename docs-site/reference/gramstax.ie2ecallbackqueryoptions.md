@@ -1,4 +1,6 @@
-
+---
+title: "IE2eCallbackQueryOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eCallbackQueryOptions](./gramstax.ie2ecallbackqueryoptions.md)
 

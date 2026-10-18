@@ -1,4 +1,6 @@
-
+---
+title: "IOptReplyAnimation"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplyAnimation](./gramstax.ioptreplyanimation.md)
 

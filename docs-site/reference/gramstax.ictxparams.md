@@ -1,4 +1,6 @@
-
+---
+title: "ICtxParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ICtxParams](./gramstax.ictxparams.md)
 

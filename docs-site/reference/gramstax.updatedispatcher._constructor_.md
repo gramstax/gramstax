@@ -1,4 +1,6 @@
-
+---
+title: "UpdateDispatcher.(constructor)"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateDispatcher](./gramstax.updatedispatcher.md) &gt; [(constructor)](./gramstax.updatedispatcher._constructor_.md)
 

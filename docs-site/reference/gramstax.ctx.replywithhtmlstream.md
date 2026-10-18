@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.replyWithHtmlStream()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [replyWithHtmlStream](./gramstax.ctx.replywithhtmlstream.md)
 

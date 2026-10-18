@@ -1,4 +1,6 @@
-
+---
+title: "IInvoiceBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IInvoiceBlock](./gramstax.iinvoiceblock.md)
 

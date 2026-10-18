@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.keysCompiled()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [keysCompiled](./gramstax.templatemanager.keyscompiled.md)
 

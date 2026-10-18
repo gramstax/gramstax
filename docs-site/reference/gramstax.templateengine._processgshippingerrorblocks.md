@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGShippingErrorBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGShippingErrorBlocks](./gramstax.templateengine._processgshippingerrorblocks.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleFreePhoto()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleFreePhoto](./gramstax.ctx.handlefreephoto.md)
 

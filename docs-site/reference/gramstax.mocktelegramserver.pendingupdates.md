@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.pendingUpdates"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [pendingUpdates](./gramstax.mocktelegramserver.pendingupdates.md)
 

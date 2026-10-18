@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.ALLOWED_BLOCKS_PAGE"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [ALLOWED\_BLOCKS\_PAGE](./gramstax.templateengine.allowed_blocks_page.md)
 

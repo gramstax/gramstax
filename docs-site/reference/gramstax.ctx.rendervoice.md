@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderVoice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderVoice](./gramstax.ctx.rendervoice.md)
 

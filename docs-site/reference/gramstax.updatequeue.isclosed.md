@@ -1,4 +1,6 @@
-
+---
+title: "UpdateQueue.isClosed"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [isClosed](./gramstax.updatequeue.isclosed.md)
 

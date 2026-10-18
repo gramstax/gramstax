@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateNamesBlock()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateNamesBlock](./gramstax.templateengine.validatenamesblock.md)
 

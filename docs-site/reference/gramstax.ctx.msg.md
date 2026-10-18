@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.msg"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [msg](./gramstax.ctx.msg.md)
 

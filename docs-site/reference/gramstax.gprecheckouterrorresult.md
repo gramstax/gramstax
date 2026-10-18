@@ -1,4 +1,6 @@
-
+---
+title: "GPreCheckoutErrorResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GPreCheckoutErrorResult](./gramstax.gprecheckouterrorresult.md)
 

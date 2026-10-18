@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendChannelPost()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendChannelPost](./gramstax.e2ehelper.sendchannelpost.md)
 

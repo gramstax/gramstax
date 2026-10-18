@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxRawDeployOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxRawDeployOptions](./gramstax.igramstaxrawdeployoptions.md)
 

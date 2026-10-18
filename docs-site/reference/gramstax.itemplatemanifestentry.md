@@ -1,4 +1,6 @@
-
+---
+title: "ITemplateManifestEntry"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ITemplateManifestEntry](./gramstax.itemplatemanifestentry.md)
 

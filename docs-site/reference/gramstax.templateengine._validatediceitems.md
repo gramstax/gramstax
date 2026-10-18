@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._validateDiceItems()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validateDiceItems](./gramstax.templateengine._validatediceitems.md)
 

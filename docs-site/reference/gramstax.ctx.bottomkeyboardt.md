@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.bottomKeyboardT()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [bottomKeyboardT](./gramstax.ctx.bottomkeyboardt.md)
 

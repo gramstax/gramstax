@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderMedia()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderMedia](./gramstax.ctx.rendermedia.md)
 

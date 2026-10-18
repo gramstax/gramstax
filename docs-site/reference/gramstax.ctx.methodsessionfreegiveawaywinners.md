@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeGiveawayWinners()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeGiveawayWinners](./gramstax.ctx.methodsessionfreegiveawaywinners.md)
 

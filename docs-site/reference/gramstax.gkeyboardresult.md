@@ -1,4 +1,6 @@
-
+---
+title: "GKeyboardResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GKeyboardResult](./gramstax.gkeyboardresult.md)
 

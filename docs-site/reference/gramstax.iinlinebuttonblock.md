@@ -1,4 +1,6 @@
-
+---
+title: "IInlineButtonBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IInlineButtonBlock](./gramstax.iinlinebuttonblock.md)
 

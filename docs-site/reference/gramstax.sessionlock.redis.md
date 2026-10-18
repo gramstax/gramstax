@@ -1,4 +1,6 @@
-
+---
+title: "SessionLock.redis"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [SessionLock](./gramstax.sessionlock.md) &gt; [redis](./gramstax.sessionlock.redis.md)
 

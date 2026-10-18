@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.assertInvoice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertInvoice](./gramstax.ctx.assertinvoice.md)
 

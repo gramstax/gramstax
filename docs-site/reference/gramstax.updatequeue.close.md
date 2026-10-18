@@ -1,4 +1,6 @@
-
+---
+title: "UpdateQueue.close()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [close](./gramstax.updatequeue.close.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IOptInvoice"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptInvoice](./gramstax.ioptinvoice.md)
 

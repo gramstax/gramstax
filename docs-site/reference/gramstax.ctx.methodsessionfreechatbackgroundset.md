@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeChatBackgroundSet()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeChatBackgroundSet](./gramstax.ctx.methodsessionfreechatbackgroundset.md)
 

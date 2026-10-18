@@ -1,4 +1,6 @@
-
+---
+title: "LabelGKeyboard._reverse()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LabelGKeyboard](./gramstax.labelgkeyboard.md) &gt; [\_reverse](./gramstax.labelgkeyboard._reverse.md)
 

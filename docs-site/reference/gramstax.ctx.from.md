@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.from"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [from](./gramstax.ctx.from.md)
 

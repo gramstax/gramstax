@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeEdit()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeEdit](./gramstax.ctx.setsessionfreeedit.md)
 

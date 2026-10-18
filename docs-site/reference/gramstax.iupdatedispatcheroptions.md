@@ -1,4 +1,6 @@
-
+---
+title: "IUpdateDispatcherOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IUpdateDispatcherOptions](./gramstax.iupdatedispatcheroptions.md)
 

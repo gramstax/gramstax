@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionCaptionDocument()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionCaptionDocument](./gramstax.ctx.setsessioncaptiondocument.md)
 

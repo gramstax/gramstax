@@ -1,4 +1,6 @@
-
+---
+title: "IOptReplyDocument"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplyDocument](./gramstax.ioptreplydocument.md)
 

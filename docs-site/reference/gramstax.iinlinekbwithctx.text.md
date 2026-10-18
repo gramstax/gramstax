@@ -1,4 +1,6 @@
-
+---
+title: "IInlineKbWithCtx.text()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IInlineKbWithCtx](./gramstax.iinlinekbwithctx.md) &gt; [text](./gramstax.iinlinekbwithctx.text.md)
 

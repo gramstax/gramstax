@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.hookUpdate()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [hookUpdate](./gramstax.gramstax.hookupdate.md)
 

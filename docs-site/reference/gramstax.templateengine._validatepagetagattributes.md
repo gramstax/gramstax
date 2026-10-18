@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._validatePageTagAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validatePageTagAttributes](./gramstax.templateengine._validatepagetagattributes.md)
 

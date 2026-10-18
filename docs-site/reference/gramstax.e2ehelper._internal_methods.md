@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper._INTERNAL_METHODS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [\_INTERNAL\_METHODS](./gramstax.e2ehelper._internal_methods.md)
 

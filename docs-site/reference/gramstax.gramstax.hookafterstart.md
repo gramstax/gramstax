@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.hookAfterStart()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [hookAfterStart](./gramstax.gramstax.hookafterstart.md)
 

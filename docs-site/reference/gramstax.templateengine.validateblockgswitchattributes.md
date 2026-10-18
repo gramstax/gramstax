@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGSwitchAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGSwitchAttributes](./gramstax.templateengine.validateblockgswitchattributes.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IBroadcastEditTarget"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBroadcastEditTarget](./gramstax.ibroadcastedittarget.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeDocument()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeDocument](./gramstax.ctx.methodsessionfreedocument.md)
 

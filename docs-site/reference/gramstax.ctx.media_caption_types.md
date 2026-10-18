@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.MEDIA_CAPTION_TYPES"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [MEDIA\_CAPTION\_TYPES](./gramstax.ctx.media_caption_types.md)
 

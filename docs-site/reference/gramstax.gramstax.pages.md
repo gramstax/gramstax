@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.pages"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [pages](./gramstax.gramstax.pages.md)
 

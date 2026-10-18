@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._PAGE_REQUIRED_ATTRS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_PAGE\_REQUIRED\_ATTRS](./gramstax.templateengine._page_required_attrs.md)
 

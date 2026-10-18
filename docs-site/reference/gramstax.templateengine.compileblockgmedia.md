@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.compileBlockGMedia()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGMedia](./gramstax.templateengine.compileblockgmedia.md)
 

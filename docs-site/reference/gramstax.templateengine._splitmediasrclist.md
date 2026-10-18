@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._splitMediaSrcList()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_splitMediaSrcList](./gramstax.templateengine._splitmediasrclist.md)
 

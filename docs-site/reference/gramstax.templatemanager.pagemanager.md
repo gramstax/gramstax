@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.pageManager"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [pageManager](./gramstax.templatemanager.pagemanager.md)
 

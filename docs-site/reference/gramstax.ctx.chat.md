@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.chat"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [chat](./gramstax.ctx.chat.md)
 

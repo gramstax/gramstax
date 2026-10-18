@@ -1,4 +1,6 @@
-
+---
+title: "IRenderGuestAnswerParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderGuestAnswerParams](./gramstax.irenderguestanswerparams.md)
 

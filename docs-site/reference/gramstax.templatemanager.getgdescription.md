@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGDescription()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGDescription](./gramstax.templatemanager.getgdescription.md)
 

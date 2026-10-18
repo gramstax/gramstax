@@ -1,4 +1,6 @@
-
+---
+title: "IOptVenue"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptVenue](./gramstax.ioptvenue.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendPollAnswer()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendPollAnswer](./gramstax.e2ehelper.sendpollanswer.md)
 

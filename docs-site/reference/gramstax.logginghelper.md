@@ -1,4 +1,6 @@
-
+---
+title: "LoggingHelper"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md)
 

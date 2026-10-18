@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderPhoto()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderPhoto](./gramstax.ctx.renderphoto.md)
 

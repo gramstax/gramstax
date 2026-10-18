@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeWriteAccessAllowed()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeWriteAccessAllowed](./gramstax.ctx.setsessionfreewriteaccessallowed.md)
 

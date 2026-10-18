@@ -1,4 +1,6 @@
-
+---
+title: "IRenderEditCaptionParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderEditCaptionParams](./gramstax.irendereditcaptionparams.md)
 

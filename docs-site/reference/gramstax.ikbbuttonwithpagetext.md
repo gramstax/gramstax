@@ -1,4 +1,6 @@
-
+---
+title: "IKbButtonWithPageText"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IKbButtonWithPageText](./gramstax.ikbbuttonwithpagetext.md)
 

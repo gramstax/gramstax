@@ -1,4 +1,6 @@
-
+---
+title: "IRenderPreCheckoutParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderPreCheckoutParams](./gramstax.irenderprecheckoutparams.md)
 

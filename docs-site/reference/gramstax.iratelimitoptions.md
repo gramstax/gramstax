@@ -1,4 +1,6 @@
-
+---
+title: "IRateLimitOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRateLimitOptions](./gramstax.iratelimitoptions.md)
 

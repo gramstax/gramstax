@@ -1,4 +1,6 @@
-
+---
+title: "IRenderMediaKindParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderMediaKindParams](./gramstax.irendermediakindparams.md)
 

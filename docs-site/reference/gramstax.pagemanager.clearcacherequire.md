@@ -1,4 +1,6 @@
-
+---
+title: "PageManager.clearCacheRequire()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [PageManager](./gramstax.pagemanager.md) &gt; [clearCacheRequire](./gramstax.pagemanager.clearcacherequire.md)
 

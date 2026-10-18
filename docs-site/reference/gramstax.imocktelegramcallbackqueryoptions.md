@@ -1,4 +1,6 @@
-
+---
+title: "IMockTelegramCallbackQueryOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMockTelegramCallbackQueryOptions](./gramstax.imocktelegramcallbackqueryoptions.md)
 

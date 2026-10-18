@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeVideoChatParticipantsInvited()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeVideoChatParticipantsInvited](./gramstax.ctx.setsessionfreevideochatparticipantsinvited.md)
 

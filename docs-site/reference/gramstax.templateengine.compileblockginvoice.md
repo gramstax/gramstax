@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.compileBlockGInvoice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGInvoice](./gramstax.templateengine.compileblockginvoice.md)
 

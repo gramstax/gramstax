@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.__emitHook"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_\_emitHook](./gramstax.templateengine.__emithook.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGMessage()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGMessage](./gramstax.templatemanager.getgmessage.md)
 

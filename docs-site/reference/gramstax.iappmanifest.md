@@ -1,4 +1,6 @@
-
+---
+title: "IAppManifest"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IAppManifest](./gramstax.iappmanifest.md)
 

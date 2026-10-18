@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.apiRoot"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [apiRoot](./gramstax.mocktelegramserver.apiroot.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "ICtMiddleware"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ICtMiddleware](./gramstax.ictmiddleware.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IMockTelegramHandler"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMockTelegramHandler](./gramstax.imocktelegramhandler.md)
 

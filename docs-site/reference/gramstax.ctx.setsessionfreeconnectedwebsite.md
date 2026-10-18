@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeConnectedWebsite()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeConnectedWebsite](./gramstax.ctx.setsessionfreeconnectedwebsite.md)
 

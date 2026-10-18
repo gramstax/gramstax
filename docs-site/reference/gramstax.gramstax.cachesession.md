@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.cacheSession"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [cacheSession](./gramstax.gramstax.cachesession.md)
 

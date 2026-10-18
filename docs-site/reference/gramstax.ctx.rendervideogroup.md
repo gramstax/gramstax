@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderVideoGroup()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderVideoGroup](./gramstax.ctx.rendervideogroup.md)
 

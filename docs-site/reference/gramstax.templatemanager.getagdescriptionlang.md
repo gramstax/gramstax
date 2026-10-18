@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getAGDescriptionLang()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getAGDescriptionLang](./gramstax.templatemanager.getagdescriptionlang.md)
 

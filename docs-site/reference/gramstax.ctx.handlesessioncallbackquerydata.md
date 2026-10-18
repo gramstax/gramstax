@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleSessionCallbackQueryData()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleSessionCallbackQueryData](./gramstax.ctx.handlesessioncallbackquerydata.md)
 

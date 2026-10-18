@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.getPollingQueueStats()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [getPollingQueueStats](./gramstax.gramstax.getpollingqueuestats.md)
 

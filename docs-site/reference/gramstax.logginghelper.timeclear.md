@@ -1,4 +1,6 @@
-
+---
+title: "LoggingHelper.timeClear()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md) &gt; [timeClear](./gramstax.logginghelper.timeclear.md)
 

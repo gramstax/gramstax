@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.botConfig"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [botConfig](./gramstax.gramstax.botconfig.md)
 

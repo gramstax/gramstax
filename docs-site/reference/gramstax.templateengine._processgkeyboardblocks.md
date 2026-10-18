@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGKeyboardBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGKeyboardBlocks](./gramstax.templateengine._processgkeyboardblocks.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxBuildPlan"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxBuildPlan](./gramstax.igramstaxbuildplan.md)
 

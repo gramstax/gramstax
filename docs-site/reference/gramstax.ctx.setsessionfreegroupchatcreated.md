@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeGroupChatCreated()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeGroupChatCreated](./gramstax.ctx.setsessionfreegroupchatcreated.md)
 

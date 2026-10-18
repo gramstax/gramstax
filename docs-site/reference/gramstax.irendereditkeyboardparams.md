@@ -1,4 +1,6 @@
-
+---
+title: "IRenderEditKeyboardParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderEditKeyboardParams](./gramstax.irendereditkeyboardparams.md)
 

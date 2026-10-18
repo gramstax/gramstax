@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._escape()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_escape](./gramstax.templateengine._escape.md)
 

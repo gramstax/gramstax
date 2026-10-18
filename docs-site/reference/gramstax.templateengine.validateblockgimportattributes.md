@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGImportAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGImportAttributes](./gramstax.templateengine.validateblockgimportattributes.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGInlineButton()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGInlineButton](./gramstax.templatemanager.getginlinebutton.md)
 

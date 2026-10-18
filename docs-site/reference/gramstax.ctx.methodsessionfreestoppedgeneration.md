@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeStoppedGeneration()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeStoppedGeneration](./gramstax.ctx.methodsessionfreestoppedgeneration.md)
 

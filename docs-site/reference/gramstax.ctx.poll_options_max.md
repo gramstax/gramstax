@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.POLL_OPTIONS_MAX"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [POLL\_OPTIONS\_MAX](./gramstax.ctx.poll_options_max.md)
 

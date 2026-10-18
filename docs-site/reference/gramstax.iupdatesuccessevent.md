@@ -1,4 +1,6 @@
-
+---
+title: "IUpdateSuccessEvent"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IUpdateSuccessEvent](./gramstax.iupdatesuccessevent.md)
 

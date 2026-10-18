@@ -1,4 +1,6 @@
-
+---
+title: "IE2eDiceOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eDiceOptions](./gramstax.ie2ediceoptions.md)
 

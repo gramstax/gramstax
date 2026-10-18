@@ -1,4 +1,6 @@
-
+---
+title: "IShippingErrorBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IShippingErrorBlock](./gramstax.ishippingerrorblock.md)
 

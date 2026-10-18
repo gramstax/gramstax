@@ -1,4 +1,6 @@
-
+---
+title: "IGiftBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGiftBlock](./gramstax.igiftblock.md)
 

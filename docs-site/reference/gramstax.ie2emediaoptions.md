@@ -1,4 +1,6 @@
-
+---
+title: "IE2eMediaOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eMediaOptions](./gramstax.ie2emediaoptions.md)
 

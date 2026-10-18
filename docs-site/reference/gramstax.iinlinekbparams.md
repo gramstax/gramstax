@@ -1,4 +1,6 @@
-
+---
+title: "IInlineKbParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IInlineKbParams](./gramstax.iinlinekbparams.md)
 

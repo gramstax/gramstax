@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.handleWatchError()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [handleWatchError](./gramstax.templatemanager.handlewatcherror.md)
 

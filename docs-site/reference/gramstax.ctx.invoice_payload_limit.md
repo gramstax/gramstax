@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.INVOICE_PAYLOAD_LIMIT"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [INVOICE\_PAYLOAD\_LIMIT](./gramstax.ctx.invoice_payload_limit.md)
 

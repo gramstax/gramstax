@@ -1,4 +1,6 @@
-
+---
+title: "ICustomRouteEntry"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ICustomRouteEntry](./gramstax.icustomrouteentry.md)
 

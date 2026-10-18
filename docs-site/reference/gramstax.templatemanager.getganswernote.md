@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGAnswerNote()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGAnswerNote](./gramstax.templatemanager.getganswernote.md)
 

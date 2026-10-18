@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleFreeAnimation()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleFreeAnimation](./gramstax.ctx.handlefreeanimation.md)
 

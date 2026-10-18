@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGDescriptionAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGDescriptionAttributes](./gramstax.templateengine.validateblockgdescriptionattributes.md)
 

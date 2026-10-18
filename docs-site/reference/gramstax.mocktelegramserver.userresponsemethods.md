@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.userResponseMethods"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [userResponseMethods](./gramstax.mocktelegramserver.userresponsemethods.md)
 

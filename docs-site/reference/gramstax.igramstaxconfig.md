@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxConfig"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxConfig](./gramstax.igramstaxconfig.md)
 

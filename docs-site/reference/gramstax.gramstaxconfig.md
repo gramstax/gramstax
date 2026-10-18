@@ -1,4 +1,6 @@
-
+---
+title: "GramstaxConfig"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GramstaxConfig](./gramstax.gramstaxconfig.md)
 

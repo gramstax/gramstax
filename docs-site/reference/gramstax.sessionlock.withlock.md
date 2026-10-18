@@ -1,4 +1,6 @@
-
+---
+title: "SessionLock.withLock()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [SessionLock](./gramstax.sessionlock.md) &gt; [withLock](./gramstax.sessionlock.withlock.md)
 

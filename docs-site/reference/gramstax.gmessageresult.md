@@ -1,4 +1,6 @@
-
+---
+title: "GMessageResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GMessageResult](./gramstax.gmessageresult.md)
 

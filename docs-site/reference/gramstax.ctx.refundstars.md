@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.refundStars()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [refundStars](./gramstax.ctx.refundstars.md)
 

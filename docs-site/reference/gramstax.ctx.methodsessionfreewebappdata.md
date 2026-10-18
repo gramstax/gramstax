@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeWebAppData()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeWebAppData](./gramstax.ctx.methodsessionfreewebappdata.md)
 

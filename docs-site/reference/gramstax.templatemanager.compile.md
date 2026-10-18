@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.compile()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [compile](./gramstax.templatemanager.compile.md)
 

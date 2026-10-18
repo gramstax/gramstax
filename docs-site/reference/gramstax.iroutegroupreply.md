@@ -1,4 +1,6 @@
-
+---
+title: "IRouteGroupReply"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteGroupReply](./gramstax.iroutegroupreply.md)
 

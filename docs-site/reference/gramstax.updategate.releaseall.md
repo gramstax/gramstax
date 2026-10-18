@@ -1,4 +1,6 @@
-
+---
+title: "UpdateGate.releaseAll()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateGate](./gramstax.updategate.md) &gt; [releaseAll](./gramstax.updategate.releaseall.md)
 

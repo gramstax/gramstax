@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._rewriteScopeIdentifiers()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_rewriteScopeIdentifiers](./gramstax.templateengine._rewritescopeidentifiers.md)
 

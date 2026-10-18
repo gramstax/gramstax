@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleCallbackQueryData()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCallbackQueryData](./gramstax.ctx.handlecallbackquerydata.md)
 

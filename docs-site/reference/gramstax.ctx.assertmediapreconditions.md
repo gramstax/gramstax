@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.assertMediaPreconditions()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertMediaPreconditions](./gramstax.ctx.assertmediapreconditions.md)
 

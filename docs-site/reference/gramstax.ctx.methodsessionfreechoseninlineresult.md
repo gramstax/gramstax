@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeChosenInlineResult()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeChosenInlineResult](./gramstax.ctx.methodsessionfreechoseninlineresult.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.businessConnection"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [businessConnection](./gramstax.ctx.businessconnection.md)
 

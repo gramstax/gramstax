@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.inlineKeyboard()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [inlineKeyboard](./gramstax.ctx.inlinekeyboard.md)
 

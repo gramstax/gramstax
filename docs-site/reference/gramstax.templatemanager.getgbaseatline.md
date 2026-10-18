@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGBaseAtLine()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGBaseAtLine](./gramstax.templatemanager.getgbaseatline.md)
 

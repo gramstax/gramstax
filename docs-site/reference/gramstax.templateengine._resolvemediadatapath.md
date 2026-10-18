@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._resolveMediaDataPath()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_resolveMediaDataPath](./gramstax.templateengine._resolvemediadatapath.md)
 

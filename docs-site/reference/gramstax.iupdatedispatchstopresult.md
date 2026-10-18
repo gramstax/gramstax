@@ -1,4 +1,6 @@
-
+---
+title: "IUpdateDispatchStopResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IUpdateDispatchStopResult](./gramstax.iupdatedispatchstopresult.md)
 

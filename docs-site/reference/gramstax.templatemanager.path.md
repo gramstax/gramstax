@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.path"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [path](./gramstax.templatemanager.path.md)
 

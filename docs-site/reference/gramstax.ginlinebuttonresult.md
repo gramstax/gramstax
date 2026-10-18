@@ -1,4 +1,6 @@
-
+---
+title: "GInlineButtonResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GInlineButtonResult](./gramstax.ginlinebuttonresult.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.handleFileDelete()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [handleFileDelete](./gramstax.templatemanager.handlefiledelete.md)
 

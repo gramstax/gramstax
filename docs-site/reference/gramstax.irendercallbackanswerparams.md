@@ -1,4 +1,6 @@
-
+---
+title: "IRenderCallbackAnswerParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderCallbackAnswerParams](./gramstax.irendercallbackanswerparams.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer._servedCount"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [\_servedCount](./gramstax.mocktelegramserver._servedcount.md)
 

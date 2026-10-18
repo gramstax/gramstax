@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGMessageBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGMessageBlocks](./gramstax.templateengine._processgmessageblocks.md)
 

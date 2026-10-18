@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.MAX_MEDIA_GROUP_ITEMS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [MAX\_MEDIA\_GROUP\_ITEMS](./gramstax.templateengine.max_media_group_items.md)
 

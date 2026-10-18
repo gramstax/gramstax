@@ -1,4 +1,6 @@
-
+---
+title: "IMockTelegramChat"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMockTelegramChat](./gramstax.imocktelegramchat.md)
 

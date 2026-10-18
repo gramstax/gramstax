@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGPollAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGPollAttributes](./gramstax.templateengine.validateblockgpollattributes.md)
 

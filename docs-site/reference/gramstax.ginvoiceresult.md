@@ -1,4 +1,6 @@
-
+---
+title: "GInvoiceResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GInvoiceResult](./gramstax.ginvoiceresult.md)
 

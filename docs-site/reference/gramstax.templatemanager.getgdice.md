@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGDice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGDice](./gramstax.templatemanager.getgdice.md)
 

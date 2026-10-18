@@ -1,4 +1,6 @@
-
+---
+title: "IRenderPaidMediaParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderPaidMediaParams](./gramstax.irenderpaidmediaparams.md)
 

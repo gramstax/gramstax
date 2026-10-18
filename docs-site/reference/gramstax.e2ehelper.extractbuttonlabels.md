@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.extractButtonLabels()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [extractButtonLabels](./gramstax.e2ehelper.extractbuttonlabels.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.ready"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [ready](./gramstax.gramstax.ready.md)
 

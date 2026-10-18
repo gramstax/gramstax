@@ -1,4 +1,6 @@
-
+---
+title: "GDiceResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GDiceResult](./gramstax.gdiceresult.md)
 

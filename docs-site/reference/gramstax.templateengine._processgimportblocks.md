@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGImportBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGImportBlocks](./gramstax.templateengine._processgimportblocks.md)
 

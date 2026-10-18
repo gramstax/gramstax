@@ -1,4 +1,6 @@
-
+---
+title: "LoggingHelper.timeEnd()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md) &gt; [timeEnd](./gramstax.logginghelper.timeend.md)
 

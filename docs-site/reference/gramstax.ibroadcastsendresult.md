@@ -1,4 +1,6 @@
-
+---
+title: "IBroadcastSendResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBroadcastSendResult](./gramstax.ibroadcastsendresult.md)
 

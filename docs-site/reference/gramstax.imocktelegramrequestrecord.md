@@ -1,4 +1,6 @@
-
+---
+title: "IMockTelegramRequestRecord"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMockTelegramRequestRecord](./gramstax.imocktelegramrequestrecord.md)
 

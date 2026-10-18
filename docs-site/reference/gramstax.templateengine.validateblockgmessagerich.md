@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGMessageRich()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGMessageRich](./gramstax.templateengine.validateblockgmessagerich.md)
 

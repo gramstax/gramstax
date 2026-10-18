@@ -1,4 +1,6 @@
-
+---
+title: "IReplyAction"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IReplyAction](./gramstax.ireplyaction.md)
 

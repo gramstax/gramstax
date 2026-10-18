@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGDescriptionBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGDescriptionBlocks](./gramstax.templateengine._processgdescriptionblocks.md)
 

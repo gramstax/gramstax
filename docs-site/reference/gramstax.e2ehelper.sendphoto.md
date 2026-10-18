@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendPhoto()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendPhoto](./gramstax.e2ehelper.sendphoto.md)
 

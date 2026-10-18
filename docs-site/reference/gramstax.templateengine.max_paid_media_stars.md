@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.MAX_PAID_MEDIA_STARS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [MAX\_PAID\_MEDIA\_STARS](./gramstax.templateengine.max_paid_media_stars.md)
 

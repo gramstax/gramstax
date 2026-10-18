@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._compileToFunction()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_compileToFunction](./gramstax.templateengine._compiletofunction.md)
 

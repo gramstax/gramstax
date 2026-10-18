@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeDeleteChatPhoto()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeDeleteChatPhoto](./gramstax.ctx.methodsessionfreedeletechatphoto.md)
 

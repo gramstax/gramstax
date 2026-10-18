@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionCommandCaptionArgsAudio()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionCommandCaptionArgsAudio](./gramstax.ctx.methodsessioncommandcaptionargsaudio.md)
 

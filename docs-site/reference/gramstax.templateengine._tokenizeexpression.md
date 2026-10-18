@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._tokenizeExpression()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_tokenizeExpression](./gramstax.templateengine._tokenizeexpression.md)
 

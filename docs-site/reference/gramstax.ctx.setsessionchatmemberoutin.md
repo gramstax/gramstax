@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionChatMemberOutIn()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionChatMemberOutIn](./gramstax.ctx.setsessionchatmemberoutin.md)
 

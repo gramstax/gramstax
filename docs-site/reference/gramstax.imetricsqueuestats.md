@@ -1,4 +1,6 @@
-
+---
+title: "IMetricsQueueStats"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMetricsQueueStats](./gramstax.imetricsqueuestats.md)
 

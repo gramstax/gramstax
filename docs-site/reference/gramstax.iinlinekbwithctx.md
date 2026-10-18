@@ -1,4 +1,6 @@
-
+---
+title: "IInlineKbWithCtx"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IInlineKbWithCtx](./gramstax.iinlinekbwithctx.md)
 

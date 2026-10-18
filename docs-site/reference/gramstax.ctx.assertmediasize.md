@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.assertMediaSize()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertMediaSize](./gramstax.ctx.assertmediasize.md)
 

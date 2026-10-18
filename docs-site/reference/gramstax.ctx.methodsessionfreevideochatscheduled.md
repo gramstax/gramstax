@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeVideoChatScheduled()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeVideoChatScheduled](./gramstax.ctx.methodsessionfreevideochatscheduled.md)
 

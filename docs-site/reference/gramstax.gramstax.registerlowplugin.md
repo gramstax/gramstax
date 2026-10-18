@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.registerLowPlugin()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [registerLowPlugin](./gramstax.gramstax.registerlowplugin.md)
 

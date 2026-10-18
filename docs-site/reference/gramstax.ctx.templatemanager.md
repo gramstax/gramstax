@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.templateManager"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [templateManager](./gramstax.ctx.templatemanager.md)
 

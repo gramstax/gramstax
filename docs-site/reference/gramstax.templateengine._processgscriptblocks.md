@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGScriptBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGScriptBlocks](./gramstax.templateengine._processgscriptblocks.md)
 

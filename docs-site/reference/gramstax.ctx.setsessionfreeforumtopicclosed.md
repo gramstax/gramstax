@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeForumTopicClosed()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeForumTopicClosed](./gramstax.ctx.setsessionfreeforumtopicclosed.md)
 

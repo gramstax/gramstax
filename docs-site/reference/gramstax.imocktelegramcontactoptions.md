@@ -1,4 +1,6 @@
-
+---
+title: "IMockTelegramContactOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMockTelegramContactOptions](./gramstax.imocktelegramcontactoptions.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGCallbackAnswer()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGCallbackAnswer](./gramstax.templatemanager.getgcallbackanswer.md)
 

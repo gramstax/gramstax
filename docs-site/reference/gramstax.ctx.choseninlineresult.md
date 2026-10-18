@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.chosenInlineResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [chosenInlineResult](./gramstax.ctx.choseninlineresult.md)
 

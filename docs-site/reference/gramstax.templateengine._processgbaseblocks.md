@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGBaseBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGBaseBlocks](./gramstax.templateengine._processgbaseblocks.md)
 

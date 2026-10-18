@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._TELEGRAM_REQUIRED_ATTRS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_TELEGRAM\_REQUIRED\_ATTRS](./gramstax.templateengine._telegram_required_attrs.md)
 

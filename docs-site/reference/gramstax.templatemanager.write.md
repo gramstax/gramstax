@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.write()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [write](./gramstax.templatemanager.write.md)
 

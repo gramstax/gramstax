@@ -1,4 +1,6 @@
-
+---
+title: "MetricsStore.startedAt"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MetricsStore](./gramstax.metricsstore.md) &gt; [startedAt](./gramstax.metricsstore.startedat.md)
 

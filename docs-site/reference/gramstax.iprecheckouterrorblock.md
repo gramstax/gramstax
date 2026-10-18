@@ -1,4 +1,6 @@
-
+---
+title: "IPrecheckoutErrorBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IPrecheckoutErrorBlock](./gramstax.iprecheckouterrorblock.md)
 

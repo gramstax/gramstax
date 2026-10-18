@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderEditKeyboard()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderEditKeyboard](./gramstax.ctx.rendereditkeyboard.md)
 

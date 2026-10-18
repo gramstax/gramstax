@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.inlineQuery"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [inlineQuery](./gramstax.ctx.inlinequery.md)
 

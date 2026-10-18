@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGCallbackAnswerBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGCallbackAnswerBlocks](./gramstax.templateengine._processgcallbackanswerblocks.md)
 

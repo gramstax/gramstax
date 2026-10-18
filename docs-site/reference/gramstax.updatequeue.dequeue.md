@@ -1,4 +1,6 @@
-
+---
+title: "UpdateQueue.dequeue()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [dequeue](./gramstax.updatequeue.dequeue.md)
 

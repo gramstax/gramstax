@@ -1,4 +1,6 @@
-
+---
+title: "IE2eLocationOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eLocationOptions](./gramstax.ie2elocationoptions.md)
 

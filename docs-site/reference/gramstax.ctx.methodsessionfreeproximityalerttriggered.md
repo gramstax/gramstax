@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeProximityAlertTriggered()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeProximityAlertTriggered](./gramstax.ctx.methodsessionfreeproximityalerttriggered.md)
 

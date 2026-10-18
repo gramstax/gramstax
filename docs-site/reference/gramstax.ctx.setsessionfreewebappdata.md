@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeWebAppData()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeWebAppData](./gramstax.ctx.setsessionfreewebappdata.md)
 

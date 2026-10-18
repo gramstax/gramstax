@@ -1,4 +1,6 @@
-
+---
+title: "IRenderDiceParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderDiceParams](./gramstax.irenderdiceparams.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreePhoto()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreePhoto](./gramstax.ctx.setsessionfreephoto.md)
 

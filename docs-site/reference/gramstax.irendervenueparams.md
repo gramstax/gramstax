@@ -1,4 +1,6 @@
-
+---
+title: "IRenderVenueParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderVenueParams](./gramstax.irendervenueparams.md)
 

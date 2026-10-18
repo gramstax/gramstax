@@ -1,4 +1,6 @@
-
+---
+title: "MetricsStore.byListener"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MetricsStore](./gramstax.metricsstore.md) &gt; [byListener](./gramstax.metricsstore.bylistener.md)
 

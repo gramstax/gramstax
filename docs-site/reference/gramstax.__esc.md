@@ -1,4 +1,6 @@
-
+---
+title: "__esc"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [\_\_esc](./gramstax.__esc.md)
 

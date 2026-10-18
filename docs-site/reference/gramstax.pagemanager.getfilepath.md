@@ -1,4 +1,6 @@
-
+---
+title: "PageManager.getFilePath()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [PageManager](./gramstax.pagemanager.md) &gt; [getFilePath](./gramstax.pagemanager.getfilepath.md)
 

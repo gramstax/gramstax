@@ -1,4 +1,6 @@
-
+---
+title: "IRouteGroupAuto"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteGroupAuto](./gramstax.iroutegroupauto.md)
 

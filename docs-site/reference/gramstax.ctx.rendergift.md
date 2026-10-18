@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderGift()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderGift](./gramstax.ctx.rendergift.md)
 

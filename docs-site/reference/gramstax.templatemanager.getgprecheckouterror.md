@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGPrecheckoutError()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGPrecheckoutError](./gramstax.templatemanager.getgprecheckouterror.md)
 

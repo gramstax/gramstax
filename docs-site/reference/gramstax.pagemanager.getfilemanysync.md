@@ -1,4 +1,6 @@
-
+---
+title: "PageManager.getFileManySync()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [PageManager](./gramstax.pagemanager.md) &gt; [getFileManySync](./gramstax.pagemanager.getfilemanysync.md)
 

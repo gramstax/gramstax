@@ -1,4 +1,6 @@
-
+---
+title: "PageManager._getFile()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [PageManager](./gramstax.pagemanager.md) &gt; [\_getFile](./gramstax.pagemanager._getfile.md)
 

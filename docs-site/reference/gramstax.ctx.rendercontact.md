@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderContact()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderContact](./gramstax.ctx.rendercontact.md)
 

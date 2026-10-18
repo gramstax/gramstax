@@ -1,4 +1,6 @@
-
+---
+title: "GGiftResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GGiftResult](./gramstax.ggiftresult.md)
 

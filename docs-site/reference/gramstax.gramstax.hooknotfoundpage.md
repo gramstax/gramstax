@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.hookNotFoundPage()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [hookNotFoundPage](./gramstax.gramstax.hooknotfoundpage.md)
 

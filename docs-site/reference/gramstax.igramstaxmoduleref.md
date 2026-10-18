@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxModuleRef"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxModuleRef](./gramstax.igramstaxmoduleref.md)
 

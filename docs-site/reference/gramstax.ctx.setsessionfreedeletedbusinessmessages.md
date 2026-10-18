@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeDeletedBusinessMessages()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeDeletedBusinessMessages](./gramstax.ctx.setsessionfreedeletedbusinessmessages.md)
 

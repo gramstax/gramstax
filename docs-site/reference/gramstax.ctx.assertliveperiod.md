@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.assertLivePeriod()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertLivePeriod](./gramstax.ctx.assertliveperiod.md)
 

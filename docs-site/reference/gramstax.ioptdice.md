@@ -1,4 +1,6 @@
-
+---
+title: "IOptDice"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptDice](./gramstax.ioptdice.md)
 

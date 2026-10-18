@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeNewChatMembers()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeNewChatMembers](./gramstax.ctx.methodsessionfreenewchatmembers.md)
 

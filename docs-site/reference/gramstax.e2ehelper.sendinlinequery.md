@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendInlineQuery()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendInlineQuery](./gramstax.e2ehelper.sendinlinequery.md)
 

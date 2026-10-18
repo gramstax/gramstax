@@ -1,4 +1,6 @@
-
+---
+title: "IDiceBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IDiceBlock](./gramstax.idiceblock.md)
 

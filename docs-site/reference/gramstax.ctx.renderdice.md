@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderDice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderDice](./gramstax.ctx.renderdice.md)
 

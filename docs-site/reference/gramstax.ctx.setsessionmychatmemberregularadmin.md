@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionMyChatMemberRegularAdmin()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionMyChatMemberRegularAdmin](./gramstax.ctx.setsessionmychatmemberregularadmin.md)
 

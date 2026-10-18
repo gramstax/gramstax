@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxParams](./gramstax.igramstaxparams.md)
 

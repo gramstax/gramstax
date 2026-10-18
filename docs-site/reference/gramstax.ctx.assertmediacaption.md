@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.assertMediaCaption()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [assertMediaCaption](./gramstax.ctx.assertmediacaption.md)
 

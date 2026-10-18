@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreePollAnswer()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreePollAnswer](./gramstax.ctx.setsessionfreepollanswer.md)
 

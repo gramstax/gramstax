@@ -1,4 +1,6 @@
-
+---
+title: "IOptReplyVoice"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplyVoice](./gramstax.ioptreplyvoice.md)
 

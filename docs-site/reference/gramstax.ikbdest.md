@@ -1,4 +1,6 @@
-
+---
+title: "IKbDest"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IKbDest](./gramstax.ikbdest.md)
 

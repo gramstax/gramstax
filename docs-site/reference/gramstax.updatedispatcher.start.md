@@ -1,4 +1,6 @@
-
+---
+title: "UpdateDispatcher.start()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateDispatcher](./gramstax.updatedispatcher.md) &gt; [start](./gramstax.updatedispatcher.start.md)
 

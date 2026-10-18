@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeForumTopicReopened()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeForumTopicReopened](./gramstax.ctx.methodsessionfreeforumtopicreopened.md)
 

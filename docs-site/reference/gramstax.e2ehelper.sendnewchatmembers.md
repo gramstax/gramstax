@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendNewChatMembers()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendNewChatMembers](./gramstax.e2ehelper.sendnewchatmembers.md)
 

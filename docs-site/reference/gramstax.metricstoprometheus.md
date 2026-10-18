@@ -1,4 +1,6 @@
-
+---
+title: "metricsToPrometheus()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [metricsToPrometheus](./gramstax.metricstoprometheus.md)
 

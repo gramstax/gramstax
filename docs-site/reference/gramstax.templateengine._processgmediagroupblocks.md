@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGMediaGroupBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGMediaGroupBlocks](./gramstax.templateengine._processgmediagroupblocks.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "SessionLock.(constructor)"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [SessionLock](./gramstax.sessionlock.md) &gt; [(constructor)](./gramstax.sessionlock._constructor_.md)
 

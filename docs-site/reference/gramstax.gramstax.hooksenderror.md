@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.hookSendError()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [hookSendError](./gramstax.gramstax.hooksenderror.md)
 

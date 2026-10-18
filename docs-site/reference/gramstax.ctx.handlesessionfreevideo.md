@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleSessionFreeVideo()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleSessionFreeVideo](./gramstax.ctx.handlesessionfreevideo.md)
 

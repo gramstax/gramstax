@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.sendStoppedMessageGeneration()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [sendStoppedMessageGeneration](./gramstax.mocktelegramserver.sendstoppedmessagegeneration.md)
 

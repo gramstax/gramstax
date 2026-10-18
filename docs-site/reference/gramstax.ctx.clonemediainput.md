@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.cloneMediaInput()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [cloneMediaInput](./gramstax.ctx.clonemediainput.md)
 

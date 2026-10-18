@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.compileBlockGInlineButton()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGInlineButton](./gramstax.templateengine.compileblockginlinebutton.md)
 

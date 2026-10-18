@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.reset()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [reset](./gramstax.mocktelegramserver.reset.md)
 

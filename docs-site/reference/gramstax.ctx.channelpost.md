@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.channelPost"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [channelPost](./gramstax.ctx.channelpost.md)
 

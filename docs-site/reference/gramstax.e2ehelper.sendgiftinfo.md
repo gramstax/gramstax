@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendGiftInfo()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendGiftInfo](./gramstax.e2ehelper.sendgiftinfo.md)
 

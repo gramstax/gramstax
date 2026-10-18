@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleFree()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleFree](./gramstax.ctx.handlefree.md)
 

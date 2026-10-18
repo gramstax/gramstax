@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionCommandCaptionPhoto()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionCommandCaptionPhoto](./gramstax.ctx.setsessioncommandcaptionphoto.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.compileBlockGDescription()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGDescription](./gramstax.templateengine.compileblockgdescription.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxTemplateManagerRef"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxTemplateManagerRef](./gramstax.igramstaxtemplatemanagerref.md)
 

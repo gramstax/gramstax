@@ -1,4 +1,6 @@
-
+---
+title: "IBottomKbParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBottomKbParams](./gramstax.ibottomkbparams.md)
 

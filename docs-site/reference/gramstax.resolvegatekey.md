@@ -1,4 +1,6 @@
-
+---
+title: "resolveGateKey()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [resolveGateKey](./gramstax.resolvegatekey.md)
 

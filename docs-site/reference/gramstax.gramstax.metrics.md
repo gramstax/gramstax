@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.metrics"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [metrics](./gramstax.gramstax.metrics.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IUpdateGateOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IUpdateGateOptions](./gramstax.iupdategateoptions.md)
 

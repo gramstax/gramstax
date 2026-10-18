@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeVoice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeVoice](./gramstax.ctx.setsessionfreevoice.md)
 

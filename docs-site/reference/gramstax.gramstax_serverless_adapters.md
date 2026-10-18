@@ -1,4 +1,6 @@
-
+---
+title: "GRAMSTAX_SERVERLESS_ADAPTERS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GRAMSTAX\_SERVERLESS\_ADAPTERS](./gramstax.gramstax_serverless_adapters.md)
 

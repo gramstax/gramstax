@@ -1,4 +1,6 @@
-
+---
+title: "IData"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IData](./gramstax.idata.md)
 

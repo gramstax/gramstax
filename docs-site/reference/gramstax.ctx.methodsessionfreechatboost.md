@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeChatBoost()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeChatBoost](./gramstax.ctx.methodsessionfreechatboost.md)
 

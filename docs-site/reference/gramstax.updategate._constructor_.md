@@ -1,4 +1,6 @@
-
+---
+title: "UpdateGate.(constructor)"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateGate](./gramstax.updategate.md) &gt; [(constructor)](./gramstax.updategate._constructor_.md)
 

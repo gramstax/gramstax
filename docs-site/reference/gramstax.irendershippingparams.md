@@ -1,4 +1,6 @@
-
+---
+title: "IRenderShippingParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderShippingParams](./gramstax.irendershippingparams.md)
 

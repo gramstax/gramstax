@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderAnimation()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderAnimation](./gramstax.ctx.renderanimation.md)
 

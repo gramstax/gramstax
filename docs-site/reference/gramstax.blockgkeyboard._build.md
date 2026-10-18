@@ -1,4 +1,6 @@
-
+---
+title: "BlockGKeyboard._build()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [BlockGKeyboard](./gramstax.blockgkeyboard.md) &gt; [\_build](./gramstax.blockgkeyboard._build.md)
 

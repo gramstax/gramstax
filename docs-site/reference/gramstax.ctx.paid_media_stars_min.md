@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.PAID_MEDIA_STARS_MIN"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [PAID\_MEDIA\_STARS\_MIN](./gramstax.ctx.paid_media_stars_min.md)
 

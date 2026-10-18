@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.sendCallbackQuery()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [sendCallbackQuery](./gramstax.mocktelegramserver.sendcallbackquery.md)
 

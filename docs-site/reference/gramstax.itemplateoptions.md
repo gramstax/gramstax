@@ -1,4 +1,6 @@
-
+---
+title: "ITemplateOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ITemplateOptions](./gramstax.itemplateoptions.md)
 

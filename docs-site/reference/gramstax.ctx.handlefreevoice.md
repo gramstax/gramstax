@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleFreeVoice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleFreeVoice](./gramstax.ctx.handlefreevoice.md)
 

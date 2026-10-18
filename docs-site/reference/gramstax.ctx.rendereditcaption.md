@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderEditCaption()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderEditCaption](./gramstax.ctx.rendereditcaption.md)
 

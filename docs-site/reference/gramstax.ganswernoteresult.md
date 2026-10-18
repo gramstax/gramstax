@@ -1,4 +1,6 @@
-
+---
+title: "GAnswerNoteResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GAnswerNoteResult](./gramstax.ganswernoteresult.md)
 

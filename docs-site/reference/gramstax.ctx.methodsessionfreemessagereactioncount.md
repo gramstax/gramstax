@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeMessageReactionCount()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeMessageReactionCount](./gramstax.ctx.methodsessionfreemessagereactioncount.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGInlineButtonAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGInlineButtonAttributes](./gramstax.templateengine.validateblockginlinebuttonattributes.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGSwitchBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGSwitchBlocks](./gramstax.templateengine._processgswitchblocks.md)
 

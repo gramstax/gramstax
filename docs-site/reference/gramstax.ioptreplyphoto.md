@@ -1,4 +1,6 @@
-
+---
+title: "IOptReplyPhoto"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplyPhoto](./gramstax.ioptreplyphoto.md)
 

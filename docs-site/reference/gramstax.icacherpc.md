@@ -1,4 +1,6 @@
-
+---
+title: "ICacheRpc"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ICacheRpc](./gramstax.icacherpc.md)
 

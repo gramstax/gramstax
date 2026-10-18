@@ -1,4 +1,6 @@
-
+---
+title: "IBroadcastEditOpts"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBroadcastEditOpts](./gramstax.ibroadcasteditopts.md)
 

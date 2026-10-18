@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.log"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [log](./gramstax.gramstax.log.md)
 

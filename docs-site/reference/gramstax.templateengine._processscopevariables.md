@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processScopeVariables()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processScopeVariables](./gramstax.templateengine._processscopevariables.md)
 

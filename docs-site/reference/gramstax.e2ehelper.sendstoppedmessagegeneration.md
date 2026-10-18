@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendStoppedMessageGeneration()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendStoppedMessageGeneration](./gramstax.e2ehelper.sendstoppedmessagegeneration.md)
 

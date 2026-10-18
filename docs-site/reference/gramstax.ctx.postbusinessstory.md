@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.postBusinessStory()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [postBusinessStory](./gramstax.ctx.postbusinessstory.md)
 

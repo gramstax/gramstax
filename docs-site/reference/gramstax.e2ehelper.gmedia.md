@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.gmedia()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [gmedia](./gramstax.e2ehelper.gmedia.md)
 

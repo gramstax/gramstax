@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.sendPageName()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [sendPageName](./gramstax.ctx.sendpagename.md)
 

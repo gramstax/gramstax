@@ -1,4 +1,6 @@
-
+---
+title: "IBroadcastReviseParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBroadcastReviseParams](./gramstax.ibroadcastreviseparams.md)
 

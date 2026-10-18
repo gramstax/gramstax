@@ -1,4 +1,6 @@
-
+---
+title: "ICt"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ICt](./gramstax.ict.md)
 

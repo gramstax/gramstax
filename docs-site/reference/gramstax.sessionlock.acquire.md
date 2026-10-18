@@ -1,4 +1,6 @@
-
+---
+title: "SessionLock.acquire()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [SessionLock](./gramstax.sessionlock.md) &gt; [acquire](./gramstax.sessionlock.acquire.md)
 

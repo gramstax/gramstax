@@ -1,4 +1,6 @@
-
+---
+title: "ICompiledTemplate"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ICompiledTemplate](./gramstax.icompiledtemplate.md)
 

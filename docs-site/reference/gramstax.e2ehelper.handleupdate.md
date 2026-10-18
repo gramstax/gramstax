@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.handleUpdate()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [handleUpdate](./gramstax.e2ehelper.handleupdate.md)
 

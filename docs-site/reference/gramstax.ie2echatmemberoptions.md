@@ -1,4 +1,6 @@
-
+---
+title: "IE2eChatMemberOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eChatMemberOptions](./gramstax.ie2echatmemberoptions.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.clearRequests()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [clearRequests](./gramstax.mocktelegramserver.clearrequests.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "API Reference"
+---
 
 [Home](./index.md)
 

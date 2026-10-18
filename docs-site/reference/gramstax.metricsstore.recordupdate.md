@@ -1,4 +1,6 @@
-
+---
+title: "MetricsStore.recordUpdate()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MetricsStore](./gramstax.metricsstore.md) &gt; [recordUpdate](./gramstax.metricsstore.recordupdate.md)
 

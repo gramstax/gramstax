@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionMyChatMemberAdminRegular()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionMyChatMemberAdminRegular](./gramstax.ctx.methodsessionmychatmemberadminregular.md)
 

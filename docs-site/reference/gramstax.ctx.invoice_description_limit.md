@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.INVOICE_DESCRIPTION_LIMIT"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [INVOICE\_DESCRIPTION\_LIMIT](./gramstax.ctx.invoice_description_limit.md)
 

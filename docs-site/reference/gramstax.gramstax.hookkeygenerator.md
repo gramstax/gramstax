@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.hookKeyGenerator()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [hookKeyGenerator](./gramstax.gramstax.hookkeygenerator.md)
 

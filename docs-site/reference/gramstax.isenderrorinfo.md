@@ -1,4 +1,6 @@
-
+---
+title: "ISendErrorInfo"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ISendErrorInfo](./gramstax.isenderrorinfo.md)
 

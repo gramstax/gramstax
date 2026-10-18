@@ -1,4 +1,6 @@
-
+---
+title: "IPageDataBase"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IPageDataBase](./gramstax.ipagedatabase.md)
 

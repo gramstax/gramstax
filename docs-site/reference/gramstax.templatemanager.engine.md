@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.engine"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [engine](./gramstax.templatemanager.engine.md)
 

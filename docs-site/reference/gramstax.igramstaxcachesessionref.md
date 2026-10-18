@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxCacheSessionRef"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxCacheSessionRef](./gramstax.igramstaxcachesessionref.md)
 

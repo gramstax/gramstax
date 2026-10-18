@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.bot"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [bot](./gramstax.e2ehelper.bot.md)
 

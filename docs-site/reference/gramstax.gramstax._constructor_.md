@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.(constructor)"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [(constructor)](./gramstax.gramstax._constructor_.md)
 

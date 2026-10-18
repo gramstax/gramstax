@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.sendChatMemberUpdate()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [sendChatMemberUpdate](./gramstax.mocktelegramserver.sendchatmemberupdate.md)
 

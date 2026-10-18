@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.keyboardCols()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [keyboardCols](./gramstax.ctx.keyboardcols.md)
 

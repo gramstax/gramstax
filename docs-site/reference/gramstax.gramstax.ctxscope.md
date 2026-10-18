@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.ctxScope"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [ctxScope](./gramstax.gramstax.ctxscope.md)
 

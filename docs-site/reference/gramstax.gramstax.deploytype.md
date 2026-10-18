@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.deployType"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [deployType](./gramstax.gramstax.deploytype.md)
 

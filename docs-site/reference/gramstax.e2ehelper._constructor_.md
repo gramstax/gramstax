@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.(constructor)"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [(constructor)](./gramstax.e2ehelper._constructor_.md)
 

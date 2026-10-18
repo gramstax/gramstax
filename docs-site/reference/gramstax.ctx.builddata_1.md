@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.buildData()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [buildData](./gramstax.ctx.builddata_1.md)
 

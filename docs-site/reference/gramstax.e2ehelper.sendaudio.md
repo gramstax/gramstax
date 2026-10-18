@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendAudio()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendAudio](./gramstax.e2ehelper.sendaudio.md)
 

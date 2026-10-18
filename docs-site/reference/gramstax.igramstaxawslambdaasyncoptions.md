@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxAwsLambdaAsyncOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxAwsLambdaAsyncOptions](./gramstax.igramstaxawslambdaasyncoptions.md)
 

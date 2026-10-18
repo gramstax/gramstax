@@ -1,4 +1,6 @@
-
+---
+title: "UpdateGate.acquire()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateGate](./gramstax.updategate.md) &gt; [acquire](./gramstax.updategate.acquire.md)
 

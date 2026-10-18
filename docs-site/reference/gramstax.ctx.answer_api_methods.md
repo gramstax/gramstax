@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.ANSWER_API_METHODS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [ANSWER\_API\_METHODS](./gramstax.ctx.answer_api_methods.md)
 

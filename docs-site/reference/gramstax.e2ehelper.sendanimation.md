@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendAnimation()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendAnimation](./gramstax.e2ehelper.sendanimation.md)
 

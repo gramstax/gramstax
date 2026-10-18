@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.closeWatchers()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [closeWatchers](./gramstax.templatemanager.closewatchers.md)
 

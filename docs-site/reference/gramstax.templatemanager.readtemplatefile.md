@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.readTemplateFile()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [readTemplateFile](./gramstax.templatemanager.readtemplatefile.md)
 

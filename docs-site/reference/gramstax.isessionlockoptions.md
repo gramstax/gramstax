@@ -1,4 +1,6 @@
-
+---
+title: "ISessionLockOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ISessionLockOptions](./gramstax.isessionlockoptions.md)
 

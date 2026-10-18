@@ -1,4 +1,6 @@
-
+---
+title: "IKbCols"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IKbCols](./gramstax.ikbcols.md)
 

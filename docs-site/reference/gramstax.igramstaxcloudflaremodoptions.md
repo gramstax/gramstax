@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxCloudflareModOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxCloudflareModOptions](./gramstax.igramstaxcloudflaremodoptions.md)
 

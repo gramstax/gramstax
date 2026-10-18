@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderInvoice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderInvoice](./gramstax.ctx.renderinvoice.md)
 

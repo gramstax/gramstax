@@ -1,4 +1,6 @@
-
+---
+title: "GShippingErrorResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GShippingErrorResult](./gramstax.gshippingerrorresult.md)
 

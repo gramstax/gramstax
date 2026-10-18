@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeForumTopicEdited()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeForumTopicEdited](./gramstax.ctx.setsessionfreeforumtopicedited.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.extractText()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [extractText](./gramstax.e2ehelper.extracttext.md)
 

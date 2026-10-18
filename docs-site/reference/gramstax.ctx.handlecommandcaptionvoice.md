@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleCommandCaptionVoice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleCommandCaptionVoice](./gramstax.ctx.handlecommandcaptionvoice.md)
 

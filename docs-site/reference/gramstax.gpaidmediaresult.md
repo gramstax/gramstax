@@ -1,4 +1,6 @@
-
+---
+title: "GPaidMediaResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GPaidMediaResult](./gramstax.gpaidmediaresult.md)
 

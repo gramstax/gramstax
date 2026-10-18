@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validatePositionsBlock()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validatePositionsBlock](./gramstax.templateengine.validatepositionsblock.md)
 

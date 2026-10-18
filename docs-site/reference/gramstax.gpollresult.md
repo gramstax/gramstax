@@ -1,4 +1,6 @@
-
+---
+title: "GPollResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GPollResult](./gramstax.gpollresult.md)
 

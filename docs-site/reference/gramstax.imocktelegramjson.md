@@ -1,4 +1,6 @@
-
+---
+title: "IMockTelegramJson"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMockTelegramJson](./gramstax.imocktelegramjson.md)
 

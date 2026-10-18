@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.stopLiveLocation()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [stopLiveLocation](./gramstax.ctx.stoplivelocation.md)
 

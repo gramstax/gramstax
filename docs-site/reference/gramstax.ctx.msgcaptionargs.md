@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.msgCaptionArgs"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [msgCaptionArgs](./gramstax.ctx.msgcaptionargs.md)
 

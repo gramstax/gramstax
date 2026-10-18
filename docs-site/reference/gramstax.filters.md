@@ -1,4 +1,6 @@
-
+---
+title: "FILTERS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [FILTERS](./gramstax.filters.md)
 

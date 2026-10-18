@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxPathRef"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxPathRef](./gramstax.igramstaxpathref.md)
 

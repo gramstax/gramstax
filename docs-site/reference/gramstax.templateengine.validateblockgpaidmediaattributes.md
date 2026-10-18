@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGPaidMediaAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGPaidMediaAttributes](./gramstax.templateengine.validateblockgpaidmediaattributes.md)
 

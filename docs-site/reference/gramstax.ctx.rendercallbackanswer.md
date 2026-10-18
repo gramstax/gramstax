@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.renderCallbackAnswer()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [renderCallbackAnswer](./gramstax.ctx.rendercallbackanswer.md)
 

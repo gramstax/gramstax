@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeShippingQuery()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeShippingQuery](./gramstax.ctx.methodsessionfreeshippingquery.md)
 

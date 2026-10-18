@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.addArgs()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [addArgs](./gramstax.ctx.addargs.md)
 

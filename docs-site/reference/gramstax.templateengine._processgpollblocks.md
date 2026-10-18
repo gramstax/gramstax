@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGPollBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGPollBlocks](./gramstax.templateengine._processgpollblocks.md)
 

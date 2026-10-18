@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.stop()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [stop](./gramstax.mocktelegramserver.stop.md)
 

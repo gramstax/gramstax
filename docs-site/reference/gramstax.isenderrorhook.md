@@ -1,4 +1,6 @@
-
+---
+title: "ISendErrorHook"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [ISendErrorHook](./gramstax.isenderrorhook.md)
 

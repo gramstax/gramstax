@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.stop()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [stop](./gramstax.gramstax.stop.md)
 

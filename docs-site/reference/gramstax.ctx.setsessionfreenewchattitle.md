@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeNewChatTitle()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeNewChatTitle](./gramstax.ctx.setsessionfreenewchattitle.md)
 

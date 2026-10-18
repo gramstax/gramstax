@@ -1,4 +1,6 @@
-
+---
+title: "UpdateGate.stats()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateGate](./gramstax.updategate.md) &gt; [stats](./gramstax.updategate.stats.md)
 

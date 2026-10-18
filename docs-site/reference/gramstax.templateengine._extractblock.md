@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._extractBlock()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_extractBlock](./gramstax.templateengine._extractblock.md)
 

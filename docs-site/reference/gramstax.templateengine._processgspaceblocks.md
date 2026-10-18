@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGSpaceBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGSpaceBlocks](./gramstax.templateengine._processgspaceblocks.md)
 

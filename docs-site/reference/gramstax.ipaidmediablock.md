@@ -1,4 +1,6 @@
-
+---
+title: "IPaidMediaBlock"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IPaidMediaBlock](./gramstax.ipaidmediablock.md)
 

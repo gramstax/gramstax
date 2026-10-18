@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.getArgs()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [getArgs](./gramstax.ctx.getargs.md)
 

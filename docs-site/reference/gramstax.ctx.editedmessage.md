@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.editedMessage"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [editedMessage](./gramstax.ctx.editedmessage.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.sendChosenInlineResult()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [sendChosenInlineResult](./gramstax.mocktelegramserver.sendchoseninlineresult.md)
 

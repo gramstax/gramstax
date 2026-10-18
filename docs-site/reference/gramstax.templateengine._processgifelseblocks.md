@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._processGIfElseBlocks()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_processGIfElseBlocks](./gramstax.templateengine._processgifelseblocks.md)
 

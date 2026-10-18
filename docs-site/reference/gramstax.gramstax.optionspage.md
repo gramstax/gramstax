@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.optionsPage"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [optionsPage](./gramstax.gramstax.optionspage.md)
 

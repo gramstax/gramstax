@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getGInvoice()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getGInvoice](./gramstax.templatemanager.getginvoice.md)
 

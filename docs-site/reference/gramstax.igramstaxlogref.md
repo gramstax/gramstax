@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxLogRef"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxLogRef](./gramstax.igramstaxlogref.md)
 

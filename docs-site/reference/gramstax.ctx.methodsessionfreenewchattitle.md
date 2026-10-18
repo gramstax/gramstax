@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeNewChatTitle()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeNewChatTitle](./gramstax.ctx.methodsessionfreenewchattitle.md)
 

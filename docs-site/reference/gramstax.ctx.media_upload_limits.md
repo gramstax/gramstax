@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.MEDIA_UPLOAD_LIMITS"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [MEDIA\_UPLOAD\_LIMITS](./gramstax.ctx.media_upload_limits.md)
 

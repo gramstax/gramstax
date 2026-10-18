@@ -1,4 +1,6 @@
-
+---
+title: "IOptRichSend"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptRichSend](./gramstax.ioptrichsend.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine._validateInvoiceItems()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [\_validateInvoiceItems](./gramstax.templateengine._validateinvoiceitems.md)
 

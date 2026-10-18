@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleSessionCaptionArgsVideo()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleSessionCaptionArgsVideo](./gramstax.ctx.handlesessioncaptionargsvideo.md)
 

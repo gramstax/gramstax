@@ -1,4 +1,6 @@
-
+---
+title: "LoggingHelper.errorMake()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [LoggingHelper](./gramstax.logginghelper.md) &gt; [errorMake](./gramstax.logginghelper.errormake.md)
 

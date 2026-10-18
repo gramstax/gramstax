@@ -1,4 +1,6 @@
-
+---
+title: "IRenderWebAppAnswerParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderWebAppAnswerParams](./gramstax.irenderwebappanswerparams.md)
 

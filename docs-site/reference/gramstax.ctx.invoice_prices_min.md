@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.INVOICE_PRICES_MIN"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [INVOICE\_PRICES\_MIN](./gramstax.ctx.invoice_prices_min.md)
 

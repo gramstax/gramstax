@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeEditedBusinessMessage()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeEditedBusinessMessage](./gramstax.ctx.setsessionfreeeditedbusinessmessage.md)
 

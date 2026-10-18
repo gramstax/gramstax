@@ -1,4 +1,6 @@
-
+---
+title: "UpdateQueue.(constructor)"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [(constructor)](./gramstax.updatequeue._constructor_.md)
 

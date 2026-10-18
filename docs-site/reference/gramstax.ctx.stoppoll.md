@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.stopPoll()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [stopPoll](./gramstax.ctx.stoppoll.md)
 

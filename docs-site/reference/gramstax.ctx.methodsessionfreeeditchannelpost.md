@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeEditChannelPost()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeEditChannelPost](./gramstax.ctx.methodsessionfreeeditchannelpost.md)
 

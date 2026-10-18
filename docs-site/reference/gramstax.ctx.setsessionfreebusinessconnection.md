@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeBusinessConnection()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeBusinessConnection](./gramstax.ctx.setsessionfreebusinessconnection.md)
 

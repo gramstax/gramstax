@@ -1,4 +1,6 @@
-
+---
+title: "UpdateDispatcher.stats()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateDispatcher](./gramstax.updatedispatcher.md) &gt; [stats](./gramstax.updatedispatcher.stats.md)
 

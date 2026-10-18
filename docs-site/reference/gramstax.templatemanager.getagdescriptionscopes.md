@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.getAGDescriptionScopes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [getAGDescriptionScopes](./gramstax.templatemanager.getagdescriptionscopes.md)
 

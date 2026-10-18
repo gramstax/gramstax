@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.streamCalls()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [streamCalls](./gramstax.e2ehelper.streamcalls.md)
 

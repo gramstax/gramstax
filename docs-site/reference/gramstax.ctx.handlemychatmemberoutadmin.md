@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.handleMyChatMemberOutAdmin()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [handleMyChatMemberOutAdmin](./gramstax.ctx.handlemychatmemberoutadmin.md)
 

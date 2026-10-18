@@ -1,4 +1,6 @@
-
+---
+title: "IOptPaidMedia"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptPaidMedia](./gramstax.ioptpaidmedia.md)
 

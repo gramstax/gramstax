@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.editBusinessStory()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [editBusinessStory](./gramstax.ctx.editbusinessstory.md)
 

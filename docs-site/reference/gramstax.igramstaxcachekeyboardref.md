@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxCacheKeyboardRef"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxCacheKeyboardRef](./gramstax.igramstaxcachekeyboardref.md)
 

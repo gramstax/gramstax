@@ -1,4 +1,6 @@
-
+---
+title: "Gramstax.hookRateLimited()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Gramstax](./gramstax.gramstax.md) &gt; [hookRateLimited](./gramstax.gramstax.hookratelimited.md)
 

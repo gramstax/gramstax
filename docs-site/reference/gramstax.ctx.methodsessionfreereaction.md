@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionFreeReaction()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionFreeReaction](./gramstax.ctx.methodsessionfreereaction.md)
 

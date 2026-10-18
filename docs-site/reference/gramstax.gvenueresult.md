@@ -1,4 +1,6 @@
-
+---
+title: "GVenueResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GVenueResult](./gramstax.gvenueresult.md)
 

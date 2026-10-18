@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [ALLOWED\_BLOCKS\_TELEGRAM\_LEGACY](./gramstax.templateengine.allowed_blocks_telegram_legacy.md)
 

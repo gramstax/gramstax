@@ -1,4 +1,6 @@
-
+---
+title: "UpdateDispatcher.capacity()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateDispatcher](./gramstax.updatedispatcher.md) &gt; [capacity](./gramstax.updatedispatcher.capacity.md)
 

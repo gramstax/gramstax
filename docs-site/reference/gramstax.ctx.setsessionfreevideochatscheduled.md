@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.setSessionFreeVideoChatScheduled()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [setSessionFreeVideoChatScheduled](./gramstax.ctx.setsessionfreevideochatscheduled.md)
 

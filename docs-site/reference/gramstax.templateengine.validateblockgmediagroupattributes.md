@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validateBlockGMediaGroupAttributes()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGMediaGroupAttributes](./gramstax.templateengine.validateblockgmediagroupattributes.md)
 

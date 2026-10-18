@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.download()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [download](./gramstax.ctx.download.md)
 

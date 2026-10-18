@@ -1,4 +1,6 @@
-
+---
+title: "IBuildDataOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IBuildDataOptions](./gramstax.ibuilddataoptions.md)
 

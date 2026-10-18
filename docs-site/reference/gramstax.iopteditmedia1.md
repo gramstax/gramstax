@@ -1,4 +1,6 @@
-
+---
+title: "IOptEditMedia1"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptEditMedia1](./gramstax.iopteditmedia1.md)
 

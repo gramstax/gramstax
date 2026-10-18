@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.deletedBusinessMessages"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [deletedBusinessMessages](./gramstax.ctx.deletedbusinessmessages.md)
 

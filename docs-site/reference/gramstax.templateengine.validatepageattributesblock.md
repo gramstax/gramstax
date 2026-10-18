@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.validatePageAttributesBlock()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validatePageAttributesBlock](./gramstax.templateengine.validatepageattributesblock.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "CacheExternal.refreshLruCache()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [CacheExternal](./gramstax.cacheexternal.md) &gt; [refreshLruCache](./gramstax.cacheexternal.refreshlrucache.md)
 

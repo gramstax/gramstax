@@ -1,4 +1,6 @@
-
+---
+title: "IRenderPollParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderPollParams](./gramstax.irenderpollparams.md)
 

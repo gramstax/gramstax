@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.methodSessionCommandCaptionDocument()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [methodSessionCommandCaptionDocument](./gramstax.ctx.methodsessioncommandcaptiondocument.md)
 

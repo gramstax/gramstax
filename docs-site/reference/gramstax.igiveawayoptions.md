@@ -1,4 +1,6 @@
-
+---
+title: "IGiveawayOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGiveawayOptions](./gramstax.igiveawayoptions.md)
 

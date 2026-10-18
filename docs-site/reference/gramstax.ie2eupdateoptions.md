@@ -1,4 +1,6 @@
-
+---
+title: "IE2eUpdateOptions"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IE2eUpdateOptions](./gramstax.ie2eupdateoptions.md)
 

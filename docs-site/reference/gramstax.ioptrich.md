@@ -1,4 +1,6 @@
-
+---
+title: "IOptRich"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptRich](./gramstax.ioptrich.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "MockTelegramServer.sendGiftInfo()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MockTelegramServer](./gramstax.mocktelegramserver.md) &gt; [sendGiftInfo](./gramstax.mocktelegramserver.sendgiftinfo.md)
 

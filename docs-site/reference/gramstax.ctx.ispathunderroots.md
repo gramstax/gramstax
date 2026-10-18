@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.isPathUnderRoots()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [isPathUnderRoots](./gramstax.ctx.ispathunderroots.md)
 

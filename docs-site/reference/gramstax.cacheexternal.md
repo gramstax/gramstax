@@ -1,4 +1,6 @@
-
+---
+title: "CacheExternal"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [CacheExternal](./gramstax.cacheexternal.md)
 

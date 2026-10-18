@@ -1,4 +1,6 @@
-
+---
+title: "GCallbackAnswerResult"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GCallbackAnswerResult](./gramstax.gcallbackanswerresult.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "E2eHelper.sendVideoNote()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [E2eHelper](./gramstax.e2ehelper.md) &gt; [sendVideoNote](./gramstax.e2ehelper.sendvideonote.md)
 

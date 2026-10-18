@@ -1,4 +1,6 @@
-
+---
+title: "IRenderGiftParams"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRenderGiftParams](./gramstax.irendergiftparams.md)
 

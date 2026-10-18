@@ -1,4 +1,6 @@
-
+---
+title: "MetricsStore.counts"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [MetricsStore](./gramstax.metricsstore.md) &gt; [counts](./gramstax.metricsstore.counts.md)
 

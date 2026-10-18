@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxCtxScope"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxCtxScope](./gramstax.igramstaxctxscope.md)
 

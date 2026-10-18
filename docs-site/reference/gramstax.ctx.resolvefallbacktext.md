@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.resolveFallbackText()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [resolveFallbackText](./gramstax.ctx.resolvefallbacktext.md)
 

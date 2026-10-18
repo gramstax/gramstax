@@ -1,4 +1,6 @@
-
+---
+title: "IPageManifestEntry"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IPageManifestEntry](./gramstax.ipagemanifestentry.md)
 

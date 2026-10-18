@@ -1,4 +1,6 @@
-
+---
+title: "TemplateEngine.compileBlockGMessage()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGMessage](./gramstax.templateengine.compileblockgmessage.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "IGramstaxBotClass"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IGramstaxBotClass](./gramstax.igramstaxbotclass.md)
 

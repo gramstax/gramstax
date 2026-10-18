@@ -1,4 +1,6 @@
-
+---
+title: "IOptEditCaption"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptEditCaption](./gramstax.iopteditcaption.md)
 

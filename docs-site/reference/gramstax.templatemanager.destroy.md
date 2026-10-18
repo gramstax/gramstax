@@ -1,4 +1,6 @@
-
+---
+title: "TemplateManager.destroy()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateManager](./gramstax.templatemanager.md) &gt; [destroy](./gramstax.templatemanager.destroy.md)
 

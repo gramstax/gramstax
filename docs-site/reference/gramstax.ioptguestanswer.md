@@ -1,4 +1,6 @@
-
+---
+title: "IOptGuestAnswer"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptGuestAnswer](./gramstax.ioptguestanswer.md)
 

@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.fromFullName"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [fromFullName](./gramstax.ctx.fromfullname.md)
 

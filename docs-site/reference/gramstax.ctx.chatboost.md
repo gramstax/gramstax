@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.chatBoost"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [chatBoost](./gramstax.ctx.chatboost.md)
 

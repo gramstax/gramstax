@@ -1,4 +1,6 @@
-
+---
+title: "IOptReplySticker"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IOptReplySticker](./gramstax.ioptreplysticker.md)
 

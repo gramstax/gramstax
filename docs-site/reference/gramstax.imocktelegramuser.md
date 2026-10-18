@@ -1,4 +1,6 @@
-
+---
+title: "IMockTelegramUser"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IMockTelegramUser](./gramstax.imocktelegramuser.md)
 

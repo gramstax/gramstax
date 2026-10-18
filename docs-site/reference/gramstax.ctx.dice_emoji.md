@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.DICE_EMOJI"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [DICE\_EMOJI](./gramstax.ctx.dice_emoji.md)
 

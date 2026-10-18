@@ -1,4 +1,6 @@
-
+---
+title: "UpdateQueue.getStats()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [UpdateQueue](./gramstax.updatequeue.md) &gt; [getStats](./gramstax.updatequeue.getstats.md)
 

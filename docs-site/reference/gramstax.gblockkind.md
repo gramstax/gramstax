@@ -1,4 +1,6 @@
-
+---
+title: "GBlockKind"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GBlockKind](./gramstax.gblockkind.md)
 

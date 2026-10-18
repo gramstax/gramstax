@@ -1,4 +1,6 @@
-
+---
+title: "Ctx.replyWithMarkdownStream()"
+---
 
 [Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [replyWithMarkdownStream](./gramstax.ctx.replywithmarkdownstream.md)
 
