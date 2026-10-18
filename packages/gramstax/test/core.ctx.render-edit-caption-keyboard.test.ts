@@ -88,7 +88,7 @@ describe(`Ctx.renderEditKeyboard`, () => {
   it(`edits only the keyboard and never touches message text`, async () => {
     const {ctx, api} = createTestCtx()
     const kb = {inline_keyboard: []} as any
-    await ctx.renderEditKeyboard({keyboardInline: kb, AGBaseId: `photo-card`})
+    await ctx.renderEditKeyboard({keyboard: kb, AGBaseId: `photo-card`})
     expect(api.editMessageReplyMarkup).toHaveBeenCalledTimes(1)
     expect((api.editMessageReplyMarkup.mock.calls as any[])[0][2]).toMatchObject({reply_markup: kb})
     expect(api.editMessageText).not.toHaveBeenCalled()
@@ -96,7 +96,7 @@ describe(`Ctx.renderEditKeyboard`, () => {
 
   it(`null keyboard resolves the markup from the AGBaseId keyboard block`, async () => {
     const {ctx, api} = createTestCtx()
-    await ctx.renderEditKeyboard({keyboardInline: null, AGBaseId: `photo-card`})
+    await ctx.renderEditKeyboard({keyboard: null, AGBaseId: `photo-card`})
     expect(api.editMessageReplyMarkup).toHaveBeenCalledTimes(1)
     const sent = (api.editMessageReplyMarkup.mock.calls as any[])[0][2] as {reply_markup: {inline_keyboard: Array<Array<{text: string; callback_data: string}>>}}
     const flat = sent.reply_markup.inline_keyboard.flat()

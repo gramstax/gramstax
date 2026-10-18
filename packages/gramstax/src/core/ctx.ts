@@ -5107,12 +5107,12 @@ export class Ctx extends Context {
    * @remarks
    * Caption text comes from the `<g-message>` block at the `AGBaseId` base via
    * `getGMessage` and is sent via `editMessageCaption`. The keyboard is NOT
-   * read from a block — it comes from the `keyboardInline` param, and an
+   * read from a block — it comes from the `keyboard` param, and an
    * omitted/absent keyboard clears the markup. Fallback modes mirror
    * `renderText`: `delete-reply`/`reply` resend the caption as plain text,
    * `disable` throws.
    *
-   * @param params - Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
+   * @param params - Edit params: `keyboard` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
@@ -5125,14 +5125,14 @@ export class Ctx extends Context {
    * @public
    */
   async renderEditCaption(params: IRenderEditCaptionParams) {
-    const {keyboardInline, data, AGBaseId, options, fallbackEdit = `delete-reply`} = params
+    const {keyboard, data, AGBaseId, options, fallbackEdit = `delete-reply`} = params
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined).text
       return await this.editMessageCaption(
         {
           caption: msg,
           parse_mode: `HTML`,
-          reply_markup: keyboardInline ?? undefined
+          reply_markup: keyboard ?? undefined
         },
         options ?? undefined
       )
@@ -5149,7 +5149,7 @@ export class Ctx extends Context {
           // delete failure (e.g. already deleted) must not block the fallback reply
         }
       }
-      return await this.renderText({keyboard: keyboardInline, data, AGBaseId, mode: `reply`})
+      return await this.renderText({keyboard, data, AGBaseId, mode: `reply`})
     }
   }
 
@@ -5159,28 +5159,28 @@ export class Ctx extends Context {
    * Template block: `<g-keyboard>` (read via `getGKeyboard`).
    * @remarks
    * Sent via `editMessageReplyMarkup` — never touches message text. When
-   * `keyboardInline` is null, the markup resolves from the `<g-keyboard>`
+   * `keyboard` is null, the markup resolves from the `<g-keyboard>`
    * block of the given `AGBaseId` itself (via `getGKeyboard` with `data` for
    * dynamic labels), which is what makes `AGBaseId` meaningful here. No
    * send-fallback (nothing new to send): failures are classified via
    * `Ctx.classifySendError`, reported to `notifySendError`, logged, rethrown.
    *
-   * @param params - Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block keyboard (or null to use default); `options` optional abort signal for the edit call (or null to omit).
+   * @param params - Edit params: `keyboard` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block keyboard (or null to use default); `options` optional abort signal for the edit call (or null to omit).
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.renderEditKeyboard({keyboardInline: null, AGBaseId: `photo-card`})
+   *   await this.renderEditKeyboard({keyboard: null, AGBaseId: `photo-card`})
    * }
    * ```
    *
    * @public
    */
   async renderEditKeyboard(params: IRenderEditKeyboardParams) {
-    const {keyboardInline, data, AGBaseId, options} = params
+    const {keyboard, data, AGBaseId, options} = params
     try {
-      let resolved = keyboardInline ?? undefined
+      let resolved = keyboard ?? undefined
       if (resolved === undefined) {
         const labels = this.templateManager.getGKeyboard(this.data.name, AGBaseId ?? undefined, this.from?.language_code, `inline`, data ?? undefined).rows
         if (labels.length > 0) {

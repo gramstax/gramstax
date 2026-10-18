@@ -58,7 +58,7 @@ A mid-loop failure throws with the recorded chunk index — a partial send is ne
 
 ```typescript
 async renderEditCaption(params: {
-  keyboardInline?: IInlineKb | null
+  keyboard?: IInlineKb | null
   data?: IData | null
   AGBaseId: string
   options?: IOptEditCaption | null
@@ -66,7 +66,7 @@ async renderEditCaption(params: {
 })
 ```
 
-Edits the caption in place, keeping the media. `keyboardInline` and `data` are both optional: `await this.renderEditCaption({AGBaseId: 'photo-card'})` reuses whatever the template's base already declares.
+Edits the caption in place, keeping the media. `keyboard` and `data` are both optional — it is inline-only because `editMessageCaption` rejects a bottom keyboard: `await this.renderEditCaption({AGBaseId: 'photo-card'})` reuses whatever the template's base already declares.
 
 `fallbackEdit` is a field here precisely because caption edits fail on a message that has no caption, so a fallback reply is often needed. Same three values as everywhere else: `delete-reply` (default), `reply`, `disable`.
 
@@ -74,7 +74,7 @@ Edits the caption in place, keeping the media. `keyboardInline` and `data` are b
 
 ```typescript
 async renderEditKeyboard(params: {
-  keyboardInline?: IInlineKb | null
+  keyboard?: IInlineKb | null
   data?: IData | null
   AGBaseId: string
   options?: IOptEditKeyboard | null
@@ -83,7 +83,7 @@ async renderEditKeyboard(params: {
 
 Swaps only the reply markup — text and media untouched, no resend.
 
-When `keyboardInline` is omitted (or `null`), markup builds from the template's `<g-keyboard type="inline">` labels, and **each label becomes both the button text and its callback data** (`built.text(label, label)`). That is why template-driven keyboards should use labels that are valid callback payloads.
+When `keyboard` is omitted (or `null`), markup builds from the template's `<g-keyboard type="inline">` labels, and **each label becomes both the button text and its callback data** (`built.text(label, label)`). That is why template-driven keyboards should use labels that are valid callback payloads.
 
 Note there is **no `fallbackEdit`** field here — unlike `renderEditCaption`. Editing markup on an uncaptioned, unkeyboarded message is the only realistic failure and is not papered over.
 

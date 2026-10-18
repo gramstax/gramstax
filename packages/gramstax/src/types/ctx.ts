@@ -843,15 +843,8 @@ export type IRenderMode = `auto` | `reply` | `edit`
  *
  * @internal
  */
-type ITextBase = {
-  /**
-   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
-   * omit). Edit routes accept inline keyboards only — a bottom keyboard on an
-   * edit route throws, naming `mode: 'reply'` as the fix.
-   *
-   * @defaultValue `null` (no keyboard)
-   */
-  keyboard?: IInBoKb | null
+/** Template fields every `renderText` route shares. */
+type ITextData = {
   /**
    * Optional template interpolation data.
    *
@@ -864,6 +857,37 @@ type ITextBase = {
    * @defaultValue `null` (default base)
    */
   AGBaseId?: string | null
+}
+
+type ITextBase = ITextData & {
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit).
+   *
+   * @remarks
+   * Routes that can send accept a bottom keyboard as well. Routes that always
+   * reach `editMessageText` narrow this to inline markup — see
+   * `IRenderTextParams` route 1b.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+}
+
+/** `ITextBase` for the routes that always reach `editMessageText`. */
+type ITextEditBase = Omit<ITextBase, `keyboard`> & {
+  /**
+   * Inline keyboard markup from `inlineKeyboard` (or null to omit).
+   *
+   * @remarks
+   * `editMessageText` rejects a bottom keyboard, so only inline markup is
+   * accepted on a route that always edits. A bottom keyboard stays legal on the
+   * runtime-decided route (`mode: 'auto'`), where it is guarded at runtime
+   * instead of being rejected by the compiler.
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInlineKb | null
 }
 
 /**
@@ -887,23 +911,65 @@ type ITextBase = {
  */
 export type IRenderTextParams =
   /**
-   * Route 1 — single message, `auto` (default) or `edit`. `auto` edits when the
-   * update carries a `callbackQuery`, otherwise replies; `edit` always edits.
-   * Fields: `mode` `auto`|`edit`; `fallbackEdit` fallback when the edit fails
+   * Route 1a — single message, `auto` (default). `auto` edits when the update
+   * carries a `callbackQuery`, otherwise replies.
+   * Fields: `mode` `auto`; `keyboard` may be inline OR bottom, because the
+   * runtime decides the call; `fallbackEdit` fallback when the edit fails
    * (default `delete-reply`); `options` plain-text options used by BOTH
    * `editMessageText` and, after a failed edit, the fallback `reply()` (the
    * intersection is deliberate — a union would let a key reach a call that
    * cannot honour it); `richOptions` rich payload plus options legal on both
-   * rich send and rich edit (index `[1]` may reach `editMessageText`);
-   * `chunkSize` and `broadcast` must stay absent or `null` on this route.
+   * rich send and rich edit; `chunkSize` and `broadcast` must stay absent or
+   * `null` on this route.
    */
   | (ITextBase & {
       /**
-       * Send-versus-edit resolution on the single-message route.
+       * Send-versus-edit resolution, decided at runtime from the update.
        *
        * @defaultValue `auto`
        */
-      mode?: `auto` | `edit`
+      mode?: `auto`
+      /**
+       * Fallback when the edit fails.
+       *
+       * @defaultValue `delete-reply`
+       */
+      fallbackEdit?: IOptFallbackEdit
+      /**
+       * Optional plain-text options, spread into the edit call AND (after a
+       * failed edit) into the fallback reply.
+       *
+       * @defaultValue `null` (no extra options)
+       */
+      options?: IOptReply & IOptEdit
+      /**
+       * Optional `InputRichMessage` fields plus options legal on both rich
+       * send and rich edit.
+       *
+       * @defaultValue `null` (no extra options)
+       */
+      richOptions?: IOptRich | null
+      /**
+       * Never read on this route — omit (or pass `null`) for a single message.
+       */
+      chunkSize?: null | undefined
+      /**
+       * Never read on this route — omit (or pass `null`) for a single-chat
+       * send/edit.
+       */
+      broadcast?: null | undefined
+    })
+  /**
+   * Route 1b — single message, `mode: 'edit'` (explicit). The call always
+   * reaches `editMessageText`, so `keyboard` is narrowed to inline markup: a
+   * bottom keyboard is a compile error here rather than a Telegram 400 at
+   * runtime. Everything else matches route 1a.
+   */
+  | (ITextEditBase & {
+      /**
+       * Always edits, even when the update carries no `callbackQuery`.
+       */
+      mode: `edit`
       /**
        * Fallback when the edit fails.
        *
@@ -1675,11 +1741,17 @@ export type IRenderDiceParams = {
  */
 export type IRenderEditCaptionParams = {
   /**
-   * Optional inline keyboard markup.
+   * Optional inline keyboard markup from `inlineKeyboard`.
+   *
+   * @remarks
+   * Named `keyboard` like every other render method. The inline-only type is what
+   * carries this method's constraint: Telegram rejects a bottom keyboard on
+   * `editMessageCaption` / `editMessageReplyMarkup`, so the compiler rejects it
+   * here.
    *
    * @defaultValue `null` (no keyboard)
    */
-  keyboardInline?: IInlineKb | null
+  keyboard?: IInlineKb | null
   /**
    * Optional template interpolation data.
    *
@@ -1713,7 +1785,7 @@ export type IRenderEditCaptionParams = {
  *
  * @remarks
  * Sent via `editMessageReplyMarkup` — never touches message text. When
- * `keyboardInline` is null, the markup resolves from the `<g-keyboard>`
+ * `keyboard` is null, the markup resolves from the `<g-keyboard>`
  * block of the given `AGBaseId` itself, which is what makes `AGBaseId`
  * meaningful here.
  *
@@ -1721,11 +1793,17 @@ export type IRenderEditCaptionParams = {
  */
 export type IRenderEditKeyboardParams = {
   /**
-   * Optional inline keyboard markup, or null to resolve it from the block.
+   * Optional inline keyboard markup from `inlineKeyboard`, or null to resolve it
+   * from the block.
+   *
+   * @remarks
+   * Named `keyboard` like every other render method. The inline-only type is what
+   * carries this method's constraint: `editMessageReplyMarkup` rejects a bottom
+   * keyboard, so the compiler rejects it here.
    *
    * @defaultValue `null` (resolve from the block)
    */
-  keyboardInline?: IInlineKb | null
+  keyboard?: IInlineKb | null
   /**
    * Optional template interpolation data.
    *

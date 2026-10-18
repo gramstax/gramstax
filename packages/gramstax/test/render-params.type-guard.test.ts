@@ -49,7 +49,13 @@ const LEGAL = [
   `ctx.renderMedia({broadcast: {ids: [1], languageCode: [\`en\`]}})`,
   `ctx.renderMediaGroup({})`,
   `ctx.renderMediaGroup({mode: \`reply\`})`,
-  `ctx.renderPhotoGroup({mode: \`edit\`})`
+  `ctx.renderPhotoGroup({mode: \`edit\`})`,
+  // The keyboard field is per-route: a bottom keyboard is legal on a send route and
+  // on the runtime-decided route, and inline-only on a route that always edits.
+  `ctx.renderText({keyboard: ctx.bottomKeyboard((k) => k)})`,
+  `ctx.renderText({mode: \`edit\`, keyboard: ctx.inlineKeyboard((k) => k)})`,
+  `ctx.renderEditCaption({keyboard: ctx.inlineKeyboard((k) => k)})`,
+  `ctx.renderEditKeyboard({keyboard: null})`
 ]
 
 const BANNED: Array<[string, string]> = [
@@ -61,7 +67,10 @@ const BANNED: Array<[string, string]> = [
   [`renderMedia: broadcast revise ignores mode`, `ctx.renderMedia({type: \`photo\`, mode: \`edit\`, broadcast: {targets: [{chatId: 1, messageId: 2}]}})`],
   [`renderMedia: forced reply cannot take edit options`, `ctx.renderMedia({type: \`photo\`, mode: \`reply\`, optionsEdit1: {}})`],
   [`renderMedia: broadcast revise ignores options`, `ctx.renderMedia({type: \`photo\`, options: {}, broadcast: {targets: [{chatId: 1, messageId: 2}]}})`],
-  [`renderMediaGroup: forced reply cannot fall back`, `ctx.renderMediaGroup({mode: \`reply\`, fallbackEdit: \`reply\`})`]
+  [`renderMediaGroup: forced reply cannot fall back`, `ctx.renderMediaGroup({mode: \`reply\`, fallbackEdit: \`reply\`})`],
+  [`renderText: an always-edit route rejects a bottom keyboard`, `ctx.renderText({mode: \`edit\`, keyboard: ctx.bottomKeyboard((k) => k)})`],
+  [`renderEditCaption: an edit rejects a bottom keyboard`, `ctx.renderEditCaption({keyboard: ctx.bottomKeyboard((k) => k)})`],
+  [`renderEditKeyboard: an edit rejects a bottom keyboard`, `ctx.renderEditKeyboard({keyboard: ctx.bottomKeyboard((k) => k)})`]
 ]
 
 const MARKER = `// BAN: `
