@@ -2,10 +2,60 @@
   "groups": [
     {
       "group": "Overview",
+      "icon": "home",
+      "boost": 2,
+      "pages": [
+        "index"
+      ]
+    },
+    {
+      "group": "Introduction",
       "icon": "book-open",
       "boost": 2,
       "pages": [
-        "index",
+        "introduction"
+      ]
+    },
+    {
+      "group": "Quickstart",
+      "icon": "rocket",
+      "boost": 2,
+      "pages": [
+        "quickstart"
+      ]
+    },
+    {
+      "group": "Core concepts",
+      "icon": "shapes",
+      "boost": 1.5,
+      "pages": [
+        "concepts/page-routing",
+        "concepts/render-contract",
+        "concepts/templates",
+        "concepts/deploy"
+      ]
+    },
+    {
+      "group": "Guides",
+      "icon": "book",
+      "boost": 1.5,
+      "pages": [
+        "guides/getting-started",
+        "guides/gramstax-start",
+        "guides/gramstax-build",
+        "guides/serverless-deploy",
+        "guides/aot-contract",
+        "guides/adr/index",
+        "guides/glossary",
+        "guides/architecture",
+        "guides/development"
+      ]
+    },
+    {
+      "group": "API reference",
+      "icon": "code",
+      "boost": 0.8,
+      "pages": [
         "reference/gramstax",
         "reference/index"
       ]

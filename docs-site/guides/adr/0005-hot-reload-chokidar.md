@@ -44,4 +44,4 @@ Templates (the `<g-*>` DSL) are the primary thing a bot author edits during deve
 ## Related
 
 - [Architecture](../architecture.md) — Components: TemplateManager
-- [ADR-0002](0002-template-dsl-new-function.md) — recompiled output is cached `ITCompiledTemplate`
+- [ADR-0002](/guides/adr/0002-template-dsl-new-function.md) — recompiled output is cached `ITCompiledTemplate`

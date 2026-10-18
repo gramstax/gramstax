@@ -155,17 +155,17 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 Key architectural choices and their rationale:
 
-1. **Extend grammY instead of wrapping raw Bot API** — see [ADR-0001](adr/0001-build-on-grammy.md).
-2. **Template DSL compiled with `new Function()`** — see [ADR-0002](adr/0002-template-dsl-new-function.md).
-3. **Unified keyv/Redis cache (`CacheExternal`)** — see [ADR-0003](adr/0003-keyv-redis-cache.md).
-4. **Convention-based routing via page class names + `handle*` methods** — see [ADR-0004](adr/0004-convention-routing.md).
-5. **Hot-reload templates with `chokidar`** — see [ADR-0005](adr/0005-hot-reload-chokidar.md).
-6. **In-process E2E testing (`deploy:"test"`)** — see [ADR-0006](adr/0006-in-process-e2e.md).
-7. **Bun + tsup + Nx + API-Extractor toolchain** — see [ADR-0007](adr/0007-bun-tsup-nx-toolchain.md).
-8. **No `@ts-ignore`, named exports only, minimal deps** — see [ADR-0008](adr/0008-lint-export-dep-conventions.md).
+1. **Extend grammY instead of wrapping raw Bot API** — see [ADR-0001](/guides/adr/0001-build-on-grammy.md).
+2. **Template DSL compiled with `new Function()`** — see [ADR-0002](/guides/adr/0002-template-dsl-new-function.md).
+3. **Unified keyv/Redis cache (`CacheExternal`)** — see [ADR-0003](/guides/adr/0003-keyv-redis-cache.md).
+4. **Convention-based routing via page class names + `handle*` methods** — see [ADR-0004](/guides/adr/0004-convention-routing.md).
+5. **Hot-reload templates with `chokidar`** — see [ADR-0005](/guides/adr/0005-hot-reload-chokidar.md).
+6. **In-process E2E testing (`deploy:"test"`)** — see [ADR-0006](/guides/adr/0006-in-process-e2e.md).
+7. **Bun + tsup + Nx + API-Extractor toolchain** — see [ADR-0007](/guides/adr/0007-bun-tsup-nx-toolchain.md).
+8. **No `@ts-ignore`, named exports only, minimal deps** — see [ADR-0008](/guides/adr/0008-lint-export-dep-conventions.md).
 
 ## Related Documentation
 
-- [Overview](overview.md) - Project purpose and scope
-- [Glossary](glossary.md) - Domain terminology used here
-- [Decisions](adr/README.md) - Architecture Decision Records
+- [Overview](/introduction) - Project purpose and scope
+- [Glossary](/guides/glossary) - Domain terminology used here
+- [Decisions](/guides/adr/index) - Architecture Decision Records

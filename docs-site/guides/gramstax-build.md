@@ -16,7 +16,7 @@ Auto-load applies to `serverless` deploys exclusively (matches `Bot._loadBuildMa
 `queue` is orthogonal to `build` — it is a runtime knob, never frozen into
 `.gramstax/`, and both `optionsDeploy.polling.queue` and
 `optionsDeploy.webhook.queue` configure the same `UpdateQueue` class. See
-`docs/gramstax-start.md` for the field table and the opt-in default.
+`docs-site/guides/gramstax-start.md` for the field table and the opt-in default.
 
 ```bash
 gramstax build
@@ -62,7 +62,7 @@ ignored.
 `secretToken` is runtime-required but type-optional (zero-config build keeps
 working); its value comes from an env expression, never a literal. Duality —
 config value sets the webhook, edge reads the `BOT_WEBHOOK_SECRET`
-binding — is specified once in `docs/serverless-deploy.md`.
+binding — is specified once in `docs-site/guides/serverless-deploy.md`.
 
 The scaffolded `gramstax.config.ts`
 (`packages/create-gramstax/src/templates/gramstax.config.ts`) lists all

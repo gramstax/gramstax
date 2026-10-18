@@ -54,7 +54,7 @@ Registered templates render identically to JIT for all 15 `ICompiledTemplate` fi
 
 ## v1 limits
 
-- Script blocks rejected at build: `AOT blocked for template "<key>" (<id>): body contains \`with(\` — \`with\` is forbidden in ESM strict mode ... Move the logic into the page class (a method returning plain data) instead of \`{~~ ... ~~}\` / \`<g-script>\``. Applies to `{~~ ... ~~}` and `<g-script>` alike (both compile to `with(data ...)`).
+- Script blocks rejected at build. The message reads ``AOT blocked for template "<key>" (<id>): body contains `with(` — `with` is forbidden in ESM strict mode ...`` — so move the logic into the page class, as a method returning plain data, rather than into `{~~ ... ~~}` or `<g-script>`. The two are equivalent: both compile to `with(data ...)`.
 - Runtime-dynamic templates impossible: AOT freezes bodies at build time, so templates assembled at runtime (string-concatenated sources, per-request codegen) cannot be emitted — only static `.html` sources.
 - Filenames are sanitized (`safeKey`): any non-identifier character becomes `_`, leading digits gain a `_` prefix. Distinct keys mapping to one filename (`a/b` vs `a_b`) collide — keep keys distinct.
 

@@ -127,7 +127,7 @@ bun run build:docs   # tsup dts-only → api-extractor → api-documenter (markd
 
 ## Related Documentation
 
-- [Getting Started](getting-started.md) - Initial setup
-- [Architecture](architecture.md) - System design context
-- [Glossary](glossary.md) - Terminology
-- [Decisions](adr/README.md) - Why these conventions exist
+- [Getting Started](/guides/getting-started) - Initial setup
+- [Architecture](/guides/architecture) - System design context
+- [Glossary](/guides/glossary) - Terminology
+- [Decisions](/guides/adr/index) - Why these conventions exist

@@ -51,4 +51,4 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 ## Related
 
 - [Development](../development.md) — build/test/lint commands
-- [ADR-0008](0008-lint-export-dep-conventions.md) — lint/export rules the toolchain enforces
+- [ADR-0008](/guides/adr/0008-lint-export-dep-conventions.md) — lint/export rules the toolchain enforces

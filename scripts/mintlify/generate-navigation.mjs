@@ -16,7 +16,42 @@ import {fileURLToPath} from "node:url"
 export function run(SITE) {
   const REFERENCE = join(SITE, "reference")
 
-  const OVERVIEW = ["index", "reference/gramstax", "reference/index"]
+  // Hand-written pages. The generator owns the reference groups because those are
+// derived from the corpus; these are not, so they are declared here rather than
+// hand-edited into a generated file.
+const PROSE = [
+  {group: "Introduction", icon: "book-open", boost: 2, pages: ["introduction"]},
+  {group: "Quickstart", icon: "rocket", boost: 2, pages: ["quickstart"]},
+  {
+    group: "Core concepts",
+    icon: "shapes",
+    boost: 1.5,
+    pages: [
+      "concepts/page-routing",
+      "concepts/render-contract",
+      "concepts/templates",
+      "concepts/deploy"
+    ]
+  },
+  {
+    group: "Guides",
+    icon: "book",
+    boost: 1.5,
+    pages: [
+      "guides/getting-started",
+      "guides/gramstax-start",
+      "guides/gramstax-build",
+      "guides/serverless-deploy",
+      "guides/aot-contract",
+      "guides/adr/index",
+      "guides/glossary",
+      "guides/architecture",
+      "guides/development"
+    ]
+  }
+]
+
+const OVERVIEW = ["reference/gramstax", "reference/index"]
 
   function classify(heading) {
     if (/\bclass$/.test(heading)) return "Classes"
@@ -55,7 +90,11 @@ export function run(SITE) {
   const order = ["Classes", "Types", "Functions", "Variables", "Members", "Other"]
   const boosts = {Classes: 1, Types: 1, Functions: 1, Variables: 0.8, Members: 0.4, Other: 0.4}
 
-  const groups = [{group: "Overview", icon: "book-open", boost: 2, pages: OVERVIEW}]
+  const groups = [
+    {group: "Overview", icon: "home", boost: 2, pages: ["index"]},
+    ...PROSE,
+    {group: "API reference", icon: "code", boost: 0.8, pages: OVERVIEW}
+  ]
   let total = 0
   for (const bucket of order) {
     const entries = buckets.get(bucket)

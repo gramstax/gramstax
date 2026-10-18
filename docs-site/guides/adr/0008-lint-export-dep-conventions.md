@@ -52,5 +52,5 @@ Encode these conventions (from `AGENTS.md` "Anti-Patterns" and the lint config):
 ## Related
 
 - [Development](../development.md) — Code Style, Testing
-- [ADR-0003](0003-keyv-redis-cache.md) — dependency-minimalism in practice
-- [ADR-0007](0007-bun-tsup-nx-toolchain.md) — the lint/build stack that enforces these
+- [ADR-0003](/guides/adr/0003-keyv-redis-cache.md) — dependency-minimalism in practice
+- [ADR-0007](/guides/adr/0007-bun-tsup-nx-toolchain.md) — the lint/build stack that enforces these

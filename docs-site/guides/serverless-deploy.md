@@ -76,7 +76,7 @@ deliberately carries no `BOT_TOKEN` vars line for this reason.
 
 `optionsDeploy.serverless` is keyed by adapter — exactly one of `'cloudflare-mod'`
 or `'aws-lambda-async'`, each accepting only its own fields (see
-`docs/gramstax-build.md`). `secretToken` is runtime-required but type-optional so
+`docs-site/guides/gramstax-build.md`). `secretToken` is runtime-required but type-optional so
 zero-config `gramstax build` keeps working. Its VALUE always comes from an env expression
 (`secretToken: process.env.BOT_WEBHOOK_SECRET ?? ```), never a literal.
 The config value sets the webhook + local `start`; the deployed edge reads the

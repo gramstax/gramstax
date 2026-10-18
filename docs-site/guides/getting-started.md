@@ -119,6 +119,6 @@ Send `/start` to your bot in Telegram; you should receive the rendered `<g-messa
 
 ## Next Steps
 
-- [Development](development.md) - Learn how to contribute
-- [Architecture](architecture.md) - Understand the system design
-- [Decisions](adr/README.md) - Why the framework is built this way
+- [Development](/guides/development) - Learn how to contribute
+- [Architecture](/guides/architecture) - Understand the system design
+- [Decisions](/guides/adr/index) - Why the framework is built this way

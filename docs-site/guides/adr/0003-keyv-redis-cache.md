@@ -49,4 +49,4 @@ Provide a single cache abstraction: `CacheExternal<V>` **extends `keyv`** (`src/
 ## Related
 
 - [Architecture](../architecture.md) — Components: CacheExternal
-- [ADR-0008](0008-lint-export-dep-conventions.md) — dependency-minimalism
+- [ADR-0008](/guides/adr/0008-lint-export-dep-conventions.md) — dependency-minimalism

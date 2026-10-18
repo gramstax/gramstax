@@ -44,4 +44,4 @@ Build `gramstax` **on top of [`grammy`](https://grammy.dev)**. `Gramstax` extend
 ## Related
 
 - [Architecture](../architecture.md) — Components: Gramstax, Ctx
-- [ADR-0004](0004-convention-routing.md) — routing on top of grammY `Context`
+- [ADR-0004](/guides/adr/0004-convention-routing.md) — routing on top of grammY `Context`

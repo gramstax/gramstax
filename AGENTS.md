@@ -184,7 +184,7 @@ Applications are **config-driven**. There is no `src/index.ts` and no hand-writt
 - Config files hold **refs and plain data, not instances**: `cacheSession: {store, ttlMs?, namespace?}`, `log: {override: {module, export?, args?}}`. A bare `{module}` ref without the `override` wrapper is rejected. `manifest` is a constructor param, not a config field.
 - E2E is the one exception — `e2e/setup.ts` constructs `BotCore` directly to inject `deploy: "test"`, `token: "test"`, `stream`, `autoRetry`, `log: false`.
 - `GramstaxConfig` (config file) ≠ `IGramstaxParams` (constructor). Only the latter carries instances and `manifest`.
-- Full detail: `docs/gramstax-start.md`, `docs/gramstax-build.md`, `docs/serverless-deploy.md`, `docs/aot-contract.md`.
+- Full detail: `docs-site/guides/gramstax-start.md`, `docs-site/guides/gramstax-build.md`, `docs-site/guides/serverless-deploy.md`, `docs-site/guides/aot-contract.md`.
 
 ## Testing Conventions
 

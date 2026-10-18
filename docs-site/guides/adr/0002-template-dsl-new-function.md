@@ -46,4 +46,4 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 ## Related
 
 - [Architecture](../architecture.md) — Components: TemplateEngine, TemplateManager
-- [ADR-0005](0005-hot-reload-chokidar.md) — recompile on file change
+- [ADR-0005](/guides/adr/0005-hot-reload-chokidar.md) — recompile on file change

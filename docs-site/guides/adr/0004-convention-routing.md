@@ -49,4 +49,4 @@ Route updates **by convention**, not by manual `bot.on` registration:
 ## Related
 
 - [Architecture](../architecture.md) — Components: PageManager, Ctx
-- [ADR-0001](0001-build-on-grammy.md) — routing sits on grammY `Context`
+- [ADR-0001](/guides/adr/0001-build-on-grammy.md) — routing sits on grammY `Context`

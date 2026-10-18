@@ -56,7 +56,7 @@ only `start` enforces non-empty. Same pass-through rule for
 `optionsDeploy.webhook.secretToken` and `optionsDeploy.serverless.secretToken`
 (env expression, never a literal; serverless duality — config value sets the
 webhook, edge reads the `BOT_WEBHOOK_SECRET` binding — see
-`docs/serverless-deploy.md`). Never commit real
+`docs-site/guides/serverless-deploy.md`). Never commit real
 token/secret values; keep them in `.env` (see `.env.example`). The
 framework cannot distinguish a literal from an env-derived value, so no
 warning is possible — the caution above is the whole guardrail.
@@ -128,7 +128,7 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 | ----------------------- | --------------------------------- | --------- | --------------------------------------- |
 | `token`                 | `string`                          | —         | Any string incl. `""` at load; non-empty required for start |
 | `deploy`                | `"polling" \| "webhook" \| "serverless" \| "raw" \| "test"` | `polling` | Bare literal; `--deploy` wins           |
-| `optionsDeploy`         | `{polling?: {maxRetries?, queue?}, webhook?: {url?, secretToken?, queue?}, serverless?: {'cloudflare-mod'?: {url?, secretToken?, name?, compatibilityDate?, compatibilityFlags?, toml?}, 'aws-lambda-async'?: {url?, secretToken?}}, raw?: {}, test?: {}}` | — | `webhook` needs `url` + `secretToken`; `serverless` is keyed by adapter (exactly one key) and needs a real `url` + `secretToken` (runtime-required, type-optional); see `docs/serverless-deploy.md`; `polling` takes `{maxRetries?, queue?}` or `{}`; `raw`/`test` take `{}` or nothing |
+| `optionsDeploy`         | `{polling?: {maxRetries?, queue?}, webhook?: {url?, secretToken?, queue?}, serverless?: {'cloudflare-mod'?: {url?, secretToken?, name?, compatibilityDate?, compatibilityFlags?, toml?}, 'aws-lambda-async'?: {url?, secretToken?}}, raw?: {}, test?: {}}` | — | `webhook` needs `url` + `secretToken`; `serverless` is keyed by adapter (exactly one key) and needs a real `url` + `secretToken` (runtime-required, type-optional); see `docs-site/guides/serverless-deploy.md`; `polling` takes `{maxRetries?, queue?}` or `{}`; `raw`/`test` take `{}` or nothing |
 | `mediaRoots`            | `string[] \| null`                | —         | Non-empty entries; empty jail off       |
 | `botConfig`             | `object`                          | —         | Passed through                          |
 | `autoRetry`             | `boolean`                         | —         | Passed through                          |
@@ -145,7 +145,7 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 Scope: `polling` plus `webhook` (`serverless`/`test` behave exactly as the
 constructor does today — no special-casing). `optionsDeploy`
 branches (`serverless`/`webhook`/`polling`/`raw`/`test`), polling/webhook/test/raw sections, and real lambda fields
-are unchanged; see `docs/gramstax-build.md` and `docs/serverless-deploy.md`.
+are unchanged; see `docs-site/guides/gramstax-build.md` and `docs-site/guides/serverless-deploy.md`.
 Paths follow the `src/pages` + `.gramstax/` convention (no path knobs).
 
 ### The update queue (`queue?` on `polling` and `webhook`)

@@ -47,4 +47,4 @@ A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provide
 ## Related
 
 - [Architecture](../architecture.md) — Components: E2eHelper, MockTelegramServer
-- [ADR-0007](0007-bun-tsup-nx-toolchain.md) — `bun test` runs these suites
+- [ADR-0007](/guides/adr/0007-bun-tsup-nx-toolchain.md) — `bun test` runs these suites

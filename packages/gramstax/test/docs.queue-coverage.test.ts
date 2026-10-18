@@ -8,8 +8,8 @@ const read = (file: string): string => readFileSync(join(ROOT, file), `utf-8`)
 
 describe(`queue documentation covers both modes`, () => {
   const files = [
-    `docs/gramstax-start.md`,
-    `docs/gramstax-build.md`,
+    `docs-site/guides/gramstax-start.md`,
+    `docs-site/guides/gramstax-build.md`,
     `packages/gramstax/skills/gramstax-best-practices/references/deploy-modes.md`,
     `packages/gramstax/skills/gramstax-best-practices/references/deploy-runtime.md`,
     `packages/gramstax/skills/gramstax-best-practices/references/config-boot.md`,
@@ -29,7 +29,7 @@ describe(`queue documentation covers both modes`, () => {
   })
 
   it(`no agent-facing doc points at the deleted src/webhook/queue.ts`, () => {
-    for (const file of [`packages/gramstax/AGENTS.md`, `packages/gramstax/docs/architecture.md`, `packages/gramstax/docs/development.md`, `packages/gramstax/docs/glossary.md`]) {
+    for (const file of [`packages/gramstax/AGENTS.md`, `docs-site/guides/architecture.md`, `docs-site/guides/development.md`, `docs-site/guides/glossary.md`]) {
       expect(read(file)).not.toContain(`src/webhook/queue.ts`)
       expect(read(file)).not.toContain(`webhook/queue.ts`)
     }
@@ -49,7 +49,7 @@ describe(`queue documentation covers both modes`, () => {
     expect(fields).toContain(`workerCount`)
     expect(fields).toContain(`drainTimeoutMs`)
 
-    const tables = [`docs/gramstax-start.md`, `packages/gramstax/skills/gramstax-best-practices/references/deploy-runtime.md`]
+    const tables = [`docs-site/guides/gramstax-start.md`, `packages/gramstax/skills/gramstax-best-practices/references/deploy-runtime.md`]
     for (const table of tables) {
       for (const field of fields) {
         expect(read(table)).toContain(`| \`${field}\` |`)

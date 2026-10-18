@@ -171,7 +171,7 @@ bun --bun gramstax start --watch  # boot + restart on src change
 - Add a shared keyboard block in `src/blocks/g-keyboard.ts` once two or more pages need it
 - Add the global error / not-found pages via `hookErrorPage` and `hookNotFoundPage` on `src/core/bot.ts`
 - Add `e2e/setup.ts` and drive the bot through `bot.e2e` with `deploy: "test"`
-- Run [`gramstax build`](../../docs/gramstax-build.md) before any `serverless` deploy
+- Run [`gramstax build`](../../docs-site/guides/gramstax-build.md) before any `serverless` deploy
 
 ## 📖 Usage
 

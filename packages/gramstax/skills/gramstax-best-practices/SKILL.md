@@ -72,4 +72,4 @@ Each rule file contains:
 
 - `packages/gramstax/AGENTS.md` — API truth and package conventions
 - `example/AGENTS.md` — sample projects and e2e harness conventions
-- `docs/gramstax-start.md`, `docs/gramstax-build.md`, `docs/serverless-deploy.md`, `docs/aot-contract.md` — CLI and deploy detail
+- `docs-site/guides/gramstax-start.md`, `docs-site/guides/gramstax-build.md`, `docs-site/guides/serverless-deploy.md`, `docs-site/guides/aot-contract.md` — CLI and deploy detail

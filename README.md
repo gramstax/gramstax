@@ -773,10 +773,10 @@ Base ids map the same way: no `id` → `gdefault`, `id="s1"` → `gs1`, `id="amo
 
 | Document | Covers |
 | :------- | :----- |
-| [`docs/gramstax-start.md`](./docs/gramstax-start.md) | Boot from config: discovery, precedence, ref slots, `--watch`, the queue field table |
-| [`docs/gramstax-build.md`](./docs/gramstax-build.md) | The `.gramstax/` output tree, CLI flags, manifest boot, exit codes |
-| [`docs/serverless-deploy.md`](./docs/serverless-deploy.md) | Cloudflare Workers and Lambda: build → secret → deploy → verify |
-| [`docs/aot-contract.md`](./docs/aot-contract.md) | The `gen/` emit contract and its v1 limits |
+| [`docs-site/guides/gramstax-start.md`](./docs-site/guides/gramstax-start.md) | Boot from config: discovery, precedence, ref slots, `--watch`, the queue field table |
+| [`docs-site/guides/gramstax-build.md`](./docs-site/guides/gramstax-build.md) | The `.gramstax/` output tree, CLI flags, manifest boot, exit codes |
+| [`docs-site/guides/serverless-deploy.md`](./docs-site/guides/serverless-deploy.md) | Cloudflare Workers and Lambda: build → secret → deploy → verify |
+| [`docs-site/guides/aot-contract.md`](./docs-site/guides/aot-contract.md) | The `gen/` emit contract and its v1 limits |
 | [`docs/capacity-model-50m-peak.md`](./docs/capacity-model-50m-peak.md) | Capacity modelling for large deployments |
 | [`docs/agents/`](./docs/agents) | Domain docs, issue tracker, and triage-label conventions for agents |
 
@@ -790,7 +790,7 @@ Each package ships a rule-based skill consumed by coding agents, with `reference
 
 ### Domain docs
 
-[`CONTEXT-MAP.md`](./CONTEXT-MAP.md) points at one `CONTEXT.md` per context (`gramstax`, `lmdb`, `worker-thread`, `create-gramstax`); ADRs live in `packages/gramstax/docs/adr/`. [`AGENTS.md`](./AGENTS.md) is repo-wide agent guidance, with per-package files under each package.
+[`CONTEXT-MAP.md`](./CONTEXT-MAP.md) points at one `CONTEXT.md` per context (`gramstax`, `lmdb`, `worker-thread`, `create-gramstax`); ADRs live in `docs-site/guides/adr/`. [`AGENTS.md`](./AGENTS.md) is repo-wide agent guidance, with per-package files under each package.
 
 ### Per-package READMEs
 
