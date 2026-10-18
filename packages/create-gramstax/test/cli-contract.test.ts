@@ -100,15 +100,37 @@ describe(`cli-contract pm runtime case-insensitive plus choices`, () => {
   })
 })
 
-describe(`cli-contract boolean single-side flags`, () => {
-  it(`defines lmdb worker-thread biome with default true and no explicit no- flags`, () => {
+describe(`cli-contract feature flags are two-sided and default to unstated`, () => {
+  it(`defines both spellings for lmdb worker-thread and biome`, () => {
     const source = readIndex()
     expect(source).toContain(`--lmdb`)
+    expect(source).toContain(`--no-lmdb`)
     expect(source).toContain(`--worker-thread`)
+    expect(source).toContain(`--no-worker-thread`)
     expect(source).toContain(`--biome`)
-    expect(source).not.toContain(`--no-lmdb`)
-    expect(source).not.toContain(`--no-worker-thread`)
-    expect(source).not.toContain(`--no-biome`)
+    expect(source).toContain(`--no-biome`)
+  })
+
+  it(`gives the three feature flags no default, so a declined prompt is reachable`, () => {
+    // This is the regression guard. A `true` default made `opts.lmdb` always
+    // defined, so `cli?.lmdb ?? prompted.lmdb` resolved to the flag on every run
+    // and the confirm prompt was decorative. Asserted on the source because the
+    // symptom is only observable through commander and the config assembly.
+    const source = readIndex()
+    expect(source).not.toMatch(/\.option\(`--lmdb`,[^)]*,\s*true\)/)
+    expect(source).not.toMatch(/\.option\(`--worker-thread`,[^)]*,\s*true\)/)
+    expect(source).not.toMatch(/\.option\(`--biome`,[^)]*,\s*true\)/)
+    expect(source).toContain(`addOption(new Option(\`--lmdb\``)
+    expect(source).toContain(`addOption(new Option(\`--no-lmdb\``)
+  })
+
+  it(`carries skipInstall into the project config`, () => {
+    // `skipInstall` was parsed and threaded into `Create`, but no branch that
+    // assembles the config copied it, so `config.skipInstall === true` never
+    // held and the install step ran regardless of the flag.
+    const source = readCreate()
+    expect(source).toContain(`skipInstall: cli?.skipInstall === true`)
+    expect(source).toContain(`config.skipInstall = this._cliOptions?.skipInstall === true`)
   })
 })
 

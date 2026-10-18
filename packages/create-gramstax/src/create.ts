@@ -287,6 +287,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       lmdb: boolean
       workerThread: boolean
       biome: boolean
+      skipInstall?: boolean
     }
     if (hasCli) {
       validateCliOptions(normalizedPm, normalizedRuntime)
@@ -320,7 +321,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
           runtime: normalizedRuntime ?? prompted.runtime,
           lmdb: cli?.lmdb ?? prompted.lmdb,
           workerThread: cli?.workerThread ?? prompted.workerThread,
-          biome: cli?.biome ?? prompted.biome
+          biome: cli?.biome ?? prompted.biome,
+          skipInstall: cli?.skipInstall === true
         }
       } else {
         config = {
@@ -328,14 +330,18 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
           runtime: normalizedRuntime ?? `bun`,
           lmdb: cli?.lmdb ?? true,
           workerThread: cli?.workerThread ?? true,
-          biome: cli?.biome ?? true
+          biome: cli?.biome ?? true,
+          skipInstall: cli?.skipInstall === true
         }
       }
     } else {
       config = await this.promptForConfiguration()
+      // The prompts never ask about installing, so the flag still applies when
+      // everything else was answered interactively.
+      config.skipInstall = this._cliOptions?.skipInstall === true
     }
 
-    const {packageManager, runtime, lmdb, workerThread, biome} = config
+    const {packageManager, runtime, lmdb, workerThread, biome, skipInstall} = config
 
     // Validation
     if (useCurrentDir) {
@@ -360,7 +366,11 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       runtime,
       setupBiome: biome,
       useLmdb: lmdb,
-      useWorkerThread: workerThread
+      useWorkerThread: workerThread,
+      // Carried through the return on purpose: it was assembled above and then
+      // dropped here, so `executeProjectGeneration` always read `undefined` and
+      // the install step ran even with `--skip-install`.
+      skipInstall
     }
   }
 
@@ -509,15 +519,17 @@ if (fs.existsSync(workerPath)) fs.rmSync(workerPath, {recursive: true, force: tr
     }
 
     // Task 8: Install
-    log.info(`Installing dependencies..`)
     if (skipInstall) {
       log.warn(`Skipping dependencies installation..`)
-    } else if (!(await this.installDependencies(projectPath, packageManager))) {
-      throw new Error(`Dependencies installation failed`)
+    } else {
+      log.info(`Installing dependencies..`)
+      if (!(await this.installDependencies(projectPath, packageManager))) {
+        throw new Error(`Dependencies installation failed`)
+      }
     }
 
     log.info(`Project created successfully!`)
-    log.info(`Next steps: ${config.projectPath !== process.cwd() ? `cd ${path.basename(config.projectPath)} && ` : ``}${commands.install} && ${commands.dev}`)
+    log.info(`Next steps: ${skipInstall ? `` : `${commands.install} && `}${config.projectPath !== process.cwd() ? `cd ${path.basename(config.projectPath)} && ` : ``}${commands.dev}`)
     log.info(`Done..`)
   }
 

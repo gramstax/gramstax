@@ -6,7 +6,7 @@
     "access": "public",
     "provenance": false
   },
-  "description": "",
+  "description": "Scaffolds a Gramstax Telegram bot — pages, templates, config, an enforced e2e mirror, and optional LMDB storage and worker threads, wired in from the start.",
   "keywords": [],
   "scripts": {
     "build": "tsup",

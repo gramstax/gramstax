@@ -17,7 +17,11 @@
 
 gramstax wraps [grammy](https://www.npmjs.com/package/grammy) and turns the remaining half of a Telegram bot — the part every project reinvents — into a fixed shape. The value is in what you stop deciding on every bot.
 
-**No hand-written markup strings.** Message text, keyboards, media captions, poll options, invoices and error toasts live in a `static template` compiled once by `TemplateEngine` and cached by `TemplateManager`. Adding `lang="id"` next to a block gives you a second language with no branch in the handler; adding `{{var|upper}}` gives you formatting without code in the page.
+**No router.** You never write one. Drop a file into `src/pages` and the route *is* its path: `start.ts` → `start`, `admin/ban.ts` → `admin/ban` at any depth, `admin/index.ts` → `admin`. The scanner takes the first named export as the page class, and every handler you name by convention — `handleCommandText`, `handleCallbackQueryData`, `handleArgs*`, `handleSession*`, `handleFree*`, `handleCaption*` — is bound for you. A root-level `index.ts` has no parent route and is rejected rather than silently swallowing the tree. Naming a method is what registers it: there is no central table to keep in sync, so adding a page cannot break an unrelated one.
+
+**No template engine to build.** Message text, keyboards, media captions, poll options, invoices and error toasts live in a `static template` compiled once by `TemplateEngine` and cached by `TemplateManager`. Adding `lang="id"` next to a block gives you a second language with no branch in the handler; adding `{{var|upper}}` gives you formatting without code in the page; adding `<g-ifelse>` gives you a conditional that survives ahead-of-time compilation. The same source that renders a page also renders its e2e expectations, because both come from the compiled block.
+
+**No hand-written markup strings.** The blocks are a typed vocabulary — `g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-invoice`, `g-callback-answer` and the rest — validated at compile time, so a malformed page fails the build rather than a user's message.
 
 **No send-versus-edit branching.** `renderText` defaults to `mode: 'auto'` — it edits the message a callback query is attached to and replies otherwise. You write the render once; the framework reads `!!this.callbackQuery` in one place.
 

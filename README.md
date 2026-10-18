@@ -17,6 +17,10 @@
 
 Most Telegram frameworks give you a `bot.command("start", …)` and a template literal. Everything after that — where the markup lives, how a second language is added, whether a tap edits the existing message or leaves an orphan, how you prove the bot actually called the Bot API the way you think it did — becomes your problem, decided differently in every file.
 
+**No router, ever.** A page's route *is* its file path. `start.ts` is the `start` route, `admin/ban.ts` is `admin/ban` at whatever depth you like, `admin/index.ts` is `admin`. The scanner takes the first named export as the page class and binds every handler you name by convention — `handleCommandText`, `handleCallbackQueryData`, `handleArgs*`, `handleSession*`, `handleFree*`, `handleCaption*`. Adding a page is adding a file; there is no table to register it in, so it cannot break an unrelated page.
+
+**A template engine, not a string library.** Markup is a typed block vocabulary — `g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-invoice`, `g-callback-answer` and the rest — parsed and compiled ahead of time, with 29 PAGE blocks and 54 Bot API 10.3 Rich HTML tags validated in three layers. `lang="id"` beside a block buys a second language with no branch in the handler; `{{var|upper}}` buys formatting without code in the page; `<g-ifelse>` buys a conditional that survives AOT compilation.
+
 **No hand-written entry point.** A generated project has no `src/index.ts` and no `new Gramstax({...})`. `gramstax start` reads `gramstax.config.ts`, discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref slot, and constructs it. Construction *is* boot — there is no `.run()` to remember, and no ordering to get wrong.
 
 **No markup in strings passed to an API call.** A page owns a `static template` block, so the same source renders in every language the page declares and stays translatable. `<g-message>` and `<g-message lang="id">` sitting side by side means an Indonesian Telegram client gets Indonesian with no branch in the handler.

@@ -121,10 +121,13 @@ program
   .argument(`[project-directory]`, `Directory to create the project in`)
   .addOption(new Option(`--pm <name>`, `Package manager (bun, npm, pnpm, yarn)`).choices([`bun`, `npm`, `pnpm`, `yarn`]).argParser((value: string) => value.trim().toLowerCase()))
   .addOption(new Option(`--runtime <name>`, `Runtime (bun, node)`).choices([`bun`, `node`]).argParser((value: string) => value.trim().toLowerCase()))
-  .option(`--lmdb`, `Include @gramstax/lmdb (default: true)`, true)
-  .option(`--worker-thread`, `Include @gramstax/worker-thread (default: true)`, true)
-  .option(`--biome`, `Include Biome for linting & formatting (default: true)`, true)
-  .option(`--skip-install`, `Skip dependency installation`, false)
+  .addOption(new Option(`--lmdb`, `Include @gramstax/lmdb (prompted when neither flag is given)`))
+  .addOption(new Option(`--no-lmdb`, `Skip @gramstax/lmdb`))
+  .addOption(new Option(`--worker-thread`, `Include @gramstax/worker-thread (prompted when neither flag is given)`))
+  .addOption(new Option(`--no-worker-thread`, `Skip @gramstax/worker-thread`))
+  .addOption(new Option(`--biome`, `Include Biome for linting & formatting (prompted when neither flag is given)`))
+  .addOption(new Option(`--no-biome`, `Skip Biome for linting & formatting`))
+  .option(`--skip-install`, `Skip dependency installation`)
   .exitOverride()
 ```
 
@@ -136,7 +139,7 @@ program
 | `--lmdb`                | —                     | `true`                  | Keep `@gramstax/lmdb`, `src/db/`, `DB_PATH` and the `data/` ignore rule   |
 | `--worker-thread`       | —                     | `true`                  | Keep `@gramstax/worker-thread` and `src/workers/`                          |
 | `--biome`               | —                     | `true`                  | Keep `biome.json`, add `@biomejs/biome`, keep the `lint*`/`format*` scripts |
-| `--skip-install`        | —                     | `false`                 | Intended to generate without running the package manager — **currently a no-op, see below**                     |
+| `--skip-install`        | —                     | install runs            | Generate the files without running the package manager                     |
 | `-h, --help`            | —                     | —                       | Commander's help text                                                      |
 | `-V, --version`         | —                     | package version         | Falls back to `0.0.0` if `package.json` cannot be read or parsed            |
 
@@ -157,34 +160,42 @@ Two prompts live in [`src/create.ts`](./src/create.ts). Ctrl-C (or any enquirer 
 
 Prompts 2–6 are submitted as a single enquirer array, so they appear in exactly that order. Answering prompt 1 with an empty string scaffolds **into the current directory** instead: the name is slugified from the directory basename via `sanitizeProjectName`, and the directory must be effectively empty (`.git`, `.gitignore`, `.gitkeep`, `.DS_Store` and `Thumbs.db` do not count as content).
 
-### The single-sided flag contract
+### Turning a feature on and off
 
-**`--lmdb`, `--worker-thread` and `--biome` can only turn a feature on.** There is deliberately no `--no-lmdb`, `--no-worker-thread` or `--no-biome` spelling — a `--no-` form would imply the feature was off unless you asked, which is the opposite of how the defaults read in `--help`. This is enforced, not merely intended: [`test/cli-contract.test.ts`](./test/cli-contract.test.ts) asserts that `src/index.ts` contains each positive flag *and* that it does not contain any of the three negative spellings. Adding a `--no-*` alias fails the suite.
+The three feature flags are **two-sided**: `--lmdb` / `--no-lmdb`, `--worker-thread` / `--no-worker-thread`, `--biome` / `--no-biome`. Each pair is enforced by [`test/cli-contract.test.ts`](./test/cli-contract.test.ts), which asserts both spellings are present in `src/index.ts`.
 
-Which means **declining the prompt is how you omit a feature**, and the programmatic path is the `Create` API:
+They also carry **no default**, and that is the second half of the contract. A `true` default would make `opts.lmdb` always defined, and `cli?.lmdb ?? prompted.lmdb` would then always resolve to the flag — the prompt would ask a question whose answer could not reach the outcome. Undefined means "not stated on the command line", which is the signal to ask.
 
-```ts
-import {Create} from "create-gramstax/dist/src/create" // or import from source in-repo
+So there are three ways to set a feature, and they compose:
 
-await new Create(`my-bot`, {
-  version: `5.0.0`,
-  cliOptions: {packageManager: `bun`, runtime: `bun`} // lmdb/workerThread/biome left undefined
-}).createProject()
+| You pass | Result |
+| :-------- | :----- |
+| nothing | the prompt asks, and the answer decides |
+| `--lmdb` | LMDB is in, no question asked |
+| `--no-lmdb` | LMDB is out, no question asked |
+
+```bash
+# fully non-interactive: every choice stated, nothing installed
+bunx create-gramstax@latest my-bot --runtime bun --pm bun --no-lmdb --no-worker-thread --no-biome --skip-install
 ```
 
-With those three left `undefined`, `hasAnyCliFlag()` is false, all six prompts run, and answering *no* to 4–6 yields `useLmdb: false`, `useWorkerThread: false`, `setupBiome: false`.
+A flag that is neither given nor negated is reported by name in a non-TTY rather than guessed:
 
-> **Current behaviour, stated plainly.** Because the three feature flags are declared with a commander default of `true`, `index.ts` always hands `Create` a defined value for them (`opts.lmdb !== undefined` is always true), so `cli.lmdb ?? prompted.lmdb` always resolves to the flag. Driven through `src/index.ts`, a scaffold therefore keeps all three features regardless of what the confirms say, and the only field that can still make `promptForConfiguration` fire is `runtime`. Omitting a feature is reachable today through the `Create` API above, not through a flag. This is why the contract test only asserts the *absence* of `--no-`: adding one would not fix the default, it would just add a second way to be wrong.
+```
+Missing required CLI options: lmdb, workerThread, biome. Provide lmdb, workerThread, biome flags or run interactively.
+```
 
-> **`--skip-install` currently does not skip.** The flag parses and reaches `Create`, but no branch that builds the project config copies it through — `config.skipInstall` is always `undefined`, and the install step tests `config.skipInstall === true`. The result is that `bun install` runs regardless, and the "Next steps" hint then tells you to run it a second time. Verified by generating a project with the flag and observing the install. Declining is not possible either — there is no other path that sets it. Treat this as a defect, not a usage note.
+### `--skip-install`
+
+`--skip-install` sets `config.skipInstall`, which the install step tests before doing anything. When it is set the output reads `Skipping dependencies installation..`, the package manager is never spawned, and the "Next steps" line omits the install command it would otherwise tell you to run — which it used to print even when it had already installed.
 
 ### Non-interactive usage
 
 In a non-TTY (CI, a pipe, `npm init`-style scripting) nothing is guessed and nothing hangs:
 
 ```bash
-# every choice stated up front; note that installation still runs today
-bunx create-gramstax@latest my-bot --runtime bun --skip-install
+# every choice stated up front, nothing installed
+bunx create-gramstax@latest my-bot --runtime bun --skip-install --no-lmdb --no-worker-thread --no-biome
 ```
 
 - No positional **and** no TTY → `Missing project name` (prefixed with `Project name is required when using CLI flags` when a flag was seen). Exit 2.

@@ -64,10 +64,19 @@ program
   .argument(`[project-directory]`, `Directory to create the project in`)
   .addOption(new Option(`--pm <name>`, `Package manager (bun, npm, pnpm, yarn)`).choices([`bun`, `npm`, `pnpm`, `yarn`]).argParser((value: string) => value.trim().toLowerCase()))
   .addOption(new Option(`--runtime <name>`, `Runtime (bun, node)`).choices([`bun`, `node`]).argParser((value: string) => value.trim().toLowerCase()))
-  .option(`--lmdb`, `Include @gramstax/lmdb (default: true)`, true)
-  .option(`--worker-thread`, `Include @gramstax/worker-thread (default: true)`, true)
-  .option(`--biome`, `Include Biome for linting & formatting (default: true)`, true)
-  .option(`--skip-install`, `Skip dependency installation`, false)
+  // No `true` default on these three, and that is the point. With a default,
+// `opts.lmdb` is always defined, so `cli?.lmdb ?? prompted.lmdb` in `Create`
+// resolved to the flag every time and a declined confirm was silently discarded —
+// the prompt asked a question whose answer could not reach the outcome. Left
+// undefined, "not stated on the command line" means "ask me", which is what the
+// rest of the config assembly already expects.
+.addOption(new Option(`--lmdb`, `Include @gramstax/lmdb (prompted when neither flag is given)`))
+  .addOption(new Option(`--no-lmdb`, `Skip @gramstax/lmdb`))
+  .addOption(new Option(`--worker-thread`, `Include @gramstax/worker-thread (prompted when neither flag is given)`))
+  .addOption(new Option(`--no-worker-thread`, `Skip @gramstax/worker-thread`))
+  .addOption(new Option(`--biome`, `Include Biome for linting & formatting (prompted when neither flag is given)`))
+  .addOption(new Option(`--no-biome`, `Skip Biome for linting & formatting`))
+  .option(`--skip-install`, `Skip dependency installation`)
   .exitOverride()
   .action(async (projectDirectory?: string, opts?: {pm?: string; runtime?: string; lmdb?: boolean; workerThread?: boolean; biome?: boolean; skipInstall?: boolean}) => {
     try {

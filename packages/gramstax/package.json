@@ -6,7 +6,7 @@
     "access": "public",
     "provenance": false
   },
-  "description": "",
+  "description": "A modern Telegram bot framework built around page-based routing and a powerful template system.",
   "keywords": [],
   "scripts": {
     "build": "tsup",
