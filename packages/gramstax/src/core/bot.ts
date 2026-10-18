@@ -49,126 +49,12 @@ type ICustomRouteEntry = {
   shouldCheckNotFound?: boolean
 }
 
-/** Max ms {@link Gramstax.stop} waits for in-flight queue handlers to finish. @internal */
-const QUEUE_DRAIN_TIMEOUT_DEFAULT = 10_000
-
-/** Telegram's hard ceiling for `getUpdates.limit`. @internal */
-const POLLING_FETCH_LIMIT_MAX = 100
-
 /**
  * Internal sentinel thrown when an update exceeds `updateTimeoutMs`.
  *
  * @internal
  */
 class UpdateTimeoutError extends Error {}
-
-/**
- * Maps every built-in grammY `bot.on(...)` event subscription (constructor) to its listenerName.
- *
- * @remarks
- * Used by `registerCustomRoute` to detect events that already have a built-in
- * listener. Those events must NOT get a second `bot.on` subscription: built-in
- * listeners do not call grammY `next()`, so a later subscription on the same
- * event would never run (the first matching listener consumes the update and
- * terminates the chain). Instead the custom route is dispatched by the built-in
- * subscription through routing id=6 (custom routes).
- *
- * Filter-backed subscriptions (`bot.filter(...)`) live in `_BUILT_IN_FILTER`.
- * Keep both maps in sync with the constructor registration block.
- */
-const _BUILT_IN_ON = new Map<string, string>([
-  [`callback_query:data`, `callbackquerydata`],
-  [`message:text`, `text`],
-  [`message:photo`, `photo`],
-  [`message:video`, `video`],
-  [`message:audio`, `audio`],
-  [`message:document`, `document`],
-  [`message:animation`, `animation`],
-  [`message:voice`, `voice`],
-  [`message:video_note`, `videonote`],
-  [`message:sticker`, `sticker`],
-  [`message:location`, `location`],
-  [`message:contact`, `contact`],
-  [`chat_member`, `chatmember`],
-  [`my_chat_member`, `mychatmember`],
-  [`channel_post`, `channelpost`],
-  [`edited_channel_post`, `editchannelpost`],
-  [`edited_message`, `edit`],
-  [`message_reaction`, `reaction`],
-  [`inline_query`, `inlinequery`],
-  [`chosen_inline_result`, `choseninlineresult`],
-  [`pre_checkout_query`, `precheckoutquery`],
-  [`shipping_query`, `shippingquery`],
-  [`chat_join_request`, `chatjoinrequest`],
-  [`poll`, `poll`],
-  [`poll_answer`, `pollanswer`],
-  [`message:new_chat_members`, `newchatmembers`],
-  [`message:left_chat_member`, `leftchatmember`],
-  [`business_connection`, `businessconnection`],
-  [`business_message`, `businessmessage`],
-  [`edited_business_message`, `editedbusinessmessage`],
-  [`deleted_business_messages`, `deletedbusinessmessages`],
-  [`message_reaction_count`, `messagereactioncount`],
-  [`chat_boost`, `chatboost`],
-  [`removed_chat_boost`, `removedchatboost`],
-  [`message:successful_payment`, `successfulpayment`],
-  [`message:refunded_payment`, `refundedpayment`],
-  [`message:group_chat_created`, `groupchatcreated`],
-  [`message:supergroup_chat_created`, `supergroupchatcreated`],
-  [`message:video_chat_started`, `videochatstarted`],
-  [`message:video_chat_scheduled`, `videochatscheduled`],
-  [`message:video_chat_ended`, `videochatended`],
-  [`message:video_chat_participants_invited`, `videochatparticipantsinvited`],
-  [`message:chat_shared`, `chatshared`],
-  [`message:web_app_data`, `webappdata`],
-  [`message:giveaway`, `giveaway`],
-  [`message:giveaway_created`, `giveawaycreated`],
-  [`message:giveaway_winners`, `giveawaywinners`],
-  [`message:giveaway_completed`, `giveawaycompleted`],
-  [`message:forum_topic_created`, `forumtopiccreated`],
-  [`message:forum_topic_edited`, `forumtopicedited`],
-  [`message:forum_topic_closed`, `forumtopicclosed`],
-  [`message:forum_topic_reopened`, `forumtopicreopened`],
-  [`message:general_forum_topic_hidden`, `generalforumtopichidden`],
-  [`message:general_forum_topic_unhidden`, `generalforumtopicunhidden`],
-  [`message:proximity_alert_triggered`, `proximityalerttriggered`],
-  [`message:connected_website`, `connectedwebsite`],
-  [`message:passport_data`, `passportdata`],
-  [`message:message_auto_delete_timer_changed`, `messageautodeletetimerchanged`],
-  [`message:chat_background_set`, `chatbackgroundset`],
-  [`message:new_chat_title`, `newchattitle`],
-  [`message:new_chat_photo`, `newchatphoto`],
-  [`message:delete_chat_photo`, `deletechatphoto`],
-  [`message:write_access_allowed`, `writeaccessallowed`],
-  [`message:community_chat_joined`, `communitychatjoined`],
-  [`stopped_message_generation`, `stoppedgeneration`]
-])
-
-/**
- * Maps every built-in grammY `bot.filter(...)` subscription (constructor) to its listenerName.
- *
- * @remarks
- * Same dispatch contract as `_BUILT_IN_ON`, but for the three events the
- * constructor subscribes via `bot.filter(predicate, ...)` instead of
- * `bot.on(...)`. Kept as a separate map so `registerCustomRoute` can tell
- * the subscription kind apart. Keep in sync with the constructor
- * registration block.
- */
-const _BUILT_IN_FILTER = new Map<string, string>([
-  [`message:channel_chat_created`, `channelchatcreated`],
-  [`message:users_shared`, `usershared`],
-  [`message:pinned_message`, `pinmessage`]
-])
-
-const __HERE: string | undefined = typeof import.meta.url === `string` ? fileURLToPath(import.meta.url) : undefined
-const __PKG_VERSION__: string = (() => {
-  try {
-    if (__HERE === undefined) throw new Error(`no module path (fs-less runtime)`)
-    return JSON.parse(readFileSync(join(dirname(__HERE), `../../package.json`), `utf-8`)).version as string
-  } catch {
-    return `unknown`
-  }
-})()
 
 /**
  * Keys of `ICtxParams` (except `ct` and `temp`) missing from `IGramstaxCtxScope`.
@@ -205,6 +91,121 @@ const _assertCtxScopeComplete: IMissingCtxScopeFields extends never ? [] : [`ctx
  * @public
  */
 export class Gramstax<ICtx extends Ctx = Ctx> {
+  /** Max ms {@link Gramstax.stop} waits for in-flight queue handlers to finish. @internal */
+  private static readonly QUEUE_DRAIN_TIMEOUT_DEFAULT = 10_000
+
+  /** Telegram's hard ceiling for `getUpdates.limit`. @internal */
+  private static readonly POLLING_FETCH_LIMIT_MAX = 100
+
+  /**
+   * Maps every built-in grammY `bot.on(...)` event subscription (constructor) to its listenerName.
+   *
+   * @remarks
+   * Used by `registerCustomRoute` to detect events that already have a built-in
+   * listener. Those events must NOT get a second `bot.on` subscription: built-in
+   * listeners do not call grammY `next()`, so a later subscription on the same
+   * event would never run (the first matching listener consumes the update and
+   * terminates the chain). Instead the custom route is dispatched by the built-in
+   * subscription through routing id=6 (custom routes).
+   *
+   * Filter-backed subscriptions (`bot.filter(...)`) live in `Gramstax._BUILT_IN_FILTER`.
+   * Keep both maps in sync with the constructor registration block.
+   */
+  private static readonly _BUILT_IN_ON = new Map<string, string>([
+    [`callback_query:data`, `callbackquerydata`],
+    [`message:text`, `text`],
+    [`message:photo`, `photo`],
+    [`message:video`, `video`],
+    [`message:audio`, `audio`],
+    [`message:document`, `document`],
+    [`message:animation`, `animation`],
+    [`message:voice`, `voice`],
+    [`message:video_note`, `videonote`],
+    [`message:sticker`, `sticker`],
+    [`message:location`, `location`],
+    [`message:contact`, `contact`],
+    [`chat_member`, `chatmember`],
+    [`my_chat_member`, `mychatmember`],
+    [`channel_post`, `channelpost`],
+    [`edited_channel_post`, `editchannelpost`],
+    [`edited_message`, `edit`],
+    [`message_reaction`, `reaction`],
+    [`inline_query`, `inlinequery`],
+    [`chosen_inline_result`, `choseninlineresult`],
+    [`pre_checkout_query`, `precheckoutquery`],
+    [`shipping_query`, `shippingquery`],
+    [`chat_join_request`, `chatjoinrequest`],
+    [`poll`, `poll`],
+    [`poll_answer`, `pollanswer`],
+    [`message:new_chat_members`, `newchatmembers`],
+    [`message:left_chat_member`, `leftchatmember`],
+    [`business_connection`, `businessconnection`],
+    [`business_message`, `businessmessage`],
+    [`edited_business_message`, `editedbusinessmessage`],
+    [`deleted_business_messages`, `deletedbusinessmessages`],
+    [`message_reaction_count`, `messagereactioncount`],
+    [`chat_boost`, `chatboost`],
+    [`removed_chat_boost`, `removedchatboost`],
+    [`message:successful_payment`, `successfulpayment`],
+    [`message:refunded_payment`, `refundedpayment`],
+    [`message:group_chat_created`, `groupchatcreated`],
+    [`message:supergroup_chat_created`, `supergroupchatcreated`],
+    [`message:video_chat_started`, `videochatstarted`],
+    [`message:video_chat_scheduled`, `videochatscheduled`],
+    [`message:video_chat_ended`, `videochatended`],
+    [`message:video_chat_participants_invited`, `videochatparticipantsinvited`],
+    [`message:chat_shared`, `chatshared`],
+    [`message:web_app_data`, `webappdata`],
+    [`message:giveaway`, `giveaway`],
+    [`message:giveaway_created`, `giveawaycreated`],
+    [`message:giveaway_winners`, `giveawaywinners`],
+    [`message:giveaway_completed`, `giveawaycompleted`],
+    [`message:forum_topic_created`, `forumtopiccreated`],
+    [`message:forum_topic_edited`, `forumtopicedited`],
+    [`message:forum_topic_closed`, `forumtopicclosed`],
+    [`message:forum_topic_reopened`, `forumtopicreopened`],
+    [`message:general_forum_topic_hidden`, `generalforumtopichidden`],
+    [`message:general_forum_topic_unhidden`, `generalforumtopicunhidden`],
+    [`message:proximity_alert_triggered`, `proximityalerttriggered`],
+    [`message:connected_website`, `connectedwebsite`],
+    [`message:passport_data`, `passportdata`],
+    [`message:message_auto_delete_timer_changed`, `messageautodeletetimerchanged`],
+    [`message:chat_background_set`, `chatbackgroundset`],
+    [`message:new_chat_title`, `newchattitle`],
+    [`message:new_chat_photo`, `newchatphoto`],
+    [`message:delete_chat_photo`, `deletechatphoto`],
+    [`message:write_access_allowed`, `writeaccessallowed`],
+    [`message:community_chat_joined`, `communitychatjoined`],
+    [`stopped_message_generation`, `stoppedgeneration`]
+  ])
+
+  /**
+   * Maps every built-in grammY `bot.filter(...)` subscription (constructor) to its listenerName.
+   *
+   * @remarks
+   * Same dispatch contract as `Gramstax._BUILT_IN_ON`, but for the three events the
+   * constructor subscribes via `bot.filter(predicate, ...)` instead of
+   * `bot.on(...)`. Kept as a separate map so `registerCustomRoute` can tell
+   * the subscription kind apart. Keep in sync with the constructor
+   * registration block.
+   */
+  private static readonly _BUILT_IN_FILTER = new Map<string, string>([
+    [`message:channel_chat_created`, `channelchatcreated`],
+    [`message:users_shared`, `usershared`],
+    [`message:pinned_message`, `pinmessage`]
+  ])
+
+  /** Package version, read once from package.json (falls back to `unknown`). @internal */
+  private static readonly __PKG_VERSION__: string = (() => {
+    const here: string | undefined = typeof import.meta.url === `string` ? fileURLToPath(import.meta.url) : undefined
+    try {
+      if (here === undefined) throw new Error(`no module path (fs-less runtime)`)
+      return JSON.parse(readFileSync(join(dirname(here), `../../package.json`), `utf-8`)).version as string
+    } catch {
+      return `unknown`
+    }
+  })()
+
   /**
    * Manages template loading and rendering for pages.
    *
@@ -309,7 +310,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  webhook: IGramstaxWebhookState = {drainTimeoutMs: QUEUE_DRAIN_TIMEOUT_DEFAULT}
+  webhook: IGramstaxWebhookState = {drainTimeoutMs: Gramstax.QUEUE_DRAIN_TIMEOUT_DEFAULT}
 
   /**
    * Polling-path runtime state (queue, dispatcher, retry/backoff bookkeeping).
@@ -510,7 +511,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
 
     this.log = params.log === true ? log : !params.log ? undefined : params.log
-    this.log?.info?.(`Gramstax v${__PKG_VERSION__}`)
+    this.log?.info?.(`Gramstax v${Gramstax.__PKG_VERSION__}`)
     this.mediaRoots = params.mediaRoots ?? null
     const buildScope = (): IGramstaxCtxScope => ({
       cacheSession: this.cacheSession,
@@ -1645,7 +1646,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       workerCount: queueConfig.workerCount ?? 8,
       perChatConcurrency: queueConfig.perChatConcurrency ?? 1,
       waiterTimeoutMs: queueConfig.waiterTimeoutMs ?? 30_000,
-      drainTimeoutMs: queueConfig.drainTimeoutMs ?? QUEUE_DRAIN_TIMEOUT_DEFAULT,
+      drainTimeoutMs: queueConfig.drainTimeoutMs ?? Gramstax.QUEUE_DRAIN_TIMEOUT_DEFAULT,
       handle: async (update) => {
         await handleUpdate(update)
       },
@@ -1657,9 +1658,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // `client.d.ts` — so both sides below are derived from the bound method
     // rather than annotated, and the one cast sits on the assignment.
     const clampFetchLimit = async (other: Parameters<typeof apiGetUpdates>[0], signal: Parameters<typeof apiGetUpdates>[1]) => {
-      const ceiling = typeof other?.limit === `number` ? other.limit : POLLING_FETCH_LIMIT_MAX
-      const free = this.polling.dispatcher?.capacity() ?? POLLING_FETCH_LIMIT_MAX
-      return await apiGetUpdates({...other, limit: Math.max(1, Math.min(ceiling, free, POLLING_FETCH_LIMIT_MAX))}, signal)
+      const ceiling = typeof other?.limit === `number` ? other.limit : Gramstax.POLLING_FETCH_LIMIT_MAX
+      const free = this.polling.dispatcher?.capacity() ?? Gramstax.POLLING_FETCH_LIMIT_MAX
+      return await apiGetUpdates({...other, limit: Math.max(1, Math.min(ceiling, free, Gramstax.POLLING_FETCH_LIMIT_MAX))}, signal)
     }
     this.bot.api.getUpdates = clampFetchLimit as typeof this.bot.api.getUpdates
 
@@ -1686,7 +1687,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       maxQueueSize: queueConfig.maxQueueSize ?? 5000,
       workerCount: queueConfig.workerCount ?? 8,
       perChatConcurrency: queueConfig.perChatConcurrency ?? 1,
-      drainTimeoutMs: queueConfig.drainTimeoutMs ?? QUEUE_DRAIN_TIMEOUT_DEFAULT,
+      drainTimeoutMs: queueConfig.drainTimeoutMs ?? Gramstax.QUEUE_DRAIN_TIMEOUT_DEFAULT,
       activeKeys: gate?.activeKeys ?? 0,
       waiting: gate?.waiting ?? 0,
       ...this.polling.instance.getStats()
@@ -1776,7 +1777,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.webhook.instance = queue
 
     if (queueEnabled && queue) {
-      const drainTimeoutMs = queueConfig?.drainTimeoutMs ?? QUEUE_DRAIN_TIMEOUT_DEFAULT
+      const drainTimeoutMs = queueConfig?.drainTimeoutMs ?? Gramstax.QUEUE_DRAIN_TIMEOUT_DEFAULT
       this.webhook.drainTimeoutMs = drainTimeoutMs
       await this.bot.init()
       this.webhook.dispatcher = new UpdateDispatcher({
@@ -3381,7 +3382,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // built-in listeners do not call grammY `next()`, so a second `bot.on` on the
     // same event would never run. The built-in subscription's `_onHandle` already
     // reaches routing id=6 (custom routes), so only the listenerName needs to match.
-    const builtInListenerName = _BUILT_IN_ON.get(entry.event as string) ?? _BUILT_IN_FILTER.get(entry.event as string)
+    const builtInListenerName = Gramstax._BUILT_IN_ON.get(entry.event as string) ?? Gramstax._BUILT_IN_FILTER.get(entry.event as string)
     if (builtInListenerName !== undefined) {
       if (entry.listenerName !== builtInListenerName) {
         throw new Error(`registerCustomRoute: listenerName "${entry.listenerName}" does not match the built-in listener "${builtInListenerName}" for event "${entry.event}". Use "${builtInListenerName}" so the built-in subscription dispatches this route.`)
