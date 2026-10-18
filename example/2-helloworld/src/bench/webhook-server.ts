@@ -26,6 +26,10 @@ const run = async () => {
           : {enabled: false}
       }
     },
+    // Test-only Telegram bot token. It has already been revoked through
+    // @BotFather and grants access to nothing — it is here so this bench server
+    // can boot without a local .env. Set BOT_TOKEN to your own token before
+    // pointing this at the real Bot API; never commit a live credential here.
     token: process.env.BOT_TOKEN ?? `7815352851:AAGdLYBm8GKF7f26zi7cUmxsKM2jZseqgfI`,
     log: true,
     botConfig: {
