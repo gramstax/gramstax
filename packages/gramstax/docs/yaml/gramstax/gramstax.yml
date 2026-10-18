@@ -357,19 +357,6 @@ properties:
       content: 'templateManager: TemplateManager;'
       return:
         type: <xref uid="gramstax!TemplateManager:class" />
-  - name: webhookQueue
-    uid: gramstax!Gramstax#webhookQueue:member
-    package: gramstax!
-    fullName: webhookQueue
-    summary: Webhook queue configuration.
-    remarks: See [IUpdateQueueConfig](xref:gramstax!IUpdateQueueConfig:type) for queue settings.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'webhookQueue?: IUpdateQueueConfig;'
-      return:
-        type: <xref uid="gramstax!IUpdateQueueConfig:type" />
 methods:
   - name: _pageRoutes(ctx, fromListener)
     uid: gramstax!Gramstax#_pageRoutes:member(1)

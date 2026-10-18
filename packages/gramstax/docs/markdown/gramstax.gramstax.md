@@ -375,25 +375,6 @@ Manages template loading and rendering for pages.
 
 
 </td></tr>
-<tr><td>
-
-[webhookQueue?](./gramstax.gramstax.webhookqueue.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)
-
-
-</td><td>
-
-_(Optional)_ Webhook queue configuration.
-
-
-</td></tr>
 </tbody></table>
 
 ## Methods

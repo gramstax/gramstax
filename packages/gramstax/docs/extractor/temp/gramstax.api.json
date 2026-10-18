@@ -31425,37 +31425,6 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!Gramstax#webhookQueue:member",
-              "docComment": "/**\n * Webhook queue configuration.\n *\n * @remarks\n *\n * See {@link IUpdateQueueConfig} for queue settings.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "webhookQueue?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IUpdateQueueConfig",
-                  "canonicalReference": "gramstax!IUpdateQueueConfig:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "webhookQueue",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
             }
           ],
           "implementsTokenRanges": []

@@ -1629,10 +1629,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // @virtual
     hookUpdateError?(event: IUpdateErrorEvent): void;
     // @internal
+    limits: IGramstaxLimitsState;
+    // @internal
     _loadBuildManifest(deploy: string): IAppManifest | undefined;
     log: LoggingHelper | undefined;
-    // @internal
-    _maxTextLength: number;
     mediaRoots?: string[] | null;
     readonly metrics: MetricsStore;
     // @internal
@@ -2754,21 +2754,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // @internal
     _pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void;
     // @internal
-    pollingDispatcher?: UpdateDispatcher;
-    // @internal
-    _pollingDropPendingUpdates: boolean;
-    // @internal
-    _pollingMaxRetries: number;
-    // @internal
-    pollingQueue?: IUpdateQueueConfig;
-    // @internal
-    pollingQueueInstance?: UpdateQueue<Update>;
-    // @internal
-    _pollingSleepResolve?: () => void;
-    // @internal
-    _pollingSleepTimer?: ReturnType<typeof setTimeout>;
-    // @internal
-    _pollingStopped: boolean;
+    polling: IGramstaxPollingState;
     // @internal
     _readSecretHeader(req: unknown): string | null;
     ready: Promise<void>;
@@ -2793,40 +2779,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // @internal
     _sessionLockKey?: (ctx: Ctx) => string;
     // @internal
-    _skipDuplicateUpdate: boolean;
-    // @internal
     _startPollingLoop(opts: Record<string, unknown>, attempt: number): Promise<void>;
     // @internal
     _startStatusServer(): void;
     // @internal
-    _statusServer?: {
-        stop: () => void;
-    };
-    // @internal
-    _statusServerHostname: string;
-    // @internal
-    _statusServerPort?: number;
+    status: IGramstaxStatusState;
     stop(): Promise<void>;
     templateManager: TemplateManager;
     // @internal
     _traceSeq: number;
     // @internal
-    _updateTimeoutMs: number;
-    // @internal
     _validateConfig(params: IGramstaxParams): void;
     // @internal
-    webhookDispatcher?: UpdateDispatcher;
-    // @internal
-    webhookDrainTimeoutMs: number;
-    webhookQueue?: IUpdateQueueConfig;
-    // @internal
-    webhookQueueInstance?: UpdateQueue<Update>;
-    // @internal
-    _webhookSecretToken?: string;
-    // @internal
-    webhookServer?: {
-        stop: () => void;
-    };
+    webhook: IGramstaxWebhookState;
     // @internal
     _withSecretGuard(handler: (...args: unknown[]) => Promise<unknown>, secret: string | undefined): (...args: unknown[]) => Promise<unknown>;
 }
@@ -3220,6 +3185,15 @@ export type IGramstaxExplicitBuildKeys = {
     url: boolean;
 };
 
+// Warning: (ae-internal-missing-underscore) The name "IGramstaxLimitsState" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export type IGramstaxLimitsState = {
+    updateTimeoutMs: number;
+    maxTextLength: number;
+    skipDuplicateUpdate: boolean;
+};
+
 // @public
 export type IGramstaxLogRef = boolean | IGramstaxPathRef | {
     pathFile?: string | null;
@@ -3288,6 +3262,20 @@ export type IGramstaxPollingDeployOptions = {
     queue?: IUpdateQueueConfig;
 };
 
+// Warning: (ae-internal-missing-underscore) The name "IGramstaxPollingState" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export type IGramstaxPollingState = {
+    queue?: IUpdateQueueConfig;
+    instance?: UpdateQueue<Update>;
+    dispatcher?: UpdateDispatcher;
+    maxRetries: number;
+    dropPendingUpdates: boolean;
+    stopped: boolean;
+    sleepTimer?: ReturnType<typeof setTimeout>;
+    sleepResolve?: () => void;
+};
+
 // @public
 export type IGramstaxRawDeployOptions = Record<string, never>;
 
@@ -3315,6 +3303,17 @@ export type IGramstaxStartOptions = {
     watch?: boolean;
 };
 
+// Warning: (ae-internal-missing-underscore) The name "IGramstaxStatusState" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export type IGramstaxStatusState = {
+    hostname: string;
+    port?: number;
+    server?: {
+        stop: () => void;
+    };
+};
+
 // @public
 export type IGramstaxTemplateManagerRef = IGramstaxPathRef | ITemplateOptions;
 
@@ -3326,6 +3325,20 @@ export type IGramstaxWebhookDeployOptions = {
     url?: string;
     secretToken?: string;
     queue?: IUpdateQueueConfig;
+};
+
+// Warning: (ae-internal-missing-underscore) The name "IGramstaxWebhookState" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export type IGramstaxWebhookState = {
+    queue?: IUpdateQueueConfig;
+    instance?: UpdateQueue<Update>;
+    dispatcher?: UpdateDispatcher;
+    drainTimeoutMs: number;
+    server?: {
+        stop: () => void;
+    };
+    secretToken?: string;
 };
 
 // @public
@@ -4926,8 +4939,8 @@ export type WebhookQueue<T = unknown> = UpdateQueue<T>;
 //
 // dist/src/index.d.ts:7052:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
 // dist/src/index.d.ts:8058:5 - (ae-forgotten-export) The symbol "IMediaGroupType" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:21102:9 - (ae-forgotten-export) The symbol "ICustomRouteEntry_2" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:22683:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
+// dist/src/index.d.ts:21125:9 - (ae-forgotten-export) The symbol "ICustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:22706:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 
