@@ -338,34 +338,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   limits: IGramstaxLimitsState = {updateTimeoutMs: 30_000, maxTextLength: 0, skipDuplicateUpdate: false}
 
   /**
-   * SIGINT handler for graceful shutdown.
-   * @internal
-   */
-  _onSigint?: () => void
-
-  /**
-   * SIGTERM handler for graceful shutdown.
-   * @internal
-   */
-  _onSigterm?: () => void
-
-  /**
    * Runtime metrics snapshot source (observability).
    * @public
    */
   readonly metrics = new MetricsStore()
-
-  /** Distributed session lock (opt-in via `sessionLock` param). @internal */
-  _sessionLock?: SessionLock
-  /** Custom session lock key factory (defaults to `ctx.sessionKey()`). @internal */
-  _sessionLockKey?: (ctx: Ctx) => string
-
-  /** Bounded LRU of seen update ids (idempotency). @internal */
-  _seenUpdates = new Map<number, number>()
-  /** Max entries kept in `_seenUpdates` before evicting the oldest insertion. @internal */
-  _seenUpdatesMax = 1024
-  /** Local sequence for trace ids when `update_id` is missing. @internal */
-  _traceSeq = 0
 
   /**
    * Resolves once the startup hooks (`hookBeforeStart`/`hookAfterStart`)
@@ -409,6 +385,33 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * ```
    */
   e2e?: E2eHelper
+
+  /**
+   * SIGINT handler for graceful shutdown.
+   * @internal
+   */
+  _onSigint?: () => void
+
+  /**
+   * SIGTERM handler for graceful shutdown.
+   * @internal
+   */
+  _onSigterm?: () => void
+
+  /** Distributed session lock (opt-in via `sessionLock` param). @internal */
+  _sessionLock?: SessionLock
+
+  /** Custom session lock key factory (defaults to `ctx.sessionKey()`). @internal */
+  _sessionLockKey?: (ctx: Ctx) => string
+
+  /** Bounded LRU of seen update ids (idempotency). @internal */
+  _seenUpdates = new Map<number, number>()
+
+  /** Max entries kept in `_seenUpdates` before evicting the oldest insertion. @internal */
+  _seenUpdatesMax = 1024
+
+  /** Local sequence for trace ids when `update_id` is missing. @internal */
+  _traceSeq = 0
 
   /**
    * Creates a new Gramstax bot instance.
@@ -809,317 +812,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
     this.status.server?.stop()
     this.status.server = undefined
-  }
-
-  /**
-   * Validates startup configuration, throwing with a clear message otherwise.
-   *
-   * @param params - Constructor parameters.
-   * @internal
-   */
-  _validateConfig(params: IGramstaxParams): void {
-    if (params.updateTimeoutMs !== undefined && (!Number.isFinite(params.updateTimeoutMs) || params.updateTimeoutMs < 0)) {
-      throw new Error(`updateTimeoutMs must be a non-negative number`)
-    }
-    if (params.maxTextLength !== undefined && (!Number.isFinite(params.maxTextLength) || params.maxTextLength < 0)) {
-      throw new Error(`maxTextLength must be a non-negative number`)
-    }
-    if (params.statusServerPort !== undefined && (params.statusServerPort < 0 || params.statusServerPort > 65535)) {
-      throw new Error(`statusServerPort must be between 0 and 65535`)
-    }
-    const maxRetries = params.optionsDeploy?.polling?.maxRetries
-    if (maxRetries !== undefined && (!Number.isFinite(maxRetries) || maxRetries < -1)) {
-      throw new Error(`optionsDeploy.polling.maxRetries must be -1 or a non-negative number`)
-    }
-    // Same range checks for both queue branches, so a programmatic
-    // `new Gramstax({...})` gets the same guarantees as the config file.
-    const checkQueue = (queue: IUpdateQueueConfig | undefined, path: string) => {
-      if (queue?.maxQueueSize !== undefined && (!Number.isFinite(queue.maxQueueSize) || queue.maxQueueSize <= 0)) {
-        throw new Error(`${path}.maxQueueSize must be a positive number`)
-      }
-      if (queue?.workerCount !== undefined && (!Number.isFinite(queue.workerCount) || queue.workerCount < 1)) {
-        throw new Error(`${path}.workerCount must be a positive number`)
-      }
-      if (queue?.enqueueTimeoutMs !== undefined && (!Number.isFinite(queue.enqueueTimeoutMs) || queue.enqueueTimeoutMs < 0)) {
-        throw new Error(`${path}.enqueueTimeoutMs must be a non-negative number`)
-      }
-    }
-    checkQueue(params.optionsDeploy?.webhook?.queue, `optionsDeploy.webhook.queue`)
-    checkQueue(params.optionsDeploy?.polling?.queue, `optionsDeploy.polling.queue`)
-    if (typeof params.deploy === `string` && params.deploy.includes(`:`)) {
-      throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test with optionsDeploy {webhook, serverless, polling, raw, test} (legacy colon forms are removed, got "${params.deploy}")`)
-    }
-    if (GRAMSTAX_DEPLOY_MODE_SET.has(params.deploy) === false) {
-      throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test (got "${params.deploy}")`)
-    }
-    const isNonEmptyBranch = (branch: unknown): boolean => {
-      if (branch === undefined || branch === null || typeof branch !== `object`) {
-        return false
-      }
-      return Object.values(branch as Record<string, unknown>).some((value) => value !== undefined)
-    }
-    const serverlessBranch = params.optionsDeploy?.serverless
-    const webhookBranch = params.optionsDeploy?.webhook
-    const pollingBranch = params.optionsDeploy?.polling
-    const rawBranch = params.optionsDeploy?.raw
-    const testBranch = params.optionsDeploy?.test
-    const isRealUrl = (url: unknown): url is string => typeof url === `string` && /^https?:\/\/.+/.test(url) && url.includes(`<`) === false
-    const adapterNames = GRAMSTAX_SERVERLESS_ADAPTERS.map((adapter) => `\`${adapter}\``).join(`, `)
-    const requireServerlessSection = (branch: unknown): {adapter: string; section: Record<string, unknown>} => {
-      if (branch === undefined || branch === null || typeof branch !== `object`) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.serverless to be keyed by one of ${adapterNames} (got "")`)
-      }
-      const record = branch as Record<string, unknown>
-      const keys = Object.keys(record)
-      const known = keys.filter((key) => GRAMSTAX_SERVERLESS_ADAPTERS.some((adapter) => adapter === key))
-      if (known.length !== 1) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.serverless to be keyed by exactly one of ${adapterNames} (got ${keys.length === 0 ? `none` : keys.map((key) => `\`${key}\``).join(`, `)})`)
-      }
-      const adapter = known[0] as string
-      const section = record[adapter]
-      if (section === null || typeof section !== `object`) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.serverless['${adapter}'] to be an object`)
-      }
-      return {adapter, section: section as Record<string, unknown>}
-    }
-    if (params.deploy === `serverless`) {
-      if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
-        throw new Error(`Params deploy "serverless" does not match non-empty optionsDeploy branch (expected optionsDeploy.serverless only)`)
-      }
-      const resolved = requireServerlessSection(serverlessBranch)
-      if (isRealUrl(resolved.section.url) === false) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.serverless['${resolved.adapter}'].url to be a real http(s) URL with no placeholder (got "${String(resolved.section.url ?? ``)}")`)
-      }
-      const serverlessSecretToken = resolved.section.secretToken
-      if (typeof serverlessSecretToken !== `string` || serverlessSecretToken.length === 0 || /^[A-Za-z0-9_-]{1,256}$/.test(serverlessSecretToken) === false) {
-        throw new Error(`Params deploy serverless requires optionsDeploy.serverless['${resolved.adapter}'].secretToken to be a non-empty string matching ^[A-Za-z0-9_-]{1,256}$ (generate one with: openssl rand -hex 32)`)
-      }
-    } else if (params.deploy === `webhook`) {
-      if (isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
-        throw new Error(`Params deploy "webhook" does not match non-empty optionsDeploy branch (expected optionsDeploy.webhook only)`)
-      }
-      if (isRealUrl(webhookBranch?.url) === false) {
-        throw new Error(`deploy webhook URL is not valid: "${webhookBranch?.url ?? ``}"`)
-      }
-      let parsed: URL
-      try {
-        parsed = new URL(webhookBranch?.url as string)
-      } catch {
-        throw new Error(`deploy webhook URL is not valid: "${webhookBranch?.url ?? ``}"`)
-      }
-      if (parsed.protocol !== `https:` && parsed.protocol !== `http:`) {
-        throw new Error(`deploy webhook URL must use http(s): "${webhookBranch?.url ?? ``}"`)
-      }
-      const secretToken = webhookBranch?.secretToken
-      if (typeof secretToken !== `string` || secretToken.length === 0 || /^[A-Za-z0-9_-]{1,256}$/.test(secretToken) === false) {
-        throw new Error(`Params deploy webhook requires optionsDeploy.webhook.secretToken to be a non-empty string matching ^[A-Za-z0-9_-]{1,256}$ (generate one with: openssl rand -hex 32)`)
-      }
-    } else if (params.deploy === `polling`) {
-      if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
-        throw new Error(`Params deploy "polling" does not match non-empty optionsDeploy branch (expected optionsDeploy.polling or empty)`)
-      }
-    } else {
-      if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
-        throw new Error(`Params deploy "${params.deploy}" forbids non-empty optionsDeploy (expected empty or optionsDeploy.${params.deploy})`)
-      }
-    }
-  }
-
-  /**
-   * Handles a startup failure (webhook/serverless init) with a clear log,
-   * a structured error event, and a clean shutdown.
-   *
-   * @param error - The startup error.
-   * @internal
-   */
-  _onStartupError(error: unknown): void {
-    this.metrics.counts.updatesFailed += 1
-    this._emitUpdateError({traceId: `startup`, listenerName: `startup`, state: `error`, error, durationMs: 0, isEdit: false})
-    this.log?.error?.(`startup failed: ${String(error)}`)
-    void this.stop()
-  }
-
-  /**
-   * Wraps `handlerBotUpdate` with a constant-time secret check.
-   *
-   * @remarks
-   * Verifies the `X-Telegram-Bot-Api-Secret-Token` header against `secret`
-   * with `timingSafeEqual` and returns a uniform 401 on mismatch (no body
-   * detail, same status whether the route or the secret was wrong). Request
-   * shapes without headers (plain update objects) pass through untouched.
-   * When no secret is configured the handler is returned unwrapped.
-   *
-   * @param handler - Inner update handler.
-   * @param secret - Expected secret value.
-   * @internal
-   */
-  _withSecretGuard(handler: (...args: unknown[]) => Promise<unknown>, secret: string | undefined): (...args: unknown[]) => Promise<unknown> {
-    if (!secret) {
-      return handler
-    }
-    const expected = secret
-    return (async (...args: unknown[]) => {
-      const candidate = args[0]
-      if (this._hasSecretHeaders(candidate)) {
-        const header = this._readSecretHeader(candidate)
-        if (header === null || header.length !== expected.length || !timingSafeEqual(Buffer.from(header), Buffer.from(expected))) {
-          return new Response(`Unauthorized`, {status: 401})
-        }
-      }
-      return handler(...args)
-    }) as (...args: unknown[]) => Promise<unknown>
-  }
-
-  /**
-   * Reports whether a `handlerBotUpdate` argument carries HTTP headers.
-   *
-   * @param req - First handler argument (Request, lambda event, or update).
-   * @internal
-   */
-  _hasSecretHeaders(req: unknown): boolean {
-    if (typeof req !== `object` || req === null) {
-      return false
-    }
-    const headers = (req as {headers?: unknown}).headers
-    if (headers === undefined || headers === null) {
-      return false
-    }
-    if (typeof (headers as {get?: unknown}).get === `function`) {
-      return true
-    }
-    return typeof headers === `object`
-  }
-
-  /**
-   * Extracts the `X-Telegram-Bot-Api-Secret-Token` header value.
-   *
-   * @remarks
-   * Supports `Request` (`headers.get`) and lambda-style plain-object
-   * headers (case-insensitive). Returns `null` when absent.
-   *
-   * @param req - First handler argument.
-   * @internal
-   */
-  _readSecretHeader(req: unknown): string | null {
-    if (typeof req !== `object` || req === null) {
-      return null
-    }
-    const headers = (req as {headers?: unknown}).headers
-    if (headers === undefined || headers === null) {
-      return null
-    }
-    const getter = (headers as {get?: unknown}).get
-    if (typeof getter === `function`) {
-      const value = (getter as (name: string) => string | null).call(headers, `X-Telegram-Bot-Api-Secret-Token`)
-      return typeof value === `string` ? value : null
-    }
-    if (typeof headers === `object`) {
-      for (const [key, value] of Object.entries(headers as Record<string, unknown>)) {
-        if (key.toLowerCase() === `x-telegram-bot-api-secret-token`) {
-          return typeof value === `string` ? value : Array.isArray(value) && typeof value[0] === `string` ? value[0] : null
-        }
-      }
-    }
-    return null
-  }
-
-  /**
-   * Starts a small HTTP server exposing `GET /health` and `GET /stats`
-   * (any deploy mode). No-op when the webhook server already serves them.
-   *
-   * @internal
-   */
-  _startStatusServer(): void {
-    if (this.status.server || this.status.port === undefined) {
-      return
-    }
-    const port = this.status.port
-    const hostname = this.status.hostname
-    void import(`bun`)
-      .then(({serve}) => {
-        this.status.server = serve({
-          port,
-          hostname,
-          fetch: (req) => {
-            const {pathname} = new URL(req.url)
-            if (pathname === `/health`) {
-              return new Response(JSON.stringify({status: `ok`}), {status: 200, headers: {"Content-Type": `application/json`}})
-            }
-            if ((pathname === `/stats` || pathname === `/metrics`) && this.webhook.secretToken) {
-              const secret = req.headers.get(`X-Telegram-Bot-Api-Secret-Token`)
-              if (secret === null || secret.length !== this.webhook.secretToken.length || !timingSafeEqual(Buffer.from(secret), Buffer.from(this.webhook.secretToken))) {
-                return new Response(`Unauthorized`, {status: 401})
-              }
-            }
-            if (pathname === `/stats`) {
-              return new Response(JSON.stringify(this.metrics.snapshot()), {status: 200, headers: {"Content-Type": `application/json`}})
-            }
-            if (pathname === `/metrics`) {
-              return new Response(metricsToPrometheus(this.metrics.snapshot(), this.webhook.instance?.getStats?.() ?? null), {
-                status: 200,
-                headers: {"Content-Type": `text/plain; version=0.0.4`}
-              })
-            }
-            return new Response(`Not found`, {status: 404})
-          }
-        })
-        this.log?.info?.(`Status server listening on ${hostname}:${port} (/health, /stats, /metrics)`)
-      })
-      .catch((error) => {
-        this.log?.error?.(`Failed to start status server: ${String(error)}`)
-      })
-  }
-
-  /** Replaces the bot token with `***` so it never leaks into logs. @internal */
-  _redactToken(value: string): string {
-    const token = this.bot?.token
-    if (!token) return value
-    return value.split(token).join(`***`)
-  }
-
-  /** Emits a structured update error event via metrics + `hookUpdateError`. @internal */
-  _emitUpdateError(event: IUpdateErrorEvent): void {
-    try {
-      this.hookUpdateError?.(event)
-    } catch (error) {
-      this.log?.error?.(`hookUpdateError hook failed: ${String(error)}`)
-    }
-  }
-
-  /**
-   * Global error handler for bot errors.
-   *
-   * @param error - The bot error object.
-   *
-   * @internal
-   */
-  _onCatch(error: BotError<ICt>) {
-    this.metrics.counts.updatesFailed += 1
-    const traceId = String(error.ctx?.update?.update_id ?? ``)
-    if (this.log?.errorMake) {
-      this.log.errorMake(error, `Bot`, `catch`)
-    } else {
-      const err = this._redactToken(JSON.stringify(error, null, 2))
-      this.log?.error?.(`[Bot.catch]: ${err}`)
-    }
-    this._emitUpdateError({traceId, listenerName: `catch`, state: `error`, error, durationMs: 0, isEdit: false})
-  }
-
-  /**
-   * Called when the bot successfully starts.
-   *
-   * @param botInfo - Information about the bot from Telegram.
-   * @param method - The deployment method used.
-   * @param data - Additional data (URL for webhook/serverless).
-   *
-   * @internal
-   */
-  async _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
-    await this.executeSyncBlocksDescription(this.pages)
-
-    const {username} = botInfo
-    this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method === `webhook` || method === `serverless` ? `(${this._redactToken(data ?? ``)})` : ``}`)
-    await this.hookAfterStart?.()
   }
 
   /**
@@ -1578,6 +1270,573 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
+   * Live polling queue statistics.
+   *
+   * @returns Stats when the polling queue is enabled, otherwise `null`.
+   *
+   * @public
+   */
+  getPollingQueueStats() {
+    if (this.polling.queue?.enabled !== true || this.polling.instance === undefined) {
+      return null
+    }
+    const queueConfig = this.polling.queue
+    const gate = this.polling.dispatcher?.stats()
+    return {
+      enabled: true,
+      maxQueueSize: queueConfig.maxQueueSize ?? 5000,
+      workerCount: queueConfig.workerCount ?? 8,
+      perChatConcurrency: queueConfig.perChatConcurrency ?? 1,
+      drainTimeoutMs: queueConfig.drainTimeoutMs ?? Gramstax.QUEUE_DRAIN_TIMEOUT_DEFAULT,
+      activeKeys: gate?.activeKeys ?? 0,
+      waiting: gate?.waiting ?? 0,
+      ...this.polling.instance.getStats()
+    }
+  }
+
+  /**
+   * Get current webhook queue statistics.
+   *
+   * @remarks
+   * Superset of the queue-only shape: every previously returned key is still
+   * present, plus the dispatcher's per-key gate (`activeKeys`/`waiting`) and
+   * its `drainTimeoutMs` budget. Gate values are `0` before `_runWebhook` builds
+   * the dispatcher.
+   *
+   * @returns Stats object when queue is enabled, otherwise `null`.
+   * @public
+   */
+  getWebhookQueueStats() {
+    if (!this.webhook.queue?.enabled || !this.webhook.instance) {
+      return null
+    }
+
+    const queueStats = this.webhook.instance.getStats()
+    const maxQueueSize = this.webhook.queue.maxQueueSize ?? 5000
+    const workerCount = this.webhook.queue.workerCount ?? 8
+    const perChatConcurrency = this.webhook.queue.perChatConcurrency ?? 1
+    const blockWhenFull = this.webhook.queue.blockWhenFull !== false
+
+    return {
+      enabled: true,
+      maxQueueSize,
+      workerCount,
+      perChatConcurrency,
+      blockWhenFull,
+      drainTimeoutMs: this.webhook.drainTimeoutMs,
+      ...queueStats,
+      ...(this.webhook.dispatcher?.stats() ?? {activeKeys: 0, waiting: 0})
+    }
+  }
+
+  /**
+   * Pushes `<g-description>` blocks to Telegram as the bot command list.
+   *
+   * @remarks
+   * Runs after start and syncs per `(scope, language)` pair, because Telegram
+   * stores commands per scope and per language rather than globally.
+   *
+   * Three passes: collect every scope/language pair declared by a
+   * `handleCommandText` page; resolve each pair's command list through
+   * `getGDescription`, which already owns the fallback chain; then compare
+   * against `getMyCommands` and call `setMyCommands` only on a real
+   * difference. Comparison is order-insensitive (both sides sorted by command
+   * name), so a reordered Telegram response does not trigger a pointless
+   * write.
+   *
+   * Failure is contained per pair — a rejected API call is logged and the
+   * remaining scopes still sync, so one bad scope cannot abort the rest.
+   * Scope/language pairs with no resolvable description are skipped.
+   *
+   * @param pages - Routing skeleton whose `routeStatic.handleCommandText`
+   * entries supply the command names.
+   * @returns Nothing; failures are logged rather than thrown.
+   *
+   * @internal
+   */
+  async executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages) {
+    // 1. Collect all unique (scope, language) pairs
+    const targets = new Map<string, Set<string>>() // scope -> Set<language>
+    const allCommands = pages?.routeStatic?.handleCommandText
+    if (!allCommands) {
+      return
+    }
+
+    for (const [, page] of Object.entries(allCommands)) {
+      const name = page.name
+      const scopes = this.templateManager.getAGDescriptionScopes(name)
+
+      for (const scope of scopes) {
+        if (!targets.has(scope)) {
+          targets.set(scope, new Set())
+        }
+
+        const langs = this.templateManager.getAGDescriptionLang(name, `default`, scope)
+        for (const lang of langs) {
+          targets.get(scope)!.add(lang)
+        }
+      }
+    }
+
+    // 2. Build command lists for each (scope, language) pair
+    let syncedScopes = 0
+    for (const [scope, langs] of targets) {
+      for (const lang of langs) {
+        const commands: Array<{command: string; description: string}> = []
+        for (const [, page] of Object.entries(allCommands)) {
+          const name = page.name
+          // Use getDescription which handles fallback logic
+          const {text: desc} = this.templateManager.getGDescription(name, `default`, lang, scope)
+          if (desc) {
+            commands.push({command: name, description: desc})
+          }
+        }
+
+        if (commands.length === 0) {
+          continue
+        }
+
+        // 3. Sync with Telegram
+        const scopeObj = {type: scope} as unknown as BotCommandScope
+        const langCode = lang === `default` ? undefined : (lang as LanguageCode)
+        try {
+          const current = await this.bot.api.getMyCommands({scope: scopeObj, language_code: langCode})
+          const currentJSON = JSON.stringify(current.map((c) => ({command: c.command, description: c.description})).sort((a, b) => a.command.localeCompare(b.command)))
+          const desiredJSON = JSON.stringify(commands.sort((a, b) => a.command.localeCompare(b.command)))
+
+          if (currentJSON !== desiredJSON) {
+            await this.bot.api.setMyCommands(commands, {scope: scopeObj, language_code: langCode})
+            syncedScopes += 1
+            this.log?.debug?.(`Synced descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} total (${commands.length})`)
+          }
+        } catch (error) {
+          this.log?.error?.(`Failed to sync descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} error: ${String(error)}`)
+        }
+      }
+    }
+    if (syncedScopes > 0) {
+      this.log?.info?.(`Synced bot descriptions for ${syncedScopes} scope(s).`)
+    }
+  }
+
+  /**
+   * Returns middleware to register as low-level plugins on the bot.
+   *
+   * @remarks
+   * Override this method in a subclass to inject custom plugin middleware
+   * (sessions, i18n, rate limiting, logging, authentication, etc.) into the
+   * underlying bot instance.
+   *
+   * Each element of the returned array is a {@link ICtMiddleware} value (either a
+   * `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that
+   * The array elements are passed to `this.bot.use(...)`. It is meant to be
+   * spread into `bot.use`, so the order of elements determines the order in
+   * which middleware runs — earlier entries wrap later ones (outermost first).
+   *
+   * Difference vs. the other lifecycle hooks:
+   *
+   * - `hookBeforeStart` — for one-off side effects before the bot starts.
+   *   Anything you want to happen exactly once at boot goes there.
+   * - `registerLowPlugin` — for middleware that must run on **every update**.
+   *   Use this when you need middleware semantics (filter queries,
+   *   `next()` chaining, scope-aware registration).
+   * - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run
+   *   inside the router, after gramstax has already routed to a page.
+   *
+   * The base implementation is not provided — subclasses override this to
+   * contribute their own plugins. Returning an empty array (or not
+   * overriding) installs no plugins, which is the default behavior.
+   *
+   * @returns Array of {@link ICtMiddleware}
+   * values, ready to be spread into `this.bot.use(...result)`.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   registerLowPlugin() {
+   *     return [
+   *       // 1. Logging middleware (outermost — runs first, exits last)
+   *       async (ctx, next) => {
+   *         this.log?.info?.(`update ${ctx.update.update_id} from ${ctx.from?.id}`)
+   *         await next()
+   *       },
+   *       // 2. Per-chat rate limit (inner)
+   *       async (ctx, next) => {
+   *         // ... check + throttle ...
+   *         await next()
+   *       }
+   *     ]
+   *   }
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  registerLowPlugin?(): Array<ICtMiddleware<ICt>>
+
+  /**
+   * Registers a custom filter-based route entry with automatic listener subscription.
+   *
+   * @remarks
+   * Adds a route entry to `this.pages.routeCustom` for dispatch at stage id=6
+   * in _pageRoutes. The route fires when:
+   * 1. listenerName matches entry.listenerName, AND
+   * 2. entry.filter(ctx) returns true
+   *
+   * For events with a built-in listener, the route is dispatched by the existing
+   * built-in subscription (the listenerName must match the built-in one). For any
+   * other event, a grammY listener is subscribed automatically via
+   * this.bot.on(entry.event, ...).
+   *
+   * @param entry - The custom route entry. See ICustomRouteEntry.
+   *
+   * @virtual
+   * @public
+   */
+  registerCustomRoute(entry: ICustomRouteEntry): void {
+    if (!entry.routeName || entry.routeName.startsWith(`handle`) === false) {
+      throw new Error(`routeName must be a non-empty string starting with 'handle'`)
+    }
+
+    if (this.pages.all[entry.name] === undefined) {
+      throw new Error(`registerCustomRoute: unknown page "${entry.name}". Register the page first so custom routes dispatch to a known handler.`)
+    }
+
+    if (this.pages.routeCustom.some((r) => r.routeName === entry.routeName)) {
+      this.log?.warn?.(`registerCustomRoute: duplicate routeName "${entry.routeName}" is already registered — skipping`)
+      return
+    }
+
+    this.pages.routeCustom.push(entry)
+
+    // Events with a built-in listener must NOT get a second subscription here:
+    // built-in listeners do not call grammY `next()`, so a second `bot.on` on the
+    // same event would never run. The built-in subscription's `_onHandle` already
+    // reaches routing id=6 (custom routes), so only the listenerName needs to match.
+    const builtInListenerName = Gramstax._BUILT_IN_ON.get(entry.event as string) ?? Gramstax._BUILT_IN_FILTER.get(entry.event as string)
+    if (builtInListenerName !== undefined) {
+      if (entry.listenerName !== builtInListenerName) {
+        throw new Error(`registerCustomRoute: listenerName "${entry.listenerName}" does not match the built-in listener "${builtInListenerName}" for event "${entry.event}". Use "${builtInListenerName}" so the built-in subscription dispatches this route.`)
+      }
+      return
+    }
+
+    this.bot.on(entry.event, (ctx) => this._onHandle(ctx, entry.listenerName, entry.shouldCheckNotFound ?? true))
+  }
+
+  /**
+   * Validates startup configuration, throwing with a clear message otherwise.
+   *
+   * @param params - Constructor parameters.
+   * @internal
+   */
+  _validateConfig(params: IGramstaxParams): void {
+    if (params.updateTimeoutMs !== undefined && (!Number.isFinite(params.updateTimeoutMs) || params.updateTimeoutMs < 0)) {
+      throw new Error(`updateTimeoutMs must be a non-negative number`)
+    }
+    if (params.maxTextLength !== undefined && (!Number.isFinite(params.maxTextLength) || params.maxTextLength < 0)) {
+      throw new Error(`maxTextLength must be a non-negative number`)
+    }
+    if (params.statusServerPort !== undefined && (params.statusServerPort < 0 || params.statusServerPort > 65535)) {
+      throw new Error(`statusServerPort must be between 0 and 65535`)
+    }
+    const maxRetries = params.optionsDeploy?.polling?.maxRetries
+    if (maxRetries !== undefined && (!Number.isFinite(maxRetries) || maxRetries < -1)) {
+      throw new Error(`optionsDeploy.polling.maxRetries must be -1 or a non-negative number`)
+    }
+    // Same range checks for both queue branches, so a programmatic
+    // `new Gramstax({...})` gets the same guarantees as the config file.
+    const checkQueue = (queue: IUpdateQueueConfig | undefined, path: string) => {
+      if (queue?.maxQueueSize !== undefined && (!Number.isFinite(queue.maxQueueSize) || queue.maxQueueSize <= 0)) {
+        throw new Error(`${path}.maxQueueSize must be a positive number`)
+      }
+      if (queue?.workerCount !== undefined && (!Number.isFinite(queue.workerCount) || queue.workerCount < 1)) {
+        throw new Error(`${path}.workerCount must be a positive number`)
+      }
+      if (queue?.enqueueTimeoutMs !== undefined && (!Number.isFinite(queue.enqueueTimeoutMs) || queue.enqueueTimeoutMs < 0)) {
+        throw new Error(`${path}.enqueueTimeoutMs must be a non-negative number`)
+      }
+    }
+    checkQueue(params.optionsDeploy?.webhook?.queue, `optionsDeploy.webhook.queue`)
+    checkQueue(params.optionsDeploy?.polling?.queue, `optionsDeploy.polling.queue`)
+    if (typeof params.deploy === `string` && params.deploy.includes(`:`)) {
+      throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test with optionsDeploy {webhook, serverless, polling, raw, test} (legacy colon forms are removed, got "${params.deploy}")`)
+    }
+    if (GRAMSTAX_DEPLOY_MODE_SET.has(params.deploy) === false) {
+      throw new Error(`Params deploy is not valid, expected one of polling, webhook, serverless, raw, test (got "${params.deploy}")`)
+    }
+    const isNonEmptyBranch = (branch: unknown): boolean => {
+      if (branch === undefined || branch === null || typeof branch !== `object`) {
+        return false
+      }
+      return Object.values(branch as Record<string, unknown>).some((value) => value !== undefined)
+    }
+    const serverlessBranch = params.optionsDeploy?.serverless
+    const webhookBranch = params.optionsDeploy?.webhook
+    const pollingBranch = params.optionsDeploy?.polling
+    const rawBranch = params.optionsDeploy?.raw
+    const testBranch = params.optionsDeploy?.test
+    const isRealUrl = (url: unknown): url is string => typeof url === `string` && /^https?:\/\/.+/.test(url) && url.includes(`<`) === false
+    const adapterNames = GRAMSTAX_SERVERLESS_ADAPTERS.map((adapter) => `\`${adapter}\``).join(`, `)
+    const requireServerlessSection = (branch: unknown): {adapter: string; section: Record<string, unknown>} => {
+      if (branch === undefined || branch === null || typeof branch !== `object`) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless to be keyed by one of ${adapterNames} (got "")`)
+      }
+      const record = branch as Record<string, unknown>
+      const keys = Object.keys(record)
+      const known = keys.filter((key) => GRAMSTAX_SERVERLESS_ADAPTERS.some((adapter) => adapter === key))
+      if (known.length !== 1) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless to be keyed by exactly one of ${adapterNames} (got ${keys.length === 0 ? `none` : keys.map((key) => `\`${key}\``).join(`, `)})`)
+      }
+      const adapter = known[0] as string
+      const section = record[adapter]
+      if (section === null || typeof section !== `object`) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless['${adapter}'] to be an object`)
+      }
+      return {adapter, section: section as Record<string, unknown>}
+    }
+    if (params.deploy === `serverless`) {
+      if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
+        throw new Error(`Params deploy "serverless" does not match non-empty optionsDeploy branch (expected optionsDeploy.serverless only)`)
+      }
+      const resolved = requireServerlessSection(serverlessBranch)
+      if (isRealUrl(resolved.section.url) === false) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless['${resolved.adapter}'].url to be a real http(s) URL with no placeholder (got "${String(resolved.section.url ?? ``)}")`)
+      }
+      const serverlessSecretToken = resolved.section.secretToken
+      if (typeof serverlessSecretToken !== `string` || serverlessSecretToken.length === 0 || /^[A-Za-z0-9_-]{1,256}$/.test(serverlessSecretToken) === false) {
+        throw new Error(`Params deploy serverless requires optionsDeploy.serverless['${resolved.adapter}'].secretToken to be a non-empty string matching ^[A-Za-z0-9_-]{1,256}$ (generate one with: openssl rand -hex 32)`)
+      }
+    } else if (params.deploy === `webhook`) {
+      if (isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
+        throw new Error(`Params deploy "webhook" does not match non-empty optionsDeploy branch (expected optionsDeploy.webhook only)`)
+      }
+      if (isRealUrl(webhookBranch?.url) === false) {
+        throw new Error(`deploy webhook URL is not valid: "${webhookBranch?.url ?? ``}"`)
+      }
+      let parsed: URL
+      try {
+        parsed = new URL(webhookBranch?.url as string)
+      } catch {
+        throw new Error(`deploy webhook URL is not valid: "${webhookBranch?.url ?? ``}"`)
+      }
+      if (parsed.protocol !== `https:` && parsed.protocol !== `http:`) {
+        throw new Error(`deploy webhook URL must use http(s): "${webhookBranch?.url ?? ``}"`)
+      }
+      const secretToken = webhookBranch?.secretToken
+      if (typeof secretToken !== `string` || secretToken.length === 0 || /^[A-Za-z0-9_-]{1,256}$/.test(secretToken) === false) {
+        throw new Error(`Params deploy webhook requires optionsDeploy.webhook.secretToken to be a non-empty string matching ^[A-Za-z0-9_-]{1,256}$ (generate one with: openssl rand -hex 32)`)
+      }
+    } else if (params.deploy === `polling`) {
+      if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
+        throw new Error(`Params deploy "polling" does not match non-empty optionsDeploy branch (expected optionsDeploy.polling or empty)`)
+      }
+    } else {
+      if (isNonEmptyBranch(webhookBranch) || isNonEmptyBranch(serverlessBranch) || isNonEmptyBranch(pollingBranch) || isNonEmptyBranch(rawBranch) || isNonEmptyBranch(testBranch)) {
+        throw new Error(`Params deploy "${params.deploy}" forbids non-empty optionsDeploy (expected empty or optionsDeploy.${params.deploy})`)
+      }
+    }
+  }
+
+  /**
+   * Handles a startup failure (webhook/serverless init) with a clear log,
+   * a structured error event, and a clean shutdown.
+   *
+   * @param error - The startup error.
+   * @internal
+   */
+  _onStartupError(error: unknown): void {
+    this.metrics.counts.updatesFailed += 1
+    this._emitUpdateError({traceId: `startup`, listenerName: `startup`, state: `error`, error, durationMs: 0, isEdit: false})
+    this.log?.error?.(`startup failed: ${String(error)}`)
+    void this.stop()
+  }
+
+  /**
+   * Wraps `handlerBotUpdate` with a constant-time secret check.
+   *
+   * @remarks
+   * Verifies the `X-Telegram-Bot-Api-Secret-Token` header against `secret`
+   * with `timingSafeEqual` and returns a uniform 401 on mismatch (no body
+   * detail, same status whether the route or the secret was wrong). Request
+   * shapes without headers (plain update objects) pass through untouched.
+   * When no secret is configured the handler is returned unwrapped.
+   *
+   * @param handler - Inner update handler.
+   * @param secret - Expected secret value.
+   * @internal
+   */
+  _withSecretGuard(handler: (...args: unknown[]) => Promise<unknown>, secret: string | undefined): (...args: unknown[]) => Promise<unknown> {
+    if (!secret) {
+      return handler
+    }
+    const expected = secret
+    return (async (...args: unknown[]) => {
+      const candidate = args[0]
+      if (this._hasSecretHeaders(candidate)) {
+        const header = this._readSecretHeader(candidate)
+        if (header === null || header.length !== expected.length || !timingSafeEqual(Buffer.from(header), Buffer.from(expected))) {
+          return new Response(`Unauthorized`, {status: 401})
+        }
+      }
+      return handler(...args)
+    }) as (...args: unknown[]) => Promise<unknown>
+  }
+
+  /**
+   * Reports whether a `handlerBotUpdate` argument carries HTTP headers.
+   *
+   * @param req - First handler argument (Request, lambda event, or update).
+   * @internal
+   */
+  _hasSecretHeaders(req: unknown): boolean {
+    if (typeof req !== `object` || req === null) {
+      return false
+    }
+    const headers = (req as {headers?: unknown}).headers
+    if (headers === undefined || headers === null) {
+      return false
+    }
+    if (typeof (headers as {get?: unknown}).get === `function`) {
+      return true
+    }
+    return typeof headers === `object`
+  }
+
+  /**
+   * Extracts the `X-Telegram-Bot-Api-Secret-Token` header value.
+   *
+   * @remarks
+   * Supports `Request` (`headers.get`) and lambda-style plain-object
+   * headers (case-insensitive). Returns `null` when absent.
+   *
+   * @param req - First handler argument.
+   * @internal
+   */
+  _readSecretHeader(req: unknown): string | null {
+    if (typeof req !== `object` || req === null) {
+      return null
+    }
+    const headers = (req as {headers?: unknown}).headers
+    if (headers === undefined || headers === null) {
+      return null
+    }
+    const getter = (headers as {get?: unknown}).get
+    if (typeof getter === `function`) {
+      const value = (getter as (name: string) => string | null).call(headers, `X-Telegram-Bot-Api-Secret-Token`)
+      return typeof value === `string` ? value : null
+    }
+    if (typeof headers === `object`) {
+      for (const [key, value] of Object.entries(headers as Record<string, unknown>)) {
+        if (key.toLowerCase() === `x-telegram-bot-api-secret-token`) {
+          return typeof value === `string` ? value : Array.isArray(value) && typeof value[0] === `string` ? value[0] : null
+        }
+      }
+    }
+    return null
+  }
+
+  /**
+   * Starts a small HTTP server exposing `GET /health` and `GET /stats`
+   * (any deploy mode). No-op when the webhook server already serves them.
+   *
+   * @internal
+   */
+  _startStatusServer(): void {
+    if (this.status.server || this.status.port === undefined) {
+      return
+    }
+    const port = this.status.port
+    const hostname = this.status.hostname
+    void import(`bun`)
+      .then(({serve}) => {
+        this.status.server = serve({
+          port,
+          hostname,
+          fetch: (req) => {
+            const {pathname} = new URL(req.url)
+            if (pathname === `/health`) {
+              return new Response(JSON.stringify({status: `ok`}), {status: 200, headers: {"Content-Type": `application/json`}})
+            }
+            if ((pathname === `/stats` || pathname === `/metrics`) && this.webhook.secretToken) {
+              const secret = req.headers.get(`X-Telegram-Bot-Api-Secret-Token`)
+              if (secret === null || secret.length !== this.webhook.secretToken.length || !timingSafeEqual(Buffer.from(secret), Buffer.from(this.webhook.secretToken))) {
+                return new Response(`Unauthorized`, {status: 401})
+              }
+            }
+            if (pathname === `/stats`) {
+              return new Response(JSON.stringify(this.metrics.snapshot()), {status: 200, headers: {"Content-Type": `application/json`}})
+            }
+            if (pathname === `/metrics`) {
+              return new Response(metricsToPrometheus(this.metrics.snapshot(), this.webhook.instance?.getStats?.() ?? null), {
+                status: 200,
+                headers: {"Content-Type": `text/plain; version=0.0.4`}
+              })
+            }
+            return new Response(`Not found`, {status: 404})
+          }
+        })
+        this.log?.info?.(`Status server listening on ${hostname}:${port} (/health, /stats, /metrics)`)
+      })
+      .catch((error) => {
+        this.log?.error?.(`Failed to start status server: ${String(error)}`)
+      })
+  }
+
+  /** Replaces the bot token with `***` so it never leaks into logs. @internal */
+  _redactToken(value: string): string {
+    const token = this.bot?.token
+    if (!token) return value
+    return value.split(token).join(`***`)
+  }
+
+  /** Emits a structured update error event via metrics + `hookUpdateError`. @internal */
+  _emitUpdateError(event: IUpdateErrorEvent): void {
+    try {
+      this.hookUpdateError?.(event)
+    } catch (error) {
+      this.log?.error?.(`hookUpdateError hook failed: ${String(error)}`)
+    }
+  }
+
+  /**
+   * Global error handler for bot errors.
+   *
+   * @param error - The bot error object.
+   *
+   * @internal
+   */
+  _onCatch(error: BotError<ICt>) {
+    this.metrics.counts.updatesFailed += 1
+    const traceId = String(error.ctx?.update?.update_id ?? ``)
+    if (this.log?.errorMake) {
+      this.log.errorMake(error, `Bot`, `catch`)
+    } else {
+      const err = this._redactToken(JSON.stringify(error, null, 2))
+      this.log?.error?.(`[Bot.catch]: ${err}`)
+    }
+    this._emitUpdateError({traceId, listenerName: `catch`, state: `error`, error, durationMs: 0, isEdit: false})
+  }
+
+  /**
+   * Called when the bot successfully starts.
+   *
+   * @param botInfo - Information about the bot from Telegram.
+   * @param method - The deployment method used.
+   * @param data - Additional data (URL for webhook/serverless).
+   *
+   * @internal
+   */
+  async _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
+    await this.executeSyncBlocksDescription(this.pages)
+
+    const {username} = botInfo
+    this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method === `webhook` || method === `serverless` ? `(${this._redactToken(data ?? ``)})` : ``}`)
+    await this.hookAfterStart?.()
+  }
+
+  /**
    * Starts the bot in long polling mode.
    *
    * @internal
@@ -1667,31 +1926,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     await this.bot.init()
     this.polling.dispatcher.start()
     void this._startPollingLoop(opts, 0)
-  }
-
-  /**
-   * Live polling queue statistics.
-   *
-   * @returns Stats when the polling queue is enabled, otherwise `null`.
-   *
-   * @public
-   */
-  getPollingQueueStats() {
-    if (this.polling.queue?.enabled !== true || this.polling.instance === undefined) {
-      return null
-    }
-    const queueConfig = this.polling.queue
-    const gate = this.polling.dispatcher?.stats()
-    return {
-      enabled: true,
-      maxQueueSize: queueConfig.maxQueueSize ?? 5000,
-      workerCount: queueConfig.workerCount ?? 8,
-      perChatConcurrency: queueConfig.perChatConcurrency ?? 1,
-      drainTimeoutMs: queueConfig.drainTimeoutMs ?? Gramstax.QUEUE_DRAIN_TIMEOUT_DEFAULT,
-      activeKeys: gate?.activeKeys ?? 0,
-      waiting: gate?.waiting ?? 0,
-      ...this.polling.instance.getStats()
-    }
   }
 
   /**
@@ -1899,41 +2133,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const botInfo = await this.bot.api.getMe()
     await this._onStart(botInfo, `webhook`, fullUrl)
-  }
-
-  /**
-   * Get current webhook queue statistics.
-   *
-   * @remarks
-   * Superset of the queue-only shape: every previously returned key is still
-   * present, plus the dispatcher's per-key gate (`activeKeys`/`waiting`) and
-   * its `drainTimeoutMs` budget. Gate values are `0` before `_runWebhook` builds
-   * the dispatcher.
-   *
-   * @returns Stats object when queue is enabled, otherwise `null`.
-   * @public
-   */
-  getWebhookQueueStats() {
-    if (!this.webhook.queue?.enabled || !this.webhook.instance) {
-      return null
-    }
-
-    const queueStats = this.webhook.instance.getStats()
-    const maxQueueSize = this.webhook.queue.maxQueueSize ?? 5000
-    const workerCount = this.webhook.queue.workerCount ?? 8
-    const perChatConcurrency = this.webhook.queue.perChatConcurrency ?? 1
-    const blockWhenFull = this.webhook.queue.blockWhenFull !== false
-
-    return {
-      enabled: true,
-      maxQueueSize,
-      workerCount,
-      perChatConcurrency,
-      blockWhenFull,
-      drainTimeoutMs: this.webhook.drainTimeoutMs,
-      ...queueStats,
-      ...(this.webhook.dispatcher?.stats() ?? {activeKeys: 0, waiting: 0})
-    }
   }
 
   /**
@@ -2241,96 +2440,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // all
     if (proto.handleFree) {
       pd.push(name)
-    }
-  }
-
-  /**
-   * Pushes `<g-description>` blocks to Telegram as the bot command list.
-   *
-   * @remarks
-   * Runs after start and syncs per `(scope, language)` pair, because Telegram
-   * stores commands per scope and per language rather than globally.
-   *
-   * Three passes: collect every scope/language pair declared by a
-   * `handleCommandText` page; resolve each pair's command list through
-   * `getGDescription`, which already owns the fallback chain; then compare
-   * against `getMyCommands` and call `setMyCommands` only on a real
-   * difference. Comparison is order-insensitive (both sides sorted by command
-   * name), so a reordered Telegram response does not trigger a pointless
-   * write.
-   *
-   * Failure is contained per pair — a rejected API call is logged and the
-   * remaining scopes still sync, so one bad scope cannot abort the rest.
-   * Scope/language pairs with no resolvable description are skipped.
-   *
-   * @param pages - Routing skeleton whose `routeStatic.handleCommandText`
-   * entries supply the command names.
-   * @returns Nothing; failures are logged rather than thrown.
-   *
-   * @internal
-   */
-  async executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages) {
-    // 1. Collect all unique (scope, language) pairs
-    const targets = new Map<string, Set<string>>() // scope -> Set<language>
-    const allCommands = pages?.routeStatic?.handleCommandText
-    if (!allCommands) {
-      return
-    }
-
-    for (const [, page] of Object.entries(allCommands)) {
-      const name = page.name
-      const scopes = this.templateManager.getAGDescriptionScopes(name)
-
-      for (const scope of scopes) {
-        if (!targets.has(scope)) {
-          targets.set(scope, new Set())
-        }
-
-        const langs = this.templateManager.getAGDescriptionLang(name, `default`, scope)
-        for (const lang of langs) {
-          targets.get(scope)!.add(lang)
-        }
-      }
-    }
-
-    // 2. Build command lists for each (scope, language) pair
-    let syncedScopes = 0
-    for (const [scope, langs] of targets) {
-      for (const lang of langs) {
-        const commands: Array<{command: string; description: string}> = []
-        for (const [, page] of Object.entries(allCommands)) {
-          const name = page.name
-          // Use getDescription which handles fallback logic
-          const {text: desc} = this.templateManager.getGDescription(name, `default`, lang, scope)
-          if (desc) {
-            commands.push({command: name, description: desc})
-          }
-        }
-
-        if (commands.length === 0) {
-          continue
-        }
-
-        // 3. Sync with Telegram
-        const scopeObj = {type: scope} as unknown as BotCommandScope
-        const langCode = lang === `default` ? undefined : (lang as LanguageCode)
-        try {
-          const current = await this.bot.api.getMyCommands({scope: scopeObj, language_code: langCode})
-          const currentJSON = JSON.stringify(current.map((c) => ({command: c.command, description: c.description})).sort((a, b) => a.command.localeCompare(b.command)))
-          const desiredJSON = JSON.stringify(commands.sort((a, b) => a.command.localeCompare(b.command)))
-
-          if (currentJSON !== desiredJSON) {
-            await this.bot.api.setMyCommands(commands, {scope: scopeObj, language_code: langCode})
-            syncedScopes += 1
-            this.log?.debug?.(`Synced descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} total (${commands.length})`)
-          }
-        } catch (error) {
-          this.log?.error?.(`Failed to sync descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} error: ${String(error)}`)
-        }
-      }
-    }
-    if (syncedScopes > 0) {
-      this.log?.info?.(`Synced bot descriptions for ${syncedScopes} scope(s).`)
     }
   }
 
@@ -3285,111 +3394,5 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         this.log?.error?.(`hookUpdate hook failed: ${String(error)}`)
       }
     }
-  }
-
-  /**
-   * Returns middleware to register as low-level plugins on the bot.
-   *
-   * @remarks
-   * Override this method in a subclass to inject custom plugin middleware
-   * (sessions, i18n, rate limiting, logging, authentication, etc.) into the
-   * underlying bot instance.
-   *
-   * Each element of the returned array is a {@link ICtMiddleware} value (either a
-   * `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that
-   * The array elements are passed to `this.bot.use(...)`. It is meant to be
-   * spread into `bot.use`, so the order of elements determines the order in
-   * which middleware runs — earlier entries wrap later ones (outermost first).
-   *
-   * Difference vs. the other lifecycle hooks:
-   *
-   * - `hookBeforeStart` — for one-off side effects before the bot starts.
-   *   Anything you want to happen exactly once at boot goes there.
-   * - `registerLowPlugin` — for middleware that must run on **every update**.
-   *   Use this when you need middleware semantics (filter queries,
-   *   `next()` chaining, scope-aware registration).
-   * - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run
-   *   inside the router, after gramstax has already routed to a page.
-   *
-   * The base implementation is not provided — subclasses override this to
-   * contribute their own plugins. Returning an empty array (or not
-   * overriding) installs no plugins, which is the default behavior.
-   *
-   * @returns Array of {@link ICtMiddleware}
-   * values, ready to be spread into `this.bot.use(...result)`.
-   *
-   * @example
-   * ```typescript
-   * class MyBot extends Gramstax {
-   *   registerLowPlugin() {
-   *     return [
-   *       // 1. Logging middleware (outermost — runs first, exits last)
-   *       async (ctx, next) => {
-   *         this.log?.info?.(`update ${ctx.update.update_id} from ${ctx.from?.id}`)
-   *         await next()
-   *       },
-   *       // 2. Per-chat rate limit (inner)
-   *       async (ctx, next) => {
-   *         // ... check + throttle ...
-   *         await next()
-   *       }
-   *     ]
-   *   }
-   * }
-   * ```
-   *
-   * @virtual
-   * @public
-   */
-  registerLowPlugin?(): Array<ICtMiddleware<ICt>>
-
-  /**
-   * Registers a custom filter-based route entry with automatic listener subscription.
-   *
-   * @remarks
-   * Adds a route entry to `this.pages.routeCustom` for dispatch at stage id=6
-   * in _pageRoutes. The route fires when:
-   * 1. listenerName matches entry.listenerName, AND
-   * 2. entry.filter(ctx) returns true
-   *
-   * For events with a built-in listener, the route is dispatched by the existing
-   * built-in subscription (the listenerName must match the built-in one). For any
-   * other event, a grammY listener is subscribed automatically via
-   * this.bot.on(entry.event, ...).
-   *
-   * @param entry - The custom route entry. See ICustomRouteEntry.
-   *
-   * @virtual
-   * @public
-   */
-  registerCustomRoute(entry: ICustomRouteEntry): void {
-    if (!entry.routeName || entry.routeName.startsWith(`handle`) === false) {
-      throw new Error(`routeName must be a non-empty string starting with 'handle'`)
-    }
-
-    if (this.pages.all[entry.name] === undefined) {
-      throw new Error(`registerCustomRoute: unknown page "${entry.name}". Register the page first so custom routes dispatch to a known handler.`)
-    }
-
-    if (this.pages.routeCustom.some((r) => r.routeName === entry.routeName)) {
-      this.log?.warn?.(`registerCustomRoute: duplicate routeName "${entry.routeName}" is already registered — skipping`)
-      return
-    }
-
-    this.pages.routeCustom.push(entry)
-
-    // Events with a built-in listener must NOT get a second subscription here:
-    // built-in listeners do not call grammY `next()`, so a second `bot.on` on the
-    // same event would never run. The built-in subscription's `_onHandle` already
-    // reaches routing id=6 (custom routes), so only the listenerName needs to match.
-    const builtInListenerName = Gramstax._BUILT_IN_ON.get(entry.event as string) ?? Gramstax._BUILT_IN_FILTER.get(entry.event as string)
-    if (builtInListenerName !== undefined) {
-      if (entry.listenerName !== builtInListenerName) {
-        throw new Error(`registerCustomRoute: listenerName "${entry.listenerName}" does not match the built-in listener "${builtInListenerName}" for event "${entry.event}". Use "${builtInListenerName}" so the built-in subscription dispatches this route.`)
-      }
-      return
-    }
-
-    this.bot.on(entry.event, (ctx) => this._onHandle(ctx, entry.listenerName, entry.shouldCheckNotFound ?? true))
   }
 }
