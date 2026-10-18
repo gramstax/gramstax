@@ -35,7 +35,7 @@ await this.renderText({
 
 ## Notes
 
-- Where each broadcast lives: text → `renderText({broadcast})`, media → `renderMedia({broadcast})` (no `type` — the kind comes from the template's `<g-media>`; pipe-delimited `src` becomes a media group, and keyboards are ignored for grouped media), poll → `renderPoll({broadcast})`, revise already-sent messages → `renderMedia({broadcast: {targets}, mode: 'edit', type})`.
+- Where each broadcast lives: text → `renderText({broadcast})`, media → `renderMedia({broadcast})` (no `type` — the kind comes from the template's `<g-media>`; pipe-delimited `src` becomes a media group, and keyboards are ignored for grouped media), poll → `renderPoll({broadcast})`, revise already-sent messages → `renderMedia({broadcast: {targets}, type})`.
 - `renderBroadcastDelete({targets})` is separate on purpose — it deletes, it does not render.
 - Empty renders count as failed, not thrown; pass `throwError: true` inside `broadcast` to rethrow `{...counts, err}` instead.
 - Telegram-side throttling still applies — pair with `throttle` config for large blasts (see `deploy-runtime.md`).

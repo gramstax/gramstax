@@ -16,7 +16,7 @@ import {setTimeout} from "node:timers/promises"
 import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
-import type {EphemeralMessageParameters, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent, Message} from "grammy/types"
+import type {EphemeralMessageParameters, InlineKeyboardMarkup, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputStoryContent, Message} from "grammy/types"
 import type {CacheExternal} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
 import {TemplateEngine} from "~/template/engine"
@@ -43,21 +43,10 @@ import type {
   IKbCols,
   IKbDest,
   IKbPageLike,
-  IOptEdit,
   IOptInlineAnswer,
   IOptPreCheckout,
   IOptReply,
-  IOptReplyAnimation,
-  IOptReplyAudio,
-  IOptReplyContact,
-  IOptReplyDocument,
-  IOptReplyLocation,
-  IOptReplyPhoto,
   IOptReplyRich,
-  IOptReplySticker,
-  IOptReplyVideo,
-  IOptReplyVideoNote,
-  IOptReplyVoice,
   IOptShipping,
   IPageData,
   IPageDataBase,
@@ -2271,6 +2260,172 @@ export class Ctx extends Context {
   async hookAfterRoute?(): Promise<void>
 
   /**
+   * Rich-axis warning dedupe: one entry per page name + language code pair.
+   *
+   * @internal
+   */
+  static readonly _richAxisWarned = new Set<string>()
+
+  /**
+   * Warns once per page name + language code when a render call supplies
+   * options for the wrong content axis.
+   *
+   * @remarks
+   * `rich` is decided at COMPILE time from the `<g-message>` block, so the
+   * types cannot reject a rich/plain mismatch. A `--watch` hot reload can also
+   * flip a page rich↔plain in one process, so this NEVER throws — it names the
+   * ignored field and continues.
+   *
+   * @param method - Calling method name, used in the message.
+   * @param rich - Whether the rendered block is rich.
+   * @param options - Plain-text options the caller passed, if any.
+   * @param richOptions - Rich options the caller passed, if any.
+   * @param lang - Language code the block was rendered for (null/undefined for none).
+   *
+   * @internal
+   */
+  private _warnIgnoredRichAxis(method: string, rich: boolean, options: IOptReply | null | undefined, richOptions: IOptReplyRich | null | undefined, lang: string | null | undefined = this.from?.language_code): void {
+    const plainPassed = options !== null && options !== undefined && Object.keys(options).length > 0
+    const richPassed = richOptions !== null && richOptions !== undefined
+    const ignored = rich && plainPassed ? `options (a rich <g-message> block never reads plain-text options — pass richOptions instead)` : !rich && richPassed ? `richOptions (a plain <g-message> block never reads rich options — pass options instead)` : null
+    if (ignored === null) return
+    const language = lang ?? `default`
+    const key = `${this.data.name}\u0000${language}`
+    if (Ctx._richAxisWarned.has(key)) return
+    Ctx._richAxisWarned.add(key)
+    this.log?.warn(`${method} ignores ${ignored} for page "${this.sendPageName()}" lang "${language}"`)
+  }
+
+  /**
+   * Rejects a bottom (reply) keyboard on a route that edits in place.
+   *
+   * @remarks
+   * `editMessageText`/`editMessageMedia` accept inline keyboards only; a
+   * bottom keyboard would otherwise come back as an opaque Telegram 400.
+   * Raising it here names the fix (`mode: 'reply'` sends a new message
+   * instead) before any API call. Send-only routes are exempt — a reply
+   * keyboard is legal on a plain send.
+   *
+   * @param method - Calling method name, used in the message.
+   * @param keyboard - The resolved keyboard, or null/undefined for none.
+   * @returns The same keyboard, narrowed to `InlineKeyboardMarkup` (`null`/`undefined` passes through).
+   *
+   * @internal
+   */
+  private _assertInlineKeyboardForEdit(method: string, keyboard: IInBoKb | null | undefined): InlineKeyboardMarkup | null | undefined {
+    if (keyboard === null || keyboard === undefined) return keyboard
+    if (`inline_keyboard` in keyboard) return keyboard
+    throw new Error(`${method} edit route rejects a bottom (reply) keyboard: editMessageText/editMessageMedia accept inline keyboards only — pass mode: \`reply\` to send a new message instead, or use an inline keyboard`)
+  }
+
+  /**
+   * Runtime route check for {@link (Ctx:class).renderText}.
+   *
+   * @remarks
+   * TypeScript callers cannot reach a failure — the params union already
+   * rejects these pairs. This guard exists for plain-JS callers, where a field
+   * would otherwise be silently dropped. Every throw names the offending field
+   * pair and the fix.
+   *
+   * @param params - The render params to validate.
+   *
+   * @internal
+   */
+  static _assertTextRoute(params: IRenderTextParams): void {
+    const {mode, fallbackEdit, chunkSize, broadcast} = params
+    if (broadcast !== null && broadcast !== undefined) {
+      const dropped: string[] = []
+      if (mode !== null && mode !== undefined) dropped.push(`mode: "${mode}"`)
+      if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
+      if (chunkSize !== null && chunkSize !== undefined) dropped.push(`chunkSize: ${chunkSize}`)
+      if (dropped.length > 0) {
+        throw new Error(`renderText illegal combination: broadcast + ${dropped.join(`, broadcast + `)} — the broadcast route SENDS to every recipient and never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`} (broadcast pacing uses broadcast.chunkSize) or remove broadcast and use mode: "edit" for an in-place edit`)
+      }
+      return
+    }
+    if (chunkSize !== null && chunkSize !== undefined) {
+      const dropped: string[] = []
+      if (mode !== null && mode !== undefined && mode !== `reply`) dropped.push(`mode: "${mode}"`)
+      if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
+      if (dropped.length > 0) {
+        throw new Error(`renderText illegal combination: chunkSize + ${dropped.join(`, chunkSize + `)} — the chunked route is a REPLY route (Telegram has no in-place edit for a multi-message split) and never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`} (or pass mode: "reply" only) and drop chunkSize when you need an edit`)
+      }
+      return
+    }
+    if (mode === `reply` && fallbackEdit !== null && fallbackEdit !== undefined) {
+      throw new Error(`renderText illegal combination: mode: "reply" + fallbackEdit: "${fallbackEdit}" — a forced reply never edits, so fallbackEdit is never read; drop fallbackEdit, or use mode: "auto"/"edit" when the edit fallback matters`)
+    }
+  }
+
+  /**
+   * Runtime route check for {@link (Ctx:class).renderMedia}.
+   *
+   * @remarks
+   * TypeScript callers cannot reach a failure — the params union already
+   * rejects these pairs. This guard exists for plain-JS callers, where a field
+   * would otherwise be silently dropped. Every throw names the offending field
+   * pair and the fix.
+   *
+   * @param params - The render params to validate.
+   *
+   * @internal
+   */
+  static _assertMediaRoute<T extends Exclude<IMediaBlock[`type`], `group`>>(params: IRenderMediaParams<T>): void {
+    const {type, mode, options, optionsEdit1, optionsEdit2, fallbackEdit, broadcast} = params
+    if (broadcast !== null && broadcast !== undefined) {
+      if (`targets` in broadcast) {
+        const dropped: string[] = []
+        if (mode !== null && mode !== undefined) dropped.push(`mode: "${mode}"`)
+        if (options !== null && options !== undefined) dropped.push(`options`)
+        if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
+        if (dropped.length > 0) {
+          throw new Error(`renderMedia illegal combination: broadcast.targets + ${dropped.join(`, broadcast.targets + `)} — the revise route edits the stored messages and never reads ${dropped.length > 1 ? `these fields` : `this field`}; drop ${dropped.length > 1 ? `them` : `it`} (the per-recipient fallback lives in broadcast.broadcastOpts.fallbackEdit) or drop broadcast.targets and use mode: "edit" for a single chat`)
+        }
+        return
+      }
+      const dropped: string[] = []
+      if (type !== null && type !== undefined) dropped.push(`type: "${type}"`)
+      if (mode !== null && mode !== undefined) dropped.push(`mode: "${mode}"`)
+      if (optionsEdit1 !== null && optionsEdit1 !== undefined) dropped.push(`optionsEdit1`)
+      if (optionsEdit2 !== null && optionsEdit2 !== undefined) dropped.push(`optionsEdit2`)
+      if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
+      if (dropped.length > 0) {
+        throw new Error(`renderMedia illegal combination: broadcast + ${dropped.join(`, broadcast + `)} — the broadcast-send route reads the media kind from the <g-media> block and never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`} or use broadcast.targets to revise already-sent messages`)
+      }
+      return
+    }
+    if (mode === `reply`) {
+      const dropped: string[] = []
+      if (optionsEdit1 !== null && optionsEdit1 !== undefined) dropped.push(`optionsEdit1`)
+      if (optionsEdit2 !== null && optionsEdit2 !== undefined) dropped.push(`optionsEdit2`)
+      if (fallbackEdit !== null && fallbackEdit !== undefined) dropped.push(`fallbackEdit: "${fallbackEdit}"`)
+      if (dropped.length > 0) {
+        throw new Error(`renderMedia illegal combination: mode: "reply" + ${dropped.join(`, mode: "reply" + `)} — a forced reply never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`}, or use mode: "auto"/"edit" when the edit path matters`)
+      }
+    }
+  }
+
+  /**
+   * Runtime route check for {@link (Ctx:class).renderMediaGroup}.
+   *
+   * @remarks
+   * TypeScript callers cannot reach a failure — the params union already
+   * rejects the pair. This guard exists for plain-JS callers, where the field
+   * would otherwise be silently dropped. The throw names the offending field
+   * pair and the fix.
+   *
+   * @param params - The render params to validate.
+   *
+   * @internal
+   */
+  static _assertMediaGroupRoute(params: IRenderMediaGroupParams): void {
+    const {mode, fallbackEdit} = params
+    if (mode === `reply` && fallbackEdit !== null && fallbackEdit !== undefined) {
+      throw new Error(`renderMediaGroup illegal combination: mode: "reply" + fallbackEdit: "${fallbackEdit}" — a forced reply cannot fail an edit, so fallbackEdit is never read; drop fallbackEdit, or use mode: "auto"/"edit" when the delete-and-resend fallback matters`)
+    }
+  }
+
+  /**
    * Broadcast-send half of {@link (Ctx:class).renderText} — the
    * multi-recipient text fan-out.
    *
@@ -2282,7 +2437,9 @@ export class Ctx extends Context {
    * Rich templates (`rich === true`) are sent cross-chat through
    * `api.sendRichMessage` with the `InputRichMessage` payload (plus
    * `richOptions`); plain templates keep `api.sendMessage` with
-   * `parse_mode: HTML` (plus `options`).
+   * `parse_mode: HTML` (plus `options`). The axis is per language, so a
+   * mismatch on either one logs a one-time `log.warn` for that page +
+   * language instead of throwing.
    * Per-recipient send failures follow `Ctx.classifySendError`: `retryable`
    * errors are counted and the loop continues; `fallback-text` errors
    * additionally trigger a best-effort fallback-text send to that recipient
@@ -2307,7 +2464,7 @@ export class Ctx extends Context {
       keyboard?: IInBoKb | null
       data?: IData | null
       AGBaseId?: string | null
-      options?: IOptReply | IOptEdit | null
+      options?: IOptReply | null
       richOptions?: IOptReplyRich | null
     }
   ): Promise<IBroadcastSendResult> {
@@ -2317,6 +2474,9 @@ export class Ctx extends Context {
     const limitFree = 30
     const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
     const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
+    msgs.forEach((msg, index) => {
+      if (msg) this._warnIgnoredRichAxis(`renderText broadcast`, msg.rich, options, richOptions, languageCode[index])
+    })
     const rawStart = startFrom ?? 0
     const start = !Number.isFinite(rawStart) ? 0 : Math.min(ids.length, Math.max(0, Math.floor(rawStart)))
     res.skippedCount += start
@@ -2426,17 +2586,17 @@ export class Ctx extends Context {
    * via `Ctx.cloneMediaInput`, so parallel workers never share one mutable
    * `InputFile` instance.
    *
-   * @param params - Broadcast-send params plus the host `renderMedia` fields: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `options` optional send options for the inferred media type (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @param params - Broadcast-send params plus the host `renderMedia` fields: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `options` optional send options for the media type inferred from the template (omitted for none); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
    * @internal
    */
-  private async _broadcastSendMedia(
+  private async _broadcastSendMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(
     params: IBroadcastSendParams & {
       keyboard?: IInBoKb | null
       data?: IData | null
       AGBaseId?: string | null
-      options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact | null
+      options?: IRenderMediaParams<T>[`options`]
     }
   ): Promise<IBroadcastSendResult> {
     const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
@@ -2763,7 +2923,7 @@ export class Ctx extends Context {
    * delete has no text fallback by design — there is no replacement content
    * to deliver, so no `sendMessage` is attempted on either path.
    *
-   * @param params - Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallbackEdit` is accepted but ignored — deletes have no resend).
+   * @param params - Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `broadcastOpts` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallbackEdit` is not part of the type — deletes have no resend to fall back to).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
    * @example
@@ -2869,16 +3029,28 @@ export class Ctx extends Context {
    * When `chunkSize` is present (not `undefined`/`null`) the fully-rendered
    * block is sent as sequential reply chunks instead (see the `chunkSize`
    * field of {@link IRenderTextParams}): the keyboard lands ONLY on the last
-   * chunk and `mode` does not apply — a multi-message split cannot be edited
-   * in place, so the chunked reply wins when both are passed.
+   * chunk. The chunked route is a REPLY route — a multi-message split cannot be
+   * edited in place — so the params type accepts only `mode: 'reply'` (or no
+   * `mode`) alongside `chunkSize`; passing `mode: 'auto'`/`'edit'` with a
+   * `chunkSize` is a compile error (and throws for plain-JS callers) because
+   * that `mode` would never be read.
    *
    * When `broadcast` is present, the block is SENT to every
    * `broadcast.ids` entry instead (see {@link IBroadcastSendParams}): rich
    * templates through `api.sendRichMessage`, plain templates through
-   * `api.sendMessage` with `parse_mode: HTML`; `mode`, `fallbackEdit`, and
-   * `chunkSize` do not apply on that path.
+   * `api.sendMessage` with `parse_mode: HTML`. The broadcast route is
+   * send-only, so its params type rejects `mode`, `fallbackEdit`, and
+   * `chunkSize` outright (pacing uses `broadcast.chunkSize`).
    *
-   * @param params - Optional render params (defaults to `{}`). See {@link IRenderTextParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional plain-text reply/edit options (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `chunkSize` optional max characters per chunk, selecting the chunked reply path (or null for a single message); `broadcast` optional broadcast fan-out {@link IBroadcastSendParams} (or null for a single-chat send/edit).
+   * A bottom (reply) keyboard is rejected on an edit route before any API
+   * call — `editMessageText` accepts inline keyboards only, so the throw names
+   * `mode: 'reply'` as the fix.
+   *
+   * @param params - Optional render params (defaults to `{}`), resolved as one
+   * of four routes — see {@link IRenderTextParams} for the exact field set of
+   * each route: route 1 single message (`auto`/`edit`); route 2 forced reply
+   * (`mode: 'reply'`); route 3 chunked reply (`chunkSize`, reply-only); route 4
+   * broadcast send (`broadcast`, send-only).
    * @returns The sent or edited message object, the array of sent message objects when `chunkSize` selects the chunked reply path, or the {@link IBroadcastSendResult} counts when `broadcast` is present.
    *
    * @example
@@ -2905,36 +3077,47 @@ export class Ctx extends Context {
    * @public
    */
   async renderText(params: IRenderTextParams = {}): Promise<Message | Message[] | true | IBroadcastSendResult> {
-    const {keyboard, data, AGBaseId, mode = `auto`, options, richOptions, fallbackEdit = `delete-reply`, chunkSize, broadcast} = params
-    if (broadcast) {
-      return await this._broadcastSendText({...broadcast, keyboard, data, AGBaseId, options, richOptions})
+    // Plain-JS callers can still hand in a field the winning route never reads — the union only guards TypeScript.
+    Ctx._assertTextRoute(params)
+    const broadcast = params.broadcast
+    if (broadcast !== null && broadcast !== undefined) {
+      return await this._broadcastSendText({...broadcast, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options, richOptions: params.richOptions})
     }
-    const {text, rich} = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    const chunkSize = params.chunkSize
+    const {text, rich} = this.templateManager.getGMessage(this.data.name, params.AGBaseId ?? undefined, this.from?.language_code, params.data ?? undefined)
+    this._warnIgnoredRichAxis(`renderText`, rich, params.options, params.richOptions)
     if (chunkSize !== undefined && chunkSize !== null) {
-      // Chunked replies are reply-only: Telegram has no in-place edit for a multi-message split, so `mode` does not apply.
-      return await this._renderTextChunked({text, rich, keyboard, options, richOptions, chunkSize})
+      // Chunked replies are reply-only: Telegram has no in-place edit for a multi-message split, so the params type accepts only `mode: 'reply'` (or no mode) alongside `chunkSize`.
+      return await this._renderTextChunked({text, rich, keyboard: params.keyboard, options: params.options, richOptions: params.richOptions, chunkSize})
     }
-    const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
-    if (edit) {
-      try {
-        if (rich) {
-          return await this.editMessageText({html: text, ...(richOptions?.[0] ?? {})}, {reply_markup: (keyboard as IInlineKb | null | undefined) ?? undefined, ...((richOptions?.[1] ?? {}) as IOptEdit)})
-        }
-        return await this.editMessageText(text, {
-          parse_mode: `HTML`,
-          reply_markup: (keyboard as IInlineKb | null | undefined) ?? undefined,
-          ...((options as IOptEdit | null | undefined) ?? {})
-        })
-      } catch (error) {
-        if (fallbackEdit === `disable`) {
-          throw error
-        }
-        this.log?.warn(`renderText fallback reply for page "${this.sendPageName()}"`)
-        if (fallbackEdit === `delete-reply`) {
-          try {
-            await this.deleteMessage()
-          } catch {
-            // delete failure (e.g. already deleted) must not block the fallback reply
+    const mode = params.mode
+    // `mode: 'reply'` (route 2) skips the edit attempt entirely; the narrowing also pins the edit branch to route 1 below.
+    if (mode !== `reply`) {
+      // Route 1: `auto` is the default and edits when the update carries a `callbackQuery`; `edit` always edits.
+      const edit = mode === undefined || mode === `auto` ? !!this.callbackQuery : mode === `edit`
+      if (edit) {
+        const fallbackEdit = params.fallbackEdit ?? `delete-reply`
+        const keyboardInline = this._assertInlineKeyboardForEdit(`renderText`, params.keyboard)
+        try {
+          if (rich) {
+            return await this.editMessageText({html: text, ...(params.richOptions?.[0] ?? {})}, {reply_markup: keyboardInline ?? undefined, ...(params.richOptions?.[1] ?? {})})
+          }
+          return await this.editMessageText(text, {
+            parse_mode: `HTML`,
+            reply_markup: keyboardInline ?? undefined,
+            ...(params.options ?? {})
+          })
+        } catch (error) {
+          if (fallbackEdit === `disable`) {
+            throw error
+          }
+          this.log?.warn(`renderText fallback reply for page "${this.sendPageName()}"`)
+          if (fallbackEdit === `delete-reply`) {
+            try {
+              await this.deleteMessage()
+            } catch {
+              // delete failure (e.g. already deleted) must not block the fallback reply
+            }
           }
         }
       }
@@ -2942,17 +3125,17 @@ export class Ctx extends Context {
     try {
       if (rich) {
         return await this.replyWithRichMessage(
-          {html: text, ...(richOptions?.[0] ?? {})},
+          {html: text, ...(params.richOptions?.[0] ?? {})},
           {
-            reply_markup: keyboard ?? undefined,
-            ...(richOptions?.[1] ?? {})
+            reply_markup: params.keyboard ?? undefined,
+            ...(params.richOptions?.[1] ?? {})
           }
         )
       }
       return await this.reply(text, {
         parse_mode: `HTML`,
-        reply_markup: keyboard ?? undefined,
-        ...((options as IOptReply | null | undefined) ?? {})
+        reply_markup: params.keyboard ?? undefined,
+        ...(params.options ?? {})
       })
     } catch (error) {
       const kind = Ctx.classifySendError(error)
@@ -2990,7 +3173,7 @@ export class Ctx extends Context {
     text: string
     rich: boolean
     keyboard?: IInBoKb | null
-    options?: IOptReply | IOptEdit | null
+    options?: IOptReply | null
     richOptions?: IOptReplyRich | null
     chunkSize: number
   }) {
@@ -3036,7 +3219,7 @@ export class Ctx extends Context {
             : await this.reply(chunks[index]!, {
                 parse_mode: `HTML`,
                 reply_markup: last ? (keyboard ?? undefined) : undefined,
-                ...((options as IOptReply | null | undefined) ?? {})
+                ...(options ?? {})
               })
         )
       } catch (error) {
@@ -3064,7 +3247,7 @@ export class Ctx extends Context {
    * failed gift MUST NOT degrade into sending the card as plain text (that
    * would deceive the user). No silent fallback on any path.
    *
-   * @param params - Gift params: `target` gift recipient user id (required); `giftId` Telegram gift identifier (required); `keyboard` must stay null/omitted — `sendGift` carries no reply markup, so a non-null keyboard throws before any API call; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional gift options (or null to omit).
+   * @param params - Gift params: `target` gift recipient user id (required); `giftId` Telegram gift identifier (required); `keyboard` must stay null/omitted — `sendGift` carries no reply markup, so any keyboard value throws before any API call; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional gift options (or null to omit).
    * @returns `true` on success.
    *
    * @example
@@ -3079,7 +3262,7 @@ export class Ctx extends Context {
   async renderGift(params: IRenderGiftParams) {
     const {target, giftId, keyboard, data, AGBaseId, options} = params
     if (keyboard !== undefined && keyboard !== null) throw new Error(`renderGift does not support keyboards: sendGift carries no reply markup (target ${target})`)
-    const msg = this.templateManager.getGGift(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
+    const msg = this.templateManager.getGGift(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined).text
     try {
       const extra: Parameters<Ctx[`api`][`sendGift`]>[2] = {
         text: msg,
@@ -3117,7 +3300,7 @@ export class Ctx extends Context {
    *
    * Toast text is limited by Telegram to 200 characters — keep the block short.
    *
-   * @param params - Answer params: `showAlert` whether to show an alert instead of a toast notification (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the notification text (required); `options` optional answer options such as `cache_time` (or null to omit).
+   * @param params - Answer params: `showAlert` whether to show an alert instead of a toast notification (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the notification text (or null to use default); `options` optional answer options such as `cache_time` (or null to omit).
    * @returns True on success.
    *
    * @example
@@ -3131,7 +3314,7 @@ export class Ctx extends Context {
    */
   async renderCallbackAnswer(params: IRenderCallbackAnswerParams) {
     const {showAlert, data, AGBaseId, options} = params
-    const msg = this.templateManager.getGCallbackAnswer(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
+    const msg = this.templateManager.getGCallbackAnswer(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined).text
     try {
       return await this.answerCallbackQuery({text: msg, show_alert: showAlert, ...((typeof options === `object` ? options : {}) ?? {})})
     } catch (error) {
@@ -3164,7 +3347,7 @@ export class Ctx extends Context {
    *
    * Telegram requires the answer within 10 seconds of the query.
    *
-   * @param params - Answer params: `ok` whether to approve the checkout (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the error message (required); `options` optional answer options, or a string overriding the error message (or null to omit).
+   * @param params - Answer params: `ok` whether to approve the checkout (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the error message (or null to use default); `options` optional answer options, or a string overriding the error message (or null to omit).
    * @returns True on success.
    *
    * @example
@@ -3178,7 +3361,7 @@ export class Ctx extends Context {
    */
   async renderPreCheckout(params: IRenderPreCheckoutParams) {
     const {ok, data, AGBaseId, options} = params
-    const msg = this.templateManager.getGPrecheckoutError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
+    const msg = this.templateManager.getGPrecheckoutError(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined).text
     try {
       if (ok) return await this.answerPreCheckoutQuery(true, ((typeof options === `object` ? options : {}) ?? {}) as IOptPreCheckout)
       const errorMessage = typeof options === `string` ? options : msg
@@ -3211,7 +3394,7 @@ export class Ctx extends Context {
    * `fallback-text` → `log.warn`). After notify+log the original error is
    * ALWAYS rethrown untouched.
    *
-   * @param params - Answer params: `ok` whether the shipping address is acceptable (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the error message (required); `options` optional answer options such as `shipping_options` (or null to omit).
+   * @param params - Answer params: `ok` whether the shipping address is acceptable (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the error message (or null to use default); `options` optional answer options such as `shipping_options` (or null to omit).
    * @returns True on success.
    *
    * @example
@@ -3225,7 +3408,7 @@ export class Ctx extends Context {
    */
   async renderShipping(params: IRenderShippingParams) {
     const {ok, data, AGBaseId, options} = params
-    const msg = this.templateManager.getGShippingError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
+    const msg = this.templateManager.getGShippingError(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined).text
     try {
       if (ok) return await this.answerShippingQuery(true, (options ?? {}) as IOptShipping)
       return await this.answerShippingQuery(false, {error_message: msg, ...(options ?? {})})
@@ -3261,7 +3444,7 @@ export class Ctx extends Context {
    * Telegram caps answers at 50 results; cache them with `cache_time` for
    * identical queries.
    *
-   * @param params - Answer params: `results` inline results built by the caller, up to 50 (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for the button text (required); `options` optional answer options (or null to omit); `buttonStartParameter` optional deep-link start parameter, enabling the block-text button (or null to omit).
+   * @param params - Answer params: `results` inline results built by the caller, up to 50 (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the button text (or null to use default); `options` optional answer options (or null to omit); `buttonStartParameter` optional deep-link start parameter, enabling the block-text button (or null to omit).
    * @returns True on success.
    *
    * @example
@@ -3275,7 +3458,7 @@ export class Ctx extends Context {
    */
   async renderInlineAnswer(params: IRenderInlineAnswerParams) {
     const {results, data, AGBaseId, options, buttonStartParameter} = params
-    const button = this.templateManager.getGInlineButton(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    const button = this.templateManager.getGInlineButton(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     try {
       const extra: IOptInlineAnswer = {...(options ?? {})}
       if (extra.button === undefined) {
@@ -3304,14 +3487,14 @@ export class Ctx extends Context {
    * @remarks
    * The result content is built by the caller from `data` (multilang
    * payloads); the `<g-answer-note>` block is resolved as fail-fast validation
-   * that the template exists, per the AGBaseId-required policy.
+   * that the template exists.
    *
    * Observe-only send-error coverage (mirrors `renderDice`): failures are
    * classified via `Ctx.classifySendError`, reported to `notifySendError`,
    * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
    * After notify+log the original error is ALWAYS rethrown untouched.
    *
-   * @param params - Answer params: `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position, resolved for validation (required); `options` optional abort signal (or null to omit).
+   * @param params - Answer params: `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position, resolved for validation (or null to use default); `options` optional abort signal (or null to omit).
    * @returns The sent guest message object.
    *
    * @example
@@ -3325,7 +3508,7 @@ export class Ctx extends Context {
    */
   async renderGuestAnswer(params: IRenderGuestAnswerParams) {
     const {result, data, AGBaseId, options} = params
-    void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    void this.templateManager.getGAnswerNote(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     try {
       return await this.answerGuestQuery(result, options ?? undefined)
     } catch (error) {
@@ -3350,14 +3533,14 @@ export class Ctx extends Context {
    * update), mirroring `renderGift`'s explicit target. The result content is
    * built by the caller from `data` (multilang payloads); the `<g-answer-note>`
    * block is resolved as fail-fast validation that the template exists, per
-   * the AGBaseId-required policy.
+   * the same fail-fast validation.
    *
    * Observe-only send-error coverage (mirrors `renderGift`): failures are
    * classified via `Ctx.classifySendError`, reported to `notifySendError`,
    * and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`).
    * After notify+log the original error is ALWAYS rethrown untouched.
    *
-   * @param params - Answer params: `webAppQueryId` unique identifier for the query to answer (required); `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position, resolved for validation (required); `options` optional abort signal (or null to omit).
+   * @param params - Answer params: `webAppQueryId` unique identifier for the query to answer (required); `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position, resolved for validation (or null to use default); `options` optional abort signal (or null to omit).
    * @returns The sent web app message object.
    *
    * @example
@@ -3371,7 +3554,7 @@ export class Ctx extends Context {
    */
   async renderWebAppAnswer(params: IRenderWebAppAnswerParams) {
     const {webAppQueryId, result, data, AGBaseId, options} = params
-    void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
+    void this.templateManager.getGAnswerNote(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     try {
       return await this.api.answerWebAppQuery(webAppQueryId, result, options ?? undefined)
     } catch (error) {
@@ -3452,14 +3635,25 @@ export class Ctx extends Context {
    *
    * When `broadcast` is present, multi-recipient fan-out replaces the
    * single-chat path (see {@link IBroadcastSendParams} /
-   * {@link IBroadcastReviseParams}): `broadcast.ids` runs the send loop —
-   * the media kind is read from the template `<g-media>` block, so `type`
-   * may be omitted there and is ignored when supplied — and
-   * `broadcast.targets` runs the revise loop. `mode`, `fallbackEdit`, and
-   * the `options*` fields do not apply to the send loop.
+   * {@link IBroadcastReviseParams}): `broadcast.ids` runs the send loop and
+   * `broadcast.targets` runs the revise loop. The send loop reads the media
+   * kind from the template `<g-media>` block, so its route type rejects `type`
+   * (and `mode`, `fallbackEdit`, and the `options*` fields — it never edits);
+   * the revise loop requires `type` and rejects `mode`, `options`, and
+   * `fallbackEdit` (its per-recipient fallback lives in
+   * `broadcast.broadcastOpts.fallbackEdit`).
+   *
+   * A bottom (reply) keyboard is rejected before any API call when the route
+   * edits in place — `editMessageMedia` accepts inline keyboards only, so the
+   * throw names `mode: 'reply'` as the fix. The delete-then-resend kinds are
+   * plain sends and keep accepting either keyboard type.
    *
    * @typeParam T - The media type to send or edit to.
-   * @param params - Media params. See {@link IRenderMediaParams} for field details: `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (omitted only on the broadcast-send path); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional type-specific reply options (or null to omit); `optionsEdit1` optional edit payload / non-editable-type reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast fan-out — `{ids, languageCode, …}` sends, `{targets, broadcastOpts}` revises (or null for a single-chat send/edit).
+   * @param params - Media params, resolved as one of four routes — see
+   * {@link IRenderMediaParams} for the exact field set of each route: route 1
+   * single chat (`auto`/`edit`); route 2 single chat forced reply
+   * (`mode: 'reply'`); route 3 broadcast send (`broadcast.ids`, kind from the
+   * block); route 4 broadcast revise (`broadcast.targets`, `type` required).
    * @returns The sent or edited message object, or the {@link IBroadcastSendResult}/ {@link IBroadcastEditResult} counts on the broadcast paths.
    *
    * @example
@@ -3482,79 +3676,98 @@ export class Ctx extends Context {
    * @public
    */
   async renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(params: IRenderMediaParams<T>): Promise<Message | Message[] | true | undefined | IBroadcastSendResult | IBroadcastEditResult> {
+    // Plain-JS callers can still hand in a field the winning route never reads — the union only guards TypeScript.
+    Ctx._assertMediaRoute<T>(params)
     const broadcast = params.broadcast
-    if (broadcast) {
+    if (broadcast !== null && broadcast !== undefined) {
       if (`targets` in broadcast) {
-        return await this._broadcastReviseMedia<T>({targets: broadcast.targets, broadcastOpts: broadcast.broadcastOpts, type: params.type!, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, optionsEdit1: params.optionsEdit1, optionsEdit2: params.optionsEdit2})
+        const type = params.type
+        if (type === undefined) {
+          throw new Error(`renderMedia illegal combination: broadcast.targets + type is required — the revise route edits every stored message to the kind named by type; pass type, or use broadcast.ids (the send route reads the kind from the <g-media> block)`)
+        }
+        return await this._broadcastReviseMedia<T>({targets: broadcast.targets, broadcastOpts: broadcast.broadcastOpts, type, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, optionsEdit1: params.optionsEdit1, optionsEdit2: params.optionsEdit2})
       }
-      return await this._broadcastSendMedia({ids: broadcast.ids, languageCode: broadcast.languageCode, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options, throwError: broadcast.throwError, chunkSize: broadcast.chunkSize, chunkDelayMs: broadcast.chunkDelayMs, excludeIds: broadcast.excludeIds, onProgress: broadcast.onProgress, startFrom: broadcast.startFrom, concurrency: broadcast.concurrency})
+      return await this._broadcastSendMedia<T>({ids: broadcast.ids, languageCode: broadcast.languageCode, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options, throwError: broadcast.throwError, chunkSize: broadcast.chunkSize, chunkDelayMs: broadcast.chunkDelayMs, excludeIds: broadcast.excludeIds, onProgress: broadcast.onProgress, startFrom: broadcast.startFrom, concurrency: broadcast.concurrency})
     }
-    const {type, keyboard, data, AGBaseId, mode = `auto`, options, optionsEdit1, optionsEdit2, fallbackEdit = `delete-reply`} = params
-    const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
-    if (edit) {
-      const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-      Ctx.assertMediaPreconditions(type, med)
-      let coords: {latitude: number; longitude: number} | undefined
-      if (type === `location`) coords = Ctx.assertLocation(med.latitude, med.longitude)
-      if (type === `contact`) Ctx.assertContact(med.phone, med.first_name)
-      try {
-        const {src, caption} = med
-        const medFilename = med.filename
-        if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
-          await this.deleteMessage()
-          return await this.renderMediaGroup({type, data, AGBaseId, mode: `reply`})
-        }
-        const commonOpt = {reply_markup: keyboard ?? undefined, ...(optionsEdit1 ?? {})} as Record<string, unknown>
-        if (type === `voice`) {
-          await this.deleteMessage()
-          return await this.replyWithVoice(this.resolveMedia(src, medFilename), commonOpt)
-        }
-        if (type === `video_note`) {
-          await this.deleteMessage()
-          return await this.replyWithVideoNote(this.resolveMedia(src, medFilename), commonOpt)
-        }
-        if (type === `sticker`) {
-          await this.deleteMessage()
-          return await this.replyWithSticker(this.resolveMedia(src, medFilename), commonOpt)
-        }
-        if (type === `location`) {
-          await this.deleteMessage()
-          return await this.replyWithLocation(coords!.latitude, coords!.longitude, commonOpt)
-        }
-        if (type === `contact`) {
-          await this.deleteMessage()
-          return await this.replyWithContact(med.phone as string, med.first_name as string, {vcard: med.vcard!, ...commonOpt})
-        }
-
-        return await this.editMessageMedia(
-          {
-            media: this.resolveMedia(src, medFilename),
-            caption,
-            type,
-            parse_mode: `HTML`,
-            ...(optionsEdit1 ?? {})
-          },
-          {reply_markup: (keyboard as IInlineKb | null | undefined) ?? undefined, ...(optionsEdit2 ?? {})}
-        )
-      } catch (error) {
-        if (fallbackEdit === `disable`) {
-          throw error
-        }
-        if ((optionsEdit1 !== null && optionsEdit1 !== undefined && Object.keys(optionsEdit1).length > 0) || (optionsEdit2 !== null && optionsEdit2 !== undefined && Object.keys(optionsEdit2).length > 0)) {
-          this.log?.warn(`renderMedia fallback drops edit options (options1/options2 do not map to reply options)`)
-        }
-        this.log?.warn(`renderMedia fallback re-send for page "${this.sendPageName()}"`)
-        if (fallbackEdit === `delete-reply`) {
-          try {
+    const type = params.type
+    if (type === undefined) {
+      throw new Error(`renderMedia illegal combination: type is required on the single-chat route — it selects the send/edit API (photo, video, …); pass type, or use broadcast.ids (the send route reads the kind from the <g-media> block)`)
+    }
+    const mode = params.mode
+    // `mode: 'reply'` (route 2) skips the edit attempt entirely; the narrowing also pins the edit branch to route 1 below.
+    if (mode !== `reply`) {
+      // Route 1: `auto` is the default and edits when the update carries a `callbackQuery`; `edit` always edits.
+      const edit = mode === undefined || mode === `auto` ? !!this.callbackQuery : mode === `edit`
+      if (edit) {
+        const med = this.templateManager.getGMedia(this.data.name, params.AGBaseId ?? undefined, this.from?.language_code, params.data ?? undefined)
+        Ctx.assertMediaPreconditions(type, med)
+        let coords: {latitude: number; longitude: number} | undefined
+        if (type === `location`) coords = Ctx.assertLocation(med.latitude, med.longitude)
+        if (type === `contact`) Ctx.assertContact(med.phone, med.first_name)
+        // `editMessageMedia` accepts inline keyboards only; the delete-then-resend kinds below re-send, so any markup is fine there.
+        const resendOnly = type === `voice` || type === `video_note` || type === `sticker` || type === `location` || type === `contact`
+        const groupResend = Helper.isMediaGroupType(type) && (med.srcList?.length ?? 0) > 1
+        const keyboardInline = resendOnly || groupResend ? null : this._assertInlineKeyboardForEdit(`renderMedia`, params.keyboard)
+        try {
+          const {src, caption} = med
+          const medFilename = med.filename
+          if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
             await this.deleteMessage()
-          } catch {
-            // delete failure (e.g. already deleted) must not block the fallback reply
+            return await this.renderMediaGroup({type, data: params.data, AGBaseId: params.AGBaseId, mode: `reply`})
           }
+          const commonOpt = {reply_markup: params.keyboard ?? undefined, ...(params.optionsEdit1 ?? {})} as Record<string, unknown>
+          if (type === `voice`) {
+            await this.deleteMessage()
+            return await this.replyWithVoice(this.resolveMedia(src, medFilename), commonOpt)
+          }
+          if (type === `video_note`) {
+            await this.deleteMessage()
+            return await this.replyWithVideoNote(this.resolveMedia(src, medFilename), commonOpt)
+          }
+          if (type === `sticker`) {
+            await this.deleteMessage()
+            return await this.replyWithSticker(this.resolveMedia(src, medFilename), commonOpt)
+          }
+          if (type === `location`) {
+            await this.deleteMessage()
+            return await this.replyWithLocation(coords!.latitude, coords!.longitude, commonOpt)
+          }
+          if (type === `contact`) {
+            await this.deleteMessage()
+            return await this.replyWithContact(med.phone as string, med.first_name as string, {vcard: med.vcard!, ...commonOpt})
+          }
+
+          return await this.editMessageMedia(
+            {
+              media: this.resolveMedia(src, medFilename),
+              caption,
+              type,
+              parse_mode: `HTML`,
+              ...(params.optionsEdit1 ?? {})
+            },
+            {reply_markup: keyboardInline ?? undefined, ...(params.optionsEdit2 ?? {})}
+          )
+        } catch (error) {
+          const fallbackEdit = params.fallbackEdit ?? `delete-reply`
+          if (fallbackEdit === `disable`) {
+            throw error
+          }
+          if ((params.optionsEdit1 !== null && params.optionsEdit1 !== undefined && Object.keys(params.optionsEdit1).length > 0) || (params.optionsEdit2 !== null && params.optionsEdit2 !== undefined && Object.keys(params.optionsEdit2).length > 0)) {
+            this.log?.warn(`renderMedia fallback drops edit options (options1/options2 do not map to reply options)`)
+          }
+          this.log?.warn(`renderMedia fallback re-send for page "${this.sendPageName()}"`)
+          if (fallbackEdit === `delete-reply`) {
+            try {
+              await this.deleteMessage()
+            } catch {
+              // delete failure (e.g. already deleted) must not block the fallback reply
+            }
+          }
+          return await this._renderMediaReply<T>({type, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options})
         }
-        return await this._renderMediaReply<T>({type, keyboard, data, AGBaseId, options})
       }
     }
-    return await this._renderMediaReply<T>({type, keyboard, data, AGBaseId, options})
+    return await this._renderMediaReply<T>({type, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options})
   }
 
   /**
@@ -3622,7 +3835,9 @@ export class Ctx extends Context {
    * Media groups cannot be edited in place, so the edit branch always deletes
    * the original message first; when the delete-and-send fails, `fallbackEdit`
    * decides whether to retry the delete and re-send (`delete-reply`, default),
-   * re-send without deleting (`reply`), or rethrow (`disable`).
+   * re-send without deleting (`reply`), or rethrow (`disable`). The forced
+   * reply route (`mode: 'reply'`) never reads `fallbackEdit`, so its params
+   * type rejects it (and the runtime guard throws for plain-JS callers).
    *
    * Fail-fast validation runs BEFORE any API call (group/item size limits,
    * per-item types, upload sizes, caption length) — programmer errors always
@@ -3630,7 +3845,12 @@ export class Ctx extends Context {
    * `retryable` rethrows the original error untouched; `fallback-text`
    * best-effort replies with `resolveFallbackText()` (nested failures ignored).
    *
-   * @param params - Optional media-group params (defaults to `{}`). See {@link IRenderMediaGroupParams} for field details: `type` optional media type filter (or null for all items); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional media-group send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional media-group params (defaults to `{}`), resolved as
+   * one of two routes — see {@link IRenderMediaGroupParams} for the exact field
+   * set of each route: route 1 `auto`/`edit`; route 2 forced reply
+   * (`mode: 'reply'`, no `fallbackEdit`). The same two-route split backs
+   * {@link IRenderMediaGroupKindParams}, which the per-kind wrappers
+   * (`renderPhotoGroup`, …) accept and supply `type` for.
    * @returns The sent media group messages.
    *
    * @example
@@ -3644,6 +3864,8 @@ export class Ctx extends Context {
    * @public
    */
   async renderMediaGroup(params: IRenderMediaGroupParams = {}): Promise<Message[] | Message | undefined> {
+    // Plain-JS callers can still hand in a field the winning route never reads — the union only guards TypeScript.
+    Ctx._assertMediaGroupRoute(params)
     const {type, data, AGBaseId, mode = `auto`, options, fallbackEdit = `delete-reply`} = params
     const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
     if (edit) {
@@ -4890,7 +5112,7 @@ export class Ctx extends Context {
    * `renderText`: `delete-reply`/`reply` resend the caption as plain text,
    * `disable` throws.
    *
-   * @param params - Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block message (required); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
+   * @param params - Edit params: `keyboardInline` optional inline keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `options` optional abort signal for the edit call (or null to omit); `fallbackEdit` fallback when the edit fails — `delete-reply` (default) deletes the original message then sends a new one; `reply` sends without deleting; `disable` rethrows the error.
    * @returns The edited message object.
    *
    * @example
@@ -4905,7 +5127,7 @@ export class Ctx extends Context {
   async renderEditCaption(params: IRenderEditCaptionParams) {
     const {keyboardInline, data, AGBaseId, options, fallbackEdit = `delete-reply`} = params
     try {
-      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined).text
       return await this.editMessageCaption(
         {
           caption: msg,
@@ -4943,7 +5165,7 @@ export class Ctx extends Context {
    * send-fallback (nothing new to send): failures are classified via
    * `Ctx.classifySendError`, reported to `notifySendError`, logged, rethrown.
    *
-   * @param params - Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` template base ID position for block keyboard (required); `options` optional abort signal for the edit call (or null to omit).
+   * @param params - Edit params: `keyboardInline` optional inline keyboard markup, or null to resolve it from the block; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block keyboard (or null to use default); `options` optional abort signal for the edit call (or null to omit).
    * @returns The edited message object.
    *
    * @example
@@ -4960,7 +5182,7 @@ export class Ctx extends Context {
     try {
       let resolved = keyboardInline ?? undefined
       if (resolved === undefined) {
-        const labels = this.templateManager.getGKeyboard(this.data.name, AGBaseId, this.from?.language_code, `inline`, data ?? undefined).rows
+        const labels = this.templateManager.getGKeyboard(this.data.name, AGBaseId ?? undefined, this.from?.language_code, `inline`, data ?? undefined).rows
         if (labels.length > 0) {
           const built = new InlineKeyboard()
           for (const label of labels) built.text(label, label)

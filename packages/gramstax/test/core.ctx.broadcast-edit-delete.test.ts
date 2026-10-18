@@ -53,7 +53,7 @@ const callCount = (api: Record<string, unknown>, method: string): number => call
 describe(`broadcast-edit-success`, () => {
   it(`edits photos in place with media and caption`, async () => {
     const api = makeApi()
-    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(2)}})
+    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(2)}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 2, skippedCount: 0, retryable: []})
     expect(api.editMessageMedia).toHaveBeenCalledTimes(2)
     expect(api.editMessageMedia).toHaveBeenNthCalledWith(1, 101, 1000, expect.objectContaining({caption: `Hi`, type: `photo`, parse_mode: `HTML`}), expect.objectContaining({}))
@@ -76,7 +76,7 @@ describe(`broadcast-edit-success`, () => {
     ]
     for (const c of cases) {
       const api = makeApi()
-      const res = (await makeCtx(c.med, api).renderMedia({type: c.type as never, mode: `edit`, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
+      const res = (await makeCtx(c.med, api).renderMedia({type: c.type as never, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
       expect(res.successCount).toBe(1)
       expect(callCount(api, c.primary)).toBe(1)
       if (c.primary === `editMessageMedia`) {
@@ -90,7 +90,7 @@ describe(`broadcast-edit-success`, () => {
 
   it(`deletes and resends voice (delete+resend type)`, async () => {
     const api = makeApi()
-    const res = (await makeCtx({type: `voice`, src: `v.ogg`}, api).renderMedia({type: `voice`, mode: `edit`, broadcast: {targets: targets(1, 7)}})) as IBroadcastEditResult
+    const res = (await makeCtx({type: `voice`, src: `v.ogg`}, api).renderMedia({type: `voice`, broadcast: {targets: targets(1, 7)}})) as IBroadcastEditResult
     expect(res.successCount).toBe(1)
     expect(api.deleteMessage).toHaveBeenNthCalledWith(1, 7, 1000)
     expect(api.sendVoice).toHaveBeenNthCalledWith(1, 7, `v.ogg`, expect.objectContaining({}))
@@ -99,17 +99,17 @@ describe(`broadcast-edit-success`, () => {
 
   it(`sends validated location coords and contact fields`, async () => {
     const api = makeApi()
-    await makeCtx({type: `location`, latitude: `10`, longitude: `20`}, api).renderMedia({type: `location`, mode: `edit`, broadcast: {targets: targets(1)}})
+    await makeCtx({type: `location`, latitude: `10`, longitude: `20`}, api).renderMedia({type: `location`, broadcast: {targets: targets(1)}})
     expect(api.sendLocation).toHaveBeenNthCalledWith(1, 101, 10, 20, expect.objectContaining({}))
     const api2 = makeApi()
-    await makeCtx({type: `contact`, phone: `+1`, first_name: `A`}, api2).renderMedia({type: `contact`, mode: `edit`, broadcast: {targets: targets(1)}})
+    await makeCtx({type: `contact`, phone: `+1`, first_name: `A`}, api2).renderMedia({type: `contact`, broadcast: {targets: targets(1)}})
     expect(api2.sendContact).toHaveBeenNthCalledWith(1, 101, `+1`, `A`, expect.objectContaining({}))
   })
 
   it(`deletes and resends multi-src media as a group`, async () => {
     const api = makeApi()
     const med = {type: `photo`, src: `a.jpg`, srcList: [`a.jpg`, `b.jpg`], caption: `G`}
-    const res = await makeCtx(med, api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(2)}})
+    const res = await makeCtx(med, api).renderMedia({type: `photo`, broadcast: {targets: targets(2)}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 2, skippedCount: 0, retryable: []})
     expect(api.deleteMessage).toHaveBeenCalledTimes(2)
     expect(api.sendMediaGroup).toHaveBeenCalledTimes(2)
@@ -120,7 +120,7 @@ describe(`broadcast-edit-success`, () => {
 describe(`broadcast-edit-resume-progress-concurrency`, () => {
   it(`startFrom skips already-revised recipients without duplicates`, async () => {
     const api = makeApi()
-    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(4), broadcastOpts: {startFrom: 2}}})
+    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(4), broadcastOpts: {startFrom: 2}}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 4, skippedCount: 2, retryable: []})
     expect(api.editMessageMedia).toHaveBeenCalledTimes(2)
     expect(calls(api, `editMessageMedia`).map((c) => c[0])).toEqual([103, 104])
@@ -129,7 +129,7 @@ describe(`broadcast-edit-resume-progress-concurrency`, () => {
   it(`fires per chunk plus final with exact counts`, async () => {
     const api = makeApi()
     const progress = mock(() => {})
-    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(5), broadcastOpts: {chunkSize: 2, chunkDelayMs: 1, onProgress: progress}}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(5), broadcastOpts: {chunkSize: 2, chunkDelayMs: 1, onProgress: progress}}})) as IBroadcastEditResult
     expect(res.successCount).toBe(5)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [2, 5],
@@ -140,7 +140,7 @@ describe(`broadcast-edit-resume-progress-concurrency`, () => {
 
   it(`delivers all recipients across lanes with aligned targets`, async () => {
     const api = makeApi()
-    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(6), broadcastOpts: {concurrency: 3}}})
+    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(6), broadcastOpts: {concurrency: 3}}})
     expect(res).toEqual({successCount: 6, failedCount: 0, totalCount: 6, skippedCount: 0, retryable: []})
     expect(api.editMessageMedia).toHaveBeenCalledTimes(6)
     expect(
@@ -153,7 +153,7 @@ describe(`broadcast-edit-resume-progress-concurrency`, () => {
   it(`fires at the free-limit boundary and at completion`, async () => {
     const api = makeApi()
     const progress = mock(() => {})
-    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(30), broadcastOpts: {onProgress: progress}}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(30), broadcastOpts: {onProgress: progress}}})) as IBroadcastEditResult
     expect(res.successCount).toBe(30)
     expect(progress.mock.calls as Array<Array<number>>).toEqual([
       [30, 30],
@@ -171,7 +171,7 @@ describe(`broadcast-edit-fallback`, () => {
           throw grammyError(400)
         })
       })
-      const res = (await makeCtx({type: t, src: `f.dat`, caption: `C`}, api).renderMedia({type: t as never, mode: `edit`, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
+      const res = (await makeCtx({type: t, src: `f.dat`, caption: `C`}, api).renderMedia({type: t as never, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
       expect(res.successCount).toBe(1)
       expect(api.deleteMessage).toHaveBeenCalledTimes(1)
       expect(callCount(api, sends[t]!)).toBe(1)
@@ -185,7 +185,7 @@ describe(`broadcast-edit-fallback`, () => {
         throw grammyError(400)
       })
     })
-    const res = (await makeCtx(photoMed(), api, {warn}).renderMedia({type: `photo`, mode: `edit`, optionsEdit1: {caption: `X`} as never, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api, {warn}).renderMedia({type: `photo`, optionsEdit1: {caption: `X`} as never, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
     expect(res.successCount).toBe(1)
     expect(warn).toHaveBeenCalled()
   })
@@ -201,7 +201,7 @@ describe(`broadcast-edit-fallback`, () => {
       })
     })
     const list = targets(3)
-    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: list}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: list}})) as IBroadcastEditResult
     expect(res.successCount).toBe(0)
     expect(res.failedCount).toBe(3)
     expect(res.retryable).toEqual(list.map((t, i) => ({index: i, chatId: t.chatId, messageId: t.messageId, error: err429})))
@@ -217,7 +217,7 @@ describe(`broadcast-edit-fallback`, () => {
         throw err403
       })
     })
-    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(2)}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(2)}})) as IBroadcastEditResult
     expect(res.successCount).toBe(0)
     expect(res.failedCount).toBe(2)
     expect(res.retryable).toEqual([])
@@ -233,7 +233,7 @@ describe(`broadcast-edit-fallback`, () => {
         throw err429
       })
     })
-    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(1), broadcastOpts: {fallbackEdit: `disable`}}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(1), broadcastOpts: {fallbackEdit: `disable`}}})) as IBroadcastEditResult
     expect(res.failedCount).toBe(1)
     expect(res.retryable).toEqual([{index: 0, chatId: 101, messageId: 1000, error: err429}])
     expect(api.sendPhoto).not.toHaveBeenCalled()
@@ -249,7 +249,7 @@ describe(`broadcast-edit-fallback`, () => {
         throw grammyError(400)
       })
     })
-    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
+    const res = (await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(1)}})) as IBroadcastEditResult
     expect(res.successCount).toBe(1)
   })
 })
@@ -257,7 +257,7 @@ describe(`broadcast-edit-fallback`, () => {
 describe(`broadcast-edit-fail-fast`, () => {
   it(`throws on unknown type before any send`, async () => {
     const api = makeApi()
-    await expect(makeCtx(photoMed(), api).renderMedia({type: `nope` as never, mode: `edit`, broadcast: {targets: targets(2)}})).rejects.toThrow(`Unknown media type`)
+    await expect(makeCtx(photoMed(), api).renderMedia({type: `nope` as never, broadcast: {targets: targets(2)}})).rejects.toThrow(`Unknown media type`)
     expect(api.editMessageMedia).not.toHaveBeenCalled()
     expect(api.sendPhoto).not.toHaveBeenCalled()
     expect(api.deleteMessage).not.toHaveBeenCalled()
@@ -266,21 +266,21 @@ describe(`broadcast-edit-fail-fast`, () => {
   it(`throws on oversize media before any send`, async () => {
     const big = new Uint8Array(11 * 1024 * 1024)
     const api = makeApi()
-    await expect(makeCtx({type: `photo`, src: big, caption: `Hi`}, api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(1)}})).rejects.toThrow(`exceeds limit`)
+    await expect(makeCtx({type: `photo`, src: big, caption: `Hi`}, api).renderMedia({type: `photo`, broadcast: {targets: targets(1)}})).rejects.toThrow(`exceeds limit`)
     expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
   it(`throws on bad coords, bad contact, and missing media`, async () => {
     const api = makeApi()
-    await expect(makeCtx({type: `location`, latitude: `bad`, longitude: `0`}, api).renderMedia({type: `location`, mode: `edit`, broadcast: {targets: targets(1)}})).rejects.toThrow(`Invalid latitude`)
-    await expect(makeCtx({type: `contact`, phone: ``, first_name: `A`}, api).renderMedia({type: `contact`, mode: `edit`, broadcast: {targets: targets(1)}})).rejects.toThrow(`Contact requires`)
-    await expect(makeCtx(undefined, api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(1)}})).rejects.toThrow(`Media not found`)
+    await expect(makeCtx({type: `location`, latitude: `bad`, longitude: `0`}, api).renderMedia({type: `location`, broadcast: {targets: targets(1)}})).rejects.toThrow(`Invalid latitude`)
+    await expect(makeCtx({type: `contact`, phone: ``, first_name: `A`}, api).renderMedia({type: `contact`, broadcast: {targets: targets(1)}})).rejects.toThrow(`Contact requires`)
+    await expect(makeCtx(undefined, api).renderMedia({type: `photo`, broadcast: {targets: targets(1)}})).rejects.toThrow(`Media not found`)
     expect(api.editMessageMedia).not.toHaveBeenCalled()
   })
 
   it(`keeps the default call sequence and result shape`, async () => {
     const api = makeApi()
-    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: targets(2)}})
+    const res = await makeCtx(photoMed(), api).renderMedia({type: `photo`, broadcast: {targets: targets(2)}})
     expect(res).toEqual({successCount: 2, failedCount: 0, totalCount: 2, skippedCount: 0, retryable: []})
     expect(api.editMessageMedia).toHaveBeenNthCalledWith(1, 101, 1000, expect.objectContaining({caption: `Hi`, parse_mode: `HTML`}), expect.objectContaining({}))
   })

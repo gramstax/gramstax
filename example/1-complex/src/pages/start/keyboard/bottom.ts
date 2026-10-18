@@ -80,6 +80,7 @@ export class StartKeyboardBottomPage extends PageBase {
       await this.renderText({
         AGBaseId: Base.delete,
         keyboard: this.inlineKeyboardT([StartPage], `1`, Base.index),
+        mode: `reply`,
         options: {
           reply_markup: {
             remove_keyboard: true
