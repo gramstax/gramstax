@@ -6,8 +6,8 @@ Terms are defined as they are used in this project. General programming terms ar
 
 | Term                         | Definition                                                                                                                                                                    | Where Used                                         |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| **Gramstax**                 | The `gramstax` npm package — a declarative Telegram bot framework built on top of `grammy`.                                                                                   | `package.json`, `src/index.ts`                     |
-| **Gramstax (class)**         | The main bot application class (`core/bot.ts`) that wraps a grammY `Bot` and composes `TemplateManager`, `CacheExternal`, `UpdateQueue`, and `PageManager`.                  | `src/core/bot.ts:61`                               |
+| **Gramstax**                 | The `gramstax` npm package — a declarative Telegram bot framework built around pages, templates and a route-aware render API.                                                                                   | `package.json`, `src/index.ts`                     |
+| **Gramstax (class)**         | The main bot application class (`core/bot.ts`) that owns the bot lifecycle and composes `TemplateManager`, `CacheExternal`, `UpdateQueue`, and `PageManager`.                  | `src/core/bot.ts:61`                               |
 | **Ctx**                      | The page/context base class (`core/ctx.ts`) extended by every page handler. Provides reply, edit, broadcast, session, and routing methods.                                    | `src/core/ctx.ts:146`                              |
 | **Page**                     | A user-defined class extending `Ctx` that represents one bot screen/route. Must be a named (non-default) export.                                                              | `src/core/ctx.ts`, `src/page/manager.ts:56`        |
 | **Template**                 | An HTML-like string assigned to a page's static `template` property, containing `<g-*>` blocks.                                                                               | `src/core/ctx.ts:146`                              |
@@ -34,6 +34,6 @@ Terms are defined as they are used in this project. General programming terms ar
 | ------- | --------------------------------- | ------------------------------------------------------------------------ |
 | RPC     | Remote Procedure Call             | Used in `ITCacheRpc` for cache transport between bot and external store. |
 | LRU     | Least Recently Used               | `CacheExternal.refreshLruCache()` re-touches keys to keep them warm.     |
-| API     | Application Programming Interface | Telegram Bot API, wrapped by `grammy`.                                   |
+| API     | Application Programming Interface | Telegram Bot API, reached through the client.                                   |
 | DSL     | Domain-Specific Language          | The `<g-*>` template markup is a DSL compiled by `TemplateEngine`.       |
 | CI      | Continuous Integration            | `.github/workflows/release.yml`.                                         |

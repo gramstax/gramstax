@@ -5,9 +5,8 @@ description: What gramstax is, what it removes, and who it is for.
 
 # gramstax
 
-gramstax wraps [grammy](https://www.npmjs.com/package/grammy) and turns the
-remaining half of a Telegram bot — the part every project reinvents — into a
-fixed shape.
+gramstax turns the remaining half of a Telegram bot — the part every project
+reinvents — into a fixed shape.
 
 A typical framework gives you `bot.command("start", …)` and a template literal.
 What happens after that is yours: where markup lives, how a second language gets
@@ -49,7 +48,7 @@ branch may be non-empty and it must equal `deploy`. See [deploy](/concepts/deplo
 
 ## Who it is not for
 
-- A bot that sends a few messages on command. A grammY handler is shorter.
+- A bot that sends a few messages on command. A hand-written handler is shorter.
 - Anyone who wants to hand Telegram markup strings to the API directly. That is
   the trade being made, deliberately.
 

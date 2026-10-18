@@ -4,7 +4,7 @@
 
 ## System Overview
 
-`gramstax` wraps a grammY `Bot` and routes every Telegram update through a **page** (a `Ctx` subclass) whose static `template` is compiled once by the **TemplateEngine** and cached by the **TemplateManager**. Sessions and keyboards live in a **CacheExternal** (keyv) store. Incoming updates are matched by convention to `handle*` methods on the resolved page.
+`gramstax` owns the bot lifecycle and routes every Telegram update through a **page** (a `Ctx` subclass) whose static `template` is compiled once by the **TemplateEngine** and cached by the **TemplateManager**. Sessions and keyboards live in a **CacheExternal** (keyv) store. Incoming updates are matched by convention to `handle*` methods on the resolved page.
 
 ```text
 Telegram ── update ──▶ Gramstax (core/bot.ts)
@@ -48,7 +48,7 @@ The constructor (`bot.ts:275`) reads `IGramstaxParams`, selects a deploy mode (`
 |-----------|-------|
 | **Location** | `src/core/ctx.ts` (4006 lines) |
 | **Responsibility** | Per-update context: template rendering, reply/edit/broadcast, session get/set/clear, routing helpers, keyboard builders. |
-| **Depends On** | `TemplateManager`, `CacheExternal`, grammY `InlineKeyboard`/`Keyboard`/`InputMediaBuilder`. |
+| **Depends On** | `TemplateManager`, `CacheExternal`, the client's `InlineKeyboard`/`Keyboard`/`InputMediaBuilder`. |
 | **Depended On By** | Every user page class. |
 
 Handler methods follow a naming convention (all optional, all `async`): `handleCallbackData`, `handleArgsCallbackData`, `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleFreeText`, plus `handle*Session*`, `handle*Caption*` (photo/video/audio/document), `handleFree*` variants (`ctx.ts:2711-3180+`). Reply surface includes `reply`, `replyRich`, `replyMedia`, `replyPhoto/Video/Audio/Document/Animation/Voice/VideoNote/Sticker/Location/Contact`, `replyMediaGroup`, `edit`, `editMedia`, `broadcast`, `broadcastMedia` (`ctx.ts:1037-2153`). Keyboard builders: `bottomKeyboardT` (`ctx.ts:2467`), `inlineKeyboardT` (`ctx.ts:2505`), `buildData` for route config (`ctx.ts:2340-2367`).
@@ -137,7 +137,7 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
   </Step>
 
   <Step title="Incoming update">
-    grammY hands the update to `Gramstax`. `PageManager` resolves the target
+    The client hands the update to `Gramstax`. `PageManager` resolves the target
     `Ctx` subclass by route/intent. When `queue.enabled` is set, `UpdateQueue` +
     `UpdateDispatcher` buffer the update and drain it on a worker pool (both
     `polling` and `webhook`); otherwise the update is handled inline.
@@ -147,7 +147,7 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
     The matched `handle*` method on the page runs. It calls
     `reply`/`edit`/`broadcast`, which pull the compiled `<g-base>`
     message/keyboard/media from `TemplateManager` (keyed by `AGBaseId` +
-    language), interpolate `{{data}}`, and send via grammY.
+    language), interpolate `{{data}}`, and send through the client.
   </Step>
 
   <Step title="State">
@@ -186,7 +186,7 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 Key architectural choices and their rationale:
 
-1. **Extend grammY instead of wrapping raw Bot API** — see [ADR-0001](/guides/adr/0001-build-on-grammy.md).
+1. **Build on an existing client instead of the raw Bot API** — see [ADR-0001](/guides/adr/0001-build-on-grammy.md).
 2. **Template DSL compiled with `new Function()`** — see [ADR-0002](/guides/adr/0002-template-dsl-new-function.md).
 3. **Unified keyv/Redis cache (`CacheExternal`)** — see [ADR-0003](/guides/adr/0003-keyv-redis-cache.md).
 4. **Convention-based routing via page class names + `handle*` methods** — see [ADR-0004](/guides/adr/0004-convention-routing.md).

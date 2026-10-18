@@ -71,8 +71,8 @@ IAppManifest` to skip scanning. See [serverless deploy](/guides/serverless-deplo
 
 ### `raw`
 
-A bare grammY `Bot` — no pages, no templates, no Gramstax routing, no
-auto-start. Write raw grammY handlers on `bot.bot` and start it yourself.
+A bare `Bot` instance — no pages, no templates, no Gramstax routing, no
+auto-start. Write raw handlers on `bot.bot` and start it yourself.
 
 This is the supported way to use gramstax as a dependency without adopting its
 model. The legacy `templateManager: {} as any` escape hatch was removed; using it

@@ -9,7 +9,7 @@
 | Bun (runtime + test runner) | latest              | https://bun.sh (or `npm i -g bun`)        |
 | Node.js                     | LTS (`lts/*`)       | For the npm OIDC release step in CI only  |
 | TypeScript                  | `^6.0.3` (peer dep) | `bun add -d typescript`                   |
-| grammY Bot token            | —                   | From [@BotFather](https://t.me/BotFather) |
+| Bot token                   | —                   | From [@BotFather](https://t.me/BotFather) |
 
 `gramstax` targets `esnext` and uses Bun APIs (e.g. `Bun.serve` for webhooks), so **Bun is the primary runtime**. The repo is an Nx monorepo; this guide covers the `packages/gramstax` library and a local bot that consumes it.
 
@@ -34,7 +34,7 @@ A bot is configured entirely through the `IGramstaxParams` object passed to `new
 | `token`                         | Yes      | Telegram Bot API token from BotFather.                                           | —               |
 | `deploy`                        | Yes      | One of `polling`, `webhook`, `serverless`, `raw`, `test`. Per-mode settings go in `optionsDeploy`.        | —               |
 | `log`                           | No       | `LoggingHelper` instance, `true` (default logger), or `null`/`false` to disable. | `false`         |
-| `botConfig`                     | No       | grammY `BotConfig` (e.g. `apiRoot`).                                             | —               |
+| `botConfig`                     | No       | The client's `BotConfig` (e.g. `apiRoot`).                                             | —               |
 | `webhookQueue`                  | No       | `IUpdateQueueConfig` backpressure (deprecated alias `ITWebhookQueueConfig`). Prefer `optionsDeploy.webhook.queue`. | —               |
 | `cacheSession`                  | No       | Custom `CacheExternal` (e.g. Redis).                                             | in-memory `Map` |
 | `cacheKeyboard`                 | No       | Custom keyboard cache `Map`.                                                     | internal `Map`  |

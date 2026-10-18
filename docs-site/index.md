@@ -1,6 +1,6 @@
 ---
 title: gramstax
-description: Page-based routing and a template system for Telegram bots, built on grammY.
+description: Page-based routing and a template system for Telegram bots.
 ---
 
 # gramstax
@@ -78,7 +78,7 @@ equal `deploy`.
     to scan.
   </Tab>
   <Tab title="raw">
-    A bare grammY `Bot` — no pages, no templates, no routing, no auto-start.
+    A bare `Bot` instance — no pages, no templates, no routing, no auto-start.
     The supported way to use gramstax as a dependency without adopting its model.
   </Tab>
 </Tabs>

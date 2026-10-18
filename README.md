@@ -2,7 +2,7 @@
   <p><img src="https://avatars.githubusercontent.com/u/187108398?s=200&v=4" alt="Gramstax logo" width="120" height="120" /></p>
   <h1>Gramstax</h1>
 
-  <p>A declarative Telegram bot framework for <a href="https://grammy.dev/">grammY</a> — template-driven pages, a route-aware render API, and config-driven boot. This repository holds the framework, the scaffolding CLI, and two supporting packages.</p>
+  <p>A declarative Telegram bot framework — template-driven pages, a route-aware render API, and config-driven boot. This repository holds the framework, the scaffolding CLI, and two supporting packages.</p>
   <p>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
@@ -21,19 +21,19 @@ Most Telegram frameworks give you `bot.command("start", …)` and a template lit
 
 **No template engine to build.** Text, keyboards, captions, poll options, invoices and error toasts live in one `static template`, compiled ahead of time: 29 PAGE blocks and 54 Bot API 10.3 Rich HTML tags, validated in three layers. `lang="id"` buys a second language, `{{var|upper}}` buys formatting, `<g-ifelse>` buys a conditional that survives AOT — none of it in the handler.
 
-**No render call whose params are a guess.** Each `render*()` params type is a union over its real delivery routes, and every universal key is a real type where the route reads it, `?: never` where it does not. `{mode: "reply", fallback: "reply"}` does not compile, because a forced reply never edits and so never reaches a fallback. `Ctx._assertRenderRoute` enforces the same combinations at runtime for plain-JS callers.
+**No send-versus-edit branching.** `renderText` defaults to `auto`: it edits the message a callback query is attached to and replies otherwise. You write the render once; the framework reads the update in one place.
+
+**No render call whose params are a guess.** Each `render*()` params type is a union over its real delivery routes, and every universal key is a real type where the route reads it, `?: never` where it does not. `{mode: "reply", fallback: "reply"}` does not compile, because a forced reply never edits and so never reaches a fallback. `Ctx._assertRenderRoute` enforces the same at runtime for plain-JS callers.
 
 **No markup inside API calls.** A page owns its blocks, so one source renders every language the page declares and stays translatable — `<g-message>` and `<g-message lang="id">` side by side means an Indonesian Telegram client gets Indonesian with no branch in the handler.
 
-**No guessing at the Telegram dialect.** The engine parses to typed blocks and validates against Bot API 10.3 (`TemplateEngine.BOT_API_VERSION`): required attributes, attribute value formats, and a per-tag allow-list that rejects unknown attributes instead of ignoring them.
+**No guessing at the Telegram dialect.** The engine parses to typed blocks and validates against Bot API 10.3 (`TemplateEngine.BOT_API_VERSION`): required attributes, value formats, and a per-tag allow-list that rejects unknown attributes instead of ignoring them.
 
-**No boot file that drifts from `.env`.** No `src/index.ts`, no hand-written `new Gramstax({...})`. `gramstax start` reads `gramstax.config.ts`, discovers the `Gramstax` subclass, materializes each ref slot, constructs it. Construction *is* boot — nothing to run afterwards, no ordering to get wrong.
+**No boot file that drifts from `.env`.** No `src/index.ts`, no hand-written constructor call. `gramstax start` reads `gramstax.config.ts`, discovers the `Gramstax` subclass, materializes each ref slot, constructs it. Construction *is* boot.
 
 **One deploy field, five behaviours.** `polling`, `webhook`, `serverless`, `raw`, `test` — per-mode settings sit in `optionsDeploy` nested branches where at most one branch may be non-empty and it must equal `deploy`. The old `webhook:<url>` colon grammar throws.
 
-**No updates that vanish without a trace.** An in-process `MetricsStore` counts `matched`, `noMatch`, `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`, `skippedValidation`, `dropped` — JSON at `GET /stats`, Prometheus text at `GET /metrics`.
-
-## ✨ Features
+**No updates that vanish without a trace.** An in-process `MetricsStore` counts `matched`, `noMatch`, `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`, `skippedValidation`, `dropped` — JSON at `GET /stats`, Prometheus text at `GET /metrics`.## ✨ Features
 
 ### Pages, not string builders
 
@@ -360,7 +360,7 @@ await this.gsuccess.show(res.successCount, res.totalCount)
 | `polling` (default) | the `getUpdates` loop | `hookBeforeStart` → `hookAfterStart` | `{maxRetries?, dropPendingUpdates?, queue?}` |
 | `webhook` | `Bun.serve` HTTP server + optional queue | both | `{url, secretToken, queue?}` — both mandatory |
 | `serverless` | the platform handler, fs-less from the frozen manifest | both | `{[adapter]: {url, secretToken, …}}` — the adapter **is the key** |
-| `raw` | nothing — a bare grammY `Bot`, no pages, no auto-start | `hookBeforeStart` only | `{}` |
+| `raw` | nothing — a bare `Bot` instance, no pages, no auto-start | `hookBeforeStart` only | `{}` |
 | `test` | the in-process e2e harness | both, no network | `{}` |
 
 ```ts
@@ -545,7 +545,7 @@ flowchart TD
     B --> T["TemplateManager compiles templates"]
     P --> R["route tables"]
     T --> R
-    R --> U["grammY middleware"]
+    R --> U["Update middleware"]
 ```
 
 `gramstax start [--deploy <mode>] [--watch]` reads `gramstax.config.ts` from the project root, takes its default export, and validates it. Unknown top-level fields throw `Invalid gramstax config at <file>: …` — including `manifest`, which is a constructor param and not a config field. It then imports `src/core/bot.ts` and takes the first value export whose `prototype instanceof Gramstax`. Ref slots (`cacheSession`, `cacheKeyboard`, `templateManager`, `log`) are materialized and each checked against its expected base; a wrong export fails with the slot name and the base it wanted. Finally it constructs the subclass — no `.run()`.
@@ -698,7 +698,7 @@ The `queue` block is the same shape on `polling` and `webhook` and configures th
 | `webhook` | Webhook server with health/status endpoints |
 | `serverless` | Cloudflare Workers (`cloudflare-mod`) or AWS Lambda (`aws-lambda-async`); reads the frozen `.gramstax/` output |
 | `test` | In-process `MockTelegramServer` for e2e |
-| `raw` | A bare grammY bot — no pages, no templates, no routing, no auto-start |
+| `raw` | A bare `Bot` instance — no pages, no templates, no routing, no auto-start |
 
 `gramstax build` freezes `src/pages` into `.gramstax/` — `routes.json`, `manifest.js`, AOT `gen/`, and `server/` entries per target. Only `serverless` auto-loads it; every other deploy boots from the filesystem so hot reload keeps working.
 
