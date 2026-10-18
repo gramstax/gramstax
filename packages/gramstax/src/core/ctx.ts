@@ -23,8 +23,8 @@ import {TemplateEngine} from "~/template/engine"
 import type {TemplateManager} from "~/template/manager"
 import type {ICacheRpc} from "~/types/cache"
 import type {
-  BroadcastReviseParams,
-  BroadcastSendParams,
+  IBroadcastReviseParams,
+  IBroadcastSendParams,
   IBottomKb,
   IBottomKbParams,
   IBroadcastEditResult,
@@ -65,26 +65,26 @@ import type {
   ISendErrorInfo,
   IStoryContent,
   ITemp,
-  RenderBroadcastDeleteParams,
-  RenderCallbackAnswerParams,
-  RenderDiceParams,
-  RenderEditCaptionParams,
-  RenderEditKeyboardParams,
-  RenderGiftParams,
-  RenderGuestAnswerParams,
-  RenderInlineAnswerParams,
-  RenderInvoiceParams,
-  RenderMediaGroupKindParams,
-  RenderMediaGroupParams,
-  RenderMediaKindParams,
-  RenderMediaParams,
-  RenderPaidMediaParams,
-  RenderPollParams,
-  RenderPreCheckoutParams,
-  RenderShippingParams,
-  RenderTextParams,
-  RenderVenueParams,
-  RenderWebAppAnswerParams
+  IRenderBroadcastDeleteParams,
+  IRenderCallbackAnswerParams,
+  IRenderDiceParams,
+  IRenderEditCaptionParams,
+  IRenderEditKeyboardParams,
+  IRenderGiftParams,
+  IRenderGuestAnswerParams,
+  IRenderInlineAnswerParams,
+  IRenderInvoiceParams,
+  IRenderMediaGroupKindParams,
+  IRenderMediaGroupParams,
+  IRenderMediaKindParams,
+  IRenderMediaParams,
+  IRenderPaidMediaParams,
+  IRenderPollParams,
+  IRenderPreCheckoutParams,
+  IRenderShippingParams,
+  IRenderTextParams,
+  IRenderVenueParams,
+  IRenderWebAppAnswerParams
 } from "~/types/ctx"
 import type {IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock} from "~/types/template"
 
@@ -2303,7 +2303,7 @@ export class Ctx extends Context {
    * @internal
    */
   private async _broadcastSendText(
-    params: BroadcastSendParams & {
+    params: IBroadcastSendParams & {
       keyboard?: IInBoKb | null
       data?: IData | null
       AGBaseId?: string | null
@@ -2432,7 +2432,7 @@ export class Ctx extends Context {
    * @internal
    */
   private async _broadcastSendMedia(
-    params: BroadcastSendParams & {
+    params: IBroadcastSendParams & {
       keyboard?: IInBoKb | null
       data?: IData | null
       AGBaseId?: string | null
@@ -2596,13 +2596,13 @@ export class Ctx extends Context {
    * @internal
    */
   private async _broadcastReviseMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(
-    params: BroadcastReviseParams & {
+    params: IBroadcastReviseParams & {
       type: T
       keyboard?: IInBoKb | null
       data?: IData | null
       AGBaseId?: string | null
-      optionsEdit1?: RenderMediaParams<T>[`optionsEdit1`]
-      optionsEdit2?: RenderMediaParams<T>[`optionsEdit2`]
+      optionsEdit1?: IRenderMediaParams<T>[`optionsEdit1`]
+      optionsEdit2?: IRenderMediaParams<T>[`optionsEdit2`]
     }
   ): Promise<IBroadcastEditResult> {
     const {targets, type, keyboard, data, AGBaseId, optionsEdit1, optionsEdit2, broadcastOpts} = params
@@ -2776,7 +2776,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderBroadcastDelete(params: RenderBroadcastDeleteParams): Promise<IBroadcastEditResult> {
+  async renderBroadcastDelete(params: IRenderBroadcastDeleteParams): Promise<IBroadcastEditResult> {
     const {targets, broadcastOpts} = params
     const opts = broadcastOpts ?? {}
     const onProgress = opts.onProgress ?? null
@@ -2868,17 +2868,17 @@ export class Ctx extends Context {
    *
    * When `chunkSize` is present (not `undefined`/`null`) the fully-rendered
    * block is sent as sequential reply chunks instead (see the `chunkSize`
-   * field of {@link RenderTextParams}): the keyboard lands ONLY on the last
+   * field of {@link IRenderTextParams}): the keyboard lands ONLY on the last
    * chunk and `mode` does not apply — a multi-message split cannot be edited
    * in place, so the chunked reply wins when both are passed.
    *
    * When `broadcast` is present, the block is SENT to every
-   * `broadcast.ids` entry instead (see {@link BroadcastSendParams}): rich
+   * `broadcast.ids` entry instead (see {@link IBroadcastSendParams}): rich
    * templates through `api.sendRichMessage`, plain templates through
    * `api.sendMessage` with `parse_mode: HTML`; `mode`, `fallbackEdit`, and
    * `chunkSize` do not apply on that path.
    *
-   * @param params - Optional render params (defaults to `{}`). See {@link RenderTextParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional plain-text reply/edit options (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `chunkSize` optional max characters per chunk, selecting the chunked reply path (or null for a single message); `broadcast` optional broadcast fan-out {@link BroadcastSendParams} (or null for a single-chat send/edit).
+   * @param params - Optional render params (defaults to `{}`). See {@link IRenderTextParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block message (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional plain-text reply/edit options (or null to omit); `richOptions` optional `InputRichMessage` fields plus rich send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `chunkSize` optional max characters per chunk, selecting the chunked reply path (or null for a single message); `broadcast` optional broadcast fan-out {@link IBroadcastSendParams} (or null for a single-chat send/edit).
    * @returns The sent or edited message object, the array of sent message objects when `chunkSize` selects the chunked reply path, or the {@link IBroadcastSendResult} counts when `broadcast` is present.
    *
    * @example
@@ -2904,7 +2904,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderText(params: RenderTextParams = {}): Promise<Message | Message[] | true | IBroadcastSendResult> {
+  async renderText(params: IRenderTextParams = {}): Promise<Message | Message[] | true | IBroadcastSendResult> {
     const {keyboard, data, AGBaseId, mode = `auto`, options, richOptions, fallbackEdit = `delete-reply`, chunkSize, broadcast} = params
     if (broadcast) {
       return await this._broadcastSendText({...broadcast, keyboard, data, AGBaseId, options, richOptions})
@@ -3077,7 +3077,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderGift(params: RenderGiftParams) {
+  async renderGift(params: IRenderGiftParams) {
     const {target, giftId, keyboard, data, AGBaseId, options} = params
     if (keyboard !== undefined && keyboard !== null) throw new Error(`renderGift does not support keyboards: sendGift carries no reply markup (target ${target})`)
     const msg = this.templateManager.getGGift(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
@@ -3130,7 +3130,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderCallbackAnswer(params: RenderCallbackAnswerParams) {
+  async renderCallbackAnswer(params: IRenderCallbackAnswerParams) {
     const {showAlert, data, AGBaseId, options} = params
     const msg = this.templateManager.getGCallbackAnswer(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
     try {
@@ -3177,7 +3177,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPreCheckout(params: RenderPreCheckoutParams) {
+  async renderPreCheckout(params: IRenderPreCheckoutParams) {
     const {ok, data, AGBaseId, options} = params
     const msg = this.templateManager.getGPrecheckoutError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
     try {
@@ -3224,7 +3224,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderShipping(params: RenderShippingParams) {
+  async renderShipping(params: IRenderShippingParams) {
     const {ok, data, AGBaseId, options} = params
     const msg = this.templateManager.getGShippingError(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
     try {
@@ -3274,7 +3274,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderInlineAnswer(params: RenderInlineAnswerParams) {
+  async renderInlineAnswer(params: IRenderInlineAnswerParams) {
     const {results, data, AGBaseId, options, buttonStartParameter} = params
     const button = this.templateManager.getGInlineButton(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
@@ -3324,7 +3324,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderGuestAnswer(params: RenderGuestAnswerParams) {
+  async renderGuestAnswer(params: IRenderGuestAnswerParams) {
     const {result, data, AGBaseId, options} = params
     void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
@@ -3370,7 +3370,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderWebAppAnswer(params: RenderWebAppAnswerParams) {
+  async renderWebAppAnswer(params: IRenderWebAppAnswerParams) {
     const {webAppQueryId, result, data, AGBaseId, options} = params
     void this.templateManager.getGAnswerNote(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined)
     try {
@@ -3452,15 +3452,15 @@ export class Ctx extends Context {
    * original error untouched, `fallback-text` replies with fallback text).
    *
    * When `broadcast` is present, multi-recipient fan-out replaces the
-   * single-chat path (see {@link BroadcastSendParams} /
-   * {@link BroadcastReviseParams}): `broadcast.ids` runs the send loop —
+   * single-chat path (see {@link IBroadcastSendParams} /
+   * {@link IBroadcastReviseParams}): `broadcast.ids` runs the send loop —
    * the media kind is read from the template `<g-media>` block, so `type`
    * may be omitted there and is ignored when supplied — and
    * `broadcast.targets` runs the revise loop. `mode`, `fallbackEdit`, and
    * the `options*` fields do not apply to the send loop.
    *
    * @typeParam T - The media type to send or edit to.
-   * @param params - Media params. See {@link RenderMediaParams} for field details: `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (omitted only on the broadcast-send path); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional type-specific reply options (or null to omit); `optionsEdit1` optional edit payload / non-editable-type reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast fan-out — `{ids, languageCode, …}` sends, `{targets, broadcastOpts}` revises (or null for a single-chat send/edit).
+   * @param params - Media params. See {@link IRenderMediaParams} for field details: `type` the media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact) (omitted only on the broadcast-send path); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional type-specific reply options (or null to omit); `optionsEdit1` optional edit payload / non-editable-type reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast fan-out — `{ids, languageCode, …}` sends, `{targets, broadcastOpts}` revises (or null for a single-chat send/edit).
    * @returns The sent or edited message object, or the {@link IBroadcastSendResult}/ {@link IBroadcastEditResult} counts on the broadcast paths.
    *
    * @example
@@ -3482,7 +3482,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(params: RenderMediaParams<T>): Promise<Message | Message[] | true | undefined | IBroadcastSendResult | IBroadcastEditResult> {
+  async renderMedia<T extends Exclude<IMediaBlock[`type`], `group`>>(params: IRenderMediaParams<T>): Promise<Message | Message[] | true | undefined | IBroadcastSendResult | IBroadcastEditResult> {
     const broadcast = params.broadcast
     if (broadcast) {
       if (`targets` in broadcast) {
@@ -3569,7 +3569,7 @@ export class Ctx extends Context {
    *
    * @internal
    */
-  private async _renderMediaReply<T extends Exclude<IMediaBlock[`type`], `group`>>({type, keyboard, data, AGBaseId, options}: {type: T; keyboard?: IInBoKb | null; data?: IData | null; AGBaseId?: string | null; options?: RenderMediaParams<T>[`options`]}): Promise<Message | undefined> {
+  private async _renderMediaReply<T extends Exclude<IMediaBlock[`type`], `group`>>({type, keyboard, data, AGBaseId, options}: {type: T; keyboard?: IInBoKb | null; data?: IData | null; AGBaseId?: string | null; options?: IRenderMediaParams<T>[`options`]}): Promise<Message | undefined> {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertMediaPreconditions(type, med)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
@@ -3631,7 +3631,7 @@ export class Ctx extends Context {
    * `retryable` rethrows the original error untouched; `fallback-text`
    * best-effort replies with `resolveFallbackText()` (nested failures ignored).
    *
-   * @param params - Optional media-group params (defaults to `{}`). See {@link RenderMediaGroupParams} for field details: `type` optional media type filter (or null for all items); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional media-group send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional media-group params (defaults to `{}`). See {@link IRenderMediaGroupParams} for field details: `type` optional media type filter (or null for all items); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional media-group send options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -3644,7 +3644,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderMediaGroup(params: RenderMediaGroupParams = {}): Promise<Message[] | Message | undefined> {
+  async renderMediaGroup(params: IRenderMediaGroupParams = {}): Promise<Message[] | Message | undefined> {
     const {type, data, AGBaseId, mode = `auto`, options, fallbackEdit = `delete-reply`} = params
     const edit = mode === `auto` ? !!this.callbackQuery : mode === `edit`
     if (edit) {
@@ -3684,7 +3684,7 @@ export class Ctx extends Context {
    *
    * @internal
    */
-  private async _renderMediaGroupReply({type, data, AGBaseId, options}: {type?: IMediaGroupType | null; data?: IData | null; AGBaseId?: string | null; options?: RenderMediaGroupParams[`options`]}): Promise<Message[] | Message | undefined> {
+  private async _renderMediaGroupReply({type, data, AGBaseId, options}: {type?: IMediaGroupType | null; data?: IData | null; AGBaseId?: string | null; options?: IRenderMediaGroupParams[`options`]}): Promise<Message[] | Message | undefined> {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const opt = {parse_mode: `HTML`, ...(options ?? {})} as Record<string, unknown>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
@@ -3747,7 +3747,7 @@ export class Ctx extends Context {
    * There is no degraded fallback content for polls, so after notify+log
    * the original error is ALWAYS rethrown untouched.
    *
-   * @param params - Optional params object (defaults to `{}`): `keyboard` optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block poll (or null to use default); `options` optional extra `sendPoll` fields (or null to omit); `broadcast` optional broadcast fan-out {@link BroadcastSendParams} (or null for a single-chat send).
+   * @param params - Optional params object (defaults to `{}`): `keyboard` optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block poll (or null to use default); `options` optional extra `sendPoll` fields (or null to omit); `broadcast` optional broadcast fan-out {@link IBroadcastSendParams} (or null for a single-chat send).
    * @returns The sent poll message object, or the {@link IBroadcastSendResult} counts when `broadcast` is present.
    *
    * @example
@@ -3776,7 +3776,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPoll(params: RenderPollParams = {}): Promise<Awaited<ReturnType<Ctx[`replyWithPoll`]>> | IBroadcastSendResult> {
+  async renderPoll(params: IRenderPollParams = {}): Promise<Awaited<ReturnType<Ctx[`replyWithPoll`]>> | IBroadcastSendResult> {
     const {keyboard, data, AGBaseId, options, broadcast} = params
     if (broadcast) {
       return await this._broadcastSendPoll({...broadcast, keyboard, data, AGBaseId, options})
@@ -3865,7 +3865,7 @@ export class Ctx extends Context {
    * @internal
    */
   private async _broadcastSendPoll(
-    params: BroadcastSendParams & {
+    params: IBroadcastSendParams & {
       keyboard?: IInBoKb | null
       data?: IData | null
       AGBaseId?: string | null
@@ -4015,7 +4015,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderInvoice(params: RenderInvoiceParams = {}) {
+  async renderInvoice(params: IRenderInvoiceParams = {}) {
     const {keyboard, data, AGBaseId, options} = params
     const invoice = this.templateManager.getGInvoice(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertInvoice(invoice)
@@ -4080,7 +4080,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPaidMedia(params: RenderPaidMediaParams = {}) {
+  async renderPaidMedia(params: IRenderPaidMediaParams = {}) {
     const {keyboard, data, AGBaseId, options} = params
     const paidMedia = this.templateManager.getGPaidMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     Ctx.assertPaidMedia(paidMedia)
@@ -4204,7 +4204,7 @@ export class Ctx extends Context {
    * Sends a photo message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4216,7 +4216,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPhoto(params: RenderMediaKindParams<`photo`> = {}) {
+  async renderPhoto(params: IRenderMediaKindParams<`photo`> = {}) {
     return this.renderMedia<`photo`>({type: `photo`, ...params})
   }
 
@@ -4224,7 +4224,7 @@ export class Ctx extends Context {
    * Sends a photo media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media-group>` (read via `renderMediaGroup`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type photo (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional photo-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4236,7 +4236,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderPhotoGroup(params: RenderMediaGroupKindParams = {}) {
+  async renderPhotoGroup(params: IRenderMediaGroupKindParams = {}) {
     return this.renderMediaGroup({...params, type: `photo`})
   }
 
@@ -4244,7 +4244,7 @@ export class Ctx extends Context {
    * Sends a video message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4256,7 +4256,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideo(params: RenderMediaKindParams<`video`> = {}) {
+  async renderVideo(params: IRenderMediaKindParams<`video`> = {}) {
     return this.renderMedia<`video`>({type: `video`, ...params})
   }
 
@@ -4264,7 +4264,7 @@ export class Ctx extends Context {
    * Sends a video media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media-group>` (read via `renderMediaGroup`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4276,7 +4276,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideoGroup(params: RenderMediaGroupKindParams = {}) {
+  async renderVideoGroup(params: IRenderMediaGroupKindParams = {}) {
     return this.renderMediaGroup({...params, type: `video`})
   }
 
@@ -4284,7 +4284,7 @@ export class Ctx extends Context {
    * Sends an audio message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4296,7 +4296,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAudio(params: RenderMediaKindParams<`audio`> = {}) {
+  async renderAudio(params: IRenderMediaKindParams<`audio`> = {}) {
     return this.renderMedia<`audio`>({type: `audio`, ...params})
   }
 
@@ -4304,7 +4304,7 @@ export class Ctx extends Context {
    * Sends an audio media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media-group>` (read via `renderMediaGroup`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type audio (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional audio-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4316,7 +4316,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAudioGroup(params: RenderMediaGroupKindParams = {}) {
+  async renderAudioGroup(params: IRenderMediaGroupKindParams = {}) {
     return this.renderMediaGroup({...params, type: `audio`})
   }
 
@@ -4324,7 +4324,7 @@ export class Ctx extends Context {
    * Sends a document message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4336,7 +4336,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderDocument(params: RenderMediaKindParams<`document`> = {}) {
+  async renderDocument(params: IRenderMediaKindParams<`document`> = {}) {
     return this.renderMedia<`document`>({type: `document`, ...params})
   }
 
@@ -4344,7 +4344,7 @@ export class Ctx extends Context {
    * Sends a document media group using pipe-delimited `src` values from the page template.
    *
    * Template block: `<g-media-group>` (read via `renderMediaGroup`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaGroupKindParams} for field details: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type document (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional document-specific options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`).
    * @returns The sent media group messages.
    *
    * @example
@@ -4356,7 +4356,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderDocumentGroup(params: RenderMediaGroupKindParams = {}) {
+  async renderDocumentGroup(params: IRenderMediaGroupKindParams = {}) {
     return this.renderMediaGroup({...params, type: `document`})
   }
 
@@ -4364,7 +4364,7 @@ export class Ctx extends Context {
    * Sends an animation/GIF message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type animation (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional animation-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type animation (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional animation-specific reply options (or null to omit); `optionsEdit1` optional edit payload (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4376,7 +4376,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAnimation(params: RenderMediaKindParams<`animation`> = {}) {
+  async renderAnimation(params: IRenderMediaKindParams<`animation`> = {}) {
     return this.renderMedia<`animation`>({type: `animation`, ...params})
   }
 
@@ -4384,7 +4384,7 @@ export class Ctx extends Context {
    * Sends a voice message using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type voice (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional voice-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type voice (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional voice-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4396,7 +4396,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVoice(params: RenderMediaKindParams<`voice`> = {}) {
+  async renderVoice(params: IRenderMediaKindParams<`voice`> = {}) {
     return this.renderMedia<`voice`>({type: `voice`, ...params})
   }
 
@@ -4404,7 +4404,7 @@ export class Ctx extends Context {
    * Sends a video note (circular video) using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video_note (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video note-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type video_note (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional video note-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4416,7 +4416,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVideoNote(params: RenderMediaKindParams<`video_note`> = {}) {
+  async renderVideoNote(params: IRenderMediaKindParams<`video_note`> = {}) {
     return this.renderMedia<`video_note`>({type: `video_note`, ...params})
   }
 
@@ -4424,7 +4424,7 @@ export class Ctx extends Context {
    * Sends a sticker using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type sticker (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional sticker-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type sticker (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional sticker-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4436,7 +4436,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderSticker(params: RenderMediaKindParams<`sticker`> = {}) {
+  async renderSticker(params: IRenderMediaKindParams<`sticker`> = {}) {
     return this.renderMedia<`sticker`>({type: `sticker`, ...params})
   }
 
@@ -4449,7 +4449,7 @@ export class Ctx extends Context {
    * (seconds), it is validated by `Ctx.assertLivePeriod` and sent as Bot API
    * `live_period`. Stop it later with {@link (Ctx:class).stopLiveLocation}.
    *
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type location (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional location-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type location (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional location-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4461,7 +4461,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderLocation(params: RenderMediaKindParams<`location`> = {}) {
+  async renderLocation(params: IRenderMediaKindParams<`location`> = {}) {
     return this.renderMedia<`location`>({type: `location`, ...params})
   }
 
@@ -4469,7 +4469,7 @@ export class Ctx extends Context {
    * Sends a contact using the page template.
    *
    * Template block: `<g-media>` (read via `renderMedia`).
-   * @param params - Optional per-kind params (defaults to `{}`). See {@link RenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type contact (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional contact-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
+   * @param params - Optional per-kind params (defaults to `{}`). See {@link IRenderMediaKindParams} for field details: `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block media type contact (or null to use default); `mode` send-versus-edit resolution (default `auto`); `options` optional contact-specific reply options (or null to omit); `optionsEdit1` optional delete-then-resend reply options (or null to omit); `optionsEdit2` optional extra `editMessageMedia` call options (or null to omit); `fallbackEdit` fallback when the edit fails (default `delete-reply`); `broadcast` optional broadcast-REVISE fan-out — `{targets, broadcastOpts}` only, since the fixed kind IS honoured there (or null for a single-chat send/edit). The broadcast-SEND loop (`{ids, languageCode, …}`) is not accepted here — it reads the kind from the `<g-media>` block and would ignore this method's fixed kind; use `renderMedia` for it.
    * @returns The sent or edited message object.
    *
    * @example
@@ -4481,7 +4481,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderContact(params: RenderMediaKindParams<`contact`> = {}) {
+  async renderContact(params: IRenderMediaKindParams<`contact`> = {}) {
     return this.renderMedia<`contact`>({type: `contact`, ...params})
   }
 
@@ -4550,7 +4550,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderVenue(params: RenderVenueParams = {}) {
+  async renderVenue(params: IRenderVenueParams = {}) {
     const {keyboard, data, AGBaseId, options} = params
     const venue = this.templateManager.getGVenue(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const checked = Ctx.assertVenue(venue)
@@ -4608,7 +4608,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderDice(params: RenderDiceParams = {}) {
+  async renderDice(params: IRenderDiceParams = {}) {
     const {keyboard, data, AGBaseId, options} = params
     const dice = this.templateManager.getGDice(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const resolved = Ctx.assertDiceEmoji(dice.emoji)
@@ -4903,7 +4903,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditCaption(params: RenderEditCaptionParams) {
+  async renderEditCaption(params: IRenderEditCaptionParams) {
     const {keyboardInline, data, AGBaseId, options, fallbackEdit = `delete-reply`} = params
     try {
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.from?.language_code, data ?? undefined).text
@@ -4956,7 +4956,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderEditKeyboard(params: RenderEditKeyboardParams) {
+  async renderEditKeyboard(params: IRenderEditKeyboardParams) {
     const {keyboardInline, data, AGBaseId, options} = params
     try {
       let resolved = keyboardInline ?? undefined

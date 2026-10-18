@@ -819,7 +819,7 @@ export type IRenderMode = `auto` | `reply` | `edit`
  *
  * @public
  */
-export type RenderTextParams = {
+export type IRenderTextParams = {
   /**
    * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
    * omit). Edits accept inline keyboards only.
@@ -893,7 +893,7 @@ export type RenderTextParams = {
    */
   chunkSize?: number | null
   /**
-   * Optional broadcast fan-out (see {@link BroadcastSendParams}).
+   * Optional broadcast fan-out (see {@link IBroadcastSendParams}).
    *
    * @remarks
    * When present, the fully-rendered `<g-message>` block is SENT (never
@@ -905,7 +905,7 @@ export type RenderTextParams = {
    *
    * @defaultValue `null` (single-chat send/edit)
    */
-  broadcast?: BroadcastSendParams | null
+  broadcast?: IBroadcastSendParams | null
 }
 
 /**
@@ -921,7 +921,7 @@ export type RenderTextParams = {
  *
  * @public
  */
-export type BroadcastSendParams = {
+export type IBroadcastSendParams = {
   /**
    * Recipient user IDs, in stable order (checkpoint index = array index).
    */
@@ -989,7 +989,7 @@ export type BroadcastSendParams = {
  *
  * @public
  */
-export type RenderBroadcastDeleteParams = {
+export type IRenderBroadcastDeleteParams = {
   /**
    * Stored `{chatId, messageId}` rows to delete, in stable order (checkpoint
    * index = array index).
@@ -1015,7 +1015,7 @@ export type RenderBroadcastDeleteParams = {
  *
  * @public
  */
-export type BroadcastReviseParams = {
+export type IBroadcastReviseParams = {
   /**
    * Stored `{chatId, messageId}` rows to edit, in stable order (checkpoint
    * index = array index).
@@ -1040,7 +1040,7 @@ export type BroadcastReviseParams = {
  *
  * @public
  */
-export type RenderGiftParams = {
+export type IRenderGiftParams = {
   /**
    * Gift recipient user id.
    */
@@ -1085,7 +1085,7 @@ export type RenderGiftParams = {
  *
  * @public
  */
-export type RenderCallbackAnswerParams = {
+export type IRenderCallbackAnswerParams = {
   /**
    * Whether to show an alert instead of a toast notification.
    */
@@ -1119,7 +1119,7 @@ export type RenderCallbackAnswerParams = {
  *
  * @public
  */
-export type RenderPreCheckoutParams = {
+export type IRenderPreCheckoutParams = {
   /**
    * Whether to approve the checkout.
    */
@@ -1151,7 +1151,7 @@ export type RenderPreCheckoutParams = {
  *
  * @public
  */
-export type RenderShippingParams = {
+export type IRenderShippingParams = {
   /**
    * Whether the shipping address is acceptable.
    */
@@ -1184,7 +1184,7 @@ export type RenderShippingParams = {
  *
  * @public
  */
-export type RenderInlineAnswerParams = {
+export type IRenderInlineAnswerParams = {
   /**
    * Inline results built by the caller, up to Telegram's 50-result cap.
    */
@@ -1223,7 +1223,7 @@ export type RenderInlineAnswerParams = {
  *
  * @public
  */
-export type RenderGuestAnswerParams = {
+export type IRenderGuestAnswerParams = {
   /**
    * Inline result built by the caller.
    */
@@ -1256,7 +1256,7 @@ export type RenderGuestAnswerParams = {
  *
  * @public
  */
-export type RenderWebAppAnswerParams = {
+export type IRenderWebAppAnswerParams = {
   /**
    * Unique identifier for the query to answer.
    */
@@ -1292,7 +1292,7 @@ export type RenderWebAppAnswerParams = {
  *
  * @public
  */
-export type RenderPollParams = {
+export type IRenderPollParams = {
   /**
    * Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or
    * {@link (Ctx:class).bottomKeyboard}.
@@ -1319,7 +1319,7 @@ export type RenderPollParams = {
    */
   options?: Parameters<Ctx[`replyWithPoll`]>[2] | null
   /**
-   * Optional broadcast fan-out (see {@link BroadcastSendParams}).
+   * Optional broadcast fan-out (see {@link IBroadcastSendParams}).
    *
    * @remarks
    * When present, the compiled `<g-poll>` block is sent to every entry of
@@ -1330,7 +1330,7 @@ export type RenderPollParams = {
    *
    * @defaultValue `null` (single-chat send)
    */
-  broadcast?: BroadcastSendParams | null
+  broadcast?: IBroadcastSendParams | null
 }
 
 /**
@@ -1343,7 +1343,7 @@ export type RenderPollParams = {
  *
  * @public
  */
-export type RenderInvoiceParams = {
+export type IRenderInvoiceParams = {
   /**
    * Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} —
    * only inline keyboards are accepted, the Bot API `sendInvoice` reply
@@ -1384,7 +1384,7 @@ export type RenderInvoiceParams = {
  *
  * @public
  */
-export type RenderPaidMediaParams = {
+export type IRenderPaidMediaParams = {
   /**
    * Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard}.
    *
@@ -1421,7 +1421,7 @@ export type RenderPaidMediaParams = {
  *
  * @public
  */
-export type RenderVenueParams = {
+export type IRenderVenueParams = {
   /**
    * Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or
    * {@link (Ctx:class).bottomKeyboard}.
@@ -1458,7 +1458,7 @@ export type RenderVenueParams = {
  *
  * @public
  */
-export type RenderDiceParams = {
+export type IRenderDiceParams = {
   /**
    * Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or
    * {@link (Ctx:class).bottomKeyboard}.
@@ -1496,7 +1496,7 @@ export type RenderDiceParams = {
  *
  * @public
  */
-export type RenderEditCaptionParams = {
+export type IRenderEditCaptionParams = {
   /**
    * Optional inline keyboard markup.
    *
@@ -1540,7 +1540,7 @@ export type RenderEditCaptionParams = {
  *
  * @public
  */
-export type RenderEditKeyboardParams = {
+export type IRenderEditKeyboardParams = {
   /**
    * Optional inline keyboard markup, or null to resolve it from the block.
    *
@@ -1577,7 +1577,7 @@ type IMediaGroupType = Extract<IMediaBlock[`type`], `photo` | `video` | `audio` 
  *
  * @remarks
  * Generic over the media kind so `options`/`optionsEdit1` resolve to the
- * right per-type union member in each branch of {@link RenderMediaParams}.
+ * right per-type union member in each branch of {@link IRenderMediaParams}.
  *
  * @internal
  */
@@ -1716,9 +1716,9 @@ type RenderMediaBroadcastSend<T extends Exclude<IMediaBlock[`type`], `group`>> =
    */
   type?: T
   /**
-   * Broadcast-send fan-out (see {@link BroadcastSendParams}).
+   * Broadcast-send fan-out (see {@link IBroadcastSendParams}).
    */
-  broadcast: BroadcastSendParams
+  broadcast: IBroadcastSendParams
 }
 
 /**
@@ -1732,9 +1732,9 @@ type RenderMediaBroadcastRevise<T extends Exclude<IMediaBlock[`type`], `group`>>
    */
   type: T
   /**
-   * Broadcast revise fan-out (see {@link BroadcastReviseParams}).
+   * Broadcast revise fan-out (see {@link IBroadcastReviseParams}).
    */
-  broadcast: BroadcastReviseParams
+  broadcast: IBroadcastReviseParams
 }
 
 /**
@@ -1742,7 +1742,7 @@ type RenderMediaBroadcastRevise<T extends Exclude<IMediaBlock[`type`], `group`>>
  *
  * @remarks
  * All fields except `type` are optional. `mode` resolves the send-versus-edit
- * decision exactly like {@link RenderTextParams}: `auto` (default) edits when
+ * decision exactly like {@link IRenderTextParams}: `auto` (default) edits when
  * the update carries a `callbackQuery`, `reply` always sends, `edit` always
  * edits. `options` feeds the reply branch and the `editMessageMedia` error
  * state; `optionsEdit1`/`optionsEdit2` feed the edit branch only and are
@@ -1755,16 +1755,16 @@ type RenderMediaBroadcastRevise<T extends Exclude<IMediaBlock[`type`], `group`>>
  * `broadcast.targets` runs the revise loop (`type` required). `mode`,
  * `fallbackEdit`, and the `options*` fields do not apply to the send loop.
  * The per-kind wrappers accept only the revise loop — see
- * {@link RenderMediaKindParams}.
+ * {@link IRenderMediaKindParams}.
  *
  * @typeParam T - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
  *
  * @public
  */
-export type RenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaSingle<T> | RenderMediaBroadcastSend<T> | RenderMediaBroadcastRevise<T>
+export type IRenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> = RenderMediaSingle<T> | RenderMediaBroadcastSend<T> | RenderMediaBroadcastRevise<T>
 
 /**
- * `RenderMediaParams` for one media kind — the per-kind wrappers
+ * `IRenderMediaParams` for one media kind — the per-kind wrappers
  * (`renderPhoto`, `renderVideo`, …) accept this shape and supply `type`.
  *
  * @remarks
@@ -1782,7 +1782,7 @@ export type RenderMediaParams<T extends Exclude<IMediaBlock[`type`], `group`>> =
  *
  * @public
  */
-export type RenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<RenderMediaSingle<T>, `type`> | Omit<RenderMediaBroadcastRevise<T>, `type`>
+export type IRenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`>> = Omit<RenderMediaSingle<T>, `type`> | Omit<RenderMediaBroadcastRevise<T>, `type`>
 
 /**
  * Parameters for `renderMediaGroup` — the single media-group send/edit method.
@@ -1790,13 +1790,13 @@ export type RenderMediaKindParams<T extends Exclude<IMediaBlock[`type`], `group`
  * @remarks
  * `options` feeds both the direct reply branch and the delete-then-resend
  * branches (media groups have no in-place edit). `mode` resolves the
- * send-versus-edit decision exactly like {@link RenderMediaParams}: `auto`
+ * send-versus-edit decision exactly like {@link IRenderMediaParams}: `auto`
  * (default) edits when the update carries a `callbackQuery`. Group edits and
  * the `delete-reply` fallback delete the original message first.
  *
  * @public
  */
-export type RenderMediaGroupParams = {
+export type IRenderMediaGroupParams = {
   /**
    * Optional media type filter for a `<g-media-group>` block.
    *
@@ -1840,13 +1840,13 @@ export type RenderMediaGroupParams = {
 }
 
 /**
- * `RenderMediaGroupParams` for one group kind — the per-kind group wrappers
+ * `IRenderMediaGroupParams` for one group kind — the per-kind group wrappers
  * (`renderPhotoGroup`, `renderVideoGroup`, …) accept this shape and supply
  * `type`.
  *
  * @public
  */
-export type RenderMediaGroupKindParams = Omit<RenderMediaGroupParams, `type`>
+export type IRenderMediaGroupKindParams = Omit<IRenderMediaGroupParams, `type`>
 
 /**
  * Send-error event delivered to `ICtxParams.onSendError`.
