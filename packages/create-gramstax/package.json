@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/gramstax/gramstax",
   "author": "gramstax",
-  "license": "PROPRIETARY",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",

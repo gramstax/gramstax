@@ -9,7 +9,7 @@
     <img alt="Telegram" src="https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white"/>
     <img alt="Biome" src="https://img.shields.io/badge/Biome-60A5FA.svg?style=flat&logo=biome&logoColor=white"/>
     <img alt="npm" src="https://img.shields.io/badge/npm-5.0.0-CB3837.svg?style=flat&logo=npm&logoColor=white"/>
-    <img alt="License" src="https://img.shields.io/badge/License-Proprietary-lightgrey.svg"/>
+    <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
   </p>
 </div>
 
@@ -751,7 +751,7 @@ packages/gramstax/
 ├── CONTEXT.md              # Domain-modeling context
 ├── api-extractor.json      # API report config
 ├── tsup.config.ts          # Bundler: cjs + esm, dts, external: bun
-└── package.json            # name: gramstax · bin: dist/src/cli/gramstax.js · license: PROPRIETARY
+└── package.json            # name: gramstax · bin: dist/src/cli/gramstax.js · license: Apache-2.0
 ```
 
 ## 🔧 Configuration
@@ -954,4 +954,4 @@ Adding a public symbol means adding it to `src/index.ts`; the barrel is the cont
 
 ## 📄 License
 
-Proprietary — Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).
+Apache-2.0 — Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).

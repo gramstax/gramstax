@@ -8,7 +8,7 @@
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
     <img alt="Telegram" src="https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white"/>
     <img alt="npm" src="https://img.shields.io/badge/npm-5.0.0-CB3837.svg?style=flat&logo=npm&logoColor=white"/>
-    <img alt="License" src="https://img.shields.io/badge/License-Proprietary-lightgrey.svg"/>
+    <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
   </p>
 </div>
 
@@ -289,7 +289,7 @@ The complete [`src/templates/`](./src/templates) tree, as shipped:
 ```text
 src/templates/
 ├── .env.example                  # becomes .env; DB_PATH appended when LMDB is kept
-├── LICENSE                       # proprietary notice (note: template package.json says MIT)
+├── LICENSE                       # MIT notice, matching the template package.json and README badge
 ├── README.md                     # the generated project's own docs
 ├── biome.json                    # removed unless Biome is enabled
 ├── gitignore                     # promoted to .gitignore, or merged into an existing one
@@ -498,4 +498,4 @@ The scaffolded source is held to rules that are checked, not reviewed: [`test/ge
 
 ## 📄 License
 
-Proprietary — Copyright (c) 2026 Gramstax. All rights reserved. See [LICENSE](./LICENSE).
+Apache-2.0 — Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).

@@ -9,7 +9,7 @@
     <img alt="Telegram" src="https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white"/>
     <img alt="Biome" src="https://img.shields.io/badge/Biome-60A5FA.svg?style=flat&logo=biome&logoColor=white"/>
     <img alt="Nx" src="https://img.shields.io/badge/Nx-143C20.svg?style=flat&logo=nx&logoColor=white"/>
-    <img alt="License" src="https://img.shields.io/badge/License-Proprietary-lightgrey.svg"/>
+    <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
   </p>
 </div>
 
@@ -702,4 +702,6 @@ Eleven runnable workspace members under [`example/`](./example), ordered as a pr
 
 ## License
 
-Proprietary — the four published packages carry `"license": "PROPRIETORY"` in their `package.json`, and this repository is private and unlicensed for redistribution. See [LICENSE](./LICENSE).
+Apache-2.0 — Copyright (c) 2026 Gramstax. The four published packages carry `"license": "Apache-2.0"` in their `package.json`. See [LICENSE](./LICENSE).
+
+Releases `gramstax@0.0.1` through `gramstax@0.3.19` (November 2025 – January 2026) were published under **MIT** and remain MIT — that grant is perpetual and is not withdrawn by this relicensing. Everything from `0.3.20` onward is Apache-2.0.

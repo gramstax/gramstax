@@ -1,6 +1,7 @@
 {
   "name": "gramstax-project",
   "version": "0.0.0",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@biomejs/biome": "^2.5.5",
     "@nx/js": "^22.1.3",

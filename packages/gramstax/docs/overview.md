@@ -29,7 +29,7 @@
 | Attribute            | Value                                            |
 | -------------------- | ------------------------------------------------ |
 | **Stage**            | Active (published to npm as `gramstax`, v0.11.3) |
-| **License**          | `PROPRIETARY` (per `package.json`)               |
+| **License**          | `Apache-2.0` (per `package.json`)                |
 | **Primary Language** | TypeScript (strict, `noUncheckedIndexedAccess`)  |
 | **Framework**        | Built on `grammy` (Telegram Bot API framework)   |
 | **Runtime**          | Bun (`bun:test`, `Bun.serve` for webhooks)       |

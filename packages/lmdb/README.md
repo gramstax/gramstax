@@ -7,7 +7,7 @@
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
     <img alt="Node" src="https://img.shields.io/badge/Node-%23333933.svg?style=flat&logo=nodedotjs&logoColor=white"/>
     <img alt="LMDB" src="https://img.shields.io/badge/LMDB-FF8C00.svg?style=flat"/>
-    <img alt="License" src="https://img.shields.io/badge/License-Proprietary-lightgrey.svg"/>
+    <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
   </p>
 </div>
 
@@ -725,4 +725,4 @@ Benchmarks are `@internal` and excluded from `bun test` and CI.
 
 ## 📄 License
 
-Proprietary — Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).
+Apache-2.0 — Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).
