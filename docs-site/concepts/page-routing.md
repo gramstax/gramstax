@@ -19,7 +19,7 @@ A file under `src/pages` *is* its route:
 | `src/pages/start/random/number.ts` | `start/random/number` |
 | `src/pages/admin/ban.ts` | `admin/ban` |
 
-Depth is not a convention you have to remember — it is the directory nesting.
+Depth is not a convention you have to remember. It is the directory nesting.
 `admin/ban.ts` works at any depth because the scanner walks the tree.
 
 One rule: a root-level `src/pages/index.ts` has no parent route and is rejected
@@ -27,15 +27,15 @@ rather than silently swallowing the whole tree.
 
 <Note>
   This is deliberate. A stray root `index.ts` is the natural place to put shared
-  code, and the failure mode of allowing it — every route resolving to the same
-  page — is invisible until someone deploys.
+  code, and the failure mode of allowing it (every route resolving to the same
+  page) is invisible until someone deploys.
 </Note>
 
 ## The page class
 
 The scanner takes the **first named export** as the page class. There are no
 default exports in this framework, so a class you forget to export is a page that
-does not exist — and you find out at boot, not at runtime in production.
+does not exist, and you find out at boot, not at runtime in production.
 
 ```ts
 import {PageBase} from "../../src/base/page"
@@ -51,16 +51,16 @@ session and reply helpers.
 ## Handlers bind by convention
 
 You do not register handlers. You name methods, and the naming says what they
-handle. The name is assembled in a fixed order — `handle` · `Session`/`Free` ·
-`Command` · `Caption` · `Args` · kind — and each piece changes which route table
+handle. The name is assembled in a fixed order (`handle` · `Session`/`Free` ·
+`Command` · `Caption` · `Args` · kind), and each piece changes which route table
 the method lands in.
 
 | Method | Fires on | Route table |
 | --- | --- | --- |
 | `handleText()` | plain text matching `intentText` | `routeStatic` |
-| `handleCommandText()` | `/cmd` — command, **no** args | `routeStatic` |
-| `handleArgsText()` | `<args>` — args **without** a command | `routeStaticIntent` |
-| `handleCommandArgsText()` | `/cmd <args>` — command **with** args | `routeStaticIntent` |
+| `handleCommandText()` | `/cmd`: command, **no** args | `routeStatic` |
+| `handleArgsText()` | `<args>`: args **without** a command | `routeStaticIntent` |
+| `handleCommandArgsText()` | `/cmd <args>`: command **with** args | `routeStaticIntent` |
 | `handleCallbackQueryData()` | a callback query, exact match | `routeStatic` |
 | `handleArgsCallbackQueryData()` | a callback query with args | `routeStaticIntent` |
 | `handleCaption*()` | a media caption | `routeStatic` |
@@ -84,7 +84,7 @@ The `handle*` / `handleSession*` / `handleFree*` split is not decoration. A
 session step and a free-form message reach the page by different paths, and the
 framework refuses to guess which one you meant.
 
-`handleCallbackQueryData` is where `this.callbackQueryData` becomes available —
+`handleCallbackQueryData` is where `this.callbackQueryData` becomes available,
 which is also why `renderText` behaves differently on that path. See
 [the render contract](/concepts/render-contract).
 
@@ -94,7 +94,7 @@ This is the part worth internalising. There is no central table of pages and no
 central table of handlers. Adding a page cannot break an unrelated page, because
 the only thing it touches is its own file.
 
-The cost is that you cannot enumerate handlers at runtime to build a menu — but
+The cost is that you cannot enumerate handlers at runtime to build a menu. But
 in exchange, deleting a page is `rm`, and no stale registration survives to fire
 against a user.
 
@@ -112,7 +112,7 @@ export class UserGuard extends GuardBase {
 ```
 
 Because it is a class rather than a call, a whole family of routes can be gated by
-extending it once — see [Guards](/guides/getting-started) for the shape the
+extending it once. See [Guards](/guides/getting-started) for the shape the
 scaffold writes.
 
 ## Page context

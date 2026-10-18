@@ -5,15 +5,15 @@ description: Every gramstax.config.ts field, what it does, and when you should r
 
 # Configuration reference
 
-`gramstax.config.ts` holds twenty fields. All are optional — a missing file yields
-`{deploy: "polling"}` — and anything else throws `unknown field` with the list of
+`gramstax.config.ts` holds twenty fields. All are optional (a missing file yields
+`{deploy: "polling"}`), and anything else throws `unknown field` with the list of
 supported keys.
 
 <Note>
   The config file holds **refs and plain data, never instances**. `cacheSession`
   takes `{store, ttlMs?, namespace?}` or a module ref, not a constructed
   `CacheExternal`. The CLI materializes each slot and `instanceof`-checks it. The
-  one exception is the programmatic constructor, which takes instances — see
+  one exception is the programmatic constructor, which takes instances: see
   [Constructor params](#constructor-params).
 </Note>
 
@@ -21,8 +21,8 @@ supported keys.
 
 | Field | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `token` | `string` | — | The bot token **value**, not a variable name. `""` is accepted at load so `process.env.BOT_TOKEN ?? ""` typechecks; `gramstax start` then throws `Token is not valid or empty`. |
-| `deploy` | `string` | `polling` | The mode. Plain `string`, not a literal union, so `process.env.DEPLOY ?? "polling"` typechecks — membership is enforced by the loader, not the type. CLI `--deploy` wins. |
+| `token` | `string` | _none_  | The bot token **value**, not a variable name. `""` is accepted at load so `process.env.BOT_TOKEN ?? ""` typechecks; `gramstax start` then throws `Token is not valid or empty`. |
+| `deploy` | `string` | `polling` | The mode. Plain `string`, not a literal union, so `process.env.DEPLOY ?? "polling"` typechecks: membership is enforced by the loader, not the type. CLI `--deploy` wins. |
 
 <Tip>
   `token` holding the value rather than the name is deliberate: the framework
@@ -44,17 +44,17 @@ Full branch tables are in [Deploy](/concepts/deploy) and
 | Field | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `autoRetry` | `boolean` | `true` | Mounts the auto-retry plugin, which absorbs Telegram rate limits by retrying failed requests. |
-| `autoRetryOptions` | object | — | `maxRetryAttempts` (≥ 1) and `retryOnInternalServerErrors`. Unknown keys are rejected. |
-| `updateTimeoutMs` | `number` | `30000` | How long a single handler may run before the update is treated as timed out. It does not cancel the handler — the update is only marked. |
+| `autoRetryOptions` | object | _none_ | `maxRetryAttempts` (≥ 1) and `retryOnInternalServerErrors`. Unknown keys are rejected. |
+| `updateTimeoutMs` | `number` | `30000` | How long a single handler may run before the update is treated as timed out. It does not cancel the handler: the update is only marked. |
 | `skipDuplicateUpdate` | `boolean` | `false` | Drops an update whose `update_id` was already handled. This is the one to reach for on webhook retries, where delivery is at-least-once. |
 | `maxTextLength` | `number` | `0` | Caps incoming `message.text` / `message.caption`; longer updates are skipped. `0` disables the check. |
-| `rateLimit` | object | — | Inbound limit. Both `windowMs` and `max` are required. See below. |
+| `rateLimit` | object | _none_ | Inbound limit. Both `windowMs` and `max` are required. See below. |
 
 ### Rate limiting
 
 `rateLimit` mounts `@grammyjs/ratelimiter` with `timeFrame: windowMs` and
-`limit: max`. `windowMs` is the length of a **fixed** window in milliseconds —
-handed to the middleware unchanged — and `max` is how many updates a single key
+`limit: max`. `windowMs` is the length of a **fixed** window in milliseconds (
+handed to the middleware unchanged), and `max` is how many updates a single key
 may send inside one such window. Both are required.
 
 The key is the sender's user id, `ctx.from?.id?.toString()`. The limit is
@@ -76,19 +76,19 @@ class MyBot extends Gramstax {
 }
 ```
 
-The hook is fired and not awaited — the middleware hands off to it and returns.
+The hook is fired and not awaited: the middleware hands off to it and returns.
 What the context carries is worth being precise about: it is built by
 `createCtx`, the same factory the routing path uses, and is memoized per
 incoming update, so it holds the full scope (`templateManager`, `cacheSession`,
 `cacheKeyboard`, `log`, `mediaRoots`) and every `render*` helper. It is **not**
-bound to a page — `temp.data` starts empty, so there is no page template behind
+bound to a page: `temp.data` starts empty, so there is no page template behind
 a template-backed render. Prefer a plain `ctx.reply` in this hook.
 
 ## Outgoing load
 
 | Field | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `throttle` | object | — | Outgoing throttling via `@grammyjs/transformer-throttler`. Bottleneck buckets: `global`, `group`, `out`. Composes with `autoRetry` rather than replacing it. |
+| `throttle` | object | _none_  | Outgoing throttling via `@grammyjs/transformer-throttler`. Bottleneck buckets: `global`, `group`, `out`. Composes with `autoRetry` rather than replacing it. |
 
 <Note>
   `rateLimit` is inbound and `throttle` is outbound. They solve opposite problems
@@ -102,7 +102,7 @@ a template-backed render. Prefer a plain `ctx.reply` in this hook.
 | --- | --- | --- | --- |
 | `cacheSession` | ref \| builtin | `memory` | `{"store", "ttlMs"?, "namespace"?}`, or a module ref to a `CacheExternal` subclass. `memory` is in-process; `redis://…` is shared across instances. |
 | `cacheKeyboard` | ref \| array \| object | internal `Map` | Keyboard memoization. Accepts a module ref to a `Map` subclass, an entries array, or a plain object. |
-| `sessionLock` | object | off | Distributed lease for multi-instance deployments. `enabled`, `leaseMs`, `onContended` (`skip` \| `wait` \| `serialize`), `key`. **Redis only** — a memory store auto-disables it with a warning. |
+| `sessionLock` | object | off | Distributed lease for multi-instance deployments. `enabled`, `leaseMs`, `onContended` (`skip` \| `wait` \| `serialize`), `key`. **Redis only**: a memory store auto-disables it with a warning. |
 
 ## Templates and media
 
@@ -112,7 +112,7 @@ a template-backed render. Prefer a plain `ctx.reply` in this hook.
 | `mediaRoots` | `string[] \| null` | `null` | A local-path jail for media uploads. `undefined`, `null` and `[]` all leave it **off**; a non-empty array only allows paths resolving under one of the roots. |
 
 <Warning>
-  `mediaRoots` off is not the same as permissive — it is simply not enforced. With
+  `mediaRoots` off is not the same as permissive: it is simply not enforced. With
   no roots there is no local-path jail at all, so a `file` input resolved from
   user input can reach outside the project. Set it whenever you accept uploads from
   a public bot.
@@ -122,7 +122,7 @@ a template-backed render. Prefer a plain `ctx.reply` in this hook.
 
 | Field | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `statusServerPort` | `number` | — | An extra HTTP port serving `GET /health`, `GET /stats` and `GET /metrics` in **any** deploy mode. Unset, `/health` and `/stats` remain available on the webhook server; `/metrics` does not. |
+| `statusServerPort` | `number` | _none_ | An extra HTTP port serving `GET /health`, `GET /stats` and `GET /metrics` in **any** deploy mode. Unset, `/health` and `/stats` remain available on the webhook server; `/metrics` does not. |
 | `statusServerHostname` | `string` | `127.0.0.1` | Bind address for that server. |
 | `log` | boolean \| ref \| object | `true` | `true` for the default logger, `false` for silence, a module ref to a `LoggingHelper`, or `{pathFile?, force?, formatTime?}`. Unknown fields are rejected. |
 
@@ -131,21 +131,21 @@ a template-backed render. Prefer a plain `ctx.reply` in this hook.
 `GET /metrics` serves Prometheus exposition text as `text/plain; version=0.0.4`
 from the same `MetricsStore` that backs `GET /stats`. It emits:
 
-- `gramstax_updates_total{listener="…"}` — one series per listener name.
+- `gramstax_updates_total{listener="…"}`: one series per listener name.
 - One series per outcome, named by joining the metric prefix to the outcome and a
-  `_total` suffix — `gramstax_updates_matched_total`, `gramstax_updates_blocked_total`,
+  `_total` suffix: `gramstax_updates_matched_total`, `gramstax_updates_blocked_total`,
   and the rest. The outcome names are `updatesTotal`, `updatesFailed`, `matched`,
   `noMatch`, `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`,
   `skippedValidation` and `dropped`.
   Counters sitting at zero are skipped rather than emitted as `0`, so an absent
   series means "never happened" and a metric that should be present has not yet
   fired.
-- `gramstax_update_duration_ms{quantile="avg"|"max"}` — handler latency, and
+- `gramstax_update_duration_ms{quantile="avg"|"max"}`: handler latency, and
   only once at least one dispatch has completed.
 - `gramstax_uptime_seconds`.
 
-Queue depth adds four gauges — `gramstax_queue_length`, `gramstax_queue_max_size`,
-`gramstax_queue_waiting_enqueue` and `gramstax_queue_waiting_dequeue` — each
+Queue depth adds four gauges (`gramstax_queue_length`, `gramstax_queue_max_size`,
+`gramstax_queue_waiting_enqueue` and `gramstax_queue_waiting_dequeue`), each
 emitted only when its field is defined, so a partially populated snapshot is
 omitted rather than zero-filled.
 
@@ -164,7 +164,7 @@ unless the request carries a matching `X-Telegram-Bot-Api-Secret-Token` header.
 | Field | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `optionsPage` | `{shortCallbackQueryData?}` | `false` | Numeric callback ids instead of names. Shrinks callback payloads, at the cost of the callback data no longer being readable in the Telegram UI. |
-| `botConfig` | `BotConfig` | — | Forwarded to the client (`apiRoot` and friends). Use it for a self-hosted Bot API server. |
+| `botConfig` | `BotConfig` | _none_  | Forwarded to the client (`apiRoot` and friends). Use it for a self-hosted Bot API server. |
 
 ## Constructor params
 
@@ -174,7 +174,7 @@ config file cannot carry:
 | Field | Difference from the config file |
 | --- | --- |
 | `cacheSession`, `cacheKeyboard`, `templateManager`, `log` | Pass the constructed instance, not a ref or builtin form. |
-| `manifest` | **Rejected** in the config file with `unknown field`. It is constructor-only — it skips directory scanning entirely for a fs-less boot. |
+| `manifest` | **Rejected** in the config file with `unknown field`. It is constructor-only: it skips directory scanning entirely for a fs-less boot. |
 | `token`, `deploy` | Required here, optional on the config type. |
 
 This is the one place the two shapes diverge, and it is deliberate: the CLI can

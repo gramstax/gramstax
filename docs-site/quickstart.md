@@ -31,7 +31,7 @@ and a Telegram bot token from [@BotFather](https://t.me/BotFather).
   </Step>
 
   <Step title="Read the page you got">
-    `src/pages/start/index.ts` is the whole routing model in one file — the route
+    `src/pages/start/index.ts` is the whole routing model in one file. The route
     `start` is the path `src/pages/start/index.ts`.
 
     ```ts
@@ -61,7 +61,7 @@ and a Telegram bot token from [@BotFather](https://t.me/BotFather).
 
     <Warning>
       Bun is required. The CLI resolves TypeScript paths and the `~` alias, which
-      plain Node cannot — running it under `node` fails at import.
+      plain Node cannot (running it under `node` fails at import).
     </Warning>
   </Step>
 
@@ -84,7 +84,7 @@ and a Telegram bot token from [@BotFather](https://t.me/BotFather).
 
   <Step title="Check it works before you ship it">
     The scaffold ships e2e tests that drive the compiled template against an
-    in-process mock of the Telegram API — no network, no token.
+    in-process mock of the Telegram API: no network, no token.
 
     ```bash
     bun test e2e/

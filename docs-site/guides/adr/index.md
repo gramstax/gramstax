@@ -7,7 +7,7 @@ description: The records behind the choices in this framework, and what each one
 
 Each ADR records a decision, the alternatives that were considered, and what the
 choice costs. They are numbered in the order they were taken, and none of them
-are secret — the reasoning is the point.
+are secret. The reasoning is the point.
 
 | Decision |
 | --- |

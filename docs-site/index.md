@@ -10,7 +10,7 @@ template system.
 
 Two ideas carry most of the design.
 
-**Pages are the routing unit.** A file under `src/pages` *is* a route — the
+**Pages are the routing unit.** A file under `src/pages` *is* a route: the
 filename decides how an update reaches it. There is no router to register, so
 adding a page cannot break an unrelated one.
 
@@ -24,7 +24,7 @@ bun add gramstax
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
-    A running bot in five minutes — scaffold, edit one page, run it.
+    A running bot in five minutes: scaffold, edit one page, run it.
   </Card>
   <Card title="Page routing" icon="route" href="/concepts/page-routing">
     How a filename becomes a route, and how `handle*` methods bind to it.
@@ -36,7 +36,7 @@ bun add gramstax
     29 page blocks, 54 Telegram Rich HTML tags, filters, and per-block languages.
   </Card>
   <Card title="Deploy" icon="server" href="/concepts/deploy">
-    Polling, webhook, serverless, raw, test — one field selects the mode.
+    Polling, webhook, serverless, raw, test: one field selects the mode.
   </Card>
   <Card title="E2E testing" icon="check" href="/guides/e2e-testing">
     Assert on the compiled template against an in-process Telegram API.
@@ -47,7 +47,7 @@ bun add gramstax
 
 There is no `src/index.ts` and no hand-written `new Gramstax({...})` entry.
 Every project has a `gramstax.config.ts` at its root, and the framework is
-constructed at startup — construction *is* boot.
+constructed at startup. Construction *is* boot.
 
 ```bash
 bunx create-gramstax my-bot
@@ -65,7 +65,7 @@ equal `deploy`.
   <Tab title="polling">
     The default. Long polling, nothing to expose, nothing to terminate. The
     concurrency queue is opt-in and only worth turning on once you have measured
-    a reason — see [Deploy](/concepts/deploy).
+    a reason (see [Deploy](/concepts/deploy)).
   </Tab>
   <Tab title="webhook">
     You expose an HTTP endpoint and Telegram posts to it. Requires `url` and
@@ -78,7 +78,7 @@ equal `deploy`.
     to scan.
   </Tab>
   <Tab title="raw">
-    A bare `Bot` instance — no pages, no templates, no routing, no auto-start.
+    A bare `Bot` instance: no pages, no templates, no routing, no auto-start.
     The supported way to use gramstax as a dependency without adopting its model.
   </Tab>
 </Tabs>
@@ -86,7 +86,7 @@ equal `deploy`.
 ## API reference
 
 Every exported symbol, generated from the TypeScript declarations and kept in
-step by CI — 1,032 pages grouped by class and type.
+step by CI: 1,032 pages grouped by class and type.
 
 <Card title="Browse the reference" icon="code" href="/reference/gramstax">
   `Ctx`, `Gramstax`, `TemplateEngine`, every `render*()` method, and the 12 route

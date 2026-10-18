@@ -5,8 +5,8 @@ description: What gramstax is, what it removes, and who it is for.
 
 # gramstax
 
-gramstax turns the remaining half of a Telegram bot — the part every project
-reinvents — into a fixed shape.
+gramstax turns the remaining half of a Telegram bot (the part every project
+reinvents) into a fixed shape.
 
 A typical framework gives you `bot.command("start", …)` and a template literal.
 What happens after that is yours: where markup lives, how a second language gets
@@ -20,7 +20,7 @@ gramstax's answer is to decide once, in the type system and in the build.
 
 **A page's route is its path.** No router exists. `src/pages/admin/ban.ts` is the
 `admin/ban` route because that is what the file is called. Naming a `handle*`
-method is what registers it — so adding a page cannot break an unrelated one.
+method is what registers it. Adding a page cannot break an unrelated one.
 See [page routing](/concepts/page-routing).
 
 **Markup lives in a block, not in a string.** Message text, keyboards, media

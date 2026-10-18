@@ -1,6 +1,6 @@
 ---
 title: Extending gramstax
-description: The five extension points — page data, context subclassing, middleware, send errors, and filesystem-less boot.
+description: The five extension points, page data, context subclassing, middleware, send errors, and filesystem-less boot.
 ---
 
 # Extending gramstax
@@ -9,7 +9,7 @@ Five seams exist for going past the defaults. They are independent: take the one
 you need. Each section gives its shape, a compiling example, and when to leave
 it alone.
 
-## `buildData` — page routing metadata
+## `buildData`: page routing metadata
 
 `IBuildDataOptions` in `packages/gramstax/src/types/ctx.ts`, overloaded on `Ctx`
 in `packages/gramstax/src/core/ctx.ts`. This is the one most page authors need.
@@ -38,27 +38,27 @@ export class AdminBanPage extends Ctx {
 }
 ```
 
-`buildData` returns `IPageData` — `IPageDataBase` plus a typed
+`buildData` returns `IPageData`: `IPageDataBase` plus a typed
 `callbackQueryData` returning `{result, page, args}`, with `result` the page
 intent and the args colon-joined. That is the **consumption** side of the
 definition above. `static data` is optional: a page that omits it gets one
 filled in at registration, named after its walk-derived route.
 
 <Note>
-  The page class is not carried by `static data` — TypeScript cannot infer it
-  without a circular annotation — so pass it explicitly to get the route checked:
+  The page class is not carried by `static data` (TypeScript cannot infer it
+  without a circular annotation), so pass it explicitly to get the route checked:
 
   ```ts
   this.inlineKeyboardT([AdminBanPage.data.callbackQueryData<AdminBanPage>(`ban`, chatId)])
   ```
 
   Omit the type argument and the data is accepted unchecked, resolved only at
-  runtime. And never hand-write `IPageData` — `name`, `intentText`,
+  runtime. And never hand-write `IPageData`: `name`, `intentText`,
   `intentCommandText`, `intentCallbackQueryData` and `_positionArgText` are all
   derived, and overriding them is how duplicate-intent boot failures appear.
 </Note>
 
-## `ICtxParams` — subclassing `Ctx`
+## `ICtxParams`: subclassing `Ctx`
 
 Declared in `packages/gramstax/src/types/ctx.ts`, and the single constructor
 input. Required: `cacheSession`, `cacheKeyboard`, `templateManager`, `temp`.
@@ -70,7 +70,7 @@ per-update `ct`, the app-wide scope, your `extra`, and a fresh `temp`. Extra key
 named `ct` or `temp` throw.
 
 ```ts
-// src/core/bot.ts — the app side
+// src/core/bot.ts: the app side
 import {Gramstax, type ICt, type ICtxParams} from "gramstax"
 import {Db} from "~/db"
 
@@ -82,7 +82,7 @@ export class BotCore extends Gramstax {
   }
 }
 
-// src/core/ctx.ts — the page side
+// src/core/ctx.ts: the page side
 import {Ctx, type ICtxParams} from "gramstax"
 import type {Db} from "~/db"
 
@@ -97,26 +97,26 @@ export class CtxCore extends Ctx {
 ```
 
 Every page extending `CtxCore` has a fully typed `this.db`, no cast at the use
-site. The `Ctx` constructor deliberately does **not** attach app extras — assign
+site. The `Ctx` constructor deliberately does **not** attach app extras: assign
 each one explicitly so the wiring stays visible. `ct` is optional because of the
 redirect pattern: `new KycPage(this)` passes the current page, which is itself a
 `Context`, and stream methods are read from `this.api`.
 
 <Warning>
-  `buildCtxParams` assigns `onSendError` last, from `hookSendError` — an
+  `buildCtxParams` assigns `onSendError` last, from `hookSendError`: an
   `onSendError` in `extra` is overwritten, and overriding `hookSendError` is the
   only way to set it. Skip this section if pages need nothing extra; a shared
   `PageBase` that only adds template helpers needs no constructor.
 </Warning>
 
-## `ICtMiddleware` — per-update middleware
+## `ICtMiddleware`: per-update middleware
 
 `ICtMiddleware<C extends ICt = ICt>` is an alias for `Middleware<C>`: a
 `(ctx, next)` function or a middleware container. Override
 `Gramstax.registerLowPlugin(): Array<ICtMiddleware<ICt>>`. The array goes to
 `bot.use` **in order**, during construction and before the framework's own update
 listeners attach, so the first entry is outermost and wraps routing. There is no
-base implementation — not overriding it, or returning an empty array, installs
+base implementation: not overriding it, or returning an empty array, installs
 nothing.
 
 ```ts
@@ -141,7 +141,7 @@ export class BotCore extends Gramstax {
   the router after a page is chosen. Middleware is for real `next()` semantics.
 </Warning>
 
-## `ISendErrorHook` — reacting to send failures
+## `ISendErrorHook`: reacting to send failures
 
 `ISendErrorHook = (err: unknown, info: ISendErrorInfo) => void` and
 `ISendErrorInfo = {page, kind, chatId?}`, both in
@@ -166,7 +166,7 @@ export class BotCore extends Gramstax {
 contents or interpolated data. `chatId` is the broadcast recipient or current
 chat, `undefined` when the update carries no chat. The hook fires wherever a send
 error is classified; pre-upload validation throws stay hook-free by design, and a
-throwing hook is swallowed. It **observes** — a `retryable` failure still rethrows
+throwing hook is swallowed. It **observes**: a `retryable` failure still rethrows
 to your caller, so do not retry inline inside it.
 
 <Note>
@@ -177,7 +177,7 @@ to your caller, so do not retry inline inside it.
   its place inside a broadcast fan-out, where no single caller owns the failure.
 </Note>
 
-## `IPageManifestEntry` — booting without a filesystem
+## `IPageManifestEntry`: booting without a filesystem
 
 One page entry of `IAppManifest`, declared in
 `packages/gramstax/src/types/manifest.ts`:
@@ -185,13 +185,13 @@ One page entry of `IAppManifest`, declared in
 | Field | Meaning |
 | --- | --- |
 | `path` | POSIX path relative to the pages root, e.g. `admin/settings.ts`. |
-| `routeName` | Walk-derived route. Must be non-empty — an empty value throws. |
+| `routeName` | Walk-derived route. Must be non-empty: an empty value throws. |
 | `page` | The imported page class, `typeof Ctx`. Its `static template` rides along. |
 
 The manifest is `{pages, templates, routes?}`; a `templates` entry is
 `{key, template}` and a `routes` entry is `{name, file, routeName}`. Passing
 `manifest` to the constructor selects the manifest loader **instead of** the
-directory scan — both paths register through the same function, so the routing
+directory scan: both paths register through the same function, so the routing
 tables come out identical with no directory read.
 
 ```ts
@@ -225,7 +225,7 @@ under its own key.
   `gramstax.config.ts` against a closed list of top-level fields that does not
   include it, so putting `manifest` in the config throws `unknown field`. In
   practice you do not hand-write this object: `gramstax build` freezes
-  `src/pages` into `.gramstax/`, which only `deploy: "serverless"` consumes —
+  `src/pages` into `.gramstax/`, which only `deploy: "serverless"` consumes:
   `polling`, `webhook` and `test` boot from the filesystem and ignore the output.
 </Warning>
 

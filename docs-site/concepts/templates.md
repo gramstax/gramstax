@@ -28,7 +28,7 @@ Telegram capability:
 | `g-callback-answer` | The answer to a callback query |
 | `g-ifelse` / `g-switch` / `g-case` | Conditionals |
 | `g-import` | Pull in another template file |
-| `g-script` | Inline execution — **rejected by AOT**, see below |
+| `g-script` | Inline execution, **rejected by AOT**, see below |
 
 Void elements must self-close: `<g-space/>`, `<g-div/>`, `<g-keyboard/>`.
 
@@ -74,7 +74,7 @@ KeyboardGBlock.backNext(`id`, `bottom`)
 The object keys *are* the language codes, and each one is a separate label set.
 Omitting `lang` emits one block per key, space-joined; passing one emits only
 that block. `KeyboardGBlock.label.nav` is `{en: "Home, Next, Back", id: "Rumah,
-Lanjut, Kembali"}` — `_reverseObj` flipped each value independently, so the
+Lanjut, Kembali"}`. `_reverseObj` flipped each value independently, so the
 fallback order is preserved per language rather than derived from the first key.
 
 At render time the block is resolved by `TemplateManager.getGKeyboard`, which
@@ -111,20 +111,20 @@ the fix:
 | `key` is not a property of the label class | `Object value <key> not found` |
 | `lang` given but absent from that entry | `Language "<lang>" not found in label "<key>"` |
 
-`lang` is checked with `hasOwn`, so `"default"` is an ordinary key here — it
+`lang` is checked with `hasOwn`, so `"default"` is an ordinary key here. It
 passes if the entry defines one, and throws if it does not.
 
 ## Telegram Rich HTML
 
-Everything the Bot API accepts passes through too — 54 tags in five groups,
+Everything the Bot API accepts passes through too: 54 tags in five groups,
 including `tg-emoji`, `tg-map`, `tg-math`, `tg-time`, `tg-slideshow` and
 `tg-collage`. Validation runs against Bot API **10.3**, in three layers:
 
-1. **Required attributes** — `<tg-emoji>` needs `emoji-id`, `<tg-map>` needs
+1. **Required attributes**: `<tg-emoji>` needs `emoji-id`, `<tg-map>` needs
    `lat`, `long` and `zoom`.
-2. **Value formats** — `zoom` must be 13–20, `lat` must be in [-90, 90], and
+2. **Value formats**: `zoom` must be 13–20, `lat` must be in [-90, 90], and
    `<input type>` must be `checkbox`, the only one Telegram supports.
-3. **Unknown attributes** — rejected, not ignored. `<table ngasal="x">` fails,
+3. **Unknown attributes**: rejected, not ignored. `<table ngasal="x">` fails,
    with the allow-list named in the error.
 
 Rejection rather than tolerance is the whole point: a page that would fail at
@@ -146,10 +146,10 @@ absent.
 ## Interpolation and filters
 
 `{{}}` is variable interpolation. Filters are chained left to right and compiled
-into calls at build time — zero parsing per render:
+into calls at build time, zero parsing per render:
 
 ```html
-<g-message>{{user.name|upper}} — {{count}} item{{count|plural:item:items}}</g-message>
+<g-message>{{user.name|upper}}: {{count}} item{{count|plural:item:items}}</g-message>
 ```
 
 Available: `upper`, `lower`, `number:<places>`, `date:<YYYY-MM-DD>`,
@@ -168,13 +168,13 @@ compile time, which is what lets AOT freeze a page into a standalone artifact.
 blocks ahead of time. The practical consequences:
 
 - No template compilation on a cold isolate.
-- **Script blocks are rejected** — `g-script` and `{~~ … ~~}` both compile to
+- **Script blocks are rejected**: `g-script` and `{~~ … ~~}` both compile to
   `with(data …)`, which is illegal in ESM strict mode. Move the logic into the
   page class as a method returning plain data.
 
   <Danger>
     This is the one constraint that will bite you first. A template containing a
-    script block does not degrade — the build refuses it, and says which block was
+    script block does not degrade: the build refuses it, and says which block was
     rejected.
   </Danger>
 

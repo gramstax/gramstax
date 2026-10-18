@@ -2,7 +2,7 @@
   <p><img src="https://avatars.githubusercontent.com/u/187108398?s=200&v=4" alt="create-gramstax logo" width="120" height="120" /></p>
   <h1>create-gramstax</h1>
 
-  <p>Scaffolds a <a href="https://github.com/gramstax/gramstax">Gramstax</a> Telegram bot that passes its own test suite before you write a line — config, pages, an e2e harness, and the linting setup already wired.</p>
+  <p>Scaffolds a <a href="https://github.com/gramstax/gramstax">Gramstax</a> Telegram bot that passes its own test suite before you write a line: config, pages, an e2e harness, and the linting setup already wired.</p>
   <p>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
@@ -20,13 +20,13 @@ Most scaffolders hand you a hello-world and an empty `tests/` folder, and then "
 
 **No test suite to bootstrap.** The generated project ships nine pages and the nine e2e tests that cover them, wired into `bun run test:e2e`. You can clone a scaffold, set a token, and watch it pass before you have edited anything.
 
-**No "did I remember?" step.** `scripts/check-e2e-mirror.ts` compares the two trees in *both* directions — a page with no test is a `MISSING`, a test with no page is an `ORPHAN` — and exits non-zero. That turns a convention into a build failure, which is the only version of the convention that survives contact with a deadline. The script is generated; hooking it into CI is one line you add yourself (see **The e2e mirror** below).
+**No "did I remember?" step.** `scripts/check-e2e-mirror.ts` compares the two trees in *both* directions (a page with no test is a `MISSING`, a test with no page is an `ORPHAN`), and exits non-zero. That turns a convention into a build failure, which is the only version of the convention that survives contact with a deadline. The script is generated; hooking it into CI is one line you add yourself (see **The e2e mirror** below).
 
-**No hand-written `new Gramstax({...})`.** Generated projects have no `src/index.ts`. `gramstax.config.ts` is the single composition point — token, deploy mode, session cache, log override — and `gramstax start` discovers the `Gramstax` subclass at `src/core/bot.ts`, materialises each ref slot, and constructs it. Construction *is* boot.
+**No hand-written `new Gramstax({...})`.** Generated projects have no `src/index.ts`. `gramstax.config.ts` is the single composition point (token, deploy mode, session cache, log override), and `gramstax start` discovers the `Gramstax` subclass at `src/core/bot.ts`, materialises each ref slot, and constructs it. Construction *is* boot.
 
 **No "wire the storage in later" chore.** With LMDB kept, `src/db/` arrives with `Db extends LmdbEnv`, a real `UserSchema`, a `UserRepository` that demonstrates `putIfNotExists` and a transaction for read-then-write, and a restart-safe `nightly-report` schedule already started by `ServicesCore.start()`. With worker threads kept, `src/workers/job.ts` arrives with a `WorkerThreadInit` subclass exposing `mtdPing`/`mtdSummarize` and `launchWorker()`/`shutdown()` already called. Either can be dropped without touching the other.
 
-**No monorepo leakage.** The shipped `tsconfig.json` maps `gramstax`, `@gramstax/lmdb` and `@gramstax/worker-thread` at `../../../` — which would give a standalone scaffold two copies of the framework and break `gramstax start`'s `instanceof Gramstax` discovery. The generator strips every one of those mappings and keeps only `~/*`.
+**No monorepo leakage.** The shipped `tsconfig.json` maps `gramstax`, `@gramstax/lmdb` and `@gramstax/worker-thread` at `../../../`: which would give a standalone scaffold two copies of the framework and break `gramstax start`'s `instanceof Gramstax` discovery. The generator strips every one of those mappings and keeps only `~/*`.
 
 **No `workspace:*` in a standalone project.** Template dependencies ship as `workspace:*` because they live inside this monorepo. `resolveWorkspaceDeps` rewrites each one to `^<create-gramstax version>` before the install runs, so `bun install` resolves them from npm like any other dependency.
 
@@ -34,44 +34,44 @@ Most scaffolders hand you a hello-world and an empty `tests/` folder, and then "
 
 ### A working bot, not a skeleton
 
-- 🚀 **Nine pages on first run** — `start`, `start/random`, `start/random/number`, `start/random/text`, `help`, `sum-number`, `status`, `username-notfound` and `blank`. Each is a class extending `PageBase`, with an inline keyboard, English and Indonesian `<g-message lang="id">` variants, and a `g*` step machine.
-- ✅ **Nine e2e tests on first run** — one per page, mirroring the tree, asserting the actual outgoing Telegram calls (`body?.text`, `rich_message.html`, button labels) rather than snapshotting the page.
-- 🪞 **A failure path that is not a stub** — `username-notfound` blocks a user with no `username`, so `UserGuard` has something real to do and its test uses its own fixture id (`77777`).
-- 🧭 **Nested routing, proven** — `start/random/*` is a three-level route; its tests drive `/start → callback → callback` the way a user would.
-- 🧮 **A session state machine** — `sum-number` is a two-step free-text flow (`left` → `right` → `success`) driven by `setSessionFreeText`/`clearSession`, including the re-prompt on non-numeric input.
+- 🚀 **Nine pages on first run**: `start`, `start/random`, `start/random/number`, `start/random/text`, `help`, `sum-number`, `status`, `username-notfound` and `blank`. Each is a class extending `PageBase`, with an inline keyboard, English and Indonesian `<g-message lang="id">` variants, and a `g*` step machine.
+- ✅ **Nine e2e tests on first run**: one per page, mirroring the tree, asserting the actual outgoing Telegram calls (`body?.text`, `rich_message.html`, button labels) rather than snapshotting the page.
+- 🪞 **A failure path that is not a stub**: `username-notfound` blocks a user with no `username`, so `UserGuard` has something real to do and its test uses its own fixture id (`77777`).
+- 🧭 **Nested routing, proven**: `start/random/*` is a three-level route; its tests drive `/start → callback → callback` the way a user would.
+- 🧮 **A session state machine**: `sum-number` is a two-step free-text flow (`left` → `right` → `success`) driven by `setSessionFreeText`/`clearSession`, including the re-prompt on non-numeric input.
 
 ### Two seams every page inherits
 
-- 🧩 **`PageBase`, `GuardBase`, `PageAdminBase`** — the three base classes under `src/base/`. `PageAdminBase.hookBeforeRoute()` is a documented admin gate you extend instead of writing from scratch.
-- ⌨️ **`KeyboardGBlock`** — `kbk`/`kbl` give every page a bilingual keyboard builder (`home`, `back`, `cancel`, `backHome`) without repeating markup or re-typing the `id` labels.
-- 🧱 **`StatusPage`** — a two-base page (`e` / `nf`) already wired to `BotCore.hookErrorPage` and `hookNotFoundPage`, so an unhandled throw has somewhere to go.
+- 🧩 **`PageBase`, `GuardBase`, `PageAdminBase`**: the three base classes under `src/base/`. `PageAdminBase.hookBeforeRoute()` is a documented admin gate you extend instead of writing from scratch.
+- ⌨️ **`KeyboardGBlock`**: `kbk`/`kbl` give every page a bilingual keyboard builder (`home`, `back`, `cancel`, `backHome`) without repeating markup or re-typing the `id` labels.
+- 🧱 **`StatusPage`**: a two-base page (`e` / `nf`) already wired to `BotCore.hookErrorPage` and `hookNotFoundPage`, so an unhandled throw has somewhere to go.
 
 ### Optional services that are actually wired
 
-- 💾 **LMDB, kept by default** — `Db extends LmdbEnv` with `MAX_DBS = 32`, compression on, msgpack encoding, and an `onWarn` sink wired to `LogHe` so LMDB diagnostics land in your logger instead of nowhere.
-- 🧵 **Worker threads, kept by default** — `Worker extends WorkerThreadInit`; `JobWorker` is simultaneously the typed RPC surface (`JobWorker.mtdPing()`) and the lifecycle handle (`launchWorker()` / `shutdown(ms)`).
-- 🔌 **A regenerated service seam** — `src/core/services.ts` is rebuilt by `buildServicesSource(useLmdb, useWorkerThread)` for whichever features survived, so `BotCore`'s unconditional `ServicesCore.start()`/`stop()` can never statically import a pruned directory.
-- 🧹 **Stop ordering that is not obvious** — workers are stopped before the database, because a tick can still be mid-read and tearing the store down underneath it turns an orderly stop into an LMDB error.
+- 💾 **LMDB, kept by default**: `Db extends LmdbEnv` with `MAX_DBS = 32`, compression on, msgpack encoding, and an `onWarn` sink wired to `LogHe` so LMDB diagnostics land in your logger instead of nowhere.
+- 🧵 **Worker threads, kept by default**: `Worker extends WorkerThreadInit`; `JobWorker` is simultaneously the typed RPC surface (`JobWorker.mtdPing()`) and the lifecycle handle (`launchWorker()` / `shutdown(ms)`).
+- 🔌 **A regenerated service seam**: `src/core/services.ts` is rebuilt by `buildServicesSource(useLmdb, useWorkerThread)` for whichever features survived, so `BotCore`'s unconditional `ServicesCore.start()`/`stop()` can never statically import a pruned directory.
+- 🧹 **Stop ordering that is not obvious**: workers are stopped before the database, because a tick can still be mid-read and tearing the store down underneath it turns an orderly stop into an LMDB error.
 
 ### Linting, config and install, done
 
-- 🎨 **Biome wired, in one install pass** — a standalone `biome.json` (`root: true`) mirroring the repo's rules, plus `@biomejs/biome@^2.5.5` added to `devDependencies` *before* the installer runs.
-- 🔑 **`.env` created for you** — `.env.example` is renamed to `.env` at generation; if you already had one, the example is deleted instead and yours is left alone.
-- 🗂️ **`.gitignore` promoted, not lost** — the template ships as `gitignore` (npm never publishes a `.gitignore`), and is renamed on the way out, or merged into an existing one without dropping a single shipped rule.
-- 🧾 **Placeholder discipline** — `assertNoLeftoverPlaceholders` walks the finished tree and fails the run naming the offending file, so a missed substitution is an error rather than a `{{something}}` in your source.
+- 🎨 **Biome wired, in one install pass**: a standalone `biome.json` (`root: true`) mirroring the repo's rules, plus `@biomejs/biome@^2.5.5` added to `devDependencies` *before* the installer runs.
+- 🔑 **`.env` created for you**: `.env.example` is renamed to `.env` at generation; if you already had one, the example is deleted instead and yours is left alone.
+- 🗂️ **`.gitignore` promoted, not lost**: the template ships as `gitignore` (npm never publishes a `.gitignore`), and is renamed on the way out, or merged into an existing one without dropping a single shipped rule.
+- 🧾 **Placeholder discipline**: `assertNoLeftoverPlaceholders` walks the finished tree and fails the run naming the offending file, so a missed substitution is an error rather than a `{{something}}` in your source.
 
 ### Two ways to run it
 
-- 🤝 **Interactive or fully non-interactive** — the same binary asks, or refuses to guess and tells you exactly what is missing.
-- 🪞 **The mirror, both directions** — generation and checking are separate scripts so "create the test I forgot" and "fail the build because I forgot" are different verbs.
+- 🤝 **Interactive or fully non-interactive**: the same binary asks, or refuses to guess and tells you exactly what is missing.
+- 🪞 **The mirror, both directions**: generation and checking are separate scripts so "create the test I forgot" and "fail the build because I forgot" are different verbs.
 
 ## 🚀 Quick Start
 
 ### 1. Prerequisites
 
-- **Node.js on `PATH`** — the published bin is `dist/src/index.js` with a `#!/usr/bin/env node` shebang, built by tsup with `platform: node`, `format: [cjs, esm]`, `target: esnext`. No `engines` field is declared. Bun works too (`bun src/index.ts`).
+- **Node.js on `PATH`**: the published bin is `dist/src/index.js` with a `#!/usr/bin/env node` shebang, built by tsup with `platform: node`, `format: [cjs, esm]`, `target: esnext`. No `engines` field is declared. Bun works too (`bun src/index.ts`).
 - **A package manager** to install with: `bun`, `npm`, `pnpm` or `yarn`.
-- **A bot token** from [@BotFather](https://t.me/BotFather) — needed to actually run the bot, not to scaffold it.
+- **A bot token** from [@BotFather](https://t.me/BotFather): needed to actually run the bot, not to scaffold it.
 
 ### 2. Run it
 
@@ -83,7 +83,7 @@ bunx create-gramstax@latest my-bot
 
 ### 3. What happens
 
-The CLI prints its ASCII banner with the resolved version, resolves a base directory (`INIT_CWD` when set — which is what makes `bunx` land where you expect — otherwise `process.cwd()`), echoes a summary of all seven choices, then runs eight generation steps and one install:
+The CLI prints its ASCII banner with the resolved version, resolves a base directory (`INIT_CWD` when set, which is what makes `bunx` land where you expect, otherwise `process.cwd()`), echoes a summary of all seven choices, then runs eight generation steps and one install:
 
 ```text
 [INFO] Project: my-bot
@@ -101,11 +101,11 @@ It creates no git repository, commits nothing, and pushes nothing.
 
 ```bash
 cd my-bot
-# edit .env — set BOT_TOKEN
+# edit .env: set BOT_TOKEN
 bun run dev
 ```
 
-The generated `.env` already exists (renamed from `.env.example`) with `BOT_TOKEN`, `BOT_DEPLOY`, `CACHE_SESSION_STORE`, `CACHE_SESSION_TTL` and `CACHE_SESSION_NAMESPACE` — plus `DB_PATH="./data"` when LMDB is kept.
+The generated `.env` already exists (renamed from `.env.example`) with `BOT_TOKEN`, `BOT_DEPLOY`, `CACHE_SESSION_STORE`, `CACHE_SESSION_TTL` and `CACHE_SESSION_NAMESPACE`, plus `DB_PATH="./data"` when LMDB is kept.
 
 ## 📖 Usage
 
@@ -136,14 +136,14 @@ program
 | `[project-directory]`   | a project name        | prompted                | Bare name, not a path; validated against `/^[a-z0-9-_]{1,100}$/i`           |
 | `--pm <name>`           | `bun` `npm` `pnpm` `yarn` | detected, else `bun`  | Package manager used to install; also drives the README's printed commands |
 | `--runtime <name>`      | `bun` `node`          | `bun`                   | Target runtime; `node` rewrites the generated scripts (see below)          |
-| `--lmdb`                | —                     | `true`                  | Keep `@gramstax/lmdb`, `src/db/`, `DB_PATH` and the `data/` ignore rule   |
-| `--worker-thread`       | —                     | `true`                  | Keep `@gramstax/worker-thread` and `src/workers/`                          |
-| `--biome`               | —                     | `true`                  | Keep `biome.json`, add `@biomejs/biome`, keep the `lint*`/`format*` scripts |
-| `--skip-install`        | —                     | install runs            | Generate the files without running the package manager                     |
-| `-h, --help`            | —                     | —                       | Commander's help text                                                      |
-| `-V, --version`         | —                     | package version         | Falls back to `0.0.0` if `package.json` cannot be read or parsed            |
+| `--lmdb`                | _none_                | `true`                  | Keep `@gramstax/lmdb`, `src/db/`, `DB_PATH` and the `data/` ignore rule   |
+| `--worker-thread`       | _none_                | `true`                  | Keep `@gramstax/worker-thread` and `src/workers/`                          |
+| `--biome`               | _none_                | `true`                  | Keep `biome.json`, add `@biomejs/biome`, keep the `lint*`/`format*` scripts |
+| `--skip-install`        | _none_                | install runs            | Generate the files without running the package manager                     |
+| `-h, --help`            | _none_                | _none_                  | Commander's help text                                                      |
+| `-V, --version`         | _none_                | package version         | Falls back to `0.0.0` if `package.json` cannot be read or parsed            |
 
-`--pm` and `--runtime` are **case-insensitive and trimmed** — `--pm NPM` and `--pm "  pnpm  "` both work, because `.argParser` lowercases and trims before the action handler re-normalises. An unrecognised value fails in `validateCliOptions` with the value echoed back and the legal list: `Unsupported package manager "bogus". Supported: bun, npm, pnpm, yarn`.
+`--pm` and `--runtime` are **case-insensitive and trimmed**: `--pm NPM` and `--pm "  pnpm  "` both work, because `.argParser` lowercases and trims before the action handler re-normalises. An unrecognised value fails in `validateCliOptions` with the value echoed back and the legal list: `Unsupported package manager "bogus". Supported: bun, npm, pnpm, yarn`.
 
 ### The prompts, in order
 
@@ -152,8 +152,8 @@ Two prompts live in [`src/create.ts`](./src/create.ts). Ctrl-C (or any enquirer 
 | # | Prompt                                                                                            | Type    | Initial       | Shown when                                    |
 | :-- | :------------------------------------------------------------------------------------------------- | :------ | :------------ | :-------------------------------------------- |
 | 1 | `What is your project named?`                                                                      | input   | empty         | no positional **and** stdin is a TTY         |
-| 2 | `Which package manager would you like to use?` — `Bun (recommended)` / `npm` / `pnpm` / `Yarn`      | select  | `bun`         | not already supplied                         |
-| 3 | `Which runtime would you like to use?` — `Bun (recommended)` / `Node.js`                            | select  | `bun`         | not already supplied                         |
+| 2 | `Which package manager would you like to use?`: `Bun (recommended)` / `npm` / `pnpm` / `Yarn`      | select  | `bun`         | not already supplied                         |
+| 3 | `Which runtime would you like to use?`: `Bun (recommended)` / `Node.js`                            | select  | `bun`         | not already supplied                         |
 | 4 | `Would you like to include @gramstax/lmdb for persistent storage? (recommended)`                    | confirm | `true`        | not already supplied                         |
 | 5 | `Would you like to include @gramstax/worker-thread for background jobs? (recommended)`              | confirm | `true`        | not already supplied                         |
 | 6 | `Would you like to use Biome for linting & formatting? (recommended)`                               | confirm | `true`        | not already supplied                         |
@@ -164,7 +164,7 @@ Prompts 2–6 are submitted as a single enquirer array, so they appear in exactl
 
 The three feature flags are **two-sided**: `--lmdb` / `--no-lmdb`, `--worker-thread` / `--no-worker-thread`, `--biome` / `--no-biome`. Each pair is enforced by [`test/cli-contract.test.ts`](./test/cli-contract.test.ts), which asserts both spellings are present in `src/index.ts`.
 
-They also carry **no default**, and that is the second half of the contract. A `true` default would make `opts.lmdb` always defined, and `cli?.lmdb ?? prompted.lmdb` would then always resolve to the flag — the prompt would ask a question whose answer could not reach the outcome. Undefined means "not stated on the command line", which is the signal to ask.
+They also carry **no default**, and that is the second half of the contract. A `true` default would make `opts.lmdb` always defined, and `cli?.lmdb ?? prompted.lmdb` would then always resolve to the flag: the prompt would ask a question whose answer could not reach the outcome. Undefined means "not stated on the command line", which is the signal to ask.
 
 So there are three ways to set a feature, and they compose:
 
@@ -187,7 +187,7 @@ Missing required CLI options: lmdb, workerThread, biome. Provide lmdb, workerThr
 
 ### `--skip-install`
 
-`--skip-install` sets `config.skipInstall`, which the install step tests before doing anything. When it is set the output reads `Skipping dependencies installation..`, the package manager is never spawned, and the "Next steps" line omits the install command it would otherwise tell you to run — which it used to print even when it had already installed.
+`--skip-install` sets `config.skipInstall`, which the install step tests before doing anything. When it is set the output reads `Skipping dependencies installation..`, the package manager is never spawned, and the "Next steps" line omits the install command it would otherwise tell you to run, which it used to print even when it had already installed.
 
 ### Non-interactive usage
 
@@ -205,7 +205,7 @@ bunx create-gramstax@latest my-bot --runtime bun --skip-install --no-lmdb --no-w
 
 ### Project naming and destination
 
-- A name must match `PROJECT_NAME_PATTERN` — letters, numbers, hyphens, underscores, up to 100 characters. Anything else fails before a single file is written.
+- A name must match `PROJECT_NAME_PATTERN`: letters, numbers, hyphens, underscores, up to 100 characters. Anything else fails before a single file is written.
 - If the target directory already exists, the run stops with `Directory "my-bot" already exists` (exit 2). The CLI never merges into a populated directory.
 - With no positional and an empty answer, `FsUt.isDirectoryEffectivelyEmpty` inspects the top level plus one level of nesting, so a directory holding only `logs/.gitkeep` still counts as empty.
 
@@ -215,8 +215,8 @@ bunx create-gramstax@latest my-bot --runtime bun --skip-install --no-lmdb --no-w
 
 | Script                | Generated (`bun`)                     | Generated (`node`)         |
 | :-------------------- | :------------------------------------ | :------------------------- |
-| `dev`                 | `bun --bun gramstax start --watch`   | unchanged — stays on Bun   |
-| `start`               | `bun --bun gramstax start`            | unchanged — stays on Bun   |
+| `dev`                 | `bun --bun gramstax start --watch`   | unchanged: stays on Bun   |
+| `start`               | `bun --bun gramstax start`            | unchanged: stays on Bun   |
 | `build:gramstax`      | `bun --bun gramstax build`            | `gramstax build`           |
 | `test`                | `bun test test/`                      | `node --test test/`        |
 | `test:e2e`            | `bun test e2e/`                       | `node --test e2e/`         |
@@ -227,19 +227,19 @@ Any script whose value contains `gramstax start` is skipped by the rewriter, bec
 
 ### Exit behaviour
 
-`Create` only ever throws — it contains no `process.exit`, which the contract test asserts. [`src/index.ts`](./src/index.ts) is the single place that maps an outcome to an exit code, via `process.exitCode`:
+`Create` only ever throws: it contains no `process.exit`, which the contract test asserts. [`src/index.ts`](./src/index.ts) is the single place that maps an outcome to an exit code, via `process.exitCode`:
 
 | Situation                                                                                | Code | Output                                              |
 | :----------------------------------------------------------------------------------------- | :--- | :--------------------------------------------------- |
 | Project created                                                                           | `0`  | `Project created successfully!` and the next steps   |
 | Ctrl-C at a prompt (`SetupCancelledError`)                                                 | `0`  | `Setup cancelled`                                    |
 | Message contains `Unsupported`, `Missing`, `required`, `Invalid`, `already exists`, `not empty` | `2`  | the message verbatim via `log.error`                 |
-| Anything else — including `Dependencies installation failed` and an unreplaced placeholder    | `1`  | `Failed to create project: <message>`                |
+| Anything else: including `Dependencies installation failed` and an unreplaced placeholder    | `1`  | `Failed to create project: <message>`                |
 | `--help`, `--version`, unknown option, `--pm` outside the choices                          | `2`  | commander's own text, re-emitted through `log.error` |
 
 A cancellation is a deliberate no-op, not a failure: exit `0` with `Setup cancelled`, so a Ctrl-C in an interactive shell does not look like a crash to a wrapper script.
 
-One wart worth knowing, since it will show up the first time you pipe the CLI: `--help` and `--version` also exit `2`. `.exitOverride()` stops commander from exiting itself, and the catch in `isMainModule` only treats a message containing `helpDisplayed` or `version` as success — commander's actual messages are `(outputHelp)` and the bare version string, so both fall through to `log.error` with code `2`. Verified on both Bun and Node, from source and from `dist/`.
+One wart worth knowing, since it will show up the first time you pipe the CLI: `--help` and `--version` also exit `2`. `.exitOverride()` stops commander from exiting itself, and the catch in `isMainModule` only treats a message containing `helpDisplayed` or `version` as success: commander's actual messages are `(outputHelp)` and the bare version string, so both fall through to `log.error` with code `2`. Verified on both Bun and Node, from source and from `dist/`.
 
 ## 🔍 How it works
 
@@ -253,13 +253,13 @@ Two methods on `Create`, called from `createProject()`: [`gatherProjectConfig()`
 4. `hasAnyCliFlag()` inspects `packageManager`, `runtime`, `lmdb`, `workerThread` and `biome`. `skipInstall` alone does not count, so `--skip-install` on its own still leaves the config prompts reachable.
 5. `validateCliOptions` runs, then `missing` is computed as the fields that are still `undefined`. Non-empty `missing` in a TTY triggers `promptForConfiguration()` and the merge `cli.X ?? prompted.X`; non-empty `missing` without a TTY throws.
 6. Destination checks: `Directory "x" already exists`, or `Current directory is not empty` for the in-place case.
-7. The seven-line summary is printed — deliberately after validation, so you never see a cheerful summary for a run that is about to fail.
+7. The seven-line summary is printed: deliberately after validation, so you never see a cheerful summary for a run that is about to fail.
 
 ### Generating
 
 | Step | Action | Where |
 | :--- | :----- | :---- |
-| 1 | `mkdir -p` the project path | — |
+| 1 | `mkdir -p` the project path | _not applicable_      |
 | 2 | `copyDirectorySync(join(__dirname, "templates"), projectPath, variables)` | [`create.ts`](./src/create.ts) |
 | 3 | `logs/` + `logs/.gitkeep` created | `executeProjectGeneration` |
 | 4 | `.env.example` → `.env`, or deleted if a `.env` already exists | `executeProjectGeneration` |
@@ -268,7 +268,7 @@ Two methods on `Create`, called from `createProject()`: [`gatherProjectConfig()`
 | 5b | `workspace:*` → `^<version>` in every dep section | `resolveWorkspaceDeps` |
 | 6 | LMDB keep-or-prune | `executeProjectGeneration` |
 | 7 | worker-thread keep-or-prune | `executeProjectGeneration` |
-| — | `src/core/services.ts` regenerated for the surviving feature set | `buildServicesSource` |
+| _conditional_| `src/core/services.ts` regenerated for the surviving feature set | `buildServicesSource` |
 | 9 | Biome keep-or-prune (runs before the install) | `stripBiomeScripts`, `removeDependency` |
 | 8 | the single install | [`installDependencies`](./src/create.ts) |
 
@@ -278,9 +278,9 @@ Two methods on `Create`, called from `createProject()`: [`gatherProjectConfig()`
 
 **Filtering the tree.** LMDB off removes `src/db/` recursively and drops `@gramstax/lmdb` from all four dependency sections; worker threads off removes `src/workers/` and drops `@gramstax/worker-thread`; Biome off deletes `biome.json`, deletes every script whose name starts with `lint` or `format`, and drops `@biomejs/biome`. The two keep-branches add their own wiring instead: LMDB on appends `DB_PATH="./data"` to `.env` (never twice) and `data/` to `.gitignore`; Biome on adds `@biomejs/biome@^2.5.5` to `devDependencies`. Because `src/core/services.ts` is the only file that has to know the feature set, it is rewritten last, after the pruning.
 
-**The service seam.** `buildServicesSource(useLmdb, useWorkerThread)` emits imports, `start()` bodies and `stop()` bodies to match. With neither feature it emits a no-op class that names neither pruned package, so nothing in the generated project can mention a directory that was deleted. The shipped template file is byte-identical to the both-on variant — asserted by [`test/generation.test.ts`](./test/generation.test.ts), so the template you read in this repo is the same code path a scaffold receives.
+**The service seam.** `buildServicesSource(useLmdb, useWorkerThread)` emits imports, `start()` bodies and `stop()` bodies to match. With neither feature it emits a no-op class that names neither pruned package, so nothing in the generated project can mention a directory that was deleted. The shipped template file is byte-identical to the both-on variant: asserted by [`test/generation.test.ts`](./test/generation.test.ts), so the template you read in this repo is the same code path a scaffold receives.
 
-**Installing.** `installDependencies` spawns `FsUt.resolvePackageManagerCommand(packageManager)` with `["install"]`, `cwd` set to the project, `stdio: "inherit"` so you watch it, and `shell: FsUt.resolveSpawnShell(packageManager)` — `true` for npm/pnpm/yarn on Windows, where Node refuses to spawn `.cmd` shims without a shell (`EINVAL`), and `false` for Bun, which is a real executable. It resolves `true` only on exit code `0`; anything else throws `Dependencies installation failed` rather than reporting success.
+**Installing.** `installDependencies` spawns `FsUt.resolvePackageManagerCommand(packageManager)` with `["install"]`, `cwd` set to the project, `stdio: "inherit"` so you watch it, and `shell: FsUt.resolveSpawnShell(packageManager)`: `true` for npm/pnpm/yarn on Windows, where Node refuses to spawn `.cmd` shims without a shell (`EINVAL`), and `false` for Bun, which is a real executable. It resolves `true` only on exit code `0`; anything else throws `Dependencies installation failed` rather than reporting success.
 
 ## 🗂️ What gets generated
 
@@ -293,7 +293,7 @@ src/templates/
 ├── README.md                     # the generated project's own docs
 ├── biome.json                    # removed unless Biome is enabled
 ├── gitignore                     # promoted to .gitignore, or merged into an existing one
-├── gramstax.config.ts            # the composition point — there is no src/index.ts
+├── gramstax.config.ts            # the composition point: there is no src/index.ts
 ├── package.json                  # scripts + workspace:* deps resolved to ^<version>
 ├── tsconfig.json                 # ~/* kept; gramstax + @gramstax/* mappings stripped
 ├── e2e/                          # mirrors src/pages/ exactly
@@ -310,18 +310,18 @@ src/templates/
 │           ├── number.test.ts    # nested leaf, 3 levels deep
 │           └── text.test.ts      # nested leaf, language-dependent output
 ├── scripts/
-│   ├── check-e2e-mirror.ts       # bidirectional drift check (no npm script — see below)
+│   ├── check-e2e-mirror.ts       # bidirectional drift check (no npm script: see below)
 │   └── generate-e2e-structure.ts # creates the e2e files you did not
 ├── src/
 │   ├── base/
-│   │   ├── guard.ts              # GuardBase — moves ctx.data into temp for guards
-│   │   ├── page.ts               # PageBase — kbk/kbl keyboard seam
-│   │   └── page-admin.ts         # PageAdminBase — the documented admin gate
+│   │   ├── guard.ts              # GuardBase: moves ctx.data into temp for guards
+│   │   ├── page.ts               # PageBase: kbk/kbl keyboard seam
+│   │   └── page-admin.ts         # PageAdminBase: the documented admin gate
 │   ├── blocks/
 │   │   └── g-keyboard.ts         # bilingual home/back/cancel/backHome builders
 │   ├── core/
-│   │   ├── bot.ts                # BotCore extends Gramstax — the discovered subclass
-│   │   ├── ctx.ts                # CtxCore extends Ctx — one line, your seam
+│   │   ├── bot.ts                # BotCore extends Gramstax: the discovered subclass
+│   │   ├── ctx.ts                # CtxCore extends Ctx: one line, your seam
 │   │   └── services.ts           # REGENERATED per feature set by buildServicesSource
 │   ├── db/                       # removed unless LMDB is kept
 │   │   ├── index.ts              # Db extends LmdbEnv + open/get/start/stop + nightly job
@@ -330,10 +330,10 @@ src/templates/
 │   │   └── schema/
 │   │       └── user.ts           # UserSchema + IKUser/IVUser
 │   ├── guards/
-│   │   └── user.ts               # UserGuard — rejects a user with no username
+│   │   └── user.ts               # UserGuard: rejects a user with no username
 │   ├── helpers/
 │   │   ├── .gitkeep
-│   │   └── log.ts                # LogHe — the only logging path in the scaffold
+│   │   └── log.ts                # LogHe: the only logging path in the scaffold
 │   ├── pages/                    # the routing tree; e2e/ mirrors it 1:1
 │   │   ├── blank.ts              # empty template, the minimal page shape
 │   │   ├── help.ts               # command + callback entry
@@ -347,7 +347,7 @@ src/templates/
 │   │           ├── number.ts     # third level
 │   │           └── text.ts       # third level, language-dependent
 │   ├── utils/
-│   │   └── .gitkeep              # deliberately empty — your generic helpers go here
+│   │   └── .gitkeep              # deliberately empty: your generic helpers go here
 │   └── workers/                  # removed unless worker threads are kept
 │       └── job.ts                # Worker extends WorkerThreadInit + JobWorker export
 └── test/
@@ -364,14 +364,14 @@ Straight from [`src/templates/package.json`](./src/templates/package.json):
 
 | Script           | Command                        | What it does                                                     |
 | :--------------- | :----------------------------- | :--------------------------------------------------------------- |
-| `dev`            | `bun --bun gramstax start --watch` | Boots the bot and watches for changes — your dev loop         |
+| `dev`            | `bun --bun gramstax start --watch` | Boots the bot and watches for changes: your dev loop         |
 | `start`          | `bun --bun gramstax start`     | Production boot from the same config                             |
 | `build:gramstax` | `bun --bun gramstax build`     | Freezes `src/pages` into `.gramstax/` (`routes.json`, `manifest.js`, AOT `gen/`, `server/`) |
 | `typecheck`      | `tsc --noEmit`                 | Type-check only                                                   |
 | `lint`           | `biome lint`                   | Biome lint (removed with Biome)                                   |
 | `lint:fix`       | `biome lint --write --unsafe`  | Lint with autofix (removed with Biome)                           |
 | `format`         | `biome format --write .`       | Format (removed with Biome)                                       |
-| `test`           | `bun test test/`               | Unit tests — the slot that ships empty                           |
+| `test`           | `bun test test/`               | Unit tests: the slot that ships empty                           |
 | `test:e2e`       | `bun test e2e/`                | The generated e2e suite, one file per page                        |
 | `test:all`       | `bun test test/ e2e/`          | Both                                                              |
 
@@ -397,13 +397,13 @@ export const enUser = {user: {id: 4001, username: `testuser`, language_code: `en
 export const idUser = {user: {id: 5001, username: `pengguna`, language_code: `id`}}
 ```
 
-- **`deploy: "test"`** replaces `gramstax.config.ts` — no network, no listener, no token lookup.
+- **`deploy: "test"`** replaces `gramstax.config.ts`: no network, no listener, no token lookup.
 - **`token: "test"`** and **`log: false`** keep the run hermetic and quiet.
 - **`stream: true`** and **`autoRetry: true`** make the bot process updates inline so a test can assert on what it *would* have sent.
 - **An explicit `TemplateManager`** pointed at `../src/pages`, because nothing else has pointed it there yet.
 - **Shared fixtures** `enUser` / `idUser`, ids `4001` and `5001`, matching the `example/` workspaces. `username` is present because the template user guard requires it; `chat` is omitted since sessions key off the user id.
 
-Every e2e file imports `{bot}` or `{e2e, enUser, idUser}` from `./setup` (or `../setup`, `../../setup` at depth) and clears calls in `beforeEach`, so files sharing a user id cannot leak pending-input sessions into each other — which is exactly why `sum-number.test.ts` deliberately recovers with valid input at the end of its re-prompt test.
+Every e2e file imports `{bot}` or `{e2e, enUser, idUser}` from `./setup` (or `../setup`, `../../setup` at depth) and clears calls in `beforeEach`, so files sharing a user id cannot leak pending-input sessions into each other, which is exactly why `sum-number.test.ts` deliberately recovers with valid input at the end of its re-prompt test.
 
 ### Configuration surface
 
@@ -419,7 +419,7 @@ src/pages/foo/bar.ts    →  e2e/foo/bar.test.ts
 src/pages/foo/index.ts  →  e2e/foo/index.test.ts
 ```
 
-### `generate-e2e-structure.ts` — create what you forgot
+### `generate-e2e-structure.ts`: create what you forgot
 
 Walks `src/pages`, and for every page without a matching test writes a minimal one: a `describe` named from the file in PascalCase, one assertion that `bot.pages.all.<key>` is defined, and a `setup` import whose relative prefix is computed from the test's depth.
 
@@ -432,12 +432,12 @@ Walks `src/pages`, and for every page without a matching test writes a minimal o
 
 Prints a `Summary:` block (`Created` / `Skipped (already exists)` / `Errors`) and exits `1` when `Errors > 0`.
 
-### `check-e2e-mirror.ts` — fail the build when they divergege
+### `check-e2e-mirror.ts`: fail the build when they diverge
 
 Runs the same walk in **both directions**:
 
 - **Pages → e2e.** Every page must have a test; a missing one is `❌ ... MISSING` and fails the check. `--fix` generates it.
-- **e2e → pages.** Every test must have a page (`.ts`, `.js`, or `/index.ts`, `/index.js`); a test with none is `⚠️ ... ORPHAN`. Orphans are never auto-deleted — delete it yourself, or list it in `EXTRA_TESTS`, which ships as an empty array.
+- **e2e → pages.** Every test must have a page (`.ts`, `.js`, or `/index.ts`, `/index.js`); a test with none is `⚠️ ... ORPHAN`. Orphans are never auto-deleted: delete it yourself, or list it in `EXTRA_TESTS`, which ships as an empty array.
 
 A missing `src/pages` or `e2e` directory is `⏭️` and treated as OK rather than an error, so the script is safe to point at a half-built tree. Clean run prints `✅ <label>: N pages, all mirrored` then `All OK!` and exits `0`; any mismatch prints a remediation hint and exits `1`.
 
@@ -449,7 +449,7 @@ bun run scripts/check-e2e-mirror.ts --fix      # create the missing tests
 bun run scripts/check-e2e-mirror.ts --path ./other-app
 ```
 
-Wiring it into CI — as a step, or as part of your test command — is the reader's job, and it is the step that converts "remember to add a test" into a failing pipeline.
+Wiring it into CI (as a step, or as part of your test command) is the reader's job, and it is the step that converts "remember to add a test" into a failing pipeline.
 
 The repository keeps its own pair at the repo root under `scripts/` for the `example/*` workspaces: same algorithm, but the default mode iterates every example project and `EXTRA_TESTS` is populated (`11-cloudflare-worker`). `--path` behaves identically in both.
 
@@ -459,9 +459,9 @@ The repository keeps its own pair at the repo root under `scripts/` for the `exa
 packages/create-gramstax/
 ├── src/
 │   ├── index.ts         # shebang, commander program, exit-code mapping, pm detection
-│   ├── create.ts        # Create class — prompts, copy, prune, regenerate, install
+│   ├── create.ts        # Create class: prompts, copy, prune, regenerate, install
 │   ├── utils/
-│   │   ├── fs.ts        # FsUt — gitignore promotion, pm command resolution, empty-dir check
+│   │   ├── fs.ts        # FsUt: gitignore promotion, pm command resolution, empty-dir check
 │   │   ├── log.ts       # LoggingPretty singleton (log.info / warn / error)
 │   │   └── project.ts   # placeholders, JSONC-safe tsconfig edits, services.ts generator
 │   └── templates/       # the tree above, copied verbatim then post-processed
@@ -475,7 +475,7 @@ packages/create-gramstax/
 └── package.json         # bin -> dist/src/index.js, cjs + esm, dts, minified
 ```
 
-The build (`tsup`, `platform: node`, `format: [cjs, esm]`) bundles `src/index.ts` and, in `onSuccess`, copies `src/templates` to `dist/src/templates`, pre-resolving the dist template's `workspace:*` dependencies to `^<version>` and stripping the `gramstax`/`@gramstax/lmdb` path mappings. Generation then applies the same rewrites again — belt and braces, since a scaffold must not depend on how the CLI happened to be built.
+The build (`tsup`, `platform: node`, `format: [cjs, esm]`) bundles `src/index.ts` and, in `onSuccess`, copies `src/templates` to `dist/src/templates`, pre-resolving the dist template's `workspace:*` dependencies to `^<version>` and stripping the `gramstax`/`@gramstax/lmdb` path mappings. Generation then applies the same rewrites again: belt and braces, since a scaffold must not depend on how the CLI happened to be built.
 
 The scaffolded source is held to rules that are checked, not reviewed: [`test/generation.test.ts`](./test/generation.test.ts) fails on any `templates/src` file that exports a module-level function, calls `console.*`, or declares a `private` member without an underscore prefix. That is why every page, guard and service in the generated project is class-based, every log line goes through `LogHe`, and `Db._instance` / `Db._job` / `UserRepository._user` look the way they do.
 
@@ -498,4 +498,4 @@ The scaffolded source is held to rules that are checked, not reviewed: [`test/ge
 
 ## 📄 License
 
-Apache-2.0 — Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).
+Apache-2.0: Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).

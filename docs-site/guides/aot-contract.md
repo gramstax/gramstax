@@ -53,7 +53,7 @@ Single `export const template` matches `ICompiledTemplate` (absent blocks omitte
 
   <Step title="Assert">
     Emitted files contain zero codegen tokens (`new Function`, `Function(`,
-    `eval(`) — asserted by test on every emitted file, including under a sabotaged
+    `eval(`): asserted by test on every emitted file, including under a sabotaged
     `globalThis.Function`.
   </Step>
 </Steps>
@@ -68,7 +68,7 @@ for (const [key, template] of Object.entries(loaded.templates)) manager._registe
 
 <Check>
   Registered templates render identically to JIT for all 15 `ICompiledTemplate`
-  fields — proven by `template.aot-parity.test.ts` (media, poll, venue, dice,
+  fields: proven by `template.aot-parity.test.ts` (media, poll, venue, dice,
   callbackAnswer, precheckoutError, shippingError, inlineButton, answerNote, gift,
   invoice, paidMedia, message, keyboard, description × 2 datasets each). One field
   per `compileBlockG*` static on `TemplateEngine`; there is no single dispatcher
@@ -80,20 +80,20 @@ for (const [key, template] of Object.entries(loaded.templates)) manager._registe
 <AccordionGroup>
   <Accordion title="Script blocks are rejected at build">
     The message reads ``AOT blocked for template "<key>" (<id>): body contains
-    `with(` — `with` is forbidden in ESM strict mode ...`` — so move the logic into
+    `with(` — `with` is forbidden in ESM strict mode ...``, so move the logic into
     the page class, as a method returning plain data, rather than into `{~~ ... ~~}`
     or `<g-script>`. The two are equivalent: both compile to `with(data ...)`.
   </Accordion>
 
   <Accordion title="Runtime-dynamic templates are impossible">
     AOT freezes bodies at build time, so templates assembled at runtime
-    (string-concatenated sources, per-request codegen) cannot be emitted — only
+    (string-concatenated sources, per-request codegen) cannot be emitted: only
     static `.html` sources.
   </Accordion>
 
   <Accordion title="How are filenames sanitized?">
     Any non-identifier character becomes `_`, leading digits gain a `_` prefix.
-    Distinct keys mapping to one filename (`a/b` vs `a_b`) collide — keep keys
+    Distinct keys mapping to one filename (`a/b` vs `a_b`) collide: keep keys
     distinct.
   </Accordion>
 </AccordionGroup>
@@ -105,7 +105,7 @@ for (const [key, template] of Object.entries(loaded.templates)) manager._registe
 
 ## Implementation map
 
-- `packages/gramstax/scripts/aot-emit.ts` — `AotEmitter` (collect, guard, emit, `safeKey`)
-- `packages/gramstax/scripts/build-manifest.ts` — `generate(..., {aot})` + `--aot` CLI (additive; legacy single-file contract unchanged)
-- `packages/gramstax/src/template/engine.ts` — `__emitHook` (collect) + `__linkHook` (link); hook unset ⇒ exact JIT path
-- `packages/gramstax/src/template/manager.ts` — `registerCompiled` (Phase 2; no validation, no reload)
+- `packages/gramstax/scripts/aot-emit.ts`: `AotEmitter` (collect, guard, emit, `safeKey`)
+- `packages/gramstax/scripts/build-manifest.ts`: `generate(..., {aot})` + `--aot` CLI (additive; legacy single-file contract unchanged)
+- `packages/gramstax/src/template/engine.ts`: `__emitHook` (collect) + `__linkHook` (link); hook unset ⇒ exact JIT path
+- `packages/gramstax/src/template/manager.ts`: `registerCompiled` (Phase 2; no validation, no reload)

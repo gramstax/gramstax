@@ -21,7 +21,7 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 
 <Warning>
   `docs/markdown` and `docs/yaml` are generated artifacts and must not be
-  hand-edited — change the source and regenerate with `bun run build:docs`.
+  hand-edited. Change the source and regenerate with `bun run build:docs`.
 </Warning>
 
 ## Consequences
@@ -49,14 +49,14 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 
 | Source Type | Reference |
 |-------------|-----------|
-| Config | `tsup.config.ts` — `outDir: ./dist/src`, `format:["cjs","esm"]`, `dts:true`, `minify:true`, `platform:node` |
-| Config | `project.json` — `"build": {"executor":"nx:run-commands","command":"tsup"}` |
-| Config | `nx.json` — `targetDefaults` (build/lint/test), `release` (conventional-commits, tag `v{version}`) |
-| Config | `api-extractor.json`, `tsconfig.build.docs.json` — API doc generation |
-| Scripts | `package.json` (root) — `build`, `build:gramstax`, `ci:test:*`, `release:*`, `dry-run` |
-| CI | `.github/workflows/release.yml` — install→`ci:test:packages`+`build`→`dry-run`→`release` |
+| Config | `tsup.config.ts`: `outDir: ./dist/src`, `format:["cjs","esm"]`, `dts:true`, `minify:true`, `platform:node` |
+| Config | `project.json`: `"build": {"executor":"nx:run-commands","command":"tsup"}` |
+| Config | `nx.json`: `targetDefaults` (build/lint/test), `release` (conventional-commits, tag `v{version}`) |
+| Config | `api-extractor.json`, `tsconfig.build.docs.json`: API doc generation |
+| Scripts | `package.json` (root): `build`, `build:gramstax`, `ci:test:*`, `release:*`, `dry-run` |
+| CI | `.github/workflows/release.yml`: install→`ci:test:packages`+`build`→`dry-run`→`release` |
 
 ## Related
 
-- [Development](../development.md) — build/test/lint commands
-- [ADR-0008](/guides/adr/0008-lint-export-dep-conventions.md) — lint/export rules the toolchain enforces
+- [Development](../development.md): build/test/lint commands
+- [ADR-0008](/guides/adr/0008-lint-export-dep-conventions.md): lint/export rules the toolchain enforces

@@ -18,7 +18,7 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 <Warning>
   The compiled output is dynamic code, so a runtime that forbids `new Function`
-  cannot execute it — some sandboxes and CSP setups do. For those runtimes, see
+  cannot execute it (some sandboxes and CSP setups do). For those runtimes, see
   the [AOT contract](/guides/aot-contract), which emits frozen modules instead.
 </Warning>
 
@@ -26,7 +26,7 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 ### Benefits
 
-- Per-update rendering is a plain function call — no repeated parsing.
+- Per-update rendering is a plain function call: no repeated parsing.
 - Templates can embed dynamic expressions via scope blocks.
 - Two-layer validation (`_TELEGRAM_REQUIRED_ATTRS`/`_PAGE_REQUIRED_ATTRS` + value validators) catches obvious authoring bugs before compile.
 
@@ -46,13 +46,13 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 | Source Type | Reference |
 |-------------|-----------|
-| Code | `src/template/engine.ts:1284,1287` — `return new Function("data", functionBody) as any` |
-| Code | `src/template/engine.ts:1270` — `_compileToFunction<T>(template, isArray)` |
-| Code | `src/template/engine.ts:1333-1638` — compile call sites for media/message/keyboard/description |
-| Docs | `AGENTS.md` — "Template pipeline is regex/parser-based with `new Function()` compilation." |
-| Docs | `AGENTS.md` — "Complexity Hotspots: template/engine.ts (Parser + compiler + validator in one file)" |
+| Code | `src/template/engine.ts:1284,1287`: `return new Function("data", functionBody) as any` |
+| Code | `src/template/engine.ts:1270`: `_compileToFunction<T>(template, isArray)` |
+| Code | `src/template/engine.ts:1333-1638`: compile call sites for media/message/keyboard/description |
+| Docs | `AGENTS.md`: "Template pipeline is regex/parser-based with `new Function()` compilation." |
+| Docs | `AGENTS.md`: "Complexity Hotspots: template/engine.ts (Parser + compiler + validator in one file)" |
 
 ## Related
 
-- [Architecture](../architecture.md) — Components: TemplateEngine, TemplateManager
-- [ADR-0005](/guides/adr/0005-hot-reload-chokidar.md) — recompile on file change
+- [Architecture](../architecture.md): Components: TemplateEngine, TemplateManager
+- [ADR-0005](/guides/adr/0005-hot-reload-chokidar.md): recompile on file change

@@ -26,7 +26,7 @@ A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provide
 
 ### Benefits
 
-- No token, no network, no port binding in tests — fast and deterministic.
+- No token, no network, no port binding in tests: fast and deterministic.
 - Full handler logic is exercised (routing, templates, sessions) not just unit slices.
 - Captured `calls` give precise assertions on rendered text and keyboard labels.
 
@@ -46,14 +46,14 @@ A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provide
 
 | Source Type | Reference                                                                                            |
 | ----------- | ---------------------------------------------------------------------------------------------------- |
-| Code        | `src/e2e/helper.ts:62,78` — `E2eHelper` + `bot.bot.api.config.use(...)` interceptor                  |
-| Code        | `src/e2e/helper.ts:283-567` — `sendText`, `sendPhoto`, `sendCallbackQuery`, `sendDice`, … simulators |
-| Code        | `src/core/bot.ts:184` — `e2e?: E2eHelper` (typed only for `deploy:"test"`)                           |
-| Code        | `src/types/bot.ts` — `deploy: "test"` documented as E2E mode                                      |
-| Code        | `src/mock/telegram-server.ts` — `MockTelegramServer` HTTP mock                                       |
-| Docs        | `AGENTS.md` — "Test mode via `deploy: 'test'` + `MockTelegramServer`."                               |
+| Code        | `src/e2e/helper.ts:62,78`: `E2eHelper` + `bot.bot.api.config.use(...)` interceptor                  |
+| Code        | `src/e2e/helper.ts:283-567`: `sendText`, `sendPhoto`, `sendCallbackQuery`, `sendDice`, … simulators |
+| Code        | `src/core/bot.ts:184`: `e2e?: E2eHelper` (typed only for `deploy:"test"`)                           |
+| Code        | `src/types/bot.ts`: `deploy: "test"` documented as E2E mode                                      |
+| Code        | `src/mock/telegram-server.ts`: `MockTelegramServer` HTTP mock                                       |
+| Docs        | `AGENTS.md`: "Test mode via `deploy: 'test'` + `MockTelegramServer`."                               |
 
 ## Related
 
-- [Architecture](../architecture.md) — Components: E2eHelper, MockTelegramServer
-- [ADR-0007](/guides/adr/0007-bun-tsup-nx-toolchain.md) — `bun test` runs these suites
+- [Architecture](../architecture.md): Components: E2eHelper, MockTelegramServer
+- [ADR-0007](/guides/adr/0007-bun-tsup-nx-toolchain.md): `bun test` runs these suites

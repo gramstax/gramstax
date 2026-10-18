@@ -9,7 +9,7 @@
 | Bun (runtime + test runner) | latest              | https://bun.sh (or `npm i -g bun`)        |
 | Node.js                     | LTS (`lts/*`)       | For the npm OIDC release step in CI only  |
 | TypeScript                  | `^6.0.3` (peer dep) | `bun add -d typescript`                   |
-| Bot token                   | —                   | From [@BotFather](https://t.me/BotFather) |
+| Bot token                   | _not applicable_    | From [@BotFather](https://t.me/BotFather) |
 
 `gramstax` targets `esnext` and uses Bun APIs (e.g. `Bun.serve` for webhooks), so **Bun is the primary runtime**. The repo is an Nx monorepo; this guide covers the `packages/gramstax` library and a local bot that consumes it.
 
@@ -27,15 +27,15 @@ bun add gramstax grammy
 
 ## Configuration
 
-A bot is configured entirely through the `IGramstaxParams` object passed to `new Gramstax(...)`. There are no `.env` files required by the library itself — only `token` and `deploy` are mandatory.
+A bot is configured entirely through the `IGramstaxParams` object passed to `new Gramstax(...)`. There are no `.env` files required by the library itself: only `token` and `deploy` are mandatory.
 
 | Field                           | Required | Description                                                                      | Default         |
 | ------------------------------- | -------- | -------------------------------------------------------------------------------- | --------------- |
-| `token`                         | Yes      | Telegram Bot API token from BotFather.                                           | —               |
-| `deploy`                        | Yes      | One of `polling`, `webhook`, `serverless`, `raw`, `test`. Per-mode settings go in `optionsDeploy`.        | —               |
+| `token`                         | Yes      | Telegram Bot API token from BotFather.                                           | _none_          |
+| `deploy`                        | Yes      | One of `polling`, `webhook`, `serverless`, `raw`, `test`. Per-mode settings go in `optionsDeploy`.        | _none_          |
 | `log`                           | No       | `LoggingHelper` instance, `true` (default logger), or `null`/`false` to disable. | `false`         |
-| `botConfig`                     | No       | The client's `BotConfig` (e.g. `apiRoot`).                                             | —               |
-| `webhookQueue`                  | No       | `IUpdateQueueConfig` backpressure (deprecated alias `IWebhookQueueConfig`). Prefer `optionsDeploy.webhook.queue`. | —               |
+| `botConfig`                     | No       | The client's `BotConfig` (e.g. `apiRoot`).                                             | _none_          |
+| `webhookQueue`                  | No       | `IUpdateQueueConfig` backpressure (deprecated alias `IWebhookQueueConfig`). Prefer `optionsDeploy.webhook.queue`. | _none_          |
 | `cacheSession`                  | No       | Custom `CacheExternal` (e.g. Redis).                                             | in-memory `Map` |
 | `cacheKeyboard`                 | No       | Custom keyboard cache `Map`.                                                     | internal `Map`  |
 | `templateManager`               | No       | Custom `TemplateManager` options.                                                | auto-created    |
@@ -44,7 +44,7 @@ A bot is configured entirely through the `IGramstaxParams` object passed to `new
 ## Running Locally
 
 The simplest local setup uses **polling** (no public URL needed). The bot is
-constructed by the CLI from `gramstax.config.ts` — there is no `src/index.ts` and
+constructed by the CLI from `gramstax.config.ts`. There is no `src/index.ts` and
 no hand-written `new Gramstax({...})` entry point:
 
 ```typescript
@@ -60,12 +60,12 @@ export default config
 ```
 
 ```bash
-# Run with Bun — the CLI resolves TypeScript paths and the ~ alias
+# Run with Bun: the CLI resolves TypeScript paths and the ~ alias
 BOT_TOKEN="123456:ABC…" bun --bun gramstax start
 ```
 
 <Warning>
-  `Gramstax` has no `start()` method. Construction *is* boot — the CLI
+  `Gramstax` has no `start()` method. Construction *is* boot. The CLI
   discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref
   slot, constructs it, and the bot is running. Only `stop()` exists.
 </Warning>
@@ -93,7 +93,7 @@ export class StartPage extends Ctx {
 ```
 
 <Warning>
-  The export must be named. `export default class` breaks discovery —
+  The export must be named. `export default class` breaks discovery:
   `PageManager._getFile` only reads the first named export
   (`page/manager.ts:56`) and throws without one.
 </Warning>
@@ -103,7 +103,7 @@ export class StartPage extends Ctx {
 <Tabs sync={false}>
   <Tab title="Webhook">
     ```typescript
-    // gramstax.config.ts — the branch must be named after `deploy`
+    // gramstax.config.ts: the branch must be named after `deploy`
     {
       deploy: `webhook`,
       optionsDeploy: {
@@ -138,7 +138,7 @@ export class StartPage extends Ctx {
 ## Verifying It Works
 
 ```bash
-# From the monorepo root — run the package's unit tests
+# From the monorepo root: run the package's unit tests
 bun run test:packages
 # or target this package's tests directly
 bun test ./packages/gramstax/test

@@ -1,6 +1,6 @@
 # `gramstax start`
 
-Boot a polling/webhook bot from `gramstax.config.ts` alone — no `src/index.ts`.
+Boot a polling/webhook bot from `gramstax.config.ts` alone: no `src/index.ts`.
 `gramstax start` composes the bot from raw config DATA plus file-path INSTANCE
 refs, discovers the `Gramstax` subclass at `src/core/bot.ts`, and constructs it
 (constructor-driven boot, no `.run()` call).
@@ -42,7 +42,7 @@ themselves, as the template does for local defaults).
 
 `token` holds the bot token VALUE itself (author-written env-or-literal,
 mirroring `IGramstaxParams.token`). The scaffold writes
-`token: process.env.BOT_TOKEN ?? ""` — `start` boots from
+`token: process.env.BOT_TOKEN ?? ""`: `start` boots from
 `config.token` and a missing/empty value throws the constructor message
 verbatim:
 
@@ -54,14 +54,14 @@ Load accepts `token` as any string including `""` (so env-less
 `gramstax build` keeps working when `BOT_TOKEN` is unset);
 only `start` enforces non-empty. Same pass-through rule for
 `optionsDeploy.webhook.secretToken` and `optionsDeploy.serverless.secretToken`
-(env expression, never a literal; serverless duality — config value sets the
-webhook, edge reads the `BOT_WEBHOOK_SECRET` binding — see
+(env expression, never a literal; serverless duality (config value sets the
+webhook, edge reads the `BOT_WEBHOOK_SECRET` binding), see
 `docs-site/guides/serverless-deploy.md`).
 
 <Warning>
   Never commit real token/secret values; keep them in `.env` (see
   `.env.example`). The framework cannot distinguish a literal from an
-  env-derived value, so no warning is possible — that caution is the whole
+  env-derived value, so no warning is possible: that caution is the whole
   guardrail.
 </Warning>
 
@@ -110,9 +110,9 @@ gramstax start: invalid `cacheSession` from ./src/cache.ts#NotACache — expecte
 | `cacheKeyboard`   | `Map`            | entries array or plain object → `new Map(...)`     |
 | `templateManager` | `TemplateManager`| `ITemplateOptions` (`path` required)              |
 | `log`             | `LoggingHelper`  | `true` → default logger, `false`/omitted → silent, options → `new LoggingHelper(opts)` |
-| `sessionLock`     | — (scalars)      | `{enabled?, leaseMs?, onContended?, key?}` where `key` is a path-ref to a `(ctx) => string` factory |
+| `sessionLock`     | _none_ (scalars) | `{enabled?, leaseMs?, onContended?, key?}` where `key` is a path-ref to a `(ctx) => string` factory |
 
-`manifest` is NOT a config field — unknown fields (including `manifest`) throw
+`manifest` is NOT a config field: unknown fields (including `manifest`) throw
 `Invalid gramstax config`.
 
 ## Start-only resolution
@@ -135,25 +135,25 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 
 | Field                   | Type                              | Default   | Rule                                    |
 | ----------------------- | --------------------------------- | --------- | --------------------------------------- |
-| `token`                 | `string`                          | —         | Any string incl. `""` at load; non-empty required for start |
+| `token`                 | `string`                          | _none_    | Any string incl. `""` at load; non-empty required for start |
 | `deploy`                | `"polling" \| "webhook" \| "serverless" \| "raw" \| "test"` | `polling` | Bare literal; `--deploy` wins           |
-| `optionsDeploy`         | `{polling?: {maxRetries?, queue?}, webhook?: {url?, secretToken?, queue?}, serverless?: {'cloudflare-mod'?: {url?, secretToken?, name?, compatibilityDate?, compatibilityFlags?, toml?}, 'aws-lambda-async'?: {url?, secretToken?}}, raw?: {}, test?: {}}` | — | `webhook` needs `url` + `secretToken`; `serverless` is keyed by adapter (exactly one key) and needs a real `url` + `secretToken` (runtime-required, type-optional); see `docs-site/guides/serverless-deploy.md`; `polling` takes `{maxRetries?, queue?}` or `{}`; `raw`/`test` take `{}` or nothing |
-| `mediaRoots`            | `string[] \| null`                | —         | Non-empty entries; empty jail off       |
-| `botConfig`             | `object`                          | —         | Passed through                          |
-| `autoRetry`             | `boolean`                         | —         | Passed through                          |
-| `autoRetryOptions`      | `object`                          | —         | `maxRetryAttempts` positive             |
-| `rateLimit`             | `{windowMs, max}`                 | —         | Both positive numbers                   |
-| `throttle`              | `object`                          | —         | Passed through                          |
-| `updateTimeoutMs`       | `number`                          | —         | Non-negative                            |
-| `skipDuplicateUpdate`   | `boolean`                         | —         | Passed through                          |
-| `maxTextLength`         | `number`                          | —         | Non-negative                            |
-| `statusServerPort`      | `number`                          | —         | `0`–`65535`                             |
-| `statusServerHostname`  | `string`                          | —         | Non-empty                               |
-| `optionsPage`           | `{shortCallbackQueryData?}`       | —         | Boolean when present                    |
+| `optionsDeploy`         | `{polling?: {maxRetries?, queue?}, webhook?: {url?, secretToken?, queue?}, serverless?: {'cloudflare-mod'?: {url?, secretToken?, name?, compatibilityDate?, compatibilityFlags?, toml?}, 'aws-lambda-async'?: {url?, secretToken?}}, raw?: {}, test?: {}}` | _none_    | `webhook` needs `url` + `secretToken`; `serverless` is keyed by adapter (exactly one key) and needs a real `url` + `secretToken` (runtime-required, type-optional); see `docs-site/guides/serverless-deploy.md`; `polling` takes `{maxRetries?, queue?}` or `{}`; `raw`/`test` take `{}` or nothing |
+| `mediaRoots`            | `string[] \| null`                | _none_    | Non-empty entries; empty jail off       |
+| `botConfig`             | `object`                          | _none_    | Passed through                          |
+| `autoRetry`             | `boolean`                         | _none_    | Passed through                          |
+| `autoRetryOptions`      | `object`                          | _none_    | `maxRetryAttempts` positive             |
+| `rateLimit`             | `{windowMs, max}`                 | _none_    | Both positive numbers                   |
+| `throttle`              | `object`                          | _none_    | Passed through                          |
+| `updateTimeoutMs`       | `number`                          | _none_    | Non-negative                            |
+| `skipDuplicateUpdate`   | `boolean`                         | _none_    | Passed through                          |
+| `maxTextLength`         | `number`                          | _none_    | Non-negative                            |
+| `statusServerPort`      | `number`                          | _none_    | `0`–`65535`                             |
+| `statusServerHostname`  | `string`                          | _none_    | Non-empty                               |
+| `optionsPage`           | `{shortCallbackQueryData?}`       | _none_    | Boolean when present                    |
 
 <Note>
   This table's scope is `polling` plus `webhook`. `serverless` and `test` behave
-  exactly as the constructor does today — no special-casing. `optionsDeploy`
+  exactly as the constructor does today: no special-casing. `optionsDeploy`
   branches (`serverless`/`webhook`/`polling`/`raw`/`test`),
   polling/webhook/test/raw sections, and real lambda fields are unchanged; see
   `docs-site/guides/gramstax-build.md` and
@@ -164,7 +164,7 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 ### The update queue (`queue?` on `polling` and `webhook`)
 
 Both branches accept the same `queue` object, and both configure the same
-class — `UpdateQueue` — each mode keeping its own instance, so the two never
+class (`UpdateQueue`), each mode keeping its own instance, so the two never
 contend. Fields: `{enabled?, maxQueueSize?, workerCount?, perChatConcurrency?,
 blockWhenFull?, enqueueTimeoutMs?, waiterTimeoutMs?}`.
 
@@ -195,18 +195,18 @@ restart print and keep watching.
 Symptom: `gramstax start` throws `no Gramstax subclass export found in
 <bot-file>` even though `src/core/bot.ts` clearly exports
 `class BotCore extends Gramstax`, and the error now also names the CLI's own
-gramstax entry. Cause: TWO `gramstax` copies — the bot file loaded one copy
+gramstax entry. Cause: TWO `gramstax` copies: the bot file loaded one copy
 (e.g. a repo-root `tsconfig` `paths` entry redirecting `gramstax` to
 `packages/gramstax/src/index.ts`) while the CLI runs from another (the built
 `dist` entry), so `prototype instanceof Gramstax` compares across copies and
-fails. Fix: make the bot file resolve to the same `dist` copy the CLI uses —
+fails. Fix: make the bot file resolve to the same `dist` copy the CLI uses:
 remove any `gramstax` → `src` mapping from the active `tsconfig` `paths`
 (scaffolded projects already strip these mappings at generation, so a
 registry-installed `gramstax` in `node_modules` wins) and re-run.
 
 ## Implementation map
 
-- `packages/gramstax/src/cli/start.ts` — `GramstaxStart.run(argv, cwd)` / `boot(argv, cwd)`
-- `packages/gramstax/src/cli/config.ts` — `IGramstaxConfig` plus the `GramstaxConfig` alias, loader, strict validation, `CONFIG_OVERRIDE_SLOTS`
-- `packages/gramstax/src/cli/gramstax.ts` — `start` command wiring (`--deploy`/`--watch`)
-- `packages/gramstax/src/cli/build.ts` — R3a workers guardrail warning only
+- `packages/gramstax/src/cli/start.ts`: `GramstaxStart.run(argv, cwd)` / `boot(argv, cwd)`
+- `packages/gramstax/src/cli/config.ts`: `IGramstaxConfig` plus the `GramstaxConfig` alias, loader, strict validation, `CONFIG_OVERRIDE_SLOTS`
+- `packages/gramstax/src/cli/gramstax.ts`: `start` command wiring (`--deploy`/`--watch`)
+- `packages/gramstax/src/cli/build.ts`: R3a workers guardrail warning only

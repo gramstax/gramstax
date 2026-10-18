@@ -2,7 +2,7 @@
   <p><img src="https://avatars.githubusercontent.com/u/187108398?s=200&v=4" alt="Gramstax logo" width="120" height="120" /></p>
   <h1>gramstax</h1>
 
-  <p>A declarative Telegram bot framework — turn a bot into pages that own a slice of markup, a keyboard and a set of handlers, discovered from <code>src/pages</code> and routed by convention.</p>
+  <p>A declarative Telegram bot framework: turn a bot into pages that own a slice of markup, a keyboard and a set of handlers, discovered from <code>src/pages</code> and routed by convention.</p>
   <p>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
@@ -15,71 +15,92 @@
 
 ## 💡 Why this package
 
-Most Telegram frameworks give you `bot.command("start", …)` and a template literal, then leave you to decide — differently in every file — where markup lives, how a second language gets added, and whether a tap edits the message it came from or orphans it.
+Most Telegram frameworks hand you a registration call and leave the rest to be
+decided per file: where markup lives, how a second language gets added, whether a
+tap edits the message it came from or orphans it. These are the parts that end up
+decided differently in every file.
 
-**No router.** A page's route *is* its path: `start.ts` → `start`, `admin/ban.ts` → `admin/ban` at any depth, `admin/index.ts` → `admin`. The scanner takes the first named export as the page class and binds every `handle*` method you name. Naming a method *is* registering it — there is no central table, so adding a page cannot break an unrelated one.
+**A page is a file.** `start.ts` is `/start`, `admin/ban.ts` is `/admin/ban`, at
+any depth. There is no route table to keep in sync, so adding a page cannot break
+an unrelated one.
 
-**No template engine to build.** Text, keyboards, captions, poll options, invoices and error toasts live in one `static template`, compiled ahead of time: 29 PAGE blocks and 54 Bot API 10.3 Rich HTML tags, validated in three layers. `lang="id"` buys a second language, `{{var|upper}}` buys formatting, `<g-ifelse>` buys a conditional that survives AOT — none of it in the handler.
+**One template owns every language.** `lang="id"` beside the default block gives
+an Indonesian client Indonesian, with no branch in the handler and no second
+source of truth to keep in step.
 
-**No send-versus-edit branching.** `renderText` defaults to `auto`: it edits the message a callback query is attached to and replies otherwise. You write the render once; the framework reads the update in one place.
+**`mode: "auto"` decides send versus edit.** The framework reads the update in
+one place instead of every handler branching on `ctx.callbackQuery`.
 
-**No render call whose params are a guess.** Each `render*()` params type is a union over its real delivery routes, and every universal key is a real type where the route reads it, `?: never` where it does not. `{mode: "reply", fallback: "reply"}` does not compile, because a forced reply never edits and so never reaches a fallback. `Ctx._assertRenderRoute` enforces the same at runtime for plain-JS callers.
+**Render params cannot describe a state that cannot happen.** Each `render*()`
+params type is a union over its real delivery routes, with `?: never` where a key
+is unreachable. `{mode: "reply", fallback: "reply"}` does not compile, and
+`_assertRenderRoute` enforces the same rule at runtime.
 
-**No markup inside API calls.** A page owns its blocks, so one source renders every language the page declares and stays translatable — `<g-message>` and `<g-message lang="id">` side by side means an Indonesian Telegram client gets Indonesian with no branch in the handler.
+**Templates are frozen before they ship.** `gramstax build` compiles them ahead of
+time, and a test asserts the output carries zero `new Function`, `Function(` or
+`eval(` under a sabotaged `globalThis.Function`.
 
-**No guessing at the Telegram dialect.** The engine parses to typed blocks and validates against Bot API 10.3 (`TemplateEngine.BOT_API_VERSION`): required attributes, value formats, and a per-tag allow-list that rejects unknown attributes instead of ignoring them.
+**Silence is counted.** `noMatch`, `noHandler`, `blocked` and `dropped` are
+counters rather than a shrug: `GET /stats` for JSON, `GET /metrics` for Prometheus.
 
-**No boot file that drifts from `.env`.** No `src/index.ts`, no hand-written constructor call. `gramstax start` reads `gramstax.config.ts`, discovers the `Gramstax` subclass, materializes each ref slot, constructs it. Construction *is* boot.
+### Against the usual approach
 
-**One deploy field, five behaviours.** `polling`, `webhook`, `serverless`, `raw`, `test` — per-mode settings sit in `optionsDeploy` nested branches where at most one branch may be non-empty and it must equal `deploy`. The old `webhook:<url>` colon grammar throws.
+| Area | The usual way | Here |
+| --- | --- | --- |
+| routing | every route registered by hand in one place | the file path *is* the route; naming a `handle*` method registers it |
+| markup and i18n | markup inside the API call, one branch per locale | one template; `<g-message lang="id">` sits beside `<g-message>`, and no handler branches |
+| send versus edit | read the update and choose | `mode: "auto"` reads it in one place |
+| impossible states | an options object assembled by hand | a union over real routes, `?: never` where a key is unreachable, re-checked at runtime |
+| nothing matched | silence | `noMatch`, `noHandler`, `blocked` and `dropped` counted |
+| server codegen | `new Function` at runtime | frozen ahead of time, asserted to hold zero codegen tokens |
 
-**No updates that vanish without a trace.** An in-process `MetricsStore` counts `matched`, `noMatch`, `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`, `skippedValidation`, `dropped` — JSON at `GET /stats`, Prometheus text at `GET /metrics`.## ✨ Features
+## ✨ Features
 
 ### Page routing
 
-- 📄 **Pages are classes, discovered from the filesystem** — every named export under `src/pages` that extends `Ctx` becomes a routable page; `PageManager` loads them and the route name comes from the path (`start/index.ts` → `start`, `start/counter/thread.ts` → `start/counter/thread`)
-- 🧭 **Routing by handler-name convention** — `handleCommandText`, `handleArgsText`, `handleCallbackQueryData`, `handleArgsCallbackQueryData`, `handleCaptionPhoto`, the `handleFree*` family and its `handleSession*` variants are all picked up by name; a handler that does not exist is simply not a route
-- 🪝 **Typed callback payloads** — `static data = this.buildData((id: string) => [id])` types `data.callbackQueryData(...)`, and `inlineKeyboardT` then compile-checks that the destination page actually defines the matching handler
-- 🚪 **Two gates, not one** — a bot-level `hookBeforeRoute(ctx, data)` filter that runs before routing, and a page-level `hookBeforeRoute()` that runs on the constructed page after a route matches; only strict `false` denies
-- 🧭 **`g*` step objects** — every step is a `{show, process}` pair, so each view is independently renderable and independently testable in e2e
+- 📄 **Pages are classes, discovered from the filesystem**: every named export under `src/pages` that extends `Ctx` becomes a routable page; `PageManager` loads them and the route name comes from the path (`start/index.ts` → `start`, `start/counter/thread.ts` → `start/counter/thread`)
+- 🧭 **Routing by handler-name convention**: `handleCommandText`, `handleArgsText`, `handleCallbackQueryData`, `handleArgsCallbackQueryData`, `handleCaptionPhoto`, the `handleFree*` family and its `handleSession*` variants are all picked up by name; a handler that does not exist is simply not a route
+- 🪝 **Typed callback payloads**: `static data = this.buildData((id: string) => [id])` types `data.callbackQueryData(...)`, and `inlineKeyboardT` then compile-checks that the destination page actually defines the matching handler
+- 🚪 **Two gates, not one**: a bot-level `hookBeforeRoute(ctx, data)` filter that runs before routing, and a page-level `hookBeforeRoute()` that runs on the constructed page after a route matches; only strict `false` denies
+- 🧭 **`g*` step objects**: every step is a `{show, process}` pair, so each view is independently renderable and independently testable in e2e
 
 ### The render contract
 
-- 🧩 **`CONTENT & ROUTE`** — the content half names the template fields (`data`, `AGBaseId`, media `type`), the route atoms say how the rendered block is delivered; `params = IContent & (union of routes)`
-- 🚦 **`mode: 'auto' | 'reply' | 'edit'`** — the send-versus-edit decision, implemented once, with `fallback` (`delete-reply` · `reply` · `disable`) covering a failed edit
-- 📐 **32 `render*()` methods on `Ctx`** — text, media (10 kinds), media groups, poll, invoice, paid media, venue, dice, gift, caption edit, keyboard edit, broadcast revise/delete, and 6 template-backed query answers
-- 🛡️ **Runtime route guard** — `Ctx._assertRenderRoute` and `Ctx._assertInlineKeyboardForEdit` throw with the offending field named and the fix suggested, for plain-JS callers the types cannot reach
+- 🧩 **`CONTENT & ROUTE`**: the content half names the template fields (`data`, `AGBaseId`, media `type`), the route atoms say how the rendered block is delivered; `params = IContent & (union of routes)`
+- 🚦 **`mode: 'auto' | 'reply' | 'edit'`**: the send-versus-edit decision, implemented once, with `fallback` (`delete-reply` · `reply` · `disable`) covering a failed edit
+- 📐 **32 `render*()` methods on `Ctx`**: text, media (10 kinds), media groups, poll, invoice, paid media, venue, dice, gift, caption edit, keyboard edit, broadcast revise/delete, and 6 template-backed query answers
+- 🛡️ **Runtime route guard**: `Ctx._assertRenderRoute` and `Ctx._assertInlineKeyboardForEdit` throw with the offending field named and the fix suggested, for plain-JS callers the types cannot reach
 
 ### Templates
 
-- 🧱 **29 `<g-*>` PAGE blocks** — structure (`g-base`, `g-import`, `g-space`, `g-div`), logic (`g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-script`, `g-map`), content (`g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-invoice`, `g-price`, `g-paid-media`, `g-venue`, `g-dice`, `g-gift`, `g-description`, `g-question`, `g-option`) and answers (`g-callback-answer`, `g-inline-button`, `g-precheckout-error`, `g-shipping-error`, `g-answer-note`)
-- 🌐 **54 Telegram tags passed through** — 9 legacy HTML-mode tags plus 45 from the Bot API 10.3 Rich Message Formatting spec, in 5 categories, with required-attribute, value-format and unknown-attribute validation per tag
-- 🔧 **Compile-time filter pipes** — `{{name|upper}}`, `{{price|number:2}}`, `{{createdAt|date:YYYY-MM-DD}}`, `{{count|plural:item:items}}`, `{{x|default:N/A}}` compiled into chained calls, on a whitelist — an unknown filter renders empty and warns once, never executes code
-- 🌍 **Per-language variants** — `lang="id"` on any block, resolved from the user's `language_code` with a `default` fallback chain
-- ⚡ **AOT for the edge** — `gramstax build` freezes every template into a plain ESM module under `.gramstax/gen/` with zero `new Function` / `eval` tokens; `template.aot-parity.test.ts` locks AOT output byte-for-byte against JIT
+- 🧱 **29 `<g-*>` PAGE blocks**: structure (`g-base`, `g-import`, `g-space`, `g-div`), logic (`g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-script`, `g-map`), content (`g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-invoice`, `g-price`, `g-paid-media`, `g-venue`, `g-dice`, `g-gift`, `g-description`, `g-question`, `g-option`) and answers (`g-callback-answer`, `g-inline-button`, `g-precheckout-error`, `g-shipping-error`, `g-answer-note`)
+- 🌐 **54 Telegram tags passed through**: 9 legacy HTML-mode tags plus 45 from the Bot API 10.3 Rich Message Formatting spec, in 5 categories, with required-attribute, value-format and unknown-attribute validation per tag
+- 🔧 **Compile-time filter pipes**: `{{name|upper}}`, `{{price|number:2}}`, `{{createdAt|date:YYYY-MM-DD}}`, `{{count|plural:item:items}}`, `{{x|default:N/A}}` compiled into chained calls, on a whitelist: an unknown filter renders empty and warns once, never executes code
+- 🌍 **Per-language variants**: `lang="id"` on any block, resolved from the user's `language_code` with a `default` fallback chain
+- ⚡ **AOT for the edge**: `gramstax build` freezes every template into a plain ESM module under `.gramstax/gen/` with zero `new Function` / `eval` tokens; `template.aot-parity.test.ts` locks AOT output byte-for-byte against JIT
 
 ### Runtime features
 
-- 🚦 **Inbound rate limiting** — `@grammyjs/ratelimiter` with `hookRateLimited(ctx)` and a synchronous `hookKeyGenerator(ctx)` (defaults to sender id)
-- 🐢 **Outgoing throttling** — `@grammyjs/transformer-throttler` via `throttle: {global, group, out}`, composing with `autoRetry`
-- 📎 **File download** — `@grammyjs/files` mounted by default; `ctx.download(path?)` saves the current message's file and rejects `..` / NUL-byte paths
-- 🔒 **Distributed session lock** — a Redis `SET NX PX` lease held for the whole update dispatch, with `skip` · `wait` · `serialize` contention modes; auto-disabled with a warning on a memory store
-- 📊 **Prometheus metrics** — `GET /metrics` on the status server, plus `GET /health` and `GET /stats`, with an optional `hookTrace` span after every routed update
-- 🧪 **In-process e2e** — `deploy: "test"` mounts `MockTelegramServer` and `bot.e2e` (`E2eHelper`), so tests drive updates and assert captured Bot API calls with zero HTTP and zero ports
+- 🚦 **Inbound rate limiting**: `@grammyjs/ratelimiter` with `hookRateLimited(ctx)` and a synchronous `hookKeyGenerator(ctx)` (defaults to sender id)
+- 🐢 **Outgoing throttling**: `@grammyjs/transformer-throttler` via `throttle: {global, group, out}`, composing with `autoRetry`
+- 📎 **File download**: `@grammyjs/files` mounted by default; `ctx.download(path?)` saves the current message's file and rejects `..` / NUL-byte paths
+- 🔒 **Distributed session lock**: a Redis `SET NX PX` lease held for the whole update dispatch, with `skip` · `wait` · `serialize` contention modes; auto-disabled with a warning on a memory store
+- 📊 **Prometheus metrics**: `GET /metrics` on the status server, plus `GET /health` and `GET /stats`, with an optional `hookTrace` span after every routed update
+- 🧪 **In-process e2e**: `deploy: "test"` mounts `MockTelegramServer` and `bot.e2e` (`E2eHelper`), so tests drive updates and assert captured Bot API calls with zero HTTP and zero ports
 
 ### Boot and deploy
 
-- ⚙️ **Config-driven boot** — a typed `gramstax.config.ts` default export; 19 known top-level fields, anything else throws `unknown field`
-- 📦 **Nested `optionsDeploy` branches** — at most one branch may be non-empty and it must equal `deploy`; the legacy `webhook:<url>` colon grammar throws
-- 🧊 **Frozen build output** — `.gramstax/` with `routes.json`, `manifest.js`, AOT `gen/` and per-target `server/` entries; only `serverless` auto-loads it
-- 🚀 **Five deploy modes** — `polling`, `webhook`, `serverless` (`cloudflare-mod` · `aws-lambda-async`), `raw` (a bare `Bot` instance) and `test`
-- 🔁 **Hot reload** — `gramstax start --watch` restarts on `src` change with cache-busted imports
+- ⚙️ **Config-driven boot**: a typed `gramstax.config.ts` default export; 19 known top-level fields, anything else throws `unknown field`
+- 📦 **Nested `optionsDeploy` branches**: at most one branch may be non-empty and it must equal `deploy`; the legacy `webhook:<url>` colon grammar throws
+- 🧊 **Frozen build output**: `.gramstax/` with `routes.json`, `manifest.js`, AOT `gen/` and per-target `server/` entries; only `serverless` auto-loads it
+- 🚀 **Five deploy modes**: `polling`, `webhook`, `serverless` (`cloudflare-mod` · `aws-lambda-async`), `raw` (a bare `Bot` instance) and `test`
+- 🔁 **Hot reload**: `gramstax start --watch` restarts on `src` change with cache-busted imports
 
 ## 🚀 Quick Start
 
 ### 1. Prerequisites
 
-- [Bun](https://bun.sh) — the CLI resolves TypeScript paths and the `~/*` alias through a `file://` import, which plain `node` cannot
+- [Bun](https://bun.sh): the CLI resolves TypeScript paths and the `~/*` alias through a `file://` import, which plain `node` cannot
 - `typescript ^6.0.3` (peer dependency)
 - A bot token from [@BotFather](https://t.me/BotFather)
 
@@ -89,7 +110,7 @@ Most Telegram frameworks give you `bot.command("start", …)` and a template lit
 bun add gramstax
 ```
 
-Scaffold a whole project instead of wiring it by hand — the scaffolding CLI is the sibling package `create-gramstax`:
+Scaffold a whole project instead of wiring it by hand (the scaffolding CLI is the sibling package `create-gramstax`):
 
 ```bash
 bun create gramstax my-bot
@@ -138,7 +159,7 @@ export class StartPage extends PageBase {
 }
 ```
 
-Because both languages live in the same block set, the bot renders Indonesian for an Indonesian Telegram client and English for everyone else — without a branch in the handler.
+Because both languages live in the same block set, the bot renders Indonesian for an Indonesian Telegram client and English for everyone else, without a branch in the handler.
 
 ### 4. Configure and run
 
@@ -169,7 +190,7 @@ bun --bun gramstax start --watch  # boot + restart on src change
 
 ### 5. Next steps
 
-- Write more pages under `src/pages` — routing is filesystem discovery, there is no registry to update
+- Write more pages under `src/pages`: routing is filesystem discovery, there is no registry to update
 - Add a shared keyboard block in `src/blocks/g-keyboard.ts` once two or more pages need it
 - Add the global error / not-found pages via `hookErrorPage` and `hookNotFoundPage` on `src/core/bot.ts`
 - Add `e2e/setup.ts` and drive the bot through `bot.e2e` with `deploy: "test"`
@@ -183,18 +204,18 @@ Four moving parts, in this order:
 
 | Piece | Declared as | What it is |
 | :---- | :---------- | :--------- |
-| `static data` | `this.buildData(...)` | Route identity — the page name, the text/command/callback intents, and the typed `callbackQueryData(...)` signature |
+| `static data` | `this.buildData(...)` | Route identity: the page name, the text/command/callback intents, and the typed `callbackQueryData(...)` signature |
 | handlers | `handle*` methods | The entry points routing dispatches to; each stays thin and delegates to a `g*` step |
 | `helper` / `g*` | instance fields | Page-local closures and the `{show, process}` step objects |
-| `static template` | a template literal | The markup — `<g-base>` blocks containing `<g-message>`, `<g-keyboard>`, `<g-media>` and friends |
+| `static template` | a template literal | The markup: `<g-base>` blocks containing `<g-message>`, `<g-keyboard>`, `<g-media>` and friends |
 
 `buildData` has four shapes:
 
 ```ts
-// no args — callbackQueryData() takes zero arguments
+// no args: callbackQueryData() takes zero arguments
 static data = this.buildData()
 
-// a callback-arg mapper — types data.callbackQueryData(id)
+// a callback-arg mapper: types data.callbackQueryData(id)
 static data = this.buildData((id: string) => [id])
 
 // optional args
@@ -204,7 +225,7 @@ static data = this.buildData((exe?: string) => [exe])
 static data = this.buildData({name: `lang`, intentTextMap: {en: `hello`, default: `hello`}})
 ```
 
-A page **without** `static data` still routes, but `callbackQueryData` is not available — `IPageDataBase` deliberately omits it, so a page cannot wire a callback it never declared. `data.callbackQueryData(...)` returns `{result, page, args}`: `result` is the string Telegram carries, `page` is the destination class, `args` the tuple you passed.
+A page **without** `static data` still routes, but `callbackQueryData` is not available: `IPageDataBase` deliberately omits it, so a page cannot wire a callback it never declared. `data.callbackQueryData(...)` returns `{result, page, args}`: `result` is the string Telegram carries, `page` is the destination class, `args` the tuple you passed.
 
 ```ts
 // example/1-complex/src/pages/start/counter/index.ts
@@ -213,7 +234,7 @@ helper = {
 }
 ```
 
-`inlineKeyboardT` resolves each destination into its callback payload — a `IKbCallbackData` object uses `result`, a page class has `callbackQueryData()` called for you, and a bare string passes through — and `Helper.ensurePageHasCallback` throws if the destination page has no `handleCallbackQueryData`.
+`inlineKeyboardT` resolves each destination into its callback payload (a `IKbCallbackData` object uses `result`, a page class has `callbackQueryData()` called for you, and a bare string passes through), and `Helper.ensurePageHasCallback` throws if the destination page has no `handleCallbackQueryData`.
 
 #### Handler naming
 
@@ -232,7 +253,7 @@ Args come **after** the verb, and the singular getters return the first token:
 
 | Getter | Returns |
 | :----- | :------ |
-| `this.msg?.text` | `string \| undefined` — always optional-chain; a caption update carries no text |
+| `this.msg?.text` | `string \| undefined`: always optional-chain; a caption update carries no text |
 | `this.msgTextArg` / `this.msgTextArgs` | the first token / all tokens after the intent |
 | `this.msgTextCommandArg` / `msgTextCommandArgs` | the same for the command payload |
 | `this.msgCaptionArg` / `msgCaptionArgs` | the same for captions |
@@ -246,7 +267,7 @@ Args come **after** the verb, and the singular getters return the first token:
 
 | Key | Feeds |
 | :-- | :---- |
-| `mode` | send-versus-edit resolution — `auto` (default), `reply`, or `edit` |
+| `mode` | send-versus-edit resolution: `auto` (default), `reply`, or `edit` |
 | `keyboard` | reply markup; narrowed to `IInlineKb` where the call is always an edit |
 | `rich` | the `InputRichMessage` payload |
 | `richOptions` | rich-call options (send-only routes get `IOptRichSend`, edit-capable ones `IOptRich`) |
@@ -269,9 +290,9 @@ await this.renderText({mode: `edit`, keyboard: this.inlineKeyboardT([this]), edi
 
 **One field, one call.** There is no options bag that has to satisfy two Telegram methods at once. `options` feeds the send, `editOptions` the edit, `fallbackOptions` the resend after a failed edit. On the media family the same rule splits one overloaded field into `captionOptions` (the caption-bearing send), `media` + `mediaOptions` (`editMessageMedia`), and `resendOptions` (the delete-then-resend path for kinds that cannot be edited in place).
 
-**The runtime backs it up.** `Ctx._assertRenderRoute(method, params, richAxis)` is one function shared by `renderText`, `renderMedia` and `renderMediaGroup`; it resolves the route from the same discriminators (`broadcast` shape, then `chunkSize`, then `mode`) and throws naming every dropped field and the fix. `Ctx._assertInlineKeyboardForEdit` rejects a bottom keyboard on an edit route before any API call — `editMessageText` would otherwise come back as an opaque Telegram 400.
+**The runtime backs it up.** `Ctx._assertRenderRoute(method, params, richAxis)` is one function shared by `renderText`, `renderMedia` and `renderMediaGroup`; it resolves the route from the same discriminators (`broadcast` shape, then `chunkSize`, then `mode`) and throws naming every dropped field and the fix. `Ctx._assertInlineKeyboardForEdit` rejects a bottom keyboard on an edit route before any API call: `editMessageText` would otherwise come back as an opaque Telegram 400.
 
-**Rich versus plain is a compile-time decision.** The `<g-message>` block decides, not the params: each route carries both `options` (plain) and `rich` (rich payload), and passing the one the block does not read logs a one-time `log.warn` and is ignored — never a throw, because a `--watch` hot reload can flip a page between the two in one process.
+**Rich versus plain is a compile-time decision.** The `<g-message>` block decides, not the params: each route carries both `options` (plain) and `rich` (rich payload), and passing the one the block does not read logs a one-time `log.warn` and is ignored, never a throw, because a `--watch` hot reload can flip a page between the two in one process.
 
 #### Route atoms
 
@@ -282,12 +303,12 @@ The twelve atoms are exported, so the contract is documented per route rather th
 | `IRouteAuto` | runtime-decided single message | `broadcast`, `chunkSize` |
 | `IRouteEdit` | forced edit of the message tied to the update | `options` |
 | `IRouteReply` | forced send, `mode` required | `editOptions`, `fallbackOptions`, `fallback` |
-| `IRouteForcedReply` | the same for send-only methods — `mode` optional | `editOptions`, `fallbackOptions`, `fallback` |
+| `IRouteForcedReply` | the same for send-only methods: `mode` optional | `editOptions`, `fallbackOptions`, `fallback` |
 | `IRouteChunked` | sequential reply chunks (`chunkSize` required) | `editOptions`, `fallbackOptions`, `fallback` |
 | `IRouteBroadcastSend` | fan-out to `broadcast.ids` | `mode`, `editOptions`, `fallbackOptions`, `fallback`, `chunkSize` |
 | `IRouteMediaAuto<T>` | runtime-decided single media | `options`, `editOptions`, `rich`, `richOptions`, `captionOptions` |
 | `IRouteMediaReply<T>` | forced media send | everything edit-side, plus `media`, `mediaOptions`, `resendOptions` |
-| `IRouteMediaBroadcastSend<T>` | media fan-out — the kind comes from the block | `mode`, `type`, and every edit-side key |
+| `IRouteMediaBroadcastSend<T>` | media fan-out: the kind comes from the block | `mode`, `type`, and every edit-side key |
 | `IRouteMediaBroadcastRevise<T>` | revise stored `broadcast.targets` | `mode`, `options`, `captionOptions`, `fallbackOptions`, … |
 | `IRouteGroupAuto` | runtime-decided group send | `keyboard` (groups carry no markup), `rich`, `richOptions`, `fallbackOptions` |
 | `IRouteGroupReply` | forced group send | same, plus `fallback` |
@@ -311,7 +332,7 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
 <g-space />                             <!-- void, self-closing -->
 ```
 
-**Logic** — conditionals live in the template, not in a near-duplicate base:
+**Logic**, conditionals live in the template, not in a near-duplicate base:
 
 ```html
 <g-ifelse>deletedAt ? "Yes" : "No"</g-ifelse>
@@ -325,7 +346,7 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
 </g-map>
 ```
 
-`<g-script>` and every `{~~ … ~~}` scope emit `with(`, which is forbidden in ESM strict mode — they work under `gramstax start` (JIT) and hard-fail `gramstax build`. `<g-ifelse>` is the AOT-safe conditional: it emits a plain optional-`data` ternary. For anything computed, put it in a page-class method and interpolate it with `{{}}`.
+`<g-script>` and every `{~~ … ~~}` scope emit `with(`, which is forbidden in ESM strict mode. They work under `gramstax start` (JIT) and hard-fail `gramstax build`. `<g-ifelse>` is the AOT-safe conditional: it emits a plain optional-`data` ternary. For anything computed, put it in a page-class method and interpolate it with `{{}}`.
 
 **Content**
 
@@ -353,16 +374,16 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
 <g-gift>🎁 Gift text</g-gift>
 ```
 
-**Answers** — the text a query is answered with is a template block, so it is localizable: `<g-callback-answer>Saved</g-callback-answer>`, `<g-inline-button text="Search" start-parameter="q" />`, `<g-precheckout-error>Card declined</g-precheckout-error>`, `<g-shipping-error>We cannot ship there</g-shipping-error>`, `<g-answer-note>Note appended to the inline result</g-answer-note>`.
+**Answers**, the text a query is answered with is a template block, so it is localizable: `<g-callback-answer>Saved</g-callback-answer>`, `<g-inline-button text="Search" start-parameter="q" />`, `<g-precheckout-error>Card declined</g-precheckout-error>`, `<g-shipping-error>We cannot ship there</g-shipping-error>`, `<g-answer-note>Note appended to the inline result</g-answer-note>`.
 
-**Telegram Rich HTML.** 54 tags pass straight through to the message `html` field: `a`, `b`, `code`, `del`, `em`, `i`, `ins`, `mark`, `s`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`, `u`; `aside`, `blockquote`, `blockquote expandable`, `br`, `caption`, `details`, `footer`, `h1`–`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul`; `tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`; `audio`, `cite`, `figcaption`, `figure`, `img`, `video`; `input`. Void elements must self-close (`<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>`). Required attributes, value formats and the per-tag allowlist are all validated — `<tg-time unix="1647531900">` is legal, `<tg-time unix="abc">` is not, and `<table ngasal="x">` is rejected by name.
+**Telegram Rich HTML.** 54 tags pass straight through to the message `html` field: `a`, `b`, `code`, `del`, `em`, `i`, `ins`, `mark`, `s`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`, `u`; `aside`, `blockquote`, `blockquote expandable`, `br`, `caption`, `details`, `footer`, `h1`–`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul`; `tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`; `audio`, `cite`, `figcaption`, `figure`, `img`, `video`; `input`. Void elements must self-close (`<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>`). Required attributes, value formats and the per-tag allowlist are all validated: `<tg-time unix="1647531900">` is legal, `<tg-time unix="abc">` is not, and `<table ngasal="x">` is rejected by name.
 
 ### Interpolation and filters
 
 | Syntax | Behaviour |
 | :----- | :-------- |
 | `{{key}}` | HTML-escaped interpolation (`&`, `<`, `>` escaped) |
-| `{{{key}}}` | raw pass-through — developer-authored markup only |
+| `{{{key}}}` | raw pass-through: developer-authored markup only |
 | `{{key|filter:arg}}` | post-processing pipe, compiled into a chained call |
 | `<g-ifelse>…</g-ifelse>` | AOT-safe conditional, raw output |
 | `{{user.name|upper}}` | dotted paths work |
@@ -373,7 +394,7 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
 | `number` | `{{price\|number:2}}` | fixed decimals (default 0); non-numeric renders empty, never `NaN` |
 | `date` | `{{at\|date:YYYY-MM-DD}}` | UTC formatting over `YYYY MM DD HH mm ss`; default `YYYY-MM-DD` |
 | `plural` | `{{count\|plural:item:items}}` | first arg when the value is exactly `1`, second otherwise |
-| `default` | `{{x\|upper\|default:N/A}}` | applies only to undefined / null / empty — `0` and `false` pass through |
+| `default` | `{{x\|upper\|default:N/A}}` | applies only to undefined / null / empty: `0` and `false` pass through |
 
 Pipes chain left to right. `DEFAULT_FILTERS` is a strict whitelist: an unknown filter renders empty and logs one `console.warn` per compile, because a template cannot execute arbitrary code through a pipe.
 
@@ -382,22 +403,22 @@ Pipes chain left to right. `DEFAULT_FILTERS` is a strict whitelist: an unknown f
 Two builders, two template block types:
 
 ```ts
-// inline — button text and callback data both come from the labels
+// inline: button text and callback data both come from the labels
 const inline = this.inlineKeyboardT([StartCounterPage, StartHelpPage], `2`)
 const inlineFn = this.inlineKeyboard((k, l) => k.text(l[0]!, StartCounterPage).row().text(l[1]!, StartHelpPage), {cache: true, AGBaseId: Base.index})
 
-// bottom — text buttons that re-trigger text routing
+// bottom: text buttons that re-trigger text routing
 const bottom = this.bottomKeyboard((k, l) => k.text(l[0]!).row().text(l[1]!).oneTime())
 ```
 
-`layout` is an `IKbCols` — a fixed `"1"`–`"6"` or a responsive range like `"2-4"`; `AGBaseId` picks which base's `<g-keyboard>` block supplies the labels; `cache: true` memoizes the built keyboard per `page:base:lang:i`.
+`layout` is an `IKbCols`: a fixed `"1"`–`"6"` or a responsive range like `"2-4"`; `AGBaseId` picks which base's `<g-keyboard>` block supplies the labels; `cache: true` memoizes the built keyboard per `page:base:lang:i`.
 
-Inline is right for anything that should edit in place (the callback query makes `mode: 'auto'` edit the same message). Bottom is right for durable input modes — a city name, a persistent action — because bottom buttons send plain text. `renderEditKeyboard` swaps only the markup, with no resend.
+Inline is right for anything that should edit in place (the callback query makes `mode: 'auto'` edit the same message). Bottom is right for durable input modes (a city name, a persistent action) because bottom buttons send plain text. `renderEditKeyboard` swaps only the markup, with no resend.
 
 **Shared blocks.** Once two or more pages need the same board, lift it into `src/blocks/g-keyboard.ts` and expose it on `PageBase`:
 
 ```ts
-// src/blocks/g-keyboard.ts — example/1-complex
+// src/blocks/g-keyboard.ts: example/1-complex
 import {BlockGKeyboard, LabelGKeyboard} from "gramstax"
 
 export class KeyboardGBlock extends BlockGKeyboard {
@@ -456,21 +477,21 @@ export class StartInputTextPage extends PageBase {
 
 Four behaviours worth knowing:
 
-- **Non-session routes auto-clear.** Once per dispatch, the first matched non-session route clears any existing session — so nothing leaks into the next update. Session routes never auto-clear.
+- **Non-session routes auto-clear.** Once per dispatch, the first matched non-session route clears any existing session, so nothing leaks into the next update. Session routes never auto-clear.
 - **Do not fetch the session by hand.** The framework injects it into `this.temp.session` before your handler runs; a manual `getSession()` races a dispatch that already happened.
 - **Clear explicitly on `/start`.** `await this.clearSession()` at the top of the command handler is the cheapest way to guarantee a clean slate.
-- **`setSession([...])` for multi-input.** Bind one payload to several handlers at once — `await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto()], {position: `form`})`.
+- **`setSession([...])` for multi-input.** Bind one payload to several handlers at once: `await this.setSession([this.methodSessionFreeText(), this.methodSessionFreePhoto()], {position: `form`})`.
 
 ### Guards
 
 | You want | Use |
 | :------ | :-- |
-| every route in a page family gated | a base class + `hookBeforeRoute()` — the framework calls it on every matched route, so a new page cannot opt out |
+| every route in a page family gated | a base class + `hookBeforeRoute()`: the framework calls it on every matched route, so a new page cannot opt out |
 | one check inside one handler or step | a `GuardBase` subclass whose method returns a value you branch on |
 | every route in the whole bot | `BotCore.hookBeforeRoute(ctx, data)` |
 
 ```ts
-// page-level gate — no params, `this` IS the page
+// page-level gate: no params, `this` IS the page
 export abstract class PageAdminBase extends PageBase {
   async hookBeforeRoute() {
     if (await isAdmin(this.from!.id)) return true
@@ -481,7 +502,7 @@ export abstract class PageAdminBase extends PageBase {
 ```
 
 ```ts
-// bot-level gate — example/1-complex/src/core/bot.ts
+// bot-level gate: example/1-complex/src/core/bot.ts
 export class BotCore extends Gramstax {
   async hookBeforeRoute(ctx: CtxCore) {
     const user = await new UserGuard(ctx).overrideLang()
@@ -493,7 +514,7 @@ export class BotCore extends Gramstax {
 }
 ```
 
-`!== false` is the test — omitting the hook allows, and so does returning `undefined`, `null`, `0` or `""`. Denying is silent by default: answer the callback or render a page, or the user sees nothing. A page that overrides an inherited gate **replaces** it; call `super.hookBeforeRoute()` to compose.
+`!== false` is the test: omitting the hook allows, and so does returning `undefined`, `null`, `0` or `""`. Denying is silent by default: answer the callback or render a page, or the user sees nothing. A page that overrides an inherited gate **replaces** it; call `super.hookBeforeRoute()` to compose.
 
 ### Query answers
 
@@ -506,13 +527,13 @@ Six methods take their text from a template block instead of a literal string, s
 | `renderShipping` | `<g-shipping-error>` | `answerShippingQuery` | `{ok, data?, AGBaseId?, options?}` |
 | `renderInlineAnswer` | `<g-inline-button>` | `answerInlineQuery` | `{results, data?, AGBaseId?, options?, buttonStartParameter?}` |
 | `renderGuestAnswer` | `<g-answer-note>` | `answerGuestQuery` | `{result, data?, AGBaseId?, options?}` |
-| `renderWebAppAnswer` | — | `api.answerWebAppQuery` | `{webAppQueryId, result, data?, AGBaseId?, options?}` |
+| `renderWebAppAnswer` | _not applicable_ | `api.answerWebAppQuery` | `{webAppQueryId, result, data?, AGBaseId?, options?}` |
 
 ```ts
 await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied})
 ```
 
-Send failures are classified via `Ctx.classifySendError`, reported to the `hookSendError` surface, logged, and then **always rethrown** — plan for the throw. `renderPreCheckout` resolves its block even when `ok: true`, as fail-fast validation that the template exists.
+Send failures are classified via `Ctx.classifySendError`, reported to the `hookSendError` surface, logged, and then **always rethrown**: plan for the throw. `renderPreCheckout` resolves its block even when `ok: true`, as fail-fast validation that the template exists.
 
 ### Broadcast
 
@@ -531,21 +552,21 @@ ginfoDeliverText = {
 | Where | Method |
 | :---- | :----- |
 | text fan-out | `renderText({broadcast: {ids, languageCode}})` |
-| media fan-out | `renderMedia({broadcast: {ids, languageCode}})` — no `type`; the kind comes from the `<g-media>` block |
+| media fan-out | `renderMedia({broadcast: {ids, languageCode}})`: no `type`; the kind comes from the `<g-media>` block |
 | poll fan-out | `renderPoll({broadcast})` |
 | revise stored messages | `renderMedia({type, broadcast: {targets}})` |
 | delete stored messages | `renderBroadcastDelete({targets})` |
 
-`IBroadcastSendParams` adds `chunkSize` / `chunkDelayMs` pacing (different from the render-level `chunkSize`, which splits one message), `excludeIds`, `concurrency` (1–10), `startFrom` for resuming a checkpoint, `throwError`, and `onProgress`. The result is `{successCount, failedCount, totalCount, skippedCount, retryable: [{index, id, error}]}` — retryable failures never abort the run.
+`IBroadcastSendParams` adds `chunkSize` / `chunkDelayMs` pacing (different from the render-level `chunkSize`, which splits one message), `excludeIds`, `concurrency` (1–10), `startFrom` for resuming a checkpoint, `throwError`, and `onProgress`. The result is `{successCount, failedCount, totalCount, skippedCount, retryable: [{index, id, error}]}`. Retryable failures never abort the run.
 
 ### Deploy modes
 
 | `deploy` | What boots | Startup hooks | `optionsDeploy` branch |
 | :------- | :---------- | :------------- | :---------------------- |
 | `polling` (default) | the `getUpdates` loop | `hookBeforeStart` → `hookAfterStart` | `{maxRetries?, dropPendingUpdates?, queue?}` |
-| `webhook` | `Bun.serve` HTTP server + optional queue | both | `{url, secretToken, queue?}` — both mandatory |
-| `serverless` | the platform handler, fs-less from the frozen manifest | both | `{[adapter]: {url, secretToken, …}}` — the adapter **is the key** |
-| `raw` | nothing — a bare `Bot` instance, no pages, no auto-start | `hookBeforeStart` only | `{}` |
+| `webhook` | `Bun.serve` HTTP server + optional queue | both | `{url, secretToken, queue?}`: both mandatory |
+| `serverless` | the platform handler, fs-less from the frozen manifest | both | `{[adapter]: {url, secretToken, …}}`: the adapter **is the key** |
+| `raw` | nothing: a bare `Bot` instance, no pages, no auto-start | `hookBeforeStart` only | `{}` |
 | `test` | the in-process e2e harness | both, no network | `{}` |
 
 ```ts
@@ -590,9 +611,9 @@ gramstax build --bundle                   # single-file bundle (deprecated)
 
 ```text
 .gramstax/
-  routes.json        # frozen route list (pure data, diffable) — always
-  manifest.js        # static page-class imports + embedded templates — always
-  gen/               # AOT template modules — always
+  routes.json        # frozen route list (pure data, diffable), always
+  manifest.js        # static page-class imports + embedded templates, always
+  gen/               # AOT template modules, always
     <key>.g.js       # one module per template key (`sub/note` → `sub_note.g.js`)
     manifest.js      # {templates: Record<key, ICompiledTemplate>}
   server/            # only for a resolved serverless target
@@ -602,25 +623,25 @@ gramstax build --bundle                   # single-file bundle (deprecated)
     lambda.js        # aws-lambda-async entry
 ```
 
-AOT is unconditional — there is no `--aot` flag on `gramstax build` (it exists only on the raw `build-manifest.ts` script). Regenerate after every page or template change: there is no staleness check at boot, and the quietest symptom of a stale `gen/` is a blank message rather than an error.
+AOT is unconditional: there is no `--aot` flag on `gramstax build` (it exists only on the raw `build-manifest.ts` script). Regenerate after every page or template change: there is no staleness check at boot, and the quietest symptom of a stale `gen/` is a blank message rather than an error.
 
 ## 🔍 How it works
 
 ```mermaid
 flowchart TD
-    CLI["gramstax start"] --> Cfg["gramstax.config.ts<br/>(GramstaxConfigLoader)"]
+    CLI["gramstax start"] --> Cfg["gramstax.config.ts<br/>GramstaxConfigLoader"]
     Cfg --> Disc["src/core/bot.ts<br/>first export instanceof Gramstax"]
-    Disc --> Ctor["new BotCore(params) — construction IS boot"]
+    Disc --> Ctor["new BotCore(params). Construction IS boot"]
     Ctor --> Bot["Gramstax (core/bot.ts)"]
-    PM["PageManager<br/>discovers src/pages"] --> Sort["_pageSorts → route tables"]
+    PM["PageManager<br/>discovers src/pages"] --> Sort["_pageSorts: route tables"]
     Sort --> Bot
     Upd["Telegram update"] --> Bot
-    Bot -->|by listener name| Routes["_pageRoutes"]
-    Routes -->|route name| Ctx["new Page(ctx) — Ctx (core/ctx.ts)"]
-    Ctx -->|handle*| Page
-    Page -->|render*()| TM["TemplateManager"]
-    TM --> TE["TemplateEngine<br/>parse → validate → compile"]
-    TM --> Cache["CacheExternal<br/>memory | redis"]
+    Bot -->|"by listener name"| Routes["_pageRoutes"]
+    Routes -->|"route name"| Ctx["new Page(ctx), a Ctx subclass"]
+    Ctx -->|"handle*"| Page["Page"]
+    Page -->|"render*()"| TM["TemplateManager"]
+    TM --> TE["TemplateEngine<br/>parse, validate, compile"]
+    TM --> Cache["CacheExternal<br/>memory or redis"]
 ```
 
 ### The boot path
@@ -629,28 +650,28 @@ flowchart TD
 
 `GramstaxStart.boot()` ([`src/cli/start.ts`](./src/cli/start.ts)) then, in order:
 
-1. `new GramstaxConfigLoader().loadConfig(cwd)` — imports `gramstax.config.ts` through a `file://` URL. A **missing** file is legal and yields `{deploy: 'polling'}` (that is what keeps zero-config `gramstax build` working); a file that exists but cannot be imported is fatal. Every unknown key throws `unknown field`.
-2. `_resolveToken` — the loader allows `""` so `process.env.X ?? ""` typechecks and an env-less build still works; `start` is where an empty token throws.
-3. `_resolveDeploy` — flag, then config, then `polling`. A colon in the flag is rejected separately, by name.
-4. `_discoverBotCore(cwd)` — imports `src/core/bot.ts` (then `.js`) and takes the **first export whose `prototype instanceof Gramstax`**. The export name is free: `BotCore`, `App`, anything.
-5. `_buildParams` — materializes each ref slot (`cacheSession`, `cacheKeyboard`, `templateManager`, `log`, `sessionLock.key`) and `instanceof`-checks it against its expected base.
-6. `return new BotCore(params)` — there is no `.run()`. The `Gramstax` constructor creates the underlying `Bot`, mounts `autoRetry`, `stream`, the optional ratelimiter and throttler, `hydrateFiles`, registers the listeners and starts the deploy-mode loop.
+1. `new GramstaxConfigLoader().loadConfig(cwd)`: imports `gramstax.config.ts` through a `file://` URL. A **missing** file is legal and yields `{deploy: 'polling'}` (that is what keeps zero-config `gramstax build` working); a file that exists but cannot be imported is fatal. Every unknown key throws `unknown field`.
+2. `_resolveToken`: the loader allows `""` so `process.env.X ?? ""` typechecks and an env-less build still works; `start` is where an empty token throws.
+3. `_resolveDeploy`: flag, then config, then `polling`. A colon in the flag is rejected separately, by name.
+4. `_discoverBotCore(cwd)`: imports `src/core/bot.ts` (then `.js`) and takes the **first export whose `prototype instanceof Gramstax`**. The export name is free: `BotCore`, `App`, anything.
+5. `_buildParams`: materializes each ref slot (`cacheSession`, `cacheKeyboard`, `templateManager`, `log`, `sessionLock.key`) and `instanceof`-checks it against its expected base.
+6. `return new BotCore(params)`: there is no `.run()`. The `Gramstax` constructor creates the underlying `Bot`, mounts `autoRetry`, `stream`, the optional ratelimiter and throttler, `hydrateFiles`, registers the listeners and starts the deploy-mode loop.
 
 ### The template compile pipeline
 
 [`TemplateManager.compile`](./src/template/manager.ts) runs the same sequence for a page's `static template` or for a `.html` file under `src/pages`:
 
-1. **Expand `<g-import/>`** — a base importing another base's blocks (`processGImportBlocks`), recursively resolved against the import cache.
-2. **`validateTemplate`** — [`TemplateEngine.validateTemplate`](./src/template/engine.ts) walks the tag allowlist (`ALLOWED_BLOCKS_PAGE` + `ALLOWED_BLOCKS_TELEGRAM`), then the per-block PAGE attribute validators, then the three Telegram steps (required attributes, value formats, unknown attributes), then positions, format blocks and scopes.
-3. **Compile each block family** — one static per block kind: `compileBlockGMessage`, `compileBlockGKeyboards`, `compileBlockGMedia`, `compileBlockGPoll`, `compileBlockGVenue`, `compileBlockGDice`, `compileBlockGGift`, `compileBlockGInvoice`, `compileBlockGPaidMedia`, `compileBlockGDescription`, `compileBlockGCallbackAnswer`, `compileBlockGPrecheckoutError`, `compileBlockGShippingError`, `compileBlockGInlineButton`, `compileBlockGAnswerNote`.
-4. **Produce an `ICompiledTemplate`** — 15 fields, each indexed by base id and then by language. That is the shape cached in the manager and frozen by AOT.
-5. **`new Function`** on the JIT path (`gramstax start`), or plain ESM source on the AOT path (`gramstax build`) — the AOT emitter is asserted per file to contain no codegen tokens.
+1. **Expand `<g-import/>`**: a base importing another base's blocks (`processGImportBlocks`), recursively resolved against the import cache.
+2. **`validateTemplate`**: [`TemplateEngine.validateTemplate`](./src/template/engine.ts) walks the tag allowlist (`ALLOWED_BLOCKS_PAGE` + `ALLOWED_BLOCKS_TELEGRAM`), then the per-block PAGE attribute validators, then the three Telegram steps (required attributes, value formats, unknown attributes), then positions, format blocks and scopes.
+3. **Compile each block family**: one static per block kind: `compileBlockGMessage`, `compileBlockGKeyboards`, `compileBlockGMedia`, `compileBlockGPoll`, `compileBlockGVenue`, `compileBlockGDice`, `compileBlockGGift`, `compileBlockGInvoice`, `compileBlockGPaidMedia`, `compileBlockGDescription`, `compileBlockGCallbackAnswer`, `compileBlockGPrecheckoutError`, `compileBlockGShippingError`, `compileBlockGInlineButton`, `compileBlockGAnswerNote`.
+4. **Produce an `ICompiledTemplate`**: 15 fields, each indexed by base id and then by language. That is the shape cached in the manager and frozen by AOT.
+5. **`new Function`** on the JIT path (`gramstax start`), or plain ESM source on the AOT path (`gramstax build`): the AOT emitter is asserted per file to contain no codegen tokens.
 
 Under `gramstax start --watch`, chokidar re-runs this for a changed template file only.
 
 ### Routing an update
 
-`_pageSorts` (in [`core/bot.ts`](./src/core/bot.ts)) walks each page prototype once at boot and fills the routing tables — `all`, `routeStatic`, `routeStaticIntent`, `routeStaticSession`, `routeDynamicSpesific`, `routeDynamic` and `routeChatMember`. `_pageRoutes` then resolves an update against them in priority order, returning `matched` · `no-match` · `no-handler` · `blocked`:
+`_pageSorts` (in [`core/bot.ts`](./src/core/bot.ts)) walks each page prototype once at boot and fills the routing tables: `all`, `routeStatic`, `routeStaticIntent`, `routeStaticSession`, `routeDynamicSpesific`, `routeDynamic` and `routeChatMember`. `_pageRoutes` then resolves an update against them in priority order, returning `matched` · `no-match` · `no-handler` · `blocked`:
 
 | Id | Type | Algorithm | Example |
 | :- | :--- | :-------- | :------ |
@@ -662,7 +683,7 @@ Under `gramstax start --watch`, chokidar re-runs this for a changed template fil
 | 5 | dynamic global | the page's `handleFree()` | catch-all free updates |
 | 6 | custom routes | `registerCustomRoute` entries | app-defined listeners |
 
-At every site the shape is the same — `const initPage = new Page(ctx)`, gate on `hookBeforeRoute`, then `await initPage[route.routeName]()`, then `hookAfterRoute`. `blocked` short-circuits the remaining routes for that listener.
+At every site the shape is the same: `const initPage = new Page(ctx)`, gate on `hookBeforeRoute`, then `await initPage[route.routeName]()`, then `hookAfterRoute`. `blocked` short-circuits the remaining routes for that listener.
 
 ## 📜 Scripts
 
@@ -670,19 +691,19 @@ Run from the repository root.
 
 ```bash
 bun run ci:check:packages   # tsc --noEmit for every package + biome lint ./packages
-bun run test:packages       # bun test ./packages — 117 files in packages/gramstax/test
+bun run test:packages       # bun test ./packages: 117 files in packages/gramstax/test
 bun run test:packages:parallel
 bun run build:gramstax      # tsup → packages/gramstax/dist/src (nx build gramstax)
 bun run build               # nx run-many -t build
 bun run build:manifest      # bun packages/gramstax/scripts/build-manifest.ts <pagesDir> <outDir>
 bun run lint:packages       # biome lint ./packages
-bun run ci:test:packages    # ci:check:packages + test:packages — what CI runs
+bun run ci:test:packages    # ci:check:packages + test:packages: what CI runs
 ```
 
 Inside `packages/gramstax`:
 
 ```bash
-bun run build               # tsup — ./src/index.ts + ./src/cli/gramstax.ts, cjs + esm, dts
+bun run build               # tsup: ./src/index.ts + ./src/cli/gramstax.ts, cjs + esm, dts
 bun run build:docs          # api-extractor + api-documenter → docs/markdown + docs/yaml
 bun test test/              # the unit suite
 bun test --filter TemplateEngine
@@ -694,33 +715,33 @@ bun bench/bench.ts run      # users-per-second benchmark (k6 + MockTelegramServe
 ```text
 packages/gramstax/
 ├── src/
-│   ├── index.ts            # Public barrel — runtime exports, then types
+│   ├── index.ts            # Public barrel: runtime exports, then types
 │   ├── core/
-│   │   ├── bot.ts          # Gramstax — lifecycle, routing tables, deploy-mode startup, hooks
-│   │   ├── ctx.ts          # Ctx — the 32 render* methods, keyboards, sessions, page handlers
-│   │   └── session-lock.ts # SessionLock — Redis SET NX PX lease with atomic Lua release
+│   │   ├── bot.ts          # Gramstax: lifecycle, routing tables, deploy-mode startup, hooks
+│   │   ├── ctx.ts          # Ctx: the 32 render* methods, keyboards, sessions, page handlers
+│   │   └── session-lock.ts # SessionLock: Redis SET NX PX lease with atomic Lua release
 │   ├── template/
-│   │   ├── engine.ts       # TemplateEngine — block registry, parser, compiler, validators, filters
-│   │   └── manager.ts      # TemplateManager — watcher, loader, compile, getG* accessors
-│   ├── page/manager.ts     # PageManager — src/pages discovery and module loading
-│   ├── blocks/g-keyboard.ts # BlockGKeyboard — emits <g-keyboard> blocks from labels
-│   ├── labels/g-keyboard.ts # LabelGKeyboard — per-language label maps, order reversal
-│   ├── cache/external.ts    # CacheExternal — Keyv-backed session/keyboard cache (memory | redis)
+│   │   ├── engine.ts       # TemplateEngine: block registry, parser, compiler, validators, filters
+│   │   └── manager.ts      # TemplateManager: watcher, loader, compile, getG* accessors
+│   ├── page/manager.ts     # PageManager: src/pages discovery and module loading
+│   ├── blocks/g-keyboard.ts # BlockGKeyboard: emits <g-keyboard> blocks from labels
+│   ├── labels/g-keyboard.ts # LabelGKeyboard: per-language label maps, order reversal
+│   ├── cache/external.ts    # CacheExternal: Keyv-backed session/keyboard cache (memory | redis)
 │   ├── helpers/
-│   │   ├── log.ts          # LoggingHelper — extends logging-pretty; the shared `log` singleton
+│   │   ├── log.ts          # LoggingHelper: extends logging-pretty; the shared `log` singleton
 │   │   └── metrics.ts      # MetricsStore + metricsToPrometheus
 │   ├── update/
-│   │   ├── queue.ts        # UpdateQueue — bounded queue; WebhookQueue is a deprecated alias
-│   │   ├── dispatcher.ts   # UpdateDispatcher — worker pool draining the queue
-│   │   ├── gate.ts         # UpdateGate — per-chat concurrency gate
-│   │   └── gate-key.ts     # resolveGateKey — per-chat key derivation
-│   ├── mock/telegram-server.ts # MockTelegramServer — in-process Bot API stand-in
-│   ├── e2e/helper.ts       # E2eHelper — send updates, capture calls, assert payloads
+│   │   ├── queue.ts        # UpdateQueue: bounded queue; WebhookQueue is a deprecated alias
+│   │   ├── dispatcher.ts   # UpdateDispatcher: worker pool draining the queue
+│   │   ├── gate.ts         # UpdateGate: per-chat concurrency gate
+│   │   └── gate-key.ts     # resolveGateKey: per-chat key derivation
+│   ├── mock/telegram-server.ts # MockTelegramServer: in-process Bot API stand-in
+│   ├── e2e/helper.ts       # E2eHelper: send updates, capture calls, assert payloads
 │   ├── cli/
-│   │   ├── gramstax.ts     # The `gramstax` binary — Commander program, start + build
-│   │   ├── config.ts       # GramstaxConfigLoader — load and validate gramstax.config.ts
-│   │   ├── start.ts        # GramstaxStart — boot, discover BotCore, --watch restarter
-│   │   ├── build.ts        # GramstaxBuild — freeze pages, emit serverless entries
+│   │   ├── gramstax.ts     # The `gramstax` binary: Commander program, start + build
+│   │   ├── config.ts       # GramstaxConfigLoader: load and validate gramstax.config.ts
+│   │   ├── start.ts        # GramstaxStart: boot, discover BotCore, --watch restarter
+│   │   ├── build.ts        # GramstaxBuild: freeze pages, emit serverless entries
 │   │   ├── collect.ts      # Route/template collection shared by the build
 │   │   └── targets/        # lambda.ts (aws-lambda-async) · worker.ts (cloudflare-mod)
 │   └── types/              # 11 files: bot, cache, cli, config, ctx, e2e, manifest,
@@ -742,7 +763,7 @@ packages/gramstax/
 │       ├── CHANGELOG.md
 │       └── references/     # 34 rule files + _sections.md index + _template.md
 ├── scripts/
-│   ├── build-manifest.ts   # generate(pagesDir, outDir, {aot}) — the raw fs-less generator
+│   ├── build-manifest.ts   # generate(pagesDir, outDir, {aot}): the raw fs-less generator
 │   ├── aot-emit.ts         # AOT module emitter
 │   └── doc-inventory.ts    # doc inventory helper
 ├── bench/
@@ -765,9 +786,9 @@ They are two different shapes for two different things, and the difference is th
 | | `GramstaxConfig` | `IGramstaxParams` |
 | :-- | :--------------- | :---------------- |
 | Used by | `gramstax.config.ts` (annotated, default export) | `new Gramstax(params)` |
-| Field strictness | **every field optional** — a missing file yields `{deploy: 'polling'}` | `token` and `deploy` required |
-| Instance values | **not possible** — slots hold refs or plain data | `cacheSession: CacheExternal`, `cacheKeyboard: Map`, `templateManager: TemplateManager`, `log: LoggingHelper` |
-| `manifest` | **rejected** (`unknown field`) — it is a constructor param | accepted: `IAppManifest`, the fs-less boot |
+| Field strictness | **every field optional**: a missing file yields `{deploy: 'polling'}` | `token` and `deploy` required |
+| Instance values | **not possible**: slots hold refs or plain data | `cacheSession: CacheExternal`, `cacheKeyboard: Map`, `templateManager: TemplateManager`, `log: LoggingHelper` |
+| `manifest` | **rejected** (`unknown field`): it is a constructor param | accepted: `IAppManifest`, the fs-less boot |
 | Who fills it | the CLI, materializing each slot and `instanceof`-checking it | you |
 
 ### Ref slots
@@ -778,7 +799,7 @@ Five slots accept a module reference the CLI resolves and instantiates:
 | :--- | :------ |
 | `"path string"` | default export, zero-arg constructor |
 | `{override: {module, export?, args?}}` | named export, `args` spread into `new Export(...args)` |
-| `{module, ...}` bare | **rejected** — `uses removed bare {module, ...} form` |
+| `{module, ...}` bare | **rejected**: `uses removed bare {module, ...} form` |
 | plain data | builtin form, passed to the default constructor |
 
 | Slot | Expected base | Builtin form |
@@ -787,7 +808,7 @@ Five slots accept a module reference the CLI resolves and instantiates:
 | `cacheKeyboard` | `Map` | entries array or plain object |
 | `templateManager` | `TemplateManager` | `{path, enableWatch?, watchOptions?, onReload?}` |
 | `log` | `LoggingHelper` | `true` · `false` · `{pathFile?, force?, formatTime?}` |
-| `sessionLock.key` | a non-class `(ctx) => string` | — |
+| `sessionLock.key` | a non-class `(ctx) => string` | _not applicable_ |
 
 Paths resolve relative to the **project root**, not the config file.
 
@@ -797,19 +818,19 @@ Paths resolve relative to the **project root**, not the config file.
 
 | Field | Type | Default | Purpose |
 | :---- | :--- | :------ | :------ |
-| `token` | `string` | — | Bot token value. `""` is accepted at load so `process.env.X ?? ""` typechecks; `gramstax start` throws `Token is not valid or empty` |
+| `token` | `string` | _none_ | Bot token value. `""` is accepted at load so `process.env.X ?? ""` typechecks; `gramstax start` throws `Token is not valid or empty` |
 | `deploy` | `string` | `polling` | One of `polling` · `webhook` · `serverless` · `raw` · `test`; membership enforced by the loader. Plain `string` so `process.env.DEPLOY ?? "polling"` typechecks |
-| `optionsDeploy` | object | `{deploy: 'polling'}` | Nested per-mode branches — see below |
+| `optionsDeploy` | object | `{deploy: 'polling'}` | Nested per-mode branches: see below |
 | `mediaRoots` | `string[] \| null` | `null` | Opt-in local-path jail for media uploads; `[]` and `undefined` leave it off |
-| `botConfig` | `BotConfig` | — | Forwarded to the underlying client (`apiRoot`, …) |
+| `botConfig` | `BotConfig` | _none_ | Forwarded to the underlying client (`apiRoot`, …) |
 | `autoRetry` | `boolean` | `true` | Mount `@grammyjs/auto-retry` |
-| `autoRetryOptions` | `{maxRetryAttempts?, retryOnInternalServerErrors?}` | — | Backoff / retry policy |
-| `rateLimit` | `{windowMs, max}` | — | Inbound limit; both must be positive |
-| `throttle` | `APIThrottlerOptions` | — | Outgoing Bottleneck buckets (`global`, `group`, `out`) |
+| `autoRetryOptions` | `{maxRetryAttempts?, retryOnInternalServerErrors?}` | _none_ | Backoff / retry policy |
+| `rateLimit` | `{windowMs, max}` | _none_ | Inbound limit; both must be positive |
+| `throttle` | `APIThrottlerOptions` | _none_ | Outgoing Bottleneck buckets (`global`, `group`, `out`) |
 | `updateTimeoutMs` | `number` | `30000` | A handler past it lands in `timeout` state |
 | `skipDuplicateUpdate` | `boolean` | `false` | Idempotency on `update_id` |
 | `maxTextLength` | `number` | `0` | Cap on `message.text` / `message.caption`; `0` = unlimited |
-| `statusServerPort` | `number` | — | `0`–`65535`; enables `GET /health`, `/stats`, `/metrics` |
+| `statusServerPort` | `number` | _none_ | `0`–`65535`; enables `GET /health`, `/stats`, `/metrics` |
 | `statusServerHostname` | `string` | `127.0.0.1` | Status-server bind address |
 | `optionsPage` | `{shortCallbackQueryData?}` | `false` | Numeric callback ids instead of names |
 | `cacheSession` | ref \| builtin | `memory` | Session store; `memory` or `redis:<url>` |
@@ -835,17 +856,17 @@ optionsDeploy: {
 | Branch | Fields |
 | :----- | :----- |
 | `polling` | `maxRetries` (`-1` = forever, default `5`), `dropPendingUpdates` (default `false`), `queue` |
-| `webhook` | `url`, `secretToken` — **both required** — plus `queue` |
+| `webhook` | `url`, `secretToken` (**both required**), plus `queue` |
 | `serverless` | exactly one adapter key: `{'cloudflare-mod': {...}}` or `{'aws-lambda-async': {...}}` |
-| `raw` | none — `Record<string, never>`; any key throws |
-| `test` | none — `Record<string, never>`; any key throws |
+| `raw` | none: `Record<string, never>`; any key throws |
+| `test` | none: `Record<string, never>`; any key throws |
 
 | Adapter | Accepted fields |
 | :------ | :--------------- |
 | `cloudflare-mod` | `url`, `secretToken` (required) + `name`, `compatibilityDate`, `compatibilityFlags`, `toml` |
 | `aws-lambda-async` | `url`, `secretToken` (required) only |
 
-A field that does not apply to the chosen adapter is **rejected**, not ignored. `toml` is flat-merged last into the emitted `wrangler.toml`, so it overrides every typed field. `secretToken` must match `^[A-Za-z0-9_-]{1,256}$` — generate with `openssl rand -hex 32` — and is never baked into an emitted bundle; the deployed entry reads the `BOT_WEBHOOK_SECRET` runtime binding.
+A field that does not apply to the chosen adapter is **rejected**, not ignored. `toml` is flat-merged last into the emitted `wrangler.toml`, so it overrides every typed field. `secretToken` must match `^[A-Za-z0-9_-]{1,256}$` (generate with `openssl rand -hex 32`) and is never baked into an emitted bundle; the deployed entry reads the `BOT_WEBHOOK_SECRET` runtime binding.
 
 ### Update queue
 
@@ -853,7 +874,7 @@ A field that does not apply to the chosen adapter is **rejected**, not ignored. 
 
 | Field | Default | Effect |
 | :---- | :------ | :----- |
-| `enabled` | `false` | Opt-in. Absent or `false`, both modes drain strictly sequentially — polling is exactly what it was before the queue existed |
+| `enabled` | `false` | Opt-in. Absent or `false`, both modes drain strictly sequentially: polling is exactly what it was before the queue existed |
 | `maxQueueSize` | `5000` | Bounded capacity |
 | `workerCount` | `8` | Concurrent in-process drain loops (not OS threads) |
 | `perChatConcurrency` | `1` | `1` preserves ordering per chat; `0` disables the gate |
@@ -862,34 +883,34 @@ A field that does not apply to the chosen adapter is **rejected**, not ignored. 
 | `waiterTimeoutMs` | `30000` | How long a worker waits for a per-chat slot |
 | `drainTimeoutMs` | `10000` | How long `stop()` waits for in-flight handlers |
 
-Why opt-in: measured with `bench/bench.ts`, the queue is neutral below saturation but holds p95 flat past it — at a 600 users/s target the sequential drain managed 377 users/s at p95 1828 ms, the queue sustained 601 users/s at p95 124 ms. Polling delivery is at-least-once at the enqueue boundary, because the client advances its offset when the update is buffered. `getWebhookQueueStats()` / `getPollingQueueStats()` each return `null` while their queue is disabled.
+Why opt-in: measured with `bench/bench.ts`, the queue is neutral below saturation but holds p95 flat past it: at a 600 users/s target the sequential drain managed 377 users/s at p95 1828 ms, the queue sustained 601 users/s at p95 124 ms. Polling delivery is at-least-once at the enqueue boundary, because the client advances its offset when the update is buffered. `getWebhookQueueStats()` / `getPollingQueueStats()` each return `null` while their queue is disabled.
 
 ## 🏗️ Architecture
 
 - **Config is data, the CLI composes.** There is no `src/index.ts` and no hand-written `new Gramstax({...})` entry. A stale constructor call in an entry file cannot drift from `.env`, because there is no entry file.
 - **Pages are discovered, not registered.** `PageManager` walks `src/pages`, and `_pageSorts` turns each prototype's method names into routing tables. Adding a file is the whole integration step.
 - **The template is the content half of the render contract.** `params = CONTENT & ROUTE`: what to render comes from the template block, how it is delivered comes from the route atom. Neither half alone is enough to lose information about *what* is sent or *how* it arrives.
-- **Plain-versus-rich is decided at compile time**, by the `<g-message>` block — not by a runtime flag that could disagree with the markup.
+- **Plain-versus-rich is decided at compile time**, by the `<g-message>` block (not by a runtime flag that could disagree with the markup).
 - **Types are the primary guard; the runtime guard is the safety net.** The union rejects illegal combinations for TypeScript callers; `_assertRenderRoute` catches what slips past the compiler in plain JS, before any API call.
 - **e2e is the one exception to config-driven boot.** `e2e/setup.ts` constructs `BotCore` directly so it can inject `deploy: 'test'`, `token: 'test'`, `stream` and `log: false`.
-- **`deploy: 'raw'` is the escape hatch.** A bare `Bot` instance with no pages, no templates, no routing and no auto-start — you own the lifecycle. The legacy `templateManager: {} as any` exception is gone; using it in a non-raw mode throws.
+- **`deploy: 'raw'` is the escape hatch.** A bare `Bot` instance with no pages, no templates, no routing and no auto-start: you own the lifecycle. The legacy `templateManager: {} as any` exception is gone; using it in a non-raw mode throws.
 
 ### Guardrails worth knowing
 
 | Rule | Why |
 | :--- | :-- |
-| **The `?: never` convention** | Merely *omitting* an unread key from one union member is not enough — TypeScript's excess-property check treats a property as known when **any** member declares it. `never` is what makes it a compile error. |
+| **The `?: never` convention** | Merely *omitting* an unread key from one union member is not enough: TypeScript's excess-property check treats a property as known when **any** member declares it. `never` is what makes it a compile error. |
 | **`Ctx._assertRenderRoute`** | One function, not one per method: the route resolves from the same discriminators everywhere, and a key the method does not have reads as `undefined` and is skipped. The three hand-maintained copies it replaced had already drifted apart. |
 | **`Ctx._assertInlineKeyboardForEdit`** | `editMessageText`/`editMessageMedia` accept inline keyboards only. The throw names `mode: 'reply'` as the fix instead of returning an opaque Telegram 400. |
 | **No default exports** | `PageManager._getFile` reads the *first named export* and throws `must have export (not default) class page`. The same rule covers page modules, `gramstax.config.ts` and every module in the barrel. |
 | **No `@ts-ignore` / `@ts-expect-error`** | In source, never. `tsc --noEmit` runs over `packages/gramstax` in CI. Type suppression is confined to test files. |
-| **Only 20 config fields** | Anything else — including `manifest` — throws `unknown field`, and the message lists the supported keys. |
+| **Only 20 config fields** | Anything else (including `manifest`) throws `unknown field`, and the message lists the supported keys. |
 | **One `optionsDeploy` branch** | Two live branches means one of them is a lie. A non-empty branch that does not equal `deploy` fails at boot, by name. |
-| **Regenerate `.gramstax/`** | There is no staleness check at boot. A stale manifest serves the **old version with no error at all** — the most confusing report this framework produces. |
-| **`<g-script>` and `{~~ … ~~}` are AOT-blocked** | They emit `with(`, forbidden in ESM strict mode. They work in dev and kill the deploy — the worst possible split. |
+| **Regenerate `.gramstax/`** | There is no staleness check at boot. A stale manifest serves the **old version with no error at all**: the most confusing report this framework produces. |
+| **`<g-script>` and `{~~ … ~~}` are AOT-blocked** | They emit `with(`, forbidden in ESM strict mode. They work in dev and kill the deploy: the worst possible split. |
 | **Deny is strict `false`** | `hookBeforeRoute` tests `!== false`, so `undefined`, `null`, `0` and `""` all **allow**. Coerce explicitly. |
 | **Secrets are never literals** | `token` and `secretToken` hold `process.env.X ?? ""`. A literal in the config file is a committed secret. |
-| **Never concatenate user input into template source** | Templates compile to executable functions. User input belongs in `data` (inert by construction — `security-poc/3-safe-data-binding.ts`); the same string in the source is an RCE (`security-poc/4-untrusted-template-rce.ts`). |
+| **Never concatenate user input into template source** | Templates compile to executable functions. User input belongs in `data` (inert by construction: `security-poc/3-safe-data-binding.ts`); the same string in the source is an RCE (`security-poc/4-untrusted-template-rce.ts`). |
 | **`deploy: 'raw'` needs `optionsDeploy: {raw: {}}`** | The branch is `Record<string, never>`: present-but-empty counts as empty, which is what lets the one-branch rule pass. Any key inside it throws. |
 
 ## 📚 API Reference
@@ -898,22 +919,22 @@ Why opt-in: measured with `bench/bench.ts`, the queue is neutral below saturatio
 
 | Directory | What it is |
 | :-------- | :---------- |
-| [`docs/markdown/`](./docs/markdown/index.md) | One page per symbol — `gramstax.ctx.rendertext.md`, `gramstax.templateengine.md`, … (1 032 files) |
+| [`docs/markdown/`](./docs/markdown/index.md) | One page per symbol: `gramstax.ctx.rendertext.md`, `gramstax.templateengine.md`, … (1 032 files) |
 | [`docs/yaml/`](./docs/yaml/gramstax.yml) | The same surface as YAML + a `toc.yml` for machine consumption |
 | [`docs/extractor/`](./docs/extractor/etc/gramstax.api.md) | The api-extractor API report and its rollup in `temp/` |
 | [`docs/architecture.md`](./docs/architecture.md) · [`getting-started.md`](./docs/getting-started.md) · [`overview.md`](./docs/overview.md) · [`glossary.md`](./docs/glossary.md) · [`development.md`](./docs/development.md) | Hand-written |
-| [`docs/adr/`](./docs/adr) | 8 decision records — why that Bot API client, why the template DSL, why Keyv/Redis, why convention routing, why hot reload, why in-process e2e, why Bun + tsup + Nx |
+| [`docs/adr/`](./docs/adr) | 8 decision records: why that Bot API client, why the template DSL, why Keyv/Redis, why convention routing, why hot reload, why in-process e2e, why Bun + tsup + Nx |
 
 Regenerate with `bun run build:docs` inside `packages/gramstax` (`tsup --dts-only` → `api-extractor` → `api-documenter markdown` + `yaml`).
 
-### Barrel — `src/index.ts`
+### Barrel: `src/index.ts`
 
 Runtime exports first, then a `// type` separator and the type-only re-exports.
 
 | Module | Key exports |
 | :----- | :---------- |
 | `core/bot` | `Gramstax` |
-| `core/ctx` | `Ctx` — all 32 `render*()` methods, the keyboard builders, the session API, the `assert*` validation statics |
+| `core/ctx` | `Ctx`: all 32 `render*()` methods, the keyboard builders, the session API, the `assert*` validation statics |
 | `core/session-lock` | `SessionLock` |
 | `template/engine` | `TemplateEngine`, `DEFAULT_FILTERS` |
 | `template/manager` | `TemplateManager` |
@@ -926,13 +947,13 @@ Runtime exports first, then a `// type` separator and the type-only re-exports.
 | `e2e/helper` | `E2eHelper` |
 | `cli/types` | `GRAMSTAX_DEPLOY_MODES`, `GRAMSTAX_DEPLOY_MODE_SET`, `GRAMSTAX_SERVERLESS_ADAPTERS`, `GRAMSTAX_SERVERLESS_FIELDS`, `GramstaxConfig` |
 | `types/*` | `IGramstaxConfig` and the `*Ref` slot types, `IGramstaxParams`, every `IRender*Params`, every `IRoute*` atom, `INeverFields`, `IContent`, `ICompiledTemplate`, the `I*Block` shapes, `ITemp`, `IAppManifest`, `I*QueueConfig`, `ISessionLockOptions` |
-| top level | `__esc` and `FILTERS` — the escape helper and filter table that AOT-generated modules import |
+| top level | `__esc` and `FILTERS`: the escape helper and filter table that AOT-generated modules import |
 
 Adding a public symbol means adding it to `src/index.ts`; the barrel is the contract.
 
 ### Agent skills
 
-[`skills/gramstax-best-practices/`](./skills/gramstax-best-practices/SKILL.md) ships with the package — a router plus 34 rule files under [`references/`](./skills/gramstax-best-practices/references/_sections.md). Each rule file opens with a one-line verdict, then the failure mode, then incorrect and correct code, then the gramstax-specific exceptions. Categories by priority:
+[`skills/gramstax-best-practices/`](./skills/gramstax-best-practices/SKILL.md) ships with the package: a router plus 34 rule files under [`references/`](./skills/gramstax-best-practices/references/_sections.md). Each rule file opens with a one-line verdict, then the failure mode, then incorrect and correct code, then the gramstax-specific exceptions. Categories by priority:
 
 | Prefix | Priority | Covers |
 | :----- | :------- | :----- |
@@ -948,12 +969,12 @@ Adding a public symbol means adding it to `src/index.ts`; the barrel is the cont
 
 ### Learn more
 
-- [Gramstax best practices](./AGENTS.md) — package conventions and architecture facts
-- [Monorepo README](../../README.md) — the four packages and how they fit
-- [`example/`](../../example) — 11 runnable bots, `1-complex` through `11-cloudflare-worker`
-- [`example/AGENTS.md`](../../example/AGENTS.md) — the shared project skeleton and the e2e harness
-- [Domain docs](../../docs/agents/domain.md) — `CONTEXT-MAP.md`, per-context `CONTEXT.md`, ADRs
+- [Gramstax best practices](./AGENTS.md): package conventions and architecture facts
+- [Monorepo README](../../README.md): the four packages and how they fit
+- [`example/`](../../example): 11 runnable bots, `1-complex` through `11-cloudflare-worker`
+- [`example/AGENTS.md`](../../example/AGENTS.md): the shared project skeleton and the e2e harness
+- [Domain docs](../../docs/agents/domain.md): `CONTEXT-MAP.md`, per-context `CONTEXT.md`, ADRs
 
 ## 📄 License
 
-Apache-2.0 — Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).
+Apache-2.0: Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).

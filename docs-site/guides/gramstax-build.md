@@ -18,7 +18,7 @@ For all deploys: one `gramstax build` freezes a project's `pages/` into a single
 </Note>
 
 <Note>
-  `queue` is orthogonal to `build` — it is a runtime knob, never frozen into
+  `queue` is orthogonal to `build`: it is a runtime knob, never frozen into
   `.gramstax/`. Both `optionsDeploy.polling.queue` and
   `optionsDeploy.webhook.queue` configure the same `UpdateQueue` class; see
   `docs-site/guides/gramstax-start.md` for the field table and the opt-in
@@ -32,7 +32,7 @@ bun run build:gramstax
 
 Paths are convention, not configuration: pages always come from `src/pages`
 and artifacts always land in `.gramstax/`, both resolved from the project
-root (cwd) — like Next.js reading `app/` and emitting `.next/`, so there are
+root (cwd): like Next.js reading `app/` and emitting `.next/`, so there are
 no path knobs to drift between environments.
 
 ## Config reference
@@ -58,22 +58,22 @@ export default config
 ```
 
 The adapter is the **key**. Exactly one key must be present, and each key accepts
-only its own fields — a field that does not apply to an adapter is rejected, not
+only its own fields: a field that does not apply to an adapter is rejected, not
 ignored.
 
 | Key                  | Accepted fields                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `'cloudflare-mod'`   | `url`, `secretToken` (required) + `name`, `compatibilityDate`, `compatibilityFlags`, `toml`                  |
-| `'aws-lambda-async'` | `url`, `secretToken` (required) — nothing else, today                                                         |
+| `'aws-lambda-async'` | `url`, `secretToken` (required): nothing else, today                                                         |
 
 `secretToken` is runtime-required but type-optional (zero-config build keeps
-working); its value comes from an env expression, never a literal. Duality —
+working); its value comes from an env expression, never a literal. Duality (
 config value sets the webhook, edge reads the `BOT_WEBHOOK_SECRET`
-binding — is specified once in `docs-site/guides/serverless-deploy.md`.
+binding) is specified once in `docs-site/guides/serverless-deploy.md`.
 
 <Warning>
   Never write `secretToken` as a literal. It is never baked into a bundle and
-  never written into `wrangler.toml` — the deployed entry reads the
+  never written into `wrangler.toml`: the deployed entry reads the
   `BOT_WEBHOOK_SECRET` binding instead.
 </Warning>
 
@@ -84,11 +84,11 @@ The scaffolded `gramstax.config.ts`
 | Field                                   | Type                     | Default             | Rule                                                                       |
 | --------------------------------------- | ------------------------ | ------------------- | -------------------------------------------------------------------------- |
 | `…['cloudflare-mod'].name`              | `string`                  | `gramstax-worker`   | Written to the Workers `name`; never emitted as a comment                 |
-| `…['cloudflare-mod'].compatibilityDate` | `string`                  | `2026-01-01`        | Always written — it also gates `compatibilityFlags`                       |
+| `…['cloudflare-mod'].compatibilityDate` | `string`                  | `2026-01-01`        | Always written: it also gates `compatibilityFlags`                       |
 | `…['cloudflare-mod'].compatibilityFlags`| `string[]`                | `["nodejs_compat"]` | Required: the dependency graph uses Node builtins                        |
-| `…['cloudflare-mod'].toml`              | `Record<string, unknown>` | —                   | Escape hatch; flat-merged last, so it overrides every typed field above    |
-| `…[any].url`                            | `string`                  | —                   | Real `https?://` with no `<` placeholder                                  |
-| `…[any].secretToken`                    | `string`                  | —                   | `^[A-Za-z0-9_-]{1,256}$`; never baked into a bundle                       |
+| `…['cloudflare-mod'].toml`              | `Record<string, unknown>` | _none_              | Escape hatch; flat-merged last, so it overrides every typed field above    |
+| `…[any].url`                            | `string`                  | _none_              | Real `https?://` with no `<` placeholder                                  |
+| `…[any].secretToken`                    | `string`                  | _none_              | `^[A-Za-z0-9_-]{1,256}$`; never baked into a bundle                       |
 
 `url` and `secretToken` are optional in the type so `process.env.X` expressions
 typecheck; the loader and the constructor both enforce them with an explicit error.
@@ -122,7 +122,7 @@ dry-run: no files written
 `pagesDir`/`outDir` always print the `src/pages` + `.gramstax/` convention
 with no source annotation (there is nothing to configure); the
 `optionsDeploy.serverless` adapter/name/url print from the merged config with the
-`config`/`default` rule (no CLI flags exist for them — never `flag`).
+`config`/`default` rule (no CLI flags exist for them, never `flag`).
 `targets` is the effective set: both entries when no `--target` was passed,
 else the single named target.
 
@@ -147,15 +147,15 @@ covers all deploys per the consumption table above. Explicit
 
 ```text
 .gramstax/
-  routes.json   # frozen route list (pure data, diffable) — always emitted
-  manifest.js   # static page-class imports + embedded templates (runnable) — always emitted
+  routes.json   # frozen route list (pure data, diffable), always emitted
+  manifest.js   # static page-class imports + embedded templates (runnable), always emitted
   gen/          # AOT modules (always emitted: workers need them, Node ignores them)
   server/
-    lambda.js       # `serverless` entry (key `aws-lambda-async`) — `--target aws-lambda-async` only
-    worker.js       # `serverless` entry (key `cloudflare-mod`) — `--target cloudflare-mod` only
-    wrangler.toml   # complete deployable Workers config (real name + URL from config, token via secret, never in file) — `--target cloudflare-mod` only
-    bun-stub.ts     # `bun` resolve stub for the Workers bundler — `--target cloudflare-mod` only
-    bundle.js       # single-file bundle — `--bundle` only, deprecated. For aws-lambda-async this replaces lambda.js as the handler
+    lambda.js       # `serverless` entry (key `aws-lambda-async`): `--target aws-lambda-async` only
+    worker.js       # `serverless` entry (key `cloudflare-mod`): `--target cloudflare-mod` only
+    wrangler.toml   # complete deployable Workers config (real name + URL from config, token via secret, never in file): `--target cloudflare-mod` only
+    bun-stub.ts     # `bun` resolve stub for the Workers bundler: `--target cloudflare-mod` only
+    bundle.js       # single-file bundle: `--bundle` only, deprecated. For aws-lambda-async this replaces lambda.js as the handler
 ```
 
 Stub rule: `server/bun-stub.ts` is emitted only when the target set includes
@@ -227,10 +227,10 @@ on this fallback.
 
 ## Implementation map
 
-- `packages/gramstax/src/cli/gramstax.ts` — `gramstax` bin (built cli entry)
-- `packages/gramstax/src/cli/build.ts` — `GramstaxBuild.run(argv)` orchestration
-- `packages/gramstax/src/cli/collect.ts` — `RouteCollector` (collect + atomic `routes.json` write)
-- `packages/gramstax/src/cli/config.ts` — config load + validation
-- `packages/gramstax/scripts/build-manifest.ts` — `buildManifest()` (single-file, unchanged contract) + `generate(pagesDir, outDir)`
-- `packages/gramstax/src/types/manifest.ts` — `IAppManifest` (+ optional `routes`) and `IRouteManifestEntry`
-- `packages/gramstax/src/core/bot.ts` — `_pageLoadsFromManifest` routes branch (surgical, opt-in only)
+- `packages/gramstax/src/cli/gramstax.ts`: `gramstax` bin (built cli entry)
+- `packages/gramstax/src/cli/build.ts`: `GramstaxBuild.run(argv)` orchestration
+- `packages/gramstax/src/cli/collect.ts`: `RouteCollector` (collect + atomic `routes.json` write)
+- `packages/gramstax/src/cli/config.ts`: config load + validation
+- `packages/gramstax/scripts/build-manifest.ts`: `buildManifest()` (single-file, unchanged contract) + `generate(pagesDir, outDir)`
+- `packages/gramstax/src/types/manifest.ts`: `IAppManifest` (+ optional `routes`) and `IRouteManifestEntry`
+- `packages/gramstax/src/core/bot.ts`: `_pageLoadsFromManifest` routes branch (surgical, opt-in only)

@@ -6,7 +6,7 @@ description: Why updates drain sequentially by default, and what turning the que
 # Concurrency and the update queue
 
 By default, a gramstax bot processes **one update at a time**. That is not a
-simplification left over from an earlier design — it is the default because
+simplification left over from an earlier design. It is the default because
 concurrency is a decision with a real cost, and the framework refuses to make it
 for you.
 
@@ -32,9 +32,9 @@ order-dependent: a `setSession` followed by the step it parks into would race.
 
 `resolveGateKey` derives the key from the update, in this order:
 
-1. `chat.id` — from a message, edited message, channel post, business message,
+1. `chat.id`: from a message, edited message, channel post, business message,
    guest message, or a callback query's message. Keyed `c:<id>`.
-2. `from.id` — when there is no chat at all, which is the case for inline queries
+2. `from.id`: when there is no chat at all, which is the case for inline queries
    and pre-checkout queries. User-originated updates serialize per user.
 
 Everything for one chat therefore serializes regardless of which worker picks it
@@ -49,9 +49,9 @@ its own `UpdateQueue` instance.
 | --- | --- | --- |
 | `enabled` | `false` | Opt-in. Absent or `false`, both modes drain sequentially. |
 | `maxQueueSize` | `5000` | Bounded capacity. |
-| `workerCount` | `8` | Concurrent in-process async loops — **not** OS threads. |
+| `workerCount` | `8` | Concurrent in-process async loops, **not** OS threads. |
 | `perChatConcurrency` | `1` | `1` preserves ordering per chat; `0` disables the gate entirely. |
-| `blockWhenFull` | `true` | Webhook only: `false` answers the request with HTTP 429 so Telegram redelivers it. Polling ignores this field and always blocks the fetcher — its offset has already advanced, so discarding would lose the update for good. |
+| `blockWhenFull` | `true` | Webhook only: `false` answers the request with HTTP 429 so Telegram redelivers it. Polling ignores this field and always blocks the fetcher: its offset has already advanced, so discarding would lose the update for good. |
 | `enqueueTimeoutMs` | `10000` | How long a blocking producer waits for a slot. |
 | `waiterTimeoutMs` | `30000` | How long a worker waits for a per-chat slot. |
 | `drainTimeoutMs` | `10000` | How long `stop()` waits for in-flight handlers. |
@@ -61,27 +61,27 @@ its own `UpdateQueue` instance.
 The `queue` block is config. It is not the option type of either runtime class.
 Each mode builds an `UpdateDispatcher` from `IUpdateDispatcherOptions`, and the
 dispatcher builds its own `UpdateGate` from `IUpdateGateOptions` in its
-constructor — so a config field reaches the gate by passing through the
+constructor, so a config field reaches the gate by passing through the
 dispatcher.
 
 | `queue` field | `IUpdateDispatcherOptions` | `IUpdateGateOptions` |
 | --- | --- | --- |
-| `maxQueueSize` | `queue` — constructs the `UpdateQueue` | — |
-| `workerCount` | `workerCount` | — |
+| `maxQueueSize` | `queue`: constructs the `UpdateQueue` | _none_       |
+| `workerCount` | `workerCount` | _none_       |
 | `perChatConcurrency` | `perChatConcurrency` | `perChatConcurrency` |
 | `waiterTimeoutMs` | `waiterTimeoutMs` | `waiterTimeoutMs` |
-| `drainTimeoutMs` | `drainTimeoutMs` | — |
-| — | `handle`, `onError` — required, wired internally | — |
-| — | `onWaiterTimeout?` | `onTimeout?` |
+| `drainTimeoutMs` | `drainTimeoutMs` | _none_       |
+| _none_        | `handle`, `onError`: required, wired internally | _none_       |
+| _none_        | `onWaiterTimeout?` | `onTimeout?` |
 
 Two consequences worth stating plainly. The gate is configured by **two** of the
-eight fields, not by the block as a whole — `workerCount` and `drainTimeoutMs`
+eight fields, not by the block as a whole: `workerCount` and `drainTimeoutMs`
 stop at the dispatcher. And `handle` / `onError` are required members with no
 config counterpart at all; the two construction sites supply them as the
 dispatcher's wiring to the bot.
 
 `onWaiterTimeout` is the one field with no writer. Neither mode passes it, so
-`onTimeout` is `undefined` for any config-driven bot — the optional callback
+`onTimeout` is `undefined` for any config-driven bot: the optional callback
 exists for programmatic construction only.
 
 At the gate, `perChatConcurrency` is read as `<= 0`, which returns a no-op release
@@ -102,8 +102,8 @@ draining means one slow handler sits in front of every update behind it, and tha
 delay compounds. The queue moves that wait behind a pool.
 
 <Tip>
-  Measure before enabling. `bench/bench.ts` runs the same path your bot runs —
-  k6 → mock → webhook → bot — so the numbers reflect your handlers, not a
+  Measure before enabling. `bench/bench.ts` runs the same path your bot runs (
+  k6 → mock → webhook → bot), so the numbers reflect your handlers, not a
   synthetic loop.
 </Tip>
 
@@ -121,7 +121,7 @@ Polling delivery is at-least-once at the enqueue boundary: the client advances i
 offset when the update is buffered, not when the handler finishes. A crash between
 those two points loses the update rather than replaying it.
 
-That is why [`skipDuplicateUpdate`](/guides/configuration#reliability) exists —
+That is why [`skipDuplicateUpdate`](/guides/configuration#reliability) exists:
 it drops an update whose `update_id` was already handled, which is the right
 setting for any deployment where a duplicate is worse than a drop.
 

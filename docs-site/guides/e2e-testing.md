@@ -22,7 +22,7 @@ The scaffold's `e2e/setup.ts` is the whole harness. It exports four things:
 | Export | What it is |
 | --- | --- |
 | `bot` | The constructed bot, in `deploy: "test"` |
-| `e2e` | `bot.e2e` — the helper you drive |
+| `e2e` | `bot.e2e`: the helper you drive |
 | `enUser` | A user fixture with `language_code: "en"` |
 | `idUser` | The same user in Indonesian, for language assertions |
 
@@ -57,7 +57,7 @@ idempotency rather than on output.
 
 <Warning>
   `extractText` and `extractButtonLabels` take the captured call as their
-  argument. Calling them with no argument returns nothing — the signature is
+  argument. Calling them with no argument returns nothing: the signature is
   `extractText(call: IE2eApiCall)`, not `extractText()`.
 </Warning>
 
@@ -77,7 +77,7 @@ That is the same property the whole approach rests on: **the assertion and the
 output come from the same compiled block.** A test cannot pass against markup a
 user would never see.
 
-The `g*` family follows one shape — `gmsg`, `gkb`, `gmedia` — taking the page
+The `g*` family follows one shape (`gmsg`, `gkb`, `gmedia`), taking the page
 name, the `AGBaseId`, then kind-specific arguments and an optional trailing
 language:
 
@@ -90,7 +90,7 @@ e2e.gkb(`start`, `default`, `inline`, {}, `id`) // Indonesian variant
 `sendText`, `sendPhoto`, `sendVideo`, `sendAudio`, `sendDocument`,
 `sendAnimation`, `sendVoice`, `sendVideoNote`, `sendSticker`, `sendLocation`,
 `sendContact`, `sendPoll`, `sendDice`, `sendCallbackQuery`, `sendInlineQuery`,
-`sendNewChatMembers`, `sendChannelPost` and others — one per update shape, each
+`sendNewChatMembers`, `sendChannelPost` and others: one per update shape, each
 taking the payload plus an optional `IE2eUpdateOptions` carrying the sender.
 They all funnel into `handleUpdate`, so a shape without a named sender still has
 an escape hatch:
@@ -117,8 +117,8 @@ bun test e2e/
 ## MockTelegramServer
 
 `deploy: "test"` mounts `MockTelegramServer`, an in-process implementation of
-the API methods gramstax actually calls. You normally never touch it — the helper
-owns the lifecycle — but you hold it when you are benchmarking a handler against
+the API methods gramstax actually calls. You normally never touch it (the helper
+owns the lifecycle), but you hold it when you are benchmarking a handler against
 a real HTTP boundary:
 
 ```ts
@@ -139,7 +139,7 @@ It implements the Bot API methods gramstax actually calls, not the whole API. If
 you reach for something it does not implement, the test fails loudly rather than
 passing against a stub that answers anything.
 
-It also does not model Telegram's own behaviour — rate limits, flood waits,
+It also does not model Telegram's own behaviour: rate limits, flood waits,
 message TTLs. A test that passes here can still hit a rate limit in production,
 which is why [metrics](/guides/configuration) exist for the things a test cannot
 see.
@@ -152,8 +152,8 @@ quietly rot as the page tree grows.
 
 ## Related
 
-- [The render contract](/concepts/render-contract) — why an assertion can know
+- [The render contract](/concepts/render-contract): why an assertion can know
   which method ran
-- [Deploy](/concepts/deploy) — what `deploy: "test"` actually changes
-- [ADR-0006: In-process E2E testing](/guides/adr/0006-in-process-e2e) — why this
+- [Deploy](/concepts/deploy): what `deploy: "test"` actually changes
+- [ADR-0006: In-process E2E testing](/guides/adr/0006-in-process-e2e): why this
   approach was chosen

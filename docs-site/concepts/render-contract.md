@@ -14,10 +14,10 @@ that implies.
 
 A render call takes one flat object. The keys fall into two groups:
 
-**Content** — what the message says. Handled by the `static template` block, so
+**Content**: what the message says. Handled by the `static template` block, so
 it is never a string in an API call.
 
-**Route** — how it gets there. This is the part with the type.
+**Route**: how it gets there. This is the part with the type.
 
 ```ts
 this.renderText({args: [`Saved.`]})
@@ -37,7 +37,7 @@ is a union over the subset that method can actually take:
 `IRouteMediaReply` · `IRouteMediaBroadcastSend` · `IRouteMediaBroadcastRevise` ·
 `IRouteGroupAuto` · `IRouteGroupReply`
 
-You never name these — they are what your call site narrows to.
+You never name these. They are what your call site narrows to.
 
 ## Why a field that would be ignored is a compile error
 
@@ -53,7 +53,7 @@ this.renderText({mode: `reply`, fallback: `reply`})
 
 A forced reply never edits an existing message, so a fallback has nothing to
 fall back *from*. Under a plain options bag this would be accepted and silently
-dropped — which is the bug class this design exists to remove.
+dropped, which is the bug class this design exists to remove.
 
 ## `?: never` is load-bearing, not cosmetic
 
@@ -63,7 +63,7 @@ union declares it. Simply omitting an unread key from one member would let it
 through:
 
 ```ts
-// NOT enough — this still typechecks
+// NOT enough: this still typechecks
 type Bad = {mode: `reply`; args: string[]} | {mode: `edit`; editOptions: X; args: string[]}
 this.renderText({mode: `reply`, fallback: `reply`})   // still accepted
 ```
@@ -84,19 +84,19 @@ both sides.
 ## One field per Bot API call
 
 Each call has exactly one options field, named for the Telegram parameter it maps
-to — `options`, `editOptions`, `fallbackOptions`, `captionOptions`, `media`,
+to: `options`, `editOptions`, `fallbackOptions`, `captionOptions`, `media`,
 `mediaOptions`, `resendOptions`. There is no bag you have to satisfy for two
 Telegram methods at once.
 
 The same care narrows `keyboard`: it is typed `IInBoKb` where the call is
-always an edit, because an edit can only carry an inline or bottom keyboard —
+always an edit, because an edit can only carry an inline or bottom keyboard,
 and stays the wider type on media, where a delete-and-resend is a send.
 
 ## Media is a different shape
 
 `renderMedia` takes `media`, not `args`, because a media send has no text to
 merge. Media groups have their own method, `renderMediaGroup`, which takes no
-reply markup at all — the Bot API has nowhere to put it.
+reply markup at all: the Bot API has nowhere to put it.
 
 Every `render*()` JSDoc names the template block it reads, so hovering the method
 in an editor tells you which block to fill in.

@@ -51,7 +51,7 @@ The constructor (`bot.ts:275`) reads `IGramstaxParams`, selects a deploy mode (`
 | **Depends On** | `TemplateManager`, `CacheExternal`, the client's `InlineKeyboard`/`Keyboard`/`InputMediaBuilder`. |
 | **Depended On By** | Every user page class. |
 
-Handler methods follow a naming convention — all optional, all `async`. The name is
+Handler methods follow a naming convention: all optional, all `async`. The name is
 assembled in a fixed order (`handle` · `Session`/`Free` · `Command` · `Caption` ·
 `Args` · kind), and the `Args` piece is independent of the command piece:
 `handleText` and `handleCommandText` match exactly, while `handleArgsText` (args
@@ -59,7 +59,7 @@ assembled in a fixed order (`handle` · `Session`/`Free` · `Command` · `Captio
 `startsWith`. Caption variants exist for photo, video, audio, document,
 animation and voice.
 
-You never call a send method. `render*()` is the entire outbound surface — 32
+You never call a send method. `render*()` is the entire outbound surface: 32
 methods that pick the underlying call for you from the route you pass
 (`replyWithPhoto`, `editMessageText`, and so on). Broadcast is a route
 (`renderBroadcast`), not a method. Broadcast and edit are selected by the route,
@@ -91,7 +91,7 @@ Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`e
 
 `_supportedExtensions = new Set([".html", ".ts", ".js"])` gates which files load at
 all. `enableWatch` drives the `chokidar` watcher. The public read surface is the
-`getG*` family — `getGMessage`, `getGKeyboard`, `getGMedia`, `getGDescription`,
+`getG*` family: `getGMessage`, `getGKeyboard`, `getGMedia`, `getGDescription`,
 `getGPoll`, `getGVenue`, `getGDice`, `getGInvoice`, `getGCallbackAnswer` and
 friends, each taking `(key, AGBaseId, ALang, data)`. The bare `getMessage` name
 does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for these.
@@ -105,10 +105,10 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 | **Depends On** | `node:fs`, `node:module` (`createRequire`). |
 | **Depended On By** | `TemplateManager`, `Gramstax`. |
 
-`_getFile` throws if `mod[0]` is undefined — i.e. a page file must `export class` (not `export default`) (`manager.ts:56-63`).
+`_getFile` throws if `mod[0]` is undefined, i.e. a page file must `export class` (not `export default`) (`manager.ts:56-63`).
 
 <Warning>
-  A default export is not a fallback here — it is a load-time throw. Page modules
+  A default export is not a fallback here. It is a load-time throw. Page modules
   must use a named `export class`.
 </Warning>
 
@@ -128,7 +128,7 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 | **Location** | `src/update/queue.ts`, `src/update/dispatcher.ts`, `src/update/gate.ts`, `src/update/gate-key.ts` |
 | **Responsibility** | In-memory bounded FIFO. `enqueue` blocks when full; `dequeue` blocks when empty; exposes `getStats()`. `UpdateDispatcher` owns the worker pool and drains it before teardown. |
 | **Depends On** | Nothing. |
-| **Depended On By** | `Gramstax` — opt-in via `optionsDeploy.polling.queue` or `optionsDeploy.webhook.queue`, each mode getting its own instance. `WebhookQueue` is a deprecated alias of `UpdateQueue`. |
+| **Depended On By** | `Gramstax`: opt-in via `optionsDeploy.polling.queue` or `optionsDeploy.webhook.queue`, each mode getting its own instance. `WebhookQueue` is a deprecated alias of `UpdateQueue`. |
 
 ### Keyboard builders (blocks + labels)
 
@@ -207,14 +207,14 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 
 Key architectural choices and their rationale:
 
-1. **Build on an existing client instead of the raw Bot API** — see [ADR-0001](/guides/adr/0001-build-on-grammy.md).
-2. **Template DSL compiled with `new Function()`** — see [ADR-0002](/guides/adr/0002-template-dsl-new-function.md).
-3. **Unified keyv/Redis cache (`CacheExternal`)** — see [ADR-0003](/guides/adr/0003-keyv-redis-cache.md).
-4. **Convention-based routing via page class names + `handle*` methods** — see [ADR-0004](/guides/adr/0004-convention-routing.md).
-5. **Hot-reload templates with `chokidar`** — see [ADR-0005](/guides/adr/0005-hot-reload-chokidar.md).
-6. **In-process E2E testing (`deploy:"test"`)** — see [ADR-0006](/guides/adr/0006-in-process-e2e.md).
-7. **Bun + tsup + Nx + API-Extractor toolchain** — see [ADR-0007](/guides/adr/0007-bun-tsup-nx-toolchain.md).
-8. **No `@ts-ignore`, named exports only, minimal deps** — see [ADR-0008](/guides/adr/0008-lint-export-dep-conventions.md).
+1. **Build on an existing client instead of the raw Bot API**: see [ADR-0001](/guides/adr/0001-build-on-grammy.md).
+2. **Template DSL compiled with `new Function()`**: see [ADR-0002](/guides/adr/0002-template-dsl-new-function.md).
+3. **Unified keyv/Redis cache (`CacheExternal`)**: see [ADR-0003](/guides/adr/0003-keyv-redis-cache.md).
+4. **Convention-based routing via page class names + `handle*` methods**: see [ADR-0004](/guides/adr/0004-convention-routing.md).
+5. **Hot-reload templates with `chokidar`**: see [ADR-0005](/guides/adr/0005-hot-reload-chokidar.md).
+6. **In-process E2E testing (`deploy:"test"`)**: see [ADR-0006](/guides/adr/0006-in-process-e2e.md).
+7. **Bun + tsup + Nx + API-Extractor toolchain**: see [ADR-0007](/guides/adr/0007-bun-tsup-nx-toolchain.md).
+8. **No `@ts-ignore`, named exports only, minimal deps**: see [ADR-0008](/guides/adr/0008-lint-export-dep-conventions.md).
 
 ## Related Documentation
 

@@ -14,15 +14,15 @@ A bot receives many update kinds (text, commands, callback queries, photos, capt
 
 Route updates **by convention**, not by manual `bot.on` registration:
 
-- **Discovery**: `PageManager` (`src/page/manager.ts`) scans `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`), loads each file, and takes the **first named export** (no default export — `_getFile` throws if `mod[0]` is undefined, `manager.ts:56-63`).
+- **Discovery**: `PageManager` (`src/page/manager.ts`) scans `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`), loads each file, and takes the **first named export** (no default export: `_getFile` throws if `mod[0]` is undefined, `manager.ts:56-63`).
 - **Route key**: a page's `name` is derived from the file/class; `Ctx.buildData` can override `intentText` / `intentCommandText` / `intentCallbackQueryData`.
-- **Handler methods**: each page declares optional `async handle*` methods on its `Ctx` subclass — `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleCallbackQueryData`, `handleArgsCallbackQueryData`, `handleFreeText`, the `handleSession*` and `handle*Caption*` variants, etc. (`src/core/ctx.ts:2711-3180+`).
+- **Handler methods**: each page declares optional `async handle*` methods on its `Ctx` subclass: `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleCallbackQueryData`, `handleArgsCallbackQueryData`, `handleFreeText`, the `handleSession*` and `handle*Caption*` variants, etc. (`src/core/ctx.ts:2711-3180+`).
 - **Worker bots**: bots that only make raw API calls use `deploy: "raw"`, which
   skips page discovery entirely. An earlier `templateManager: {} as any`
   exception for this case has been removed and now throws.
 
 <Note>
-  Routing is implicit — harder to trace than explicit `bot.on` calls, and
+  Routing is implicit: harder to trace than explicit `bot.on` calls, and
   name/intent collisions are resolved by convention rather than by a typed route
   table.
 </Note>
@@ -37,7 +37,7 @@ Route updates **by convention**, not by manual `bot.on` registration:
 
 ### Trade-offs
 
-- Routing is implicit — harder to trace than explicit `bot.on` calls.
+- Routing is implicit: harder to trace than explicit `bot.on` calls.
 - Name/intent collisions are resolved by convention, not a typed route table.
 
 ### Alternatives Considered
@@ -51,13 +51,13 @@ Route updates **by convention**, not by manual `bot.on` registration:
 
 | Source Type | Reference |
 |-------------|-----------|
-| Code | `src/page/manager.ts:56-63` — `_getFile` requires a non-default export |
-| Code | `src/core/ctx.ts` — `handleText`, `handleCallbackQueryData`, `handleFreeText`, `handleSession*`, `handle*Caption*` |
-| Code | `src/core/bot.ts:323-342` — deploy-mode selection that feeds routing |
-| Config | `src/types/ctx.ts` — `IPageData` (name/intent* fields) |
-| Docs | `AGENTS.md` — "Convention-based routing: `handle*`, `handleSession*`, `handleFree*`, intent/callback naming." |
+| Code | `src/page/manager.ts:56-63`: `_getFile` requires a non-default export |
+| Code | `src/core/ctx.ts`: `handleText`, `handleCallbackQueryData`, `handleFreeText`, `handleSession*`, `handle*Caption*` |
+| Code | `src/core/bot.ts:323-342`: deploy-mode selection that feeds routing |
+| Config | `src/types/ctx.ts`: `IPageData` (name/intent* fields) |
+| Docs | `AGENTS.md`: "Convention-based routing: `handle*`, `handleSession*`, `handleFree*`, intent/callback naming." |
 
 ## Related
 
-- [Architecture](../architecture.md) — Components: PageManager, Ctx
-- [ADR-0001](/guides/adr/0001-build-on-grammy.md) — routing sits on grammY `Context`
+- [Architecture](../architecture.md): Components: PageManager, Ctx
+- [ADR-0001](/guides/adr/0001-build-on-grammy.md): routing sits on grammY `Context`

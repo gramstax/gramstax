@@ -52,7 +52,7 @@ packages/gramstax/
   <Step title="Branch from main">
     The repo uses **conventional commits** (`feat:`, `fix:`, `chore:`,
     `refactor:`, `docs:`, `test:`, `build:`, `ci:`, `perf:`, `style:`,
-    `revert:`, `asset:`) — see `nx.json` `conventionalCommits` for the semver
+    `revert:`, `asset:`): see `nx.json` `conventionalCommits` for the semver
     mapping.
   </Step>
 
@@ -62,13 +62,13 @@ packages/gramstax/
 
   <Step title="Keep changes surgical">
     Stay surgical in the complexity hotspots: `core/ctx.ts`, `template/engine.ts`,
-    `core/bot.ts` and `template/manager.ts` — the four largest files in the
+    `core/bot.ts` and `template/manager.ts`: the four largest files in the
     package, each several thousand lines and each a split candidate. Their exact
     size moves constantly, so `AGENTS.md` deliberately carries no numbers: a
     stale count in a table is how a small regression survives review.
 
-    Per `AGENTS.md`, do not add `@ts-ignore`/`@ts-expect-error` to hide errors —
-    fix them.
+    Per `AGENTS.md`, do not add `@ts-ignore`/`@ts-expect-error` to hide errors.
+    Fix them.
   </Step>
 
   <Step title="Open a PR">
@@ -84,13 +84,13 @@ packages/gramstax/
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------- |
 | Formatting | 2-space indent, **no semicolons**, `arrowParens: always`, `trailingComma: none`, `printWidth: 300` (TS), `200` (JSON).                                          | `biome.json`                           |
 | Linting    | Biome's recommended rules. Unused imports are errors; `no-explicit-any` is not enabled.                                                                            | `biome lint`                           |
-| Imports    | ESM, `node:` prefix for builtins, `import type` for types, `~/*` alias → `src/*`, relative for same-folder. Named exports only — **no default exports**.           | `tsconfig.json` paths, `AGENTS.md`     |
+| Imports    | ESM, `node:` prefix for builtins, `import type` for types, `~/*` alias → `src/*`, relative for same-folder. Named exports only: **no default exports**.           | `tsconfig.json` paths, `AGENTS.md`     |
 | Types      | `strict: true`, `noUncheckedIndexedAccess: true`. Public boundaries get explicit types; `any` allowed but discouraged.                                             | root `tsconfig.json`                   |
 
 <Note>
   Backtick string literals are a convention, not a rule. `biome.json` sets
   `quoteStyle: "double"` and `plugins: []`, so nothing fails on a non-backtick
-  string — match the surrounding file.
+  string: match the surrounding file.
 </Note>
 
 ```bash
@@ -104,7 +104,7 @@ bun run ci:check:packages      # tsc --noEmit && biome lint ./packages
 
 ## Testing
 
-Tests use **`bun:test`** (no jest/vitest — per `AGENTS.md`). Test files live in `test/`.
+Tests use **`bun:test`** (no jest/vitest, per `AGENTS.md`). Test files live in `test/`.
 
 | Type         | Location                           | Command                              |
 | ------------ | ---------------------------------- | ------------------------------------ |
@@ -153,7 +153,7 @@ derives each page's `title` from its own heading, and regenerates
 
 Run it locally when you change TSDoc, to see the effect. The committed corpus is
 owned by `.github/workflows/docs.yml`, which runs the same script on every push
-to `main` — and the sanitizer is idempotent, so a second run over the same corpus
+to `main`. The sanitizer is idempotent, so a second run over the same corpus
 changes nothing.
 
 <Warning>

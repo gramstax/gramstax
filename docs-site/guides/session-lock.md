@@ -144,6 +144,6 @@ client over TCP, which neither edge isolates nor a bundled lambda entry provide.
 
 ## Related
 
-- [Concurrency and the update queue](/concepts/concurrency) — the in-process counterpart
-- [Configuration reference](/guides/configuration) — `sessionLock` in the field table
-- [`gramstax start`](/guides/gramstax-start) — how `key` resolves at boot
+- [Concurrency and the update queue](/concepts/concurrency): the in-process counterpart
+- [Configuration reference](/guides/configuration): `sessionLock` in the field table
+- [`gramstax start`](/guides/gramstax-start): how `key` resolves at boot
