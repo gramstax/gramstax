@@ -313,10 +313,13 @@ The repo has a broader scope than a typical 2-package Bun/Nx monorepo:
 
 ## CI Notes
 
-- Single workflow: `.github/workflows/release.yml`, triggered on push to `main`.
+- Two workflows, both on push to `main`: `.github/workflows/release.yml` and `.github/workflows/docs.yml`.
 - Release job runs `ci:test:packages` + `build`, then `nx release`.
 - Failure handler is unusual: checks npm for existing version, may delete tag/release and force-push.
 - Root `prepush` script does `ci:test` + `build` + a manual safety echo.
+- **The API reference is generated in CI, never by hand.** `docs.yml` runs `build:docs`, then `mintlify validate` + `mintlify broken-links --check-anchors`, then commits `docs-site/` with `[skip ci]`. Validation runs *before* the commit, so a failed generation produces no commit and Git sync has nothing to deploy.
+- Mintlify has no deploy command — deployment is Git sync only, so the generated corpus must stay committed in `docs-site/reference/`. `docs.yml` owns that directory; do not hand-edit or hand-commit it.
+- `build:docs` ends with `scripts/mintlify/build-site.mjs`, which sanitizes the corpus for MDX and regenerates `docs-site/config/navigation.json`. Run it locally only to preview your own TSDoc changes.
 
 ## Anti-Patterns (THIS PROJECT)
 

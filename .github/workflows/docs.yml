@@ -1,0 +1,86 @@
+name: Docs
+
+# The API reference is generated, sanitized and validated here rather than by
+# hand. Mintlify has no deploy command — deployment runs entirely off Git sync,
+# so the generated corpus has to exist in the repository. The split is about
+# authorship: this workflow commits it, you never do.
+#
+# Validation runs BEFORE the commit on purpose. A failed validation means no
+# commit is made, so no broken documentation is ever pushed, and Git sync has
+# nothing to deploy. That is a stricter gate than a post-deploy check.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Never run two generations at once: they would race the same output directory
+# and push conflicting commits.
+concurrency:
+  group: docs-main
+  cancel-in-progress: false
+
+jobs:
+  docs:
+    name: generate and validate the API reference
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The Mintlify CLI rejects non-LTS Node outright, and Bun alone is not
+      # enough to run it — this must be a real Node toolchain.
+      - name: Setup Node (for the Mintlify CLI)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      - name: Cache Bun install
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-install-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-install-${{ runner.os }}-
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      # Writes into docs-site/reference, then sanitizes for MDX and regenerates
+      # config/navigation.json. --local keeps api-extractor from failing on API
+      # report drift, which is a separate concern from documentation.
+      - name: Generate API reference
+        working-directory: packages/gramstax
+        run: bun run build:docs
+
+      - name: Validate documentation
+        working-directory: docs-site
+        run: |
+          npx -y mintlify@latest validate
+          npx -y mintlify@latest broken-links --check-anchors
+
+      # [skip ci] keeps release.yml from spinning up its full four-package test
+      # matrix for a documentation-only commit. The commit message does not
+      # match its versionable pattern and the published version would already be
+      # on NPM, so the release would skip anyway — this just avoids paying for
+      # the run.
+      - name: Commit regenerated docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.github.com"
+          git add -A docs-site packages/gramstax/docs/extractor/etc
+          if git diff --cached --quiet; then
+            echo "Documentation already up to date — nothing to commit."
+            exit 0
+          fi
+          git commit -m "docs: regenerate the API reference [skip ci]"
+          git push
