@@ -7,7 +7,7 @@
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
     <img alt="Telegram" src="https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white"/>
-    <img alt="npm" src="https://img.shields.io/badge/npm-5.0.0-CB3837.svg?style=flat&logo=npm&logoColor=white"/>
+    <img alt="npm" src="https://img.shields.io/npm/v/create-gramstax?style=flat&logo=npm&logoColor=white&color=CB3837"/>
     <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
   </p>
 </div>
