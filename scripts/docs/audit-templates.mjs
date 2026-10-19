@@ -88,8 +88,9 @@ function walk(dir, out = []) {
 
 const problems = []
 const TAG = /<(g-[a-z-]+|tg-[a-z-]+|[a-z][a-z0-9]*)(\s[^<>]*?)?\/?>/g
+const files = walk(DOCS)
 
-for (const file of walk(DOCS)) {
+for (const file of files) {
   const rel = relative(REPO, file).replaceAll(`\\`, `/`).replace(/^docs-site\//, ``)
   const text = readFileSync(file, "utf8").replace(/\r\n/g, "\n")
   const lines = text.split("\n")
@@ -166,6 +167,21 @@ for (const file of walk(DOCS)) {
   }
 }
 
+// Coverage floor: a registry entry that never appears anywhere in the corpus is
+// undocumented. This is presence, not depth: it catches a block added to the
+// engine and never written down, which is the failure a reader actually hits.
+const corpusText = files.map((f) => readFileSync(f, "utf8")).join("\n")
+const mentioned = (name) => corpusText.includes(`<${name}>`) || corpusText.includes(`<${name} `) || corpusText.includes(`\`${name}\``)
+for (const name of pageBlocks) {
+  if (!mentioned(name)) problems.push({rel: `docs-site (coverage)`, line: 0, kind: `undocumented PAGE block`, detail: `<${name}>`, snippet: ``})
+}
+for (const name of telegramBlocks) {
+  if (!mentioned(name)) problems.push({rel: `docs-site (coverage)`, line: 0, kind: `undocumented Telegram tag`, detail: `<${name}>`, snippet: ``})
+}
+for (const name of ROUTE_KEYS) {
+  if (!new RegExp(`\\b${name}\\b`).test(corpusText)) problems.push({rel: `docs-site (coverage)`, line: 0, kind: `undocumented render option`, detail: name, snippet: ``})
+}
+
 const byFile = new Map()
 for (const p of problems) {
   if (!byFile.has(p.rel)) byFile.set(p.rel, [])
@@ -173,10 +189,10 @@ for (const p of problems) {
 }
 
 console.log(`PAGE blocks ${pageBlocks.size} · Telegram blocks ${telegramBlocks.size} · render option keys ${ROUTE_KEYS.size}`)
-console.log(`Corpus: ${walk(DOCS).length} pages`)
+console.log(`Corpus: ${files.length} pages`)
 
 if (problems.length === 0) {
-  console.log(`\nOK  no unsupported block, attribute, export shape or render option`)
+  console.log(`\nOK  every registry entry is mentioned, and no example uses one that is not real`)
   process.exit(0)
 }
 
