@@ -14,8 +14,8 @@
 
   The blooms are deliberately weaker here than on social-card.svg. Because the
   overlay position is not ours to choose, the whole canvas has to stay calm, so the
-  brightest pixel anywhere on it is #22489f (relative luminance 0.0748), which is
-  8.41:1 against white. That clears WCAG AAA for normal text at any position and any
+  brightest pixel anywhere on it is #15536f (relative luminance 0.0749), which is
+  8.40:1 against white. That clears WCAG AAA for normal text at any position and any
   width. Please keep it that way when editing: re-scan the flattened png for peak
   relative luminance and hold the worst case at or above 7:1.
 
@@ -26,29 +26,33 @@
 
   The `cd` matters: the rasterizer resolves the relative `gramstax.png` reference
   against the working directory, so the command has to run from this folder. Output
-  is exactly 1200 x 630. The CLI always writes RGBA; the committed png has the fully
-  opaque alpha channel dropped and re-deflated, which roughly halves the file.
-  Either file looks identical, the committed one is just the lighter web asset.
+  is exactly 1200 x 630. The CLI always writes RGBA; the committed png is then passed
+  through scripts/docs/flatten-png.mjs, which drops the fully opaque alpha channel and
+  re-deflates, turning 251792 bytes into 117099. Either file looks identical, the
+  committed one is just the lighter web asset.
+
+  The accent stops sit on the logo's hue (199 degrees), luminance-matched to the
+  indigo palette they replaced, so every contrast figure above still holds.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
   <title>gramstax Open Graph background</title>
 
   <defs>
     <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#050b1e"/>
-      <stop offset="0.52" stop-color="#0a1a42"/>
-      <stop offset="1" stop-color="#122a78"/>
+      <stop offset="0" stop-color="#030e12"/>
+      <stop offset="0.52" stop-color="#061f2a"/>
+      <stop offset="1" stop-color="#0b3549"/>
     </linearGradient>
 
     <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#2563eb" stop-opacity="0.48"/>
-      <stop offset="0.5" stop-color="#2563eb" stop-opacity="0.155"/>
-      <stop offset="1" stop-color="#2563eb" stop-opacity="0"/>
+      <stop offset="0" stop-color="#0f74a3" stop-opacity="0.48"/>
+      <stop offset="0.5" stop-color="#0f74a3" stop-opacity="0.155"/>
+      <stop offset="1" stop-color="#0f74a3" stop-opacity="0"/>
     </radialGradient>
 
     <radialGradient id="glow-soft" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#60a5fa" stop-opacity="0.22"/>
-      <stop offset="1" stop-color="#60a5fa" stop-opacity="0"/>
+      <stop offset="0" stop-color="#08acf7" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#08acf7" stop-opacity="0"/>
     </radialGradient>
 
     <!-- faint column rules, faded out toward the lit side of the card -->
