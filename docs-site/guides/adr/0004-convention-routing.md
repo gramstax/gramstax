@@ -1,3 +1,9 @@
+---
+title: "ADR-0004: Convention-Based Routing via Page Class Names and handle Methods"
+description: Why updates route by page class name and handle method convention rather than manual registration, and what that costs in traceability.
+icon: route
+---
+
 # ADR-0004: Convention-based routing via page class names + `handle*` methods
 
 <Info>

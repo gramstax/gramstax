@@ -1,3 +1,9 @@
+---
+title: Getting Started
+description: Prerequisites, installation, the config fields a bot needs, and how to run a gramstax bot locally with polling.
+icon: rocket
+---
+
 # Getting Started
 
 > How to set up and run a `gramstax` bot locally.

@@ -37,8 +37,48 @@
       "github": "https://github.com/gramstax/gramstax"
     }
   },
+  "feedback": {
+    "thumbsUp": true,
+    "thumbsDown": true,
+    "suggestEdit": {
+      "url": "https://github.com/gramstax/gramstax",
+      "base": "https://github.com/gramstax/gramstax/blob/main/docs-site/"
+    }
+  },
+  "search": {
+    "prompts": [
+      {
+        "prompt": "How do I add a page and turn it into a route?",
+        "options": {
+          "mode": "select"
+        }
+      },
+      {
+        "prompt": "Which deploy mode should I use?",
+        "options": {
+          "mode": "select"
+        }
+      },
+      {
+        "prompt": "How do I write a template and render it?",
+        "options": {
+          "mode": "select"
+        }
+      }
+    ]
+  },
   "seo": {
     "indexing": "all",
+    "metatags": {
+      "og:title": "gramstax",
+      "og:description": "Page-based routing and a template system for Telegram bots.",
+      "og:image": "https://gramstax.mintlify.site/logo/gramstax.png",
+      "og:image:alt": "gramstax",
+      "twitter:card": "summary",
+      "twitter:title": "gramstax",
+      "twitter:description": "Page-based routing and a template system for Telegram bots.",
+      "twitter:image": "https://gramstax.mintlify.site/logo/gramstax.png"
+    },
     "organization": {
       "name": "Gramstax",
       "url": "https://github.com/gramstax/gramstax",

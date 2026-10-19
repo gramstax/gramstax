@@ -1,6 +1,7 @@
 ---
 title: Quickstart
 description: From an empty directory to a running Telegram bot in five minutes.
+icon: zap
 ---
 
 # Quickstart

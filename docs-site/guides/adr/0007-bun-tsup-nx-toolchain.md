@@ -1,3 +1,9 @@
+---
+title: "ADR-0007: Bun, tsup, Nx, and API-Extractor Toolchain"
+description: Why the monorepo standardizes on Bun for runtime and tests, tsup for the dual build, Nx for orchestration, and API-Extractor for docs.
+icon: wrench
+---
+
 # ADR-0007: Bun + tsup + Nx + API-Extractor toolchain
 
 <Info>

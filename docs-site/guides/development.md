@@ -1,3 +1,9 @@
+---
+title: Development Guide
+description: Repository layout, the local development workflow, and the build, test, and lint commands needed to contribute to the gramstax monorepo.
+icon: hammer
+---
+
 # Development Guide
 
 > How to contribute to `gramstax`.

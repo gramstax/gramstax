@@ -1,3 +1,9 @@
+---
+title: gramstax start
+description: How the start command boots a bot from gramstax.config.ts alone, discovers the bot class, and validates every materialized config slot.
+icon: play
+---
+
 # `gramstax start`
 
 Boot a polling/webhook bot from `gramstax.config.ts` alone: no `src/index.ts`.

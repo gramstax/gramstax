@@ -1,6 +1,7 @@
 ---
 title: Session lock
 description: Running one bot across several instances without two of them handling the same user's update at once.
+icon: lock
 ---
 
 # Session lock

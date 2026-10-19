@@ -1,6 +1,7 @@
 ---
 title: gramstax
 description: Page-based routing and a template system for Telegram bots.
+icon: compass
 ---
 
 # gramstax

@@ -1,3 +1,9 @@
+---
+title: Glossary
+description: Project-specific terms used across gramstax, each defined with the source file or module where it appears, plus an acronym list.
+icon: book-open
+---
+
 # Glossary
 
 > Project-specific terminology used in `gramstax`.

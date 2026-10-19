@@ -1,3 +1,9 @@
+---
+title: Architecture
+description: How gramstax is put together, from update intake through routing, rendering, and cache, with the responsibilities and dependencies of each core class.
+icon: layers
+---
+
 # Architecture
 
 > How `gramstax` is structured and why.

@@ -1,6 +1,7 @@
 ---
 title: Architecture decisions
 description: The records behind the choices in this framework, and what each one cost.
+icon: list
 ---
 
 # Architecture decisions

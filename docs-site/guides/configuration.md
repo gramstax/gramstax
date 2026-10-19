@@ -1,6 +1,7 @@
 ---
 title: Configuration reference
 description: Every gramstax.config.ts field, what it does, and when you should reach for it.
+icon: settings
 ---
 
 # Configuration reference

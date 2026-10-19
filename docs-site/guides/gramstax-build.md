@@ -1,3 +1,9 @@
+---
+title: gramstax build
+description: What gramstax build emits, how each deploy mode consumes the frozen .gramstax output, the config fields it reads, and its CLI flags.
+icon: package
+---
+
 # `gramstax build`
 
 For all deploys: one `gramstax build` freezes a project's `pages/` into a single all-in-one `.gramstax/` consumed per the table below. Only `serverless` deploys auto-load it; every other deploy keeps fs boot unless the `manifest` param is passed explicitly.

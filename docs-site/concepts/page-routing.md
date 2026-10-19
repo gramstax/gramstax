@@ -1,6 +1,7 @@
 ---
 title: Page routing
 description: How a file under src/pages becomes a route, and how handlers bind to it.
+icon: map
 ---
 
 # Page routing

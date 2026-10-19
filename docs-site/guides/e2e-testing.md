@@ -1,6 +1,7 @@
 ---
 title: E2E testing
 description: Testing a page by driving the compiled template against an in-process mock of the Telegram API.
+icon: test-tube
 ---
 
 # E2E testing

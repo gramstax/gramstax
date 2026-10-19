@@ -1,6 +1,7 @@
 ---
 title: The render contract
 description: Why render params are a union over delivery routes, and what that buys you.
+icon: braces
 ---
 
 # The render contract

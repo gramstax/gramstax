@@ -1,3 +1,9 @@
+---
+title: "ADR-0005: Hot-Reload Templates with chokidar"
+description: Why template sources are watched with chokidar and recompiled on change, so editing a template needs no bot restart.
+icon: refresh-cw
+---
+
 # ADR-0005: Hot-reload templates with `chokidar`
 
 <Info>

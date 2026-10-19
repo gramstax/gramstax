@@ -1,3 +1,9 @@
+---
+title: AOT Contract (gen/manifest.js)
+description: How gramstax build freezes templates into codegen-free JS modules, the exact gen/manifest.js output shape, and the limits of the AOT path.
+icon: cpu
+---
+
 # AOT contract (`gen/manifest.js`)
 
 Ahead-of-time template build: freezes `.html` templates into importable JS modules with zero runtime codegen, for runtimes without the `Function` constructor (Workers).

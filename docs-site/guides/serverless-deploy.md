@@ -1,3 +1,9 @@
+---
+title: Serverless Deploy (Cloudflare Workers + AWS Lambda)
+description: The build, secret, and deploy workflow for the Cloudflare Workers and AWS Lambda targets, including secret rotation and webhook token duality.
+icon: cloud
+---
+
 # Serverless deploy (Cloudflare Workers + AWS Lambda)
 
 Build → secret → deploy → verify for the `11-cloudflare-worker` example and the `lambda` target.

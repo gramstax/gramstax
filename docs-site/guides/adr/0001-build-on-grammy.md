@@ -1,3 +1,9 @@
+---
+title: "ADR-0001: Build on grammY Instead of the Raw Bot API"
+description: Why gramstax builds on grammy instead of calling the raw Bot API directly, and what that coupling gains and costs.
+icon: git-branch
+---
+
 # ADR-0001: Build on grammY instead of the raw Bot API
 
 <Info>

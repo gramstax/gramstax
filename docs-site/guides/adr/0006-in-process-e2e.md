@@ -1,3 +1,9 @@
+---
+title: "ADR-0006: In-Process E2E Testing via the Test Deploy Mode"
+description: Why test mode attaches an E2eHelper that intercepts Bot API calls in-process, so tests need no token, network, or port binding.
+icon: beaker
+---
+
 # ADR-0006: In-process E2E testing via `deploy:"test"`
 
 <Info>

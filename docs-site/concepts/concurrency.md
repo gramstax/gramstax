@@ -1,6 +1,7 @@
 ---
 title: Concurrency and the update queue
 description: Why updates drain sequentially by default, and what turning the queue on actually changes.
+icon: gauge
 ---
 
 # Concurrency and the update queue

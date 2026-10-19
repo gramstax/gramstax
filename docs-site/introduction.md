@@ -1,6 +1,7 @@
 ---
 title: Introduction
 description: What gramstax is, what it removes, and who it is for.
+icon: book
 ---
 
 # gramstax

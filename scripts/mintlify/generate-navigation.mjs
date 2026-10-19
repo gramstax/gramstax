@@ -44,14 +44,36 @@ const PROSE = [
       "guides/configuration",
       "guides/gramstax-start",
       "guides/gramstax-build",
+      "guides/examples",
       "guides/e2e-testing",
       "guides/session-lock",
       "guides/serverless-deploy",
       "guides/aot-contract",
-      "guides/adr/index",
+      "guides/migrating-to-6",
+      "guides/troubleshooting",
+      "guides/faq",
       "guides/glossary",
       "guides/architecture",
       "guides/development"
+    ]
+  },
+  // The eight ADRs are listed individually. Declaring only `guides/adr/index`
+  // left every record unreachable from the sidebar: the index links them, but
+  // a search or a shared link into `0001` had no navigation context.
+  {
+    group: "Decisions",
+    icon: "scale",
+    boost: 0.8,
+    pages: [
+      "guides/adr/index",
+      "guides/adr/0001-build-on-grammy",
+      "guides/adr/0002-template-dsl-new-function",
+      "guides/adr/0003-keyv-redis-cache",
+      "guides/adr/0004-convention-routing",
+      "guides/adr/0005-hot-reload-chokidar",
+      "guides/adr/0006-in-process-e2e",
+      "guides/adr/0007-bun-tsup-nx-toolchain",
+      "guides/adr/0008-lint-export-dep-conventions"
     ]
   }
 ]

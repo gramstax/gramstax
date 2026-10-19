@@ -1,3 +1,9 @@
+---
+title: "ADR-0002: Template DSL Compiled with new Function()"
+description: Why the g-block template DSL compiles to render functions built with new Function, and which runtimes that decision rules out.
+icon: code
+---
+
 # ADR-0002: Template DSL compiled with `new Function()`
 
 <Info>

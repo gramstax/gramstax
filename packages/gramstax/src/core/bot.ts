@@ -68,6 +68,33 @@ type IMissingCtxScopeFields = Exclude<keyof ICtxParams, keyof IGramstaxCtxScope 
 const _assertCtxScopeComplete: IMissingCtxScopeFields extends never ? [] : [`ctxScope misses ICtxParams field(s):`, IMissingCtxScopeFields] = []
 
 /**
+ * Every outcome `_pageRoutes` can report, plus the two failure states
+ * `_handleCtx` synthesises itself.
+ *
+ * @internal
+ */
+type IRouteOutcome = `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout`
+
+/**
+ * Maps a route outcome to the `MetricsStore` counter that records it.
+ *
+ * @remarks
+ * A comparison chain (`state === \`matched\``) is rejected here: the real
+ * assignment to `state` happens inside an `await`ed closure, so control-flow
+ * analysis narrows `state` to its initialiser plus the `catch` assignments and
+ * treats `matched` and `no-handler` as unreachable. A table avoids the cast a
+ * widening annotation would need. `blocked`, `error` and `timeout` are counted
+ * where they are detected, so they are deliberately absent.
+ *
+ * @internal
+ */
+const _routeOutcomeCounters: Record<string, `matched` | `noMatch` | `noHandler`> = {
+  "matched": `matched`,
+  "no-match": `noMatch`,
+  "no-handler": `noHandler`
+}
+
+/**
  * Main bot framework class for building Telegram bots.
  *
  * @remarks
@@ -3320,7 +3347,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    */
   async _handleCtx(ctx: ICtx, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean, traceId: string): Promise<void> {
     const startedAt = Date.now()
-    let state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` = `no-match`
+    let state: IRouteOutcome = `no-match`
     const isEdit = listenerName === `callbackquerydata`
 
     try {
@@ -3382,6 +3409,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
     const durationMs = Date.now() - startedAt
     this.metrics.recordUpdate(listenerName, durationMs)
+    // `state` already holds the routed outcome, so recording it is a lookup.
+    // Without this the outcome counters stay at zero for the lifetime of the
+    // process, and `metricsToPrometheus` skips zero-valued counters, so they
+    // are invisible rather than merely wrong.
+    const outcomeCounter = _routeOutcomeCounters[state]
+    if (outcomeCounter) {
+      this.metrics.counts[outcomeCounter] += 1
+    }
     if (this.hookTrace) {
       try {
         this.hookTrace({name: listenerName, durationMs, attributes: {state, isEdit}})

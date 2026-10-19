@@ -1,6 +1,7 @@
 ---
 title: Extending gramstax
 description: The five extension points, page data, context subclassing, middleware, send errors, and filesystem-less boot.
+icon: puzzle
 ---
 
 # Extending gramstax

@@ -1,3 +1,9 @@
+---
+title: "ADR-0003: Unified keyv and Redis Cache via CacheExternal"
+description: Why sessions and keyboards share one keyv-based CacheExternal with memory, Redis, and custom store modes instead of two storage paths.
+icon: database
+---
+
 # ADR-0003: Unified keyv / Redis cache via `CacheExternal`
 
 <Info>

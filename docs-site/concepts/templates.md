@@ -1,6 +1,7 @@
 ---
 title: Templates
 description: The block vocabulary, filters, imports, and how languages are declared.
+icon: file-code
 ---
 
 # Templates

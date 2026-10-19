@@ -1,6 +1,7 @@
 ---
 title: Deploy
 description: Five deploy modes, nested options branches, and what each one costs you.
+icon: globe
 ---
 
 # Deploy
