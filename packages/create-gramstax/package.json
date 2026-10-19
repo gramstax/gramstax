@@ -7,7 +7,20 @@
     "provenance": false
   },
   "description": "Scaffolds a Gramstax Telegram bot — pages, templates, config, an enforced e2e mirror, and optional LMDB storage and worker threads, wired in from the start.",
-  "keywords": [],
+  "keywords": [
+    "telegram",
+    "telegram-bot",
+    "bot",
+    "framework",
+    "scaffold",
+    "generator",
+    "cli",
+    "create",
+    "template",
+    "typescript",
+    "bun",
+    "gramstax"
+  ],
   "scripts": {
     "build": "tsup",
     "nx-release-publish": "npm publish --access public"

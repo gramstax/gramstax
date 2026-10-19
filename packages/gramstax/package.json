@@ -7,7 +7,21 @@
     "provenance": false
   },
   "description": "A modern Telegram bot framework built around page-based routing and a powerful template system.",
-  "keywords": [],
+  "keywords": [
+    "telegram",
+    "telegram-bot",
+    "telegram-bot-api",
+    "bot",
+    "bot-framework",
+    "framework",
+    "telegram-framework",
+    "typescript",
+    "bun",
+    "template-engine",
+    "page-routing",
+    "i18n",
+    "gramstax"
+  ],
   "scripts": {
     "build": "tsup",
     "build:docs": "bun run build --dts-only --no-minify --tsconfig tsconfig.build.docs.json && api-extractor run --local --verbose && api-documenter markdown -i ./docs/extractor/temp -o ../../docs-site/reference && api-documenter yaml -i ./docs/extractor/temp -o ./docs/yaml && rm -irf ./dist/gramstax.d.ts && bun ../../scripts/mintlify/build-site.mjs",

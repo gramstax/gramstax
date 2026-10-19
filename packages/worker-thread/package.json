@@ -14,6 +14,7 @@
     "rpc",
     "ipc",
     "unix-socket",
+    "typescript",
     "bun",
     "nodejs",
     "gramstax"

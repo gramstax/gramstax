@@ -15,6 +15,7 @@
     "repository",
     "sub-database",
     "transaction",
+    "typescript",
     "bun",
     "nodejs",
     "gramstax"
