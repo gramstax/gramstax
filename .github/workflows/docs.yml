@@ -65,6 +65,13 @@ jobs:
       - name: Audit prose against source
         run: node scripts/docs/audit-docs.mjs
 
+      # The prose guard deliberately skips fenced code blocks. This one reads
+      # them, and compares every `<g-*>` tag, attribute, `render*` option key and
+      # page export shape against the TemplateEngine registries. An invented
+      # block name in an example is exactly the failure it exists to catch.
+      - name: Audit template blocks in code examples
+        run: node scripts/docs/audit-templates.mjs
+
       # Writes into docs-site/reference, then sanitizes for MDX and regenerates
       # config/navigation.json. --local keeps api-extractor from failing on API
       # report drift, which is a separate concern from documentation.

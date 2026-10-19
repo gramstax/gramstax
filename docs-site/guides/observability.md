@@ -344,12 +344,15 @@ export class BotCore extends Gramstax {
 }
 ```
 
-`IUpdateErrorEvent.state` is the field to triage on, and its five values map onto
-things you can already see: `error`, `timeout`, `blocked`, `no-handler` and
-`validation`. `traceId` is the Telegram `update_id` as a string, except for the two
-failures raised outside routing, where it is the literal `startup` or `catch`. That
-makes `traceId` the join key between a trace and an error report, and `durationMs`
-the wall time from dispatch to failure, `0` when the failure predates routing.
+`IUpdateErrorEvent.state` is the field to triage on. Three values are actually
+emitted: `error`, `timeout` and `validation`. The type also declares `blocked` and
+`no-handler`, but nothing emits them; a blocked update and a page with no matching
+handler stay routing outcomes, reported through `hookAfterRoute` and `hookUpdate`
+rather than as an error event. `traceId` is the Telegram `update_id` as a string,
+except for the three failures raised outside routing, where it is the literal
+`startup`, `catch` or `polling`. That makes `traceId` the join key between a trace
+and an error report, and `durationMs` the wall time from dispatch to failure, `0`
+when the failure predates routing.
 
 <Note>
   A throwing hook is caught, logged and swallowed rather than allowed to break the

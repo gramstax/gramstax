@@ -32,7 +32,7 @@ order-dependent: a `setSession` followed by the step it parks into would race.
 <Frame caption="Producers enqueue, a pool of `workerCount` loops drains, and the gate is what keeps two updates from one chat out of each other's way.">
   <img
     src="/images/update-queue.svg"
-    alt="An update flows through UpdateQueue, a bounded FIFO with maxQueueSize 5000, into UpdateDispatcher, a pool with workerCount 8, and then into UpdateGate, which holds perChatConcurrency 1 and is acquired before a handler runs. Below, a timeline shows two updates for the same gate key c:1 laid end to end so they never overlap, while a single update for c:2 runs beside both, and a side panel lists the two steps of resolveGateKey: chat.id becomes c: followed by the id, and otherwise from.id is used, per user. A final panel contrasts the queue absent default, which drains strictly sequentially, with the queue enabled, where eight workers drain in parallel but the gate still serializes each chat."
+    alt="An update flows through UpdateQueue, a bounded FIFO with maxQueueSize 5000, into UpdateDispatcher, a pool with workerCount 8, and then into UpdateGate, which holds perChatConcurrency 1 and is acquired before a handler runs. Below, a timeline shows two updates for the same gate key c:1 laid end to end so they never overlap, while a single update for c:2 runs beside both, and a side panel lists the three steps of resolveGateKey: chat.id becomes c: plus the id, from.id becomes u: plus the id, and otherwise update_id becomes u: plus the id. A final panel contrasts the queue absent default, which drains strictly sequentially, with the queue enabled, where eight workers drain in parallel but the gate still serializes each chat."
   />
 </Frame>
 
@@ -43,7 +43,11 @@ order-dependent: a `setSession` followed by the step it parks into would race.
 1. `chat.id`: from a message, edited message, channel post, business message,
    guest message, or a callback query's message. Keyed `c:<id>`.
 2. `from.id`: when there is no chat at all, which is the case for inline queries
-   and pre-checkout queries. User-originated updates serialize per user.
+   and pre-checkout queries. User-originated updates serialize per user, keyed
+   `u:<id>`.
+3. `update_id`: when neither exists, keyed `u:<update_id>`. A callback query with
+   no message, for example, lands here. With no `update_id` either the function
+   returns `undefined` and the caller does not gate the update at all.
 
 Everything for one chat therefore serializes regardless of which worker picks it
 up.

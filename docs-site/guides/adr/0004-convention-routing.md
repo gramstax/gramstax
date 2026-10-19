@@ -22,7 +22,7 @@ Route updates **by convention**, not by manual `bot.on` registration:
 
 - **Discovery**: `PageManager` (`src/page/manager.ts`) scans `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`), loads each file, and takes the **first named export** (no default export: `_getFile` throws if `mod[0]` is undefined, `manager.ts:56-63`).
 - **Route key**: a page's `name` is derived from the file/class; `Ctx.buildData` can override `intentText` / `intentCommandText` / `intentCallbackQueryData`.
-- **Handler methods**: each page declares optional `async handle*` methods on its `Ctx` subclass: `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleCallbackQueryData`, `handleArgsCallbackQueryData`, `handleFreeText`, the `handleSession*` and `handle*Caption*` variants, etc. (`src/core/ctx.ts:2711-3180+`).
+- **Handler methods**: each page declares optional `async handle*` methods on its `Ctx` subclass: `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleCallbackQueryData`, `handleArgsCallbackQueryData`, `handleFreeText`, the `handleSession*` and `handle*Caption*` variants, etc. (`src/core/ctx.ts`).
 - **Worker bots**: bots that only make raw API calls use `deploy: "raw"`, which
   skips page discovery entirely. An earlier `templateManager: {} as any`
   exception for this case has been removed and now throws.
@@ -57,9 +57,9 @@ Route updates **by convention**, not by manual `bot.on` registration:
 
 | Source Type | Reference |
 |-------------|-----------|
-| Code | `src/page/manager.ts:56-63`: `_getFile` requires a non-default export |
+| Code | `src/page/manager.ts:45-52`: `_getFile` takes `Object.values(mod)[0]` |
 | Code | `src/core/ctx.ts`: `handleText`, `handleCallbackQueryData`, `handleFreeText`, `handleSession*`, `handle*Caption*` |
-| Code | `src/core/bot.ts:323-342`: deploy-mode selection that feeds routing |
+| Code | `src/core/bot.ts:759`: deploy-mode selection that feeds routing |
 | Config | `src/types/ctx.ts`: `IPageData` (name/intent* fields) |
 | Docs | `AGENTS.md`: "Convention-based routing: `handle*`, `handleSession*`, `handleFree*`, intent/callback naming." |
 

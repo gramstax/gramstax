@@ -71,11 +71,14 @@ two handlers.
 
 ### What a page without `static data` gets
 
-`static data` is optional on `Ctx`, and a page that omits it still routes. What
-it loses is the typed callback surface: `Ctx.data` is declared as `IPageDataBase`,
-which deliberately omits `callbackQueryData`, so `this.data.callbackQueryData(…)`
-is a compile error rather than a runtime surprise. A page cannot wire a callback it
-never declared.
+`static data` is optional on `Ctx`, and a page that omits it still routes. The
+gap is runtime, not typing: `Ctx.data` is assigned through a cast
+(`this.constructor as unknown as {data: IPageData}`), and
+`IPageData.callbackQueryData` is non-optional, so
+`this.data.callbackQueryData(…)` typechecks on every page. On a page with no
+`static data` the property is `undefined`, and the call throws the first time a
+keyboard is built. Declare `static data = this.buildData()` on any page that
+wires callbacks.
 
 ### The three intents and where they default to
 

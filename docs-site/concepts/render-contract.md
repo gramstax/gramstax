@@ -21,9 +21,14 @@ it is never a string in an API call.
 **Route**: how it gets there. This is the part with the type.
 
 ```ts
-this.renderText({args: [`Saved.`]})
-this.renderText({mode: `edit`, options: {parse_mode: `HTML`}})
-this.renderText({broadcast: {chatIds}, args: [`Deploy finished.`]})
+// auto: edit the message the callback came from, reply to anything else
+this.renderText({data: {name: `Ada`}})
+
+// forced send, with the keyboard this page's `g-keyboard` block declares
+this.renderText({mode: `reply`, keyboard: this.inlineKeyboardT([this])})
+
+// fan-out: the same block, one send per recipient id
+this.renderText({data: {status: `done`}, broadcast: {ids: [123456]}})
 ```
 
 ## The twelve route atoms
@@ -72,14 +77,14 @@ through:
 
 ```ts
 // NOT enough: this still typechecks
-type Bad = {mode: `reply`; args: string[]} | {mode: `edit`; editOptions: X; args: string[]}
+type Bad = {mode: `reply`; data: Record<string, unknown>} | {mode: `edit`; editOptions: X; data: Record<string, unknown>}
 this.renderText({mode: `reply`, fallback: `reply`})   // still accepted
 ```
 
 Only `never` converts "silently ignored" into a compile error:
 
 ```ts
-type Good = {mode: `reply`; fallback?: never; args: string[]} | {mode: `edit`; fallback?: never; editOptions: X; args: string[]}
+type Good = {mode: `reply`; fallback?: never; data: Record<string, unknown>} | {mode: `edit`; fallback?: never; editOptions: X; data: Record<string, unknown>}
 this.renderText({mode: `reply`, fallback: `reply`})   // error
 ```
 
@@ -102,9 +107,9 @@ and stays the wider type on media, where a delete-and-resend is a send.
 
 ## Media is a different shape
 
-`renderMedia` takes `media`, not `args`, because a media send has no text to
-merge. Media groups have their own method, `renderMediaGroup`, which takes no
-reply markup at all: the Bot API has nowhere to put it.
+`renderMedia` takes `media` rather than a text block, because a media send has no
+text to merge. Media groups have their own method, `renderMediaGroup`, which
+takes no reply markup at all: the Bot API has nowhere to put it.
 
 Every `render*()` JSDoc names the template block it reads, so hovering the method
 in an editor tells you which block to fill in.

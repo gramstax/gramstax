@@ -18,7 +18,7 @@ The framework needs session storage (per-user state across updates) and keyboard
 
 ## Decision
 
-Provide a single cache abstraction: `CacheExternal<V>` **extends `keyv`** (`src/cache/external.ts:55`). Storage mode is chosen by the constructor `url`/`more` arguments:
+Provide a single cache abstraction: `CacheExternal<V>` **extends `keyv`** (`src/cache/external.ts:38`). Storage mode is chosen by the constructor `url`/`more` arguments:
 
 - `url === "memory"` → an in-memory `Map` (default).
 - `url.startsWith("redis")` → `@keyv/redis` adapter.
@@ -56,9 +56,9 @@ Provide a single cache abstraction: `CacheExternal<V>` **extends `keyv`** (`src/
 
 | Source Type | Reference |
 |-------------|-----------|
-| Code | `src/cache/external.ts:55`: `export class CacheExternal<V = any> extends Keyv<V>` |
-| Code | `src/cache/external.ts:64-76`: mode selection (`memory`/`redis`/`forceStore`) |
-| Code | `src/core/bot.ts:84`: `cacheSession: CacheExternal<ITCacheRpc>` |
+| Code | `src/cache/external.ts:38`: `export class CacheExternal<V = unknown> extends Keyv<V>` |
+| Code | `src/cache/external.ts:58-71`: mode selection (`memory`/`redis`/`forceStore`) |
+| Code | `src/core/bot.ts:258`: `cacheSession: CacheExternal<ICacheRpc>` |
 | Dependency | `package.json`: `"keyv": "^5.5.4"`, `"@keyv/redis": "^5.1.4"` |
 
 ## Related

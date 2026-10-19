@@ -18,7 +18,7 @@ Templates (the `<g-*>` DSL) are the primary thing a bot author edits during deve
 
 ## Decision
 
-`TemplateManager` watches template source files with **`chokidar`** (`src/template/manager.ts:14` imports `watch, FSWatcher`). When `ITemplateOptions.enableWatch` is set, the constructor calls `_initializeWatcher` and stores `FSWatcher` instances in `_watcher` (`manager.ts:71`). On add/change/delete it reloads and **recompiles** the affected template into `_map`: no bot restart required. Supported extensions are `.html`, `.ts`, `.js` (`_supportedExtensions`, `manager.ts:87`).
+`TemplateManager` watches template source files with **`chokidar`** (`src/template/manager.ts:3` imports `watch, FSWatcher`). When `ITemplateOptions.enableWatch` is set, the constructor calls `_initializeWatcher` and stores `FSWatcher` instances in `_watcher` (`manager.ts:77`). On add/change/delete it reloads and **recompiles** the affected template into `_map`: no bot restart required. Supported extensions are `.html`, `.ts`, `.js` (`_supportedExtensions`, `manager.ts:85`).
 
 <Note>
   Watching costs you a descriptor held open for the life of the process, and each
@@ -49,10 +49,10 @@ Templates (the `<g-*>` DSL) are the primary thing a bot author edits during deve
 
 | Source Type | Reference |
 |-------------|-----------|
-| Code | `src/template/manager.ts:14`: `import {watch, FSWatcher} from "chokidar"` |
-| Code | `src/template/manager.ts:71`: `_watcher: FSWatcher[]` |
-| Code | `src/template/manager.ts:87`: `_supportedExtensions = {".html",".ts",".js"}` |
-| Code | `src/template/manager.ts:138`: `_initializeWatcher(options.watchOptions)` in constructor |
+| Code | `src/template/manager.ts:3`: `import {type FSWatcher, watch} from "chokidar"` |
+| Code | `src/template/manager.ts:77`: `_watcher: FSWatcher[]` |
+| Code | `src/template/manager.ts:85`: `_supportedExtensions = new Set([".html", ".ts", ".js"])` |
+| Code | `src/template/manager.ts:169`: `_initializeWatcher(options.watchOptions)` in constructor |
 | Dependency | `package.json`: `"chokidar": "^4.0.3"` |
 | Docs | `AGENTS.md`: "Supports hot-reload for template files via chokidar." |
 

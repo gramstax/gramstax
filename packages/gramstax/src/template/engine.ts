@@ -519,7 +519,7 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * TemplateEngine._TELEGRAM_ALLOWED_ATTRS["table"] // => ["bordered", "striped"]
+   * TemplateEngine._TELEGRAM_ALLOWED_ATTRS["table"] // => ["bordered", "striped", "is_compact"]
    * TemplateEngine._TELEGRAM_ALLOWED_ATTRS["b"]     // => [] (no attributes)
    * ```
    *
@@ -939,8 +939,9 @@ export class TemplateEngine {
    * @remarks
    * Non-string values are stringified; `null`/`undefined` become empty string.
    * Escaped code points: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`.
-   * Scope: text-node interpolation via `{{}}` only. Attribute values and
-   * `{{{}}}` raw output are intentionally not HTML-escaped.
+   * `_processScopeVariables` rewrites every `{{}}` span to call this function
+   * before the template is parsed, so an attribute value written as `{{x}}` is
+   * escaped too. Only the `{{{}}}` form is raw.
    *
    * @param value - The runtime value to escape.
    * @returns The escaped string.
@@ -4603,10 +4604,12 @@ export class TemplateEngine {
    * @remarks
    * This method checks that each block tag uses the correct syntax format:
    *
-   * **Must be self-closing:**
-   * - `<g-space />` — whitespace control block
-   * - `<g-import ... />` — import directive block
+   * **Must be self-closing:** the set holds `space`, `import`, `hr`, `img`,
+   * `input`, `br` and `tg-map`.
    * - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements
+   * - `space` and `import` are listed, but the captured tag name is `g-space` /
+   *   `g-import`, so that branch never matches those two. Write them
+   *   self-closing by convention.
    *
    * **Must NOT be self-closing (must use open/close tags):**
    * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
@@ -4614,6 +4617,11 @@ export class TemplateEngine {
    *   `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
    *   `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,
    *   `<g-map>...</g-map>`, `<g-div>...</g-div>`
+   *
+   * Nine page blocks appear in neither set and accept either form: `<g-price>`,
+   * `<g-venue>`, `<g-dice>`, `<g-gift>`, `<g-callback-answer>`,
+   * `<g-precheckout-error>`, `<g-shipping-error>`, `<g-inline-button>`,
+   * `<g-answer-note>`.
    *
    * Telegram HTML formatting tags with content (e.g. `<b>`, `<p>`, `<table>`) passthrough
    * and are not format-checked — both `<b>text</b>` and `<b/>` are accepted.
@@ -4624,8 +4632,8 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateFormatBlock(`<g-space>content</g-space>`);
-   * // Result: { valid: false, errors: [{ line: 1, message: 'Block <g-space> must be self-closing: use <g-space /> instead' }] }
+   * const result = TemplateEngine.validateFormatBlock(`<hr>`);
+   * // Result: { valid: false, errors: [{ line: 1, message: 'Block <hr> must be self-closing: use <hr /> instead' }] }
    * ```
    *
    * @public
@@ -4982,10 +4990,10 @@ export class TemplateEngine {
    * Runs after {@link TemplateEngine.validateTelegramAttributesBlock} (which checks
    * presence) to catch format-level issues. Validates:
    * - `<tg-time unix>` must be a positive integer; `<tg-time format>` must be non-empty
-   * - `<tg-map lat>` ∈ [-90, 90], `<tg-map long>` ∈ [-180, 180], `<tg-map zoom>` ∈ [0, 24]
+   * - `<tg-map lat>` ∈ [-90, 90], `<tg-map long>` ∈ [-180, 180], `<tg-map zoom>` ∈ [13, 20]
    * - `<tg-emoji emoji-id>` must be a numeric string
    * - `<a href>` must use http(s)://, mailto:, tel:, tg://, or # scheme
-   * - `<input type>` must be a known HTML input type
+   * - `<input type>` must be `checkbox`
    *
    * Tags without value validators (e.g. `<b>`, `<p>`, `<table>`) are skipped.
    * See {@link TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS} for the full spec.
@@ -6018,8 +6026,9 @@ export class TemplateEngine {
    * Allowed attributes are `lang`, `text`, and `start-parameter`. `text`
    * is required and must be non-empty; a static `start-parameter` must
    * match the Bot API deep-link format (`[A-Za-z0-9_-]`, at most 64 chars)
-   * while `{{}}` / `{~ ~}` spans skip the static check (runtime-enforced,
-   * mirroring the `_validateDiceItems` static/dynamic split).
+   * while `{{}}` / `{~ ~}` spans skip the static check and are not re-checked
+   * by the framework. Unlike the `_validateDiceItems` split, there is no
+   * runtime assertion for this value.
    *
    * @param template - The raw template string to validate
    * @returns An object with a `valid` boolean and an `errors` array

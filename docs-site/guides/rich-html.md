@@ -150,8 +150,10 @@ missing rather than as a format problem.
 
 Boolean attributes are presence-validated with a `() => null` entry, so
 `reversed`, `bordered`, `striped`, `is_compact`, `expandable`, `open`,
-`checked` and `tg-spoiler` are accepted bare and carry no value check. A value
-containing `{{...}}` is skipped by this layer and left to the runtime.
+`checked`, `checkbox` and `tg-spoiler` are accepted bare and carry no value
+check. A value containing `{{` or `}}` is skipped by this layer entirely: the
+framework performs no runtime re-check, so the sent message is where Telegram
+gets to object.
 
 ```html
 <tg-time unix="1647531900">a minute ago</tg-time>   <!-- valid -->
@@ -192,9 +194,11 @@ attribute matrix plus per-tag unknown-attribute rejection.
 
 ## Void elements must self-close
 
-`validateFormatBlock` holds one set of void tags. Five of them are Telegram
-tags: `br/`, `hr/`, `img/`, `input/` and `tg-map/`. The other two, `g-space/`
-and `g-import/`, are PAGE blocks covered in
+`validateFormatBlock` holds one set of void tags. Five of them are reachable
+Telegram tags: `br/`, `hr/`, `img/`, `input/` and `tg-map/`. The set also lists
+`space` and `import`, but the check compares against the captured tag name,
+which for those is `g-space` and `g-import`, so those two entries never match.
+Write them self-closing by convention; the two PAGE blocks are covered in
 [Template Blocks](/guides/template-blocks).
 
 ```html
@@ -267,7 +271,7 @@ named:
 - `<ol start="1" type="a">`: `start` is a non-negative integer and `type` is one
   of `1`, `a`, `A`, `i`, `I`, layer 2.
 - `<tg-time unix="{{unix}}">`: `unix` is required, layer 1. The `{{...}}` value
-  skips layer 2 and is checked at runtime.
+  skips layer 2, and no runtime check replaces it: the value is sent as-is.
 - `<tg-emoji emoji-id="...">`: `emoji-id` is required, layer 1, and must be
   numeric, layer 2.
 - `<input type="checkbox" checked/>`: `type` is required and must be `checkbox`,

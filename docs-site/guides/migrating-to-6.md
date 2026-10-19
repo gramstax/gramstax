@@ -229,7 +229,7 @@ that union member does not, because TypeScript's excess-property check treats a
 property as known when any union member declares it. Two smaller consequences:
 `AGBaseId` is optional on every params type now, since `IContent` declares
 `AGBaseId?: string | null` and no route atom redeclares it, where at v5 ten of the
-sixty-six `async render*` declarations in `core/ctx.ts` took it as a required
+seventy `async render*` declarations in `core/ctx.ts` took it as a required
 positional (`renderEditCaption` and `renderEditKeyboard` among them); and a bottom
 keyboard on a route that always edits throws at runtime naming `mode: 'reply'` as
 the fix.

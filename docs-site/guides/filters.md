@@ -30,20 +30,24 @@ without also being a code-execution surface, which is the same guarantee
 
 `{{}}` escapes exactly three code points: `&` becomes `&amp;`, `<` becomes
 `&lt;`, `>` becomes `&gt;`. A non-string value is stringified, and `null` or
-`undefined` becomes the empty string. Escaping applies to text-node
-interpolation only: `{{{...}}}` output and attribute values are deliberately not
-escaped.
+`undefined` becomes the empty string.
+
+The escape applies wherever `{{}}` appears, attribute values included.
+`_processScopeVariables` is a single pass over the template source, so
+`src="{{url}}"` compiles to `src="${__esc(...)}"` exactly as a text node does.
+Only the triple-brace form is raw, and it is raw in either position.
 
 ```html
 <g-message>{{name}}</g-message>          <!-- name is escaped -->
 <g-message>{{{markup}}}</g-message>      <!-- markup is inserted raw -->
-<g-media type="photo" src="{{url}}">…</g-media>  <!-- attribute values are not escaped -->
+<g-media type="photo" src="{{url}}">…</g-media>   <!-- escaped -->
+<g-media type="photo" src="{{{url}}}">…</g-media> <!-- raw -->
 ```
 
 <Warning>
-  `{{{...}}}` and attribute values are an escape hatch with no guard on the
-  value. Only interpolate raw values you wrote yourself; anything sourced from
-  a user goes through `{{}}`.
+  `{{{...}}}` is an escape hatch with no guard on the value, in text or in an
+  attribute. Only interpolate raw values you wrote yourself; anything sourced
+  from a user goes through `{{}}`.
 </Warning>
 
 Whitespace inside the braces is trimmed, so `{{ name }}` and `{{name}}` are the
@@ -151,8 +155,10 @@ Pipes run left to right and each one receives the previous one's output:
 <g-message>{{label|lower|upper}}</g-message>
 ```
 
-The last example is a round trip that yields the original string, which is a
-fine way to normalise nothing and a poor use of a compile step.
+The last example is not a round trip. Each pipe receives the previous result, so
+`lower` then `upper` returns the uppercased string and the lowercase step changes
+nothing in the final output. A pipe is a function call, not a reversible
+transform.
 
 ## Why the whitelist matters
 

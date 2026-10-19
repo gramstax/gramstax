@@ -116,7 +116,7 @@ nothing happen" are `noMatch`, `noHandler` and `dropped`. See
 
 ### How do I test a bot?
 
-`deploy: "test"` mounts an in-process `MockTelegramServer` and an `E2eHelper`.
+`deploy: "test"` mounts an in-process `E2eHelper`; no HTTP server is involved.
 Tests send updates through the helper, which builds a raw Telegram `Update` and
 feeds it to the bot, then assert on captured Bot API calls: no token, no network,
 no port binding, and the same result on a laptop and on CI. The helper can render
@@ -128,7 +128,7 @@ test. See [ADR-0006](/guides/adr/0006-in-process-e2e).
 ### Is it production ready?
 
 Judge the evidence rather than take a claim. The package is published and at
-6.0.0, it carries 117 unit test files under `packages/gramstax/test` plus a
+6.0.1, it carries 118 unit test files under `packages/gramstax/test` plus a
 per-example e2e suite, and every exported symbol has a generated API reference
 page. Against that: it is young, with a small user base, and the conventions are
 strict and machine-checked (no default exports, no `@ts-ignore`, `bun:test`

@@ -36,12 +36,19 @@ only when the offending line sits inside a `<g-base id="...">`:
 Template on base "kb" (start.html, line 1): Unsupported template block: <kop>
 Missing <g-base> block: template content must be wrapped in <g-base>...</g-base>
 Mismatched closing tag: expected </g-base> but found </g-keyboard>
-Block <g-button> is not allowed inside <g-keyboard>
-Block <g-media> must be self-closing: use <g-media /> instead
+Block <g-message> is not allowed inside <g-keyboard>
+Block <hr> must be self-closing: use <hr /> instead
 ```
 
-Void blocks such as `g-space` and void Rich HTML elements must self-close; content
-blocks must not. `TemplateEngine.validateTemplate` in
+Self-closing form is checked per tag, and the rule is not uniform. Eighteen page
+blocks, `<g-base>` through `<g-div>`, are containers and are rejected when
+self-closed. The Rich HTML void elements (`hr`, `img`, `input`, `br`, `tg-map`)
+are rejected when they are *not* self-closed. Nine page blocks are in neither list
+and accept either form: `g-price`, `g-venue`, `g-dice`, `g-callback-answer`,
+`g-precheckout-error`, `g-shipping-error`, `g-inline-button`, `g-answer-note` and
+`g-gift`. `<g-space>` and `<g-import>` are written self-closing by convention,
+which the validator does not enforce either way.
+`TemplateEngine.validateTemplate` in
 `packages/gramstax/src/template/engine.ts` adds three attribute shapes: unknown,
 missing, or malformed. An unknown attribute is rejected and the message names
 the allow-list (`<table> has unknown attribute(s): ngasal (allowed: bordered,
@@ -78,11 +85,15 @@ entry has no `lang` key. See [templates](/concepts/templates).
 
 Two different failures look identical from Telegram: silence.
 
-**The page is not loaded.** `PageManager` takes the first *named* export, so a
-default-exported class is `File /abs/src/pages/start.ts must have export (not
-default) class page`, and a root-level `index.ts` is `Empty routeName for
-"src/pages/index.ts"` rather than being allowed to swallow the tree. Both come
-from `packages/gramstax/src/page/manager.ts`. Two files claiming one route are
+**The page is not loaded.** `PageManager` reads the first value a module exports,
+`Object.values(mod)[0]`. A module that exports nothing at all is
+`File /abs/src/pages/start.ts must have export (not default) class page`. A
+default-only export does load, because it is that one value, but it is fragile:
+with a second export you get whichever value the module records first, which is
+not necessarily the class you meant, so pages are written as named exports. A
+root-level `index.ts` is `Empty routeName for "src/pages/index.ts"` rather than
+being allowed to swallow the tree. The page errors come from
+`packages/gramstax/src/page/manager.ts`. Two files claiming one route are
 fatal at build time (`Duplicate routeName "admin" from "admin.ts" and
 "admin/index.ts". Each page file must map to a unique route.`,
 `packages/gramstax/src/cli/collect.ts`), and two pages resolving to one identity
@@ -216,11 +227,13 @@ after shutdown come from `packages/gramstax/src/update/queue.ts`:
 Turn the logger on before debugging anything else. In `gramstax.config.ts`,
 `log: true` mounts the default logger and `log: {force: "file"}` writes to disk.
 
-Three endpoints answer on the status server, and the webhook server serves the
-same ones: `GET /health` returns `{status: "ok"}` and is always open, `GET /stats`
-returns the `MetricsStore` snapshot as JSON, and `GET /metrics` returns
-Prometheus exposition text. When a webhook `secretToken` is configured, `/stats`
-and `/metrics` answer `401` without a matching
-`X-Telegram-Bot-Api-Secret-Token` header. The counters that answer "why did
+Three endpoints answer on the status server: `GET /health` returns `{status: "ok"}`,
+`GET /stats` returns the `MetricsStore` snapshot as JSON, and `GET /metrics` returns
+Prometheus exposition text. On the status server `/health` is always open, while
+`/stats` and `/metrics` answer `401` without a matching
+`X-Telegram-Bot-Api-Secret-Token` header when a webhook `secretToken` is configured.
+The webhook server serves only `/health` and `/stats`, and checks the secret before
+routing, so with a secret set even `/health` needs the header there. Prometheus
+scraping therefore needs `statusServerPort`. The counters that answer "why did
 nothing happen" are `noMatch`, `noHandler` and `dropped`; for per-update detail,
 `Gramstax` exposes `hookUpdate`, `hookUpdateError` and `hookTrace`.

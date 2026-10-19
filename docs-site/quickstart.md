@@ -6,8 +6,10 @@ icon: zap
 
 # Quickstart
 
-This page gets you from nothing to a bot answering messages. It assumes Node 18+
-and a Telegram bot token from [@BotFather](https://t.me/BotFather).
+This page gets you from nothing to a bot answering messages. It assumes Bun is
+installed and you have a Telegram bot token from
+[@BotFather](https://t.me/BotFather). The CLI resolves TypeScript paths, so Bun is
+required rather than optional.
 
 <Steps>
   <Step title="Scaffold the project">
@@ -17,9 +19,9 @@ and a Telegram bot token from [@BotFather](https://t.me/BotFather).
     ```
 
     The generator writes a complete project: `gramstax.config.ts`, a `Gramstax`
-    subclass at `src/core/bot.ts`, seven pages under `src/pages`, base classes in
-    `src/base`, a guard in `src/guards`, an LMDB database layer in `src/db`, and
-    nine e2e tests under `e2e/`.
+    subclass at `src/core/bot.ts`, nine pages under `src/pages`, base classes in
+    `src/base`, a guard in `src/guards`, an LMDB layer in `src/db`, a worker job
+    in `src/workers`, `.env.example`, and nine e2e tests under `e2e/`.
   </Step>
 
   <Step title="Give it a token">
@@ -33,18 +35,44 @@ and a Telegram bot token from [@BotFather](https://t.me/BotFather).
 
   <Step title="Read the page you got">
     `src/pages/start/index.ts` is the whole routing model in one file. The route
-    `start` is the path `src/pages/start/index.ts`.
+    `start` is the path `src/pages/start/index.ts`. This is that page with the
+    second-language blocks and the three nav buttons trimmed out:
 
     ```ts
-    export default class extends PageBase {
-      static template = `<g-message>Hello {{name}}. Pick a number:</g-message><g-keyboard><g-button callback="start/random/number">{{number}}</g-button></g-keyboard>`
-      handleCommandText() {
-        this.renderText({args: [`Enter your name`]})
+    import {PageBase} from "~/base/page"
+
+    export class StartPage extends PageBase {
+      static data = this.buildData()
+
+      async handleCommandText() {
+        await this.gdefault.show()
       }
+
+      async handleCallbackQueryData() {
+        await this.gdefault.show()
+      }
+
+      helper = {}
+      gdefault = {
+        show: async () => {
+          await this.renderText({
+            keyboard: this.inlineKeyboardT([this], `2`),
+            data: {userName: this.from?.username}
+          })
+        },
+        process: () => {}
+      }
+
+      static template = `
+        <g-base>
+          <g-keyboard type="inline">Refresh</g-keyboard>
+          <g-message>Welcome, {{userName}}.</g-message>
+        </g-base>
+      `
     }
     ```
 
-    Two things are worth noticing before you write anything.
+    Three things are worth noticing before you write anything.
 
     **There is no `sendMessage` call.** The template says what the message
     contains; `renderText` says it should go out, and the route decides which
@@ -53,6 +81,11 @@ and a Telegram bot token from [@BotFather](https://t.me/BotFather).
 
     **There is no `bot.command("start", …)` registration.** The file path *is* the
     route. See [page routing](/concepts/page-routing).
+
+    **The class is a named export.** `PageManager` takes the first value a module
+    exports, so a page exports exactly one class. The `helper` and `gdefault`
+    members are the scaffold's convention, not framework API; the template blocks
+    they render are what the framework reads.
   </Step>
 
   <Step title="Run it">
@@ -70,12 +103,22 @@ and a Telegram bot token from [@BotFather](https://t.me/BotFather).
     Create `src/pages/hi.ts`. The route becomes `hi`, with no table to update.
 
     ```ts
-    import {PageBase} from "../../src/base/page"
+    import {PageBase} from "~/base/page"
 
-    export default class extends PageBase {
-      static template = `<g-message>Hi.</g-message>`
-      handleCommandText() {
-        this.renderText({args: [`Hi.`]})
+    export class HiPage extends PageBase {
+      static data = this.buildData()
+      static template = `<g-base><g-message>Hi.</g-message></g-base>`
+
+      async handleCommandText() {
+        await this.gdefault.show()
+      }
+
+      helper = {}
+      gdefault = {
+        show: async () => {
+          await this.renderText({})
+        },
+        process: () => {}
       }
     }
     ```

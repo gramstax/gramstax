@@ -282,11 +282,11 @@ const config: GramstaxConfig = {
 }
 ```
 
-The same entry also disappears when the store does: an external cache is shared,
-so a deploy that changes nothing still leaves every user stateless. That is the
-right default for a wizard nobody is finishing, and the wrong one for a flow you
-want to survive a restart. Set `ttlMs` to the length of your longest flow and
-nothing longer. See [configuration](/guides/configuration) for the full
+The same entry also disappears when the store does. The default `memory` store is
+a `Map` in the process, so a restart or a deploy leaves every user stateless. A
+`redis://` store is shared across instances and survives one, which is what a flow
+that must outlive a deploy needs. Set `ttlMs` to the length of your longest flow
+and nothing longer. See [configuration](/guides/configuration) for the full
 `cacheSession` reference.
 
 ## A flow without a session

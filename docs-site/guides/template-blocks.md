@@ -112,8 +112,9 @@ Conditionals live in the template rather than in a near-duplicate base.
   `data?.x`, except reserved words, the in-scope names `data`, `__esc`,
   `FILTERS`, and the standard globals.
 - **`g-switch`** takes `value`; **`g-case`** takes `is`; **`g-default`** takes no
-  attributes and is optional. `g-case` and `g-default` may only appear directly
-  inside `g-switch`.
+  attributes and is optional. `is` accepts a comma-separated list, matching any of
+  the values (`<g-case is="1,2">`). `g-case` and `g-default` may only appear
+  directly inside `g-switch`.
 - **`g-map`** takes `src` and `join`. `join` defaults to a newline. Inside, `{{e}}`
   is the current element, `{{e.prop}}` a property, `{{i}}` the 0-based index and
   `{{ord}}` the 1-based ordinal. Nested maps get depth suffixes: `{{e2}}`,
@@ -180,7 +181,7 @@ Structural rules beyond the attribute names, all enforced at compile time:
 | Block | Rule | Constant or method |
 | --- | --- | --- |
 | `g-media-group` | 1 to 10 items; each item's `type` is `photo`, `video`, `audio` or `document` and `src` is required; audio or document items cannot be mixed with another type | `_validateMediaGroupItems` |
-| `g-media` inside `g-media-group` or `g-paid-media` | `shared` includes the item in every language variant of the group | `validateBlockGMediaAttributes` |
+| `g-media` inside `g-media-group` | `shared` includes the item in every language variant of the group | `_processMediaGroupItems` |
 | `g-poll` | exactly one `g-question`, 2 to 10 `g-option`; question 1 to 300 characters; option 1 to 100 characters | `_validatePollItems` |
 | `g-poll type="quiz"` | `correct` is required and must be an option index; `multiple` is rejected, because a quiz is single-answer | `_validatePollItems` |
 | `g-poll` regular | `correct` and `explanation` are rejected | `_validatePollItems` |
@@ -195,9 +196,13 @@ excess items are truncated at compile time as well as rejected at validation.
 and `MAX_PAID_MEDIA_ITEMS` is 10.
 
 <Note>
-  Static length and numeric checks skip any value carrying `{{}}` or
-  `{~ ... ~}` interpolation, because the value is not knowable until render.
-  Those cases are re-checked at runtime on the compiled block, not skipped.
+  Most static length and numeric checks skip a value carrying `{{}}` or
+  `{~ ... ~}`, because the value is not knowable until render, and the compiled
+  block is asserted before any API call (`Ctx.assertPoll`, `assertInvoice`,
+  `assertPaidMedia`, `assertVenue`, `assertDiceEmoji`, `assertLivePeriod` and the
+  media assertions). Two attributes sit outside that split: `g-price amount` and
+  `g-poll correct` have no dynamic escape and must be literals, so a `{{}}` in
+  either is a compile error rather than a deferred check.
 </Note>
 
 ## Answers
@@ -226,8 +231,9 @@ with the rest of the page's markup.
 `g-callback-answer` is capped at 200 characters. `g-inline-button` takes `lang`,
 `text` and `start-parameter`; `text` is required and non-empty, and a static
 `start-parameter` must match the deep-link format `[A-Za-z0-9_-]` at most 64
-characters. `{{}}` and `{~ ... ~}` values skip the static checks and are
-enforced at runtime.
+characters. A `{{}}` value skips that check and nothing re-checks it afterwards:
+the compiled value goes straight to `start_parameter`, so Telegram is the next
+validator.
 
 ## Attribute reference
 
@@ -304,37 +310,64 @@ the shared set behind the `g-dice` check and the runtime assertion.
 ## Where blocks may sit
 
 `validatePositionsBlock` walks the template with a stack and holds an allowed
-parent per block:
+parent set per block. This is that map as the source declares it: a block may
+appear only inside one of the parents listed for it.
 
-| Parent | Children it accepts |
+| Block | May appear inside |
 | --- | --- |
-| outermost level | `g-base` only |
-| `g-base` | `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-invoice`, `g-paid-media`, `g-venue`, `g-dice`, `g-description`, `g-import`, `g-script`, `g-space` |
-| `g-media-group`, `g-paid-media` | `g-media` |
-| `g-poll` | `g-question`, `g-option` |
-| `g-invoice` | `g-price` |
-| `g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description` | `g-switch`, `g-map` |
-| `g-switch` | `g-case`, `g-default` |
-| `g-case`, `g-default`, `g-map` | `g-map`, `g-div` |
-| `g-base`, `g-message`, `g-description`, `g-keyboard`, `g-poll`, `g-question`, `g-option`, `g-case`, `g-default`, `g-map`, `g-div` | `g-script`, `g-ifelse` |
+| `g-base` | the outermost level |
+| `g-message`, `g-keyboard`, `g-media-group`, `g-poll`, `g-invoice`, `g-paid-media`, `g-venue`, `g-dice`, `g-description` | `g-base` |
+| `g-media` | `g-base`, `g-media-group`, `g-paid-media` |
+| `g-question`, `g-option` | `g-poll` |
+| `g-price` | `g-invoice` |
+| `g-switch` | `g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description` |
+| `g-case`, `g-default` | `g-switch` |
+| `g-map` | `g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description`, `g-case`, `g-default`, `g-map` |
+| `g-div` | `g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-map` |
+| `g-script`, `g-ifelse` | `g-base`, `g-message`, `g-description`, `g-keyboard`, `g-poll`, `g-question`, `g-option`, `g-case`, `g-default`, `g-map`, `g-div` |
+| `g-import` | `g-base` |
+| `g-space` | `g-base`, `g-message`, `g-description`, `g-keyboard`, `g-poll`, `g-question`, `g-option`, `g-case`, `g-default`, `g-switch`, `g-map`, `g-div` |
+
+Three consequences are worth naming, because they follow from the map rather
+than from a rule of their own:
+
+- **`g-switch` may not sit directly inside `g-base`.** It needs a content context
+  to switch on, which is why it goes inside `g-message`, `g-media`,
+  `g-description` or one of the other four parents.
+- **`g-case` and `g-default` inherit the content children of wherever `g-switch`
+  sits** (`inheritsContentFromParent`), so a block allowed in any of `g-switch`'s
+  seven parents is also allowed inside a case body.
+- **Six blocks carry no positioning rule at all** and are accepted anywhere:
+  `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`,
+  `g-inline-button`, `g-answer-note`, `g-gift`.
+
+Content must also sit inside a `<g-base>`; a template whose content is outside
+every base is `Missing <g-base> block: template content must be wrapped in
+<g-base>...</g-base>`.
 
 Telegram tags are passthrough and ignored here, so rich HTML can sit wherever
 the block allows.
 
 ## Self-closing or paired
 
-`validateFormatBlock` holds both sets and rejects the wrong spelling:
+`validateFormatBlock` holds two sets, and the rule is narrower than its name
+suggests:
 
-| Must self-close | Must use open and close tags |
+| Rule | Tags |
 | --- | --- |
-| `g-space/`, `g-import/`, `br/`, `hr/`, `img/`, `input/`, `tg-map/` | 18 PAGE blocks: `g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div` |
+| Must not self-close | 18 PAGE blocks: `g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div` |
+| Must self-close | the five reachable void tags: `br`, `hr`, `img`, `input`, `tg-map` |
 
-Everything else passes through unformat-checked: the 5 Telegram void tags beyond
-the ones listed, every content Telegram tag, and 9 PAGE blocks (`g-price`,
-`g-venue`, `g-dice`, `g-gift`, `g-callback-answer`, `g-precheckout-error`,
-`g-shipping-error`, `g-inline-button`, `g-answer-note`) that appear in neither
-set. For those, `<b>x</b>` and `<b/>` are both accepted, and the block is
-written however it reads best.
+The self-closing set also lists `space` and `import`, but the check compares the
+captured tag name, which for those is `g-space` and `g-import`, so that branch
+never fires for them. Write them self-closing anyway: it is the convention every
+example uses, and both spellings compile the same way.
+
+Nine PAGE blocks appear in neither set, so either spelling is accepted and the
+block is written however it reads best: `g-price`, `g-venue`, `g-dice`,
+`g-gift`, `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`,
+`g-inline-button`, `g-answer-note`. Every content Telegram tag is likewise
+unchecked, so `<b>x</b>` and `<b/>` both pass.
 
 ## The compile pipeline
 

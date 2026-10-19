@@ -151,7 +151,7 @@ The layout argument is typed, and the type is short enough to quote in full:
 export type IKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 3 | 4 | 5 | 6}`
 ```
 
-That is the accepted set: the twelve single values `"1"` through `"6"`, and the
+That is the accepted set: the six single values `"1"` through `"6"`, and the
 thirty-six ranges `"1-1"` through `"6-6"`. Anything else is a type error at the
 call site. The range is not "responsive between two numbers" the way the TSDoc on
 the type describes it. `Ctx.keyboardCols` is what actually consumes it:
@@ -163,14 +163,21 @@ const lastRow = lastRowStr ? parseInt(lastRowStr) : null
 ```
 
 So the first number is buttons per row and the second, when present, is how many
-buttons the final row must hold. `"3-2"` means three per row and a last row of two,
-and the row break is taken as soon as exactly that many buttons remain.
+buttons the final row must hold. `"3-2"` on five labels means three per row and a
+last row of two, and the row break is taken as soon as exactly that many buttons
+remain.
 
 | Layout | Four labels produce |
 | :----- | :------------------ |
 | `"1"` | four rows of one |
 | `"2"` | two rows of two |
-| `"2-3"` | one row of two, then a row of three |
+| `"2-3"` | a row of one, then a row of three |
+| `"3-2"` | two rows of two |
+
+`lastRow` produces the intended shape only when there are at least `cols + lastRow`
+labels. With fewer, `remainingButtons === lastRow` fires before a full row has
+filled, which is why `"2-3"` on four labels breaks after the first button rather
+than after the second.
 
 <Note>
   `keyboardCols` is applied by the two `T` builders, not by the raw ones. Pass a
@@ -210,10 +217,11 @@ await this.renderText({AGBaseId: Base.index, keyboard: this.helper.homeKeyboard(
 await this.renderText({AGBaseId: Base.index, keyboard: this.helper.homeKeyboard()})
 ```
 
-`getGKeyboard` falls back from the requested base to `default`, so a wrong base id
-only fails loudly when no default base exists to fall back to. Either way the rule
-is the same: if the template names the base, name it on every render and every
-builder call that reads it.
+`getGKeyboard` falls back from the requested base to `default`, and when neither
+resolves it catches the miss and returns `{kind: "keyboard", rows: []}`. It never
+throws, so a wrong base id shows up as an empty keyboard rather than an error.
+Either way the rule is the same: if the template names the base, name it on every
+render and every builder call that reads it.
 
 ## Caching
 

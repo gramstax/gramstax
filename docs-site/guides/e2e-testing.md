@@ -90,7 +90,7 @@ e2e.gkb(`start`, `default`, `inline`, {}, `id`) // Indonesian variant
 
 `sendText`, `sendPhoto`, `sendVideo`, `sendAudio`, `sendDocument`,
 `sendAnimation`, `sendVoice`, `sendVideoNote`, `sendSticker`, `sendLocation`,
-`sendContact`, `sendPoll`, `sendDice`, `sendCallbackQuery`, `sendInlineQuery`,
+`sendContact`, `sendPollAnswer`, `sendDice`, `sendCallbackQuery`, `sendInlineQuery`,
 `sendNewChatMembers`, `sendChannelPost` and others: one per update shape, each
 taking the payload plus an optional `IE2eUpdateOptions` carrying the sender.
 They all funnel into `handleUpdate`, so a shape without a named sender still has
@@ -117,10 +117,11 @@ bun test e2e/
 
 ## MockTelegramServer
 
-`deploy: "test"` mounts `MockTelegramServer`, an in-process implementation of
-the API methods gramstax actually calls. You normally never touch it (the helper
-owns the lifecycle), but you hold it when you are benchmarking a handler against
-a real HTTP boundary:
+`MockTelegramServer` is a standalone HTTP implementation of the API methods
+gramstax actually calls, used by the bench harness when you want a real HTTP
+boundary. `deploy: "test"` does **not** mount it: test mode attaches only
+`E2eHelper`, which intercepts calls in-process with no HTTP at all. Reach for the
+mock when you need a socket:
 
 ```ts
 const server = new MockTelegramServer({port: 0})

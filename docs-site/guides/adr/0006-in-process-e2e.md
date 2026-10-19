@@ -18,7 +18,7 @@ Testing a Telegram bot normally requires a live bot token and a reachable webhoo
 
 ## Decision
 
-When a bot is created with **`deploy: "test"`**, `Gramstax` attaches an **`E2eHelper`** instance (`src/e2e/helper.ts:62`) to `bot.e2e` instead of starting a real transport. The helper installs a grammY API interceptor via `bot.bot.api.config.use(...)` (`helper.ts:78`) that captures every outbound call into `calls` and returns canned success objects (e.g. `getMe`, `setWebhook`). Tests then "send" updates with `sendText` / `sendPhoto` / `sendCallbackQuery` / … which build a raw Telegram `Update` and feed it through `bot.bot.handleUpdate()`; assertions read `e2e.lastCall("sendMessage")`, `e2e.extractText(call)`, `e2e.extractButtonLabels(call)`.
+When a bot is created with **`deploy: "test"`**, `Gramstax` attaches an **`E2eHelper`** instance (`src/e2e/helper.ts:30`) to `bot.e2e` instead of starting a real transport. The helper installs a grammY API interceptor via `bot.bot.api.config.use(...)` (`helper.ts:70`) that captures every outbound call into `calls` and returns canned success objects (e.g. `getMe`, `setWebhook`). Tests then "send" updates with `sendText` / `sendPhoto` / `sendCallbackQuery` / … which build a raw Telegram `Update` and feed it through `bot.bot.handleUpdate()`; assertions read `e2e.lastCall("sendMessage")`, `e2e.extractText(call)`, `e2e.extractButtonLabels(call)`.
 
 A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provides a lightweight HTTP mock of the Bot API for offline _integration_ tests that do want a server.
 
@@ -52,9 +52,9 @@ A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provide
 
 | Source Type | Reference                                                                                            |
 | ----------- | ---------------------------------------------------------------------------------------------------- |
-| Code        | `src/e2e/helper.ts:62,78`: `E2eHelper` + `bot.bot.api.config.use(...)` interceptor                  |
-| Code        | `src/e2e/helper.ts:283-567`: `sendText`, `sendPhoto`, `sendCallbackQuery`, `sendDice`, … simulators |
-| Code        | `src/core/bot.ts:184`: `e2e?: E2eHelper` (typed only for `deploy:"test"`)                           |
+| Code        | `src/e2e/helper.ts:30,70`: `E2eHelper` + `bot.bot.api.config.use(...)` interceptor                  |
+| Code        | `src/e2e/helper.ts:451-886`: `sendText`, `sendPhoto`, `sendCallbackQuery`, `sendDice`, … simulators |
+| Code        | `src/core/bot.ts:414`: `e2e?: E2eHelper` (typed only for `deploy:"test"`)                           |
 | Code        | `src/types/bot.ts`: `deploy: "test"` documented as E2E mode                                      |
 | Code        | `src/mock/telegram-server.ts`: `MockTelegramServer` HTTP mock                                       |
 | Docs        | `AGENTS.md`: "Test mode via `deploy: 'test'` + `MockTelegramServer`."                               |

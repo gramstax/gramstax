@@ -86,9 +86,13 @@ timeout branch counts `timeouts` instead of `updatesFailed` and calls
 because the handler may still be running and may still send.
 
 **The outcome set is closed.** `hookAfterRoute` receives one of `matched`,
-`no-match`, `no-handler`, `blocked`, `error` or `timeout`. `hookUpdate` fires
-for everything except `error` and `timeout`; `hookUpdateError` fires for those
-two. `hookTrace` is guarded and fired for every routed update.
+`no-match`, `no-handler`, `blocked`, `error` or `timeout`. `hookUpdate` fires for
+every routing outcome except `error` and `timeout`. `hookUpdateError` fires for
+those two and for `validation`, the pre-routing rejection when text exceeds
+`limits.maxTextLength`. It also fires outside routing, with the synthetic trace
+ids `startup`, `catch` and `polling`, so a consumer should read `event.traceId`
+before assuming an update was involved. `hookTrace` is guarded and fired for
+every routed update.
 
 ### Wiring the two page hooks
 

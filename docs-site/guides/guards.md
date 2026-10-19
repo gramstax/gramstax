@@ -83,10 +83,12 @@ export class BotCore extends Gramstax {
 | every route in the whole bot gated | `BotCore.hookBeforeRoute(ctx, data)` | `(ctx, data?: {listenerName, isEdit}) => Promise<boolean>` |
 
 <Note>
-  `GuardBase` is not framework API. It is the small class every example in this
-  repo carries at `src/base/guard.ts`, and its whole job is to take an
-  already-constructed context and stash the page data somewhere a guard can read
-  it, since a guard is not a page and has no `static data` of its own:
+  `GuardBase` is not framework API. It is a small class that eight of the eleven
+  examples carry at `src/base/guard.ts`; `3-helloworld-js` carries the same class
+  as `guard.js`, and `8-newsletter` and `9-substore-bot` have no copy. Its whole
+  job is to take an already-constructed context and stash the page data somewhere
+  a guard can read it, since a guard is not a page and has no `static data` of its
+  own:
 
 ```ts
 // example/1-complex/src/base/guard.ts
@@ -203,7 +205,7 @@ A page that defines `hookBeforeRoute` replaces whatever it inherited. It does no
 chain. If you want both, say so:
 
 ```ts
-export class StartBroadcastPage extends PageAdminBase {
+export class BroadcastPage extends PageAdminBase {
   async hookBeforeRoute() {
     return (await super.hookBeforeRoute!()) && (await this.checkQuota())
   }
@@ -263,12 +265,13 @@ page-level block increments none of them.
 | :---- | :--------------- | :----------------------- | :--------------------- |
 | bot-level `hookBeforeRoute` | +1 | no | **no**, `_handleCtx` returns before it |
 | page-level `hookBeforeRoute` | no | no | yes, with `state: "blocked"` |
+| session-lock contention, `skip` mode | +1 | no | no, the update never reaches routing |
 
-So `gramstax_updates_blocked_total` on `/metrics` is a count of bot-level denials,
-and nothing else. Page-level denials are visible only through `hookAfterRoute`,
-where `data.state` is `"blocked"`. Zero-valued counters are skipped from the
-Prometheus exposition, so a counter at zero is absent from the scrape rather than
-printed as `0`.
+So `gramstax_updates_blocked_total` on `/metrics` counts two things: bot-level
+denials, and updates dropped because a contended session lock was in `skip` mode.
+Page-level denials are visible only through `hookAfterRoute`, where `data.state`
+is `"blocked"`. Zero-valued counters are skipped from the Prometheus exposition,
+so a counter at zero is absent from the scrape rather than printed as `0`.
 
 If you want a page-level denial on the dashboard, record it yourself in
 `hookAfterRoute`:

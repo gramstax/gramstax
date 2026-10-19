@@ -23,11 +23,12 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 - **Runtime / tests**: `bun` (`bun:test`, `Bun.serve` for webhooks). `package.json` scripts use `bun test`, `bun run lint`, etc.
 - **Build**: `tsup` (`tsup.config.ts`) emits to `dist/src` as `cjs` + `esm` with `dts: true`, `minify: true`, `platform: node`, `target: esnext`, keeping `bun` external. `project.json` wires Nx `build` → `tsup` in `packages/gramstax`.
 - **Orchestration**: Nx (`nx.json`) defines `build`/`lint`/`test` target defaults (cache, `dependsOn: ^build`, production inputs) and a `release` config (conventional-commits versioning, git tag `v{version}`, GitHub changelog, `packages/*` projects).
-- **API docs**: `api-extractor` + `api-documenter` (`build:docs` script, `api-extractor.json`) generate `docs/markdown/*` and `docs/yaml/*` from the emitted `.d.ts`.
+- **API docs**: `api-extractor` + `api-documenter` (`build:docs` script, `api-extractor.json`) generate `docs-site/reference/*` (markdown) and `docs/yaml/*` from the emitted `.d.ts`.
 
 <Warning>
-  `docs/markdown` and `docs/yaml` are generated artifacts and must not be
-  hand-edited. Change the source and regenerate with `bun run build:docs`.
+  `docs-site/reference` and `docs/yaml` are generated artifacts and must not be
+  hand-edited. Change the source and regenerate with
+  `cd packages/gramstax && bun run build:docs`.
 </Warning>
 
 ## Consequences
@@ -42,7 +43,7 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 ### Trade-offs
 
 - `tsup` + Nx + API-Extractor is a heavier setup than a single `tsc` build.
-- Generated docs (`docs/markdown`, `docs/yaml`) are artifacts that must not be hand-edited.
+- Generated docs (`docs-site/reference`, `docs/yaml`) are artifacts that must not be hand-edited.
 
 ### Alternatives Considered
 
@@ -60,7 +61,7 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 | Config | `nx.json`: `targetDefaults` (build/lint/test), `release` (conventional-commits, tag `v{version}`) |
 | Config | `api-extractor.json`, `tsconfig.build.docs.json`: API doc generation |
 | Scripts | `package.json` (root): `build`, `build:gramstax`, `ci:test:*`, `release:*`, `dry-run` |
-| CI | `.github/workflows/release.yml`: install→`ci:test:packages`+`build`→`dry-run`→`release` |
+| CI | `.github/workflows/release.yml`: per-package test matrix → `lint:packages` + `build:packages` → `dry-run` → `release` |
 
 ## Related
 

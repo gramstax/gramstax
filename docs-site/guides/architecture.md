@@ -74,7 +74,7 @@ the paths in the tables that follow point.
 | **Depends On** | `Ctx`, `TemplateManager`, `CacheExternal`, `UpdateQueue`, `UpdateDispatcher`, `PageManager`, `E2eHelper` (when `deploy:"test"`). |
 | **Depended On By** | Application entry points and `create-gramstax` scaffolds. |
 
-The constructor (`bot.ts:275`) reads `IGramstaxParams`, selects a deploy mode (`bot.ts:323-342`): `polling` → `_runPolling`, `webhook` → `_runWebhook`, `serverless` → `_runServerless` (adapter-keyed `optionsDeploy.serverless`), `test` → E2E mode. Hooks (`hookBeforeStart`, `hookBeforeRoute`, `hookAfterStart`, `hookUpdateError`, `hookErrorPage`, `hookNotFoundPage`) are invoked at the documented lifecycle points (`bot.ts:499` notes `hookBeforeRoute` only fires when set to return `true` or unset).
+The constructor (`bot.ts:534`) reads `IGramstaxParams`, selects a deploy mode (`bot.ts:759`): `polling` → `_runPolling`, `webhook` → `_runWebhook`, `serverless` → `_runServerless` (adapter-keyed `optionsDeploy.serverless`), `test` → E2E mode. Hooks (`hookBeforeStart`, `hookBeforeRoute`, `hookAfterStart`, `hookUpdateError`, `hookErrorPage`, `hookNotFoundPage`) are invoked at the documented lifecycle points (`bot.ts:951` notes `hookBeforeRoute` only fires when set to return `true` or unset).
 
 ### Ctx (page/context base)
 
@@ -112,7 +112,7 @@ full atom list.
 | **Depends On** | Nothing external (pure string→function compilation via `new Function()`). |
 | **Depended On By** | `TemplateManager`. |
 
-Compiles blocks with `_compileToFunction` using `new Function("data", body)` (`engine.ts:1284`, `:1287`). Processes base/message/keyboard/media/description/import/map/script/switch/div/space/names blocks and resolves scopes/interpolation (`_processScope*`, `_processG*Blocks`). Validation is two-layer (see below).
+Compiles blocks with `_compileToFunction` using `new Function("data", "__esc", "FILTERS", body)` (`engine.ts:2983`, `:2986`). Processes base/message/keyboard/media/description/import/map/script/switch/div/space blocks and resolves scopes/interpolation (`_processScope*`, `_processG*Blocks`). Validation is two-layer (see below).
 
 ### TemplateManager
 
@@ -139,7 +139,7 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 | **Depends On** | `node:fs`, `node:module` (`createRequire`). |
 | **Depended On By** | `TemplateManager`, `Gramstax`. |
 
-`_getFile` throws if `mod[0]` is undefined, i.e. a page file must `export class` (not `export default`) (`manager.ts:56-63`).
+`_getFile` takes `Object.values(mod)[0]` and throws only when the module exports nothing at all, so a default-only export loads. Named exports remain the convention because with more than one export you get whichever value the module records first (`manager.ts:45-52`).
 
 <Warning>
   A default export is not a fallback here. It is a load-time throw. Page modules
@@ -177,7 +177,7 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/e2e/helper.ts` (`E2eHelper`, 567 lines), `src/mock/telegram-server.ts` |
+| **Location** | `src/e2e/helper.ts` (`E2eHelper`, 935 lines), `src/mock/telegram-server.ts` |
 | **Responsibility** | `E2eHelper` (active when `deploy:"test"`) intercepts outbound Bot API calls via `bot.api.config.use(...)` and captures them in `calls`; provides `sendText`/`sendPhoto`/`sendCallbackQuery`/… simulators. `MockTelegramServer` is an HTTP mock for integration tests. |
 | **Depends On** | `Gramstax` instance. |
 | **Depended On By** | Test suites (`test/*`). |
@@ -186,7 +186,7 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 
 <Steps>
   <Step title="Startup">
-    `new Gramstax(params)` (`bot.ts:275`) selects a deploy mode and calls
+    `new Gramstax(params)` (`bot.ts:534`) selects a deploy mode and calls
     `bot.init()`. `TemplateManager` loads + compiles all page templates once and
     starts the `chokidar` watcher if `enableWatch`.
   </Step>

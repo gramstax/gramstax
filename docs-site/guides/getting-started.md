@@ -154,9 +154,11 @@ export class StartPage extends Ctx {
 ```
 
 <Warning>
-  The export must be named. `export default class` breaks discovery:
-  `PageManager._getFile` only reads the first named export
-  (`page/manager.ts:56`) and throws without one.
+  Export the class by name. `PageManager._getFile` reads `Object.values(mod)[0]`,
+  so a default-only export does load, but it is the only shape that works that
+  way: add a second export and you get whichever value the module records first.
+  The scaffold uses a named export for that reason. The throw `must have export
+  (not default) class page` fires when the module exports nothing at all.
 </Warning>
 
 ### Webhook / serverless / test
@@ -215,9 +217,9 @@ Send `/start` to your bot in Telegram; you should receive the rendered `<g-messa
 
 | Problem                                                 | Cause                                                                               | Solution                                                                                                 |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `File <path> must have export (not default) class page` | Page uses `export default class`.                                                   | Use a named `export class StartPage`. `PageManager._getFile` only reads `mod[0]` (`page/manager.ts:56`). |
+| `File <path> must have export (not default) class page` | Page module exports nothing, or relies on a default export that is not its only export. | Use a named `export class StartPage`. `PageManager._getFile` reads `Object.values(mod)[0]` (`page/manager.ts:45-52`). |
 | Keyboard bindings don't work                            | A `<g-base id="x">` is defined but `AGBaseId` isn't passed to the keyboard builder. | Pass the same `id` to `bottomKeyboardT`/`inlineKeyboardT` (`types/ctx.ts` warns about this).           |
-| Changes to templates not reflected                      | `enableWatch` is off or the file extension isn't `.html`/`.ts`/`.js`.               | Set `templateManager: {enableWatch: true}` (`TemplateManager._supportedExtensions`, `manager.ts:87`).    |
+| Changes to templates not reflected                      | `enableWatch` is off or the file extension isn't `.html`/`.ts`/`.js`.               | Set `templateManager: {enableWatch: true}` (`TemplateManager._supportedExtensions`, `manager.ts:85`).    |
 | Redis session errors                                    | Wrong `cacheSession` URL.                                                           | Use `new CacheExternal("redis://host:port")` or omit for in-memory (`cache/external.ts:64`).             |
 
 ## Next Steps

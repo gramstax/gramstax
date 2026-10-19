@@ -314,7 +314,7 @@ Every identifier the wiring above uses, and where it lives.
 | `onBeforeExit()` | `packages/worker-thread/src/init.ts` | the drain hook a graceful `shutdown()` awaits |
 | `WorkerThreadExport.init` | `packages/worker-thread/src/export.ts` | builds the typed proxy from `path` and `WTInit` |
 | `launchWorker(argv?)` | the proxy built in `packages/worker-thread/src/export.ts` | spawn and wait for ready; args land at `argv[3]` |
-| `shutdown(timeoutMs?)` | `packages/worker-thread/src/launch.ts` | drains every worker the proxy launched |
+| `shutdown(timeoutMs?)` (proxy) | `packages/worker-thread/src/export.ts` | drains every worker the proxy launched; the per-handle `WorkerThreadLaunch.shutdown` lives in `launch.ts` |
 | `kill()` | `packages/worker-thread/src/launch.ts` | immediate terminate on one handle |
 | `DEFAULT_REQUEST_TIMEOUT_MS` | `packages/worker-thread/src/rpc.ts` | the 30000 ms per-request timeout |
 | `WorkerThreadErrorHandler.setDefault(fn)` | `packages/worker-thread/src/error-handler.ts` | routes worker errors to your logger instead of dropping them |

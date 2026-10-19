@@ -71,7 +71,7 @@ Three normalisations happen while filling the tables, and they explain most of t
 | Input | Registered key |
 | :---- | :------------- |
 | a `Command` handler | `/` plus the intent, always |
-| a text handler on a page with `intentTextMap` | one key per language, `${lang}:${intent}`, plus a `default:` variant |
+| a text handler whose `buildData` passed `intentText` as a language record | one key per language, `${lang}:${intent}`, plus a `default:` variant |
 | a callback handler on a project with `optionsPage.shortCallbackQueryData` | the page's index number instead of its name |
 
 The language-prefixed keys are looked up with the user's `language_code` and fall

@@ -31,16 +31,22 @@ import {template as start} from "./start.g.js"
 export const templates = {"start": start}
 ```
 
-Per-key module shape (verified output):
+Per-key module shape (verified output, from `example/2-helloworld`):
 
 ```js
 import {__esc, FILTERS} from "gramstax"
-function __fn0(data, __esc, FILTERS) {return ""+("Hello "+(__esc(FILTERS.upper((data?.name)) ?? ""))+"!")}
+function __fn0(data, __esc, FILTERS) {return {text: ""+("Hello "+(__esc(FILTERS.upper((data?.name)) ?? ""))+"!"), rich: false}}
 const fn0 = (data) => __fn0(data, __esc, FILTERS)
-export const template = {media: {"default": {}}, ..., message: {"default": {"default": fn0}}, ...}
+function __fn2(data, __esc, FILTERS) {return [""+("Refresh")]}
+const fn2 = (data) => __fn2(data, __esc, FILTERS)
+export const template = {media: {"default": {}}, ..., message: {"default": {"default": fn0}}, keyboard: {"default": {"default": {"inline": fn2}}}, ...}
 ```
 
-Single `export const template` matches `ICompiledTemplate` (absent blocks omitted); `pages` stays in userland source (023 `manifest.js`).
+A message leaf returns `{text, rich}` and a keyboard leaf returns an array of
+labels. `export const template` always carries all 15 `ICompiledTemplate` fields;
+a block the template does not use is an empty object, and a used one is indexed by
+base id and then by language. `pages` stays in userland source (023
+`manifest.js`).
 
 ## Link-table mechanics (3 lines)
 
@@ -67,9 +73,12 @@ Single `export const template` matches `ICompiledTemplate` (absent blocks omitte
 ## Consuming (024)
 
 ```ts
-import {templates} from `./.gramstax/gen/manifest.js`
-const manager = new TemplateManager({path: [emptyDir]})
-for (const [key, template] of Object.entries(loaded.templates)) manager._registerCompiled(key, template)
+import {templates} from "./.gramstax/gen/manifest.js"
+import {TemplateManager} from "gramstax"
+
+// no directory to scan: every template arrives pre-compiled
+const manager = new TemplateManager({path: []})
+for (const [key, template] of Object.entries(templates)) manager.registerCompiled(key, template)
 ```
 
 <Check>
@@ -93,8 +102,10 @@ for (const [key, template] of Object.entries(loaded.templates)) manager._registe
 
   <Accordion title="Runtime-dynamic templates are impossible">
     AOT freezes bodies at build time, so templates assembled at runtime
-    (string-concatenated sources, per-request codegen) cannot be emitted: only
-    static `.html` sources.
+    (string-concatenated sources, per-request codegen) cannot be emitted. What can
+    be emitted is a page's class-inline `static template`, keyed by its route name,
+    and a static `.html` file under the pages directory. When both exist for one
+    key the `.html` file wins, mirroring boot precedence.
   </Accordion>
 
   <Accordion title="How are filenames sanitized?">

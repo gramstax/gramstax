@@ -21,17 +21,26 @@ Telegram capability:
 | Block | Purpose |
 | --- | --- |
 | `g-message` | The message body |
-| `g-keyboard` | A keyboard, with `g-button` children |
+| `g-keyboard` | The keyboard's labels. The destinations are chosen in the handler |
 | `g-media` | A photo, video, document, audio or voice |
 | `g-media-group` | Up to ten media items |
-| `g-poll` | A poll, with `g-item` children |
+| `g-poll` | A poll, with `g-question` and `g-option` children |
 | `g-invoice` | An invoice, with `g-price` children |
 | `g-callback-answer` | The answer to a callback query |
 | `g-ifelse` / `g-switch` / `g-case` | Conditionals |
 | `g-import` | Pull in another template file |
 | `g-script` | Inline execution, **rejected by AOT**, see below |
 
-Void elements must self-close: `<g-space/>`, `<g-div/>`, `<g-keyboard/>`.
+Every content block sits inside a `<g-base>`. The validator treats 18 blocks as
+containers and rejects a self-closing form for them, from `<g-base>` down to
+`<g-div>`; nine blocks are exempt from that check entirely (`g-price`, `g-venue`,
+`g-dice`, `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`,
+`g-inline-button`, `g-answer-note`, `g-gift`), so either form is accepted for
+those. `<g-space>` and `<g-import>` are the two utility blocks and are written
+self-closing.
+
+That is a summary. The full reference, with every block's attributes and its
+nesting rules, is [template blocks](/guides/template-blocks).
 
 ## Keyboard blocks
 
@@ -141,8 +150,8 @@ handler, no runtime lookup:
 <g-message lang="id">Siapa namamu?</g-message>
 ```
 
-The same mechanism gives you a `fallback` language, used when a requested one is
-absent.
+The same mechanism gives you a `default` language, used when a requested one is
+absent: `getGMessage` reads `one?.[ALang] ?? one?.default`.
 
 ## Interpolation and filters
 
@@ -175,8 +184,9 @@ blocks ahead of time. The practical consequences:
 
   <Danger>
     This is the one constraint that will bite you first. A template containing a
-    script block does not degrade: the build refuses it, and says which block was
-    rejected.
+    script block does not degrade: the build refuses it. The message names the
+    template key and the body id, and quotes the surrounding source, so you can
+    find the block without guessing.
   </Danger>
 
 - Runtime-assembled templates cannot be emitted; only static sources are.

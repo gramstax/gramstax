@@ -81,8 +81,8 @@ outside raw mode now throws.
 
 ### `test`
 
-What the e2e suite runs against, with `MockTelegramServer` standing in for the
-Bot API. No network, no token, real compiled templates.
+What the e2e suite runs against: `E2eHelper` intercepts the Bot API in-process,
+with no HTTP server and no token, over real compiled templates.
 
 <Frame caption="One field, one branch. `serverless` is the only mode that loads the frozen `.gramstax/` output; polling, webhook and test boot from the filesystem, because they have one.">
   <img

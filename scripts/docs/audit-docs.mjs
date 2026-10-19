@@ -185,6 +185,9 @@ const NON_API_TOKENS = [
   // route and page names from the worked examples: the build guide's project in
   // prose, and the page names the example bots actually ship
   "shop", "blank",
+  // GitHub Actions trigger and input names named in the development guide; they
+  // live in .github/workflows/release.yml, not in the package source
+  "workflow_dispatch", "publish_only",
   // external CLIs and tools named in prose
   "bunx", "gh", "k6",
   // release labels named in prose ("on v5", "v6 removed it")
