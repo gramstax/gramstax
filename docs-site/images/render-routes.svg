@@ -1,28 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 552" width="860" height="552" role="img" aria-label="The twelve route atoms grouped into four render method families, and the never rule that turns an ignored key into a compile error">
   <title>The twelve route atoms, grouped by the render method that can take them</title>
 
-  <rect x="0.5" y="0.5" width="859" height="551" rx="14" fill="#0b1224" stroke="#1c2f52"/>
+  <rect x="0.5" y="0.5" width="859" height="551" rx="14" fill="#081319" stroke="#163340"/>
 
   <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-    <text x="30" y="40" font-size="15" font-weight="600" fill="#e6edf7">Twelve atoms, four method families</text>
-    <text x="30" y="62" font-size="11.5" fill="#93a7c7">A render*() params type is a union over only the atoms that method can take.</text>
-    <text x="830" y="62" font-size="11.5" fill="#93a7c7" text-anchor="end">auto: edit the message a callback query is on, else reply</text>
+    <text x="30" y="40" font-size="15" font-weight="600" fill="#e0eff5">Twelve atoms, four method families</text>
+    <text x="30" y="62" font-size="11.5" fill="#82acbe">A render*() params type is a union over only the atoms that method can take.</text>
+    <text x="830" y="62" font-size="11.5" fill="#82acbe" text-anchor="end">auto: edit the message a callback query is on, else reply</text>
   </g>
 
-  <g fill="#13233f" stroke="#3f6ec9" stroke-opacity="0.55">
+  <g fill="#0e2630" stroke="#2c789c" stroke-opacity="0.55">
     <rect x="25" y="88" width="195" height="30" rx="8"/>
     <rect x="230" y="88" width="195" height="30" rx="8"/>
     <rect x="435" y="88" width="195" height="30" rx="8"/>
     <rect x="640" y="88" width="195" height="30" rx="8"/>
   </g>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#60a5fa">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#09acf7">
     <text x="39" y="108">renderText</text>
     <text x="244" y="108">renderMedia</text>
     <text x="449" y="108">renderMediaGroup</text>
     <text x="654" y="108">send-only render*()</text>
   </g>
 
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="9.5" fill="#cbd9ee">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="9.5" fill="#bfddea">
     <text x="39" y="142">IRouteAuto</text>
     <text x="39" y="168">IRouteReply</text>
     <text x="39" y="194">IRouteEdit</text>
@@ -40,7 +40,7 @@
     <text x="654" y="142">IRouteForcedReply</text>
   </g>
 
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="9.5" fill="#8098bd">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="9.5" fill="#6e9db3">
     <text x="39" y="156">mode: auto</text>
     <text x="39" y="182">mode: reply</text>
     <text x="39" y="208">mode: edit</text>
@@ -59,9 +59,9 @@
   </g>
 
   <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-    <text x="654" y="192" font-size="10.5" fill="#93a7c7">no route table, so one atom:</text>
+    <text x="654" y="192" font-size="10.5" fill="#82acbe">no route table, so one atom:</text>
   </g>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="9.5" fill="#cbd9ee">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="9.5" fill="#bfddea">
     <text x="654" y="212">renderGift</text>
     <text x="654" y="230">renderInvoice</text>
     <text x="654" y="248">renderPaidMedia</text>
@@ -69,25 +69,25 @@
     <text x="654" y="284">renderDice</text>
   </g>
 
-  <line x1="30" y1="312" x2="830" y2="312" stroke="#1c2f52" stroke-width="1"/>
+  <line x1="30" y1="312" x2="830" y2="312" stroke="#163340" stroke-width="1"/>
 
   <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-    <text x="30" y="344" font-size="15" font-weight="600" fill="#e6edf7">A key the winning route would ignore is a compile error</text>
+    <text x="30" y="344" font-size="15" font-weight="600" fill="#e0eff5">A key the winning route would ignore is a compile error</text>
   </g>
 
   <g>
-    <rect x="30" y="360" width="390" height="106" rx="10" fill="#0f1a2f" stroke="#2f6f57"/>
-    <rect x="440" y="360" width="390" height="106" rx="10" fill="#0f1a2f" stroke="#7a5c17"/>
+    <rect x="30" y="360" width="390" height="106" rx="10" fill="#0b1c23" stroke="#2f6f57"/>
+    <rect x="440" y="360" width="390" height="106" rx="10" fill="#0b1c23" stroke="#7a5c17"/>
   </g>
   <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600">
     <text x="48" y="388" fill="#34d399">the route reads the key</text>
     <text x="458" y="388" fill="#fbbf24">the route never reads it</text>
   </g>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11" fill="#cbd9ee">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11" fill="#bfddea">
     <text x="48" y="418">IRouteAuto.options?: IOptReply | null</text>
     <text x="458" y="418">IRouteReply.fallback?: never</text>
   </g>
-  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#93a7c7">
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#82acbe">
     <text x="48" y="444">a real type, spread into the reply call</text>
     <text x="458" y="444">never is load-bearing: omitting it lets it through</text>
   </g>

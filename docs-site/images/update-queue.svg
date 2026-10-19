@@ -2,98 +2,98 @@
   <title>The update queue, the dispatcher pool, and the per-chat gate</title>
   <defs>
     <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 10 5 0 10Z" fill="#3f6ec9"/>
+      <path d="M0 0 10 5 0 10Z" fill="#2c789c"/>
     </marker>
   </defs>
 
-  <rect x="0.5" y="0.5" width="859" height="527" rx="14" fill="#0b1224" stroke="#1c2f52"/>
+  <rect x="0.5" y="0.5" width="859" height="527" rx="14" fill="#081319" stroke="#163340"/>
 
   <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-    <text x="30" y="44" font-size="15" font-weight="600" fill="#e6edf7">Three pieces, one gate</text>
-    <text x="30" y="66" font-size="11.5" fill="#93a7c7">Producers enqueue into a bounded FIFO. A pool of in-process async loops drains it.</text>
+    <text x="30" y="44" font-size="15" font-weight="600" fill="#e0eff5">Three pieces, one gate</text>
+    <text x="30" y="66" font-size="11.5" fill="#82acbe">Producers enqueue into a bounded FIFO. A pool of in-process async loops drains it.</text>
   </g>
 
-  <g stroke="#3f6ec9" stroke-width="1.5" fill="none" marker-end="url(#arrow2)">
+  <g stroke="#2c789c" stroke-width="1.5" fill="none" marker-end="url(#arrow2)">
     <path d="M130 136H154"/>
     <path d="M356 136H380"/>
     <path d="M592 136H616"/>
   </g>
 
-  <rect x="30" y="108" width="92" height="56" rx="9" fill="#111c33" stroke="#22385e"/>
-  <text x="76" y="140" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#93a7c7" text-anchor="middle">update</text>
+  <rect x="30" y="108" width="92" height="56" rx="9" fill="#0c1e25" stroke="#1b3c4b"/>
+  <text x="76" y="140" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#82acbe" text-anchor="middle">update</text>
 
-  <g stroke="#3f6ec9" stroke-opacity="0.55" fill="#13233f">
+  <g stroke="#2c789c" stroke-opacity="0.55" fill="#0e2630">
     <rect x="162" y="96" width="186" height="80" rx="10"/>
     <rect x="388" y="96" width="196" height="80" rx="10"/>
     <rect x="624" y="96" width="206" height="80" rx="10"/>
   </g>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="13" fill="#60a5fa">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="13" fill="#09acf7">
     <text x="176" y="126">UpdateQueue</text>
     <text x="402" y="126">UpdateDispatcher</text>
     <text x="638" y="126">UpdateGate</text>
   </g>
-  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#93a7c7">
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#82acbe">
     <text x="176" y="146">a bounded FIFO</text>
     <text x="402" y="146">a pool that drains the queue</text>
     <text x="638" y="146">a per-key gate, acquired first</text>
   </g>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="10" fill="#cbd9ee">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="10" fill="#bfddea">
     <text x="176" y="165">maxQueueSize: 5000</text>
     <text x="402" y="165">workerCount: 8</text>
     <text x="638" y="165">perChatConcurrency: 1</text>
   </g>
 
-  <line x1="30" y1="204" x2="830" y2="204" stroke="#1c2f52" stroke-width="1"/>
+  <line x1="30" y1="204" x2="830" y2="204" stroke="#163340" stroke-width="1"/>
 
   <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-    <text x="30" y="238" font-size="15" font-weight="600" fill="#e6edf7">Why the gate is load-bearing</text>
-    <text x="30" y="260" font-size="11.5" fill="#93a7c7">Everything for one chat serializes, whichever worker picked it up.</text>
+    <text x="30" y="238" font-size="15" font-weight="600" fill="#e0eff5">Why the gate is load-bearing</text>
+    <text x="30" y="260" font-size="11.5" fill="#82acbe">Everything for one chat serializes, whichever worker picked it up.</text>
   </g>
 
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#93a7c7" text-anchor="end">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#82acbe" text-anchor="end">
     <text x="96" y="303">c:1</text>
     <text x="96" y="347">c:2</text>
   </g>
 
-  <g stroke="#1f3252" stroke-dasharray="3 4">
+  <g stroke="#193542" stroke-dasharray="3 4">
     <path d="M323 270V368"/>
   </g>
 
   <g>
-    <rect x="108" y="282" width="210" height="30" rx="7" fill="#13233f" stroke="#60a5fa"/>
+    <rect x="108" y="282" width="210" height="30" rx="7" fill="#0e2630" stroke="#09acf7"/>
     <rect x="108" y="326" width="210" height="30" rx="7" fill="#0f2530" stroke="#2dd4bf"/>
-    <rect x="328" y="282" width="210" height="30" rx="7" fill="#13233f" stroke="#60a5fa"/>
+    <rect x="328" y="282" width="210" height="30" rx="7" fill="#0e2630" stroke="#09acf7"/>
   </g>
   <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="middle">
-    <text x="213" y="302" fill="#cbd9ee">update 1</text>
+    <text x="213" y="302" fill="#bfddea">update 1</text>
     <text x="213" y="346" fill="#7fe3d4">update 2</text>
-    <text x="433" y="302" fill="#cbd9ee">update 3</text>
+    <text x="433" y="302" fill="#bfddea">update 3</text>
   </g>
 
-  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#93a7c7">
-    <text x="108" y="382">update 2 runs beside both. The two <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">c:1</tspan> updates never overlap, so a <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">setSession</tspan> cannot race the step it parks into.</text>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#82acbe">
+    <text x="108" y="382">update 2 runs beside both. The two <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#bfddea">c:1</tspan> updates never overlap, so a <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#bfddea">setSession</tspan> cannot race the step it parks into.</text>
   </g>
 
-  <rect x="600" y="278" width="230" height="94" rx="10" fill="#0f1a2f" stroke="#22385e"/>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#60a5fa">
+  <rect x="600" y="278" width="230" height="94" rx="10" fill="#0b1c23" stroke="#1b3c4b"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#09acf7">
     <text x="616" y="302">resolveGateKey(update)</text>
   </g>
-  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="11" fill="#93a7c7">
-    <text x="616" y="328">1. <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">chat.id</tspan> becomes <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">c:&lt;id&gt;</tspan></text>
-    <text x="616" y="352">2. otherwise <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">from.id</tspan>, per user</text>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="11" fill="#82acbe">
+    <text x="616" y="328">1. <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#bfddea">chat.id</tspan> becomes <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#bfddea">c:&lt;id&gt;</tspan></text>
+    <text x="616" y="352">2. otherwise <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#bfddea">from.id</tspan>, per user</text>
   </g>
 
-  <line x1="30" y1="404" x2="830" y2="404" stroke="#1c2f52" stroke-width="1"/>
+  <line x1="30" y1="404" x2="830" y2="404" stroke="#163340" stroke-width="1"/>
 
   <g>
-    <rect x="30" y="424" width="390" height="84" rx="10" fill="#0f1a2f" stroke="#22385e"/>
-    <rect x="440" y="424" width="390" height="84" rx="10" fill="#0f1a2f" stroke="#22385e"/>
+    <rect x="30" y="424" width="390" height="84" rx="10" fill="#0b1c23" stroke="#1b3c4b"/>
+    <rect x="440" y="424" width="390" height="84" rx="10" fill="#0b1c23" stroke="#1b3c4b"/>
   </g>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#60a5fa">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#09acf7">
     <text x="48" y="452">queue absent</text>
     <text x="458" y="452">queue enabled</text>
   </g>
-  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#93a7c7">
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#82acbe">
     <text x="48" y="476">The default. Updates drain strictly</text>
     <text x="48" y="494">sequentially, one at a time.</text>
     <text x="458" y="476">Eight workers drain in parallel, but</text>
