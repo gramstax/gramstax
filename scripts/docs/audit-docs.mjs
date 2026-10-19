@@ -181,8 +181,17 @@ const NON_API_TOKENS = [
   "arrowParens", "no-explicit-any", "Biome",
   // shell verbs and filter-argument placeholders
   "rm", "ls", "cd", "mkdir", "singular", "plural", "places",
-  // route names from the build guide's worked example project
-  "shop",
+  // route and page names from the worked examples: the build guide's project in
+  // prose, and the page names the example bots actually ship
+  "shop", "blank",
+  // external CLIs and tools named in prose
+  "bunx", "gh", "k6",
+  // State the example bots declare as class properties. The declaration harvest
+  // below reads keyword declarations and `name(...)` members, so a bare
+  // `gdefault = {` (example/2-helloworld/src/pages/start.ts) is invisible to it.
+  "gdefault", "cacheState", "DECIMALS",
+  // release labels named in prose ("on v5", "v6 removed it")
+  "v5", "v6",
   // defined by the scaffolded example bots (`example/*/src/helpers/log.ts`),
   // not by the library
   "LogHe",
@@ -221,8 +230,10 @@ for (const cfg of ["biome.json", "tsconfig.json", "bunfig.toml", "nx.json"]) {
 }
 
 // In-repo TypeScript outside packages/gramstax/src: the build scripts the AOT
-// guide cites by path, and the scaffold templates the configuration guide
-// describes. Not the source of truth — a wrong library name is still a FAIL.
+// guide cites by path, the scaffold templates the configuration guide
+// describes, the `@gramstax/lmdb` symbols the persistence examples use, and the
+// example bots' own classes, which the examples guide names in prose. Not the
+// source of truth — a wrong library name is still a FAIL.
 //
 // Declarations only, unlike the primary corpus. The primary corpus accepts a
 // mention because anything inside packages/gramstax/src is real; these files are
@@ -231,7 +242,7 @@ for (const cfg of ["biome.json", "tsconfig.json", "bunfig.toml", "nx.json"]) {
 const DECLARATION = /^(?:export\s+)?(?:declare\s+)?(?:abstract\s+)?(?:async\s+)?(?:class|function|interface|type|enum|const|let|var)\s+([A-Za-z_$][\w$]*)/gm
 const MEMBER = /^\s{2,}(?:public\s+|private\s+|protected\s+|static\s+|readonly\s+|override\s+|async\s+|get\s+|set\s+)*([A-Za-z_$][\w$]*)\s*(?:<[^>]*>)?\s*\(/gm
 
-for (const aux of ["packages/gramstax/scripts", "packages/create-gramstax/src"]) {
+for (const aux of ["packages/gramstax/scripts", "packages/create-gramstax/src", "packages/lmdb/src", "example"]) {
   for (const f of tracked(p => p.startsWith(`${aux}/`) && p.endsWith(".ts"))) {
     const text = read(f)
     for (const re of [DECLARATION, MEMBER]) {
@@ -248,6 +259,53 @@ for (const aux of ["packages/gramstax/scripts", "packages/create-gramstax/src"])
 const ILLUSTRATIVE_TOKENS = new Set(["fN", "__fN", "a_b"])
 
 const ACCEPTED = new Set([...SOURCE_TOKENS, ...NON_API_TOKENS, ...AUX_TOKENS])
+
+// A migration guide names the API its release removed, so the left column of a
+// rename table has nothing in the current source to point at. TIER 1 is scoped
+// off for one file and only for an explicit list, so an invented name in a
+// migration guide still fails.
+//
+// Kept literal rather than scraped from a tag: `actions/checkout` in docs.yml
+// runs with the default `fetch-depth: 1`, so `git show v5.0.0:...` is not
+// available in CI. Each name was checked by hand with `git grep -l <name> v5.0.0`.
+const MIGRATION_DOCS = new Set(["docs-site/guides/migrating-to-6.md"])
+
+// Two groups. Sixteen shipped in v5 and were removed by v6, so they are the
+// rename tables' "v5" column:
+//   _webhookSecretToken, broadcastOpts, fallbackEdit, options1, options2,
+//   pollingDispatcher, pollingQueue, pollingQueueInstance, renderBroadcastEdit,
+//   renderBroadcastMedia, renderBroadcastPoll, renderChunked, webhookDispatcher,
+//   webhookDrainTimeoutMs, webhookQueueInstance, webhookServer
+// The other six never shipped at either tag. They are the pre-release param
+// names and the intermediate v6 field names, and the page says so out loud in
+// `## Param types carry the I prefix` and in the labelled note under the route
+// rename table, so a reader is never told these were ever public API:
+//   BroadcastSendParams, IRenderMode, optionsEdit1, optionsEdit2,
+//   RenderMediaParams, RenderTextParams
+const REMOVED_TOKENS = new Set([
+  "_webhookSecretToken",
+  "broadcastOpts",
+  "fallbackEdit",
+  "options1",
+  "options2",
+  "pollingDispatcher",
+  "pollingQueue",
+  "pollingQueueInstance",
+  "renderBroadcastEdit",
+  "renderBroadcastMedia",
+  "renderBroadcastPoll",
+  "renderChunked",
+  "webhookDispatcher",
+  "webhookDrainTimeoutMs",
+  "webhookQueueInstance",
+  "webhookServer",
+  "BroadcastSendParams",
+  "IRenderMode",
+  "optionsEdit1",
+  "optionsEdit2",
+  "RenderMediaParams",
+  "RenderTextParams"
+])
 
 // ---------------------------------------------------------------------------
 // TIER 1 — unknown identifiers in prose spans
@@ -396,6 +454,10 @@ for (const file of DOC_FILES) {
       for (const name of names) {
         if (ACCEPTED.has(name)) {
           tokensAccepted++
+          continue
+        }
+        if (MIGRATION_DOCS.has(file) && REMOVED_TOKENS.has(name)) {
+          skipShape("API removed by the release this guide migrates to")
           continue
         }
         if (HYPHENATED.test(name)) {

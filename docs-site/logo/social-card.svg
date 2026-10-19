@@ -17,6 +17,7 @@
   Both ship with Windows, so the card regenerates without fetching a webfont.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+  <title>gramstax: page-based routing and a template system for Telegram bots</title>
 
   <defs>
     <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">

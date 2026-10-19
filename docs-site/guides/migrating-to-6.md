@@ -26,7 +26,7 @@ and `this.renderEditAudio(kb)` are v5; `this.renderText({keyboard, data})` is v6
 | Class state grouped | `bot.webhookQueue`, `bot.webhookServer`, `bot.pollingDispatcher`. | Small: tests and deploy wrappers only. |
 | Render params are route unions | Field combinations that used to compile and be silently dropped. | Find the errors, delete the dead fields. |
 | `keyboardInline` renamed | `renderEditCaption` and `renderEditKeyboard` only. | Trivial. |
-| Route field renames | `fallbackEdit`, `broadcastOpts`, `optionsEdit1/2`, the rich tuple. | Mechanical rename. |
+| Route field renames | `fallbackEdit`, `broadcastOpts`, the `options1`/`options2` slots. | Mechanical rename. |
 | `create-gramstax` flags | `--skip-install` now skips; `--no-lmdb` and friends exist. | Trivial. |
 
 ## Render methods take one object
@@ -134,23 +134,32 @@ that had to track every new render method.
 
 The ten per-kind wrappers (`renderPhoto`, `renderVideo`, `renderAudio`,
 `renderDocument`, `renderAnimation`, `renderVoice`, `renderVideoNote`,
-`renderSticker`, `renderLocation`, `renderContact`) no longer accept
-`broadcast: {ids, ...}`. The `after` line below is from `packages/gramstax/test/render-params.type-guard.test.ts`:
+`renderSticker`, `renderLocation`, `renderContact`) reject `broadcast: {ids, ...}`.
+At v5 there was nothing to reject, because the fan-out and the single send were two
+different methods: `renderPhoto` sent one chat, `renderBroadcastMedia` sent many.
+v6 folds both into `renderMedia`, and that fold hands the per-kind wrappers a
+fan-out field they cannot honour. `IRenderMediaKindParams` excludes
+`IRouteMediaBroadcastSend`, so `broadcast: {ids}` is a compile error on all ten.
+The `fix` line is from `packages/gramstax/test/render-params.type-guard.test.ts`:
 
 ```ts
-// before: accepted by the types, but the kind was read from the <g-media> block
+// before (v5): the fan-out was its own method, `renderPhoto` carried no broadcast field at all
+await ctx.renderBroadcastMedia(ids, langs, null, {fileId, caption}, Base.infoDeliverPhoto)
+
+// rejected (v6): TS error, `IRenderMediaKindParams` has no `broadcast.ids` route
 await ctx.renderPhoto({broadcast: {ids, languageCode: langs}})
 
-// after
+// fix (v6)
 await ctx.renderMedia({broadcast: {ids: [1], languageCode: [`en`]}})
 ```
 
 `broadcast: {targets, ...}` (the revise path) is still accepted on the per-kind
 wrappers, because that loop forwards the fixed kind.
 
-**Why.** `renderPhoto({broadcast: {ids}})` used to send whatever the template block held
-while the method name said photo, and a wrapper whose only job is to fix the kind
-should not take a path that ignores it.
+**Why.** A wrapper whose only job is to fix the kind should not take a send path
+that ignores it. On that loop the kind is read from the `<g-media>` block, so
+`renderPhoto({broadcast: {ids}})` would send whatever the block held while the
+method name said photo.
 
 ## Param types carry the `I` prefix
 
@@ -201,41 +210,53 @@ inconsistent: `webhookQueue` was public while `_webhookSecretToken` was private.
 
 Each render params type is now the disjoint union of the routes that method can
 resolve, and every route declares the same ten universal keys: a real type where
-the route reads one, `never` where it does not. A field the winning route never
-reads is a compile error instead of a silent drop, so expect a batch of "remove this field" errors after upgrading:
+the route reads one, `never` where it does not. At v5 the route was the method you
+called, so a mode could never contradict it; v6 keeps one params object per method
+and has to type every unreachable key `never` instead. A field the winning route
+never reads is a compile error rather than an argument dropped behind a warning, so
+expect a batch of "remove this field" errors after upgrading:
 
 ```ts
-// before: compiled, and `mode` was ignored on the broadcast route
-await ctx.renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: [{chatId: 1, messageId: 2}]}})
+// before (v5): the route was the method you called, so there was no `mode` to contradict
+await ctx.renderBroadcastEdit([{chatId: 1, messageId: 2}], `photo`, null, null, null, null, null, {fallbackEdit: `reply`})
 
 // after: TS error, `mode` is unread on the broadcast-revise route
-await ctx.renderMedia({type: `photo`, broadcast: {targets: [{chatId: 1, messageId: 2}]}})
+await ctx.renderMedia({type: `photo`, mode: `edit`, broadcast: {targets: [{chatId: 1, messageId: 2}]}})
 ```
 
 Declaring the field `?: never` is what makes this work. Simply omitting it from
 that union member does not, because TypeScript's excess-property check treats a
 property as known when any union member declares it. Two smaller consequences:
-`AGBaseId` is optional on every params type now (it was required on 8 of 16),
-and a bottom keyboard on a route that always edits throws at runtime naming
-`mode: 'reply'` as the fix.
+`AGBaseId` is optional on every params type now, since `IContent` declares
+`AGBaseId?: string | null` and no route atom redeclares it, where at v5 ten of the
+sixty-six `async render*` declarations in `core/ctx.ts` took it as a required
+positional (`renderEditCaption` and `renderEditKeyboard` among them); and a bottom
+keyboard on a route that always edits throws at runtime naming `mode: 'reply'` as
+the fix.
 
-**Why.** Each method resolves exactly one route at runtime, but the types were flat bags
-of optional fields, so the compiler accepted every combination and the two hidden
-precedence rules (`broadcast` and `chunkSize` each short-circuiting `mode`) went
-undocumented.
+**Why.** Each method resolves exactly one route at runtime, so a bag of optional fields
+that accepts every combination tells you nothing about what survives. The two
+precedence rules (`broadcast` and `chunkSize` each short-circuiting `mode`) used to
+live only in the method names; now the winning route is readable off the union itself.
 
 ## `keyboardInline` is now `keyboard`
 
-`keyboardInline` on `IRenderEditCaptionParams` and `IRenderEditKeyboardParams`
-is renamed to `keyboard`, and with the name unified the constraint moved into the
-type: on a route that always reaches an edit call, a bottom keyboard is now a
-compile error rather than a Telegram 400.
+The `keyboardInline` parameter on the v5 `renderEditCaption` and
+`renderEditKeyboard` methods is now the `keyboard` field on
+`IRenderEditCaptionParams` and `IRenderEditKeyboardParams`, and with the name
+unified the constraint moved into the type: on a route that always reaches an edit
+call, `keyboard` is narrowed to `IInlineKb`, so a bottom keyboard is a compile
+error. v5 enforced the same rule in the method signature
+(`renderEditCaption(keyboardInline: IInlineKb, ...)`) rather than in a type, and the
+union now states it once for every method that always reaches an edit call.
 
 ```ts
 // before
-await ctx.renderEditKeyboard({keyboardInline: kb, AGBaseId: `photo-card`})
+await ctx.renderEditCaption(kb, null, `photo-card`)
+await ctx.renderEditKeyboard(kb, null, `photo-card`)
 
 // after
+await ctx.renderEditCaption({keyboard: kb, AGBaseId: `photo-card`})
 await ctx.renderEditKeyboard({keyboard: kb, AGBaseId: `photo-card`})
 
 // now a type error on all three
@@ -244,45 +265,61 @@ ctx.renderEditCaption({keyboard: ctx.bottomKeyboard((k) => k)})
 ctx.renderEditKeyboard({keyboard: ctx.bottomKeyboard((k) => k)})
 ```
 
-A bottom keyboard is still legal when `mode` is absent, because `auto` decides at
-runtime whether it sends or edits. The narrowing deliberately does not apply to the
-media routes: those delete and re-send the kinds that cannot be edited in place, and
-a re-send is a send.
+A bottom keyboard still compiles when `mode` is absent, because `auto` decides at
+runtime whether it sends or edits, but it is no longer safe there: if the update
+resolves to an edit, the runtime guard throws and names `mode: 'reply'` as the fix.
+The narrowing deliberately does not apply to the media routes: those delete and
+re-send the kinds that cannot be edited in place, and a re-send is a send.
 
 **Why.** The two-name split existed only because the constraint could not be expressed
 anywhere else. Route unions can express it, so the names converged.
 
 ## Route field renames
 
-The route atoms were rewritten once and their fields renamed. These are pure
-renames, lifted from the broadcast test diff:
+The route atoms were rewritten once and their fields renamed. Every `v5` name below
+is a parameter name read off the v5.0.0 signatures in
+`packages/gramstax/src/core/ctx.ts`: v5 render methods took positional arguments,
+so read each row as the argument that became the field.
 
 | v5 | v6 |
 | --- | --- |
 | `fallbackEdit` | `fallback` |
-| `broadcastOpts` | `reviseOptions` |
-| `reviseOptions.chunkSize` | `batchSize` |
-| `optionsEdit2` | `mediaOptions` |
-| `optionsEdit1` | `media` (the `editMessageMedia` payload) and `resendOptions` (delete-then-resend reply options) |
-| `richOptions: [payload, options]` | `rich` (payload) and `richOptions` (options) |
-| `options` on an edit route | `editOptions` |
-| `options` on a media route | removed; use `captionOptions` |
-| `IRenderMode` | deleted; the literal lives on each route atom |
+| `broadcastOpts` (the revise and delete controls bag) | `broadcast.reviseOptions` |
+| `broadcastOpts.chunkSize` | `batchSize` |
+| `options1` on `renderEditMedia`, on the kinds that edit in place | `media` (the `editMessageMedia` payload) |
+| `options1` on `renderEditMedia`, on the kinds that delete and re-send | `resendOptions` (the re-send reply options) |
+| `options2` on `renderEditMedia` | `mediaOptions` (the `editMessageMedia` call options) |
+| `options1` on `renderRich` and `renderEditRich` | `rich` (the `InputRichMessage` payload) |
+| `options2` on `renderRich` and `renderEditRich` | `richOptions` |
+| `options` on `renderEdit` | `editOptions` |
+| `options` on `renderAuto` | `options` when it replies, `editOptions` when it edits |
+| `options` on `renderMedia` | `captionOptions` |
+
+`options1` is one v5 slot feeding two v6 fields, because v5 typed it
+conditionally: on `renderEditMedia` it was the `editMessageMedia` payload for
+`photo`, `video`, `audio`, `document` and `animation`, and the reply options for
+`voice`, `video_note`, `sticker`, `location` and `contact`. v6 names both halves.
+
+`optionsEdit1`, `optionsEdit2` and `IRenderMode` are absent from this table on
+purpose. None of the three existed at v5.0.0, and none exists at v6.0.0 either:
+they are names that existed only while v6 was being written, between the v5.0.0
+and v6.0.0 tags, so if you came from v5.0.0 there is nothing to rename. In v6
+`mode` carries its literal on each route atom, with no named type behind it.
 
 ```ts
 // before
-renderMedia({type: `photo`, broadcast: {targets: targets(4), broadcastOpts: {startFrom: 2}}})
-renderMedia({type: `photo`, broadcast: {targets: targets(5), broadcastOpts: {chunkSize: 2, chunkDelayMs: 1, onProgress: progress}}})
-renderText({mode: `edit`, fallbackEdit: `delete-reply`})
+await this.renderBroadcastDelete(sent, {chunkSize: 2, chunkDelayMs: 1, onProgress: progress})
+await this.renderEdit(kb, data, AGBaseId, undefined, `reply`)
 
 // after
-renderMedia({type: `photo`, broadcast: {targets: targets(4), reviseOptions: {startFrom: 2}}})
-renderMedia({type: `photo`, broadcast: {targets: targets(5), reviseOptions: {batchSize: 2, chunkDelayMs: 1, onProgress: progress}}})
-renderText({mode: `edit`, fallback: `delete-reply`})
+await this.renderBroadcastDelete({targets: sent, reviseOptions: {batchSize: 2, chunkDelayMs: 1, onProgress: progress}})
+await this.renderText({mode: `edit`, keyboard: kb, data, AGBaseId, fallback: `reply`})
 ```
 
-`batchSize` and `chunkSize` are deliberately different names: the first paces a
-broadcast fan-out, the second splits one long message.
+`batchSize` and `chunkSize` are deliberately different names. `batchSize` paces a
+broadcast revise fan-out, a broadcast send fan-out paces with `broadcast.chunkSize`,
+and the top-level `chunkSize` on a render params object does a third job: it splits
+one long message into pieces.
 
 **Why.** Every route declares the same ten keys, so the same concept had to carry the
 same name everywhere. Each of the 20 params types is now `CONTENT & (atom | atom)`.

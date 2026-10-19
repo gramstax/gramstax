@@ -67,18 +67,11 @@
       }
     ]
   },
+  "thumbnails": {
+    "background": "/logo/og-background.png"
+  },
   "seo": {
     "indexing": "all",
-    "metatags": {
-      "og:title": "gramstax",
-      "og:description": "Page-based routing and a template system for Telegram bots.",
-      "og:image": "https://gramstax.mintlify.site/logo/gramstax.png",
-      "og:image:alt": "gramstax",
-      "twitter:card": "summary",
-      "twitter:title": "gramstax",
-      "twitter:description": "Page-based routing and a template system for Telegram bots.",
-      "twitter:image": "https://gramstax.mintlify.site/logo/gramstax.png"
-    },
     "organization": {
       "name": "Gramstax",
       "url": "https://github.com/gramstax/gramstax",
