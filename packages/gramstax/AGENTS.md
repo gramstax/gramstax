@@ -85,15 +85,15 @@ Docs: `docs-site/guides/gramstax-start.md`, `docs-site/guides/gramstax-build.md`
 
 ## Complexity Hotspots
 
-Line counts are `wc -l` (2026-10-08) — a stale table here is how a 181-line
+Line counts are `wc -l` (2026-10-19) — a stale table here is how a 181-line
 `_runWebhook` survives review.
 
 | File                  | Lines | Risk                                                              |
 | --------------------- | ----- | ----------------------------------------------------------------- |
-| `core/ctx.ts`         | 11277 | Multipurpose — split candidates: reply, broadcast, session, route |
-| `template/engine.ts`  | 6666  | Parser + compiler + validator in one file                         |
-| `core/bot.ts`         | 3418  | Lifecycle + routing + webhook/polling + plugins                   |
-| `template/manager.ts` | 1513  | Watcher + loader + compiler glue                                  |
+| `core/ctx.ts`         | 10384 | Multipurpose — split candidates: reply, broadcast, session, route |
+| `template/engine.ts`  | 6710  | Parser + compiler + validator in one file                         |
+| `core/bot.ts`         | 3435  | Lifecycle + routing + webhook/polling + plugins                   |
+| `template/manager.ts` | 1518  | Watcher + loader + compiler glue                                  |
 
 Make surgical changes only in these files.
 

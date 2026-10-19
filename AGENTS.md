@@ -305,10 +305,12 @@ The repo has a broader scope than a typical 2-package Bun/Nx monorepo:
 
 ## Complexity Hotspots
 
-- `packages/gramstax/src/core/ctx.ts` — 4006 lines (multipurpose context/reply/edit/broadcast/session/route).
-- `packages/gramstax/src/template/engine.ts` — 3251 lines (parser/compiler/validator).
-- `packages/gramstax/src/core/bot.ts` — 1612 lines (orchestration/routing/lifecycle).
-- `packages/gramstax/src/template/manager.ts` — 1012 lines (watcher/loader/compiler).
+Line counts are `wc -l` (2026-10-19), a dated snapshot rather than an invariant.
+
+- `packages/gramstax/src/core/ctx.ts` — 10384 lines (multipurpose context/reply/edit/broadcast/session/route).
+- `packages/gramstax/src/template/engine.ts` — 6710 lines (parser/compiler/validator).
+- `packages/gramstax/src/core/bot.ts` — 3435 lines (orchestration/routing/lifecycle).
+- `packages/gramstax/src/template/manager.ts` — 1518 lines (watcher/loader/compiler).
 - These files are prime refactor candidates; make surgical changes only.
 
 ## CI Notes
@@ -346,4 +348,4 @@ Default vocabulary: needs-triage, needs-info, ready-for-agent, ready-for-human, 
 
 ### Domain docs
 
-Multi-context: root `CONTEXT-MAP.md` → per-context `CONTEXT.md` (gramstax, lmdb, worker-thread, create-gramstax); ADRs in `docs/adr/` (system-wide) + `packages/*/docs/adr/` (per-context). See `docs/agents/domain.md`.
+Multi-context: root `CONTEXT-MAP.md` → per-context `CONTEXT.md` (gramstax, lmdb, worker-thread, create-gramstax); ADRs in `docs-site/guides/adr/`. See `docs/agents/domain.md`.
