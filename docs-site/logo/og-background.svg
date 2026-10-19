@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  gramstax OG background for Mintlify `thumbnails.background`.
+
+  Mintlify auto-generates a 1200x630 social card per page from the site logo, the
+  page title, the page description and the primary colour. This file is the ground
+  for that overlay, so it carries NO text and NO foreground mark: Mintlify draws
+  the site logo itself from docs.json, and the title and description land on top.
+
+  Kept from social-card.svg: the diagonal ground gradient, the brand blooms, the 5%
+  column rules and the ghosted mark bleeding off the right edge as texture.
+  Removed: the gramstax wordmark, the tagline, the accent rule and the prominent
+  200x200 mark.
+
+  The blooms are deliberately weaker here than on social-card.svg. Because the
+  overlay position is not ours to choose, the whole canvas has to stay calm, so the
+  brightest pixel anywhere on it is #22489f (relative luminance 0.0748), which is
+  8.41:1 against white. That clears WCAG AAA for normal text at any position and any
+  width. Please keep it that way when editing: re-scan the flattened png for peak
+  relative luminance and hold the worst case at or above 7:1.
+
+  Regenerate (run from the repo root, requires bun plus the ad hoc resvg CLI, nothing
+  is added to any package.json):
+
+      cd docs-site/logo && bunx @resvg/resvg-js-cli og-background.svg og-background.png
+
+  The `cd` matters: the rasterizer resolves the relative `gramstax.png` reference
+  against the working directory, so the command has to run from this folder. Output
+  is exactly 1200 x 630. The CLI always writes RGBA; the committed png has the fully
+  opaque alpha channel dropped and re-deflated, which roughly halves the file.
+  Either file looks identical, the committed one is just the lighter web asset.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050b1e"/>
+      <stop offset="0.52" stop-color="#0a1a42"/>
+      <stop offset="1" stop-color="#122a78"/>
+    </linearGradient>
+
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#2563eb" stop-opacity="0.48"/>
+      <stop offset="0.5" stop-color="#2563eb" stop-opacity="0.155"/>
+      <stop offset="1" stop-color="#2563eb" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="glow-soft" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#60a5fa" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#60a5fa" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- faint column rules, faded out toward the lit side of the card -->
+    <pattern id="rules" width="78" height="78" patternUnits="userSpaceOnUse">
+      <rect width="1" height="630" fill="#ffffff" fill-opacity="0.05"/>
+    </pattern>
+    <radialGradient id="rule-fade" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="rule-mask">
+      <rect width="1200" height="630" fill="url(#rule-fade)" transform="matrix(0.86 0 0 1.06 -100 -20)"/>
+    </mask>
+
+    <!-- soft left edge for the oversized ghost, so it never shows a hard seam -->
+    <linearGradient id="ghost-fade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000000"/>
+      <stop offset="0.15" stop-color="#ffffff"/>
+    </linearGradient>
+    <mask id="ghost-mask">
+      <rect x="640" y="-240" width="920" height="1140" fill="url(#ghost-fade)"/>
+    </mask>
+  </defs>
+
+  <!-- ground -->
+  <rect width="1200" height="630" fill="url(#base)"/>
+  <rect width="1200" height="630" fill="url(#rules)" mask="url(#rule-mask)"/>
+  <ellipse cx="930" cy="335" rx="700" ry="540" fill="url(#glow)"/>
+  <ellipse cx="1150" cy="60" rx="400" ry="280" fill="url(#glow-soft)"/>
+
+  <!-- oversized ghost of the mark, bleeding off the right edge -->
+  <g opacity="0.05" mask="url(#ghost-mask)">
+    <image href="gramstax.png" xlink:href="gramstax.png" x="712" y="-70" width="780" height="780" preserveAspectRatio="xMidYMid meet"/>
+  </g>
+
+</svg>
