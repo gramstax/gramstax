@@ -24,7 +24,7 @@ Single source of truth for the unknown-attribute validation pass ([TemplateEngin
 
 
 ```typescript
-TemplateEngine._TELEGRAM_ALLOWED_ATTRS["table"] // => ["bordered", "striped"]
+TemplateEngine._TELEGRAM_ALLOWED_ATTRS["table"] // => ["bordered", "striped", "is_compact"]
 TemplateEngine._TELEGRAM_ALLOWED_ATTRS["b"]     // => [] (no attributes)
 ```
 

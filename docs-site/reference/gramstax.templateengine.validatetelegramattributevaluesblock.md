@@ -64,7 +64,7 @@ An object with a `valid` boolean and an `errors` array
 
 ## Remarks
 
-Runs after [TemplateEngine.validateTelegramAttributesBlock()](./gramstax.templateengine.validatetelegramattributesblock.md) (which checks presence) to catch format-level issues. Validates: - `<tg-time unix>` must be a positive integer; `<tg-time format>` must be non-empty - `<tg-map lat>` ∈ \[-90, 90\], `<tg-map long>` ∈ \[-180, 180\], `<tg-map zoom>` ∈ \[0, 24\] - `<tg-emoji emoji-id>` must be a numeric string - `<a href>` must use http(s)://, mailto:, tel:, tg://, or \# scheme - `<input type>` must be a known HTML input type
+Runs after [TemplateEngine.validateTelegramAttributesBlock()](./gramstax.templateengine.validatetelegramattributesblock.md) (which checks presence) to catch format-level issues. Validates: - `<tg-time unix>` must be a positive integer; `<tg-time format>` must be non-empty - `<tg-map lat>` ∈ \[-90, 90\], `<tg-map long>` ∈ \[-180, 180\], `<tg-map zoom>` ∈ \[13, 20\] - `<tg-emoji emoji-id>` must be a numeric string - `<a href>` must use http(s)://, mailto:, tel:, tg://, or \# scheme - `<input type>` must be `checkbox`
 
 Tags without value validators (e.g. `<b>`, `<p>`, `<table>`) are skipped. See [TemplateEngine.\_TELEGRAM\_ATTR\_VALUE\_VALIDATORS](./gramstax.templateengine._telegram_attr_value_validators.md) for the full spec.
 

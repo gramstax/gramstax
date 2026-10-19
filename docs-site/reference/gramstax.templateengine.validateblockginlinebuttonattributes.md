@@ -64,7 +64,7 @@ An object with a `valid` boolean and an `errors` array
 
 ## Remarks
 
-Allowed attributes are `lang`, `text`, and `start-parameter`. `text` is required and must be non-empty; a static `start-parameter` must match the Bot API deep-link format (`[A-Za-z0-9_-]`, at most 64 chars) while `{{}}` / `{~ ~}` spans skip the static check (runtime-enforced, mirroring the `_validateDiceItems` static/dynamic split).
+Allowed attributes are `lang`, `text`, and `start-parameter`. `text` is required and must be non-empty; a static `start-parameter` must match the Bot API deep-link format (`[A-Za-z0-9_-]`, at most 64 chars) while `{{}}` / `{~ ~}` spans skip the static check and are not re-checked by the framework. Unlike the `_validateDiceItems` split, there is no runtime assertion for this value.
 
 ## Example
 

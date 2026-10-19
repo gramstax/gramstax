@@ -24,5 +24,5 @@ type IPageDataBase = {
 
 ## Remarks
 
-Used as the static type for `Ctx.data`. Pages that do NOT define `static data = this.buildData(...)` will NOT have `callbackQueryData` available, preventing accidental usage without proper setup. Pages that define `buildData(...)` via [IPageData](./gramstax.ipagedata.md) get fully typed `callbackQueryData` with the configured args (no extra overloads).
+The static type of `Ctx.data`. The instance field is assigned through a cast to [IPageData](./gramstax.ipagedata.md) in `core/ctx.ts`, so `callbackQueryData` typechecks even on a page that omits `static data`; there the value is `undefined` at runtime. Pages that define `buildData(...)` get a real implementation with the configured args.
 
