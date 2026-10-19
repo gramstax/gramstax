@@ -16,36 +16,29 @@
 
 ## 💡 Why this package
 
-Most Telegram bots start simple: one function per command that builds a string
-and sends it. Then the bot grows, and the same small decisions have to be made
-again in every file. Where does the message markup live? How does a second
-language fit in? Should a button tap send a new message or edit the one it came
-from? What happens when someone taps a button nobody handled? None of these is
-hard on its own. Repeated across a growing bot, they are what makes it tiring to
-change.
+Most Telegram packages are libraries. You call them: they wrap the Bot API and
+leave the shape of the bot to you. Routing, markup, translations,
+send-versus-edit, input checks, the update queue and the deploy entry point get
+assembled again in every project, usually a little differently.
 
-gramstax gives each decision one home.
+gramstax is a modern framework, not another library. It owns that shape.
+`gramstax.config.ts` is the composition point, `src/pages` is the route table,
+and a page class is the handler; `gramstax start` discovers the pages and runs
+the bot, so the code you write is the bot rather than the scaffolding around it.
+That is the difference between adding a dependency and adopting a structure.
 
-**A screen is a file.** A class in `src/pages/start/index.ts` answers `/start`;
-the path is the route. The method names decide what the page reacts to:
-`handleCommandText` for the command, `handleCallbackQueryData` for a button tap,
-`handleFreeText` for everything else. There is no router table to keep in sync
-with the folder.
+The structure is what buys the advantages:
 
-**A message is a template.** The text, buttons and media sit together in one
-readable block beside the handler. A second language is the same block with
-`lang="id"`, not another branch inside every function, so the wording for each
-language stays in one place.
-
-**Send or edit is decided once.** `mode: "auto"` reads the update: a fresh
-message gets a reply, a button tap edits the message it came from. You describe
-the screen once instead of writing a send version and an edit version.
-
-**Mistakes surface before your users see them.** Passing reply options to a
-screen that can only edit is a type error, not a production surprise. A
-production build can compile every template ahead of time instead of evaluating
-it at runtime, and the "nothing matched" cases are counted, so a quiet bot is a
-number on `/stats` instead of a mystery.
+- **One screen, one file.** The path is the route and the method names decide
+  what the page answers, so the folder stays the source of truth.
+- **One message, one template.** Text, buttons and media sit together, and a
+  second language is a sibling block instead of a branch in every handler.
+- **One delivery decision.** Send or edit is resolved from the update, so a
+  screen is written once rather than twice.
+- **One production surface.** Sessions, Redis session locking, rate limiting, an
+  opt-in update queue with a per-chat gate, Prometheus metrics, an in-process e2e
+  harness and a CLI ship with the framework. A library leaves each of these to
+  you.
 
 ### Against the usual approach
 
