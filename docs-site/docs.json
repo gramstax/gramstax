@@ -4,9 +4,9 @@
   "name": "gramstax",
   "description": "Page-based routing and a template system for Telegram bots.",
   "colors": {
-    "primary": "#2563eb",
-    "light": "#60a5fa",
-    "dark": "#1d4ed8"
+    "primary": "#1178a7",
+    "light": "#36aadf",
+    "dark": "#1178a7"
   },
   "logo": {
     "light": "/logo/gramstax.png",
@@ -20,7 +20,7 @@
   "background": {
     "color": {
       "light": "#ffffff",
-      "dark": "#050b1e"
+      "dark": "#04141c"
     }
   },
   "icons": {

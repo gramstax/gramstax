@@ -78,6 +78,14 @@ jobs:
           npx -y mintlify@latest validate
           npx -y mintlify@latest broken-links --check-anchors
 
+      # `validate` does not check colour contrast, and before this step existed a
+      # failing pair sat in docs.json unnoticed: `dark` was #1d4ed8, which is
+      # 2.92:1 on the dark background against a 3:1 minimum. `mint a11y` exits
+      # non-zero on that, and also fails any image without alt text.
+      - name: Check accessibility
+        working-directory: docs-site
+        run: npx -y mintlify@latest a11y
+
       # [skip ci] keeps release.yml from spinning up its full four-package test
       # matrix for a documentation-only commit. The commit message does not
       # match its versionable pattern and the published version would already be

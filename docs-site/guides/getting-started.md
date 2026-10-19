@@ -24,7 +24,7 @@ icon: rocket
 <CodeGroup>
 
 ```bash Consume gramstax in your own bot
-bun add gramstax grammy
+bun add gramstax
 ```
 
 ```bash Work on gramstax itself
@@ -36,21 +36,27 @@ bun install
 
 </CodeGroup>
 
+<Note>
+  `gramstax` depends on the Telegram client it is built on, so that package arrives
+  with this install. Adding it yourself is not required, and a separately declared
+  range can resolve to a version `gramstax` was not tested against.
+</Note>
+
 ## Configuration
 
-A bot is configured entirely through the `IGramstaxParams` object passed to `new Gramstax(...)`. There are no `.env` files required by the library itself: only `token` and `deploy` are mandatory.
+An application is configured entirely through `gramstax.config.ts` at the project
+root: a default export annotated `: GramstaxConfig`, whose twenty fields are all
+optional. The CLI loads that file, materializes each ref slot, and constructs the
+bot. `token` has no default, and `deploy` falls back to `polling`.
 
-| Field                           | Required | Description                                                                      | Default         |
-| ------------------------------- | -------- | -------------------------------------------------------------------------------- | --------------- |
-| `token`                         | Yes      | Telegram Bot API token from BotFather.                                           | _none_          |
-| `deploy`                        | Yes      | One of `polling`, `webhook`, `serverless`, `raw`, `test`. Per-mode settings go in `optionsDeploy`.        | _none_          |
-| `log`                           | No       | `LoggingHelper` instance, `true` (default logger), or `null`/`false` to disable. | `false`         |
-| `botConfig`                     | No       | The client's `BotConfig` (e.g. `apiRoot`).                                             | _none_          |
-| `webhookQueue`                  | No       | `IUpdateQueueConfig` backpressure (deprecated alias `IWebhookQueueConfig`). Prefer `optionsDeploy.webhook.queue`. | _none_          |
-| `cacheSession`                  | No       | Custom `CacheExternal` (e.g. Redis).                                             | in-memory `Map` |
-| `cacheKeyboard`                 | No       | Custom keyboard cache `Map`.                                                     | internal `Map`  |
-| `templateManager`               | No       | Custom `TemplateManager` options.                                                | auto-created    |
-| `optionsPage.shortCallbackData` | No       | Use numeric callback ids to shrink payloads.                                     | `false`         |
+Config files hold refs and plain data, never instances. `cacheSession` takes
+`{store, ttlMs?, namespace?}` or a module ref, not a `CacheExternal`; `log` takes a
+boolean, a module ref, or `{pathFile, force, formatTime}`, not a logger instance.
+Instances belong to `IGramstaxParams`, which is the constructor input and not a
+config field at all.
+
+Every field, with its type and default, is in the
+[configuration reference](/guides/configuration).
 
 ## Running Locally
 
