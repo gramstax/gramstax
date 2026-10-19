@@ -35,6 +35,34 @@ Telegram ── update ──▶ Gramstax (core/bot.ts)
                          │ BlockGKeyboard + LabelGKeyboard build <g-keyboard>
 ```
 
+## Source Layout
+
+Every component below is one file under `packages/gramstax/src`, which is where
+the paths in the tables that follow point.
+
+<Tree>
+
+- `packages/gramstax/src/`
+  - `core/`
+    - `bot.ts` → `Gramstax`
+    - `ctx.ts` → `Ctx`
+  - `template/`
+    - `engine.ts` → `TemplateEngine`
+    - `manager.ts` → `TemplateManager`
+  - `page/manager.ts` → `PageManager`
+  - `cache/external.ts` → `CacheExternal`
+  - `update/`
+    - `queue.ts` → `UpdateQueue`
+    - `dispatcher.ts` → `UpdateDispatcher`
+    - `gate.ts`, `gate-key.ts`
+  - `blocks/g-keyboard.ts` → `BlockGKeyboard`
+  - `labels/g-keyboard.ts` → `LabelGKeyboard`
+  - `e2e/helper.ts` → `E2eHelper`
+  - `mock/telegram-server.ts` → `MockTelegramServer`
+  - `types/` → the `IGramstax*` and `I*` interfaces
+
+</Tree>
+
 ## Components
 
 ### Gramstax (bot core)
@@ -224,9 +252,15 @@ Key architectural choices and their rationale:
 
 ## Related Documentation
 
-<CardGroup cols={2}>
+<Columns cols={2}>
   <Card title="Overview" icon="compass" href="/introduction">
     Project purpose and scope
+  </Card>
+  <Card title="Page routing" icon="route" href="/concepts/page-routing">
+    How a file under `src/pages` becomes a route, and how handlers bind to it
+  </Card>
+  <Card title="Render contract" icon="shapes" href="/concepts/render-contract">
+    How `render*()` picks the underlying Bot API call
   </Card>
   <Card title="Glossary" icon="book-open" href="/guides/glossary">
     Domain terminology used here
@@ -234,4 +268,4 @@ Key architectural choices and their rationale:
   <Card title="Decisions" icon="git-branch" href="/guides/adr/index">
     Architecture Decision Records
   </Card>
-</CardGroup>
+</Columns>

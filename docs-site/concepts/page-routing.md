@@ -32,6 +32,13 @@ rather than silently swallowing the whole tree.
   page) is invisible until someone deploys.
 </Note>
 
+<Frame caption="The scanner walks `src/pages` and takes the route name from the path. There is no table to add a row to.">
+  <img
+    src="/images/routing.svg"
+    alt="Four files under src/pages on the left, each joined by an arrow to the route name it resolves to on the right. start.ts and start/index.ts both resolve to start, start/random/number.ts resolves to start/random/number, and admin/ban.ts resolves to admin/ban."
+  />
+</Frame>
+
 ## The page class
 
 The scanner takes the **first named export** as the page class. There are no
@@ -80,6 +87,13 @@ command is `handleArgsText`; `/cmd <args>` is `handleCommandArgsText`.
   exact match, so `handleArgsText` also catches longer inputs. The no-`Args`
   variants are exact-match.
 </Note>
+
+<Frame caption="The name decides the table. `Args` moves a handler into `routeStaticIntent`, `Session` into `routeStaticSession`, and `Free` into `routeDynamic`.">
+  <img
+    src="/images/handler-tables.svg"
+    alt="Four columns, one per route table. routeStatic holds the handleText, handleCommandText, handleCallbackQueryData, handleCaption and handleCommandCaption shapes and resolves them by exact match. routeStaticIntent holds the Args variants of the same shapes and resolves them by startsWith after the separator. routeStaticSession holds the handleSession shapes, and routeDynamic the handleFree shapes."
+  />
+</Frame>
 
 The `handle*` / `handleSession*` / `handleFree*` split is not decoration. A
 session step and a free-form message reach the page by different paths, and the

@@ -23,10 +23,26 @@ Bot API method that route implies.
 bun add gramstax
 ```
 
-<CardGroup cols={2}>
+## Start here
+
+<Columns cols={2}>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
     A running bot in five minutes: scaffold, edit one page, run it.
   </Card>
+  <Card title="Introduction" icon="book" href="/introduction">
+    What gramstax is, what it removes, and who it is for.
+  </Card>
+  <Card title="Configuration reference" icon="settings" href="/guides/configuration">
+    Every `gramstax.config.ts` field, what it does, and when you should reach for it.
+  </Card>
+  <Card title="API reference" icon="terminal" href="/reference/gramstax">
+    Every exported symbol, grouped by class and type, kept in step by CI.
+  </Card>
+</Columns>
+
+## The model
+
+<Columns cols={2}>
   <Card title="Page routing" icon="route" href="/concepts/page-routing">
     How a filename becomes a route, and how `handle*` methods bind to it.
   </Card>
@@ -39,10 +55,7 @@ bun add gramstax
   <Card title="Deploy" icon="server" href="/concepts/deploy">
     Polling, webhook, serverless, raw, test: one field selects the mode.
   </Card>
-  <Card title="E2E testing" icon="check" href="/guides/e2e-testing">
-    Assert on the compiled template against an in-process Telegram API.
-  </Card>
-</CardGroup>
+</Columns>
 
 ## The shape of an app
 
@@ -104,11 +117,25 @@ In exchange you get pages that fail at build rather than at send, markup a
 non-programmer can translate, and assertions a test can make against real output.
 [Why this design](/introduction) sets out who it suits and who it does not.
 
-<CardGroup cols={2}>
+## Where to go next
+
+<Columns cols={2}>
+  <Card title="Example bots" icon="boxes" href="/guides/examples">
+    The runnable bots under `example/`, and which files to read in each one.
+  </Card>
+  <Card title="E2E testing" icon="check" href="/guides/e2e-testing">
+    Assert on the compiled template against an in-process Telegram API.
+  </Card>
+  <Card title="Serverless deploy" icon="cloud" href="/guides/serverless-deploy">
+    The build, secret, and deploy workflow for Cloudflare Workers and AWS Lambda.
+  </Card>
+  <Card title="Architecture" icon="layers" href="/guides/architecture">
+    How gramstax is put together, from update intake through routing and cache.
+  </Card>
   <Card title="Source on GitHub" icon="github" href="https://github.com/gramstax/gramstax">
     Apache-2.0. Issues and pull requests welcome.
   </Card>
   <Card title="Architecture decisions" icon="book" href="/guides/adr/index">
     The eight ADRs behind the choices, including what each one cost.
   </Card>
-</CardGroup>
+</Columns>

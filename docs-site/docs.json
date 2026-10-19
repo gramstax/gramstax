@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "luma",
   "name": "gramstax",
   "description": "Page-based routing and a template system for Telegram bots.",
   "colors": {
@@ -17,8 +17,18 @@
   "appearance": {
     "default": "system"
   },
+  "background": {
+    "color": {
+      "light": "#ffffff",
+      "dark": "#050b1e"
+    }
+  },
   "icons": {
     "library": "lucide"
+  },
+  "contextual": {
+    "display": "header",
+    "options": ["copy", "chatgpt", "claude", "cursor"]
   },
   "navbar": {
     "links": [
@@ -65,6 +75,19 @@
           "mode": "select"
         }
       }
+    ]
+  },
+  "metadata": {
+    "timestamp": true
+  },
+  "markdown": {
+    "instructions": [
+      "Target gramstax v6. For v5 code, read the migrating-to-6 guide before touching any render method.",
+      "Treat a file path under src/pages as its route: src/pages/admin/ban.ts handles the admin/ban route.",
+      "Register a handler by naming a handle* method on the page class. There is no route table and no bot.command(...) registration.",
+      "Write templates as HTML-like files. Use g-* PAGE blocks for the message body, keyboards and media, and the 54 Telegram rich-HTML tags for content. The block vocabulary is closed: g-script is rejected at build time, so keep logic in the page class and return plain data.",
+      "Call renderText({...}) and its siblings instead of sendMessage. Render params are a union over delivery routes, so pass only the keys your winning route reads.",
+      "Treat the API reference section as generated from the package TypeScript declarations. Cite it for signatures and types, and prefer the guides and concepts pages for prose and recommendations."
     ]
   },
   "thumbnails": {

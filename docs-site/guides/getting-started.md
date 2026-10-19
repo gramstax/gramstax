@@ -21,15 +21,20 @@ icon: rocket
 
 ## Installation
 
-```bash
+<CodeGroup>
+
+```bash Consume gramstax in your own bot
+bun add gramstax grammy
+```
+
+```bash Work on gramstax itself
 # From the monorepo root
 git clone <repo-url>
 cd gramstax
 bun install
-
-# Consume gramstax in your own bot project
-bun add gramstax grammy
 ```
+
+</CodeGroup>
 
 ## Configuration
 
@@ -106,7 +111,7 @@ export class StartPage extends Ctx {
 
 ### Webhook / serverless / test
 
-<Tabs sync={false}>
+<Tabs>
   <Tab title="Webhook">
     ```typescript
     // gramstax.config.ts: the branch must be named after `deploy`
@@ -167,7 +172,16 @@ Send `/start` to your bot in Telegram; you should receive the rendered `<g-messa
 
 ## Next Steps
 
-<CardGroup cols={3}>
+<Columns cols={3}>
+  <Card title="Quickstart" icon="zap" href="/quickstart">
+    The same ground in five minutes, one command at a time.
+  </Card>
+  <Card title="Example bots" icon="boxes" href="/guides/examples">
+    Eleven runnable bots, numbered as a teaching sequence.
+  </Card>
+  <Card title="Configuration reference" icon="settings" href="/guides/configuration">
+    Every `gramstax.config.ts` field and what it does.
+  </Card>
   <Card title="Development" icon="code" href="/guides/development">
     Learn how to contribute
   </Card>
@@ -177,4 +191,4 @@ Send `/start` to your bot in Telegram; you should receive the rendered `<g-messa
   <Card title="Decisions" icon="git-branch" href="/guides/adr/index">
     Why the framework is built this way
   </Card>
-</CardGroup>
+</Columns>

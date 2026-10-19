@@ -84,6 +84,13 @@ outside raw mode now throws.
 What the e2e suite runs against, with `MockTelegramServer` standing in for the
 Bot API. No network, no token, real compiled templates.
 
+<Frame caption="One field, one branch. `serverless` is the only mode that loads the frozen `.gramstax/` output; polling, webhook and test boot from the filesystem, because they have one.">
+  <img
+    src="/images/deploy-modes.svg"
+    alt="At the top, a gramstax.config.ts sketch with deploy set to webhook and the five optionsDeploy branches beneath it, polling, webhook, serverless, raw and test, with webhook lit and the rest dimmed. A warning panel states that at most one branch may be non-empty and it must equal deploy. Below, a five row table lists each mode, what its branch requires and what it loads: polling needs nothing and loads the filesystem; webhook needs url and secretToken and loads the filesystem; serverless needs url, secretToken and one of the cloudflare-mod or aws-lambda-async adapter keys and is the only row that loads .gramstax; raw loads nothing; test loads the filesystem."
+  />
+</Frame>
+
 ## The build
 
 ```bash

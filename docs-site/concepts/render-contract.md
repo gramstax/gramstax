@@ -38,6 +38,13 @@ is a union over the subset that method can actually take:
 `IRouteMediaReply` · `IRouteMediaBroadcastSend` · `IRouteMediaBroadcastRevise` ·
 `IRouteGroupAuto` · `IRouteGroupReply`
 
+<Frame caption="The twelve atoms grouped by the `render*()` method that can take them, and the rule that turns an unread key into a compile error.">
+  <img
+    src="/images/render-routes.svg"
+    alt="Twelve route atoms in four columns, one column per render method family. renderText takes IRouteAuto, IRouteReply, IRouteEdit, IRouteChunked and IRouteBroadcastSend. renderMedia takes IRouteMediaAuto, IRouteMediaReply, IRouteMediaBroadcastSend and IRouteMediaBroadcastRevise. renderMediaGroup takes IRouteGroupAuto and IRouteGroupReply. The send-only render methods, including renderGift, renderInvoice, renderPaidMedia, renderVenue and renderDice, take IRouteForcedReply. Below the columns, two panels contrast a key the winning route reads, IRouteAuto.options typed IOptReply, against a key it never reads, IRouteReply.fallback typed never, ending with the call this.renderText({mode: reply, fallback: reply}) that fails to compile."
+  />
+</Frame>
+
 You never name these. They are what your call site narrows to.
 
 ## Why a field that would be ignored is a compile error

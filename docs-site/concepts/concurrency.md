@@ -29,6 +29,13 @@ The gate is what makes concurrency safe. Eight workers draining one queue would
 happily run two updates from the same chat at once, and a conversation is
 order-dependent: a `setSession` followed by the step it parks into would race.
 
+<Frame caption="Producers enqueue, a pool of `workerCount` loops drains, and the gate is what keeps two updates from one chat out of each other's way.">
+  <img
+    src="/images/update-queue.svg"
+    alt="An update flows through UpdateQueue, a bounded FIFO with maxQueueSize 5000, into UpdateDispatcher, a pool with workerCount 8, and then into UpdateGate, which holds perChatConcurrency 1 and is acquired before a handler runs. Below, a timeline shows two updates for the same gate key c:1 laid end to end so they never overlap, while a single update for c:2 runs beside both, and a side panel lists the two steps of resolveGateKey: chat.id becomes c: followed by the id, and otherwise from.id is used, per user. A final panel contrasts the queue absent default, which drains strictly sequentially, with the queue enabled, where eight workers drain in parallel but the gate still serializes each chat."
+  />
+</Frame>
+
 ## The gate key
 
 `resolveGateKey` derives the key from the update, in this order:

@@ -101,7 +101,7 @@ and a Telegram bot token from [@BotFather](https://t.me/BotFather).
 
 ## Where to go next
 
-<CardGroup cols={2}>
+<Columns cols={2}>
   <Card title="Page routing" icon="route" href="/concepts/page-routing">
     How a filename becomes a route, and how handlers bind to it.
   </Card>
@@ -114,4 +114,10 @@ and a Telegram bot token from [@BotFather](https://t.me/BotFather).
   <Card title="Deploy" icon="rocket" href="/concepts/deploy">
     Five modes, and moving off polling.
   </Card>
-</CardGroup>
+  <Card title="Configuration reference" icon="settings" href="/guides/configuration">
+    Every `gramstax.config.ts` field, and when you should reach for it.
+  </Card>
+  <Card title="Example bots" icon="boxes" href="/guides/examples">
+    The runnable bots under `example/`, and which files to read in each one.
+  </Card>
+</Columns>

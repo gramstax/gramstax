@@ -1,0 +1,11 @@
+/*
+ * --content-width sets the width of the text column in default page mode.
+ * --sidebar-width sets the width of the navigation sidebar.
+ * Both are raised above the Luma theme defaults of 40.5rem and 14rem, so that
+ * long code samples and prose tables get more room. The text column never grows
+ * past the space between the sidebar and the table of contents.
+ */
+:root {
+  --content-width: 54rem;
+  --sidebar-width: 15rem;
+}

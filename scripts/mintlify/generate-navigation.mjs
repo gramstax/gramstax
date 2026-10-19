@@ -6,8 +6,13 @@
 // docs.json references this file by `$ref`.
 //
 // Search carries the long tail. The reference is roughly 800 class-member
-// pages out of 1,032, so every group is de-weighted via `boost` except the
+// pages out of 1,800, so every group is de-weighted via `boost` except the
 // overview, which stays on top.
+//
+// The tree is split into tabs. Mintlify accepts one child-element type per
+// level, so a tab carries either `groups` or `pages`, never both, and a group
+// always carries `pages`. The single exception is a `{group, pages}` object
+// nested inside a `pages` array, which is how class members are grouped.
 
 import {mkdirSync, readdirSync, readFileSync, writeFileSync} from "node:fs"
 import {dirname, join, resolve} from "node:path"
@@ -16,69 +21,81 @@ import {fileURLToPath} from "node:url"
 export function run(SITE) {
   const REFERENCE = join(SITE, "reference")
 
-  // Hand-written pages. The generator owns the reference groups because those are
-// derived from the corpus; these are not, so they are declared here rather than
-// hand-edited into a generated file.
-const PROSE = [
-  {group: "Introduction", icon: "book-open", boost: 2, pages: ["introduction"]},
-  {group: "Quickstart", icon: "rocket", boost: 2, pages: ["quickstart"]},
-  {
-    group: "Core concepts",
-    icon: "shapes",
-    boost: 1.5,
-    pages: [
-      "concepts/page-routing",
-      "concepts/render-contract",
-      "concepts/templates",
-      "concepts/deploy",
-      "concepts/concurrency",
-      "concepts/extending"
-    ]
-  },
-  {
-    group: "Guides",
-    icon: "book",
-    boost: 1.5,
-    pages: [
-      "guides/getting-started",
-      "guides/configuration",
-      "guides/gramstax-start",
-      "guides/gramstax-build",
-      "guides/examples",
-      "guides/e2e-testing",
-      "guides/session-lock",
-      "guides/serverless-deploy",
-      "guides/aot-contract",
-      "guides/migrating-to-6",
-      "guides/troubleshooting",
-      "guides/faq",
-      "guides/glossary",
-      "guides/architecture",
-      "guides/development"
-    ]
-  },
-  // The eight ADRs are listed individually. Declaring only `guides/adr/index`
-  // left every record unreachable from the sidebar: the index links them, but
-  // a search or a shared link into `0001` had no navigation context.
-  {
-    group: "Decisions",
-    icon: "scale",
-    boost: 0.8,
-    pages: [
-      "guides/adr/index",
-      "guides/adr/0001-build-on-grammy",
-      "guides/adr/0002-template-dsl-new-function",
-      "guides/adr/0003-keyv-redis-cache",
-      "guides/adr/0004-convention-routing",
-      "guides/adr/0005-hot-reload-chokidar",
-      "guides/adr/0006-in-process-e2e",
-      "guides/adr/0007-bun-tsup-nx-toolchain",
-      "guides/adr/0008-lint-export-dep-conventions"
+  // Hand-written pages. The generator owns the reference groups because those
+  // are derived from the corpus; these are not, so they are declared here
+  // rather than hand-edited into a generated file.
+  //
+  // Bootstrap pages, end-user help, and learn material are separated by intent
+  // (ship the thing / it broke / understand it), not by subject, so each tab
+  // stays small enough to scan.
+  const DOCUMENTATION_TAB = {
+    tab: "Documentation",
+    icon: "book-open",
+    groups: [
+      {
+        group: "Get started",
+        icon: "rocket",
+        boost: 2,
+        pages: ["index", "introduction", "quickstart"]
+      },
+      {
+        group: "Guides",
+        icon: "book",
+        boost: 1.5,
+        pages: ["guides/getting-started", "guides/configuration", "guides/gramstax-start", "guides/gramstax-build", "guides/examples", "guides/serverless-deploy", "guides/aot-contract", "guides/e2e-testing", "guides/session-lock", "guides/migrating-to-6"]
+      }
     ]
   }
-]
 
-const OVERVIEW = ["reference/gramstax", "reference/index"]
+  const LEARN_TAB = {
+    tab: "Learn",
+    icon: "graduation-cap",
+    groups: [
+      {
+        group: "Core concepts",
+        icon: "shapes",
+        boost: 1.5,
+        pages: ["concepts/page-routing", "concepts/render-contract", "concepts/templates", "concepts/deploy", "concepts/concurrency", "concepts/extending"]
+      },
+      {group: "Architecture", icon: "sitemap", boost: 1.5, pages: ["guides/architecture"]},
+      {group: "Development", icon: "code", boost: 1.5, pages: ["guides/development"]},
+      {group: "Glossary", icon: "spell-check", boost: 1.5, pages: ["guides/glossary"]},
+      // The eight ADRs are listed individually. Declaring only
+      // `guides/adr/index` left every record unreachable from the sidebar: the
+      // index links them, but a search or a shared link into `0001` had no
+      // navigation context.
+      {
+        group: "Decisions",
+        icon: "scale",
+        boost: 0.8,
+        pages: [
+          "guides/adr/index",
+          "guides/adr/0001-build-on-grammy",
+          "guides/adr/0002-template-dsl-new-function",
+          "guides/adr/0003-keyv-redis-cache",
+          "guides/adr/0004-convention-routing",
+          "guides/adr/0005-hot-reload-chokidar",
+          "guides/adr/0006-in-process-e2e",
+          "guides/adr/0007-bun-tsup-nx-toolchain",
+          "guides/adr/0008-lint-export-dep-conventions"
+        ]
+      }
+    ]
+  }
+
+  // Support material is two pages. A group around two entries only adds a
+  // collapsible row, so this tab uses `pages` directly.
+  const HELP_TAB = {tab: "Help", icon: "life-buoy", pages: ["guides/troubleshooting", "guides/faq"]}
+
+  // The API reference tab opens with the two hand-declared overview pages. They
+  // also classify as `Other` further down, so this list must stay first: the
+  // dedupe pass keeps the first occurrence it sees.
+  const OVERVIEW = ["reference/gramstax", "reference/index"]
+  const REFERENCE_TAB = {
+    tab: "API reference",
+    icon: "square-terminal",
+    groups: [{group: "Overview", icon: "home", boost: 0.8, pages: OVERVIEW}]
+  }
 
   function classify(heading) {
     if (/\bclass$/.test(heading)) return "Classes"
@@ -98,7 +115,7 @@ const OVERVIEW = ["reference/gramstax", "reference/index"]
   }
 
   const buckets = new Map()
-  for (const file of readdirSync(REFERENCE).filter(f => f.endsWith(".md"))) {
+  for (const file of readdirSync(REFERENCE).filter((f) => f.endsWith(".md"))) {
     const heading = (readFileSync(join(REFERENCE, file), "utf8").match(/^## (.+)$/m) || ["", ""])[1]
     const bucket = classify(heading)
     if (!buckets.has(bucket)) buckets.set(bucket, new Map())
@@ -117,12 +134,6 @@ const OVERVIEW = ["reference/gramstax", "reference/index"]
   const order = ["Classes", "Types", "Functions", "Variables", "Members", "Other"]
   const boosts = {Classes: 1, Types: 1, Functions: 1, Variables: 0.8, Members: 0.4, Other: 0.4}
 
-  const groups = [
-    {group: "Overview", icon: "home", boost: 2, pages: ["index"]},
-    ...PROSE,
-    {group: "API reference", icon: "code", boost: 0.8, pages: OVERVIEW}
-  ]
-  let total = 0
   for (const bucket of order) {
     const entries = buckets.get(bucket)
     if (!entries || entries.size === 0) continue
@@ -132,23 +143,66 @@ const OVERVIEW = ["reference/gramstax", "reference/index"]
         pages.push(entry.page)
         continue
       }
-      const children = [...entry.members].sort((a, b) => a.heading.localeCompare(b.heading)).map(m => m.page)
+      const children = [...entry.members].sort((a, b) => a.heading.localeCompare(b.heading)).map((m) => m.page)
       pages.push({group: entry.heading, pages: children})
-      total += children.length
     }
-    groups.push({group: bucket, pages, boost: boosts[bucket]})
-    total += pages.length
+    REFERENCE_TAB.groups.push({group: bucket, pages, boost: boosts[bucket]})
   }
+
+  const tabs = [DOCUMENTATION_TAB, REFERENCE_TAB, LEARN_TAB, HELP_TAB]
+
+  // A page must be listed exactly once across the whole tree: a repeated entry
+  // renders as a second sidebar link and counts twice in search weighting.
+  // Walking the tree in order makes the first occurrence win, which is why the
+  // overview pages are declared before the derived buckets that also match them.
+  const seen = new Set()
+  let duplicates = 0
+  function claim(entry) {
+    if (typeof entry === "string") {
+      if (seen.has(entry)) {
+        duplicates++
+        return null
+      }
+      seen.add(entry)
+      return entry
+    }
+    const pages = claimAll(entry.pages)
+    // A nested group that loses every child would render as an empty
+    // collapsible, so it goes too.
+    return pages.length > 0 ? {group: entry.group, pages} : null
+  }
+  function claimAll(pages) {
+    return pages.map(claim).filter((entry) => entry !== null)
+  }
+
+  for (const tab of tabs) {
+    if (tab.pages) tab.pages = claimAll(tab.pages)
+    if (!tab.groups) continue
+    tab.groups = tab.groups.map((group) => ({...group, pages: claimAll(group.pages)})).filter((group) => group.pages.length > 0)
+  }
+
+  // Every element of a `pages` array counts as one entry, including a nested
+  // `{group, pages}` row for a class, so the total matches the number of rows
+  // the sidebar renders.
+  const countOf = (pages) => pages.length + pages.reduce((sum, entry) => sum + (typeof entry === "string" ? 0 : countOf(entry.pages)), 0)
 
   mkdirSync(join(SITE, "config"), {recursive: true})
-  writeFileSync(join(SITE, "config", "navigation.json"), JSON.stringify({groups}, null, 2))
+  writeFileSync(join(SITE, "config", "navigation.json"), JSON.stringify({tabs}, null, 2))
 
   console.log("  navigation.json ditulis")
-  for (const group of groups) {
-    const n = Array.isArray(group.pages) ? group.pages.length : 0
-    console.log("   ", String(group.group).padEnd(12), String(n).padStart(4), "entri")
+  let total = 0
+  for (const tab of tabs) {
+    console.log("   tab", tab.tab)
+    const rows = tab.groups ?? [{group: tab.tab, pages: tab.pages}]
+    for (const row of rows) {
+      const n = countOf(row.pages)
+      total += n
+      console.log("     ", String(row.group).padEnd(14), String(n).padStart(4), "entri")
+    }
+    console.log("     ", "subtotal".padEnd(14), String(countOf(tab.groups ? tab.groups.flatMap((g) => g.pages) : tab.pages)).padStart(4), "entri")
   }
   console.log("    total entri:", total)
+  console.log("    duplikat dibuang:", duplicates)
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

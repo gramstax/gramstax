@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 570" width="860" height="570" role="img" aria-label="One deploy field selects the mode, and only serverless loads the frozen .gramstax build output instead of booting from the filesystem">
+  <title>The five deploy modes, what each optionsDeploy branch requires, and which one loads .gramstax</title>
+
+  <rect x="0.5" y="0.5" width="859" height="569" rx="14" fill="#0b1224" stroke="#1c2f52"/>
+
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="30" y="44" font-size="15" font-weight="600" fill="#e6edf7">One field, one branch</text>
+    <text x="30" y="66" font-size="11.5" fill="#93a7c7">The settings live in <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">optionsDeploy</tspan>, in branches named after the mode.</text>
+  </g>
+
+  <rect x="30" y="86" width="300" height="32" rx="8" fill="#13233f" stroke="#3f6ec9" stroke-opacity="0.55"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5">
+    <text x="44" y="107" fill="#93a7c7">deploy</text>
+    <text x="96" y="107" fill="#60a5fa">"webhook"</text>
+  </g>
+
+  <text x="44" y="142" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#93a7c7">optionsDeploy {</text>
+  <g stroke="#22385e">
+    <rect x="44" y="150" width="88" height="28" rx="7" fill="#0f1a2f"/>
+    <rect x="142" y="150" width="100" height="28" rx="7" fill="#13233f" stroke="#3f6ec9"/>
+    <rect x="252" y="150" width="110" height="28" rx="7" fill="#0f1a2f"/>
+    <rect x="372" y="150" width="72" height="28" rx="7" fill="#0f1a2f"/>
+    <rect x="454" y="150" width="72" height="28" rx="7" fill="#0f1a2f"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11" text-anchor="middle">
+    <text x="88" y="168" fill="#5f7799">polling</text>
+    <text x="192" y="168" fill="#60a5fa">webhook</text>
+    <text x="307" y="168" fill="#5f7799">serverless</text>
+    <text x="408" y="168" fill="#5f7799">raw</text>
+    <text x="490" y="168" fill="#5f7799">test</text>
+  </g>
+  <text x="44" y="196" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#93a7c7">}</text>
+
+  <rect x="560" y="86" width="270" height="92" rx="10" fill="#2a1f0e" stroke="#7a5c17"/>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#fcd34d">
+    <text x="578" y="112">At most one branch may be</text>
+    <text x="578" y="130">non-empty, and it must equal</text>
+    <text x="578" y="148">deploy. Anything else throws</text>
+    <text x="578" y="166">at boot.</text>
+  </g>
+
+  <line x1="30" y1="220" x2="830" y2="220" stroke="#1c2f52" stroke-width="1"/>
+
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" letter-spacing="0.06em" fill="#5f7799">
+    <text x="44" y="246">MODE</text>
+    <text x="250" y="246">THE BRANCH REQUIRES</text>
+    <text x="560" y="246">WHAT IT LOADS</text>
+  </g>
+
+  <g stroke="#22385e">
+    <rect x="30" y="258" width="800" height="40" rx="8" fill="#0f1a2f"/>
+    <rect x="30" y="306" width="800" height="40" rx="8" fill="#0f1a2f"/>
+    <rect x="30" y="354" width="800" height="52" rx="8" fill="#0d2030" stroke="#2f7f8a" stroke-width="1.5"/>
+    <rect x="30" y="414" width="800" height="40" rx="8" fill="#0f1a2f"/>
+    <rect x="30" y="462" width="800" height="40" rx="8" fill="#0f1a2f"/>
+  </g>
+  <rect x="30" y="354" width="3" height="52" fill="#2dd4bf"/>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="13" fill="#60a5fa">
+    <text x="46" y="283">polling</text>
+    <text x="46" y="331">webhook</text>
+    <text x="46" y="379">serverless</text>
+    <text x="46" y="439">raw</text>
+    <text x="46" y="487">test</text>
+  </g>
+
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#93a7c7">
+    <text x="250" y="283">nothing, the queue is opt-in</text>
+    <text x="250" y="331"><tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">url</tspan>, <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">secretToken</tspan></text>
+    <text x="250" y="379"><tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">url</tspan>, <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">secretToken</tspan>, one adapter key</text>
+    <text x="250" y="397" font-size="10" fill="#6d86ab">cloudflare-mod · aws-lambda-async</text>
+    <text x="250" y="439">nothing</text>
+    <text x="250" y="487">nothing</text>
+
+    <text x="560" y="283">the filesystem</text>
+    <text x="560" y="331">the filesystem</text>
+    <text x="560" y="379" fill="#2dd4bf" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">.gramstax/, the build output</text>
+    <text x="560" y="397" font-size="10" fill="#6d86ab">a serverless isolate has no filesystem to scan</text>
+    <text x="560" y="439">nothing: no pages, no templates</text>
+    <text x="560" y="487">the filesystem</text>
+  </g>
+
+  <rect x="30" y="520" width="800" height="36" rx="9" fill="#0f1a2f" stroke="#22385e"/>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" fill="#93a7c7">
+    <text x="46" y="543">Manifest boot goes further and needs no directory at all: pass <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#cbd9ee">manifest: IAppManifest</tspan> to skip scanning.</text>
+  </g>
+</svg>

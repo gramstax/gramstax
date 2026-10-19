@@ -17,12 +17,34 @@ file, by every project.
 
 gramstax's answer is to decide once, in the type system and in the build.
 
+<Columns cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    A running bot in five minutes: scaffold, edit one page, run it.
+  </Card>
+  <Card title="The render contract" icon="shapes" href="/concepts/render-contract">
+    Why a key the winning route would ignore is a compile error, not a silent drop.
+  </Card>
+  <Card title="Deploy" icon="server" href="/concepts/deploy">
+    Polling, webhook, serverless, raw, test: one field selects the mode.
+  </Card>
+  <Card title="Configuration reference" icon="settings" href="/guides/configuration">
+    Every `gramstax.config.ts` field. Twenty of them, all optional.
+  </Card>
+</Columns>
+
 ## Four decisions it makes for you
 
 **A page's route is its path.** No router exists. `src/pages/admin/ban.ts` is the
 `admin/ban` route because that is what the file is called. Naming a `handle*`
 method is what registers it. Adding a page cannot break an unrelated one.
 See [page routing](/concepts/page-routing).
+
+<Frame caption="Four files, four route names. The scanner walks the tree and takes the name from the path; nothing is registered by hand.">
+  <img
+    src="/images/routing.svg"
+    alt="Four files under src/pages on the left, each joined by an arrow to the route name it resolves to on the right. start.ts and start/index.ts both resolve to start, start/random/number.ts resolves to start/random/number, and admin/ban.ts resolves to admin/ban."
+  />
+</Frame>
 
 **Markup lives in a block, not in a string.** Message text, keyboards, media
 captions, poll options, invoices and error toasts live in one `static template`,
