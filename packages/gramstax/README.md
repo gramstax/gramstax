@@ -8,7 +8,7 @@
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
     <img alt="Telegram" src="https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white"/>
     <img alt="Biome" src="https://img.shields.io/badge/Biome-60A5FA.svg?style=flat&logo=biome&logoColor=white"/>
-    <img alt="npm" src="https://img.shields.io/badge/npm-6.0.0-CB3837.svg?style=flat&logo=npm&logoColor=white"/>
+    <img alt="npm" src="https://img.shields.io/npm/v/gramstax?style=flat&logo=npm&logoColor=white&color=CB3837"/>
     <a href="https://gramstax.mintlify.site/"><img alt="Docs" src="https://img.shields.io/badge/Docs-gramstax.mintlify.site-3b82f6.svg?style=flat"/></a>
     <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
   </p>
