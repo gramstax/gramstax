@@ -19,16 +19,67 @@
           "icon": "book",
           "boost": 1.5,
           "pages": [
-            "guides/getting-started",
-            "guides/configuration",
-            "guides/gramstax-start",
-            "guides/gramstax-build",
-            "guides/examples",
-            "guides/serverless-deploy",
-            "guides/aot-contract",
-            "guides/e2e-testing",
-            "guides/session-lock",
-            "guides/migrating-to-6"
+            {
+              "group": "Boot and deploy",
+              "pages": [
+                "guides/getting-started",
+                "guides/configuration",
+                "guides/gramstax-start",
+                "guides/gramstax-build",
+                "guides/examples",
+                "guides/serverless-deploy"
+              ]
+            },
+            {
+              "group": "Pages",
+              "pages": [
+                "guides/pages",
+                "guides/routing",
+                "guides/guards",
+                "guides/keyboards",
+                "guides/sessions"
+              ]
+            },
+            {
+              "group": "Templates",
+              "pages": [
+                "guides/template-blocks",
+                "guides/rich-html",
+                "guides/filters",
+                "guides/aot-contract"
+              ]
+            },
+            {
+              "group": "Replies and fan-out",
+              "pages": [
+                "guides/query-answers",
+                "guides/broadcast",
+                "guides/errors"
+              ]
+            },
+            {
+              "group": "Operations",
+              "pages": [
+                "guides/observability",
+                "guides/rate-limiting",
+                "guides/update-queue",
+                "guides/session-lock"
+              ]
+            },
+            {
+              "group": "Integrations",
+              "pages": [
+                "guides/storage-lmdb",
+                "guides/worker-threads"
+              ]
+            },
+            {
+              "group": "Testing and migration",
+              "pages": [
+                "guides/e2e-testing",
+                "guides/migrating-to-6"
+              ]
+            }
           ]
         }
       ]

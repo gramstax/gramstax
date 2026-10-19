@@ -39,10 +39,50 @@ export function run(SITE) {
         pages: ["index", "introduction", "quickstart"]
       },
       {
+        // Every guide is reachable here. The 26 entries live in seven nested
+        // groups rather than one flat list, because a single 26-row group is
+        // the sidebar equivalent of a wall of text. Nesting `{group, pages}`
+        // inside a `pages` array is the one shape Mintlify accepts for this.
         group: "Guides",
         icon: "book",
         boost: 1.5,
-        pages: ["guides/getting-started", "guides/configuration", "guides/gramstax-start", "guides/gramstax-build", "guides/examples", "guides/serverless-deploy", "guides/aot-contract", "guides/e2e-testing", "guides/session-lock", "guides/migrating-to-6"]
+        pages: [
+          {
+            group: "Boot and deploy",
+            icon: "play",
+            pages: ["guides/getting-started", "guides/configuration", "guides/gramstax-start", "guides/gramstax-build", "guides/examples", "guides/serverless-deploy"]
+          },
+          {
+            group: "Pages",
+            icon: "file-code",
+            pages: ["guides/pages", "guides/routing", "guides/guards", "guides/keyboards", "guides/sessions"]
+          },
+          {
+            group: "Templates",
+            icon: "blocks",
+            pages: ["guides/template-blocks", "guides/rich-html", "guides/filters", "guides/aot-contract"]
+          },
+          {
+            group: "Replies and fan-out",
+            icon: "message-circle",
+            pages: ["guides/query-answers", "guides/broadcast", "guides/errors"]
+          },
+          {
+            group: "Operations",
+            icon: "activity",
+            pages: ["guides/observability", "guides/rate-limiting", "guides/update-queue", "guides/session-lock"]
+          },
+          {
+            group: "Integrations",
+            icon: "plug",
+            pages: ["guides/storage-lmdb", "guides/worker-threads"]
+          },
+          {
+            group: "Testing and migration",
+            icon: "flask-conical",
+            pages: ["guides/e2e-testing", "guides/migrating-to-6"]
+          }
+        ]
       }
     ]
   }

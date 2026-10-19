@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "luma",
   "name": "gramstax",
-  "description": "Page-based routing and a template system for Telegram bots.",
+  "description": "A modern Telegram bot framework built around page-based routing and a powerful template system.",
   "colors": {
     "primary": "#1178a7",
     "light": "#36aadf",

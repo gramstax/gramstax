@@ -40,10 +40,11 @@
 //
 // Plus an explicit allowlist of language keywords, CLI verbs, package names and
 // config keys, and a scraped one for npm deps, Node builtins and root scripts.
-// On the current corpus that leaves 1,437 identifier tokens checked and every
-// one of the 18 survivors a real doc defect. The report prints those counts and
-// every suppression category, so a rising false-positive rate is visible rather
-// than discovered by an author who stopped trusting the output.
+// Every identifier this guard rejects in prose is a real doc defect; when that
+// stops being true the allowlist is what should grow, not the tolerance. The
+// report prints the counts and every suppression category, so a rising
+// false-positive rate is visible rather than discovered by an author who stopped
+// trusting the output.
 
 import {execFileSync} from "node:child_process"
 import {existsSync, readFileSync} from "node:fs"
@@ -186,15 +187,8 @@ const NON_API_TOKENS = [
   "shop", "blank",
   // external CLIs and tools named in prose
   "bunx", "gh", "k6",
-  // State the example bots declare as class properties. The declaration harvest
-  // below reads keyword declarations and `name(...)` members, so a bare
-  // `gdefault = {` (example/2-helloworld/src/pages/start.ts) is invisible to it.
-  "gdefault", "cacheState", "DECIMALS",
   // release labels named in prose ("on v5", "v6 removed it")
   "v5", "v6",
-  // defined by the scaffolded example bots (`example/*/src/helpers/log.ts`),
-  // not by the library
-  "LogHe",
   // generated-document layout, referenced as directories rather than files
   "extractor", "documenter", "yaml",
   // sibling packages and out-of-scope trees
@@ -231,25 +225,132 @@ for (const cfg of ["biome.json", "tsconfig.json", "bunfig.toml", "nx.json"]) {
 
 // In-repo TypeScript outside packages/gramstax/src: the build scripts the AOT
 // guide cites by path, the scaffold templates the configuration guide
-// describes, the `@gramstax/lmdb` symbols the persistence examples use, and the
-// example bots' own classes, which the examples guide names in prose. Not the
-// source of truth — a wrong library name is still a FAIL.
+// describes, the `@gramstax/lmdb` symbols the persistence guide uses, the
+// `@gramstax/worker-thread` symbols the concurrency guide uses, and the example
+// bots' own classes, which the examples guide names in prose. Not the source of
+// truth — a wrong library name is still a FAIL.
 //
-// Declarations only, unlike the primary corpus. The primary corpus accepts a
-// mention because anything inside packages/gramstax/src is real; these files are
-// a lower-confidence escape hatch, and accepting their *comments* would let a
-// stale name in a comment vouch for the same stale name in a doc.
-const DECLARATION = /^(?:export\s+)?(?:declare\s+)?(?:abstract\s+)?(?:async\s+)?(?:class|function|interface|type|enum|const|let|var)\s+([A-Za-z_$][\w$]*)/gm
-const MEMBER = /^\s{2,}(?:public\s+|private\s+|protected\s+|static\s+|readonly\s+|override\s+|async\s+|get\s+|set\s+)*([A-Za-z_$][\w$]*)\s*(?:<[^>]*>)?\s*\(/gm
+// Harvested with the same rule as the primary corpus: any identifier token
+// counts, not only a declared name. The stricter rule that used to apply here
+// was the defect, not the design. It made the two corpora disagree about the
+// same question — "does this word occur in the code this page documents" — and
+// the answer differed by accident of which syntax the name happened to use. A
+// sibling package's option key (`maxDbs`, `compression`) and the template
+// author's own class field (`gindex`, `cacheData`) are exactly as real as its
+// exports, yet neither is declared with `const`/`let`/`var` nor written as
+// `name(...)`, so a declarations-only harvest could not see either. The same
+// blindness swallowed every `@gramstax/worker-thread` symbol, because that
+// package was missing from this list entirely — it is a published sibling and
+// belongs beside `packages/lmdb`.
+//
+// The tradeoff this change accepts, and how it is paid for. Whole-token
+// harvesting also reads comments, and a comment is exactly where a renamed API
+// lingers, so a doc repeating a stale name would be vouched for by a comment
+// repeating the same stale name. That protection was the one real thing the old
+// rule bought, so it is kept explicitly: comments are stripped before the token
+// regex runs (see stripComments below). Restoring it by hand buys back the
+// option keys the old rule could not see.
+//
+// What is given up, stated plainly so the next reader does not have to guess: a
+// name that survives only inside a comment is no longer accepted from these
+// corpora. That is the right direction to fail in. The primary corpus still
+// accepts comments on purpose, because packages/gramstax/src is code this repo
+// owns and a comment there is evidence rather than an echo — but a sibling
+// package's comment is neither declared nor called, and a doc naming it deserves
+// the FAIL.
 
-for (const aux of ["packages/gramstax/scripts", "packages/create-gramstax/src", "packages/lmdb/src", "example"]) {
-  for (const f of tracked(p => p.startsWith(`${aux}/`) && p.endsWith(".ts"))) {
-    const text = read(f)
-    for (const re of [DECLARATION, MEMBER]) {
-      re.lastIndex = 0
-      let m
-      while ((m = re.exec(text)) !== null) addAux(m[1])
+// Comments out, everything else through verbatim, in one pass. Two `replace`
+// calls cannot do this: no regex tells the `//` in `"https://x"` from a comment
+// start, and getting that wrong deletes real identifiers, which would show up as
+// phantom FAILs rather than as the missing-name signal it is. The frame stack is
+// what keeps the nested cases honest — a template literal's `${…}` re-enters
+// code mode at brace depth zero, so a `}` closes the interpolation instead of
+// running the rest of the line into a string.
+function stripComments(text) {
+  const out = []
+  const stack = [{kind: "code", depth: 0}]
+  let i = 0
+  while (i < text.length) {
+    const frame = stack[stack.length - 1]
+    const c = text[i]
+
+    if (frame.kind === "line") {
+      // Keep the newline. Dropping it would glue the identifiers on either side
+      // of the comment into one token that exists in neither file.
+      if (c === "\n") {
+        stack.pop()
+        out.push(c)
+      }
+      i++
+      continue
     }
+
+    if (frame.kind === "block") {
+      if (c === "*" && text[i + 1] === "/") {
+        stack.pop()
+        i += 2
+        continue
+      }
+      if (c === "\n") out.push(c)
+      i++
+      continue
+    }
+
+    if (frame.kind === "quote") {
+      if (c === "\\") {
+        out.push(c, text[i + 1] ?? "")
+        i += 2
+        continue
+      }
+      if (c === frame.delim) {
+        stack.pop()
+        out.push(c)
+        i++
+        continue
+      }
+      if (frame.delim === "`" && c === "$" && text[i + 1] === "{") {
+        stack.push({kind: "code", depth: 0})
+        out.push(c, "{")
+        i += 2
+        continue
+      }
+      out.push(c)
+      i++
+      continue
+    }
+
+    if (c === "/" && text[i + 1] === "/") {
+      stack.push({kind: "line"})
+      i += 2
+      continue
+    }
+    if (c === "/" && text[i + 1] === "*") {
+      stack.push({kind: "block"})
+      i += 2
+      continue
+    }
+    if (c === `"` || c === "'" || c === "`") {
+      stack.push({kind: "quote", delim: c})
+      out.push(c)
+      i++
+      continue
+    }
+    if (c === "{") frame.depth++
+    // Depth zero means this `}` is the one that closes an enclosing `${`, so it
+    // pops back into the template literal rather than counting as a block end.
+    else if (c === "}") {
+      if (frame.depth === 0) stack.pop()
+      else frame.depth--
+    }
+    out.push(c)
+    i++
+  }
+  return out.join("")
+}
+
+for (const aux of ["packages/gramstax/scripts", "packages/create-gramstax/src", "packages/lmdb/src", "packages/worker-thread/src", "example"]) {
+  for (const f of tracked(p => p.startsWith(`${aux}/`) && p.endsWith(".ts"))) {
+    addAux(stripComments(read(f)))
   }
 }
 
@@ -257,6 +358,23 @@ for (const aux of ["packages/gramstax/scripts", "packages/create-gramstax/src", 
 // guide names by shape (`fN`, `__fN`) and the filename-collision example
 // (`a_b`). A guard that flags these teaches authors to ignore it.
 const ILLUSTRATIVE_TOKENS = new Set(["fN", "__fN", "a_b"])
+
+// Names that are real but belong to nobody in this repository, so no source
+// corpus here can ever vouch for them. Left as explicit entries because each one
+// is a one-clause claim about a specific sentence, and a reader deciding whether
+// to trust the guard needs to see the claim, not infer it.
+const EXTERNAL_TOKENS = new Set([
+  // the observability guide's own instruction to scrape `/metrics` by hand
+  "curl",
+  // a PromQL aggregation the reader applies to their own instrumentation
+  "histogram_quantile",
+  // the fixed prefix the metrics serializer composes every series name under.
+  // isComposedName needs a suffix as well, and this sentence is about the prefix
+  // standing alone.
+  "gramstax_updates_",
+  // a generic type parameter written in prose (`handleCaption<Kind>`)
+  "Kind"
+])
 
 const ACCEPTED = new Set([...SOURCE_TOKENS, ...NON_API_TOKENS, ...AUX_TOKENS])
 
@@ -470,6 +588,10 @@ for (const file of DOC_FILES) {
         }
         if (ILLUSTRATIVE_TOKENS.has(name)) {
           skipShape("illustrative placeholder name")
+          continue
+        }
+        if (EXTERNAL_TOKENS.has(name)) {
+          skipShape("external name, not this repository's API")
           continue
         }
         if (isComposedName(name)) {

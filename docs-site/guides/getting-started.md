@@ -58,6 +58,50 @@ config field at all.
 Every field, with its type and default, is in the
 [configuration reference](/guides/configuration).
 
+### Advanced: constructing the bot yourself
+
+The config file is the normal path, and for a scaffolded project it is the only
+one you need. But gramstax is also a library you can place inside an application
+that already owns its own lifecycle, and there the CLI is in the way. Skipping it
+means calling the constructor yourself, with `IGramstaxParams` instead of
+`GramstaxConfig`.
+
+`IGramstaxParams` and `GramstaxConfig` line up field for field, except that
+`manifest` exists only on the constructor side. Three differences change what you
+actually pass:
+
+| Difference | Why |
+| --- | --- |
+| `cacheSession`, `cacheKeyboard`, `templateManager` and `log` take **instances** (or a `Map`), not refs | Your code already holds the object. The CLI is the side that has to resolve a module path. |
+| `manifest` is accepted | Constructor-only: the config loader rejects it as `unknown field`. It is what makes an fs-less boot possible. |
+| `token` and `deploy` are **required** | Neither has a default the way `deploy` does in a config file, and `token` never had one. |
+
+You construct your own `Gramstax` subclass, not the base class, which is what the
+repository's e2e harness does:
+
+```ts
+import {join} from "node:path"
+import {TemplateManager} from "gramstax"
+import {BotCore} from "./src/core/bot"
+
+export const bot = new BotCore({
+  deploy: `polling`,
+  token: process.env.BOT_TOKEN ?? ``,
+  templateManager: new TemplateManager({
+    path: [join(import.meta.dir, `src/pages`)]
+  })
+})
+```
+
+Construction is boot. There is no `.run()` to call afterwards, and no separate
+start step: the constructor validates its input, wires the managers and brings the
+bot up. Shut it down with `await bot.stop()`.
+
+The two paths meet at the same place. `gramstax start` reads the config file,
+materializes each ref slot into the instance it names, and then constructs the bot
+with exactly the object you would have written by hand, so a scaffolded project
+and an embedded one differ in who builds the params and in nothing else.
+
 ## Running Locally
 
 The simplest local setup uses **polling** (no public URL needed). The bot is

@@ -2,7 +2,7 @@
   <p><img src="https://avatars.githubusercontent.com/u/187108398?s=200&v=4" alt="Gramstax logo" width="120" height="120" /></p>
   <h1>gramstax</h1>
 
-  <p>A declarative Telegram bot framework: turn a bot into pages that own a slice of markup, a keyboard and a set of handlers, discovered from <code>src/pages</code> and routed by convention.</p>
+  <p>A modern Telegram bot framework built around page-based routing and a powerful template system.</p>
   <p>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
@@ -46,55 +46,50 @@ counters rather than a shrug: `GET /stats` for JSON, `GET /metrics` for Promethe
 
 ## ✨ Features
 
-### Page routing
+### Pages, not string builders
 
-- 📄 **Pages are classes, discovered from the filesystem**: every named export under `src/pages` that extends `Ctx` becomes a routable page; `PageManager` loads them and the route name comes from the path (`start/index.ts` → `start`, `start/counter/thread.ts` → `start/counter/thread`)
-- 🧭 **Routing by handler-name convention**: `handleCommandText`, `handleArgsText`, `handleCallbackQueryData`, `handleArgsCallbackQueryData`, `handleCaptionPhoto`, the `handleFree*` family and its `handleSession*` variants are all picked up by name; a handler that does not exist is simply not a route
-- 🪝 **Typed callback payloads**: `static data = this.buildData((id: string) => [id])` types `data.callbackQueryData(...)`, and `inlineKeyboardT` then compile-checks that the destination page actually defines the matching handler
-- 🚪 **Two gates, not one**: a bot-level `hookBeforeRoute(ctx, data)` filter that runs before routing, and a page-level `hookBeforeRoute()` that runs on the constructed page after a route matches; only strict `false` denies
-- 🧭 **`g*` step objects**: every step is a `{show, process}` pair, so each view is independently renderable and independently testable in e2e
+- 📄 **A page is a class**: `PageManager` walks `src/pages/**`, takes the first exported page class in each file (no default exports), and the file path *is* the route (`start.ts` → `start`, `start/counter/index.ts` → `start/counter`)
+- 🧩 **Route from the filesystem**: kebab-case files or folder `index.ts`, never both for one route; a root-level `index.ts` is rejected because it has no parent route
+- 🎯 **`static data = this.buildData()`**: what makes `this.data.callbackQueryData(base, action)` type-safe instead of stringly-typed
+- 🪜 **`g*` step objects**: every step is a `{show, process}` pair, so each is independently renderable, processable, and directly drivable from an e2e test; `gdefault` when there is no `id`, `gs1` for `id="s1"`
+- 🔐 **Gates by inheritance**: `PageAdminBase` carries the `hookBeforeRoute` check for a whole family, so an admin route does not repeat the check in every handler
 
-### The render contract
+### The template pipeline
 
-- 🧩 **`CONTENT & ROUTE`**: the content half names the template fields (`data`, `AGBaseId`, media `type`), the route atoms say how the rendered block is delivered; `params = IContent & (union of routes)`
-- 🚦 **`mode: 'auto' | 'reply' | 'edit'`**: the send-versus-edit decision, implemented once, with `fallback` (`delete-reply` · `reply` · `disable`) covering a failed edit
-- 📐 **32 `render*()` methods on `Ctx`**: text, media (10 kinds), media groups, poll, invoice, paid media, venue, dice, gift, caption edit, keyboard edit, broadcast revise/delete, and 6 template-backed query answers
-- 🛡️ **Runtime route guard**: `Ctx._assertRenderRoute` and `Ctx._assertInlineKeyboardForEdit` throw with the offending field named and the fix suggested, for plain-JS callers the types cannot reach
+- 🧱 **PAGE blocks**: `g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-invoice`, `g-paid-media`, `g-venue`, `g-dice`, `g-gift`, `g-description`, plus logic (`g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`, `g-script`), answers (`g-callback-answer`, `g-inline-button`, `g-precheckout-error`, `g-shipping-error`, `g-answer-note`) and utilities (`g-import`, `g-space`)
+- 🌐 **54 Telegram Rich HTML tags** validated to Bot API 10.3: inline, block, `tg-*` specifics, media and forms, with per-tag attribute allow-lists
+- 🧮 **Compile-time filter pipes**: `{{name|upper}}`, `{{price|number:2}}`, `{{createdAt|date:YYYY-MM-DD}}`, `{{count|plural:item:items}}`, `{{x|default:N/A}}`, chained left to right on a whitelist that cannot execute arbitrary code
+- 🔥 **AOT for the edge**: `gramstax build` freezes templates into `.gramstax/gen/*.g.js` with **zero** codegen tokens (`new Function`, `Function(`, `eval(`), asserted by test under a sabotaged `globalThis.Function`
+- ♻️ **Hot reload**: `TemplateManager` watches template files through chokidar; `--watch` reboots on `src` change
 
-### Templates
+### Routing and delivery
 
-- 🧱 **29 `<g-*>` PAGE blocks**: structure (`g-base`, `g-import`, `g-space`, `g-div`), logic (`g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-script`, `g-map`), content (`g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-invoice`, `g-price`, `g-paid-media`, `g-venue`, `g-dice`, `g-gift`, `g-description`, `g-question`, `g-option`) and answers (`g-callback-answer`, `g-inline-button`, `g-precheckout-error`, `g-shipping-error`, `g-answer-note`)
-- 🌐 **54 Telegram tags passed through**: 9 legacy HTML-mode tags plus 45 from the Bot API 10.3 Rich Message Formatting spec, in 5 categories, with required-attribute, value-format and unknown-attribute validation per tag
-- 🔧 **Compile-time filter pipes**: `{{name|upper}}`, `{{price|number:2}}`, `{{createdAt|date:YYYY-MM-DD}}`, `{{count|plural:item:items}}`, `{{x|default:N/A}}` compiled into chained calls, on a whitelist: an unknown filter renders empty and warns once, never executes code
-- 🌍 **Per-language variants**: `lang="id"` on any block, resolved from the user's `language_code` with a `default` fallback chain
-- ⚡ **AOT for the edge**: `gramstax build` freezes every template into a plain ESM module under `.gramstax/gen/` with zero `new Function` / `eval` tokens; `template.aot-parity.test.ts` locks AOT output byte-for-byte against JIT
+- 🚦 **Convention handlers**: `handleCommandText`, `handleCallbackQueryData`, `handleArgsText`, `handleSessionFreePhoto`, `handleFreeReaction`, and a `handleSession*` route per update kind with its matching `setSession*` / `methodSession*` pair
+- ✏️ **`mode: "auto"` by default**: edits when the update is a callback query, replies otherwise; `reply` and `edit` force the route, and you never branch on `this.callbackQuery` yourself
+- 📢 **Broadcast in the same call**: `renderText({broadcast: {ids, languageCode}})` returns an `IBroadcastSendResult` with success/total counts, a resumable `startFrom`, `excludeIds`, pacing chunks and bounded concurrency
+- 💬 **Sessions**: `setSession([this.methodSessionFreeText()], {step})` parks the user in a step; `clearSession()` returns them to a stateless route
+- 🎛️ **Shared keyboards**: `inlineKeyboardT([this, StartPage], "2-2", Base.home)` builds a template-backed keyboard, or `inlineKeyboard((k, l) => …)` when the buttons are computed
 
-### Runtime features
+### Operational surface
 
-- 🚦 **Inbound rate limiting**: `@grammyjs/ratelimiter` with `hookRateLimited(ctx)` and a synchronous `hookKeyGenerator(ctx)` (defaults to sender id)
-- 🐢 **Outgoing throttling**: `@grammyjs/transformer-throttler` via `throttle: {global, group, out}`, composing with `autoRetry`
-- 📎 **File download**: `@grammyjs/files` mounted by default; `ctx.download(path?)` saves the current message's file and rejects `..` / NUL-byte paths
-- 🔒 **Distributed session lock**: a Redis `SET NX PX` lease held for the whole update dispatch, with `skip` · `wait` · `serialize` contention modes; auto-disabled with a warning on a memory store
-- 📊 **Prometheus metrics**: `GET /metrics` on the status server, plus `GET /health` and `GET /stats`, with an optional `hookTrace` span after every routed update
-- 🧪 **In-process e2e**: `deploy: "test"` mounts `MockTelegramServer` and `bot.e2e` (`E2eHelper`), so tests drive updates and assert captured Bot API calls with zero HTTP and zero ports
-
-### Boot and deploy
-
-- ⚙️ **Config-driven boot**: a typed `gramstax.config.ts` default export; 19 known top-level fields, anything else throws `unknown field`
-- 📦 **Nested `optionsDeploy` branches**: at most one branch may be non-empty and it must equal `deploy`; the legacy `webhook:<url>` colon grammar throws
-- 🧊 **Frozen build output**: `.gramstax/` with `routes.json`, `manifest.js`, AOT `gen/` and per-target `server/` entries; only `serverless` auto-loads it
-- 🚀 **Five deploy modes**: `polling`, `webhook`, `serverless` (`cloudflare-mod` · `aws-lambda-async`), `raw` (a bare `Bot` instance) and `test`
-- 🔁 **Hot reload**: `gramstax start --watch` restarts on `src` change with cache-busted imports
+- 📊 **Prometheus metrics**: `GET /metrics` emits `gramstax_updates_total{listener=…}`, cumulative outcome counters, latency avg/max gauges, and queue stats
+- 🔒 **Distributed session lock**: Redis-only atomic `SET NX PX` lease held for the whole update dispatch, so concurrent updates for one user serialise across instances; contention modes `skip`, `wait`, `serialize`
+- 🚦 **Rate limiting and outgoing throttle**: `@grammyjs/ratelimiter` with `hookRateLimited(ctx)` / `hookKeyGenerator(ctx)`, and `@grammyjs/transformer-throttler` via `throttle: {global, group, out}`
+- ⚙️ **Bounded update queue**: opt-in `UpdateQueue` for polling and webhook; at a 600 users/s target on the dev host the sequential drain fell to 377 users/s at p95 1828 ms while the queue sustained 601 users/s at p95 124 ms
+- 🧪 **In-process e2e**: `deploy: "test"` boots a `MockTelegramServer`; `E2eHelper` exposes `sendText`, `sendCallbackQuery`, `lastCall("sendMediaGroup")`, and `gmsg` / `gkb` / `gmedia` to assert against the compiled template itself
+- 🗄️ **Typed LMDB storage**: [`@gramstax/lmdb`](https://github.com/gramstax/gramstax/tree/main/packages/lmdb): declare an `LmdbSchema`, `register()` it, get a typed handle with embedded indexes, TTL, queues, CDC, and backups
+- 🧵 **Worker threads**: [`@gramstax/worker-thread`](https://github.com/gramstax/gramstax/tree/main/packages/worker-thread): `WorkerThreadExport.init()` derives a typed proxy from your worker class, so `mtd*` methods read as local async calls
+- 🏗️ **Scaffolding that stays consistent**: [`create-gramstax`](https://github.com/gramstax/gramstax/tree/main/packages/create-gramstax) generates 9 page templates plus an e2e suite mirroring the page tree, with `--lmdb` / `--worker-thread` / `--biome` / `--runtime node`
 
 ## 🚀 Quick Start
 
 ### 1. Prerequisites
 
-- [Bun](https://bun.sh): the CLI resolves TypeScript paths and the `~/*` alias through a `file://` import, which plain `node` cannot
+- [Bun](https://bun.sh) v1.0+: the CLI resolves TypeScript paths and the `~/*` alias through a `file://` import, which plain `node` cannot, so every template script forces the Bun runtime
 - `typescript ^6.0.3` (peer dependency)
 - A bot token from [@BotFather](https://t.me/BotFather)
 
-### 2. Install
+### 2. Install and scaffold
 
 ```bash
 bun add gramstax
@@ -103,12 +98,22 @@ bun add gramstax
 Scaffold a whole project instead of wiring it by hand (the scaffolding CLI is the sibling package `create-gramstax`):
 
 ```bash
-bun create gramstax my-bot
+bunx create-gramstax@latest my-bot
+cd my-bot
+bun install
 ```
+
+The positional is a bare name, not a path. Non-interactive mode needs the flags it would otherwise prompt for:
+
+```bash
+bunx create-gramstax@latest my-bot --pm bun --runtime bun --skip-install
+```
+
+Each optional feature has a matching negation (`--no-lmdb`, `--no-worker-thread`, `--no-biome`), and `--runtime node` rewires the scripts to `node`, `tsc --outDir dist`, and `node --test`.
 
 ### 3. Declare a page
 
-A page is a class. The markup is a static template; the keyboard is built from the page's own blocks. This is [`example/2-helloworld/src/pages/start.ts`](../../example/2-helloworld/src/pages/start.ts), verbatim:
+A page is a class. The markup is a static template; the keyboard is built from the page's own blocks. This is [`example/2-helloworld/src/pages/start.ts`](https://github.com/gramstax/gramstax/blob/main/example/2-helloworld/src/pages/start.ts), verbatim:
 
 ```ts
 import {PageBase} from "~/base/page"
@@ -153,7 +158,7 @@ Because both languages live in the same block set, the bot renders Indonesian fo
 
 ### 4. Configure and run
 
-`gramstax.config.ts` at the project root, default export, annotated. This is [`example/2-helloworld/gramstax.config.ts`](../../example/2-helloworld/gramstax.config.ts), trimmed to the fields that matter:
+`gramstax.config.ts` at the project root, default export, annotated. This is [`example/2-helloworld/gramstax.config.ts`](https://github.com/gramstax/gramstax/blob/main/example/2-helloworld/gramstax.config.ts), trimmed to the fields that matter:
 
 ```ts
 import type {GramstaxConfig} from "gramstax"
@@ -184,7 +189,7 @@ bun --bun gramstax start --watch  # boot + restart on src change
 - Add a shared keyboard block in `src/blocks/g-keyboard.ts` once two or more pages need it
 - Add the global error / not-found pages via `hookErrorPage` and `hookNotFoundPage` on `src/core/bot.ts`
 - Add `e2e/setup.ts` and drive the bot through `bot.e2e` with `deploy: "test"`
-- Run [`gramstax build`](../../docs-site/guides/gramstax-build.md) before any `serverless` deploy
+- Run [`gramstax build`](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/gramstax-build.md) before any `serverless` deploy
 
 ## 📖 Usage
 
@@ -212,7 +217,7 @@ static data = this.buildData((id: string) => [id])
 static data = this.buildData((exe?: string) => [exe])
 
 // a name override plus per-language intents
-static data = this.buildData({name: `lang`, intentTextMap: {en: `hello`, default: `hello`}})
+static data = this.buildData({name: `lang`, intentText: {en: `hello`, default: `hello`}})
 ```
 
 A page **without** `static data` still routes, but `callbackQueryData` is not available: `IPageDataBase` deliberately omits it, so a page cannot wire a callback it never declared. `data.callbackQueryData(...)` returns `{result, page, args}`: `result` is the string Telegram carries, `page` is the destination class, `args` the tuple you passed.
@@ -615,6 +620,54 @@ gramstax build --bundle                   # single-file bundle (deprecated)
 
 AOT is unconditional: there is no `--aot` flag on `gramstax build` (it exists only on the raw `build-manifest.ts` script). Regenerate after every page or template change: there is no staleness check at boot, and the quietest symptom of a stale `gen/` is a blank message rather than an error.
 
+### E2E against the compiled template
+
+```ts
+// example/2-helloworld/e2e/setup.ts
+import {join} from "node:path"
+import {TemplateManager} from "gramstax"
+import {BotCore} from "../src/core/bot"
+
+export const bot = new BotCore({
+  deploy: `test`,
+  token: `test`,
+  log: false,
+  templateManager: new TemplateManager({
+    path: [join(import.meta.dir, `../src/pages`)]
+  })
+})
+export const e2e = bot.e2e!
+export const enUser = {user: {id: 4001, language_code: `en`}, chat: {id: 4001}}
+export const idUser = {user: {id: 5001, language_code: `id`}, chat: {id: 5001}}
+```
+
+```ts
+// example/2-helloworld/e2e/start.test.ts
+const intent = `start`
+
+beforeEach(() => {
+  e2e.clearCalls()
+})
+
+describe(`E2E: StartPage`, () => {
+  it(`respond to /start`, async () => {
+    const res = await e2e.sendText(`/start`, enUser)
+    const resId = await e2e.sendText(`/start`, idUser)
+    expect(res.length).toBeGreaterThan(0)
+    expect(resId.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toStartWith(e2e.gmsg(intent, `default`, {}))
+    expect(resId[0]!.body?.text).toStartWith(e2e.gmsg(intent, `default`, {}, `id`))
+  })
+})
+```
+
+`e2e.gmsg` renders the page's own compiled template, so a drift between template and handler fails the test instead of shipping.
+
+Persistence and background work live in the sibling packages:
+[`@gramstax/lmdb`](https://github.com/gramstax/gramstax/tree/main/packages/lmdb) and
+[`@gramstax/worker-thread`](https://github.com/gramstax/gramstax/tree/main/packages/worker-thread).
+The [repository README](https://github.com/gramstax/gramstax) shows each of them wired into a page.
+
 ## 🔍 How it works
 
 ```mermaid
@@ -638,7 +691,7 @@ flowchart TD
 
 `src/cli/gramstax.ts` builds a Commander program with two subcommands; `exitOverride` turns `--help` and `--version` into exit code 0 rather than `process.exit`. Each action translates its flags into a positional `argv` array and copies the resolved code onto `process.exitCode`.
 
-`GramstaxStart.boot()` ([`src/cli/start.ts`](./src/cli/start.ts)) then, in order:
+`GramstaxStart.boot()` ([`src/cli/start.ts`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/src/cli/start.ts)) then, in order:
 
 1. `new GramstaxConfigLoader().loadConfig(cwd)`: imports `gramstax.config.ts` through a `file://` URL. A **missing** file is legal and yields `{deploy: 'polling'}` (that is what keeps zero-config `gramstax build` working); a file that exists but cannot be imported is fatal. Every unknown key throws `unknown field`.
 2. `_resolveToken`: the loader allows `""` so `process.env.X ?? ""` typechecks and an env-less build still works; `start` is where an empty token throws.
@@ -649,10 +702,10 @@ flowchart TD
 
 ### The template compile pipeline
 
-[`TemplateManager.compile`](./src/template/manager.ts) runs the same sequence for a page's `static template` or for a `.html` file under `src/pages`:
+[`TemplateManager.compile`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/src/template/manager.ts) runs the same sequence for a page's `static template` or for a `.html` file under `src/pages`:
 
 1. **Expand `<g-import/>`**: a base importing another base's blocks (`processGImportBlocks`), recursively resolved against the import cache.
-2. **`validateTemplate`**: [`TemplateEngine.validateTemplate`](./src/template/engine.ts) walks the tag allowlist (`ALLOWED_BLOCKS_PAGE` + `ALLOWED_BLOCKS_TELEGRAM`), then the per-block PAGE attribute validators, then the three Telegram steps (required attributes, value formats, unknown attributes), then positions, format blocks and scopes.
+2. **`validateTemplate`**: [`TemplateEngine.validateTemplate`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/src/template/engine.ts) walks the tag allowlist (`ALLOWED_BLOCKS_PAGE` + `ALLOWED_BLOCKS_TELEGRAM`), then the per-block PAGE attribute validators, then the three Telegram steps (required attributes, value formats, unknown attributes), then positions, format blocks and scopes.
 3. **Compile each block family**: one static per block kind: `compileBlockGMessage`, `compileBlockGKeyboards`, `compileBlockGMedia`, `compileBlockGPoll`, `compileBlockGVenue`, `compileBlockGDice`, `compileBlockGGift`, `compileBlockGInvoice`, `compileBlockGPaidMedia`, `compileBlockGDescription`, `compileBlockGCallbackAnswer`, `compileBlockGPrecheckoutError`, `compileBlockGShippingError`, `compileBlockGInlineButton`, `compileBlockGAnswerNote`.
 4. **Produce an `ICompiledTemplate`**: 15 fields, each indexed by base id and then by language. That is the shape cached in the manager and frozen by AOT.
 5. **`new Function`** on the JIT path (`gramstax start`), or plain ESM source on the AOT path (`gramstax build`): the AOT emitter is asserted per file to contain no codegen tokens.
@@ -661,7 +714,7 @@ Under `gramstax start --watch`, chokidar re-runs this for a changed template fil
 
 ### Routing an update
 
-`_pageSorts` (in [`core/bot.ts`](./src/core/bot.ts)) walks each page prototype once at boot and fills the routing tables: `all`, `routeStatic`, `routeStaticIntent`, `routeStaticSession`, `routeDynamicSpesific`, `routeDynamic` and `routeChatMember`. `_pageRoutes` then resolves an update against them in priority order, returning `matched` · `no-match` · `no-handler` · `blocked`:
+`_pageSorts` (in [`core/bot.ts`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/src/core/bot.ts)) walks each page prototype once at boot and fills the routing tables: `all`, `routeStatic`, `routeStaticIntent`, `routeStaticSession`, `routeDynamicSpesific`, `routeDynamic` and `routeChatMember`. `_pageRoutes` then resolves an update against them in priority order, returning `matched` · `no-match` · `no-handler` · `blocked`:
 
 | Id | Type | Algorithm | Example |
 | :- | :--- | :-------- | :------ |
@@ -681,7 +734,7 @@ Run from the repository root.
 
 ```bash
 bun run ci:check:packages   # tsc --noEmit for every package + biome lint ./packages
-bun run test:packages       # bun test ./packages: 117 files in packages/gramstax/test
+bun run test:packages       # bun test ./packages: 118 files in packages/gramstax/test
 bun run test:packages:parallel
 bun run build:gramstax      # tsup → packages/gramstax/dist/src (nx build gramstax)
 bun run build               # nx run-many -t build
@@ -699,6 +752,9 @@ bun test test/              # the unit suite
 bun test --filter TemplateEngine
 bun bench/bench.ts run      # users-per-second benchmark (k6 + MockTelegramServer)
 ```
+
+The remaining `nx` scripts in the [repository README](https://github.com/gramstax/gramstax)
+are repo-level: they cover every workspace project at once.
 
 ## 🗂️ Project Structure
 
@@ -736,17 +792,10 @@ packages/gramstax/
 │   │   └── targets/        # lambda.ts (aws-lambda-async) · worker.ts (cloudflare-mod)
 │   └── types/              # 11 files: bot, cache, cli, config, ctx, e2e, manifest,
 │                           #            metrics, mock, session-lock, template
-├── test/                   # 117 bun:test files + a manifest fixture dir
-├── docs/
-│   ├── architecture.md     # How the package is structured and why
-│   ├── getting-started.md  # Local setup walkthrough
-│   ├── overview.md         # Component overview
-│   ├── glossary.md         # Terms (page, base id, intent, session, route)
-│   ├── development.md      # Local dev workflow
-│   ├── adr/                # 8 architecture decision records
-│   ├── markdown/           # Generated API reference (api-documenter markdown)
-│   ├── yaml/               # Generated API reference (api-documenter yaml)
-│   └── extractor/          # api-extractor report (etc/) + temp rollup
+├── test/                   # 118 bun:test files + a manifest fixture dir
+├── docs/                   # generated API reference, versioned
+│   ├── extractor/          # api-extractor report (etc/) + temp rollup
+│   └── yaml/               # api-documenter yaml reference
 ├── skills/
 │   └── gramstax-best-practices/
 │       ├── SKILL.md        # Router: when to apply, rule priority, start-here table
@@ -766,6 +815,10 @@ packages/gramstax/
 ├── tsup.config.ts          # Bundler: cjs + esm, dts, external: bun
 └── package.json            # name: gramstax · bin: dist/src/cli/gramstax.js · license: Apache-2.0
 ```
+
+This package is one of four in the repository; `create-gramstax`, `@gramstax/lmdb` and
+`@gramstax/worker-thread` are siblings under
+[`packages/`](https://github.com/gramstax/gramstax/tree/main/packages).
 
 ## 🔧 Configuration
 
@@ -877,13 +930,44 @@ Why opt-in: measured with `bench/bench.ts`, the queue is neutral below saturatio
 
 ## 🏗️ Architecture
 
-- **Config is data, the CLI composes.** There is no `src/index.ts` and no hand-written `new Gramstax({...})` entry. A stale constructor call in an entry file cannot drift from `.env`, because there is no entry file.
-- **Pages are discovered, not registered.** `PageManager` walks `src/pages`, and `_pageSorts` turns each prototype's method names into routing tables. Adding a file is the whole integration step.
-- **The template is the content half of the render contract.** `params = CONTENT & ROUTE`: what to render comes from the template block, how it is delivered comes from the route atom. Neither half alone is enough to lose information about *what* is sent or *how* it arrives.
-- **Plain-versus-rich is decided at compile time**, by the `<g-message>` block (not by a runtime flag that could disagree with the markup).
-- **Types are the primary guard; the runtime guard is the safety net.** The union rejects illegal combinations for TypeScript callers; `_assertRenderRoute` catches what slips past the compiler in plain JS, before any API call.
-- **e2e is the one exception to config-driven boot.** `e2e/setup.ts` constructs `BotCore` directly so it can inject `deploy: 'test'`, `token: 'test'`, `stream` and `log: false`.
-- **`deploy: 'raw'` is the escape hatch.** A bare `Bot` instance with no pages, no templates, no routing and no auto-start: you own the lifecycle. The legacy `templateManager: {} as any` exception is gone; using it in a non-raw mode throws.
+### The four packages
+
+| Package | Version | Owns |
+| :------ | :------ | :--- |
+| [`gramstax`](https://github.com/gramstax/gramstax/tree/main/packages/gramstax) | 6.0.1 | Page routing, template engine, render API, session/caching, CLI, mock server, e2e harness |
+| [`create-gramstax`](https://github.com/gramstax/gramstax/tree/main/packages/create-gramstax) | 6.0.1 | Project scaffolding and the `templates/` tree that becomes a new project |
+| [`@gramstax/lmdb`](https://github.com/gramstax/gramstax/tree/main/packages/lmdb) | 6.0.1 | Schema-declared LMDB sub-databases, indexes, transactions, queues, CDC, backups |
+| [`@gramstax/worker-thread`](https://github.com/gramstax/gramstax/tree/main/packages/worker-thread) | 6.0.1 | Worker lifecycle, typed RPC, pools, inter-worker socket gateway |
+
+One workspace version governs all four (`nx release` tags `v{version}` and updates every `packages/{projectName}` manifest), which is why they are always installed together. The two supporting packages have **no dependency on `gramstax`**: a worker never touches storage, and a repository never knows about the bot. `create-gramstax` wires them in behind `--lmdb` and `--worker-thread`, independently combinable, and regenerates `src/core/services.ts` from `buildServicesSource(useLmdb, useWorkerThread)` so the bot class never statically references a pruned directory.
+
+### Params are CONTENT & ROUTE
+
+The render contract has two halves and they are not negotiable:
+
+- **CONTENT**: which `<g-base>` block (`AGBaseId`), what data (`data`), which keyboard, and which Telegram method the compiled block selects. The template decides plain text versus Rich HTML at compile time, so `renderText` is the single text method and there is no rich variant to choose between.
+- **ROUTE**: `mode` (`auto` / `reply` / `edit`), chunking, broadcast, and the fallback policy. `auto` edits on a callback query and replies otherwise; `fallback` (`delete-reply` default, `reply`, `disable`) only matters once the route resolves to edit, which is exactly why the type makes it unread on the reply, chunked, and broadcast routes instead of silently ignoring it.
+
+Each route declares the same ten keys (a real type where the route reads the key, `never` where it does not), and `_assertRenderRoute` enforces the same combinations at runtime for plain-JS callers, naming the offending field and the fix.
+
+### Route names come from the tree
+
+Route names are structural, which is what keeps them greppable:
+
+```text
+src/pages/
+├── start.ts                # route `start`
+└── start/
+    ├── index.ts            # route `start`
+    ├── counter/
+    │   ├── index.ts        # route `start/counter`
+    │   └── thread.ts       # route `start/counter/thread`
+    └── input/text/
+        ├── index.ts        # route `start/input/text`
+        └── 2.ts            # route `start/input/text/2`
+```
+
+Base ids map the same way: no `id` → `gdefault`, `id="s1"` → `gs1`, `id="amount"` → `gamount`.
 
 ### Guardrails worth knowing
 
@@ -909,75 +993,77 @@ Why opt-in: measured with `bench/bench.ts`, the queue is neutral below saturatio
 
 **https://gramstax.mintlify.site/**
 
-Every exported symbol has a page, alongside material written for readers rather
-than for the extractor: page routing, the render contract, templates, deploy
-modes, concurrency, extending gramstax, and guides for `gramstax start`,
-`gramstax build`, serverless deploys, the AOT contract, e2e testing and the
-distributed session lock.
+Every exported symbol of the `gramstax` package has a page, alongside material
+written for readers rather than for the extractor. The API section is generated
+from the package's TSDoc: 1 032 pages under [`docs-site/reference/`](https://github.com/gramstax/gramstax/tree/main/docs-site/reference),
+sanitized for MDX and committed by CI on every push to `main`. You never write it
+by hand.
 
-The API section of that site is generated from this package's TSDoc: 1 032 pages
-under [`docs-site/reference/`](../../docs-site/reference), sanitized for MDX and
-committed by CI on every push to `main`. You never write it by hand.
+Regenerate with `bun run build:docs` from the repository root.
 
-### Generated reference in the package
+### Guides
 
-| Directory | What it is |
-| :-------- | :--------- |
-| [`docs/extractor/`](./docs/extractor/etc/gramstax.api.md) | The api-extractor API report and its rollup in `temp/` |
-| [`docs/yaml/`](./docs/yaml/gramstax.yml) | The same surface as YAML, plus a `toc.yml` for machine consumption |
-
-Regenerate with `bun run build:docs` from the repository root: `tsup --dts-only`,
-then `api-extractor`, then the Markdown and YAML emitters, then the MDX sanitizer
-and the navigation build.
-
-### Barrel: `src/index.ts`
-
-Runtime exports first, then a `// type` separator and the type-only re-exports.
-
-| Module | Key exports |
-| :----- | :---------- |
-| `core/bot` | `Gramstax` |
-| `core/ctx` | `Ctx`: all 32 `render*()` methods, the keyboard builders, the session API, the `assert*` validation statics |
-| `core/session-lock` | `SessionLock` |
-| `template/engine` | `TemplateEngine`, `DEFAULT_FILTERS` |
-| `template/manager` | `TemplateManager` |
-| `page/manager` | `PageManager` |
-| `blocks/g-keyboard` · `labels/g-keyboard` | `BlockGKeyboard`, `LabelGKeyboard` |
-| `cache/external` | `CacheExternal` |
-| `helpers/log` · `helpers/metrics` | `LoggingHelper`, `log`, `MetricsStore`, `metricsToPrometheus` |
-| `update/queue` · `dispatcher` · `gate` · `gate-key` | `UpdateQueue`, `WebhookQueue` (deprecated alias), `UpdateDispatcher`, `UpdateGate`, `resolveGateKey` |
-| `mock/telegram-server` | `MockTelegramServer` |
-| `e2e/helper` | `E2eHelper` |
-| `cli/types` | `GRAMSTAX_DEPLOY_MODES`, `GRAMSTAX_DEPLOY_MODE_SET`, `GRAMSTAX_SERVERLESS_ADAPTERS`, `GRAMSTAX_SERVERLESS_FIELDS`, `GramstaxConfig` |
-| `types/*` | `IGramstaxConfig` and the `*Ref` slot types, `IGramstaxParams`, every `IRender*Params`, every `IRoute*` atom, `INeverFields`, `IContent`, `ICompiledTemplate`, the `I*Block` shapes, `ITemp`, `IAppManifest`, `I*QueueConfig`, `ISessionLockOptions` |
-| top level | `__esc` and `FILTERS`: the escape helper and filter table that AOT-generated modules import |
-
-Adding a public symbol means adding it to `src/index.ts`; the barrel is the contract.
+| Page | Covers |
+| :--- | :----- |
+| [Introduction](https://github.com/gramstax/gramstax/blob/main/docs-site/introduction.md) · [Quickstart](https://github.com/gramstax/gramstax/blob/main/docs-site/quickstart.md) | Start here |
+| [Page routing](https://github.com/gramstax/gramstax/blob/main/docs-site/concepts/page-routing.md) | Routes as file paths, handler-name convention, sessions, gates |
+| [The render contract](https://github.com/gramstax/gramstax/blob/main/docs-site/concepts/render-contract.md) | The 12 route atoms behind every `render*()` |
+| [Templates](https://github.com/gramstax/gramstax/blob/main/docs-site/concepts/templates.md) | PAGE blocks, Rich HTML, filter pipes, keyboards, i18n |
+| [Deploy](https://github.com/gramstax/gramstax/blob/main/docs-site/concepts/deploy.md) | The five modes and their nested option branches |
+| [Concurrency](https://github.com/gramstax/gramstax/blob/main/docs-site/concepts/concurrency.md) | The update queue, the worker pool and the per-chat gate |
+| [Extending](https://github.com/gramstax/gramstax/blob/main/docs-site/concepts/extending.md) | `buildData`, `Ctx` subclassing, send-error hooks, manifest boot |
+| [Configuration](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/configuration.md) | Every `gramstax.config.ts` field |
+| [`gramstax start`](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/gramstax-start.md) | Boot from config: discovery, precedence, ref slots, `--watch` |
+| [`gramstax build`](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/gramstax-build.md) | The `.gramstax/` output tree, CLI flags, manifest boot, exit codes |
+| [Serverless deploy](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/serverless-deploy.md) | Cloudflare Workers and Lambda, end to end |
+| [AOT contract](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/aot-contract.md) | The `gen/` emit contract and its limits |
+| [E2E testing](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/e2e-testing.md) | Driving the compiled template against the in-process mock |
+| [Session lock](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/session-lock.md) | Serialising one user across instances |
+| [Architecture](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/architecture.md) · [Development](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/development.md) · [Glossary](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/glossary.md) | Internals, contributing, vocabulary |
+| [ADRs](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/adr/index.md) | 8 decision records |
+| [`docs/capacity-model-50m-peak.md`](https://github.com/gramstax/gramstax/blob/main/docs/capacity-model-50m-peak.md) | Capacity modelling for large deployments |
 
 ### Agent skills
 
-[`skills/gramstax-best-practices/`](./skills/gramstax-best-practices/SKILL.md) ships with the package: a router plus 34 rule files under [`references/`](./skills/gramstax-best-practices/references/_sections.md). Each rule file opens with a one-line verdict, then the failure mode, then incorrect and correct code, then the gramstax-specific exceptions. Categories by priority:
+Each package ships a rule-based skill consumed by coding agents, with `references/` holding one file per rule:
 
-| Prefix | Priority | Covers |
-| :----- | :------- | :----- |
-| `config-` | CRITICAL | mandatory `gramstax.config.ts`, `BotCore` discovery, path-ref slots, boot precedence; plus the programmatic constructor for cluster / multi-bot |
-| `route-` | CRITICAL | `mode` resolution, the render family, sessions, `g*` step objects, the two `hookBeforeRoute` gates, broadcast |
-| `security-` | CRITICAL | templates-are-code, `{{}}` vs `{{{}}}`, filter whitelist |
-| `template-` | HIGH | logic blocks, AOT, scopes, filters, the 54-tag allowlist, media authoring, i18n |
-| `pages-` | HIGH | file order, base classes, naming, `buildData` typings |
-| `keyboard-` | HIGH | reuse, labels, inline-vs-bottom |
-| `e2e-` | MEDIUM-HIGH | harness setup, payload assertions, multi-step flows |
-| `deploy-` | MEDIUM | modes, the build, runtime tuning |
-| `guard-` · `cache-` | MEDIUM | choosing a gate; session store topology |
+- [`packages/gramstax/skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/skills/gramstax-best-practices/SKILL.md): ten priority categories, `config-` through `cache-`
+- [`packages/lmdb/skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/lmdb/skills/lmdb-best-practices/SKILL.md)
+- [`packages/worker-thread/skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/worker-thread/skills/worker-thread-best-practices/SKILL.md)
 
-### Learn more
+### Domain docs
 
-- [Gramstax best practices](./AGENTS.md): package conventions and architecture facts
-- [Monorepo README](../../README.md): the four packages and how they fit
-- [`example/`](../../example): 11 runnable bots, `1-complex` through `11-cloudflare-worker`
-- [`example/AGENTS.md`](../../example/AGENTS.md): the shared project skeleton and the e2e harness
-- [Domain docs](../../docs/agents/domain.md): `CONTEXT-MAP.md`, per-context `CONTEXT.md`, ADRs
+[`CONTEXT-MAP.md`](https://github.com/gramstax/gramstax/blob/main/CONTEXT-MAP.md) points at one `CONTEXT.md` per context (`gramstax`, `lmdb`, `worker-thread`, `create-gramstax`); ADRs live in `docs-site/guides/adr/`. [`AGENTS.md`](https://github.com/gramstax/gramstax/blob/main/AGENTS.md) is repo-wide agent guidance, with per-package files under each package.
+
+### Per-package READMEs
+
+| Package | README |
+| :------ | :----- |
+| `gramstax` | [`packages/gramstax/README.md`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/README.md) |
+| `create-gramstax` | [`packages/create-gramstax/README.md`](https://github.com/gramstax/gramstax/blob/main/packages/create-gramstax/README.md) |
+| `@gramstax/lmdb` | [`packages/lmdb/README.md`](https://github.com/gramstax/gramstax/blob/main/packages/lmdb/README.md) |
+| `@gramstax/worker-thread` | [`packages/worker-thread/README.md`](https://github.com/gramstax/gramstax/blob/main/packages/worker-thread/README.md) |
+
+### Examples
+
+Eleven runnable workspace members under [`example/`](https://github.com/gramstax/gramstax/tree/main/example), ordered as a progression: [`example/AGENTS.md`](https://github.com/gramstax/gramstax/blob/main/example/AGENTS.md) is the map:
+
+| # | Project | Demonstrates |
+| :- | :------ | :----------- |
+| 1 | `1-complex` | Kitchen sink: multi-page, guards, i18n, media, `<g-import>`/map/switch, a worker job, 27 e2e files |
+| 2 | `2-helloworld` | Minimal TS bot; start/status/blank pages |
+| 3 | `3-helloworld-js` | Pure JS port: proof Gramstax works without TypeScript |
+| 4 | `4-echo` | Beginner multi-page echo |
+| 5 | `5-interactive-menu` | Inline keyboards, pagination, reply keyboards, stateful navigation |
+| 6 | `6-bank-system` | Stateful store, bigint money math, a multi-step deposit/withdraw/transfer flow |
+| 7 | `7-crud` | LMDB persistence with a schema + repository service layer |
+| 8 | `8-newsletter` | LMDB subscribers, admin-gated broadcast, per-recipient language |
+| 9 | `9-substore-bot` | Full e-commerce on in-memory data plus `CacheExternal`; the only example with a unit test |
+| 10 | `10-http-request` | External HTTP via `fetch` with `AbortSignal.timeout` |
+| 11 | `11-cloudflare-worker` | Manifest boot and AOT on a Cloudflare Workers isolate |
 
 ## 📄 License
 
-Apache-2.0: Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).
+Apache-2.0: Copyright (c) 2026 Gramstax. The four published packages carry `"license": "Apache-2.0"` in their `package.json`. See [LICENSE](https://github.com/gramstax/gramstax/blob/main/LICENSE).
+
+Releases `gramstax@0.0.1` through `gramstax@0.3.19` (November 2025 – January 2026) were published under **MIT** and remain MIT: that grant is perpetual and is not withdrawn by this relicensing. Everything from `0.3.20` onward is Apache-2.0.
