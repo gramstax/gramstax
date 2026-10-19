@@ -11,6 +11,11 @@
     <img alt="Nx" src="https://img.shields.io/badge/Nx-143C20.svg?style=flat&logo=nx&logoColor=white"/>
     <a href="https://gramstax.mintlify.site/"><img alt="Docs" src="https://img.shields.io/badge/Docs-gramstax.mintlify.site-3b82f6.svg?style=flat"/></a>
     <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
+    <br/>
+    <img alt="gramstax on npm" src="https://img.shields.io/npm/v/gramstax?label=gramstax&style=flat&logo=npm&logoColor=white&color=CB3837"/>
+    <img alt="create-gramstax on npm" src="https://img.shields.io/npm/v/create-gramstax?label=create-gramstax&style=flat&logo=npm&logoColor=white&color=CB3837"/>
+    <img alt="@gramstax/lmdb on npm" src="https://img.shields.io/npm/v/@gramstax/lmdb?label=@gramstax/lmdb&style=flat&logo=npm&logoColor=white&color=CB3837"/>
+    <img alt="@gramstax/worker-thread on npm" src="https://img.shields.io/npm/v/@gramstax/worker-thread?label=@gramstax/worker-thread&style=flat&logo=npm&logoColor=white&color=CB3837"/>
   </p>
 </div>
 
