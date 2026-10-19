@@ -16,22 +16,36 @@
 
 ## 💡 Why this repository
 
-Most Telegram frameworks hand you a registration call and leave the rest to be
-decided per file: where markup lives, how a second language gets added, whether a
-tap edits the message it came from or orphans it. Three of those gaps are closed
-by construction here rather than by convention.
+Most Telegram bots start simple: one function per command that builds a string
+and sends it. Then the bot grows, and the same small decisions have to be made
+again in every file. Where does the message markup live? How does a second
+language fit in? Should a button tap send a new message or edit the one it came
+from? What happens when someone taps a button nobody handled? None of these is
+hard on its own. Repeated across a growing bot, they are what makes it tiring to
+change.
 
-**Render params cannot describe a state that cannot happen.** Each `render*()`
-params type is a union over its real delivery routes, with `?: never` where a key
-is unreachable. `{mode: "reply", fallback: "reply"}` does not compile, and
-`_assertRenderRoute` enforces the same rule at runtime.
+gramstax gives each decision one home.
 
-**Templates are frozen before they ship.** `gramstax build` compiles them ahead of
-time, and a test asserts the output carries zero `new Function`, `Function(` or
-`eval(` under a sabotaged `globalThis.Function`.
+**A screen is a file.** A class in `src/pages/start/index.ts` answers `/start`;
+the path is the route. The method names decide what the page reacts to:
+`handleCommandText` for the command, `handleCallbackQueryData` for a button tap,
+`handleFreeText` for everything else. There is no router table to keep in sync
+with the folder.
 
-**Silence is counted.** `noMatch`, `noHandler`, `blocked` and `dropped` are
-counters rather than a shrug: `GET /stats` for JSON, `GET /metrics` for Prometheus.
+**A message is a template.** The text, buttons and media sit together in one
+readable block beside the handler. A second language is the same block with
+`lang="id"`, not another branch inside every function, so the wording for each
+language stays in one place.
+
+**Send or edit is decided once.** `mode: "auto"` reads the update: a fresh
+message gets a reply, a button tap edits the message it came from. You describe
+the screen once instead of writing a send version and an edit version.
+
+**Mistakes surface before your users see them.** Passing reply options to a
+screen that can only edit is a type error, not a production surprise. A
+production build can compile every template ahead of time instead of evaluating
+it at runtime, and the "nothing matched" cases are counted, so a quiet bot is a
+number on `/stats` instead of a mystery.
 
 ### Against the usual approach
 
