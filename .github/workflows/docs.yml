@@ -18,10 +18,10 @@ on:
 permissions:
   contents: write
 
-# Never run two generations at once: they would race the same output directory
-# and push conflicting commits.
+# One writer to main at a time, shared with `release.yml`: both commit to main,
+# and two writers that do not serialise reject each other's push.
 concurrency:
-  group: docs-main
+  group: main-writer
   cancel-in-progress: false
 
 jobs:
@@ -108,4 +108,18 @@ jobs:
             exit 0
           fi
           git commit -m "docs: regenerate the API reference [skip ci]"
-          git push
+          # main has more than one writer (this job, release.yml, and the
+          # maintainer). A bare push loses that race, so replay the commit on the
+          # tip and retry. A conflict means the generated corpus was hand-edited;
+          # fail loudly instead of overwriting it. If the replay lands on a newer
+          # source commit, the next docs run regenerates the reference from it.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if git rebase --empty=drop origin/main && git push origin HEAD:main; then
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 5))
+          done
+          echo "Could not push the regenerated docs after 3 attempts." >&2
+          exit 1

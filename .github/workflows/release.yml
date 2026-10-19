@@ -20,10 +20,11 @@ permissions:
   contents: write
   id-token: write
 
-# Single release at a time: concurrent runs would double-bump versions
-# and race tags. Queued runs wait instead of cancelling.
+# One writer to main at a time. `docs.yml` commits the regenerated reference to
+# the same branch, and a maintainer can push at any moment, so the release shares
+# its concurrency group with the docs job. Queued runs wait instead of cancelling.
 concurrency:
-  group: release-main
+  group: main-writer
   cancel-in-progress: false
 
 jobs:
@@ -79,9 +80,14 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
+      # `ref: main`, not the event SHA. This job starts only after the test
+      # matrix, so the branch tip is already newer than the commit that triggered
+      # the run. Checking out the tip versions the code that is actually on main;
+      # the sync step below closes the remaining window.
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Setup Node (for NPM OIDC)
@@ -113,6 +119,25 @@ jobs:
         run: |
           bun run lint:packages
           bun run build:packages
+
+      # The test matrix and the build take minutes. If anything lands on main in
+      # that window, Nx creates the version commit on a tree that is already
+      # behind, and its push is rejected as non-fast-forward. Re-sync at the last
+      # safe moment; when the tip moved, rebuild so the published dist matches
+      # the source being versioned.
+      - name: Sync to latest main
+        run: |
+          BEFORE=$(git rev-parse HEAD)
+          git fetch origin main --tags --force
+          git reset --hard origin/main
+          AFTER=$(git rev-parse HEAD)
+          echo "Releasing from $AFTER ($(git log -1 --format=%s))"
+          if [ "$BEFORE" != "$AFTER" ]; then
+            echo "main moved during the build; rebuilding on the new tip."
+            bun install --frozen-lockfile
+            bun run lint:packages
+            bun run build:packages
+          fi
 
       - name: Record pre-release tag
         run: |
