@@ -115,20 +115,24 @@ against a user.
 
 ## Guards
 
-A guard is a base class whose method returns a value to proceed, or something
-falsy to stop. The scaffold puts one at `src/guards/user.ts`.
+A guard is project code, not framework API, which is worth knowing before you go
+looking for `GuardBase` in the package. The scaffold writes a small `Ctx` subclass
+to `src/base/guard.ts` and the guard itself to `src/guards/user.ts`:
 
 ```ts
 export class UserGuard extends GuardBase {
-  check() {
-    return this.from ? true : undefined
+  async ensureUsername() {
+    if (!this.from?.username || this.from.username.length === 0) return null
+    return {status: true}
   }
 }
 ```
 
-Because it is a class rather than a call, a whole family of routes can be gated by
-extending it once. See [Guards](/guides/getting-started) for the shape the
-scaffold writes.
+Calling it is your job. Nothing routes to a guard, and extending one gates
+nothing: the framework only gates on `hookBeforeRoute`, whether on a page base
+class or on your `Gramstax` subclass. What the class buys you is the context
+plumbing, since a guard receives a context it did not build and can render with
+it. See [Guards](/guides/guards) for the three levels side by side.
 
 ## Page context
 

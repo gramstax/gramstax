@@ -105,6 +105,10 @@ export abstract class GuardBase extends CtxCore {
   Copy it, rename it, or skip it. What matters is the shape: a guard receives a
   context it did not construct, so it renders with that context rather than
   creating its own.
+
+  One more thing the sample relies on: `cacheData` is `example/1-complex`'s own
+  field, added by that project's `CtxCore`. `Ctx` does not have it, and the bare
+  scaffold's `CtxCore` is empty, so copy the pattern rather than the field.
 </Note>
 
 ## The rule is strict `false`

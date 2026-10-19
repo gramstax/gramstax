@@ -485,6 +485,8 @@ Four behaviours worth knowing:
 | one check inside one handler or step | a `GuardBase` subclass whose method returns a value you branch on |
 | every route in the whole bot | `BotCore.hookBeforeRoute(ctx, data)` |
 
+Only two of these are framework API. `hookBeforeRoute` is a method the router calls, on a page base class or on your `Gramstax` subclass, which is what makes those gates automatic. The middle row is a pattern rather than a class: `GuardBase` is project code, the small `Ctx` subclass the scaffold writes to `src/base/guard.ts`, and `gramstax` does not export it. It exists because a guard is not a page and so has no `static data` of its own; the base class hands it the page's `data` through `temp.data`.
+
 ```ts
 // page-level gate: no params, `this` IS the page
 export abstract class PageAdminBase extends PageBase {

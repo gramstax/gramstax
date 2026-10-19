@@ -82,7 +82,7 @@ export class BotCore extends Gramstax {
 
 ## Notes
 
-- `GuardBase` wraps a page ctx (`temp.data` passed through) without touching page `data` — guards never own routing state.
+- `GuardBase` is project code from `src/base/guard.ts`, not an export of `gramstax`. It wraps a page ctx (`temp.data` passed through) without touching page `data` — guards never own routing state.
 - Never swallow: `_catch` renders `StatusPage.gerror` and returns `null` so callers branch explicitly.
 - Branch on `!== null`, never on truthiness — a guard that returns `undefined` on a lookup miss must not read as "denied" or "allowed" by accident.
 - Guards also own cross-cutting reads like language override (`cacheData` per-user `language_code`).
