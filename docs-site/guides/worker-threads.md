@@ -327,14 +327,15 @@ return value would have been.
 
 ## The rest of the package
 
-`@gramstax/worker-thread` re-exports 27 names from its barrel, 11 runtime
-values and 16 type definitions, through the 9 runtime modules and the shared
-`types/` directory. The table above names the thirteen identifiers this
-integration touches. The package's own README is the complete reference for
-everything this page skipped: the gateway option tables in full, the pool
-dispatch modes, the RPC middleware chain, the constants
-(`DEFAULT_MAX_MESSAGE_SIZE`, `DENIED_RPC_METHODS`), and the per-module export
-index.
+`@gramstax/worker-thread` re-exports 27 names from its barrel, 12 runtime
+values and 15 type definitions, through the 9 runtime modules and the shared
+`types/` directory. `WorkerThreadPool` counts as both: it is a `const` value
+and a same-named type, so the two lists overlap on that one name. The table
+above names the thirteen identifiers this integration touches. The package's
+own README is the complete reference for everything this page skipped: the
+gateway option tables in full, the pool dispatch modes, the RPC middleware
+chain, the constants (`DEFAULT_MAX_MESSAGE_SIZE`, `DENIED_RPC_METHODS`), and
+the per-module export index.
 
 - [`packages/worker-thread/README.md`](https://github.com/gramstax/gramstax/blob/main/packages/worker-thread/README.md)
   on GitHub, the full reference.
