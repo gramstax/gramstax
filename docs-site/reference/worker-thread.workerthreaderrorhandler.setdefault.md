@@ -1,0 +1,69 @@
+---
+title: "WorkerThreadErrorHandler.setDefault()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadErrorHandler](./worker-thread.workerthreaderrorhandler.md) &gt; [setDefault](./worker-thread.workerthreaderrorhandler.setdefault.md)
+
+## WorkerThreadErrorHandler.setDefault() method
+
+Set the package-wide error handler used when no per-instance `error` listeners are attached.
+
+**Signature:**
+
+```typescript
+static setDefault(handler: ((err: unknown) => void) | undefined): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+handler
+
+
+</td><td>
+
+((err: unknown) =&gt; void) \| undefined
+
+
+</td><td>
+
+Receives every error that has no instance listener.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+
+## Exceptions
+
+TypeError When `handler` is neither a function nor `undefined`.
+
+## Example
+
+
+```typescript
+import {WorkerThreadErrorHandler} from "@gramstax/worker-thread";
+
+WorkerThreadErrorHandler.setDefault((err) => logger.error(err));
+```
+

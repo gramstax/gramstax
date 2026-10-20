@@ -848,7 +848,7 @@ Inside `packages/gramstax`:
 
 ```bash
 bun run build               # tsup: ./src/index.ts + ./src/cli/gramstax.ts, cjs + esm, dts
-bun run build:docs          # api-extractor + api-documenter → docs-site/reference + docs/yaml
+bun run build:docs          # api-extractor + api-documenter → docs/markdown + docs/yaml (staging only)
 bun test test/              # the unit suite
 bun test --filter TemplateEngine
 bun bench/bench.ts run      # users-per-second benchmark (k6 + MockTelegramServer)
@@ -1094,13 +1094,14 @@ Base ids map the same way: no `id` → `gdefault`, `id="s1"` → `gs1`, `id="amo
 
 **https://gramstax.mintlify.site/**
 
-Every exported symbol of the `gramstax` package has a page, alongside material
+Every exported symbol of the `gramstax`, `@gramstax/lmdb` and
+`@gramstax/worker-thread` packages has a page, alongside material
 written for readers rather than for the extractor. The API section is generated
-from the package's TSDoc: 1 032 pages under [`docs-site/reference/`](https://github.com/gramstax/gramstax/tree/main/docs-site/reference),
+from the packages' TSDoc: 1 489 pages under [`docs-site/reference/`](https://github.com/gramstax/gramstax/tree/main/docs-site/reference),
 sanitized for MDX and committed by CI on every push to `main`. You never write it
 by hand.
 
-Regenerate with `bun run build:docs` from `packages/gramstax`.
+Regenerate with `bun run build:docs` from the repository root.
 
 ### Guides
 

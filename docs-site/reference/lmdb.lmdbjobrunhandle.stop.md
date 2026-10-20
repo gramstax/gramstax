@@ -1,0 +1,23 @@
+---
+title: "LmdbJobRunHandle.stop()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbJobRunHandle](./lmdb.lmdbjobrunhandle.md) &gt; [stop](./lmdb.lmdbjobrunhandle.stop.md)
+
+## LmdbJobRunHandle.stop() method
+
+Stop the schedule — no further scheduled ticks.
+
+**Signature:**
+
+```typescript
+stop(): Promise<void>;
+```
+**Returns:**
+
+Promise&lt;void&gt;
+
+## Remarks
+
+Idempotent, and permanent: croner cannot resume a stopped job. Resolves once a tick already in flight has settled, so the caller may await it and then tear down the env or the tick's output directory without racing the task. A tick cron had queued but not yet started is dropped, not run. [LmdbJobRunHandle.runNow()](./lmdb.lmdbjobrunhandle.runnow.md) still works after a stop.
+

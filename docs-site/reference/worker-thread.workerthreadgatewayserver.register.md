@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadGatewayServer.register"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadGatewayServer](./worker-thread.workerthreadgatewayserver.md) &gt; [register](./worker-thread.workerthreadgatewayserver.register.md)
+
+## WorkerThreadGatewayServer.register property
+
+Object exposed to clients.
+
+**Signature:**
+
+```typescript
+register: Record<string, (...args: never[]) => unknown>;
+```
+
+## Remarks
+
+Properties become RPC-callable methods. When `allowedMethods` is set, method access is restricted per request via RPC middleware — the register itself is never wrapped, so registered methods keep reading their own instance state through `this`.
+

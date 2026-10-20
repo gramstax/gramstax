@@ -1,0 +1,21 @@
+---
+title: "IColumnBuilder.optional()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IColumnBuilder](./lmdb.icolumnbuilder.md) &gt; [optional](./lmdb.icolumnbuilder.optional.md)
+
+## IColumnBuilder.optional() method
+
+Mark the column as optional.
+
+**Signature:**
+
+```typescript
+optional(): IColumnBuilder<K, I, N, V, true>;
+```
+**Returns:**
+
+[IColumnBuilder](./lmdb.icolumnbuilder.md)&lt;K, I, N, V, true&gt;
+
+A new builder with `isOptional: true`.
+

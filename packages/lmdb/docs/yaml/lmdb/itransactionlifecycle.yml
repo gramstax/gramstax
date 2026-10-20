@@ -1,0 +1,13 @@
+### YamlMime:TSTypeAlias
+name: ITransactionLifecycle
+uid: '@gramstax/lmdb!ITransactionLifecycle:type'
+package: '@gramstax/lmdb!'
+fullName: ITransactionLifecycle
+summary: Lifecycle of a [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class)<!-- -->.
+remarks: >-
+  `released` is used for read transactions that finished normally — the raw LMDB read transaction is freed but the
+  wrapper was NOT aborted by user code. Distinguishing it from `aborted` matters for `isAborted` consumers.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITransactionLifecycle = `active` | `committed` | `aborted` | `released`;

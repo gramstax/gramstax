@@ -7,5 +7,5 @@
 **Signature:**
 
 ```typescript
-argv: any[];
+argv: unknown[];
 ```

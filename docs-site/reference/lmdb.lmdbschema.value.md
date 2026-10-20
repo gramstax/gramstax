@@ -1,0 +1,20 @@
+---
+title: "LmdbSchema.value"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbSchema](./lmdb.lmdbschema.md) &gt; [value](./lmdb.lmdbschema.value.md)
+
+## LmdbSchema.value property
+
+Value column definition — either a single [IColumnBuilder](./lmdb.icolumnbuilder.md) (scalar value collections: `static value = t.number()`, `t.buffer()`, `t.array<T>()`, `t.object<T>()`) or a map of [IColumnBuilder](./lmdb.icolumnbuilder.md)s (row-shaped collections). Scalar values carry no derived indexes.
+
+**Signature:**
+
+```typescript
+static value: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>;
+```
+
+## Remarks
+
+Each map column maps to a field of the row value type via [IInferSchemaValue](./lmdb.iinferschemavalue.md); columns carrying `.unique()`/`.index(...)` become derived indexes (see [LmdbSchema.deriveIndexes()](./lmdb.lmdbschema.deriveindexes.md)).
+

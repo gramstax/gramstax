@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: IAnyColumnBuilder
+uid: '@gramstax/lmdb!IAnyColumnBuilder:type'
+package: '@gramstax/lmdb!'
+fullName: IAnyColumnBuilder
+summary: Any concrete [IColumnBuilder](xref:@gramstax/lmdb!IColumnBuilder:interface) regardless of its literal index marker.
+remarks: >-
+  The narrowed defaults (`I = "none"`<!-- -->, `N = undefined`<!-- -->) reject builders tagged `"unique"`<!--
+  -->/`"index"` by callers, so generic constraints over a column-definition map must widen to this type — the concrete
+  `D` generic still captures the literal markers per column.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IAnyColumnBuilder = IColumnBuilder<IColumnKind, IColumnIndexFlag, string | undefined, unknown, boolean>;

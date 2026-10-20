@@ -1,0 +1,207 @@
+---
+title: "LmdbJobRun"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbJobRun](./lmdb.lmdbjobrun.md)
+
+## LmdbJobRun class
+
+Persisted run-stamps and the cron schedule that honours them.
+
+**Signature:**
+
+```typescript
+declare class LmdbJobRun 
+```
+
+## Remarks
+
+This module owns both halves of a restart-safe job, the way [LmdbQueue](./lmdb.lmdbqueue.md) owns a queue's metadata and lifecycle together:
+
+- \*\*croner\*\* decides \*when\* to fire. It cannot answer whether a run was missed, because `cron.previousRun()` is in-memory and dies with the process. - \*\*this class\*\* persists \*that\* answer, one `{at}` row per job name, so the next boot can tell whether the job is actually due.
+
+A bare timer gets both halves wrong. Restart a process every six hours with a daily schedule and you either run on every boot, or — if the timer restarts from zero — nothing covers the hours the process was down.
+
+## Example
+
+
+```typescript
+const jobs = new LmdbJobRun(env)
+const handle = jobs.start(`db-backup`, {
+  pattern: `0 3 * * *`,
+  task: () => LmdbBackup.snapshot(env, {dir: `./backups`})
+})
+await handle.runNow()
+handle.stop()
+```
+
+## Constructors
+
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(env)](./lmdb.lmdbjobrun._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Bind a run-stamp store and scheduler to an env.
+
+
+</td></tr>
+</tbody></table>
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[sub](./lmdb.lmdbjobrun.sub.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+[LmdbEnvSub](./lmdb.lmdbenvsub.md)&lt;typeof [JobRunSchema](./lmdb.jobrunschema.md)&gt;
+
+
+</td><td>
+
+The underlying sub-DB handle, for direct reads or range scans.
+
+
+</td></tr>
+</tbody></table>
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[clear(key)](./lmdb.lmdbjobrun.clear.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Forget the stamp for `key`.
+
+
+</td></tr>
+<tr><td>
+
+[lastRun(key)](./lmdb.lmdbjobrun.lastrun.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Read the last successful run for `key`.
+
+
+</td></tr>
+<tr><td>
+
+[missed(key, opts)](./lmdb.lmdbjobrun.missed.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Whether a scheduled occurrence passed since the last successful run.
+
+
+</td></tr>
+<tr><td>
+
+[recordRun(key, at)](./lmdb.lmdbjobrun.recordrun.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Record a successful run for `key`.
+
+
+</td></tr>
+<tr><td>
+
+[start(key, opts)](./lmdb.lmdbjobrun.start.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Run `task` on a cron schedule, resuming across restarts.
+
+
+</td></tr>
+</tbody></table>
+

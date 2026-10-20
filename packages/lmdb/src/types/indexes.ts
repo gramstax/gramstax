@@ -53,7 +53,7 @@ export interface IIndexDef<T, K extends ILmdbKey = ILmdbKey> {
    * Override the auto-generated index sub-DB name.
    *
    * @remarks
-   * Default is `` `${dbName}:idx:${name}` `` (Q3). Must not collide with any
+   * Default is `${dbName}:idx:${name}` (Q3). Must not collide with any
    * other registered sub-DB name.
    */
   dbName?: string
@@ -74,9 +74,9 @@ export interface IIndexDef<T, K extends ILmdbKey = ILmdbKey> {
  * Explicit bounds for a composite index range seek.
  *
  * @remarks
- * Accepted as a `findByIndex` value for composite keys (`t.*.index([`a`,
- * `b`])`, queried as ``{[`a+b`]: {start, end}} ``). Either bound may be
- * omitted (open-ended); each present bound is a tuple of 1..arity elements.
+ * Accepted as a `findByIndex` value for composite keys
+ * (`t.*.index(["a", "b"])`), queried as `{"a+b": {start, end}}`). Either bound
+ * may be omitted (open-ended); each present bound is a tuple of 1..arity elements.
  * `start` is inclusive, `end` is exclusive.
  *
  * @public
@@ -123,7 +123,7 @@ export type IIndexDefs<T = unknown> = Record<string, IIndexDef<T, ILmdbKey>>
 export type IndexQueryValue<T, P extends string, D = unknown> = P extends keyof T ? T[P] : D extends {composite: readonly [string, ...string[]]} ? ILmdbKey | ICompositeRange : ILmdbKey
 
 /**
- * Object query accepted by {@link LmdbEnv.findByIndex}: maps declared
+ * Object query accepted by {@link LmdbEnvSub.findByIndex}: maps declared
  * index names to the values to match. Every supplied key is ANDed.
  *
  * @remarks
@@ -142,7 +142,7 @@ export type IndexQueryValue<T, P extends string, D = unknown> = P extends keyof 
 export type IIndexQuery<T, I> = Partial<{[P in keyof I]: IndexQueryValue<T, P & string, I[P]>}> & {[P in keyof I]-?: Record<P, IndexQueryValue<T, P & string, I[P]>>}[keyof I]
 
 /**
- * Return type of {@link LmdbEnv.findByIndex} for a given query.
+ * Return type of {@link LmdbEnvSub.findByIndex} for a given query.
  *
  * @remarks
  * `T | undefined` when EVERY queried index is unique (`unique: true` — at

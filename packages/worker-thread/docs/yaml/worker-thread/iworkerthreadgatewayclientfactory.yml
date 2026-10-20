@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IWorkerThreadGatewayClientFactory
+uid: '@gramstax/worker-thread!IWorkerThreadGatewayClientFactory:type'
+package: '@gramstax/worker-thread!'
+fullName: IWorkerThreadGatewayClientFactory
+summary: >-
+  Factory type for `launchGatewayClient` returned by
+  [WorkerThreadExport.init()](xref:@gramstax/worker-thread!WorkerThreadExport.init:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type IWorkerThreadGatewayClientFactory<TWorker extends WorkerThreadInit> = (serverPath: string, options?:
+  IGatewayClientOptions) => IWorkerThreadGatewayProxy<TWorker> & {
+      new (owner: WorkerThreadInit): IWorkerThreadAsyncMethods<TWorker>;
+  };

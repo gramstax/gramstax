@@ -1,0 +1,19 @@
+---
+title: "IMapRpc"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [IMapRpc](./worker-thread.imaprpc.md)
+
+## IMapRpc type
+
+Map type for storing pending RPC request handlers.
+
+**Signature:**
+
+```typescript
+type IMapRpc = Map<number, {
+    reject: (error: unknown) => void;
+    resolve: (result: unknown) => void;
+    timer?: ReturnType<typeof setTimeout>;
+}>;
+```

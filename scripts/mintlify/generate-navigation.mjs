@@ -127,10 +127,11 @@ export function run(SITE) {
   // collapsible row, so this tab uses `pages` directly.
   const HELP_TAB = {tab: "Help", icon: "life-buoy", pages: ["guides/troubleshooting", "guides/faq"]}
 
-  // The API reference tab opens with the two hand-declared overview pages. They
-  // also classify as `Other` further down, so this list must stay first: the
-  // dedupe pass keeps the first occurrence it sees.
-  const OVERVIEW = ["reference/gramstax", "reference/index"]
+  // The API reference tab opens with the hand-declared overview pages: one per
+  // published package plus the reference index. They also classify as `Other`
+  // further down, so this list must stay first: the dedupe pass keeps the
+  // first occurrence it sees.
+  const OVERVIEW = ["reference/gramstax", "reference/lmdb", "reference/worker-thread", "reference/index"]
   const REFERENCE_TAB = {
     tab: "API reference",
     icon: "square-terminal",
@@ -149,9 +150,12 @@ export function run(SITE) {
 
   // Pages inside a class get listed under that class rather than in one flat
   // member bucket, so the sidebar mirrors the code instead of the alphabet.
+  // The package prefix comes from the file name, so the lmdb and worker-thread
+  // corpora group under their own package instead of colliding with gramstax.
   function ownerOf(fileName) {
     const parts = fileName.replace(/\.md$/, "").split(".")
-    return parts.length > 2 ? parts[2] : null
+    if (parts.length <= 2) return null
+    return {name: parts[2], key: `reference/${parts[0]}.${parts[2].toLowerCase()}`}
   }
 
   const buckets = new Map()
@@ -166,8 +170,8 @@ export function run(SITE) {
       members.set(page, {page, heading, members: []})
       continue
     }
-    const key = `reference/gramstax.${owner.toLowerCase()}`
-    if (!members.has(key)) members.set(key, {page: key, heading: owner, members: []})
+    const key = owner.key
+    if (!members.has(key)) members.set(key, {page: key, heading: owner.name, members: []})
     members.get(key).members.push({page, heading})
   }
 

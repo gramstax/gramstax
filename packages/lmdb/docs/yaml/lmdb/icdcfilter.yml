@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: ICdcFilter
+uid: '@gramstax/lmdb!ICdcFilter:type'
+package: '@gramstax/lmdb!'
+fullName: ICdcFilter
+summary: Subscribe filter — a sub-DB name, or name plus operation.
+remarks: A plain string listens to all write kinds on that sub-DB; the object form narrows delivery to one `op`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ICdcFilter = string | {
+      db: string;
+      op?: `put` | `delete` | `clear`;
+  };

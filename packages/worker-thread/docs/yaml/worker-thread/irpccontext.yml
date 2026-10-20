@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: IRpcContext
+uid: '@gramstax/worker-thread!IRpcContext:type'
+package: '@gramstax/worker-thread!'
+fullName: IRpcContext
+summary: Context object passed through the RPC middleware chain for incoming requests.
+remarks: >-
+  Middleware can mutate `params` before dispatch, short-circuit by setting `result` without calling `next`<!-- -->, or
+  throw to reject the request.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRpcContext = {
+      method: string;
+      params: unknown[];
+      result?: unknown;
+  };

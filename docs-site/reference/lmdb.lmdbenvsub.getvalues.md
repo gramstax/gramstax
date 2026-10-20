@@ -1,0 +1,58 @@
+---
+title: "LmdbEnvSub.getValues()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [getValues](./lmdb.lmdbenvsub.getvalues.md)
+
+## LmdbEnvSub.getValues() method
+
+All duplicate values under a key.
+
+**Signature:**
+
+```typescript
+getValues(key: KeyOf<S>): Promise<ValueOf<S>[]>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+[KeyOf](./lmdb.keyof.md)&lt;S&gt;
+
+
+</td><td>
+
+The primary key.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;[ValueOf](./lmdb.valueof.md)&lt;S&gt;\[\]&gt;
+
+The ordered duplicate values.
+

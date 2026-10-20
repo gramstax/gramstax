@@ -1,0 +1,89 @@
+---
+title: "WorkerThreadExport.launchGatewayClient()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadExport](./worker-thread.workerthreadexport.md) &gt; [launchGatewayClient](./worker-thread.workerthreadexport.launchgatewayclient.md)
+
+## WorkerThreadExport.launchGatewayClient() method
+
+Create a typed gateway client proxy for inter-worker communication.
+
+**Signature:**
+
+```typescript
+static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string, options?: IGatewayClientOptions): IWorkerThreadGatewayProxy<TWorker> & {
+        new (owner: WorkerThreadInit): IWorkerThreadAsyncMethods<TWorker>;
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+path
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Path to the target worker file. Must match target init `path`.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IGatewayClientOptions](./worker-thread.igatewayclientoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Gateway connection options (auth token, reconnect tuning, encoding).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+[IWorkerThreadGatewayProxy](./worker-thread.iworkerthreadgatewayproxy.md)&lt;TWorker&gt; &amp; \{ new (owner: [WorkerThreadInit](./worker-thread.workerthreadinit.md)): [IWorkerThreadAsyncMethods](./worker-thread.iworkerthreadasyncmethods.md)&lt;TWorker&gt;; }
+
+Proxy that can be used as static methods or as constructor.
+
+## Example
+
+
+```typescript
+// Static usage
+const OtherWorkerGateway = WorkerThreadExport.launchGatewayClient<OtherWorkerClass>("/path/to/other.ts", {token: "shared-secret"});
+await OtherWorkerGateway.someMethod(this, arg1, arg2);
+
+// Constructor usage
+const client = new OtherWorkerGateway(this);
+await client.someMethod(arg1, arg2);
+```
+

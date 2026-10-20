@@ -1,0 +1,420 @@
+### YamlMime:TSType
+name: ILmdbEnvOptions
+uid: '@gramstax/lmdb!ILmdbEnvOptions:interface'
+package: '@gramstax/lmdb!'
+fullName: ILmdbEnvOptions
+summary: Options accepted by [LmdbEnv](xref:@gramstax/lmdb!LmdbEnv:class)<!-- -->.
+remarks: Mirrors the underlying `lmdb` `open()` options with sensible defaults tuned for the collection use case.
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: cache
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#cache:member'
+    package: '@gramstax/lmdb!'
+    fullName: cache
+    summary: Enable in-memory caching of frequently accessed entries.
+    remarks: >-
+      Pass `true` for default settings, or an object for fine-grained control (see `weak-lru-cache` docs). Tends to help
+      most with larger objects that have significant deserialization costs.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'cache?: boolean | Record<string, unknown>;'
+      return:
+        type: boolean | Record&lt;string, unknown&gt;
+  - name: commitDelay
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#commitDelay:member'
+    package: '@gramstax/lmdb!'
+    fullName: commitDelay
+    summary: Milliseconds to wait for batching writes before committing.
+    remarks: >-
+      `0` (default) commits immediately. Higher values trade latency for more writes per transaction (higher throughput
+      under load). Note that Node.js timers have \~10ms effective resolution.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'commitDelay?: number;'
+      return:
+        type: number
+  - name: compression
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#compression:member'
+    package: '@gramstax/lmdb!'
+    fullName: compression
+    summary: Enable LMDB's built-in compression for stored values.
+    remarks: >-
+      Reduces on-disk size at the cost of small CPU overhead on read/write. Off-thread LZ4 — typically negligible
+      impact.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'compression?: boolean | ICompressionOptions;'
+      return:
+        type: boolean | <xref uid="@gramstax/lmdb!ICompressionOptions:interface" />
+  - name: dupSort
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#dupSort:member'
+    package: '@gramstax/lmdb!'
+    fullName: dupSort
+    summary: Allow duplicate entries per key (dupSort).
+    remarks: >-
+      Best used for index-style sub-databases where values represent keys to other sub-databases. Recommended to use
+      `keyEncoding: 'ordered-binary'`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'dupSort?: boolean;'
+      return:
+        type: boolean
+  - name: encoder
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#encoder:member'
+    package: '@gramstax/lmdb!'
+    fullName: encoder
+    summary: Custom encoder instance for value serialization.
+    remarks: >-
+      If set, overrides `encoding`<!-- -->. For advanced use cases (cbor-x, custom binary formats). Most users should
+      use `encoding` instead.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'encoder?: unknown;'
+      return:
+        type: unknown
+  - name: encoding
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#encoding:member'
+    package: '@gramstax/lmdb!'
+    fullName: encoding
+    summary: LMDB native value encoding — passed to `root.openDB()` and inherited by all sub-databases.
+    remarks: >-
+      - `msgpack` (default) — fastest, supports `Date`<!-- -->/`Map`<!-- -->/`Set`<!-- -->/BigInt - `json` —
+      human-readable; LMDB does `JSON.stringify`<!-- -->/`JSON.parse` natively - `binary` — values must be `Buffer`<!--
+      -->; LMDB stores raw bytes - `string` — values must be strings; LMDB stores as UTF-8 - `ordered-binary` — values
+      encoded with the same encoding as keys
+
+
+      All sub-databases in this env share the same encoding.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'encoding?: ILmdbEncoding;'
+      return:
+        type: <xref uid="@gramstax/lmdb!ILmdbEncoding:type" />
+  - name: encryptionKey
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#encryptionKey:member'
+    package: '@gramstax/lmdb!'
+    fullName: encryptionKey
+    summary: Encryption key for at-rest encryption (ChaCha8 cipher).
+    remarks: Must be a string or Buffer of exactly 32 bytes/characters.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'encryptionKey?: string | Buffer;'
+      return:
+        type: string | Buffer
+  - name: eventTurnBatching
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#eventTurnBatching:member'
+    package: '@gramstax/lmdb!'
+    fullName: eventTurnBatching
+    summary: Enable LMDB's event-turn batching of async writes.
+    remarks: >-
+      Default `true`<!-- -->. All async writes in the same event turn share one commit. Set `false` for lower-latency
+      individual writes (then tune `txnStartThreshold`<!-- -->).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'eventTurnBatching?: boolean;'
+      return:
+        type: boolean
+  - name: keyEncoder
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#keyEncoder:member'
+    package: '@gramstax/lmdb!'
+    fullName: keyEncoder
+    summary: Custom key encoder instance.
+    remarks: >-
+      If set, overrides `keyEncoding`<!-- -->. For advanced use cases (UUIDs, custom binary keys). Most users should use
+      `keyEncoding` instead.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'keyEncoder?: unknown;'
+      return:
+        type: unknown
+  - name: keyEncoding
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#keyEncoding:member'
+    package: '@gramstax/lmdb!'
+    fullName: keyEncoding
+    summary: Key encoding for sub-databases that need a specific key format.
+    remarks: >-
+      - `ordered-binary` (default) — any JS primitive as key - `uint32` — keys are strictly 32-bit unsigned integers
+      (smaller, faster) - `binary` — keys are raw Buffers/Uint8Arrays
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'keyEncoding?: `uint32` | `binary` | `ordered-binary`;'
+      return:
+        type: '`uint32` | `binary` | `ordered-binary`'
+  - name: mapSize
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#mapSize:member'
+    package: '@gramstax/lmdb!'
+    fullName: mapSize
+    summary: Map size in bytes.
+    remarks: >-
+      The virtual memory mapping size. Must be larger than the total expected dataset. Cannot be changed after env is
+      opened.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'mapSize?: number;'
+      return:
+        type: number
+  - name: maxDbs
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#maxDbs:member'
+    package: '@gramstax/lmdb!'
+    fullName: maxDbs
+    summary: Maximum number of named sub-databases.
+    remarks: >-
+      Each registered collection typically owns one sub-database. Set this to at least the number of collections you
+      intend to register.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'maxDbs?: number;'
+      return:
+        type: number
+  - name: maxReaders
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#maxReaders:member'
+    package: '@gramstax/lmdb!'
+    fullName: maxReaders
+    summary: Maximum number of concurrent readers.
+    remarks: >-
+      LMDB uses a readers table sized at startup. Each concurrent reader (including read-only transactions) takes one
+      slot.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'maxReaders?: number;'
+      return:
+        type: number
+  - name: noMemInit
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#noMemInit:member'
+    package: '@gramstax/lmdb!'
+    fullName: noMemInit
+    summary: Skip zero-ing malloc'ed data on writes (small perf boost).
+    remarks: >-
+      May leave application data in unused portions of the DB file. Safe unless the DB files might be accessed by
+      untrusted parties.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'noMemInit?: boolean;'
+      return:
+        type: boolean
+  - name: noMetaSync
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#noMetaSync:member'
+    package: '@gramstax/lmdb!'
+    fullName: noMetaSync
+    summary: Skip flushing metadata (less dangerous than `noSync`<!-- -->, less benefit).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'noMetaSync?: boolean;'
+      return:
+        type: boolean
+  - name: noSubdir
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#noSubdir:member'
+    package: '@gramstax/lmdb!'
+    fullName: noSubdir
+    summary: Treat `path` as a filename instead of directory.
+    remarks: Default when path contains an extension with `.`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'noSubdir?: boolean;'
+      return:
+        type: boolean
+  - name: noSync
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#noSync:member'
+    package: '@gramstax/lmdb!'
+    fullName: noSync
+    summary: Skip explicit flush-to-disk on commit.
+    remarks: >-
+      Significantly faster writes, but a crash may cause data loss. Use only for caches/temp data where durability is
+      not required.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'noSync?: boolean;'
+      return:
+        type: boolean
+  - name: onWarn
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#onWarn:member'
+    package: '@gramstax/lmdb!'
+    fullName: onWarn
+    summary: 'Sink for the package''s own diagnostics (default: none — silent).'
+    remarks: >-
+      This library never writes to `console`<!-- -->; where would a warning go is the host application's decision, not
+      the package's. Unattached diagnostics are dropped silently.
+
+
+      Receives, among others: - `maxDbs` headroom running low (once per env), - a CDC subscriber callback that threw, -
+      a scheduled job tick that failed, unless the job was given its own `onError`<!-- -->.
+
+
+      A listener that throws is contained — it cannot break a commit or a tick. Equivalent to
+      [LmdbEnv.onWarn()](xref:@gramstax/lmdb!LmdbEnv%23onWarn:member(1))<!-- -->, which binds later.
+    example:
+      - |-
+        ```typescript
+        const env = new LmdbEnv({path, maxDbs: 128, onWarn: (message) => log.warn(message)})
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'onWarn?: (message: string) => void;'
+      return:
+        type: '(message: string) =&gt; void'
+  - name: overlappingSync
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#overlappingSync:member'
+    package: '@gramstax/lmdb!'
+    fullName: overlappingSync
+    summary: Enable LMDB's overlapping-sync mode for durability.
+    remarks: >-
+      Disk flushing happens off the write lock, allowing parallel writes. Enabled by default on non-Windows. Not
+      recommended on Windows.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'overlappingSync?: boolean;'
+      return:
+        type: boolean
+  - name: pageSize
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#pageSize:member'
+    package: '@gramstax/lmdb!'
+    fullName: pageSize
+    summary: Database page size in bytes.
+    remarks: >-
+      Defaults to OS page size (usually 4096, or 16384 on MacOS M-series). Use `8192` for databases larger than RAM with
+      many range queries. Only affects new databases.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'pageSize?: number;'
+      return:
+        type: number
+  - name: path
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#path:member'
+    package: '@gramstax/lmdb!'
+    fullName: path
+    summary: Filesystem path where LMDB will store its data files.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'path: string;'
+      return:
+        type: string
+  - name: readOnly
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#readOnly:member'
+    package: '@gramstax/lmdb!'
+    fullName: readOnly
+    summary: Whether the env is opened in read-only mode.
+    remarks: Read-only envs reject all write operations (set/delete/clear).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readOnly?: boolean;'
+      return:
+        type: boolean
+  - name: remapChunks
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#remapChunks:member'
+    package: '@gramstax/lmdb!'
+    fullName: remapChunks
+    summary: Use dynamic memory mapping (frees mapped memory for other apps).
+    remarks: Slightly slower reads, friendlier to other applications. Enabled by default on 32-bit systems.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'remapChunks?: boolean;'
+      return:
+        type: boolean
+  - name: separateFlushed
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#separateFlushed:member'
+    package: '@gramstax/lmdb!'
+    fullName: separateFlushed
+    summary: Resolve writes when committed (visible) with a separate `flushed` promise for durable sync.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'separateFlushed?: boolean;'
+      return:
+        type: boolean
+  - name: strictAsyncOrder
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#strictAsyncOrder:member'
+    package: '@gramstax/lmdb!'
+    fullName: strictAsyncOrder
+    summary: Maintain strict ordering of async transactions relative to async single operations.
+    remarks: >-
+      Adds ordering guarantees at the cost of more thread switching between main thread and worker thread. Off by
+      default.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'strictAsyncOrder?: boolean;'
+      return:
+        type: boolean
+  - name: useVersions
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#useVersions:member'
+    package: '@gramstax/lmdb!'
+    fullName: useVersions
+    summary: Enable record versioning for optimistic locking.
+    remarks: >-
+      Required for atomic conditional writes via `ifVersion`<!-- -->/`ifNoExists` (used by `env.update` when wrapped in
+      `env.transaction`<!-- -->).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'useVersions?: boolean;'
+      return:
+        type: boolean
+  - name: useWritemap
+    uid: '@gramstax/lmdb!ILmdbEnvOptions#useWritemap:member'
+    package: '@gramstax/lmdb!'
+    fullName: useWritemap
+    summary: Use writemaps for writes (reduced malloc calls + file writes).
+    remarks: >-
+      Improves performance, but stray pointers can corrupt data. May be slower on Windows. Combine with `noSync` for
+      off-thread writes with no I/O.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'useWritemap?: boolean;'
+      return:
+        type: boolean

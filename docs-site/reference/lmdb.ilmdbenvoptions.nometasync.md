@@ -1,0 +1,15 @@
+---
+title: "ILmdbEnvOptions.noMetaSync"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [noMetaSync](./lmdb.ilmdbenvoptions.nometasync.md)
+
+## ILmdbEnvOptions.noMetaSync property
+
+Skip flushing metadata (less dangerous than `noSync`, less benefit).
+
+**Signature:**
+
+```typescript
+noMetaSync?: boolean;
+```

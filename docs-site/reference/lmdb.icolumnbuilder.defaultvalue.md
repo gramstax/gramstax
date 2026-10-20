@@ -1,0 +1,15 @@
+---
+title: "IColumnBuilder.defaultValue"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IColumnBuilder](./lmdb.icolumnbuilder.md) &gt; [defaultValue](./lmdb.icolumnbuilder.defaultvalue.md)
+
+## IColumnBuilder.defaultValue property
+
+Static default applied at write time when the field is `undefined`.
+
+**Signature:**
+
+```typescript
+readonly defaultValue?: unknown;
+```

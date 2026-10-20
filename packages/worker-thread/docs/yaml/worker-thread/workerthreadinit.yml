@@ -12,15 +12,15 @@ remarks: >-
 example:
   - |-
     ```typescript
-    import { WorkerThreadInit, WorkerThreadExport, log } from "gramstax";
+    import { WorkerThreadInit, WorkerThreadExport } from "@gramstax/worker-thread";
 
     class Worker extends WorkerThreadInit {
       constructor() {
         super(); // Required - signals ready to main thread
-        log.info(`Worker ${this.id} started`);
+        console.info(`Worker ${this.id} started`);
       }
 
-      mtdProcess(data: any) {
+      mtdProcess(data: unknown) {
         return { processed: data };
       }
     }
@@ -39,13 +39,60 @@ constructors:
     package: '@gramstax/worker-thread!'
     fullName: (constructor)()
     summary: Creates a new WorkerThreadInit instance. Sets up message handling and signals readiness to the main thread.
-    remarks: ''
+    remarks: >-
+      The `readyResolve` signal is deferred with `queueMicrotask` so that subclass field initializers (which run after
+      `super()` returns) are already applied before main-thread RPCs can observe worker state.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: constructor();
 properties:
+  - name: _initDone
+    uid: '@gramstax/worker-thread!WorkerThreadInit#_initDone:member'
+    package: '@gramstax/worker-thread!'
+    fullName: _initDone
+    summary: >-
+      Guards [WorkerThreadInit.init()](xref:@gramstax/worker-thread!WorkerThreadInit%23init:member(1)) against duplicate
+      listeners.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_initDone: boolean;'
+      return:
+        type: boolean
+  - name: _initPort
+    uid: '@gramstax/worker-thread!WorkerThreadInit#_initPort:member'
+    package: '@gramstax/worker-thread!'
+    fullName: _initPort
+    summary: >-
+      Parent port [WorkerThreadInit.init()](xref:@gramstax/worker-thread!WorkerThreadInit%23init:member(1)) last
+      attached to.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_initPort: unknown;'
+      return:
+        type: unknown
+  - name: _shutdownDone
+    uid: '@gramstax/worker-thread!WorkerThreadInit#_shutdownDone:member'
+    package: '@gramstax/worker-thread!'
+    fullName: _shutdownDone
+    summary: >-
+      Guards [WorkerThreadInit.shutdown()](xref:@gramstax/worker-thread!WorkerThreadInit%23shutdown:member(1)) so the
+      hook runs at most once.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_shutdownDone: boolean;'
+      return:
+        type: boolean
   - name: argv
     uid: '@gramstax/worker-thread!WorkerThreadInit#argv:member'
     package: '@gramstax/worker-thread!'
@@ -184,10 +231,10 @@ properties:
       return:
         type: <xref uid="@gramstax/worker-thread!WorkerThreadRpc:class" />
 methods:
-  - name: createGatewayClient(serverPath)
+  - name: createGatewayClient(serverPath, options)
     uid: '@gramstax/worker-thread!WorkerThreadInit#createGatewayClient:member(1)'
     package: '@gramstax/worker-thread!'
-    fullName: createGatewayClient(serverPath)
+    fullName: createGatewayClient(serverPath, options)
     summary: \[LOW-LEVEL\] Create a gateway client to connect to another worker.
     remarks: Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.
     example:
@@ -199,43 +246,57 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'createGatewayClient(serverPath: string): Promise<WorkerThreadGatewayClient>;'
+      content: 'createGatewayClient(serverPath: string, options?: IGatewayClientOptions): Promise<WorkerThreadGatewayClient>;'
       parameters:
         - id: serverPath
           description: Unix socket path to connect. Matches server gateway.
           type: string
+        - id: options
+          description: Connection options (auth token, reconnect tuning, encoding).
+          type: <xref uid="@gramstax/worker-thread!IGatewayClientOptions:type" />
       return:
         type: Promise&lt;<xref uid="@gramstax/worker-thread!WorkerThreadGatewayClient:class" />&gt;
         description: Promise resolving with connected client.
-  - name: createGatewayServer(path, register)
+  - name: createGatewayServer(path, register, options)
     uid: '@gramstax/worker-thread!WorkerThreadInit#createGatewayServer:member(1)'
     package: '@gramstax/worker-thread!'
-    fullName: createGatewayServer(path, register)
+    fullName: createGatewayServer(path, register, options)
     summary: Create a gateway server for inter-worker communication.
-    remarks: ''
+    remarks: >-
+      \*\*Security:\*\* when `register` is omitted the server exposes the entire worker instance (`this`<!-- -->) to
+      every socket client, so a non-empty `allowedMethods` list is \*\*required\*\* in that case — otherwise the call
+      throws instead of silently opening every `mtd*` method to any process that can reach the socket. Supply an
+      explicit `register` object, a non-empty `allowedMethods`<!-- -->, or both.
     example:
       - |-
         ```typescript
-        // Custom object and path
+        // Custom object and path (explicit register — no allow-list needed)
         await this.createGatewayServer(
           "/tmp/my-worker.sock",
           { ping: () => "pong" }
         );
 
-        // Expose `this` at the given path
-        await this.createGatewayServer("/tmp/my-worker.sock");
+        // Expose `this` at the given path — allowedMethods is mandatory here
+        await this.createGatewayServer("/tmp/my-worker.sock", undefined, {
+          allowedMethods: ["mtdPing"],
+        });
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'createGatewayServer(path: string, register?: any): Promise<boolean>;'
+      content: >-
+        createGatewayServer(path: string, register?: Record<string, (...args: never[]) => unknown>, options?:
+        IGatewayServerOptions): Promise<boolean>;
       parameters:
         - id: path
           description: Unix socket path. Gateway identifier. Must be unique per server worker.
           type: string
         - id: register
           description: Object with value function to expose. Called by gateway clients. Defaults to `this`<!-- -->.
-          type: any
+          type: 'Record&lt;string, (...args: never[]) =&gt; unknown&gt;'
+        - id: options
+          description: Gateway server options (auth token, method allow-list, connection cap).
+          type: <xref uid="@gramstax/worker-thread!IGatewayServerOptions:type" />
       return:
         type: Promise&lt;boolean&gt;
         description: Promise that resolves to `true` when gateway is ready.
@@ -249,11 +310,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'handleOnMessage(data: any): void;'
+      content: 'handleOnMessage(data: Parameters<WorkerThreadRpc[`make`]>[0]): void;'
       parameters:
         - id: data
           description: Message data from main thread.
-          type: any
+          type: Parameters&lt;<xref uid="@gramstax/worker-thread!WorkerThreadRpc:class" />[`make`]&gt;[0]
       return:
         type: void
         description: ''
@@ -271,10 +332,49 @@ methods:
       return:
         type: void
         description: ''
-  - name: request(method, params, _wait, _others)
+  - name: onBeforeExit()
+    uid: '@gramstax/worker-thread!WorkerThreadInit#onBeforeExit:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: onBeforeExit()
+    summary: Hook called before the worker is shut down gracefully.
+    remarks: >-
+      Invoked by [WorkerThreadInit.shutdown()](xref:@gramstax/worker-thread!WorkerThreadInit%23shutdown:member(1))
+      (called via RPC from `WorkerThreadLaunch.shutdown`<!-- -->). Override to flush state, close connections, or
+      persist data. The worker is terminated by the main thread after this hook completes.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'onBeforeExit(): void | Promise<void>;'
+      return:
+        type: void | Promise&lt;void&gt;
+        description: ''
+  - name: onError(err)
+    uid: '@gramstax/worker-thread!WorkerThreadInit#onError:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: onError(err)
+    summary: Hook called when an unhandled error occurs inside the worker's RPC handling.
+    remarks: >-
+      Default implementation forwards to  — silent by default (the package-wide handler is a no-op) but observable via
+      `WorkerThreadErrorHandler.setDefault`<!-- -->. Override contract: replace this method to customize handling (e.g.
+      log); call `super.onError(err)` (or `WorkerThreadErrorHandler.report(err)` directly) inside the override to
+      preserve package-wide observability.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'onError(err: unknown): void;'
+      parameters:
+        - id: err
+          description: ''
+          type: unknown
+      return:
+        type: void
+        description: ''
+  - name: request(method, params, _wait, _others, timeoutMs)
     uid: '@gramstax/worker-thread!WorkerThreadInit#request:member(1)'
     package: '@gramstax/worker-thread!'
-    fullName: request(method, params, _wait, _others)
+    fullName: request(method, params, _wait, _others, timeoutMs)
     summary: Make an RPC request to the main thread.
     remarks: ''
     example:
@@ -285,22 +385,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;'
+      content: >-
+        request(method: string, params: unknown[], _wait?: boolean, _others?: Record<string, unknown>, timeoutMs?:
+        number): unknown;
       parameters:
         - id: method
           description: Method name to call. Targets main-thread RPC method.
           type: string
         - id: params
           description: Method parameters. Sent as positional array.
-          type: any
+          type: unknown[]
         - id: _wait
           description: Wait for response. If false, fire-and-forget. Defaults to `true`<!-- -->.
           type: boolean
         - id: _others
           description: Additional RPC data. Merged into RPC payload.
-          type: any
+          type: Record&lt;string, unknown&gt;
+        - id: timeoutMs
+          description: Optional timeout in milliseconds. Rejects the request when the main thread does not respond in time.
+          type: number
       return:
-        type: Promise&lt;any&gt;
+        type: unknown
         description: Promise resolving with main-thread response.
   - name: send(payload)
     uid: '@gramstax/worker-thread!WorkerThreadInit#send:member(1)'
@@ -316,11 +421,37 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'send(payload: any): void;'
+      content: 'send(payload: Record<string, unknown>): boolean;'
       parameters:
         - id: payload
           description: Data to send. Payload to main thread.
-          type: any
+          type: Record&lt;string, unknown&gt;
       return:
-        type: void
-        description: ''
+        type: boolean
+        description: >-
+          `true` when the message was posted, `false` when there is no parent port (e.g. running on the main thread) and
+          the payload was dropped.
+  - name: shutdown()
+    uid: '@gramstax/worker-thread!WorkerThreadInit#shutdown:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: shutdown()
+    summary: Graceful shutdown handler, callable via RPC from the main thread.
+    remarks: >-
+      Runs the [WorkerThreadInit.onBeforeExit()](xref:@gramstax/worker-thread!WorkerThreadInit%23onBeforeExit:member(1))
+      hook (flush state, close connections, persist data), then closes gateway resources so no socket or reconnect timer
+      keeps the worker alive. The main thread terminates the worker after this resolves. Override to customize, or just
+      set `onBeforeExit`<!-- -->.
+
+
+      Gateway cleanup runs in a `finally` block, so it ALWAYS executes even when `onBeforeExit` throws (the hook error
+      still propagates to the caller). The hook runs at most once — a second `shutdown()` call returns `true`
+      immediately. After cleanup the gateway registry is cleared (`gatewayClients` emptied, `gatewayServer` and
+      `gatewayClientLatest` reset to `undefined`<!-- -->) so no closed handle is reused.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'shutdown(): Promise<boolean>;'
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Promise resolving to `true` when shutdown is complete.

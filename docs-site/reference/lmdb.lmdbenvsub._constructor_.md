@@ -1,0 +1,84 @@
+---
+title: "LmdbEnvSub.(constructor)"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [(constructor)](./lmdb.lmdbenvsub._constructor_.md)
+
+## LmdbEnvSub.(constructor)
+
+Create a handle bound to a pre-built sub-DB state.
+
+**Signature:**
+
+```typescript
+constructor(_owner: LmdbEnv, _schema: S, _state: LmdbSubState);
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+\_owner
+
+
+</td><td>
+
+[LmdbEnv](./lmdb.lmdbenv.md)
+
+
+</td><td>
+
+The env that registered this sub.
+
+
+</td></tr>
+<tr><td>
+
+\_schema
+
+
+</td><td>
+
+S
+
+
+</td><td>
+
+The registered schema class.
+
+
+</td></tr>
+<tr><td>
+
+\_state
+
+
+</td><td>
+
+LmdbSubState
+
+
+</td><td>
+
+Pre-built sub-DB state (owned by the env's sub manager).
+
+
+</td></tr>
+</tbody></table>
+

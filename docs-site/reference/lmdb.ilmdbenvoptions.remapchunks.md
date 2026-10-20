@@ -1,0 +1,20 @@
+---
+title: "ILmdbEnvOptions.remapChunks"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [remapChunks](./lmdb.ilmdbenvoptions.remapchunks.md)
+
+## ILmdbEnvOptions.remapChunks property
+
+Use dynamic memory mapping (frees mapped memory for other apps).
+
+**Signature:**
+
+```typescript
+remapChunks?: boolean;
+```
+
+## Remarks
+
+Slightly slower reads, friendlier to other applications. Enabled by default on 32-bit systems.
+

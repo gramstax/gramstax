@@ -1,0 +1,19 @@
+---
+title: "LmdbQueue.clear()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbQueue](./lmdb.lmdbqueue.md) &gt; [clear](./lmdb.lmdbqueue.clear.md)
+
+## LmdbQueue.clear() method
+
+Drain the queue.
+
+**Signature:**
+
+```typescript
+clear(): Promise<void>;
+```
+**Returns:**
+
+Promise&lt;void&gt;
+

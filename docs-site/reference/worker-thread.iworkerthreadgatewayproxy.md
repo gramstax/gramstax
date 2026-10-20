@@ -1,0 +1,19 @@
+---
+title: "IWorkerThreadGatewayProxy"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [IWorkerThreadGatewayProxy](./worker-thread.iworkerthreadgatewayproxy.md)
+
+## IWorkerThreadGatewayProxy type
+
+Proxy type for gateway client methods. Transforms worker methods to accept `owner` as first parameter.
+
+**Signature:**
+
+```typescript
+type IWorkerThreadGatewayProxy<T> = {
+    [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: never[]) => unknown ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (owner: WorkerThreadInit, ...args: A) => Promise<Awaited<R>> : never;
+};
+```
+**References:** [WorkerThreadInit](./worker-thread.workerthreadinit.md)
+

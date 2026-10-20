@@ -15,7 +15,7 @@ ready(): Promise<void>;
 
 Promise&lt;void&gt;
 
-Promise that resolves when worker calls `super()` in `WorkerThreadInit`<!-- -->.
+Promise that resolves when worker calls `super()` in `WorkerThreadInit`<!-- -->, or rejects when the worker exits before signaling ready.
 
 ## Example
 

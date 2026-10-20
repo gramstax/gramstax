@@ -1,0 +1,23 @@
+---
+title: "LmdbTransaction.release()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbTransaction](./lmdb.lmdbtransaction.md) &gt; [release](./lmdb.lmdbtransaction.release.md)
+
+## LmdbTransaction.release() method
+
+Mark a read transaction as finished successfully (release the raw txn without reporting an abort).
+
+**Signature:**
+
+```typescript
+release(): void;
+```
+**Returns:**
+
+void
+
+## Remarks
+
+Used by [LmdbEnv.readTransaction()](./lmdb.lmdbenv.readtransaction.md) on normal completion — the wrapper lifecycle becomes `released` (not `aborted`), so `isAborted` stays `false` for transactions that simply ran to completion. Safe to call multiple times; the raw read txn is released at most once.
+

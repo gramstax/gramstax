@@ -1,0 +1,83 @@
+### YamlMime:TSType
+name: LmdbSearch
+uid: '@gramstax/lmdb!LmdbSearch:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbSearch
+summary: Full-text search primitives for `@gramstax/lmdb`<!-- -->.
+remarks: >-
+  The search index is an inverted table per searched column (`{db}:search:{column}`<!-- -->, dupSort): each term maps to
+  the primary keys of the rows containing it. Posting maintenance rides the embedded-index write path (same writer
+  transaction); ranking happens at read time in
+  [LmdbEnvSub.search()](xref:@gramstax/lmdb!LmdbEnvSub%23search:member(1))<!-- -->.
+
+
+  Tokenization is deliberately minimal for v1 (lowercase + split on non-alphanumerics, no stemming, ASCII fold-free) —
+  non-ASCII letters act as separators.
+
+
+  A class of pure statics (rather than bare functions) so every helper in `src` lives on a class. No instance state —
+  never construct it.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+methods:
+  - name: fingerprintPk(pk)
+    uid: '@gramstax/lmdb!LmdbSearch.fingerprintPk:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: fingerprintPk(pk)
+    summary: Fingerprint a primary key by value for score-map lookups.
+    remarks: >-
+      `Map` keys use reference identity, which breaks for array/buffer primary keys (each read materializes a fresh
+      object). The fingerprint is a stable string encoding of the key's VALUE so the same logical key always maps to the
+      same entry.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static fingerprintPk(pk: ILmdbKey): string;'
+      parameters:
+        - id: pk
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!ILmdbKey:type" />
+      return:
+        type: string
+        description: A stable string fingerprint of the key value.
+  - name: tokenize(text)
+    uid: '@gramstax/lmdb!LmdbSearch.tokenize:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: tokenize(text)
+    summary: Split text into lowercase alphanumeric terms.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static tokenize(text: string): Array<string>;'
+      parameters:
+        - id: text
+          description: Raw field text.
+          type: string
+      return:
+        type: Array&lt;string&gt;
+        description: Lowercase terms (`a-z`<!-- -->, `0-9`<!-- -->); `[]` for empty/punctuation-only input.
+  - name: tokenizeField(value)
+    uid: '@gramstax/lmdb!LmdbSearch.tokenizeField:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: tokenizeField(value)
+    summary: Tokenize a searched-column field value.
+    remarks: >-
+      Non-string values (absent fields, `null`<!-- -->, or off-kind rows written around the type system) contribute no
+      terms — mirroring how `null`<!-- -->/`undefined` extracts skip embedded indexes.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static tokenizeField(value: unknown): Array<string>;'
+      parameters:
+        - id: value
+          description: The raw field value.
+          type: unknown
+      return:
+        type: Array&lt;string&gt;
+        description: Terms for strings, `[]` otherwise.

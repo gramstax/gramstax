@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: IIndexDefs
+uid: '@gramstax/lmdb!IIndexDefs:type'
+package: '@gramstax/lmdb!'
+fullName: IIndexDefs
+summary: 'Declarative index definition map: `static indexes` shape.'
+remarks: >-
+  `Record<string, IIndexDef<T, ILmdbKey>>` — every declared index name maps to its
+  [IIndexDef](xref:@gramstax/lmdb!IIndexDef:interface)<!-- -->. Used as the third type parameter of a schema class so
+  the subclass can bind its own `static indexes` type: `class UserSchema extends LmdbSchema` with `static value`
+  columns.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IIndexDefs<T = unknown> = Record<string, IIndexDef<T, ILmdbKey>>;

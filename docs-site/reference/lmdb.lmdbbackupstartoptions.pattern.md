@@ -1,0 +1,24 @@
+---
+title: "LmdbBackupStartOptions.pattern"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupStartOptions](./lmdb.lmdbbackupstartoptions.md) &gt; [pattern](./lmdb.lmdbbackupstartoptions.pattern.md)
+
+## LmdbBackupStartOptions.pattern property
+
+Cron pattern for the schedule, resolved by `croner`.
+
+**Signature:**
+
+```typescript
+pattern: string;
+```
+
+## Remarks
+
+Supports 5-field (minute precision), 6-field (second precision) and 7-field (OCPS, with a trailing year) patterns.
+
+A pattern is a \*\*wall-clock\*\* schedule, not a duration — "03:00 every day" is a different thing from "24 h after the last successful run". Pick the one you actually mean.
+
+Patterns are interpreted in the \*\*local\*\* timezone unless `timezone` is set, so a daily 03:00 pattern is 03:00 where the process runs, not 03:00 UTC. See `example/job-run.ts` for runnable patterns.
+

@@ -1,0 +1,106 @@
+---
+title: "LmdbBackup.backup()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackup](./lmdb.lmdbbackup.md) &gt; [backup](./lmdb.lmdbbackup.backup.md)
+
+## LmdbBackup.backup() method
+
+Create a timestamped backup inside `baseDir` and prune to `keep`.
+
+**Signature:**
+
+```typescript
+static backup(env: LmdbEnv, baseDir: string, keep?: number, compact?: boolean): Promise<string>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+env
+
+
+</td><td>
+
+[LmdbEnv](./lmdb.lmdbenv.md)
+
+
+</td><td>
+
+Writer env to back up (must be open).
+
+
+</td></tr>
+<tr><td>
+
+baseDir
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Directory that will contain timestamped backup subdirs.
+
+
+</td></tr>
+<tr><td>
+
+keep
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Backups to retain (default `3`).
+
+
+</td></tr>
+<tr><td>
+
+compact
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Compact while copying (default `false`): slower, but the result is rewritten densely, so it is smaller on disk.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;string&gt;
+
+The path of the newly created backup.
+

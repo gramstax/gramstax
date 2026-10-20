@@ -1,0 +1,92 @@
+---
+title: "LmdbBackup.restore()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackup](./lmdb.lmdbbackup.md) &gt; [restore](./lmdb.lmdbbackup.restore.md)
+
+## LmdbBackup.restore() method
+
+Copy a backup to `destPath` for revival.
+
+**Signature:**
+
+```typescript
+static restore(backupPath: string, destPath: string, opts?: {
+        overwrite?: boolean;
+    }): Promise<string>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+backupPath
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+A `backup-*` dir holding `data.mdb`.
+
+
+</td></tr>
+<tr><td>
+
+destPath
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Revival target; open a new env on it. Must not exist unless `{overwrite: true}`.
+
+
+</td></tr>
+<tr><td>
+
+opts
+
+
+</td><td>
+
+&#123; overwrite?: boolean; &#125;
+
+
+</td><td>
+
+_(Optional)_ Optional `{overwrite: true}` to replace `destPath`.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;string&gt;
+
+`destPath`.
+

@@ -1,0 +1,20 @@
+---
+title: "ILmdbEnvOptions.noSubdir"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [noSubdir](./lmdb.ilmdbenvoptions.nosubdir.md)
+
+## ILmdbEnvOptions.noSubdir property
+
+Treat `path` as a filename instead of directory.
+
+**Signature:**
+
+```typescript
+noSubdir?: boolean;
+```
+
+## Remarks
+
+Default when path contains an extension with `.`.
+

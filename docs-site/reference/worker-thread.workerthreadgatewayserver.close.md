@@ -1,0 +1,23 @@
+---
+title: "WorkerThreadGatewayServer.close()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadGatewayServer](./worker-thread.workerthreadgatewayserver.md) &gt; [close](./worker-thread.workerthreadgatewayserver.close.md)
+
+## WorkerThreadGatewayServer.close() method
+
+Stop the gateway server and drop all connections.
+
+**Signature:**
+
+```typescript
+close(): Promise<void>;
+```
+**Returns:**
+
+Promise&lt;void&gt;
+
+## Remarks
+
+The socket is released so another server (or a restart of this one) can bind the same path. Tries a graceful close first, but force-destroys connections if the graceful handshake does not finish within 500ms — `close()` never hangs. The socket file is unlinked best-effort (a missing file is ignored) and calling `close()` twice is safe.
+

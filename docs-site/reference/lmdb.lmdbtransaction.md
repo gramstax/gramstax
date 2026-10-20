@@ -1,0 +1,218 @@
+---
+title: "LmdbTransaction"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbTransaction](./lmdb.lmdbtransaction.md)
+
+## LmdbTransaction class
+
+Wraps the underlying `lmdb` transaction lifecycle with a stable API.
+
+**Signature:**
+
+```typescript
+declare class LmdbTransaction 
+```
+
+## Remarks
+
+The underlying `lmdb` library uses a callback-based transaction model: - \*\*Write transactions\*\* are managed by `rootDb.childTransaction(callback)`. The wrapper detects user intent and either returns the `ABORT` sentinel (causing LMDB to roll back) or returns normally (causing LMDB to commit). - \*\*Read transactions\*\* are obtained via `db.useReadTransaction()` and released via `rawTxn.done()` when the wrapper finalizes.
+
+This class wraps both flavors behind a unified lifecycle API: - `commit()` marks the wrapper as committed — LMDB commits when the childTransaction callback returns normally. - `abort()` marks the wrapper as aborted — LMDB rolls back when the childTransaction callback returns the `ABORT` sentinel.
+
+You do not construct this class directly — [LmdbEnv.transaction()](./lmdb.lmdbenv.transaction.md) and [LmdbEnv.readTransaction()](./lmdb.lmdbenv.readtransaction.md) create and manage the instance.
+
+The constructor for this class is marked as internal. Third-party code should not call the constructor directly or create subclasses that extend the `LmdbTransaction` class.
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[done](./lmdb.lmdbtransaction.done.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+Whether this transaction has been finalized (committed or aborted).
+
+
+</td></tr>
+<tr><td>
+
+[isAborted](./lmdb.lmdbtransaction.isaborted.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+Whether the user explicitly called [LmdbTransaction.abort()](./lmdb.lmdbtransaction.abort.md).
+
+
+</td></tr>
+<tr><td>
+
+[isCommitted](./lmdb.lmdbtransaction.iscommitted.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+Whether the user explicitly called [LmdbTransaction.commit()](./lmdb.lmdbtransaction.commit.md).
+
+
+</td></tr>
+<tr><td>
+
+[lifecycle](./lmdb.lmdbtransaction.lifecycle.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+[ITransactionLifecycle](./lmdb.itransactionlifecycle.md)
+
+
+</td><td>
+
+Current lifecycle of this transaction.
+
+
+</td></tr>
+<tr><td>
+
+[raw](./lmdb.lmdbtransaction.raw.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+[IRawReadTransaction](./lmdb.irawreadtransaction.md) \| undefined
+
+
+</td><td>
+
+Underlying LMDB read transaction object (only present for read transactions).
+
+
+</td></tr>
+</tbody></table>
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[abort()](./lmdb.lmdbtransaction.abort.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Mark this transaction as aborted.
+
+
+</td></tr>
+<tr><td>
+
+[commit()](./lmdb.lmdbtransaction.commit.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Mark this transaction as committed.
+
+
+</td></tr>
+<tr><td>
+
+[release()](./lmdb.lmdbtransaction.release.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Mark a read transaction as finished successfully (release the raw txn without reporting an abort).
+
+
+</td></tr>
+</tbody></table>
+

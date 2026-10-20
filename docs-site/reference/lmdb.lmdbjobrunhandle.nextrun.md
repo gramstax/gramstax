@@ -1,0 +1,19 @@
+---
+title: "LmdbJobRunHandle.nextRun()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbJobRunHandle](./lmdb.lmdbjobrunhandle.md) &gt; [nextRun](./lmdb.lmdbjobrunhandle.nextrun.md)
+
+## LmdbJobRunHandle.nextRun() method
+
+Next scheduled run, or `undefined` once stopped.
+
+**Signature:**
+
+```typescript
+nextRun(): Date | undefined;
+```
+**Returns:**
+
+Date \| undefined
+

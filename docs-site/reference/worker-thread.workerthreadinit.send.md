@@ -1,0 +1,65 @@
+---
+title: "WorkerThreadInit.send()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadInit](./worker-thread.workerthreadinit.md) &gt; [send](./worker-thread.workerthreadinit.send.md)
+
+## WorkerThreadInit.send() method
+
+Send a message to the main thread.
+
+**Signature:**
+
+```typescript
+send(payload: Record<string, unknown>): boolean;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+payload
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;
+
+
+</td><td>
+
+Data to send. Payload to main thread.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+boolean
+
+`true` when the message was posted, `false` when there is no parent port (e.g. running on the main thread) and the payload was dropped.
+
+## Example
+
+
+```typescript
+this.send({ status: "processing", progress: 50 });
+```
+

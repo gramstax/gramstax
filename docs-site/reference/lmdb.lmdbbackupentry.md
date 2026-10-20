@@ -1,0 +1,98 @@
+---
+title: "LmdbBackupEntry"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupEntry](./lmdb.lmdbbackupentry.md)
+
+## LmdbBackupEntry interface
+
+One timestamped backup entry as returned by [LmdbBackup.list()](./lmdb.lmdbbackup.list.md).
+
+**Signature:**
+
+```typescript
+interface IBackupEntry 
+```
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[mtimeMs](./lmdb.lmdbbackupentry.mtimems.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Directory mtime in ms — prune/list order key.
+
+
+</td></tr>
+<tr><td>
+
+[name](./lmdb.lmdbbackupentry.name.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Directory name (`backup-<stamp>`).
+
+
+</td></tr>
+<tr><td>
+
+[path](./lmdb.lmdbbackupentry.path.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Absolute path.
+
+
+</td></tr>
+</tbody></table>
+

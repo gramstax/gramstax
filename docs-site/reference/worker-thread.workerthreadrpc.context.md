@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadRpc.context"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadRpc](./worker-thread.workerthreadrpc.md) &gt; [context](./worker-thread.workerthreadrpc.context.md)
+
+## WorkerThreadRpc.context property
+
+Default context merged into every outgoing RPC payload.
+
+**Signature:**
+
+```typescript
+context: Record<string, unknown>;
+```
+
+## Remarks
+
+Useful for propagating correlation data (e.g. `traceId`) across threads: set it once and it is included in every `makeRequest` payload. Per-call `others` values take precedence over this context.
+

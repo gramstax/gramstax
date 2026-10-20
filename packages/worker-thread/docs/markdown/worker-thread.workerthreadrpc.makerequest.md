@@ -9,7 +9,7 @@ Create and send an RPC request.
 **Signature:**
 
 ```typescript
-makeRequest(method: string, params: any, _wait?: boolean, _others?: Record<string, any>): Promise<any>;
+makeRequest(method: string, params: unknown[], wait: true, others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ params
 
 </td><td>
 
-any
+unknown\[\]
 
 
 </td><td>
@@ -64,28 +64,28 @@ Method parameters. Sent as positional array.
 </td></tr>
 <tr><td>
 
-\_wait
+wait
 
 
 </td><td>
 
-boolean
+true
 
 
 </td><td>
 
-_(Optional)_ Wait for response. If false, returns send result. Defaults to `true`<!-- -->.
+Wait for response. If false, returns send result. Defaults to `true`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-\_others
+others
 
 
 </td><td>
 
-Record&lt;string, any&gt;
+Record&lt;string, unknown&gt;
 
 
 </td><td>
@@ -94,11 +94,27 @@ _(Optional)_ Additional data to include. Merged into RPC payload.
 
 
 </td></tr>
+<tr><td>
+
+timeoutMs
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Optional timeout in milliseconds. When exceeded, the pending request is rejected with a timeout error and removed from the pending map. Defaults to `defaultTimeoutMs`<!-- -->; `0` disables the timeout.
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 Promise resolving to the result if waiting, or send result if not.
 
@@ -112,5 +128,8 @@ console.log(result); // 3
 
 // Fire and forget
 rpc.makeRequest("log", ["message"], false);
+
+// With timeout
+await rpc.makeRequest("slow", [], true, undefined, 5000);
 ```
 

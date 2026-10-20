@@ -1,0 +1,20 @@
+---
+title: "ILmdbEnvOptions.mapSize"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [mapSize](./lmdb.ilmdbenvoptions.mapsize.md)
+
+## ILmdbEnvOptions.mapSize property
+
+Map size in bytes.
+
+**Signature:**
+
+```typescript
+mapSize?: number;
+```
+
+## Remarks
+
+The virtual memory mapping size. Must be larger than the total expected dataset. Cannot be changed after env is opened.
+

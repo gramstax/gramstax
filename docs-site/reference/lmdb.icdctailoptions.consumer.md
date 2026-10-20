@@ -1,0 +1,15 @@
+---
+title: "ICdcTailOptions.consumer"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ICdcTailOptions](./lmdb.icdctailoptions.md) &gt; [consumer](./lmdb.icdctailoptions.consumer.md)
+
+## ICdcTailOptions.consumer property
+
+Named persistent consumer (auto-registers on first tail).
+
+**Signature:**
+
+```typescript
+consumer?: string;
+```

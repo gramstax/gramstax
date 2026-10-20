@@ -1,0 +1,20 @@
+---
+title: "IColumnBuilder.isOptional"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IColumnBuilder](./lmdb.icolumnbuilder.md) &gt; [isOptional](./lmdb.icolumnbuilder.isoptional.md)
+
+## IColumnBuilder.isOptional property
+
+Whether the column accepts `null`/`undefined` values.
+
+**Signature:**
+
+```typescript
+readonly isOptional: Nl;
+```
+
+## Remarks
+
+Flag form of the [IColumnBuilder.optional()](./lmdb.icolumnbuilder.optional.md) modifier — named `isOptional` so it cannot collide with the `optional()` method on the same object. `false` by default (not optional); `true` after `.optional()`. The literal drives [ValueOf](./lmdb.valueof.md) column inference: optional columns yield `T | undefined`.
+

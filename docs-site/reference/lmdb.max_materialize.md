@@ -1,0 +1,20 @@
+---
+title: "MAX_MATERIALIZE"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [MAX\_MATERIALIZE](./lmdb.max_materialize.md)
+
+## MAX\_MATERIALIZE variable
+
+Hard cap on how many entries a materializing range query may return.
+
+**Signature:**
+
+```typescript
+MAX_MATERIALIZE = 100000
+```
+
+## Remarks
+
+`keys()`/`values()`/`entries()`/`like()`/`findByPrefix()`/ `deleteByPrefix()` reject with `LmdbError` past this cap — use `iterate()` (lazy, never guarded) for larger result sets.
+

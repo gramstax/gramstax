@@ -1,0 +1,364 @@
+### YamlMime:TSType
+name: LmdbSchema
+uid: '@gramstax/lmdb!LmdbSchema:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbSchema
+summary: Declarative schema base class — extend it to describe a collection.
+remarks: >-
+  Subclass with `static db` (used as the collection's `dbName`<!-- -->), `static key` (a single
+  [IColumnBuilder](xref:@gramstax/lmdb!IColumnBuilder:interface) from the [t](xref:@gramstax/lmdb!t:var) builders for
+  the primary key), and `static value` (a map of value columns, each a
+  [IColumnBuilder](xref:@gramstax/lmdb!IColumnBuilder:interface)<!-- -->). The `key` column must NOT carry `unique`<!--
+  -->/`index` — the key is implicitly the primary index and is excluded from the derived `indexes`<!-- -->.
+
+
+  Pass the class to [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1)) to materialize a typed
+  collection:
+
+
+  ```typescript
+
+  class UserSchema extends LmdbSchema {
+    static db = `users`
+    static key = t.number()
+    static value = {
+      id: t.number().unique(),
+      username: t.string().index(),
+      email: t.string(),
+      tags: t.array().optional(),
+      createdAt: t.date()
+    }
+  }
+
+
+  const users = env.register(UserSchema) // → registers the collection
+
+  type UserValue = ValueOf<typeof UserSchema>
+
+  ```
+
+  Derived indexes match the [LmdbEnv](xref:@gramstax/lmdb!LmdbEnv:class) index attachment input shape: each value column
+  with `unique` or an index flag becomes `{name: indexName ?? columnName, def: {unique}, dbName: undefined}` (see
+  [LmdbSchema.deriveIndexes()](xref:@gramstax/lmdb!LmdbSchema.deriveIndexes:member(1))<!-- -->). The `attachIndexes`
+  machinery auto-resolves the index name as a (possibly dotted) field path on the value, so the column name doubles as
+  the field path.
+
+
+  Optional `static hookBeforeWrite`<!-- -->/`static hookBeforeRead` functions transform rows at the collection boundary
+  — `hookBeforeWrite` runs before LMDB serializes the value and `hookBeforeRead` after it deserializes it (e.g. `Date →
+  number`<!-- -->). They must be declared TOGETHER or registration throws.
+
+
+  [LmdbSchema.validate()](xref:@gramstax/lmdb!LmdbSchema.validate:member(1)) enforces the schema rules at registration
+  time (missing `db`<!-- -->/`key`<!-- -->/`value`<!-- -->, write-hook without read-hook or vice versa, a unique or
+  indexed `key`<!-- -->, duplicate index names); it is called lazily by
+  [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1))<!-- -->. The inherited `static _schemaBrand`
+  lets [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1)) recognize schema classes at runtime.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+properties:
+  - name: _schemaBrand
+    uid: '@gramstax/lmdb!LmdbSchema._schemaBrand:member'
+    package: '@gramstax/lmdb!'
+    fullName: _schemaBrand
+    summary: >-
+      Runtime discriminator for [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1)) — inherited by
+      subclasses, never read by user code.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static readonly _schemaBrand: true;'
+      return:
+        type: 'true'
+  - name: db
+    uid: '@gramstax/lmdb!LmdbSchema.db:member'
+    package: '@gramstax/lmdb!'
+    fullName: db
+    summary: Sub-database name — used as the registered collection's `dbName`<!-- -->.
+    remarks: Required on every schema subclass; must be unique per env.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static db: string;'
+      return:
+        type: string
+  - name: dupSort
+    uid: '@gramstax/lmdb!LmdbSchema.dupSort:member'
+    package: '@gramstax/lmdb!'
+    fullName: dupSort
+    summary: Optional `dupSort` flag for the underlying sub-DB.
+    remarks: >-
+      Set `static dupSort = true` for one-key-to-many-ordered-values collections (e.g. `tag → postId` tables). Requires
+      a scalar `static value` (the stored duplicate values). Defaults to `false`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static dupSort?: boolean;'
+      return:
+        type: boolean
+  - name: encoding
+    uid: '@gramstax/lmdb!LmdbSchema.encoding:member'
+    package: '@gramstax/lmdb!'
+    fullName: encoding
+    summary: Optional value encoding for the underlying sub-DB.
+    remarks: >-
+      One of `msgpack` (default), `json`<!-- -->, `binary`<!-- -->, `string`<!-- -->, `ordered-binary`<!-- -->.
+      Overrides the env-level encoding for this collection.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static encoding?: string;'
+      return:
+        type: string
+  - name: hookBeforeRead
+    uid: '@gramstax/lmdb!LmdbSchema.hookBeforeRead:member'
+    package: '@gramstax/lmdb!'
+    fullName: hookBeforeRead
+    summary: Optional read hook — converts the stored form back to a typed row.
+    remarks: >-
+      Runs after LMDB deserializes the value (like a collection codec's `deserialize`<!-- -->). Must be declared
+      together with [LmdbSchema.hookBeforeWrite](xref:@gramstax/lmdb!LmdbSchema.hookBeforeWrite:member) — declaring only
+      one of the pair throws at registration.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static hookBeforeRead?: (raw: unknown) => unknown;'
+      return:
+        type: '(raw: unknown) =&gt; unknown'
+  - name: hookBeforeWrite
+    uid: '@gramstax/lmdb!LmdbSchema.hookBeforeWrite:member'
+    package: '@gramstax/lmdb!'
+    fullName: hookBeforeWrite
+    summary: Optional write hook — converts a typed row to its stored form.
+    remarks: >-
+      Runs before LMDB serializes the value (like a collection codec's `serialize`<!-- -->). Must be declared together
+      with [LmdbSchema.hookBeforeRead](xref:@gramstax/lmdb!LmdbSchema.hookBeforeRead:member) — declaring only one of the
+      pair throws at registration.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static hookBeforeWrite?: (value: unknown) => unknown;'
+      return:
+        type: '(value: unknown) =&gt; unknown'
+  - name: key
+    uid: '@gramstax/lmdb!LmdbSchema.key:member'
+    package: '@gramstax/lmdb!'
+    fullName: key
+    summary: Key column builder — the collection's primary key.
+    remarks: >-
+      Must be a single [IColumnBuilder](xref:@gramstax/lmdb!IColumnBuilder:interface) (from the
+      [t](xref:@gramstax/lmdb!t:var) builders). Must NOT carry `unique`<!-- -->/`index` — the key is implicitly the
+      primary index and is excluded from the derived `indexes`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static key: IAnyColumnBuilder;'
+      return:
+        type: <xref uid="@gramstax/lmdb!IAnyColumnBuilder:type" />
+  - name: ttl
+    uid: '@gramstax/lmdb!LmdbSchema.ttl:member'
+    package: '@gramstax/lmdb!'
+    fullName: ttl
+    summary: Optional collection-wide default TTL in milliseconds.
+    remarks: >-
+      When set, the registered collection is a TTL collection: every `put` stores an expiry envelope and reads
+      (`get`<!-- -->/`has`<!-- -->) treat expired entries as missing. Priority: per-put `{ttlMs}` override → `static
+      ttl` → never expires.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static ttl?: number;'
+      return:
+        type: number
+  - name: useVersions
+    uid: '@gramstax/lmdb!LmdbSchema.useVersions:member'
+    package: '@gramstax/lmdb!'
+    fullName: useVersions
+    summary: Optional `useVersions` flag for the underlying sub-DB.
+    remarks: >-
+      Enable optimistic locking via LMDB record versions on this collection — `env.rootPut(id, value, version,
+      ifVersion)` and `env.rootGetEntry(id)` require it. Defaults to the env's `useVersions` when omitted.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static useVersions?: boolean;'
+      return:
+        type: boolean
+  - name: value
+    uid: '@gramstax/lmdb!LmdbSchema.value:member'
+    package: '@gramstax/lmdb!'
+    fullName: value
+    summary: >-
+      Value column definition — either a single [IColumnBuilder](xref:@gramstax/lmdb!IColumnBuilder:interface) (scalar
+      value collections: `static value = t.number()`<!-- -->, `t.buffer()`<!-- -->, `t.array<T>()`<!-- -->,
+      `t.object<T>()`<!-- -->) or a map of [IColumnBuilder](xref:@gramstax/lmdb!IColumnBuilder:interface)<!-- -->s
+      (row-shaped collections). Scalar values carry no derived indexes.
+    remarks: >-
+      Each map column maps to a field of the row value type via
+      [IInferSchemaValue](xref:@gramstax/lmdb!IInferSchemaValue:type)<!-- -->; columns carrying `.unique()`<!--
+      -->/`.index(...)` become derived indexes (see
+      [LmdbSchema.deriveIndexes()](xref:@gramstax/lmdb!LmdbSchema.deriveIndexes:member(1))<!-- -->).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static value: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>;'
+      return:
+        type: >-
+          <xref uid="@gramstax/lmdb!IAnyColumnBuilder:type" /> | Record&lt;string, <xref
+          uid="@gramstax/lmdb!IAnyColumnBuilder:type" />&gt;
+  - name: version
+    uid: '@gramstax/lmdb!LmdbSchema.version:member'
+    package: '@gramstax/lmdb!'
+    fullName: version
+    summary: Optional shape version for migration transforms.
+    remarks: >-
+      Declares the row-shape version this schema class models. Transform steps name the version they produce
+      (`schemaVersion`<!-- -->); the runner refuses skewed steps whose target disagrees with this declaration.
+      Unversioned schemas skip the check.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static version?: number;'
+      return:
+        type: number
+methods:
+  - name: deriveIndexes(columns)
+    uid: '@gramstax/lmdb!LmdbSchema.deriveIndexes:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: deriveIndexes(columns)
+    summary: Derive index descriptors from a schema's columns.
+    remarks: >-
+      Same derivation as the former `lmdbSchema` body: every value column with `unique` or an index flag becomes `{name:
+      indexName ?? columnName, def: {unique}, dbName: undefined}`<!-- -->. Called by
+      [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1)) after
+      [LmdbSchema.validate()](xref:@gramstax/lmdb!LmdbSchema.validate:member(1))<!-- -->; validation already guarantees
+      no duplicate names, so this never throws.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static deriveIndexes(columns: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>): Array<{
+                name: string;
+                def: IIndexDef<unknown, ILmdbKey>;
+                dbName?: string;
+            }>;
+      parameters:
+        - id: columns
+          description: The schema's `static value` map.
+          type: >-
+            <xref uid="@gramstax/lmdb!IAnyColumnBuilder:type" /> | Record&lt;string, <xref
+            uid="@gramstax/lmdb!IAnyColumnBuilder:type" />&gt;
+      return:
+        type: |-
+          Array&lt;{
+                  name: string;
+                  def: <xref uid="@gramstax/lmdb!IIndexDef:interface" />&lt;unknown, <xref uid="@gramstax/lmdb!ILmdbKey:type" />&gt;;
+                  dbName?: string;
+              }&gt;
+        description: Index descriptors in the [LmdbEnv](xref:@gramstax/lmdb!LmdbEnv:class) index attachment shape.
+  - name: deriveRecordColumns(columns)
+    uid: '@gramstax/lmdb!LmdbSchema.deriveRecordColumns:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: deriveRecordColumns(columns)
+    summary: Derive positional record columns from a schema's value map.
+    remarks: >-
+      Every key in declaration order — unlike
+      [LmdbSchema.deriveIndexes()](xref:@gramstax/lmdb!LmdbSchema.deriveIndexes:member(1)) nothing is skipped, since
+      dropping a column would corrupt the positional layout. Scalar values carry no columns (no codec).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static deriveRecordColumns(columns: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>): Array<string>;'
+      parameters:
+        - id: columns
+          description: The schema's `static value` map.
+          type: >-
+            <xref uid="@gramstax/lmdb!IAnyColumnBuilder:type" /> | Record&lt;string, <xref
+            uid="@gramstax/lmdb!IAnyColumnBuilder:type" />&gt;
+      return:
+        type: Array&lt;string&gt;
+        description: Column names in declaration order, or `[]` for scalars.
+  - name: deriveSearch(columns)
+    uid: '@gramstax/lmdb!LmdbSchema.deriveSearch:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: deriveSearch(columns)
+    summary: Derive searchable column names from a schema's columns.
+    remarks: >-
+      Every top-level value column carrying `.search()` becomes one posting table (`{db}:search:{column}`<!-- -->).
+      Called by [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1)) after
+      [LmdbSchema.validate()](xref:@gramstax/lmdb!LmdbSchema.validate:member(1))<!-- -->; validation already guarantees
+      string-kind row-shaped columns, so this never throws.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static deriveSearch(columns: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>): Array<string>;'
+      parameters:
+        - id: columns
+          description: The schema's `static value` map.
+          type: >-
+            <xref uid="@gramstax/lmdb!IAnyColumnBuilder:type" /> | Record&lt;string, <xref
+            uid="@gramstax/lmdb!IAnyColumnBuilder:type" />&gt;
+      return:
+        type: Array&lt;string&gt;
+        description: Searchable column names in declaration order.
+  - name: isColumnBuilder(value)
+    uid: '@gramstax/lmdb!LmdbSchema.isColumnBuilder:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: isColumnBuilder(value)
+    summary: >-
+      Runtime check: is a value a single [IColumnBuilder](xref:@gramstax/lmdb!IColumnBuilder:interface) (scalar) rather
+      than a value-column map?
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static isColumnBuilder(value: unknown): value is IAnyColumnBuilder;'
+      parameters:
+        - id: value
+          description: The `static value` to inspect.
+          type: unknown
+      return:
+        type: '@gramstax/lmdb!~value is <xref uid="@gramstax/lmdb!IAnyColumnBuilder:type" />'
+        description: '`true` for a single builder, `false` for a column map.'
+  - name: validate(schemaClass)
+    uid: '@gramstax/lmdb!LmdbSchema.validate:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: validate(schemaClass)
+    summary: Validate a schema subclass before registration.
+    remarks: >-
+      Called lazily by [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1)) on every schema-class
+      registration (registration is once-per-class anyway). Throws [LmdbError](xref:@gramstax/lmdb!LmdbError:class)
+      when: - `static db` is missing or empty - only one of `static hookBeforeWrite` / `static hookBeforeRead` is
+      declared - `static key` is missing - the `key` builder carries `unique`<!-- -->/`index` - `static value` is
+      missing or not a plain record - two columns resolve to the same index name (explicit `.index("x")` names and
+      derived column names)
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static validate(schemaClass: typeof LmdbSchema): void;'
+      parameters:
+        - id: schemaClass
+          description: The schema subclass to validate.
+          type: typeof <xref uid="@gramstax/lmdb!LmdbSchema:class" />
+      return:
+        type: void
+        description: ''

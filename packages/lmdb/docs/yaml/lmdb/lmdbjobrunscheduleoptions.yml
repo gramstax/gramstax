@@ -1,0 +1,118 @@
+### YamlMime:TSType
+name: LmdbJobRunScheduleOptions
+uid: '@gramstax/lmdb!LmdbJobRunScheduleOptions:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbJobRunScheduleOptions
+summary: Options for [LmdbJobRun.start()](xref:@gramstax/lmdb!LmdbJobRun%23start:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: catchUp
+    uid: '@gramstax/lmdb!LmdbJobRunScheduleOptions#catchUp:member'
+    package: '@gramstax/lmdb!'
+    fullName: catchUp
+    summary: Run once at start if a boundary passed while the process was down (default `true`<!-- -->).
+    remarks: >-
+      Exactly one run, never one per missed boundary — otherwise three days of downtime against a daily schedule would
+      burn through a retention count with copies of near-identical data.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'catchUp?: boolean;'
+      return:
+        type: boolean
+  - name: onError
+    uid: '@gramstax/lmdb!LmdbJobRunScheduleOptions#onError:member'
+    package: '@gramstax/lmdb!'
+    fullName: onError
+    summary: Tick failure handler.
+    remarks: >-
+      Defaults to reporting through the env's diagnostics sink — see
+      [ILmdbEnvOptions.onWarn](xref:@gramstax/lmdb!ILmdbEnvOptions%23onWarn:member)<!-- -->. Nothing is written to
+      `console`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'onError?: (err: unknown) => void;'
+      return:
+        type: '(err: unknown) =&gt; void'
+  - name: pattern
+    uid: '@gramstax/lmdb!LmdbJobRunScheduleOptions#pattern:member'
+    package: '@gramstax/lmdb!'
+    fullName: pattern
+    summary: Cron expression for the schedule, resolved by `croner`<!-- -->.
+    remarks: >-
+      5-field (minute precision), 6-field (second precision) and 7-field (OCPS, with a trailing year) patterns are
+      supported. A pattern is a \*\*wall-clock\*\* schedule, not a duration — "03:00 every day" is a different thing
+      from "24 h after the last successful run". See `example/job-run.ts`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'pattern: string;'
+      return:
+        type: string
+  - name: persist
+    uid: '@gramstax/lmdb!LmdbJobRunScheduleOptions#persist:member'
+    package: '@gramstax/lmdb!'
+    fullName: persist
+    summary: Read and write the run-stamp (default `true`<!-- -->).
+    remarks: >-
+      `false` keeps `lastRun` in memory only: no catch-up decision is made and nothing is written, so the schedule
+      cannot survive a restart. The `__job_run` schema is still registered by the constructor.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'persist?: boolean;'
+      return:
+        type: boolean
+  - name: runOnStart
+    uid: '@gramstax/lmdb!LmdbJobRunScheduleOptions#runOnStart:member'
+    package: '@gramstax/lmdb!'
+    fullName: runOnStart
+    summary: Run once at start even when the job is not due (default `false`<!-- -->).
+    remarks: >-
+      Separate from
+      [LmdbJobRunScheduleOptions.catchUp](xref:@gramstax/lmdb!LmdbJobRunScheduleOptions%23catchUp:member)<!-- -->:
+      catch-up reacts to a boundary that genuinely passed, this forces an extra run on top.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'runOnStart?: boolean;'
+      return:
+        type: boolean
+  - name: task
+    uid: '@gramstax/lmdb!LmdbJobRunScheduleOptions#task:member'
+    package: '@gramstax/lmdb!'
+    fullName: task
+    summary: The work to run on each tick.
+    remarks: >-
+      A rejection is routed to `onError` and never stops the schedule. The run stamp is written only after this
+      resolves, so a thrown error leaves the job overdue and the next boot retries it.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'task: () => Promise<unknown>;'
+      return:
+        type: () =&gt; Promise&lt;unknown&gt;
+  - name: timezone
+    uid: '@gramstax/lmdb!LmdbJobRunScheduleOptions#timezone:member'
+    package: '@gramstax/lmdb!'
+    fullName: timezone
+    summary: 'IANA timezone for `pattern` (default: the host''s local timezone).'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'timezone?: string;'
+      return:
+        type: string

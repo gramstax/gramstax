@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: IIndexResult
+uid: '@gramstax/lmdb!IIndexResult:type'
+package: '@gramstax/lmdb!'
+fullName: IIndexResult
+summary: Return type of [LmdbEnvSub.findByIndex()](xref:@gramstax/lmdb!LmdbEnvSub%23findByIndex:member(1)) for a given query.
+remarks: >-
+  `T | undefined` when EVERY queried index is unique (`unique: true` — at most one primary key can match, so a miss is
+  `undefined`<!-- -->); `T[]` when ANY queried index is non-unique (several primaries may share the value, so a miss is
+  an empty array).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: 'type IIndexResult<T, I, Q> = AllKeysUnique<I, Q> extends true ? T | undefined : T[];'

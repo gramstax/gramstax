@@ -1,7 +1,7 @@
 import type {S3Client} from "@aws-sdk/client-s3"
 
 /**
- * One timestamped backup entry as returned by {@link LmdbBackup.list}.\
+ * One timestamped backup entry as returned by {@link LmdbBackup.list}.
  *
  * @public
  */
@@ -38,10 +38,10 @@ export interface IBackupStartOptions {
    * Remote archives to retain after each tick (default: `keep`).
    *
    * @remarks
-   * Separate from {@link keep} because off-host retention is usually longer than
-   * local — you prune local copies aggressively to save disk and keep the
-   * archive you can restore from anywhere. Falls back to `keep`, so a caller
-   * that never sets it behaves exactly as before.
+   * Separate from {@link LmdbBackupStartOptions.keep} because off-host retention is
+   * usually longer than local — you prune local copies aggressively to save disk
+   * and keep the archive you can restore from anywhere. Falls back to `keep`, so a
+   * caller that never sets it behaves exactly as before.
    */
   s3Keep?: number
   /**
@@ -144,7 +144,7 @@ export interface IBackupHandle {
    * safe to assert on the result straight after awaiting. If a snapshot is
    * already in flight this **joins** that cycle rather than skipping, so the
    * resolved value always means real work finished — never a silent no-op.
-   * Works after {@link IBackupHandle.stop}, since stopping only ends the
+   * Works after {@link LmdbBackupHandle.stop}, since stopping only ends the
    * schedule.
    *
    * @returns Nothing.
@@ -246,10 +246,10 @@ export interface IBackupSnapshotOptions {
    * Remote archives to retain after each tick (default: `keep`).
    *
    * @remarks
-   * Separate from {@link keep} because off-host retention is usually longer than
-   * local — you prune local copies aggressively to save disk and keep the
-   * archive you can restore from anywhere. Falls back to `keep`, so a caller
-   * that never sets it behaves exactly as before.
+   * Separate from {@link LmdbBackupSnapshotOptions.keep} because off-host retention is
+   * usually longer than local — you prune local copies aggressively to save disk
+   * and keep the archive you can restore from anywhere. Falls back to `keep`, so a
+   * caller that never sets it behaves exactly as before.
    */
   s3Keep?: number
   /**

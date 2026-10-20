@@ -1,0 +1,89 @@
+### YamlMime:TSType
+name: LmdbBackupHandle
+uid: '@gramstax/lmdb!LmdbBackupHandle:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbBackupHandle
+summary: Handle returned by [LmdbBackup.start()](xref:@gramstax/lmdb!LmdbBackup.start:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+methods:
+  - name: label()
+    uid: '@gramstax/lmdb!LmdbBackupHandle#label:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: label()
+    summary: Cron pattern plus the last-run stamp (`0 3 * * *, last run <ISO>`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'label(): string;'
+      return:
+        type: string
+        description: ''
+  - name: lastRun()
+    uid: '@gramstax/lmdb!LmdbBackupHandle#lastRun:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: lastRun()
+    summary: Epoch ms of the last successful snapshot, or `undefined` before the first.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'lastRun(): number | undefined;'
+      return:
+        type: number | undefined
+        description: ''
+  - name: nextRun()
+    uid: '@gramstax/lmdb!LmdbBackupHandle#nextRun:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: nextRun()
+    summary: Next scheduled snapshot, or `undefined` once stopped.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'nextRun(): Date | undefined;'
+      return:
+        type: Date | undefined
+        description: ''
+  - name: runNow()
+    uid: '@gramstax/lmdb!LmdbBackupHandle#runNow:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: runNow()
+    summary: Take a snapshot now and record the run, without disturbing the schedule.
+    remarks: >-
+      Resolves when a snapshot has completed and the stamp is written, so it is safe to assert on the result straight
+      after awaiting. If a snapshot is already in flight this \*\*joins\*\* that cycle rather than skipping, so the
+      resolved value always means real work finished — never a silent no-op. Works after
+      [LmdbBackupHandle.stop()](xref:@gramstax/lmdb!LmdbBackupHandle%23stop:member(1))<!-- -->, since stopping only ends
+      the schedule.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'runNow(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: Nothing.
+  - name: stop()
+    uid: '@gramstax/lmdb!LmdbBackupHandle#stop:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: stop()
+    summary: Stop the schedule — no further scheduled ticks.
+    remarks: >-
+      Resolves once a snapshot already in flight has settled. Await it before closing the env or deleting the backup
+      directory, or the running native copy races the teardown.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'stop(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: ''

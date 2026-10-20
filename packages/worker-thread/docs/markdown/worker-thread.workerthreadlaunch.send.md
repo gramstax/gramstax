@@ -9,7 +9,7 @@ Send a message to the worker thread.
 **Signature:**
 
 ```typescript
-send(payload: any): void;
+send(payload: Record<string, unknown>): void;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ payload
 
 </td><td>
 
-any
+Record&lt;string, unknown&gt;
 
 
 </td><td>

@@ -1,0 +1,106 @@
+---
+title: "LmdbSyncStream"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbSyncStream](./lmdb.lmdbsyncstream.md)
+
+## LmdbSyncStream class
+
+Differential env-to-env sync for `@gramstax/lmdb`.
+
+**Signature:**
+
+```typescript
+declare class LmdbSyncStream<S extends typeof LmdbSchema> 
+```
+
+## Remarks
+
+`LmdbSyncStream` copies rows past a checkpoint through a keyset cursor in 500-row chunks: each chunk commits to the destination via `putMany` (indexes, search, CDC, TTL ride along), then the cursor persists to `__sync_state` under the stream name — so a killed run resumes mid-stream instead of restarting. Source iteration order is natively ascending, so destination writes ride `{sorted: true}` appends. An explicit `checkpoint` option runs one-shot past that key without touching the stored cursor. Sync copies upsert-style and never deletes destination-only rows; quiesce writes on both subs before syncing (concurrent writes defeat the verify step by design).
+
+Sync helpers ride as statics on this class; a run threads six pieces of state — source, destination, options, cursor, counters, exhaustion — across paged async iterations. Construct per run; instances are single-use.
+
+## Constructors
+
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(\_source, \_dest, \_options)](./lmdb.lmdbsyncstream._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Create a sync stream for one run (instances are single-use).
+
+
+</td></tr>
+</tbody></table>
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[hashRowValue(value)](./lmdb.lmdbsyncstream.hashrowvalue.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Deterministic hash of a row value for sync verification.
+
+
+</td></tr>
+<tr><td>
+
+[run()](./lmdb.lmdbsyncstream.run.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Copy rows past the checkpoint through a keyset cursor in 500-row chunks.
+
+
+</td></tr>
+</tbody></table>
+

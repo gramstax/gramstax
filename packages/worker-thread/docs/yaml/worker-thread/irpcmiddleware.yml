@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: IRpcMiddleware
+uid: '@gramstax/worker-thread!IRpcMiddleware:type'
+package: '@gramstax/worker-thread!'
+fullName: IRpcMiddleware
+summary: Middleware function for intercepting incoming RPC requests.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: 'type IRpcMiddleware = (ctx: IRpcContext, next: () => Promise<void>) => Promise<void>;'

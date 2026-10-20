@@ -1,0 +1,21 @@
+---
+title: "LmdbEnv.getMigrationVersion()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [getMigrationVersion](./lmdb.lmdbenv.getmigrationversion.md)
+
+## LmdbEnv.getMigrationVersion() method
+
+Current schema version as recorded by [LmdbEnv.migrate()](./lmdb.lmdbenv.migrate.md).
+
+**Signature:**
+
+```typescript
+getMigrationVersion(): number;
+```
+**Returns:**
+
+number
+
+The highest applied migration version, or `0` if none have run.
+

@@ -1,0 +1,20 @@
+---
+title: "LmdbEnv.maxDbs"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [maxDbs](./lmdb.lmdbenv.maxdbs.md)
+
+## LmdbEnv.maxDbs property
+
+Maximum number of sub-databases.
+
+**Signature:**
+
+```typescript
+readonly maxDbs: number;
+```
+
+## Remarks
+
+Mirrors [ILmdbEnvOptions.maxDbs](./lmdb.ilmdbenvoptions.maxdbs.md).
+

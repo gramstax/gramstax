@@ -1,0 +1,20 @@
+---
+title: "LmdbBackupStartOptions.runOnStart"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupStartOptions](./lmdb.lmdbbackupstartoptions.md) &gt; [runOnStart](./lmdb.lmdbbackupstartoptions.runonstart.md)
+
+## LmdbBackupStartOptions.runOnStart property
+
+Run one backup immediately on start, even when not due (default `false`).
+
+**Signature:**
+
+```typescript
+runOnStart?: boolean;
+```
+
+## Remarks
+
+Separate from overdue catch-up: an overdue job runs at boot regardless, because a boundary passed while the process was down is a missed run. This forces an extra early run on top of that.
+

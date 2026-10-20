@@ -1,0 +1,20 @@
+---
+title: "ILmdbEnvOptions.readOnly"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [readOnly](./lmdb.ilmdbenvoptions.readonly.md)
+
+## ILmdbEnvOptions.readOnly property
+
+Whether the env is opened in read-only mode.
+
+**Signature:**
+
+```typescript
+readOnly?: boolean;
+```
+
+## Remarks
+
+Read-only envs reject all write operations (set/delete/clear).
+

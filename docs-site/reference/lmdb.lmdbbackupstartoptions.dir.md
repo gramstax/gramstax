@@ -1,0 +1,15 @@
+---
+title: "LmdbBackupStartOptions.dir"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupStartOptions](./lmdb.lmdbbackupstartoptions.md) &gt; [dir](./lmdb.lmdbbackupstartoptions.dir.md)
+
+## LmdbBackupStartOptions.dir property
+
+Directory holding timestamped backup subdirs.
+
+**Signature:**
+
+```typescript
+dir: string;
+```

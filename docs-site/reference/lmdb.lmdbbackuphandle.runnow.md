@@ -1,0 +1,25 @@
+---
+title: "LmdbBackupHandle.runNow()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupHandle](./lmdb.lmdbbackuphandle.md) &gt; [runNow](./lmdb.lmdbbackuphandle.runnow.md)
+
+## LmdbBackupHandle.runNow() method
+
+Take a snapshot now and record the run, without disturbing the schedule.
+
+**Signature:**
+
+```typescript
+runNow(): Promise<void>;
+```
+**Returns:**
+
+Promise&lt;void&gt;
+
+Nothing.
+
+## Remarks
+
+Resolves when a snapshot has completed and the stamp is written, so it is safe to assert on the result straight after awaiting. If a snapshot is already in flight this \*\*joins\*\* that cycle rather than skipping, so the resolved value always means real work finished — never a silent no-op. Works after [LmdbBackupHandle.stop()](./lmdb.lmdbbackuphandle.stop.md), since stopping only ends the schedule.
+

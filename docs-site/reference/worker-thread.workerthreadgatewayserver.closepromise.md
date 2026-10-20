@@ -1,0 +1,15 @@
+---
+title: "WorkerThreadGatewayServer.closePromise"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadGatewayServer](./worker-thread.workerthreadgatewayserver.md) &gt; [closePromise](./worker-thread.workerthreadgatewayserver.closepromise.md)
+
+## WorkerThreadGatewayServer.closePromise property
+
+In-flight `close()` shared by concurrent/duplicate callers.
+
+**Signature:**
+
+```typescript
+closePromise: Promise<void> | null;
+```

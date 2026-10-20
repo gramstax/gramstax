@@ -1,0 +1,23 @@
+---
+title: "LmdbEnv.close()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [close](./lmdb.lmdbenv.close.md)
+
+## LmdbEnv.close() method
+
+Close the underlying LMDB environment and release all resources.
+
+**Signature:**
+
+```typescript
+close(): Promise<void>;
+```
+**Returns:**
+
+Promise&lt;void&gt;
+
+## Remarks
+
+Delegates to the inherited lmdb root store `close()` (awaitable), then clears the sub registry and purges this env's handles from lmdb-js's module-level `allDbs` map so repeated open/close cycles do not accumulate JS store wrappers for the process lifetime. Handles obtained via [LmdbEnv.register()](./lmdb.lmdbenv.register.md) become unusable after close.
+

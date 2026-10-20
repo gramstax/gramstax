@@ -9,18 +9,19 @@ Manages worker thread lifecycle from the main thread. Handles spawning, communic
 **Signature:**
 
 ```typescript
-declare class WorkerThreadLaunch 
+declare class WorkerThreadLaunch extends EventEmitter 
 ```
+**Extends:** EventEmitter
 
 ## Remarks
 
-Automatically registers SIGINT/SIGTERM handlers to terminate workers. Uses promise-based ready detection for synchronization.
+Automatically registers SIGINT/SIGTERM handlers to terminate workers. Uses promise-based ready detection for synchronization. Extends `EventEmitter` — emits `ready`<!-- -->, `exit` and `error` lifecycle events.
 
 ## Example 1
 
 
 ```typescript
-import { WorkerThreadLaunch } from "gramstax";
+import { WorkerThreadLaunch } from "@gramstax/worker-thread";
 
 async function main() {
   const worker = new WorkerThreadLaunch("./jobs/processor.ts", ["config.json"]);
@@ -39,7 +40,7 @@ async function main() {
 Initialization method for handling requests from worker threads. Both can communicate with each other using an example like this, but this is very very rarely used.
 
 ```typescript
-import { WorkerThreadLaunch } from "gramstax";
+import { WorkerThreadLaunch } from "@gramstax/worker-thread";
 
 // main.ts
 export class MainThread extends WorkerThreadLaunch {
@@ -57,7 +58,7 @@ async function main() {
 
 // jobs/processor.ts
 import {MainThread} from "./main"
-import {WorkerThreadInit} from "gramstax";
+import {WorkerThreadInit} from "@gramstax/worker-thread";
 
 class Worker extends WorkerThreadInit {
   constructor() {
@@ -70,7 +71,7 @@ class Worker extends WorkerThreadInit {
 }
 export const MyWorker = WorkerThreadExport.init({
   path: __filename,
-  WTInit: MainThread,
+  WTInit: Worker,
 });
 ```
 
@@ -141,7 +142,7 @@ Description
 
 </td><td>
 
-any\[\]
+unknown\[\]
 
 
 </td><td>
@@ -215,7 +216,7 @@ The main process ID.
 
 </td><td>
 
-any \| undefined
+Record&lt;string, (...args: never\[\]) =&gt; unknown&gt; \| undefined
 
 
 </td><td>
@@ -373,7 +374,7 @@ Wait for the worker to signal it's ready.
 </td></tr>
 <tr><td>
 
-[request(method, params, \_wait, \_others)](./worker-thread.workerthreadlaunch.request.md)
+[request(method, params, \_wait, \_others, timeoutMs)](./worker-thread.workerthreadlaunch.request.md)
 
 
 </td><td>
@@ -396,6 +397,20 @@ Make an RPC request to the worker thread.
 </td><td>
 
 Send a message to the worker thread.
+
+
+</td></tr>
+<tr><td>
+
+[shutdown(timeoutMs)](./worker-thread.workerthreadlaunch.shutdown.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Shut the worker down gracefully.
 
 
 </td></tr>

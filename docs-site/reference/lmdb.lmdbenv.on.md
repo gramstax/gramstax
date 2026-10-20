@@ -1,0 +1,72 @@
+---
+title: "LmdbEnv.on()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [on](./lmdb.lmdbenv.on.md)
+
+## LmdbEnv.on() method
+
+Listen for LMDB commit events.
+
+**Signature:**
+
+```typescript
+on(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+event
+
+
+</td><td>
+
+\`beforecommit\` \| \`aftercommit\`
+
+
+</td><td>
+
+`'beforecommit'` or `'aftercommit'`.
+
+
+</td></tr>
+<tr><td>
+
+callback
+
+
+</td><td>
+
+(event: unknown) =&gt; void
+
+
+</td><td>
+
+Event handler.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+

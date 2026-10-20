@@ -1,0 +1,15 @@
+---
+title: "ISyncOptions.checkpoint"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ISyncOptions](./lmdb.isyncoptions.md) &gt; [checkpoint](./lmdb.isyncoptions.checkpoint.md)
+
+## ISyncOptions.checkpoint property
+
+One-shot exclusive lower bound (ignores and preserves the stored cursor).
+
+**Signature:**
+
+```typescript
+checkpoint?: KeyOf<S>;
+```

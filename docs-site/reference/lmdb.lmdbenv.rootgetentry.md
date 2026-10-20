@@ -1,0 +1,77 @@
+---
+title: "LmdbEnv.rootGetEntry()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [rootGetEntry](./lmdb.lmdbenv.rootgetentry.md)
+
+## LmdbEnv.rootGetEntry() method
+
+Retrieve an entry (value + version) by key.
+
+**Signature:**
+
+```typescript
+rootGetEntry(key: Key, options?: GetOptions): {
+        value: unknown;
+        version?: number;
+    } | undefined;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+Key
+
+
+</td><td>
+
+The key to look up.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+GetOptions
+
+
+</td><td>
+
+_(Optional)_ Optional read transaction.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+\{ value: unknown; version?: number; } \| undefined
+
+The entry with value and optional version, or `undefined`.
+

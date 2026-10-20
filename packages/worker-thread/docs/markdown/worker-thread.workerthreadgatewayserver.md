@@ -9,14 +9,21 @@
 **Signature:**
 
 ```typescript
-declare class WorkerThreadGatewayServer 
+declare class WorkerThreadGatewayServer extends EventEmitter 
 ```
+**Extends:** EventEmitter
 
 ## Remarks
 
 Low-level infrastructure. In most cases use [WorkerThreadInit.createGatewayServer()](./worker-thread.workerthreadinit.creategatewayserver.md) instead of constructing this directly.
 
-Uses `net-ipc` library for Unix domain socket communication. Supports connections from multiple gateway clients.
+Uses the `net-ipc` library for Unix domain socket communication. Works in \*\*Bun\*\* (native) and \*\*Node.js\*\* (native).
+
+Supports connections from multiple gateway clients. Emits `connect`<!-- -->, `disconnect`<!-- -->, `ready` and `error` events.
+
+\#\# Reliability semantics (at-least-once)
+
+- \*\*Retried delivery, not exactly-once.\*\* The transport (`net-ipc`<!-- -->) retries failed writes and replays in-flight requests across reconnects, and callers may retry timed-out requests — so a handler can observe the same RPC `id` twice. Request ids are monotonically increasing per client and never reused within a connection lifetime, so the server suppresses duplicates per connection: the first delivery executes, redeliveries replay the cached response. Make handlers idempotent anyway — responses over 64KB are never cached (re-executed on redelivery) and the cache holds at most 1000 entries per connection (FIFO) and is dropped on disconnect. - \*\*No ordering across reconnect.\*\* Requests sent before a drop may resolve after requests sent after the reconnect; never rely on cross-request order. - \*\*`maxMessageSize` is enforced post-buffering, not a wire-level DoS cap.\*\* The full frame is already buffered by `net-ipc` before the estimate runs — the cap stops a peer from growing handler memory or the pending map, it does not stop the bytes crossing the socket (upstream `net-ipc` limitation). - \*\*Allow-list escape hatch.\*\* Middleware that short-circuits (sets `ctx.result` without calling `next()`<!-- -->) skips every downstream check, including the `allowedMethods` guard. That is an intentional escape hatch for trusted in-process customization, not a vulnerability: only code that already holds the server instance can register such middleware.
 
 ## Constructors
 
@@ -77,6 +84,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[closePromise](./worker-thread.workerthreadgatewayserver.closepromise.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Promise&lt;void&gt; \| null
+
+
+</td><td>
+
+In-flight `close()` shared by concurrent/duplicate callers.
+
+
+</td></tr>
+<tr><td>
+
 [register](./worker-thread.workerthreadgatewayserver.register.md)
 
 
@@ -85,7 +111,7 @@ Description
 
 </td><td>
 
-any
+Record&lt;string, (...args: never\[\]) =&gt; unknown&gt;
 
 
 </td><td>
@@ -154,7 +180,21 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[start(path, register)](./worker-thread.workerthreadgatewayserver.start.md)
+[close()](./worker-thread.workerthreadgatewayserver.close.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Stop the gateway server and drop all connections.
+
+
+</td></tr>
+<tr><td>
+
+[start(path, register, options)](./worker-thread.workerthreadgatewayserver.start.md)
 
 
 </td><td>

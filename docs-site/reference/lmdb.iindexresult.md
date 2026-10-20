@@ -1,0 +1,20 @@
+---
+title: "IIndexResult"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IIndexResult](./lmdb.iindexresult.md)
+
+## IIndexResult type
+
+Return type of [LmdbEnvSub.findByIndex()](./lmdb.lmdbenvsub.findbyindex.md) for a given query.
+
+**Signature:**
+
+```typescript
+type IIndexResult<T, I, Q> = AllKeysUnique<I, Q> extends true ? T | undefined : T[];
+```
+
+## Remarks
+
+`T | undefined` when EVERY queried index is unique (`unique: true` — at most one primary key can match, so a miss is `undefined`); `T[]` when ANY queried index is non-unique (several primaries may share the value, so a miss is an empty array).
+

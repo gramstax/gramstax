@@ -1,0 +1,15 @@
+---
+title: "LmdbEnvSub.valueType"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [valueType](./lmdb.lmdbenvsub.valuetype.md)
+
+## LmdbEnvSub.valueType property
+
+The schema's value type.
+
+**Signature:**
+
+```typescript
+get valueType(): ValueOf<S>;
+```

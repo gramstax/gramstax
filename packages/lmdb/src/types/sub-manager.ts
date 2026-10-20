@@ -18,7 +18,7 @@ export type ISchemaConstructor = typeof LmdbSchema
  * Sub-DB construction options for the sub registry.
  *
  * @remarks
- * Shared by {@link LmdbEnvSubManager.register} (which builds it from
+ * Shared by `LmdbEnvSubManager.register` (which builds it from
  * schema metadata) and the internal sub-state factory (which also reads
  * `keyEncoding` for composite tables).
  *

@@ -1,0 +1,38 @@
+### YamlMime:TSType
+name: ICompressionOptions
+uid: '@gramstax/lmdb!ICompressionOptions:interface'
+package: '@gramstax/lmdb!'
+fullName: ICompressionOptions
+summary: LMDB compression options (passed as `compression` to override the boolean).
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: dictionary
+    uid: '@gramstax/lmdb!ICompressionOptions#dictionary:member'
+    package: '@gramstax/lmdb!'
+    fullName: dictionary
+    summary: Custom LZ4 dictionary buffer.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'dictionary?: Buffer;'
+      return:
+        type: Buffer
+  - name: threshold
+    uid: '@gramstax/lmdb!ICompressionOptions#threshold:member'
+    package: '@gramstax/lmdb!'
+    fullName: threshold
+    summary: Minimum entry size in bytes to compress.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'threshold?: number;'
+      return:
+        type: number

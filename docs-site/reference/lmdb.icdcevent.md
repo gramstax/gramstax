@@ -1,0 +1,102 @@
+---
+title: "ICdcEvent"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ICdcEvent](./lmdb.icdcevent.md)
+
+## ICdcEvent interface
+
+In-process subscriber event — exactly `{type, key, value}`.
+
+**Signature:**
+
+```typescript
+interface ICdcEvent 
+```
+
+## Remarks
+
+Delivered to `subscribe` callbacks post-commit and persisted on outbox records. Deletes are key-only (`value` is `undefined`); clears cover a whole sub (`key` and `value` are both `undefined`).
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[key](./lmdb.icdcevent.key.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[ILmdbKey](./lmdb.ilmdbkey.md) \| undefined
+
+
+</td><td>
+
+Primary key (`undefined` for `clear`).
+
+
+</td></tr>
+<tr><td>
+
+[type](./lmdb.icdcevent.type.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\`put\` \| \`delete\` \| \`clear\`
+
+
+</td><td>
+
+Write kind (`clear` covers whole-sub clears).
+
+
+</td></tr>
+<tr><td>
+
+[value](./lmdb.icdcevent.value.md)
+
+
+</td><td>
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+Row value (`undefined` for deletes and clears).
+
+
+</td></tr>
+</tbody></table>
+

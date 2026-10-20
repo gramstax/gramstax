@@ -1,0 +1,15 @@
+---
+title: "LmdbJobRunScheduleOptions.timezone"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbJobRunScheduleOptions](./lmdb.lmdbjobrunscheduleoptions.md) &gt; [timezone](./lmdb.lmdbjobrunscheduleoptions.timezone.md)
+
+## LmdbJobRunScheduleOptions.timezone property
+
+IANA timezone for `pattern` (default: the host's local timezone).
+
+**Signature:**
+
+```typescript
+timezone?: string;
+```

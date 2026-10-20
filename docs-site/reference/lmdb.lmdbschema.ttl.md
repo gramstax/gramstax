@@ -1,0 +1,20 @@
+---
+title: "LmdbSchema.ttl"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbSchema](./lmdb.lmdbschema.md) &gt; [ttl](./lmdb.lmdbschema.ttl.md)
+
+## LmdbSchema.ttl property
+
+Optional collection-wide default TTL in milliseconds.
+
+**Signature:**
+
+```typescript
+static ttl?: number;
+```
+
+## Remarks
+
+When set, the registered collection is a TTL collection: every `put` stores an expiry envelope and reads (`get`/`has`) treat expired entries as missing. Priority: per-put `{ttlMs}` override → `static ttl` → never expires.
+

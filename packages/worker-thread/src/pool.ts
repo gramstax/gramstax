@@ -467,17 +467,21 @@ class WorkerThreadPoolBase<TInit extends WorkerThreadInit = WorkerThreadInit> {
  * types `new C()` as `C` no matter what the constructor returns — so exposing
  * `mtd*` requires the construct signature to name the intersection itself.
  *
- * The accompanying {@link WorkerThreadPool} type alias carries the same
+ * The accompanying {@link (WorkerThreadPool:type)} type alias carries the same
  * intersection, so the name still works in a type annotation.
+ *
+ * @public
  */
 export const WorkerThreadPool = WorkerThreadPoolBase as unknown as {
   new <TInit extends WorkerThreadInit = WorkerThreadInit>(instance: Array<WorkerThreadLaunch & IWorkerThreadWorkerClass<TInit>>): WorkerThreadPoolBase<TInit> & IWorkerThreadPoolMethods<TInit>
 }
 
 /**
- * Type of a {@link WorkerThreadPool} instance: the registry plus the worker
+ * Type of a {@link (WorkerThreadPool:variable)} instance: the registry plus the worker
  * class's `mtd*` dispatch surface.
  *
  * @typeParam TInit - The worker class whose `mtd*` methods should be exposed.
+ *
+ * @public
  */
 export type WorkerThreadPool<TInit extends WorkerThreadInit = WorkerThreadInit> = WorkerThreadPoolBase<TInit> & IWorkerThreadPoolMethods<TInit>

@@ -9,7 +9,7 @@ Connect to a gateway server.
 **Signature:**
 
 ```typescript
-connect(path: string): Promise<unknown>;
+connect(path: string, options?: IGatewayClientOptions): Promise<unknown>;
 ```
 
 ## Parameters
@@ -46,6 +46,22 @@ Unix socket path. Matches server gateway.
 
 
 </td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IGatewayClientOptions](./worker-thread.igatewayclientoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Connection options (auth token, reconnect tuning, encoding).
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
@@ -58,7 +74,10 @@ Promise that resolves to this client instance when connection is ready.
 
 
 ```typescript
-await client.connect("/tmp/worker-server.sock");
+await client.connect("/tmp/worker-server.sock", {
+  token: "shared-secret",
+  messagepack: true,
+});
 console.log("Connected to gateway server");
 ```
 

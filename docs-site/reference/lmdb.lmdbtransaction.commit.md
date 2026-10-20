@@ -1,0 +1,42 @@
+---
+title: "LmdbTransaction.commit()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbTransaction](./lmdb.lmdbtransaction.md) &gt; [commit](./lmdb.lmdbtransaction.commit.md)
+
+## LmdbTransaction.commit() method
+
+Mark this transaction as committed.
+
+**Signature:**
+
+```typescript
+commit(): void;
+```
+**Returns:**
+
+void
+
+## Exceptions
+
+[LmdbError](./lmdb.lmdberror.md) if already committed or aborted.
+
+## Remarks
+
+\*\*SQL equivalent\*\*: `COMMIT;` — ends the transaction and makes all writes durable.
+
+For write transactions (inside [LmdbEnv.transaction()](./lmdb.lmdbenv.transaction.md)): sets the internal flag so the wrapper callback returns normally and LMDB commits. The actual commit is performed by LMDB once the wrapper returns.
+
+For read transactions (inside [LmdbEnv.readTransaction()](./lmdb.lmdbenv.readtransaction.md)): this is a no-op — the raw LMDB read transaction is released automatically when the wrapper returns.
+
+## Example
+
+
+```typescript
+await env.transaction(async (tx) => {
+  await users.put("u1", user, tx);
+  await sessions.put("s1", session, tx);
+  tx.commit();
+});
+```
+

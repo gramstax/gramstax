@@ -26,7 +26,7 @@ export class WorkerThreadErrorHandler {
    * listeners are attached.
    *
    * @param handler - Receives every error that has no instance listener.
-   * @throws {TypeError} When `handler` is neither a function nor `undefined`.
+   * @throws TypeError When `handler` is neither a function nor `undefined`.
    *
    * @example
    * ```typescript

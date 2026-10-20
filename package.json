@@ -40,6 +40,7 @@
     "build:create-gramstax": "NX_DAEMON=false nx build create-gramstax",
     "build:worker-thread": "NX_DAEMON=false nx build worker-thread",
     "build:manifest": "bun packages/gramstax/scripts/build-manifest.ts",
+    "build:docs": "bun run --cwd packages/gramstax build:docs && bun run --cwd packages/lmdb build:docs && bun run --cwd packages/worker-thread build:docs && bun scripts/mintlify/merge-reference.mjs && bun scripts/mintlify/build-site.mjs",
     "version": "nx release version",
     "version:patch": "nx release version patch",
     "version:minor": "nx release version minor",

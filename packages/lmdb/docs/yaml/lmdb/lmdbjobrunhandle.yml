@@ -1,0 +1,90 @@
+### YamlMime:TSType
+name: LmdbJobRunHandle
+uid: '@gramstax/lmdb!LmdbJobRunHandle:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbJobRunHandle
+summary: Handle returned by [LmdbJobRun.start()](xref:@gramstax/lmdb!LmdbJobRun%23start:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+methods:
+  - name: label()
+    uid: '@gramstax/lmdb!LmdbJobRunHandle#label:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: label()
+    summary: Cron pattern plus the last-run stamp (`0 3 * * *, last run <ISO>`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'label(): string;'
+      return:
+        type: string
+        description: ''
+  - name: lastRun()
+    uid: '@gramstax/lmdb!LmdbJobRunHandle#lastRun:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: lastRun()
+    summary: Epoch ms of the last successful run, or `undefined` before the first one.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'lastRun(): number | undefined;'
+      return:
+        type: number | undefined
+        description: ''
+  - name: nextRun()
+    uid: '@gramstax/lmdb!LmdbJobRunHandle#nextRun:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: nextRun()
+    summary: Next scheduled run, or `undefined` once stopped.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'nextRun(): Date | undefined;'
+      return:
+        type: Date | undefined
+        description: ''
+  - name: runNow()
+    uid: '@gramstax/lmdb!LmdbJobRunHandle#runNow:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: runNow()
+    summary: Run the task now and record the run, without disturbing the schedule.
+    remarks: >-
+      Resolves when the task has completed, so it is safe to assert on the result straight after awaiting. A call
+      arriving while a run is in flight \*\*joins\*\* that run rather than skipping, so the resolved value always means
+      real work finished. Still works after
+      [LmdbJobRunHandle.stop()](xref:@gramstax/lmdb!LmdbJobRunHandle%23stop:member(1))<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'runNow(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: stop()
+    uid: '@gramstax/lmdb!LmdbJobRunHandle#stop:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: stop()
+    summary: Stop the schedule — no further scheduled ticks.
+    remarks: >-
+      Idempotent, and permanent: croner cannot resume a stopped job. Resolves once a tick already in flight has settled,
+      so the caller may await it and then tear down the env or the tick's output directory without racing the task. A
+      tick cron had queued but not yet started is dropped, not run.
+      [LmdbJobRunHandle.runNow()](xref:@gramstax/lmdb!LmdbJobRunHandle%23runNow:member(1)) still works after a stop.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'stop(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: ''

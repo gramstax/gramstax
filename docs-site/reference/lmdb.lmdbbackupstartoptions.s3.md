@@ -1,0 +1,15 @@
+---
+title: "LmdbBackupStartOptions.s3"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupStartOptions](./lmdb.lmdbbackupstartoptions.md) &gt; [s3](./lmdb.lmdbbackupstartoptions.s3.md)
+
+## LmdbBackupStartOptions.s3 property
+
+S3 upload per tick — tar.gz only.
+
+**Signature:**
+
+```typescript
+s3?: IBackupS3Options;
+```

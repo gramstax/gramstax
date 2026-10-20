@@ -9,12 +9,7 @@ Initialize a worker thread export with automatic environment detection.
 **Signature:**
 
 ```typescript
-static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<any, any>>(options: WorkerThreadExportOpt<TWorker, TMain, TWrap>): TWrap & WorkerThreadAsyncMethods<TWorker> & {
-        launchWorker: (argv?: any[]) => Promise<TMain>;
-        launchGatewayClient: (serverPath?: string) => WorkerThreadGatewayProxy<TWorker> & {
-            new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>;
-        };
-    };
+static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<string, unknown>>(options: IWorkerThreadExportOpt<TWorker, TMain, TWrap>): IWorkerThreadExportResult<TWorker, TMain, TWrap>;
 ```
 
 ## Parameters
@@ -42,7 +37,7 @@ options
 
 </td><td>
 
-[WorkerThreadExportOpt](./worker-thread.workerthreadexportopt.md)<!-- -->&lt;TWorker, TMain, TWrap&gt;
+[IWorkerThreadExportOpt](./worker-thread.iworkerthreadexportopt.md)<!-- -->&lt;TWorker, TMain, TWrap&gt;
 
 
 </td><td>
@@ -55,7 +50,7 @@ Configuration options for the worker thread export.
 
 **Returns:**
 
-TWrap &amp; [WorkerThreadAsyncMethods](./worker-thread.workerthreadasyncmethods.md)<!-- -->&lt;TWorker&gt; &amp; { launchWorker: (argv?: any\[\]) =&gt; Promise&lt;TMain&gt;; launchGatewayClient: (serverPath?: string) =&gt; [WorkerThreadGatewayProxy](./worker-thread.workerthreadgatewayproxy.md)<!-- -->&lt;TWorker&gt; &amp; { new (owner: [WorkerThreadInit](./worker-thread.workerthreadinit.md)<!-- -->): [WorkerThreadAsyncMethods](./worker-thread.workerthreadasyncmethods.md)<!-- -->&lt;TWorker&gt;; }; }
+[IWorkerThreadExportResult](./worker-thread.iworkerthreadexportresult.md)<!-- -->&lt;TWorker, TMain, TWrap&gt;
 
 Proxied object with `launchWorker`<!-- -->, `launchGatewayClient`<!-- -->, and worker methods.
 
@@ -68,7 +63,7 @@ In worker thread context, only returns `launchGatewayClient`<!-- -->. In main th
 
 ```typescript
 // jobs/counter.ts
-import { WorkerThreadExport, WorkerThreadInit } from "gramstax";
+import { WorkerThreadExport, WorkerThreadInit } from "@gramstax/worker-thread";
 
 class Worker extends WorkerThreadInit {
   count = 0;

@@ -1,0 +1,352 @@
+### YamlMime:TSType
+name: LmdbBackup
+uid: '@gramstax/lmdb!LmdbBackup:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbBackup
+summary: Timestamped backup lifecycle over LMDB envs — create, list, prune, restore, archive, upload, and schedule.
+remarks: >-
+  Dir backups are plain directories (`backup-<stamp>` holding `data.mdb`<!-- -->), so restore is a copy and inspection
+  needs no tooling. Tar.gz archives need the optional `tar` peer; S3 upload needs the optional `@aws-sdk/client-s3` peer
+  — both load lazily, so installs without them pay nothing and only those two paths throw (`LmdbError`<!-- -->) when
+  missing. Only `backup-*` entries are ever listed or pruned — foreign files in the directory are left alone.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+methods:
+  - name: backup(env, baseDir, keep, compact)
+    uid: '@gramstax/lmdb!LmdbBackup.backup:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: backup(env, baseDir, keep, compact)
+    summary: Create a timestamped backup inside `baseDir` and prune to `keep`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static backup(env: LmdbEnv, baseDir: string, keep?: number, compact?: boolean): Promise<string>;'
+      parameters:
+        - id: env
+          description: Writer env to back up (must be open).
+          type: <xref uid="@gramstax/lmdb!LmdbEnv:class" />
+        - id: baseDir
+          description: Directory that will contain timestamped backup subdirs.
+          type: string
+        - id: keep
+          description: Backups to retain (default `3`<!-- -->).
+          type: number
+        - id: compact
+          description: >-
+            Compact while copying (default `false`<!-- -->): slower, but the result is rewritten densely, so it is
+            smaller on disk.
+          type: boolean
+      return:
+        type: Promise&lt;string&gt;
+        description: The path of the newly created backup.
+  - name: clearStaleStaging(dir)
+    uid: '@gramstax/lmdb!LmdbBackup.clearStaleStaging:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: clearStaleStaging(dir)
+    summary: 'Delete crash leftovers: raw staging dirs with no matching archive.'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static clearStaleStaging(dir: string): Promise<void>;'
+      parameters:
+        - id: dir
+          description: Directory holding backups.
+          type: string
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: downloadFromS3(s3, key, destDir, fileName)
+    uid: '@gramstax/lmdb!LmdbBackup.downloadFromS3:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: downloadFromS3(s3, key, destDir, fileName)
+    summary: Download one S3 object to a local file.
+    remarks: >-
+      Writes to a uniquely-named `.part` sibling and renames on success, so the destination is either absent or complete
+      — a failed or cancelled transfer never leaves a truncated archive that a later `restoreArchive` would accept. The
+      random component also makes concurrent downloads into one directory safe. `destDir` is created if missing,
+      matching [LmdbBackup.backup()](xref:@gramstax/lmdb!LmdbBackup.backup:member(1))<!-- -->.
+
+
+      Destination folder and file name are separate arguments so a caller can restore several objects into one folder
+      without re-joining paths, and so the returned absolute target is unambiguous.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static downloadFromS3(s3: IBackupS3Options, key: string, destDir: string, fileName: string): Promise<string>;'
+      parameters:
+        - id: s3
+          description: Source (bucket + credentials or prebuilt client).
+          type: <xref uid="@gramstax/lmdb!LmdbBackupS3Options:interface" />
+        - id: key
+          description: Full object key.
+          type: string
+        - id: destDir
+          description: Local target folder, created when missing.
+          type: string
+        - id: fileName
+          description: Local target file name inside `destDir`<!-- -->.
+          type: string
+      return:
+        type: Promise&lt;string&gt;
+        description: '`join(destDir, fileName)`<!-- -->.'
+  - name: list(baseDir)
+    uid: '@gramstax/lmdb!LmdbBackup.list:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: list(baseDir)
+    summary: List backups oldest-first.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static list(baseDir: string): Array<IBackupEntry>;'
+      parameters:
+        - id: baseDir
+          description: Directory holding timestamped backup subdirs.
+          type: string
+      return:
+        type: Array&lt;<xref uid="@gramstax/lmdb!LmdbBackupEntry:interface" />&gt;
+        description: >-
+          Backup entries oldest-first; `[]` when the directory is missing. Foreign (non-`backup-*`<!-- -->) entries are
+          skipped.
+  - name: listArchives(baseDir)
+    uid: '@gramstax/lmdb!LmdbBackup.listArchives:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: listArchives(baseDir)
+    summary: List tar.gz archives oldest-first.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static listArchives(baseDir: string): Array<IBackupArchiveEntry>;'
+      parameters:
+        - id: baseDir
+          description: Directory holding archives.
+          type: string
+      return:
+        type: Array&lt;<xref uid="@gramstax/lmdb!LmdbBackupArchiveEntry:interface" />&gt;
+        description: Archive entries oldest-first; `[]` when the directory is missing. directory is missing.
+  - name: prune(baseDir, keep)
+    uid: '@gramstax/lmdb!LmdbBackup.prune:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: prune(baseDir, keep)
+    summary: Delete oldest backups beyond `keep`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static prune(baseDir: string, keep?: number): Promise<{
+                kept: number;
+                removed: Array<string>;
+            }>;
+      parameters:
+        - id: baseDir
+          description: Directory holding timestamped backup subdirs.
+          type: string
+        - id: keep
+          description: Backups to retain (default `3`<!-- -->).
+          type: number
+      return:
+        type: |-
+          Promise&lt;{
+                  kept: number;
+                  removed: Array&lt;string&gt;;
+              }&gt;
+        description: Kept count and removed paths.
+  - name: pruneArchives(baseDir, keep)
+    uid: '@gramstax/lmdb!LmdbBackup.pruneArchives:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: pruneArchives(baseDir, keep)
+    summary: Delete oldest archives beyond `keep`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static pruneArchives(baseDir: string, keep?: number): Promise<{
+                kept: number;
+                removed: Array<string>;
+            }>;
+      parameters:
+        - id: baseDir
+          description: Directory holding archives.
+          type: string
+        - id: keep
+          description: Archives to retain (default `3`<!-- -->).
+          type: number
+      return:
+        type: |-
+          Promise&lt;{
+                  kept: number;
+                  removed: Array&lt;string&gt;;
+              }&gt;
+        description: Kept count and removed paths.
+  - name: pruneS3Archives(s3, keep)
+    uid: '@gramstax/lmdb!LmdbBackup.pruneS3Archives:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: pruneS3Archives(s3, keep)
+    summary: Delete oldest remote archives beyond `keep` (paginated, batched).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static pruneS3Archives(s3: IBackupS3Options, keep?: number): Promise<{
+                removed: Array<string>;
+            }>;
+      parameters:
+        - id: s3
+          description: Destination (bucket + credentials or prebuilt client).
+          type: <xref uid="@gramstax/lmdb!LmdbBackupS3Options:interface" />
+        - id: keep
+          description: Remote archives to retain (default `3`<!-- -->).
+          type: number
+      return:
+        type: |-
+          Promise&lt;{
+                  removed: Array&lt;string&gt;;
+              }&gt;
+        description: Removed keys.
+  - name: restore(backupPath, destPath, opts)
+    uid: '@gramstax/lmdb!LmdbBackup.restore:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: restore(backupPath, destPath, opts)
+    summary: Copy a backup to `destPath` for revival.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static restore(backupPath: string, destPath: string, opts?: {
+                overwrite?: boolean;
+            }): Promise<string>;
+      parameters:
+        - id: backupPath
+          description: A `backup-*` dir holding `data.mdb`<!-- -->.
+          type: string
+        - id: destPath
+          description: 'Revival target; open a new env on it. Must not exist unless `{overwrite: true}`<!-- -->.'
+          type: string
+        - id: opts
+          description: 'Optional `{overwrite: true}` to replace `destPath`<!-- -->.'
+          type: |-
+            {
+                    overwrite?: boolean;
+                }
+      return:
+        type: Promise&lt;string&gt;
+        description: '`destPath`<!-- -->.'
+  - name: restoreArchive(archivePath, destParent, destName)
+    uid: '@gramstax/lmdb!LmdbBackup.restoreArchive:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: restoreArchive(archivePath, destParent, destName)
+    summary: >-
+      Extract an archive and revive it via [LmdbBackup.restore()](xref:@gramstax/lmdb!LmdbBackup.restore:member(1))<!--
+      -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static restoreArchive(archivePath: string, destParent: string, destName: string): Promise<string>;'
+      parameters:
+        - id: archivePath
+          description: A `backup-*.tar.gz` file.
+          type: string
+        - id: destParent
+          description: Staging parent + revival parent.
+          type: string
+        - id: destName
+          description: Revived dir name under `destParent`<!-- -->.
+          type: string
+      return:
+        type: Promise&lt;string&gt;
+        description: '`destPath` — open a new env on it.'
+  - name: snapshot(env, opts)
+    uid: '@gramstax/lmdb!LmdbBackup.snapshot:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: snapshot(env, opts)
+    summary: 'Full snapshot cycle: backup, optionally archive + upload.'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static snapshot(env: LmdbEnv, opts: IBackupSnapshotOptions): Promise<IBackupSnapshotResult>;'
+      parameters:
+        - id: env
+          description: Writer env to back up (must be open).
+          type: <xref uid="@gramstax/lmdb!LmdbEnv:class" />
+        - id: opts
+          description: >-
+            `{dir, keep?, format?, s3?}` — `dir` keeps raw LMDB dirs via
+            [LmdbBackup.backup()](xref:@gramstax/lmdb!LmdbBackup.backup:member(1))<!-- -->; `tar.gz` archives a staging
+            snapshot (needs the `tar` peer), prunes archives, and uploads when `s3` is set.
+          type: <xref uid="@gramstax/lmdb!LmdbBackupSnapshotOptions:interface" />
+      return:
+        type: Promise&lt;<xref uid="@gramstax/lmdb!LmdbBackupSnapshotResult:interface" />&gt;
+        description: '`{path}` plus `uploaded` S3 key when uploaded.'
+  - name: start(env, opts)
+    uid: '@gramstax/lmdb!LmdbBackup.start:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: start(env, opts)
+    summary: Run snapshots on a cron schedule, resuming across restarts.
+    remarks: >-
+      A thin wrapper over [LmdbJobRun.start()](xref:@gramstax/lmdb!LmdbJobRun%23start:member(1))<!-- -->: this module
+      owns \*what\* to do (take a snapshot, prune, optionally upload) and the job-run module owns \*when\* to do it.
+      Everything schedule-related — croner, the missed-boundary check, the overlap guard, the run-stamp — lives there,
+      so any other job can opt into the same restart safety without going through this helper.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static start(env: LmdbEnv, opts: IBackupStartOptions): IBackupHandle;'
+      parameters:
+        - id: env
+          description: Writer env to back up (must stay open).
+          type: <xref uid="@gramstax/lmdb!LmdbEnv:class" />
+        - id: opts
+          description: '`{dir, keep?, pattern, timezone?, runOnStart?, format?, s3?, onError?, persist?, persistKey?}`<!-- -->.'
+          type: <xref uid="@gramstax/lmdb!LmdbBackupStartOptions:interface" />
+      return:
+        type: <xref uid="@gramstax/lmdb!LmdbBackupHandle:interface" />
+        description: '`{stop, runNow, lastRun, nextRun, label}` handle.'
+  - name: uploadToS3(archivePath, s3, keep)
+    uid: '@gramstax/lmdb!LmdbBackup.uploadToS3:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: uploadToS3(archivePath, s3, keep)
+    summary: PUT-verified upload of one archive, then remote retention prune.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static uploadToS3(archivePath: string, s3: IBackupS3Options, keep?: number): Promise<string>;'
+      parameters:
+        - id: archivePath
+          description: A `backup-*.tar.gz` file.
+          type: string
+        - id: s3
+          description: Destination (bucket + credentials or prebuilt client).
+          type: <xref uid="@gramstax/lmdb!LmdbBackupS3Options:interface" />
+        - id: keep
+          description: Remote archives to retain (default `3`<!-- -->).
+          type: number
+      return:
+        type: Promise&lt;string&gt;
+        description: >-
+          The S3 key. Never loses data: failures keep the local file and throw (callers decide —
+          [LmdbBackup.snapshot()](xref:@gramstax/lmdb!LmdbBackup.snapshot:member(1)) logs and keeps).

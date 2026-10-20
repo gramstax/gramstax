@@ -1,0 +1,64 @@
+### YamlMime:TSType
+name: ISyncOptions
+uid: '@gramstax/lmdb!ISyncOptions:interface'
+package: '@gramstax/lmdb!'
+fullName: ISyncOptions
+summary: Options for [LmdbSyncStream](xref:@gramstax/lmdb!LmdbSyncStream:class)<!-- -->.
+remarks: Every field is optional — omitted fields select the default full verified copy under the destination-db stream name.
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: checkpoint
+    uid: '@gramstax/lmdb!ISyncOptions#checkpoint:member'
+    package: '@gramstax/lmdb!'
+    fullName: checkpoint
+    summary: One-shot exclusive lower bound (ignores and preserves the stored cursor).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'checkpoint?: KeyOf<S>;'
+      return:
+        type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+  - name: limit
+    uid: '@gramstax/lmdb!ISyncOptions#limit:member'
+    package: '@gramstax/lmdb!'
+    fullName: limit
+    summary: 'Maximum rows copied this run (a truncated run reports `verified: false`<!-- -->).'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'limit?: number;'
+      return:
+        type: number
+  - name: name
+    uid: '@gramstax/lmdb!ISyncOptions#name:member'
+    package: '@gramstax/lmdb!'
+    fullName: name
+    summary: Stream name for the persisted cursor (defaults to the destination db).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'name?: string;'
+      return:
+        type: string
+  - name: verify
+    uid: '@gramstax/lmdb!ISyncOptions#verify:member'
+    package: '@gramstax/lmdb!'
+    fullName: verify
+    summary: Run the count+hash verify step (default `true`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'verify?: boolean;'
+      return:
+        type: boolean

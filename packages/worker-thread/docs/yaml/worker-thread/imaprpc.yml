@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IMapRpc
+uid: '@gramstax/worker-thread!IMapRpc:type'
+package: '@gramstax/worker-thread!'
+fullName: IMapRpc
+summary: Map type for storing pending RPC request handlers.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IMapRpc = Map<number, {
+      reject: (error: unknown) => void;
+      resolve: (result: unknown) => void;
+      timer?: ReturnType<typeof setTimeout>;
+  }>;

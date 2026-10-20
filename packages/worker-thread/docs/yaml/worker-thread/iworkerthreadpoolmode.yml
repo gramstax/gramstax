@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IWorkerThreadPoolMode
+uid: '@gramstax/worker-thread!IWorkerThreadPoolMode:type'
+package: '@gramstax/worker-thread!'
+fullName: IWorkerThreadPoolMode
+summary: >-
+  How a pool call is fanned out.
+
+
+  - `execute` — one worker, round-robin. The default when `mode` is omitted. - `broadcast` — every worker, fail-fast. -
+  `settled` — every worker, settled per worker; never rejects on a peer.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IWorkerThreadPoolMode = "execute" | "broadcast" | "settled";

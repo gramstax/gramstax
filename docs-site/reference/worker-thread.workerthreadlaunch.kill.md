@@ -1,0 +1,32 @@
+---
+title: "WorkerThreadLaunch.kill()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadLaunch](./worker-thread.workerthreadlaunch.md) &gt; [kill](./worker-thread.workerthreadlaunch.kill.md)
+
+## WorkerThreadLaunch.kill() method
+
+Terminate the worker thread immediately.
+
+**Signature:**
+
+```typescript
+kill(): Promise<number | void>;
+```
+**Returns:**
+
+Promise&lt;number \| void&gt;
+
+Promise resolving when the thread has terminated.
+
+## Remarks
+
+Safe to call multiple times and after the worker has already exited — terminating an exited thread hangs on some runtimes, so exited workers resolve immediately instead.
+
+## Example
+
+
+```typescript
+worker.kill();
+```
+

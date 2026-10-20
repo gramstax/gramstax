@@ -1,0 +1,58 @@
+---
+title: "WorkerThreadInit.onError()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadInit](./worker-thread.workerthreadinit.md) &gt; [onError](./worker-thread.workerthreadinit.onerror.md)
+
+## WorkerThreadInit.onError() method
+
+Hook called when an unhandled error occurs inside the worker's RPC handling.
+
+**Signature:**
+
+```typescript
+onError(err: unknown): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+err
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+
+## Remarks
+
+Default implementation forwards to  — silent by default (the package-wide handler is a no-op) but observable via `WorkerThreadErrorHandler.setDefault`. Override contract: replace this method to customize handling (e.g. log); call `super.onError(err)` (or `WorkerThreadErrorHandler.report(err)` directly) inside the override to preserve package-wide observability.
+

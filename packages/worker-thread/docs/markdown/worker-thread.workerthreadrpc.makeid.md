@@ -15,7 +15,7 @@ makeId(): number;
 
 number
 
-A random number ID.
+A monotonically increasing number unique within this instance.
 
 ## Example
 

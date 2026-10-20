@@ -1,0 +1,15 @@
+---
+title: "LmdbBackupS3Options.client"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupS3Options](./lmdb.lmdbbackups3options.md) &gt; [client](./lmdb.lmdbbackups3options.client.md)
+
+## LmdbBackupS3Options.client property
+
+Preconfigured client — wins over the fields above.
+
+**Signature:**
+
+```typescript
+client?: S3Client;
+```

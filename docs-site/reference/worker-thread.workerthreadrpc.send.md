@@ -1,0 +1,13 @@
+---
+title: "WorkerThreadRpc.send"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadRpc](./worker-thread.workerthreadrpc.md) &gt; [send](./worker-thread.workerthreadrpc.send.md)
+
+## WorkerThreadRpc.send property
+
+**Signature:**
+
+```typescript
+send: (data: Record<string, unknown>) => unknown;
+```

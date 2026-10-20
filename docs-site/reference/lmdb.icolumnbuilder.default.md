@@ -1,0 +1,62 @@
+---
+title: "IColumnBuilder.default()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IColumnBuilder](./lmdb.icolumnbuilder.md) &gt; [default](./lmdb.icolumnbuilder.default.md)
+
+## IColumnBuilder.default() method
+
+Static write-time default — applied when the field is `undefined`.
+
+**Signature:**
+
+```typescript
+default(value: unknown): IColumnBuilder<K, I, N, V, true>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+value
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+The default value (validated immediately against the column kind and enum).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+[IColumnBuilder](./lmdb.icolumnbuilder.md)&lt;K, I, N, V, true&gt;
+
+A new builder with `isOptional: true` carrying the default.
+
+## Remarks
+
+Implies `.optional()` (the field becomes omit-able). Replaces any `.$defaultFn()` set before it (last call wins). Validated immediately: wrong-kind values and out-of-enum values throw `LmdbError` here, not at the first `put`. The parameter stays `unknown` on purpose — typing it from the column would make the whole builder invariant and break `AnyColumnBuilder` assignability.
+

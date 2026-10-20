@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadInit.gatewayServer"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadInit](./worker-thread.workerthreadinit.md) &gt; [gatewayServer](./worker-thread.workerthreadinit.gatewayserver.md)
+
+## WorkerThreadInit.gatewayServer property
+
+Gateway server instance if created.
+
+**Signature:**
+
+```typescript
+gatewayServer?: WorkerThreadGatewayServer;
+```
+
+## Remarks
+
+Uses [WorkerThreadGatewayServer](./worker-thread.workerthreadgatewayserver.md) for IPC server routing.
+

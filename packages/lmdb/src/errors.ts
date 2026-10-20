@@ -11,7 +11,7 @@
 export class LmdbError extends Error {
   /**
    * @param message - Human-readable error description.
-   * @param options - Standard {@link Error} options.
+   * @param options - Standard `Error` options.
    */
   constructor(message: string, options?: ErrorOptions) {
     super(message, options)

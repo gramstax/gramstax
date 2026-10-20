@@ -1,0 +1,15 @@
+---
+title: "LmdbBackupS3Options.accessKeyId"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupS3Options](./lmdb.lmdbbackups3options.md) &gt; [accessKeyId](./lmdb.lmdbbackups3options.accesskeyid.md)
+
+## LmdbBackupS3Options.accessKeyId property
+
+Access key id.
+
+**Signature:**
+
+```typescript
+accessKeyId: string;
+```

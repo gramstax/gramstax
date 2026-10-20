@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IGatewayServerOptions
+uid: '@gramstax/worker-thread!IGatewayServerOptions:type'
+package: '@gramstax/worker-thread!'
+fullName: IGatewayServerOptions
+summary: Options for starting a gateway server.
+remarks: Auth and method allow-lists are enforced per connection on the server side.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGatewayServerOptions = {
+      token?: string;
+      allowedMethods?: string[];
+      maxConnections?: number;
+      maxMessageSize?: number;
+  };

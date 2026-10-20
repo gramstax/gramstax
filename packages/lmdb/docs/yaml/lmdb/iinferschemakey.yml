@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IInferSchemaKey
+uid: '@gramstax/lmdb!IInferSchemaKey:type'
+package: '@gramstax/lmdb!'
+fullName: IInferSchemaKey
+summary: Key type inferred from a schema class's `key` builder.
+remarks: >-
+  Gives the key VALUE type (`bigint` for `key: t.bigint()`<!-- -->), usable as `KeyOf<S>`<!-- -->'s key parameter.
+  Prefer the short alias [KeyOf](xref:@gramstax/lmdb!KeyOf:type) (`KeyOf<typeof UserSchema>`<!-- -->) — it intersects
+  with `ILmdbKey` exactly like the runtime [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1))
+  overload does.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type IInferSchemaKey<C extends IAnyColumnBuilder> = C extends IColumnBuilder<infer K, IColumnIndexFlag, string |
+  undefined, infer V, boolean> ? ITsKind<K, V> : never;

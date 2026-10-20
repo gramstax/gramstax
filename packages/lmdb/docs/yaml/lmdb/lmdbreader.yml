@@ -1,0 +1,44 @@
+### YamlMime:TSType
+name: LmdbReader
+uid: '@gramstax/lmdb!LmdbReader:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbReader
+summary: Read-only reader helper.
+remarks: >-
+  [LmdbReader.open()](xref:@gramstax/lmdb!LmdbReader.open:member(1)) attaches a read-only
+  [LmdbEnv](xref:@gramstax/lmdb!LmdbEnv:class) to an existing LMDB data file, with optional periodic `resetReadTxn`
+  polling. Backup lifecycle lives in [LmdbBackup](xref:@gramstax/lmdb!LmdbBackup:class) (`./backup`<!-- -->).
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+methods:
+  - name: open(path, opts)
+    uid: '@gramstax/lmdb!LmdbReader.open:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: open(path, opts)
+    summary: Open a read-only replica of an existing env at `path`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static open(path: string, opts?: {
+                maxDbs?: number;
+                pollMs?: number;
+            }): Promise<LmdbEnv>;
+      parameters:
+        - id: path
+          description: Same path as the writer env.
+          type: string
+        - id: opts
+          description: Optional `maxDbs` and `pollMs` for periodic `resetReadTxn`<!-- -->.
+          type: |-
+            {
+                    maxDbs?: number;
+                    pollMs?: number;
+                }
+      return:
+        type: Promise&lt;<xref uid="@gramstax/lmdb!LmdbEnv:class" />&gt;
+        description: A read-only [LmdbEnv](xref:@gramstax/lmdb!LmdbEnv:class) — caller must `close()` it.

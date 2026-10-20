@@ -1,0 +1,89 @@
+---
+title: "WorkerThreadExport.init()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadExport](./worker-thread.workerthreadexport.md) &gt; [init](./worker-thread.workerthreadexport.init.md)
+
+## WorkerThreadExport.init() method
+
+Initialize a worker thread export with automatic environment detection.
+
+**Signature:**
+
+```typescript
+static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<string, unknown>>(options: IWorkerThreadExportOpt<TWorker, TMain, TWrap>): IWorkerThreadExportResult<TWorker, TMain, TWrap>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+options
+
+
+</td><td>
+
+[IWorkerThreadExportOpt](./worker-thread.iworkerthreadexportopt.md)&lt;TWorker, TMain, TWrap&gt;
+
+
+</td><td>
+
+Configuration options for the worker thread export.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+[IWorkerThreadExportResult](./worker-thread.iworkerthreadexportresult.md)&lt;TWorker, TMain, TWrap&gt;
+
+Proxied object with `launchWorker`, `launchGatewayClient`, and worker methods.
+
+## Remarks
+
+In worker thread context, only returns `launchGatewayClient`. In main thread context, returns full proxy with `launchWorker`, `launchGatewayClient`, and all worker methods.
+
+## Example
+
+
+```typescript
+// jobs/counter.ts
+import { WorkerThreadExport, WorkerThreadInit } from "@gramstax/worker-thread";
+
+class Worker extends WorkerThreadInit {
+  count = 0;
+
+  mtdGetCount() {
+    return this.count;
+  }
+}
+
+export const CounterJob = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+});
+
+// main.ts
+import { CounterJob } from "./jobs/counter";
+
+await CounterJob.launchWorker();
+const count = await CounterJob.mtdGetCount();
+```
+

@@ -38,7 +38,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[(constructor)(send, register)](./worker-thread.workerthreadrpc._constructor_.md)
+[(constructor)(send, register, options)](./worker-thread.workerthreadrpc._constructor_.md)
 
 
 </td><td>
@@ -77,6 +77,44 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[context](./worker-thread.workerthreadrpc.context.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;
+
+
+</td><td>
+
+Default context merged into every outgoing RPC payload.
+
+
+</td></tr>
+<tr><td>
+
+[defaultTimeoutMs](./worker-thread.workerthreadrpc.defaulttimeoutms.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Default timeout in milliseconds for `makeRequest` calls that omit `timeoutMs`<!-- -->. Initialized from `DEFAULT_REQUEST_TIMEOUT_MS`<!-- -->; assign `0` to wait indefinitely. Must stay a non-negative finite number.
+
+
+</td></tr>
+<tr><td>
+
 [map](./worker-thread.workerthreadrpc.map.md)
 
 
@@ -85,12 +123,31 @@ Description
 
 </td><td>
 
-[ITMapRpc](./worker-thread.itmaprpc.md)
+[IMapRpc](./worker-thread.imaprpc.md)
 
 
 </td><td>
 
 Map of pending requests by ID. Stores promise handlers for pending requests.
+
+
+</td></tr>
+<tr><td>
+
+[maxMessageSize?](./worker-thread.workerthreadrpc.maxmessagesize.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Enforced cap on the estimated size of incoming messages. `undefined` disables the limit (the default for the trusted parentPort channel).
 
 
 </td></tr>
@@ -104,7 +161,7 @@ Map of pending requests by ID. Stores promise handlers for pending requests.
 
 </td><td>
 
-Record&lt;any, any&gt;
+Record&lt;string, (...args: never\[\]) =&gt; unknown&gt;
 
 
 </td><td>
@@ -121,7 +178,7 @@ Record&lt;any, any&gt;
 
 </td><td>
 
-(data: any) =&gt; any
+(data: Record&lt;string, unknown&gt;) =&gt; unknown
 
 
 </td><td>
@@ -149,6 +206,22 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[estimatePayloadSize(value)](./worker-thread.workerthreadrpc.estimatepayloadsize.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Estimate the in-memory footprint of a structured value.
+
+
+</td></tr>
+<tr><td>
 
 [make(data)](./worker-thread.workerthreadrpc.make.md)
 
@@ -178,7 +251,7 @@ Generate a unique request ID.
 </td></tr>
 <tr><td>
 
-[makeRequest(method, params, \_wait, \_others)](./worker-thread.workerthreadrpc.makerequest.md)
+[makeRequest(method, params, wait, others, timeoutMs)](./worker-thread.workerthreadrpc.makerequest.md)
 
 
 </td><td>
@@ -187,6 +260,58 @@ Generate a unique request ID.
 </td><td>
 
 Create and send an RPC request.
+
+
+</td></tr>
+<tr><td>
+
+[makeRequest(method, params, wait, others, timeoutMs)](./worker-thread.workerthreadrpc.makerequest_1.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[makeRequest(method, params, wait, others, timeoutMs)](./worker-thread.workerthreadrpc.makerequest_2.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[rejectAllPending(error)](./worker-thread.workerthreadrpc.rejectallpending.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Reject every pending request.
+
+
+</td></tr>
+<tr><td>
+
+[use(middlewares)](./worker-thread.workerthreadrpc.use.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Register middleware for incoming requests.
 
 
 </td></tr>

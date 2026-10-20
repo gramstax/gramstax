@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: IColumnKind
+uid: '@gramstax/lmdb!IColumnKind:type'
+package: '@gramstax/lmdb!'
+fullName: IColumnKind
+summary: Column value kinds supported by the [t](xref:@gramstax/lmdb!t:var) builders.
+remarks: >-
+  Each member maps to a TypeScript type in [IInferSchemaValue](xref:@gramstax/lmdb!IInferSchemaValue:type) via `ITsKind`
+  (see [IColumnBuilder](xref:@gramstax/lmdb!IColumnBuilder:interface)<!-- -->).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type IColumnKind = `string` | `number` | `bigint` | `boolean` | `object` | `array` | `date` | `buffer` | `any` | `map`
+  | `set`;

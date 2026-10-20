@@ -1,0 +1,15 @@
+---
+title: "LmdbBackupSnapshotOptions.s3"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupSnapshotOptions](./lmdb.lmdbbackupsnapshotoptions.md) &gt; [s3](./lmdb.lmdbbackupsnapshotoptions.s3.md)
+
+## LmdbBackupSnapshotOptions.s3 property
+
+S3 upload — tar.gz only (a directory cannot be PUT as one object).
+
+**Signature:**
+
+```typescript
+s3?: IBackupS3Options;
+```

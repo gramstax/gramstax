@@ -9,14 +9,15 @@
 **Signature:**
 
 ```typescript
-declare class WorkerThreadGatewayClient 
+declare class WorkerThreadGatewayClient extends EventEmitter 
 ```
+**Extends:** EventEmitter
 
 ## Remarks
 
-Low-level infrastructure. In most cases use [WorkerThreadInit.createGatewayClient()](./worker-thread.workerthreadinit.creategatewayclient.md) instead of constructing this directly.
+Provides IPC client functionality for inter-worker communication using Unix domain sockets (named pipes on Windows). Created internally by [WorkerThreadInit.createGatewayClient()](./worker-thread.workerthreadinit.creategatewayclient.md)<!-- -->.
 
-Uses `net-ipc` library for Unix domain socket communication.
+Uses the `net-ipc` library for Unix domain socket communication. Works in \*\*Bun\*\* (native) and \*\*Node.js\*\* (native).
 
 ## Constructors
 
@@ -135,7 +136,21 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[connect(path)](./worker-thread.workerthreadgatewayclient.connect.md)
+[close()](./worker-thread.workerthreadgatewayclient.close.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Close the connection permanently.
+
+
+</td></tr>
+<tr><td>
+
+[connect(path, options)](./worker-thread.workerthreadgatewayclient.connect.md)
 
 
 </td><td>
@@ -149,7 +164,35 @@ Connect to a gateway server.
 </td></tr>
 <tr><td>
 
-[request(method, params, \_wait, \_others)](./worker-thread.workerthreadgatewayclient.request.md)
+[destroy()](./worker-thread.workerthreadgatewayclient.destroy.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Destroy the connection immediately without a graceful close.
+
+
+</td></tr>
+<tr><td>
+
+[isClosed()](./worker-thread.workerthreadgatewayclient.isclosed.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Whether the connection has been closed or destroyed.
+
+
+</td></tr>
+<tr><td>
+
+[request(method, params, \_wait, \_others, timeoutMs)](./worker-thread.workerthreadgatewayclient.request.md)
 
 
 </td><td>

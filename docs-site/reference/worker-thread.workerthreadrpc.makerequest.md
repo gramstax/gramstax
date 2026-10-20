@@ -1,0 +1,137 @@
+---
+title: "WorkerThreadRpc.makeRequest()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadRpc](./worker-thread.workerthreadrpc.md) &gt; [makeRequest](./worker-thread.workerthreadrpc.makerequest.md)
+
+## WorkerThreadRpc.makeRequest() method
+
+Create and send an RPC request.
+
+**Signature:**
+
+```typescript
+makeRequest(method: string, params: unknown[], wait: true, others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+method
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Method name to call. Targets registered method.
+
+
+</td></tr>
+<tr><td>
+
+params
+
+
+</td><td>
+
+unknown\[\]
+
+
+</td><td>
+
+Method parameters. Sent as positional array.
+
+
+</td></tr>
+<tr><td>
+
+wait
+
+
+</td><td>
+
+true
+
+
+</td><td>
+
+Wait for response. If false, returns send result. Defaults to `true`.
+
+
+</td></tr>
+<tr><td>
+
+others
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;
+
+
+</td><td>
+
+_(Optional)_ Additional data to include. Merged into RPC payload.
+
+
+</td></tr>
+<tr><td>
+
+timeoutMs
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Optional timeout in milliseconds. When exceeded, the pending request is rejected with a timeout error and removed from the pending map. Defaults to `defaultTimeoutMs`; `0` disables the timeout.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;unknown&gt;
+
+Promise resolving to the result if waiting, or send result if not.
+
+## Example
+
+
+```typescript
+// Wait for response
+const result = await rpc.makeRequest("add", [1, 2]);
+console.log(result); // 3
+
+// Fire and forget
+rpc.makeRequest("log", ["message"], false);
+
+// With timeout
+await rpc.makeRequest("slow", [], true, undefined, 5000);
+```
+

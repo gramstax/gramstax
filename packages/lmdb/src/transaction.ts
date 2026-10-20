@@ -53,7 +53,7 @@ export class LmdbTransaction {
    * @remarks
    * `lmdb`'s `db.transaction()` records a callback error and rethrows it, but
    * never calls `mdb_txn_abort` — the native write transaction still commits.
-   * So on that path {@link abort} would silently do nothing while the caller
+   * So on that path {@link LmdbTransaction.abort} would silently do nothing while the caller
    * believes the writes were discarded. We fail loudly instead.
    *
    * @internal
@@ -61,7 +61,7 @@ export class LmdbTransaction {
   private readonly _noAbort: boolean
 
   /**
-   * Set when {@link abort} refused because the backing path cannot roll back.
+   * Set when {@link LmdbTransaction.abort} refused because the backing path cannot roll back.
    *
    * @remarks
    * Lets the caller re-surface the original "cannot abort" error instead of
@@ -72,7 +72,7 @@ export class LmdbTransaction {
   private _abortRejected = false
 
   /**
-   * Whether {@link abort} threw because this transaction cannot roll back.
+   * Whether {@link LmdbTransaction.abort} threw because this transaction cannot roll back.
    *
    * @internal
    */
@@ -92,7 +92,7 @@ export class LmdbTransaction {
    * @param rawReadTxn - The raw LMDB read transaction (from
    * `db.useReadTransaction()`), or `undefined` for write transactions.
    * @param noAbort - `true` when the backing lmdb-js API cannot roll back, so
-   * {@link abort} must throw instead of pretending to succeed.
+   * {@link LmdbTransaction.abort} must throw instead of pretending to succeed.
    * @internal
    */
   constructor(rawReadTxn?: IRawReadTransaction, noAbort = false) {
@@ -119,7 +119,7 @@ export class LmdbTransaction {
   }
 
   /**
-   * Whether the user explicitly called {@link abort}.
+   * Whether the user explicitly called {@link LmdbTransaction.abort}.
    *
    * @remarks
    * Read by {@link LmdbEnv.transaction} after the user's callback returns —
@@ -132,7 +132,7 @@ export class LmdbTransaction {
   }
 
   /**
-   * Whether the user explicitly called {@link commit}.
+   * Whether the user explicitly called {@link LmdbTransaction.commit}.
    *
    * @public
    */

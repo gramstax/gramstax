@@ -63,8 +63,8 @@ export class LmdbEnvSubManager {
    * @param schemaClass - The {@link LmdbSchema} subclass.
    * @returns A typed {@link LmdbEnvSub} handle — cached, so repeated calls
    * for the same schema return the same instance.
-   * @throws {LmdbError} when the same class registers twice.
-   * @throws {LmdbError} when another sub uses the same `db`.
+   * @throws {@link LmdbError} when the same class registers twice.
+   * @throws {@link LmdbError} when another sub uses the same `db`.
    *
    * @internal
    */
@@ -138,7 +138,7 @@ export class LmdbEnvSubManager {
    *
    * @param schemaClass - The {@link LmdbSchema} subclass.
    * @returns The cached {@link LmdbEnvSub} handle.
-   * @throws {LmdbError} when the schema is not registered.
+   * @throws {@link LmdbError} when the schema is not registered.
    *
    * @internal
    */

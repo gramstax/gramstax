@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: KeyOf
+uid: '@gramstax/lmdb!KeyOf:type'
+package: '@gramstax/lmdb!'
+fullName: KeyOf
+summary: Key type inferred from a schema class.
+remarks: >-
+  Short alias for `IInferSchemaKey<typeof X.key> & ILmdbKey` — the key value type intersected with `ILmdbKey`<!-- -->,
+  mirroring the runtime [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1)) overload (lmdb-js keys
+  are `Key[] | string | symbol | number | boolean | Uint8Array`<!-- -->), so a `t.bigint()` key column degrades to
+  `never` at the type level:
+
+
+  ```typescript
+
+  type UserKey = KeyOf<typeof UserSchema>
+
+  ```
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type KeyOf<S extends typeof LmdbSchema> = IInferSchemaKey<S[`key`]> & ILmdbKey;

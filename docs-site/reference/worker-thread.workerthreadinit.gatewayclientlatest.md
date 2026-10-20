@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadInit.gatewayClientLatest"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadInit](./worker-thread.workerthreadinit.md) &gt; [gatewayClientLatest](./worker-thread.workerthreadinit.gatewayclientlatest.md)
+
+## WorkerThreadInit.gatewayClientLatest property
+
+The most recently created gateway client.
+
+**Signature:**
+
+```typescript
+gatewayClientLatest?: WorkerThreadGatewayClient;
+```
+
+## Remarks
+
+Uses [WorkerThreadGatewayClient](./worker-thread.workerthreadgatewayclient.md) for IPC requests.
+

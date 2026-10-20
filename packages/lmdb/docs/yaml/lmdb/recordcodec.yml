@@ -1,0 +1,91 @@
+### YamlMime:TSType
+name: RecordCodec
+uid: '@gramstax/lmdb!RecordCodec:class'
+package: '@gramstax/lmdb!'
+fullName: RecordCodec
+summary: Schema-aware positional record codec for `@gramstax/lmdb`<!-- -->.
+remarks: >-
+  Rows encode as positional arrays in column declaration order — field names never reach disk — and decode back to row
+  objects. The codec rides the existing `hookBeforeWrite`<!-- -->/`hookBeforeRead` slot, so no read/write path changes:
+  validation, defaults, enums, indexes, TTL envelopes, and search maintenance all operate on typed rows pre-encoding.
+
+
+  Absent optional columns encode as `undefined` cells and decode back to absent (never present-`undefined`<!-- -->),
+  preserving row shape exactly. Non-array stored values decode through untouched, so rows written before the codec (or
+  raw bytes via `putBinary`<!-- -->) still read.
+
+
+  Implements [ICodec](xref:@gramstax/lmdb!ICodec:interface) directly, so a registration installs it with `new
+  RecordCodec(columns)` — the column order doubles as the codec's configuration, which is why this is a class; the
+  dotted-path helpers ride as statics on it (alongside the [LmdbSearch](xref:@gramstax/lmdb!LmdbSearch:class) statics).
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(columns)
+    uid: '@gramstax/lmdb!RecordCodec:constructor(1)'
+    package: '@gramstax/lmdb!'
+    fullName: (constructor)(columns)
+    summary: Create a codec for a fixed column order.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(columns: Array<string>);'
+      parameters:
+        - id: columns
+          description: Value column names in declaration order; doubles as the positional layout and the codec's configuration.
+          type: Array&lt;string&gt;
+properties:
+  - name: columns
+    uid: '@gramstax/lmdb!RecordCodec#columns:member'
+    package: '@gramstax/lmdb!'
+    fullName: columns
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly columns: Array<string>;'
+      return:
+        type: Array&lt;string&gt;
+methods:
+  - name: hookBeforeRead(raw)
+    uid: '@gramstax/lmdb!RecordCodec#hookBeforeRead:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: hookBeforeRead(raw)
+    summary: Decode a positional array back to a typed row.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'hookBeforeRead(raw: unknown): unknown;'
+      parameters:
+        - id: raw
+          description: The stored value (passes through untouched when it is not an array, so pre-codec rows still read).
+          type: unknown
+      return:
+        type: unknown
+        description: The rebuilt row with `undefined` cells left absent.
+  - name: hookBeforeWrite(value)
+    uid: '@gramstax/lmdb!RecordCodec#hookBeforeWrite:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: hookBeforeWrite(value)
+    summary: Encode a typed row to its positional array form.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'hookBeforeWrite(value: unknown): unknown;'
+      parameters:
+        - id: value
+          description: The row object (passes through untouched when it is not an object).
+          type: unknown
+      return:
+        type: unknown
+        description: Positional cells in column declaration order.

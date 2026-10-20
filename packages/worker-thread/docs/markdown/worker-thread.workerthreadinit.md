@@ -20,15 +20,15 @@ Extend this class when defining worker thread behavior. Uses `parentPort` for me
 
 
 ```typescript
-import { WorkerThreadInit, WorkerThreadExport, log } from "gramstax";
+import { WorkerThreadInit, WorkerThreadExport } from "@gramstax/worker-thread";
 
 class Worker extends WorkerThreadInit {
   constructor() {
     super(); // Required - signals ready to main thread
-    log.info(`Worker ${this.id} started`);
+    console.info(`Worker ${this.id} started`);
   }
 
-  mtdProcess(data: any) {
+  mtdProcess(data: unknown) {
     return { processed: data };
   }
 }
@@ -97,6 +97,63 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_initDone](./worker-thread.workerthreadinit._initdone.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+Guards [WorkerThreadInit.init()](./worker-thread.workerthreadinit.init.md) against duplicate listeners.
+
+
+</td></tr>
+<tr><td>
+
+[\_initPort](./worker-thread.workerthreadinit._initport.md)
+
+
+</td><td>
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+Parent port [WorkerThreadInit.init()](./worker-thread.workerthreadinit.init.md) last attached to.
+
+
+</td></tr>
+<tr><td>
+
+[\_shutdownDone](./worker-thread.workerthreadinit._shutdowndone.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+Guards [WorkerThreadInit.shutdown()](./worker-thread.workerthreadinit.shutdown.md) so the hook runs at most once.
+
+
+</td></tr>
+<tr><td>
 
 [argv](./worker-thread.workerthreadinit.argv.md)
 
@@ -312,7 +369,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[createGatewayClient(serverPath)](./worker-thread.workerthreadinit.creategatewayclient.md)
+[createGatewayClient(serverPath, options)](./worker-thread.workerthreadinit.creategatewayclient.md)
 
 
 </td><td>
@@ -326,7 +383,7 @@ Description
 </td></tr>
 <tr><td>
 
-[createGatewayServer(path, register)](./worker-thread.workerthreadinit.creategatewayserver.md)
+[createGatewayServer(path, register, options)](./worker-thread.workerthreadinit.creategatewayserver.md)
 
 
 </td><td>
@@ -368,7 +425,35 @@ Create a gateway server for inter-worker communication.
 </td></tr>
 <tr><td>
 
-[request(method, params, \_wait, \_others)](./worker-thread.workerthreadinit.request.md)
+[onBeforeExit()](./worker-thread.workerthreadinit.onbeforeexit.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Hook called before the worker is shut down gracefully.
+
+
+</td></tr>
+<tr><td>
+
+[onError(err)](./worker-thread.workerthreadinit.onerror.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Hook called when an unhandled error occurs inside the worker's RPC handling.
+
+
+</td></tr>
+<tr><td>
+
+[request(method, params, \_wait, \_others, timeoutMs)](./worker-thread.workerthreadinit.request.md)
 
 
 </td><td>
@@ -391,6 +476,20 @@ Make an RPC request to the main thread.
 </td><td>
 
 Send a message to the main thread.
+
+
+</td></tr>
+<tr><td>
+
+[shutdown()](./worker-thread.workerthreadinit.shutdown.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Graceful shutdown handler, callable via RPC from the main thread.
 
 
 </td></tr>

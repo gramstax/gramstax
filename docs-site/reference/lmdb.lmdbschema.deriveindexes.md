@@ -1,0 +1,66 @@
+---
+title: "LmdbSchema.deriveIndexes()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbSchema](./lmdb.lmdbschema.md) &gt; [deriveIndexes](./lmdb.lmdbschema.deriveindexes.md)
+
+## LmdbSchema.deriveIndexes() method
+
+Derive index descriptors from a schema's columns.
+
+**Signature:**
+
+```typescript
+static deriveIndexes(columns: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>): Array<{
+        name: string;
+        def: IIndexDef<unknown, ILmdbKey>;
+        dbName?: string;
+    }>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+columns
+
+
+</td><td>
+
+[IAnyColumnBuilder](./lmdb.ianycolumnbuilder.md) \| Record&lt;string, [IAnyColumnBuilder](./lmdb.ianycolumnbuilder.md)&gt;
+
+
+</td><td>
+
+The schema's `static value` map.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Array&lt;\{ name: string; def: [IIndexDef](./lmdb.iindexdef.md)&lt;unknown, [ILmdbKey](./lmdb.ilmdbkey.md)&gt;; dbName?: string; }&gt;
+
+Index descriptors in the [LmdbEnv](./lmdb.lmdbenv.md) index attachment shape.
+
+## Remarks
+
+Same derivation as the former `lmdbSchema` body: every value column with `unique` or an index flag becomes `{name: indexName ?? columnName, def: {unique}, dbName: undefined}`. Called by [LmdbEnv.register()](./lmdb.lmdbenv.register.md) after [LmdbSchema.validate()](./lmdb.lmdbschema.validate.md); validation already guarantees no duplicate names, so this never throws.
+

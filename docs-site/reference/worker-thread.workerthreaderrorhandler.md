@@ -1,0 +1,72 @@
+---
+title: "WorkerThreadErrorHandler"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadErrorHandler](./worker-thread.workerthreaderrorhandler.md)
+
+## WorkerThreadErrorHandler class
+
+Package-wide error routing for worker threads.
+
+**Signature:**
+
+```typescript
+declare class WorkerThreadErrorHandler 
+```
+
+## Remarks
+
+The library never writes errors to the console. Anything a `WorkerThreadLaunch`, `WorkerThreadInit`, `WorkerThreadPool`, or gateway peer reports goes through , which hands it to the package-wide default handler. The default is a silent drop, so an unobserved error is never fatal to the transport that reported it.
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[resetDefault()](./worker-thread.workerthreaderrorhandler.resetdefault.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Reset the package-wide error handler to the default silent drop.
+
+
+</td></tr>
+<tr><td>
+
+[setDefault(handler)](./worker-thread.workerthreaderrorhandler.setdefault.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Set the package-wide error handler used when no per-instance `error` listeners are attached.
+
+
+</td></tr>
+</tbody></table>
+

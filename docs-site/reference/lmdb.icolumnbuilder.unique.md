@@ -1,0 +1,25 @@
+---
+title: "IColumnBuilder.unique()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IColumnBuilder](./lmdb.icolumnbuilder.md) &gt; [unique](./lmdb.icolumnbuilder.unique.md)
+
+## IColumnBuilder.unique() method
+
+Mark the column as a unique index.
+
+**Signature:**
+
+```typescript
+unique(): IColumnBuilder<K, `unique`, N, V, Nl>;
+```
+**Returns:**
+
+[IColumnBuilder](./lmdb.icolumnbuilder.md)&lt;K, \`unique\`, N, V, Nl&gt;
+
+A new builder with `isUnique: true`.
+
+## Remarks
+
+Unique indexes ARE indexes — this implies [IColumnBuilder.index()](./lmdb.icolumnbuilder.index.md): the column registers as an index with `{unique: true}`.
+

@@ -1,0 +1,96 @@
+### YamlMime:TSType
+name: LmdbBackupSnapshotOptions
+uid: '@gramstax/lmdb!LmdbBackupSnapshotOptions:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbBackupSnapshotOptions
+summary: Options for [LmdbBackup.snapshot()](xref:@gramstax/lmdb!LmdbBackup.snapshot:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: compact
+    uid: '@gramstax/lmdb!LmdbBackupSnapshotOptions#compact:member'
+    package: '@gramstax/lmdb!'
+    fullName: compact
+    summary: Compact each snapshot while copying (default `false`<!-- -->).
+    remarks: >-
+      `true` rewrites the copy densely, so it is slower but smaller on disk and cheaper to restore from later. Worth it
+      for archives you retain or ship off-host; leave it off for local snapshots you will replace soon.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'compact?: boolean;'
+      return:
+        type: boolean
+  - name: dir
+    uid: '@gramstax/lmdb!LmdbBackupSnapshotOptions#dir:member'
+    package: '@gramstax/lmdb!'
+    fullName: dir
+    summary: Directory holding backups.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'dir: string;'
+      return:
+        type: string
+  - name: format
+    uid: '@gramstax/lmdb!LmdbBackupSnapshotOptions#format:member'
+    package: '@gramstax/lmdb!'
+    fullName: format
+    summary: '`dir` for raw LMDB dirs (default), `tar.gz` for single-file archives.'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'format?: `dir` | `tar.gz`;'
+      return:
+        type: '`dir` | `tar.gz`'
+  - name: keep
+    uid: '@gramstax/lmdb!LmdbBackupSnapshotOptions#keep:member'
+    package: '@gramstax/lmdb!'
+    fullName: keep
+    summary: Local entries to retain (default `3`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'keep?: number;'
+      return:
+        type: number
+  - name: s3
+    uid: '@gramstax/lmdb!LmdbBackupSnapshotOptions#s3:member'
+    package: '@gramstax/lmdb!'
+    fullName: s3
+    summary: S3 upload — tar.gz only (a directory cannot be PUT as one object).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 's3?: IBackupS3Options;'
+      return:
+        type: <xref uid="@gramstax/lmdb!LmdbBackupS3Options:interface" />
+  - name: s3Keep
+    uid: '@gramstax/lmdb!LmdbBackupSnapshotOptions#s3Keep:member'
+    package: '@gramstax/lmdb!'
+    fullName: s3Keep
+    summary: 'Remote archives to retain after each tick (default: `keep`<!-- -->).'
+    remarks: >-
+      Separate from [LmdbBackupSnapshotOptions.keep](xref:@gramstax/lmdb!LmdbBackupSnapshotOptions%23keep:member)
+      because off-host retention is usually longer than local — you prune local copies aggressively to save disk and
+      keep the archive you can restore from anywhere. Falls back to `keep`<!-- -->, so a caller that never sets it
+      behaves exactly as before.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 's3Keep?: number;'
+      return:
+        type: number

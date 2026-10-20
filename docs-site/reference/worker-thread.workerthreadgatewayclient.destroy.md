@@ -1,0 +1,23 @@
+---
+title: "WorkerThreadGatewayClient.destroy()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadGatewayClient](./worker-thread.workerthreadgatewayclient.md) &gt; [destroy](./worker-thread.workerthreadgatewayclient.destroy.md)
+
+## WorkerThreadGatewayClient.destroy() method
+
+Destroy the connection immediately without a graceful close.
+
+**Signature:**
+
+```typescript
+destroy(): void;
+```
+**Returns:**
+
+void
+
+## Remarks
+
+Disables auto-reconnect and rejects pending requests.
+

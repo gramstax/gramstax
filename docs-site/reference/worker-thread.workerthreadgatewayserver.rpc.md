@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadGatewayServer.rpc"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadGatewayServer](./worker-thread.workerthreadgatewayserver.md) &gt; [rpc](./worker-thread.workerthreadgatewayserver.rpc.md)
+
+## WorkerThreadGatewayServer.rpc property
+
+Map of RPC handlers per connection. Key is the connection ID.
+
+**Signature:**
+
+```typescript
+rpc: Map<string, WorkerThreadRpc>;
+```
+
+## Remarks
+
+Values are [WorkerThreadRpc](./worker-thread.workerthreadrpc.md) instances scoped per connection.
+

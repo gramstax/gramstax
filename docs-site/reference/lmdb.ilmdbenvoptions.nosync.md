@@ -1,0 +1,20 @@
+---
+title: "ILmdbEnvOptions.noSync"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [noSync](./lmdb.ilmdbenvoptions.nosync.md)
+
+## ILmdbEnvOptions.noSync property
+
+Skip explicit flush-to-disk on commit.
+
+**Signature:**
+
+```typescript
+noSync?: boolean;
+```
+
+## Remarks
+
+Significantly faster writes, but a crash may cause data loss. Use only for caches/temp data where durability is not required.
+

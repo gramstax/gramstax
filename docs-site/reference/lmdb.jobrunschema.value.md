@@ -1,0 +1,15 @@
+---
+title: "JobRunSchema.value"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [JobRunSchema](./lmdb.jobrunschema.md) &gt; [value](./lmdb.jobrunschema.value.md)
+
+## JobRunSchema.value property
+
+**Signature:**
+
+```typescript
+static value: {
+        at: IColumnBuilder<"number", "none", undefined, unknown, false, unknown>;
+    };
+```

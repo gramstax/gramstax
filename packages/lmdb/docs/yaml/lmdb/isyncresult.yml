@@ -1,0 +1,51 @@
+### YamlMime:TSType
+name: ISyncResult
+uid: '@gramstax/lmdb!ISyncResult:interface'
+package: '@gramstax/lmdb!'
+fullName: ISyncResult
+summary: Result of [LmdbSyncStream](xref:@gramstax/lmdb!LmdbSyncStream:class)<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: checkpoint
+    uid: '@gramstax/lmdb!ISyncResult#checkpoint:member'
+    package: '@gramstax/lmdb!'
+    fullName: checkpoint
+    summary: Last copied key (`undefined` when nothing was copied).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'checkpoint: KeyOf<S> | undefined;'
+      return:
+        type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt; | undefined
+  - name: copied
+    uid: '@gramstax/lmdb!ISyncResult#copied:member'
+    package: '@gramstax/lmdb!'
+    fullName: copied
+    summary: Rows copied this run.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'copied: number;'
+      return:
+        type: number
+  - name: verified
+    uid: '@gramstax/lmdb!ISyncResult#verified:member'
+    package: '@gramstax/lmdb!'
+    fullName: verified
+    summary: Whether the verify step ran clean.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'verified: boolean;'
+      return:
+        type: boolean

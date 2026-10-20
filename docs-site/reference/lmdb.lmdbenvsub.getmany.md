@@ -1,0 +1,58 @@
+---
+title: "LmdbEnvSub.getMany()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [getMany](./lmdb.lmdbenvsub.getmany.md)
+
+## LmdbEnvSub.getMany() method
+
+Read many keys.
+
+**Signature:**
+
+```typescript
+getMany(keys: KeyOf<S>[]): Promise<(ValueOf<S> | undefined)[]>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+keys
+
+
+</td><td>
+
+[KeyOf](./lmdb.keyof.md)&lt;S&gt;\[\]
+
+
+</td><td>
+
+The primary keys to read.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;([ValueOf](./lmdb.valueof.md)&lt;S&gt; \| undefined)\[\]&gt;
+
+Values aligned with `keys` — `undefined` for absent keys.
+

@@ -1,0 +1,105 @@
+---
+title: "JobRunSchema"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [JobRunSchema](./lmdb.jobrunschema.md)
+
+## JobRunSchema class
+
+Storage for one last-successful-run stamp per job name.
+
+**Signature:**
+
+```typescript
+declare class JobRunSchema extends LmdbSchema 
+```
+**Extends:** [LmdbSchema](./lmdb.lmdbschema.md)
+
+## Remarks
+
+Declared as a schema rather than reached through a raw `getDb` handle, so rows are typed and readable via `env.sub(JobRunSchema)` — no cast, and it works with the same inspection tooling as any other repository. `{at: number}` leaves room to add fields later without a breaking change, since adding to a msgpack map is backward compatible whereas changing the stored shape is not.
+
+The `__` prefix follows the internal-state convention (`__queue_meta`, `__sync_state`, `__cdc_log`): a scheduler's bookkeeping is not domain data, and the prefix keeps these rows out of the CDC outbox so a backup run does not show up in every consumer's change stream. The schema class is still exported for `env.isRegistered(JobRunSchema)` and for typing — public reachability of the type does not make the rows user data.
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[db](./lmdb.jobrunschema.db.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[key](./lmdb.jobrunschema.key.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+[IColumnBuilder](./lmdb.icolumnbuilder.md)&lt;"string", "none", undefined, unknown, false, unknown&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[value](./lmdb.jobrunschema.value.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+&#123; at: [IColumnBuilder](./lmdb.icolumnbuilder.md)&lt;"number", "none", undefined, unknown, false, unknown&gt;; &#125;
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
+

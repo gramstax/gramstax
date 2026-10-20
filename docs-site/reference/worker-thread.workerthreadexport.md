@@ -1,0 +1,143 @@
+---
+title: "WorkerThreadExport"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadExport](./worker-thread.workerthreadexport.md)
+
+## WorkerThreadExport class
+
+Provides a unified interface for creating and managing worker threads with automatic RPC proxying.
+
+**Signature:**
+
+```typescript
+declare class WorkerThreadExport 
+```
+
+## Remarks
+
+Automatically detects if running in main thread or worker thread. Provides type-safe method calls to worker thread via RPC proxy.
+
+## Example 1
+
+Basic Usage
+
+```typescript
+import { WorkerThreadExport, WorkerThreadInit } from "@gramstax/worker-thread";
+
+class MyWorker extends WorkerThreadInit {
+  count = 0;
+
+  mtdIncrement() {
+    return ++this.count;
+  }
+
+  mtdGetCount() {
+    return this.count;
+  }
+}
+
+export const CounterJob = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: MyWorker,
+});
+
+// In main thread:
+await CounterJob.launchWorker();
+await CounterJob.mtdIncrement(); // 1
+await CounterJob.mtdGetCount(); // 1
+```
+
+## Example 2
+
+Inter-Worker Communication with launchGatewayClient
+
+```typescript
+// ./worker/server.ts
+class ServerWorker extends WorkerThreadInit {
+  mtdHello(from: string) {
+    return `Hello ${from}!`;
+  }
+
+  async mtdStartServer() {
+    return await this.createGatewayServer("/tmp/server.sock", undefined, {
+      allowedMethods: ["mtdHello"],
+    });
+  }
+}
+
+export const WorkerServer = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: ServerWorker,
+});
+export const WorkerServerGateway = WorkerServer.launchGatewayClient("/tmp/server.sock");
+
+// ./worker/client.ts
+import { WorkerServerGateway } from "./server";
+
+class ClientWorker extends WorkerThreadInit {
+  async mtdCallServer() {
+    // Static usage: pass `this` as first argument
+    return await WorkerServerGateway.mtdHello(this, "ClientWorker");
+  }
+}
+
+// ./main.ts
+await WorkerServer.launchWorker();
+await WorkerClient.launchWorker();
+await WorkerServer.mtdStartServer();
+const result = await WorkerClient.mtdCallServer(); // "Hello ClientWorker!"
+```
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[init(options)](./worker-thread.workerthreadexport.init.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Initialize a worker thread export with automatic environment detection.
+
+
+</td></tr>
+<tr><td>
+
+[launchGatewayClient(path, options)](./worker-thread.workerthreadexport.launchgatewayclient.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Create a typed gateway client proxy for inter-worker communication.
+
+
+</td></tr>
+</tbody></table>
+

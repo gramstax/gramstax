@@ -1,0 +1,93 @@
+### YamlMime:TSType
+name: IIndexDef
+uid: '@gramstax/lmdb!IIndexDef:interface'
+package: '@gramstax/lmdb!'
+fullName: IIndexDef
+summary: Declarative embedded secondary index definition.
+remarks: >-
+  Declared via `static indexes` on a schema class:
+
+
+  ```typescript
+
+  class UserSchema extends LmdbSchema {
+    static db = `user`;
+    static indexes = {
+      email: {unique: true},            // auto-resolved field `user.email`
+      emailLower: {extractor: (u) => u.email.toLowerCase()},
+      profileCity: {dbName: `user:idx:city`}  // dotted path, custom dbName
+    } as const;
+  }
+
+  ```
+
+  When `extractor` is omitted the index name is treated as a field path on the value (`username` → `value.username`<!--
+  -->, `profile.email` → `value.profile.email`<!-- -->). A missing field path throws
+  [LmdbError](xref:@gramstax/lmdb!LmdbError:class) on the first write; a resolved `undefined`<!-- -->/`null` value skips
+  the entry.
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: composite
+    uid: '@gramstax/lmdb!IIndexDef#composite:member'
+    package: '@gramstax/lmdb!'
+    fullName: composite
+    summary: Composite column list for concatenated-key indexes.
+    remarks: >-
+      Set by `t.*.index([`<!-- -->a`, `<!-- -->b`])` via
+      [LmdbSchema.deriveIndexes()](xref:@gramstax/lmdb!LmdbSchema.deriveIndexes:member(1)) — the extractor returns the
+      ordered tuple and the sub-DB pins `ordered-binary` key/value encoding so tuples seek natively. Custom
+      `attachIndexes` definitions may set it alongside their own extractor.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'composite?: Array<string>;'
+      return:
+        type: Array&lt;string&gt;
+  - name: dbName
+    uid: '@gramstax/lmdb!IIndexDef#dbName:member'
+    package: '@gramstax/lmdb!'
+    fullName: dbName
+    summary: Override the auto-generated index sub-DB name.
+    remarks: Default is `${dbName}:idx:${name}` (Q3). Must not collide with any other registered sub-DB name.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'dbName?: string;'
+      return:
+        type: string
+  - name: extractor
+    uid: '@gramstax/lmdb!IIndexDef#extractor:member'
+    package: '@gramstax/lmdb!'
+    fullName: extractor
+    summary: Extract the indexed value from a primary value.
+    remarks: >-
+      Returning `undefined`<!-- -->/`null` skips the index entry. When omitted, the index name is auto-resolved as a
+      (possibly dotted) field path.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'extractor?: (value: T) => K | undefined | null;'
+      return:
+        type: '(value: T) =&gt; K | undefined | null'
+  - name: unique
+    uid: '@gramstax/lmdb!IIndexDef#unique:member'
+    package: '@gramstax/lmdb!'
+    fullName: unique
+    summary: Enforce uniqueness on this index.
+    remarks: >-
+      `true` → SQL `CREATE UNIQUE INDEX`<!-- -->: a write whose index value is already owned by a different primary key
+      throws [LmdbError](xref:@gramstax/lmdb!LmdbError:class) and rolls back. `false` (default) → SQL `CREATE INDEX`
+      (duplicates allowed).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'unique?: boolean;'
+      return:
+        type: boolean

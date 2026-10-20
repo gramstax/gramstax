@@ -1,0 +1,112 @@
+---
+title: "LmdbBackup.downloadFromS3()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackup](./lmdb.lmdbbackup.md) &gt; [downloadFromS3](./lmdb.lmdbbackup.downloadfroms3.md)
+
+## LmdbBackup.downloadFromS3() method
+
+Download one S3 object to a local file.
+
+**Signature:**
+
+```typescript
+static downloadFromS3(s3: IBackupS3Options, key: string, destDir: string, fileName: string): Promise<string>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+s3
+
+
+</td><td>
+
+[IBackupS3Options](./lmdb.lmdbbackups3options.md)
+
+
+</td><td>
+
+Source (bucket + credentials or prebuilt client).
+
+
+</td></tr>
+<tr><td>
+
+key
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Full object key.
+
+
+</td></tr>
+<tr><td>
+
+destDir
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Local target folder, created when missing.
+
+
+</td></tr>
+<tr><td>
+
+fileName
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Local target file name inside `destDir`.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;string&gt;
+
+`join(destDir, fileName)`.
+
+## Remarks
+
+Writes to a uniquely-named `.part` sibling and renames on success, so the destination is either absent or complete — a failed or cancelled transfer never leaves a truncated archive that a later `restoreArchive` would accept. The random component also makes concurrent downloads into one directory safe. `destDir` is created if missing, matching [LmdbBackup.backup()](./lmdb.lmdbbackup.backup.md).
+
+Destination folder and file name are separate arguments so a caller can restore several objects into one folder without re-joining paths, and so the returned absolute target is unambiguous.
+

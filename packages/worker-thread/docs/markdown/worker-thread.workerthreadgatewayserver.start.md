@@ -9,7 +9,7 @@ Start the gateway server.
 **Signature:**
 
 ```typescript
-start(path: string, register?: any): Promise<unknown>;
+start(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: IGatewayServerOptions): Promise<this>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ register
 
 </td><td>
 
-any
+Record&lt;string, (...args: never\[\]) =&gt; unknown&gt;
 
 
 </td><td>
@@ -62,11 +62,27 @@ _(Optional)_ Object to expose to clients. Called by connected clients. Defaults 
 
 
 </td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IGatewayServerOptions](./worker-thread.igatewayserveroptions.md)
+
+
+</td><td>
+
+_(Optional)_ Server options (auth token, method allow-list, connection cap).
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
 
-Promise&lt;unknown&gt;
+Promise&lt;this&gt;
 
 Promise that resolves to this server instance when ready.
 
@@ -78,6 +94,9 @@ await server.start("/tmp/data-worker.sock", {
   ping: () => "pong",
   getData: (key) => database.get(key),
   setData: (key, value) => database.set(key, value),
+}, {
+  token: "shared-secret",
+  allowedMethods: ["ping", "getData"],
 });
 console.log("Gateway server started");
 ```

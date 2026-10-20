@@ -3,7 +3,7 @@ import type {LmdbEnv} from "../env"
 import type {LmdbSchema} from "../schema"
 
 /**
- * Row-rewrite step for {@link IMigration.transform}.
+ * Row-rewrite step for `IMigration.transform`.
  *
  * @remarks
  * `map` MUST be idempotent — crashed steps rerun from scratch, so rows may

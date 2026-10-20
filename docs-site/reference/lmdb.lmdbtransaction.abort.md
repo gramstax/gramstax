@@ -1,0 +1,45 @@
+---
+title: "LmdbTransaction.abort()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbTransaction](./lmdb.lmdbtransaction.md) &gt; [abort](./lmdb.lmdbtransaction.abort.md)
+
+## LmdbTransaction.abort() method
+
+Mark this transaction as aborted.
+
+**Signature:**
+
+```typescript
+abort(): void;
+```
+**Returns:**
+
+void
+
+## Remarks
+
+\*\*SQL equivalent\*\*: `ROLLBACK;` — discards all writes performed inside the transaction.
+
+For write transactions (inside [LmdbEnv.transaction()](./lmdb.lmdbenv.transaction.md)): the wrapper callback detects this flag and throws an internal abort error, causing LMDB to roll back all writes in the transaction.
+
+For read transactions: releases the underlying LMDB read transaction immediately. Safe to call multiple times.
+
+Inside [LmdbEnv.transactionFast()](./lmdb.lmdbenv.transactionfast.md) this \*\*throws\*\* `LmdbError`: that path commits through lmdb-js `db.transaction()`, which cannot roll back. Silently ignoring the call would let the caller believe the writes were discarded when they are in fact committed.
+
+## Example
+
+
+```typescript
+await env.transaction(async (tx) => {
+  try {
+    await users.put("u1", user, tx);
+    await someRiskyOp();
+    tx.commit();
+  } catch (err) {
+    tx.abort();
+    throw err;
+  }
+});
+```
+

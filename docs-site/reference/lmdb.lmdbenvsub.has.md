@@ -1,0 +1,74 @@
+---
+title: "LmdbEnvSub.has()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [has](./lmdb.lmdbenvsub.has.md)
+
+## LmdbEnvSub.has() method
+
+Check whether a key exists.
+
+**Signature:**
+
+```typescript
+has(key: KeyOf<S>, tx?: LmdbTransaction): boolean;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+[KeyOf](./lmdb.keyof.md)&lt;S&gt;
+
+
+</td><td>
+
+The primary key.
+
+
+</td></tr>
+<tr><td>
+
+tx
+
+
+</td><td>
+
+[LmdbTransaction](./lmdb.lmdbtransaction.md)
+
+
+</td><td>
+
+_(Optional)_ Optional active [LmdbTransaction](./lmdb.lmdbtransaction.md) to check against.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+boolean
+
+`true` when the key exists. Synchronous.
+

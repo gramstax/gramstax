@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IWorkerThreadExportResult
+uid: '@gramstax/worker-thread!IWorkerThreadExportResult:type'
+package: '@gramstax/worker-thread!'
+fullName: IWorkerThreadExportResult
+summary: Result type of [WorkerThreadExport.init()](xref:@gramstax/worker-thread!WorkerThreadExport.init:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type IWorkerThreadExportResult<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = TWrap &
+  IWorkerThreadAsyncMethods<TWorker> & {
+      launchWorker: (argv?: unknown[]) => Promise<TMain & IWorkerThreadWorkerClass<TWorker>>;
+      launchGatewayClient: IWorkerThreadGatewayClientFactory<TWorker>;
+      shutdown: (timeoutMs?: number) => Promise<void>;
+  };

@@ -111,7 +111,7 @@ export class LmdbJobRun {
    *
    * @param key - Job name.
    * @returns Epoch ms of the last success, or `undefined` when never run.
-   * @throws {LmdbError} On a blank `key`, or when the env is closed.
+   * @throws {@link LmdbError} On a blank `key`, or when the env is closed.
    *
    * @public
    */
@@ -130,7 +130,7 @@ export class LmdbJobRun {
    * @param key - Job name.
    * @param at - Epoch ms to stamp (default `Date.now()`).
    * @returns Nothing.
-   * @throws {LmdbError} On a blank `key` or a non-finite `at`.
+   * @throws {@link LmdbError} On a blank `key` or a non-finite `at`.
    *
    * @public
    */
@@ -144,7 +144,7 @@ export class LmdbJobRun {
    *
    * @param key - Job name.
    * @returns `true` when a stamp existed.
-   * @throws {LmdbError} On a blank `key`.
+   * @throws {@link LmdbError} On a blank `key`.
    *
    * @public
    */
@@ -172,7 +172,7 @@ export class LmdbJobRun {
    * @param opts - `{pattern, timezone?, now?}` — pass `now` to make the check
    * deterministic instead of reading the clock.
    * @returns `true` when a boundary was missed.
-   * @throws {LmdbError} On a blank `key` or an unparseable `pattern`.
+   * @throws {@link LmdbError} On a blank `key` or an unparseable `pattern`.
    *
    * @public
    */
@@ -202,7 +202,7 @@ export class LmdbJobRun {
    * @param key - Job name, also the key its stamp is stored under.
    * @param opts - `{pattern, task, timezone?, runOnStart?, catchUp?, onError?, persist?}`.
    * @returns A handle with `stop`, `runNow`, `lastRun`, `nextRun` and `label`.
-   * @throws {LmdbError} On a blank `key`, or an unparseable `pattern`.
+   * @throws {@link LmdbError} On a blank `key`, or an unparseable `pattern`.
    *
    * @public
    */
@@ -225,7 +225,7 @@ export class LmdbJobRun {
      *
      * @remarks
      * The overlap guard is this module's own rather than croner's `protect`,
-     * because {@link IJobRunHandle.runNow} enters through the same function
+     * because {@link LmdbJobRunHandle.runNow} enters through the same function
      * and `cron.trigger()` is fire-and-forget. Owning it is also what keeps
      * `runNow()` awaitable.
      *
@@ -318,7 +318,7 @@ export class LmdbJobRun {
    * @param key - Job name to validate.
    * @returns The key, unchanged — whitespace is not trimmed, so `' a '` and
    * `'a'` stay distinct stamps.
-   * @throws {LmdbError} When the key is not a non-blank string.
+   * @throws {@link LmdbError} When the key is not a non-blank string.
    *
    * @internal
    */

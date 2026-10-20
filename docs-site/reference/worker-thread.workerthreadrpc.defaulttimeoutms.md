@@ -1,0 +1,15 @@
+---
+title: "WorkerThreadRpc.defaultTimeoutMs"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadRpc](./worker-thread.workerthreadrpc.md) &gt; [defaultTimeoutMs](./worker-thread.workerthreadrpc.defaulttimeoutms.md)
+
+## WorkerThreadRpc.defaultTimeoutMs property
+
+Default timeout in milliseconds for `makeRequest` calls that omit `timeoutMs`. Initialized from `DEFAULT_REQUEST_TIMEOUT_MS`; assign `0` to wait indefinitely. Must stay a non-negative finite number.
+
+**Signature:**
+
+```typescript
+defaultTimeoutMs: number;
+```

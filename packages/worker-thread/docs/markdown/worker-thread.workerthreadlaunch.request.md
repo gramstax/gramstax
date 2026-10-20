@@ -9,7 +9,7 @@ Make an RPC request to the worker thread.
 **Signature:**
 
 ```typescript
-request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
+request(method: string, params: unknown[], _wait?: boolean, _others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ params
 
 </td><td>
 
-any
+unknown\[\]
 
 
 </td><td>
@@ -85,7 +85,7 @@ _(Optional)_ Wait for response. If false, fire-and-forget. Defaults to `true`<!-
 
 </td><td>
 
-any
+Record&lt;string, unknown&gt;
 
 
 </td><td>
@@ -94,11 +94,27 @@ _(Optional)_ Additional RPC data. Merged into RPC payload.
 
 
 </td></tr>
+<tr><td>
+
+timeoutMs
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Optional timeout in milliseconds. Rejects the request when the worker does not respond in time.
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 Promise resolving with worker response.
 

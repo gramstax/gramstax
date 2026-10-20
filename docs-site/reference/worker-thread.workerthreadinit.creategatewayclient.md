@@ -1,0 +1,86 @@
+---
+title: "WorkerThreadInit.createGatewayClient()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadInit](./worker-thread.workerthreadinit.md) &gt; [createGatewayClient](./worker-thread.workerthreadinit.creategatewayclient.md)
+
+## WorkerThreadInit.createGatewayClient() method
+
+\[LOW-LEVEL\] Create a gateway client to connect to another worker.
+
+**Signature:**
+
+```typescript
+createGatewayClient(serverPath: string, options?: IGatewayClientOptions): Promise<WorkerThreadGatewayClient>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+serverPath
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Unix socket path to connect. Matches server gateway.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IGatewayClientOptions](./worker-thread.igatewayclientoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Connection options (auth token, reconnect tuning, encoding).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;[WorkerThreadGatewayClient](./worker-thread.workerthreadgatewayclient.md)&gt;
+
+Promise resolving with connected client.
+
+## Remarks
+
+Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.
+
+## Example
+
+
+```typescript
+const client = await this.createGatewayClient("/tmp/other-worker.sock");
+const result = await client.request("ping", []);
+```
+

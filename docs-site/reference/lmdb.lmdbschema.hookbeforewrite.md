@@ -1,0 +1,20 @@
+---
+title: "LmdbSchema.hookBeforeWrite"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbSchema](./lmdb.lmdbschema.md) &gt; [hookBeforeWrite](./lmdb.lmdbschema.hookbeforewrite.md)
+
+## LmdbSchema.hookBeforeWrite property
+
+Optional write hook — converts a typed row to its stored form.
+
+**Signature:**
+
+```typescript
+static hookBeforeWrite?: (value: unknown) => unknown;
+```
+
+## Remarks
+
+Runs before LMDB serializes the value (like a collection codec's `serialize`). Must be declared together with [LmdbSchema.hookBeforeRead](./lmdb.lmdbschema.hookbeforeread.md) — declaring only one of the pair throws at registration.
+

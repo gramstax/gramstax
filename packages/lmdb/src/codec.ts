@@ -18,7 +18,7 @@ import type {ICodec} from "./types/codec"
  * Implements {@link ICodec} directly, so a registration installs it with
  * `new RecordCodec(columns)` — the column order doubles as the codec's
  * configuration, which is why this is a class; the dotted-path helpers
- * ride as statics on it (alongside the {@link Search} statics).
+ * ride as statics on it (alongside the {@link LmdbSearch} statics).
  *
  * @public
  */

@@ -9,7 +9,10 @@ Creates a new WorkerThreadRpc instance.
 **Signature:**
 
 ```typescript
-constructor(send: (data: any) => any, register: Record<any, any>);
+constructor(send: (data: Record<string, unknown>) => unknown, register: Record<string, (...args: never[]) => unknown>, options?: {
+        maxMessageSize?: number;
+        defaultTimeoutMs?: number;
+    });
 ```
 
 ## Parameters
@@ -37,7 +40,7 @@ send
 
 </td><td>
 
-(data: any) =&gt; any
+(data: Record&lt;string, unknown&gt;) =&gt; unknown
 
 
 </td><td>
@@ -53,12 +56,28 @@ register
 
 </td><td>
 
-Record&lt;any, any&gt;
+Record&lt;string, (...args: never\[\]) =&gt; unknown&gt;
 
 
 </td><td>
 
 Object with callable methods. Exposed RPC method map.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+{ maxMessageSize?: number; defaultTimeoutMs?: number; }
+
+
+</td><td>
+
+_(Optional)_ Optional settings (message-size cap, default timeout).
 
 
 </td></tr>

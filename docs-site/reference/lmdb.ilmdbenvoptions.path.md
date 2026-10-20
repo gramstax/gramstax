@@ -1,0 +1,15 @@
+---
+title: "ILmdbEnvOptions.path"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [path](./lmdb.ilmdbenvoptions.path.md)
+
+## ILmdbEnvOptions.path property
+
+Filesystem path where LMDB will store its data files.
+
+**Signature:**
+
+```typescript
+path: string;
+```

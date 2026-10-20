@@ -1,0 +1,77 @@
+---
+title: "LmdbEnvSub.importJSONL()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [importJSONL](./lmdb.lmdbenvsub.importjsonl.md)
+
+## LmdbEnvSub.importJSONL() method
+
+Import JSON Lines.
+
+**Signature:**
+
+```typescript
+importJSONL(jsonl: string, options?: {
+        sorted?: boolean;
+        onProgress?: (done: number, total: number) => void;
+    }): Promise<number>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+jsonl
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+JSONL string of `[key, value]` pairs.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+&#123; sorted?: boolean; onProgress?: (done: number, total: number) =&gt; void; &#125;
+
+
+</td><td>
+
+_(Optional)_ `{sorted?, onProgress?}` (see [LmdbEnvSub.putMany()](./lmdb.lmdbenvsub.putmany.md)).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;number&gt;
+
+The number of imported entries.
+

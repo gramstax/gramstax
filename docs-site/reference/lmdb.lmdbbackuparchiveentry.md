@@ -1,0 +1,117 @@
+---
+title: "LmdbBackupArchiveEntry"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupArchiveEntry](./lmdb.lmdbbackuparchiveentry.md)
+
+## LmdbBackupArchiveEntry interface
+
+One tar.gz archive entry as returned by [LmdbBackup.listArchives()](./lmdb.lmdbbackup.listarchives.md).
+
+**Signature:**
+
+```typescript
+interface IBackupArchiveEntry 
+```
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[mtimeMs](./lmdb.lmdbbackuparchiveentry.mtimems.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+File mtime in ms — prune/list order key.
+
+
+</td></tr>
+<tr><td>
+
+[name](./lmdb.lmdbbackuparchiveentry.name.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+File name (`backup-<stamp>.tar.gz`).
+
+
+</td></tr>
+<tr><td>
+
+[path](./lmdb.lmdbbackuparchiveentry.path.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Absolute path.
+
+
+</td></tr>
+<tr><td>
+
+[sizeBytes](./lmdb.lmdbbackuparchiveentry.sizebytes.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Apparent size in bytes.
+
+
+</td></tr>
+</tbody></table>
+

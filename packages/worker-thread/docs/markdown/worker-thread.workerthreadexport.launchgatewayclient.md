@@ -9,8 +9,8 @@ Create a typed gateway client proxy for inter-worker communication.
 **Signature:**
 
 ```typescript
-static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string): WorkerThreadGatewayProxy<TWorker> & {
-        new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>;
+static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string, options?: IGatewayClientOptions): IWorkerThreadGatewayProxy<TWorker> & {
+        new (owner: WorkerThreadInit): IWorkerThreadAsyncMethods<TWorker>;
     };
 ```
 
@@ -48,11 +48,27 @@ Path to the target worker file. Must match target init `path`<!-- -->.
 
 
 </td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IGatewayClientOptions](./worker-thread.igatewayclientoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Gateway connection options (auth token, reconnect tuning, encoding).
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
 
-[WorkerThreadGatewayProxy](./worker-thread.workerthreadgatewayproxy.md)<!-- -->&lt;TWorker&gt; &amp; { new (owner: [WorkerThreadInit](./worker-thread.workerthreadinit.md)<!-- -->): [WorkerThreadAsyncMethods](./worker-thread.workerthreadasyncmethods.md)<!-- -->&lt;TWorker&gt;; }
+[IWorkerThreadGatewayProxy](./worker-thread.iworkerthreadgatewayproxy.md)<!-- -->&lt;TWorker&gt; &amp; { new (owner: [WorkerThreadInit](./worker-thread.workerthreadinit.md)<!-- -->): [IWorkerThreadAsyncMethods](./worker-thread.iworkerthreadasyncmethods.md)<!-- -->&lt;TWorker&gt;; }
 
 Proxy that can be used as static methods or as constructor.
 
@@ -61,7 +77,7 @@ Proxy that can be used as static methods or as constructor.
 
 ```typescript
 // Static usage
-const OtherWorkerGateway = WorkerThreadExport.launchGatewayClient<OtherWorkerClass>("/path/to/other.ts");
+const OtherWorkerGateway = WorkerThreadExport.launchGatewayClient<OtherWorkerClass>("/path/to/other.ts", {token: "shared-secret"});
 await OtherWorkerGateway.someMethod(this, arg1, arg2);
 
 // Constructor usage

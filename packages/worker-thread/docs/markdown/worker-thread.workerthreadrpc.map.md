@@ -9,10 +9,10 @@ Map of pending requests by ID. Stores promise handlers for pending requests.
 **Signature:**
 
 ```typescript
-map: ITMapRpc;
+map: IMapRpc;
 ```
 
 ## Remarks
 
-Uses [ITMapRpc](./worker-thread.itmaprpc.md) for the map value shape.
+Uses [IMapRpc](./worker-thread.imaprpc.md) for the map value shape.
 

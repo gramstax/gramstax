@@ -1,0 +1,20 @@
+---
+title: "LmdbBackupStartOptions.persist"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupStartOptions](./lmdb.lmdbbackupstartoptions.md) &gt; [persist](./lmdb.lmdbbackupstartoptions.persist.md)
+
+## LmdbBackupStartOptions.persist property
+
+Persist the last successful run so a restart resumes the schedule instead of restarting it (default `true`).
+
+**Signature:**
+
+```typescript
+persist?: boolean;
+```
+
+## Remarks
+
+`false` restores the older timer-only behaviour: no catch-up decision is made and nothing is written to the env. Costs one `maxDbs` slot for the `__job_run` sub-DB when enabled.
+

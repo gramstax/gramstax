@@ -1,0 +1,66 @@
+### YamlMime:TSType
+name: LmdbBackupArchiveEntry
+uid: '@gramstax/lmdb!LmdbBackupArchiveEntry:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbBackupArchiveEntry
+summary: >-
+  One tar.gz archive entry as returned by
+  [LmdbBackup.listArchives()](xref:@gramstax/lmdb!LmdbBackup.listArchives:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: mtimeMs
+    uid: '@gramstax/lmdb!LmdbBackupArchiveEntry#mtimeMs:member'
+    package: '@gramstax/lmdb!'
+    fullName: mtimeMs
+    summary: File mtime in ms — prune/list order key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'mtimeMs: number;'
+      return:
+        type: number
+  - name: name
+    uid: '@gramstax/lmdb!LmdbBackupArchiveEntry#name:member'
+    package: '@gramstax/lmdb!'
+    fullName: name
+    summary: File name (`backup-<stamp>.tar.gz`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'name: string;'
+      return:
+        type: string
+  - name: path
+    uid: '@gramstax/lmdb!LmdbBackupArchiveEntry#path:member'
+    package: '@gramstax/lmdb!'
+    fullName: path
+    summary: Absolute path.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'path: string;'
+      return:
+        type: string
+  - name: sizeBytes
+    uid: '@gramstax/lmdb!LmdbBackupArchiveEntry#sizeBytes:member'
+    package: '@gramstax/lmdb!'
+    fullName: sizeBytes
+    summary: Apparent size in bytes.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sizeBytes: number;'
+      return:
+        type: number

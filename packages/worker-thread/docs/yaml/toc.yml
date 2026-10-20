@@ -5,25 +5,51 @@ items:
       - name: worker-thread
         uid: '@gramstax/worker-thread!'
         items:
-          - name: ITMapRpc
-            uid: '@gramstax/worker-thread!ITMapRpc:type'
-          - name: WorkerThreadAsyncMethods
-            uid: '@gramstax/worker-thread!WorkerThreadAsyncMethods:type'
+          - name: IGatewayClientOptions
+            uid: '@gramstax/worker-thread!IGatewayClientOptions:type'
+          - name: IGatewayServerOptions
+            uid: '@gramstax/worker-thread!IGatewayServerOptions:type'
+          - name: IMapRpc
+            uid: '@gramstax/worker-thread!IMapRpc:type'
+          - name: IRpcContext
+            uid: '@gramstax/worker-thread!IRpcContext:type'
+          - name: IRpcMiddleware
+            uid: '@gramstax/worker-thread!IRpcMiddleware:type'
+          - name: IWorkerThreadAsyncMethods
+            uid: '@gramstax/worker-thread!IWorkerThreadAsyncMethods:type'
+          - name: IWorkerThreadExportOpt
+            uid: '@gramstax/worker-thread!IWorkerThreadExportOpt:type'
+          - name: IWorkerThreadExportResult
+            uid: '@gramstax/worker-thread!IWorkerThreadExportResult:type'
+          - name: IWorkerThreadGatewayClientFactory
+            uid: '@gramstax/worker-thread!IWorkerThreadGatewayClientFactory:type'
+          - name: IWorkerThreadGatewayProxy
+            uid: '@gramstax/worker-thread!IWorkerThreadGatewayProxy:type'
+          - name: IWorkerThreadPoolMethods
+            uid: '@gramstax/worker-thread!IWorkerThreadPoolMethods:type'
+          - name: IWorkerThreadPoolMode
+            uid: '@gramstax/worker-thread!IWorkerThreadPoolMode:type'
+          - name: IWorkerThreadPoolOptions
+            uid: '@gramstax/worker-thread!IWorkerThreadPoolOptions:type'
+          - name: IWorkerThreadPoolOutcome
+            uid: '@gramstax/worker-thread!IWorkerThreadPoolOutcome:type'
+          - name: IWorkerThreadWorkerClass
+            uid: '@gramstax/worker-thread!IWorkerThreadWorkerClass:type'
+          - name: WorkerThreadErrorHandler
+            uid: '@gramstax/worker-thread!WorkerThreadErrorHandler:class'
           - name: WorkerThreadExport
             uid: '@gramstax/worker-thread!WorkerThreadExport:class'
-          - name: WorkerThreadExportOpt
-            uid: '@gramstax/worker-thread!WorkerThreadExportOpt:type'
           - name: WorkerThreadGatewayClient
             uid: '@gramstax/worker-thread!WorkerThreadGatewayClient:class'
-          - name: WorkerThreadGatewayProxy
-            uid: '@gramstax/worker-thread!WorkerThreadGatewayProxy:type'
+          - name: WorkerThreadGatewayPath
+            uid: '@gramstax/worker-thread!WorkerThreadGatewayPath:class'
           - name: WorkerThreadGatewayServer
             uid: '@gramstax/worker-thread!WorkerThreadGatewayServer:class'
           - name: WorkerThreadInit
             uid: '@gramstax/worker-thread!WorkerThreadInit:class'
           - name: WorkerThreadLaunch
             uid: '@gramstax/worker-thread!WorkerThreadLaunch:class'
-          - name: WorkerThreadPool
-            uid: '@gramstax/worker-thread!WorkerThreadPool:class'
+          - name: WorkerThreadPool (TypeAlias)
+            uid: '@gramstax/worker-thread!WorkerThreadPool:type'
           - name: WorkerThreadRpc
             uid: '@gramstax/worker-thread!WorkerThreadRpc:class'

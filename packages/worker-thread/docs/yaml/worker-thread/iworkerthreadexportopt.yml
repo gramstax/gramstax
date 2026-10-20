@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IWorkerThreadExportOpt
+uid: '@gramstax/worker-thread!IWorkerThreadExportOpt:type'
+package: '@gramstax/worker-thread!'
+fullName: IWorkerThreadExportOpt
+summary: Options for initializing a worker thread export.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IWorkerThreadExportOpt<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = {
+      path: string;
+      WTInit: new () => TWorker;
+      WTLaunch?: new (path: string, argv?: unknown[]) => TMain;
+      wrap?: (main: TMain) => TWrap;
+  };

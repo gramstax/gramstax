@@ -1,0 +1,56 @@
+---
+title: "LmdbReader"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbReader](./lmdb.lmdbreader.md)
+
+## LmdbReader class
+
+Read-only reader helper.
+
+**Signature:**
+
+```typescript
+declare class LmdbReader 
+```
+
+## Remarks
+
+[LmdbReader.open()](./lmdb.lmdbreader.open.md) attaches a read-only [LmdbEnv](./lmdb.lmdbenv.md) to an existing LMDB data file, with optional periodic `resetReadTxn` polling. Backup lifecycle lives in [LmdbBackup](./lmdb.lmdbbackup.md) (`./backup`).
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[open(path, opts)](./lmdb.lmdbreader.open.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Open a read-only replica of an existing env at `path`.
+
+
+</td></tr>
+</tbody></table>
+

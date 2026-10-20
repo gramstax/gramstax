@@ -1,0 +1,81 @@
+### YamlMime:TSType
+name: LmdbSyncStream
+uid: '@gramstax/lmdb!LmdbSyncStream:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbSyncStream
+summary: Differential env-to-env sync for `@gramstax/lmdb`<!-- -->.
+remarks: >-
+  `LmdbSyncStream` copies rows past a checkpoint through a keyset cursor in 500-row chunks: each chunk commits to the
+  destination via `putMany` (indexes, search, CDC, TTL ride along), then the cursor persists to `__sync_state` under the
+  stream name — so a killed run resumes mid-stream instead of restarting. Source iteration order is natively ascending,
+  so destination writes ride `{sorted: true}` appends. An explicit `checkpoint` option runs one-shot past that key
+  without touching the stored cursor. Sync copies upsert-style and never deletes destination-only rows; quiesce writes
+  on both subs before syncing (concurrent writes defeat the verify step by design).
+
+
+  Sync helpers ride as statics on this class; a run threads six pieces of state — source, destination, options, cursor,
+  counters, exhaustion — across paged async iterations. Construct per run; instances are single-use.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(_source, _dest, _options)
+    uid: '@gramstax/lmdb!LmdbSyncStream:constructor(1)'
+    package: '@gramstax/lmdb!'
+    fullName: (constructor)(_source, _dest, _options)
+    summary: Create a sync stream for one run (instances are single-use).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(_source: LmdbEnvSub<S>, _dest: LmdbEnvSub<S>, _options?: ISyncOptions<S> | undefined);'
+      parameters:
+        - id: _source
+          description: Sub to copy from.
+          type: <xref uid="@gramstax/lmdb!LmdbEnvSub:class" />&lt;S&gt;
+        - id: _dest
+          description: Sub to copy to (same schema class, any env; must differ).
+          type: <xref uid="@gramstax/lmdb!LmdbEnvSub:class" />&lt;S&gt;
+        - id: _options
+          description: '`{name?, checkpoint?, limit?, verify?}`<!-- -->.'
+          type: <xref uid="@gramstax/lmdb!ISyncOptions:interface" />&lt;S&gt; | undefined
+methods:
+  - name: hashRowValue(value)
+    uid: '@gramstax/lmdb!LmdbSyncStream.hashRowValue:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: hashRowValue(value)
+    summary: Deterministic hash of a row value for sync verification.
+    remarks: >-
+      Canonicalizes key order, dates, binary, maps, sets, and bigints before hashing, so equal rows hash equal across
+      envs regardless of materialized key order. Pure and total over row-shaped values.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static hashRowValue(value: unknown): number;'
+      parameters:
+        - id: value
+          description: The decoded row.
+          type: unknown
+      return:
+        type: number
+        description: An unsigned 32-bit hash.
+  - name: run()
+    uid: '@gramstax/lmdb!LmdbSyncStream#run:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: run()
+    summary: Copy rows past the checkpoint through a keyset cursor in 500-row chunks.
+    remarks: >-
+      Each committed chunk advances the persisted cursor, so kills resume mid-stream. An explicit `checkpoint` runs
+      one-shot without touching the stored cursor. Destination writes use `{sorted: true}` appends (source order is
+      natively ascending). Sync upserts — destination-only rows are never deleted.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'run(): Promise<ISyncResult<S>>;'
+      return:
+        type: Promise&lt;<xref uid="@gramstax/lmdb!ISyncResult:interface" />&lt;S&gt;&gt;
+        description: '`{copied, checkpoint, verified}`<!-- -->.'

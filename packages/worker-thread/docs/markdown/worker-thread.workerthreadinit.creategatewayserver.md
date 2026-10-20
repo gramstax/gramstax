@@ -9,7 +9,7 @@ Create a gateway server for inter-worker communication.
 **Signature:**
 
 ```typescript
-createGatewayServer(path: string, register?: any): Promise<boolean>;
+createGatewayServer(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: IGatewayServerOptions): Promise<boolean>;
 ```
 
 ## Parameters
@@ -53,12 +53,28 @@ register
 
 </td><td>
 
-any
+Record&lt;string, (...args: never\[\]) =&gt; unknown&gt;
 
 
 </td><td>
 
 _(Optional)_ Object with value function to expose. Called by gateway clients. Defaults to `this`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IGatewayServerOptions](./worker-thread.igatewayserveroptions.md)
+
+
+</td><td>
+
+_(Optional)_ Gateway server options (auth token, method allow-list, connection cap).
 
 
 </td></tr>
@@ -70,17 +86,23 @@ Promise&lt;boolean&gt;
 
 Promise that resolves to `true` when gateway is ready.
 
+## Remarks
+
+\*\*Security:\*\* when `register` is omitted the server exposes the entire worker instance (`this`<!-- -->) to every socket client, so a non-empty `allowedMethods` list is \*\*required\*\* in that case — otherwise the call throws instead of silently opening every `mtd*` method to any process that can reach the socket. Supply an explicit `register` object, a non-empty `allowedMethods`<!-- -->, or both.
+
 ## Example
 
 
 ```typescript
-// Custom object and path
+// Custom object and path (explicit register — no allow-list needed)
 await this.createGatewayServer(
   "/tmp/my-worker.sock",
   { ping: () => "pong" }
 );
 
-// Expose `this` at the given path
-await this.createGatewayServer("/tmp/my-worker.sock");
+// Expose `this` at the given path — allowedMethods is mandatory here
+await this.createGatewayServer("/tmp/my-worker.sock", undefined, {
+  allowedMethods: ["mtdPing"],
+});
 ```
 

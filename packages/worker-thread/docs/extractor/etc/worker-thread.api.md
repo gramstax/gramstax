@@ -5,135 +5,254 @@
 ```ts
 
 import { Client } from 'net-ipc';
+import { EventEmitter } from 'node:events';
 import * as node_worker_threads from 'node:worker_threads';
 import { Server } from 'net-ipc';
 import { Worker as Worker_2 } from 'node:worker_threads';
 
 // @public
-export type ITMapRpc = Map<any, {
-    reject: (error: any) => any;
-    resolve: (result: any) => any;
-}>;
+export const DEFAULT_MAX_MESSAGE_SIZE: number;
 
 // @public
-export type WorkerThreadAsyncMethods<T> = {
-    [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never;
+export const DEFAULT_REQUEST_TIMEOUT_MS = 30000;
+
+// @public
+export const DENIED_RPC_METHODS: ReadonlySet<string>;
+
+// @public
+export type IGatewayClientOptions = {
+    token?: string;
+    reconnect?: boolean;
+    retries?: number;
+    maxRetryTime?: number;
+    maxMessageSize?: number;
+    messagepack?: boolean;
 };
 
 // @public
-export class WorkerThreadExport {
-    static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<any, any>>(options: WorkerThreadExportOpt<TWorker, TMain, TWrap>): TWrap & WorkerThreadAsyncMethods<TWorker> & {
-        launchWorker: (argv?: any[]) => Promise<TMain>;
-        launchGatewayClient: (serverPath?: string) => WorkerThreadGatewayProxy<TWorker> & {
-            new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>;
-        };
-    };
-    static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string): WorkerThreadGatewayProxy<TWorker> & {
-        new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>;
-    };
-}
+export type IGatewayServerOptions = {
+    token?: string;
+    allowedMethods?: string[];
+    maxConnections?: number;
+    maxMessageSize?: number;
+};
 
 // @public
-export type WorkerThreadExportOpt<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = {
+export type IMapRpc = Map<number, {
+    reject: (error: unknown) => void;
+    resolve: (result: unknown) => void;
+    timer?: ReturnType<typeof setTimeout>;
+}>;
+
+// @public
+export type IRpcContext = {
+    method: string;
+    params: unknown[];
+    result?: unknown;
+};
+
+// @public
+export type IRpcMiddleware = (ctx: IRpcContext, next: () => Promise<void>) => Promise<void>;
+
+// @public
+export type IWorkerThreadAsyncMethods<T> = {
+    [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: never[]) => unknown ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never;
+};
+
+// @public
+export type IWorkerThreadExportOpt<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = {
     path: string;
     WTInit: new () => TWorker;
-    WTLaunch?: new (path: string, argv?: any[]) => TMain;
+    WTLaunch?: new (path: string, argv?: unknown[]) => TMain;
     wrap?: (main: TMain) => TWrap;
 };
 
 // @public
-export class WorkerThreadGatewayClient {
+export type IWorkerThreadExportResult<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = TWrap & IWorkerThreadAsyncMethods<TWorker> & {
+    launchWorker: (argv?: unknown[]) => Promise<TMain & IWorkerThreadWorkerClass<TWorker>>;
+    launchGatewayClient: IWorkerThreadGatewayClientFactory<TWorker>;
+    shutdown: (timeoutMs?: number) => Promise<void>;
+};
+
+// @public
+export type IWorkerThreadGatewayClientFactory<TWorker extends WorkerThreadInit> = (serverPath: string, options?: IGatewayClientOptions) => IWorkerThreadGatewayProxy<TWorker> & {
+    new (owner: WorkerThreadInit): IWorkerThreadAsyncMethods<TWorker>;
+};
+
+// @public
+export type IWorkerThreadGatewayProxy<T> = {
+    [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: never[]) => unknown ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (owner: WorkerThreadInit, ...args: A) => Promise<Awaited<R>> : never;
+};
+
+// Warning: (ae-forgotten-export) The symbol "IWorkerThreadPoolResult" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type IWorkerThreadPoolMethods<TInit extends WorkerThreadInit> = {
+    [K in keyof TInit as K extends `mtd${string}` ? K : never]: TInit[K] extends (...args: infer A) => infer R ? <TMode extends IWorkerThreadPoolMode = "execute">(...args: [...A, IWorkerThreadPoolOptions<TMode>?]) => Promise<IWorkerThreadPoolResult<R, TMode>> : never;
+};
+
+// @public
+export type IWorkerThreadPoolMode = "execute" | "broadcast" | "settled";
+
+// @public
+export type IWorkerThreadPoolOptions<TMode extends IWorkerThreadPoolMode = IWorkerThreadPoolMode> = {
+    mode?: TMode;
+    timeoutMs?: number;
+};
+
+// @public
+export type IWorkerThreadPoolOutcome<TResult> = {
+    threadId: number;
+    ok: boolean;
+    result?: TResult;
+    error?: unknown;
+};
+
+// @public
+export type IWorkerThreadWorkerClass<TInit extends WorkerThreadInit> = {
+    readonly __workerClass?: TInit;
+};
+
+// @public
+export class WorkerThreadErrorHandler {
+    // @internal
+    static report(err: unknown): void;
+    static resetDefault(): void;
+    static setDefault(handler: ((err: unknown) => void) | undefined): void;
+}
+
+// @public
+export class WorkerThreadExport {
+    static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<string, unknown>>(options: IWorkerThreadExportOpt<TWorker, TMain, TWrap>): IWorkerThreadExportResult<TWorker, TMain, TWrap>;
+    static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string, options?: IGatewayClientOptions): IWorkerThreadGatewayProxy<TWorker> & {
+        new (owner: WorkerThreadInit): IWorkerThreadAsyncMethods<TWorker>;
+    };
+}
+
+// @public
+export class WorkerThreadGatewayClient extends EventEmitter {
     constructor();
     client: Client;
-    connect(path: string): Promise<unknown>;
-    request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
+    close(): Promise<void>;
+    connect(path: string, options?: IGatewayClientOptions): Promise<unknown>;
+    destroy(): void;
+    isClosed(): boolean;
+    request(method: string, params: unknown[], _wait?: boolean, _others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown>;
     rpc: WorkerThreadRpc;
 }
 
 // @public
-export type WorkerThreadGatewayProxy<T> = {
-    [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (owner: WorkerThreadInit, ...args: A) => Promise<Awaited<R>> : never;
-};
+export class WorkerThreadGatewayPath {
+    static normalize(path: string): string;
+}
 
 // @public
-export class WorkerThreadGatewayServer {
+export class WorkerThreadGatewayServer extends EventEmitter {
     constructor();
-    register: any;
+    close(): Promise<void>;
+    closePromise: Promise<void> | null;
+    register: Record<string, (...args: never[]) => unknown>;
     rpc: Map<string, WorkerThreadRpc>;
     server: Server;
-    start(path: string, register?: any): Promise<unknown>;
+    start(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: IGatewayServerOptions): Promise<this>;
 }
 
 // @public
 export class WorkerThreadInit {
     constructor();
     argv: string[];
-    createGatewayClient(serverPath: string): Promise<WorkerThreadGatewayClient>;
-    createGatewayServer(path: string, register?: any): Promise<boolean>;
+    createGatewayClient(serverPath: string, options?: IGatewayClientOptions): Promise<WorkerThreadGatewayClient>;
+    createGatewayServer(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: IGatewayServerOptions): Promise<boolean>;
     get gatewayClient(): WorkerThreadGatewayClient | undefined;
     gatewayClientLatest?: WorkerThreadGatewayClient;
     gatewayClients: Map<string, WorkerThreadGatewayClient>;
     gatewayServer?: WorkerThreadGatewayServer;
-    handleOnMessage(data: any): void;
+    handleOnMessage(data: Parameters<WorkerThreadRpc[`make`]>[0]): void;
     id: number;
     init(): void;
+    _initDone: boolean;
+    _initPort: unknown;
     static isMainThread: boolean;
+    onBeforeExit(): void | Promise<void>;
+    onError(err: unknown): void;
     parentPort: node_worker_threads.MessagePort | null;
     pid: number;
-    request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
+    request(method: string, params: unknown[], _wait?: boolean, _others?: Record<string, unknown>, timeoutMs?: number): unknown;
     rpc: WorkerThreadRpc;
-    send(payload: any): void;
+    send(payload: Record<string, unknown>): boolean;
+    shutdown(): Promise<boolean>;
+    _shutdownDone: boolean;
 }
 
 // @public
-export class WorkerThreadLaunch {
-    constructor(path: string, argv: any[], register?: any | undefined);
+export class WorkerThreadLaunch extends EventEmitter {
+    constructor(path: string, argv: unknown[], register?: Record<string, (...args: never[]) => unknown> | undefined);
     // (undocumented)
-    argv: any[];
-    handleOnMessage(data: any): Promise<void>;
+    argv: unknown[];
+    handleOnMessage(data: Parameters<WorkerThreadRpc[`make`]>[0]): Promise<void>;
     init(): void;
     static isMainThread: boolean;
-    kill(): void;
+    kill(): Promise<number | void>;
     // (undocumented)
     path: string;
     pid: number;
     ready(): Promise<void>;
     readyResolve(): void;
     // (undocumented)
-    register?: any | undefined;
-    request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
+    register?: Record<string, (...args: never[]) => unknown> | undefined;
+    request(method: string, params: unknown[], _wait?: boolean, _others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown>;
     rpc: WorkerThreadRpc;
-    send(payload: any): void;
+    send(payload: Record<string, unknown>): void;
+    shutdown(timeoutMs?: number): Promise<void>;
     thread: Worker_2;
     threadId: number;
 }
 
 // @public
-export class WorkerThreadPool {
-    constructor(instance: WorkerThreadLaunch[]);
-    add(instance: WorkerThreadLaunch): void;
-    addMany(instance: WorkerThreadLaunch[]): void;
-    broadcastRequest(method: string, params: any): Promise<any[]>;
-    getInstance(threadId: number): WorkerThreadLaunch | undefined;
-    kill(threadId: number): number | undefined;
-    killAll(): void;
-    request(threadId: number, method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
-    thread: Map<number, WorkerThreadLaunch>;
-    threadCount: number;
-}
+export const WorkerThreadPool: {
+    new <TInit extends WorkerThreadInit = WorkerThreadInit>(instance: Array<WorkerThreadLaunch & IWorkerThreadWorkerClass<TInit>>): WorkerThreadPoolBase<TInit> & IWorkerThreadPoolMethods<TInit>;
+};
+
+// @public
+export type WorkerThreadPool<TInit extends WorkerThreadInit = WorkerThreadInit> = WorkerThreadPoolBase<TInit> & IWorkerThreadPoolMethods<TInit>;
 
 // @public
 export class WorkerThreadRpc {
-    constructor(send: (data: any) => any, register: Record<any, any>);
-    make(data: any): Promise<void>;
+    constructor(send: (data: Record<string, unknown>) => unknown, register: Record<string, (...args: never[]) => unknown>, options?: {
+        maxMessageSize?: number;
+        defaultTimeoutMs?: number;
+    });
+    // @internal
+    static assertTimeout(value: unknown, name: string): void;
+    context: Record<string, unknown>;
+    defaultTimeoutMs: number;
+    static estimatePayloadSize(value: unknown): number;
+    make(data: {
+        id?: number;
+        method?: string;
+        params?: unknown[];
+        result?: unknown;
+        error?: unknown;
+    }): Promise<void>;
     makeId(): number;
-    makeRequest(method: string, params: any, _wait?: boolean, _others?: Record<string, any>): Promise<any>;
-    map: ITMapRpc;
+    makeRequest(method: string, params: unknown[], wait: true, others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown>;
     // (undocumented)
-    register: Record<any, any>;
+    makeRequest(method: string, params: unknown[], wait?: false, others?: Record<string, unknown>, timeoutMs?: number): unknown;
     // (undocumented)
-    send: (data: any) => any;
+    makeRequest(method: string, params: unknown[], wait: boolean, others?: Record<string, unknown>, timeoutMs?: number): Promise<unknown> | unknown;
+    map: IMapRpc;
+    maxMessageSize?: number;
+    // (undocumented)
+    register: Record<string, (...args: never[]) => unknown>;
+    rejectAllPending(error: unknown): void;
+    // (undocumented)
+    send: (data: Record<string, unknown>) => unknown;
+    use(...middlewares: IRpcMiddleware[]): this;
 }
+
+// Warnings were encountered during analysis:
+//
+// dist/src/index.d.ts:1871:5 - (ae-forgotten-export) The symbol "WorkerThreadPoolBase" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -1,0 +1,30 @@
+---
+title: "WorkerThreadLaunch.ready()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadLaunch](./worker-thread.workerthreadlaunch.md) &gt; [ready](./worker-thread.workerthreadlaunch.ready.md)
+
+## WorkerThreadLaunch.ready() method
+
+Wait for the worker to signal it's ready.
+
+**Signature:**
+
+```typescript
+ready(): Promise<void>;
+```
+**Returns:**
+
+Promise&lt;void&gt;
+
+Promise that resolves when worker calls `super()` in `WorkerThreadInit`, or rejects when the worker exits before signaling ready.
+
+## Example
+
+
+```typescript
+const worker = new WorkerThreadLaunch("./worker.ts", []);
+await worker.ready();
+console.log("Worker is ready");
+```
+

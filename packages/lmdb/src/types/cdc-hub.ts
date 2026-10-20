@@ -4,7 +4,7 @@ import type {ICdcCallback} from "./cdc"
  * A live in-process subscription registered on {@link CdcHub}.
  *
  * @remarks
- * Created by `subscribe()` from a parsed {@link CdcFilter} — `db` scopes
+ * Created by `subscribe()` from a parsed `CdcFilter` — `db` scopes
  * delivery to one sub-DB, `op` narrows to one write kind (`undefined` means
  * all kinds). Held in the hub's subscriber list until the idempotent
  * unsubscribe closure removes it.

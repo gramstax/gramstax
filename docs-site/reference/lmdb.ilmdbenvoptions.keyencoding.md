@@ -1,0 +1,20 @@
+---
+title: "ILmdbEnvOptions.keyEncoding"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [keyEncoding](./lmdb.ilmdbenvoptions.keyencoding.md)
+
+## ILmdbEnvOptions.keyEncoding property
+
+Key encoding for sub-databases that need a specific key format.
+
+**Signature:**
+
+```typescript
+keyEncoding?: `uint32` | `binary` | `ordered-binary`;
+```
+
+## Remarks
+
+- `ordered-binary` (default) — any JS primitive as key - `uint32` — keys are strictly 32-bit unsigned integers (smaller, faster) - `binary` — keys are raw Buffers/Uint8Arrays
+

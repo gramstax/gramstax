@@ -1,0 +1,15 @@
+---
+title: "LmdbBackupS3Options.bucket"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupS3Options](./lmdb.lmdbbackups3options.md) &gt; [bucket](./lmdb.lmdbbackups3options.bucket.md)
+
+## LmdbBackupS3Options.bucket property
+
+Bucket name.
+
+**Signature:**
+
+```typescript
+bucket: string;
+```

@@ -1,0 +1,27 @@
+---
+title: "IRangeOptions.inclusiveEnd"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IRangeOptions](./lmdb.irangeoptions.md) &gt; [inclusiveEnd](./lmdb.irangeoptions.inclusiveend.md)
+
+## IRangeOptions.inclusiveEnd property
+
+Include `end` in the results (default `false`).
+
+**Signature:**
+
+```typescript
+inclusiveEnd?: boolean;
+```
+
+## Example
+
+
+```typescript
+// keys "k1", "k2", "k3" — returns "k1" and "k2"
+coll.entries({start: `k1`, end: `k3`})
+
+// same range but with inclusiveEnd: returns "k1", "k2", "k3"
+coll.entries({start: `k1`, end: `k3`, inclusiveEnd: true})
+```
+

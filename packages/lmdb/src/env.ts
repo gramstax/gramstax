@@ -110,7 +110,7 @@ export class LmdbEnv {
    * Configured virtual map size in bytes.
    *
    * @remarks
-   * Used by {@link getMapSizeUsed} to report usage against the cap.
+   * Used by {@link LmdbEnv.getMapSizeUsed} to report usage against the cap.
    *
    * @internal
    */
@@ -280,7 +280,7 @@ export class LmdbEnv {
    *
    * @remarks
    * The env opens on construction, so `state` is `'open'` immediately after
-   * `new LmdbEnv(...)`. After {@link close} it becomes `'closed'`.
+   * `new LmdbEnv(...)`. After {@link LmdbEnv.close} it becomes `'closed'`.
    *
    * @public
    */
@@ -310,7 +310,7 @@ export class LmdbEnv {
    * clears the sub registry and purges this env's handles from
    * lmdb-js's module-level `allDbs` map so repeated open/close cycles do
    * not accumulate JS store wrappers for the process lifetime. Handles
-   * obtained via {@link register} become unusable after close.
+   * obtained via {@link LmdbEnv.register} become unusable after close.
    *
    * @public
    */
@@ -374,7 +374,7 @@ export class LmdbEnv {
    * Get or create a sub-database by name.
    *
    * @remarks
-   * Low-level. Most callers should use {@link register} to obtain a typed
+   * Low-level. Most callers should use {@link LmdbEnv.register} to obtain a typed
    * {@link LmdbEnvSub} handle instead. Delegates to the inherited lmdb
    * `openDB(name, opts)` — lmdb-js caches per-name handles internally.
    *
@@ -414,7 +414,7 @@ export class LmdbEnv {
    *
    * @remarks
    * Validates the schema, materializes the sub-DB state through the internal
-   * {@link LmdbEnvSubManager} (no anonymous-class synthesis, no
+   * `LmdbEnvSubManager` (no anonymous-class synthesis, no
    * class-registration re-entry): the schema's `static db` becomes the sub-DB
    * name, and its derived indexes (from `static value`, via
    * {@link LmdbSchema.deriveIndexes}) are attached at registration. Optional
@@ -422,8 +422,9 @@ export class LmdbEnv {
    * codec, and `static ttl` (ms) materializes a TTL sub — per-put `{ttlMs}`
    * overrides still apply. The returned handle is typed from the schema
    * class — value type via {@link ValueOf}, key type via {@link KeyOf}, and
-   * the index map via {@link SchemaIndexesOf} — so `findByIndex({name:
-   * value})` queries type-check against the declared index names.
+   * the index map via {@link ISchemaIndexesOf} — so
+   * `findByIndex({name: value})` queries type-check against the declared index
+   * names.
    *
    * Registration is STRICT: re-registering the same schema class throws
    * {@link LmdbError}, and a schema whose `static db`
@@ -434,7 +435,7 @@ export class LmdbEnv {
    * @returns A typed {@link LmdbEnvSub} handle bound to the schema — cached,
    * so `env.register(Schema) === env.sub(Schema)`.
    *
-   * @throws {LmdbError} When the schema fails {@link LmdbSchema.validate}
+   * @throws {@link LmdbError} When the schema fails {@link LmdbSchema.validate}
    * (missing `db`/`key`/`value`, encode without decode or vice versa, a
    * unique or indexed `key`, duplicate index names).
    * @throws {@link LmdbError} if the same schema class is registered twice.
@@ -463,7 +464,7 @@ export class LmdbEnv {
    * @param schemaClass - The {@link LmdbSchema} subclass.
    * @returns The cached {@link LmdbEnvSub} handle — the same instance
    * `register` returned.
-   * @throws {LmdbError} when the schema is not registered.
+   * @throws {@link LmdbError} when the schema is not registered.
    *
    * @public
    */
@@ -514,7 +515,7 @@ export class LmdbEnv {
    * @param filter - Sub-DB name, or `{db, op?}` to narrow the operation.
    * @param cb - Invoked per matching event as `{type, key, value}`.
    * @returns Unsubscribe function.
-   * @throws {LmdbError} On malformed filters.
+   * @throws {@link LmdbError} On malformed filters.
    * @public
    */
   subscribe(filter: ICdcFilter, cb: ICdcCallback): () => void {
@@ -544,7 +545,7 @@ export class LmdbEnv {
    *
    * @param consumer - Name previously registered by {@link LmdbEnv.tailCdc}.
    * @param seq - Last consumed sequence.
-   * @throws {LmdbError} For unknown consumers.
+   * @throws {@link LmdbError} For unknown consumers.
    * @public
    */
   async ackCdc(consumer: string, seq: number): Promise<void> {
@@ -563,7 +564,7 @@ export class LmdbEnv {
    *
    * @param keep - Newest entries to retain regardless of acks (default `10000`).
    * @returns The number of records removed.
-   * @throws {LmdbError} On negative keeps.
+   * @throws {@link LmdbError} On negative keeps.
    * @public
    */
   pruneCdc(keep?: number): Promise<number> {
@@ -727,7 +728,7 @@ export class LmdbEnv {
    * COMMIT;
    * ```
    *
-   * Gives the same atomicity as {@link transaction} — one native LMDB write
+   * Gives the same atomicity as {@link LmdbEnv.transaction} — one native LMDB write
    * transaction, invisible to other processes until it commits — but the
    * commit is handed to lmdb-js's writer thread instead of blocking the main
    * thread, and it batches with other writes queued in the same event turn.
@@ -741,7 +742,7 @@ export class LmdbEnv {
    * - A callback that throws still propagates the error, but every write it
    *   already performed is **committed**, not discarded.
    *
-   * Use {@link transaction} whenever the outcome depends on the callback
+   * Use {@link LmdbEnv.transaction} whenever the outcome depends on the callback
    * failing partway. Reach for this one when the callback cannot fail
    * partway, or when partial application of a bulk write is harmless (the
    * package uses it for `putMany`, `purgeExpired`, `increment` and CDC
@@ -890,7 +891,7 @@ export class LmdbEnv {
    *
    * @remarks
    * Forwards to the inherited lmdb root-store `flushed`. Stronger than
-   * {@link committed} (visibility to readers): await this when durability
+   * {@link LmdbEnv.committed} (visibility to readers): await this when durability
    * across process crashes matters.
    *
    * @returns Whether the flush completed.
@@ -1010,7 +1011,7 @@ export class LmdbEnv {
    *
    * @param id - The key.
    * @param value - The value to store.
-   * @param options - {@link PutOptions} forwarded to the native `put`.
+   * @param options - `PutOptions` forwarded to the native `put`.
    * @returns Resolves `true` once the write is queued for commit.
    * @public
    */
@@ -1021,7 +1022,7 @@ export class LmdbEnv {
    * @param id - The key.
    * @param value - The value to store.
    * @param versionOrOptions - Version number stamped on the write, or
-   * {@link PutOptions} forwarded to the native `put`.
+   * `PutOptions` forwarded to the native `put`.
    * @param ifVersion - When given, the write only applies if the stored version
    * matches; requires the env to be opened with `useVersions`.
    * @returns Resolves `true` once the write is queued for commit.
@@ -1045,7 +1046,7 @@ export class LmdbEnv {
    *
    * @remarks
    * Requires the env to be opened with `useVersions`. Unlike the async
-   * {@link rootPut} conditional form there is no `ifVersion` gate — `version`
+   * {@link LmdbEnv.(rootPut:2)} conditional form there is no `ifVersion` gate — `version`
    * is stamped on the write.
    *
    * @param id - The key.
@@ -1059,7 +1060,7 @@ export class LmdbEnv {
    *
    * @param id - The key.
    * @param value - The value to store.
-   * @param options - {@link PutOptions} forwarded to the native `putSync`.
+   * @param options - `PutOptions` forwarded to the native `putSync`.
    * @public
    */
   rootPutSync(id: Key, value: unknown, options: PutOptions): void
@@ -1069,7 +1070,7 @@ export class LmdbEnv {
    * @param id - The key.
    * @param value - The value to store.
    * @param versionOrOptions - Version number stamped on the write, or
-   * {@link PutOptions} forwarded to the native `putSync`.
+   * `PutOptions` forwarded to the native `putSync`.
    * @public
    */
   rootPutSync(id: Key, value: unknown, versionOrOptions?: number | PutOptions): void {
@@ -1080,7 +1081,7 @@ export class LmdbEnv {
   /**
    * Iterate entries in a key range.
    * @param options - Range bounds, limit, reverse, etc.
-   * @returns A lazy {@link RangeIterable}.
+   * @returns A lazy `RangeIterable`.
    * @public
    */
   rootGetRange(options?: RangeOptions): RangeIterable<{key: Key; value: unknown; version?: number}> {
@@ -1145,7 +1146,7 @@ export class LmdbEnv {
    * @param key - The key to check.
    * @param valueOrVersion - For `dupSort` databases, the duplicate value to
    * probe; otherwise the version the stored entry must match.
-   * @param options - {@link GetOptions} forwarded to the native `doesExist`.
+   * @param options - `GetOptions` forwarded to the native `doesExist`.
    * @returns `true` when the key (or the value/version under it) exists.
    * @public
    */
@@ -1157,7 +1158,7 @@ export class LmdbEnv {
   /**
    * Execute a synchronous transaction.
    * @param action - Callback performing reads and writes.
-   * @param flags - {@link TransactionFlags} (abortable, synchronous-commit, etc.).
+   * @param flags - `TransactionFlags` (abortable, synchronous-commit, etc.).
    * @returns The callback's return value.
    * @public
    */
@@ -1255,7 +1256,7 @@ export class LmdbEnv {
    * Remove a previously attached commit-event listener.
    *
    * @param event - `'beforecommit'` or `'aftercommit'`.
-   * @param callback - The exact handler previously passed to {@link on}.
+   * @param callback - The exact handler previously passed to {@link LmdbEnv.on}.
    * @public
    */
   off(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void {
@@ -1270,7 +1271,7 @@ export class LmdbEnv {
    * Detach all tracked commit listeners.
    *
    * @remarks
-   * Called from {@link close} so user callbacks can be garbage-collected.
+   * Called from {@link LmdbEnv.close} so user callbacks can be garbage-collected.
    *
    * @internal
    */
@@ -1307,7 +1308,7 @@ export class LmdbEnv {
   /**
    * Remove a diagnostics listener.
    *
-   * @param listener - The exact handler previously passed to {@link onWarn}.
+   * @param listener - The exact handler previously passed to {@link LmdbEnv.onWarn}.
    * @public
    */
   offWarn(listener: (message: string) => void): void {
@@ -1346,7 +1347,7 @@ export class LmdbEnv {
   }
 
   /**
-   * Current schema version as recorded by {@link migrate}.
+   * Current schema version as recorded by {@link LmdbEnv.migrate}.
    *
    * @returns The highest applied migration version, or `0` if none have run.
    *

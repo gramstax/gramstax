@@ -1,0 +1,56 @@
+---
+title: "LmdbEnv.offWarn()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [offWarn](./lmdb.lmdbenv.offwarn.md)
+
+## LmdbEnv.offWarn() method
+
+Remove a diagnostics listener.
+
+**Signature:**
+
+```typescript
+offWarn(listener: (message: string) => void): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+listener
+
+
+</td><td>
+
+(message: string) =&gt; void
+
+
+</td><td>
+
+The exact handler previously passed to [LmdbEnv.onWarn()](./lmdb.lmdbenv.onwarn.md).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+

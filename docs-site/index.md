@@ -100,7 +100,7 @@ equal `deploy`.
 ## API reference
 
 Every exported symbol, generated from the TypeScript declarations and kept in
-step by CI: 1,032 pages grouped by class and type.
+step by CI: 1,489 pages grouped by class and type.
 
 <Card title="Browse the reference" icon="code" href="/reference/gramstax">
   `Ctx`, `Gramstax`, `TemplateEngine`, every `render*()` method, and the 12 route

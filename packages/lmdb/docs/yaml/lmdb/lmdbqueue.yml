@@ -1,0 +1,120 @@
+### YamlMime:TSType
+name: LmdbQueue
+uid: '@gramstax/lmdb!LmdbQueue:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbQueue
+summary: FIFO queue over LMDB with single-writer transaction dequeue.
+remarks: >-
+  Backed by a dedicated sub-DB per queue name. Enqueue bumps a monotonic sequence counter (root-DB meta sub-DB) and
+  stores the payload in ONE synchronous transaction (v2 — previously the counter bump and the payload put were separate
+  commits), so the zero-padded id and the payload are always visible atomically, FIFO order preserved even across
+  processes. Dequeue reads the first key via a synchronous cursor and deletes it in ONE synchronous transaction — no
+  async `first()` holding the write lock open across a microtask. At-least-once semantics — a crash between read and
+  delete may redeliver.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(_env, schema)
+    uid: '@gramstax/lmdb!LmdbQueue:constructor(1)'
+    package: '@gramstax/lmdb!'
+    fullName: (constructor)(_env, schema)
+    summary: Create a queue bound to a schema's sub-DB.
+    remarks: >-
+      Registration is idempotent: constructing a second queue with the same schema reuses the already-created sub
+      instead of throwing.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(_env: LmdbEnv, schema: S);'
+      parameters:
+        - id: _env
+          description: Owning env (must stay open for the queue's lifetime).
+          type: <xref uid="@gramstax/lmdb!LmdbEnv:class" />
+        - id: schema
+          description: Payload schema class; its `static db` is the queue name and its key must be string-kind.
+          type: S
+methods:
+  - name: clear()
+    uid: '@gramstax/lmdb!LmdbQueue#clear:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: clear()
+    summary: Drain the queue.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'clear(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: dequeue()
+    uid: '@gramstax/lmdb!LmdbQueue#dequeue:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: dequeue()
+    summary: Dequeue the head atomically (read + delete in one synchronous transaction).
+    remarks: >-
+      The first key is read through a synchronous cursor (`getKeys({limit: 1})`<!-- -->) so the write transaction is
+      never held open across a microtask by an async `first()` materialization.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'dequeue(): Promise<[string, ValueOf<S>] | undefined>;'
+      return:
+        type: Promise&lt;[string, <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;] | undefined&gt;
+        description: The dequeued `[id, job]`<!-- -->, or `undefined` when empty.
+  - name: enqueue(job)
+    uid: '@gramstax/lmdb!LmdbQueue#enqueue:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: enqueue(job)
+    summary: Enqueue a job.
+    remarks: >-
+      Counter bump + payload write happen in ONE synchronous transaction (v2) — the generated id and the stored payload
+      commit together.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'enqueue(job: ValueOf<S>): Promise<string>;'
+      parameters:
+        - id: job
+          description: Payload to store.
+          type: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;
+      return:
+        type: Promise&lt;string&gt;
+        description: The generated id (zero-padded sequence).
+  - name: peek()
+    uid: '@gramstax/lmdb!LmdbQueue#peek:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: peek()
+    summary: Peek at the head without removing.
+    remarks: >-
+      Synchronous — reads through a cursor plus a point `get`<!-- -->, like
+      [LmdbQueue.dequeue()](xref:@gramstax/lmdb!LmdbQueue%23dequeue:member(1)) minus the delete. Never held a write
+      lock.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'peek(): [string, ValueOf<S>] | undefined;'
+      return:
+        type: '[string, <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;] | undefined'
+        description: The head `[id, job]`<!-- -->, or `undefined` when empty.
+  - name: size()
+    uid: '@gramstax/lmdb!LmdbQueue#size:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: size()
+    summary: Number of jobs currently queued.
+    remarks: Synchronous — `count()` is an O(1) stat read.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'size(): number;'
+      return:
+        type: number
+        description: Number of jobs currently queued.

@@ -1,0 +1,21 @@
+---
+title: "IAnyColumnBuilder"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IAnyColumnBuilder](./lmdb.ianycolumnbuilder.md)
+
+## IAnyColumnBuilder type
+
+Any concrete [IColumnBuilder](./lmdb.icolumnbuilder.md) regardless of its literal index marker.
+
+**Signature:**
+
+```typescript
+type IAnyColumnBuilder = IColumnBuilder<IColumnKind, IColumnIndexFlag, string | undefined, unknown, boolean>;
+```
+**References:** [IColumnBuilder](./lmdb.icolumnbuilder.md), [IColumnKind](./lmdb.icolumnkind.md), [IColumnIndexFlag](./lmdb.icolumnindexflag.md)
+
+## Remarks
+
+The narrowed defaults (`I = "none"`, `N = undefined`) reject builders tagged `"unique"`/`"index"` by callers, so generic constraints over a column-definition map must widen to this type — the concrete `D` generic still captures the literal markers per column.
+

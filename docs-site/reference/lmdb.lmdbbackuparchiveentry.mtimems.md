@@ -1,0 +1,15 @@
+---
+title: "LmdbBackupArchiveEntry.mtimeMs"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupArchiveEntry](./lmdb.lmdbbackuparchiveentry.md) &gt; [mtimeMs](./lmdb.lmdbbackuparchiveentry.mtimems.md)
+
+## LmdbBackupArchiveEntry.mtimeMs property
+
+File mtime in ms — prune/list order key.
+
+**Signature:**
+
+```typescript
+mtimeMs: number;
+```

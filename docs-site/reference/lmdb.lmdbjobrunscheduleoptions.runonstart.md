@@ -1,0 +1,20 @@
+---
+title: "LmdbJobRunScheduleOptions.runOnStart"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbJobRunScheduleOptions](./lmdb.lmdbjobrunscheduleoptions.md) &gt; [runOnStart](./lmdb.lmdbjobrunscheduleoptions.runonstart.md)
+
+## LmdbJobRunScheduleOptions.runOnStart property
+
+Run once at start even when the job is not due (default `false`).
+
+**Signature:**
+
+```typescript
+runOnStart?: boolean;
+```
+
+## Remarks
+
+Separate from [LmdbJobRunScheduleOptions.catchUp](./lmdb.lmdbjobrunscheduleoptions.catchup.md): catch-up reacts to a boundary that genuinely passed, this forces an extra run on top.
+

@@ -4,7 +4,7 @@ import type {IndexDescriptor} from "./indexes"
 import type {ISearchTable} from "./search"
 
 /**
- * Per-sub-DB state kept by {@link LmdbEnvSubManager}.
+ * Per-sub-DB state kept by `LmdbEnvSubManager`.
  *
  * @internal
  */

@@ -1,0 +1,15 @@
+---
+title: "ISyncResult.verified"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ISyncResult](./lmdb.isyncresult.md) &gt; [verified](./lmdb.isyncresult.verified.md)
+
+## ISyncResult.verified property
+
+Whether the verify step ran clean.
+
+**Signature:**
+
+```typescript
+verified: boolean;
+```

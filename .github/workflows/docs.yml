@@ -76,7 +76,6 @@ jobs:
       # config/navigation.json. --local keeps api-extractor from failing on API
       # report drift, which is a separate concern from documentation.
       - name: Generate API reference
-        working-directory: packages/gramstax
         run: bun run build:docs
 
       - name: Validate documentation
@@ -102,7 +101,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.github.com"
-          git add -A docs-site packages/gramstax/docs/extractor/etc
+          git add -A docs-site packages/gramstax/docs packages/lmdb/docs packages/worker-thread/docs
           if git diff --cached --quiet; then
             echo "Documentation already up to date — nothing to commit."
             exit 0

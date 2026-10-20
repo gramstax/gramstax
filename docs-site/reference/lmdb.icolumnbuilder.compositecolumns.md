@@ -1,0 +1,20 @@
+---
+title: "IColumnBuilder.compositeColumns"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IColumnBuilder](./lmdb.icolumnbuilder.md) &gt; [compositeColumns](./lmdb.icolumnbuilder.compositecolumns.md)
+
+## IColumnBuilder.compositeColumns property
+
+Composite column list for concatenated-key indexes.
+
+**Signature:**
+
+```typescript
+readonly compositeColumns?: Array<string>;
+```
+
+## Remarks
+
+Set by `.index([...])` — the sub-DB `{db}:idx:{a+b}` keys rows by the ordered tuple. `undefined` for single-column indexes. Cleared by `.unique()`/`.index(name)`; preserved by the other modifiers. The tuple literal is carried by the `C` generic for [ISchemaIndexesOf](./lmdb.ischemaindexesof.md).
+

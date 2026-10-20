@@ -11,3 +11,8 @@ Creates a new WorkerThreadInit instance. Sets up message handling and signals re
 ```typescript
 constructor();
 ```
+
+## Remarks
+
+The `readyResolve` signal is deferred with `queueMicrotask` so that subclass field initializers (which run after `super()` returns) are already applied before main-thread RPCs can observe worker state.
+

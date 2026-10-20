@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: IQueueSchema
+uid: '@gramstax/lmdb!IQueueSchema:type'
+package: '@gramstax/lmdb!'
+fullName: IQueueSchema
+summary: Schema class constraint for [LmdbQueue](xref:@gramstax/lmdb!LmdbQueue:class) — a structural check, not a base class.
+remarks: >-
+  The queue generates zero-padded string ids, so the key must be string-kind: plain `t.string()` or a string enum
+  (`t.string('a', 'b')`<!-- -->, `t.enum('a', 'b')`<!-- -->) — both satisfy `ColumnBuilder<'string'>` since literals
+  ride the `V` generic. Pass your own schema class; do not extend this type. The one `as KeyOf<S>` per method bridges
+  the generated `string` id to the generic key.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IQueueSchema = typeof LmdbSchema & {
+      key: IColumnBuilder<`string`>;
+  };

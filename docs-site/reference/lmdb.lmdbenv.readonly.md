@@ -1,0 +1,20 @@
+---
+title: "LmdbEnv.readOnly"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [readOnly](./lmdb.lmdbenv.readonly.md)
+
+## LmdbEnv.readOnly property
+
+Whether the env is read-only.
+
+**Signature:**
+
+```typescript
+readonly readOnly: boolean;
+```
+
+## Remarks
+
+Mirrors [ILmdbEnvOptions.readOnly](./lmdb.ilmdbenvoptions.readonly.md).
+

@@ -1,0 +1,51 @@
+### YamlMime:TSType
+name: LmdbJobRunMissedOptions
+uid: '@gramstax/lmdb!LmdbJobRunMissedOptions:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbJobRunMissedOptions
+summary: Options for [LmdbJobRun.missed()](xref:@gramstax/lmdb!LmdbJobRun%23missed:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: now
+    uid: '@gramstax/lmdb!LmdbJobRunMissedOptions#now:member'
+    package: '@gramstax/lmdb!'
+    fullName: now
+    summary: Clock override in epoch ms (default `Date.now()`<!-- -->).
+    remarks: Pass this to make the check deterministic in tests instead of reading the clock.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'now?: number;'
+      return:
+        type: number
+  - name: pattern
+    uid: '@gramstax/lmdb!LmdbJobRunMissedOptions#pattern:member'
+    package: '@gramstax/lmdb!'
+    fullName: pattern
+    summary: Cron expression the job is scheduled on.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'pattern: string;'
+      return:
+        type: string
+  - name: timezone
+    uid: '@gramstax/lmdb!LmdbJobRunMissedOptions#timezone:member'
+    package: '@gramstax/lmdb!'
+    fullName: timezone
+    summary: 'IANA timezone for `pattern` (default: the host''s local timezone).'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'timezone?: string;'
+      return:
+        type: string

@@ -8,11 +8,11 @@ summary: >-
   threads.
 remarks: >-
   Automatically registers SIGINT/SIGTERM handlers to terminate workers. Uses promise-based ready detection for
-  synchronization.
+  synchronization. Extends `EventEmitter` — emits `ready`<!-- -->, `exit` and `error` lifecycle events.
 example:
   - |-
     ```typescript
-    import { WorkerThreadLaunch } from "gramstax";
+    import { WorkerThreadLaunch } from "@gramstax/worker-thread";
 
     async function main() {
       const worker = new WorkerThreadLaunch("./jobs/processor.ts", ["config.json"]);
@@ -32,7 +32,7 @@ example:
 
     ```typescript
 
-    import { WorkerThreadLaunch } from "gramstax";
+    import { WorkerThreadLaunch } from "@gramstax/worker-thread";
 
 
     // main.ts
@@ -56,7 +56,7 @@ example:
 
     import {MainThread} from "./main"
 
-    import {WorkerThreadInit} from "gramstax";
+    import {WorkerThreadInit} from "@gramstax/worker-thread";
 
 
     class Worker extends WorkerThreadInit {
@@ -71,7 +71,7 @@ example:
 
     export const MyWorker = WorkerThreadExport.init({
       path: __filename,
-      WTInit: MainThread,
+      WTInit: Worker,
     });
 
     ```
@@ -89,17 +89,19 @@ constructors:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'constructor(path: string, argv: any[], register?: any | undefined);'
+      content: >-
+        constructor(path: string, argv: unknown[], register?: Record<string, (...args: never[]) => unknown> |
+        undefined);
       parameters:
         - id: path
           description: Path to the worker file. Must be valid JavaScript/TypeScript file.
           type: string
         - id: argv
           description: Arguments to pass to worker. Accessible via `process.argv` in worker.
-          type: any[]
+          type: unknown[]
         - id: register
           description: Object with value function to expose. Called by thread worker. Defaults to `this`<!-- -->.
-          type: any | undefined
+          type: 'Record&lt;string, (...args: never[]) =&gt; unknown&gt; | undefined'
 properties:
   - name: argv
     uid: '@gramstax/worker-thread!WorkerThreadLaunch#argv:member'
@@ -111,9 +113,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'argv: any[];'
+      content: 'argv: unknown[];'
       return:
-        type: any[]
+        type: unknown[]
   - name: isMainThread
     uid: '@gramstax/worker-thread!WorkerThreadLaunch.isMainThread:member'
     package: '@gramstax/worker-thread!'
@@ -163,9 +165,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'register?: any | undefined;'
+      content: 'register?: Record<string, (...args: never[]) => unknown> | undefined;'
       return:
-        type: any | undefined
+        type: 'Record&lt;string, (...args: never[]) =&gt; unknown&gt; | undefined'
   - name: rpc
     uid: '@gramstax/worker-thread!WorkerThreadLaunch#rpc:member'
     package: '@gramstax/worker-thread!'
@@ -216,11 +218,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'handleOnMessage(data: any): Promise<void>;'
+      content: 'handleOnMessage(data: Parameters<WorkerThreadRpc[`make`]>[0]): Promise<void>;'
       parameters:
         - id: data
           description: Message data from worker.
-          type: any
+          type: Parameters&lt;<xref uid="@gramstax/worker-thread!WorkerThreadRpc:class" />[`make`]&gt;[0]
       return:
         type: Promise&lt;void&gt;
         description: ''
@@ -229,7 +231,9 @@ methods:
     package: '@gramstax/worker-thread!'
     fullName: init()
     summary: \[LOW-LEVEL\] Initialize the worker thread and set up message handlers.
-    remarks: ''
+    remarks: >-
+      Spawns the worker, wires message/error/exit handlers, and registers SIGINT/SIGTERM cleanup. On exit, all pending
+      RPC requests are rejected and the `exit` event is emitted.
     example: []
     isPreview: false
     isDeprecated: false
@@ -243,7 +247,9 @@ methods:
     package: '@gramstax/worker-thread!'
     fullName: kill()
     summary: Terminate the worker thread immediately.
-    remarks: ''
+    remarks: >-
+      Safe to call multiple times and after the worker has already exited — terminating an exited thread hangs on some
+      runtimes, so exited workers resolve immediately instead.
     example:
       - |-
         ```typescript
@@ -252,10 +258,10 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'kill(): void;'
+      content: 'kill(): Promise<number | void>;'
       return:
-        type: void
-        description: ''
+        type: Promise&lt;number | void&gt;
+        description: Promise resolving when the thread has terminated.
   - name: ready()
     uid: '@gramstax/worker-thread!WorkerThreadLaunch#ready:member(1)'
     package: '@gramstax/worker-thread!'
@@ -275,13 +281,15 @@ methods:
       content: 'ready(): Promise<void>;'
       return:
         type: Promise&lt;void&gt;
-        description: Promise that resolves when worker calls `super()` in `WorkerThreadInit`<!-- -->.
+        description: >-
+          Promise that resolves when worker calls `super()` in `WorkerThreadInit`<!-- -->, or rejects when the worker
+          exits before signaling ready.
   - name: readyResolve()
     uid: '@gramstax/worker-thread!WorkerThreadLaunch#readyResolve:member(1)'
     package: '@gramstax/worker-thread!'
     fullName: readyResolve()
     summary: \[LOW-LEVEL\] Internal method called by worker to signal readiness.
-    remarks: ''
+    remarks: Resolves the `ready()` promise and emits the `ready` event (once).
     example: []
     isPreview: false
     isDeprecated: false
@@ -290,10 +298,10 @@ methods:
       return:
         type: void
         description: ''
-  - name: request(method, params, _wait, _others)
+  - name: request(method, params, _wait, _others, timeoutMs)
     uid: '@gramstax/worker-thread!WorkerThreadLaunch#request:member(1)'
     package: '@gramstax/worker-thread!'
-    fullName: request(method, params, _wait, _others)
+    fullName: request(method, params, _wait, _others, timeoutMs)
     summary: Make an RPC request to the worker thread.
     remarks: ''
     example:
@@ -305,22 +313,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;'
+      content: >-
+        request(method: string, params: unknown[], _wait?: boolean, _others?: Record<string, unknown>, timeoutMs?:
+        number): Promise<unknown>;
       parameters:
         - id: method
           description: Method name to call in worker. Must exist on WorkerThreadInit.
           type: string
         - id: params
           description: Method parameters. Passed as array to worker method.
-          type: any
+          type: unknown[]
         - id: _wait
           description: Wait for response. If false, fire-and-forget. Defaults to `true`<!-- -->.
           type: boolean
         - id: _others
           description: Additional RPC data. Merged into RPC payload.
-          type: any
+          type: Record&lt;string, unknown&gt;
+        - id: timeoutMs
+          description: Optional timeout in milliseconds. Rejects the request when the worker does not respond in time.
+          type: number
       return:
-        type: Promise&lt;any&gt;
+        type: Promise&lt;unknown&gt;
         description: Promise resolving with worker response.
   - name: send(payload)
     uid: '@gramstax/worker-thread!WorkerThreadLaunch#send:member(1)'
@@ -336,11 +349,37 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'send(payload: any): void;'
+      content: 'send(payload: Record<string, unknown>): void;'
       parameters:
         - id: payload
           description: Data to send. Sent to worker thread.
-          type: any
+          type: Record&lt;string, unknown&gt;
       return:
         type: void
         description: ''
+  - name: shutdown(timeoutMs)
+    uid: '@gramstax/worker-thread!WorkerThreadLaunch#shutdown:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: shutdown(timeoutMs)
+    summary: Shut the worker down gracefully.
+    remarks: >-
+      Sends an RPC `shutdown` request to the worker — the worker runs its `onBeforeExit` hook (flush state, close
+      connections) before replying. The worker is then terminated. If the worker does not confirm within `timeoutMs`<!--
+      -->, it is force-terminated.
+    example:
+      - |-
+        ```typescript
+        await worker.shutdown(10_000);
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'shutdown(timeoutMs?: number): Promise<void>;'
+      parameters:
+        - id: timeoutMs
+          description: How long to wait for the worker's shutdown confirmation. Defaults to `5000`<!-- -->.
+          type: number
+      return:
+        type: Promise&lt;void&gt;
+        description: Promise resolving when the worker has terminated.
+extends: '@gramstax/worker-thread!~EventEmitter'

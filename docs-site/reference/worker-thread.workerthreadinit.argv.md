@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadInit.argv"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadInit](./worker-thread.workerthreadinit.md) &gt; [argv](./worker-thread.workerthreadinit.argv.md)
+
+## WorkerThreadInit.argv property
+
+Command line arguments passed to the worker. Same as `process.argv`. Custom args start at index 3.
+
+**Signature:**
+
+```typescript
+argv: string[];
+```
+
+## Remarks
+
+Use this for worker-specific flags and configuration.
+

@@ -31,7 +31,7 @@ export interface IJobRunScheduleOptions {
    * Run once at start even when the job is not due (default `false`).
    *
    * @remarks
-   * Separate from {@link IJobRunScheduleOptions.catchUp}: catch-up reacts to a
+   * Separate from {@link LmdbJobRunScheduleOptions.catchUp}: catch-up reacts to a
    * boundary that genuinely passed, this forces an extra run on top.
    */
   runOnStart?: boolean
@@ -102,7 +102,7 @@ export interface IJobRunHandle {
    * once a tick already in flight has settled, so the caller may await it and
    * then tear down the env or the tick's output directory without racing the
    * task. A tick cron had queued but not yet started is dropped, not run.
-   * {@link IJobRunHandle.runNow} still works after a stop.
+   * {@link LmdbJobRunHandle.runNow} still works after a stop.
    */
   stop(): Promise<void>
   /**
@@ -112,7 +112,7 @@ export interface IJobRunHandle {
    * Resolves when the task has completed, so it is safe to assert on the
    * result straight after awaiting. A call arriving while a run is in flight
    * **joins** that run rather than skipping, so the resolved value always means
-   * real work finished. Still works after {@link IJobRunHandle.stop}.
+   * real work finished. Still works after {@link LmdbJobRunHandle.stop}.
    */
   runNow(): Promise<void>
   /**

@@ -1,0 +1,23 @@
+---
+title: "WorkerThreadGatewayClient.isClosed()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadGatewayClient](./worker-thread.workerthreadgatewayclient.md) &gt; [isClosed](./worker-thread.workerthreadgatewayclient.isclosed.md)
+
+## WorkerThreadGatewayClient.isClosed() method
+
+Whether the connection has been closed or destroyed.
+
+**Signature:**
+
+```typescript
+isClosed(): boolean;
+```
+**Returns:**
+
+boolean
+
+## Remarks
+
+A closed client must not be reused — callers should create a new one.
+

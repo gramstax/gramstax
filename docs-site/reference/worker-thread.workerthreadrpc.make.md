@@ -1,0 +1,75 @@
+---
+title: "WorkerThreadRpc.make()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadRpc](./worker-thread.workerthreadrpc.md) &gt; [make](./worker-thread.workerthreadrpc.make.md)
+
+## WorkerThreadRpc.make() method
+
+Process an incoming RPC message.
+
+**Signature:**
+
+```typescript
+make(data: {
+        id?: number;
+        method?: string;
+        params?: unknown[];
+        result?: unknown;
+        error?: unknown;
+    }): Promise<void>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+data
+
+
+</td><td>
+
+&#123; id?: number; method?: string; params?: unknown\[\]; result?: unknown; error?: unknown; &#125;
+
+
+</td><td>
+
+RPC message object. Shape is request/result/error.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;void&gt;
+
+## Remarks
+
+Message types: - \*\*Request:\*\* `{ id, method, params }` - Calls registered method and sends result/error back. - \*\*Result:\*\* `{ id, result }` - Resolves pending request promise. - \*\*Error:\*\* `{ id, error }` - Rejects pending request promise.
+
+## Example
+
+
+```typescript
+worker.on("message", (data) => {
+  rpc.make(data);
+});
+```
+

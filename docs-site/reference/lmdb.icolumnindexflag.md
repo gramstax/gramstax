@@ -1,0 +1,20 @@
+---
+title: "IColumnIndexFlag"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IColumnIndexFlag](./lmdb.icolumnindexflag.md)
+
+## IColumnIndexFlag type
+
+Type-level index marker carried by a [IColumnBuilder](./lmdb.icolumnbuilder.md).
+
+**Signature:**
+
+```typescript
+type IColumnIndexFlag = `none` | `index` | `unique`;
+```
+
+## Remarks
+
+The runtime flags on a builder are plain `boolean`/`string`, so they widen away any literal information. Each modifier instead re-tags the builder with this literal marker: `.unique()` → `"unique"`, `.index(...)` → `"index"`, base builders stay `"none"`. [ISchemaIndexesOf](./lmdb.ischemaindexesof.md) key-remaps columns through the marker to recover literal index keys.
+

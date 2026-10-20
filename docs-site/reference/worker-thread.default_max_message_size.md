@@ -1,0 +1,15 @@
+---
+title: "DEFAULT_MAX_MESSAGE_SIZE"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [DEFAULT\_MAX\_MESSAGE\_SIZE](./worker-thread.default_max_message_size.md)
+
+## DEFAULT\_MAX\_MESSAGE\_SIZE variable
+
+Default cap on the estimated in-memory size of a single RPC message received over the gateway. Prevents an oversized (or maliciously framed) payload from exhausting worker memory. The parentPort channel is trusted and intentionally not capped.
+
+**Signature:**
+
+```typescript
+DEFAULT_MAX_MESSAGE_SIZE: number
+```

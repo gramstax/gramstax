@@ -1,0 +1,38 @@
+### YamlMime:TSType
+name: LmdbBackupSnapshotResult
+uid: '@gramstax/lmdb!LmdbBackupSnapshotResult:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbBackupSnapshotResult
+summary: Result of [LmdbBackup.snapshot()](xref:@gramstax/lmdb!LmdbBackup.snapshot:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: path
+    uid: '@gramstax/lmdb!LmdbBackupSnapshotResult#path:member'
+    package: '@gramstax/lmdb!'
+    fullName: path
+    summary: Archive path (tar.gz) or backup dir (dir format).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'path: string;'
+      return:
+        type: string
+  - name: uploaded
+    uid: '@gramstax/lmdb!LmdbBackupSnapshotResult#uploaded:member'
+    package: '@gramstax/lmdb!'
+    fullName: uploaded
+    summary: S3 key when uploaded.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'uploaded?: string;'
+      return:
+        type: string

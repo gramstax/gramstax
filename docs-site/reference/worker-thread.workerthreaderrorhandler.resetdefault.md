@@ -1,0 +1,28 @@
+---
+title: "WorkerThreadErrorHandler.resetDefault()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadErrorHandler](./worker-thread.workerthreaderrorhandler.md) &gt; [resetDefault](./worker-thread.workerthreaderrorhandler.resetdefault.md)
+
+## WorkerThreadErrorHandler.resetDefault() method
+
+Reset the package-wide error handler to the default silent drop.
+
+**Signature:**
+
+```typescript
+static resetDefault(): void;
+```
+**Returns:**
+
+void
+
+## Example
+
+
+```typescript
+import {WorkerThreadErrorHandler} from "@gramstax/worker-thread";
+
+WorkerThreadErrorHandler.resetDefault();
+```
+

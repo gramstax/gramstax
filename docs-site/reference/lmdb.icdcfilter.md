@@ -1,0 +1,23 @@
+---
+title: "ICdcFilter"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ICdcFilter](./lmdb.icdcfilter.md)
+
+## ICdcFilter type
+
+Subscribe filter — a sub-DB name, or name plus operation.
+
+**Signature:**
+
+```typescript
+type ICdcFilter = string | {
+    db: string;
+    op?: `put` | `delete` | `clear`;
+};
+```
+
+## Remarks
+
+A plain string listens to all write kinds on that sub-DB; the object form narrows delivery to one `op`.
+

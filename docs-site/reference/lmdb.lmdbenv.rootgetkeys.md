@@ -1,0 +1,56 @@
+---
+title: "LmdbEnv.rootGetKeys()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [rootGetKeys](./lmdb.lmdbenv.rootgetkeys.md)
+
+## LmdbEnv.rootGetKeys() method
+
+Iterate unique keys in a range.
+
+**Signature:**
+
+```typescript
+rootGetKeys(options?: RangeOptions): RangeIterable<Key>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+options
+
+
+</td><td>
+
+RangeOptions
+
+
+</td><td>
+
+_(Optional)_ Range bounds, limit, reverse, etc.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+RangeIterable&lt;Key&gt;
+

@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: IWorkerThreadPoolOptions
+uid: '@gramstax/worker-thread!IWorkerThreadPoolOptions:type'
+package: '@gramstax/worker-thread!'
+fullName: IWorkerThreadPoolOptions
+summary: Trailing options object accepted by every `mtd*` member of a pool.
+remarks: >-
+  This object is always the \*\*last\*\* argument. A worker method that itself takes optional trailing parameters
+  therefore reserves that position first, and the caller must supply placeholders to reach the options:
+  `pool.mtdBroadcast(text, undefined, {mode: "broadcast"})`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IWorkerThreadPoolOptions<TMode extends IWorkerThreadPoolMode = IWorkerThreadPoolMode> = {
+      mode?: TMode;
+      timeoutMs?: number;
+  };

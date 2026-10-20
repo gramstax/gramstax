@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: IInferSchemaValue
+uid: '@gramstax/lmdb!IInferSchemaValue:type'
+package: '@gramstax/lmdb!'
+fullName: IInferSchemaValue
+summary: Value type inferred from a schema class's value columns.
+remarks: >-
+  Maps every value column to its TypeScript type — `T` by default, `T | undefined` for optional (`.optional()`<!-- -->)
+  columns. Prefer the short alias [ValueOf](xref:@gramstax/lmdb!ValueOf:type) (`ValueOf<typeof UserSchema>`<!-- -->)
+  over spelling this out — `IInferSchemaValue<typeof UserSchema.value>` resolves to the same value type, so values stay
+  in sync with the schema definition without manual interfaces.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IInferSchemaValue<D extends Record<string, IAnyColumnBuilder>> = {
+      [K in keyof (IRequiredColumnsOf<D> & IOptionalColumnsOf<D>)]: (IRequiredColumnsOf<D> & IOptionalColumnsOf<D>)[K];
+  };

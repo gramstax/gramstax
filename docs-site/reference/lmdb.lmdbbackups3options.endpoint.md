@@ -1,0 +1,15 @@
+---
+title: "LmdbBackupS3Options.endpoint"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupS3Options](./lmdb.lmdbbackups3options.md) &gt; [endpoint](./lmdb.lmdbbackups3options.endpoint.md)
+
+## LmdbBackupS3Options.endpoint property
+
+API endpoint (R2/MinIO URL; absent means AWS default).
+
+**Signature:**
+
+```typescript
+endpoint?: string;
+```

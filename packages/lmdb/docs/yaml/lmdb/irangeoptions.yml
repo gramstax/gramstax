@@ -1,0 +1,122 @@
+### YamlMime:TSType
+name: IRangeOptions
+uid: '@gramstax/lmdb!IRangeOptions:interface'
+package: '@gramstax/lmdb!'
+fullName: IRangeOptions
+summary: Options for range queries and iteration.
+remarks: >-
+  All fields are optional. Omitting `start` and `end` iterates the full key space in lexicographic order. `transaction`
+  is an LMDB-internal field used by [LmdbEnv](xref:@gramstax/lmdb!LmdbEnv:class) to bind the range query to a read
+  transaction for snapshot consistency.
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: end
+    uid: '@gramstax/lmdb!IRangeOptions#end:member'
+    package: '@gramstax/lmdb!'
+    fullName: end
+    summary: Upper bound (exclusive). Iteration stops before this key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'end?: ILmdbKey;'
+      return:
+        type: <xref uid="@gramstax/lmdb!ILmdbKey:type" />
+  - name: exclusiveStart
+    uid: '@gramstax/lmdb!IRangeOptions#exclusiveStart:member'
+    package: '@gramstax/lmdb!'
+    fullName: exclusiveStart
+    summary: Exclude `start` from the results (default `false`<!-- -->).
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        // keys "k1", "k2", "k3" — returns "k1", "k2", "k3"
+        coll.entries({start: `k1`, end: `k3`})
+
+        // same range but with exclusiveStart: returns "k2", "k3"
+        coll.entries({start: `k1`, end: `k3`, exclusiveStart: true})
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'exclusiveStart?: boolean;'
+      return:
+        type: boolean
+  - name: inclusiveEnd
+    uid: '@gramstax/lmdb!IRangeOptions#inclusiveEnd:member'
+    package: '@gramstax/lmdb!'
+    fullName: inclusiveEnd
+    summary: Include `end` in the results (default `false`<!-- -->).
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        // keys "k1", "k2", "k3" — returns "k1" and "k2"
+        coll.entries({start: `k1`, end: `k3`})
+
+        // same range but with inclusiveEnd: returns "k1", "k2", "k3"
+        coll.entries({start: `k1`, end: `k3`, inclusiveEnd: true})
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'inclusiveEnd?: boolean;'
+      return:
+        type: boolean
+  - name: limit
+    uid: '@gramstax/lmdb!IRangeOptions#limit:member'
+    package: '@gramstax/lmdb!'
+    fullName: limit
+    summary: Maximum number of entries to return.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'limit?: number;'
+      return:
+        type: number
+  - name: offset
+    uid: '@gramstax/lmdb!IRangeOptions#offset:member'
+    package: '@gramstax/lmdb!'
+    fullName: offset
+    summary: Skip the first N entries. Useful with cursor iteration.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'offset?: number;'
+      return:
+        type: number
+  - name: reverse
+    uid: '@gramstax/lmdb!IRangeOptions#reverse:member'
+    package: '@gramstax/lmdb!'
+    fullName: reverse
+    summary: Reverse iteration order.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'reverse?: boolean;'
+      return:
+        type: boolean
+  - name: start
+    uid: '@gramstax/lmdb!IRangeOptions#start:member'
+    package: '@gramstax/lmdb!'
+    fullName: start
+    summary: Lower bound (inclusive). Iteration starts here.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'start?: ILmdbKey;'
+      return:
+        type: <xref uid="@gramstax/lmdb!ILmdbKey:type" />

@@ -23,7 +23,7 @@ example:
     })
 
     // Get a compiled message
-    const message = tm.getMessage("start", "default", "en", {name: "John"})
+    const message = tm.getGMessage("start", "default", "en", {name: "John"})
     ```
 isPreview: false
 isDeprecated: false

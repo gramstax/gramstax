@@ -1,0 +1,15 @@
+---
+title: "LmdbTransaction.done"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbTransaction](./lmdb.lmdbtransaction.md) &gt; [done](./lmdb.lmdbtransaction.done.md)
+
+## LmdbTransaction.done property
+
+Whether this transaction has been finalized (committed or aborted).
+
+**Signature:**
+
+```typescript
+get done(): boolean;
+```

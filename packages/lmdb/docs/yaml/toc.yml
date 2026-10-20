@@ -1,0 +1,123 @@
+items:
+  - name: SharePoint Framework reference
+    href: ~/overview/sharepoint.md
+    items:
+      - name: lmdb
+        uid: '@gramstax/lmdb!'
+        items:
+          - name: IAnyColumnBuilder
+            uid: '@gramstax/lmdb!IAnyColumnBuilder:type'
+          - name: ICdcCallback
+            uid: '@gramstax/lmdb!ICdcCallback:type'
+          - name: ICdcEvent
+            uid: '@gramstax/lmdb!ICdcEvent:interface'
+          - name: ICdcFilter
+            uid: '@gramstax/lmdb!ICdcFilter:type'
+          - name: ICdcRecord
+            uid: '@gramstax/lmdb!ICdcRecord:interface'
+          - name: ICdcTailOptions
+            uid: '@gramstax/lmdb!ICdcTailOptions:interface'
+          - name: ICodec
+            uid: '@gramstax/lmdb!ICodec:interface'
+          - name: IColumnBuilder
+            uid: '@gramstax/lmdb!IColumnBuilder:interface'
+          - name: IColumnIndexFlag
+            uid: '@gramstax/lmdb!IColumnIndexFlag:type'
+          - name: IColumnKind
+            uid: '@gramstax/lmdb!IColumnKind:type'
+          - name: ICompositeRange
+            uid: '@gramstax/lmdb!ICompositeRange:interface'
+          - name: ICompressionOptions
+            uid: '@gramstax/lmdb!ICompressionOptions:interface'
+          - name: IEnvForSub
+            uid: '@gramstax/lmdb!IEnvForSub:type'
+          - name: IIndexDef
+            uid: '@gramstax/lmdb!IIndexDef:interface'
+          - name: IIndexDefs
+            uid: '@gramstax/lmdb!IIndexDefs:type'
+          - name: IIndexQuery
+            uid: '@gramstax/lmdb!IIndexQuery:type'
+          - name: IIndexResult
+            uid: '@gramstax/lmdb!IIndexResult:type'
+          - name: IInferSchemaKey
+            uid: '@gramstax/lmdb!IInferSchemaKey:type'
+          - name: IInferSchemaValue
+            uid: '@gramstax/lmdb!IInferSchemaValue:type'
+          - name: ILmdbEncoding
+            uid: '@gramstax/lmdb!ILmdbEncoding:type'
+          - name: ILmdbEnvOptions
+            uid: '@gramstax/lmdb!ILmdbEnvOptions:interface'
+          - name: ILmdbEnvState
+            uid: '@gramstax/lmdb!ILmdbEnvState:type'
+          - name: ILmdbKey
+            uid: '@gramstax/lmdb!ILmdbKey:type'
+          - name: IndexDescriptor
+            uid: '@gramstax/lmdb!IndexDescriptor:type'
+          - name: IndexQueryValue
+            uid: '@gramstax/lmdb!IndexQueryValue:type'
+          - name: IQueueSchema
+            uid: '@gramstax/lmdb!IQueueSchema:type'
+          - name: IRangeOptions
+            uid: '@gramstax/lmdb!IRangeOptions:interface'
+          - name: IRawReadTransaction
+            uid: '@gramstax/lmdb!IRawReadTransaction:type'
+          - name: ISchemaIndexesOf
+            uid: '@gramstax/lmdb!ISchemaIndexesOf:type'
+          - name: ISearchTable
+            uid: '@gramstax/lmdb!ISearchTable:interface'
+          - name: ISyncOptions
+            uid: '@gramstax/lmdb!ISyncOptions:interface'
+          - name: ISyncResult
+            uid: '@gramstax/lmdb!ISyncResult:interface'
+          - name: ITransactionLifecycle
+            uid: '@gramstax/lmdb!ITransactionLifecycle:type'
+          - name: JobRunSchema
+            uid: '@gramstax/lmdb!JobRunSchema:class'
+          - name: KeyOf
+            uid: '@gramstax/lmdb!KeyOf:type'
+          - name: LmdbBackup
+            uid: '@gramstax/lmdb!LmdbBackup:class'
+          - name: LmdbBackupArchiveEntry
+            uid: '@gramstax/lmdb!LmdbBackupArchiveEntry:interface'
+          - name: LmdbBackupEntry
+            uid: '@gramstax/lmdb!LmdbBackupEntry:interface'
+          - name: LmdbBackupHandle
+            uid: '@gramstax/lmdb!LmdbBackupHandle:interface'
+          - name: LmdbBackupS3Options
+            uid: '@gramstax/lmdb!LmdbBackupS3Options:interface'
+          - name: LmdbBackupSnapshotOptions
+            uid: '@gramstax/lmdb!LmdbBackupSnapshotOptions:interface'
+          - name: LmdbBackupSnapshotResult
+            uid: '@gramstax/lmdb!LmdbBackupSnapshotResult:interface'
+          - name: LmdbBackupStartOptions
+            uid: '@gramstax/lmdb!LmdbBackupStartOptions:interface'
+          - name: LmdbEnv
+            uid: '@gramstax/lmdb!LmdbEnv:class'
+          - name: LmdbEnvSub
+            uid: '@gramstax/lmdb!LmdbEnvSub:class'
+          - name: LmdbError
+            uid: '@gramstax/lmdb!LmdbError:class'
+          - name: LmdbJobRun
+            uid: '@gramstax/lmdb!LmdbJobRun:class'
+          - name: LmdbJobRunHandle
+            uid: '@gramstax/lmdb!LmdbJobRunHandle:interface'
+          - name: LmdbJobRunMissedOptions
+            uid: '@gramstax/lmdb!LmdbJobRunMissedOptions:interface'
+          - name: LmdbJobRunScheduleOptions
+            uid: '@gramstax/lmdb!LmdbJobRunScheduleOptions:interface'
+          - name: LmdbQueue
+            uid: '@gramstax/lmdb!LmdbQueue:class'
+          - name: LmdbReader
+            uid: '@gramstax/lmdb!LmdbReader:class'
+          - name: LmdbSchema
+            uid: '@gramstax/lmdb!LmdbSchema:class'
+          - name: LmdbSearch
+            uid: '@gramstax/lmdb!LmdbSearch:class'
+          - name: LmdbSyncStream
+            uid: '@gramstax/lmdb!LmdbSyncStream:class'
+          - name: LmdbTransaction
+            uid: '@gramstax/lmdb!LmdbTransaction:class'
+          - name: RecordCodec
+            uid: '@gramstax/lmdb!RecordCodec:class'
+          - name: ValueOf
+            uid: '@gramstax/lmdb!ValueOf:type'

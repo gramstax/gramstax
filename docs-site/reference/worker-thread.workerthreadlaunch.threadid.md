@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadLaunch.threadId"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadLaunch](./worker-thread.workerthreadlaunch.md) &gt; [threadId](./worker-thread.workerthreadlaunch.threadid.md)
+
+## WorkerThreadLaunch.threadId property
+
+The worker thread ID.
+
+**Signature:**
+
+```typescript
+threadId: number;
+```
+
+## Remarks
+
+Matches `new node:worker_threads:worker().threadId`.
+

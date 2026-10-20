@@ -1,0 +1,15 @@
+---
+title: "LmdbJobRunMissedOptions.pattern"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbJobRunMissedOptions](./lmdb.lmdbjobrunmissedoptions.md) &gt; [pattern](./lmdb.lmdbjobrunmissedoptions.pattern.md)
+
+## LmdbJobRunMissedOptions.pattern property
+
+Cron expression the job is scheduled on.
+
+**Signature:**
+
+```typescript
+pattern: string;
+```

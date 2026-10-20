@@ -1,0 +1,59 @@
+### YamlMime:TSType
+name: WorkerThreadErrorHandler
+uid: '@gramstax/worker-thread!WorkerThreadErrorHandler:class'
+package: '@gramstax/worker-thread!'
+fullName: WorkerThreadErrorHandler
+summary: Package-wide error routing for worker threads.
+remarks: >-
+  The library never writes errors to the console. Anything a `WorkerThreadLaunch`<!-- -->, `WorkerThreadInit`<!-- -->,
+  `WorkerThreadPool`<!-- -->, or gateway peer reports goes through , which hands it to the package-wide default handler.
+  The default is a silent drop, so an unobserved error is never fatal to the transport that reported it.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+methods:
+  - name: resetDefault()
+    uid: '@gramstax/worker-thread!WorkerThreadErrorHandler.resetDefault:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: resetDefault()
+    summary: Reset the package-wide error handler to the default silent drop.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        import {WorkerThreadErrorHandler} from "@gramstax/worker-thread";
+
+        WorkerThreadErrorHandler.resetDefault();
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static resetDefault(): void;'
+      return:
+        type: void
+        description: ''
+  - name: setDefault(handler)
+    uid: '@gramstax/worker-thread!WorkerThreadErrorHandler.setDefault:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: setDefault(handler)
+    summary: Set the package-wide error handler used when no per-instance `error` listeners are attached.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        import {WorkerThreadErrorHandler} from "@gramstax/worker-thread";
+
+        WorkerThreadErrorHandler.setDefault((err) => logger.error(err));
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static setDefault(handler: ((err: unknown) => void) | undefined): void;'
+      parameters:
+        - id: handler
+          description: Receives every error that has no instance listener.
+          type: '((err: unknown) =&gt; void) | undefined'
+      return:
+        type: void
+        description: ''

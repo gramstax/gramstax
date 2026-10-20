@@ -134,7 +134,7 @@ export class LmdbBackup {
    * @param specifier - Package to `import()`.
    * @param hint - Install hint thrown as `LmdbError` when the peer is missing.
    * @returns The imported module namespace.
-   * @throws {LmdbError} When the peer cannot be resolved.
+   * @throws {@link LmdbError} When the peer cannot be resolved.
    *
    * @internal
    */
@@ -150,7 +150,7 @@ export class LmdbBackup {
    * Load the optional `tar` peer for archive create/extract.
    *
    * @returns The `tar` module namespace.
-   * @throws {LmdbError} When `tar` is not installed.
+   * @throws {@link LmdbError} When `tar` is not installed.
    *
    * @internal
    */
@@ -162,7 +162,7 @@ export class LmdbBackup {
    * Load the optional `@aws-sdk/client-s3` peer for S3 paths.
    *
    * @returns The SDK module namespace.
-   * @throws {LmdbError} When the SDK is not installed.
+   * @throws {@link LmdbError} When the SDK is not installed.
    *
    * @internal
    */
@@ -176,7 +176,7 @@ export class LmdbBackup {
    * @param s3 - Destination options; a prebuilt `client` wins over fields.
    * @returns The prebuilt client, else a client built from
    * bucket/endpoint/region/credentials.
-   * @throws {LmdbError} When bucket or credentials are missing and no
+   * @throws {@link LmdbError} When bucket or credentials are missing and no
    * prebuilt client is given.
    *
    * @internal
@@ -584,10 +584,9 @@ export class LmdbBackup {
    * opt into the same restart safety without going through this helper.
    *
    * @param env - Writer env to back up (must stay open).
-   * @param opts - `{dir, keep?, pattern, timezone?, runOnStart?, format?, s3?,
-   * onError?, persist?, persistKey?}`.
+   * @param opts - `{dir, keep?, pattern, timezone?, runOnStart?, format?, s3?, onError?, persist?, persistKey?}`.
    * @returns `{stop, runNow, lastRun, nextRun, label}` handle.
-   * @throws {LmdbError} On a bad format, an s3/format pairing mismatch, or a
+   * @throws {@link LmdbError} On a bad format, an s3/format pairing mismatch, or a
    * closed env — the job-run store is constructed up front.
    *
    * @public

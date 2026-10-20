@@ -1,0 +1,21 @@
+---
+title: "LmdbEnvSub.exportJSONL()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [exportJSONL](./lmdb.lmdbenvsub.exportjsonl.md)
+
+## LmdbEnvSub.exportJSONL() method
+
+Export all entries as JSON Lines.
+
+**Signature:**
+
+```typescript
+exportJSONL(): Promise<string>;
+```
+**Returns:**
+
+Promise&lt;string&gt;
+
+A JSONL string of `[key, value]` pairs.
+

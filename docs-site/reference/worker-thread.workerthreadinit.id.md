@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadInit.id"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadInit](./worker-thread.workerthreadinit.md) &gt; [id](./worker-thread.workerthreadinit.id.md)
+
+## WorkerThreadInit.id property
+
+The worker thread ID from `node:worker_threads` `threadId`.
+
+**Signature:**
+
+```typescript
+id: number;
+```
+
+## Remarks
+
+Useful for logging or indexing worker state.
+

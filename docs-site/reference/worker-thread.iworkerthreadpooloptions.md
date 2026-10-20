@@ -1,0 +1,24 @@
+---
+title: "IWorkerThreadPoolOptions"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [IWorkerThreadPoolOptions](./worker-thread.iworkerthreadpooloptions.md)
+
+## IWorkerThreadPoolOptions type
+
+Trailing options object accepted by every `mtd*` member of a pool.
+
+**Signature:**
+
+```typescript
+type IWorkerThreadPoolOptions<TMode extends IWorkerThreadPoolMode = IWorkerThreadPoolMode> = {
+    mode?: TMode;
+    timeoutMs?: number;
+};
+```
+**References:** [IWorkerThreadPoolMode](./worker-thread.iworkerthreadpoolmode.md)
+
+## Remarks
+
+This object is always the \*\*last\*\* argument. A worker method that itself takes optional trailing parameters therefore reserves that position first, and the caller must supply placeholders to reach the options: `pool.mtdBroadcast(text, undefined, {mode: "broadcast"})`.
+

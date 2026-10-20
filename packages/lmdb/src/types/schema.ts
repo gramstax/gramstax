@@ -157,7 +157,7 @@ export interface IColumnBuilder<K extends IColumnKind = IColumnKind, I extends I
    */
   readonly isOptional: Nl
   /**
-   * Runtime shape for param-based builders — `t.object({...}) /
+   * Runtime shape for param-based builders — `t.object({...})` /
    * `t.array(t.string())` / `t.array([t.string()])` /
    * `t.array({...})`. Stored so registration can reject nested
    * `unique`/`index` flags (silent-ignore hazard) and so `ValueOf`
@@ -289,7 +289,7 @@ export type IInferSchemaValue<D extends Record<string, IAnyColumnBuilder>> = {
  *
  * @remarks
  * Key-remaps `D` to the columns whose `isOptional` is not `true`, mapping
- * each through {@link IColumnKindToTs}. Paired with
+ * each through `IColumnKindToTs`. Paired with
  * {@link IOptionalColumnsOf} by {@link IInferSchemaValue}.
  *
  * @internal
@@ -303,7 +303,7 @@ type IRequiredColumnsOf<D extends Record<string, IAnyColumnBuilder>> = {
  *
  * @remarks
  * Key-remaps `D` to the columns whose `isOptional` is `true` (each key
- * optional via `?`), mapping each through {@link IColumnKindToTs}. Paired
+ * optional via `?`), mapping each through `IColumnKindToTs`. Paired
  * with {@link IRequiredColumnsOf} by {@link IInferSchemaValue}.
  *
  * @internal
@@ -329,7 +329,7 @@ type IColumnKindToTs<K, N, V> = N extends true ? ITsKind<K, V> | undefined : ITs
 /**
  * Value type inferred from a param-based builder shape — `t.object({...})`
  * / `t.array({...})`. Maps each shape field through the same
- * {@link IColumnKindToTs} machinery as {@link IInferSchemaValue}, so
+ * `IColumnKindToTs` machinery as {@link IInferSchemaValue}, so
  * `.optional()` fields resolve to `T | undefined` and nested shapes
  * recursively to their object type.
  *

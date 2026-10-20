@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: IColumnIndexFlag
+uid: '@gramstax/lmdb!IColumnIndexFlag:type'
+package: '@gramstax/lmdb!'
+fullName: IColumnIndexFlag
+summary: Type-level index marker carried by a [IColumnBuilder](xref:@gramstax/lmdb!IColumnBuilder:interface)<!-- -->.
+remarks: >-
+  The runtime flags on a builder are plain `boolean`<!-- -->/`string`<!-- -->, so they widen away any literal
+  information. Each modifier instead re-tags the builder with this literal marker: `.unique()` → `"unique"`<!-- -->,
+  `.index(...)` → `"index"`<!-- -->, base builders stay `"none"`<!-- -->.
+  [ISchemaIndexesOf](xref:@gramstax/lmdb!ISchemaIndexesOf:type) key-remaps columns through the marker to recover literal
+  index keys.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type IColumnIndexFlag = `none` | `index` | `unique`;

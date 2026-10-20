@@ -1,0 +1,17 @@
+---
+title: "IWorkerThreadPoolMode"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [IWorkerThreadPoolMode](./worker-thread.iworkerthreadpoolmode.md)
+
+## IWorkerThreadPoolMode type
+
+How a pool call is fanned out.
+
+- `execute` — one worker, round-robin. The default when `mode` is omitted. - `broadcast` — every worker, fail-fast. - `settled` — every worker, settled per worker; never rejects on a peer.
+
+**Signature:**
+
+```typescript
+type IWorkerThreadPoolMode = "execute" | "broadcast" | "settled";
+```

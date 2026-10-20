@@ -1,0 +1,20 @@
+---
+title: "LmdbBackupStartOptions.timezone"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackupStartOptions](./lmdb.lmdbbackupstartoptions.md) &gt; [timezone](./lmdb.lmdbbackupstartoptions.timezone.md)
+
+## LmdbBackupStartOptions.timezone property
+
+IANA timezone for `pattern` (default: the host's local timezone).
+
+**Signature:**
+
+```typescript
+timezone?: string;
+```
+
+## Example
+
+`Europe/Stockholm`
+

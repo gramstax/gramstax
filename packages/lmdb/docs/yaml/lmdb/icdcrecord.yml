@@ -1,0 +1,41 @@
+### YamlMime:TSType
+name: ICdcRecord
+uid: '@gramstax/lmdb!ICdcRecord:interface'
+package: '@gramstax/lmdb!'
+fullName: ICdcRecord
+summary: Durable outbox record — the subscriber event plus routing metadata.
+remarks: >-
+  Appended in the same writer transaction as the primary write, so aborts publish nothing and sequences stay gapless per
+  env.
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: db
+    uid: '@gramstax/lmdb!ICdcRecord#db:member'
+    package: '@gramstax/lmdb!'
+    fullName: db
+    summary: Source sub-DB name.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'db: string;'
+      return:
+        type: string
+  - name: seq
+    uid: '@gramstax/lmdb!ICdcRecord#seq:member'
+    package: '@gramstax/lmdb!'
+    fullName: seq
+    summary: Outbox sequence (gapless, per-env).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'seq: number;'
+      return:
+        type: number
+extends: <xref uid="@gramstax/lmdb!ICdcEvent:interface" />

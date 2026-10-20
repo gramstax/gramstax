@@ -1,0 +1,33 @@
+### YamlMime:TSType
+name: LmdbError
+uid: '@gramstax/lmdb!LmdbError:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbError
+summary: The single error class thrown by `@gramstax/lmdb`<!-- -->.
+remarks: >-
+  Every public API failure throws this class — inspect `message` to tell failures apart. Plain `Error` is never thrown
+  from this package. Catch this class to handle any error from the package.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(message, options)
+    uid: '@gramstax/lmdb!LmdbError:constructor(1)'
+    package: '@gramstax/lmdb!'
+    fullName: (constructor)(message, options)
+    summary: Constructs a new instance of the `LmdbError` class
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(message: string, options?: ErrorOptions);'
+      parameters:
+        - id: message
+          description: Human-readable error description.
+          type: string
+        - id: options
+          description: Standard `Error` options.
+          type: ErrorOptions
+extends: Error

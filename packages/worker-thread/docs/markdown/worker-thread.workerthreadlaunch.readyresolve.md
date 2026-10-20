@@ -15,3 +15,7 @@ readyResolve(): void;
 
 void
 
+## Remarks
+
+Resolves the `ready()` promise and emits the `ready` event (once).
+

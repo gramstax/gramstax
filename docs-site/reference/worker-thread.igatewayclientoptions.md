@@ -1,0 +1,27 @@
+---
+title: "IGatewayClientOptions"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [IGatewayClientOptions](./worker-thread.igatewayclientoptions.md)
+
+## IGatewayClientOptions type
+
+Options for connecting a gateway client.
+
+**Signature:**
+
+```typescript
+type IGatewayClientOptions = {
+    token?: string;
+    reconnect?: boolean;
+    retries?: number;
+    maxRetryTime?: number;
+    maxMessageSize?: number;
+    messagepack?: boolean;
+};
+```
+
+## Remarks
+
+Reconnect is enabled by default: when the connection drops (e.g. the gateway server worker restarts), the client retries with exponential backoff and pending requests are retried transparently.
+

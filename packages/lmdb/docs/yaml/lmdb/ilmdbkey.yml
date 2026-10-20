@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: ILmdbKey
+uid: '@gramstax/lmdb!ILmdbKey:type'
+package: '@gramstax/lmdb!'
+fullName: ILmdbKey
+summary: Anything that can be used as a key in LMDB.
+remarks: >-
+  LMDB natively accepts strings, numbers, Buffers, and arrays of primitives (ordered-binary composite keys). The array
+  form enables multi-tenant / namespaced keys like `["tenant-a", 42]` that sort lexicographically. Re-exported from
+  `lmdb` for convenience.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ILmdbKey = Key;

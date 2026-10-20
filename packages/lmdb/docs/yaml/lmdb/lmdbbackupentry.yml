@@ -1,0 +1,53 @@
+### YamlMime:TSType
+name: LmdbBackupEntry
+uid: '@gramstax/lmdb!LmdbBackupEntry:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbBackupEntry
+summary: >-
+  One timestamped backup entry as returned by [LmdbBackup.list()](xref:@gramstax/lmdb!LmdbBackup.list:member(1))<!--
+  -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: mtimeMs
+    uid: '@gramstax/lmdb!LmdbBackupEntry#mtimeMs:member'
+    package: '@gramstax/lmdb!'
+    fullName: mtimeMs
+    summary: Directory mtime in ms — prune/list order key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'mtimeMs: number;'
+      return:
+        type: number
+  - name: name
+    uid: '@gramstax/lmdb!LmdbBackupEntry#name:member'
+    package: '@gramstax/lmdb!'
+    fullName: name
+    summary: Directory name (`backup-<stamp>`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'name: string;'
+      return:
+        type: string
+  - name: path
+    uid: '@gramstax/lmdb!LmdbBackupEntry#path:member'
+    package: '@gramstax/lmdb!'
+    fullName: path
+    summary: Absolute path.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'path: string;'
+      return:
+        type: string

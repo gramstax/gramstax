@@ -1,0 +1,116 @@
+### YamlMime:TSType
+name: LmdbBackupS3Options
+uid: '@gramstax/lmdb!LmdbBackupS3Options:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbBackupS3Options
+summary: S3-compatible destination (AWS S3, Cloudflare R2, MinIO — same API).
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: accessKeyId
+    uid: '@gramstax/lmdb!LmdbBackupS3Options#accessKeyId:member'
+    package: '@gramstax/lmdb!'
+    fullName: accessKeyId
+    summary: Access key id.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'accessKeyId: string;'
+      return:
+        type: string
+  - name: bucket
+    uid: '@gramstax/lmdb!LmdbBackupS3Options#bucket:member'
+    package: '@gramstax/lmdb!'
+    fullName: bucket
+    summary: Bucket name.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'bucket: string;'
+      return:
+        type: string
+  - name: client
+    uid: '@gramstax/lmdb!LmdbBackupS3Options#client:member'
+    package: '@gramstax/lmdb!'
+    fullName: client
+    summary: Preconfigured client — wins over the fields above.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'client?: S3Client;'
+      return:
+        type: <xref uid="@aws-sdk/client-s3!S3Client:class" />
+  - name: endpoint
+    uid: '@gramstax/lmdb!LmdbBackupS3Options#endpoint:member'
+    package: '@gramstax/lmdb!'
+    fullName: endpoint
+    summary: API endpoint (R2/MinIO URL; absent means AWS default).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'endpoint?: string;'
+      return:
+        type: string
+  - name: forcePathStyle
+    uid: '@gramstax/lmdb!LmdbBackupS3Options#forcePathStyle:member'
+    package: '@gramstax/lmdb!'
+    fullName: forcePathStyle
+    summary: '`true` for MinIO-style path URLs.'
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'forcePathStyle?: boolean;'
+      return:
+        type: boolean
+  - name: prefix
+    uid: '@gramstax/lmdb!LmdbBackupS3Options#prefix:member'
+    package: '@gramstax/lmdb!'
+    fullName: prefix
+    summary: Key prefix (default `""`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'prefix?: string;'
+      return:
+        type: string
+  - name: region
+    uid: '@gramstax/lmdb!LmdbBackupS3Options#region:member'
+    package: '@gramstax/lmdb!'
+    fullName: region
+    summary: Region (default `auto`<!-- -->, works for R2).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'region?: string;'
+      return:
+        type: string
+  - name: secretAccessKey
+    uid: '@gramstax/lmdb!LmdbBackupS3Options#secretAccessKey:member'
+    package: '@gramstax/lmdb!'
+    fullName: secretAccessKey
+    summary: Secret access key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'secretAccessKey: string;'
+      return:
+        type: string

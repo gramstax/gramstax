@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: IEnvForSub
+uid: '@gramstax/lmdb!IEnvForSub:type'
+package: '@gramstax/lmdb!'
+fullName: IEnvForSub
+summary: Subset of [LmdbEnv](xref:@gramstax/lmdb!LmdbEnv:class) exposed to  sub-DB handles.
+remarks: >-
+  Picked directly from `LmdbEnv` so method signatures are always in sync. At runtime the sub receives a combined object
+  that delegates data operations to its sub-DB handle and root-env methods to the owning env.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IEnvForSub = Database<unknown, Key> & {
+      transaction: LmdbEnv[`transaction`];
+      readTransaction: LmdbEnv[`readTransaction`];
+      readOnly: boolean;
+  };

@@ -1,0 +1,20 @@
+---
+title: "ILmdbEnvOptions.maxDbs"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [maxDbs](./lmdb.ilmdbenvoptions.maxdbs.md)
+
+## ILmdbEnvOptions.maxDbs property
+
+Maximum number of named sub-databases.
+
+**Signature:**
+
+```typescript
+maxDbs?: number;
+```
+
+## Remarks
+
+Each registered collection typically owns one sub-database. Set this to at least the number of collections you intend to register.
+

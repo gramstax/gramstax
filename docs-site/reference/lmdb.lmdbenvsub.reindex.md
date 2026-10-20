@@ -1,0 +1,65 @@
+---
+title: "LmdbEnvSub.reindex()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [reindex](./lmdb.lmdbenvsub.reindex.md)
+
+## LmdbEnvSub.reindex() method
+
+Rebuild the schema's embedded indexes from primary data.
+
+**Signature:**
+
+```typescript
+reindex(name?: string): Promise<{
+        built: number;
+        skipped: Array<{
+            key: KeyOf<S>;
+            index: string;
+            value: unknown;
+        }>;
+    }>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+name
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Rebuild a single index by name; omit to rebuild all.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;\{ built: number; skipped: Array&lt;\{ key: [KeyOf](./lmdb.keyof.md)&lt;S&gt;; index: string; value: unknown; }&gt;; }&gt;
+
+`{built, skipped}` — `skipped` lists unique-conflict records that could not be indexed.
+

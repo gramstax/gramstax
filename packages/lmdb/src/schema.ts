@@ -409,7 +409,7 @@ export abstract class LmdbSchema {
    * composite) share the same declaration-time gate without duplicating the
    * checks.
    *
-   * @throws {LmdbError} when the value mismatches the scalar kind or enum.
+   * @throws {@link LmdbError} when the value mismatches the scalar kind or enum.
    *
    * @param kind - The column kind to check against.
    * @param value - The `.default()` candidate.
@@ -512,7 +512,7 @@ export abstract class LmdbSchema {
    *
    * @param schemaClass - The schema subclass to validate.
    *
-   * @throws {LmdbError} On any of the rules above.
+   * @throws {@link LmdbError} On any of the rules above.
    *
    * @public
    */

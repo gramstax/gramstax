@@ -1,0 +1,62 @@
+---
+title: "LmdbJobRun.lastRun()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbJobRun](./lmdb.lmdbjobrun.md) &gt; [lastRun](./lmdb.lmdbjobrun.lastrun.md)
+
+## LmdbJobRun.lastRun() method
+
+Read the last successful run for `key`.
+
+**Signature:**
+
+```typescript
+lastRun(key: string): number | undefined;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Job name.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+number \| undefined
+
+Epoch ms of the last success, or `undefined` when never run.
+
+## Exceptions
+
+[LmdbError](./lmdb.lmdberror.md) On a blank `key`, or when the env is closed.
+

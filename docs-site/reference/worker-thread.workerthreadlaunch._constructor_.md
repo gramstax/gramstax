@@ -1,0 +1,84 @@
+---
+title: "WorkerThreadLaunch.(constructor)"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadLaunch](./worker-thread.workerthreadlaunch.md) &gt; [(constructor)](./worker-thread.workerthreadlaunch._constructor_.md)
+
+## WorkerThreadLaunch.(constructor)
+
+Creates a new WorkerThreadLaunch instance and spawns the worker thread.
+
+**Signature:**
+
+```typescript
+constructor(path: string, argv: unknown[], register?: Record<string, (...args: never[]) => unknown> | undefined);
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+path
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Path to the worker file. Must be valid JavaScript/TypeScript file.
+
+
+</td></tr>
+<tr><td>
+
+argv
+
+
+</td><td>
+
+unknown\[\]
+
+
+</td><td>
+
+Arguments to pass to worker. Accessible via `process.argv` in worker.
+
+
+</td></tr>
+<tr><td>
+
+register
+
+
+</td><td>
+
+Record&lt;string, (...args: never\[\]) =&gt; unknown&gt; \| undefined
+
+
+</td><td>
+
+_(Optional)_ Object with value function to expose. Called by thread worker. Defaults to `this`.
+
+
+</td></tr>
+</tbody></table>
+

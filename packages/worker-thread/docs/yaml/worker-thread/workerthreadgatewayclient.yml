@@ -5,12 +5,14 @@ package: '@gramstax/worker-thread!'
 fullName: WorkerThreadGatewayClient
 summary: \[LOW-LEVEL\] Provides IPC client functionality for inter-worker communication using Unix domain sockets.
 remarks: >-
-  Low-level infrastructure. In most cases use
-  [WorkerThreadInit.createGatewayClient()](xref:@gramstax/worker-thread!WorkerThreadInit%23createGatewayClient:member(1))
-  instead of constructing this directly.
+  Provides IPC client functionality for inter-worker communication using Unix domain sockets (named pipes on Windows).
+  Created internally by
+  [WorkerThreadInit.createGatewayClient()](xref:@gramstax/worker-thread!WorkerThreadInit%23createGatewayClient:member(1))<!--
+  -->.
 
 
-  Uses `net-ipc` library for Unix domain socket communication.
+  Uses the `net-ipc` library for Unix domain socket communication. Works in \*\*Bun\*\* (native) and \*\*Node.js\*\*
+  (native).
 example: []
 isPreview: false
 isDeprecated: false
@@ -58,33 +60,84 @@ properties:
       return:
         type: <xref uid="@gramstax/worker-thread!WorkerThreadRpc:class" />
 methods:
-  - name: connect(path)
+  - name: close()
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayClient#close:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: close()
+    summary: Close the connection permanently.
+    remarks: >-
+      Disables auto-reconnect so the client will not attempt to reconnect. Pending requests are rejected so callers
+      never hang. Tries a graceful close first, but force-destroys the socket if the graceful handshake does not finish
+      within 500ms (e.g. the peer died mid-connect) — `close()` never hangs.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'close(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: connect(path, options)
     uid: '@gramstax/worker-thread!WorkerThreadGatewayClient#connect:member(1)'
     package: '@gramstax/worker-thread!'
-    fullName: connect(path)
+    fullName: connect(path, options)
     summary: Connect to a gateway server.
     remarks: ''
     example:
       - |-
         ```typescript
-        await client.connect("/tmp/worker-server.sock");
+        await client.connect("/tmp/worker-server.sock", {
+          token: "shared-secret",
+          messagepack: true,
+        });
         console.log("Connected to gateway server");
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'connect(path: string): Promise<unknown>;'
+      content: 'connect(path: string, options?: IGatewayClientOptions): Promise<unknown>;'
       parameters:
         - id: path
           description: Unix socket path. Matches server gateway.
           type: string
+        - id: options
+          description: Connection options (auth token, reconnect tuning, encoding).
+          type: <xref uid="@gramstax/worker-thread!IGatewayClientOptions:type" />
       return:
         type: Promise&lt;unknown&gt;
         description: Promise that resolves to this client instance when connection is ready.
-  - name: request(method, params, _wait, _others)
+  - name: destroy()
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayClient#destroy:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: destroy()
+    summary: Destroy the connection immediately without a graceful close.
+    remarks: Disables auto-reconnect and rejects pending requests.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'destroy(): void;'
+      return:
+        type: void
+        description: ''
+  - name: isClosed()
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayClient#isClosed:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: isClosed()
+    summary: Whether the connection has been closed or destroyed.
+    remarks: A closed client must not be reused — callers should create a new one.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isClosed(): boolean;'
+      return:
+        type: boolean
+        description: ''
+  - name: request(method, params, _wait, _others, timeoutMs)
     uid: '@gramstax/worker-thread!WorkerThreadGatewayClient#request:member(1)'
     package: '@gramstax/worker-thread!'
-    fullName: request(method, params, _wait, _others)
+    fullName: request(method, params, _wait, _others, timeoutMs)
     summary: Make an RPC request to the server.
     remarks: ''
     example:
@@ -96,20 +149,26 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;'
+      content: >-
+        request(method: string, params: unknown[], _wait?: boolean, _others?: Record<string, unknown>, timeoutMs?:
+        number): Promise<unknown>;
       parameters:
         - id: method
           description: Server method to call. Targets server RPC method.
           type: string
         - id: params
           description: Method parameters. Sent as positional array.
-          type: any
+          type: unknown[]
         - id: _wait
           description: Wait for response. If false, fire-and-forget. Defaults to `true`<!-- -->.
           type: boolean
         - id: _others
           description: Additional RPC data. Merged into RPC payload.
-          type: any
+          type: Record&lt;string, unknown&gt;
+        - id: timeoutMs
+          description: Optional timeout in milliseconds. Rejects the request when no response arrives in time.
+          type: number
       return:
-        type: Promise&lt;any&gt;
+        type: Promise&lt;unknown&gt;
         description: Promise resolving with server response.
+extends: '@gramstax/worker-thread!~EventEmitter'

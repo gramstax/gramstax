@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "build:docs": "bun run build --dts-only --no-minify --tsconfig tsconfig.build.docs.json && api-extractor run --local --verbose && api-documenter markdown -i ./docs/extractor/temp -o ./docs/markdown && api-documenter yaml -i ./docs/extractor/temp -o ./docs/yaml",
     "bench": "bun run ./bench/rpc-roundtrip.bench.ts && bun run ./bench/gateway-roundtrip.bench.ts && bun run ./bench/payload-codec.bench.ts && bun run ./bench/pool-scale.bench.ts && bun run ./bench/reconnect-storm.bench.ts",
     "nx-release-publish": "npm publish --access public"
   },

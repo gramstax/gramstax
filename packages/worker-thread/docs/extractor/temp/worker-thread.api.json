@@ -189,22 +189,95 @@
       "preserveMemberOrder": false,
       "members": [
         {
-          "kind": "TypeAlias",
-          "canonicalReference": "@gramstax/worker-thread!ITMapRpc:type",
-          "docComment": "/**\n * Map type for storing pending RPC request handlers.\n *\n * @public\n */\n",
+          "kind": "Variable",
+          "canonicalReference": "@gramstax/worker-thread!DEFAULT_MAX_MESSAGE_SIZE:var",
+          "docComment": "/**\n * Default cap on the estimated in-memory size of a single RPC message received over the gateway. Prevents an oversized (or maliciously framed) payload from exhausting worker memory. The parentPort channel is trusted and intentionally not capped.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "type ITMapRpc = "
-            },
-            {
-              "kind": "Reference",
-              "text": "Map",
-              "canonicalReference": "!Map:interface"
+              "text": "DEFAULT_MAX_MESSAGE_SIZE: "
             },
             {
               "kind": "Content",
-              "text": "<any, {\n    reject: (error: any) => any;\n    resolve: (result: any) => any;\n}>"
+              "text": "number"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "isReadonly": true,
+          "releaseTag": "Public",
+          "name": "DEFAULT_MAX_MESSAGE_SIZE",
+          "variableTypeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "Variable",
+          "canonicalReference": "@gramstax/worker-thread!DEFAULT_REQUEST_TIMEOUT_MS:var",
+          "docComment": "/**\n * Default timeout in milliseconds applied to every `makeRequest` call that does not pass an explicit `timeoutMs`. `0` disables the timeout (requests wait indefinitely). Can be overridden per instance via `defaultTimeoutMs` or per call via `timeoutMs`.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "DEFAULT_REQUEST_TIMEOUT_MS = "
+            },
+            {
+              "kind": "Content",
+              "text": "30000"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "initializerTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          },
+          "isReadonly": true,
+          "releaseTag": "Public",
+          "name": "DEFAULT_REQUEST_TIMEOUT_MS",
+          "variableTypeTokenRange": {
+            "startIndex": 0,
+            "endIndex": 0
+          }
+        },
+        {
+          "kind": "Variable",
+          "canonicalReference": "@gramstax/worker-thread!DENIED_RPC_METHODS:var",
+          "docComment": "/**\n * Method names that are never remotely callable, even when they resolve to a function on the register object. Covers prototype gadgets (`constructor` would expose the class) and the duplex plumbing (`send`/`request`/`kill`/gateway factories are outgoing-only APIs — `shutdown` and `readyResolve` stay allowed: they are the legitimate inbound lifecycle methods).\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "DENIED_RPC_METHODS: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReadonlySet",
+              "canonicalReference": "!ReadonlySet:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<string>"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "isReadonly": true,
+          "releaseTag": "Public",
+          "name": "DENIED_RPC_METHODS",
+          "variableTypeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IGatewayClientOptions:type",
+          "docComment": "/**\n * Options for connecting a gateway client.\n *\n * @remarks\n *\n * Reconnect is enabled by default: when the connection drops (e.g. the gateway server worker restarts), the client retries with exponential backoff and pending requests are retried transparently.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IGatewayClientOptions = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    token?: string;\n    reconnect?: boolean;\n    retries?: number;\n    maxRetryTime?: number;\n    maxMessageSize?: number;\n    messagepack?: boolean;\n}"
             },
             {
               "kind": "Content",
@@ -213,20 +286,174 @@
           ],
           "fileUrlPath": "dist/src/index.d.ts",
           "releaseTag": "Public",
-          "name": "ITMapRpc",
+          "name": "IGatewayClientOptions",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 3
+            "endIndex": 2
           }
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "@gramstax/worker-thread!WorkerThreadAsyncMethods:type",
+          "canonicalReference": "@gramstax/worker-thread!IGatewayServerOptions:type",
+          "docComment": "/**\n * Options for starting a gateway server.\n *\n * @remarks\n *\n * Auth and method allow-lists are enforced per connection on the server side.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IGatewayServerOptions = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    token?: string;\n    allowedMethods?: string[];\n    maxConnections?: number;\n    maxMessageSize?: number;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IGatewayServerOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IMapRpc:type",
+          "docComment": "/**\n * Map type for storing pending RPC request handlers.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IMapRpc = "
+            },
+            {
+              "kind": "Reference",
+              "text": "Map",
+              "canonicalReference": "!Map:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<number, {\n    reject: (error: unknown) => void;\n    resolve: (result: unknown) => void;\n    timer?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReturnType",
+              "canonicalReference": "!ReturnType:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "setTimeout",
+              "canonicalReference": "!setTimeout:function"
+            },
+            {
+              "kind": "Content",
+              "text": ">;\n}>"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IMapRpc",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IRpcContext:type",
+          "docComment": "/**\n * Context object passed through the RPC middleware chain for incoming requests.\n *\n * @remarks\n *\n * Middleware can mutate `params` before dispatch, short-circuit by setting `result` without calling `next`, or throw to reject the request.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRpcContext = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    method: string;\n    params: unknown[];\n    result?: unknown;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRpcContext",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IRpcMiddleware:type",
+          "docComment": "/**\n * Middleware function for intercepting incoming RPC requests.\n *\n * @param ctx - Mutable request context.\n *\n * @param next - Continue to the next middleware / dispatch the method.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRpcMiddleware = "
+            },
+            {
+              "kind": "Content",
+              "text": "(ctx: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IRpcContext",
+              "canonicalReference": "@gramstax/worker-thread!IRpcContext:type"
+            },
+            {
+              "kind": "Content",
+              "text": ", next: () => "
+            },
+            {
+              "kind": "Reference",
+              "text": "Promise",
+              "canonicalReference": "!Promise:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<void>) => "
+            },
+            {
+              "kind": "Reference",
+              "text": "Promise",
+              "canonicalReference": "!Promise:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<void>"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRpcMiddleware",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 8
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadAsyncMethods:type",
           "docComment": "/**\n * Async methods type for worker thread. Transforms all worker methods to return Promises.\n *\n * @typeParam T - The worker thread init class type.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "type WorkerThreadAsyncMethods<T> = "
+              "text": "type IWorkerThreadAsyncMethods<T> = "
             },
             {
               "kind": "Content",
@@ -239,7 +466,7 @@
             },
             {
               "kind": "Content",
-              "text": " ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (...args: A) => "
+              "text": " ? never : K extends string ? (T[K] extends (...args: never[]) => unknown ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (...args: A) => "
             },
             {
               "kind": "Reference",
@@ -266,7 +493,7 @@
           ],
           "fileUrlPath": "dist/src/index.d.ts",
           "releaseTag": "Public",
-          "name": "WorkerThreadAsyncMethods",
+          "name": "IWorkerThreadAsyncMethods",
           "typeParameters": [
             {
               "typeParameterName": "T",
@@ -286,9 +513,723 @@
           }
         },
         {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadExportOpt:type",
+          "docComment": "/**\n * Options for initializing a worker thread export.\n *\n * @typeParam TWorker - The worker thread init class type.\n *\n * @typeParam TMain - The main thread launch class type.\n *\n * @typeParam TWrap - The custom wrapper type.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWorkerThreadExportOpt<TWorker extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": ", TMain extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadLaunch",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class"
+            },
+            {
+              "kind": "Content",
+              "text": ", TWrap> = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    path: string;\n    WTInit: new () => TWorker;\n    WTLaunch?: new (path: string, argv?: unknown[]) => TMain;\n    wrap?: (main: TMain) => TWrap;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWorkerThreadExportOpt",
+          "typeParameters": [
+            {
+              "typeParameterName": "TWorker",
+              "constraintTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            },
+            {
+              "typeParameterName": "TMain",
+              "constraintTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            },
+            {
+              "typeParameterName": "TWrap",
+              "constraintTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "typeTokenRange": {
+            "startIndex": 5,
+            "endIndex": 6
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadExportResult:type",
+          "docComment": "/**\n * Result type of {@link WorkerThreadExport.init}.\n *\n * @typeParam TWorker - The worker thread init class type.\n *\n * @typeParam TMain - The main thread launch class type.\n *\n * @typeParam TWrap - The custom wrapper type.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWorkerThreadExportResult<TWorker extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": ", TMain extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadLaunch",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class"
+            },
+            {
+              "kind": "Content",
+              "text": ", TWrap> = "
+            },
+            {
+              "kind": "Content",
+              "text": "TWrap & "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadAsyncMethods",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadAsyncMethods:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<TWorker> & {\n    launchWorker: (argv?: unknown[]) => "
+            },
+            {
+              "kind": "Reference",
+              "text": "Promise",
+              "canonicalReference": "!Promise:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<TMain & "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadWorkerClass",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadWorkerClass:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<TWorker>>;\n    launchGatewayClient: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadGatewayClientFactory",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadGatewayClientFactory:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<TWorker>;\n    shutdown: (timeoutMs?: number) => "
+            },
+            {
+              "kind": "Reference",
+              "text": "Promise",
+              "canonicalReference": "!Promise:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<void>;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWorkerThreadExportResult",
+          "typeParameters": [
+            {
+              "typeParameterName": "TWorker",
+              "constraintTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            },
+            {
+              "typeParameterName": "TMain",
+              "constraintTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            },
+            {
+              "typeParameterName": "TWrap",
+              "constraintTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "typeTokenRange": {
+            "startIndex": 5,
+            "endIndex": 16
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadGatewayClientFactory:type",
+          "docComment": "/**\n * Factory type for `launchGatewayClient` returned by {@link WorkerThreadExport.init}.\n *\n * @typeParam TWorker - The worker thread init class type.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWorkerThreadGatewayClientFactory<TWorker extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": "> = "
+            },
+            {
+              "kind": "Content",
+              "text": "(serverPath: string, options?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IGatewayClientOptions",
+              "canonicalReference": "@gramstax/worker-thread!IGatewayClientOptions:type"
+            },
+            {
+              "kind": "Content",
+              "text": ") => "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadGatewayProxy",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadGatewayProxy:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<TWorker> & {\n    new (owner: "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadAsyncMethods",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadAsyncMethods:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<TWorker>;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWorkerThreadGatewayClientFactory",
+          "typeParameters": [
+            {
+              "typeParameterName": "TWorker",
+              "constraintTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "typeTokenRange": {
+            "startIndex": 3,
+            "endIndex": 12
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadGatewayProxy:type",
+          "docComment": "/**\n * Proxy type for gateway client methods. Transforms worker methods to accept `owner` as first parameter.\n *\n * @typeParam T - The worker thread init class type.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWorkerThreadGatewayProxy<T> = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    [K in keyof T as K extends keyof "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": " ? never : K extends string ? (T[K] extends (...args: never[]) => unknown ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (owner: "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": ", ...args: A) => "
+            },
+            {
+              "kind": "Reference",
+              "text": "Promise",
+              "canonicalReference": "!Promise:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "Awaited",
+              "canonicalReference": "!Awaited:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<R>> : never;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWorkerThreadGatewayProxy",
+          "typeParameters": [
+            {
+              "typeParameterName": "T",
+              "constraintTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 10
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolMethods:type",
+          "docComment": "/**\n * The `mtd*` methods of a worker class, exposed as pool members.\n *\n * @remarks\n *\n * Each member accepts the worker's own arguments followed by one optional {@link IWorkerThreadPoolOptions}. The result type follows the mode, so omitting `mode` yields a single value and naming it yields an array.\n *\n * If the `mode` argument is widened to `IWorkerThreadPoolMode` rather than a literal, the result widens to a union of all three shapes. Pass the literal at the call site to keep the precise type.\n *\n * Unlike `IWorkerThreadAsyncMethods`, this filters on the `mtd` prefix rather than on membership of `WorkerThreadInit`. A pool is a fan-out surface, so a worker's private helper should not become part of the pool's public API. The runtime does not enforce the prefix (only `DENIED_RPC_METHODS` in `rpc.ts` gates dispatch), so this is a readability surface, not a safety boundary.\n *\n * @typeParam TInit - The worker class whose methods should be callable.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWorkerThreadPoolMethods<TInit extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": "> = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    [K in keyof TInit as K extends `mtd${string}` ? K : never]: TInit[K] extends (...args: infer A) => infer R ? <TMode extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadPoolMode",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolMode:type"
+            },
+            {
+              "kind": "Content",
+              "text": " = \"execute\">(...args: [...A, "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadPoolOptions",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolOptions:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<TMode>?]) => "
+            },
+            {
+              "kind": "Reference",
+              "text": "Promise",
+              "canonicalReference": "!Promise:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadPoolResult",
+              "canonicalReference": "@gramstax/worker-thread!~IWorkerThreadPoolResult:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<R, TMode>> : never;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWorkerThreadPoolMethods",
+          "typeParameters": [
+            {
+              "typeParameterName": "TInit",
+              "constraintTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "typeTokenRange": {
+            "startIndex": 3,
+            "endIndex": 12
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolMode:type",
+          "docComment": "/**\n * How a pool call is fanned out.\n *\n * - `execute` — one worker, round-robin. The default when `mode` is omitted. - `broadcast` — every worker, fail-fast. - `settled` — every worker, settled per worker; never rejects on a peer.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWorkerThreadPoolMode = "
+            },
+            {
+              "kind": "Content",
+              "text": "\"execute\" | \"broadcast\" | \"settled\""
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWorkerThreadPoolMode",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolOptions:type",
+          "docComment": "/**\n * Trailing options object accepted by every `mtd*` member of a pool.\n *\n * @remarks\n *\n * This object is always the **last** argument. A worker method that itself takes optional trailing parameters therefore reserves that position first, and the caller must supply placeholders to reach the options: `pool.mtdBroadcast(text, undefined, {mode: \"broadcast\"})`.\n *\n * @typeParam TMode - The mode literal, used to pick the result shape.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWorkerThreadPoolOptions<TMode extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadPoolMode",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolMode:type"
+            },
+            {
+              "kind": "Content",
+              "text": " = "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadPoolMode",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolMode:type"
+            },
+            {
+              "kind": "Content",
+              "text": "> = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    mode?: TMode;\n    timeoutMs?: number;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWorkerThreadPoolOptions",
+          "typeParameters": [
+            {
+              "typeParameterName": "TMode",
+              "constraintTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              }
+            }
+          ],
+          "typeTokenRange": {
+            "startIndex": 5,
+            "endIndex": 6
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolOutcome:type",
+          "docComment": "/**\n * Per-worker outcome returned by `broadcastSettled`.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWorkerThreadPoolOutcome<TResult> = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    threadId: number;\n    ok: boolean;\n    result?: TResult;\n    error?: unknown;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWorkerThreadPoolOutcome",
+          "typeParameters": [
+            {
+              "typeParameterName": "TResult",
+              "constraintTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!IWorkerThreadWorkerClass:type",
+          "docComment": "/**\n * Type-level carrier for the worker class a launched handle belongs to.\n *\n * @remarks\n *\n * Purely phantom: the property is optional and never assigned at runtime. It exists so a `launchWorker()` result still knows which worker class produced it after it has crossed into an array, which is what lets `new WorkerThreadPool(handles)` infer the class instead of demanding a type argument.\n *\n * A plain `WorkerThreadLaunch` is still assignable to this type — the target also requires the launch surface, so the optional-only \"weak type\" rule does not apply.\n *\n * @typeParam TInit - The worker class.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWorkerThreadWorkerClass<TInit extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": "> = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    readonly __workerClass?: TInit;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWorkerThreadWorkerClass",
+          "typeParameters": [
+            {
+              "typeParameterName": "TInit",
+              "constraintTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "typeTokenRange": {
+            "startIndex": 3,
+            "endIndex": 4
+          }
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "@gramstax/worker-thread!WorkerThreadErrorHandler:class",
+          "docComment": "/**\n * Package-wide error routing for worker threads.\n *\n * @remarks\n *\n * The library never writes errors to the console. Anything a `WorkerThreadLaunch`, `WorkerThreadInit`, `WorkerThreadPool`, or gateway peer reports goes through {@link WorkerThreadErrorHandler.report}, which hands it to the package-wide default handler. The default is a silent drop, so an unobserved error is never fatal to the transport that reported it.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare class WorkerThreadErrorHandler "
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "WorkerThreadErrorHandler",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadErrorHandler.resetDefault:member(1)",
+              "docComment": "/**\n * Reset the package-wide error handler to the default silent drop.\n *\n * @example\n * ```typescript\n * import {WorkerThreadErrorHandler} from \"@gramstax/worker-thread\";\n *\n * WorkerThreadErrorHandler.resetDefault();\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static resetDefault(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "resetDefault"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadErrorHandler.setDefault:member(1)",
+              "docComment": "/**\n * Set the package-wide error handler used when no per-instance `error` listeners are attached.\n *\n * @param handler - Receives every error that has no instance listener.\n *\n * @throws\n *\n * TypeError When `handler` is neither a function nor `undefined`.\n *\n * @example\n * ```typescript\n * import {WorkerThreadErrorHandler} from \"@gramstax/worker-thread\";\n *\n * WorkerThreadErrorHandler.setDefault((err) => logger.error(err));\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static setDefault(handler: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "((err: unknown) => void) | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "handler",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setDefault"
+            }
+          ],
+          "implementsTokenRanges": []
+        },
+        {
           "kind": "Class",
           "canonicalReference": "@gramstax/worker-thread!WorkerThreadExport:class",
-          "docComment": "/**\n * Provides a unified interface for creating and managing worker threads with automatic RPC proxying.\n *\n * @remarks\n *\n * Automatically detects if running in main thread or worker thread. Provides type-safe method calls to worker thread via RPC proxy.\n *\n * @example\n *\n * Basic Usage\n * ```typescript\n * import { WorkerThreadExport, WorkerThreadInit } from \"gramstax\";\n *\n * class MyWorker extends WorkerThreadInit {\n *   count = 0;\n *\n *   mtdIncrement() {\n *     return ++this.count;\n *   }\n *\n *   mtdGetCount() {\n *     return this.count;\n *   }\n * }\n *\n * export const CounterJob = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: MyWorker,\n * });\n *\n * // In main thread:\n * await CounterJob.launchWorker();\n * await CounterJob.mtdIncrement(); // 1\n * await CounterJob.mtdGetCount(); // 1\n * ```\n *\n * @example\n *\n * Inter-Worker Communication with launchGatewayClient\n * ```typescript\n * // ./worker/server.ts\n * class ServerWorker extends WorkerThreadInit {\n *   mtdHello(from: string) {\n *     return `Hello ${from}!`;\n *   }\n *\n *   async mtdStartServer() {\n *     return await this.createGatewayServer(\"/tmp/server.sock\");\n *   }\n * }\n *\n * export const WorkerServer = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: ServerWorker,\n * });\n * export const WorkerServerGateway = WorkerServer.launchGatewayClient(\"/tmp/server.sock\");\n *\n * // ./worker/client.ts\n * import { WorkerServerGateway } from \"./server\";\n *\n * class ClientWorker extends WorkerThreadInit {\n *   async mtdCallServer() {\n *     // Static usage: pass `this` as first argument\n *     return await WorkerServerGateway.mtdHello(this, \"ClientWorker\");\n *   }\n * }\n *\n * // ./main.ts\n * await WorkerServer.launchWorker();\n * await WorkerClient.launchWorker();\n * await WorkerServer.mtdStartServer();\n * const result = await WorkerClient.mtdCallServer(); // \"Hello ClientWorker!\"\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Provides a unified interface for creating and managing worker threads with automatic RPC proxying.\n *\n * @remarks\n *\n * Automatically detects if running in main thread or worker thread. Provides type-safe method calls to worker thread via RPC proxy.\n *\n * @example\n *\n * Basic Usage\n * ```typescript\n * import { WorkerThreadExport, WorkerThreadInit } from \"@gramstax/worker-thread\";\n *\n * class MyWorker extends WorkerThreadInit {\n *   count = 0;\n *\n *   mtdIncrement() {\n *     return ++this.count;\n *   }\n *\n *   mtdGetCount() {\n *     return this.count;\n *   }\n * }\n *\n * export const CounterJob = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: MyWorker,\n * });\n *\n * // In main thread:\n * await CounterJob.launchWorker();\n * await CounterJob.mtdIncrement(); // 1\n * await CounterJob.mtdGetCount(); // 1\n * ```\n *\n * @example\n *\n * Inter-Worker Communication with launchGatewayClient\n * ```typescript\n * // ./worker/server.ts\n * class ServerWorker extends WorkerThreadInit {\n *   mtdHello(from: string) {\n *     return `Hello ${from}!`;\n *   }\n *\n *   async mtdStartServer() {\n *     return await this.createGatewayServer(\"/tmp/server.sock\", undefined, {\n *       allowedMethods: [\"mtdHello\"],\n *     });\n *   }\n * }\n *\n * export const WorkerServer = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: ServerWorker,\n * });\n * export const WorkerServerGateway = WorkerServer.launchGatewayClient(\"/tmp/server.sock\");\n *\n * // ./worker/client.ts\n * import { WorkerServerGateway } from \"./server\";\n *\n * class ClientWorker extends WorkerThreadInit {\n *   async mtdCallServer() {\n *     // Static usage: pass `this` as first argument\n *     return await WorkerServerGateway.mtdHello(this, \"ClientWorker\");\n *   }\n * }\n *\n * // ./main.ts\n * await WorkerServer.launchWorker();\n * await WorkerClient.launchWorker();\n * await WorkerServer.mtdStartServer();\n * const result = await WorkerClient.mtdCallServer(); // \"Hello ClientWorker!\"\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -304,7 +1245,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadExport.init:member(1)",
-              "docComment": "/**\n * Initialize a worker thread export with automatic environment detection.\n *\n * @remarks\n *\n * In worker thread context, only returns `launchGatewayClient`. In main thread context, returns full proxy with `launchWorker`, `launchGatewayClient`, and all worker methods.\n *\n * @param options - Configuration options for the worker thread export.\n *\n * @typeParam TWorker - The worker thread init class type.\n *\n * @typeParam TMain - The main thread launch class type.\n *\n * @typeParam TWrap - The custom wrapper type.\n *\n * @returns Proxied object with `launchWorker`, `launchGatewayClient`, and worker methods.\n *\n * @example\n * ```typescript\n * // jobs/counter.ts\n * import { WorkerThreadExport, WorkerThreadInit } from \"gramstax\";\n *\n * class Worker extends WorkerThreadInit {\n *   count = 0;\n *\n *   mtdGetCount() {\n *     return this.count;\n *   }\n * }\n *\n * export const CounterJob = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: Worker,\n * });\n *\n * // main.ts\n * import { CounterJob } from \"./jobs/counter\";\n *\n * await CounterJob.launchWorker();\n * const count = await CounterJob.mtdGetCount();\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Initialize a worker thread export with automatic environment detection.\n *\n * @remarks\n *\n * In worker thread context, only returns `launchGatewayClient`. In main thread context, returns full proxy with `launchWorker`, `launchGatewayClient`, and all worker methods.\n *\n * @param options - Configuration options for the worker thread export.\n *\n * @typeParam TWorker - The worker thread init class type.\n *\n * @typeParam TMain - The main thread launch class type.\n *\n * @typeParam TWrap - The custom wrapper type.\n *\n * @returns Proxied object with `launchWorker`, `launchGatewayClient`, and worker methods.\n *\n * @example\n * ```typescript\n * // jobs/counter.ts\n * import { WorkerThreadExport, WorkerThreadInit } from \"@gramstax/worker-thread\";\n *\n * class Worker extends WorkerThreadInit {\n *   count = 0;\n *\n *   mtdGetCount() {\n *     return this.count;\n *   }\n * }\n *\n * export const CounterJob = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: Worker,\n * });\n *\n * // main.ts\n * import { CounterJob } from \"./jobs/counter\";\n *\n * await CounterJob.launchWorker();\n * const count = await CounterJob.mtdGetCount();\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -335,7 +1276,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<any, any>"
+                  "text": "<string, unknown>"
                 },
                 {
                   "kind": "Content",
@@ -343,8 +1284,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "WorkerThreadExportOpt",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadExportOpt:type"
+                  "text": "IWorkerThreadExportOpt",
+                  "canonicalReference": "@gramstax/worker-thread!IWorkerThreadExportOpt:type"
                 },
                 {
                   "kind": "Content",
@@ -355,53 +1296,13 @@
                   "text": "): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "TWrap & "
-                },
-                {
                   "kind": "Reference",
-                  "text": "WorkerThreadAsyncMethods",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadAsyncMethods:type"
+                  "text": "IWorkerThreadExportResult",
+                  "canonicalReference": "@gramstax/worker-thread!IWorkerThreadExportResult:type"
                 },
                 {
                   "kind": "Content",
-                  "text": "<TWorker> & {\n        launchWorker: (argv?: any[]) => "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<TMain>;\n        launchGatewayClient: (serverPath?: string) => "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "WorkerThreadGatewayProxy",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayProxy:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<TWorker> & {\n            new (owner: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "WorkerThreadInit",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "WorkerThreadAsyncMethods",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadAsyncMethods:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<TWorker>;\n        };\n    }"
+                  "text": "<TWorker, TMain, TWrap>"
                 },
                 {
                   "kind": "Content",
@@ -446,7 +1347,7 @@
               "isStatic": true,
               "returnTypeTokenRange": {
                 "startIndex": 11,
-                "endIndex": 22
+                "endIndex": 13
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -468,7 +1369,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadExport.launchGatewayClient:member(1)",
-              "docComment": "/**\n * Create a typed gateway client proxy for inter-worker communication.\n *\n * @param path - Path to the target worker file. Must match target init `path`.\n *\n * @typeParam TWorker - The worker thread init class type.\n *\n * @returns Proxy that can be used as static methods or as constructor.\n *\n * @example\n * ```typescript\n * // Static usage\n * const OtherWorkerGateway = WorkerThreadExport.launchGatewayClient<OtherWorkerClass>(\"/path/to/other.ts\");\n * await OtherWorkerGateway.someMethod(this, arg1, arg2);\n *\n * // Constructor usage\n * const client = new OtherWorkerGateway(this);\n * await client.someMethod(arg1, arg2);\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Create a typed gateway client proxy for inter-worker communication.\n *\n * @param path - Path to the target worker file. Must match target init `path`.\n *\n * @param options - Gateway connection options (auth token, reconnect tuning, encoding).\n *\n * @typeParam TWorker - The worker thread init class type.\n *\n * @returns Proxy that can be used as static methods or as constructor.\n *\n * @example\n * ```typescript\n * // Static usage\n * const OtherWorkerGateway = WorkerThreadExport.launchGatewayClient<OtherWorkerClass>(\"/path/to/other.ts\", {token: \"shared-secret\"});\n * await OtherWorkerGateway.someMethod(this, arg1, arg2);\n *\n * // Constructor usage\n * const client = new OtherWorkerGateway(this);\n * await client.someMethod(arg1, arg2);\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -489,12 +1390,21 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IGatewayClientOptions",
+                  "canonicalReference": "@gramstax/worker-thread!IGatewayClientOptions:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
                   "kind": "Reference",
-                  "text": "WorkerThreadGatewayProxy",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayProxy:type"
+                  "text": "IWorkerThreadGatewayProxy",
+                  "canonicalReference": "@gramstax/worker-thread!IWorkerThreadGatewayProxy:type"
                 },
                 {
                   "kind": "Content",
@@ -511,8 +1421,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "WorkerThreadAsyncMethods",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadAsyncMethods:type"
+                  "text": "IWorkerThreadAsyncMethods",
+                  "canonicalReference": "@gramstax/worker-thread!IWorkerThreadAsyncMethods:type"
                 },
                 {
                   "kind": "Content",
@@ -538,8 +1448,8 @@
               ],
               "isStatic": true,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 11
+                "startIndex": 7,
+                "endIndex": 13
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -552,6 +1462,14 @@
                     "endIndex": 4
                   },
                   "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -562,92 +1480,22 @@
           "implementsTokenRanges": []
         },
         {
-          "kind": "TypeAlias",
-          "canonicalReference": "@gramstax/worker-thread!WorkerThreadExportOpt:type",
-          "docComment": "/**\n * Options for initializing a worker thread export.\n *\n * @typeParam TWorker - The worker thread init class type.\n *\n * @typeParam TMain - The main thread launch class type.\n *\n * @typeParam TWrap - The custom wrapper type.\n *\n * @public\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "type WorkerThreadExportOpt<TWorker extends "
-            },
-            {
-              "kind": "Reference",
-              "text": "WorkerThreadInit",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
-            },
-            {
-              "kind": "Content",
-              "text": ", TMain extends "
-            },
-            {
-              "kind": "Reference",
-              "text": "WorkerThreadLaunch",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class"
-            },
-            {
-              "kind": "Content",
-              "text": ", TWrap> = "
-            },
-            {
-              "kind": "Content",
-              "text": "{\n    path: string;\n    WTInit: new () => TWorker;\n    WTLaunch?: new (path: string, argv?: any[]) => TMain;\n    wrap?: (main: TMain) => TWrap;\n}"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "fileUrlPath": "dist/src/index.d.ts",
-          "releaseTag": "Public",
-          "name": "WorkerThreadExportOpt",
-          "typeParameters": [
-            {
-              "typeParameterName": "TWorker",
-              "constraintTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "defaultTypeTokenRange": {
-                "startIndex": 0,
-                "endIndex": 0
-              }
-            },
-            {
-              "typeParameterName": "TMain",
-              "constraintTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "defaultTypeTokenRange": {
-                "startIndex": 0,
-                "endIndex": 0
-              }
-            },
-            {
-              "typeParameterName": "TWrap",
-              "constraintTokenRange": {
-                "startIndex": 0,
-                "endIndex": 0
-              },
-              "defaultTypeTokenRange": {
-                "startIndex": 0,
-                "endIndex": 0
-              }
-            }
-          ],
-          "typeTokenRange": {
-            "startIndex": 5,
-            "endIndex": 6
-          }
-        },
-        {
           "kind": "Class",
           "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayClient:class",
-          "docComment": "/**\n * [LOW-LEVEL] Provides IPC client functionality for inter-worker communication using Unix domain sockets.\n *\n * @remarks\n *\n * Low-level infrastructure. In most cases use {@link WorkerThreadInit.createGatewayClient} instead of constructing this directly.\n *\n * Uses `net-ipc` library for Unix domain socket communication.\n *\n * @public\n */\n",
+          "docComment": "/**\n * [LOW-LEVEL] Provides IPC client functionality for inter-worker communication using Unix domain sockets.\n *\n * @remarks\n *\n * Provides IPC client functionality for inter-worker communication using Unix domain sockets (named pipes on Windows). Created internally by {@link WorkerThreadInit.createGatewayClient}.\n *\n * Uses the `net-ipc` library for Unix domain socket communication. Works in **Bun** (native) and **Node.js** (native).\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare class WorkerThreadGatewayClient "
+              "text": "declare class WorkerThreadGatewayClient extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "EventEmitter",
+              "canonicalReference": "@gramstax/worker-thread!~EventEmitter"
+            },
+            {
+              "kind": "Content",
+              "text": " "
             }
           ],
           "fileUrlPath": "dist/src/index.d.ts",
@@ -704,8 +1552,44 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayClient#close:member(1)",
+              "docComment": "/**\n * Close the connection permanently.\n *\n * @remarks\n *\n * Disables auto-reconnect so the client will not attempt to reconnect. Pending requests are rejected so callers never hang. Tries a graceful close first, but force-destroys the socket if the graceful handshake does not finish within 500ms (e.g. the peer died mid-connect) — `close()` never hangs.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "close(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "close"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayClient#connect:member(1)",
-              "docComment": "/**\n * Connect to a gateway server.\n *\n * @param path - Unix socket path. Matches server gateway.\n *\n * @returns Promise that resolves to this client instance when connection is ready.\n *\n * @example\n * ```typescript\n * await client.connect(\"/tmp/worker-server.sock\");\n * console.log(\"Connected to gateway server\");\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Connect to a gateway server.\n *\n * @param path - Unix socket path. Matches server gateway.\n *\n * @param options - Connection options (auth token, reconnect tuning, encoding).\n *\n * @returns Promise that resolves to this client instance when connection is ready.\n *\n * @example\n * ```typescript\n * await client.connect(\"/tmp/worker-server.sock\", {\n *   token: \"shared-secret\",\n *   messagepack: true,\n * });\n * console.log(\"Connected to gateway server\");\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -714,6 +1598,15 @@
                 {
                   "kind": "Content",
                   "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IGatewayClientOptions",
+                  "canonicalReference": "@gramstax/worker-thread!IGatewayClientOptions:type"
                 },
                 {
                   "kind": "Content",
@@ -735,8 +1628,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 5,
+                "endIndex": 7
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -749,6 +1642,14 @@
                     "endIndex": 2
                   },
                   "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -757,8 +1658,70 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayClient#destroy:member(1)",
+              "docComment": "/**\n * Destroy the connection immediately without a graceful close.\n *\n * @remarks\n *\n * Disables auto-reconnect and rejects pending requests.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "destroy(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "destroy"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayClient#isClosed:member(1)",
+              "docComment": "/**\n * Whether the connection has been closed or destroyed.\n *\n * @remarks\n *\n * A closed client must not be reused — callers should create a new one.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "isClosed(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "isClosed"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayClient#request:member(1)",
-              "docComment": "/**\n * Make an RPC request to the server.\n *\n * @param method - Server method to call. Targets server RPC method.\n *\n * @param params - Method parameters. Sent as positional array.\n *\n * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.\n *\n * @param _others - Additional RPC data. Merged into RPC payload.\n *\n * @returns Promise resolving with server response.\n *\n * @example\n * ```typescript\n * const result = await client.request(\"ping\", []);\n * console.log(\"Server responded:\", result);\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Make an RPC request to the server.\n *\n * @param method - Server method to call. Targets server RPC method.\n *\n * @param params - Method parameters. Sent as positional array.\n *\n * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.\n *\n * @param _others - Additional RPC data. Merged into RPC payload.\n *\n * @param timeoutMs - Optional timeout in milliseconds. Rejects the request when no response arrives in time.\n *\n * @returns Promise resolving with server response.\n *\n * @example\n * ```typescript\n * const result = await client.request(\"ping\", []);\n * console.log(\"Server responded:\", result);\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -774,7 +1737,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "unknown[]"
                 },
                 {
                   "kind": "Content",
@@ -789,8 +1752,21 @@
                   "text": ", _others?: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", timeoutMs?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
                 },
                 {
                   "kind": "Content",
@@ -803,7 +1779,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<any>"
+                  "text": "<unknown>"
                 },
                 {
                   "kind": "Content",
@@ -812,8 +1788,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 11
+                "startIndex": 12,
+                "endIndex": 14
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -847,7 +1823,15 @@
                   "parameterName": "_others",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
-                    "endIndex": 8
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "timeoutMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 10,
+                    "endIndex": 11
                   },
                   "isOptional": true
                 }
@@ -888,91 +1872,96 @@
               "isAbstract": false
             }
           ],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          },
           "implementsTokenRanges": []
         },
         {
-          "kind": "TypeAlias",
-          "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayProxy:type",
-          "docComment": "/**\n * Proxy type for gateway client methods. Transforms worker methods to accept `owner` as first parameter.\n *\n * @typeParam T - The worker thread init class type.\n *\n * @public\n */\n",
+          "kind": "Class",
+          "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayPath:class",
+          "docComment": "/**\n * Gateway socket path normalization.\n *\n * @remarks\n *\n * Stateless helper — every member is static, so the class is never instantiated. Path rules live here so the gateway server and client normalize identically.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "type WorkerThreadGatewayProxy<T> = "
-            },
-            {
-              "kind": "Content",
-              "text": "{\n    [K in keyof T as K extends keyof "
-            },
-            {
-              "kind": "Reference",
-              "text": "WorkerThreadInit",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
-            },
-            {
-              "kind": "Content",
-              "text": " ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (owner: "
-            },
-            {
-              "kind": "Reference",
-              "text": "WorkerThreadInit",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
-            },
-            {
-              "kind": "Content",
-              "text": ", ...args: A) => "
-            },
-            {
-              "kind": "Reference",
-              "text": "Promise",
-              "canonicalReference": "!Promise:interface"
-            },
-            {
-              "kind": "Content",
-              "text": "<"
-            },
-            {
-              "kind": "Reference",
-              "text": "Awaited",
-              "canonicalReference": "!Awaited:type"
-            },
-            {
-              "kind": "Content",
-              "text": "<R>> : never;\n}"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
+              "text": "declare class WorkerThreadGatewayPath "
             }
           ],
           "fileUrlPath": "dist/src/index.d.ts",
           "releaseTag": "Public",
-          "name": "WorkerThreadGatewayProxy",
-          "typeParameters": [
+          "isAbstract": false,
+          "name": "WorkerThreadGatewayPath",
+          "preserveMemberOrder": false,
+          "members": [
             {
-              "typeParameterName": "T",
-              "constraintTokenRange": {
-                "startIndex": 0,
-                "endIndex": 0
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayPath.normalize:member(1)",
+              "docComment": "/**\n * Normalize a gateway socket path for the current platform.\n *\n * @remarks\n *\n * On Windows, POSIX-style paths (`/tmp/server.sock`) and bare identifiers (`gateway-main`) are converted to named pipes (`\\\\.\\pipe\\...`). Dashes are escaped (`-` → `--`) before `/` is mapped to `-`, so `/tmp/a-b` and `/tmp/a/b` land on distinct pipes instead of colliding. Existing `\\\\.\\pipe\\` paths pass through unchanged.\n *\n * On POSIX, absolute paths pass through unchanged (after a length check); relative or bare identifiers are resolved against `os.tmpdir()` so socket files never pollute the process working directory.\n *\n * @param path - Raw gateway path (POSIX path or bare identifier).\n *\n * @returns Platform-appropriate socket path.\n *\n * @throws\n *\n * When the resolved POSIX path exceeds 104 characters.\n *\n * @example\n * ```typescript\n * // On Windows: \"\\\\\\\\.\\\\pipe\\\\gateway--main\"\n * WorkerThreadGatewayPath.normalize(\"gateway-main\");\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static normalize(path: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
               },
-              "defaultTypeTokenRange": {
-                "startIndex": 0,
-                "endIndex": 0
-              }
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "path",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "normalize"
             }
           ],
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 10
-          }
+          "implementsTokenRanges": []
         },
         {
           "kind": "Class",
           "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayServer:class",
-          "docComment": "/**\n * [LOW-LEVEL] Provides IPC server functionality for inter-worker communication using Unix domain sockets.\n *\n * @remarks\n *\n * Low-level infrastructure. In most cases use {@link WorkerThreadInit.createGatewayServer} instead of constructing this directly.\n *\n * Uses `net-ipc` library for Unix domain socket communication. Supports connections from multiple gateway clients.\n *\n * @public\n */\n",
+          "docComment": "/**\n * [LOW-LEVEL] Provides IPC server functionality for inter-worker communication using Unix domain sockets.\n *\n * @remarks\n *\n * Low-level infrastructure. In most cases use {@link WorkerThreadInit.createGatewayServer} instead of constructing this directly.\n *\n * Uses the `net-ipc` library for Unix domain socket communication. Works in **Bun** (native) and **Node.js** (native).\n *\n * Supports connections from multiple gateway clients. Emits `connect`, `disconnect`, `ready` and `error` events.\n *\n * ## Reliability semantics (at-least-once)\n *\n * - **Retried delivery, not exactly-once.** The transport (`net-ipc`) retries failed writes and replays in-flight requests across reconnects, and callers may retry timed-out requests — so a handler can observe the same RPC `id` twice. Request ids are monotonically increasing per client and never reused within a connection lifetime, so the server suppresses duplicates per connection: the first delivery executes, redeliveries replay the cached response. Make handlers idempotent anyway — responses over 64KB are never cached (re-executed on redelivery) and the cache holds at most 1000 entries per connection (FIFO) and is dropped on disconnect. - **No ordering across reconnect.** Requests sent before a drop may resolve after requests sent after the reconnect; never rely on cross-request order. - **`maxMessageSize` is enforced post-buffering, not a wire-level DoS cap.** The full frame is already buffered by `net-ipc` before the estimate runs — the cap stops a peer from growing handler memory or the pending map, it does not stop the bytes crossing the socket (upstream `net-ipc` limitation). - **Allow-list escape hatch.** Middleware that short-circuits (sets `ctx.result` without calling `next()`) skips every downstream check, including the `allowedMethods` guard. That is an intentional escape hatch for trusted in-process customization, not a vulnerability: only code that already holds the server instance can register such middleware.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare class WorkerThreadGatewayServer "
+              "text": "declare class WorkerThreadGatewayServer extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "EventEmitter",
+              "canonicalReference": "@gramstax/worker-thread!~EventEmitter"
+            },
+            {
+              "kind": "Content",
+              "text": " "
             }
           ],
           "fileUrlPath": "dist/src/index.d.ts",
@@ -997,17 +1986,93 @@
               "parameters": []
             },
             {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayServer#close:member(1)",
+              "docComment": "/**\n * Stop the gateway server and drop all connections.\n *\n * @remarks\n *\n * The socket is released so another server (or a restart of this one) can bind the same path. Tries a graceful close first, but force-destroys connections if the graceful handshake does not finish within 500ms — `close()` never hangs. The socket file is unlinked best-effort (a missing file is ignored) and calling `close()` twice is safe.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "close(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "close"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayServer#closePromise:member",
+              "docComment": "/**\n * In-flight `close()` shared by concurrent/duplicate callers.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "closePromise: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void> | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "closePromise",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
               "kind": "Property",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayServer#register:member",
-              "docComment": "/**\n * Object exposed to clients.\n *\n * @remarks\n *\n * Properties become RPC-callable methods.\n */\n",
+              "docComment": "/**\n * Object exposed to clients.\n *\n * @remarks\n *\n * Properties become RPC-callable methods. When `allowedMethods` is set, method access is restricted per request via RPC middleware — the register itself is never wrapped, so registered methods keep reading their own instance state through `this`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
                   "text": "register: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<string, (...args: never[]) => unknown>"
                 },
                 {
                   "kind": "Content",
@@ -1020,7 +2085,7 @@
               "name": "register",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 2
+                "endIndex": 3
               },
               "isStatic": false,
               "isProtected": false,
@@ -1104,7 +2169,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadGatewayServer#start:member(1)",
-              "docComment": "/**\n * Start the gateway server.\n *\n * @param path - Unix socket path to bind. Gateway path identifier.\n *\n * @param register - Object to expose to clients. Called by connected clients. Defaults to `{}`.\n *\n * @returns Promise that resolves to this server instance when ready.\n *\n * @example\n * ```typescript\n * await server.start(\"/tmp/data-worker.sock\", {\n *   ping: () => \"pong\",\n *   getData: (key) => database.get(key),\n *   setData: (key, value) => database.set(key, value),\n * });\n * console.log(\"Gateway server started\");\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Start the gateway server.\n *\n * @param path - Unix socket path to bind. Gateway path identifier.\n *\n * @param register - Object to expose to clients. Called by connected clients. Defaults to `{}`.\n *\n * @param options - Server options (auth token, method allow-list, connection cap).\n *\n * @returns Promise that resolves to this server instance when ready.\n *\n * @example\n * ```typescript\n * await server.start(\"/tmp/data-worker.sock\", {\n *   ping: () => \"pong\",\n *   getData: (key) => database.get(key),\n *   setData: (key, value) => database.set(key, value),\n * }, {\n *   token: \"shared-secret\",\n *   allowedMethods: [\"ping\", \"getData\"],\n * });\n * console.log(\"Gateway server started\");\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1119,8 +2184,22 @@
                   "text": ", register?: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<string, (...args: never[]) => unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IGatewayServerOptions",
+                  "canonicalReference": "@gramstax/worker-thread!IGatewayServerOptions:type"
                 },
                 {
                   "kind": "Content",
@@ -1133,7 +2212,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<unknown>"
+                  "text": "<this>"
                 },
                 {
                   "kind": "Content",
@@ -1142,8 +2221,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 8,
+                "endIndex": 10
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -1161,7 +2240,15 @@
                   "parameterName": "register",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
-                    "endIndex": 4
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 7
                   },
                   "isOptional": true
                 }
@@ -1171,12 +2258,16 @@
               "name": "start"
             }
           ],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          },
           "implementsTokenRanges": []
         },
         {
           "kind": "Class",
           "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class",
-          "docComment": "/**\n * Base class for worker thread implementations. Handles communication with the main thread and provides RPC functionality.\n *\n * @remarks\n *\n * Extend this class when defining worker thread behavior. Uses `parentPort` for messaging with main thread. Constructor automatically signals readiness to main thread.\n *\n * @example\n * ```typescript\n * import { WorkerThreadInit, WorkerThreadExport, log } from \"gramstax\";\n *\n * class Worker extends WorkerThreadInit {\n *   constructor() {\n *     super(); // Required - signals ready to main thread\n *     log.info(`Worker ${this.id} started`);\n *   }\n *\n *   mtdProcess(data: any) {\n *     return { processed: data };\n *   }\n * }\n *\n * export const MyWorker = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: Worker,\n * });\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Base class for worker thread implementations. Handles communication with the main thread and provides RPC functionality.\n *\n * @remarks\n *\n * Extend this class when defining worker thread behavior. Uses `parentPort` for messaging with main thread. Constructor automatically signals readiness to main thread.\n *\n * @example\n * ```typescript\n * import { WorkerThreadInit, WorkerThreadExport } from \"@gramstax/worker-thread\";\n *\n * class Worker extends WorkerThreadInit {\n *   constructor() {\n *     super(); // Required - signals ready to main thread\n *     console.info(`Worker ${this.id} started`);\n *   }\n *\n *   mtdProcess(data: unknown) {\n *     return { processed: data };\n *   }\n * }\n *\n * export const MyWorker = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: Worker,\n * });\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1190,9 +2281,99 @@
           "preserveMemberOrder": false,
           "members": [
             {
+              "kind": "Property",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#_initDone:member",
+              "docComment": "/**\n * Guards {@link WorkerThreadInit.init} against duplicate listeners.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "_initDone: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "_initDone",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#_initPort:member",
+              "docComment": "/**\n * Parent port {@link WorkerThreadInit.init} last attached to.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "_initPort: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "unknown"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "_initPort",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#_shutdownDone:member",
+              "docComment": "/**\n * Guards {@link WorkerThreadInit.shutdown} so the hook runs at most once.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "_shutdownDone: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "_shutdownDone",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
               "kind": "Constructor",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:constructor(1)",
-              "docComment": "/**\n * Creates a new WorkerThreadInit instance. Sets up message handling and signals readiness to the main thread.\n */\n",
+              "docComment": "/**\n * Creates a new WorkerThreadInit instance. Sets up message handling and signals readiness to the main thread.\n *\n * @remarks\n *\n * The `readyResolve` signal is deferred with `queueMicrotask` so that subclass field initializers (which run after `super()` returns) are already applied before main-thread RPCs can observe worker state.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1237,7 +2418,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#createGatewayClient:member(1)",
-              "docComment": "/**\n * [LOW-LEVEL] Create a gateway client to connect to another worker.\n *\n * @remarks\n *\n * Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.\n *\n * @param serverPath - Unix socket path to connect. Matches server gateway.\n *\n * @returns Promise resolving with connected client.\n *\n * @example\n * ```typescript\n * const client = await this.createGatewayClient(\"/tmp/other-worker.sock\");\n * const result = await client.request(\"ping\", []);\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Create a gateway client to connect to another worker.\n *\n * @remarks\n *\n * Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.\n *\n * @param serverPath - Unix socket path to connect. Matches server gateway.\n *\n * @param options - Connection options (auth token, reconnect tuning, encoding).\n *\n * @returns Promise resolving with connected client.\n *\n * @example\n * ```typescript\n * const client = await this.createGatewayClient(\"/tmp/other-worker.sock\");\n * const result = await client.request(\"ping\", []);\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1246,6 +2427,15 @@
                 {
                   "kind": "Content",
                   "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IGatewayClientOptions",
+                  "canonicalReference": "@gramstax/worker-thread!IGatewayClientOptions:type"
                 },
                 {
                   "kind": "Content",
@@ -1276,8 +2466,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 7
+                "startIndex": 5,
+                "endIndex": 9
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -1290,6 +2480,14 @@
                     "endIndex": 2
                   },
                   "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -1299,7 +2497,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#createGatewayServer:member(1)",
-              "docComment": "/**\n * Create a gateway server for inter-worker communication.\n *\n * @param path - Unix socket path. Gateway identifier. Must be unique per server worker.\n *\n * @param register - Object with value function to expose. Called by gateway clients. Defaults to `this`.\n *\n * @returns Promise that resolves to `true` when gateway is ready.\n *\n * @example\n * ```typescript\n * // Custom object and path\n * await this.createGatewayServer(\n *   \"/tmp/my-worker.sock\",\n *   { ping: () => \"pong\" }\n * );\n *\n * // Expose `this` at the given path\n * await this.createGatewayServer(\"/tmp/my-worker.sock\");\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Create a gateway server for inter-worker communication.\n *\n * @remarks\n *\n * **Security:** when `register` is omitted the server exposes the entire worker instance (`this`) to every socket client, so a non-empty `allowedMethods` list is **required** in that case — otherwise the call throws instead of silently opening every `mtd*` method to any process that can reach the socket. Supply an explicit `register` object, a non-empty `allowedMethods`, or both.\n *\n * @param path - Unix socket path. Gateway identifier. Must be unique per server worker.\n *\n * @param register - Object with value function to expose. Called by gateway clients. Defaults to `this`.\n *\n * @param options - Gateway server options (auth token, method allow-list, connection cap).\n *\n * @returns Promise that resolves to `true` when gateway is ready.\n *\n * @example\n * ```typescript\n * // Custom object and path (explicit register — no allow-list needed)\n * await this.createGatewayServer(\n *   \"/tmp/my-worker.sock\",\n *   { ping: () => \"pong\" }\n * );\n *\n * // Expose `this` at the given path — allowedMethods is mandatory here\n * await this.createGatewayServer(\"/tmp/my-worker.sock\", undefined, {\n *   allowedMethods: [\"mtdPing\"],\n * });\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1314,8 +2512,22 @@
                   "text": ", register?: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<string, (...args: never[]) => unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IGatewayServerOptions",
+                  "canonicalReference": "@gramstax/worker-thread!IGatewayServerOptions:type"
                 },
                 {
                   "kind": "Content",
@@ -1337,8 +2549,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 8,
+                "endIndex": 10
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -1356,7 +2568,15 @@
                   "parameterName": "register",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
-                    "endIndex": 4
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 7
                   },
                   "isOptional": true
                 }
@@ -1516,8 +2736,22 @@
                   "text": "handleOnMessage(data: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Parameters",
+                  "canonicalReference": "!Parameters:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "WorkerThreadRpc",
+                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[`make`]>[0]"
                 },
                 {
                   "kind": "Content",
@@ -1534,8 +2768,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
+                "startIndex": 6,
+                "endIndex": 7
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -1545,7 +2779,7 @@
                   "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 5
                   },
                   "isOptional": false
                 }
@@ -1646,6 +2880,94 @@
               "isAbstract": false
             },
             {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#onBeforeExit:member(1)",
+              "docComment": "/**\n * Hook called before the worker is shut down gracefully.\n *\n * @remarks\n *\n * Invoked by {@link WorkerThreadInit.shutdown} (called via RPC from `WorkerThreadLaunch.shutdown`). Override to flush state, close connections, or persist data. The worker is terminated by the main thread after this hook completes.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onBeforeExit(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "onBeforeExit"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#onError:member(1)",
+              "docComment": "/**\n * Hook called when an unhandled error occurs inside the worker's RPC handling.\n *\n * @remarks\n *\n * Default implementation forwards to {@link WorkerThreadErrorHandler.report} — silent by default (the package-wide handler is a no-op) but observable via `WorkerThreadErrorHandler.setDefault`. Override contract: replace this method to customize handling (e.g. log); call `super.onError(err)` (or `WorkerThreadErrorHandler.report(err)` directly) inside the override to preserve package-wide observability.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onError(err: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "unknown"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "err",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "onError"
+            },
+            {
               "kind": "Property",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#parentPort:member",
               "docComment": "/**\n * Reference to the parent port for messaging from `node:worker_threads`.\n *\n * @remarks\n *\n * Uses `parentPort` to send and receive messages.\n */\n",
@@ -1713,7 +3035,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#request:member(1)",
-              "docComment": "/**\n * Make an RPC request to the main thread.\n *\n * @param method - Method name to call. Targets main-thread RPC method.\n *\n * @param params - Method parameters. Sent as positional array.\n *\n * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.\n *\n * @param _others - Additional RPC data. Merged into RPC payload.\n *\n * @returns Promise resolving with main-thread response.\n *\n * @example\n * ```typescript\n * const result = await this.request(\"getConfig\", [\"key\"]);\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Make an RPC request to the main thread.\n *\n * @param method - Method name to call. Targets main-thread RPC method.\n *\n * @param params - Method parameters. Sent as positional array.\n *\n * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.\n *\n * @param _others - Additional RPC data. Merged into RPC payload.\n *\n * @param timeoutMs - Optional timeout in milliseconds. Rejects the request when the main thread does not respond in time.\n *\n * @returns Promise resolving with main-thread response.\n *\n * @example\n * ```typescript\n * const result = await this.request(\"getConfig\", [\"key\"]);\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1729,7 +3051,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "unknown[]"
                 },
                 {
                   "kind": "Content",
@@ -1744,21 +3066,29 @@
                   "text": ", _others?: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", timeoutMs?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
                 },
                 {
                   "kind": "Content",
                   "text": "): "
                 },
                 {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
                   "kind": "Content",
-                  "text": "<any>"
+                  "text": "unknown"
                 },
                 {
                   "kind": "Content",
@@ -1767,8 +3097,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 11
+                "startIndex": 12,
+                "endIndex": 13
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -1802,7 +3132,15 @@
                   "parameterName": "_others",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
-                    "endIndex": 8
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "timeoutMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 10,
+                    "endIndex": 11
                   },
                   "isOptional": true
                 }
@@ -1845,15 +3183,20 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#send:member(1)",
-              "docComment": "/**\n * Send a message to the main thread.\n *\n * @param payload - Data to send. Payload to main thread.\n *\n * @example\n * ```typescript\n * this.send({ status: \"processing\", progress: 50 });\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Send a message to the main thread.\n *\n * @param payload - Data to send. Payload to main thread.\n *\n * @returns `true` when the message was posted, `false` when there is no parent port (e.g. running on the main thread) and the payload was dropped.\n *\n * @example\n * ```typescript\n * this.send({ status: \"processing\", progress: 50 });\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
                   "text": "send(payload: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<string, unknown>"
                 },
                 {
                   "kind": "Content",
@@ -1861,7 +3204,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "void"
+                  "text": "boolean"
                 },
                 {
                   "kind": "Content",
@@ -1870,8 +3213,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
+                "startIndex": 4,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -1881,7 +3224,7 @@
                   "parameterName": "payload",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
                   },
                   "isOptional": false
                 }
@@ -1889,6 +3232,42 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "send"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#shutdown:member(1)",
+              "docComment": "/**\n * Graceful shutdown handler, callable via RPC from the main thread.\n *\n * @remarks\n *\n * Runs the {@link WorkerThreadInit.onBeforeExit} hook (flush state, close connections, persist data), then closes gateway resources so no socket or reconnect timer keeps the worker alive. The main thread terminates the worker after this resolves. Override to customize, or just set `onBeforeExit`.\n *\n * Gateway cleanup runs in a `finally` block, so it ALWAYS executes even when `onBeforeExit` throws (the hook error still propagates to the caller). The hook runs at most once — a second `shutdown()` call returns `true` immediately. After cleanup the gateway registry is cleared (`gatewayClients` emptied, `gatewayServer` and `gatewayClientLatest` reset to `undefined`) so no closed handle is reused.\n *\n * @returns Promise resolving to `true` when shutdown is complete.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "shutdown(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "shutdown"
             }
           ],
           "implementsTokenRanges": []
@@ -1896,11 +3275,20 @@
         {
           "kind": "Class",
           "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class",
-          "docComment": "/**\n * Manages worker thread lifecycle from the main thread. Handles spawning, communication, and termination of worker threads.\n *\n * @remarks\n *\n * Automatically registers SIGINT/SIGTERM handlers to terminate workers. Uses promise-based ready detection for synchronization.\n *\n * @example\n * ```typescript\n * import { WorkerThreadLaunch } from \"gramstax\";\n *\n * async function main() {\n *   const worker = new WorkerThreadLaunch(\"./jobs/processor.ts\", [\"config.json\"]);\n *   await worker.ready();\n *   console.log(`Worker ${worker.threadId} is ready`);\n *\n *   const result = await worker.request(\"process\", [{ data: \"test\" }]);\n *   console.log(\"Result:\", result);\n *\n *   worker.kill();\n * }\n * ```\n *\n * @example\n *\n * Initialization method for handling requests from worker threads. Both can communicate with each other using an example like this, but this is very very rarely used.\n * ```typescript\n * import { WorkerThreadLaunch } from \"gramstax\";\n *\n * // main.ts\n * export class MainThread extends WorkerThreadLaunch {\n *   mtdHi() {\n *     // called from thread worker\n *     return `Hi, this is main thread`\n *   }\n * }\n *\n * async function main() {\n *   const worker = new MainThread(\"./jobs/processor.ts\", [\"config.json\"]);\n *   await worker.ready();\n *   console.log(`Worker ${worker.threadId} is ready`);\n * }\n *\n * // jobs/processor.ts\n * import {MainThread} from \"./main\"\n * import {WorkerThreadInit} from \"gramstax\";\n *\n * class Worker extends WorkerThreadInit {\n *   constructor() {\n *     super();\n *     log.info(`Worker ${this.id} started`);\n *     this.request(`mtdHi`, []).then((res) => {\n *       res; // `Hi, this is main thread`\n *     })\n *   }\n * }\n * export const MyWorker = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: MainThread,\n * });\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Manages worker thread lifecycle from the main thread. Handles spawning, communication, and termination of worker threads.\n *\n * @remarks\n *\n * Automatically registers SIGINT/SIGTERM handlers to terminate workers. Uses promise-based ready detection for synchronization. Extends `EventEmitter` — emits `ready`, `exit` and `error` lifecycle events.\n *\n * @example\n * ```typescript\n * import { WorkerThreadLaunch } from \"@gramstax/worker-thread\";\n *\n * async function main() {\n *   const worker = new WorkerThreadLaunch(\"./jobs/processor.ts\", [\"config.json\"]);\n *   await worker.ready();\n *   console.log(`Worker ${worker.threadId} is ready`);\n *\n *   const result = await worker.request(\"process\", [{ data: \"test\" }]);\n *   console.log(\"Result:\", result);\n *\n *   worker.kill();\n * }\n * ```\n *\n * @example\n *\n * Initialization method for handling requests from worker threads. Both can communicate with each other using an example like this, but this is very very rarely used.\n * ```typescript\n * import { WorkerThreadLaunch } from \"@gramstax/worker-thread\";\n *\n * // main.ts\n * export class MainThread extends WorkerThreadLaunch {\n *   mtdHi() {\n *     // called from thread worker\n *     return `Hi, this is main thread`\n *   }\n * }\n *\n * async function main() {\n *   const worker = new MainThread(\"./jobs/processor.ts\", [\"config.json\"]);\n *   await worker.ready();\n *   console.log(`Worker ${worker.threadId} is ready`);\n * }\n *\n * // jobs/processor.ts\n * import {MainThread} from \"./main\"\n * import {WorkerThreadInit} from \"@gramstax/worker-thread\";\n *\n * class Worker extends WorkerThreadInit {\n *   constructor() {\n *     super();\n *     log.info(`Worker ${this.id} started`);\n *     this.request(`mtdHi`, []).then((res) => {\n *       res; // `Hi, this is main thread`\n *     })\n *   }\n * }\n * export const MyWorker = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: Worker,\n * });\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare class WorkerThreadLaunch "
+              "text": "declare class WorkerThreadLaunch extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "EventEmitter",
+              "canonicalReference": "@gramstax/worker-thread!~EventEmitter"
+            },
+            {
+              "kind": "Content",
+              "text": " "
             }
           ],
           "fileUrlPath": "dist/src/index.d.ts",
@@ -1928,15 +3316,20 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any[]"
+                  "text": "unknown[]"
                 },
                 {
                   "kind": "Content",
                   "text": ", register?: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any | undefined"
+                  "text": "<string, (...args: never[]) => unknown> | undefined"
                 },
                 {
                   "kind": "Content",
@@ -1967,7 +3360,7 @@
                   "parameterName": "register",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
-                    "endIndex": 6
+                    "endIndex": 7
                   },
                   "isOptional": true
                 }
@@ -1984,7 +3377,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any[]"
+                  "text": "unknown[]"
                 },
                 {
                   "kind": "Content",
@@ -2013,8 +3406,22 @@
                   "text": "handleOnMessage(data: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Parameters",
+                  "canonicalReference": "!Parameters:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "WorkerThreadRpc",
+                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[`make`]>[0]"
                 },
                 {
                   "kind": "Content",
@@ -2036,8 +3443,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -2047,7 +3454,7 @@
                   "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 5
                   },
                   "isOptional": false
                 }
@@ -2059,7 +3466,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch#init:member(1)",
-              "docComment": "/**\n * [LOW-LEVEL] Initialize the worker thread and set up message handlers.\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Initialize the worker thread and set up message handlers.\n *\n * @remarks\n *\n * Spawns the worker, wires message/error/exit handlers, and registers SIGINT/SIGTERM cleanup. On exit, all pending RPC requests are rejected and the `exit` event is emitted.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2120,15 +3527,20 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch#kill:member(1)",
-              "docComment": "/**\n * Terminate the worker thread immediately.\n *\n * @example\n * ```typescript\n * worker.kill();\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Terminate the worker thread immediately.\n *\n * @remarks\n *\n * Safe to call multiple times and after the worker has already exited — terminating an exited thread hangs on some runtimes, so exited workers resolve immediately instead.\n *\n * @returns Promise resolving when the thread has terminated.\n *\n * @example\n * ```typescript\n * worker.kill();\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
                   "text": "kill(): "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
                   "kind": "Content",
-                  "text": "void"
+                  "text": "<number | void>"
                 },
                 {
                   "kind": "Content",
@@ -2138,7 +3550,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 2
+                "endIndex": 3
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -2211,7 +3623,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch#ready:member(1)",
-              "docComment": "/**\n * Wait for the worker to signal it's ready.\n *\n * @returns Promise that resolves when worker calls `super()` in `WorkerThreadInit`.\n *\n * @example\n * ```typescript\n * const worker = new WorkerThreadLaunch(\"./worker.ts\", []);\n * await worker.ready();\n * console.log(\"Worker is ready\");\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Wait for the worker to signal it's ready.\n *\n * @returns Promise that resolves when worker calls `super()` in `WorkerThreadInit`, or rejects when the worker exits before signaling ready.\n *\n * @example\n * ```typescript\n * const worker = new WorkerThreadLaunch(\"./worker.ts\", []);\n * await worker.ready();\n * console.log(\"Worker is ready\");\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2247,7 +3659,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch#readyResolve:member(1)",
-              "docComment": "/**\n * [LOW-LEVEL] Internal method called by worker to signal readiness.\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Internal method called by worker to signal readiness.\n *\n * @remarks\n *\n * Resolves the `ready()` promise and emits the `ready` event (once).\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2285,8 +3697,13 @@
                   "text": "register?: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any | undefined"
+                  "text": "<string, (...args: never[]) => unknown> | undefined"
                 },
                 {
                   "kind": "Content",
@@ -2299,7 +3716,7 @@
               "name": "register",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 2
+                "endIndex": 3
               },
               "isStatic": false,
               "isProtected": false,
@@ -2308,7 +3725,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch#request:member(1)",
-              "docComment": "/**\n * Make an RPC request to the worker thread.\n *\n * @param method - Method name to call in worker. Must exist on WorkerThreadInit.\n *\n * @param params - Method parameters. Passed as array to worker method.\n *\n * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.\n *\n * @param _others - Additional RPC data. Merged into RPC payload.\n *\n * @returns Promise resolving with worker response.\n *\n * @example\n * ```typescript\n * const result = await worker.request(\"processData\", [[1, 2, 3]]);\n * console.log(\"Result:\", result);\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Make an RPC request to the worker thread.\n *\n * @param method - Method name to call in worker. Must exist on WorkerThreadInit.\n *\n * @param params - Method parameters. Passed as array to worker method.\n *\n * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.\n *\n * @param _others - Additional RPC data. Merged into RPC payload.\n *\n * @param timeoutMs - Optional timeout in milliseconds. Rejects the request when the worker does not respond in time.\n *\n * @returns Promise resolving with worker response.\n *\n * @example\n * ```typescript\n * const result = await worker.request(\"processData\", [[1, 2, 3]]);\n * console.log(\"Result:\", result);\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2324,7 +3741,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "unknown[]"
                 },
                 {
                   "kind": "Content",
@@ -2339,8 +3756,21 @@
                   "text": ", _others?: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", timeoutMs?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
                 },
                 {
                   "kind": "Content",
@@ -2353,7 +3783,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<any>"
+                  "text": "<unknown>"
                 },
                 {
                   "kind": "Content",
@@ -2362,8 +3792,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 11
+                "startIndex": 12,
+                "endIndex": 14
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -2397,7 +3827,15 @@
                   "parameterName": "_others",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
-                    "endIndex": 8
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "timeoutMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 10,
+                    "endIndex": 11
                   },
                   "isOptional": true
                 }
@@ -2447,8 +3885,13 @@
                   "text": "send(payload: "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "<string, unknown>"
                 },
                 {
                   "kind": "Content",
@@ -2465,8 +3908,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
+                "startIndex": 4,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -2476,7 +3919,7 @@
                   "parameterName": "payload",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
                   },
                   "isOptional": false
                 }
@@ -2484,6 +3927,59 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "send"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch#shutdown:member(1)",
+              "docComment": "/**\n * Shut the worker down gracefully.\n *\n * @remarks\n *\n * Sends an RPC `shutdown` request to the worker — the worker runs its `onBeforeExit` hook (flush state, close connections) before replying. The worker is then terminated. If the worker does not confirm within `timeoutMs`, it is force-terminated.\n *\n * @param timeoutMs - How long to wait for the worker's shutdown confirmation. Defaults to `5000`.\n *\n * @returns Promise resolving when the worker has terminated.\n *\n * @example\n * ```typescript\n * await worker.shutdown(10_000);\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "shutdown(timeoutMs?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "timeoutMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "shutdown"
             },
             {
               "kind": "Property",
@@ -2547,557 +4043,168 @@
               "isAbstract": false
             }
           ],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          },
           "implementsTokenRanges": []
         },
         {
-          "kind": "Class",
-          "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool:class",
-          "docComment": "/**\n * Manages multiple worker thread instances, providing pooled access and broadcast functionality.\n *\n * @remarks\n *\n * Uses `Map` with `threadId` as key for thread registry. Supports sending requests to all workers via broadcast.\n *\n * @example\n * ```typescript\n * import { WorkerThreadPool, WorkerThreadLaunch } from \"gramstax\";\n *\n * const workers = await Promise.all(\n *   [1, 2, 3, 4].map(async (i) => {\n *     const w = new WorkerThreadLaunch(\"./processor.ts\", [String(i)]);\n *     await w.ready();\n *     return w;\n *   })\n * );\n *\n * const pool = new WorkerThreadPool(workers);\n * console.log(`Pool has ${pool.threadCount} workers`);\n *\n * // Broadcast to all workers\n * const statuses = await pool.broadcastRequest(\"getStatus\", []);\n * ```\n *\n * @public\n */\n",
+          "kind": "TypeAlias",
+          "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool:type",
+          "docComment": "/**\n * Type of a {@link (WorkerThreadPool:variable)} instance: the registry plus the worker class's `mtd*` dispatch surface.\n *\n * @typeParam TInit - The worker class whose `mtd*` methods should be exposed.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare class WorkerThreadPool "
+              "text": "type WorkerThreadPool<TInit extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": " = "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": "> = "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadPoolBase",
+              "canonicalReference": "@gramstax/worker-thread!~WorkerThreadPoolBase:class"
+            },
+            {
+              "kind": "Content",
+              "text": "<TInit> & "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadPoolMethods",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolMethods:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<TInit>"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
             }
           ],
           "fileUrlPath": "dist/src/index.d.ts",
           "releaseTag": "Public",
-          "isAbstract": false,
           "name": "WorkerThreadPool",
-          "preserveMemberOrder": false,
-          "members": [
+          "typeParameters": [
             {
-              "kind": "Constructor",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool:constructor(1)",
-              "docComment": "/**\n * Creates a new WorkerThreadPool instance.\n *\n * @param instance - Initial worker instances to add to the pool.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "constructor(instance: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "WorkerThreadLaunch",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[]"
-                },
-                {
-                  "kind": "Content",
-                  "text": ");"
-                }
-              ],
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "instance",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  },
-                  "isOptional": false
-                }
-              ]
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool#add:member(1)",
-              "docComment": "/**\n * Add a single worker to the pool.\n *\n * @param instance - Worker to add. Registers by threadId.\n *\n * @example\n * ```typescript\n * const newWorker = new WorkerThreadLaunch(\"./worker.ts\", [\"3\"]);\n * await newWorker.ready();\n * pool.add(newWorker);\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "add(instance: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "WorkerThreadLaunch",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "instance",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "add"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool#addMany:member(1)",
-              "docComment": "/**\n * Add multiple workers to the pool.\n *\n * @param instance - Workers to add. Registers all workers.\n *\n * @example\n * ```typescript\n * pool.addMany([worker4, worker5]);\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "addMany(instance: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "WorkerThreadLaunch",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[]"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "instance",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "addMany"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool#broadcastRequest:member(1)",
-              "docComment": "/**\n * Send a request to all workers and collect results.\n *\n * @param method - Method name to call. Invoked on every worker.\n *\n * @param params - Method parameters. Sent as positional array.\n *\n * @returns Promise resolving to array of results from all workers.\n *\n * @example\n * ```typescript\n * const results = await pool.broadcastRequest(\"getStatus\", []);\n * console.log(\"All statuses:\", results);\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "broadcastRequest(method: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", params: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<any[]>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "broadcastRequest"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool#getInstance:member(1)",
-              "docComment": "/**\n * Get a specific worker by thread ID.\n *\n * @param threadId - Worker thread ID. Lookup in pool registry.\n *\n * @returns Worker instance or undefined if not found.\n *\n * @example\n * ```typescript\n * const worker = pool.getInstance(123);\n * if (worker) {\n *   await worker.request(\"process\", [data]);\n * }\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "getInstance(threadId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "WorkerThreadLaunch",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | undefined"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "threadId",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "getInstance"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool#kill:member(1)",
-              "docComment": "/**\n * Kill and remove a specific worker from the pool.\n *\n * @param threadId - Worker thread ID. Terminates worker.\n *\n * @returns The killed worker's threadId, or undefined if not found.\n *\n * @example\n * ```typescript\n * const killedId = pool.kill(123);\n * console.log(`Killed worker ${killedId}`);\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "kill(threadId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number | undefined"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "threadId",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "kill"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool#killAll:member(1)",
-              "docComment": "/**\n * Kill and remove all workers from the pool.\n *\n * @example\n * ```typescript\n * pool.killAll();\n * console.log(\"All workers terminated\");\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "killAll(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
+              "typeParameterName": "TInit",
+              "constraintTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
               },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "killAll"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool#request:member(1)",
-              "docComment": "/**\n * Send a request to a specific worker.\n *\n * @param threadId - Target worker thread ID. Lookup in pool registry.\n *\n * @param method - Method name to call. Targets worker RPC method.\n *\n * @param params - Method parameters. Sent as positional array.\n *\n * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.\n *\n * @param _others - Additional RPC data. Merged into RPC payload.\n *\n * @returns Promise resolving with worker response.\n *\n * @example\n * ```typescript\n * const result = await pool.request(123, \"process\", [data]);\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "request(threadId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", method: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", params: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", _wait?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", _others?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<any>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 11,
-                "endIndex": 13
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "threadId",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 5,
-                    "endIndex": 6
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "_wait",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "_others",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 9,
-                    "endIndex": 10
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "request"
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool#thread:member",
-              "docComment": "/**\n * Map of all worker instances by thread ID.\n *\n * @remarks\n *\n * Values are {@link WorkerThreadLaunch} instances keyed by thread ID.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "thread: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Map",
-                  "canonicalReference": "!Map:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<number, "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "WorkerThreadLaunch",
-                  "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "thread",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 5
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool#threadCount:member",
-              "docComment": "/**\n * Current number of workers in the pool.\n *\n * @remarks\n *\n * Incremented on add and decremented on kill.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "threadCount: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "threadCount",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
+              "defaultTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              }
             }
           ],
-          "implementsTokenRanges": []
+          "typeTokenRange": {
+            "startIndex": 5,
+            "endIndex": 9
+          }
+        },
+        {
+          "kind": "Variable",
+          "canonicalReference": "@gramstax/worker-thread!WorkerThreadPool:var",
+          "docComment": "/**\n * Pool of workers of one worker class, with that class's `mtd*` methods callable directly on the instance.\n *\n * @remarks\n *\n * This is a value rather than the class itself so that `new WorkerThreadPool<W>(…)` is typed as the implementation **and** its `mtd*` surface. A constructor that returns a `Proxy` cannot widen the type of a `new` expression — TypeScript types `new C()` as `C` no matter what the constructor returns — so exposing `mtd*` requires the construct signature to name the intersection itself.\n *\n * The accompanying {@link (WorkerThreadPool:type)} type alias carries the same intersection, so the name still works in a type annotation.\n *\n * @typeParam TInit - The worker class whose `mtd*` methods should be exposed.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "WorkerThreadPool: "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    new <TInit extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": " = "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadInit",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit:class"
+            },
+            {
+              "kind": "Content",
+              "text": ">(instance: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Array",
+              "canonicalReference": "!Array:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadLaunch",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadLaunch:class"
+            },
+            {
+              "kind": "Content",
+              "text": " & "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadWorkerClass",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadWorkerClass:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<TInit>>): "
+            },
+            {
+              "kind": "Reference",
+              "text": "WorkerThreadPoolBase",
+              "canonicalReference": "@gramstax/worker-thread!~WorkerThreadPoolBase:class"
+            },
+            {
+              "kind": "Content",
+              "text": "<TInit> & "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWorkerThreadPoolMethods",
+              "canonicalReference": "@gramstax/worker-thread!IWorkerThreadPoolMethods:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<TInit>;\n}"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "isReadonly": true,
+          "releaseTag": "Public",
+          "name": "WorkerThreadPool",
+          "variableTypeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 16
+          }
         },
         {
           "kind": "Class",
@@ -3118,7 +4225,7 @@
             {
               "kind": "Constructor",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc:constructor(1)",
-              "docComment": "/**\n * Creates a new WorkerThreadRpc instance.\n *\n * @param send - Function to send data. Called with RPC payload.\n *\n * @param register - Object with callable methods. Exposed RPC method map.\n */\n",
+              "docComment": "/**\n * Creates a new WorkerThreadRpc instance.\n *\n * @param send - Function to send data. Called with RPC payload.\n *\n * @param register - Object with callable methods. Exposed RPC method map.\n *\n * @param options - Optional settings (message-size cap, default timeout).\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3126,7 +4233,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "(data: any) => any"
+                  "text": "(data: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>) => unknown"
                 },
                 {
                   "kind": "Content",
@@ -3139,7 +4255,15 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<any, any>"
+                  "text": "<string, (...args: never[]) => unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        maxMessageSize?: number;\n        defaultTimeoutMs?: number;\n    }"
                 },
                 {
                   "kind": "Content",
@@ -3154,19 +4278,140 @@
                   "parameterName": "send",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 4
                   },
                   "isOptional": false
                 },
                 {
                   "parameterName": "register",
                   "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 5
+                    "startIndex": 5,
+                    "endIndex": 7
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 8,
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                }
+              ]
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#context:member",
+              "docComment": "/**\n * Default context merged into every outgoing RPC payload.\n *\n * @remarks\n *\n * Useful for propagating correlation data (e.g. `traceId`) across threads: set it once and it is included in every `makeRequest` payload. Per-call `others` values take precedence over this context.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "context: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "context",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#defaultTimeoutMs:member",
+              "docComment": "/**\n * Default timeout in milliseconds for `makeRequest` calls that omit `timeoutMs`. Initialized from `DEFAULT_REQUEST_TIMEOUT_MS`; assign `0` to wait indefinitely. Must stay a non-negative finite number.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "defaultTimeoutMs: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "defaultTimeoutMs",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc.estimatePayloadSize:member(1)",
+              "docComment": "/**\n * Estimate the in-memory footprint of a structured value.\n *\n * @remarks\n *\n * Recursive walker that counts strings, numbers, buffer bytes and keys with bounded double-count-avoidance. It deliberately does not serialize (`JSON.stringify` throws on `BigInt`, which messagepack payloads can contain), so we approximate the size the value occupies after decode.\n *\n * Static because it depends on no instance state — the gateway server uses it to decide whether a response is worth caching for duplicate suppression.\n *\n * @param value - The decoded value to measure.\n *\n * @returns Estimated size in bytes.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static estimatePayloadSize(value: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "unknown"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "value",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
                   },
                   "isOptional": false
                 }
-              ]
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "estimatePayloadSize"
             },
             {
               "kind": "Method",
@@ -3179,7 +4424,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "{\n        id?: number;\n        method?: string;\n        params?: unknown[];\n        result?: unknown;\n        error?: unknown;\n    }"
                 },
                 {
                   "kind": "Content",
@@ -3224,7 +4469,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#makeId:member(1)",
-              "docComment": "/**\n * Generate a unique request ID.\n *\n * @returns A random number ID.\n *\n * @example\n * ```typescript\n * const id = rpc.makeId();\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Generate a unique request ID.\n *\n * @returns A monotonically increasing number unique within this instance.\n *\n * @example\n * ```typescript\n * const id = rpc.makeId();\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3255,7 +4500,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#makeRequest:member(1)",
-              "docComment": "/**\n * Create and send an RPC request.\n *\n * @param method - Method name to call. Targets registered method.\n *\n * @param params - Method parameters. Sent as positional array.\n *\n * @param _wait - Wait for response. If false, returns send result. Defaults to `true`.\n *\n * @param _others - Additional data to include. Merged into RPC payload.\n *\n * @returns Promise resolving to the result if waiting, or send result if not.\n *\n * @example\n * ```typescript\n * // Wait for response\n * const result = await rpc.makeRequest(\"add\", [1, 2]);\n * console.log(result); // 3\n *\n * // Fire and forget\n * rpc.makeRequest(\"log\", [\"message\"], false);\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Create and send an RPC request.\n *\n * @param method - Method name to call. Targets registered method.\n *\n * @param params - Method parameters. Sent as positional array.\n *\n * @param wait - Wait for response. If false, returns send result. Defaults to `true`.\n *\n * @param others - Additional data to include. Merged into RPC payload.\n *\n * @param timeoutMs - Optional timeout in milliseconds. When exceeded, the pending request is rejected with a timeout error and removed from the pending map. Defaults to `defaultTimeoutMs`; `0` disables the timeout.\n *\n * @returns Promise resolving to the result if waiting, or send result if not.\n *\n * @example\n * ```typescript\n * // Wait for response\n * const result = await rpc.makeRequest(\"add\", [1, 2]);\n * console.log(result); // 3\n *\n * // Fire and forget\n * rpc.makeRequest(\"log\", [\"message\"], false);\n *\n * // With timeout\n * await rpc.makeRequest(\"slow\", [], true, undefined, 5000);\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3271,19 +4516,19 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "unknown[]"
                 },
                 {
                   "kind": "Content",
-                  "text": ", _wait?: "
+                  "text": ", wait: "
                 },
                 {
                   "kind": "Content",
-                  "text": "boolean"
+                  "text": "true"
                 },
                 {
                   "kind": "Content",
-                  "text": ", _others?: "
+                  "text": ", others?: "
                 },
                 {
                   "kind": "Reference",
@@ -3292,7 +4537,15 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<string, any>"
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", timeoutMs?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
                 },
                 {
                   "kind": "Content",
@@ -3305,7 +4558,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<any>"
+                  "text": "<unknown>"
                 },
                 {
                   "kind": "Content",
@@ -3314,8 +4567,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 10,
-                "endIndex": 12
+                "startIndex": 12,
+                "endIndex": 14
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -3338,7 +4591,124 @@
                   "isOptional": false
                 },
                 {
-                  "parameterName": "_wait",
+                  "parameterName": "wait",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "others",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "timeoutMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 10,
+                    "endIndex": 11
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "makeRequest"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#makeRequest:member(2)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "makeRequest(method: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "unknown[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", wait?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "false"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", others?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", timeoutMs?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "unknown"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 12,
+                "endIndex": 13
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 2,
+              "parameters": [
+                {
+                  "parameterName": "method",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "wait",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
@@ -3346,10 +4716,140 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "_others",
+                  "parameterName": "others",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 9
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "timeoutMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 10,
+                    "endIndex": 11
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "makeRequest"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#makeRequest:member(3)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "makeRequest(method: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "unknown[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", wait: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", others?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", timeoutMs?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<unknown> | unknown"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 12,
+                "endIndex": 14
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 3,
+              "parameters": [
+                {
+                  "parameterName": "method",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "wait",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "others",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "timeoutMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 10,
+                    "endIndex": 11
                   },
                   "isOptional": true
                 }
@@ -3361,7 +4861,7 @@
             {
               "kind": "Property",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#map:member",
-              "docComment": "/**\n * Map of pending requests by ID. Stores promise handlers for pending requests.\n *\n * @remarks\n *\n * Uses {@link ITMapRpc} for the map value shape.\n */\n",
+              "docComment": "/**\n * Map of pending requests by ID. Stores promise handlers for pending requests.\n *\n * @remarks\n *\n * Uses {@link IMapRpc} for the map value shape.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3369,8 +4869,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ITMapRpc",
-                  "canonicalReference": "@gramstax/worker-thread!ITMapRpc:type"
+                  "text": "IMapRpc",
+                  "canonicalReference": "@gramstax/worker-thread!IMapRpc:type"
                 },
                 {
                   "kind": "Content",
@@ -3381,6 +4881,36 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "map",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#maxMessageSize:member",
+              "docComment": "/**\n * Enforced cap on the estimated size of incoming messages. `undefined` disables the limit (the default for the trusted parentPort channel).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "maxMessageSize?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "maxMessageSize",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3405,7 +4935,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<any, any>"
+                  "text": "<string, (...args: never[]) => unknown>"
                 },
                 {
                   "kind": "Content",
@@ -3425,6 +4955,54 @@
               "isAbstract": false
             },
             {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#rejectAllPending:member(1)",
+              "docComment": "/**\n * Reject every pending request.\n *\n * @remarks\n *\n * Used when the transport dies (e.g. worker thread exits) so callers do not hang forever. All pending entries are rejected and removed from the map.\n *\n * @param error - Error to reject pending requests with.\n *\n * @example\n * ```typescript\n * rpc.rejectAllPending(new Error(\"worker exited\"));\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "rejectAllPending(error: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "unknown"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "error",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "rejectAllPending"
+            },
+            {
               "kind": "Property",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#send:member",
               "docComment": "",
@@ -3435,7 +5013,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "(data: any) => any"
+                  "text": "(data: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>) => unknown"
                 },
                 {
                   "kind": "Content",
@@ -3448,11 +5035,64 @@
               "name": "send",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 2
+                "endIndex": 4
               },
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@gramstax/worker-thread!WorkerThreadRpc#use:member(1)",
+              "docComment": "/**\n * Register middleware for incoming requests.\n *\n * @remarks\n *\n * Middleware runs in registration order before the target method is dispatched. Each middleware receives a mutable {@link IRpcContext} and a `next` function; short-circuit by setting `ctx.result` and skipping `next`, or reject by throwing.\n *\n * @param middlewares - Middleware functions to append to the chain.\n *\n * @returns `this` for chaining.\n *\n * @example\n * ```typescript\n * rpc.use(async (ctx, next) => {\n *   console.log(`calling ${ctx.method}`);\n *   await next();\n * });\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "use(...middlewares: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IRpcMiddleware",
+                  "canonicalReference": "@gramstax/worker-thread!IRpcMiddleware:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 4,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "middlewares",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "use"
             }
           ],
           "implementsTokenRanges": []

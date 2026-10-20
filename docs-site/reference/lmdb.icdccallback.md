@@ -1,0 +1,21 @@
+---
+title: "ICdcCallback"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ICdcCallback](./lmdb.icdccallback.md)
+
+## ICdcCallback type
+
+In-process subscriber callback.
+
+**Signature:**
+
+```typescript
+type ICdcCallback = (event: ICdcEvent) => void;
+```
+**References:** [ICdcEvent](./lmdb.icdcevent.md)
+
+## Remarks
+
+Invoked per matching record on drain. A throwing callback is reported to the env's diagnostics sink and never breaks the writer's commit.
+

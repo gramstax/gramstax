@@ -1,0 +1,193 @@
+### YamlMime:TSType
+name: LmdbBackupStartOptions
+uid: '@gramstax/lmdb!LmdbBackupStartOptions:interface'
+package: '@gramstax/lmdb!'
+fullName: LmdbBackupStartOptions
+summary: Options for [LmdbBackup.start()](xref:@gramstax/lmdb!LmdbBackup.start:member(1))<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: compact
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#compact:member'
+    package: '@gramstax/lmdb!'
+    fullName: compact
+    summary: Compact each snapshot while copying (default `false`<!-- -->).
+    remarks: >-
+      `true` rewrites the copy densely, so it is slower but smaller on disk and cheaper to restore from later. Worth it
+      for archives you retain or ship off-host; leave it off for local snapshots you will replace soon.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'compact?: boolean;'
+      return:
+        type: boolean
+  - name: dir
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#dir:member'
+    package: '@gramstax/lmdb!'
+    fullName: dir
+    summary: Directory holding timestamped backup subdirs.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'dir: string;'
+      return:
+        type: string
+  - name: format
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#format:member'
+    package: '@gramstax/lmdb!'
+    fullName: format
+    summary: Snapshot format per tick (default `dir`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'format?: `dir` | `tar.gz`;'
+      return:
+        type: '`dir` | `tar.gz`'
+  - name: keep
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#keep:member'
+    package: '@gramstax/lmdb!'
+    fullName: keep
+    summary: Backups to retain (default `3`<!-- -->; non-positive falls back to `3`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'keep?: number;'
+      return:
+        type: number
+  - name: onError
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#onError:member'
+    package: '@gramstax/lmdb!'
+    fullName: onError
+    summary: Tick failure handler.
+    remarks: >-
+      Defaults to reporting through the env's diagnostics sink — see
+      [ILmdbEnvOptions.onWarn](xref:@gramstax/lmdb!ILmdbEnvOptions%23onWarn:member)<!-- -->. Nothing is written to
+      `console`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'onError?: (err: unknown) => void;'
+      return:
+        type: '(err: unknown) =&gt; void'
+  - name: pattern
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#pattern:member'
+    package: '@gramstax/lmdb!'
+    fullName: pattern
+    summary: Cron pattern for the schedule, resolved by `croner`<!-- -->.
+    remarks: >-
+      Supports 5-field (minute precision), 6-field (second precision) and 7-field (OCPS, with a trailing year) patterns.
+
+
+      A pattern is a \*\*wall-clock\*\* schedule, not a duration — "03:00 every day" is a different thing from "24 h
+      after the last successful run". Pick the one you actually mean.
+
+
+      Patterns are interpreted in the \*\*local\*\* timezone unless `timezone` is set, so a daily 03:00 pattern is 03:00
+      where the process runs, not 03:00 UTC. See `example/job-run.ts` for runnable patterns.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'pattern: string;'
+      return:
+        type: string
+  - name: persist
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#persist:member'
+    package: '@gramstax/lmdb!'
+    fullName: persist
+    summary: >-
+      Persist the last successful run so a restart resumes the schedule instead of restarting it (default `true`<!--
+      -->).
+    remarks: >-
+      `false` restores the older timer-only behaviour: no catch-up decision is made and nothing is written to the env.
+      Costs one `maxDbs` slot for the `__job_run` sub-DB when enabled.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'persist?: boolean;'
+      return:
+        type: boolean
+  - name: persistKey
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#persistKey:member'
+    package: '@gramstax/lmdb!'
+    fullName: persistKey
+    summary: Job name for the persisted stamp (default `'backup'`<!-- -->).
+    remarks: Use distinct names for schedules sharing one env, so they do not overwrite each other's stamp.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'persistKey?: string;'
+      return:
+        type: string
+  - name: runOnStart
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#runOnStart:member'
+    package: '@gramstax/lmdb!'
+    fullName: runOnStart
+    summary: Run one backup immediately on start, even when not due (default `false`<!-- -->).
+    remarks: >-
+      Separate from overdue catch-up: an overdue job runs at boot regardless, because a boundary passed while the
+      process was down is a missed run. This forces an extra early run on top of that.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'runOnStart?: boolean;'
+      return:
+        type: boolean
+  - name: s3
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#s3:member'
+    package: '@gramstax/lmdb!'
+    fullName: s3
+    summary: S3 upload per tick — tar.gz only.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 's3?: IBackupS3Options;'
+      return:
+        type: <xref uid="@gramstax/lmdb!LmdbBackupS3Options:interface" />
+  - name: s3Keep
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#s3Keep:member'
+    package: '@gramstax/lmdb!'
+    fullName: s3Keep
+    summary: 'Remote archives to retain after each tick (default: `keep`<!-- -->).'
+    remarks: >-
+      Separate from [LmdbBackupStartOptions.keep](xref:@gramstax/lmdb!LmdbBackupStartOptions%23keep:member) because
+      off-host retention is usually longer than local — you prune local copies aggressively to save disk and keep the
+      archive you can restore from anywhere. Falls back to `keep`<!-- -->, so a caller that never sets it behaves
+      exactly as before.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 's3Keep?: number;'
+      return:
+        type: number
+  - name: timezone
+    uid: '@gramstax/lmdb!LmdbBackupStartOptions#timezone:member'
+    package: '@gramstax/lmdb!'
+    fullName: timezone
+    summary: 'IANA timezone for `pattern` (default: the host''s local timezone).'
+    remarks: ''
+    example:
+      - '`Europe/Stockholm`'
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'timezone?: string;'
+      return:
+        type: string

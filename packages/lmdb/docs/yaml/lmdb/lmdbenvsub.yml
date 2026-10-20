@@ -1,0 +1,1046 @@
+### YamlMime:TSType
+name: LmdbEnvSub
+uid: '@gramstax/lmdb!LmdbEnvSub:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbEnvSub
+summary: >-
+  Typed sub-collection handle — returned by [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1)) and
+  bound to a schema class.
+remarks: >-
+  The handle is self-contained: it holds its own  (sub-DB handle + codec + embedded-index descriptors) so every
+  operation runs directly on the sub-DB without a per-call schema lookup on the env. One schema class = one state = one
+  handle (the env caches handles), so `env.register(UserSchema) === env.sub(UserSchema)`<!-- -->.
+
+
+  Cross-collection work goes through [LmdbEnvSub.owner](xref:@gramstax/lmdb!LmdbEnvSub%23owner:member) — the owning env
+  — for transactions (`sub.owner.transaction(...)`<!-- -->) and access to other registered subs
+  (`sub.owner.sub(OtherSchema)`<!-- -->).
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(_owner, _schema, _state)
+    uid: '@gramstax/lmdb!LmdbEnvSub:constructor(1)'
+    package: '@gramstax/lmdb!'
+    fullName: (constructor)(_owner, _schema, _state)
+    summary: Create a handle bound to a pre-built sub-DB state.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(_owner: LmdbEnv, _schema: S, _state: LmdbSubState);'
+      parameters:
+        - id: _owner
+          description: The env that registered this sub.
+          type: <xref uid="@gramstax/lmdb!LmdbEnv:class" />
+        - id: _schema
+          description: The registered schema class.
+          type: S
+        - id: _state
+          description: Pre-built sub-DB state (owned by the env's sub manager).
+          type: <xref uid="@gramstax/lmdb!LmdbSubState:type" />
+properties:
+  - name: dbName
+    uid: '@gramstax/lmdb!LmdbEnvSub#dbName:member'
+    package: '@gramstax/lmdb!'
+    fullName: dbName
+    summary: The sub-DB name (the schema's `static db`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get dbName(): string;'
+      return:
+        type: string
+  - name: key
+    uid: '@gramstax/lmdb!LmdbEnvSub#key:member'
+    package: '@gramstax/lmdb!'
+    fullName: key
+    summary: Internal key type used by the env's raw overloads.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get key(): ILmdbKey;'
+      return:
+        type: <xref uid="@gramstax/lmdb!ILmdbKey:type" />
+  - name: keyType
+    uid: '@gramstax/lmdb!LmdbEnvSub#keyType:member'
+    package: '@gramstax/lmdb!'
+    fullName: keyType
+    summary: The schema's key type.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get keyType(): KeyOf<S>;'
+      return:
+        type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+  - name: owner
+    uid: '@gramstax/lmdb!LmdbEnvSub#owner:member'
+    package: '@gramstax/lmdb!'
+    fullName: owner
+    summary: The owning env — for transactions and cross-sub access.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get owner(): LmdbEnv;'
+      return:
+        type: <xref uid="@gramstax/lmdb!LmdbEnv:class" />
+  - name: schemaClass
+    uid: '@gramstax/lmdb!LmdbEnvSub#schemaClass:member'
+    package: '@gramstax/lmdb!'
+    fullName: schemaClass
+    summary: The schema class this handle binds.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get schemaClass(): S;'
+      return:
+        type: S
+  - name: valueType
+    uid: '@gramstax/lmdb!LmdbEnvSub#valueType:member'
+    package: '@gramstax/lmdb!'
+    fullName: valueType
+    summary: The schema's value type.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get valueType(): ValueOf<S>;'
+      return:
+        type: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;
+methods:
+  - name: addValue(key, value)
+    uid: '@gramstax/lmdb!LmdbEnvSub#addValue:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: addValue(key, value)
+    summary: Append a duplicate value under a key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'addValue(key: KeyOf<S>, value: ValueOf<S>): Promise<boolean>;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: value
+          description: The duplicate value to append (requires a `dupSort` sub).
+          type: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Resolves boolean.
+  - name: clear(tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#clear:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: clear(tx)
+    summary: Clear the sub.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'clear(tx?: LmdbTransaction): Promise<void>;'
+      parameters:
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to clear within.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: Resolves when the sub is emptied.
+  - name: count(tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#count:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: count(tx)
+    summary: Entry count.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'count(tx?: LmdbTransaction): number;'
+      parameters:
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to count within.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: number
+        description: The number of entries — O(1), synchronous.
+  - name: countByPrefix(prefix)
+    uid: '@gramstax/lmdb!LmdbEnvSub#countByPrefix:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: countByPrefix(prefix)
+    summary: Count entries under a prefix.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'countByPrefix(prefix: KeyOf<S>): Promise<number>;'
+      parameters:
+        - id: prefix
+          description: The prefix to count.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+      return:
+        type: Promise&lt;number&gt;
+        description: The number of matching entries.
+  - name: decrement(key, amount)
+    uid: '@gramstax/lmdb!LmdbEnvSub#decrement:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: decrement(key, amount)
+    summary: Atomic decrement.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'decrement(key: KeyOf<S>, amount?: number): Promise<number>;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: amount
+          description: Decrement amount (default `1`<!-- -->).
+          type: number
+      return:
+        type: Promise&lt;number&gt;
+        description: The new value; absent keys start at `0`<!-- -->.
+  - name: delete(key, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#delete:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: delete(key, tx)
+    summary: Delete a key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'delete(key: KeyOf<S>, tx?: LmdbTransaction): Promise<boolean>;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to delete within.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Resolves to `true` when the key existed and was removed.
+  - name: deleteByPrefix(prefix)
+    uid: '@gramstax/lmdb!LmdbEnvSub#deleteByPrefix:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: deleteByPrefix(prefix)
+    summary: Delete entries under a prefix.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'deleteByPrefix(prefix: KeyOf<S>): Promise<number>;'
+      parameters:
+        - id: prefix
+          description: The prefix to delete.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+      return:
+        type: Promise&lt;number&gt;
+        description: The number of deleted entries.
+  - name: drop()
+    uid: '@gramstax/lmdb!LmdbEnvSub#drop:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: drop()
+    summary: Drop the sub-DB.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'drop(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: Resolves when the sub-DB is dropped.
+  - name: entries(options, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#entries:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: entries(options, tx)
+    summary: Materialize all entries.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'entries(options?: IRangeOptions, tx?: LmdbTransaction): Promise<[KeyOf<S>, ValueOf<S>][]>;'
+      parameters:
+        - id: options
+          description: Range bounds (`start`<!-- -->/`end`<!-- -->), `limit`<!-- -->, `reverse`<!-- -->.
+          type: <xref uid="@gramstax/lmdb!IRangeOptions:interface" />
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to scan within.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: >-
+          Promise&lt;[<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;, <xref uid="@gramstax/lmdb!ValueOf:type"
+          />&lt;S&gt;][]&gt;
+        description: >-
+          All `[key, value]` pairs in the range — guarded by
+          [MAX\_MATERIALIZE](xref:@gramstax/lmdb!MAX_MATERIALIZE:var)<!-- -->.
+  - name: exportJSONL()
+    uid: '@gramstax/lmdb!LmdbEnvSub#exportJSONL:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: exportJSONL()
+    summary: Export all entries as JSON Lines.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'exportJSONL(): Promise<string>;'
+      return:
+        type: Promise&lt;string&gt;
+        description: A JSONL string of `[key, value]` pairs.
+  - name: findByIndex(query, tx, options)
+    uid: '@gramstax/lmdb!LmdbEnvSub#findByIndex:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: findByIndex(query, tx, options)
+    summary: Object-query index read.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        findByIndex<Q extends IIndexQuery<ValueOf<S>, ISchemaIndexesOf<S[`value`]>>>(query: Q, tx?: LmdbTransaction,
+        options?: {
+                limit?: number;
+            }): Promise<IIndexResult<ValueOf<S>, ISchemaIndexesOf<S[`value`]>, Q>>;
+      parameters:
+        - id: query
+          description: Map of declared index names to values; every key is ANDed.
+          type: Q
+        - id: tx
+          description: >-
+            Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to read within — keeps every
+            point read of the query on the same snapshot.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+        - id: options
+          description: Optional `{limit}` capping the final matched rows (lazy chunk fetch, flat memory; unbounded by default).
+          type: |-
+            {
+                    limit?: number;
+                }
+      return:
+        type: >-
+          Promise&lt;<xref uid="@gramstax/lmdb!IIndexResult:type" />&lt;<xref uid="@gramstax/lmdb!ValueOf:type"
+          />&lt;S&gt;, <xref uid="@gramstax/lmdb!ISchemaIndexesOf:type" />&lt;S[`value`]&gt;, Q&gt;&gt;
+        description: The row when all queried keys are unique, `T[]` when any is non-unique, `undefined`<!-- -->/`[]` on no match.
+  - name: findByPrefix(prefix, options, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#findByPrefix:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: findByPrefix(prefix, options, tx)
+    summary: Prefix scan.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        findByPrefix(prefix: KeyOf<S>, options?: IRangeOptions, tx?: LmdbTransaction): Promise<[KeyOf<S>,
+        ValueOf<S>][]>;
+      parameters:
+        - id: prefix
+          description: Inclusive lower bound; the exclusive upper bound is derived.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: options
+          description: Range bounds and `limit`<!-- -->.
+          type: <xref uid="@gramstax/lmdb!IRangeOptions:interface" />
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to scan within.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: >-
+          Promise&lt;[<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;, <xref uid="@gramstax/lmdb!ValueOf:type"
+          />&lt;S&gt;][]&gt;
+        description: '`[key, value]` pairs whose key starts with `prefix`<!-- -->.'
+  - name: first(tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#first:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: first(tx)
+    summary: First entry (lowest key).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'first(tx?: LmdbTransaction): Promise<[KeyOf<S>, ValueOf<S>] | undefined>;'
+      parameters:
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to read from.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: >-
+          Promise&lt;[<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;, <xref uid="@gramstax/lmdb!ValueOf:type"
+          />&lt;S&gt;] | undefined&gt;
+        description: The `[key, value]` pair with the lowest key, or `undefined` when empty.
+  - name: get(key, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#get:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: get(key, tx)
+    summary: Read a value by key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get(key: KeyOf<S>, tx?: LmdbTransaction): ValueOf<S> | undefined;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: tx
+          description: >-
+            Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to read from (snapshot-pinned
+            in `readTransaction`<!-- -->).
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt; | undefined
+        description: The row value, or `undefined` when the key is absent. Synchronous.
+  - name: getBinary(key)
+    uid: '@gramstax/lmdb!LmdbEnvSub#getBinary:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getBinary(key)
+    summary: Read raw bytes.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getBinary(key: KeyOf<S>): Buffer | undefined;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+      return:
+        type: Buffer | undefined
+        description: The stored bytes, or `undefined` when absent.
+  - name: getBinaryFast(key)
+    uid: '@gramstax/lmdb!LmdbEnvSub#getBinaryFast:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getBinaryFast(key)
+    summary: Read raw bytes synchronously.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getBinaryFast(key: KeyOf<S>): Buffer | undefined;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+      return:
+        type: Buffer | undefined
+        description: The stored bytes, or `undefined` when absent. No async wrapper.
+  - name: getEntry(key)
+    uid: '@gramstax/lmdb!LmdbEnvSub#getEntry:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getEntry(key)
+    summary: Raw entry with version.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        getEntry(key: KeyOf<S>): {
+                version: number;
+                value: ValueOf<S>;
+            } | undefined;
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+      return:
+        type: |-
+          {
+                  version: number;
+                  value: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;;
+              } | undefined
+        description: '`{version, value}` for optimistic-locking reads, or `undefined` when absent.'
+  - name: getKeys(options)
+    uid: '@gramstax/lmdb!LmdbEnvSub#getKeys:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getKeys(options)
+    summary: Synchronous key iteration — use inside a transaction callback.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getKeys(options?: IRangeOptions): Iterable<KeyOf<S>>;'
+      parameters:
+        - id: options
+          description: Range bounds (`start`<!-- -->/`end`<!-- -->), `limit`<!-- -->, `reverse`<!-- -->.
+          type: <xref uid="@gramstax/lmdb!IRangeOptions:interface" />
+      return:
+        type: Iterable&lt;<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;&gt;
+        description: A synchronous iterable of keys (cursor-backed).
+  - name: getMany(keys)
+    uid: '@gramstax/lmdb!LmdbEnvSub#getMany:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getMany(keys)
+    summary: Read many keys.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getMany(keys: KeyOf<S>[]): Promise<(ValueOf<S> | undefined)[]>;'
+      parameters:
+        - id: keys
+          description: The primary keys to read.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;[]
+      return:
+        type: Promise&lt;(<xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt; | undefined)[]&gt;
+        description: Values aligned with `keys` — `undefined` for absent keys.
+  - name: getStrict(key, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#getStrict:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getStrict(key, tx)
+    summary: Read a value by key, throwing when absent.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getStrict(key: KeyOf<S>, tx?: LmdbTransaction): ValueOf<S>;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to read from.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;
+        description: The row value.
+  - name: getValues(key)
+    uid: '@gramstax/lmdb!LmdbEnvSub#getValues:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getValues(key)
+    summary: All duplicate values under a key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getValues(key: KeyOf<S>): Promise<ValueOf<S>[]>;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+      return:
+        type: Promise&lt;<xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;[]&gt;
+        description: The ordered duplicate values.
+  - name: getValuesCount(key)
+    uid: '@gramstax/lmdb!LmdbEnvSub#getValuesCount:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getValuesCount(key)
+    summary: Count of duplicate values under a key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getValuesCount(key: KeyOf<S>): number;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+      return:
+        type: number
+        description: The number of duplicates. Synchronous.
+  - name: has(key, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#has:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: has(key, tx)
+    summary: Check whether a key exists.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'has(key: KeyOf<S>, tx?: LmdbTransaction): boolean;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to check against.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: boolean
+        description: '`true` when the key exists. Synchronous.'
+  - name: importJSONL(jsonl, options)
+    uid: '@gramstax/lmdb!LmdbEnvSub#importJSONL:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: importJSONL(jsonl, options)
+    summary: Import JSON Lines.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        importJSONL(jsonl: string, options?: {
+                sorted?: boolean;
+                onProgress?: (done: number, total: number) => void;
+            }): Promise<number>;
+      parameters:
+        - id: jsonl
+          description: JSONL string of `[key, value]` pairs.
+          type: string
+        - id: options
+          description: >-
+            `{sorted?, onProgress?}` (see [LmdbEnvSub.putMany()](xref:@gramstax/lmdb!LmdbEnvSub%23putMany:member(1))<!--
+            -->).
+          type: |-
+            {
+                    sorted?: boolean;
+                    onProgress?: (done: number, total: number) =&gt; void;
+                }
+      return:
+        type: Promise&lt;number&gt;
+        description: The number of imported entries.
+  - name: increment(key, delta)
+    uid: '@gramstax/lmdb!LmdbEnvSub#increment:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: increment(key, delta)
+    summary: Atomic increment.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'increment(key: KeyOf<S>, delta?: number): Promise<number>;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: delta
+          description: Increment amount (default `1`<!-- -->).
+          type: number
+      return:
+        type: Promise&lt;number&gt;
+        description: The new value; absent keys start at `0`<!-- -->.
+  - name: iterate(options, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#iterate:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: iterate(options, tx)
+    summary: Lazy async iteration.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'iterate(options?: IRangeOptions, tx?: LmdbTransaction): AsyncIterableIterator<[KeyOf<S>, ValueOf<S>]>;'
+      parameters:
+        - id: options
+          description: Range bounds (`start`<!-- -->/`end`<!-- -->), `limit`<!-- -->, `reverse`<!-- -->.
+          type: <xref uid="@gramstax/lmdb!IRangeOptions:interface" />
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to iterate within.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: >-
+          AsyncIterableIterator&lt;[<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;, <xref
+          uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;]&gt;
+        description: An async generator yielding `[key, value]` — never materialization-guarded.
+  - name: keys(options, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#keys:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: keys(options, tx)
+    summary: Materialize all keys.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'keys(options?: IRangeOptions, tx?: LmdbTransaction): Promise<KeyOf<S>[]>;'
+      parameters:
+        - id: options
+          description: Range bounds (`start`<!-- -->/`end`<!-- -->), `limit`<!-- -->, `reverse`<!-- -->.
+          type: <xref uid="@gramstax/lmdb!IRangeOptions:interface" />
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to scan within.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: Promise&lt;<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;[]&gt;
+        description: All keys in the range — guarded by [MAX\_MATERIALIZE](xref:@gramstax/lmdb!MAX_MATERIALIZE:var)<!-- -->.
+  - name: last(tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#last:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: last(tx)
+    summary: Last entry (highest key).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'last(tx?: LmdbTransaction): Promise<[KeyOf<S>, ValueOf<S>] | undefined>;'
+      parameters:
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to read from.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: >-
+          Promise&lt;[<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;, <xref uid="@gramstax/lmdb!ValueOf:type"
+          />&lt;S&gt;] | undefined&gt;
+        description: The `[key, value]` pair with the highest key, or `undefined` when empty.
+  - name: like(pattern, options, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#like:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: like(pattern, options, tx)
+    summary: Glob-pattern scan.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'like(pattern: string, options?: IRangeOptions, tx?: LmdbTransaction): Promise<[KeyOf<S>, ValueOf<S>][]>;'
+      parameters:
+        - id: pattern
+          description: Glob pattern (`*` wildcards); prefix shapes become bounded range scans.
+          type: string
+        - id: options
+          description: Range bounds and `limit`<!-- -->.
+          type: <xref uid="@gramstax/lmdb!IRangeOptions:interface" />
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to scan within.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: >-
+          Promise&lt;[<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;, <xref uid="@gramstax/lmdb!ValueOf:type"
+          />&lt;S&gt;][]&gt;
+        description: Matching `[key, value]` pairs.
+  - name: prefetch(keys)
+    uid: '@gramstax/lmdb!LmdbEnvSub#prefetch:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: prefetch(keys)
+    summary: Page-fault keys into the read cache.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'prefetch(keys: KeyOf<S>[]): Promise<void>;'
+      parameters:
+        - id: keys
+          description: The primary keys to prefetch.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;[]
+      return:
+        type: Promise&lt;void&gt;
+        description: Resolves when the pages are loaded.
+  - name: purgeExpired()
+    uid: '@gramstax/lmdb!LmdbEnvSub#purgeExpired:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: purgeExpired()
+    summary: Remove expired entries.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'purgeExpired(): Promise<number>;'
+      return:
+        type: Promise&lt;number&gt;
+        description: The number of purged entries (TTL subs only).
+  - name: put(key, value, ttlOrTx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#put:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: put(key, value, ttlOrTx)
+    summary: Write a value.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        put(key: KeyOf<S>, value: ValueOf<S>, ttlOrTx?: number | {
+                ttlMs: number;
+            } | LmdbTransaction): Promise<void>;
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: value
+          description: The row value to store.
+          type: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;
+        - id: ttlOrTx
+          description: >-
+            Optional TTL (`number` ms or `{ttlMs}`<!-- -->) or an active
+            [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class)<!-- -->.
+          type: |-
+            number | {
+                    ttlMs: number;
+                } | <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: Resolves when the queued put is flushed.
+  - name: putBinary(key, value)
+    uid: '@gramstax/lmdb!LmdbEnvSub#putBinary:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: putBinary(key, value)
+    summary: Write raw bytes, bypassing the value encoder.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'putBinary(key: KeyOf<S>, value: Buffer | Uint8Array): Promise<boolean>;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: value
+          description: The raw bytes to store.
+          type: Buffer | Uint8Array
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Boolean resolves when the bytes are written.
+  - name: putIfNotExists(key, value)
+    uid: '@gramstax/lmdb!LmdbEnvSub#putIfNotExists:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: putIfNotExists(key, value)
+    summary: Insert only when the key is absent.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'putIfNotExists(key: KeyOf<S>, value: ValueOf<S>): Promise<boolean>;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: value
+          description: The row value to insert.
+          type: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Resolves to `true` when inserted, `false` when the key already exists.
+  - name: putMany(entries, chunkSize, options)
+    uid: '@gramstax/lmdb!LmdbEnvSub#putMany:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: putMany(entries, chunkSize, options)
+    summary: Write many entries.
+    remarks: >-
+      Pass `{sorted: true}` when entries ascend by key (strictly, or non-decreasing for dupSort primaries) to skip the
+      B-tree search per put (MDB\_APPEND) — the first inversion aborts with `LmdbError`<!-- -->. `onProgress` fires per
+      committed chunk as `(done, total)`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        putMany(entries: [KeyOf<S>, ValueOf<S>][], chunkSize?: number, options?: {
+                sorted?: boolean;
+                onProgress?: (done: number, total: number) => void;
+            }): Promise<void>;
+      parameters:
+        - id: entries
+          description: '`[key, value]` pairs to write.'
+          type: '[<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;, <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;][]'
+        - id: chunkSize
+          description: Entries per transaction chunk (default `500`<!-- -->).
+          type: number
+        - id: options
+          description: '`{sorted?, onProgress?}`<!-- -->.'
+          type: |-
+            {
+                    sorted?: boolean;
+                    onProgress?: (done: number, total: number) =&gt; void;
+                }
+      return:
+        type: Promise&lt;void&gt;
+        description: Resolves when all chunks are committed.
+  - name: putSync(key, value)
+    uid: '@gramstax/lmdb!LmdbEnvSub#putSync:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: putSync(key, value)
+    summary: Synchronous put — use inside a transaction callback.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'putSync(key: KeyOf<S>, value: ValueOf<S>): void;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: value
+          description: The row value to store.
+          type: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;
+      return:
+        type: void
+        description: ''
+  - name: reindex(name)
+    uid: '@gramstax/lmdb!LmdbEnvSub#reindex:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: reindex(name)
+    summary: Rebuild the schema's embedded indexes from primary data.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        reindex(name?: string): Promise<{
+                built: number;
+                skipped: Array<{
+                    key: KeyOf<S>;
+                    index: string;
+                    value: unknown;
+                }>;
+            }>;
+      parameters:
+        - id: name
+          description: Rebuild a single index by name; omit to rebuild all.
+          type: string
+      return:
+        type: |-
+          Promise&lt;{
+                  built: number;
+                  skipped: Array&lt;{
+                      key: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;;
+                      index: string;
+                      value: unknown;
+                  }&gt;;
+              }&gt;
+        description: '`{built, skipped}` — `skipped` lists unique-conflict records that could not be indexed.'
+  - name: removeSync(key)
+    uid: '@gramstax/lmdb!LmdbEnvSub#removeSync:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: removeSync(key)
+    summary: Synchronous delete — use inside a transaction callback.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'removeSync(key: KeyOf<S>): boolean;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+      return:
+        type: boolean
+        description: '`true` when the key existed and was removed.'
+  - name: removeValue(key, value)
+    uid: '@gramstax/lmdb!LmdbEnvSub#removeValue:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: removeValue(key, value)
+    summary: Remove one duplicate value under a key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'removeValue(key: KeyOf<S>, value: ValueOf<S>): Promise<boolean>;'
+      parameters:
+        - id: key
+          description: The primary key.
+          type: <xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;
+        - id: value
+          description: The duplicate value to remove.
+          type: <xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Resolves to `true` when the value was removed.
+  - name: search(query, options)
+    uid: '@gramstax/lmdb!LmdbEnvSub#search:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: search(query, options)
+    summary: Full-text search over `t.string().search()` columns.
+    remarks: >-
+      Tokenizes the query (lowercase + split) and ANDs the terms: only rows containing every term match. A match in N
+      searched columns scores N, so rows matching in more columns rank first; ties keep native key order.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        search(query: string, options?: {
+                limit?: number;
+            }): Promise<KeyOf<S>[]>;
+      parameters:
+        - id: query
+          description: Raw query text (at least one term required).
+          type: string
+        - id: options
+          description: '`{limit}` caps the returned keys with flat memory.'
+          type: |-
+            {
+                    limit?: number;
+                }
+      return:
+        type: Promise&lt;<xref uid="@gramstax/lmdb!KeyOf:type" />&lt;S&gt;[]&gt;
+        description: Matching primary keys, best first.
+  - name: syncTo(dest, options)
+    uid: '@gramstax/lmdb!LmdbEnvSub#syncTo:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: syncTo(dest, options)
+    summary: Differentially copy this sub to a destination sub (any env, same schema).
+    remarks: >-
+      Copies rows past the checkpoint (explicit option or the persisted cursor for `name`<!-- -->, defaulting to the
+      destination db) through a keyset cursor in 500-row chunks; each committed chunk advances the cursor, so kills
+      resume mid-stream. An explicit `checkpoint` runs one-shot without touching the stored cursor. Sync upserts —
+      destination-only rows are never deleted. Quiesce writes on both subs first: the verify step (counts plus hash
+      spot-checks, on by default) throws `LmdbError` on divergence.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'syncTo(dest: LmdbEnvSub<S>, options?: ISyncOptions<S>): Promise<ISyncResult<S>>;'
+      parameters:
+        - id: dest
+          description: Destination handle (same schema class, must differ).
+          type: <xref uid="@gramstax/lmdb!LmdbEnvSub:class" />&lt;S&gt;
+        - id: options
+          description: '`{name?, checkpoint?, limit?, verify?}`<!-- -->.'
+          type: <xref uid="@gramstax/lmdb!ISyncOptions:interface" />&lt;S&gt;
+      return:
+        type: Promise&lt;<xref uid="@gramstax/lmdb!ISyncResult:interface" />&lt;S&gt;&gt;
+        description: '`{copied, checkpoint, verified}`<!-- -->.'
+  - name: values(options, tx)
+    uid: '@gramstax/lmdb!LmdbEnvSub#values:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: values(options, tx)
+    summary: Materialize all values.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'values(options?: IRangeOptions, tx?: LmdbTransaction): Promise<ValueOf<S>[]>;'
+      parameters:
+        - id: options
+          description: Range bounds (`start`<!-- -->/`end`<!-- -->), `limit`<!-- -->, `reverse`<!-- -->.
+          type: <xref uid="@gramstax/lmdb!IRangeOptions:interface" />
+        - id: tx
+          description: Optional active [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) to scan within.
+          type: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />
+      return:
+        type: Promise&lt;<xref uid="@gramstax/lmdb!ValueOf:type" />&lt;S&gt;[]&gt;
+        description: All values in the range — guarded by [MAX\_MATERIALIZE](xref:@gramstax/lmdb!MAX_MATERIALIZE:var)<!-- -->.

@@ -9,11 +9,17 @@ Terminate the worker thread immediately.
 **Signature:**
 
 ```typescript
-kill(): void;
+kill(): Promise<number | void>;
 ```
 **Returns:**
 
-void
+Promise&lt;number \| void&gt;
+
+Promise resolving when the thread has terminated.
+
+## Remarks
+
+Safe to call multiple times and after the worker has already exited — terminating an exited thread hangs on some runtimes, so exited workers resolve immediately instead.
 
 ## Example
 

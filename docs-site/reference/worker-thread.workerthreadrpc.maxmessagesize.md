@@ -1,0 +1,15 @@
+---
+title: "WorkerThreadRpc.maxMessageSize"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadRpc](./worker-thread.workerthreadrpc.md) &gt; [maxMessageSize](./worker-thread.workerthreadrpc.maxmessagesize.md)
+
+## WorkerThreadRpc.maxMessageSize property
+
+Enforced cap on the estimated size of incoming messages. `undefined` disables the limit (the default for the trusted parentPort channel).
+
+**Signature:**
+
+```typescript
+maxMessageSize?: number;
+```

@@ -15,3 +15,7 @@ init(): void;
 
 void
 
+## Remarks
+
+Spawns the worker, wires message/error/exit handlers, and registers SIGINT/SIGTERM cleanup. On exit, all pending RPC requests are rejected and the `exit` event is emitted.
+

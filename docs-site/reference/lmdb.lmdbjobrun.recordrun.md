@@ -1,0 +1,82 @@
+---
+title: "LmdbJobRun.recordRun()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbJobRun](./lmdb.lmdbjobrun.md) &gt; [recordRun](./lmdb.lmdbjobrun.recordrun.md)
+
+## LmdbJobRun.recordRun() method
+
+Record a successful run for `key`.
+
+**Signature:**
+
+```typescript
+recordRun(key: string, at?: number): Promise<void>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Job name.
+
+
+</td></tr>
+<tr><td>
+
+at
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Epoch ms to stamp (default `Date.now()`).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;void&gt;
+
+Nothing.
+
+## Exceptions
+
+[LmdbError](./lmdb.lmdberror.md) On a blank `key` or a non-finite `at`.
+
+## Remarks
+
+Call this only after the work succeeded. Stamping before the work means a crash or a thrown error is recorded as a completed run, and the next boot would treat the job as satisfied.
+

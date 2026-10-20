@@ -1,0 +1,15 @@
+---
+title: "LmdbTransaction.lifecycle"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbTransaction](./lmdb.lmdbtransaction.md) &gt; [lifecycle](./lmdb.lmdbtransaction.lifecycle.md)
+
+## LmdbTransaction.lifecycle property
+
+Current lifecycle of this transaction.
+
+**Signature:**
+
+```typescript
+get lifecycle(): ITransactionLifecycle;
+```

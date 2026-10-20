@@ -9,7 +9,13 @@ Process an incoming RPC message.
 **Signature:**
 
 ```typescript
-make(data: any): Promise<void>;
+make(data: {
+        id?: number;
+        method?: string;
+        params?: unknown[];
+        result?: unknown;
+        error?: unknown;
+    }): Promise<void>;
 ```
 
 ## Parameters
@@ -37,7 +43,7 @@ data
 
 </td><td>
 
-any
+{ id?: number; method?: string; params?: unknown\[\]; result?: unknown; error?: unknown; }
 
 
 </td><td>

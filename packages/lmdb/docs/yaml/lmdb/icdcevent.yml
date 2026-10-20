@@ -1,0 +1,53 @@
+### YamlMime:TSType
+name: ICdcEvent
+uid: '@gramstax/lmdb!ICdcEvent:interface'
+package: '@gramstax/lmdb!'
+fullName: ICdcEvent
+summary: In-process subscriber event — exactly `{type, key, value}`<!-- -->.
+remarks: >-
+  Delivered to `subscribe` callbacks post-commit and persisted on outbox records. Deletes are key-only (`value` is
+  `undefined`<!-- -->); clears cover a whole sub (`key` and `value` are both `undefined`<!-- -->).
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: key
+    uid: '@gramstax/lmdb!ICdcEvent#key:member'
+    package: '@gramstax/lmdb!'
+    fullName: key
+    summary: Primary key (`undefined` for `clear`<!-- -->).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'key: ILmdbKey | undefined;'
+      return:
+        type: <xref uid="@gramstax/lmdb!ILmdbKey:type" /> | undefined
+  - name: type
+    uid: '@gramstax/lmdb!ICdcEvent#type:member'
+    package: '@gramstax/lmdb!'
+    fullName: type
+    summary: Write kind (`clear` covers whole-sub clears).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'type: `put` | `delete` | `clear`;'
+      return:
+        type: '`put` | `delete` | `clear`'
+  - name: value
+    uid: '@gramstax/lmdb!ICdcEvent#value:member'
+    package: '@gramstax/lmdb!'
+    fullName: value
+    summary: Row value (`undefined` for deletes and clears).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'value: unknown;'
+      return:
+        type: unknown

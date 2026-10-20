@@ -1,0 +1,72 @@
+---
+title: "LmdbEnv.off()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [off](./lmdb.lmdbenv.off.md)
+
+## LmdbEnv.off() method
+
+Remove a previously attached commit-event listener.
+
+**Signature:**
+
+```typescript
+off(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+event
+
+
+</td><td>
+
+\`beforecommit\` \| \`aftercommit\`
+
+
+</td><td>
+
+`'beforecommit'` or `'aftercommit'`.
+
+
+</td></tr>
+<tr><td>
+
+callback
+
+
+</td><td>
+
+(event: unknown) =&gt; void
+
+
+</td><td>
+
+The exact handler previously passed to [LmdbEnv.on()](./lmdb.lmdbenv.on.md).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+

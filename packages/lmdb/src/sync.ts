@@ -200,7 +200,7 @@ export class LmdbSyncStream<S extends typeof LmdbSchema> {
    * never deleted.
    *
    * @returns `{copied, checkpoint, verified}`.
-   * @throws {LmdbError} On self-sync and verify divergence.
+   * @throws {@link LmdbError} On self-sync and verify divergence.
    */
   async run(): Promise<ISyncResult<S>> {
     if (this._source === this._dest) throw new LmdbError(`cannot sync a sub to itself`)

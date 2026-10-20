@@ -1,0 +1,24 @@
+---
+title: "WorkerThreadPool"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadPool](./worker-thread.workerthreadpool.md)
+
+## WorkerThreadPool variable
+
+Pool of workers of one worker class, with that class's `mtd*` methods callable directly on the instance.
+
+**Signature:**
+
+```typescript
+WorkerThreadPool: {
+    new <TInit extends WorkerThreadInit = WorkerThreadInit>(instance: Array<WorkerThreadLaunch & IWorkerThreadWorkerClass<TInit>>): WorkerThreadPoolBase<TInit> & IWorkerThreadPoolMethods<TInit>;
+}
+```
+
+## Remarks
+
+This is a value rather than the class itself so that `new WorkerThreadPool<W>(…)` is typed as the implementation \*\*and\*\* its `mtd*` surface. A constructor that returns a `Proxy` cannot widen the type of a `new` expression — TypeScript types `new C()` as `C` no matter what the constructor returns — so exposing `mtd*` requires the construct signature to name the intersection itself.
+
+The accompanying [WorkerThreadPool](./worker-thread.workerthreadpool.md) type alias carries the same intersection, so the name still works in a type annotation.
+

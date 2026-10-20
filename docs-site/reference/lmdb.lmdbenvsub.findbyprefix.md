@@ -1,0 +1,90 @@
+---
+title: "LmdbEnvSub.findByPrefix()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [findByPrefix](./lmdb.lmdbenvsub.findbyprefix.md)
+
+## LmdbEnvSub.findByPrefix() method
+
+Prefix scan.
+
+**Signature:**
+
+```typescript
+findByPrefix(prefix: KeyOf<S>, options?: IRangeOptions, tx?: LmdbTransaction): Promise<[KeyOf<S>, ValueOf<S>][]>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+prefix
+
+
+</td><td>
+
+[KeyOf](./lmdb.keyof.md)&lt;S&gt;
+
+
+</td><td>
+
+Inclusive lower bound; the exclusive upper bound is derived.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IRangeOptions](./lmdb.irangeoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Range bounds and `limit`.
+
+
+</td></tr>
+<tr><td>
+
+tx
+
+
+</td><td>
+
+[LmdbTransaction](./lmdb.lmdbtransaction.md)
+
+
+</td><td>
+
+_(Optional)_ Optional active [LmdbTransaction](./lmdb.lmdbtransaction.md) to scan within.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;\[[KeyOf](./lmdb.keyof.md)&lt;S&gt;, [ValueOf](./lmdb.valueof.md)&lt;S&gt;\]\[\]&gt;
+
+`[key, value]` pairs whose key starts with `prefix`.
+

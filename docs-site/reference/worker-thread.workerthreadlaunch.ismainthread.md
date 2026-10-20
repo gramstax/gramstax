@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadLaunch.isMainThread"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadLaunch](./worker-thread.workerthreadlaunch.md) &gt; [isMainThread](./worker-thread.workerthreadlaunch.ismainthread.md)
+
+## WorkerThreadLaunch.isMainThread property
+
+Check if currently running in the main thread. Re-exported from `node:worker_threads`.
+
+**Signature:**
+
+```typescript
+static isMainThread: boolean;
+```
+
+## Remarks
+
+Uses `node:worker_threads:isMainThread` to guard main-thread only logic.
+

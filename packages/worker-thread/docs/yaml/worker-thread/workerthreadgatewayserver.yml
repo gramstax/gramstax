@@ -10,7 +10,30 @@ remarks: >-
   instead of constructing this directly.
 
 
-  Uses `net-ipc` library for Unix domain socket communication. Supports connections from multiple gateway clients.
+  Uses the `net-ipc` library for Unix domain socket communication. Works in \*\*Bun\*\* (native) and \*\*Node.js\*\*
+  (native).
+
+
+  Supports connections from multiple gateway clients. Emits `connect`<!-- -->, `disconnect`<!-- -->, `ready` and `error`
+  events.
+
+
+  \#\# Reliability semantics (at-least-once)
+
+
+  - \*\*Retried delivery, not exactly-once.\*\* The transport (`net-ipc`<!-- -->) retries failed writes and replays
+  in-flight requests across reconnects, and callers may retry timed-out requests — so a handler can observe the same RPC
+  `id` twice. Request ids are monotonically increasing per client and never reused within a connection lifetime, so the
+  server suppresses duplicates per connection: the first delivery executes, redeliveries replay the cached response.
+  Make handlers idempotent anyway — responses over 64KB are never cached (re-executed on redelivery) and the cache holds
+  at most 1000 entries per connection (FIFO) and is dropped on disconnect. - \*\*No ordering across reconnect.\*\*
+  Requests sent before a drop may resolve after requests sent after the reconnect; never rely on cross-request order. -
+  \*\*`maxMessageSize` is enforced post-buffering, not a wire-level DoS cap.\*\* The full frame is already buffered by
+  `net-ipc` before the estimate runs — the cap stops a peer from growing handler memory or the pending map, it does not
+  stop the bytes crossing the socket (upstream `net-ipc` limitation). - \*\*Allow-list escape hatch.\*\* Middleware that
+  short-circuits (sets `ctx.result` without calling `next()`<!-- -->) skips every downstream check, including the
+  `allowedMethods` guard. That is an intentional escape hatch for trusted in-process customization, not a vulnerability:
+  only code that already holds the server instance can register such middleware.
 example: []
 isPreview: false
 isDeprecated: false
@@ -31,19 +54,35 @@ constructors:
     syntax:
       content: constructor();
 properties:
+  - name: closePromise
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayServer#closePromise:member'
+    package: '@gramstax/worker-thread!'
+    fullName: closePromise
+    summary: In-flight `close()` shared by concurrent/duplicate callers.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'closePromise: Promise<void> | null;'
+      return:
+        type: Promise&lt;void&gt; | null
   - name: register
     uid: '@gramstax/worker-thread!WorkerThreadGatewayServer#register:member'
     package: '@gramstax/worker-thread!'
     fullName: register
     summary: Object exposed to clients.
-    remarks: Properties become RPC-callable methods.
+    remarks: >-
+      Properties become RPC-callable methods. When `allowedMethods` is set, method access is restricted per request via
+      RPC middleware — the register itself is never wrapped, so registered methods keep reading their own instance state
+      through `this`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'register: any;'
+      content: 'register: Record<string, (...args: never[]) => unknown>;'
       return:
-        type: any
+        type: 'Record&lt;string, (...args: never[]) =&gt; unknown&gt;'
   - name: rpc
     uid: '@gramstax/worker-thread!WorkerThreadGatewayServer#rpc:member'
     package: '@gramstax/worker-thread!'
@@ -71,10 +110,27 @@ properties:
       return:
         type: Server
 methods:
-  - name: start(path, register)
+  - name: close()
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayServer#close:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: close()
+    summary: Stop the gateway server and drop all connections.
+    remarks: >-
+      The socket is released so another server (or a restart of this one) can bind the same path. Tries a graceful close
+      first, but force-destroys connections if the graceful handshake does not finish within 500ms — `close()` never
+      hangs. The socket file is unlinked best-effort (a missing file is ignored) and calling `close()` twice is safe.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'close(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: start(path, register, options)
     uid: '@gramstax/worker-thread!WorkerThreadGatewayServer#start:member(1)'
     package: '@gramstax/worker-thread!'
-    fullName: start(path, register)
+    fullName: start(path, register, options)
     summary: Start the gateway server.
     remarks: ''
     example:
@@ -84,20 +140,29 @@ methods:
           ping: () => "pong",
           getData: (key) => database.get(key),
           setData: (key, value) => database.set(key, value),
+        }, {
+          token: "shared-secret",
+          allowedMethods: ["ping", "getData"],
         });
         console.log("Gateway server started");
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'start(path: string, register?: any): Promise<unknown>;'
+      content: >-
+        start(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: IGatewayServerOptions):
+        Promise<this>;
       parameters:
         - id: path
           description: Unix socket path to bind. Gateway path identifier.
           type: string
         - id: register
           description: Object to expose to clients. Called by connected clients. Defaults to `{}`<!-- -->.
-          type: any
+          type: 'Record&lt;string, (...args: never[]) =&gt; unknown&gt;'
+        - id: options
+          description: Server options (auth token, method allow-list, connection cap).
+          type: <xref uid="@gramstax/worker-thread!IGatewayServerOptions:type" />
       return:
-        type: Promise&lt;unknown&gt;
+        type: Promise&lt;this&gt;
         description: Promise that resolves to this server instance when ready.
+extends: '@gramstax/worker-thread!~EventEmitter'

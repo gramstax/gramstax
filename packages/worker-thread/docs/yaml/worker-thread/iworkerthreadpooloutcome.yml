@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IWorkerThreadPoolOutcome
+uid: '@gramstax/worker-thread!IWorkerThreadPoolOutcome:type'
+package: '@gramstax/worker-thread!'
+fullName: IWorkerThreadPoolOutcome
+summary: Per-worker outcome returned by `broadcastSettled`<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IWorkerThreadPoolOutcome<TResult> = {
+      threadId: number;
+      ok: boolean;
+      result?: TResult;
+      error?: unknown;
+  };

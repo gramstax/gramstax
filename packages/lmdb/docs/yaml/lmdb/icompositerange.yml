@@ -1,0 +1,41 @@
+### YamlMime:TSType
+name: ICompositeRange
+uid: '@gramstax/lmdb!ICompositeRange:interface'
+package: '@gramstax/lmdb!'
+fullName: ICompositeRange
+summary: Explicit bounds for a composite index range seek.
+remarks: >-
+  Accepted as a `findByIndex` value for composite keys (`t.*.index(["a", "b"])`<!-- -->), queried as `{"a+b": {start,
+  end}}`<!-- -->). Either bound may be omitted (open-ended); each present bound is a tuple of 1..arity elements. `start`
+  is inclusive, `end` is exclusive.
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: end
+    uid: '@gramstax/lmdb!ICompositeRange#end:member'
+    package: '@gramstax/lmdb!'
+    fullName: end
+    summary: Exclusive upper tuple bound.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'end?: Array<ILmdbKey>;'
+      return:
+        type: Array&lt;<xref uid="@gramstax/lmdb!ILmdbKey:type" />&gt;
+  - name: start
+    uid: '@gramstax/lmdb!ICompositeRange#start:member'
+    package: '@gramstax/lmdb!'
+    fullName: start
+    summary: Inclusive lower tuple bound.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'start?: Array<ILmdbKey>;'
+      return:
+        type: Array&lt;<xref uid="@gramstax/lmdb!ILmdbKey:type" />&gt;

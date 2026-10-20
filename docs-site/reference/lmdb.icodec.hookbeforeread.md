@@ -1,0 +1,54 @@
+---
+title: "ICodec.hookBeforeRead()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ICodec](./lmdb.icodec.md) &gt; [hookBeforeRead](./lmdb.icodec.hookbeforeread.md)
+
+## ICodec.hookBeforeRead() method
+
+Convert a stored representation back to a typed value.
+
+**Signature:**
+
+```typescript
+hookBeforeRead(raw: unknown): T;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+raw
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+T
+

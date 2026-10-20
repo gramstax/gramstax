@@ -1,0 +1,193 @@
+### YamlMime:TSType
+name: LmdbTransaction
+uid: '@gramstax/lmdb!LmdbTransaction:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbTransaction
+summary: Wraps the underlying `lmdb` transaction lifecycle with a stable API.
+remarks: >-
+  The underlying `lmdb` library uses a callback-based transaction model: - \*\*Write transactions\*\* are managed by
+  `rootDb.childTransaction(callback)`<!-- -->. The wrapper detects user intent and either returns the `ABORT` sentinel
+  (causing LMDB to roll back) or returns normally (causing LMDB to commit). - \*\*Read transactions\*\* are obtained via
+  `db.useReadTransaction()` and released via `rawTxn.done()` when the wrapper finalizes.
+
+
+  This class wraps both flavors behind a unified lifecycle API: - `commit()` marks the wrapper as committed — LMDB
+  commits when the childTransaction callback returns normally. - `abort()` marks the wrapper as aborted — LMDB rolls
+  back when the childTransaction callback returns the `ABORT` sentinel.
+
+
+  You do not construct this class directly —
+  [LmdbEnv.transaction()](xref:@gramstax/lmdb!LmdbEnv%23transaction:member(1)) and
+  [LmdbEnv.readTransaction()](xref:@gramstax/lmdb!LmdbEnv%23readTransaction:member(1)) create and manage the instance.
+
+
+  The constructor for this class is marked as internal. Third-party code should not call the constructor directly or
+  create subclasses that extend the `LmdbTransaction` class.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+properties:
+  - name: done
+    uid: '@gramstax/lmdb!LmdbTransaction#done:member'
+    package: '@gramstax/lmdb!'
+    fullName: done
+    summary: Whether this transaction has been finalized (committed or aborted).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get done(): boolean;'
+      return:
+        type: boolean
+  - name: isAborted
+    uid: '@gramstax/lmdb!LmdbTransaction#isAborted:member'
+    package: '@gramstax/lmdb!'
+    fullName: isAborted
+    summary: >-
+      Whether the user explicitly called
+      [LmdbTransaction.abort()](xref:@gramstax/lmdb!LmdbTransaction%23abort:member(1))<!-- -->.
+    remarks: >-
+      Read by [LmdbEnv.transaction()](xref:@gramstax/lmdb!LmdbEnv%23transaction:member(1)) after the user's callback
+      returns — if true, the LMDB childTransaction callback returns the `ABORT` sentinel.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get isAborted(): boolean;'
+      return:
+        type: boolean
+  - name: isCommitted
+    uid: '@gramstax/lmdb!LmdbTransaction#isCommitted:member'
+    package: '@gramstax/lmdb!'
+    fullName: isCommitted
+    summary: >-
+      Whether the user explicitly called
+      [LmdbTransaction.commit()](xref:@gramstax/lmdb!LmdbTransaction%23commit:member(1))<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get isCommitted(): boolean;'
+      return:
+        type: boolean
+  - name: lifecycle
+    uid: '@gramstax/lmdb!LmdbTransaction#lifecycle:member'
+    package: '@gramstax/lmdb!'
+    fullName: lifecycle
+    summary: Current lifecycle of this transaction.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get lifecycle(): ITransactionLifecycle;'
+      return:
+        type: <xref uid="@gramstax/lmdb!ITransactionLifecycle:type" />
+  - name: raw
+    uid: '@gramstax/lmdb!LmdbTransaction#raw:member'
+    package: '@gramstax/lmdb!'
+    fullName: raw
+    summary: Underlying LMDB read transaction object (only present for read transactions).
+    remarks: Low-level escape hatch. Most callers should not need this.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get raw(): IRawReadTransaction | undefined;'
+      return:
+        type: <xref uid="@gramstax/lmdb!IRawReadTransaction:type" /> | undefined
+methods:
+  - name: abort()
+    uid: '@gramstax/lmdb!LmdbTransaction#abort:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: abort()
+    summary: Mark this transaction as aborted.
+    remarks: >-
+      \*\*SQL equivalent\*\*: `ROLLBACK;` — discards all writes performed inside the transaction.
+
+
+      For write transactions (inside [LmdbEnv.transaction()](xref:@gramstax/lmdb!LmdbEnv%23transaction:member(1))<!--
+      -->): the wrapper callback detects this flag and throws an internal abort error, causing LMDB to roll back all
+      writes in the transaction.
+
+
+      For read transactions: releases the underlying LMDB read transaction immediately. Safe to call multiple times.
+
+
+      Inside [LmdbEnv.transactionFast()](xref:@gramstax/lmdb!LmdbEnv%23transactionFast:member(1)) this \*\*throws\*\*
+      `LmdbError`<!-- -->: that path commits through lmdb-js `db.transaction()`<!-- -->, which cannot roll back.
+      Silently ignoring the call would let the caller believe the writes were discarded when they are in fact committed.
+    example:
+      - |-
+        ```typescript
+        await env.transaction(async (tx) => {
+          try {
+            await users.put("u1", user, tx);
+            await someRiskyOp();
+            tx.commit();
+          } catch (err) {
+            tx.abort();
+            throw err;
+          }
+        });
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'abort(): void;'
+      return:
+        type: void
+        description: ''
+  - name: commit()
+    uid: '@gramstax/lmdb!LmdbTransaction#commit:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: commit()
+    summary: Mark this transaction as committed.
+    remarks: >-
+      \*\*SQL equivalent\*\*: `COMMIT;` — ends the transaction and makes all writes durable.
+
+
+      For write transactions (inside [LmdbEnv.transaction()](xref:@gramstax/lmdb!LmdbEnv%23transaction:member(1))<!--
+      -->): sets the internal flag so the wrapper callback returns normally and LMDB commits. The actual commit is
+      performed by LMDB once the wrapper returns.
+
+
+      For read transactions (inside
+      [LmdbEnv.readTransaction()](xref:@gramstax/lmdb!LmdbEnv%23readTransaction:member(1))<!-- -->): this is a no-op —
+      the raw LMDB read transaction is released automatically when the wrapper returns.
+    example:
+      - |-
+        ```typescript
+        await env.transaction(async (tx) => {
+          await users.put("u1", user, tx);
+          await sessions.put("s1", session, tx);
+          tx.commit();
+        });
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'commit(): void;'
+      return:
+        type: void
+        description: ''
+  - name: release()
+    uid: '@gramstax/lmdb!LmdbTransaction#release:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: release()
+    summary: Mark a read transaction as finished successfully (release the raw txn without reporting an abort).
+    remarks: >-
+      Used by [LmdbEnv.readTransaction()](xref:@gramstax/lmdb!LmdbEnv%23readTransaction:member(1)) on normal completion
+      — the wrapper lifecycle becomes `released` (not `aborted`<!-- -->), so `isAborted` stays `false` for transactions
+      that simply ran to completion. Safe to call multiple times; the raw read txn is released at most once.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'release(): void;'
+      return:
+        type: void
+        description: ''

@@ -1,0 +1,70 @@
+### YamlMime:TSType
+name: JobRunSchema
+uid: '@gramstax/lmdb!JobRunSchema:class'
+package: '@gramstax/lmdb!'
+fullName: JobRunSchema
+summary: Storage for one last-successful-run stamp per job name.
+remarks: >-
+  Declared as a schema rather than reached through a raw `getDb` handle, so rows are typed and readable via
+  `env.sub(JobRunSchema)` — no cast, and it works with the same inspection tooling as any other repository. `{at:
+  number}` leaves room to add fields later without a breaking change, since adding to a msgpack map is backward
+  compatible whereas changing the stored shape is not.
+
+
+  The `__` prefix follows the internal-state convention (`__queue_meta`<!-- -->, `__sync_state`<!-- -->, `__cdc_log`<!--
+  -->): a scheduler's bookkeeping is not domain data, and the prefix keeps these rows out of the CDC outbox so a backup
+  run does not show up in every consumer's change stream. The schema class is still exported for
+  `env.isRegistered(JobRunSchema)` and for typing — public reachability of the type does not make the rows user data.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+properties:
+  - name: db
+    uid: '@gramstax/lmdb!JobRunSchema.db:member'
+    package: '@gramstax/lmdb!'
+    fullName: db
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static db: string;'
+      return:
+        type: string
+  - name: key
+    uid: '@gramstax/lmdb!JobRunSchema.key:member'
+    package: '@gramstax/lmdb!'
+    fullName: key
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static key: IColumnBuilder<"string", "none", undefined, unknown, false, unknown>;'
+      return:
+        type: >-
+          <xref uid="@gramstax/lmdb!IColumnBuilder:interface" />&lt;"string", "none", undefined, unknown, false,
+          unknown&gt;
+  - name: value
+    uid: '@gramstax/lmdb!JobRunSchema.value:member'
+    package: '@gramstax/lmdb!'
+    fullName: value
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static value: {
+                at: IColumnBuilder<"number", "none", undefined, unknown, false, unknown>;
+            };
+      return:
+        type: |-
+          {
+                  at: <xref uid="@gramstax/lmdb!IColumnBuilder:interface" />&lt;"number", "none", undefined, unknown, false, unknown&gt;;
+              }
+extends: <xref uid="@gramstax/lmdb!LmdbSchema:class" />

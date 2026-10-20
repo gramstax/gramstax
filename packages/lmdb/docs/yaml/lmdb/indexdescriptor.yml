@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IndexDescriptor
+uid: '@gramstax/lmdb!IndexDescriptor:type'
+package: '@gramstax/lmdb!'
+fullName: IndexDescriptor
+summary: Runtime shape of one attached embedded-index descriptor.
+remarks: >-
+  Built at registration from the schema's declared indexes and kept on the sub state — the write path walks `indexes` to
+  maintain index rows in the same writer transaction as the primary write.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IndexDescriptor = {
+      name: string;
+      extractor: (value: unknown) => ILmdbKey | undefined | null;
+      unique: boolean;
+      state: LmdbSubState;
+      autoResolved: boolean;
+      composite: Array<string> | undefined;
+  };

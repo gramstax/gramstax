@@ -1,0 +1,74 @@
+---
+title: "LmdbEnvSub.removeValue()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [removeValue](./lmdb.lmdbenvsub.removevalue.md)
+
+## LmdbEnvSub.removeValue() method
+
+Remove one duplicate value under a key.
+
+**Signature:**
+
+```typescript
+removeValue(key: KeyOf<S>, value: ValueOf<S>): Promise<boolean>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+[KeyOf](./lmdb.keyof.md)&lt;S&gt;
+
+
+</td><td>
+
+The primary key.
+
+
+</td></tr>
+<tr><td>
+
+value
+
+
+</td><td>
+
+[ValueOf](./lmdb.valueof.md)&lt;S&gt;
+
+
+</td><td>
+
+The duplicate value to remove.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;boolean&gt;
+
+Resolves to `true` when the value was removed.
+

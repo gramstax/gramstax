@@ -1,0 +1,58 @@
+---
+title: "LmdbEnvSub.clear()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnvSub](./lmdb.lmdbenvsub.md) &gt; [clear](./lmdb.lmdbenvsub.clear.md)
+
+## LmdbEnvSub.clear() method
+
+Clear the sub.
+
+**Signature:**
+
+```typescript
+clear(tx?: LmdbTransaction): Promise<void>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+tx
+
+
+</td><td>
+
+[LmdbTransaction](./lmdb.lmdbtransaction.md)
+
+
+</td><td>
+
+_(Optional)_ Optional active [LmdbTransaction](./lmdb.lmdbtransaction.md) to clear within.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;void&gt;
+
+Resolves when the sub is emptied.
+

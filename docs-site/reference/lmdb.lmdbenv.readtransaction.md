@@ -1,0 +1,80 @@
+---
+title: "LmdbEnv.readTransaction()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [readTransaction](./lmdb.lmdbenv.readtransaction.md)
+
+## LmdbEnv.readTransaction() method
+
+Run a callback inside a read-only transaction.
+
+**Signature:**
+
+```typescript
+readTransaction<T>(fn: (tx: LmdbTransaction) => Promise<T>): Promise<T>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+fn
+
+
+</td><td>
+
+(tx: [LmdbTransaction](./lmdb.lmdbtransaction.md)) =&gt; Promise&lt;T&gt;
+
+
+</td><td>
+
+Callback receiving the read-only [LmdbTransaction](./lmdb.lmdbtransaction.md).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;T&gt;
+
+The callback's resolved value.
+
+## Remarks
+
+\*\*SQL equivalent\*\*:
+
+```sql
+START TRANSACTION READ ONLY;
+-- <reads performed via sub.get/has/keys/values/entries/iterate inside fn>
+COMMIT;
+```
+Obtains a read transaction via the inherited root-store `useReadTransaction()` and wraps it in a [LmdbTransaction](./lmdb.lmdbtransaction.md) that auto-releases when the callback returns. All reads inside the callback see a consistent snapshot.
+
+The callback MUST settle: the raw read transaction (and one of the env's limited reader slots, default 126) stays pinned until it does — a never-resolving promise can exhaust readers for the whole env.
+
+## Example
+
+
+```typescript
+const snapshot = await env.readTransaction(async (tx) => {
+  return await users.entries({}, tx);
+});
+```
+

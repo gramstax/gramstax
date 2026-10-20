@@ -1,0 +1,20 @@
+---
+title: "LmdbEnv.committed"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [committed](./lmdb.lmdbenv.committed.md)
+
+## LmdbEnv.committed property
+
+Promise resolving when all previous asynchronous writes have been committed (visible to readers, not necessarily flushed to disk).
+
+**Signature:**
+
+```typescript
+get committed(): Promise<boolean>;
+```
+
+## Remarks
+
+Forwards to the inherited lmdb root-store `committed`. Useful to await after a batch of `put()`/`delete()`/`clear()` calls to guarantee visibility before the next read.
+

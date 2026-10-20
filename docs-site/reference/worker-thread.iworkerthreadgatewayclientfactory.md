@@ -1,0 +1,19 @@
+---
+title: "IWorkerThreadGatewayClientFactory"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [IWorkerThreadGatewayClientFactory](./worker-thread.iworkerthreadgatewayclientfactory.md)
+
+## IWorkerThreadGatewayClientFactory type
+
+Factory type for `launchGatewayClient` returned by [WorkerThreadExport.init()](./worker-thread.workerthreadexport.init.md).
+
+**Signature:**
+
+```typescript
+type IWorkerThreadGatewayClientFactory<TWorker extends WorkerThreadInit> = (serverPath: string, options?: IGatewayClientOptions) => IWorkerThreadGatewayProxy<TWorker> & {
+    new (owner: WorkerThreadInit): IWorkerThreadAsyncMethods<TWorker>;
+};
+```
+**References:** [WorkerThreadInit](./worker-thread.workerthreadinit.md), [IGatewayClientOptions](./worker-thread.igatewayclientoptions.md), [IWorkerThreadGatewayProxy](./worker-thread.iworkerthreadgatewayproxy.md), [IWorkerThreadAsyncMethods](./worker-thread.iworkerthreadasyncmethods.md)
+

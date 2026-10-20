@@ -1,0 +1,105 @@
+---
+title: "WorkerThreadGatewayServer.start()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadGatewayServer](./worker-thread.workerthreadgatewayserver.md) &gt; [start](./worker-thread.workerthreadgatewayserver.start.md)
+
+## WorkerThreadGatewayServer.start() method
+
+Start the gateway server.
+
+**Signature:**
+
+```typescript
+start(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: IGatewayServerOptions): Promise<this>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+path
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Unix socket path to bind. Gateway path identifier.
+
+
+</td></tr>
+<tr><td>
+
+register
+
+
+</td><td>
+
+Record&lt;string, (...args: never\[\]) =&gt; unknown&gt;
+
+
+</td><td>
+
+_(Optional)_ Object to expose to clients. Called by connected clients. Defaults to `{}`.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IGatewayServerOptions](./worker-thread.igatewayserveroptions.md)
+
+
+</td><td>
+
+_(Optional)_ Server options (auth token, method allow-list, connection cap).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;this&gt;
+
+Promise that resolves to this server instance when ready.
+
+## Example
+
+
+```typescript
+await server.start("/tmp/data-worker.sock", {
+  ping: () => "pong",
+  getData: (key) => database.get(key),
+  setData: (key, value) => database.set(key, value),
+}, {
+  token: "shared-secret",
+  allowedMethods: ["ping", "getData"],
+});
+console.log("Gateway server started");
+```
+

@@ -1,0 +1,56 @@
+---
+title: "WorkerThreadInit.handleOnMessage()"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadInit](./worker-thread.workerthreadinit.md) &gt; [handleOnMessage](./worker-thread.workerthreadinit.handleonmessage.md)
+
+## WorkerThreadInit.handleOnMessage() method
+
+\[LOW-LEVEL\] Handle incoming messages from the main thread.
+
+**Signature:**
+
+```typescript
+handleOnMessage(data: Parameters<WorkerThreadRpc[`make`]>[0]): void;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+data
+
+
+</td><td>
+
+Parameters&lt;[WorkerThreadRpc](./worker-thread.workerthreadrpc.md)\[\`make\`\]&gt;\[0\]
+
+
+</td><td>
+
+Message data from main thread.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+void
+

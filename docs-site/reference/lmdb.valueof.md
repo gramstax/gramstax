@@ -1,0 +1,27 @@
+---
+title: "ValueOf"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ValueOf](./lmdb.valueof.md)
+
+## ValueOf type
+
+Value type inferred from a schema class.
+
+**Signature:**
+
+```typescript
+type ValueOf<S extends typeof LmdbSchema> = IValueOfDispatch<S[`value`]>;
+```
+**References:** [LmdbSchema](./lmdb.lmdbschema.md)
+
+## Remarks
+
+Short alias for `IInferSchemaValue<typeof X.value>` — the value type derived from a schema class's `static value` columns. For scalar schemas (`static value = t.number()`), resolves to the scalar's TypeScript type:
+
+```typescript
+type UserValue = ValueOf<typeof UserSchema>
+type CounterValue = ValueOf<typeof CounterSchema> // number
+```
+Columns are `T` by default and become `T | undefined` only when declared optional (`.optional()`).
+

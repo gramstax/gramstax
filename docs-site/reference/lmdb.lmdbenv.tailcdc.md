@@ -1,0 +1,62 @@
+---
+title: "LmdbEnv.tailCdc()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [tailCdc](./lmdb.lmdbenv.tailcdc.md)
+
+## LmdbEnv.tailCdc() method
+
+Tail the durable outbox above a floor.
+
+**Signature:**
+
+```typescript
+tailCdc(options?: ICdcTailOptions): Promise<Array<ICdcRecord>>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+options
+
+
+</td><td>
+
+[ICdcTailOptions](./lmdb.icdctailoptions.md)
+
+
+</td><td>
+
+_(Optional)_ `{consumer?, from?, limit?}`.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;Array&lt;[ICdcRecord](./lmdb.icdcrecord.md)&gt;&gt;
+
+Outbox records above the floor, oldest first.
+
+## Remarks
+
+A named consumer auto-registers on first tail and resumes past its ack on later tails (including across restarts — acks persist in `__cdc_meta`). An explicit `from` repositions forward past the ack but never backward. Returns `{seq, db, type, key, value}` records for [LmdbEnv.ackCdc()](./lmdb.lmdbenv.ackcdc.md).
+

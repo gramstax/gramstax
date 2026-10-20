@@ -1,0 +1,133 @@
+---
+title: "IIndexDef"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IIndexDef](./lmdb.iindexdef.md)
+
+## IIndexDef interface
+
+Declarative embedded secondary index definition.
+
+**Signature:**
+
+```typescript
+interface IIndexDef<T, K extends ILmdbKey = ILmdbKey> 
+```
+
+## Remarks
+
+Declared via `static indexes` on a schema class:
+
+```typescript
+class UserSchema extends LmdbSchema {
+  static db = `user`;
+  static indexes = {
+    email: {unique: true},            // auto-resolved field `user.email`
+    emailLower: {extractor: (u) => u.email.toLowerCase()},
+    profileCity: {dbName: `user:idx:city`}  // dotted path, custom dbName
+  } as const;
+}
+```
+When `extractor` is omitted the index name is treated as a field path on the value (`username` → `value.username`, `profile.email` → `value.profile.email`). A missing field path throws [LmdbError](./lmdb.lmdberror.md) on the first write; a resolved `undefined`/`null` value skips the entry.
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[composite?](./lmdb.iindexdef.composite.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Array&lt;string&gt;
+
+
+</td><td>
+
+_(Optional)_ Composite column list for concatenated-key indexes.
+
+
+</td></tr>
+<tr><td>
+
+[dbName?](./lmdb.iindexdef.dbname.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Override the auto-generated index sub-DB name.
+
+
+</td></tr>
+<tr><td>
+
+[extractor?](./lmdb.iindexdef.extractor.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(value: T) =&gt; K \| undefined \| null
+
+
+</td><td>
+
+_(Optional)_ Extract the indexed value from a primary value.
+
+
+</td></tr>
+<tr><td>
+
+[unique?](./lmdb.iindexdef.unique.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Enforce uniqueness on this index.
+
+
+</td></tr>
+</tbody></table>
+

@@ -1,0 +1,62 @@
+---
+title: "LmdbSchema.deriveSearch()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbSchema](./lmdb.lmdbschema.md) &gt; [deriveSearch](./lmdb.lmdbschema.derivesearch.md)
+
+## LmdbSchema.deriveSearch() method
+
+Derive searchable column names from a schema's columns.
+
+**Signature:**
+
+```typescript
+static deriveSearch(columns: IAnyColumnBuilder | Record<string, IAnyColumnBuilder>): Array<string>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+columns
+
+
+</td><td>
+
+[IAnyColumnBuilder](./lmdb.ianycolumnbuilder.md) \| Record&lt;string, [IAnyColumnBuilder](./lmdb.ianycolumnbuilder.md)&gt;
+
+
+</td><td>
+
+The schema's `static value` map.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Array&lt;string&gt;
+
+Searchable column names in declaration order.
+
+## Remarks
+
+Every top-level value column carrying `.search()` becomes one posting table (`{db}:search:{column}`). Called by [LmdbEnv.register()](./lmdb.lmdbenv.register.md) after [LmdbSchema.validate()](./lmdb.lmdbschema.validate.md); validation already guarantees string-kind row-shaped columns, so this never throws.
+

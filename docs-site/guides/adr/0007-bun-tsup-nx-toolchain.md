@@ -23,12 +23,12 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 - **Runtime / tests**: `bun` (`bun:test`, `Bun.serve` for webhooks). `package.json` scripts use `bun test`, `bun run lint`, etc.
 - **Build**: `tsup` (`tsup.config.ts`) emits to `dist/src` as `cjs` + `esm` with `dts: true`, `minify: true`, `platform: node`, `target: esnext`, keeping `bun` external. `project.json` wires Nx `build` → `tsup` in `packages/gramstax`.
 - **Orchestration**: Nx (`nx.json`) defines `build`/`lint`/`test` target defaults (cache, `dependsOn: ^build`, production inputs) and a `release` config (conventional-commits versioning, git tag `v{version}`, GitHub changelog, `packages/*` projects).
-- **API docs**: `api-extractor` + `api-documenter` (`build:docs` script, `api-extractor.json`) generate `docs-site/reference/*` (markdown) and `docs/yaml/*` from the emitted `.d.ts`.
+- **API docs**: `api-extractor` + `api-documenter` (the root `build:docs` script, `api-extractor.json`) generate `docs-site/reference/*` (markdown) and `docs/yaml/*` from the emitted `.d.ts`. Each package stages into `packages/*/docs/{markdown,yaml}`; `scripts/mintlify/merge-reference.mjs` folds the staged pages into `docs-site/reference/`.
 
 <Warning>
   `docs-site/reference` and `docs/yaml` are generated artifacts and must not be
   hand-edited. Change the source and regenerate with
-  `cd packages/gramstax && bun run build:docs`.
+  `bun run build:docs` from the repository root.
 </Warning>
 
 ## Consequences

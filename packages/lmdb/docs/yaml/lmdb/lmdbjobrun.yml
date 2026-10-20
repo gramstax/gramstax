@@ -1,0 +1,175 @@
+### YamlMime:TSType
+name: LmdbJobRun
+uid: '@gramstax/lmdb!LmdbJobRun:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbJobRun
+summary: Persisted run-stamps and the cron schedule that honours them.
+remarks: >-
+  This module owns both halves of a restart-safe job, the way [LmdbQueue](xref:@gramstax/lmdb!LmdbQueue:class) owns a
+  queue's metadata and lifecycle together:
+
+
+  - \*\*croner\*\* decides \*when\* to fire. It cannot answer whether a run was missed, because `cron.previousRun()` is
+  in-memory and dies with the process. - \*\*this class\*\* persists \*that\* answer, one `{at}` row per job name, so
+  the next boot can tell whether the job is actually due.
+
+
+  A bare timer gets both halves wrong. Restart a process every six hours with a daily schedule and you either run on
+  every boot, or — if the timer restarts from zero — nothing covers the hours the process was down.
+example:
+  - |-
+    ```typescript
+    const jobs = new LmdbJobRun(env)
+    const handle = jobs.start(`db-backup`, {
+      pattern: `0 3 * * *`,
+      task: () => LmdbBackup.snapshot(env, {dir: `./backups`})
+    })
+    await handle.runNow()
+    handle.stop()
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(env)
+    uid: '@gramstax/lmdb!LmdbJobRun:constructor(1)'
+    package: '@gramstax/lmdb!'
+    fullName: (constructor)(env)
+    summary: Bind a run-stamp store and scheduler to an env.
+    remarks: >-
+      Registers [JobRunSchema](xref:@gramstax/lmdb!JobRunSchema:class) on first use and reuses it afterwards, so a
+      second `LmdbJobRun` on the same env is safe and does not throw. Costs one `maxDbs` slot.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(env: LmdbEnv);'
+      parameters:
+        - id: env
+          description: Owning env (must stay open for this instance's lifetime).
+          type: <xref uid="@gramstax/lmdb!LmdbEnv:class" />
+properties:
+  - name: sub
+    uid: '@gramstax/lmdb!LmdbJobRun#sub:member'
+    package: '@gramstax/lmdb!'
+    fullName: sub
+    summary: The underlying sub-DB handle, for direct reads or range scans.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get sub(): LmdbEnvSub<typeof JobRunSchema>;'
+      return:
+        type: <xref uid="@gramstax/lmdb!LmdbEnvSub:class" />&lt;typeof <xref uid="@gramstax/lmdb!JobRunSchema:class" />&gt;
+methods:
+  - name: clear(key)
+    uid: '@gramstax/lmdb!LmdbJobRun#clear:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: clear(key)
+    summary: Forget the stamp for `key`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'clear(key: string): Promise<boolean>;'
+      parameters:
+        - id: key
+          description: Job name.
+          type: string
+      return:
+        type: Promise&lt;boolean&gt;
+        description: '`true` when a stamp existed.'
+  - name: lastRun(key)
+    uid: '@gramstax/lmdb!LmdbJobRun#lastRun:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: lastRun(key)
+    summary: Read the last successful run for `key`<!-- -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'lastRun(key: string): number | undefined;'
+      parameters:
+        - id: key
+          description: Job name.
+          type: string
+      return:
+        type: number | undefined
+        description: Epoch ms of the last success, or `undefined` when never run.
+  - name: missed(key, opts)
+    uid: '@gramstax/lmdb!LmdbJobRun#missed:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: missed(key, opts)
+    summary: Whether a scheduled occurrence passed since the last successful run.
+    remarks: >-
+      Compares the persisted stamp against the most recent time `pattern` matched at or before `now`<!-- -->. `true`
+      when the job never ran, or when that boundary is newer than the last success.
+
+
+      Use this to decide \*whether\* to run without committing to a schedule. To run on a pattern, use
+      [LmdbJobRun.start()](xref:@gramstax/lmdb!LmdbJobRun%23start:member(1))<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'missed(key: string, opts: IJobRunMissedOptions): boolean;'
+      parameters:
+        - id: key
+          description: Job name.
+          type: string
+        - id: opts
+          description: '`{pattern, timezone?, now?}` — pass `now` to make the check deterministic instead of reading the clock.'
+          type: <xref uid="@gramstax/lmdb!LmdbJobRunMissedOptions:interface" />
+      return:
+        type: boolean
+        description: '`true` when a boundary was missed.'
+  - name: recordRun(key, at)
+    uid: '@gramstax/lmdb!LmdbJobRun#recordRun:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: recordRun(key, at)
+    summary: Record a successful run for `key`<!-- -->.
+    remarks: >-
+      Call this only after the work succeeded. Stamping before the work means a crash or a thrown error is recorded as a
+      completed run, and the next boot would treat the job as satisfied.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'recordRun(key: string, at?: number): Promise<void>;'
+      parameters:
+        - id: key
+          description: Job name.
+          type: string
+        - id: at
+          description: Epoch ms to stamp (default `Date.now()`<!-- -->).
+          type: number
+      return:
+        type: Promise&lt;void&gt;
+        description: Nothing.
+  - name: start(key, opts)
+    uid: '@gramstax/lmdb!LmdbJobRun#start:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: start(key, opts)
+    summary: Run `task` on a cron schedule, resuming across restarts.
+    remarks: >-
+      The job is constructed paused so the catch-up decision can be made from the persisted stamp before anything is
+      armed. When a boundary passed while the process was down, exactly one run is triggered immediately; otherwise the
+      schedule waits for the next boundary.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'start(key: string, opts: IJobRunScheduleOptions): IJobRunHandle;'
+      parameters:
+        - id: key
+          description: Job name, also the key its stamp is stored under.
+          type: string
+        - id: opts
+          description: '`{pattern, task, timezone?, runOnStart?, catchUp?, onError?, persist?}`<!-- -->.'
+          type: <xref uid="@gramstax/lmdb!LmdbJobRunScheduleOptions:interface" />
+      return:
+        type: <xref uid="@gramstax/lmdb!LmdbJobRunHandle:interface" />
+        description: A handle with `stop`<!-- -->, `runNow`<!-- -->, `lastRun`<!-- -->, `nextRun` and `label`<!-- -->.

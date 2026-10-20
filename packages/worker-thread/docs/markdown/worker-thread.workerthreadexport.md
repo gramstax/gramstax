@@ -21,7 +21,7 @@ Automatically detects if running in main thread or worker thread. Provides type-
 Basic Usage
 
 ```typescript
-import { WorkerThreadExport, WorkerThreadInit } from "gramstax";
+import { WorkerThreadExport, WorkerThreadInit } from "@gramstax/worker-thread";
 
 class MyWorker extends WorkerThreadInit {
   count = 0;
@@ -58,7 +58,9 @@ class ServerWorker extends WorkerThreadInit {
   }
 
   async mtdStartServer() {
-    return await this.createGatewayServer("/tmp/server.sock");
+    return await this.createGatewayServer("/tmp/server.sock", undefined, {
+      allowedMethods: ["mtdHello"],
+    });
   }
 }
 
@@ -121,7 +123,7 @@ Initialize a worker thread export with automatic environment detection.
 </td></tr>
 <tr><td>
 
-[launchGatewayClient(path)](./worker-thread.workerthreadexport.launchgatewayclient.md)
+[launchGatewayClient(path, options)](./worker-thread.workerthreadexport.launchgatewayclient.md)
 
 
 </td><td>

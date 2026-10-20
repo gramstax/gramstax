@@ -1,0 +1,82 @@
+---
+title: "LmdbJobRun.start()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbJobRun](./lmdb.lmdbjobrun.md) &gt; [start](./lmdb.lmdbjobrun.start.md)
+
+## LmdbJobRun.start() method
+
+Run `task` on a cron schedule, resuming across restarts.
+
+**Signature:**
+
+```typescript
+start(key: string, opts: IJobRunScheduleOptions): IJobRunHandle;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+key
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Job name, also the key its stamp is stored under.
+
+
+</td></tr>
+<tr><td>
+
+opts
+
+
+</td><td>
+
+[IJobRunScheduleOptions](./lmdb.lmdbjobrunscheduleoptions.md)
+
+
+</td><td>
+
+`{pattern, task, timezone?, runOnStart?, catchUp?, onError?, persist?}`.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+[IJobRunHandle](./lmdb.lmdbjobrunhandle.md)
+
+A handle with `stop`, `runNow`, `lastRun`, `nextRun` and `label`.
+
+## Exceptions
+
+[LmdbError](./lmdb.lmdberror.md) On a blank `key`, or an unparseable `pattern`.
+
+## Remarks
+
+The job is constructed paused so the catch-up decision can be made from the persisted stamp before anything is armed. When a boundary passed while the process was down, exactly one run is triggered immediately; otherwise the schedule waits for the next boundary.
+

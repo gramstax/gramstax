@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IGatewayClientOptions
+uid: '@gramstax/worker-thread!IGatewayClientOptions:type'
+package: '@gramstax/worker-thread!'
+fullName: IGatewayClientOptions
+summary: Options for connecting a gateway client.
+remarks: >-
+  Reconnect is enabled by default: when the connection drops (e.g. the gateway server worker restarts), the client
+  retries with exponential backoff and pending requests are retried transparently.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IGatewayClientOptions = {
+      token?: string;
+      reconnect?: boolean;
+      retries?: number;
+      maxRetryTime?: number;
+      maxMessageSize?: number;
+      messagepack?: boolean;
+  };

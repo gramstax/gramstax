@@ -1,0 +1,15 @@
+---
+title: "ISyncOptions.limit"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ISyncOptions](./lmdb.isyncoptions.md) &gt; [limit](./lmdb.isyncoptions.limit.md)
+
+## ISyncOptions.limit property
+
+Maximum rows copied this run (a truncated run reports `verified: false`).
+
+**Signature:**
+
+```typescript
+limit?: number;
+```

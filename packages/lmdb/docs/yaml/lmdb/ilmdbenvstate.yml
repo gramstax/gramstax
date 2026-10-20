@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ILmdbEnvState
+uid: '@gramstax/lmdb!ILmdbEnvState:type'
+package: '@gramstax/lmdb!'
+fullName: ILmdbEnvState
+summary: Lifecycle state of an [LmdbEnv](xref:@gramstax/lmdb!LmdbEnv:class)<!-- -->.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ILmdbEnvState = `closed` | `opening` | `open` | `closing`;

@@ -1,0 +1,51 @@
+### YamlMime:TSType
+name: ICodec
+uid: '@gramstax/lmdb!ICodec:interface'
+package: '@gramstax/lmdb!'
+fullName: ICodec
+summary: A write/read hook pair used by [LmdbEnv](xref:@gramstax/lmdb!LmdbEnv:class) for custom transforms.
+remarks: >-
+  Default encoding (lmdb-js native) is msgpack/JSON/etc. Use this to transform rows at the repository boundary —
+  `hookBeforeWrite` runs before LMDB serializes the value, `hookBeforeRead` after it deserializes it (e.g. `Date →
+  number`<!-- -->). This runs BEFORE the native LMDB encoding.
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+methods:
+  - name: hookBeforeRead(raw)
+    uid: '@gramstax/lmdb!ICodec#hookBeforeRead:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: hookBeforeRead(raw)
+    summary: Convert a stored representation back to a typed value.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'hookBeforeRead(raw: unknown): T;'
+      parameters:
+        - id: raw
+          description: ''
+          type: unknown
+      return:
+        type: T
+        description: ''
+  - name: hookBeforeWrite(value)
+    uid: '@gramstax/lmdb!ICodec#hookBeforeWrite:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: hookBeforeWrite(value)
+    summary: Convert a typed value to a storable representation.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'hookBeforeWrite(value: T): unknown;'
+      parameters:
+        - id: value
+          description: ''
+          type: T
+      return:
+        type: unknown
+        description: ''

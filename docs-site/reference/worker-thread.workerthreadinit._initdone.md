@@ -1,0 +1,15 @@
+---
+title: "WorkerThreadInit._initDone"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadInit](./worker-thread.workerthreadinit.md) &gt; [\_initDone](./worker-thread.workerthreadinit._initdone.md)
+
+## WorkerThreadInit.\_initDone property
+
+Guards [WorkerThreadInit.init()](./worker-thread.workerthreadinit.init.md) against duplicate listeners.
+
+**Signature:**
+
+```typescript
+_initDone: boolean;
+```

@@ -1,0 +1,20 @@
+---
+title: "LmdbSchema.key"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbSchema](./lmdb.lmdbschema.md) &gt; [key](./lmdb.lmdbschema.key.md)
+
+## LmdbSchema.key property
+
+Key column builder — the collection's primary key.
+
+**Signature:**
+
+```typescript
+static key: IAnyColumnBuilder;
+```
+
+## Remarks
+
+Must be a single [IColumnBuilder](./lmdb.icolumnbuilder.md) (from the [t](./lmdb.t.md) builders). Must NOT carry `unique`/`index` — the key is implicitly the primary index and is excluded from the derived `indexes`.
+

@@ -1,0 +1,31 @@
+---
+title: "ILmdbEnvOptions.onWarn"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [onWarn](./lmdb.ilmdbenvoptions.onwarn.md)
+
+## ILmdbEnvOptions.onWarn property
+
+Sink for the package's own diagnostics (default: none — silent).
+
+**Signature:**
+
+```typescript
+onWarn?: (message: string) => void;
+```
+
+## Remarks
+
+This library never writes to `console`; where would a warning go is the host application's decision, not the package's. Unattached diagnostics are dropped silently.
+
+Receives, among others: - `maxDbs` headroom running low (once per env), - a CDC subscriber callback that threw, - a scheduled job tick that failed, unless the job was given its own `onError`.
+
+A listener that throws is contained — it cannot break a commit or a tick. Equivalent to [LmdbEnv.onWarn()](./lmdb.lmdbenv.onwarn.md), which binds later.
+
+## Example
+
+
+```typescript
+const env = new LmdbEnv({path, maxDbs: 128, onWarn: (message) => log.warn(message)})
+```
+

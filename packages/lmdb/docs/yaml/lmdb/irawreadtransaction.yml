@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IRawReadTransaction
+uid: '@gramstax/lmdb!IRawReadTransaction:type'
+package: '@gramstax/lmdb!'
+fullName: IRawReadTransaction
+summary: Raw LMDB read transaction augmented with optional lifecycle hooks.
+remarks: >-
+  `useReadTransaction()` returns a plain `Transaction`<!-- -->; the optional hooks below are probed defensively (`typeof
+  x.done === 'function'`<!-- -->) before use.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IRawReadTransaction = Transaction & {
+      done?: () => void;
+      abort?: () => void;
+  };

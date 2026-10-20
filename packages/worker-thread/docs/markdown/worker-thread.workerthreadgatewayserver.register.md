@@ -9,10 +9,10 @@ Object exposed to clients.
 **Signature:**
 
 ```typescript
-register: any;
+register: Record<string, (...args: never[]) => unknown>;
 ```
 
 ## Remarks
 
-Properties become RPC-callable methods.
+Properties become RPC-callable methods. When `allowedMethods` is set, method access is restricted per request via RPC middleware — the register itself is never wrapped, so registered methods keep reading their own instance state through `this`<!-- -->.
 

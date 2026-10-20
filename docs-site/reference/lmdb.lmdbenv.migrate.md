@@ -1,0 +1,71 @@
+---
+title: "LmdbEnv.migrate()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbEnv](./lmdb.lmdbenv.md) &gt; [migrate](./lmdb.lmdbenv.migrate.md)
+
+## LmdbEnv.migrate() method
+
+Apply pending schema migrations.
+
+**Signature:**
+
+```typescript
+migrate(migrations: IMigration[]): Promise<{
+        applied: IMigration[];
+        currentVersion: number;
+    }>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+migrations
+
+
+</td><td>
+
+IMigration\[\]
+
+
+</td><td>
+
+Array of migrations with unique monotonic `version`.
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;\{ applied: IMigration\[\]; currentVersion: number; }&gt;
+
+The list of actually applied migrations and the current version.
+
+## Exceptions
+
+[LmdbError](./lmdb.lmdberror.md) for duplicate versions and steps with neither `up` nor `transform`.
+
+[LmdbError](./lmdb.lmdberror.md) for transform/schema version skew.
+
+## Remarks
+
+Each migration's `up` runs inside its own writer transaction and the stored version is bumped only on success. `transform` steps backfill first (chunked top-level transactions, resumable), then `up` runs, then the version bump and the per-step completion marker commit together. Concurrent callers are serialized via LMDB's single-writer lock — the second caller re-checks the version inside the transaction and skips already-applied steps.
+

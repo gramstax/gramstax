@@ -9,7 +9,7 @@ Creates a new WorkerThreadLaunch instance and spawns the worker thread.
 **Signature:**
 
 ```typescript
-constructor(path: string, argv: any[], register?: any | undefined);
+constructor(path: string, argv: unknown[], register?: Record<string, (...args: never[]) => unknown> | undefined);
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ argv
 
 </td><td>
 
-any\[\]
+unknown\[\]
 
 
 </td><td>
@@ -69,7 +69,7 @@ register
 
 </td><td>
 
-any \| undefined
+Record&lt;string, (...args: never\[\]) =&gt; unknown&gt; \| undefined
 
 
 </td><td>

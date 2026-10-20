@@ -1,0 +1,20 @@
+---
+title: "ILmdbEnvOptions.strictAsyncOrder"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [strictAsyncOrder](./lmdb.ilmdbenvoptions.strictasyncorder.md)
+
+## ILmdbEnvOptions.strictAsyncOrder property
+
+Maintain strict ordering of async transactions relative to async single operations.
+
+**Signature:**
+
+```typescript
+strictAsyncOrder?: boolean;
+```
+
+## Remarks
+
+Adds ordering guarantees at the cost of more thread switching between main thread and worker thread. Off by default.
+

@@ -1,0 +1,77 @@
+---
+title: "LmdbBackup.prune()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [LmdbBackup](./lmdb.lmdbbackup.md) &gt; [prune](./lmdb.lmdbbackup.prune.md)
+
+## LmdbBackup.prune() method
+
+Delete oldest backups beyond `keep`.
+
+**Signature:**
+
+```typescript
+static prune(baseDir: string, keep?: number): Promise<{
+        kept: number;
+        removed: Array<string>;
+    }>;
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+baseDir
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Directory holding timestamped backup subdirs.
+
+
+</td></tr>
+<tr><td>
+
+keep
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Backups to retain (default `3`).
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+Promise&lt;\{ kept: number; removed: Array&lt;string&gt;; }&gt;
+
+Kept count and removed paths.
+

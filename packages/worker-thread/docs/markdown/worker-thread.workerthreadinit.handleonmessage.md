@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-handleOnMessage(data: any): void;
+handleOnMessage(data: Parameters<WorkerThreadRpc[`make`]>[0]): void;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ data
 
 </td><td>
 
-any
+Parameters&lt;[WorkerThreadRpc](./worker-thread.workerthreadrpc.md)<!-- -->\[\`make\`\]&gt;\[0\]
 
 
 </td><td>

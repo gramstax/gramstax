@@ -1,0 +1,25 @@
+---
+title: "IColumnBuilder.search()"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [IColumnBuilder](./lmdb.icolumnbuilder.md) &gt; [search](./lmdb.icolumnbuilder.search.md)
+
+## IColumnBuilder.search() method
+
+Mark the column as full-text searchable.
+
+**Signature:**
+
+```typescript
+search(): IColumnBuilder<K, I, N, V, Nl>;
+```
+**Returns:**
+
+[IColumnBuilder](./lmdb.icolumnbuilder.md)&lt;K, I, N, V, Nl&gt;
+
+A new builder with `isSearchable: true`.
+
+## Remarks
+
+Storage-only: the row type is unchanged. Only valid on `string` columns of row-shaped values (registration throws otherwise).
+

@@ -1,0 +1,20 @@
+---
+title: "ILmdbEnvOptions.compression"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ILmdbEnvOptions](./lmdb.ilmdbenvoptions.md) &gt; [compression](./lmdb.ilmdbenvoptions.compression.md)
+
+## ILmdbEnvOptions.compression property
+
+Enable LMDB's built-in compression for stored values.
+
+**Signature:**
+
+```typescript
+compression?: boolean | ICompressionOptions;
+```
+
+## Remarks
+
+Reduces on-disk size at the cost of small CPU overhead on read/write. Off-thread LZ4 — typically negligible impact.
+

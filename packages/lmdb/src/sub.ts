@@ -261,7 +261,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    *
    * @param key - The key to validate.
    * @param value - The value to validate.
-   * @throws {LmdbError} On an out-of-enum key or field.
+   * @throws {@link LmdbError} On an out-of-enum key or field.
    */
   private _assertEnum(key: ILmdbKey, value: unknown): void {
     if (!this._needsGuards) return
@@ -429,7 +429,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    *
    * @param state - Sub-DB state.
    * @param op - Operation name for the error message.
-   * @throws {LmdbError} When the sub is not dupSort.
+   * @throws {@link LmdbError} When the sub is not dupSort.
    */
   private _assertDupSort(state: LmdbSubState, op: string): void {
     if (!state.opts.dupSort) {
@@ -450,7 +450,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param op - Operation name for the error message.
    * @param options - Caller range options (limit/offset/bounds).
    * @param bounds - Explicit scan bounds, when the caller computed them.
-   * @throws {LmdbError} When the result would exceed the cap.
+   * @throws {@link LmdbError} When the result would exceed the cap.
    */
   private _assertMaterialize(state: LmdbSubState, op: string, options?: IRangeOptions, bounds?: {start: ILmdbKey; end: ILmdbKey}): void {
     const max = MAX_MATERIALIZE
@@ -481,7 +481,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    *
    * @param op - Operation name for the error message.
    * @param count - Result count to check.
-   * @throws {LmdbError} When `count` exceeds the cap.
+   * @throws {@link LmdbError} When `count` exceeds the cap.
    */
   private _assertMaterializeCount(op: string, count: number): void {
     const max = MAX_MATERIALIZE
@@ -546,7 +546,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param state - Sub-DB state.
    * @param name - Declared index name.
    * @returns The index descriptor.
-   * @throws {LmdbError} On an undeclared index name.
+   * @throws {@link LmdbError} On an undeclared index name.
    */
   private _findIndex(state: LmdbSubState, name: string): IndexDescriptor {
     const idx = state.indexByName.get(name)
@@ -623,7 +623,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param key - The key to read.
    * @param _tx - Read transaction to pin, if any.
    * @returns The decoded value.
-   * @throws {LmdbError} When the key is absent.
+   * @throws {@link LmdbError} When the key is absent.
    */
   private _getStrict(state: LmdbSubState, key: ILmdbKey, _tx?: LmdbTransaction): unknown {
     const value = this._get(state, key, _tx)
@@ -845,7 +845,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param options - Range options, if any.
    * @param tx - Read transaction to pin, if any.
    * @returns Matching `[key, value]` entries.
-   * @throws {LmdbError} When wildcards exceed the ReDoS cap.
+   * @throws {@link LmdbError} When wildcards exceed the ReDoS cap.
    */
   private _like(state: LmdbSubState, pattern: string, options?: IRangeOptions, tx?: LmdbTransaction): Promise<Array<[ILmdbKey, unknown]>> {
     const closed = this._rejectClosed()
@@ -983,7 +983,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param state - Sub-DB state.
    * @param prefix - The prefix (empty prefixes reject — use `clear()`).
    * @returns The number of removed entries.
-   * @throws {LmdbError} On empty prefixes or over-cap ranges.
+   * @throws {@link LmdbError} On empty prefixes or over-cap ranges.
    */
   private _deleteByPrefix(state: LmdbSubState, prefix: ILmdbKey): Promise<number> {
     const closed = this._rejectClosed()
@@ -1104,8 +1104,8 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param key - The counter key.
    * @param delta - Amount to add (default `1`).
    * @returns The new counter value.
-   * @throws {LmdbError} On indexed subs.
-   * @throws {TypeError} On non-finite deltas or non-numeric currents.
+   * @throws {@link LmdbError} On indexed subs.
+   * @throws TypeError On non-finite deltas or non-numeric currents.
    */
   private _increment(state: LmdbSubState, key: ILmdbKey, delta = 1): Promise<number> {
     const closed = this._rejectClosed()
@@ -1239,7 +1239,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param key - The key.
    * @param value - Binary payload.
    * @returns Boolean Completion of the write.
-   * @throws {LmdbError} On subs with indexes/search tables (binary writes
+   * @throws {@link LmdbError} On subs with indexes/search tables (binary writes
    * would leave them stale).
    */
   private _putBinary(state: LmdbSubState, key: ILmdbKey, value: Buffer | Uint8Array): Promise<boolean> {
@@ -1289,7 +1289,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param chunkSize - Rows per transaction (default `500`).
    * @param options - `{sorted?, onProgress?}`.
    * @returns Completion of the import.
-   * @throws {LmdbError} On the first out-of-order key when sorted.
+   * @throws {@link LmdbError} On the first out-of-order key when sorted.
    */
   private async _putMany(state: LmdbSubState, entries: Array<[ILmdbKey, unknown]>, chunkSize = 500, options?: {sorted?: boolean; onProgress?: (done: number, total: number) => void}): Promise<void> {
     const closed = this._rejectClosed()
@@ -1560,7 +1560,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param mode - `sync` for direct puts, `async` for queued puts.
    * @param version - Version stamp, if any.
    * @param appendOpts - Sorted-append options for bulk imports, if any.
-   * @throws {LmdbError} On unique-index conflicts with another key.
+   * @throws {@link LmdbError} On unique-index conflicts with another key.
    */
   private _writeIndexedInner(state: LmdbSubState, key: ILmdbKey, value: unknown, stored: unknown, mode: `sync` | `async`, version?: number, appendOpts?: PutOptions): void {
     const existing = this._peek(state, key)
@@ -1852,7 +1852,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param tx - Read transaction to pin, if any.
    * @param options - Optional `{limit}` cap.
    * @returns The matched row(s), or `undefined`/`[]` on no match.
-   * @throws {LmdbError} On empty queries or multiple composite keys.
+   * @throws {@link LmdbError} On empty queries or multiple composite keys.
    */
   private async _findByIndex(state: LmdbSubState, query: Record<string, ILmdbKey>, tx?: LmdbTransaction, options?: {limit?: number}): Promise<unknown> {
     const closed = this._rejectClosed()
@@ -1902,7 +1902,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param name - Query key for error messages.
    * @param value - Tuple (full for point, short for prefix) or `{start, end}` bounds.
    * @returns The parsed query.
-   * @throws {LmdbError} On empty/over-arity tuples or malformed bounds.
+   * @throws {@link LmdbError} On empty/over-arity tuples or malformed bounds.
    */
   private _parseCompositeQuery(idx: IndexDescriptor, name: string, value: unknown): IParsedCompositeQuery {
     const arity = idx.composite!.length
@@ -1939,7 +1939,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param entries - Query `[name, value]` pairs.
    * @param tx - Read transaction to pin, if any.
    * @returns The partition: constrained pk, miss flag, and non-unique list.
-   * @throws {LmdbError} On `null`/`undefined` values or unknown indexes.
+   * @throws {@link LmdbError} On `null`/`undefined` values or unknown indexes.
    */
   private _resolveUniquePk(state: LmdbSubState, entries: Array<[string, ILmdbKey]>, tx?: LmdbTransaction): {uniquePk: ILmdbKey | undefined; uniqueMiss: boolean; hasNonUnique: boolean; nonUniques: Array<{idx: IndexDescriptor; value: ILmdbKey; composite?: IParsedCompositeQuery}>} {
     // Single pass: validate, resolve each index, run O(1) unique point lookups
@@ -2205,7 +2205,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param query - Raw query text.
    * @param options - Optional `{limit}` cap.
    * @returns Ranked primary keys.
-   * @throws {LmdbError} On search-less subs or termless queries.
+   * @throws {@link LmdbError} On search-less subs or termless queries.
    */
   private async _search(state: LmdbSubState, query: string, options?: {limit?: number}): Promise<ILmdbKey[]> {
     const closed = this._rejectClosed()
@@ -2334,7 +2334,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param state - Sub-DB state.
    * @param name - Single index/column to rebuild, or all when omitted.
    * @returns `{built}` rows plus `{skipped}` unique collisions.
-   * @throws {LmdbError} On unknown index names.
+   * @throws {@link LmdbError} On unknown index names.
    */
   private _reindex(state: LmdbSubState, name?: string): Promise<{built: number; skipped: Array<{key: ILmdbKey; index: string; value: unknown}>}> {
     const closed = this._rejectClosed()
@@ -2411,7 +2411,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param key - The primary key.
    * @param tx - Optional active {@link LmdbTransaction} to read from.
    * @returns The row value.
-   * @throws {LmdbError} When the key is absent.
+   * @throws {@link LmdbError} When the key is absent.
    */
   getStrict(key: KeyOf<S>, tx?: LmdbTransaction): ValueOf<S> {
     return this._getStrict(this._state, key, tx) as ValueOf<S>
@@ -2516,7 +2516,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param chunkSize - Entries per transaction chunk (default `500`).
    * @param options - `{sorted?, onProgress?}`.
    * @returns Resolves when all chunks are committed.
-   * @throws {LmdbError} On the first out-of-order key when sorted.
+   * @throws {@link LmdbError} On the first out-of-order key when sorted.
    */
   putMany(entries: [KeyOf<S>, ValueOf<S>][], chunkSize?: number, options?: {sorted?: boolean; onProgress?: (done: number, total: number) => void}): Promise<void> {
     return this._putMany(this._state, entries as Array<[ILmdbKey, unknown]>, chunkSize, options)
@@ -2627,7 +2627,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    *
    * @param prefix - The prefix to delete.
    * @returns The number of deleted entries.
-   * @throws {LmdbError} When `prefix` is empty — use {@link clear} instead.
+   * @throws {@link LmdbError} When `prefix` is empty — use {@link LmdbEnvSub.clear} instead.
    */
   deleteByPrefix(prefix: KeyOf<S>): Promise<number> {
     return this._deleteByPrefix(this._state, prefix)
@@ -2822,7 +2822,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param query - Raw query text (at least one term required).
    * @param options - `{limit}` caps the returned keys with flat memory.
    * @returns Matching primary keys, best first.
-   * @throws {LmdbError} On empty queries or subs without searchable columns.
+   * @throws {@link LmdbError} On empty queries or subs without searchable columns.
    * @public
    */
   search(query: string, options?: {limit?: number}): Promise<KeyOf<S>[]> {
@@ -2855,7 +2855,7 @@ export class LmdbEnvSub<S extends typeof LmdbSchema> {
    * @param dest - Destination handle (same schema class, must differ).
    * @param options - `{name?, checkpoint?, limit?, verify?}`.
    * @returns `{copied, checkpoint, verified}`.
-   * @throws {LmdbError} On self-sync and verify divergence.
+   * @throws {@link LmdbError} On self-sync and verify divergence.
    * @public
    */
   syncTo(dest: LmdbEnvSub<S>, options?: ISyncOptions<S>): Promise<ISyncResult<S>> {

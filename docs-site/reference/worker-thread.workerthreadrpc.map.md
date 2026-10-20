@@ -1,0 +1,20 @@
+---
+title: "WorkerThreadRpc.map"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [WorkerThreadRpc](./worker-thread.workerthreadrpc.md) &gt; [map](./worker-thread.workerthreadrpc.map.md)
+
+## WorkerThreadRpc.map property
+
+Map of pending requests by ID. Stores promise handlers for pending requests.
+
+**Signature:**
+
+```typescript
+map: IMapRpc;
+```
+
+## Remarks
+
+Uses [IMapRpc](./worker-thread.imaprpc.md) for the map value shape.
+

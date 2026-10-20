@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: IWorkerThreadWorkerClass
+uid: '@gramstax/worker-thread!IWorkerThreadWorkerClass:type'
+package: '@gramstax/worker-thread!'
+fullName: IWorkerThreadWorkerClass
+summary: Type-level carrier for the worker class a launched handle belongs to.
+remarks: >-
+  Purely phantom: the property is optional and never assigned at runtime. It exists so a `launchWorker()` result still
+  knows which worker class produced it after it has crossed into an array, which is what lets `new
+  WorkerThreadPool(handles)` infer the class instead of demanding a type argument.
+
+
+  A plain `WorkerThreadLaunch` is still assignable to this type — the target also requires the launch surface, so the
+  optional-only "weak type" rule does not apply.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IWorkerThreadWorkerClass<TInit extends WorkerThreadInit> = {
+      readonly __workerClass?: TInit;
+  };

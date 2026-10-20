@@ -1,0 +1,40 @@
+### YamlMime:TSType
+name: ISearchTable
+uid: '@gramstax/lmdb!ISearchTable:interface'
+package: '@gramstax/lmdb!'
+fullName: ISearchTable
+summary: Runtime shape of one attached full-text search table.
+remarks: >-
+  One entry per `t.string().search()` column: `column` is the value field, `state` the `{db}:search:{column}` dupSort
+  sub-DB holding term → PK rows.
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: column
+    uid: '@gramstax/lmdb!ISearchTable#column:member'
+    package: '@gramstax/lmdb!'
+    fullName: column
+    summary: Searched value column name.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'column: string;'
+      return:
+        type: string
+  - name: state
+    uid: '@gramstax/lmdb!ISearchTable#state:member'
+    package: '@gramstax/lmdb!'
+    fullName: state
+    summary: Backing dupSort sub-DB state (terms to primary keys).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'state: LmdbSubState;'
+      return:
+        type: <xref uid="@gramstax/lmdb!LmdbSubState:type" />

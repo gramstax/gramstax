@@ -17,38 +17,95 @@ isPreview: false
 isDeprecated: false
 type: class
 constructors:
-  - name: (constructor)(send, register)
+  - name: (constructor)(send, register, options)
     uid: '@gramstax/worker-thread!WorkerThreadRpc:constructor(1)'
     package: '@gramstax/worker-thread!'
-    fullName: (constructor)(send, register)
+    fullName: (constructor)(send, register, options)
     summary: Creates a new WorkerThreadRpc instance.
     remarks: ''
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'constructor(send: (data: any) => any, register: Record<any, any>);'
+      content: >-
+        constructor(send: (data: Record<string, unknown>) => unknown, register: Record<string, (...args: never[]) =>
+        unknown>, options?: {
+                maxMessageSize?: number;
+                defaultTimeoutMs?: number;
+            });
       parameters:
         - id: send
           description: Function to send data. Called with RPC payload.
-          type: '(data: any) =&gt; any'
+          type: '(data: Record&lt;string, unknown&gt;) =&gt; unknown'
         - id: register
           description: Object with callable methods. Exposed RPC method map.
-          type: Record&lt;any, any&gt;
+          type: 'Record&lt;string, (...args: never[]) =&gt; unknown&gt;'
+        - id: options
+          description: Optional settings (message-size cap, default timeout).
+          type: |-
+            {
+                    maxMessageSize?: number;
+                    defaultTimeoutMs?: number;
+                }
 properties:
+  - name: context
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#context:member'
+    package: '@gramstax/worker-thread!'
+    fullName: context
+    summary: Default context merged into every outgoing RPC payload.
+    remarks: >-
+      Useful for propagating correlation data (e.g. `traceId`<!-- -->) across threads: set it once and it is included in
+      every `makeRequest` payload. Per-call `others` values take precedence over this context.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'context: Record<string, unknown>;'
+      return:
+        type: Record&lt;string, unknown&gt;
+  - name: defaultTimeoutMs
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#defaultTimeoutMs:member'
+    package: '@gramstax/worker-thread!'
+    fullName: defaultTimeoutMs
+    summary: >-
+      Default timeout in milliseconds for `makeRequest` calls that omit `timeoutMs`<!-- -->. Initialized from
+      `DEFAULT_REQUEST_TIMEOUT_MS`<!-- -->; assign `0` to wait indefinitely. Must stay a non-negative finite number.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'defaultTimeoutMs: number;'
+      return:
+        type: number
   - name: map
     uid: '@gramstax/worker-thread!WorkerThreadRpc#map:member'
     package: '@gramstax/worker-thread!'
     fullName: map
     summary: Map of pending requests by ID. Stores promise handlers for pending requests.
-    remarks: Uses [ITMapRpc](xref:@gramstax/worker-thread!ITMapRpc:type) for the map value shape.
+    remarks: Uses [IMapRpc](xref:@gramstax/worker-thread!IMapRpc:type) for the map value shape.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'map: ITMapRpc;'
+      content: 'map: IMapRpc;'
       return:
-        type: <xref uid="@gramstax/worker-thread!ITMapRpc:type" />
+        type: <xref uid="@gramstax/worker-thread!IMapRpc:type" />
+  - name: maxMessageSize
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#maxMessageSize:member'
+    package: '@gramstax/worker-thread!'
+    fullName: maxMessageSize
+    summary: >-
+      Enforced cap on the estimated size of incoming messages. `undefined` disables the limit (the default for the
+      trusted parentPort channel).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'maxMessageSize?: number;'
+      return:
+        type: number
   - name: register
     uid: '@gramstax/worker-thread!WorkerThreadRpc#register:member'
     package: '@gramstax/worker-thread!'
@@ -59,9 +116,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'register: Record<any, any>;'
+      content: 'register: Record<string, (...args: never[]) => unknown>;'
       return:
-        type: Record&lt;any, any&gt;
+        type: 'Record&lt;string, (...args: never[]) =&gt; unknown&gt;'
   - name: send
     uid: '@gramstax/worker-thread!WorkerThreadRpc#send:member'
     package: '@gramstax/worker-thread!'
@@ -72,10 +129,35 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'send: (data: any) => any;'
+      content: 'send: (data: Record<string, unknown>) => unknown;'
       return:
-        type: '(data: any) =&gt; any'
+        type: '(data: Record&lt;string, unknown&gt;) =&gt; unknown'
 methods:
+  - name: estimatePayloadSize(value)
+    uid: '@gramstax/worker-thread!WorkerThreadRpc.estimatePayloadSize:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: estimatePayloadSize(value)
+    summary: Estimate the in-memory footprint of a structured value.
+    remarks: >-
+      Recursive walker that counts strings, numbers, buffer bytes and keys with bounded double-count-avoidance. It
+      deliberately does not serialize (`JSON.stringify` throws on `BigInt`<!-- -->, which messagepack payloads can
+      contain), so we approximate the size the value occupies after decode.
+
+
+      Static because it depends on no instance state — the gateway server uses it to decide whether a response is worth
+      caching for duplicate suppression.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static estimatePayloadSize(value: unknown): number;'
+      parameters:
+        - id: value
+          description: The decoded value to measure.
+          type: unknown
+      return:
+        type: number
+        description: Estimated size in bytes.
   - name: make(data)
     uid: '@gramstax/worker-thread!WorkerThreadRpc#make:member(1)'
     package: '@gramstax/worker-thread!'
@@ -95,11 +177,25 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'make(data: any): Promise<void>;'
+      content: |-
+        make(data: {
+                id?: number;
+                method?: string;
+                params?: unknown[];
+                result?: unknown;
+                error?: unknown;
+            }): Promise<void>;
       parameters:
         - id: data
           description: RPC message object. Shape is request/result/error.
-          type: any
+          type: |-
+            {
+                    id?: number;
+                    method?: string;
+                    params?: unknown[];
+                    result?: unknown;
+                    error?: unknown;
+                }
       return:
         type: Promise&lt;void&gt;
         description: ''
@@ -120,11 +216,11 @@ methods:
       content: 'makeId(): number;'
       return:
         type: number
-        description: A random number ID.
-  - name: makeRequest(method, params, _wait, _others)
+        description: A monotonically increasing number unique within this instance.
+  - name: makeRequest(method, params, wait, others, timeoutMs)
     uid: '@gramstax/worker-thread!WorkerThreadRpc#makeRequest:member(1)'
     package: '@gramstax/worker-thread!'
-    fullName: makeRequest(method, params, _wait, _others)
+    fullName: makeRequest(method, params, wait, others, timeoutMs)
     summary: Create and send an RPC request.
     remarks: ''
     example:
@@ -136,24 +232,150 @@ methods:
 
         // Fire and forget
         rpc.makeRequest("log", ["message"], false);
+
+        // With timeout
+        await rpc.makeRequest("slow", [], true, undefined, 5000);
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'makeRequest(method: string, params: any, _wait?: boolean, _others?: Record<string, any>): Promise<any>;'
+      content: >-
+        makeRequest(method: string, params: unknown[], wait: true, others?: Record<string, unknown>, timeoutMs?:
+        number): Promise<unknown>;
       parameters:
         - id: method
           description: Method name to call. Targets registered method.
           type: string
         - id: params
           description: Method parameters. Sent as positional array.
-          type: any
-        - id: _wait
+          type: unknown[]
+        - id: wait
           description: Wait for response. If false, returns send result. Defaults to `true`<!-- -->.
-          type: boolean
-        - id: _others
+          type: 'true'
+        - id: others
           description: Additional data to include. Merged into RPC payload.
-          type: Record&lt;string, any&gt;
+          type: Record&lt;string, unknown&gt;
+        - id: timeoutMs
+          description: >-
+            Optional timeout in milliseconds. When exceeded, the pending request is rejected with a timeout error and
+            removed from the pending map. Defaults to `defaultTimeoutMs`<!-- -->; `0` disables the timeout.
+          type: number
       return:
-        type: Promise&lt;any&gt;
+        type: Promise&lt;unknown&gt;
         description: Promise resolving to the result if waiting, or send result if not.
+  - name: makeRequest(method, params, wait, others, timeoutMs)
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#makeRequest:member(2)'
+    package: '@gramstax/worker-thread!'
+    fullName: makeRequest(method, params, wait, others, timeoutMs)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        makeRequest(method: string, params: unknown[], wait?: false, others?: Record<string, unknown>, timeoutMs?:
+        number): unknown;
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: params
+          description: ''
+          type: unknown[]
+        - id: wait
+          description: ''
+          type: 'false'
+        - id: others
+          description: ''
+          type: Record&lt;string, unknown&gt;
+        - id: timeoutMs
+          description: ''
+          type: number
+      return:
+        type: unknown
+        description: ''
+  - name: makeRequest(method, params, wait, others, timeoutMs)
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#makeRequest:member(3)'
+    package: '@gramstax/worker-thread!'
+    fullName: makeRequest(method, params, wait, others, timeoutMs)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        makeRequest(method: string, params: unknown[], wait: boolean, others?: Record<string, unknown>, timeoutMs?:
+        number): Promise<unknown> | unknown;
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: params
+          description: ''
+          type: unknown[]
+        - id: wait
+          description: ''
+          type: boolean
+        - id: others
+          description: ''
+          type: Record&lt;string, unknown&gt;
+        - id: timeoutMs
+          description: ''
+          type: number
+      return:
+        type: Promise&lt;unknown&gt; | unknown
+        description: ''
+  - name: rejectAllPending(error)
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#rejectAllPending:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: rejectAllPending(error)
+    summary: Reject every pending request.
+    remarks: >-
+      Used when the transport dies (e.g. worker thread exits) so callers do not hang forever. All pending entries are
+      rejected and removed from the map.
+    example:
+      - |-
+        ```typescript
+        rpc.rejectAllPending(new Error("worker exited"));
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rejectAllPending(error: unknown): void;'
+      parameters:
+        - id: error
+          description: Error to reject pending requests with.
+          type: unknown
+      return:
+        type: void
+        description: ''
+  - name: use(middlewares)
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#use:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: use(middlewares)
+    summary: Register middleware for incoming requests.
+    remarks: >-
+      Middleware runs in registration order before the target method is dispatched. Each middleware receives a mutable
+      [IRpcContext](xref:@gramstax/worker-thread!IRpcContext:type) and a `next` function; short-circuit by setting
+      `ctx.result` and skipping `next`<!-- -->, or reject by throwing.
+    example:
+      - |-
+        ```typescript
+        rpc.use(async (ctx, next) => {
+          console.log(`calling ${ctx.method}`);
+          await next();
+        });
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'use(...middlewares: IRpcMiddleware[]): this;'
+      parameters:
+        - id: middlewares
+          description: Middleware functions to append to the chain.
+          type: <xref uid="@gramstax/worker-thread!IRpcMiddleware:type" />[]
+      return:
+        type: this
+        description: '`this` for chaining.'

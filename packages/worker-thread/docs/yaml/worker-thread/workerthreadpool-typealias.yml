@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: WorkerThreadPool
+uid: '@gramstax/worker-thread!WorkerThreadPool:type'
+package: '@gramstax/worker-thread!'
+fullName: WorkerThreadPool
+summary: >-
+  Type of a [WorkerThreadPool](xref:@gramstax/worker-thread!WorkerThreadPool:var) instance: the registry plus the worker
+  class's `mtd*` dispatch surface.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type WorkerThreadPool<TInit extends WorkerThreadInit = WorkerThreadInit> = WorkerThreadPoolBase<TInit> &
+  IWorkerThreadPoolMethods<TInit>;

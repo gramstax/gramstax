@@ -1,0 +1,53 @@
+### YamlMime:TSType
+name: ICdcTailOptions
+uid: '@gramstax/lmdb!ICdcTailOptions:interface'
+package: '@gramstax/lmdb!'
+fullName: ICdcTailOptions
+summary: Tail options — consumer resume, lower bound, and batch cap.
+remarks: >-
+  A named `consumer` auto-registers on first tail (floor 0) and later tails resume past its ack. An explicit `from`
+  repositions forward past the ack but never backward.
+example: []
+isPreview: false
+isDeprecated: false
+type: interface
+properties:
+  - name: consumer
+    uid: '@gramstax/lmdb!ICdcTailOptions#consumer:member'
+    package: '@gramstax/lmdb!'
+    fullName: consumer
+    summary: Named persistent consumer (auto-registers on first tail).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'consumer?: string;'
+      return:
+        type: string
+  - name: from
+    uid: '@gramstax/lmdb!ICdcTailOptions#from:member'
+    package: '@gramstax/lmdb!'
+    fullName: from
+    summary: Lower sequence bound (exclusive); consumer ack wins when lower.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'from?: number;'
+      return:
+        type: number
+  - name: limit
+    uid: '@gramstax/lmdb!ICdcTailOptions#limit:member'
+    package: '@gramstax/lmdb!'
+    fullName: limit
+    summary: Maximum records returned.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'limit?: number;'
+      return:
+        type: number

@@ -7,5 +7,5 @@
 **Signature:**
 
 ```typescript
-register: Record<any, any>;
+register: Record<string, (...args: never[]) => unknown>;
 ```

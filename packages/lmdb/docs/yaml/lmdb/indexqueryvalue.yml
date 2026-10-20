@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: IndexQueryValue
+uid: '@gramstax/lmdb!IndexQueryValue:type'
+package: '@gramstax/lmdb!'
+fullName: IndexQueryValue
+summary: Value type of a single index key inside [IIndexQuery](xref:@gramstax/lmdb!IIndexQuery:type)<!-- -->.
+remarks: >-
+  Resolves to the indexed field's type when the index name is an auto-resolved field path on `T` (`username` →
+  `T["username"]`<!-- -->); otherwise falls back to [ILmdbKey](xref:@gramstax/lmdb!ILmdbKey:type) (explicit extractors
+  may index arbitrary key-shaped values).
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IndexQueryValue<T, P extends string, D = unknown> = P extends keyof T ? T[P] : D extends {
+      composite: readonly [string, ...string[]];
+  } ? ILmdbKey | ICompositeRange : ILmdbKey;

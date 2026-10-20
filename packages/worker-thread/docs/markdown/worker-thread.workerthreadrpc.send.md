@@ -7,5 +7,5 @@
 **Signature:**
 
 ```typescript
-send: (data: any) => any;
+send: (data: Record<string, unknown>) => unknown;
 ```

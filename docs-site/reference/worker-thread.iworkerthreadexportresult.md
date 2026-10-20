@@ -1,0 +1,21 @@
+---
+title: "IWorkerThreadExportResult"
+---
+
+[Home](./index.md) &gt; [@gramstax/worker-thread](./worker-thread.md) &gt; [IWorkerThreadExportResult](./worker-thread.iworkerthreadexportresult.md)
+
+## IWorkerThreadExportResult type
+
+Result type of [WorkerThreadExport.init()](./worker-thread.workerthreadexport.init.md).
+
+**Signature:**
+
+```typescript
+type IWorkerThreadExportResult<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = TWrap & IWorkerThreadAsyncMethods<TWorker> & {
+    launchWorker: (argv?: unknown[]) => Promise<TMain & IWorkerThreadWorkerClass<TWorker>>;
+    launchGatewayClient: IWorkerThreadGatewayClientFactory<TWorker>;
+    shutdown: (timeoutMs?: number) => Promise<void>;
+};
+```
+**References:** [WorkerThreadInit](./worker-thread.workerthreadinit.md), [WorkerThreadLaunch](./worker-thread.workerthreadlaunch.md), [IWorkerThreadAsyncMethods](./worker-thread.iworkerthreadasyncmethods.md), [IWorkerThreadWorkerClass](./worker-thread.iworkerthreadworkerclass.md), [IWorkerThreadGatewayClientFactory](./worker-thread.iworkerthreadgatewayclientfactory.md)
+

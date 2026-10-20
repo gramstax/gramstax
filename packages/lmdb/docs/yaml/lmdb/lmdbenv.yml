@@ -1,0 +1,1114 @@
+### YamlMime:TSType
+name: LmdbEnv
+uid: '@gramstax/lmdb!LmdbEnv:class'
+package: '@gramstax/lmdb!'
+fullName: LmdbEnv
+summary: The root handle for one LMDB environment and its registered subs.
+remarks: >-
+  One env per process is the common pattern (LMDB is designed for single-writer / multi-reader). The env lazily opens
+  sub-databases on first access and caches them inside lmdb-js's native store layer.
+
+
+  Each instance owns a \*\*private per-instance\*\* lmdb root store (built via `openAsClass` in the constructor) so that
+  sub-database (`openDB`<!-- -->) handle caches are naturally isolated across envs — lmdb-js caches handles on the store
+  instance, and a single shared base class would leak handles across envs in the same process. Native store methods
+  (`transaction`<!-- -->, `openDB`<!-- -->, `close`<!-- -->, `backup`<!-- -->, etc.) are forwarded explicitly.
+
+
+  Collection operations are NOT on this class — register a schema class to get a typed
+  [LmdbEnvSub](xref:@gramstax/lmdb!LmdbEnvSub:class) handle, or use
+  [LmdbEnv.sub()](xref:@gramstax/lmdb!LmdbEnv%23sub:member(1)) to fetch an already-registered one.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(options)
+    uid: '@gramstax/lmdb!LmdbEnv:constructor(1)'
+    package: '@gramstax/lmdb!'
+    fullName: (constructor)(options)
+    summary: Construct a new LmdbEnv and open the underlying LMDB environment.
+    remarks: >-
+      Construction opens the env immediately. The `path` is required and flows through to lmdb's native `open()`<!--
+      -->. No explicit `open()` call is needed. Defaults: `mapSize` = 4 GB (`4 * 1024 * 1024 * 1024` bytes), `maxDbs` =
+      128.
+    example:
+      - |-
+        ```typescript
+        // Default — LMDB native msgpack
+        const env = new LmdbEnv({ path: "./data" });
+
+        // Human-readable JSON storage
+        const env = new LmdbEnv({ path: "./data", encoding: "json" });
+
+        // With compression + custom page size
+        const env = new LmdbEnv({
+          path: "./data",
+          compression: true,
+          pageSize: 8192
+        });
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(options: ILmdbEnvOptions);'
+      parameters:
+        - id: options
+          description: >-
+            Env configuration. Supports the full set of LMDB `open()` parameters via
+            [ILmdbEnvOptions](xref:@gramstax/lmdb!ILmdbEnvOptions:interface)<!-- -->.
+          type: <xref uid="@gramstax/lmdb!ILmdbEnvOptions:interface" />
+properties:
+  - name: committed
+    uid: '@gramstax/lmdb!LmdbEnv#committed:member'
+    package: '@gramstax/lmdb!'
+    fullName: committed
+    summary: >-
+      Promise resolving when all previous asynchronous writes have been committed (visible to readers, not necessarily
+      flushed to disk).
+    remarks: >-
+      Forwards to the inherited lmdb root-store `committed`<!-- -->. Useful to await after a batch of `put()`<!--
+      -->/`delete()`<!-- -->/`clear()` calls to guarantee visibility before the next read.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get committed(): Promise<boolean>;'
+      return:
+        type: Promise&lt;boolean&gt;
+  - name: encoding
+    uid: '@gramstax/lmdb!LmdbEnv#encoding:member'
+    package: '@gramstax/lmdb!'
+    fullName: encoding
+    summary: Default LMDB value encoding for all sub-DBs.
+    remarks: Mirrors [ILmdbEnvOptions.encoding](xref:@gramstax/lmdb!ILmdbEnvOptions%23encoding:member)<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly encoding: ILmdbEncoding | undefined;'
+      return:
+        type: <xref uid="@gramstax/lmdb!ILmdbEncoding:type" /> | undefined
+  - name: flushed
+    uid: '@gramstax/lmdb!LmdbEnv#flushed:member'
+    package: '@gramstax/lmdb!'
+    fullName: flushed
+    summary: Promise resolving when all previous writes have been flushed to disk.
+    remarks: >-
+      Forwards to the inherited lmdb root-store `flushed`<!-- -->. Stronger than
+      [LmdbEnv.committed](xref:@gramstax/lmdb!LmdbEnv%23committed:member) (visibility to readers): await this when
+      durability across process crashes matters.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get flushed(): Promise<boolean>;'
+      return:
+        type: Promise&lt;boolean&gt;
+  - name: maxDbs
+    uid: '@gramstax/lmdb!LmdbEnv#maxDbs:member'
+    package: '@gramstax/lmdb!'
+    fullName: maxDbs
+    summary: Maximum number of sub-databases.
+    remarks: Mirrors [ILmdbEnvOptions.maxDbs](xref:@gramstax/lmdb!ILmdbEnvOptions%23maxDbs:member)<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly maxDbs: number;'
+      return:
+        type: number
+  - name: path
+    uid: '@gramstax/lmdb!LmdbEnv#path:member'
+    package: '@gramstax/lmdb!'
+    fullName: path
+    summary: Path where LMDB stores its data files.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly path: string;'
+      return:
+        type: string
+  - name: readOnly
+    uid: '@gramstax/lmdb!LmdbEnv#readOnly:member'
+    package: '@gramstax/lmdb!'
+    fullName: readOnly
+    summary: Whether the env is read-only.
+    remarks: Mirrors [ILmdbEnvOptions.readOnly](xref:@gramstax/lmdb!ILmdbEnvOptions%23readOnly:member)<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly readOnly: boolean;'
+      return:
+        type: boolean
+  - name: state
+    uid: '@gramstax/lmdb!LmdbEnv#state:member'
+    package: '@gramstax/lmdb!'
+    fullName: state
+    summary: Current lifecycle state of this env.
+    remarks: >-
+      The env opens on construction, so `state` is `'open'` immediately after `new LmdbEnv(...)`<!-- -->. After
+      [LmdbEnv.close()](xref:@gramstax/lmdb!LmdbEnv%23close:member(1)) it becomes `'closed'`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get state(): ILmdbEnvState;'
+      return:
+        type: <xref uid="@gramstax/lmdb!ILmdbEnvState:type" />
+  - name: useVersions
+    uid: '@gramstax/lmdb!LmdbEnv#useVersions:member'
+    package: '@gramstax/lmdb!'
+    fullName: useVersions
+    summary: Whether record versioning is enabled.
+    remarks: Mirrors [ILmdbEnvOptions.useVersions](xref:@gramstax/lmdb!ILmdbEnvOptions%23useVersions:member)<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly useVersions: boolean;'
+      return:
+        type: boolean
+methods:
+  - name: ackCdc(consumer, seq)
+    uid: '@gramstax/lmdb!LmdbEnv#ackCdc:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: ackCdc(consumer, seq)
+    summary: Persist a consumer's position in the outbox.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'ackCdc(consumer: string, seq: number): Promise<void>;'
+      parameters:
+        - id: consumer
+          description: Name previously registered by [LmdbEnv.tailCdc()](xref:@gramstax/lmdb!LmdbEnv%23tailCdc:member(1))<!-- -->.
+          type: string
+        - id: seq
+          description: Last consumed sequence.
+          type: number
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: backup(destPath, compact)
+    uid: '@gramstax/lmdb!LmdbEnv#backup:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: backup(destPath, compact)
+    summary: Take a consistent snapshot backup of the env to another path.
+    remarks: >-
+      Delegates to LMDB's `backup`<!-- -->, which performs a live snapshot without blocking writers. The target path
+      must not already contain an LMDB env (it is overwritten).
+
+
+      `compact` is your call, not a hidden default. It is a required argument in the underlying lmdb-js signature, so it
+      is surfaced here rather than hardcoded:
+
+
+      - `false` — plain copy. Faster, and the result keeps the free-page layout it had at snapshot time. - `true` —
+      compacts while copying. Slower, and the result is rewritten densely, so it is smaller on disk and cheaper to
+      restore from later.
+
+
+      `true` is worth it for archives you keep or ship off-host; `false` is the right choice for a local snapshot you
+      will likely replace soon.
+
+
+      The destination directory \*\*must already exist\*\* — LMDB's `mdb_env_copy2` does not create it and fails with
+      `ENOENT` otherwise. [LmdbBackup.backup()](xref:@gramstax/lmdb!LmdbBackup.backup:member(1)) handles this for you.
+    example:
+      - |-
+        ```typescript
+        // local snapshot, no compaction
+        await env.backup("./backups/snapshot-2024-01-01");
+
+        // long-lived archive that will be shipped somewhere
+        await env.backup("./backups/compact-2024-01-01", true);
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'backup(destPath: string, compact?: boolean): Promise<void>;'
+      parameters:
+        - id: destPath
+          description: Filesystem path for the backup env.
+          type: string
+        - id: compact
+          description: Rewrite the copy densely (slower, smaller). Default `false`<!-- -->.
+          type: boolean
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: close()
+    uid: '@gramstax/lmdb!LmdbEnv#close:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: close()
+    summary: Close the underlying LMDB environment and release all resources.
+    remarks: >-
+      Delegates to the inherited lmdb root store `close()` (awaitable), then clears the sub registry and purges this
+      env's handles from lmdb-js's module-level `allDbs` map so repeated open/close cycles do not accumulate JS store
+      wrappers for the process lifetime. Handles obtained via
+      [LmdbEnv.register()](xref:@gramstax/lmdb!LmdbEnv%23register:member(1)) become unusable after close.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'close(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: getMapSizeUsed()
+    uid: '@gramstax/lmdb!LmdbEnv#getMapSizeUsed:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getMapSizeUsed()
+    summary: Return map usage — configured map size vs current on-disk size.
+    remarks: >-
+      Simple estimation via `statSync` on the data file: `used` is the file size, `ratio` is the free fraction of the
+      configured map. When the file cannot be measured (e.g. closed/not yet created) `ratio` is `1`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getMapSizeUsed(): IMapUsage;'
+      return:
+        type: <xref uid="@gramstax/lmdb!~IMapUsage:interface" />
+        description: ''
+  - name: getMigrationVersion()
+    uid: '@gramstax/lmdb!LmdbEnv#getMigrationVersion:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getMigrationVersion()
+    summary: >-
+      Current schema version as recorded by [LmdbEnv.migrate()](xref:@gramstax/lmdb!LmdbEnv%23migrate:member(1))<!--
+      -->.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getMigrationVersion(): number;'
+      return:
+        type: number
+        description: The highest applied migration version, or `0` if none have run.
+  - name: getWriteTxnId()
+    uid: '@gramstax/lmdb!LmdbEnv#getWriteTxnId:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: getWriteTxnId()
+    summary: Get the current write-transaction id (inside a transaction callback).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getWriteTxnId(): number;'
+      return:
+        type: number
+        description: ''
+  - name: isRegistered(schemaClass)
+    uid: '@gramstax/lmdb!LmdbEnv#isRegistered:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: isRegistered(schemaClass)
+    summary: Check whether a LmdbSchema class has been registered.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isRegistered(schemaClass: typeof LmdbSchema): boolean;'
+      parameters:
+        - id: schemaClass
+          description: The LmdbSchema subclass constructor.
+          type: typeof <xref uid="@gramstax/lmdb!LmdbSchema:class" />
+      return:
+        type: boolean
+        description: '`true` if registered, `false` otherwise.'
+  - name: migrate(migrations)
+    uid: '@gramstax/lmdb!LmdbEnv#migrate:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: migrate(migrations)
+    summary: Apply pending schema migrations.
+    remarks: >-
+      Each migration's `up` runs inside its own writer transaction and the stored version is bumped only on success.
+      `transform` steps backfill first (chunked top-level transactions, resumable), then `up` runs, then the version
+      bump and the per-step completion marker commit together. Concurrent callers are serialized via LMDB's
+      single-writer lock — the second caller re-checks the version inside the transaction and skips already-applied
+      steps.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        migrate(migrations: IMigration[]): Promise<{
+                applied: IMigration[];
+                currentVersion: number;
+            }>;
+      parameters:
+        - id: migrations
+          description: Array of migrations with unique monotonic `version`<!-- -->.
+          type: <xref uid="@gramstax/lmdb!~IMigration:interface" />[]
+      return:
+        type: |-
+          Promise&lt;{
+                  applied: <xref uid="@gramstax/lmdb!~IMigration:interface" />[];
+                  currentVersion: number;
+              }&gt;
+        description: The list of actually applied migrations and the current version.
+  - name: off(event, callback)
+    uid: '@gramstax/lmdb!LmdbEnv#off:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: off(event, callback)
+    summary: Remove a previously attached commit-event listener.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'off(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void;'
+      parameters:
+        - id: event
+          description: '`''beforecommit''` or `''aftercommit''`<!-- -->.'
+          type: '`beforecommit` | `aftercommit`'
+        - id: callback
+          description: The exact handler previously passed to [LmdbEnv.on()](xref:@gramstax/lmdb!LmdbEnv%23on:member(1))<!-- -->.
+          type: '(event: unknown) =&gt; void'
+      return:
+        type: void
+        description: ''
+  - name: offWarn(listener)
+    uid: '@gramstax/lmdb!LmdbEnv#offWarn:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: offWarn(listener)
+    summary: Remove a diagnostics listener.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'offWarn(listener: (message: string) => void): void;'
+      parameters:
+        - id: listener
+          description: >-
+            The exact handler previously passed to
+            [LmdbEnv.onWarn()](xref:@gramstax/lmdb!LmdbEnv%23onWarn:member(1))<!-- -->.
+          type: '(message: string) =&gt; void'
+      return:
+        type: void
+        description: ''
+  - name: on(event, callback)
+    uid: '@gramstax/lmdb!LmdbEnv#on:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: on(event, callback)
+    summary: Listen for LMDB commit events.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'on(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void;'
+      parameters:
+        - id: event
+          description: '`''beforecommit''` or `''aftercommit''`<!-- -->.'
+          type: '`beforecommit` | `aftercommit`'
+        - id: callback
+          description: Event handler.
+          type: '(event: unknown) =&gt; void'
+      return:
+        type: void
+        description: ''
+  - name: onWarn(listener)
+    uid: '@gramstax/lmdb!LmdbEnv#onWarn:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: onWarn(listener)
+    summary: Attach a diagnostics listener.
+    remarks: >-
+      The package writes nothing to `console`<!-- -->. With no listener attached its diagnostics are dropped, so attach
+      one if you want to see `maxDbs` headroom warnings, CDC subscriber failures or failed scheduled ticks. Equivalent
+      to the [ILmdbEnvOptions.onWarn](xref:@gramstax/lmdb!ILmdbEnvOptions%23onWarn:member) constructor option.
+
+
+      A listener that throws is contained — it cannot break a commit or a tick.
+    example:
+      - |-
+        ```typescript
+        env.onWarn((message) => logger.warn(message))
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'onWarn(listener: (message: string) => void): void;'
+      parameters:
+        - id: listener
+          description: Receives one diagnostic message per occurrence.
+          type: '(message: string) =&gt; void'
+      return:
+        type: void
+        description: ''
+  - name: openDB(dbName, dbOptions)
+    uid: '@gramstax/lmdb!LmdbEnv#openDB:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: openDB(dbName, dbOptions)
+    summary: Open or create a sub-database.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'openDB(dbName: string, dbOptions?: DatabaseOptions): Database<unknown, Key>;'
+      parameters:
+        - id: dbName
+          description: Sub-database name.
+          type: string
+        - id: dbOptions
+          description: Encoding, cache, dupSort, and other options.
+          type: <xref uid="lmdb!lmdb.DatabaseOptions:interface" />
+      return:
+        type: <xref uid="lmdb!lmdb.Database:class" />&lt;unknown, <xref uid="lmdb!lmdb.Key:type" />&gt;
+        description: The sub-database handle.
+  - name: pruneCdc(keep)
+    uid: '@gramstax/lmdb!LmdbEnv#pruneCdc:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: pruneCdc(keep)
+    summary: Delete outbox records at or below the retention cutoff.
+    remarks: >-
+      Cutoff is `min(minAck, newest - keep)`<!-- -->: entries consumed by every registered consumer go, the newest
+      `keep` entries always stay, and an unacked consumer blocks pruning below its start. With no consumers the keep
+      window alone bounds growth — call periodically (like `purgeExpired`<!-- -->) when producing without persistent
+      followers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'pruneCdc(keep?: number): Promise<number>;'
+      parameters:
+        - id: keep
+          description: Newest entries to retain regardless of acks (default `10000`<!-- -->).
+          type: number
+      return:
+        type: Promise&lt;number&gt;
+        description: The number of records removed.
+  - name: readerList()
+    uid: '@gramstax/lmdb!LmdbEnv#readerList:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: readerList()
+    summary: Describe all current reader locks (debugging).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readerList(): string;'
+      return:
+        type: string
+        description: ''
+  - name: readTransaction(fn)
+    uid: '@gramstax/lmdb!LmdbEnv#readTransaction:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: readTransaction(fn)
+    summary: Run a callback inside a read-only transaction.
+    remarks: >-
+      \*\*SQL equivalent\*\*:
+
+
+      ```sql
+
+      START TRANSACTION READ ONLY;
+
+      -- <reads performed via sub.get/has/keys/values/entries/iterate inside fn>
+
+      COMMIT;
+
+      ```
+
+      Obtains a read transaction via the inherited root-store `useReadTransaction()` and wraps it in a
+      [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) that auto-releases when the callback returns. All
+      reads inside the callback see a consistent snapshot.
+
+
+      The callback MUST settle: the raw read transaction (and one of the env's limited reader slots, default 126) stays
+      pinned until it does — a never-resolving promise can exhaust readers for the whole env.
+    example:
+      - |-
+        ```typescript
+        const snapshot = await env.readTransaction(async (tx) => {
+          return await users.entries({}, tx);
+        });
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readTransaction<T>(fn: (tx: LmdbTransaction) => Promise<T>): Promise<T>;'
+      parameters:
+        - id: fn
+          description: Callback receiving the read-only [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class)<!-- -->.
+          type: '(tx: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />) =&gt; Promise&lt;T&gt;'
+      return:
+        type: Promise&lt;T&gt;
+        description: The callback's resolved value.
+  - name: register(schemaClass)
+    uid: '@gramstax/lmdb!LmdbEnv#register:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: register(schemaClass)
+    summary: Register a [LmdbSchema](xref:@gramstax/lmdb!LmdbSchema:class) subclass as a sub-DB collection.
+    remarks: >-
+      Validates the schema, materializes the sub-DB state through the internal `LmdbEnvSubManager` (no anonymous-class
+      synthesis, no class-registration re-entry): the schema's `static db` becomes the sub-DB name, and its derived
+      indexes (from `static value`<!-- -->, via
+      [LmdbSchema.deriveIndexes()](xref:@gramstax/lmdb!LmdbSchema.deriveIndexes:member(1))<!-- -->) are attached at
+      registration. Optional `static hookBeforeWrite`<!-- -->/`static hookBeforeRead` transforms are forwarded as the
+      sub's codec, and `static ttl` (ms) materializes a TTL sub — per-put `{ttlMs}` overrides still apply. The returned
+      handle is typed from the schema class — value type via [ValueOf](xref:@gramstax/lmdb!ValueOf:type)<!-- -->, key
+      type via [KeyOf](xref:@gramstax/lmdb!KeyOf:type)<!-- -->, and the index map via
+      [ISchemaIndexesOf](xref:@gramstax/lmdb!ISchemaIndexesOf:type) — so `findByIndex({name: value})` queries type-check
+      against the declared index names.
+
+
+      Registration is STRICT: re-registering the same schema class throws
+      [LmdbError](xref:@gramstax/lmdb!LmdbError:class)<!-- -->, and a schema whose `static db` is already taken throws
+      [LmdbError](xref:@gramstax/lmdb!LmdbError:class)<!-- -->. `register` is the ONLY registration path.
+    example:
+      - |-
+        ```typescript
+        class UserSchema extends LmdbSchema {
+          static db = `users`
+          static key = t.number()
+          static value = {id: t.number().unique(), username: t.string().index()}
+        }
+        const users = env.register(UserSchema)
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'register<S extends typeof LmdbSchema>(schemaClass: S): LmdbEnvSub<S>;'
+      parameters:
+        - id: schemaClass
+          description: The [LmdbSchema](xref:@gramstax/lmdb!LmdbSchema:class) subclass.
+          type: S
+      return:
+        type: <xref uid="@gramstax/lmdb!LmdbEnvSub:class" />&lt;S&gt;
+        description: >-
+          A typed [LmdbEnvSub](xref:@gramstax/lmdb!LmdbEnvSub:class) handle bound to the schema — cached, so
+          `env.register(Schema) === env.sub(Schema)`<!-- -->.
+  - name: resetReadTxn()
+    uid: '@gramstax/lmdb!LmdbEnv#resetReadTxn:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: resetReadTxn()
+    summary: Force a reset of the auto-managed read transaction to the latest snapshot.
+    remarks: >-
+      By default LMDB renews the read transaction on new event turns. Call this to force an immediate refresh — useful
+      in multi-process scenarios where another process has just written data you need to read without waiting for the
+      next event turn.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'resetReadTxn(): void;'
+      return:
+        type: void
+        description: ''
+  - name: rootDoesExist(key)
+    uid: '@gramstax/lmdb!LmdbEnv#rootDoesExist:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: rootDoesExist(key)
+    summary: Check whether a key holds at least one entry.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootDoesExist(key: Key): boolean;'
+      parameters:
+        - id: key
+          description: The key to check.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+      return:
+        type: boolean
+        description: '`true` when the key exists.'
+  - name: rootDoesExist(key, value, options)
+    uid: '@gramstax/lmdb!LmdbEnv#rootDoesExist:member(2)'
+    package: '@gramstax/lmdb!'
+    fullName: rootDoesExist(key, value, options)
+    summary: Check whether a duplicate value exists under a key.
+    remarks: 'For `dupSort` sub-DBs: probes one value among the key''s duplicates instead of merely probing the key.'
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootDoesExist(key: Key, value: unknown, options?: GetOptions): boolean;'
+      parameters:
+        - id: key
+          description: The key to check.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+        - id: value
+          description: The duplicate value to probe.
+          type: unknown
+        - id: options
+          description: Optional read transaction.
+          type: <xref uid="lmdb!lmdb.GetOptions:interface" />
+      return:
+        type: boolean
+        description: '`true` when the value exists under the key.'
+  - name: rootDoesExist(key, version)
+    uid: '@gramstax/lmdb!LmdbEnv#rootDoesExist:member(3)'
+    package: '@gramstax/lmdb!'
+    fullName: rootDoesExist(key, version)
+    summary: Check whether an entry's version matches.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootDoesExist(key: Key, version: number): boolean;'
+      parameters:
+        - id: key
+          description: The key to check.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+        - id: version
+          description: The expected version number.
+          type: number
+      return:
+        type: boolean
+        description: '`true` when the stored version equals `version`<!-- -->.'
+  - name: rootGetCount(options)
+    uid: '@gramstax/lmdb!LmdbEnv#rootGetCount:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: rootGetCount(options)
+    summary: Count entries in a range.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootGetCount(options?: RangeOptions): number;'
+      parameters:
+        - id: options
+          description: Range bounds.
+          type: <xref uid="lmdb!lmdb.RangeOptions:interface" />
+      return:
+        type: number
+        description: ''
+  - name: rootGetEntry(key, options)
+    uid: '@gramstax/lmdb!LmdbEnv#rootGetEntry:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: rootGetEntry(key, options)
+    summary: Retrieve an entry (value + version) by key.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        rootGetEntry(key: Key, options?: GetOptions): {
+                value: unknown;
+                version?: number;
+            } | undefined;
+      parameters:
+        - id: key
+          description: The key to look up.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+        - id: options
+          description: Optional read transaction.
+          type: <xref uid="lmdb!lmdb.GetOptions:interface" />
+      return:
+        type: |-
+          {
+                  value: unknown;
+                  version?: number;
+              } | undefined
+        description: The entry with value and optional version, or `undefined`<!-- -->.
+  - name: rootGetKeys(options)
+    uid: '@gramstax/lmdb!LmdbEnv#rootGetKeys:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: rootGetKeys(options)
+    summary: Iterate unique keys in a range.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootGetKeys(options?: RangeOptions): RangeIterable<Key>;'
+      parameters:
+        - id: options
+          description: Range bounds, limit, reverse, etc.
+          type: <xref uid="lmdb!lmdb.RangeOptions:interface" />
+      return:
+        type: <xref uid="lmdb!lmdb.RangeIterable:class" />&lt;<xref uid="lmdb!lmdb.Key:type" />&gt;
+        description: ''
+  - name: rootGetRange(options)
+    uid: '@gramstax/lmdb!LmdbEnv#rootGetRange:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: rootGetRange(options)
+    summary: Iterate entries in a key range.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        rootGetRange(options?: RangeOptions): RangeIterable<{
+                key: Key;
+                value: unknown;
+                version?: number;
+            }>;
+      parameters:
+        - id: options
+          description: Range bounds, limit, reverse, etc.
+          type: <xref uid="lmdb!lmdb.RangeOptions:interface" />
+      return:
+        type: |-
+          <xref uid="lmdb!lmdb.RangeIterable:class" />&lt;{
+                  key: <xref uid="lmdb!lmdb.Key:type" />;
+                  value: unknown;
+                  version?: number;
+              }&gt;
+        description: A lazy `RangeIterable`<!-- -->.
+  - name: rootPut(id, value)
+    uid: '@gramstax/lmdb!LmdbEnv#rootPut:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: rootPut(id, value)
+    summary: Store a value at the given key, unconditionally.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootPut(id: Key, value: unknown): Promise<boolean>;'
+      parameters:
+        - id: id
+          description: The key.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+        - id: value
+          description: The value to store.
+          type: unknown
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Resolves `true` once the write is queued for commit.
+  - name: rootPut(id, value, version, ifVersion)
+    uid: '@gramstax/lmdb!LmdbEnv#rootPut:member(2)'
+    package: '@gramstax/lmdb!'
+    fullName: rootPut(id, value, version, ifVersion)
+    summary: Store a value only when its version check passes.
+    remarks: >-
+      Requires the env to be opened with `useVersions`<!-- -->. The write applies and stamps `version` when the stored
+      version equals `ifVersion` (or when the key holds no version yet); otherwise the write is skipped.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootPut(id: Key, value: unknown, version: number, ifVersion?: number): Promise<boolean>;'
+      parameters:
+        - id: id
+          description: The key.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+        - id: value
+          description: The value to store.
+          type: unknown
+        - id: version
+          description: Version number stamped on a successful write.
+          type: number
+        - id: ifVersion
+          description: Only write when the existing version matches this.
+          type: number
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Resolves `true` when written, `false` when the version check failed.
+  - name: rootPut(id, value, options)
+    uid: '@gramstax/lmdb!LmdbEnv#rootPut:member(3)'
+    package: '@gramstax/lmdb!'
+    fullName: rootPut(id, value, options)
+    summary: Store a value with native put options.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootPut(id: Key, value: unknown, options: PutOptions): Promise<boolean>;'
+      parameters:
+        - id: id
+          description: The key.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+        - id: value
+          description: The value to store.
+          type: unknown
+        - id: options
+          description: '`PutOptions` forwarded to the native `put`<!-- -->.'
+          type: <xref uid="lmdb!lmdb.PutOptions:interface" />
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Resolves `true` once the write is queued for commit.
+  - name: rootPutSync(id, value)
+    uid: '@gramstax/lmdb!LmdbEnv#rootPutSync:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: rootPutSync(id, value)
+    summary: Synchronously store a value (blocks until written).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootPutSync(id: Key, value: unknown): void;'
+      parameters:
+        - id: id
+          description: The key.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+        - id: value
+          description: The value to store.
+          type: unknown
+      return:
+        type: void
+        description: ''
+  - name: rootPutSync(id, value, version)
+    uid: '@gramstax/lmdb!LmdbEnv#rootPutSync:member(2)'
+    package: '@gramstax/lmdb!'
+    fullName: rootPutSync(id, value, version)
+    summary: Synchronously store a value with an explicit version.
+    remarks: >-
+      Requires the env to be opened with `useVersions`<!-- -->. Unlike the async
+      [LmdbEnv.rootPut()](xref:@gramstax/lmdb!LmdbEnv%23rootPut:member(2)) conditional form there is no `ifVersion` gate
+      — `version` is stamped on the write.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootPutSync(id: Key, value: unknown, version: number): void;'
+      parameters:
+        - id: id
+          description: The key.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+        - id: value
+          description: The value to store.
+          type: unknown
+        - id: version
+          description: Version number stamped on the write.
+          type: number
+      return:
+        type: void
+        description: ''
+  - name: rootPutSync(id, value, options)
+    uid: '@gramstax/lmdb!LmdbEnv#rootPutSync:member(3)'
+    package: '@gramstax/lmdb!'
+    fullName: rootPutSync(id, value, options)
+    summary: Synchronously store a value with native put options.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootPutSync(id: Key, value: unknown, options: PutOptions): void;'
+      parameters:
+        - id: id
+          description: The key.
+          type: <xref uid="lmdb!lmdb.Key:type" />
+        - id: value
+          description: The value to store.
+          type: unknown
+        - id: options
+          description: '`PutOptions` forwarded to the native `putSync`<!-- -->.'
+          type: <xref uid="lmdb!lmdb.PutOptions:interface" />
+      return:
+        type: void
+        description: ''
+  - name: rootTransactionSync(action, flags)
+    uid: '@gramstax/lmdb!LmdbEnv#rootTransactionSync:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: rootTransactionSync(action, flags)
+    summary: Execute a synchronous transaction.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rootTransactionSync<T>(action: () => T, flags?: TransactionFlags): T;'
+      parameters:
+        - id: action
+          description: Callback performing reads and writes.
+          type: () =&gt; T
+        - id: flags
+          description: '`TransactionFlags` (abortable, synchronous-commit, etc.).'
+          type: <xref uid="lmdb!lmdb.TransactionFlags:enum" />
+      return:
+        type: T
+        description: The callback's return value.
+  - name: sub(schemaClass)
+    uid: '@gramstax/lmdb!LmdbEnv#sub:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: sub(schemaClass)
+    summary: Get the cached handle for an already-registered schema class.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sub<S extends typeof LmdbSchema>(schemaClass: S): LmdbEnvSub<S>;'
+      parameters:
+        - id: schemaClass
+          description: The [LmdbSchema](xref:@gramstax/lmdb!LmdbSchema:class) subclass.
+          type: S
+      return:
+        type: <xref uid="@gramstax/lmdb!LmdbEnvSub:class" />&lt;S&gt;
+        description: The cached [LmdbEnvSub](xref:@gramstax/lmdb!LmdbEnvSub:class) handle — the same instance `register` returned.
+  - name: subscribe(filter, cb)
+    uid: '@gramstax/lmdb!LmdbEnv#subscribe:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: subscribe(filter, cb)
+    summary: Subscribe to committed writes on a sub-DB.
+    remarks: >-
+      Delivery rides the `aftercommit` tail: events fire only for committed transactions (aborts publish nothing), in
+      outbox sequence order. Subscriptions are from-now — earlier history is available via
+      [LmdbEnv.tailCdc()](xref:@gramstax/lmdb!LmdbEnv%23tailCdc:member(1))<!-- -->. Returns an idempotent unsubscribe;
+      the last unsubscribe detaches the commit hook.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'subscribe(filter: ICdcFilter, cb: ICdcCallback): () => void;'
+      parameters:
+        - id: filter
+          description: Sub-DB name, or `{db, op?}` to narrow the operation.
+          type: <xref uid="@gramstax/lmdb!ICdcFilter:type" />
+        - id: cb
+          description: Invoked per matching event as `{type, key, value}`<!-- -->.
+          type: <xref uid="@gramstax/lmdb!ICdcCallback:type" />
+      return:
+        type: () =&gt; void
+        description: Unsubscribe function.
+  - name: tailCdc(options)
+    uid: '@gramstax/lmdb!LmdbEnv#tailCdc:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: tailCdc(options)
+    summary: Tail the durable outbox above a floor.
+    remarks: >-
+      A named consumer auto-registers on first tail and resumes past its ack on later tails (including across restarts —
+      acks persist in `__cdc_meta`<!-- -->). An explicit `from` repositions forward past the ack but never backward.
+      Returns `{seq, db, type, key, value}` records for
+      [LmdbEnv.ackCdc()](xref:@gramstax/lmdb!LmdbEnv%23ackCdc:member(1))<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'tailCdc(options?: ICdcTailOptions): Promise<Array<ICdcRecord>>;'
+      parameters:
+        - id: options
+          description: '`{consumer?, from?, limit?}`<!-- -->.'
+          type: <xref uid="@gramstax/lmdb!ICdcTailOptions:interface" />
+      return:
+        type: Promise&lt;Array&lt;<xref uid="@gramstax/lmdb!ICdcRecord:interface" />&gt;&gt;
+        description: Outbox records above the floor, oldest first.
+  - name: transaction(fn)
+    uid: '@gramstax/lmdb!LmdbEnv#transaction:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: transaction(fn)
+    summary: Run a callback inside a write transaction.
+    remarks: >-
+      \*\*SQL equivalent\*\*:
+
+
+      ```sql
+
+      BEGIN;
+
+      -- <writes performed via sub.put() inside fn>
+
+      COMMIT;  -- on tx.commit() or callback return
+
+      -- ROLLBACK;  -- on tx.abort() or callback throw
+
+      ```
+
+      Wraps the inherited root-store `transaction(callback)`<!-- -->. All writes performed by any sub-database inside
+      the callback are batched into a single atomic commit. If the callback resolves, the transaction is committed. If
+      it throws, the transaction is rolled back. If the callback calls
+      [LmdbTransaction.abort()](xref:@gramstax/lmdb!LmdbTransaction%23abort:member(1)) on the wrapper, the wrapper
+      throws an internal abort error which rolls back the transaction.
+
+
+      \*\*Sync callback is strongly recommended.\*\* The callback runs inside lmdb-js's native write lock. An `async`
+      callback yields to the event loop, creating a microtask boundary — lmdb-js may flush the pending writes before
+      your next `await` completes, breaking the batching. A sync callback keeps all writes in the same event turn, so
+      lmdb-js coalesces them into a single native LMDB write transaction. Sub methods are non-async, making sync
+      callbacks natural.
+
+
+      The callback promise MUST settle: the native write transaction (and the single writer lock) stays open until it
+      does — a never-resolving promise blocks all subsequent writes process-wide.
+    example:
+      - |-
+        ```typescript
+        // ✅ Sync callback — recommended. All writes coalesced into one native
+        //    LMDB write transaction. Sub methods return Promise directly
+        //    without async wrapper, so no await is needed inside the callback.
+        const result = await env.transaction(() => {
+          users.put("u1", user);
+          sessions.put("s1", session);
+          return { ok: true };
+        });
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'transaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T>;'
+      parameters:
+        - id: fn
+          description: Callback receiving the [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) wrapper.
+          type: '(tx: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />) =&gt; T | Promise&lt;T&gt;'
+      return:
+        type: Promise&lt;T&gt;
+        description: The callback's resolved value.
+  - name: transactionFast(fn)
+    uid: '@gramstax/lmdb!LmdbEnv#transactionFast:member(1)'
+    package: '@gramstax/lmdb!'
+    fullName: transactionFast(fn)
+    summary: Run a callback inside an off-thread LMDB write transaction.
+    remarks: >-
+      \*\*SQL equivalent\*\*:
+
+
+      ```sql
+
+      BEGIN;
+
+      -- <writes performed via putSync/removeSync inside fn>
+
+      COMMIT;
+
+      ```
+
+      Gives the same atomicity as [LmdbEnv.transaction()](xref:@gramstax/lmdb!LmdbEnv%23transaction:member(1)) — one
+      native LMDB write transaction, invisible to other processes until it commits — but the commit is handed to
+      lmdb-js's writer thread instead of blocking the main thread, and it batches with other writes queued in the same
+      event turn.
+
+
+      \*\*The trade-off is rollback, and it is not available here.\*\* lmdb-js's `db.transaction()` records a callback
+      error and rethrows it, but never calls `mdb_txn_abort` — the native transaction commits regardless. So:
+
+
+      - [LmdbTransaction.abort()](xref:@gramstax/lmdb!LmdbTransaction%23abort:member(1)) throws `LmdbError` rather than
+      silently doing nothing. - A callback that throws still propagates the error, but every write it already performed
+      is \*\*committed\*\*, not discarded.
+
+
+      Use [LmdbEnv.transaction()](xref:@gramstax/lmdb!LmdbEnv%23transaction:member(1)) whenever the outcome depends on
+      the callback failing partway. Reach for this one when the callback cannot fail partway, or when partial
+      application of a bulk write is harmless (the package uses it for `putMany`<!-- -->, `purgeExpired`<!-- -->,
+      `increment` and CDC pruning).
+    example:
+      - |-
+        ```typescript
+        await env.transactionFast(() => {
+          users.putSync("u1", user);
+          sessions.putSync("s1", session);
+        });
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'transactionFast<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T>;'
+      parameters:
+        - id: fn
+          description: Callback receiving the [LmdbTransaction](xref:@gramstax/lmdb!LmdbTransaction:class) wrapper.
+          type: '(tx: <xref uid="@gramstax/lmdb!LmdbTransaction:class" />) =&gt; T | Promise&lt;T&gt;'
+      return:
+        type: Promise&lt;T&gt;
+        description: The callback's resolved value.

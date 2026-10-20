@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-createGatewayClient(serverPath: string): Promise<WorkerThreadGatewayClient>;
+createGatewayClient(serverPath: string, options?: IGatewayClientOptions): Promise<WorkerThreadGatewayClient>;
 ```
 
 ## Parameters
@@ -43,6 +43,22 @@ string
 </td><td>
 
 Unix socket path to connect. Matches server gateway.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[IGatewayClientOptions](./worker-thread.igatewayclientoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Connection options (auth token, reconnect tuning, encoding).
 
 
 </td></tr>

@@ -1,0 +1,57 @@
+---
+title: "ICodec"
+---
+
+[Home](./index.md) &gt; [@gramstax/lmdb](./lmdb.md) &gt; [ICodec](./lmdb.icodec.md)
+
+## ICodec interface
+
+A write/read hook pair used by [LmdbEnv](./lmdb.lmdbenv.md) for custom transforms.
+
+**Signature:**
+
+```typescript
+interface ICodec<T> 
+```
+
+## Remarks
+
+Default encoding (lmdb-js native) is msgpack/JSON/etc. Use this to transform rows at the repository boundary — `hookBeforeWrite` runs before LMDB serializes the value, `hookBeforeRead` after it deserializes it (e.g. `Date → number`). This runs BEFORE the native LMDB encoding.
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[hookBeforeRead(raw)](./lmdb.icodec.hookbeforeread.md)
+
+
+</td><td>
+
+Convert a stored representation back to a typed value.
+
+
+</td></tr>
+<tr><td>
+
+[hookBeforeWrite(value)](./lmdb.icodec.hookbeforewrite.md)
+
+
+</td><td>
+
+Convert a typed value to a storable representation.
+
+
+</td></tr>
+</tbody></table>
+

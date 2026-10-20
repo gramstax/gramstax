@@ -9,7 +9,7 @@ Send a message to the main thread.
 **Signature:**
 
 ```typescript
-send(payload: any): void;
+send(payload: Record<string, unknown>): boolean;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ payload
 
 </td><td>
 
-any
+Record&lt;string, unknown&gt;
 
 
 </td><td>
@@ -50,7 +50,9 @@ Data to send. Payload to main thread.
 
 **Returns:**
 
-void
+boolean
+
+`true` when the message was posted, `false` when there is no parent port (e.g. running on the main thread) and the payload was dropped.
 
 ## Example
 
