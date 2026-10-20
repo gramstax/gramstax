@@ -284,7 +284,7 @@ What each of the ten counters actually counts, and where it is incremented.
 | `matched` | Routing resolved to a handler |
 | `noMatch` | Routing found nothing for the listener |
 | `noHandler` | Routing matched a page that declares no handler for the update |
-| `blocked` | A contended session lock dropped the update, **or** `hookBeforeRoute` returned `false` |
+| `blocked` | A contended session lock dropped the update, **or** the bot-level `hookBeforeRoute` returned `false`. A page-level denial returns `{state: "blocked"}` and increments no counter |
 | `timeouts` | Routing exceeded `updateTimeoutMs` and was raced to `UpdateTimeoutError` |
 | `skippedDuplicate` | `skipDuplicateUpdate` is on and the `update_id` was already handled |
 | `skippedValidation` | Text or caption longer than `maxTextLength`, which only applies when that limit is non-zero |
@@ -328,7 +328,7 @@ place to send traces, audit trails and error reports.
 
 | Hook | Fires | Payload |
 | :--- | :---- | :------ |
-| `hookTrace` | After every routed update | `{name, durationMs, attributes}`, where `attributes` carries `state` and `isEdit` |
+| `hookTrace` | After every update that got past the bot-level `hookBeforeRoute` and the pre-routing gates | `{name, durationMs, attributes}`, where `attributes` carries `state` and `isEdit` |
 | `hookUpdate` | Every routed update that did not error | `IUpdateSuccessEvent`, for the matched, no-match, no-handler and blocked states |
 | `hookUpdateError` | Every dead update | `IUpdateErrorEvent`: `traceId`, `listenerName`, `state`, `error`, `durationMs`, `isEdit` |
 

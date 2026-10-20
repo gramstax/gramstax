@@ -92,7 +92,7 @@ The scaffolded `gramstax.config.ts`
 | `…['cloudflare-mod'].name`              | `string`                  | `gramstax-worker`   | Written to the Workers `name`; never emitted as a comment                 |
 | `…['cloudflare-mod'].compatibilityDate` | `string`                  | `2026-01-01`        | Always written: it also gates `compatibilityFlags`                       |
 | `…['cloudflare-mod'].compatibilityFlags`| `string[]`                | `["nodejs_compat"]` | Required: the dependency graph uses Node builtins                        |
-| `…['cloudflare-mod'].toml`              | `Record<string, unknown>` | _none_              | Escape hatch; flat-merged last, so it overrides every typed field above    |
+| `…['cloudflare-mod'].toml`              | `Record<string, unknown>` | _none_              | Escape hatch; consulted FIRST for `name`, `compatibility_date` and `compatibility_flags`, so it overrides those three typed values; `toml.main` is rejected outright (the emitter owns `main`); any other non-reserved key is appended after the typed block; `vars` is merged key-by-key under `[vars]`; `[alias]` is emitter-owned |
 | `…[any].url`                            | `string`                  | _none_              | Real `https?://` with no `<` placeholder                                  |
 | `…[any].secretToken`                    | `string`                  | _none_              | `^[A-Za-z0-9_-]{1,256}$`; never baked into a bundle                       |
 
@@ -108,7 +108,7 @@ Invalid shapes throw `Invalid gramstax config at <file>: ...` naming the field. 
 | Flag | Effect |
 | ---- | ------ |
 | `--target cloudflare-mod\|aws-lambda-async` | Server entry to emit. Same vocabulary as the config key. Wins over the configured key, with a warning when they disagree |
-| `--bundle` | Deprecated. Needs `--target cloudflare-mod` or `--target aws-lambda-async`. For lambda it also moves the handler to `server/bundle.js` (see below) |
+| `--bundle` | Not deprecated as a flag, but not recommended for Cloudflare: `WorkerTarget.emitBundle` is marked `@deprecated Not recommended` in the source (the multi-file output is debuggable and has no stub tradeoffs), while `LambdaTarget.emitBundle` is not deprecated and is the documented way to resolve TypeScript path refs on Node. Needs `--target cloudflare-mod` or `--target aws-lambda-async`. For lambda it also moves the handler to `server/bundle.js` (see below) |
 | `--dry-run` | Print resolved plan with value sources, write nothing |
 | `--raw` | Skip: exit 0 with `skip (raw deploy, nothing to build)` |
 
@@ -119,6 +119,7 @@ gramstax build plan
 pagesDir: src/pages
 outDir: .gramstax
 targets: cloudflare-mod
+deploy: polling (default)
 optionsDeploy.serverless.cloudflare-mod: cloudflare-mod (config)
 optionsDeploy.serverless.name: gramstax-worker (default)
 optionsDeploy.serverless.url: https://<your-worker>.workers.dev/webhook (default)
@@ -128,9 +129,9 @@ dry-run: no files written
 `pagesDir`/`outDir` always print the `src/pages` + `.gramstax/` convention
 with no source annotation (there is nothing to configure); the
 `optionsDeploy.serverless` adapter/name/url print from the merged config with the
-`config`/`default` rule (no CLI flags exist for them, never `flag`).
-`targets` is the effective set: both entries when no `--target` was passed,
-else the single named target.
+`config`/`default` rule; the adapter additionally prints `flag` when `--target`
+supplied it. `targets` is the effective set: the single resolved adapter, or
+empty when neither `--target` nor a configured adapter names one.
 
 Full-build summary (exit 0):
 
@@ -145,11 +146,12 @@ Exit codes: `0` success/skip, `1` build error (missing `src/pages` without `--ra
 
 ## Output tree (all-in-one)
 
-Plain `gramstax build` (no `--target`) emits everything, so one `.gramstax/`
-covers all deploys per the consumption table above. Explicit
-`--target cloudflare-mod|aws-lambda-async` filters to one server entry
-(`LambdaEntry` / `WorkerEntry` classes emit `server/lambda.js` /
-`server/worker.js` respectively).
+A build emits ONE server entry, never both. The adapter is resolved from
+`--target`, else from the configured `optionsDeploy.serverless` key; with
+neither configured, no `server/` directory is written at all. The two targets
+are mutually exclusive per build: `LambdaTarget` emits `server/lambda.js`, and
+`WorkerTarget` emits `server/worker.js` plus `server/wrangler.toml` and
+`server/bun-stub.ts`.
 
 ```text
 .gramstax/
@@ -160,12 +162,13 @@ covers all deploys per the consumption table above. Explicit
     lambda.js       # `serverless` entry (key `aws-lambda-async`): `--target aws-lambda-async` only
     worker.js       # `serverless` entry (key `cloudflare-mod`): `--target cloudflare-mod` only
     wrangler.toml   # complete deployable Workers config (real name + URL from config, token via secret, never in file): `--target cloudflare-mod` only
-    bun-stub.ts     # `bun` resolve stub for the Workers bundler: `--target cloudflare-mod` only
-    bundle.js       # single-file bundle: `--bundle` only, deprecated. For aws-lambda-async this replaces lambda.js as the handler
+    bun-stub.ts     # `bun` resolve stub for the Workers bundler: `--target cloudflare-mod`, plus `--target aws-lambda-async --bundle`
+    bundle.js       # single-file bundle: `--bundle` only; for aws-lambda-async this replaces lambda.js as the handler; for cloudflare-mod the emitter is marked deprecated ("not recommended")
 ```
 
-Stub rule: `server/bun-stub.ts` is emitted only when the target set includes
-`cloudflare-mod` (`--target aws-lambda-async` no; `--raw` / `--dry-run` never). It stubs `Bun.serve` as
+Stub rule: `server/bun-stub.ts` is emitted whenever the target set includes
+`cloudflare-mod`, and for `aws-lambda-async` only when `--bundle` is used
+(`--raw` / `--dry-run` never). It stubs `Bun.serve` as
 resolve-only: imports resolve, any call throws. It stays `.ts` because the
 Wrangler `alias` entry resolves and transpiles TS source natively.
 

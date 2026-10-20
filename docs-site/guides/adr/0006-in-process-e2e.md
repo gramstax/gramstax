@@ -24,7 +24,7 @@ A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provide
 
 <Warning>
   `bot.e2e` is typed as `undefined` unless `deploy` is a `"test"` variant
-  (`core/bot.ts:184`), so the helper will not type-check outside test mode. The
+  (`core/bot.ts:414`), so the helper will not type-check outside test mode. The
   interceptor must also stay in sync with grammY's `api.config.use` contract.
 </Warning>
 
@@ -39,7 +39,7 @@ A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provide
 ### Trade-offs
 
 - The interceptor must stay in sync with grammY's `api.config.use` contract.
-- `E2eHelper` is typed as `undefined` unless `deploy` is a `"test"` variant (`core/bot.ts:184`), so it's only present in test mode.
+- `E2eHelper` is typed as `undefined` unless `deploy` is a `"test"` variant (`core/bot.ts:414`), so it's only present in test mode.
 
 ### Alternatives Considered
 

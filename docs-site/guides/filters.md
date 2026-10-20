@@ -12,10 +12,11 @@ the template is compiled and becomes a chained call in the emitted body, so a
 render is a function call over pre-resolved data and nothing else.
 
 There are **6** filters, and the list is a closed `DEFAULT_FILTERS` object rather
-than a registry you extend. An unknown filter renders empty and warns once,
-rather than reaching an evaluator. That is what lets a template reshape a value
-without also being a code-execution surface, which is the same guarantee
-[Template Blocks](/guides/template-blocks) makes about the block vocabulary.
+than a registry you extend. An unknown filter renders empty and warns through
+`console.warn` rather than reaching an evaluator. That is what lets a template
+reshape a value without also being a code-execution surface, which is the same
+guarantee [Template Blocks](/guides/template-blocks) makes about the block
+vocabulary.
 
 ## Interpolation syntaxes
 
@@ -176,9 +177,13 @@ Three consequences:
 1. **A template cannot execute code through a pipe.** There is no eval path, no
    expression compiler and no hook to add one.
 2. **An unknown filter is not a crash.** `_compileFilterChain` checks the name
-   against the table; on a miss it logs `Unknown template filter "…"` once per
-   compile call and emits an empty string. The rest of the template still
-   renders, so a typo degrades one span rather than the message.
+   against the table; on a miss it writes a warning naming the filter to
+   `console.warn` and emits an empty string. The rest of that chain is
+   skipped, so a later filter in the same pipe never runs, but the rest of the
+   template still renders, so a typo degrades one span rather than the message.
+   The warning is deduplicated per scope pass, and `_processScopeVariables` runs
+   once per block and label, so the same unknown filter in two blocks warns
+   twice.
 3. **Filters are the AOT-safe way to shape a value.** The emitted module
    imports `FILTERS` from `gramstax` rather than inlining the logic, which is
    what lets the build freeze a body. See

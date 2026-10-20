@@ -172,7 +172,8 @@ to your caller, so do not retry inline inside it.
 
 <Note>
   Sibling sinks: `hookUpdateError` receives terminal dead updates, `hookTrace`
-  fires after every routed update. Retry-queue ← `hookSendError`, exception
+  fires at the end of every dispatch that got past the bot-level
+  `hookBeforeRoute`. Retry-queue ← `hookSendError`, exception
   tracker ← `hookUpdateError`, dashboard ← `hookTrace`. Do not add this hook to
   count errors you already see thrown from your own `render*()` calls; it earns
   its place inside a broadcast fan-out, where no single caller owns the failure.

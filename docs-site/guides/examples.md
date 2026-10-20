@@ -10,13 +10,13 @@ Eleven complete Telegram bots live under [`example/`](https://github.com/gramsta
 
 They are numbered in an order, but the order is a teaching sequence, not a dependency chain. Every example boots on its own and shares nothing with its neighbours except the ideas it is built on. Read them in order if you are learning the framework, and skip to the one you need if you are not.
 
-One warning up front. `1-complex` is numbered first but it is not the first thing to read. It is the kitchen sink: every template block, every media type, i18n, a worker thread, and a 27 file e2e suite, all wired together. It is the right place to go once you know how a single page works, and the wrong place to start.
+One warning up front. `1-complex` is numbered first but it is not the first thing to read. It is the kitchen sink: every template block, every media type, i18n, a worker thread, and a 27 test e2e suite (28 files with `setup.ts`), all wired together. It is the right place to go once you know how a single page works, and the wrong place to start.
 
 Where to start, depending on what you already know:
 
 - **New to Gramstax, or to page-based Telegram bots at all.** Start at `2-helloworld`. It is three pages and one keyboard, and it is the shape a freshly scaffolded project has.
 - **Coming from grammY and wondering whether TypeScript is required.** Start at `3-helloworld-js`. It is `2-helloworld` rewritten in plain ESM JavaScript.
-- **Know the basics, need media handling.** `4-echo` is one page that renders back every media type Telegram can send.
+- **Know the basics, need media handling.** `4-echo` has an `echo.ts` page that renders back every media type Telegram can send, plus four small support pages around it.
 - **Building a menu-heavy bot.** `5-interactive-menu` and `9-substore-bot` are the two to study. They are the biggest, most realistic ones after `1-complex`.
 - **Need a database.** `7-crud` for `@gramstax/lmdb` with a schema and repository layer, `8-newsletter` for a smaller single-table version plus an admin gate.
 - **Deploying to the edge.** `11-cloudflare-worker` is the only example that runs `gramstax build` and deploys a Worker.
@@ -28,7 +28,7 @@ Where to start, depending on what you already know:
 | 1 | `1-complex` | Reference bot: every template construct in one place | `<g-import>`, `<g-map>`, `<g-switch>`, `lang="id"` i18n, `CacheExternal`, all media renderers, `hookBeforeRoute`, `hookAfterStart`, `@gramstax/worker-thread` |
 | 2 | `2-helloworld` | The minimal TypeScript bot, plus a webhook bench harness | Config-driven boot, the shared page skeleton, `inlineKeyboardT`, `MockTelegramServer` |
 | 3 | `3-helloworld-js` | The same bot in plain JavaScript | Proves Gramstax needs no TypeScript; same config, same pages, ESM `.js` imports |
-| 4 | `4-echo` | One page that echoes every input type | `<g-media>` per Telegram type, `handleFreeText` and the `handleFree*` family, media group rendering |
+| 4 | `4-echo` | One echo page for every input type, plus four small support pages | `<g-media>` per Telegram type, `handleFreeText` and the `handleFree*` family, media group rendering |
 | 5 | `5-interactive-menu` | Menu navigation with pagination and state | Inline and bottom keyboards, multiple `<g-base id>` per page, callback args, `CacheExternal` for navigation state |
 | 6 | `6-bank-system` | Stateful multi-step business flow | Shared state injected through a custom `Ctx`, session free-text steps, bigint arithmetic |
 | 7 | `7-crud` | Real persistence with LMDB | `@gramstax/lmdb` `LmdbEnv`, `LmdbSchema`, `register()`, transactions, a repository service layer |
@@ -50,7 +50,7 @@ Where to start, depending on what you already know:
 - `example/1-complex/src/guards/user.ts`: overriding `from.language_code` from cache before routing.
 - `example/1-complex/src/pages/start/test/media-group.ts`: the media gallery. Note that this `test/` folder holds demo pages, not tests.
 
-**Run.** `bun run start`, or `bun run dev` to watch. Needs `BOT_TOKEN`. The e2e suite is the largest in the repo (27 files, see `example/1-complex/e2e/`).
+**Run.** `bun run start`, or `bun run dev` to watch. Needs `BOT_TOKEN`. The e2e suite is the largest in the repo (27 test files, 28 files in all with `setup.ts`, see `example/1-complex/e2e/`).
 
 ### 2. `2-helloworld`: the minimal TypeScript bot
 
@@ -73,13 +73,13 @@ Where to start, depending on what you already know:
 
 **Run.** `bun run start`, or `bun run dev` to watch. Needs `BOT_TOKEN`. This is the one example with no test scripts at all.
 
-### 4. `4-echo`: media handling in one page
+### 4. `4-echo`: media handling on one echo page
 
-**Demonstrates.** A single page with one handler per inbound media type. Every render helper (`renderPhoto`, `renderVideo`, `renderAudio`, `renderDocument`, `renderAnimation`, `renderVoice`, `renderVideoNote`, `renderSticker`, `renderLocation`, `renderContact`, `renderText`) is exercised against the matching `<g-media>` template block.
+**Demonstrates.** An `echo.ts` page with one handler per inbound media type. Every render helper (`renderPhoto`, `renderVideo`, `renderAudio`, `renderDocument`, `renderAnimation`, `renderVoice`, `renderVideoNote`, `renderSticker`, `renderLocation`, `renderContact`, `renderText`) is exercised against the matching `<g-media>` template block. Four small pages sit around it: `start.ts` is the menu that links to it, `help.ts` lists the commands, and `status.ts` and `blank.ts` are the usual scaffolding.
 
 **Read.**
-- `example/4-echo/src/pages/echo.ts`: the whole thing. Compare `handleFreePhoto` and friends against the `<g-media>` blocks at the bottom.
-- `example/4-echo/src/pages/help.ts`: the menu that routes to it.
+- `example/4-echo/src/pages/echo.ts`: the echo page. Compare `handleFreePhoto` and friends against the `<g-media>` blocks at the bottom.
+- `example/4-echo/src/pages/help.ts`: the help menu.
 
 **Run.** `bun run start`, or `bun run dev` to watch. Needs `BOT_TOKEN`.
 

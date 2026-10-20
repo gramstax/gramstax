@@ -69,12 +69,12 @@ the paths in the tables that follow point.
 
 | Attribute | Value |
 |-----------|-------|
-| **Location** | `src/core/bot.ts` (`Gramstax` class, line 61) |
+| **Location** | `src/core/bot.ts` (`Gramstax` class, line 120) |
 | **Responsibility** | Orchestration, lifecycle, routing, deploy-mode startup, plugin/hook registration. |
 | **Depends On** | `Ctx`, `TemplateManager`, `CacheExternal`, `UpdateQueue`, `UpdateDispatcher`, `PageManager`, `E2eHelper` (when `deploy:"test"`). |
 | **Depended On By** | Application entry points and `create-gramstax` scaffolds. |
 
-The constructor (`bot.ts:534`) reads `IGramstaxParams`, selects a deploy mode (`bot.ts:759`): `polling` → `_runPolling`, `webhook` → `_runWebhook`, `serverless` → `_runServerless` (adapter-keyed `optionsDeploy.serverless`), `test` → E2E mode. Hooks (`hookBeforeStart`, `hookBeforeRoute`, `hookAfterStart`, `hookUpdateError`, `hookErrorPage`, `hookNotFoundPage`) are invoked at the documented lifecycle points (`bot.ts:951` notes `hookBeforeRoute` only fires when set to return `true` or unset).
+The constructor (`bot.ts:534`) reads `IGramstaxParams`, selects a deploy mode (`bot.ts:759`): `polling` → `_runPolling`, `webhook` → `_runWebhook`, `serverless` → `_runServerless` (adapter-keyed `optionsDeploy.serverless`), `test` → E2E mode. Hooks (`hookBeforeStart`, `hookBeforeRoute`, `hookAfterStart`, `hookUpdateError`, `hookErrorPage`, `hookNotFoundPage`) are invoked at the documented lifecycle points. The page-level gate is a strict `!== false` test, so a `hookBeforeRoute` that returns `undefined`, `null`, `0` or `""` lets the update through just as `true` does.
 
 ### Ctx (page/context base)
 
@@ -112,7 +112,7 @@ full atom list.
 | **Depends On** | Nothing external (pure string→function compilation via `new Function()`). |
 | **Depended On By** | `TemplateManager`. |
 
-Compiles blocks with `_compileToFunction` using `new Function("data", "__esc", "FILTERS", body)` (`engine.ts:2983`, `:2986`). Processes base/message/keyboard/media/description/import/map/script/switch/div/space blocks and resolves scopes/interpolation (`_processScope*`, `_processG*Blocks`). Validation is two-layer (see below).
+Compiles blocks with `_compileToFunction` using `new Function("data", "__esc", "FILTERS", body)` (`engine.ts:2984`, `:2987`). Processes base/message/keyboard/media/description/import/map/script/switch/div/space blocks and resolves scopes/interpolation (`_processScope*`, `_processG*Blocks`). Validation is layered: three layers for Telegram tags (required attributes, value formats, unknown attributes) and two for PAGE blocks (required attributes, value formats); see [Template Blocks](/guides/template-blocks).
 
 ### TemplateManager
 
@@ -135,15 +135,18 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 | Attribute | Value |
 |-----------|-------|
 | **Location** | `src/page/manager.ts` |
-| **Responsibility** | Discover page modules under `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`) and extract the **first named export** (no default export). |
+| **Responsibility** | Discover page modules under `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`) and extract the first value export (`Object.values(mod)[0]`, no default-export filtering). |
 | **Depends On** | `node:fs`, `node:module` (`createRequire`). |
 | **Depended On By** | `TemplateManager`, `Gramstax`. |
 
 `_getFile` takes `Object.values(mod)[0]` and throws only when the module exports nothing at all, so a default-only export loads. Named exports remain the convention because with more than one export you get whichever value the module records first (`manager.ts:45-52`).
 
 <Warning>
-  A default export is not a fallback here. It is a load-time throw. Page modules
-  must use a named `export class`.
+  A default export is not rejected here: `_getFile` takes `Object.values(mod)[0]`
+  and never filters `default` out, so a default-only module loads. It is still
+  the wrong shape to write, because the moment a second export appears the
+  loaded value is whichever one the module namespace sorts first. Use one named
+  `export class` per page.
 </Warning>
 
 ### CacheExternal
@@ -223,7 +226,7 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 | `IGramstaxParams` | `src/types/bot.ts` | Constructor options (`token`, `deploy`, `optionsDeploy`, `log`, `botConfig`, `cacheSession`, `cacheKeyboard`, `templateManager`, `manifest`, `optionsPage`, `rateLimit`, `throttle`, `sessionLock`). |
 | `IUpdateQueueConfig` | `src/types/bot.ts` | `enabled`, `maxQueueSize`, `workerCount`, `perChatConcurrency`, `blockWhenFull`, `enqueueTimeoutMs`, `waiterTimeoutMs`, `drainTimeoutMs`. Aliased as the deprecated `IWebhookQueueConfig`. |
 | `ITemplateOptions` | `src/types/template.ts` | `path[]`, `enableWatch?`, `watchOptions?`, `onReload?`. |
-| `ICompiledTemplate` | `src/types/template.ts` | Cached compiled `media`/`message`/`keyboard`/`description`. |
+| `ICompiledTemplate` | `src/types/template.ts` | Cached compiled blocks: `media`, `poll`, `venue`, `dice`, `callbackAnswer`, `precheckoutError`, `shippingError`, `inlineButton`, `answerNote`, `gift`, `invoice`, `paidMedia`, `message`, `keyboard`, `description`. |
 | `IPageData` | `src/types/ctx.ts` | Route metadata: `name`, `intentText`, `intentCommandText`, `intentCallbackQueryData`, plus the optional `intentTextMap` / `intentCommandTextMap` language variants. |
 | `Ctx` handler signatures | `src/core/ctx.ts` | `handleText`, `handleCallbackQueryData`, `handleFree*`, `handleSession*`, `handle*Caption*`. |
 

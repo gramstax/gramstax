@@ -87,8 +87,11 @@ dispatcher.
 | _none_        | `onWaiterTimeout?` | `onTimeout?` |
 
 Two consequences worth stating plainly. The gate is configured by **two** of the
-eight fields, not by the block as a whole: `workerCount` and `drainTimeoutMs`
-stop at the dispatcher. And `handle` / `onError` are required members with no
+eight fields, not by the block as a whole: `perChatConcurrency` and
+`waiterTimeoutMs` are the two that reach it. Three more stop at the dispatcher
+and never get further: `maxQueueSize`, `workerCount` and `drainTimeoutMs`. The
+last three, `enabled`, `blockWhenFull` and `enqueueTimeoutMs`, are not gate
+configuration at all. And `handle` / `onError` are required members with no
 config counterpart at all; the two construction sites supply them as the
 dispatcher's wiring to the bot.
 

@@ -20,7 +20,7 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 ## Decision
 
-`TemplateEngine` parses the `<g-*>` DSL and Telegram Rich HTML into **render functions created with `new Function("data", "__esc", "FILTERS", body)`** (`src/template/engine.ts:2983` and `:2986`). Compilation happens **once** at load (or on hot-reload) and the result is cached by `TemplateManager._map` as `ICompiledTemplate` (`message`/`keyboard`/`media`/`description` keyed by base id + language). Scopes/interpolation (`{{var}}`, switch, map, script, div) are resolved into the generated function body.
+`TemplateEngine` parses the `<g-*>` DSL and Telegram Rich HTML into **render functions created with `new Function("data", "__esc", "FILTERS", body)`** (`src/template/engine.ts:2984` and `:2987`). Compilation happens **once** at load (or on hot-reload) and the result is cached by `TemplateManager._map` as `ICompiledTemplate` (`message`/`keyboard`/`media`/`description` keyed by base id + language). Scopes/interpolation (`{{var}}`, switch, map, script, div) are resolved into the generated function body.
 
 <Warning>
   The compiled output is dynamic code, so a runtime that forbids `new Function`
@@ -34,7 +34,7 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 - Per-update rendering is a plain function call: no repeated parsing.
 - Templates can embed dynamic expressions via scope blocks.
-- Two-layer validation (`_TELEGRAM_REQUIRED_ATTRS`/`_PAGE_REQUIRED_ATTRS` + value validators) catches obvious authoring bugs before compile.
+- Layered validation catches obvious authoring bugs before compile: required attributes, value formats and unknown attributes for Telegram tags, plus required-attribute and value-format passes for PAGE blocks.
 
 ### Trade-offs
 
@@ -52,8 +52,8 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 | Source Type | Reference |
 |-------------|-----------|
-| Code | `src/template/engine.ts:2983,2986`: `new Function("data", "__esc", "FILTERS", functionBody)` |
-| Code | `src/template/engine.ts:2970`: `_compileToFunction<T>(template, isArray)` |
+| Code | `src/template/engine.ts:2984,2987`: `new Function("data", "__esc", "FILTERS", functionBody)` |
+| Code | `src/template/engine.ts:2971`: `_compileToFunction<T>(template, isArray)` |
 | Code | `compileBlockG*` statics on `TemplateEngine`: compile call sites for media/message/keyboard/description |
 | Docs | `AGENTS.md`: "Template pipeline is regex/parser-based with `new Function()` compilation." |
 | Docs | `AGENTS.md`: "Complexity Hotspots: template/engine.ts (Parser + compiler + validator in one file)" |

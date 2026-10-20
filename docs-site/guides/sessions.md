@@ -185,9 +185,9 @@ update throwing.
 
 ## Why the session route wins
 
-Session routing is id 1, ahead of the exact-match and prefix-match tables at ids 2
-and 3. It looks the method up in `routeStaticSession`, bucketed per listener, and
-only then constructs the page.
+Session routing is id 1, ahead of the exact-match tables at ids 2 and 3. It
+looks the method up in `routeStaticSession`, bucketed per listener, and only
+then constructs the page.
 
 That ordering is the whole point of arming a session. `handleText`,
 `handleCommandText` and `handleCallbackQueryData` on other pages would otherwise

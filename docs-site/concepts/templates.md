@@ -164,8 +164,8 @@ into calls at build time, zero parsing per render:
 
 Available: `upper`, `lower`, `number:<places>`, `date:<YYYY-MM-DD>`,
 `plural:<singular>:<plural>`, `default:<value>`. Chaining works, and an unknown
-filter renders empty with a one-time console warning rather than throwing in
-production.
+filter renders empty with a `console.warn` (once per scope pass, and the rest of
+that chain is skipped) rather than throwing in production.
 
 ## Imports
 

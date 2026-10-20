@@ -41,8 +41,11 @@ rather than silently swallowing the whole tree.
 
 ## The page class
 
-The scanner takes the **first named export** as the page class. There are no
-default exports in this framework, so a class you forget to export is a page that
+The scanner takes the **first value the module exports** as the page class, and
+it does not filter out a default export, so a module whose only export is a
+default still loads. The moment a second export appears, the loaded value is
+whichever one the namespace sorts first, which is why every page declares
+exactly one named export. A module that exports nothing at all is a page that
 does not exist, and you find out at boot, not at runtime in production.
 
 ```ts
@@ -76,22 +79,28 @@ the method lands in.
 | `handleCommandCaption*()` | `/cmd` on a media caption | `routeStatic` |
 | `handleCommandCaptionArgs*()` | `/cmd <args>` on a media caption | `routeStaticIntent` |
 | `handleSession*()` | the matching session step | `routeStaticSession` |
-| `handleFree*()` | the same shapes, outside a session | `routeDynamic` |
+| `handleFree*()` | the same shapes, outside a session | `routeDynamicSpesific` |
+
+`routeDynamicSpesific` is where the `handleFree*` shapes land. `routeDynamic` is
+the other table, and it holds the global `handleFree()` fallback.
 
 The `Args` in the name and the `/cmd` in the input are **independent**. That is
 the part most get wrong: `handleArgsText` is *not* `/cmd <args>`. Args without a
 command is `handleArgsText`; `/cmd <args>` is `handleCommandArgsText`.
 
 <Note>
-  The `Args*` variants resolve by `startsWith` after the separator rather than by
-  exact match, so `handleArgsText` also catches longer inputs. The no-`Args`
-  variants are exact-match.
+  The `Args*` variants do not use `startsWith`. The payload is split on the
+  separator first and the head is looked up exactly in the intent table, with
+  `lang:`-prefixed fallbacks for text. So `handleArgsText` still catches
+  `start counter` because the head is `start`, not because the intent is a
+  prefix of the payload. The no-`Args` variants are exact-match too, on the raw
+  payload.
 </Note>
 
 <Frame caption="The name decides the table. `Args` moves a handler into `routeStaticIntent`, `Session` into `routeStaticSession`, and `Free` into `routeDynamic`.">
   <img
     src="/images/handler-tables.svg"
-    alt="Four columns, one per route table. routeStatic holds the handleText, handleCommandText, handleCallbackQueryData, handleCaption and handleCommandCaption shapes and resolves them by exact match. routeStaticIntent holds the Args variants of the same shapes and resolves them by startsWith after the separator. routeStaticSession holds the handleSession shapes, and routeDynamic the handleFree shapes."
+    alt="Four columns, one per route table. routeStatic holds the handleText, handleCommandText, handleCallbackQueryData, handleCaption and handleCommandCaption shapes and resolves them by exact match. routeStaticIntent holds the Args variants of the same shapes and resolves them by an exact lookup of the segment before the separator. routeStaticSession holds the handleSession shapes, and routeDynamic the handleFree shapes."
   />
 </Frame>
 

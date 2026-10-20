@@ -35,7 +35,7 @@ supported keys.
 
 | Field | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `optionsDeploy` | object | `{deploy: "polling"}` | Per-mode settings in nested branches. At most one branch may be non-empty and it must equal `deploy`; unknown branches and unknown fields inside a branch are rejected. |
+| `optionsDeploy` | object | _none_ | Per-mode settings in nested branches. At most one branch may be non-empty and it must equal `deploy`; unknown branches and unknown fields inside a branch are rejected. |
 
 Full branch tables are in [Deploy](/concepts/deploy) and
 [gramstax start](/guides/gramstax-start).
@@ -101,9 +101,9 @@ a template-backed render. Prefer a plain `ctx.reply` in this hook.
 
 | Field | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `cacheSession` | ref \| builtin | `memory` | `{"store", "ttlMs"?, "namespace"?}`, or a module ref to a `CacheExternal` subclass. `memory` is in-process; `redis://…` is shared across instances. |
+| `cacheSession` | ref \| builtin | `memory` | `{"store", "ttlMs"?, "namespace"?}`, or a module ref to a `CacheExternal` subclass. `memory` is in-process; any store URL starting with `redis` (`redis://…`, `rediss://…`) is shared across instances. |
 | `cacheKeyboard` | ref \| array \| object | internal `Map` | Keyboard memoization. Accepts a module ref to a `Map` subclass, an entries array, or a plain object. |
-| `sessionLock` | object | off | Distributed lease for multi-instance deployments. `enabled`, `leaseMs`, `onContended` (`skip` \| `wait` \| `serialize`), `key`. **Redis only**: a memory store auto-disables it with a warning. |
+| `sessionLock` | object | off | Distributed lease for multi-instance deployments. `enabled`, `leaseMs`, `onContended` (`skip` \| `wait` \| `serialize`), `key`. **Redis only**: the lock is enabled only when the session store is a `KeyvRedis` instance, so any other store, the built-in `memory` store or a custom one, auto-disables it with a warning. |
 
 ## Templates and media
 

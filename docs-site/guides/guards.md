@@ -238,7 +238,7 @@ same at each:
 | 0 | chat member status | returns `{state: "blocked"}` immediately |
 | 1 | static session | the main run site, same early return |
 | 2 | static (exact intent) | the main run site |
-| 3 | static intent (prefix) | the main run site |
+| 3 | static intent (segment before the separator) | the main run site |
 | 4 | `handleFree*` specific | skips that handler and continues the loop |
 | 5 | `handleFree` global | skips that handler and continues the loop |
 | 6 | custom routes | returns `{state: "blocked"}` immediately |

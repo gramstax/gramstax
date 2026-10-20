@@ -205,12 +205,14 @@ keeping: retry queue from `hookSendError`, exception tracker from
 that fails a send and then kills the handler, can fire all three in sequence, so
 forwarding all three to the same alert triples it.
 
-### The always-rethrow rule
+### The rethrow rule
 
 Stated exactly as implemented, because it is the one rule that catches people
 out: after notifying and logging, the **original error is rethrown untouched**
-on both branches. There is no path where a classified failure is swallowed at a
-single-chat send site.
+on both branches. The two exceptions are `renderMedia` and `renderMediaGroup`,
+which on `fallback-text` deliver `replyFallbackText()` instead of throwing,
+because there is a degraded message to send. `retryable` is always rethrown,
+everywhere.
 
 ```ts
 } catch (error) {
@@ -226,9 +228,10 @@ single-chat send site.
 }
 ```
 
-Classification changes the log severity and nothing else. What differs between
-methods is whether the caller gets a value back **before** the throw would have
-happened, and that is decided by whether a degraded content exists at all.
+Classification changes the log severity, and on the media family it changes the
+outcome too, since `renderMedia` and `renderMediaGroup` deliver
+`replyFallbackText()` on `fallback-text` and never throw. Every other site
+rethrows the original error untouched on both branches.
 
 | Site | On `fallback-text` | On `retryable` |
 | :--- | :---------------- | :------------- |

@@ -81,8 +81,10 @@ packages/gramstax/
   <Step title="Open a PR">
     Two workflows run on push to `main`: `release.yml` typechecks and tests each
     package in its own matrix job, then lints, builds, and releases; `docs.yml`
-    regenerates the API reference, validates it with the Mintlify CLI, and commits
-    the result.
+    audits the prose against the source, audits the template blocks in the code
+    examples, regenerates the API reference, validates it with the Mintlify CLI
+    plus an accessibility check, and commits the result. The docs workflow
+    validates before it commits, so a failed run pushes nothing.
   </Step>
 </Steps>
 
@@ -175,6 +177,7 @@ changes nothing.
 | Stage             | Trigger                                            | What It Does                                                                                                                                                                                                                     |
 | ----------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Release           | `push` to `main` (`.github/workflows/release.yml`) | a `test` matrix job typechecks and tests each of the four packages; the `release` job then runs `lint:packages` + `build:packages`, decides whether a version is needed, runs `bun run dry-run`, upgrades npm for OIDC, and runs `bun run release` (Nx release, conventional-commits versioning, git tag `v{version}`, GitHub release). A manual `workflow_dispatch` with `publish_only` re-publishes the disk version without versioning. |
+| Docs              | `push` to `main` (`.github/workflows/docs.yml`)   | Audits the prose against the source (`node scripts/docs/audit-docs.mjs`) and the template blocks in the code examples (`node scripts/docs/audit-templates.mjs`) before anything is generated, regenerates the API reference with `bun run build:docs`, validates it with `mintlify validate` and `mintlify broken-links --check-anchors`, checks accessibility with `mintlify a11y`, and then commits the regenerated corpus. Validation runs before the commit, so a failed run pushes nothing. |
 | Revert on failure | `if: failure()`                                    | Deletes only the tag and GitHub release this run created, after proving the tag points at a commit made after the run started. It never rewrites history and never resets `main`; an already-published npm version is immutable and left for manual follow-up. |
 
 `nx.json` defines `release.projects: ["packages/*"]`, semver bumps from conventional commits, and a GitHub changelog. Release runs `nx release publish` per package.

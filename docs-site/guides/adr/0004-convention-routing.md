@@ -20,8 +20,8 @@ A bot receives many update kinds (text, commands, callback queries, photos, capt
 
 Route updates **by convention**, not by manual `bot.on` registration:
 
-- **Discovery**: `PageManager` (`src/page/manager.ts`) scans `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`), loads each file, and takes the **first named export** (no default export: `_getFile` throws if `mod[0]` is undefined, `manager.ts:56-63`).
-- **Route key**: a page's `name` is derived from the file/class; `Ctx.buildData` can override `intentText` / `intentCommandText` / `intentCallbackQueryData`.
+- **Discovery**: `PageManager` (`src/page/manager.ts`) scans `src/pages` (`getFilePath()` → `join(cwd,"src","pages")`), loads each file, and takes the first value export: `_getFile` reads `Object.values(mod)[0]` and does not filter out `default`, so a default-only module loads and the throw fires only when the module exports nothing at all (`manager.ts:45-52`).
+- **Route key**: a page's `name` is derived from the file/class; `Ctx.buildData` can override `intentText` / `intentCommandText`. The callback intent is derived from `name` and is not an input field.
 - **Handler methods**: each page declares optional `async handle*` methods on its `Ctx` subclass: `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleCallbackQueryData`, `handleArgsCallbackQueryData`, `handleFreeText`, the `handleSession*` and `handle*Caption*` variants, etc. (`src/core/ctx.ts`).
 - **Worker bots**: bots that only make raw API calls use `deploy: "raw"`, which
   skips page discovery entirely. An earlier `templateManager: {} as any`

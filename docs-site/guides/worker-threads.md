@@ -25,7 +25,7 @@ that a background thread is incrementing while the bot is up.
 ## Install
 
 It is a separate npm package, versioned and released with the framework (both
-are at `6.0.1`), and nothing in `gramstax` depends on it.
+are at `6.0.2`), and nothing in `gramstax` depends on it.
 
 ```bash
 bun add @gramstax/worker-thread
@@ -327,10 +327,12 @@ return value would have been.
 
 ## The rest of the package
 
-`@gramstax/worker-thread` exports 28 names across nine runtime modules, and the
-integration above touches thirteen of them. The package's own README is the
-complete reference for everything this page skipped: the gateway option tables in
-full, the pool dispatch modes, the RPC middleware chain, the constants
+`@gramstax/worker-thread` re-exports 27 names from its barrel, 11 runtime
+values and 16 type definitions, through the 9 runtime modules and the shared
+`types/` directory. The table above names the thirteen identifiers this
+integration touches. The package's own README is the complete reference for
+everything this page skipped: the gateway option tables in full, the pool
+dispatch modes, the RPC middleware chain, the constants
 (`DEFAULT_MAX_MESSAGE_SIZE`, `DENIED_RPC_METHODS`), and the per-module export
 index.
 

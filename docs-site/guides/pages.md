@@ -71,14 +71,18 @@ two handlers.
 
 ### What a page without `static data` gets
 
-`static data` is optional on `Ctx`, and a page that omits it still routes. The
-gap is runtime, not typing: `Ctx.data` is assigned through a cast
-(`this.constructor as unknown as {data: IPageData}`), and
-`IPageData.callbackQueryData` is non-optional, so
-`this.data.callbackQueryData(…)` typechecks on every page. On a page with no
-`static data` the property is `undefined`, and the call throws the first time a
-keyboard is built. Declare `static data = this.buildData()` on any page that
-wires callbacks.
+`static data` is optional on `Ctx`, and a page that omits it still routes and
+still has a working `callbackQueryData` at runtime, because the framework fills
+the gap: `Gramstax._pageBuildData` assigns `Page.data = Page.buildData()` and
+then fills the name and the intents from the file path.
+
+What is missing is only the static type. `Ctx` declares
+`static data?: IPageDataBase`, and `IPageDataBase` has no `callbackQueryData`
+member, so the instance property is typed through a cast
+(`this.constructor as unknown as {data: IPageData}`) and
+`this.data.callbackQueryData(…)` typechecks on every page. Declare
+`static data = this.buildData()` when you want a typed `callbackQueryData`
+signature, or when you want to override the derived name and intents.
 
 ### The three intents and where they default to
 
@@ -181,8 +185,9 @@ Three rules about the name:
 `handleCommandArgsText`. Both are on the same input format and they are different
 methods.
 
-The no-`Args` names match exactly; the `Args` names match by prefix, so
-`handleArgsText` also catches longer input after the separator.
+The no-`Args` names match the raw payload exactly; the `Args` names match the
+segment before the separator, also by exact lookup, so `handleArgsText` still
+catches `start counter` because the head is `start`.
 
 `handleCallbackQueryData` is the handler that makes `this.callbackQueryDataArg`
 and `this.callbackQueryDataArgs` meaningful, which is also why `renderText`

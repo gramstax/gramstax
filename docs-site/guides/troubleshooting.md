@@ -56,8 +56,10 @@ striped, is_compact)`), a missing one is listed (`<tg-emoji/> is missing
 required attribute(s): emoji-id`), and a bad value is quoted (`<tg-time> unix
 must be a positive integer (got "abc")`).
 
-An unknown filter is not an error: it renders empty and logs once per compile,
-with a prefix of `Unknown template filter "uppercase" in {{user.name|uppercase}}`.
+An unknown filter is not an error: it renders empty, the rest of that filter
+chain is skipped, and it warns through `console.warn` once per scope pass (a
+scope pass runs once per block and label, so the same filter in two blocks warns
+twice), with a prefix of `Unknown template filter "uppercase" in {{user.name|uppercase}}`.
 
 `<g-script>` and every `{~~ ... ~~}` scope compile to `with(data ...)`, which ESM
 forbids, so they work under `gramstax start` and hard-fail the build.
@@ -163,9 +165,10 @@ Unsupported cache storage URL "postgres://localhost/x". Use "memory", a "redis:/
 
 On the config side `cacheSession` is `{store, ttlMs?, namespace?}`, a module path
 string, or `{override: {module, export?, args?}}`, and nothing else. The lock is
-Redis only, and on a memory store the bot runs every update unlocked with one
-warning line as the only signal: a prefix of `sessionLock requires a Redis cache
-backend (got memory store)` from `packages/gramstax/src/core/bot.ts`.
+Redis only, and the check is `instanceof KeyvRedis`, so on the memory store or
+on any custom store the bot runs every update unlocked with one warning line as
+the only signal: a prefix of `sessionLock requires a Redis cache backend (got
+memory store)` from `packages/gramstax/src/core/bot.ts`.
 
 ### Deploy mode mistakes
 

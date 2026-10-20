@@ -33,7 +33,7 @@ the store is a plain object you own, and nothing about the page contract moves.
 </Columns>
 
 Install it next to `gramstax`. It is a separate npm package, versioned and
-released with the framework (both are at `6.0.1`), and nothing in `gramstax`
+released with the framework (both are at `6.0.2`), and nothing in `gramstax`
 depends on it, so a bot that never persists anything does not install it.
 
 ```bash
@@ -533,11 +533,12 @@ all three are documented in the package README.
 
 ## The rest of the package
 
-`@gramstax/lmdb` exports 68 names across 20 modules, and none of the other 55
-appear above. The package's own README is the complete reference for everything
-this page skipped: embedded indexes (`.unique()`, `.index()`, `.search()`),
-keyset pagination, TTL repositories, queues, backups, change data capture,
-differential sync, read-only replicas, and migrations.
+`@gramstax/lmdb` re-exports 68 names, 18 runtime values and 50 type definitions,
+through the 20 re-export paths in its barrel, and none of the other 60 appear
+above. The package's own README is the complete reference for everything this
+page skipped: embedded indexes (`.unique()`, `.index()`, `.search()`), keyset
+pagination, TTL repositories, queues, backups, change data capture, differential
+sync, read-only replicas, and migrations.
 
 - [`packages/lmdb/README.md`](https://github.com/gramstax/gramstax/blob/main/packages/lmdb/README.md)
   on GitHub, the full reference.

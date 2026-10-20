@@ -18,7 +18,7 @@ bun run build
 ```
 
 Regenerate after every pages/templates change. The edge layer is emitted,
-never hand-written (`WorkerEntry` emits `server/worker.js`, `LambdaEntry`
+never hand-written (`WorkerTarget` emits `server/worker.js`, `LambdaTarget`
 emits `server/lambda.js`); `.gramstax/` is gitignored build output
 consumed by the entries: never hand-edited.
 
@@ -162,7 +162,7 @@ dropped is reported per-slot at build time, with the reason, including under
 wrangler deploy --config <abs path>/.gramstax/server/wrangler.toml
 ```
 
-## 4b. Single-file bundle (`--bundle`, NOT recommended)
+## 4b. Single-file bundle (`--bundle`; not recommended for Cloudflare)
 
 Works for both targets. `--target cloudflare-mod --bundle` emits
 `server/bundle.js` and flips toml `main` to it; `--target aws-lambda-async
@@ -170,8 +170,11 @@ Works for both targets. `--target cloudflare-mod --bundle` emits
 `server/lambda.js` to `server/bundle.js`. Default (no flag) stays multi-file.
 
 <Warning>
-  Deprecated: prefer the multi-file output (debuggable, no stub tradeoffs). The
-  bundle exists only for single-file portability.
+  For `cloudflare-mod` the bundle is deprecated: prefer the multi-file output
+  (debuggable, no stub tradeoffs), and `WorkerTarget.emitBundle` is marked
+  `@deprecated Not recommended` in the source. For `aws-lambda-async` it is the
+  opposite: the bundle is the documented way to resolve TypeScript path refs,
+  because Node cannot import `.ts` itself.
 </Warning>
 
 **Lambda gains the most from it.** The unbundled `lambda.js` runs as-is, so a
@@ -235,7 +238,7 @@ Build:
 ```bash
 gramstax build --target aws-lambda-async
 # emits .gramstax/manifest.js + .gramstax/routes.json + .gramstax/gen/ + .gramstax/server/lambda.js
-# no `wrangler.toml`, no `bun-stub.ts`
+# no `wrangler.toml`; a `bun-stub.ts` appears alongside `bundle.js` only with `--bundle`
 ```
 
 Env vars:
@@ -245,7 +248,7 @@ Env vars:
 | `BOT_TOKEN` | Bot token (secret, never in a file) |
 | `BOT_DEPLOY` | `serverless` (with `optionsDeploy.serverless` keyed `aws-lambda-async`) |
 
-Handler: `.gramstax/server/lambda.js` (emitted by `LambdaEntry`) exports the
+Handler: `.gramstax/server/lambda.js` (emitted by `LambdaTarget`) exports the
 `handler`; wire it as the Lambda function handler. It auto-loads
 `.gramstax/` (fs fallback), so package `.gramstax/` with the function.
 

@@ -390,6 +390,11 @@ and for a `.html` file under `src/pages`:
     from another page fails in the page that pulled it.
   </Step>
 
+  <Step title="Index the base blocks">
+    `_processGBaseBlocks` walks the expanded template and indexes each
+    `<g-base>` by id, so the block compilers know which base they are in.
+  </Step>
+
   <Step title="Compile each block family">
     Fifteen `compileBlockG*` statics, one per `ICompiledTemplate` field:
     `media`, `poll`, `venue`, `dice`, `callbackAnswer`, `precheckoutError`,

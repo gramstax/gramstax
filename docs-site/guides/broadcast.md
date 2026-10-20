@@ -294,7 +294,8 @@ await this.renderText({broadcast: {ids, languageCode: langs}})
 
 The revise route has its own exclusion set, which is longer because it edits but
 takes none of the send options: `mode`, `options`, `captionOptions`,
-`editOptions`, `fallbackOptions` and `chunkSize`. Its `fallback` lives in
+`editOptions`, `fallbackOptions`, `chunkSize`, plus the two rich keys `rich`
+and `richOptions`, which are dead on every media route. Its `fallback` lives in
 `broadcast.reviseOptions.fallback`, not at the top level. See [the render
 contract](/concepts/render-contract) for the route atoms, and [Errors](/guides/errors)
 for what the runtime check throws when a plain-JS caller reaches it.

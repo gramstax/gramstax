@@ -78,7 +78,8 @@ guarantee. See [concurrency](/concepts/concurrency).
 
 Across instances, a Redis-backed `sessionLock` holds an atomic lease for the
 whole update dispatch, so two instances do not handle the same user's update at
-once. It is Redis only: on a memory store it is disabled with a warning. See
+once. It is Redis only: on any store that is not a `KeyvRedis` instance, the
+built-in `memory` store or a custom one, it is disabled with a warning. See
 [session lock](/guides/session-lock).
 
 ### What happens on deploy, and what can fail?
@@ -128,11 +129,13 @@ test. See [ADR-0006](/guides/adr/0006-in-process-e2e).
 ### Is it production ready?
 
 Judge the evidence rather than take a claim. The package is published and at
-6.0.1, it carries 118 unit test files under `packages/gramstax/test` plus a
+6.0.2, it carries 118 unit test files under `packages/gramstax/test` plus a
 per-example e2e suite, and every exported symbol has a generated API reference
 page. Against that: it is young, with a small user base, and the conventions are
-strict and machine-checked (no default exports, no `@ts-ignore`, `bun:test`
-only). `bunx create-gramstax` generates 9 page templates plus an e2e suite
+strict (no default exports, no `@ts-ignore`, `bun:test` only). The lint rules
+and the type checker enforce most of them; the rest are rules of thumb the
+toolchain does not police. `bunx create-gramstax` generates 9 page templates
+plus an e2e suite
 mirroring the page tree, the fastest way to judge the shape. See
 [ADR-0008](/guides/adr/0008-lint-export-dep-conventions).
 
@@ -146,10 +149,13 @@ model. See [deploy](/concepts/deploy).
 ### What is the license?
 
 Apache-2.0 for `gramstax`, `create-gramstax`, `@gramstax/lmdb` and
-`@gramstax/worker-thread`. Releases from `gramstax@0.3.20` onward are
-Apache-2.0; `gramstax@0.0.1` through `gramstax@0.3.19` were published under MIT
-and stay MIT, because that grant is perpetual. The scaffolded project template
-is MIT, so projects you generate keep the licence they came with. See
+`@gramstax/worker-thread`, but only from `6.0.0` onward. Before that,
+`gramstax` and `create-gramstax` were published under MIT from `0.0.1` through
+`0.3.19` and then under proprietary terms from `0.3.20` through `5.0.0`, while
+`@gramstax/lmdb` and `@gramstax/worker-thread` were proprietary from their
+first release (`0.9.0`) through `5.0.0`. The MIT grant stays MIT, because that
+grant is perpetual. The scaffolded project template is MIT, so projects you
+generate keep the licence they came with. See
 [migrating to v6](/guides/migrating-to-6).
 
 ### How do I contribute?

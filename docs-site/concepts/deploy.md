@@ -75,6 +75,13 @@ IAppManifest` to skip scanning. See [serverless deploy](/guides/serverless-deplo
 A bare `Bot` instance: no pages, no templates, no Gramstax routing, no
 auto-start. Write raw handlers on `bot.bot` and start it yourself.
 
+Raw is not a blank slate. By the time the branch is reached, the constructor has
+already mounted `autoRetry`, `stream()`, the rate limiter, the throttler,
+`hydrateFiles`, `bot.catch` and the `SIGINT`/`SIGTERM` handlers. What the branch
+skips is the page, template and routing setup, the built-in listeners and the
+deploy loop, and it calls `hookBeforeStart` only: `hookAfterStart` never fires,
+because nothing ever starts.
+
 This is the supported way to use gramstax as a dependency without adopting its
 model. The legacy `templateManager: {} as any` escape hatch was removed; using it
 outside raw mode now throws.

@@ -246,7 +246,7 @@ render.
     How a base and a language resolve to one compiled block.
   </Card>
   <Card title="Errors" icon="alert-triangle" href="/guides/errors">
-    `classifySendError`, the always-rethrow rule, and `hookSendError`.
+    `classifySendError`, the rethrow rule, and `hookSendError`.
   </Card>
   <Card title="Filters" icon="funnel" href="/guides/filters">
     Compile-time pipes for the `{{placeholders}}` in your answer text.

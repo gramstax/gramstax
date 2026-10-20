@@ -41,7 +41,7 @@ A page that defines none of the known names is not an error. It is a page with
 | :---- | :---------- | :-- | :----- |
 | `all` | every page | `data.name` | The class itself, used to construct one |
 | `routeStatic` | `listRouteStatic` names present on the prototype | the intent (`/command`, callback intent, text intent, or bare name) | Exact-match routes |
-| `routeStaticIntent` | `listRouteStaticIntent` names present on the prototype | the same intent, and `lang:intent` for text | Prefix routes with args |
+| `routeStaticIntent` | `listRouteStaticIntent` names present on the prototype | the same intent, and `lang:intent` for text | Arg routes, resolved on the segment before the separator and looked up exactly |
 | `routeStaticSession` | `listRouteStaticSession` names present on the prototype | the string returned by `methodSession<Base>(name)` | Armed sessions only |
 | `routeDynamicSpesific` | `handleFree*` found with `Object.hasOwn` | the listener name | Bucketed per listener |
 | `routeDynamic` | pages that define `handleFree` | page name | The global fallback |
@@ -101,7 +101,7 @@ fired, and works down this list. Every row runs at most once per update.
 | 0 | chat member | O(n) over `routeChatMember`, filtered by a precomputed predicate | `handleMyChatMemberOutAdmin` |
 | 1 | static session | O(x) keyed by `session.method`, filtered by listener | `handleSessionFreeText` |
 | 2 | static | O(1) exact lookup on the intent | `handleCommandText`, `handleCallbackQueryData` |
-| 3 | static intent | O(x) prefix match after the separator | `handleCommandArgsText`, `handleArgsCallbackQueryData` |
+| 3 | static intent | O(x) exact lookup of the segment before the separator | `handleCommandArgsText`, `handleArgsCallbackQueryData` |
 | 4 | dynamic specific | `handleFree*` defined on the page | `handleFreeText` |
 | 5 | dynamic global | the page's `handleFree()` | catch-all free updates |
 | 6 | custom routes | `registerCustomRoute` entries | app-defined listeners |
@@ -130,10 +130,13 @@ they iterate, and **every** matching handler runs, so two pages that both define
 
 Id 2 matches the raw payload exactly. Id 3 only runs when the payload contains a
 separator at all: callback data splits on `:`, everything else splits on a space,
-and the head of the split is looked up in `routeStaticIntent`. `handleArgs`
-therefore resolves on the prefix (`start/counter:I` matches intent
-`start/counter`), which is why a longer payload still reaches the same handler and
-the remainder is what `callbackQueryDataArg` and `msgTextArgs` hand you.
+and the head of the split is looked up in `routeStaticIntent`. The head is
+matched exactly, so `start/counter:I` matches intent `start/counter` because
+the head is `start/counter` itself, while a payload whose head is not a
+declared intent matches nothing. For text the
+first two segments joined by a space are tried as well, and both lookups fall
+back to the `lang:`- and `default:`-prefixed keys. The remainder is what
+`callbackQueryDataArg` and `msgTextArgs` hand you.
 
 ### Two exclusions worth knowing
 

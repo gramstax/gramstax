@@ -39,13 +39,18 @@ Lua compare-and-delete so a slow holder cannot delete the lease its successor
 now owns. It runs against the client underlying your session store, so there is
 no second connection to configure.
 
-That is the entire requirement: `cacheSession` must be Redis-backed. On the
-default `memory` store there is nothing to take a lease on, so the lock is not
-merely disabled. It logs at boot and every update runs unlocked:
+That is the entire requirement: `cacheSession` must be Redis-backed, and the
+check is `store instanceof KeyvRedis`. On the default `memory` store, and on any
+custom store, since neither is a `KeyvRedis`, there is nothing to take a lease
+on, so the lock is not merely disabled. It logs at boot and every update runs
+unlocked:
 
 ```text
 sessionLock requires a Redis cache backend (got memory store) — session lock disabled
 ```
+
+The message is not store-aware, so a custom store produces the same "memory
+store" wording.
 
 <Warning>
   Turning `sessionLock` on while `cacheSession` is `memory` buys you nothing.
